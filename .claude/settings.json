@@ -4,5 +4,17 @@
   },
   "permissions": {
     "defaultMode": "auto"
+  },
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "powershell -NoProfile -ExecutionPolicy Bypass -File \"C:\\Dev\\hashimotos-app\\scripts\\auto-commit.ps1\""
+          }
+        ]
+      }
+    ]
   }
 }
