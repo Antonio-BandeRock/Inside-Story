@@ -2,6 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import { useState, type ComponentProps } from 'react';
 import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, hexToRgba, iridescentSheen } from '../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
@@ -69,6 +70,7 @@ export function LensHub<T extends string>({
   onSelect: (key: T) => void;
 }) {
   const [open, setOpen] = useState(false);
+  const insets = useSafeAreaInsets();
   const { bottom: buttonBottom, left: buttonLeft } = useBottomLeftHubPosition();
   // Falls back to the brand teal/list icon only if a page ever passes a
   // pageTitle with no TAB_ROUTES match -- shouldn't happen in practice, but
@@ -136,6 +138,9 @@ export function LensHub<T extends string>({
               })}
             </View>
           </View>
+          {/* Defensive fix, same as TabHub's own Modal -- see its comment
+              for why navigationBarTranslucent alone isn't trusted here. */}
+          <View style={[styles.navBarMask, { height: insets.bottom }]} pointerEvents="none" />
         </View>
       </Modal>
     </>
@@ -165,6 +170,13 @@ const styles = StyleSheet.create({
     elevation: 6,
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },
+  navBarMask: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.background,
+  },
   card: {
     position: 'absolute',
     backgroundColor: colors.surface,

@@ -259,6 +259,18 @@ export function TabHub() {
               </Text>
             </TouchableOpacity>
           </View>
+          {/* Defensive fix, 2026-07-25: navigationBarTranslucent (above) is
+              supposed to let the real Activity's own dark colors.background
+              show through behind the nav bar, but Android's Dialog-based
+              Modal doesn't reliably composite that in the system-bar-inset
+              strip itself -- reported as that strip turning solid black
+              specifically while this menu is open, on a 3-button (not
+              gesture) nav bar. Rather than depend on that compositing being
+              correct, this paints real colors.background pixels there
+              directly, so it's right regardless of what Android does
+              underneath. pointerEvents: 'none' -- purely cosmetic, must
+              never intercept a tap meant for the OS's own nav buttons. */}
+          <View style={[styles.navBarMask, { height: insets.bottom }]} pointerEvents="none" />
         </View>
       </Modal>
 
@@ -301,6 +313,15 @@ const styles = StyleSheet.create({
     // closer look at this area.
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },
+  // `height` set inline (insets.bottom) -- see the comment where this is
+  // rendered.
+  navBarMask: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.background,
+  },
   // A compact card anchored to the left edge -- same small icon/label
   // sizing as before, wrapped into a tight 3-column grid with minimal
   // padding so the whole group of icons sits close together.

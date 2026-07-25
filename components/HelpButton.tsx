@@ -72,6 +72,10 @@ export function HelpSheet({
         >
           <Ionicons name="close" size={28} color={colors.textOnPrimary} />
         </TouchableOpacity>
+
+        {/* Defensive fix, same as TabHub's own Modal -- see its comment for
+            why navigationBarTranslucent alone isn't trusted here. */}
+        <View style={[styles.navBarMask, { height: insets.bottom }]} pointerEvents="none" />
       </View>
     </Modal>
   );
@@ -109,6 +113,13 @@ const styles = StyleSheet.create({
   },
   backdropTouchable: {
     flex: 1,
+  },
+  navBarMask: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: colors.background,
   },
   panel: {
     backgroundColor: colors.surface,
