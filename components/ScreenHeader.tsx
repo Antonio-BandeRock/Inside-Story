@@ -2,7 +2,6 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
 import { getUserProfile } from '../lib/db';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import type { HelpSection } from './HelpButton';
@@ -122,12 +121,15 @@ const styles = StyleSheet.create({
   nameStack: {
     alignItems: 'center',
   },
-  // Larger than before (was 13, matching the now-removed page title) --
-  // this is the one thing left in the header, so it gets to be the
-  // header's own biggest text rather than sized to match a sibling that
-  // no longer exists.
+  // Its own style now, not typography.eyebrow (bold, uppercase,
+  // letter-spaced -- deliberately blunt/structural, meant for column
+  // headers and section labels, not the app's own name). Nunito SemiBold
+  // (2026-07-25, loaded in app/_layout.tsx) in the string's own natural
+  // case ("Tony's Inside Story", not forced uppercase) reads warmer, which
+  // is the point of this text -- it's personalization/branding, not a
+  // structural label.
   appName: {
-    ...typography.eyebrow,
+    fontFamily: 'Nunito_600SemiBold',
     fontSize: 20,
     color: colors.primary,
   },
