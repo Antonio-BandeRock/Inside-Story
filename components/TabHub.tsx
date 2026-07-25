@@ -290,14 +290,15 @@ const styles = StyleSheet.create({
   butterflyImage: {
     width: BUTTERFLY_WIDTH,
     height: BUTTERFLY_HEIGHT,
-    // Experimental nudge, 2026-07-26, now -2px: the asset itself measures
-    // centered to within 1px out of 1606 (as close to exact as an image
-    // can be), and the container it sits in has no asymmetric
-    // padding/margin either -- the remaining perceived offset is most
-    // likely the OS nav bar's own square button not being exactly
-    // centered on the physical screen, not this component. Nudged purely
-    // to see how it looks, not because there's a known bug to fix here.
-    transform: [{ translateX: -2 }],
+    // No transform/nudge -- removed 2026-07-25. The -2px leftward nudge
+    // that used to be here was always experimental ("just to see," not a
+    // fix for a diagnosed bug -- pixel analysis at the time had already
+    // shown the asset itself centered to within 1px, and attributed the
+    // remaining perceived offset to the OS's own nav-bar button, not this
+    // component). Removed because it's a real, deliberate leftward shift
+    // with no bug behind it, and was reported as making the button look
+    // off-center to the left after an unrelated header change drew a
+    // closer look at this area.
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },
   // A compact card anchored to the left edge -- same small icon/label
