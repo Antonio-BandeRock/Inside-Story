@@ -1,6 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { getUserProfile } from '../lib/db';
 import { useCurrentPageHelp } from './CurrentPageHelp';
@@ -46,6 +47,7 @@ export function ScreenHeader({
   tabPath?: string;
 }) {
   const [firstName, setFirstName] = useState<string | null>(null);
+  const insets = useSafeAreaInsets();
   const { setCurrentHelp, setActiveTabPath } = useCurrentPageHelp();
 
   // Refetched on every focus (not just once on mount) so editing your name
@@ -84,7 +86,14 @@ export function ScreenHeader({
   );
 
   return (
-    <View style={styles.container}>
+    // paddingTop: insets.top -- real safe-area clearance for the status
+    // bar (the app draws edge-to-edge on Android, see app.json's
+    // edgeToEdgeEnabled), not the flat 25px guess this used to be. That
+    // guess happened to be close to a typical status bar height, which is
+    // exactly why shrinking the header (see `row` below) didn't get far
+    // just by cutting this number -- it's a hard minimum, not slack to
+    // trim; the real reduction had to come out of `row`'s own padding.
+    <View style={{ paddingTop: insets.top }}>
       <View style={styles.row}>
         <View style={styles.nameStack}>
           {/* "MY" is a placeholder for when no first name is set in
@@ -105,18 +114,18 @@ export function ScreenHeader({
 }
 
 const styles = StyleSheet.create({
-  container: {
-    marginTop: 25,
-  },
-  // Centered both ways now that this is the only thing in the row --
-  // paddingVertical gives the centered text real room to sit in, rather
-  // than the row just shrinking to exactly the text's own height (which
-  // would make "centered" technically true but visually meaningless).
+  // 2026-07-25: reduced roughly a quarter overall, now that this text is
+  // the only thing in the header -- paddingVertical cut from 18 to 6 (the
+  // biggest lever available, since the safe-area clearance above can't
+  // shrink further and the text itself is growing, not shrinking).
+  // alignItems/justifyContent: 'center' re-centers automatically as this
+  // shrinks -- flexbox centering doesn't need manual re-tuning when the
+  // box around it changes size, only when the *alignment rule* changes.
   row: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingVertical: 18,
+    paddingVertical: 6,
   },
   nameStack: {
     alignItems: 'center',
@@ -127,10 +136,11 @@ const styles = StyleSheet.create({
   // (2026-07-25, loaded in app/_layout.tsx) in the string's own natural
   // case ("Tony's Inside Story", not forced uppercase) reads warmer, which
   // is the point of this text -- it's personalization/branding, not a
-  // structural label.
+  // structural label. Sized up again the same day (20 -> 26) now that it's
+  // the header's one and only piece of content.
   appName: {
     fontFamily: 'Nunito_600SemiBold',
-    fontSize: 20,
+    fontSize: 26,
     color: colors.primary,
   },
   divider: {
