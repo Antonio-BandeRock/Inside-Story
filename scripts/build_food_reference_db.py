@@ -1,0 +1,2087 @@
+"""
+Transforms hashimotos_foods_combined_scored_and_nutrients_LIVE.xlsx into a
+compact reference SQLite database for the Inside Story app.
+
+Deliberately extracts only: identity (food_id, source, source_code, name,
+short_name, category, botanical classification) and the 31 real D1-D6
+six-dimension score columns. Does NOT import the ~750 raw per-source
+nutrient columns per sheet -- those are inconsistent across sources and not
+needed by anything currently designed in the app; pulling them in safely
+would be its own separate, scoped task.
+
+Pure standard library (zipfile + xml.etree) -- no openpyxl/pandas available
+in this environment. Re-runnable: drop the output file and re-run any time
+the source workbook is updated.
+
+Usage:
+  py scripts/build_food_reference_db.py <path-to-LIVE.xlsx> assets/data/foods_reference.db
+"""
+
+import datetime
+import re
+import sqlite3
+import sys
+import zipfile
+from xml.etree import ElementTree as ET
+
+NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
+R_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
+REL_NS = {"r": "http://schemas.openxmlformats.org/package/2006/relationships"}
+
+SKIP_SHEETS = {"Botanical_Classification", "ChangeLog"}
+
+# A handful of rows the source project's own category unification put in the
+# wrong top-level bucket -- real prepared dishes/soup mixes that ended up in
+# Vegetables instead of Mixed (Prepared/Mixed Dishes), where 366 other real
+# dishes already correctly live. Checked by hand, not a keyword rule: a
+# broader "contains stew/soup/chili" scan produces false positives here
+# (e.g. "Peppers, hot chili" is a pepper variety, "Okra (gumbo)" is just
+# Canada's alternate name for okra, not the Louisiana dish). Keyed on
+# (category_code, base_name) after prep-stripping; extend by hand if more
+# turn up rather than widening this into a keyword scan.
+CATEGORY_OVERRIDES = {
+    ("Veg", "Acorn stew (Apache)"): "Mixed",
+    ("Veg", "Cream of mushroom soup instant powder"): "Mixed",
+    ("Veg", "Cream of mushroom soup, made from instant powder and water"): "Mixed",
+    ("Veg", "Cream of vegetable soup instant powder"): "Mixed",
+    ("Veg", "Cream of vegetable soup, made from instant powder and water"): "Mixed",
+    # Real prepared dishes, checked by hand -- "salad" alone is not a safe
+    # keyword: "Cornsalad"/"Rocket salad" are real leafy-green vegetable
+    # names (Canada's own data literally labels Cornsalad "(lamb's
+    # lettuce)"), and French "salade" often just means lettuce, not a
+    # dressed dish (confirmed against "Salade verte...sans assaisonnement" =
+    # "green salad/lettuce, raw, without seasoning").
+    ("Veg", "Coleslaw (cabbage salad), with dressing"): "Mixed",
+    ("Veg", "Potato salad, home-prepared"): "Mixed",
+    ("Veg", "Potato salad, homemade"): "Mixed",
+    ("Veg", "Salade de fruits"): "Mixed",
+    ("Veg", "Macédoine ou cocktail ou salade de fruits, au sirop"): "Mixed",
+    ("Veg", "Macédoine ou cocktail ou salade de fruits, au sirop (sans précision sur léger ou classique)"): "Mixed",
+    ("Veg", "Macédoine ou cocktail ou salade de fruits, au sirop léger"): "Mixed",
+    # Actual fungi (mushrooms), not vegetables -- confirmed against the same
+    # species/genus already correctly bucketed as "Mushroom" elsewhere in the
+    # data: USDA's "Fungi, Cloud ears" gives its own scientific_classification
+    # as "Auricularia spp." (a fungus genus) yet sits in Veg, while
+    # Japan_MEXT and Canada_CNF both correctly file the identical
+    # cloud-ear/wood-ear fungus under Mushroom. "Jew's ear" is the same
+    # species under a different common name. Birch boletes (Germany_BLS) are
+    # real wild bolete mushrooms, not vegetables.
+    ("Veg", "Fungi, Cloud ears"): "Mushroom",
+    ("Veg", "Jew's ear, (pepeao)"): "Mushroom",
+    ("Veg", "Jew's ear (cloud or wood ear, pepeao)"): "Mushroom",
+    ("Veg", "Brown birch bolete"): "Mushroom",
+    ("Veg", "Orange birch bolete"): "Mushroom",
+    # A prepared curry dish (mushroom-based), not a raw ingredient.
+    ("Veg", "Mushroom Dopiaza"): "Mixed",
+    # Multi-vegetable combination products -- a mix of distinct vegetable
+    # species sold/prepared as one item, same reasoning as the soup/salad
+    # dishes above rather than a single vegetable in its own right.
+    ("Veg", "Peas and carrots"): "Mixed",
+    ("Veg", "Peas and onions"): "Mixed",
+    ("Veg", "Succotash, (corn and limas)"): "Mixed",
+    ("Veg", "Succotash"): "Mixed",
+    ("Veg", "Mixed vegetables peas and carrots"): "Mixed",
+    ("Veg", "Mixed vegetables (carrots"): "Mixed",  # source short name truncated at first comma
+    ("Veg", "Vegetables, mixed"): "Mixed",
+    ("Veg", "Vegetables, broccoli and cauliflower"): "Mixed",
+    ("Veg", "Corn with red and green peppers"): "Mixed",
+    ("Veg", "Corn with red or green peppers"): "Mixed",
+    # Explicitly "mature" (dry, mature-seed) beans are legumes/pulses, not
+    # vegetables -- confirmed by comparing against Germany_BLS's own other
+    # entries: "Broad bean mature" already correctly sits in Legume while
+    # these two sat in Veg, an inconsistency within the same source. (Most
+    # other "Bean..." rows in Veg -- snap beans, sprouted beans, immature/
+    # fresh pod beans like "Broad bean immature" -- are correctly there:
+    # fresh/immature pods and sprouts are conventionally vegetables, only
+    # the dry mature seed is a pulse. Checked by hand, not a keyword rule,
+    # since "mature" alone is not a safe signal -- see the sprouted-bean
+    # rows above, which also say "mature seeds" but are correctly Veg.)
+    ("Veg", "Lima bean/butter bean, mature"): "Legume",
+    ("Veg", "Soya bean mature"): "Legume",
+    # Sprouted seeds/legumes are conventionally treated as vegetables (the
+    # same convention already applied consistently to sprouted alfalfa,
+    # beans, peas, radish, etc. across every other source) -- Germany_BLS
+    # and Australia_AFCD are the inconsistent cases, filing their own
+    # sprouted lentils/mung beans/soya beans/alfalfa/generic bean sprouts
+    # under Legume while every parallel entry from every other source sits
+    # in Veg. Keyed on the post-rename name (see rename_sprout below,
+    # applied earlier in the pipeline than this lookup).
+    ("Legume", "Lentil Sprouts (Microgreens)"): "Veg",
+    ("Legume", "Mung Bean Sprouts (Microgreens)"): "Veg",
+    ("Legume", "Soya Bean Sprouts (Microgreens)"): "Veg",
+    ("Legume", "Bean Sprouts (Microgreens)"): "Veg",
+    ("Legume", "Lucerne/Alfalfa Sprouts (Microgreens)"): "Veg",
+}
+
+# The rest of the dataset already names most bean varieties type-first
+# ("Kidney beans", "Lima bean/butter bean"), but USDA/Canada/UK/Australia
+# instead store many as "Beans, kidney" / "Bean, red kidney" -- normalize
+# those to the same type-first convention. Deliberately skips any base_name
+# containing "(" so a parenthetical qualifier never gets torn apart or
+# reordered into something wrong (e.g. "Beans, winged (goa beans)"), and
+# skips the one clearly non-type entry ("Beans, legumes" is a miscellaneous
+# bucket, not itself a bean type).
+BEAN_RENAME_EXCLUDE = {
+    "Beans, legumes",
+}
+
+
+def _titleize_first_letters(text):
+    return " ".join(word[0].upper() + word[1:] if word else word for word in text.split(" "))
+
+
+def rename_bean_type_first(base_name):
+    if not base_name or base_name in BEAN_RENAME_EXCLUDE or "(" in base_name:
+        return base_name
+
+    match = re.match(r"^(Beans?), (.+)$", base_name)
+    if not match:
+        return base_name
+
+    bean_word, type_part = match.group(1), match.group(2).strip()
+    if not type_part:
+        return base_name
+
+    return f"{_titleize_first_letters(type_part)} {bean_word}"
+
+
+# Sprouted seeds/beans/legumes eaten as fresh shoots -- a special vegetable
+# sub-category (microgreens), but a vegetable nonetheless, so these stay in
+# Veg and are just tagged "(Microgreens)" rather than moved anywhere.
+# Normalizes the mix of "X seeds, sprouted" / "Sprout, X" / "Bean sprouts, X
+# sprouts" source phrasings into a consistent "X Sprouts (Microgreens)"
+# naming, hand-verified so real unrelated vegetables that happen to contain
+# "sprout" (Brussels sprouts is a totally different plant, not a sprouted
+# seed) are never touched.
+SPROUT_RENAMES = {
+    "Alfalfa seeds, sprouted": "Alfalfa Sprouts (Microgreens)",
+    "Sprout, alfalfa": "Alfalfa Sprouts (Microgreens)",
+    "Bean sprouts, alfalfa sprouts": "Alfalfa Sprouts (Microgreens)",
+    "Lucerne/alfalfa sprouts": "Lucerne/Alfalfa Sprouts (Microgreens)",
+    "Broccoli, sprouts": "Broccoli Sprouts (Microgreens)",
+    "Radish seeds, sprouted": "Radish Sprouts (Microgreens)",
+    "Lentils, sprouted": "Lentil Sprouts (Microgreens)",
+    "Lentils sprouted": "Lentil Sprouts (Microgreens)",
+    "Peas, sprouts": "Pea Sprouts (Microgreens)",
+    "Bean sprouts, black gram sprouts": "Black Gram Sprouts (Microgreens)",
+    "Bean sprouts, mung bean sprouts": "Mung Bean Sprouts (Microgreens)",
+    "Bean sprouts, soybean sprouts": "Soybean Sprouts (Microgreens)",
+    "Beansprouts, mung": "Mung Bean Sprouts (Microgreens)",
+    "Mung bean sprouts": "Mung Bean Sprouts (Microgreens)",
+    "Soya bean sprouts": "Soya Bean Sprouts (Microgreens)",
+    "Sprout, bean": "Bean Sprouts (Microgreens)",
+    "Water pepper sprouts": "Water Pepper Sprouts (Microgreens)",
+}
+
+# A handful of sprouted foods share their base_name with that same food's
+# dry/mature form, because the source's own pre-cleaned short_name field
+# doesn't isolate "sprouted" as its own clause (e.g. "Peas, mature seeds"
+# covers both dry peas AND pea sprouts under one base_name; "Kidney Beans"
+# covers both dry kidney beans and sprouted kidney beans). Found by hand, a
+# full sweep for every base_name with both a Veg "sprouted" row and a
+# same-named row in another category -- not a broad keyword rule. Only the
+# rows whose *full* name actually contains "sprouted" get redirected;
+# everything else under that base_name (the real dry/mature-seed food, or a
+# genuinely different fresh/immature form like immature pinto beans) is
+# untouched.
+SPROUTED_VARIANT_SPLITS = {
+    "Peas, mature seeds": "Pea Sprouts (Microgreens)",
+    "Mung beans, mature seeds": "Mung Bean Sprouts (Microgreens)",
+    "Soybeans, mature seeds": "Soybean Sprouts (Microgreens)",
+    "Mung Beans": "Mung Bean Sprouts (Microgreens)",
+    "Kidney Beans": "Kidney Bean Sprouts (Microgreens)",
+    "Navy Beans": "Navy Bean Sprouts (Microgreens)",
+    "Pinto Beans": "Pinto Bean Sprouts (Microgreens)",
+}
+
+
+def rename_sprout(base_name, full_name):
+    split_target = SPROUTED_VARIANT_SPLITS.get(base_name)
+    if split_target and full_name and "sprouted" in full_name.lower():
+        return split_target
+    return SPROUT_RENAMES.get(base_name, base_name)
+
+
+# --- Raw nutrient import (Phase 1: the "standard panel") -------------------
+#
+# The source workbook has ~750 raw per-source nutrient columns per sheet
+# beyond the D1-D6 scores, unioned across all 7 national databases into one
+# wide header row shared identically by every sheet (verified: US_Veg and
+# DE_Veg headers are byte-for-byte identical). Each food's own row only
+# populates the columns belonging to its own source; the rest are blank.
+#
+# Phase 1 imports only a hand-verified "standard panel" -- the nutrients
+# that recur across most/all sources under directly comparable names and
+# units (confirmed by sampling real populated rows from every source, not
+# just reading header text): energy, macros, the common vitamins, and the
+# common minerals, plus iodine since it's directly relevant to this app's
+# own D1 Iodine scoring dimension. Deliberately excludes the much larger
+# deep-detail tiers (individual amino acids, the ~150-200 column fatty-acid
+# breakdown by exact chain length, sugar alcohols, organic acids, plant
+# sterols, pigments, heavy-metal contaminant columns) -- those are real
+# data too, just a much bigger mapping effort with more cross-source
+# comparability risk (e.g. "Vitamin D (D2+D3) total" vs "25-hydroxy vitamin
+# D3", a different metabolite-level measurement, are NOT interchangeable
+# despite both containing "vitamin D"). Nothing about this schema forecloses
+# adding those later -- food_nutrients is a normalized (food_id,
+# nutrient_code, amount) table, not fixed columns, so a Phase 2 is purely
+# additive: new rows in `nutrients`, no migration.
+#
+# A few nutrients have more than one alias column because the source
+# workbook's own column-union process created near-duplicate headers
+# (different capitalization/spacing) for the same measurement rather than
+# merging them -- confirmed by sampling rows where both aliases are
+# populated with the identical value (e.g. Australia_AFCD's avocado row has
+# both "Vitamin E  (mg) (mg)" = 1.8 and "Vitamin E (alpha-tocopherol) (MG)"
+# = 1.8). Listed in priority order; the first populated one wins.
+NUTRIENT_DEFINITIONS = [
+    # (code, display_name, unit, group)
+    ("energy_kcal", "Energy", "kcal", "macro"),
+    ("protein", "Protein", "g", "macro"),
+    ("fat_total", "Total Fat", "g", "macro"),
+    ("carbohydrate", "Carbohydrate", "g", "macro"),
+    ("fiber_total", "Fiber", "g", "macro"),
+    ("sugars_total", "Total Sugars", "g", "macro"),
+    ("fat_saturated", "Saturated Fat", "g", "macro"),
+    ("fat_monounsaturated", "Monounsaturated Fat", "g", "macro"),
+    ("fat_polyunsaturated", "Polyunsaturated Fat", "g", "macro"),
+    ("cholesterol", "Cholesterol", "mg", "macro"),
+    ("vitamin_a", "Vitamin A", "µg RAE", "vitamin"),
+    ("vitamin_c", "Vitamin C", "mg", "vitamin"),
+    ("vitamin_d", "Vitamin D", "µg", "vitamin"),
+    ("vitamin_e", "Vitamin E", "mg", "vitamin"),
+    ("vitamin_k", "Vitamin K", "µg", "vitamin"),
+    ("thiamin_b1", "Thiamin (B1)", "mg", "vitamin"),
+    ("riboflavin_b2", "Riboflavin (B2)", "mg", "vitamin"),
+    ("niacin_b3", "Niacin (B3)", "mg", "vitamin"),
+    ("pantothenic_acid_b5", "Pantothenic Acid (B5)", "mg", "vitamin"),
+    ("vitamin_b6", "Vitamin B6", "mg", "vitamin"),
+    ("biotin_b7", "Biotin (B7)", "µg", "vitamin"),
+    ("folate_b9", "Folate (B9)", "µg", "vitamin"),
+    ("vitamin_b12", "Vitamin B12", "µg", "vitamin"),
+    ("calcium", "Calcium", "mg", "mineral"),
+    ("iron", "Iron", "mg", "mineral"),
+    ("magnesium", "Magnesium", "mg", "mineral"),
+    ("phosphorus", "Phosphorus", "mg", "mineral"),
+    ("potassium", "Potassium", "mg", "mineral"),
+    ("sodium", "Sodium", "mg", "mineral"),
+    ("zinc", "Zinc", "mg", "mineral"),
+    ("copper", "Copper", "mg", "mineral"),
+    ("manganese", "Manganese", "mg", "mineral"),
+    ("selenium", "Selenium", "µg", "mineral"),
+    ("iodine", "Iodine", "µg", "mineral"),
+]
+
+NUTRIENT_COLUMN_ALIASES = {
+    "energy_kcal": ["Energy (KCAL)"],
+    "protein": ["Protein (G)"],
+    "fat_total": ["Total lipid (fat) (G)"],
+    "carbohydrate": ["Carbohydrate, by difference (G)"],
+    "fiber_total": ["Fiber, total dietary (G)"],
+    "sugars_total": ["Sugars, Total (G)"],
+    "fat_saturated": ["Fatty acids, total saturated (G)"],
+    "fat_monounsaturated": ["Fatty acids, total monounsaturated (G)"],
+    "fat_polyunsaturated": ["Fatty acids, total polyunsaturated (G)"],
+    "cholesterol": ["Cholesterol (MG)"],
+    "vitamin_a": ["Vitamin A, RAE (UG)"],
+    "vitamin_c": ["Vitamin C, total ascorbic acid (MG)"],
+    "vitamin_d": ["Vitamin D (D2 + D3) (UG)", "VITAMIN D (D2 + D3) (µg)"],
+    "vitamin_e": ["Vitamin E (alpha-tocopherol) (MG)", "Vitamin E (mg) (mg)"],
+    "vitamin_k": ["Vitamin K (phylloquinone) (UG)", "Vitamin K (µg/100 g)"],
+    "thiamin_b1": ["Thiamin (MG)"],
+    "riboflavin_b2": ["Riboflavin (MG)"],
+    "niacin_b3": ["Niacin (MG)"],
+    "pantothenic_acid_b5": ["Pantothenic acid (MG)"],
+    "vitamin_b6": ["Vitamin B-6 (MG)"],
+    "biotin_b7": ["Biotin (µg)", "Biotin (B7) (ug) (ug)"],
+    "folate_b9": ["Folate, total (UG)"],
+    "vitamin_b12": ["Vitamin B-12 (UG)"],
+    "calcium": ["Calcium, Ca (MG)"],
+    "iron": ["Iron, Fe (MG)"],
+    "magnesium": ["Magnesium, Mg (MG)"],
+    "phosphorus": ["Phosphorus, P (MG)"],
+    "potassium": ["Potassium, K (MG)"],
+    "sodium": ["Sodium, Na (MG)"],
+    "zinc": ["Zinc, Zn (MG)"],
+    "copper": ["Copper, Cu (MG)"],
+    "manganese": ["Manganese, Mn (MG)"],
+    "selenium": ["Selenium, Se (UG)"],
+    "iodine": ["Iodine (µg)"],
+}
+
+# --- Physiology knowledge base -----------------------------------------
+# Independently researched (not derived from the foods spreadsheet):
+# how nutrients/hydration interact with each other, and how their
+# deficiency/excess affects body systems. First content slice per user
+# direction: electrolytes & bioelectric function (sodium, potassium,
+# calcium, magnesium, hydration). Every row below carries a real citation
+# gathered and verified via WebSearch/WebFetch, and an honest
+# evidence_strength tag rather than a uniform "established" claim.
+
+BODY_SYSTEMS = [
+    # (code, display_name, description)
+    ("neuromuscular_bioelectric", "Neuromuscular & Bioelectric Function",
+     "Resting membrane potential, nerve signal transmission, and muscle contraction/relaxation."),
+    ("cardiovascular", "Cardiovascular / Cardiac Rhythm",
+     "Heart rhythm and conduction, blood pressure regulation."),
+    ("urinary_function", "Urinary & Kidney Function",
+     "Water/electrolyte reabsorption and excretion by the kidneys."),
+    ("bowel_function", "Bowel / Digestive Function",
+     "Intestinal water balance and motility."),
+    ("mood_anxiety", "Mood & Anxiety",
+     "Emotional regulation and anxiety symptoms."),
+    ("sleep", "Sleep",
+     "Sleep onset, quality, and duration."),
+]
+
+# (nutrient_a, nutrient_b, interaction_type, summary, population_scope, citation)
+NUTRIENT_INTERACTIONS = [
+    (
+        "sodium", "potassium", "cofactor",
+        "Sodium and potassium are actively exchanged across every cell membrane by the "
+        "Na+/K+-ATPase pump (3 Na+ pumped out, 2 K+ pumped in per cycle), which "
+        "establishes the resting membrane potential that all nerve and muscle "
+        "signaling depends on. The two minerals cannot be assessed independently of "
+        "each other for bioelectric purposes -- it is the ratio/gradient, not either "
+        "value alone, that matters.",
+        "general",
+        "Na+/K+-ATPase mechanism; standard physiology (e.g. Boron & Boulpaep, Medical Physiology).",
+    ),
+    (
+        "magnesium", "sodium", "cofactor",
+        "The Na+/K+-ATPase pump requires magnesium bound to ATP (Mg-ATP) as its "
+        "obligate cofactor. Magnesium deficiency impairs the pump directly, which can "
+        "cause intracellular potassium loss and sodium accumulation independent of "
+        "dietary sodium or potassium intake.",
+        "general",
+        "Ryan MP, 'Magnesium and potassium deficiency,' Kidney Int Suppl. 1987; "
+        "PMID 28124894 (magnesium as Na+/K+-ATPase cofactor).",
+    ),
+    (
+        "magnesium", "potassium", "cofactor",
+        "Because magnesium is required for the Na+/K+-ATPase pump to hold potassium "
+        "inside cells, magnesium deficiency commonly presents as, and can make "
+        "refractory to correction, low potassium -- potassium replacement alone often "
+        "fails until magnesium is also corrected.",
+        "general",
+        "PMID 28124894.",
+    ),
+    (
+        "calcium", "magnesium", "regulatory",
+        "Calcium and magnesium share the same parathyroid-hormone (PTH) / vitamin D "
+        "regulatory loop: low blood calcium triggers PTH release, which raises "
+        "calcium and drives production of active vitamin D. Magnesium deficiency "
+        "blunts both PTH secretion and the tissue response to it, so a magnesium "
+        "deficiency can present clinically as a calcium problem.",
+        "general",
+        "StatPearls, 'Physiology, Parathyroid Hormone,' NBK499940.",
+    ),
+    (
+        "sodium", "hydration", "regulatory",
+        "Blood sodium concentration is the primary signal osmoreceptors use to "
+        "trigger (or suppress) ADH/vasopressin release from the pituitary, which "
+        "controls how much water the kidneys reabsorb via aquaporin-2 channels. "
+        "Sodium and water balance are therefore regulated as a single system, not "
+        "independently.",
+        "general",
+        "Bankir L et al., 'Vasopressin: a novel target for the prevention and "
+        "retardation of kidney disease?,' Nat Rev Nephrol; PMID 30252325.",
+    ),
+]
+
+# (nutrient, status, body_system, effect_summary, evidence_strength, population_scope, citation)
+NUTRIENT_SYSTEM_EFFECTS = [
+    # --- Sodium ---
+    (
+        "sodium", "deficiency", "neuromuscular_bioelectric",
+        "Low blood sodium (hyponatremia) reduces the resting membrane potential "
+        "gradient, which can cause muscle weakness, cramping, confusion, and in "
+        "severe cases seizures.",
+        "established", "general",
+        "Standard clinical physiology; Na+/K+-ATPase mechanism.",
+    ),
+    (
+        "sodium", "excess", "cardiovascular",
+        "Chronic high sodium intake is linked to elevated blood pressure and, in "
+        "recent research, may also drive Th17 autoimmune-type immune activity.",
+        "established", "general",
+        "Wu C et al., 'Induction of pathogenic Th17 cells by inducible salt-sensing "
+        "kinase SGK1,' Nature 2013.",
+    ),
+    (
+        "sodium", "deficiency", "urinary_function",
+        "The kidneys and ADH system respond to low sodium by adjusting water "
+        "reabsorption; severe or rapid sodium depletion can overwhelm this "
+        "regulation and contribute to dangerously low blood sodium.",
+        "established", "general",
+        "PMID 30252325.",
+    ),
+    # --- Potassium ---
+    (
+        "potassium", "deficiency", "cardiovascular",
+        "Low blood potassium (hypokalemia) increases the risk of cardiac "
+        "tachyarrhythmias, including torsade de pointes in severe cases, because "
+        "resting membrane potential and cardiac repolarization both depend on "
+        "normal potassium gradients.",
+        "established", "general",
+        "Standard clinical cardiology/physiology.",
+    ),
+    (
+        "potassium", "excess", "cardiovascular",
+        "High blood potassium (hyperkalemia) can cause bradyarrhythmia and cardiac "
+        "conduction block, up to cardiac arrest in severe, untreated cases.",
+        "established", "general",
+        "Standard clinical cardiology/physiology.",
+    ),
+    (
+        "potassium", "deficiency", "neuromuscular_bioelectric",
+        "Potassium deficiency impairs the resting membrane potential the same pump "
+        "system relies on, producing muscle weakness and, if severe, paralysis.",
+        "established", "general",
+        "Na+/K+-ATPase mechanism.",
+    ),
+    # --- Calcium ---
+    (
+        "calcium", "deficiency", "neuromuscular_bioelectric",
+        "Calcium ions trigger neurotransmitter release at nerve synapses and, via "
+        "the troponin-tropomyosin mechanism, initiate muscle fiber contraction. Low "
+        "blood calcium classically causes muscle cramping, tingling, and tetany.",
+        "established", "general",
+        "Standard physiology; voltage-gated calcium channel / "
+        "calcium-induced calcium release mechanisms.",
+    ),
+    (
+        "calcium", "deficiency", "cardiovascular",
+        "Calcium influx through voltage-gated channels drives the cardiac action "
+        "potential plateau phase; significant calcium deficiency can prolong the QT "
+        "interval and predispose to arrhythmia.",
+        "established", "general",
+        "Standard clinical cardiology/physiology.",
+    ),
+    # --- Magnesium ---
+    (
+        "magnesium", "deficiency", "cardiovascular",
+        "Because magnesium is required for the Na+/K+-ATPase pump, deficiency can "
+        "cause intracellular potassium loss and raise the risk of cardiac "
+        "arrhythmia even when blood potassium looks normal.",
+        "established", "general",
+        "PMID 28124894.",
+    ),
+    (
+        "magnesium", "deficiency", "mood_anxiety",
+        "Some trials report higher self-reported anxiety symptoms with low "
+        "magnesium status and improvement with supplementation, but the evidence "
+        "base is small and mixed -- about half of published trials show a "
+        "positive effect, and some results come from unpublished/registry data, "
+        "so this should be read as a plausible but unproven link, not settled "
+        "science.",
+        "emerging", "general",
+        "Boyle NB et al., 'The Effects of Magnesium Supplementation on Subjective "
+        "Anxiety and Stress -- A Systematic Review,' Nutrients 2017; PMC5452159.",
+    ),
+    (
+        "magnesium", "deficiency", "sleep",
+        "Small randomized trials suggest magnesium supplementation may modestly "
+        "improve sleep quality or continuity, but effect sizes reported are small "
+        "(e.g. Cohen's d ~0.2), so magnesium should be considered a minor "
+        "contributor to sleep quality rather than a primary lever.",
+        "emerging", "general",
+        "2025 RCT, PMID 40918053 (n=155); magnesium-L-threonate 2024 objective "
+        "sleep-tracking trial.",
+    ),
+    (
+        "magnesium", "excess", "bowel_function",
+        "Magnesium salts not fully absorbed in the small intestine (e.g. magnesium "
+        "citrate, magnesium oxide) draw water into the bowel by osmosis, which is "
+        "the same mechanism used deliberately in over-the-counter osmotic laxatives "
+        "-- a real, expected effect of high supplemental magnesium intake, not a "
+        "side effect specific to any one product.",
+        "established", "general",
+        "Standard pharmacology of osmotic laxatives (magnesium citrate/oxide).",
+    ),
+]
+
+
+DRI_AGENCY = (
+    "National Academies of Sciences, Engineering, and Medicine (NASEM) "
+    "Dietary Reference Intakes, as summarized by NIH Office of Dietary "
+    "Supplements (ODS) fact sheets"
+)
+
+# (nutrient_code, sex, age_min, age_max, value_type, amount, unit,
+#  upper_limit, upper_limit_type, citation, notes)
+# sex: 'male' | 'female' | 'all'. age_max None = open-ended.
+# value_type: 'RDA' (Recommended Dietary Allowance) | 'AI' (Adequate
+# Intake, used when evidence isn't sufficient to set a true RDA) | 'CDRR'
+# (Chronic Disease Risk Reduction intake -- a recommended ceiling, not a
+# deficiency floor; sodium is the only nutrient using this category).
+DIETARY_REFERENCE_INTAKES = [
+    ("protein", "male", 19, None, "RDA", 56, "g", None, None,
+     "NASEM 2005 DRI Macronutrients report.",
+     "Based on 0.8 g/kg/day for a reference ~70kg adult; actual individual need scales with real "
+     "body weight. Some research suggests older adults may benefit from higher intake "
+     "(roughly 1.0-1.2 g/kg/day) to help preserve muscle mass, though that exceeds the official RDA."),
+    ("protein", "female", 19, None, "RDA", 46, "g", None, None,
+     "NASEM 2005 DRI Macronutrients report.",
+     "Based on 0.8 g/kg/day for a reference ~57kg adult; scales with real body weight, same "
+     "elderly-intake caveat as the male row."),
+
+    ("fiber_total", "male", 19, 50, "AI", 38, "g", None, None, "NASEM 2005 DRI Macronutrients report.", None),
+    ("fiber_total", "male", 51, None, "AI", 30, "g", None, None, "NASEM 2005 DRI Macronutrients report.", None),
+    ("fiber_total", "female", 19, 50, "AI", 25, "g", None, None, "NASEM 2005 DRI Macronutrients report.", None),
+    ("fiber_total", "female", 51, None, "AI", 21, "g", None, None, "NASEM 2005 DRI Macronutrients report.", None),
+
+    ("vitamin_a", "male", 19, None, "RDA", 900, "µg RAE", 3000, "UL", "NASEM 2001 DRI Vitamin A report.",
+     "UL applies to preformed vitamin A (retinol) from supplements/animal foods, not provitamin-A carotenoids from plants."),
+    ("vitamin_a", "female", 19, None, "RDA", 700, "µg RAE", 3000, "UL", "NASEM 2001 DRI Vitamin A report.",
+     "UL applies to preformed vitamin A (retinol) from supplements/animal foods, not provitamin-A carotenoids from plants."),
+
+    ("vitamin_c", "male", 19, None, "RDA", 90, "mg", 2000, "UL", "NASEM 2000 DRI Vitamin C report.", None),
+    ("vitamin_c", "female", 19, None, "RDA", 75, "mg", 2000, "UL", "NASEM 2000 DRI Vitamin C report.",
+     "Smokers: NASEM advises adding 35 mg/day to either sex's RDA due to increased oxidative turnover from smoking."),
+
+    ("vitamin_d", "all", 19, 70, "RDA", 15, "µg", 100, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
+    ("vitamin_d", "all", 71, None, "RDA", 20, "µg", 100, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
+
+    ("vitamin_e", "all", 19, None, "RDA", 15, "mg", 1000, "UL", "NASEM 2000 DRI Vitamin E report.",
+     "UL applies to supplemental/pharmacological alpha-tocopherol; no UL for vitamin E naturally occurring in food."),
+
+    ("vitamin_k", "male", 19, None, "AI", 120, "µg", None, None, "NASEM 2001 DRI Vitamin K report.", None),
+    ("vitamin_k", "female", 19, None, "AI", 90, "µg", None, None, "NASEM 2001 DRI Vitamin K report.", None),
+
+    ("thiamin_b1", "male", 19, None, "RDA", 1.2, "mg", None, None, "NASEM 1998 DRI B-Vitamins report.", None),
+    ("thiamin_b1", "female", 19, None, "RDA", 1.1, "mg", None, None, "NASEM 1998 DRI B-Vitamins report.", None),
+
+    ("riboflavin_b2", "male", 19, None, "RDA", 1.3, "mg", None, None, "NASEM 1998 DRI B-Vitamins report.", None),
+    ("riboflavin_b2", "female", 19, None, "RDA", 1.1, "mg", None, None, "NASEM 1998 DRI B-Vitamins report.", None),
+
+    ("niacin_b3", "male", 19, None, "RDA", 16, "mg", 35, "UL", "NASEM 1998 DRI B-Vitamins report.",
+     "Expressed in niacin equivalents (NE), which include a contribution from dietary tryptophan -- "
+     "this app's food data reports niacin directly in mg without an NE conversion, so treat this as an "
+     "approximate comparison. UL applies to nicotinic acid/nicotinamide from supplements or fortified "
+     "food (flushing risk), not niacin naturally occurring in food."),
+    ("niacin_b3", "female", 19, None, "RDA", 14, "mg", 35, "UL", "NASEM 1998 DRI B-Vitamins report.",
+     "Expressed in niacin equivalents (NE); see the male row's note. UL applies to nicotinic "
+     "acid/nicotinamide from supplements or fortified food (flushing risk), not niacin naturally "
+     "occurring in food."),
+
+    ("pantothenic_acid_b5", "all", 19, None, "AI", 5, "mg", None, None, "NASEM 1998 DRI B-Vitamins report.", None),
+
+    ("vitamin_b6", "male", 19, 50, "RDA", 1.3, "mg", 100, "UL", "NASEM 1998 DRI B-Vitamins report.", None),
+    ("vitamin_b6", "male", 51, None, "RDA", 1.7, "mg", 100, "UL", "NASEM 1998 DRI B-Vitamins report.", None),
+    ("vitamin_b6", "female", 19, 50, "RDA", 1.3, "mg", 100, "UL", "NASEM 1998 DRI B-Vitamins report.", None),
+    ("vitamin_b6", "female", 51, None, "RDA", 1.5, "mg", 100, "UL", "NASEM 1998 DRI B-Vitamins report.", None),
+
+    ("biotin_b7", "all", 19, None, "AI", 30, "µg", None, None, "NASEM 1998 DRI B-Vitamins report.", None),
+
+    ("folate_b9", "all", 19, None, "RDA", 400, "µg", 1000, "UL", "NASEM 1998 DRI B-Vitamins report.",
+     "Expressed in Dietary Folate Equivalents (DFE), which account for synthetic folic acid being "
+     "absorbed more efficiently than natural food folate -- this app's food data doesn't apply a DFE "
+     "conversion, so treat this as an approximate comparison. UL applies to folic acid from "
+     "supplements/fortified food only, not natural food folate."),
+
+    ("vitamin_b12", "all", 19, None, "RDA", 2.4, "µg", None, None, "NASEM 1998 DRI B-Vitamins report.",
+     "NASEM specifically advises adults over 50 meet the RDA mainly through fortified foods or a "
+     "supplement, since food-bound B12 absorption commonly declines with age (reduced stomach acid), "
+     "while crystalline supplemental B12 isn't affected by that mechanism."),
+
+    ("calcium", "male", 19, 50, "RDA", 1000, "mg", 2500, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
+    ("calcium", "male", 51, 70, "RDA", 1000, "mg", 2000, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
+    ("calcium", "male", 71, None, "RDA", 1200, "mg", 2000, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
+    ("calcium", "female", 19, 50, "RDA", 1000, "mg", 2500, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
+    ("calcium", "female", 51, None, "RDA", 1200, "mg", 2000, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
+
+    ("iron", "male", 19, None, "RDA", 8, "mg", 45, "UL", "NASEM 2001 DRI Trace Elements report.", None),
+    ("iron", "female", 19, 50, "RDA", 18, "mg", 45, "UL", "NASEM 2001 DRI Trace Elements report.", None),
+    ("iron", "female", 51, None, "RDA", 8, "mg", 45, "UL", "NASEM 2001 DRI Trace Elements report.", None),
+
+    ("magnesium", "male", 19, 30, "RDA", 400, "mg", 350, "UL", "NIH ODS Magnesium Health Professional Fact Sheet.",
+     "The 350 mg UL applies only to magnesium from supplements/pharmacological sources, not food -- "
+     "excess dietary magnesium from food is excreted by healthy kidneys and isn't known to cause harm. "
+     "The supplement UL exists because supplemental magnesium salts can cause diarrhea at high doses "
+     "(see supplement_forms and the magnesium/bowel_function row in nutrient_system_effects)."),
+    ("magnesium", "male", 31, None, "RDA", 420, "mg", 350, "UL", "NIH ODS Magnesium Health Professional Fact Sheet.", None),
+    ("magnesium", "female", 19, 30, "RDA", 310, "mg", 350, "UL", "NIH ODS Magnesium Health Professional Fact Sheet.", None),
+    ("magnesium", "female", 31, None, "RDA", 320, "mg", 350, "UL", "NIH ODS Magnesium Health Professional Fact Sheet.", None),
+
+    ("phosphorus", "all", 19, 70, "RDA", 700, "mg", 4000, "UL", "NASEM 1997 DRI report.", None),
+    ("phosphorus", "all", 71, None, "RDA", 700, "mg", 3000, "UL", "NASEM 1997 DRI report.", None),
+
+    ("potassium", "male", 19, None, "AI", 3400, "mg", None, None, "NIH ODS Potassium Health Professional Fact Sheet (2019 NASEM update).",
+     "No UL set for the general population -- healthy kidneys excrete excess potassium -- but this "
+     "does not apply to people with impaired kidney function or those on medications (e.g. certain "
+     "blood pressure drugs) that raise blood potassium."),
+    ("potassium", "female", 19, None, "AI", 2600, "mg", None, None, "NIH ODS Potassium Health Professional Fact Sheet (2019 NASEM update).",
+     "Same kidney-function caveat as the male row."),
+
+    ("sodium", "all", 19, None, "CDRR", 2300, "mg", 2300, "CDRR", "NASEM 2019 DRI Sodium/Potassium report.",
+     "Unlike every other row in this table, this figure is a recommended ceiling associated with "
+     "reduced chronic disease risk (blood pressure/cardiovascular), not a minimum-adequacy floor -- "
+     "there is no established sodium deficiency RDA/AI for the general healthy adult population "
+     "beyond roughly 1500 mg/day, a level reliably exceeded by ordinary diets without any effort."),
+
+    ("zinc", "male", 19, None, "RDA", 11, "mg", 40, "UL", "NASEM 2001 DRI Trace Elements report.", None),
+    ("zinc", "female", 19, None, "RDA", 8, "mg", 40, "UL", "NASEM 2001 DRI Trace Elements report.", None),
+
+    ("copper", "all", 19, None, "RDA", 0.9, "mg", 10, "UL", "NASEM 2001 DRI Trace Elements report.",
+     "Commonly quoted as 900 mcg; expressed here in mg (0.9 mg) to match the unit this app's "
+     "food/nutrient data uses for copper."),
+
+    ("manganese", "male", 19, None, "AI", 2.3, "mg", 11, "UL", "NASEM 2001 DRI Trace Elements report.", None),
+    ("manganese", "female", 19, None, "AI", 1.8, "mg", 11, "UL", "NASEM 2001 DRI Trace Elements report.", None),
+
+    ("selenium", "all", 19, None, "RDA", 55, "µg", 400, "UL", "NIH ODS Selenium Health Professional Fact Sheet.", None),
+
+    ("iodine", "all", 19, None, "RDA", 150, "µg", 1100, "UL", "NIH ODS Iodine Health Professional Fact Sheet.", None),
+]
+
+# (nutrient_code, form_name, absorption_note, gi_tolerance_note, evidence_strength, citation, notes)
+SUPPLEMENT_FORMS = [
+    ("calcium", "Calcium citrate",
+     "Absorbed roughly 22-27% better than calcium carbonate on average, and does not require "
+     "stomach acid to dissolve -- absorption holds up even in achlorhydria or with acid-reducing "
+     "medication (PPIs/H2 blockers), unlike carbonate.",
+     "Can be taken with or without food; generally gentle.",
+     "established",
+     "Sakhaee K et al., meta-analysis of calcium bioavailability comparing citrate and carbonate "
+     "(15 studies, 184 subjects); Recker RR, 'Calcium absorption and achlorhydria,' N Engl J Med. "
+     "1985;313(2):70-73, PMID 4000241.",
+     None),
+    ("calcium", "Calcium carbonate",
+     "Highest elemental calcium by weight (~40%) and the cheapest, most common form, but requires "
+     "stomach acid to dissolve -- absorption drops sharply in achlorhydria (a condition more common "
+     "with age) or with acid-suppressing medication.",
+     "Best taken with food, which stimulates stomach acid; more likely than citrate to cause gas or "
+     "constipation, especially at higher doses.",
+     "established",
+     "Recker RR, N Engl J Med. 1985;313(2):70-73, PMID 4000241.",
+     None),
+
+    ("magnesium", "Magnesium glycinate / bisglycinate",
+     "Chelated to the amino acid glycine; in patients with impaired magnesium absorption, showed "
+     "roughly double the absorption of magnesium oxide (23.5% vs 11.8%), partly via a dipeptide "
+     "transport pathway.",
+     "Among the gentlest common forms on the GI tract; minimal laxative effect.",
+     "established",
+     "Schuette SA, Lashner BA, Janghorbani M, 'Bioavailability of magnesium diglycinate vs magnesium "
+     "oxide in patients with ileal resection,' JPEN J Parenter Enteral Nutr. 1994;18(5):430-435.",
+     "A reasonable general-purpose default for someone who wants to correct a magnesium shortfall "
+     "without GI side effects."),
+    ("magnesium", "Magnesium citrate",
+     "Well absorbed, meaningfully better than oxide.",
+     "Real, dose-dependent osmotic laxative effect -- draws water into the bowel. Can be a deliberate "
+     "choice for someone with concurrent constipation; not ideal for someone prone to loose stools.",
+     "established",
+     "Standard pharmacology of magnesium citrate as an osmotic laxative.",
+     None),
+    ("magnesium", "Magnesium oxide",
+     "Poorly absorbed (roughly 4%) relative to other common forms -- most of an oxide dose passes "
+     "through unabsorbed.",
+     "The one magnesium form actually validated in randomized trials for treating chronic "
+     "constipation, precisely because so much of the dose stays in the gut and draws in water.",
+     "established",
+     "European Review for Medical and Pharmacological Sciences, magnesium bioavailability comparison; "
+     "2023 AGA/ACG chronic constipation guideline (notes only magnesium oxide has RCT evidence for "
+     "constipation).",
+     "Cheap and high in elemental magnesium per pill by label, but a poor choice specifically for "
+     "correcting a magnesium deficiency -- better suited as an occasional laxative than a repletion strategy."),
+    ("magnesium", "Magnesium L-threonate",
+     "Marketed on its ability to cross the blood-brain barrier and raise brain magnesium levels more "
+     "than other forms in animal studies; human cognitive-benefit evidence is still early.",
+     "Generally well tolerated.",
+     "emerging",
+     "Manufacturer-funded and early independent human trials on cognition; evidence base is smaller "
+     "and less mature than for glycinate/citrate/oxide.",
+     "More expensive than other forms; not necessary for general magnesium repletion -- only "
+     "relevant if the specific (still-unproven-at-scale) cognitive angle is the goal."),
+
+    ("iron", "Iron bisglycinate",
+     "Absorption is roughly comparable to ferrous sulfate when matched on elemental iron content -- "
+     "not clearly superior despite marketing claims, but not worse either.",
+     "Produces meaningfully fewer GI side effects (nausea, constipation, abdominal discomfort) than "
+     "ferrous sulfate in head-to-head trials at matched elemental iron doses.",
+     "established",
+     "Multiple head-to-head randomized trials against ferrous sulfate; comparator baseline for "
+     "sulfate's GI burden: Tolkien Z et al., PLoS One. 2015;10(2):e0117383, PMID 25700159.",
+     "The most evidence-based form to switch to for someone who can't tolerate ferrous sulfate, "
+     "before escalating to IV iron."),
+    ("iron", "Ferrous sulfate",
+     "The standard, cheapest, most-studied first-line iron supplement form.",
+     "Significantly increases GI side effects vs placebo (odds ratio 2.32 in a meta-analysis of 43 "
+     "trials, ~6,800 adults) -- nausea, constipation, and abdominal pain are common.",
+     "established",
+     "Tolkien Z et al., 'Ferrous Sulfate Supplementation Causes Significant Gastrointestinal "
+     "Side-Effects in Adults: A Systematic Review and Meta-Analysis,' PLoS One. 2015;10(2):e0117383, "
+     "PMID 25700159.",
+     "Heme iron from animal food sources absorbs 2-3x better than any non-heme supplement form "
+     "regardless of which one is chosen -- see the existing 'Iron (contextual)' D1-D6 sub-criterion, "
+     "which cites the same heme/non-heme bioavailability gap (Hurrell & Egli 2010, PMID 20200263)."),
+
+    ("zinc", "Zinc picolinate",
+     "One crossover trial found picolinate was the only form of three tested (vs citrate, gluconate) "
+     "that significantly raised zinc levels in hair, urine, and red blood cells vs placebo, though "
+     "serum zinc didn't differ significantly between forms.",
+     "Generally well tolerated.",
+     "emerging",
+     "Barrie SA et al., 'Comparative absorption of zinc picolinate, zinc citrate and zinc gluconate "
+     "in humans,' Agric Food Chem/Nutr Res, 1987 (n=15 crossover trial).",
+     "Evidence is real but modest and mixed across outcome measures -- not a settled 'best' form."),
+    ("zinc", "Zinc citrate / zinc gluconate",
+     "Fractional absorption around 60-61% in a head-to-head crossover trial, meaningfully higher "
+     "than zinc oxide (~50%) at matched elemental zinc doses.",
+     "Generally well tolerated; a reasonable, inexpensive default choice.",
+     "established",
+     "Crossover trial comparing 10 mg elemental zinc from citrate, gluconate, and oxide, summarized "
+     "in: 'Comparative Absorption and Bioavailability of Various Chemical Forms of Zinc in Humans: A "
+     "Narrative Review,' Nutrients. 2024;16(24):4269, PMC11677333.",
+     None),
+    ("zinc", "Zinc oxide",
+     "The most common form in low-cost multivitamins, but measurably lower fractional absorption "
+     "(~50%) than citrate or gluconate at matched elemental zinc doses.",
+     "Generally well tolerated.",
+     "established",
+     "PMC11677333 (see zinc citrate/gluconate row).",
+     None),
+
+    ("vitamin_d", "Vitamin D3 (cholecalciferol)",
+     "More effective than D2 at raising and maintaining serum 25-hydroxyvitamin D, particularly "
+     "under non-daily/bolus dosing; the generally preferred supplemental form.",
+     "Generally well tolerated.",
+     "established",
+     "Tripkovic L et al., 'Comparison of vitamin D2 and vitamin D3 supplementation in raising serum "
+     "25-hydroxyvitamin D status: a systematic review and meta-analysis,' Am J Clin Nutr. "
+     "2012;95(6):1357-1364.",
+     None),
+    ("vitamin_d", "Vitamin D2 (ergocalciferol)",
+     "Roughly comparable to D3 specifically under daily dosing regimens per the same meta-analysis, "
+     "though less effective overall and notably weaker than D3 under bolus (large, infrequent) dosing.",
+     "Generally well tolerated.",
+     "established",
+     "Tripkovic L et al., Am J Clin Nutr. 2012;95(6):1357-1364.",
+     "Plant/fungal-derived -- the relevant choice for someone avoiding animal-derived D3 (e.g. strict vegans; "
+     "vegan D3 from lichen also exists as a third option)."),
+
+    ("vitamin_b12", "Methylcobalamin",
+     "The naturally circulating active coenzyme form. Limited comparative human data suggest greater "
+     "tissue retention (lower urinary loss) than cyanocobalamin at equivalent doses.",
+     "Generally well tolerated.",
+     "emerging",
+     "Comparative pharmacokinetic studies are limited in number; broader confirmatory research is "
+     "still needed before treating this as settled.",
+     None),
+    ("vitamin_b12", "Cyanocobalamin",
+     "The most-studied, most stable, and cheapest form; well-established efficacy for correcting "
+     "B12 deficiency and the form used in most food fortification.",
+     "Generally well tolerated.",
+     "established",
+     "Standard clinical/nutritional pharmacology; used as the reference form in most B12 deficiency "
+     "treatment trials.",
+     "The small cyanide moiety released on conversion is clinically irrelevant at supplement doses."),
+
+    ("folate_b9", "L-methylfolate (5-MTHF)",
+     "Already in the metabolically active form -- does not require the MTHFR enzyme to activate it, "
+     "which matters for the substantial share of people with reduced MTHFR enzyme activity (a common "
+     "genetic variant). Produces higher, faster peak plasma folate than folic acid in head-to-head trials.",
+     "Generally well tolerated.",
+     "established",
+     "PMC10338559 (unmetabolized folic acid comparison); PMC4668025, randomized trial comparing "
+     "methyltetrahydrofolate vs folic acid across MTHFR C677T/A1298C genotypes.",
+     None),
+    ("folate_b9", "Folic acid",
+     "The synthetic, most-studied, most-fortified form -- used in the US mandatory folic acid "
+     "fortification program specifically because it measurably reduces neural tube defects at the "
+     "population level.",
+     "Generally well tolerated at RDA-level doses.",
+     "established",
+     "PMC10338559; conversion efficiency to active folate varies between individuals, partly based "
+     "on MTHFR genotype.",
+     "At high/chronic intakes (more of a concern with fortified food plus supplements combined), "
+     "unmetabolized folic acid can accumulate in blood since conversion capacity is finite -- this "
+     "does not happen with 5-MTHF."),
+
+    ("selenium", "Selenomethionine",
+     "Better absorbed and retained than sodium selenite -- can be nonspecifically incorporated into "
+     "general body proteins in place of methionine, creating a selenium reserve the body can draw on "
+     "during low-intake periods.",
+     "Generally well tolerated.",
+     "established",
+     "Comparative human bioavailability trials on selenium speciation (organic vs inorganic forms), "
+     "e.g. work summarized in reviews of selenomethionine vs selenite absorption/retention.",
+     None),
+    ("selenium", "Sodium selenite",
+     "Meaningfully lower bioavailability than selenomethionine -- roughly half as much is retained "
+     "for the same intake -- but still effective; requires a higher dose for an equivalent effect. "
+     "Used more directly for selenoprotein synthesis rather than stored as a body-protein reserve.",
+     "Generally well tolerated.",
+     "established",
+     "Same comparative bioavailability literature as the selenomethionine row.",
+     None),
+
+    ("iodine", "Potassium iodide (standardized supplement)",
+     "Delivers a predictable, consistent, label-accurate dose.",
+     "Generally well tolerated at RDA-level doses.",
+     "established",
+     "Standard pharmaceutical-grade supplement manufacturing; predictable dosing is the entire point "
+     "of using this form over a natural/unstandardized source.",
+     "The form generally preferable when supplementation is genuinely needed, since Hashimoto's "
+     "makes precise iodine dosing more important than for the general population (see the app's "
+     "existing Iodine and Antibody Triggers D1-D6 sub-criterion citations on excess-iodine risk)."),
+    ("iodine", "Kelp / seaweed-derived",
+     "Iodine content is highly variable by species and harvest, and independent testing has "
+     "repeatedly found actual content diverging sharply from label claims.",
+     "Depends entirely on actual (often mislabeled) dose; can be far higher than expected.",
+     "established",
+     "Teas J, Pino S, Critchley A, Braverman LE, 'Variability of iodine content in common commercially "
+     "available edible seaweeds,' Thyroid. 2004;14(10):836-841; ConsumerLab.com testing (2017) found "
+     "roughly half of tested kelp supplements contained about twice their labeled iodine amount.",
+     "A real, documented safety concern specifically for a Hashimoto's population, where iodine "
+     "excess is a known trigger risk -- this is not a generic anti-supplement caution, it's "
+     "specific to this form's unpredictability."),
+]
+
+
+def populate_dietary_reference_data(cur):
+    cur.executemany(
+        """
+        INSERT INTO dietary_reference_intakes
+            (nutrient_code, sex, age_min, age_max, value_type, amount, unit,
+             upper_limit, upper_limit_type, source_agency, citation, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (code, sex, age_min, age_max, value_type, amount, unit, ul, ul_type, DRI_AGENCY, citation, notes)
+            for (code, sex, age_min, age_max, value_type, amount, unit, ul, ul_type, citation, notes)
+            in DIETARY_REFERENCE_INTAKES
+        ],
+    )
+    cur.executemany(
+        """
+        INSERT INTO supplement_forms
+            (nutrient_code, form_name, absorption_note, gi_tolerance_note, evidence_strength, citation, notes)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        SUPPLEMENT_FORMS,
+    )
+
+
+LAB_TEST_CATEGORIES = [
+    ("thyroid_function", "Thyroid Function",
+     "The core hormone measurements that show how much thyroid hormone is actually circulating and "
+     "how hard the pituitary is working to get it."),
+    ("thyroid_autoimmune", "Thyroid Autoimmunity",
+     "Antibody tests that detect the immune activity that actually causes Hashimoto's (and, "
+     "differently, Graves') -- these are what diagnose autoimmune thyroid disease, as opposed to "
+     "just describing its current hormonal effect."),
+    ("thyroid_structural", "Thyroid Structure & Cancer Monitoring",
+     "Tests relevant to the physical thyroid gland itself, mainly used after thyroid surgery or when "
+     "a nodule or structural concern is present."),
+    ("nutrient_status", "Nutrient Status",
+     "Blood levels of specific vitamins/minerals with a documented, direct role in thyroid hormone "
+     "production, conversion, or autoimmune activity -- cheap, easy to justify asking for, and "
+     "directly actionable through diet."),
+    ("inflammation_metabolic", "Inflammation & Metabolic Health",
+     "Broader markers that commonly run alongside autoimmune thyroid disease and are worth tracking "
+     "as part of the whole picture."),
+]
+
+# (code, display_name, category_code, aliases, what_it_measures,
+#  why_it_matters_hashimotos, range_low, range_high, range_unit,
+#  range_caveat, is_commonly_ordered, self_advocacy_note,
+#  evidence_strength, citation)
+LAB_TESTS = [
+    ("tsh", "TSH (Thyroid-Stimulating Hormone)", "thyroid_function", "Thyrotropin",
+     "The pituitary hormone that signals the thyroid to make more hormone -- it rises when thyroid "
+     "hormone is too low and falls when it's too high, so it moves in the opposite direction from "
+     "actual thyroid hormone levels.",
+     "The single most-ordered thyroid test and usually the first sign of Hashimoto's-driven "
+     "hypothyroidism, often rising years before Free T4 drops out of range.",
+     0.4, 4.5, "mIU/L",
+     "Reference ranges vary by lab/assay (commonly somewhere between 0.4-4.0 and 0.4-5.5 mIU/L); "
+     "your own lab's reported range is authoritative, not this figure.",
+     1,
+     "Some endocrinologists treat toward a narrower 'optimal' window (often cited as roughly "
+     "0.5-2.5 mIU/L) once someone is already on treatment, rather than just 'anywhere in range' -- "
+     "worth asking your doctor what target they're using and why.",
+     "established",
+     "American Thyroid Association patient/clinician guidance; standard endocrinology reference "
+     "ranges."),
+    ("free_t4", "Free T4 (Free Thyroxine)", "thyroid_function", "FT4",
+     "The unbound, biologically active fraction of T4, the main hormone the thyroid actually produces.",
+     "Confirms whether the thyroid itself is genuinely underproducing, rather than relying on TSH alone.",
+     0.8, 1.8, "ng/dL",
+     "Reference ranges vary by lab/assay; your own lab's reported range is authoritative, not this figure.",
+     1, None,
+     "established",
+     "Standard endocrinology reference ranges; American Thyroid Association guidance."),
+    ("free_t3", "Free T3 (Free Triiodothyronine)", "thyroid_function", "FT3",
+     "The unbound, active fraction of T3, the more biologically potent thyroid hormone that T4 "
+     "converts into in peripheral tissues.",
+     "Someone can have normal TSH/Free T4 but still feel hypothyroid if T4-to-T3 conversion is "
+     "impaired (a real, documented phenomenon) -- Free T3 is the test that would actually show that.",
+     2.0, 4.4, "pg/mL",
+     "Reference ranges vary by lab/assay; your own lab's reported range is authoritative, not this figure.",
+     0,
+     "Not part of most standard thyroid panels by default -- if you have hypothyroid symptoms with "
+     "'normal' TSH and Free T4, this is a reasonable, specific test to ask for.",
+     "established",
+     "Standard endocrinology reference ranges."),
+    ("total_t4", "Total T4 (Total Thyroxine)", "thyroid_function", "TT4",
+     "All circulating T4, both protein-bound and free -- largely superseded by Free T4, which isn't "
+     "thrown off by changes in binding-protein levels (e.g. from pregnancy, estrogen, liver disease).",
+     "Rarely adds information beyond Free T4 in a Hashimoto's workup; useful mainly in specific "
+     "situations involving binding-protein abnormalities.",
+     5.0, 12.0, "mcg/dL",
+     "Reference ranges vary by lab/assay; your own lab's reported range is authoritative, not this figure.",
+     0, None,
+     "established",
+     "Standard endocrinology reference ranges."),
+    ("total_t3", "Total T3 (Total Triiodothyronine)", "thyroid_function", "TT3",
+     "All circulating T3, both protein-bound and free.",
+     "Same binding-protein limitation as Total T4; Free T3 is generally the more informative version "
+     "of this test.",
+     80, 200, "ng/dL",
+     "Reference ranges vary by lab/assay; your own lab's reported range is authoritative, not this figure.",
+     0, None,
+     "established",
+     "Standard endocrinology reference ranges."),
+    ("reverse_t3", "Reverse T3 (rT3)", "thyroid_function", "rT3",
+     "An inactive mirror-image form of T3 that the body also produces from T4, through a different "
+     "conversion pathway than active T3.",
+     "Marketed in functional/integrative medicine as revealing a 'reverse T3 dominance' blocking "
+     "thyroid hormone action, but this is not a recognized diagnosis in mainstream endocrinology.",
+     None, None, "ng/dL",
+     "No professional practice guideline recommends this as a routine test; interpretation is "
+     "genuinely disputed between conventional and functional medicine.",
+     0,
+     "The American Thyroid Association's Choosing Wisely guidance lists this as a test to generally "
+     "avoid in standard thyroid assessment -- its real, narrow clinical use is distinguishing "
+     "non-thyroidal illness from true hypothyroidism in complex/ambiguous cases, not routine "
+     "Hashimoto's monitoring. Worth knowing this before paying out of pocket for it.",
+     "mechanistic_only",
+     "American Thyroid Association Choosing Wisely campaign; Ann Clin Lab Sci. 2020;50(3):383 "
+     "committee report on rT3 ordering; ATA 2012/2016 hypothyroidism/hyperthyroidism guidelines "
+     "(rT3 not included)."),
+
+    ("tpo_ab", "TPO Antibodies (Thyroid Peroxidase Antibodies)", "thyroid_autoimmune", "Anti-TPO, TPOAb",
+     "Antibodies against thyroid peroxidase, an enzyme the thyroid needs to make hormone -- their "
+     "presence is direct evidence of autoimmune activity against the thyroid.",
+     "This is the actual diagnostic marker for Hashimoto's thyroiditis, not TSH -- TSH just shows the "
+     "downstream hormonal effect. Present in the large majority of Hashimoto's cases, though roughly "
+     "10-15% of people with Hashimoto's have normal TPO antibodies but elevated TgAb instead, which "
+     "is why both are worth testing together.",
+     0, 35, "IU/mL",
+     "Positivity cutoffs vary by assay; some labs use 35, others different values. Levels above "
+     "roughly 100 IU/mL strongly suggest Hashimoto's, but people can have the disease with lower "
+     "elevations (35-100 IU/mL) too -- a negative or borderline result doesn't rule it out on its own.",
+     0,
+     "Frequently NOT included in a standard 'thyroid panel' (which is often just TSH, sometimes Free "
+     "T4) -- if you've never had this specifically tested and suspect autoimmune thyroid disease, "
+     "this is one of the most important tests to explicitly ask for.",
+     "established",
+     "MedlinePlus thyroid antibody test reference; standard clinical endocrinology reference ranges."),
+    ("tg_ab", "TgAb (Thyroglobulin Antibodies)", "thyroid_autoimmune", "Anti-Tg",
+     "Antibodies against thyroglobulin, the protein the thyroid uses as a scaffold to build T4/T3.",
+     "Elevated in roughly 60-80% of Hashimoto's cases, and in the 10-15% of people with Hashimoto's "
+     "who have normal TPO antibodies, this is often the antibody that's actually elevated -- testing "
+     "only TPOAb can miss real cases.",
+     0, 20, "IU/mL",
+     "Positivity cutoffs vary by assay; your own lab's reported range is authoritative, not this figure.",
+     0,
+     "Worth requesting alongside TPOAb, not as a substitute for it -- they catch somewhat different "
+     "subsets of Hashimoto's cases.",
+     "established",
+     "MedlinePlus thyroid antibody test reference; standard clinical endocrinology reference ranges."),
+    ("tsi_trab", "TSI / TRAb (Thyroid-Stimulating Immunoglobulin / TSH Receptor Antibody)", "thyroid_autoimmune",
+     "TSI, TRAb, TSH-R Ab",
+     "Antibodies that bind the TSH receptor itself -- TSI specifically activates it (driving Graves' "
+     "hyperthyroidism), while TRAb assays measure receptor-binding antibodies more broadly, which can "
+     "be stimulating or blocking.",
+     "Mainly relevant for distinguishing Graves' disease from Hashimoto's when the clinical picture "
+     "is ambiguous, or in the less common case of someone whose antibody profile shifts between the "
+     "two over time -- not a routine Hashimoto's monitoring test.",
+     0, 0.55, "IU/L",
+     "Reference ranges and cutoffs vary meaningfully by assay/manufacturer (TSI vs TRAb are related "
+     "but distinct assay types); your own lab's reported range is authoritative, not this figure.",
+     0,
+     "Only worth asking for if hyperthyroid symptoms appear, or if TSH/Free T4 patterns look atypical "
+     "for straightforward Hashimoto's.",
+     "established",
+     "J Clin Endocrinol Metab. 2025;110(9):e3002; comparative TSI/TRAb assay performance studies."),
+
+    ("thyroglobulin", "Thyroglobulin (Tg)", "thyroid_structural", "Tg",
+     "The protein scaffold the thyroid uses to build thyroid hormone, released into the blood in "
+     "proportion to how much thyroid tissue is present and active.",
+     "Mainly used after thyroid surgery/cancer treatment to check for remaining or recurrent thyroid "
+     "tissue, not as a routine Hashimoto's marker -- an intact thyroid gland with Hashimoto's doesn't "
+     "have a specifically meaningful Tg target the way TSH or the antibodies do.",
+     None, None, "ng/mL",
+     "Reference range depends heavily on context (whether the thyroid is intact or removed); your own "
+     "lab's reported range and your specific clinical context are authoritative, not this figure.",
+     0,
+     "This test becomes unreliable in the presence of TgAb (thyroglobulin antibodies), which interfere "
+     "with the assay -- current guidance is that any Tg result should be paired with a TgAb test to "
+     "know whether the Tg number can even be trusted.",
+     "established",
+     "Guidance on paired Tg/TgAb testing due to antibody interference in Tg immunoassays; standard "
+     "post-thyroidectomy monitoring literature."),
+
+    ("ferritin", "Ferritin", "nutrient_status", None,
+     "The body's iron storage protein -- a low level reflects depleted iron stores, often before "
+     "anemia itself shows up on a standard blood count.",
+     "Iron deficiency measurably reduces thyroid peroxidase enzyme activity (the same enzyme TPO "
+     "antibodies attack), so low iron can worsen thyroid hormone production on top of any autoimmune "
+     "effect -- and fatigue/hair loss from low ferritin is easy to mistake for undertreated "
+     "hypothyroidism itself.",
+     15, 150, "ng/mL",
+     "Standard lab reference ranges differ by sex (commonly roughly 15-150 ng/mL for women, "
+     "15-300 ng/mL for men) and by lab/assay; your own lab's reported range is authoritative. Some "
+     "clinicians consider levels under 50 ng/mL suboptimal for symptom relief even when still "
+     "'in range.'",
+     0,
+     "Not part of a standard thyroid panel -- worth asking for specifically, especially if fatigue, "
+     "hair loss, or restless legs persist despite thyroid hormone levels looking adequate.",
+     "established",
+     "Hess SY et al., 'Iron deficiency anemia reduces thyroid peroxidase activity in rats,' J Nutr. "
+     "2002;132(7):1951-5, PMID 12097675 (the same citation used for this app's D1-D6 Iron Presence "
+     "sub-criterion); standard clinical ferritin reference ranges."),
+    ("vitamin_d_test", "Vitamin D (25-Hydroxyvitamin D)", "nutrient_status", "25(OH)D",
+     "The main circulating storage form of vitamin D, and the standard way to assess someone's actual "
+     "vitamin D status (as opposed to dietary intake alone).",
+     "Vitamin D deficiency is associated with autoimmune thyroid disease risk (see this app's D1-D6 "
+     "Vitamin D sub-criterion), and deficiency is common generally, especially with limited sun "
+     "exposure.",
+     30, 100, "ng/mL",
+     "Two respected bodies define 'sufficient' differently: the Endocrine Society's 2011 clinical "
+     "guideline uses <20 deficient, 20-29 insufficient, >=30 sufficient (with some clinicians citing "
+     "40-60 as an 'optimal' range with less consensus behind it); NASEM's population-level dietary "
+     "guidance instead centers on a lower bone-health threshold. Your own lab's reported range is "
+     "authoritative for that specific assay.",
+     0,
+     "Frequently not tested by default in a general checkup -- reasonable to ask for directly given "
+     "how common deficiency is and its documented autoimmune-thyroid relevance.",
+     "established",
+     "Endocrine Society 2011 Clinical Practice Guideline on vitamin D; see also this app's D1-D6 "
+     "Vitamin D sub-criterion citation (PMC9275446)."),
+    ("vitamin_b12_test", "Vitamin B12", "nutrient_status", "Cobalamin",
+     "Circulating B12, needed for red blood cell formation and nerve function.",
+     "B12 deficiency causes fatigue, brain fog, and neuropathy symptoms that overlap heavily with "
+     "undertreated hypothyroidism -- and autoimmune conditions cluster together, so B12-deficiency "
+     "conditions like pernicious anemia are more common in people who already have Hashimoto's.",
+     200, 900, "pg/mL",
+     "Reference ranges vary by lab; many clinicians now treat 'low-normal' results (roughly "
+     "200-300 pg/mL) as potentially symptomatic even though they're technically inside the standard "
+     "range -- worth discussing with your doctor if you're in that band and still symptomatic.",
+     0,
+     "Not part of a standard thyroid panel -- worth asking for, especially if you follow a plant-based "
+     "diet (B12 is essentially absent from plant foods) or take metformin/acid-reducing medication "
+     "(both reduce B12 absorption).",
+     "established",
+     "Standard clinical B12 reference ranges; NASEM 1998 DRI B-Vitamins report on age-related B12 "
+     "absorption decline (see this app's dietary_reference_intakes vitamin_b12 notes)."),
+    ("selenium_test", "Selenium (Serum)", "nutrient_status", None,
+     "Circulating selenium, a mineral required to make the enzymes that both activate thyroid hormone "
+     "(convert T4 to T3) and protect the thyroid gland from the oxidative byproducts of making hormone "
+     "in the first place.",
+     "A randomized trial found selenium plus zinc supplementation improved thyroid function markers in "
+     "overweight/obese hypothyroid women (see this app's D1-D6 Selenium & Zn synergy sub-criterion) "
+     "-- but selenium also has a narrow safe range (see this app's dietary_reference_intakes selenium "
+     "UL of 400 mcg/day), so knowing your actual level before supplementing matters more than for most "
+     "nutrients.",
+     70, 150, "mcg/L",
+     "Reference ranges vary meaningfully by lab and by regional soil selenium content; your own lab's "
+     "reported range is authoritative, not this figure.",
+     0,
+     "Essentially never included in routine bloodwork -- worth asking for specifically before starting "
+     "a selenium supplement, precisely because more isn't automatically better for this one.",
+     "established",
+     "Mahmoodianfard S et al., J Am Coll Nutr. 2015;34(5):391-399 (same citation as this app's D1-D6 "
+     "Selenium & Zn synergy sub-criterion); Mayo Clinic Laboratories serum selenium reference range."),
+    ("zinc_test", "Zinc (Serum)", "nutrient_status", None,
+     "Circulating zinc -- must be drawn fasting in the morning, since eating measurably lowers serum "
+     "zinc through tissue redistribution.",
+     "Zinc is required for T4-to-T3 conversion and for making TRH/TSH themselves; deficiency is more "
+     "biologically plausible in Hashimoto's given the roughly 7:1-10:1 female:male prevalence pattern "
+     "this app's D1-D6 Zinc sub-criterion already documents.",
+     60, 120, "mcg/dL",
+     "Reference ranges vary by lab; some functional-medicine sources cite a narrower 80-110 mcg/dL as "
+     "'optimal' rather than merely in-range, though that narrower band isn't universally standardized. "
+     "Result is only meaningful if drawn fasting.",
+     0,
+     "Not part of routine bloodwork -- ask specifically, and confirm the draw is fasting, since a "
+     "non-fasting result can look falsely low.",
+     "established",
+     "NBK459262 (same citation as this app's D1-D6 Zinc sub-criterion, on the sex-prevalence pattern); "
+     "standard clinical serum zinc reference ranges."),
+    ("magnesium_test", "Magnesium (Serum, with RBC Magnesium as a better alternative)", "nutrient_status",
+     "RBC Magnesium",
+     "Standard serum magnesium measures only the roughly 1% of body magnesium that circulates in "
+     "blood -- most of the body's magnesium is inside cells and bone, which serum testing doesn't see.",
+     "Magnesium is the obligate cofactor for the Na+/K+-ATPase pump this app's nutrient_system_effects "
+     "content documents, and for the enzymes involved in vitamin D activation -- but standard serum "
+     "testing is well known to miss real deficiency because the body tightly protects blood magnesium "
+     "levels at the expense of cellular stores.",
+     1.7, 2.2, "mg/dL",
+     "This range applies to standard SERUM magnesium only; RBC (red blood cell) magnesium is widely "
+     "considered a better reflection of true tissue status but isn't as tightly standardized across "
+     "labs, so no single reference figure is given here -- use your own lab's reported range.",
+     0,
+     "If you ask for a magnesium test, specifically request 'RBC magnesium' rather than accepting a "
+     "standard serum magnesium alone -- a normal serum result does not rule out real cellular "
+     "magnesium deficiency.",
+     "established",
+     "Standard clinical serum magnesium reference ranges; Ryan MP, Kidney Int Suppl. 1987 (same "
+     "citation as this app's nutrient_interactions magnesium/sodium cofactor row) on magnesium's "
+     "Na+/K+-ATPase role."),
+    ("urine_iodine", "Urine Iodine (Spot)", "nutrient_status", "UIC",
+     "Iodine concentration in a single urine sample -- reflects very recent intake (the last day or "
+     "so), not long-term body iodine status.",
+     "Both iodine deficiency AND iodine excess are documented Hashimoto's-relevant risks (see this "
+     "app's D1-D6 Iodine and Antibody Triggers sub-criteria) -- this is the test that can actually "
+     "show which direction, if either, is a real concern for a specific person.",
+     100, 199, "mcg/L",
+     "The World Health Organization's own guidance is explicit that a single spot urine iodine result "
+     "is a population-screening tool with large day-to-day individual variation, and is not validated "
+     "for assessing one person's individual iodine status with confidence -- a 24-hour urine "
+     "collection is more reliable for an individual, though less convenient.",
+     0,
+     "If iodine status is a genuine concern (e.g. before starting or stopping an iodine-containing "
+     "supplement like kelp), ask specifically whether a spot or 24-hour collection is more appropriate "
+     "for your situation -- don't over-interpret a single spot result on its own.",
+     "established",
+     "WHO urinary iodine concentration population-sufficiency classification (severe/moderate/mild "
+     "deficiency, adequate, more-than-adequate, excess bands)."),
+
+    ("hscrp", "hs-CRP (High-Sensitivity C-Reactive Protein)", "inflammation_metabolic", "CRP",
+     "A sensitive measure of low-grade systemic inflammation.",
+     "Not thyroid-specific, but autoimmune conditions and chronic inflammation commonly travel "
+     "together -- useful as one piece of the broader health picture this app is trying to help build, "
+     "not a Hashimoto's diagnostic test itself.",
+     0, 1.0, "mg/L",
+     "The American Heart Association's 3-tier band (under 1.0 lower risk, 1.0-3.0 average, over 3.0 "
+     "higher cardiovascular risk) is about cardiovascular risk specifically, not autoimmune disease "
+     "activity -- your own lab's reported range is authoritative for how they classify your result.",
+     0,
+     "Worth tracking over time alongside thyroid markers as part of a full picture, especially since "
+     "hypothyroidism itself can affect cardiovascular risk markers.",
+     "established",
+     "AHA/CDC hs-CRP cardiovascular risk stratification; 2019 ACC/AHA cholesterol guideline hs-CRP "
+     "risk-enhancer threshold."),
+]
+
+
+def populate_lab_test_reference_data(cur):
+    cur.executemany(
+        'INSERT INTO lab_test_categories (code, display_name, description) VALUES (?, ?, ?)',
+        LAB_TEST_CATEGORIES,
+    )
+    cur.executemany(
+        """
+        INSERT INTO lab_tests
+            (code, display_name, category_code, aliases, what_it_measures, why_it_matters_hashimotos,
+             typical_range_low, typical_range_high, range_unit, range_caveat, is_commonly_ordered,
+             self_advocacy_note, evidence_strength, citation)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """,
+        [
+            (code, name, cat, aliases, measures, why, lo, hi, unit, caveat, 1 if commonly else 0, advocacy, evidence, citation)
+            for (code, name, cat, aliases, measures, why, lo, hi, unit, caveat, commonly, advocacy, evidence, citation)
+            in LAB_TESTS
+        ],
+    )
+
+
+# (code, display_name, description, scoring_method, framing_note, citation)
+ASSESSMENT_DOMAINS = [
+    (
+        "hypothyroid_symptoms",
+        "Hypothyroid Symptoms",
+        "Physical symptoms commonly associated with underactive thyroid function -- fatigue, cold "
+        "intolerance, skin/hair changes, constipation, and similar. Adapted for personal symptom-burden "
+        "tracking in someone already diagnosed, not as a diagnostic screen (the clinical instruments this "
+        "is modeled on were originally designed to help predict whether someone has hypothyroidism at all, "
+        "which is a different question).",
+        "Each of 13 items is rated 0 (not at all) to 4 (very severe) and summed, then expressed as a "
+        "percentage of the maximum possible score (0-100%, where lower is better).",
+        "Hashimoto's is very often a slow, non-linear recovery, and early on it's genuinely hard to tell "
+        "if anything is working because everything feels like it's happening at once. That's exactly what "
+        "retaking this periodically is for -- the day-to-day noise averages out, and a real trend becomes "
+        "visible in a way it can't be from memory alone.",
+        "Item domains adapted from Zulewski H et al., 'Estimation of tissue hypothyroidism by a new "
+        "clinical score,' J Clin Endocrinol Metab. 1997;82(3):771-776, and the hypothyroid/tiredness/"
+        "cognitive domains of the ThyPRO thyroid-specific quality-of-life questionnaire (Watt T et al.). "
+        "Item wording here is original, not reproduced from either copyrighted instrument.",
+    ),
+    (
+        "digestive_ibs",
+        "Digestive / IBS Symptoms",
+        "Follows the real, widely-used IBS Symptom Severity Scale (IBS-SSS) structure: pain severity, pain "
+        "frequency, bloating, bowel-habit satisfaction, and how much it's interfering with daily life.",
+        "5 items, each scored 0-100 (the pain-frequency item is 'days out of the last 10' scaled x10 to "
+        "match), summed to a 0-500 total. Published bands: under 75 = remission/minimal, 75-175 = mild, "
+        "175-300 = moderate, over 300 = severe.",
+        "Gut symptoms are one of the most food-responsive things this app tracks -- small, specific "
+        "dietary changes (fiber type, FODMAP load, fermentable carbohydrate content) often move this score "
+        "measurably within weeks, faster than thyroid hormone levels themselves typically shift. This is "
+        "often where someone sees their first real, undeniable win.",
+        "Structure and severity bands from Francis CY, Morris J, Whorwell PJ, 'The irritable bowel "
+        "severity scoring system,' Aliment Pharmacol Ther. 1997;11(2):395-402. Item wording here is "
+        "original, following the same 5-domain structure and scoring math as the published instrument.",
+    ),
+    (
+        "wellbeing",
+        "Overall Wellbeing",
+        "Five positively-worded questions about how the last two weeks have actually felt -- cheerfulness, "
+        "calm, energy, restorative sleep, and engagement with daily life. Deliberately asks what's going "
+        "right, not just what's going wrong.",
+        "Each of 5 items is rated 0 (none of the time) to 5 (all of the time) and summed (0-25 raw), then "
+        "multiplied by 4 for a 0-100 percentage score where higher is better.",
+        "Symptom checklists are useful, but they only ever measure absence of problems, never presence of "
+        "actually feeling good -- this domain exists specifically to capture the positive side of "
+        "recovery, which is easy to undersell when the rest of tracking is naturally deficit-focused.",
+        "Methodology (item domains, 6-point response scale, raw-score-x4 percentage conversion) modeled "
+        "on the World Health Organization-Five Well-Being Index (WHO-5, 1998 version). Item wording here "
+        "is original, not the licensed WHO-5 text, since WHO-5 is CC BY-NonCommercial-licensed and this "
+        "app has a paid tier.",
+    ),
+]
+
+# (code, domain_code, prompt, response_type, sort_order)
+# response_type: 'severity_0_4' (5-point Not at all..Very severe),
+# 'vas_0_100_10step' (11-point 0/10/.../100 visual-analog-style scale),
+# 'frequency_days_0_10' (0-10 days), 'wellbeing_0_5' (6-point WHO-5-style scale).
+ASSESSMENT_ITEMS = [
+    ("hypo_fatigue", "hypothyroid_symptoms", "Fatigue or low energy", "severity_0_4", 1),
+    ("hypo_cold_intolerance", "hypothyroid_symptoms", "Feeling cold when others around you don't", "severity_0_4", 2),
+    ("hypo_dry_skin", "hypothyroid_symptoms", "Dry or itchy skin", "severity_0_4", 3),
+    ("hypo_hair_loss", "hypothyroid_symptoms", "Hair thinning or hair loss", "severity_0_4", 4),
+    ("hypo_constipation", "hypothyroid_symptoms", "Constipation", "severity_0_4", 5),
+    ("hypo_weight_gain", "hypothyroid_symptoms", "Weight gain that's hard to explain", "severity_0_4", 6),
+    ("hypo_muscle_aches", "hypothyroid_symptoms", "Muscle aches or weakness", "severity_0_4", 7),
+    ("hypo_brain_fog", "hypothyroid_symptoms", "Brain fog or difficulty concentrating", "severity_0_4", 8),
+    ("hypo_swelling", "hypothyroid_symptoms", "Puffiness or swelling (face, hands, or feet)", "severity_0_4", 9),
+    ("hypo_slowed_movement", "hypothyroid_symptoms", "Feeling physically slowed down or sluggish", "severity_0_4", 10),
+    ("hypo_voice_changes", "hypothyroid_symptoms", "Voice hoarseness or a deepened voice", "severity_0_4", 11),
+    ("hypo_joint_pain", "hypothyroid_symptoms", "Joint pain or stiffness", "severity_0_4", 12),
+    ("hypo_hearing_changes", "hypothyroid_symptoms", "Noticeable changes in hearing", "severity_0_4", 13),
+
+    ("ibs_pain_severity", "digestive_ibs", "How severe has your abdominal pain been?", "vas_0_100_10step", 1),
+    ("ibs_pain_frequency", "digestive_ibs", "Over the last 10 days, how many days did you have abdominal pain?", "frequency_days_0_10", 2),
+    ("ibs_bloating", "digestive_ibs", "How severe has your bloating or abdominal distension been?", "vas_0_100_10step", 3),
+    ("ibs_bowel_satisfaction", "digestive_ibs", "How dissatisfied have you been with your bowel habits?", "vas_0_100_10step", 4),
+    ("ibs_life_interference", "digestive_ibs", "How much have digestive symptoms interfered with your daily life?", "vas_0_100_10step", 5),
+
+    ("wellbeing_cheerful", "wellbeing", "I have felt cheerful and in good spirits", "wellbeing_0_5", 1),
+    ("wellbeing_calm", "wellbeing", "I have felt calm and relaxed", "wellbeing_0_5", 2),
+    ("wellbeing_energetic", "wellbeing", "I have felt active and had good energy", "wellbeing_0_5", 3),
+    ("wellbeing_rested", "wellbeing", "I have woken up feeling rested", "wellbeing_0_5", 4),
+    ("wellbeing_engaged", "wellbeing", "My daily life has felt full of things that interest me", "wellbeing_0_5", 5),
+]
+
+
+def populate_assessment_content(cur):
+    cur.executemany(
+        """
+        INSERT INTO assessment_domains
+            (code, display_name, description, scoring_method, framing_note, citation)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        ASSESSMENT_DOMAINS,
+    )
+    cur.executemany(
+        """
+        INSERT INTO assessment_items (code, domain_code, prompt, response_type, sort_order)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        ASSESSMENT_ITEMS,
+    )
+
+
+# (base_name, unit_label, grams_per_unit, citation, notes)
+# base_name must match `foods.base_name` EXACTLY -- see the food_unit_weights
+# table comment above for why this isn't a keyword/substring match. Several
+# base_names are listed per real-world food (e.g. "Chicken egg" vs "Egg,
+# whole" vs "Egg, chicken") because different national sources in this
+# database name the same plain food differently.
+FOOD_UNIT_WEIGHTS = [
+    ("Chicken egg", "large egg", 50, "USDA food safety/nutrition reference weight for a large egg, edible portion (no shell).", None),
+    ("Egg, whole", "large egg", 50, "USDA food safety/nutrition reference weight for a large egg, edible portion (no shell).", None),
+    ("Egg, chicken", "large egg", 50, "USDA food safety/nutrition reference weight for a large egg, edible portion (no shell).", None),
+    ("Chicken egg white", "large egg white", 33, "USDA reference: egg white is ~66% of a 50g large egg's edible weight.", None),
+    ("Egg, white", "large egg white", 33, "USDA reference: egg white is ~66% of a 50g large egg's edible weight.", None),
+    ("Chicken egg yolk", "large egg yolk", 17, "USDA reference: egg yolk is ~34% of a 50g large egg's edible weight.", None),
+    ("Egg, yolk", "large egg yolk", 17, "USDA reference: egg yolk is ~34% of a 50g large egg's edible weight.", None),
+
+    ("Banana", "medium banana", 118, "USDA FoodData Central standard reference weight for one medium banana.", None),
+    ("Bananas", "medium banana", 118, "USDA FoodData Central standard reference weight for one medium banana.", None),
+
+    ("Apple", "medium apple", 182, "USDA FoodData Central standard reference weight for one medium apple (~6.4 oz).", None),
+    ("Apples", "medium apple", 182, "USDA FoodData Central standard reference weight for one medium apple (~6.4 oz).", None),
+
+    ("Pear", "medium pear", 178, "USDA FoodData Central standard reference weight for one medium pear.", None),
+    ("Pears", "medium pear", 178, "USDA FoodData Central standard reference weight for one medium pear.", None),
+
+    ("Orange", "medium orange", 154, "USDA FoodData Central standard reference weight for one medium orange, all commercial varieties.", None),
+    ("Oranges", "medium orange", 154, "USDA FoodData Central standard reference weight for one medium orange, all commercial varieties.", None),
+
+    ("Avocado", "medium avocado", 150, "USDA FoodData Central standard reference weight for one medium avocado, edible flesh only (no pit/skin).", None),
+    ("Avocados", "medium avocado", 150, "USDA FoodData Central standard reference weight for one medium avocado, edible flesh only (no pit/skin).", None),
+]
+
+
+def populate_food_unit_weights(cur):
+    cur.executemany(
+        """
+        INSERT INTO food_unit_weights (base_name, unit_label, grams_per_unit, citation, notes)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        FOOD_UNIT_WEIGHTS,
+    )
+
+
+def populate_physiology_knowledge(cur):
+    cur.executemany(
+        "INSERT INTO body_systems (code, display_name, description) VALUES (?, ?, ?)",
+        BODY_SYSTEMS,
+    )
+    cur.executemany(
+        """
+        INSERT INTO nutrient_interactions
+            (nutrient_a, nutrient_b, interaction_type, summary, population_scope, citation)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        NUTRIENT_INTERACTIONS,
+    )
+    cur.executemany(
+        """
+        INSERT INTO nutrient_system_effects
+            (nutrient, status, body_system, effect_summary, evidence_strength, population_scope, citation)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+        """,
+        NUTRIENT_SYSTEM_EFFECTS,
+    )
+
+
+def normalize_header(text):
+    return re.sub(r"\s+", " ", text or "").strip()
+
+
+def parse_nutrient_amount(raw_value):
+    if raw_value is None:
+        return None
+    text = str(raw_value).strip()
+    if not text:
+        return None
+    try:
+        return float(text)
+    except ValueError:
+        return None
+
+
+def reclassify_category(category_code, base_name):
+    override = CATEGORY_OVERRIDES.get((category_code, base_name))
+    if override:
+        return override
+
+    # Refined flours/starches (potato flour, cornstarch, arrowroot flour...)
+    # are processed products, not fresh vegetables -- checked against all 28
+    # real Veg rows containing "flour"/"starch" before writing this: none of
+    # the false-positive risk seen with the stew/soup words applies here,
+    # neither word shows up in a genuine fresh-vegetable name by coincidence.
+    # Scoped to Veg specifically so this doesn't also rip flour back out of
+    # Baked/Grain, where plenty of it legitimately belongs.
+    if category_code == "Veg":
+        lowered = base_name.lower()
+        if lowered.startswith("starch products"):
+            return "Mixed"  # noodles/gel/tapioca made from starch -- a prepared product, not an ingredient
+        if "flour" in lowered or "starch" in lowered:
+            return "Grain"
+
+    return category_code
+
+# Sub-category browsing bins, keyword-based, scoped per top-level category.
+# Organizational only (helps drill-down browsing in the app), not a
+# scientific/nutritional classification. Extend this dict with more
+# top-level categories as they turn out to need drill-down too -- a
+# category with no entry here simply gets no sub-category step in the UI.
+SUBCATEGORY_RULES = {
+    "Bev": [
+        ("Alcoholic", ["alcohol", "beer", "wine", "spirit", "liqueur", "cocktail", "whisky", "whiskey",
+                        "vodka", "rum", "gin", "tequila", "champagne", "sake", "ale", "stout", "cider",
+                        "brandy", "vermouth", "advocaat", "curacao", "daiquiri", "margarita", "pina colada"]),
+        ("Tea", ["tea", "cha"]),
+        ("Coffee", ["coffee"]),
+        ("Juice", ["juice"]),
+        ("Protein & Meal Replacement", ["protein powder", "whey", "meal replacement", "meal supplement",
+                                          "slimfast", "ensure"]),
+        ("Dairy & Blended", ["milk", "smoothie", "milkshake", "shake", "horchata"]),
+        ("Soft Drinks", ["soda", "cola", "soft drink", "carbonated", "tonic", "lemonade"]),
+        ("Water", ["water"]),
+        ("Sports & Energy Drinks", ["sport", "energy drink", "gatorade", "isotonic", "powerade"]),
+    ],
+    "Alcohol": [
+        ("Beer & Cider", ["beer", "ale", "stout", "lager", "cider"]),
+        ("Wine & Champagne", ["wine", "champagne", "vermouth", "sherry", "port"]),
+        ("Spirits & Liqueurs", ["spirit", "liqueur", "whisky", "whiskey", "vodka", "rum", "gin",
+                                 "tequila", "brandy", "advocaat", "curacao"]),
+        ("Cocktails & Mixed", ["cocktail", "daiquiri", "margarita", "pina colada", "sour"]),
+    ],
+}
+
+
+def classify_subcategory(category_code, name):
+    rules = SUBCATEGORY_RULES.get(category_code)
+    if not rules or not name:
+        return None
+
+    lowered = name.lower()
+    for label, keywords in rules:
+        if any(keyword in lowered for keyword in keywords):
+            return label
+
+    return "Other"
+
+
+# Real, unambiguous cooking-state words only -- deliberately excludes
+# frequent-but-ambiguous trailing words found in the real data (meat, sauce,
+# cream, juice, seeds, heart, breast, leg, liver, giblets, oil, bacon,
+# dressing, vegetables, marinade, style, mature, lean, mince) since those
+# usually carry real food-identity information, not just a cooking state --
+# same false-positive risk the source project repeatedly found and fixed
+# (e.g. "sweet potato" != "potato"). Longer phrases first so they match
+# before their shorter substrings would. Empirically checked against all
+# 5,876 real Germany_BLS short_names before finalizing this list.
+PREP_TERMS = [
+    "fried without fat (pan)",
+    "fried without fat (oven)",
+    "without fat (pan)",
+    "without fat (oven)",
+    "in unsalted water",
+    "in salted water",
+    "deep-frozen",
+    "unprepared",
+    "marinated",
+    "steamed",
+    "roasted",
+    "grilled",
+    "stewed",
+    "boiled",
+    "canned",
+    "pickled",
+    "cooked",
+    "baked",
+    "fried",
+    "dried",
+    "cured",
+    "frozen",
+    "raw",
+]
+
+
+def split_prep_method(name):
+    """Strip a trailing cooking-state word/phrase off a food's display name.
+
+    Returns (base_name, prep_method). prep_method is None when nothing in
+    PREP_TERMS matches at the end of the string -- the vast majority of
+    rows (already-clean USDA/UK/etc. short names), left untouched.
+    """
+    if not name:
+        return name, None
+
+    lowered = name.lower()
+    for term in PREP_TERMS:
+        suffix = " " + term
+        if lowered.endswith(suffix) and len(name) > len(suffix):
+            base = name[: len(name) - len(suffix)].rstrip(" ,")
+            if base:
+                return base, term.title()
+
+    return name, None
+
+
+# Dish-style names that are really a potato (or sweet potato) plus a cooking
+# method, not a distinct vegetable -- e.g. "Potato pancakes"/"Potato wedges"/
+# "au gratin"/"hash brown"/"mashed"/"O'Brien"/"scalloped" all just describe
+# how a potato was prepared. These don't share a trailing suffix, so
+# split_prep_method() above (which only strips single trailing words) leaves
+# them as their own separate base_name each -- causing duplicate-looking
+# "vegetables" in the picker for what's really one food (Potato) with
+# different prep methods. Keyed on the base_name split_prep_method() already
+# produced, checked by hand against every real Veg row containing these
+# words. None of these carry a potato variety (russet/red/white) in the
+# name, so they safely collapse into the same variety-less "Potato(es)"
+# bucket the plain baked/boiled entries already use for that source.
+PREP_METHOD_OVERRIDES = {
+    ("Veg", "Potatoes, hash brown"): ("Potatoes", "Hash Browns"),
+    ("Veg", "Potato, hashed-brown"): ("Potato", "Hash Browns"),
+    ("Veg", "Potato, hashed brown"): ("Potato", "Hash Browns"),
+    ("Veg", "Potatoes, mashed"): ("Potatoes", "Mashed"),
+    ("Veg", "Potato, mashed"): ("Potato", "Mashed"),
+    ("Veg", "Potatoes mashed instant powder"): ("Potatoes", "Mashed (Instant Powder)"),
+    ("Veg", "Potatoes, dehydrated mashed potato"): ("Potatoes", "Mashed (Dehydrated)"),
+    ("Veg", "Potatoes, au gratin"): ("Potatoes", "Au Gratin"),
+    ("Veg", "Potato, au gratin"): ("Potato", "Au Gratin"),
+    ("Veg", "Potatoes, scalloped"): ("Potatoes", "Scalloped"),
+    ("Veg", "Potato, scalloped"): ("Potato", "Scalloped"),
+    ("Veg", "Potatoes, o'brien"): ("Potatoes", "O'Brien"),
+    ("Veg", "Potato, O'brien"): ("Potato", "O'Brien"),
+    ("Veg", "Potato wedges"): ("Potatoes", "Wedges"),
+    ("Veg", "Potato, wedges"): ("Potato", "Wedges"),
+    ("Veg", "Potatoes ou Wedges ou Quartiers de pommes de terre épicés"): ("Potatoes", "Wedges"),
+    ("Veg", "Potato pancakes"): ("Potatoes", "Pancakes"),
+    ("Veg", "Potato pancakes deep-frozen"): ("Potatoes", "Pancakes (Deep-Frozen)"),
+    ("Veg", "Potato pancake, homemade"): ("Potato", "Pancakes"),
+}
+
+
+def apply_prep_overrides(category_code, base_name, prep_method):
+    override = PREP_METHOD_OVERRIDES.get((category_code, base_name))
+    if override:
+        return override[0], override[1]
+    return base_name, prep_method
+
+
+def load_shared_strings(z):
+    if "xl/sharedStrings.xml" not in z.namelist():
+        return []
+    root = ET.fromstring(z.read("xl/sharedStrings.xml"))
+    shared = []
+    for si in root.findall("m:si", NS):
+        texts = si.findall(".//m:t", NS)
+        shared.append("".join(t.text or "" for t in texts))
+    return shared
+
+
+def sheet_name_to_file_map(z):
+    wb_root = ET.fromstring(z.read("xl/workbook.xml"))
+    sheets_el = wb_root.find("m:sheets", NS)
+    rels_root = ET.fromstring(z.read("xl/_rels/workbook.xml.rels"))
+    rid_to_target = {
+        rel.get("Id"): rel.get("Target")
+        for rel in rels_root.findall("r:Relationship", REL_NS)
+    }
+    mapping = {}
+    for s in sheets_el:
+        name = s.get("name")
+        rid = s.get(f"{R_NS}id")
+        target = rid_to_target[rid]
+        mapping[name] = "xl/" + target if not target.startswith("xl/") else target
+    return mapping
+
+
+def cell_value(c, shared):
+    t = c.get("t")
+    if t == "inlineStr":
+        isnode = c.find("m:is", NS)
+        if isnode is not None:
+            texts = isnode.findall(".//m:t", NS)
+            return "".join(x.text or "" for x in texts)
+        return None
+    v = c.find("m:v", NS)
+    if v is None:
+        return None
+    if t == "s":
+        return shared[int(v.text)]
+    return v.text
+
+
+def col_letters_to_index(ref):
+    # e.g. "AY123" -> column letters "AY" -> 0-based index
+    letters = "".join(ch for ch in ref if ch.isalpha())
+    idx = 0
+    for ch in letters:
+        idx = idx * 26 + (ord(ch.upper()) - ord("A") + 1)
+    return idx - 1
+
+
+def parse_sheet(z, sheet_file, shared):
+    root = ET.fromstring(z.read(sheet_file))
+    sheet_data = root.find("m:sheetData", NS)
+    rows = sheet_data.findall("m:row", NS)
+    if not rows:
+        return [], []
+
+    def row_to_sparse_list(row):
+        cells = row.findall("m:c", NS)
+        out = {}
+        for c in cells:
+            idx = col_letters_to_index(c.get("r"))
+            out[idx] = cell_value(c, shared)
+        if not out:
+            return []
+        width = max(out.keys()) + 1
+        return [out.get(i) for i in range(width)]
+
+    header = row_to_sparse_list(rows[0])
+    data_rows = [row_to_sparse_list(r) for r in rows[1:]]
+    return header, data_rows
+
+
+def build(xlsx_path, db_path):
+    conn = sqlite3.connect(db_path)
+    cur = conn.cursor()
+    cur.executescript(
+        """
+        PRAGMA journal_mode = OFF;
+        DROP TABLE IF EXISTS foods;
+        DROP TABLE IF EXISTS food_scores;
+        DROP TABLE IF EXISTS sub_criteria;
+        CREATE TABLE foods (
+            food_id INTEGER NOT NULL,
+            source TEXT NOT NULL,
+            source_code TEXT,
+            name TEXT NOT NULL,
+            name_local TEXT,
+            short_name TEXT,
+            base_name TEXT COLLATE NOCASE,
+            prep_method TEXT COLLATE NOCASE,
+            category TEXT NOT NULL,
+            subcategory TEXT,
+            raw_category TEXT,
+            scientific_classification TEXT,
+            classification_precision TEXT,
+            PRIMARY KEY (food_id, source)
+        );
+        CREATE TABLE sub_criteria (
+            id INTEGER PRIMARY KEY,
+            dimension TEXT NOT NULL,
+            sub_criterion TEXT NOT NULL,
+            UNIQUE (dimension, sub_criterion)
+        );
+        CREATE TABLE food_scores (
+            food_id INTEGER NOT NULL,
+            source TEXT NOT NULL,
+            sub_criterion_id INTEGER NOT NULL,
+            tier TEXT NOT NULL
+        );
+        CREATE INDEX idx_food_scores_food ON food_scores(food_id, source);
+        CREATE INDEX idx_food_scores_sub ON food_scores(sub_criterion_id);
+        CREATE INDEX idx_foods_category ON foods(category);
+        CREATE INDEX idx_foods_subcategory ON foods(category, subcategory);
+        CREATE INDEX idx_foods_name ON foods(name);
+        CREATE INDEX idx_foods_short_name ON foods(short_name);
+        CREATE INDEX idx_foods_base_name ON foods(category, base_name);
+
+        DROP TABLE IF EXISTS nutrients;
+        DROP TABLE IF EXISTS food_nutrients;
+        CREATE TABLE nutrients (
+            code TEXT PRIMARY KEY,
+            display_name TEXT NOT NULL,
+            unit TEXT NOT NULL,
+            nutrient_group TEXT NOT NULL
+        );
+        -- Normalized (long/tall) on purpose, not one column per nutrient:
+        -- most foods only populate a subset, and this shape means Phase 2
+        -- (amino acids, individual fatty acids, etc.) is purely additive
+        -- rows in `nutrients` later, never a schema migration.
+        --
+        -- `source` doubles as the data-provenance signal for the app's own
+        -- UI: every value currently imported here comes from one of the 7
+        -- national testing bodies (USDA, UK_CoFID, Japan_MEXT, Germany_BLS,
+        -- Canada_CNF, France_Ciqual, Australia_AFCD) -- the same trustworthy
+        -- tier as everything else in this database. If a future food ever
+        -- needs to fall back to manufacturer-declared branded-label data
+        -- (no reputable-body data existing at all, e.g. Clover Sprouts),
+        -- that should be written with a distinct source value such as
+        -- "Branded:Wegmans" so the app can visually flag it as a different,
+        -- less rigorous provenance tier rather than mixing it in silently.
+        CREATE TABLE food_nutrients (
+            food_id INTEGER NOT NULL,
+            source TEXT NOT NULL,
+            nutrient_code TEXT NOT NULL,
+            amount_per_100g REAL NOT NULL,
+            PRIMARY KEY (food_id, source, nutrient_code)
+        );
+        CREATE INDEX idx_food_nutrients_food ON food_nutrients(food_id, source);
+
+        -- Physiology knowledge base: how nutrients (and related substances --
+        -- hydration, hormones, gut metabolites -- not every row here is a
+        -- per-food nutrient, hence free-text rather than a foreign key into
+        -- `nutrients`) interact with each other and affect body systems.
+        -- This is NOT derived from the food spreadsheet at all -- it's
+        -- independently researched content (see populate_physiology_knowledge
+        -- below), stored here because it's still bundled, versioned
+        -- reference data, the same as everything else in this database.
+        DROP TABLE IF EXISTS body_systems;
+        DROP TABLE IF EXISTS nutrient_interactions;
+        DROP TABLE IF EXISTS nutrient_system_effects;
+        CREATE TABLE body_systems (
+            code TEXT PRIMARY KEY,
+            display_name TEXT NOT NULL,
+            description TEXT
+        );
+        -- nutrient <-> nutrient relationships: synergy, antagonism, a
+        -- required-cofactor relationship, or competition for absorption.
+        CREATE TABLE nutrient_interactions (
+            id INTEGER PRIMARY KEY,
+            nutrient_a TEXT NOT NULL,
+            nutrient_b TEXT NOT NULL,
+            interaction_type TEXT NOT NULL,
+            summary TEXT NOT NULL,
+            population_scope TEXT NOT NULL,
+            citation TEXT
+        );
+        CREATE INDEX idx_nutrient_interactions_a ON nutrient_interactions(nutrient_a);
+        CREATE INDEX idx_nutrient_interactions_b ON nutrient_interactions(nutrient_b);
+        -- one nutrient's deficiency or excess -> its effect on one body
+        -- system. evidence_strength is disclosed explicitly (established /
+        -- emerging / mechanistic_only) -- the same honesty pattern already
+        -- used for the D1-D6 sub-criterion citations, since this content
+        -- ranges from settled physiology (the Na+/K+ pump) to small, mixed-
+        -- quality trials (magnesium and anxiety).
+        CREATE TABLE nutrient_system_effects (
+            id INTEGER PRIMARY KEY,
+            nutrient TEXT NOT NULL,
+            status TEXT NOT NULL,
+            body_system TEXT NOT NULL,
+            effect_summary TEXT NOT NULL,
+            evidence_strength TEXT NOT NULL,
+            population_scope TEXT NOT NULL,
+            citation TEXT
+        );
+        CREATE INDEX idx_nutrient_system_effects_nutrient ON nutrient_system_effects(nutrient);
+        CREATE INDEX idx_nutrient_system_effects_system ON nutrient_system_effects(body_system);
+
+        -- Dietary Reference Intakes (RDA/AI/CDRR + Tolerable Upper Intake
+        -- Level) for nonpregnant, nonlactating adults, by sex and age band.
+        -- Source throughout: the National Academies of Sciences,
+        -- Engineering, and Medicine (NASEM, formerly the Institute of
+        -- Medicine) DRI reports, as summarized by NIH Office of Dietary
+        -- Supplements fact sheets. Deliberately excludes macronutrients
+        -- (energy, total fat, carbohydrate, sugars, saturated/mono/poly
+        -- fat, cholesterol) that NASEM expresses as a %-of-calories AMDR
+        -- range rather than a fixed daily amount -- turning that into a
+        -- single gram figure here would misrepresent the actual guidance,
+        -- and the app's existing D1-D6 sugar/saturated-fat sub-criteria
+        -- already carry FDA/UK-FSA-based thresholds for those. Also
+        -- excludes pregnancy/lactation values entirely -- a real gap, not
+        -- an oversight, flagged as a likely future addition rather than
+        -- silently guessed at here.
+        DROP TABLE IF EXISTS dietary_reference_intakes;
+        DROP TABLE IF EXISTS supplement_forms;
+        CREATE TABLE dietary_reference_intakes (
+            id INTEGER PRIMARY KEY,
+            nutrient_code TEXT NOT NULL,
+            sex TEXT NOT NULL,
+            age_min INTEGER NOT NULL,
+            age_max INTEGER,
+            value_type TEXT NOT NULL,
+            amount REAL NOT NULL,
+            unit TEXT NOT NULL,
+            upper_limit REAL,
+            upper_limit_type TEXT,
+            source_agency TEXT NOT NULL,
+            citation TEXT,
+            notes TEXT
+        );
+        CREATE INDEX idx_dri_nutrient_sex_age ON dietary_reference_intakes(nutrient_code, sex, age_min, age_max);
+
+        -- Real, commonly available supplement forms per nutrient, with
+        -- their comparative absorption/GI-tolerance profile -- this is the
+        -- "best absorption, easiest on the body" teaching layer the user
+        -- asked for, deliberately separate from the DRI amounts above
+        -- since it answers a different question (which form, not how
+        -- much).
+        CREATE TABLE supplement_forms (
+            id INTEGER PRIMARY KEY,
+            nutrient_code TEXT NOT NULL,
+            form_name TEXT NOT NULL,
+            absorption_note TEXT NOT NULL,
+            gi_tolerance_note TEXT,
+            evidence_strength TEXT NOT NULL,
+            citation TEXT,
+            notes TEXT
+        );
+        CREATE INDEX idx_supplement_forms_nutrient ON supplement_forms(nutrient_code);
+
+        -- Lab-test reference content: what each test measures, why it
+        -- matters specifically for Hashimoto's, a typical adult reference
+        -- range, and self-advocacy guidance (many of these are not
+        -- ordered by default and the person may need to specifically ask
+        -- for them). This is deliberately educational, not diagnostic --
+        -- every row carries an explicit range_caveat because real
+        -- reference ranges vary by lab/assay/sex/age, and the person's own
+        -- lab report is always the authoritative range for their result,
+        -- never this table.
+        DROP TABLE IF EXISTS lab_test_categories;
+        DROP TABLE IF EXISTS lab_tests;
+        CREATE TABLE lab_test_categories (
+            code TEXT PRIMARY KEY,
+            display_name TEXT NOT NULL,
+            description TEXT
+        );
+        CREATE TABLE lab_tests (
+            code TEXT PRIMARY KEY,
+            display_name TEXT NOT NULL,
+            category_code TEXT NOT NULL,
+            aliases TEXT,
+            what_it_measures TEXT NOT NULL,
+            why_it_matters_hashimotos TEXT NOT NULL,
+            typical_range_low REAL,
+            typical_range_high REAL,
+            range_unit TEXT,
+            range_caveat TEXT NOT NULL,
+            is_commonly_ordered INTEGER NOT NULL,
+            self_advocacy_note TEXT,
+            evidence_strength TEXT NOT NULL,
+            citation TEXT NOT NULL,
+            FOREIGN KEY (category_code) REFERENCES lab_test_categories(code)
+        );
+        CREATE INDEX idx_lab_tests_category ON lab_tests(category_code);
+
+        -- Structured, periodically-retakeable self-assessment content.
+        -- Deliberately original item wording -- ThyPRO (Watt et al.) is a
+        -- copyrighted instrument requiring the original author's
+        -- permission, and the WHO-5 Well-Being Index is licensed
+        -- CC BY-NonCommercial, which sits awkwardly next to this app's
+        -- paid tier -- so rather than reproduce either verbatim, these
+        -- items are original prompts written to cover the same documented
+        -- symptom/wellbeing domains, with the real instrument cited as the
+        -- methodology this was modeled on, the same "cite the source,
+        -- don't copy the copyrighted text" approach already used for the
+        -- D1-D6 rubric. The IBS domain follows the actual published
+        -- IBS-SSS scoring structure and bands (Francis et al. 1997) more
+        -- closely, since that's the numeric methodology itself, not
+        -- copyrighted item wording.
+        DROP TABLE IF EXISTS assessment_domains;
+        DROP TABLE IF EXISTS assessment_items;
+        CREATE TABLE assessment_domains (
+            code TEXT PRIMARY KEY,
+            display_name TEXT NOT NULL,
+            description TEXT NOT NULL,
+            scoring_method TEXT NOT NULL,
+            -- Explicit, positive-framed context on why retaking this over
+            -- time is the point -- shown alongside results, not just
+            -- filed away as metadata.
+            framing_note TEXT NOT NULL,
+            citation TEXT NOT NULL
+        );
+        CREATE TABLE assessment_items (
+            code TEXT PRIMARY KEY,
+            domain_code TEXT NOT NULL,
+            prompt TEXT NOT NULL,
+            response_type TEXT NOT NULL,
+            sort_order INTEGER NOT NULL,
+            FOREIGN KEY (domain_code) REFERENCES assessment_domains(code)
+        );
+        CREATE INDEX idx_assessment_items_domain ON assessment_items(domain_code, sort_order);
+
+        -- "How much does one of these weigh" for foods commonly logged by
+        -- count ("4 eggs") rather than weight or volume -- what makes the
+        -- app's "each" unit actually convertible to grams for the nutrient
+        -- analysis, the same way a density class makes "cup" convertible
+        -- for a handful of liquid categories. Matched by EXACT base_name
+        -- equality, not a keyword/substring search -- the real base_name
+        -- data includes plenty of composite dishes that merely mention an
+        -- ingredient ("Bread, egg (Challah)", "Apple-banana sauce"), and a
+        -- loose match would silently apply a plain egg's weight to a
+        -- pastry. Deliberately narrow (common everyday foods only, not all
+        -- 22,016) -- see scripts/build_food_reference_db.py's
+        -- FOOD_UNIT_WEIGHTS for exactly which base_names are covered and
+        -- why bread/baked goods were left out of this first pass (their
+        -- per-slice weight varies too much by type to trust one figure).
+        DROP TABLE IF EXISTS food_unit_weights;
+        CREATE TABLE food_unit_weights (
+            id INTEGER PRIMARY KEY,
+            base_name TEXT NOT NULL,
+            unit_label TEXT NOT NULL,
+            grams_per_unit REAL NOT NULL,
+            citation TEXT NOT NULL,
+            notes TEXT
+        );
+        CREATE INDEX idx_food_unit_weights_base_name ON food_unit_weights(base_name);
+        """
+    )
+
+    cur.executemany(
+        "INSERT INTO nutrients (code, display_name, unit, nutrient_group) VALUES (?, ?, ?, ?)",
+        NUTRIENT_DEFINITIONS,
+    )
+    populate_physiology_knowledge(cur)
+    populate_dietary_reference_data(cur)
+    populate_lab_test_reference_data(cur)
+    populate_assessment_content(cur)
+    populate_food_unit_weights(cur)
+    sub_criterion_ids = {}
+
+    def get_sub_criterion_id(dim, sub):
+        key = (dim, sub)
+        if key not in sub_criterion_ids:
+            cur.execute(
+                "INSERT INTO sub_criteria (dimension, sub_criterion) VALUES (?, ?)",
+                key,
+            )
+            sub_criterion_ids[key] = cur.lastrowid
+        return sub_criterion_ids[key]
+
+    with zipfile.ZipFile(xlsx_path) as z:
+        shared = load_shared_strings(z)
+        sheet_files = sheet_name_to_file_map(z)
+
+        foods_rows = []
+        score_rows = []
+        nutrient_rows = []
+        sheet_report = []
+
+        for sheet_name, sheet_file in sheet_files.items():
+            if sheet_name in SKIP_SHEETS:
+                continue
+
+            # Sheet name convention: "{SOURCE_PREFIX}_{CategoryCode}"
+            source_prefix, _, category_code = sheet_name.partition("_")
+
+            header, data_rows = parse_sheet(z, sheet_file, shared)
+            if not header:
+                sheet_report.append((sheet_name, 0))
+                continue
+
+            col_index = {name: i for i, name in enumerate(header) if name}
+            normalized_col_index = {normalize_header(name): i for i, name in enumerate(header) if name}
+
+            score_cols = []  # (index, dimension, sub_criterion)
+            for i, name in enumerate(header):
+                if name and len(name) > 2 and name[:2] in ("D1", "D2", "D3", "D4", "D5", "D6") and " | " in name:
+                    dim, sub = name.split(" | ", 1)
+                    score_cols.append((i, dim.strip(), sub.strip()))
+
+            # nutrient_code -> list of column indices to try, in priority
+            # order (this sheet's subset of the aliases that actually
+            # exist -- most nutrients resolve to exactly one).
+            nutrient_cols = {}
+            for code, aliases in NUTRIENT_COLUMN_ALIASES.items():
+                indices = [normalized_col_index[a] for a in aliases if a in normalized_col_index]
+                if indices:
+                    nutrient_cols[code] = indices
+
+            missing_identity = [c for c in ["food_id", "source", "food_name", "category"] if c not in col_index]
+            if missing_identity:
+                raise RuntimeError(f"{sheet_name}: missing identity columns {missing_identity}")
+
+            count = 0
+            for row in data_rows:
+                if not row:
+                    continue
+
+                def get(colname):
+                    idx = col_index.get(colname)
+                    if idx is None or idx >= len(row):
+                        return None
+                    return row[idx]
+
+                food_id_raw = get("food_id")
+                name = get("food_name")
+                if food_id_raw is None or not name:
+                    continue
+
+                try:
+                    food_id = int(float(food_id_raw))
+                except (TypeError, ValueError):
+                    continue
+
+                source = get("source") or source_prefix
+                short_name = get("Short Display Name")
+                base_name, prep_method = split_prep_method(short_name or name)
+                base_name, prep_method = apply_prep_overrides(category_code, base_name, prep_method)
+                base_name = rename_bean_type_first(base_name)
+                base_name = rename_sprout(base_name, name)
+                effective_category = reclassify_category(category_code, base_name)
+                # Classify against the full name, not short_name -- for
+                # branded/composite products short_name is often truncated
+                # to something generic (e.g. "Beverages, OCEAN SPRAY"),
+                # which hides the actual descriptive words ("Juice Drink")
+                # the classifier needs to see.
+                foods_rows.append((
+                    food_id,
+                    source,
+                    get("source_code"),
+                    name,
+                    get("food_name_local"),
+                    short_name,
+                    base_name,
+                    prep_method,
+                    effective_category,
+                    classify_subcategory(effective_category, name),
+                    get("category"),
+                    get("Scientific Classification"),
+                    get("Classification Precision"),
+                ))
+
+                for idx, dim, sub in score_cols:
+                    if idx >= len(row):
+                        continue
+                    tier = row[idx]
+                    if tier:
+                        sub_id = get_sub_criterion_id(dim, sub)
+                        score_rows.append((food_id, source, sub_id, tier))
+
+                for code, indices in nutrient_cols.items():
+                    amount = None
+                    for idx in indices:
+                        if idx < len(row):
+                            amount = parse_nutrient_amount(row[idx])
+                            if amount is not None:
+                                break
+                    if amount is not None:
+                        nutrient_rows.append((food_id, source, code, amount))
+
+                count += 1
+            sheet_report.append((sheet_name, count))
+
+        cur.executemany(
+            """INSERT OR REPLACE INTO foods
+               (food_id, source, source_code, name, name_local, short_name, base_name, prep_method,
+                category, subcategory, raw_category, scientific_classification, classification_precision)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            foods_rows,
+        )
+        cur.executemany(
+            """INSERT INTO food_scores (food_id, source, sub_criterion_id, tier)
+               VALUES (?, ?, ?, ?)""",
+            score_rows,
+        )
+        cur.executemany(
+            """INSERT OR REPLACE INTO food_nutrients (food_id, source, nutrient_code, amount_per_100g)
+               VALUES (?, ?, ?, ?)""",
+            nutrient_rows,
+        )
+        conn.commit()
+        cur.execute("VACUUM")
+
+        total_foods = cur.execute("SELECT COUNT(*) FROM foods").fetchone()[0]
+        total_scores = cur.execute("SELECT COUNT(*) FROM food_scores").fetchone()[0]
+        total_nutrients = cur.execute("SELECT COUNT(*) FROM food_nutrients").fetchone()[0]
+        distinct_food_id = cur.execute("SELECT COUNT(DISTINCT food_id) FROM foods").fetchone()[0]
+        foods_with_nutrients = cur.execute("SELECT COUNT(DISTINCT food_id || '|' || source) FROM food_nutrients").fetchone()[0]
+
+        print(f"Sheets processed: {len(sheet_report)}")
+        print(f"Total food rows: {total_foods}")
+        print(f"Distinct food_id values: {distinct_food_id}")
+        print(f"Total score rows: {total_scores}")
+        print(f"Total nutrient value rows: {total_nutrients}")
+        print(f"Food/source pairs with at least one nutrient value: {foods_with_nutrients}")
+        print("\nPer-sheet row counts:")
+        for name, count in sheet_report:
+            print(f"  {name}: {count}")
+
+    conn.close()
+
+
+def write_version_file(version_ts_path):
+    # The app compares this against what it last imported on-device and
+    # force-reimports whenever it changes -- without this, expo-sqlite's
+    # importDatabaseFromAssetAsync silently skips re-copying a file that
+    # already exists on the device, so every rebuild after the first
+    # install would otherwise never actually reach the phone.
+    version = datetime.datetime.now(datetime.timezone.utc).strftime("%Y%m%d%H%M%S")
+    with open(version_ts_path, "w") as f:
+        f.write("// Auto-generated by scripts/build_food_reference_db.py -- do not edit by hand.\n")
+        f.write(f'export const REFERENCE_DB_VERSION = "{version}";\n')
+    print(f"\nWrote version {version} to {version_ts_path}")
+
+
+if __name__ == "__main__":
+    if len(sys.argv) not in (3, 4):
+        print("Usage: py build_food_reference_db.py <LIVE.xlsx path> <output .db path> [version .ts output path]")
+        sys.exit(1)
+    build(sys.argv[1], sys.argv[2])
+    if len(sys.argv) == 4:
+        write_version_file(sys.argv[3])

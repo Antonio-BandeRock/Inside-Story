@@ -1,0 +1,2 @@
+assets/data/foods_reference.db filter=lfs diff=lfs merge=lfs -text
+unified-database/unified_foods.sqlite filter=lfs diff=lfs merge=lfs -text
