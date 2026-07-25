@@ -29,9 +29,9 @@ const CARD_WIDTH = 260;
 // tab pills that used to sit under the header on any screen with more than
 // one view (Insights, Schedule, Bio-Compass) -- same size, same popup
 // format. The screen using this is responsible for showing which option is
-// currently selected up in its own ScreenHeader (see the activeLensLabel
-// prop there), since that's where the eye naturally lands, not down at the
-// button itself.
+// currently selected via PageIdentityLabel's own activeLensLabel prop (see
+// components/PageIdentityLabel.tsx), rendered in the screen's bottom
+// corner rather than up in ScreenHeader now.
 //
 // 2026-07-25: the trigger button itself was redesigned to double as a "you
 // are in this tab" marker -- rather than a generic list icon, it shows the

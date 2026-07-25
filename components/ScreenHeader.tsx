@@ -5,53 +5,39 @@ import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { getUserProfile } from '../lib/db';
 import { useCurrentPageHelp } from './CurrentPageHelp';
-import { HelpButton, type HelpSection } from './HelpButton';
+import type { HelpSection } from './HelpButton';
 
-// The one and only header for every tab screen -- the app's own name on
-// top, that page's own title/help below it, both still one header block.
-// Subtitles were removed deliberately: the help sheet already covers what
-// a page is/does in more depth, and a bare title pushes people toward
-// actually reading it instead of skimming a one-line summary. Used instead
-// of the native Stack/Tabs header (which is turned off for the whole
-// (tabs) group -- see app/(tabs)/_layout.tsx) so a page's name is never
-// shown twice, stacking two header bars on top of each other and eating
-// vertical space that matters most in landscape.
+// 2026-07-25: this used to be the one header carrying three things --
+// the page's own title/sub-tab (left), a help icon (far left), and
+// "{name}'s Inside Story" (right). All three moved out: the info icon is
+// gone (TabHub's own picker grid has an equivalent "About this page" tile
+// now, colored to match whatever page is open); the page title and
+// sub-tab label moved to PageIdentityLabel, anchored in the screen's
+// bottom corner instead (see components/PageIdentityLabel.tsx and each
+// screen's own render of it). What's left here is purely the app's own
+// branding -- "{name}'s Inside Story" -- now the only thing this header
+// shows, in a larger size, centered both ways in the header's own space
+// rather than pinned to one side of a now-empty row.
 //
-// 2026-07-25: the "{name}'s Inside Story" line on the right used to double
-// as a button into Profile (a person-circle icon next to it). Profile
-// moved into TabHub's own picker grid instead (its 9th item, see
-// components/TabHub.tsx) so it isn't tied to a specific corner of every
-// screen anymore -- this text stays exactly where it was, purely as
-// branding/personalization now, with nothing to tap.
-//
-// The title/icon row itself is inset (paddingHorizontal on `row`), but the
-// divider below it is not -- screens must not put paddingHorizontal on the
-// wrapper they render this in, so the line underneath can reach the true
-// left/right edges of the screen. Built from plain stacked Views rather
-// than the native shadow/elevation props: RN's Android `elevation` always
-// casts a shadow on every side of the view, not just the bottom, which is
-// exactly the "goes all the way around" look this deliberately avoids.
+// Still used instead of the native Stack/Tabs header (turned off for the
+// whole (tabs) group -- see app/(tabs)/_layout.tsx) so nothing shows
+// twice, and still the place `helpSections`/`tabPath` get registered
+// (via useCurrentPageHelp) even though neither one renders anything
+// visible here anymore -- TabHub's info tile and active-tab highlight
+// both still depend on this registration happening on every screen.
 export function ScreenHeader({
   title,
   helpSections,
-  activeLensLabel,
   tabPath,
 }: {
+  // No longer displayed here (see PageIdentityLabel) -- still required so
+  // the help sheet this feeds (via useCurrentPageHelp) can show "About
+  // {title}".
   title: string;
-  // Omit to show no help icon at all (e.g. a screen with nothing yet worth
-  // explaining) -- every tab that has real content should pass these.
+  // Omit to register no help content at all (e.g. a screen with nothing
+  // yet worth explaining) -- every tab that has real content should pass
+  // these.
   helpSections?: HelpSection[];
-  // The currently selected view on a screen that uses LensHub (see
-  // components/LensHub.tsx) instead of a row of tab pills -- stacked
-  // directly under the title, in the exact same text style/size as the
-  // title itself (never a different, smaller one -- every header's title
-  // stays the same size everywhere in the app). This mirrors the
-  // right-hand side's own two-line stack ("MY" over "Inside Story"): both
-  // stacks start at the same top and are the same line height, so the
-  // second line here lands aligned with the top of "Inside Story", not
-  // off on a separate row underneath the whole header. Omit entirely for a
-  // screen with only one view.
-  activeLensLabel?: string;
   // This screen's own entry in constants/tabs.ts's TAB_ROUTES (e.g. '/',
   // '/home') -- registered on focus so TabHub can reliably highlight the
   // tab actually being looked at (see CurrentPageHelp.tsx's activeTabPath
@@ -101,29 +87,15 @@ export function ScreenHeader({
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        {/* Leads the title it explains, rather than sitting in a generic
-            icon row on the far side of the screen -- the point being that
-            it visually reads as "this is about the text right next to
-            it." */}
-        {helpSections ? (
-          <View style={styles.helpCol}>
-            <HelpButton pageTitle={title} sections={helpSections} />
-          </View>
-        ) : null}
-        <View style={styles.textCol}>
-          <Text style={styles.title}>{title}</Text>
-          {activeLensLabel ? <Text style={styles.title}>{activeLensLabel}</Text> : null}
-        </View>
-        <View style={styles.rightRow}>
-          <View style={styles.nameStack}>
-            {/* "MY" is a placeholder for when no first name is set in
-                Profile -- same slot, same style as the real possessive, so
-                setting a name later is a straight swap, not a layout
-                change. Plain text now, not a button -- see the header
-                comment above for where Profile access moved to. */}
-            <Text style={styles.possessiveName}>{firstName ? `${firstName}'s` : 'MY'}</Text>
-            <Text style={styles.appName}>Inside Story</Text>
-          </View>
+        <View style={styles.nameStack}>
+          {/* "MY" is a placeholder for when no first name is set in
+              Profile -- same slot, same style as the real possessive, so
+              setting a name later is a straight swap, not a layout
+              change. One Text node, not two side by side -- both the name
+              and "Inside Story" belong on the same row, and a single node
+              guarantees that rather than depending on there being enough
+              width for two separate ones to land next to each other. */}
+          <Text style={styles.appName}>{firstName ? `${firstName}'s` : 'MY'} Inside Story</Text>
         </View>
       </View>
       <View style={styles.divider} />
@@ -137,55 +109,26 @@ const styles = StyleSheet.create({
   container: {
     marginTop: 25,
   },
+  // Centered both ways now that this is the only thing in the row --
+  // paddingVertical gives the centered text real room to sit in, rather
+  // than the row just shrinking to exactly the text's own height (which
+  // would make "centered" technically true but visually meaningless).
   row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingHorizontal: 20,
-    paddingBottom: 14,
+    paddingVertical: 18,
   },
-  // No alignSelf override -- defaults to the row's own alignItems
-  // ('flex-start'), so its top edge lines up with the top of the title
-  // text next to it.
-  helpCol: {
-    marginRight: 12,
-  },
-  textCol: {
-    flex: 1,
-    marginRight: 12,
-    marginLeft: -10,
-  },
-  // Matches the app name's own size/font/color exactly (see `appName`
-  // below) rather than a separate, larger title style.
-  title: {
-    ...typography.eyebrow,
-    fontSize: 13,
-    color: colors.primary,
-  },
-  // Top-aligned (not centered) so the first line of nameStack -- "MY" or
-  // "{name}'s" -- lines up with the page title's top, the same way the
-  // help icon on the left does.
-  rightRow: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: 8,
-  },
-  // Right-aligns "MY"/the possessive name over "Inside Story" below it,
-  // so the two lines share a right edge instead of the name floating
-  // wherever its own (shorter) text width happens to end.
   nameStack: {
-    alignItems: 'flex-end',
+    alignItems: 'center',
   },
-  // Same size/font/color as `appName` below -- no longer a separate
-  // cursive style, per request.
-  possessiveName: {
-    ...typography.eyebrow,
-    fontSize: 13,
-    color: colors.primary,
-  },
+  // Larger than before (was 13, matching the now-removed page title) --
+  // this is the one thing left in the header, so it gets to be the
+  // header's own biggest text rather than sized to match a sibling that
+  // no longer exists.
   appName: {
     ...typography.eyebrow,
-    fontSize: 13,
+    fontSize: 20,
     color: colors.primary,
   },
   divider: {

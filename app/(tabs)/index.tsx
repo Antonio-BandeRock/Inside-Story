@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -92,13 +93,14 @@ export default function FoodScreen() {
     <SwipeableTabScreen>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <ScreenHeader title="Food" tabPath="/" helpSections={FOOD_HELP_SECTIONS} activeLensLabel={activeLensLabel} />
+          <ScreenHeader title="Food" tabPath="/" helpSections={FOOD_HELP_SECTIONS} />
         </View>
 
         <ScreenBackground variant="produce">
           <ComingSoonBuilder lens={lens} />
         </ScreenBackground>
 
+        <PageIdentityLabel title="Food" activeLensLabel={activeLensLabel} />
         <LensHub pageTitle="Food" options={FOOD_LENSES} selected={lens} onSelect={setLens} />
       </View>
     </SwipeableTabScreen>

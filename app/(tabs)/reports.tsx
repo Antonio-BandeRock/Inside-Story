@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -38,6 +39,7 @@ export default function ReportsScreen() {
 
         <ScreenBackground />
 
+        <PageIdentityLabel title="Reports" />
         <LensHub pageTitle="Reports" options={REPORTS_LENSES} selected={lens} onSelect={setLens} />
       </View>
     </SwipeableTabScreen>

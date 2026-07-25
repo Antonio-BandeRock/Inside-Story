@@ -22,6 +22,7 @@ import {
   tierSeverity,
   type TierSeverity,
 } from '../../lib/sixDimensionsReference';
+import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -238,7 +239,6 @@ export default function InsightsScreen() {
         <ScreenHeader
           title="Insights"
           tabPath="/insights"
-          activeLensLabel={activeLensLabel}
           helpSections={[
             {
               heading: 'Three lenses, one day of data',
@@ -311,6 +311,7 @@ export default function InsightsScreen() {
             <ScopeHub breakdown={dimensionsBreakdown} scope={scope} onChangeScope={changeScope} />
           )}
 
+      <PageIdentityLabel title="Insights" activeLensLabel={activeLensLabel} />
       <LensHub pageTitle="Insights" options={LENSES} selected={lens} onSelect={setLens} />
     </View>
     </SwipeableTabScreen>

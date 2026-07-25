@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -1138,12 +1139,7 @@ export default function LogScreen() {
     <SwipeableTabScreen>
       <View style={styles.screen}>
         <View style={styles.header}>
-          <ScreenHeader
-            title="Bio-Compass"
-            tabPath="/log"
-            helpSections={LOG_HELP_SECTIONS}
-            activeLensLabel={activeLensLabel}
-          />
+          <ScreenHeader title="Bio-Compass" tabPath="/log" helpSections={LOG_HELP_SECTIONS} />
         </View>
 
         <ScreenBackground>
@@ -1158,6 +1154,7 @@ export default function LogScreen() {
           )}
         </ScreenBackground>
 
+        <PageIdentityLabel title="Bio-Compass" activeLensLabel={activeLensLabel} />
         <LensHub pageTitle="Bio-Compass" options={LENSES} selected={lens} onSelect={setLens} />
       </View>
     </SwipeableTabScreen>

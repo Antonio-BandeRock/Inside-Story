@@ -54,6 +54,31 @@ export function useBottomLeftHubPosition(): { bottom: number; left: number } {
   return { bottom, left };
 }
 
+// The deferred left/right-handed layout toggle (see CLAUDE.md's Next
+// Steps -- "revisit left/right-handed layout switching... toward the end
+// of the project") doesn't exist yet as a real setting. Hardcoded to
+// 'left' for now, matching the floating hubs' actual current behavior
+// (TabHub/LensHub/ScopeHub cluster toward the left edge for a left thumb's
+// sweep -- see LensHub's own comment). This is the one flag anything that
+// needs to know "which side are the buttons on" should read, so that when
+// a real handedness setting eventually exists, it's a single value to wire
+// up rather than a search-and-replace across every position calculation.
+export const NAVIGATION_HAND: 'left' | 'right' = 'left';
+
+// The bottom corner OPPOSITE wherever the floating hubs are (see
+// NAVIGATION_HAND) -- for anything that needs to stay out of the hubs' way
+// without shrinking them, rather than sharing their side. Same `bottom` as
+// every hub, so its row lines up with theirs; `left`/`right` (whichever is
+// away from the hubs) is set, the other left `undefined` so it doesn't
+// fight the one that matters.
+export function useOppositeCornerPosition(): { bottom: number; left?: number; right?: number } {
+  const insets = useSafeAreaInsets();
+  const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET;
+  return NAVIGATION_HAND === 'left'
+    ? { bottom, right: SECONDARY_HUB_CARD_LEFT_MARGIN }
+    : { bottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN };
+}
+
 // How much room to leave below the LAST piece of real content on any
 // scrollable screen, so it can always be scrolled clear of whichever
 // floating button(s) sit at the bottom (TabHub, LensHub, Meals' own

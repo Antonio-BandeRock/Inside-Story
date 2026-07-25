@@ -6,6 +6,7 @@ import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, Touch
 import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
+import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ProgressRing } from '../../components/ProgressRing';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -567,6 +568,8 @@ export default function HomeScreen() {
             </View>
           </View>
         </Modal>
+
+        <PageIdentityLabel title="Home" />
       </View>
     </SwipeableTabScreen>
   );

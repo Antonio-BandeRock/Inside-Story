@@ -68,6 +68,7 @@ import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { Dropdown, type DropdownOption } from '../../components/Dropdown';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
@@ -2897,12 +2898,7 @@ export default function ScheduleScreen() {
   return (
     <View style={styles.screen}>
       <View style={styles.header}>
-        <ScreenHeader
-          title="Schedules"
-          tabPath="/schedule"
-          helpSections={SCHEDULE_HELP_SECTIONS}
-          activeLensLabel={activeLensLabel}
-        />
+        <ScreenHeader title="Schedules" tabPath="/schedule" helpSections={SCHEDULE_HELP_SECTIONS} />
       </View>
 
       <SwipeableTabScreen>
@@ -2923,6 +2919,7 @@ export default function ScheduleScreen() {
         </ScreenBackground>
       </SwipeableTabScreen>
 
+      <PageIdentityLabel title="Schedules" activeLensLabel={activeLensLabel} />
       <LensHub pageTitle="Schedules" options={LENSES} selected={lens} onSelect={setLens} />
     </View>
   );
