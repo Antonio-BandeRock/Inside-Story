@@ -16,16 +16,17 @@ const BACKGROUND_IMAGE_BUTTERFLY_GAP = 20;
 // The two available background images -- 'field' (the default wildflower
 // scene) everywhere except Food, which uses 'produce' instead (2026-07-25,
 // explicitly the one deliberate exception to "the same background
-// everywhere"). Different contentFit per image on purpose: the field image
-// is meant to read as an immersive scene, so cropping it to fill the space
-// (cover) is fine; the produce image's whole point is showing as many
-// individual fruits/vegetables as possible, so it's shown uncropped
-// (contain) instead, even though that means empty colors.background
-// letterboxing on the sides where the image's own aspect ratio doesn't
-// exactly match the available space.
+// everywhere"). Both use contentFit: 'cover' now -- produce originally used
+// 'contain' instead, specifically to keep the whole image visible
+// uncropped, but that meant its own letterboxing stretched the dark-navy
+// header/footer margins wider than every other tab's, which read as
+// inconsistent rather than intentional. 'cover' crops some of the produce
+// image's edges, but fills the exact same header-to-footer space every
+// other tab does -- consistent sizing won out over showing 100% of the
+// image.
 const BACKGROUNDS = {
   field: { source: require('../assets/backgrounds/App_Background_Image.png'), contentFit: 'cover' as const },
-  produce: { source: require('../assets/backgrounds/Fruits_Vegetables.png'), contentFit: 'contain' as const },
+  produce: { source: require('../assets/backgrounds/Fruits_Vegetables.png'), contentFit: 'cover' as const },
 };
 
 // The shared backdrop for every tab screen's body (everything below its own
