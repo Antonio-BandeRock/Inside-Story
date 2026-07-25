@@ -265,15 +265,25 @@ export function hueShift(hex: string, degrees: number): string {
 // sheen in the app -- LensHub's corner button and TabHub's own active-item
 // pill both call this rather than each keeping their own copy, so "the
 // same coloration" is actually guaranteed identical, not just similar and
-// liable to drift the next time one of the two gets tweaked. White
-// catch-light, then the tab color hue-shifted -45/0/+45/+90 degrees,
-// diagonally across the shape.
+// liable to drift the next time one of the two gets tweaked.
+//
+// 2026-07-25: narrowed considerably (was hue-shifted -45/0/+45/+90 degrees,
+// a 135-degree sweep) after real on-device testing found the tabs had
+// become hard to tell apart by color -- at the small size these actually
+// render at (TabHub's 34px pill), a sweep that wide shows more of the
+// *shifted* hues than the tab's own true color, and since the 7 tabs' base
+// hues are only ~20-55 degrees apart to begin with, their wide sweeps
+// overlapped enough to all read as a similar rainbow shimmer. Narrowed to
+// +/-15 degrees and the true tabColor now anchors both the start and the
+// end of the gradient (not just the middle), so most of the visible area
+// is unambiguously that tab's own color, with a genuine but subtle shimmer
+// at the edges rather than a wide hue sweep competing with it.
 export function iridescentSheen(tabColor: string): readonly [string, string, string, string, string] {
   return [
-    hexToRgba('#FFFFFF', 0.35),
-    hexToRgba(hueShift(tabColor, -45), 0.45),
-    hexToRgba(tabColor, 0.4),
-    hexToRgba(hueShift(tabColor, 45), 0.45),
-    hexToRgba(hueShift(tabColor, 90), 0.3),
+    hexToRgba('#FFFFFF', 0.2),
+    hexToRgba(tabColor, 0.55),
+    hexToRgba(hueShift(tabColor, 15), 0.4),
+    hexToRgba(tabColor, 0.55),
+    hexToRgba(hueShift(tabColor, -15), 0.35),
   ];
 }
