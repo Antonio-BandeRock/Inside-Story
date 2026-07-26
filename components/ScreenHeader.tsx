@@ -1,37 +1,14 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useCallback, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { colors, hueShift } from '../constants/colors';
+import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
+import { rotatedIridescentPalette } from '../constants/colors';
+import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
 import { getUserProfile } from '../lib/db';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import type { HelpSection } from './HelpButton';
-
-// The app name's own iridescent fill -- every tab's real identity color
-// (constants/tabs.ts's TAB_ROUTES, sampled from the butterfly artwork, not
-// invented), swept in hue order: warm gold, green, teal, periwinkle, sky
-// blue, purple, warm terracotta. Ties the app's own branding back to the
-// same palette the rest of the app is built from, the same way LensHub's
-// button sheen (see colors.iridescentSheen) reuses a tab's own color
-// rather than a separate "shiny" color scheme. This base set is what
-// rotates through hues over time below -- see hueRotation.
-const APP_NAME_GRADIENT: readonly string[] = [
-  colors.tabHome,
-  colors.tabFood,
-  colors.tabInsights,
-  colors.tabSchedules,
-  colors.tabTrends,
-  colors.tabReports,
-  colors.tabBioCompass,
-];
-
-// A full 360-degree rotation every 36s (0.5deg per 50ms tick) -- slow
-// enough to read as a living, shifting shimmer rather than a distracting
-// flicker, closer to how real iridescent material shifts as light/angle
-// changes than to a fast color-cycle effect.
-const HUE_ROTATION_DEGREES_PER_TICK = 0.5;
-const HUE_ROTATION_TICK_MS = 50;
 
 // The "hard stop" from the true screen edge -- deliberately just a few
 // pixels rather than a real gutter, so the font gets as much width as
@@ -121,7 +98,7 @@ export function ScreenHeader({
   tabPath?: string;
 }) {
   const [firstName, setFirstName] = useState<string | null>(null);
-  const [hueRotation, setHueRotation] = useState(0);
+  const hueRotation = useIridescentHueRotation();
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const { setCurrentHelp, setActiveTabPath } = useCurrentPageHelp();
@@ -144,23 +121,15 @@ export function ScreenHeader({
   // text, reading as disproportionately heavy.
   const shadowScale = fontSize / HEADER_TEXT_MAX_FONT_SIZE;
 
-  // SVG text's `y` is its baseline, not a vertical center -- this offset
-  // (roughly a third of the font size below the box's own vertical middle)
-  // is the standard approximation for centering a single line within a box.
-  const textBaselineY = HEADER_TEXT_HEIGHT / 2 + fontSize * 0.35;
-  const animatedGradientColors = APP_NAME_GRADIENT.map((color) => hueShift(color, hueRotation));
-
-  // Continuously advances the gradient's hue -- a plain state-driven
-  // interval rather than Reanimated, since SVG gradient stop colors are
-  // just re-rendered React props here, not a worklet-driven native prop;
-  // a header-sized bit of text at a 20fps tick is cheap enough that the
-  // simpler approach is the right one, not a premature optimization.
-  useEffect(() => {
-    const id = setInterval(() => {
-      setHueRotation((current) => (current + HUE_ROTATION_DEGREES_PER_TICK) % 360);
-    }, HUE_ROTATION_TICK_MS);
-    return () => clearInterval(id);
-  }, []);
+  // The SVG canvas's true vertical center -- paired with alignmentBaseline
+  //="middle" on every SvgText below, which centers the text ON this y
+  // itself (SVG's own built-in vertical-centering, not a hand-approximated
+  // baseline offset). That's what actually keeps this centered "always,"
+  // independent of whatever fontSize the auto-shrink logic above lands on
+  // for a given name -- a fixed offset approximation tuned for one size
+  // would drift off-center as the size changes.
+  const textCenterY = HEADER_TEXT_HEIGHT / 2;
+  const animatedGradientColors = rotatedIridescentPalette(hueRotation);
 
   // Refetched on every focus (not just once on mount) so editing your name
   // in Profile and coming back to any tab picks it up immediately -- the
@@ -217,11 +186,11 @@ export function ScreenHeader({
               enough width for two separate ones to land next to each other. */}
           <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>
             <Defs>
-              <LinearGradient id="appNameGradient" x1="0" y1="0" x2="1" y2="0">
+              <SvgLinearGradient id="appNameGradient" x1="0" y1="0" x2="1" y2="0">
                 {animatedGradientColors.map((color, index) => (
                   <Stop key={index} offset={index / (animatedGradientColors.length - 1)} stopColor={color} />
                 ))}
-              </LinearGradient>
+              </SvgLinearGradient>
             </Defs>
 
             {/* Stacked shadow copies, furthest/faintest first so each
@@ -232,11 +201,12 @@ export function ScreenHeader({
                 <SvgText
                   key={layer.offset}
                   x={textAreaWidth / 2 + offset}
-                  y={textBaselineY + offset}
+                  y={textCenterY + offset}
                   fontFamily="Nunito_600SemiBold"
                   fontSize={fontSize}
                   fill={`rgba(6, 9, 20, ${layer.opacity})`}
                   textAnchor="middle"
+                  alignmentBaseline="middle"
                 >
                   {appNameText}
                 </SvgText>
@@ -249,29 +219,41 @@ export function ScreenHeader({
                 a raised/embossed look, not just a shadow underneath). */}
             <SvgText
               x={textAreaWidth / 2 + HIGHLIGHT_OFFSET * shadowScale}
-              y={textBaselineY + HIGHLIGHT_OFFSET * shadowScale}
+              y={textCenterY + HIGHLIGHT_OFFSET * shadowScale}
               fontFamily="Nunito_600SemiBold"
               fontSize={fontSize}
               fill="rgba(255, 255, 255, 0.35)"
               textAnchor="middle"
+              alignmentBaseline="middle"
             >
               {appNameText}
             </SvgText>
 
             <SvgText
               x={textAreaWidth / 2}
-              y={textBaselineY}
+              y={textCenterY}
               fontFamily="Nunito_600SemiBold"
               fontSize={fontSize}
               fill="url(#appNameGradient)"
               textAnchor="middle"
+              alignmentBaseline="middle"
             >
               {appNameText}
             </SvgText>
           </Svg>
         </View>
       </View>
-      <View style={styles.divider} />
+      {/* Same rotating palette as the app-name text above (same
+          hueRotation value, same underlying IRIDESCENT_PALETTE), so this
+          line and the footer's own divider (ScreenBackground.tsx) shimmer
+          in lockstep with the header text rather than each drifting on
+          its own schedule. */}
+      <LinearGradient
+        colors={animatedGradientColors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={styles.divider}
+      />
       <View style={styles.shadowFade1} />
       <View style={styles.shadowFade2} />
     </View>
@@ -295,9 +277,10 @@ const styles = StyleSheet.create({
   nameStack: {
     alignItems: 'center',
   },
+  // backgroundColor intentionally absent -- painted by the LinearGradient
+  // component itself now, not a flat style color.
   divider: {
     height: 1,
-    backgroundColor: colors.border,
   },
   // Two fading bars stand in for a soft drop shadow, confined to strictly
   // below the divider -- flat colors instead of a shadow/elevation prop, so

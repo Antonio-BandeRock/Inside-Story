@@ -1,9 +1,11 @@
 import { Image } from 'expo-image';
+import { LinearGradient } from 'expo-linear-gradient';
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../constants/colors';
+import { colors, rotatedIridescentPalette } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE } from '../constants/floatingButton';
+import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
 
 // How far above TabHub's own floating button (see constants/floatingButton.ts)
 // the wildflower background image's bottom edge stops -- a plain margin of
@@ -59,6 +61,10 @@ export function ScreenBackground({
   const insets = useSafeAreaInsets();
   const bottomInset = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET + FLOATING_BUTTON_SIZE + BACKGROUND_IMAGE_BUTTERFLY_GAP;
   const background = BACKGROUNDS[variant];
+  // Same wall-clock-derived rotation ScreenHeader's own app-name text and
+  // divider use (see hooks/useIridescentHueRotation) -- this line shimmers
+  // in lockstep with those, not on its own separate schedule.
+  const hueRotation = useIridescentHueRotation();
 
   return (
     <View style={styles.body}>
@@ -70,6 +76,17 @@ export function ScreenBackground({
       />
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
+      {/* The footer's own fine line, mirroring ScreenHeader's divider --
+          sits right at BACKGROUND_IMAGE_BUTTERFLY_GAP above TabHub (the
+          same boundary the image/mask already split on above), same
+          rotating palette as the header line and app-name text. */}
+      <LinearGradient
+        colors={rotatedIridescentPalette(hueRotation)}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.footerLine, { bottom: bottomInset }]}
+        pointerEvents="none"
+      />
     </View>
   );
 }
@@ -93,5 +110,13 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.background,
     // `height` set inline, same value as backgroundImage's own `bottom`.
+  },
+  footerLine: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    height: 1,
+    // `bottom` set inline (bottomInset) -- same y as backgroundImage's own
+    // `bottom` / bottomMask's own top edge.
   },
 });

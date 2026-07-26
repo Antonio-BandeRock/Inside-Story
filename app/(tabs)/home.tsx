@@ -674,7 +674,11 @@ const styles = StyleSheet.create({
   // No backgroundColor here (stays the default transparent) -- that's what
   // lets ScreenBackground's image show through in the gaps between cards.
   scroll: { flex: 1 },
-  content: { paddingHorizontal: 20, paddingBottom: 32 },
+  // paddingTop: a little separation between the header and the greeting
+  // card below it, present from the start (not just something scrolling
+  // reveals) -- otherwise the greeting card sits flush against the header
+  // the instant the page loads.
+  content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 32 },
   // Same colors.surface "dark blue" card used everywhere else on this page
   // (arcCard, statTile, trendCard, etc.) -- every text-bearing element on
   // Home sits on this same box now, since the background underneath is a
@@ -704,7 +708,9 @@ const styles = StyleSheet.create({
   // A small chip rather than a full card -- headings are labels sitting
   // above their own content card, not content themselves, so a lighter
   // touch than arcCard/statTile-style boxes reads as a title rather than
-  // a second stacked box.
+  // a second stacked box. No marginBottom -- sits flush against the
+  // content card directly below it, reading as one label-plus-box unit
+  // rather than two separately-spaced boxes.
   sectionHeadingChip: {
     alignSelf: 'flex-start',
     backgroundColor: colors.surface,
@@ -713,7 +719,6 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     paddingHorizontal: 12,
     paddingVertical: 6,
-    marginBottom: 10,
   },
   sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary },
   sectionHeadingSpaced: { marginTop: 24 },

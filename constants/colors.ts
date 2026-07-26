@@ -287,3 +287,39 @@ export function iridescentSheen(tabColor: string): readonly [string, string, str
     hexToRgba(hueShift(tabColor, -15), 0.35),
   ];
 }
+
+// Every tab's real identity color (constants/tabs.ts's TAB_ROUTES, sampled
+// from the butterfly artwork), swept in hue order -- warm gold, green,
+// teal, periwinkle, sky blue, purple, warm terracotta. The one shared base
+// palette for every iridescent element in the app (the header's own
+// app-name text, its divider line, and the footer's divider line above
+// TabHub) so all of them cycle through the exact same colors rather than
+// each defining its own separate set that could drift apart.
+export const IRIDESCENT_PALETTE: readonly [string, string, string, string, string, string, string] = [
+  colors.tabHome,
+  colors.tabFood,
+  colors.tabInsights,
+  colors.tabSchedules,
+  colors.tabTrends,
+  colors.tabReports,
+  colors.tabBioCompass,
+];
+
+// IRIDESCENT_PALETTE, hue-rotated by the same amount for every stop --
+// pass a value from useIridescentHueRotation (hooks/useIridescentHueRotation.ts)
+// to get every iridescent element's colors at the current moment, all in
+// lockstep since that hook derives its value from the wall clock rather
+// than a per-component counter.
+export function rotatedIridescentPalette(
+  hueRotation: number,
+): readonly [string, string, string, string, string, string, string] {
+  return IRIDESCENT_PALETTE.map((color) => hueShift(color, hueRotation)) as [
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+    string,
+  ];
+}
