@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
@@ -163,6 +163,7 @@ function findUpNext(scheduledToday: ScheduleItemRecord[]): UpNext | null {
 export default function HomeScreen() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const { height: windowHeight } = useWindowDimensions();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [selectedItem, setSelectedItem] = useState<ScheduleItemRecord | null>(null);
@@ -535,6 +536,15 @@ export default function HomeScreen() {
               backBody="Matching foods to your chemistry, catching interactions, and finding your patterns -- so eating feels like following clear rules, not homework."
             />
           </ScrollView>
+
+          {/* Temporary diagnostic spacer -- scrolling all the way down
+              pushes every real card above the viewport, leaving nothing
+              covering the fixed background (ScreenBackground's image
+              doesn't scroll with this content), so the whole sky --
+              including the sky band up top where AnimatedSky's sun/moon
+              render -- is visible unobstructed for a clean look while
+              tuning that. Remove once no longer needed for that. */}
+          <View style={{ height: windowHeight }} />
           </ScrollView>
         </ScreenBackground>
 
