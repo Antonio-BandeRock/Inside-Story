@@ -60,22 +60,33 @@ export type SkyTint = { color: string; opacity: number };
 
 type TintKeyframe = { hour: number; color: string; opacity: number };
 
+// A dedicated near-black navy for full night -- colors.background (a
+// mid-dark navy tuned as a UI surface color) isn't actually dark enough to
+// read as convincing nighttime once blended at realistic opacity over a
+// bright, sky-blue photo. This is deliberately its own darker constant
+// rather than colors.background, specifically for that job.
+const DEEP_NIGHT_COLOR = '#080B14';
+
 // Dark at night, brightening through a warm dawn to no tint at midday,
-// warming again through dusk back to dark -- colors pulled from the app's
-// own existing palette (colors.background for night, colors.accent's warm
-// gold for dawn/dusk) rather than inventing separate tint-only colors, the
-// same reasoning as the header/footer's iridescent lines reusing real tab
-// colors instead of new ones.
+// warming again through dusk back to dark. Ramps to real darkness quickly
+// after sunset (by 9-10pm it should already look like night, not still be
+// half-transitioning) rather than a slow, barely-there fade -- and night
+// opacity is high enough (0.72-0.8) to actually read as dark against a
+// bright photo, not just a faint wash. Daytime/dawn/dusk still use
+// colors.accent's warm gold, reused from the app's own palette rather than
+// inventing a separate tint-only color.
 const TINT_KEYFRAMES: readonly TintKeyframe[] = [
-  { hour: 0, color: colors.background, opacity: 0.55 },
-  { hour: 5, color: colors.background, opacity: 0.45 },
-  { hour: 6.5, color: colors.accent, opacity: 0.35 },
-  { hour: 9, color: colors.accent, opacity: 0.08 },
-  { hour: 12, color: colors.accent, opacity: 0 },
-  { hour: 15, color: colors.accent, opacity: 0.08 },
-  { hour: 18.5, color: colors.accent, opacity: 0.35 },
-  { hour: 21, color: colors.background, opacity: 0.5 },
-  { hour: 24, color: colors.background, opacity: 0.55 },
+  { hour: 0, color: DEEP_NIGHT_COLOR, opacity: 0.8 },
+  { hour: 4, color: DEEP_NIGHT_COLOR, opacity: 0.72 },
+  { hour: 6, color: colors.accent, opacity: 0.4 },
+  { hour: 7.5, color: colors.accent, opacity: 0.15 },
+  { hour: 9, color: colors.accent, opacity: 0 },
+  { hour: 15, color: colors.accent, opacity: 0 },
+  { hour: 17, color: colors.accent, opacity: 0.12 },
+  { hour: 18.5, color: colors.accent, opacity: 0.45 },
+  { hour: 19.5, color: DEEP_NIGHT_COLOR, opacity: 0.6 },
+  { hour: 21, color: DEEP_NIGHT_COLOR, opacity: 0.75 },
+  { hour: 24, color: DEEP_NIGHT_COLOR, opacity: 0.8 },
 ];
 
 function hexToRgbTuple(hex: string): [number, number, number] {
