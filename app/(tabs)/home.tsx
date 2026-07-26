@@ -36,6 +36,7 @@ import {
 } from '../../lib/nutrientAnalysis';
 import { isFlaggedTier } from '../../lib/sixDimensionsReference';
 import { formatTime12 } from '../../lib/timeOfDay';
+import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in index.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -120,6 +121,31 @@ type DashboardData = {
   hasAnyLogHistory: boolean;
 };
 
+type WeekTrend = { thisWeekCount: number; lastWeekCount: number | null };
+
+// null when there's no prior week to compare against (too new to have one) --
+// distinct from a real 0, which is a genuinely flag-free week.
+function weekTrendDirection(trend: WeekTrend): 'down' | 'up' | 'steady' | null {
+  if (trend.lastWeekCount == null) return null;
+  if (trend.thisWeekCount < trend.lastWeekCount) return 'down';
+  if (trend.thisWeekCount > trend.lastWeekCount) return 'up';
+  return 'steady';
+}
+
+// Fewer flags is the improvement direction, same green/red vocabulary as
+// nutrientRingColor below -- not a neutral "change happened" color scheme.
+function weekTrendColor(direction: ReturnType<typeof weekTrendDirection>): string {
+  if (direction === 'down') return colors.primary;
+  if (direction === 'up') return colors.statusFlagged;
+  return colors.textSecondary;
+}
+
+function weekTrendLabel(direction: ReturnType<typeof weekTrendDirection>): string {
+  if (direction === 'down') return '↓ Down';
+  if (direction === 'up') return '↑ Up';
+  return '→ Steady';
+}
+
 type UpNext = { item: ScheduleItemRecord; isPast: boolean };
 
 function findUpNext(scheduledToday: ScheduleItemRecord[]): UpNext | null {
@@ -148,6 +174,30 @@ export default function HomeScreen() {
   const [exerciseDuration, setExerciseDuration] = useState('');
   const [exerciseIntensity, setExerciseIntensity] = useState<'light' | 'moderate' | 'vigorous' | null>(null);
   const [firstName, setFirstName] = useState<string | null>(null);
+  // undefined = not fetched yet, null = fetched but no logged days this
+  // week (nothing worth showing), object = real comparison.
+  const [weekTrend, setWeekTrend] = useState<WeekTrend | null | undefined>(undefined);
+
+  // Kept separate from `load` below -- getSixDimensionsFlagTrendSeries
+  // loops one DB call per day over 14 days, so it's noticeably heavier
+  // than the rest of Home's data. Loading it independently means the main
+  // dashboard doesn't wait on it to paint.
+  const loadWeekTrend = useCallback(() => {
+    getSixDimensionsFlagTrendSeries(14).then((points) => {
+      const thisWeekStart = dateStringDaysAgo(6);
+      const thisWeekPoints = points.filter((point) => point.date >= thisWeekStart);
+      const lastWeekPoints = points.filter((point) => point.date < thisWeekStart);
+      if (thisWeekPoints.length === 0) {
+        setWeekTrend(null);
+        return;
+      }
+      const thisWeekCount = thisWeekPoints.reduce((sum, point) => sum + point.value, 0);
+      const lastWeekCount = lastWeekPoints.length > 0 ? lastWeekPoints.reduce((sum, point) => sum + point.value, 0) : null;
+      setWeekTrend({ thisWeekCount, lastWeekCount });
+    });
+  }, []);
+
+  useFocusEffect(useCallback(() => { loadWeekTrend(); }, [loadWeekTrend]));
 
   const load = useCallback(() => {
     setLoading(true);
@@ -410,6 +460,25 @@ export default function HomeScreen() {
                   onPress={() => router.navigate('/log')}
                 />
               </View>
+
+              {weekTrend ? (
+                <>
+                  <Text style={[styles.sectionHeading, styles.sectionHeadingSpaced]}>This Week's Trend</Text>
+                  <TouchableOpacity style={styles.trendCard} onPress={() => router.navigate('/trends')} activeOpacity={0.75}>
+                    <Text style={styles.trendNumber}>
+                      {weekTrend.thisWeekCount} {weekTrend.thisWeekCount === 1 ? 'flag' : 'flags'} this week
+                    </Text>
+                    {weekTrend.lastWeekCount != null ? (
+                      <Text style={[styles.trendDelta, { color: weekTrendColor(weekTrendDirection(weekTrend)) }]}>
+                        {weekTrendLabel(weekTrendDirection(weekTrend))} from {weekTrend.lastWeekCount} last week
+                      </Text>
+                    ) : (
+                      <Text style={styles.trendCaption}>Keep logging to compare against last week.</Text>
+                    )}
+                    <Text style={styles.trendCaption}>Tap to see Trends →</Text>
+                  </TouchableOpacity>
+                </>
+              ) : null}
             </>
           )}
 
@@ -642,6 +711,18 @@ const styles = StyleSheet.create({
   ringRow: { flexDirection: 'row', gap: 16, paddingRight: 8 },
 
   orbCard: { alignItems: 'center', paddingVertical: 8 },
+
+  trendCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  trendNumber: { ...typography.sectionTitle, color: colors.textPrimary },
+  trendDelta: { ...typography.bodyEmphasis, marginTop: 4 },
+  trendCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4 },
 
   flipRow: { flexDirection: 'row', gap: 12, paddingRight: 8, paddingBottom: 8 },
 
