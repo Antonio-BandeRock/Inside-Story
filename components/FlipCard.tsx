@@ -2,7 +2,7 @@ import { useState, type ReactNode } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { interpolate, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 // A small, single-concept "micro-learning" card -- a striking icon and a
 // one-sentence hook up front, a bite-sized tip on the back. Meant to be
@@ -73,12 +73,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   backFace: { backgroundColor: colors.primaryTint, alignItems: 'stretch', justifyContent: 'flex-start' },
-  hook: { ...typography.bodyEmphasis, color: colors.textPrimary, textAlign: 'center', marginTop: 10, lineHeight: 21 },
-  backTitle: { ...typography.sectionTitle, color: colors.primary, textAlign: 'left' },
+  hook: { ...typography.bodyEmphasis, ...textShadow, color: colors.textPrimary, textAlign: 'center', marginTop: 10, lineHeight: 21 },
+  backTitle: { ...typography.sectionTitle, ...textShadow, color: colors.primary, textAlign: 'left' },
   backDivider: { height: 1, backgroundColor: colors.primaryMuted, opacity: 0.4, marginTop: 8, marginBottom: 10 },
-  backBody: { ...typography.body, color: colors.textPrimary, textAlign: 'left', lineHeight: 21, flexShrink: 1 },
+  backBody: { ...typography.body, ...textShadow, color: colors.textPrimary, textAlign: 'left', lineHeight: 21, flexShrink: 1 },
   backHint: {
     ...typography.caption,
+    ...textShadow,
     color: colors.textMuted,
     textAlign: 'center',
     marginTop: 12,

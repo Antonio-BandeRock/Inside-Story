@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 // A single circular "fuel gauge" -- one nutrient's percent-of-target as a
 // ring instead of a table row, meant to be glanced at in a row of several
@@ -64,6 +64,6 @@ export function ProgressRing({
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center', width: 78 },
-  label: { ...typography.captionEmphasis, color: colors.textPrimary, marginTop: 6, textAlign: 'center' },
-  sublabel: { ...typography.caption, color: colors.textSecondary, textAlign: 'center' },
+  label: { ...typography.captionEmphasis, ...textShadow, color: colors.textPrimary, marginTop: 6, textAlign: 'center' },
+  sublabel: { ...typography.caption, ...textShadow, color: colors.textSecondary, textAlign: 'center' },
 });

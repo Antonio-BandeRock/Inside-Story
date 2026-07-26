@@ -12,7 +12,7 @@ import { ScreenHeader } from '../../components/ScreenHeader';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { typography } from '../../constants/typography';
+import { textShadow, typography } from '../../constants/typography';
 import {
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
@@ -701,7 +701,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  loadingText: { ...typography.body, color: colors.textSecondary },
+  loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
   greetingCard: {
     backgroundColor: colors.surface,
@@ -711,9 +711,9 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     marginBottom: 16,
   },
-  greetingText: { ...typography.screenTitle, color: colors.textPrimary },
-  affirmationText: { ...typography.body, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
-  dateText: { ...typography.body, color: colors.textSecondary, marginTop: 2 },
+  greetingText: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary },
+  affirmationText: { ...typography.body, ...textShadow, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
+  dateText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 2 },
 
   // A small chip rather than a full card -- headings are labels sitting
   // above their own content card, not content themselves, so a lighter
@@ -730,7 +730,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 6,
   },
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary },
+  sectionHeading: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary },
   sectionHeadingSpaced: { marginTop: 24 },
   emptyCard: {
     backgroundColor: colors.surface,
@@ -739,7 +739,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  emptyText: { ...typography.body, color: colors.textSecondary },
+  emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
   arcCard: {
     backgroundColor: colors.surface,
@@ -750,7 +750,7 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
     alignItems: 'center',
   },
-  arcCaption: { ...typography.body, color: colors.textSecondary, marginTop: 8, textAlign: 'center' },
+  arcCaption: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 8, textAlign: 'center' },
 
   statRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
   statTile: {
@@ -761,9 +761,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  statNumber: { ...typography.screenTitle, color: colors.textPrimary },
+  statNumber: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary },
   statNumberFlagged: { color: colors.statusFlagged },
-  statLabel: { ...typography.caption, color: colors.textSecondary, marginTop: 4 },
+  statLabel: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 4 },
 
   // Cancels `content`'s own paddingHorizontal: 20 on the ScrollView itself
   // (not its contentContainerStyle), so the scrollable viewport spans the
@@ -784,7 +784,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     paddingHorizontal: 16,
   },
-  quickActionText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  quickActionText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnPrimary },
   quickActionSecondary: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.primary,
   },
-  quickActionSecondaryText: { ...typography.bodyEmphasis, color: colors.primary },
+  quickActionSecondaryText: { ...typography.bodyEmphasis, ...textShadow, color: colors.primary },
 
   fuelGaugesCard: {
     backgroundColor: colors.surface,
@@ -825,9 +825,9 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: colors.border,
   },
-  trendNumber: { ...typography.sectionTitle, color: colors.textPrimary },
-  trendDelta: { ...typography.bodyEmphasis, marginTop: 4 },
-  trendCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4 },
+  trendNumber: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary },
+  trendDelta: { ...typography.bodyEmphasis, ...textShadow, marginTop: 4 },
+  trendCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 4 },
 
   flipRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingBottom: 8 },
 
@@ -840,17 +840,18 @@ const styles = StyleSheet.create({
     width: '100%',
     maxWidth: 360,
   },
-  modalTitle: { ...typography.sectionTitle, color: colors.textPrimary },
-  modalMeta: { ...typography.body, color: colors.textSecondary, marginTop: 4 },
+  modalTitle: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary },
+  modalMeta: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 4 },
   modalActions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 16 },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.primary },
-  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  primaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textOnPrimary },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, ...textShadow, color: colors.textSecondary },
 
   quickInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
   quickInput: {
     ...typography.body,
+    ...textShadow,
     color: colors.textPrimary,
     borderWidth: 1,
     borderColor: colors.border,
@@ -861,10 +862,10 @@ const styles = StyleSheet.create({
   },
   quickInputSmall: { width: 70, textAlign: 'center' },
   quickInputFull: { width: '100%', marginTop: 12 },
-  quickInputSeparator: { ...typography.label, color: colors.textPrimary },
+  quickInputSeparator: { ...typography.label, ...textShadow, color: colors.textPrimary },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, flexShrink: 1 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { ...typography.caption, color: colors.textPrimary },
+  pillText: { ...typography.caption, ...textShadow, color: colors.textPrimary },
   pillTextActive: { color: colors.textOnPrimary },
 });

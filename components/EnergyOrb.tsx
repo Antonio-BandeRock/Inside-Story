@@ -1,7 +1,7 @@
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 
 type OrbLevel = 'none' | 'calm' | 'mild' | 'moderate' | 'active';
 
@@ -62,6 +62,6 @@ const styles = StyleSheet.create({
     height: 108,
     borderRadius: 54,
   },
-  label: { ...typography.sectionTitle, color: colors.textPrimary, marginTop: 10 },
-  caption: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  label: { ...typography.sectionTitle, ...textShadow, color: colors.textPrimary, marginTop: 10 },
+  caption: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 2 },
 });

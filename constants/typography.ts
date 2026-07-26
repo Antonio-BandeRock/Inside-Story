@@ -32,3 +32,15 @@ export const typography = {
   // structural label rather than actual content even at a glance.
   eyebrow: { fontSize: 10, fontWeight: '700' as const, textTransform: 'uppercase' as const, letterSpacing: 0.4 },
 } as const;
+
+// A subtle drop shadow, spread into a text style with `...textShadow` --
+// readability insurance for text sitting directly over a photographic
+// background (Home's animated sky/wildflower image) rather than a flat
+// colors.surface card. Not folded into typography's own tiers above and
+// not applied everywhere by default: most text in the app already sits on
+// an opaque card and doesn't need it, so this stays opt-in per screen.
+export const textShadow = {
+  textShadowColor: 'rgba(0, 0, 0, 0.55)',
+  textShadowOffset: { width: 0, height: 1 },
+  textShadowRadius: 2,
+} as const;

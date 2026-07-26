@@ -1,7 +1,7 @@
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 import { colors } from '../constants/colors';
-import { typography } from '../constants/typography';
+import { textShadow, typography } from '../constants/typography';
 import type { ScheduleItemRecord } from '../lib/db';
 import { formatTime12 } from '../lib/timeOfDay';
 
@@ -110,5 +110,5 @@ export function DayArc({
 const styles = StyleSheet.create({
   container: { alignItems: 'center' },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: -8 },
-  labelText: { ...typography.caption, color: colors.textMuted },
+  labelText: { ...typography.caption, ...textShadow, color: colors.textMuted },
 });
