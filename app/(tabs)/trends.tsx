@@ -1,21 +1,110 @@
-import { useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { TrendLineChart } from '../../components/TrendLineChart';
 import { colors } from '../../constants/colors';
+import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { typography } from '../../constants/typography';
+import { getDietaryReferenceIntakesForCurrentUser } from '../../lib/db';
+import { nutrientStatusSeverity, type NutrientStatus } from '../../lib/nutrientAnalysis';
+import {
+  getCheckinSeverityTrendSeries,
+  getNutrientTrendSeries,
+  getSixDimensionsFlagTrendSeries,
+  type CheckinSeverityPoint,
+  type TrendPoint,
+} from '../../lib/trendAnalysis';
+import { CORE_NUTRIENT_CODES } from './home';
 
-// Placeholder for the LensHub corner button (see components/LensHub.tsx) --
-// the page itself isn't built yet, so there's nothing real to switch
-// between. Reserves the button/shape now; gets replaced with real options
-// once Trends' own views are designed.
-type TrendsLens = 'overview';
-const TRENDS_LENSES: LensOption<TrendsLens>[] = [{ key: 'overview', label: 'Overview', icon: 'trending-up-outline' }];
+type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms';
+const TRENDS_LENSES: LensOption<TrendsLens>[] = [
+  { key: 'nutrients', label: 'Nutrients', icon: 'nutrition-outline' },
+  { key: 'sixDs', label: '6 Dimensions', icon: 'analytics-outline' },
+  { key: 'symptoms', label: 'Symptoms & Flares', icon: 'pulse-outline' },
+];
+
+const DAY_RANGE_OPTIONS = [
+  { value: 7, label: '7d' },
+  { value: 30, label: '30d' },
+  { value: 90, label: '90d' },
+] as const;
+
+// Same green/yellow/red vocabulary the rest of the app uses for nutrient
+// status (see home.tsx's nutrientRingColor) -- a nutrient's trend line
+// should read the same color here as it does on Home/Insights, not a
+// second, slightly different color scheme for the same status.
+function nutrientStatusColor(status: NutrientStatus | null): string {
+  if (status == null) return colors.primary;
+  const severity = nutrientStatusSeverity(status);
+  if (severity === 'red') return colors.danger;
+  if (severity === 'yellow') return colors.statusYellow;
+  return colors.primary;
+}
+
+function checkinColor(checkinType: CheckinSeverityPoint['checkinType']): string {
+  return checkinType === 'flare' ? colors.danger : colors.statusYellow;
+}
 
 export default function TrendsScreen() {
-  const [lens, setLens] = useState<TrendsLens>('overview');
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [lens, setLens] = useState<TrendsLens>('nutrients');
+  const [days, setDays] = useState<7 | 30 | 90>(30);
+  const [selectedNutrient, setSelectedNutrient] = useState<string>(CORE_NUTRIENT_CODES[0]);
+  const [nutrientLabels, setNutrientLabels] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
+
+  const [nutrientSeries, setNutrientSeries] = useState<Awaited<ReturnType<typeof getNutrientTrendSeries>> | null>(null);
+  const [sixDsSeries, setSixDsSeries] = useState<TrendPoint[] | null>(null);
+  const [symptomsSeries, setSymptomsSeries] = useState<CheckinSeverityPoint[] | null>(null);
+
+  // Nutrient display names, fetched once (one profile + one DRI table
+  // query -- cheap, unlike the per-day trend loop below) so the nutrient
+  // picker's pills have real labels immediately.
+  useFocusEffect(
+    useCallback(() => {
+      getDietaryReferenceIntakesForCurrentUser().then((rows) => {
+        const labels: Record<string, string> = {};
+        for (const row of rows) {
+          if (CORE_NUTRIENT_CODES.includes(row.nutrientCode)) labels[row.nutrientCode] = row.displayName;
+        }
+        setNutrientLabels(labels);
+      });
+    }, []),
+  );
+
+  // Only the active lens's series is computed -- each of the three lenses'
+  // data (especially Nutrients/6 Dimensions, which loop one DB call per
+  // day in the range) is real work, so there's no reason to pay for all
+  // three every time the range or lens changes.
+  const load = useCallback(() => {
+    setLoading(true);
+    if (lens === 'nutrients') {
+      getNutrientTrendSeries(selectedNutrient, days).then((series) => {
+        setNutrientSeries(series);
+        setLoading(false);
+      });
+    } else if (lens === 'sixDs') {
+      getSixDimensionsFlagTrendSeries(days).then((points) => {
+        setSixDsSeries(points);
+        setLoading(false);
+      });
+    } else {
+      getCheckinSeverityTrendSeries(['flare', 'post_meal'], days).then((points) => {
+        setSymptomsSeries(points);
+        setLoading(false);
+      });
+    }
+  }, [lens, days, selectedNutrient]);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  const activeLensLabel = TRENDS_LENSES.find((option) => option.key === lens)?.label;
+  const latestNutrientPoint = nutrientSeries && nutrientSeries.points.length > 0 ? nutrientSeries.points[nutrientSeries.points.length - 1] : null;
 
   return (
     <SwipeableTabScreen>
@@ -26,20 +115,121 @@ export default function TrendsScreen() {
             tabPath="/trends"
             helpSections={[
               {
-                heading: 'What this page will do',
-                body: 'Not built yet. Once it is, this is where nutrient intake and symptom check-in results will be charted over weeks and months, so slow changes that are invisible day-to-day become visible trends.',
+                heading: 'What this page shows',
+                body: "Nutrient intake, 6 Dimensions flags, and symptom/flare severity charted over a date range you pick, so slow changes that are invisible day-to-day become visible trends. Today's snapshot lives on Insights -- this is the same kind of information, over time instead of just today.",
               },
               {
-                heading: 'In the meantime',
-                body: "Today's snapshot already exists on the Insights tab (Nutrients, 6 Dimensions, and Cooking & Prep). Trends is the same kind of information, but over time instead of just today.",
+                heading: 'Nutrients',
+                body: "Pick a nutrient to see its percent-of-target trend across the date range, with a dashed line at 100%. Only days with at least one logged meal are plotted, so days before you started logging don't show up as false zeros.",
+              },
+              {
+                heading: '6 Dimensions',
+                body: 'How many D1-D6 flags (goitrogenic, high-risk, etc.) got logged per day, across the date range.',
+              },
+              {
+                heading: 'Symptoms & Flares',
+                body: 'Severity of every logged flare and food reaction from Bio-Compass, plotted by the date it happened.',
+              },
+              {
+                heading: 'Finding real patterns, not just charts',
+                body: "This page charts what you've already logged over time. Actually matching flares to specific foods or timing is a bigger, separate piece of work this app doesn't do yet -- for now, use these charts alongside your own judgment, not as a diagnosis.",
               },
             ]}
           />
         </View>
 
-        <ScreenBackground variant="trends" />
+        <ScreenBackground variant="trends">
+          <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
+            <Text style={styles.sectionHeading}>{activeLensLabel}</Text>
 
-        <PageIdentityLabel title="Trends" />
+            <View style={styles.pillRow}>
+              {DAY_RANGE_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[styles.pill, days === option.value && styles.pillActive]}
+                  onPress={() => setDays(option.value)}
+                >
+                  <Text style={[styles.pillText, days === option.value && styles.pillTextActive]}>{option.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {lens === 'nutrients' ? (
+              <>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.nutrientPillRow}>
+                  {CORE_NUTRIENT_CODES.map((code) => (
+                    <TouchableOpacity
+                      key={code}
+                      style={[styles.pill, selectedNutrient === code && styles.pillActive]}
+                      onPress={() => setSelectedNutrient(code)}
+                    >
+                      <Text style={[styles.pillText, selectedNutrient === code && styles.pillTextActive]}>
+                        {nutrientLabels[code] ?? code}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+
+                {loading ? (
+                  <Text style={styles.loadingText}>Loading…</Text>
+                ) : (
+                  <>
+                    <TrendLineChart
+                      points={(nutrientSeries?.points ?? []).map((point) => ({ date: point.date, value: point.value }))}
+                      yMin={0}
+                      yMax={Math.max(120, ...(nutrientSeries?.points.map((point) => point.value) ?? [120]))}
+                      referenceLine={100}
+                      lineColor={nutrientStatusColor(nutrientSeries?.latestStatus ?? null)}
+                      emptyMessage="Log a few meals on different days to see this nutrient's trend."
+                    />
+                    {latestNutrientPoint ? (
+                      <Text style={styles.caption}>Most recent: {Math.round(latestNutrientPoint.value)}% of target</Text>
+                    ) : null}
+                  </>
+                )}
+              </>
+            ) : lens === 'sixDs' ? (
+              loading ? (
+                <Text style={styles.loadingText}>Loading…</Text>
+              ) : (
+                <TrendLineChart
+                  points={sixDsSeries ?? []}
+                  yMin={0}
+                  yMax={Math.max(4, ...(sixDsSeries ?? []).map((point) => point.value))}
+                  lineColor={colors.statusFlagged}
+                  emptyMessage="Log a few meals on different days to see flagged items trend over time."
+                />
+              )
+            ) : loading ? (
+              <Text style={styles.loadingText}>Loading…</Text>
+            ) : (
+              <>
+                <TrendLineChart
+                  points={(symptomsSeries ?? []).map((point) => ({
+                    date: point.date,
+                    value: point.severity,
+                    color: checkinColor(point.checkinType),
+                  }))}
+                  yMin={1}
+                  yMax={4}
+                  emptyMessage="Log a flare or food reaction in Bio-Compass to see a severity trend here."
+                />
+                <View style={styles.legendRow}>
+                  <View style={styles.legendItem}>
+                    <View style={[styles.legendDot, { backgroundColor: colors.danger }]} />
+                    <Text style={styles.legendText}>Flare</Text>
+                  </View>
+                  <View style={styles.legendItem}>
+                    <View style={[styles.legendDot, { backgroundColor: colors.statusYellow }]} />
+                    <Text style={styles.legendText}>Food Reaction</Text>
+                  </View>
+                </View>
+              </>
+            )}
+          </ScrollView>
+        </ScreenBackground>
+
+        <PageIdentityLabel title="Trends" activeLensLabel={activeLensLabel} />
         <LensHub pageTitle="Trends" options={TRENDS_LENSES} selected={lens} onSelect={setLens} />
       </View>
     </SwipeableTabScreen>
@@ -49,4 +239,22 @@ export default function TrendsScreen() {
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.background },
   header: { paddingTop: 12 },
+  scroll: { flex: 1 },
+  content: { paddingHorizontal: 20, paddingBottom: 32 },
+  loadingText: { ...typography.body, color: colors.textSecondary, marginBottom: 16 },
+
+  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10 },
+  caption: { ...typography.body, color: colors.textSecondary, marginTop: 8, textAlign: 'center' },
+
+  pillRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
+  nutrientPillRow: { flexDirection: 'row', gap: 8, marginBottom: 16, paddingRight: 8 },
+  pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
+  pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
+  pillText: { ...typography.caption, color: colors.textPrimary },
+  pillTextActive: { color: colors.textOnPrimary },
+
+  legendRow: { flexDirection: 'row', gap: 16, marginTop: 12, justifyContent: 'center' },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legendDot: { width: 10, height: 10, borderRadius: 5 },
+  legendText: { ...typography.caption, color: colors.textSecondary },
 });

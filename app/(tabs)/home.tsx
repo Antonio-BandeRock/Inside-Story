@@ -6,7 +6,6 @@ import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, Touch
 import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
-import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { ProgressRing } from '../../components/ProgressRing';
 import { ScreenBackground } from '../../components/ScreenBackground';
 import { ScreenHeader } from '../../components/ScreenHeader';
@@ -99,7 +98,7 @@ function capitalize(text: string): string {
 // iron, copper) and to bone health (vitamin D, calcium, magnesium) --
 // deliberately not a marketing-style "17 pillars" claim, just the nutrients
 // this app already tracks DRIs for that are most relevant here.
-const CORE_NUTRIENT_CODES = ['iodine', 'selenium', 'zinc', 'iron', 'vitamin_d', 'calcium', 'magnesium', 'copper', 'vitamin_b12'];
+export const CORE_NUTRIENT_CODES = ['iodine', 'selenium', 'zinc', 'iron', 'vitamin_d', 'calcium', 'magnesium', 'copper', 'vitamin_b12'];
 
 // Same green/yellow/red language as the Insights tab's Nutrients table
 // (see nutrientStatusSeverity in lib/nutrientAnalysis.ts) -- a nutrient
@@ -569,7 +568,6 @@ export default function HomeScreen() {
           </View>
         </Modal>
 
-        <PageIdentityLabel title="Home" />
       </View>
     </SwipeableTabScreen>
   );
