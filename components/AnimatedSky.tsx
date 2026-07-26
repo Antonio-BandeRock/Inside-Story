@@ -1,9 +1,8 @@
-import { Image } from 'expo-image';
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, ClipPath, Defs, G } from 'react-native-svg';
+import Svg, { Circle, ClipPath, Defs, G, Image as SvgImage } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { useNow } from '../hooks/useNow';
-import { getMoonPhaseFraction, getSkyTint, getSunMoonPosition } from '../lib/skyClock';
+import { getMoonDistanceScale, getMoonPhaseFraction, getSkyTint, getSunMoonPosition } from '../lib/skyClock';
 
 // Home-only (see ScreenBackground.tsx's `sky` prop) -- the wildflower-field
 // background is the one image in the app with real open sky in it (the
@@ -21,19 +20,14 @@ const DISC_RADIUS = 10;
 const SUN_GLOW_RADIUS = 20;
 
 // A real lunar photo (assets/sky/moon.png, transparent background) instead
-// of a drawn circle -- rendered at this radius, with some extra room
-// (MOON_IMAGE_BOX_SCALE) around it since the source image has a bit of
-// transparent margin around the disc itself, not a perfect edge-to-edge
-// crop.
+// of a drawn circle.
 const MOON_DISC_RADIUS = 16;
 const MOON_IMAGE_BOX_SCALE = 1.15;
-const MOON_GLOW_RADIUS = 30;
-const MOON_GLOW_COLOR = 'rgba(246, 239, 221, 0.4)';
-// The phase shadow is a dark navy rather than pure black, so the unlit
-// portion still reads as "the same sphere, in shadow" against the night
-// sky instead of turning into a flat black bite taken out of the photo.
+// A dark navy rather than pure black -- the unlit portion should read as
+// "the same sphere, in shadow" rather than a flat black bite taken out of
+// the photo.
 const MOON_SHADOW_COLOR = '#0B0F1A';
-const MOON_SHADOW_OPACITY = 0.86;
+const MOON_SHADOW_OPACITY = 0.88;
 
 // Same quadratic-bezier "rise and fall" arc DayArc.tsx uses for its own
 // time-of-day positioning, just re-derived here for the sky band's own
@@ -49,8 +43,11 @@ export function AnimatedSky({ width, height }: { width: number; height: number }
   const { t, isDaytime } = getSunMoonPosition(now);
   const tint = getSkyTint(now);
   const skyBandHeight = height * SKY_BAND_HEIGHT_FRACTION;
-  const topY = skyBandHeight * 0.2;
-  const baseY = skyBandHeight * 0.9;
+  // Uses nearly the whole available band -- rise/set close to its bottom
+  // edge, peak close to its top -- rather than a narrow slice of it, since
+  // there's so little vertical room to work with in the first place.
+  const topY = skyBandHeight * 0.08;
+  const baseY = skyBandHeight * 0.95;
   const point = pointOnArc(t, width, topY, baseY);
 
   return (
@@ -72,69 +69,71 @@ export function AnimatedSky({ width, height }: { width: number; height: number }
           <Circle cx={point.x} cy={point.y} r={DISC_RADIUS} fill={colors.accent} />
         </Svg>
       ) : (
-        <MoonDisc cx={point.x} cy={point.y} phaseFraction={getMoonPhaseFraction(now)} />
+        // *1.1 headroom on the canvas height -- getMoonDistanceScale can
+        // push the rendered disc a bit past MOON_DISC_RADIUS at perigee,
+        // and the Svg canvas would otherwise clip it right at the edge.
+        <Svg width={width} height={Math.max(skyBandHeight, MOON_DISC_RADIUS * 2 * MOON_IMAGE_BOX_SCALE * 1.1)} style={styles.disc}>
+          <MoonDisc cx={point.x} cy={point.y} phaseFraction={getMoonPhaseFraction(now)} distanceScale={getMoonDistanceScale(now)} />
+        </Svg>
       )}
     </View>
   );
 }
 
-// A real photo (Image), not SVG shapes -- can't nest inside the Svg the
-// sun uses above, so this is its own absolutely-positioned layer instead.
-// The glow sits behind it (plain translucent circle via a small Svg), the
-// phase shadow sits on top of it (a dark circle, offset horizontally by
-// phase, clipped to the moon's own circular silhouette via ClipPath) --
-// same offset-circle technique as before, just now shadowing a real image
-// instead of a flat color, and there's no arc-sweep-direction ambiguity
-// to get backwards since it's built from plain circle overlap, not a
-// hand-drawn terminator curve.
-function MoonDisc({ cx, cy, phaseFraction }: { cx: number; cy: number; phaseFraction: number }) {
-  const boxSize = MOON_DISC_RADIUS * 2 * MOON_IMAGE_BOX_SCALE;
+// The image and its phase shadow both live inside the SAME Svg as
+// everything else here (not a separate expo-image layered between two
+// independent Svg overlays, which is what produced the grey-square/
+// black-spot rendering bug before) -- react-native-svg's own Image
+// element takes the same require() source RN's Image does, so there's no
+// need to cross between two different rendering systems at all.
+function MoonDisc({
+  cx,
+  cy,
+  phaseFraction,
+  distanceScale,
+}: {
+  cx: number;
+  cy: number;
+  phaseFraction: number;
+  // ~1.07 at perigee (closer -> bigger), ~0.94 at apogee (farther ->
+  // smaller) -- see lib/skyClock.ts's getMoonDistanceScale. Applied to the
+  // disc/image/shadow together so the whole moon scales as one piece, not
+  // just the texture or just the shadow.
+  distanceScale: number;
+}) {
+  const radius = MOON_DISC_RADIUS * distanceScale;
+  const boxSize = radius * 2 * MOON_IMAGE_BOX_SCALE;
   // offsetMagnitude: 0 at new moon (fully overlapping -> fully dark) up to
   // 2x the radius at full moon (fully separated -> fully lit), following
   // R*(1 - cos(2pi*phase)). Sign flips at phase 0.5 so the shadow visibly
   // approaches from one side while waxing and recedes from the other
-  // while waning, rather than retracing the same path both ways.
-  const offsetMagnitude = MOON_DISC_RADIUS * (1 - Math.cos(2 * Math.PI * phaseFraction));
+  // while waning, rather than retracing the same path both ways. This is
+  // plain circle-overlap geometry, not a hand-drawn terminator arc, so
+  // there's no sweep-direction sign to get backwards.
+  const offsetMagnitude = radius * (1 - Math.cos(2 * Math.PI * phaseFraction));
   const shadowOffsetX = phaseFraction <= 0.5 ? -offsetMagnitude : offsetMagnitude;
-  const clipId = 'moonShadowClip';
 
   return (
-    <View
-      style={{
-        position: 'absolute',
-        left: cx - boxSize / 2,
-        top: cy - boxSize / 2,
-        width: boxSize,
-        height: boxSize,
-      }}
-    >
-      <Svg width={boxSize} height={boxSize} style={StyleSheet.absoluteFillObject}>
-        <Circle cx={boxSize / 2} cy={boxSize / 2} r={MOON_GLOW_RADIUS} fill={MOON_GLOW_COLOR} />
-      </Svg>
-
-      <Image
-        source={require('../assets/sky/moon.png')}
-        style={{ width: boxSize, height: boxSize }}
-        contentFit="contain"
+    <>
+      <Defs>
+        {/* Clipped strictly to the moon's own circular boundary -- the
+            shadow can never shade anything outside the disc itself. */}
+        <ClipPath id="moonClip">
+          <Circle cx={cx} cy={cy} r={radius} />
+        </ClipPath>
+      </Defs>
+      <SvgImage
+        href={require('../assets/sky/moon.png')}
+        x={cx - boxSize / 2}
+        y={cy - boxSize / 2}
+        width={boxSize}
+        height={boxSize}
+        preserveAspectRatio="xMidYMid meet"
       />
-
-      <Svg width={boxSize} height={boxSize} style={StyleSheet.absoluteFillObject}>
-        <Defs>
-          <ClipPath id={clipId}>
-            <Circle cx={boxSize / 2} cy={boxSize / 2} r={MOON_DISC_RADIUS} />
-          </ClipPath>
-        </Defs>
-        <G clipPath={`url(#${clipId})`}>
-          <Circle
-            cx={boxSize / 2 + shadowOffsetX}
-            cy={boxSize / 2}
-            r={MOON_DISC_RADIUS}
-            fill={MOON_SHADOW_COLOR}
-            opacity={MOON_SHADOW_OPACITY}
-          />
-        </G>
-      </Svg>
-    </View>
+      <G clipPath="url(#moonClip)">
+        <Circle cx={cx + shadowOffsetX} cy={cy} r={radius} fill={MOON_SHADOW_COLOR} opacity={MOON_SHADOW_OPACITY} />
+      </G>
+    </>
   );
 }
 

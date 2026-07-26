@@ -56,6 +56,37 @@ export function getMoonPhaseFraction(date: Date): number {
   return phase / SYNODIC_MONTH_DAYS;
 }
 
+// The moon's orbit is elliptical, not circular, so its real distance (and
+// therefore its apparent size in the sky) actually varies -- about 12-14%
+// between perigee (closest) and apogee (farthest), the same swing behind
+// "supermoon" reporting and, at the extreme, perigean spring tides. This
+// is on the ~27.55-day anomalistic month, a different cycle than the
+// synodic (phase) month above -- perigee and full moon don't generally
+// coincide, they just happen to occasionally (that's what makes a
+// "supermoon" newsworthy).
+const ANOMALISTIC_MONTH_DAYS = 27.554549878;
+// A real, documented perigee: 2016-11-14 11:23 UTC, ~356,509 km -- the
+// closest supermoon in decades at the time, widely reported, so a solid
+// anchor. Any confirmed perigee timestamp works the same way
+// getMoonPhaseFraction's reference new moon does.
+const KNOWN_PERIGEE_UTC = Date.UTC(2016, 10, 14, 11, 23, 0);
+const PERIGEE_KM = 356_500;
+const APOGEE_KM = 406_700;
+const MEAN_DISTANCE_KM = (PERIGEE_KM + APOGEE_KM) / 2;
+
+// A multiplier around 1.0 -- above 1 when the moon is closer than average
+// (renders bigger), below 1 when farther (renders smaller). ~1.07 at
+// perigee, ~0.94 at apogee -- real apparent-size numbers, not an
+// invented range.
+export function getMoonDistanceScale(date: Date): number {
+  const daysSince = (date.getTime() - KNOWN_PERIGEE_UTC) / 86_400_000;
+  const anomalisticPhase = ((daysSince % ANOMALISTIC_MONTH_DAYS) + ANOMALISTIC_MONTH_DAYS) % ANOMALISTIC_MONTH_DAYS;
+  const distanceFraction = anomalisticPhase / ANOMALISTIC_MONTH_DAYS; // 0 = perigee, 0.5 = apogee
+  const amplitude = (APOGEE_KM - PERIGEE_KM) / 2;
+  const distanceKm = MEAN_DISTANCE_KM - amplitude * Math.cos(2 * Math.PI * distanceFraction);
+  return MEAN_DISTANCE_KM / distanceKm;
+}
+
 export type SkyTint = { color: string; opacity: number };
 
 type TintKeyframe = { hour: number; color: string; opacity: number };
