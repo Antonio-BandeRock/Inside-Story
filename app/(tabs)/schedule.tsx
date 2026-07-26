@@ -2902,7 +2902,7 @@ export default function ScheduleScreen() {
       </View>
 
       <SwipeableTabScreen>
-        <ScreenBackground>
+        <ScreenBackground variant="schedule">
           {lens === 'meals' ? (
             <MealsLens />
           ) : lens === 'hydration' ? (

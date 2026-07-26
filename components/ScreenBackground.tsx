@@ -28,6 +28,7 @@ const BACKGROUNDS = {
   field: { source: require('../assets/backgrounds/App_Background_Image.png'), contentFit: 'cover' as const },
   produce: { source: require('../assets/backgrounds/Fruits_Vegetables.png'), contentFit: 'cover' as const },
   insights: { source: require('../assets/backgrounds/Insights_Background_2.png'), contentFit: 'cover' as const },
+  schedule: { source: require('../assets/backgrounds/Scheduler_Background.png'), contentFit: 'cover' as const },
 };
 
 // The shared backdrop for every tab screen's body (everything below its own
