@@ -268,7 +268,7 @@ export default function InsightsScreen() {
         />
       </View>
 
-      <ScreenBackground>
+      <ScreenBackground variant="insights">
         <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
           {loading ? (
             <Text style={styles.emptyText}>Loading…</Text>
