@@ -156,7 +156,12 @@ export default function TrendsScreen() {
 
             {lens === 'nutrients' ? (
               <>
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.nutrientPillRow}>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.fullBleedScroll}
+                  contentContainerStyle={styles.nutrientPillRow}
+                >
                   {CORE_NUTRIENT_CODES.map((code) => (
                     <TouchableOpacity
                       key={code}
@@ -247,7 +252,11 @@ const styles = StyleSheet.create({
   caption: { ...typography.body, color: colors.textSecondary, marginTop: 8, textAlign: 'center' },
 
   pillRow: { flexDirection: 'row', gap: 8, marginBottom: 16 },
-  nutrientPillRow: { flexDirection: 'row', gap: 8, marginBottom: 16, paddingRight: 8 },
+  // See home.tsx's own fullBleedScroll comment -- same trick, same reason:
+  // cancels `content`'s paddingHorizontal so the scrollable viewport spans
+  // the true screen width instead of clipping inside that inset.
+  fullBleedScroll: { marginHorizontal: -20 },
+  nutrientPillRow: { flexDirection: 'row', gap: 8, marginBottom: 16, paddingHorizontal: 20 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, color: colors.textPrimary },

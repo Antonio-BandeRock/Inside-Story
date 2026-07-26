@@ -383,10 +383,14 @@ export default function HomeScreen() {
           </View>
 
           {loading ? (
-            <Text style={styles.loadingText}>Loading today…</Text>
+            <View style={styles.loadingCard}>
+              <Text style={styles.loadingText}>Loading today…</Text>
+            </View>
           ) : (
             <>
-              <Text style={styles.sectionHeading}>Your Day</Text>
+              <View style={styles.sectionHeadingChip}>
+                <Text style={styles.sectionHeading}>Your Day</Text>
+              </View>
               <View style={styles.arcCard}>
                 <DayArc items={data?.scheduledToday ?? []} onPressItem={setSelectedItem} />
                 <Text style={styles.arcCaption}>
@@ -411,7 +415,12 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </View>
 
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.quickActionsRow}>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.fullBleedScroll}
+                contentContainerStyle={styles.quickActionsRow}
+              >
                 <TouchableOpacity style={styles.quickAction} onPress={() => router.navigate('/')} activeOpacity={0.85}>
                   <Ionicons name="add-circle-outline" size={18} color={colors.textOnPrimary} />
                   <Text style={styles.quickActionText}>Log a meal</Text>
@@ -434,25 +443,33 @@ export default function HomeScreen() {
                 </TouchableOpacity>
               </ScrollView>
 
-              <Text style={[styles.sectionHeading, styles.sectionHeadingSpaced]}>Today's Fuel Gauges</Text>
+              <View style={[styles.sectionHeadingChip, styles.sectionHeadingSpaced]}>
+                <Text style={styles.sectionHeading}>Today's Fuel Gauges</Text>
+              </View>
               {mealsLoggedToday === 0 ? (
-                <Text style={styles.emptyText}>Log a meal to see today's fuel gauges fill in.</Text>
+                <View style={styles.emptyCard}>
+                  <Text style={styles.emptyText}>Log a meal to see today's fuel gauges fill in.</Text>
+                </View>
               ) : (
-                <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
-                  {coreNutrientRings.map((entry) => (
-                    <TouchableOpacity key={entry.nutrientCode} onPress={() => router.navigate('/insights')} activeOpacity={0.75}>
-                      <ProgressRing
-                        percent={entry.percentOfTarget}
-                        color={nutrientRingColor(entry.status)}
-                        label={entry.displayName}
-                        sublabel={`${Math.round(entry.percentOfTarget)}%`}
-                      />
-                    </TouchableOpacity>
-                  ))}
-                </ScrollView>
+                <View style={styles.fuelGaugesCard}>
+                  <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
+                    {coreNutrientRings.map((entry) => (
+                      <TouchableOpacity key={entry.nutrientCode} onPress={() => router.navigate('/insights')} activeOpacity={0.75}>
+                        <ProgressRing
+                          percent={entry.percentOfTarget}
+                          color={nutrientRingColor(entry.status)}
+                          label={entry.displayName}
+                          sublabel={`${Math.round(entry.percentOfTarget)}%`}
+                        />
+                      </TouchableOpacity>
+                    ))}
+                  </ScrollView>
+                </View>
               )}
 
-              <Text style={[styles.sectionHeading, styles.sectionHeadingSpaced]}>How You're Feeling</Text>
+              <View style={[styles.sectionHeadingChip, styles.sectionHeadingSpaced]}>
+                <Text style={styles.sectionHeading}>How You're Feeling</Text>
+              </View>
               <View style={styles.orbCard}>
                 <EnergyOrb
                   recentMaxSeverity={data?.recentMaxSeverity ?? null}
@@ -463,7 +480,9 @@ export default function HomeScreen() {
 
               {weekTrend ? (
                 <>
-                  <Text style={[styles.sectionHeading, styles.sectionHeadingSpaced]}>This Week's Trend</Text>
+                  <View style={[styles.sectionHeadingChip, styles.sectionHeadingSpaced]}>
+                    <Text style={styles.sectionHeading}>This Week's Trend</Text>
+                  </View>
                   <TouchableOpacity style={styles.trendCard} onPress={() => router.navigate('/trends')} activeOpacity={0.75}>
                     <Text style={styles.trendNumber}>
                       {weekTrend.thisWeekCount} {weekTrend.thisWeekCount === 1 ? 'flag' : 'flags'} this week
@@ -482,8 +501,15 @@ export default function HomeScreen() {
             </>
           )}
 
-          <Text style={[styles.sectionHeading, styles.sectionHeadingSpaced]}>A Few Things Worth Knowing</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.flipRow}>
+          <View style={[styles.sectionHeadingChip, styles.sectionHeadingSpaced]}>
+            <Text style={styles.sectionHeading}>A Few Things Worth Knowing</Text>
+          </View>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.fullBleedScroll}
+            contentContainerStyle={styles.flipRow}
+          >
             <FlipCard
               icon={<Ionicons name="body-outline" size={28} color={colors.primary} />}
               hook="An autoimmune condition affecting your thyroid"
@@ -649,15 +675,55 @@ const styles = StyleSheet.create({
   // lets ScreenBackground's image show through in the gaps between cards.
   scroll: { flex: 1 },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
-  loadingText: { ...typography.body, color: colors.textSecondary, marginBottom: 16 },
+  // Same colors.surface "dark blue" card used everywhere else on this page
+  // (arcCard, statTile, trendCard, etc.) -- every text-bearing element on
+  // Home sits on this same box now, since the background underneath is a
+  // photo (not the flat navy colors.background), and textPrimary's light
+  // cream reads poorly floating over the photo's brighter patches.
+  loadingCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  loadingText: { ...typography.body, color: colors.textSecondary },
 
-  greetingCard: { marginBottom: 16 },
+  greetingCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginBottom: 16,
+  },
   greetingText: { ...typography.screenTitle, color: colors.textPrimary },
   affirmationText: { ...typography.body, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
   dateText: { ...typography.body, color: colors.textSecondary, marginTop: 2 },
 
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10 },
+  // A small chip rather than a full card -- headings are labels sitting
+  // above their own content card, not content themselves, so a lighter
+  // touch than arcCard/statTile-style boxes reads as a title rather than
+  // a second stacked box.
+  sectionHeadingChip: {
+    alignSelf: 'flex-start',
+    backgroundColor: colors.surface,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 10,
+  },
+  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary },
   sectionHeadingSpaced: { marginTop: 24 },
+  emptyCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
   emptyText: { ...typography.body, color: colors.textSecondary },
 
   arcCard: {
@@ -684,7 +750,16 @@ const styles = StyleSheet.create({
   statNumberFlagged: { color: colors.statusFlagged },
   statLabel: { ...typography.caption, color: colors.textSecondary, marginTop: 4 },
 
-  quickActionsRow: { flexDirection: 'row', gap: 10, marginTop: 16, paddingRight: 8 },
+  // Cancels `content`'s own paddingHorizontal: 20 on the ScrollView itself
+  // (not its contentContainerStyle), so the scrollable viewport spans the
+  // true screen width -- otherwise a horizontal row nested inside the
+  // padded page content can only ever scroll within that narrower inset,
+  // clipping the last item's edge instead of letting it reach the real
+  // screen edge. contentContainerStyle re-adds the same 20px as visual
+  // padding so the row still starts/ends flush with everything else at
+  // rest; only the *scrollable* viewport is full-bleed, not the resting look.
+  fullBleedScroll: { marginHorizontal: -20 },
+  quickActionsRow: { flexDirection: 'row', gap: 10, marginTop: 16, paddingHorizontal: 20 },
   quickAction: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -708,9 +783,24 @@ const styles = StyleSheet.create({
   },
   quickActionSecondaryText: { ...typography.bodyEmphasis, color: colors.primary },
 
+  fuelGaugesCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    paddingVertical: 16,
+    paddingHorizontal: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
   ringRow: { flexDirection: 'row', gap: 16, paddingRight: 8 },
 
-  orbCard: { alignItems: 'center', paddingVertical: 8 },
+  orbCard: {
+    alignItems: 'center',
+    paddingVertical: 16,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
 
   trendCard: {
     backgroundColor: colors.surface,
@@ -724,7 +814,7 @@ const styles = StyleSheet.create({
   trendDelta: { ...typography.bodyEmphasis, marginTop: 4 },
   trendCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4 },
 
-  flipRow: { flexDirection: 'row', gap: 12, paddingRight: 8, paddingBottom: 8 },
+  flipRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingBottom: 8 },
 
   modalBackdrop: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(15, 23, 42, 0.4)', padding: 24 },
   modalBackdropTouchable: { ...StyleSheet.absoluteFillObject },

@@ -1,11 +1,36 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import Svg, { Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { getUserProfile } from '../lib/db';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import type { HelpSection } from './HelpButton';
+
+// The app name's own iridescent fill -- every tab's real identity color
+// (constants/tabs.ts's TAB_ROUTES, sampled from the butterfly artwork, not
+// invented), swept in hue order: warm gold, green, teal, periwinkle, sky
+// blue, purple, warm terracotta. Ties the app's own branding back to the
+// same palette the rest of the app is built from, the same way LensHub's
+// button sheen (see colors.iridescentSheen) reuses a tab's own color
+// rather than a separate "shiny" color scheme.
+const APP_NAME_GRADIENT: readonly string[] = [
+  colors.tabHome,
+  colors.tabFood,
+  colors.tabInsights,
+  colors.tabSchedules,
+  colors.tabTrends,
+  colors.tabReports,
+  colors.tabBioCompass,
+];
+
+const HEADER_TEXT_HEIGHT = 40;
+const HEADER_TEXT_FONT_SIZE = 26;
+// SVG has no text-shadow prop -- a second, darker copy of the same text,
+// offset a couple pixels down-right and drawn first (so the gradient copy
+// paints over it), is the standard way to fake a raised/3D look without one.
+const SHADOW_OFFSET = 1.5;
 
 // 2026-07-25: this used to be the one header carrying three things --
 // the page's own title/sub-tab (left), a help icon (far left), and
@@ -48,7 +73,15 @@ export function ScreenHeader({
 }) {
   const [firstName, setFirstName] = useState<string | null>(null);
   const insets = useSafeAreaInsets();
+  const { width: windowWidth } = useWindowDimensions();
   const { setCurrentHelp, setActiveTabPath } = useCurrentPageHelp();
+  // Matches `row`'s own paddingHorizontal: 20 on each side below.
+  const textAreaWidth = Math.max(200, windowWidth - 40);
+  const appNameText = `${firstName ? `${firstName}'s` : 'MY'} Inside Story`;
+  // SVG text's `y` is its baseline, not a vertical center -- this offset
+  // (roughly a third of the font size below the box's own vertical middle)
+  // is the standard approximation for centering a single line within a box.
+  const textBaselineY = HEADER_TEXT_HEIGHT / 2 + HEADER_TEXT_FONT_SIZE * 0.35;
 
   // Refetched on every focus (not just once on mount) so editing your name
   // in Profile and coming back to any tab picks it up immediately -- the
@@ -99,11 +132,39 @@ export function ScreenHeader({
           {/* "MY" is a placeholder for when no first name is set in
               Profile -- same slot, same style as the real possessive, so
               setting a name later is a straight swap, not a layout
-              change. One Text node, not two side by side -- both the name
-              and "Inside Story" belong on the same row, and a single node
-              guarantees that rather than depending on there being enough
-              width for two separate ones to land next to each other. */}
-          <Text style={styles.appName}>{firstName ? `${firstName}'s` : 'MY'} Inside Story</Text>
+              change. One text string, not two side by side -- both the
+              name and "Inside Story" belong on the same row, and a single
+              string guarantees that rather than depending on there being
+              enough width for two separate ones to land next to each other. */}
+          <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>
+            <Defs>
+              <LinearGradient id="appNameGradient" x1="0" y1="0" x2="1" y2="0">
+                {APP_NAME_GRADIENT.map((color, index) => (
+                  <Stop key={color} offset={index / (APP_NAME_GRADIENT.length - 1)} stopColor={color} />
+                ))}
+              </LinearGradient>
+            </Defs>
+            <SvgText
+              x={textAreaWidth / 2 + SHADOW_OFFSET}
+              y={textBaselineY + SHADOW_OFFSET}
+              fontFamily="Nunito_600SemiBold"
+              fontSize={HEADER_TEXT_FONT_SIZE}
+              fill="rgba(10, 14, 26, 0.45)"
+              textAnchor="middle"
+            >
+              {appNameText}
+            </SvgText>
+            <SvgText
+              x={textAreaWidth / 2}
+              y={textBaselineY}
+              fontFamily="Nunito_600SemiBold"
+              fontSize={HEADER_TEXT_FONT_SIZE}
+              fill="url(#appNameGradient)"
+              textAnchor="middle"
+            >
+              {appNameText}
+            </SvgText>
+          </Svg>
         </View>
       </View>
       <View style={styles.divider} />
@@ -129,19 +190,6 @@ const styles = StyleSheet.create({
   },
   nameStack: {
     alignItems: 'center',
-  },
-  // Its own style now, not typography.eyebrow (bold, uppercase,
-  // letter-spaced -- deliberately blunt/structural, meant for column
-  // headers and section labels, not the app's own name). Nunito SemiBold
-  // (2026-07-25, loaded in app/_layout.tsx) in the string's own natural
-  // case ("Tony's Inside Story", not forced uppercase) reads warmer, which
-  // is the point of this text -- it's personalization/branding, not a
-  // structural label. Sized up again the same day (20 -> 26) now that it's
-  // the header's one and only piece of content.
-  appName: {
-    fontFamily: 'Nunito_600SemiBold',
-    fontSize: 26,
-    color: colors.primary,
   },
   divider: {
     height: 1,
