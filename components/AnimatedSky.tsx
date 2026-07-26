@@ -1,8 +1,8 @@
 import { StyleSheet, View } from 'react-native';
-import Svg, { Circle, ClipPath, Defs, G, Image as SvgImage } from 'react-native-svg';
+import Svg, { Circle, Image as SvgImage } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { useNow } from '../hooks/useNow';
-import { getMoonDistanceScale, getMoonPhaseFraction, getSkyTint, getSunMoonPosition } from '../lib/skyClock';
+import { getMoonDistanceScale, getMoonHorizonWarmth, getMoonPhaseFraction, getSkyTint, getSunMoonPosition } from '../lib/skyClock';
 
 // Home-only (see ScreenBackground.tsx's `sky` prop) -- the wildflower-field
 // background is the one image in the app with real open sky in it (the
@@ -20,14 +20,37 @@ const DISC_RADIUS = 10;
 const SUN_GLOW_RADIUS = 20;
 
 // A real lunar photo (assets/sky/moon.png, transparent background) instead
-// of a drawn circle.
+// of a drawn circle. `radius` (MOON_DISC_RADIUS) below is the visible
+// disc's own intended rendered radius -- everything about how big the box
+// needs to be is derived from that plus the two measurements below, not
+// guessed.
 const MOON_DISC_RADIUS = 16;
-const MOON_IMAGE_BOX_SCALE = 1.15;
 // A dark navy rather than pure black -- the unlit portion should read as
 // "the same sphere, in shadow" rather than a flat black bite taken out of
 // the photo.
 const MOON_SHADOW_COLOR = '#0B0F1A';
 const MOON_SHADOW_OPACITY = 0.88;
+// Real atmospheric scattering warms/reddens a low moon near the horizon
+// the same way it reddens sunsets -- an orange-red wash over the whole
+// disc, strongest at rise/set and fading to nothing near its peak (see
+// lib/skyClock.ts's getMoonHorizonWarmth).
+const MOON_HORIZON_TINT_COLOR = '#FF8A50';
+const MAX_HORIZON_TINT_OPACITY = 0.4;
+// Both measured directly against assets/sky/moon.png's own alpha channel
+// (its 2000x2000 canvas has real transparent margin around the disc, and
+// that margin isn't even on all sides):
+// - the visible disc only fills about 67% of the canvas's width, not
+//   nearly edge-to-edge -- the earlier `* 1.15` scale factor assumed ~87%
+//   and was sizing the clip/shadow for a disc noticeably bigger than what
+//   actually renders, which is what was pushing the shadow away from the
+//   real edge.
+// - the disc's center sits 15.5px right and 28.5px up from the canvas's
+//   own geometric center (out of 2000px).
+// Both expressed as fractions of the canvas so they scale correctly at
+// any render size.
+const MOON_DISC_DIAMETER_FRACTION = 1347 / 2000;
+const MOON_DISC_CENTER_OFFSET_X = 15.5 / 2000;
+const MOON_DISC_CENTER_OFFSET_Y = -28.5 / 2000;
 
 // Same quadratic-bezier "rise and fall" arc DayArc.tsx uses for its own
 // time-of-day positioning, just re-derived here for the sky band's own
@@ -69,28 +92,32 @@ export function AnimatedSky({ width, height }: { width: number; height: number }
           <Circle cx={point.x} cy={point.y} r={DISC_RADIUS} fill={colors.accent} />
         </Svg>
       ) : (
-        // *1.1 headroom on the canvas height -- getMoonDistanceScale can
-        // push the rendered disc a bit past MOON_DISC_RADIUS at perigee,
-        // and the Svg canvas would otherwise clip it right at the edge.
-        <Svg width={width} height={Math.max(skyBandHeight, MOON_DISC_RADIUS * 2 * MOON_IMAGE_BOX_SCALE * 1.1)} style={styles.disc}>
-          <MoonDisc cx={point.x} cy={point.y} phaseFraction={getMoonPhaseFraction(now)} distanceScale={getMoonDistanceScale(now)} />
-        </Svg>
+        <MoonDisc
+          cx={point.x}
+          cy={point.y}
+          phaseFraction={getMoonPhaseFraction(now)}
+          distanceScale={getMoonDistanceScale(now)}
+          horizonWarmth={getMoonHorizonWarmth(t)}
+        />
       )}
     </View>
   );
 }
 
-// The image and its phase shadow both live inside the SAME Svg as
-// everything else here (not a separate expo-image layered between two
-// independent Svg overlays, which is what produced the grey-square/
-// black-spot rendering bug before) -- react-native-svg's own Image
-// element takes the same require() source RN's Image does, so there's no
-// need to cross between two different rendering systems at all.
+// The photo renders in its own tightly-sized Svg; the phase shadow renders
+// in a SEPARATE plain View clipped via overflow: 'hidden' + a circular
+// borderRadius -- not react-native-svg's own ClipPath, which is what was
+// actually causing the earlier bugs (the grey square/black spot, and the
+// shadow appearing as a whole separate disc stuck on the side rather than
+// being constrained to the moon's own silhouette). Plain View clipping is
+// a far more reliably supported cross-platform technique than SVG
+// clipPath for this.
 function MoonDisc({
   cx,
   cy,
   phaseFraction,
   distanceScale,
+  horizonWarmth,
 }: {
   cx: number;
   cy: number;
@@ -100,9 +127,18 @@ function MoonDisc({
   // disc/image/shadow together so the whole moon scales as one piece, not
   // just the texture or just the shadow.
   distanceScale: number;
+  // 0 at the arc's peak, 1 at rise/set -- see getMoonHorizonWarmth.
+  horizonWarmth: number;
 }) {
   const radius = MOON_DISC_RADIUS * distanceScale;
-  const boxSize = radius * 2 * MOON_IMAGE_BOX_SCALE;
+  // Sized so the *visible* disc (not the whole padded canvas) ends up at
+  // exactly `radius` -- see MOON_DISC_DIAMETER_FRACTION's own comment.
+  const boxSize = (radius * 2) / MOON_DISC_DIAMETER_FRACTION;
+  // Where the *visible* disc actually sits, not the invisible bounding
+  // box's own geometric center -- see MOON_DISC_CENTER_OFFSET_X/Y's own
+  // comment for where these numbers come from.
+  const discCenterX = cx + boxSize * MOON_DISC_CENTER_OFFSET_X;
+  const discCenterY = cy + boxSize * MOON_DISC_CENTER_OFFSET_Y;
   // offsetMagnitude: 0 at new moon (fully overlapping -> fully dark) up to
   // 2x the radius at full moon (fully separated -> fully lit), following
   // R*(1 - cos(2pi*phase)). Sign flips at phase 0.5 so the shadow visibly
@@ -115,24 +151,30 @@ function MoonDisc({
 
   return (
     <>
-      <Defs>
-        {/* Clipped strictly to the moon's own circular boundary -- the
-            shadow can never shade anything outside the disc itself. */}
-        <ClipPath id="moonClip">
-          <Circle cx={cx} cy={cy} r={radius} />
-        </ClipPath>
-      </Defs>
-      <SvgImage
-        href={require('../assets/sky/moon.png')}
-        x={cx - boxSize / 2}
-        y={cy - boxSize / 2}
-        width={boxSize}
-        height={boxSize}
-        preserveAspectRatio="xMidYMid meet"
-      />
-      <G clipPath="url(#moonClip)">
-        <Circle cx={cx + shadowOffsetX} cy={cy} r={radius} fill={MOON_SHADOW_COLOR} opacity={MOON_SHADOW_OPACITY} />
-      </G>
+      <Svg width={boxSize} height={boxSize} style={{ position: 'absolute', left: cx - boxSize / 2, top: cy - boxSize / 2 }}>
+        <SvgImage href={require('../assets/sky/moon.png')} x={0} y={0} width={boxSize} height={boxSize} preserveAspectRatio="xMidYMid meet" />
+      </Svg>
+
+      <View
+        style={{
+          position: 'absolute',
+          left: discCenterX - radius,
+          top: discCenterY - radius,
+          width: radius * 2,
+          height: radius * 2,
+          borderRadius: radius,
+          overflow: 'hidden',
+        }}
+      >
+        <Svg width={radius * 2} height={radius * 2}>
+          <Circle cx={radius + shadowOffsetX} cy={radius} r={radius} fill={MOON_SHADOW_COLOR} opacity={MOON_SHADOW_OPACITY} />
+          {/* Full-disc wash, on top of the shadow so it warms the whole
+              visible silhouette uniformly (lit and shadowed portions
+              alike) -- a low moon looks orange overall, not just on its
+              lit crescent. */}
+          <Circle cx={radius} cy={radius} r={radius} fill={MOON_HORIZON_TINT_COLOR} opacity={horizonWarmth * MAX_HORIZON_TINT_OPACITY} />
+        </Svg>
+      </View>
     </>
   );
 }

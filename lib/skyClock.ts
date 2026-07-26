@@ -36,6 +36,14 @@ export function getSunMoonPosition(date: Date): SunMoonPosition {
   return { t, isDaytime: false };
 }
 
+// 0 at the arc's peak (overhead, t=0.5), 1 at rise/set (t=0 or 1). Real
+// atmospheric scattering warms/reddens low-altitude moonlight the same way
+// it reddens sunsets -- reuses the same `t` already driving the moon's
+// on-screen position rather than a separate altitude calculation.
+export function getMoonHorizonWarmth(t: number): number {
+  return 1 - Math.sin(Math.PI * t);
+}
+
 // Real astronomy, unlike the stylized schedule above -- moon phase is a
 // deterministic date calculation with no location dependency and nothing
 // privacy-sensitive about it, so unlike sun position it's worth actually
@@ -128,6 +136,14 @@ function lerp(a: number, b: number, amount: number): number {
   return a + (b - a) * amount;
 }
 
+// The base night curve above (max 0.8, at hour 0/24) is tuned for what a
+// bright, well-illuminated moon should look like -- confirmed against the
+// real app with the moon near-full. A darker moon means genuinely less
+// real moonlight, so the scene should get correspondingly darker still,
+// up to this much *more* opacity on top of the base curve at new moon.
+const MAX_EXTRA_NEW_MOON_OPACITY = 0.15;
+const NIGHT_BASE_MAX_OPACITY = 0.8;
+
 export function getSkyTint(date: Date): SkyTint {
   const fractionalHour = date.getHours() + date.getMinutes() / 60;
 
@@ -149,7 +165,18 @@ export function getSkyTint(date: Date): SkyTint {
   const r = Math.round(lerp(r1, r2, amount));
   const g = Math.round(lerp(g1, g2, amount));
   const b = Math.round(lerp(b1, b2, amount));
-  const opacity = lerp(previous.opacity, next.opacity, amount);
+  const baseOpacity = lerp(previous.opacity, next.opacity, amount);
 
-  return { color: `rgb(${r}, ${g}, ${b})`, opacity };
+  // moonBrightness: 0 at new moon (no real moonlight), 1 at full moon
+  // (plenty of it) -- the standard illuminated-fraction formula, same
+  // family as the phase-shadow math in AnimatedSky.tsx.
+  const moonBrightness = (1 - Math.cos(2 * Math.PI * getMoonPhaseFraction(date))) / 2;
+  // Scaled by how far into "night" the base curve already is (0 during
+  // full day, up to 1 at deep night) -- moonlight is irrelevant during the
+  // day, so this fades in/out smoothly right along with the existing
+  // day/night tint curve rather than applying on a separate schedule.
+  const nightInfluence = Math.min(1, baseOpacity / NIGHT_BASE_MAX_OPACITY);
+  const extraDarkness = MAX_EXTRA_NEW_MOON_OPACITY * (1 - moonBrightness) * nightInfluence;
+
+  return { color: `rgb(${r}, ${g}, ${b})`, opacity: Math.min(1, baseOpacity + extraDarkness) };
 }
