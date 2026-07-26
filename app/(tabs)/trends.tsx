@@ -37,7 +37,7 @@ export default function TrendsScreen() {
           />
         </View>
 
-        <ScreenBackground />
+        <ScreenBackground variant="trends" />
 
         <PageIdentityLabel title="Trends" />
         <LensHub pageTitle="Trends" options={TRENDS_LENSES} selected={lens} onSelect={setLens} />

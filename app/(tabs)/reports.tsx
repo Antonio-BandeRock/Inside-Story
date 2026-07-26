@@ -37,7 +37,7 @@ export default function ReportsScreen() {
           />
         </View>
 
-        <ScreenBackground />
+        <ScreenBackground variant="reports" />
 
         <PageIdentityLabel title="Reports" />
         <LensHub pageTitle="Reports" options={REPORTS_LENSES} selected={lens} onSelect={setLens} />

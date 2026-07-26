@@ -1142,7 +1142,7 @@ export default function LogScreen() {
           <ScreenHeader title="Bio-Compass" tabPath="/log" helpSections={LOG_HELP_SECTIONS} />
         </View>
 
-        <ScreenBackground>
+        <ScreenBackground variant="bioCompass">
           {lens === 'flares' ? (
             <FlaresLens />
           ) : lens === 'foodReactions' ? (
