@@ -10,8 +10,15 @@ export const FLOATING_BUTTON_SIZE = 60;
 const BASE_BOTTOM_MARGIN = 16;
 // 20px lower than the original bottom-center position (a prior, explicit
 // request), clamped at 0 so it can never render partly off-screen on
-// devices with little/no bottom safe-area inset.
-export const FLOATING_BUTTON_BOTTOM_OFFSET = Math.max(0, BASE_BOTTOM_MARGIN - 20);
+// devices with little/no bottom safe-area inset. The further `- 4` is a
+// second, later, explicit "move it down a few more pixels" request,
+// layered on top rather than folded into the clamp above so that history
+// stays legible -- this one intentionally allows the final value to go
+// slightly negative (the button sitting a few px into what insets.bottom
+// marks as unsafe), a small enough amount that it's very unlikely to
+// cause real clipping even on a zero-inset device, and worth revisiting
+// only if that ever turns out not to hold in practice.
+export const FLOATING_BUTTON_BOTTOM_OFFSET = Math.max(0, BASE_BOTTOM_MARGIN - 20) - 4;
 
 // Gap between adjacent floating hub buttons (TabHub, LensHub, and any
 // screen-specific hub further left, e.g. Insights' ScopeHub), and how far

@@ -77,14 +77,19 @@ export function ScreenBackground({
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
       {/* The footer's own fine line, mirroring ScreenHeader's divider --
-          sits right at BACKGROUND_IMAGE_BUTTERFLY_GAP above TabHub (the
-          same boundary the image/mask already split on above), same
-          rotating palette as the header line and app-name text. */}
+          same rotating palette as the header line and app-name text.
+          Base `- 4` matches the header's own line-to-edge distance: on
+          ScreenHeader, the divider sits shadowFade1 (2px) + shadowFade2
+          (2px) = 4px before the true edge where the image begins; this
+          sits that same 4px on the other side of the equivalent edge
+          (bottomInset, where the image ends and the flat mask begins).
+          The further `- 1` is a small manual nudge down, requested after
+          eye testing on-device. */}
       <LinearGradient
         colors={rotatedIridescentPalette(hueRotation)}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
-        style={[styles.footerLine, { bottom: bottomInset }]}
+        style={[styles.footerLine, { bottom: bottomInset - 4 - 1 }]}
         pointerEvents="none"
       />
     </View>
