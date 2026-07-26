@@ -1,9 +1,9 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { colors } from '../constants/colors';
+import { colors, hueShift } from '../constants/colors';
 import { getUserProfile } from '../lib/db';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import type { HelpSection } from './HelpButton';
@@ -14,7 +14,8 @@ import type { HelpSection } from './HelpButton';
 // blue, purple, warm terracotta. Ties the app's own branding back to the
 // same palette the rest of the app is built from, the same way LensHub's
 // button sheen (see colors.iridescentSheen) reuses a tab's own color
-// rather than a separate "shiny" color scheme.
+// rather than a separate "shiny" color scheme. This base set is what
+// rotates through hues over time below -- see hueRotation.
 const APP_NAME_GRADIENT: readonly string[] = [
   colors.tabHome,
   colors.tabFood,
@@ -25,12 +26,60 @@ const APP_NAME_GRADIENT: readonly string[] = [
   colors.tabBioCompass,
 ];
 
-const HEADER_TEXT_HEIGHT = 40;
-const HEADER_TEXT_FONT_SIZE = 26;
-// SVG has no text-shadow prop -- a second, darker copy of the same text,
-// offset a couple pixels down-right and drawn first (so the gradient copy
-// paints over it), is the standard way to fake a raised/3D look without one.
-const SHADOW_OFFSET = 1.5;
+// A full 360-degree rotation every 36s (0.5deg per 50ms tick) -- slow
+// enough to read as a living, shifting shimmer rather than a distracting
+// flicker, closer to how real iridescent material shifts as light/angle
+// changes than to a fast color-cycle effect.
+const HUE_ROTATION_DEGREES_PER_TICK = 0.5;
+const HUE_ROTATION_TICK_MS = 50;
+
+// The "hard stop" from the true screen edge -- deliberately just a few
+// pixels rather than a real gutter, so the font gets as much width as
+// possible before the auto-shrink logic below has to kick in. Shared
+// between `row`'s own style and the textAreaWidth calculation so the two
+// can't drift out of sync.
+const ROW_HORIZONTAL_PADDING = 4;
+
+const HEADER_TEXT_HEIGHT = 60;
+// The *maximum* size -- a long first name (e.g. "Alexandria's Inside
+// Story") shrinks down from here to actually fit, same idea as native
+// Text's adjustsFontSizeToFit, just done by hand since SVG text has no
+// such prop. Never scales past this for short names either.
+const HEADER_TEXT_MAX_FONT_SIZE = 34;
+const HEADER_TEXT_MIN_FONT_SIZE = 18;
+// Deliberately tight -- just enough that the shadow layers (see
+// SHADOW_LAYERS below) don't clip against the SVG canvas's own edge
+// (Svg defaults to overflow: hidden, same as a root SVG element on the
+// web), not a real visual margin. Every pixel here is a pixel the font
+// itself can't use before it has to start shrinking.
+const HEADER_TEXT_HORIZONTAL_MARGIN = 4;
+// A synchronous, deterministic width estimate rather than a real measured
+// one -- an earlier version measured a hidden native Text via onLayout,
+// but that round trip proved unreliable in practice (long names weren't
+// actually shrinking). Nunito SemiBold's average character advance is
+// close enough to ~0.53em for this purpose -- these are short one-line
+// names, not paragraphs, so per-character precision isn't the goal, only
+// "a long name visibly shrinks instead of clipping." Biased slightly
+// wide on purpose: overshrinking a borderline name by a couple pixels is
+// a much smaller problem than a long one silently clipping.
+const AVERAGE_CHAR_WIDTH_EM = 0.53;
+function estimateTextWidth(text: string, fontSize: number): number {
+  return text.length * fontSize * AVERAGE_CHAR_WIDTH_EM;
+}
+// SVG has no text-shadow prop -- darker copies of the same text, offset
+// further down-right and drawn first (so the gradient copy paints over
+// them), are the standard way to fake a raised/3D look without one.
+// Several stacked, increasingly-offset, increasingly-faint copies read as
+// a longer cast shadow (text lifting further off the page) than one copy
+// alone; a single faint highlight copy offset the *opposite* way adds a
+// lit top-left bevel edge, completing the raised/embossed look.
+const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [
+  { offset: 2, opacity: 0.5 },
+  { offset: 4, opacity: 0.35 },
+  { offset: 6, opacity: 0.22 },
+  { offset: 8, opacity: 0.12 },
+];
+const HIGHLIGHT_OFFSET = -1.5;
 
 // 2026-07-25: this used to be the one header carrying three things --
 // the page's own title/sub-tab (left), a help icon (far left), and
@@ -72,16 +121,46 @@ export function ScreenHeader({
   tabPath?: string;
 }) {
   const [firstName, setFirstName] = useState<string | null>(null);
+  const [hueRotation, setHueRotation] = useState(0);
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const { setCurrentHelp, setActiveTabPath } = useCurrentPageHelp();
-  // Matches `row`'s own paddingHorizontal: 20 on each side below.
-  const textAreaWidth = Math.max(200, windowWidth - 40);
+  // Matches `row`'s own paddingHorizontal below.
+  const textAreaWidth = Math.max(200, windowWidth - ROW_HORIZONTAL_PADDING * 2);
   const appNameText = `${firstName ? `${firstName}'s` : 'MY'} Inside Story`;
+  const availableTextWidth = textAreaWidth - HEADER_TEXT_HORIZONTAL_MARGIN * 2;
+  const estimatedWidthAtMax = estimateTextWidth(appNameText, HEADER_TEXT_MAX_FONT_SIZE);
+
+  // Shrinks from the max size only as far as needed to fit the *current*
+  // name -- "Tony's Inside Story" stays at full size, "Alexandria's Inside
+  // Story" scales down, both computed synchronously (no render-then-measure
+  // round trip, no chance of a stale/late value).
+  const fontSize =
+    estimatedWidthAtMax > availableTextWidth
+      ? Math.max(HEADER_TEXT_MIN_FONT_SIZE, HEADER_TEXT_MAX_FONT_SIZE * (availableTextWidth / estimatedWidthAtMax))
+      : HEADER_TEXT_MAX_FONT_SIZE;
+  // Shadow/highlight offsets scale down together with the text -- otherwise
+  // a shrunk long name would carry the same shadow size as the full-size
+  // text, reading as disproportionately heavy.
+  const shadowScale = fontSize / HEADER_TEXT_MAX_FONT_SIZE;
+
   // SVG text's `y` is its baseline, not a vertical center -- this offset
   // (roughly a third of the font size below the box's own vertical middle)
   // is the standard approximation for centering a single line within a box.
-  const textBaselineY = HEADER_TEXT_HEIGHT / 2 + HEADER_TEXT_FONT_SIZE * 0.35;
+  const textBaselineY = HEADER_TEXT_HEIGHT / 2 + fontSize * 0.35;
+  const animatedGradientColors = APP_NAME_GRADIENT.map((color) => hueShift(color, hueRotation));
+
+  // Continuously advances the gradient's hue -- a plain state-driven
+  // interval rather than Reanimated, since SVG gradient stop colors are
+  // just re-rendered React props here, not a worklet-driven native prop;
+  // a header-sized bit of text at a 20fps tick is cheap enough that the
+  // simpler approach is the right one, not a premature optimization.
+  useEffect(() => {
+    const id = setInterval(() => {
+      setHueRotation((current) => (current + HUE_ROTATION_DEGREES_PER_TICK) % 360);
+    }, HUE_ROTATION_TICK_MS);
+    return () => clearInterval(id);
+  }, []);
 
   // Refetched on every focus (not just once on mount) so editing your name
   // in Profile and coming back to any tab picks it up immediately -- the
@@ -139,26 +218,51 @@ export function ScreenHeader({
           <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>
             <Defs>
               <LinearGradient id="appNameGradient" x1="0" y1="0" x2="1" y2="0">
-                {APP_NAME_GRADIENT.map((color, index) => (
-                  <Stop key={color} offset={index / (APP_NAME_GRADIENT.length - 1)} stopColor={color} />
+                {animatedGradientColors.map((color, index) => (
+                  <Stop key={index} offset={index / (animatedGradientColors.length - 1)} stopColor={color} />
                 ))}
               </LinearGradient>
             </Defs>
+
+            {/* Stacked shadow copies, furthest/faintest first so each
+                nearer one paints cleanly over it -- see SHADOW_LAYERS. */}
+            {SHADOW_LAYERS.slice().reverse().map((layer) => {
+              const offset = layer.offset * shadowScale;
+              return (
+                <SvgText
+                  key={layer.offset}
+                  x={textAreaWidth / 2 + offset}
+                  y={textBaselineY + offset}
+                  fontFamily="Nunito_600SemiBold"
+                  fontSize={fontSize}
+                  fill={`rgba(6, 9, 20, ${layer.opacity})`}
+                  textAnchor="middle"
+                >
+                  {appNameText}
+                </SvgText>
+              );
+            })}
+
+            {/* A faint highlight offset the opposite way from the shadow
+                stack -- peeks out along the top-left edge of the gradient
+                text on top, reading as a lit bevel edge (the other half of
+                a raised/embossed look, not just a shadow underneath). */}
             <SvgText
-              x={textAreaWidth / 2 + SHADOW_OFFSET}
-              y={textBaselineY + SHADOW_OFFSET}
+              x={textAreaWidth / 2 + HIGHLIGHT_OFFSET * shadowScale}
+              y={textBaselineY + HIGHLIGHT_OFFSET * shadowScale}
               fontFamily="Nunito_600SemiBold"
-              fontSize={HEADER_TEXT_FONT_SIZE}
-              fill="rgba(10, 14, 26, 0.45)"
+              fontSize={fontSize}
+              fill="rgba(255, 255, 255, 0.35)"
               textAnchor="middle"
             >
               {appNameText}
             </SvgText>
+
             <SvgText
               x={textAreaWidth / 2}
               y={textBaselineY}
               fontFamily="Nunito_600SemiBold"
-              fontSize={HEADER_TEXT_FONT_SIZE}
+              fontSize={fontSize}
               fill="url(#appNameGradient)"
               textAnchor="middle"
             >
@@ -185,7 +289,7 @@ const styles = StyleSheet.create({
   row: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: 20,
+    paddingHorizontal: ROW_HORIZONTAL_PADDING,
     paddingVertical: 6,
   },
   nameStack: {
