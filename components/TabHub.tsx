@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import * as NavigationBar from 'expo-navigation-bar';
 import { usePathname, useRouter, type Href } from 'expo-router';
-import { useState } from 'react';
-import { Image, Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Image, Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, iridescentSheen } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE } from '../constants/floatingButton';
@@ -58,6 +59,19 @@ export function TabHub() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const { currentHelp, activeTabPath } = useCurrentPageHelp();
+
+  // The root layout (app/_layout.tsx) already sets this once for the main
+  // Activity window, but this Modal opens as its own separate Android
+  // Dialog window (see the comment on the Modal itself, below) -- that
+  // setting doesn't necessarily carry over automatically, so it's
+  // reasserted specifically whenever this menu opens, as a second attempt
+  // at the same "dark strip behind the nav bar" bug navBarMask already
+  // tries to patch further down.
+  useEffect(() => {
+    if (Platform.OS === 'android' && open) {
+      NavigationBar.setStyle('dark');
+    }
+  }, [open]);
 
   function go(path: Href) {
     setOpen(false);

@@ -40,7 +40,7 @@ export const typography = {
 // not applied everywhere by default: most text in the app already sits on
 // an opaque card and doesn't need it, so this stays opt-in per screen.
 export const textShadow = {
-  textShadowColor: 'rgba(0, 0, 0, 0.55)',
+  textShadowColor: 'rgba(0, 0, 0, 0.7)',
   textShadowOffset: { width: 0, height: 1 },
-  textShadowRadius: 2,
+  textShadowRadius: 2.5,
 } as const;
