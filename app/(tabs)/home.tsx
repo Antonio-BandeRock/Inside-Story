@@ -368,7 +368,7 @@ export default function HomeScreen() {
           />
         </View>
 
-        <ScreenBackground>
+        <ScreenBackground sky>
           <ScrollView
             style={styles.scroll}
             contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}

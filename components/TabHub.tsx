@@ -302,15 +302,19 @@ const styles = StyleSheet.create({
   butterflyImage: {
     width: BUTTERFLY_WIDTH,
     height: BUTTERFLY_HEIGHT,
-    // No transform/nudge -- removed 2026-07-25. The -2px leftward nudge
-    // that used to be here was always experimental ("just to see," not a
-    // fix for a diagnosed bug -- pixel analysis at the time had already
-    // shown the asset itself centered to within 1px, and attributed the
-    // remaining perceived offset to the OS's own nav-bar button, not this
-    // component). Removed because it's a real, deliberate leftward shift
-    // with no bug behind it, and was reported as making the button look
-    // off-center to the left after an unrelated header change drew a
-    // closer look at this area.
+    // Re-added 2026-07-27, explicitly requested despite no diagnosed
+    // cause -- a near-identical -2px leftward nudge lived here before,
+    // was removed the same day pixel analysis showed the asset itself
+    // centered to within 1px (attributing the perceived offset to the OS's
+    // own nav-bar button, not this component), and was then reported as
+    // making things look off-center *to the left*. This time the report
+    // is the opposite direction (slightly right of center), so this is a
+    // small leftward correction again -- still experimental, not a fix
+    // for any bug found in the position math itself (there isn't one; see
+    // the button style's own alignSelf: 'center' and floatingButton.ts,
+    // neither references any left/right inset that could skew this).
+    // Adjust or remove based on how it actually looks on-device.
+    transform: [{ translateX: -2 }],
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },
   // `height` set inline (insets.bottom) -- see the comment where this is

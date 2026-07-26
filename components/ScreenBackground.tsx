@@ -1,11 +1,12 @@
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
-import type { ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useState, type ReactNode } from 'react';
+import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, rotatedIridescentPalette } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE } from '../constants/floatingButton';
 import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
+import { AnimatedSky } from './AnimatedSky';
 
 // How far above TabHub's own floating button (see constants/floatingButton.ts)
 // the wildflower background image's bottom edge stops -- a plain margin of
@@ -45,18 +46,25 @@ const BACKGROUNDS = {
 // implementation, not seven that can quietly drift apart.
 //
 // Layering, bottom to top: the image (fixed -- it does not scroll with
-// `children`'s own content), then `children` itself (typically a
-// ScrollView), then an opaque bottomMask painted last so the area behind
+// `children`'s own content), then the animated sky overlay (Home only --
+// see `sky` below), then `children` itself (typically a ScrollView), then
+// an opaque bottomMask painted last so the area behind
 // TabHub/LensHub/ScopeHub is *guaranteed* flat colors.background no matter
 // what's scrolled underneath it, rather than relying on scroll padding
-// alone to happen to leave it empty. Eventual home for the planned
-// breeze/pollinator animation (see CLAUDE.md) -- static for now.
+// alone to happen to leave it empty.
 export function ScreenBackground({
   children,
   variant = 'field',
+  sky = false,
 }: {
   children?: ReactNode;
   variant?: keyof typeof BACKGROUNDS;
+  // Home-only, opt-in (see components/AnimatedSky.tsx) -- every other
+  // screen leaves this unset, so nothing changes for them at all. Only
+  // 'field' (Home's own wildflower-field image) actually shows open sky;
+  // this isn't validated against `variant` since Home is the only caller
+  // that would ever pass it.
+  sky?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const bottomInset = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET + FLOATING_BUTTON_SIZE + BACKGROUND_IMAGE_BUTTERFLY_GAP;
@@ -65,6 +73,16 @@ export function ScreenBackground({
   // divider use (see hooks/useIridescentHueRotation) -- this line shimmers
   // in lockstep with those, not on its own separate schedule.
   const hueRotation = useIridescentHueRotation();
+  // The image's own real rendered size -- AnimatedSky needs this to know
+  // where its sky band actually is and how far the tint overlay should
+  // reach, and there's no way to know it in advance (varies by device),
+  // so it's measured via onLayout rather than guessed from insets.
+  const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
+
+  function handleImageLayout(event: LayoutChangeEvent) {
+    const { width, height } = event.nativeEvent.layout;
+    setImageSize({ width, height });
+  }
 
   return (
     <View style={styles.body}>
@@ -73,7 +91,9 @@ export function ScreenBackground({
         style={[styles.backgroundImage, { bottom: bottomInset }]}
         contentFit={background.contentFit}
         contentPosition="center"
+        onLayout={handleImageLayout}
       />
+      {sky && imageSize ? <AnimatedSky width={imageSize.width} height={imageSize.height} /> : null}
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
       {/* The footer's own fine line, mirroring ScreenHeader's divider --
