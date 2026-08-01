@@ -185,6 +185,27 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
       // what actually removes this field from the autofill tree entirely.
       importantForAutofill="noExcludeDescendants"
       autoComplete="off"
+      // The real fix, 2026-08-01, after both props above (plus an
+      // application-level manifest equivalent, see
+      // plugins/withAutofillDisabled.js) still left the chip showing:
+      // reported as appearing specifically when tapping into a field that
+      // ALREADY had a cursor in it (Dish Name after its own autoFocus;
+      // AppKeyboard's own search box the same way), not on first focus --
+      // that's the signature of Android's native text-EDITING toolbar (the
+      // floating Cut/Copy/Paste/Select-All popup that appears when tapping
+      // to reposition a cursor in already-focused text), not the separate
+      // Autofill-framework save/fill popup the props above target.
+      // "Autofill" is one of that toolbar's own default menu items on
+      // modern Android, which is why neither importantForAutofill prop
+      // ever touched it -- wrong mechanism entirely. contextMenuHidden
+      // suppresses that whole toolbar. Real tradeoff, not a free fix: this
+      // also removes the only touch-based way to Cut/Copy/Paste in these
+      // fields, since AppKeyboard provides no menu of its own to replace
+      // it -- accepted here because AppKeyboard's whole premise is that no
+      // native input-adjacent UI should ever appear over one of these
+      // fields, and short fields like Dish Name have little real need for
+      // touch-based cut/copy/paste in the first place.
+      contextMenuHidden
       selection={selection}
       onSelectionChange={(event) => {
         setSelection(event.nativeEvent.selection);

@@ -279,6 +279,15 @@ export function LensHub<T extends string>({
   // auto-opening on a page's true first visit each session, not every
   // arrival).
   const [open, setOpen] = useState(false);
+  // Same fix as TabHub's own Modal (components/TabHub.tsx) -- see that
+  // file's longer comment for the full reasoning and the real, captured
+  // timing data behind it: the card's own layout was already correct on
+  // its first and only pass, but Android hadn't confirmed its native
+  // Dialog window was actually up yet when it committed. Keeping the card
+  // invisible until onShow, rather than the instant `open` becomes true,
+  // means it can only ever become visible once the window is genuinely
+  // ready.
+  const [cardReady, setCardReady] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
   const insets = useSafeAreaInsets();
   const { bottom: buttonBottom, left: buttonLeft } = useBottomLeftHubPosition();
@@ -340,7 +349,10 @@ export function LensHub<T extends string>({
     <>
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          setCardReady(false);
+          setOpen(true);
+        }}
         activeOpacity={0.85}
         accessibilityLabel={`Choose a view for ${pageTitle}`}
       >
@@ -400,6 +412,7 @@ export function LensHub<T extends string>({
         animationType="fade"
         statusBarTranslucent
         navigationBarTranslucent
+        onShow={() => setCardReady(true)}
         onRequestClose={() => setOpen(false)}
       >
         {/* A ninth investigated (and disproven) theory for TabHub's own
@@ -409,14 +422,20 @@ export function LensHub<T extends string>({
             condition (a WheelPicker mounted elsewhere in the tree):
             wrapping this Modal's content in its own GestureHandlerRootView.
             Confirmed on-device NOT to change the behavior, removed rather
-            than left in as dead, misleading scaffolding. */}
+            than left in as dead, misleading scaffolding. A tenth attempt,
+            2026-08-01, backed by real captured timing data this time (see
+            TabHub's own comment on cardReady's declaration for the
+            reasoning): hold the card invisible until onShow confirms the
+            window is genuinely up. */}
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
           <View
             style={[
               styles.card,
               { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, width: CARD_WIDTH, height: CARD_HEIGHT, borderColor: tabColor },
+              { opacity: cardReady ? 1 : 0 },
             ]}
+            pointerEvents={cardReady ? 'auto' : 'none'}
           >
             <Text style={styles.cardHeader} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
               {headerLabel ?? pageTitle}

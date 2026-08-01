@@ -235,6 +235,23 @@ const CARD_HEIGHT = CARD_ROW_COUNT * CARD_ROW_HEIGHT + CARD_PADDING_VERTICAL * 2
 // between adjacent tabs; this is the fast path to anywhere else.
 export function TabHub() {
   const [open, setOpen] = useState(false);
+  // A tenth attempt at the "card drops in from above" bug, 2026-08-01 --
+  // unlike the nine before it (see the Modal's own long comment below),
+  // this one is backed by real, captured timing data, not another guess
+  // from reading code alone: on-device logs showed the card's own layout
+  // committing correctly on its FIRST and only pass, but Android not
+  // confirming its native Dialog window was actually up until ~34ms
+  // later. The card was never mispositioned; it was painting onto a
+  // window that hadn't finished settling its own edge-to-edge geometry
+  // yet. Keeping the card invisible until onShow -- the same signal this
+  // file already trusts for the identical "is the window really ready"
+  // question (see handleModalShow's own NavigationBar call) -- means it
+  // can only ever become visible once that's true, regardless of the
+  // underlying window-geometry mechanism. Reset to false the instant the
+  // menu is asked to open (see the button's own onPress below); there's
+  // no other path that sets `open` true, so nothing else needs to reset
+  // it back.
+  const [cardReady, setCardReady] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
@@ -285,6 +302,7 @@ export function TabHub() {
   // around it.
   function handleModalShow() {
     logDropTiming('Modal onShow (Android Dialog window confirmed up)');
+    setCardReady(true);
     if (Platform.OS === 'android') {
       NavigationBar.setStyle('dark');
     }
@@ -356,6 +374,7 @@ export function TabHub() {
         onPress={() => {
           dropTimingOpenedAtRef.current = Date.now();
           logDropTiming('tap (setOpen(true) about to run)');
+          setCardReady(false);
           setOpen(true);
         }}
         activeOpacity={0.85}
@@ -455,7 +474,20 @@ export function TabHub() {
               cardRing below (needed to clip the gradient into the same
               rounded rect) would otherwise clip the shadow too. */}
           <View
-            style={[styles.cardShadowWrap, { bottom: cardBottom, left: CARD_LEFT_MARGIN, width: CARD_WIDTH }]}
+            style={[
+              styles.cardShadowWrap,
+              { bottom: cardBottom, left: CARD_LEFT_MARGIN, width: CARD_WIDTH },
+              // Invisible (not just unmounted -- see cardReady's own
+              // comment above) until Android confirms its Dialog window
+              // is genuinely up, so nothing ever paints during whatever
+              // window-geometry settling produced the drop-in. Still laid
+              // out and logged the whole time (opacity/pointerEvents don't
+              // affect layout), so the diagnostic data above stays
+              // meaningful for comparison against how this actually looks
+              // on-device now.
+              { opacity: cardReady ? 1 : 0 },
+            ]}
+            pointerEvents={cardReady ? 'auto' : 'none'}
             onLayout={(event) => {
               const { x, y, width, height } = event.nativeEvent.layout;
               logDropTiming(`card onLayout: x=${Math.round(x)} y=${Math.round(y)} w=${Math.round(width)} h=${Math.round(height)}`);
