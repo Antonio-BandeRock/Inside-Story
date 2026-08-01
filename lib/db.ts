@@ -386,10 +386,19 @@ export async function getPreparationMethods(category: string, subcategory: strin
 
 // Resolves a chosen (category, type, food name, prep method) combination
 // down to one real, scoreable food row. If more than one source measured
-// the exact same food at the exact same prep state, deterministically
-// keeps the lowest food_id -- at this point category/type/name/prep are
-// all already fixed, so any remaining rows really are the same real food,
-// just redundantly measured.
+// the exact same food at the exact same prep state, prefers a row whose
+// own name says it's unsalted/no-salt-added over one that says salted --
+// 2026-08-01, explicitly requested alongside FoodLookup's own Raw default
+// (see that file's own comment): prep_method alone doesn't capture added
+// salt (e.g. Broccoli's two "Boiled" rows are "...with salt" and "...
+// without salt", not distinguished by prep_method at all), so without
+// this, which one won was purely an accident of which food_id happened to
+// be lower. Foods with no salt-related wording either way (most raw
+// produce) are unaffected -- they were never salted vs. unsalted VARIANTS
+// of the same row to begin with, just one plain entry. Only after that:
+// deterministically keeps the lowest food_id, same as before -- at this
+// point category/type/name/prep(/salt) are all already fixed, so any
+// remaining rows really are the same real food, just redundantly measured.
 export async function resolveFoodChoice(category: string, subcategory: string | null, baseName: string, prepMethod: string | null, usdaOnly = true) {
   const db = await getReferenceDatabase();
   const { clause, params } = buildScopeClause(category, subcategory, usdaOnly);
@@ -401,7 +410,13 @@ export async function resolveFoodChoice(category: string, subcategory: string | 
       FROM foods
       WHERE ${clause} AND base_name = ?
         AND COALESCE(prep_method, 'Standard') = ?
-      ORDER BY food_id
+      ORDER BY
+        CASE
+          WHEN name LIKE '%without salt%' OR name LIKE '%no salt added%' OR name LIKE '%unsalted%' THEN 0
+          WHEN name LIKE '%with salt%' OR name LIKE '%salted%' THEN 2
+          ELSE 1
+        END,
+        food_id
       LIMIT 1
     `,
     ...params,

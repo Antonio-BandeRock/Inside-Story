@@ -351,7 +351,22 @@ export function FoodLookup({
     }
     let cancelled = false;
     getPreparationMethods(category, subcategory, baseName).then((methods) => {
-      if (!cancelled) setPrepMethods(methods);
+      if (cancelled) return;
+      setPrepMethods(methods);
+      // Default to Raw when it's a real option, 2026-08-01 -- explicitly
+      // requested: this app should assume raw/whole/unprocessed by
+      // default, not leave every food's prep state as an unguided,
+      // alphabetically-sorted tap. Without this, "Boiled" sorts before
+      // "Raw" and "Canned" carries no visual signal that it's the wrong
+      // pick for someone who just wants the plain vegetable -- confirmed
+      // as a real problem, not hypothetical: reported directly, sweet
+      // peppers and carrots both ended up resolved to their canned
+      // variant. Still just a normal resolved field afterward, exactly
+      // like a person picking it themselves -- "Change" (below) reopens
+      // the full list for anyone who deliberately wants Boiled/Canned/
+      // Dried/etc, e.g. Insights' own Food Lookup lens comparing prep
+      // states on purpose.
+      setPrepMethod(methods.includes('Raw') ? 'Raw' : null);
     });
     return () => {
       cancelled = true;
