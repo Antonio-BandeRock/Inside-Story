@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
@@ -319,7 +319,15 @@ function useReorderedLabeledFields(fields: LabeledPickerField[]): LabeledPickerF
 // this card's own overall height, freeing more room below it for the
 // connected Category/Food picker.
 const SUMMARY_CARD_PADDING = 8;
-const SUMMARY_INGREDIENT_ROW_HEIGHT = 18;
+// 18 -> 36, 2026-08-01 -- explicitly requested after a real mis-tap: at
+// 18px, each row's remove button (see summaryRemoveButton) had no room to
+// have its own real padding-based tap target without directly touching its
+// neighbors above/below, which is exactly what let a tap meant for one
+// ingredient catch the one next to it instead. 36px comfortably fits that
+// button's own ~35px footprint (see its own comment) with a hair of real
+// separation from the row above/below, still large enough as a deliberate
+// trade against this card's own explicit compactness goal above.
+const SUMMARY_INGREDIENT_ROW_HEIGHT = 36;
 const SUMMARY_VISIBLE_INGREDIENT_ROWS = 4;
 const SUMMARY_INGREDIENT_LIST_HEIGHT = SUMMARY_INGREDIENT_ROW_HEIGHT * SUMMARY_VISIBLE_INGREDIENT_ROWS;
 const SUMMARY_DONE_ROW_HEIGHT = 16;
@@ -842,6 +850,23 @@ export function SideBuilder({
     setIngredients((current) => current.filter((_, i) => i !== index));
   }
 
+  // Confirms before actually removing, 2026-08-01 -- explicitly requested
+  // after a real mis-tap deleted the wrong ingredient from an already-saved
+  // side (the small X row-remove buttons, packed close together in this
+  // card's own narrow column, made it easy to catch the neighboring row by
+  // mistake -- see summaryIngredientRow/summaryRemoveButton's own comments
+  // for the size fix that goes with this). Same Cancel/destructive Alert
+  // pattern already used elsewhere in this app (e.g. Schedule's own
+  // appointment removal) -- a real "cancel instead" now exists, rather than
+  // relying on re-adding a wrongly-removed ingredient by hand.
+  function confirmRemoveIngredient(index: number) {
+    const ingredient = ingredients[index];
+    Alert.alert(`Remove ${ingredient.resolved.baseName}?`, undefined, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Remove', style: 'destructive', onPress: () => removeIngredient(index) },
+    ]);
+  }
+
   // renderPillPicker lived here until 2026-07-31 -- the flat vertical pill
   // scroller every selectable field used before the combination-lock wheel
   // that briefly replaced it. That wheel is gone too now, 2026-08-01,
@@ -949,7 +974,18 @@ export function SideBuilder({
                     {ingredient.resolved.baseName} — {ingredient.quantity} {ingredient.unit}
                   </Text>
                   <DimensionFlags scores={ingredient.scores} onExplain={showInfoAlert} />
-                  <TouchableOpacity onPress={() => removeIngredient(index)} hitSlop={8}>
+                  {/* Real padding, not hitSlop, 2026-08-01 -- see
+                      summaryRemoveButton's own comment for why: hitSlop
+                      extends a button's tap area without reserving any
+                      actual layout space, so in a tightly stacked list like
+                      this one, two rows' hitSlop zones can overlap and
+                      swallow a tap meant for the neighboring row's own X --
+                      confirmed as the real cause of a reported mis-tap.
+                      Padding instead grows the row's own real height
+                      (summaryIngredientRow's minHeight was raised to
+                      match), which can't overlap a sibling row the same
+                      way. */}
+                  <TouchableOpacity style={styles.summaryRemoveButton} onPress={() => confirmRemoveIngredient(index)}>
                     <Text style={[styles.summaryRemoveText, { color: tabColor }]}>✕</Text>
                   </TouchableOpacity>
                 </View>
@@ -1527,8 +1563,16 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 6,
   },
+  // Real padding (not hitSlop) around the glyph -- see this button's own
+  // JSX comment for why. ~36x36 total tap target (glyph + padding),
+  // comfortably clear of a normal fingertip, well inside the row height
+  // below so two rows' own buttons can't overlap.
+  summaryRemoveButton: {
+    padding: 10,
+  },
   summaryRemoveText: {
     ...typography.captionEmphasis,
+    fontSize: 15,
   },
   summaryEmptyText: {
     ...typography.caption,
