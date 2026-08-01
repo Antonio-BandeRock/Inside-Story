@@ -1,12 +1,12 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
-import { listFavorites, listSides } from '../lib/db';
+import { deleteSide, listFavorites, listSides } from '../lib/db';
 import { useInfoAlert } from '../components/InfoAlert';
 
 // A Stack push outside the (tabs) group, same shape as app/profile.tsx/
@@ -54,6 +54,28 @@ export default function FoodItemsScreen() {
     };
   }, [itemType, status]);
 
+  // Refetches in place after a delete, rather than navigating anywhere --
+  // the person is deleting FROM this list, so staying on it (now one item
+  // shorter) is the expected result, same as any list-with-delete pattern
+  // elsewhere in the app.
+  async function refreshItems() {
+    setItems(await loadItems(itemType, status));
+  }
+
+  function handleDelete(item: FoodItemEntry) {
+    Alert.alert(`Delete "${item.title}"?`, 'This cannot be undone.', [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteItem(itemType, item.id);
+          await refreshItems();
+        },
+      },
+    ]);
+  }
+
   return (
     <View style={styles.wrapper}>
       {/* Sets the native header's own title to whatever category was
@@ -67,36 +89,77 @@ export default function FoodItemsScreen() {
           <Text style={styles.emptyText}>Nothing here yet.</Text>
         ) : (
           items.map((item) => (
-            <TouchableOpacity
-              key={item.id}
-              style={styles.itemRow}
-              onPress={() => {
-                // Only a real saved item (not yet a favorite -- those are
-                // a different, JSON-payload shape with no ingredients to
-                // show yet, see lib/db.ts's own favorites table) has
-                // anything for food-item-detail.tsx to actually show.
-                if (status === 'saved' && itemType === 'side') {
-                  router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
-                  return;
-                }
-                showInfoAlert(
-                  item.title,
-                  'Full detail view -- Nutrients, 6 Dimensions, and Cooking & Prep for this item -- is coming soon.',
-                );
-              }}
-            >
-              <View style={styles.itemTextWrap}>
-                <Text style={styles.itemTitle} numberOfLines={1}>
-                  {item.title}
-                </Text>
-                {item.subtitle ? (
-                  <Text style={styles.itemSubtitle} numberOfLines={1}>
-                    {item.subtitle}
+            <View key={item.id} style={styles.itemRow}>
+              <TouchableOpacity
+                style={styles.itemTapArea}
+                onPress={() => {
+                  // Only a real saved item (not yet a favorite -- those are
+                  // a different, JSON-payload shape with no ingredients to
+                  // show yet, see lib/db.ts's own favorites table) has
+                  // anything for food-item-detail.tsx to actually show.
+                  if (status === 'saved' && itemType === 'side') {
+                    router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
+                    return;
+                  }
+                  showInfoAlert(
+                    item.title,
+                    'Full detail view -- Nutrients, 6 Dimensions, and Cooking & Prep for this item -- is coming soon.',
+                  );
+                }}
+              >
+                <View style={styles.itemTextWrap}>
+                  <Text style={styles.itemTitle} numberOfLines={1}>
+                    {item.title}
                   </Text>
-                ) : null}
-              </View>
-              <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
-            </TouchableOpacity>
+                  {item.subtitle ? (
+                    <Text style={styles.itemSubtitle} numberOfLines={1}>
+                      {item.subtitle}
+                    </Text>
+                  ) : null}
+                </View>
+                <Ionicons name="chevron-forward" size={18} color={colors.textSecondary} />
+              </TouchableOpacity>
+              {/* Edit/Delete, 2026-08-01 -- explicitly requested after a
+                  saved side turned out to have no way to fix a mistaken
+                  ingredient once saved. Scoped to real saved items only
+                  (not favorites -- a different, not-yet-editable shape, see
+                  the tap handler's own comment above), and only for
+                  itemTypes supportsEdit/deleteItem below actually support --
+                  grows by one case in each of those, not a UI change here,
+                  as more builders get their own real save path. */}
+              {status === 'saved' && supportsEdit(itemType) ? (
+                <TouchableOpacity
+                  style={styles.itemActionButton}
+                  onPress={() => {
+                    // Side pushes into app/(tabs)/food.tsx's own Side
+                    // Builder pre-loaded via editSideId (see that file and
+                    // SideBuilder.tsx's own editSideId prop). Written
+                    // inline (not returned from a helper) so the route's
+                    // own literal pathname stays visible to Expo Router's
+                    // typed-routes checking -- a helper returning a plain
+                    // `string` pathname would widen it past what
+                    // router.push's typed Href accepts.
+                    if (itemType === 'side') {
+                      router.push({ pathname: '/food', params: { editSideId: item.id } });
+                    }
+                  }}
+                  accessibilityLabel={`Edit ${item.title}`}
+                  hitSlop={8}
+                >
+                  <Ionicons name="pencil-outline" size={19} color={colors.textSecondary} />
+                </TouchableOpacity>
+              ) : null}
+              {status === 'saved' && supportsDelete(itemType) ? (
+                <TouchableOpacity
+                  style={styles.itemActionButton}
+                  onPress={() => handleDelete(item)}
+                  accessibilityLabel={`Delete ${item.title}`}
+                  hitSlop={8}
+                >
+                  <Ionicons name="trash-outline" size={19} color={colors.danger} />
+                </TouchableOpacity>
+              ) : null}
+            </View>
           ))
         )}
       </ScrollView>
@@ -139,6 +202,25 @@ async function loadItems(itemType: string | undefined, status: string | undefine
   return [];
 }
 
+// Whether this itemType supports Edit/Delete at all -- kept as two
+// separate checks (rather than one) since an itemType could in principle
+// support one without the other, even though today they're the same set
+// (Side, only). Grows by one case per builder as each gets a real save
+// path, same as loadItems above.
+function supportsEdit(itemType: string | undefined): boolean {
+  return itemType === 'side';
+}
+
+function supportsDelete(itemType: string | undefined): boolean {
+  return itemType === 'side';
+}
+
+async function deleteItem(itemType: string | undefined, id: string): Promise<void> {
+  if (itemType === 'side') {
+    await deleteSide(id);
+  }
+}
+
 const styles = StyleSheet.create({
   wrapper: { flex: 1, backgroundColor: colors.background },
   container: { padding: 16, paddingTop: 12 },
@@ -151,10 +233,24 @@ const styles = StyleSheet.create({
   itemRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  // The tappable "open detail" part of the row -- everything except the
+  // Edit/Delete buttons, which sit outside it as their own separate
+  // touch targets rather than nested TouchableOpacitys (nesting one
+  // touchable inside another is unreliable on Android, where the outer
+  // one can swallow taps meant for the inner one).
+  itemTapArea: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 12,
+  },
+  itemActionButton: {
+    paddingHorizontal: 8,
+    paddingVertical: 12,
   },
   itemTextWrap: { flex: 1, marginRight: 12 },
   itemTitle: {

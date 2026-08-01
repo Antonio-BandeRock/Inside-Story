@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
@@ -6,7 +7,17 @@ import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
-import { getFoodScores, getStoredMeasurementSystem, saveSide, type FoodScore, type SideIngredientInput } from '../lib/db';
+import {
+  getFoodIdentity,
+  getFoodScores,
+  getSide,
+  getSideIngredients,
+  getStoredMeasurementSystem,
+  saveSide,
+  updateSide,
+  type FoodScore,
+  type SideIngredientInput,
+} from '../lib/db';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -86,6 +97,28 @@ function titleCaseDishName(text: string): string {
 // since it's a plain headcount, never a fractional measurement.
 const AMOUNT_PICKER_VALUES = ['1/8', '1/4', '1/3', '1/2', '2/3', '3/4', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 const SERVINGS_PICKER_VALUES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
+
+// Reverses parseAmountValue for a saved side being reopened for editing --
+// the database only stores the resolved decimal (e.g. 0.5), not which pill
+// ("1/2") produced it. Matches back to the closest real pill string within
+// this list so the picker shows a real, previously-tappable value rather
+// than a decimal that was never one of its own options; falls back to a
+// plain trimmed decimal only for an amount that never came from this list
+// in the first place (shouldn't happen for anything SideBuilder itself
+// saved, but a defensive fallback rather than a silent wrong value).
+function formatAmountForPicker(value: number, options: string[]): string {
+  let closest: string | null = null;
+  let closestDiff = Infinity;
+  for (const option of options) {
+    const diff = Math.abs(parseAmountValue(option) - value);
+    if (diff < closestDiff) {
+      closestDiff = diff;
+      closest = option;
+    }
+  }
+  if (closest !== null && closestDiff < 0.001) return closest;
+  return String(value);
+}
 
 // Asked per INGREDIENT, not once for the whole dish, 2026-07-29 -- a real
 // side dish routinely combines ingredients that were each prepared
@@ -347,7 +380,23 @@ const SUMMARY_DIVIDER_SHIFT = 30;
 // -- the picker shows automatically the instant there's no ingredient
 // currently pending confirmation, rather than needing an explicit "+ Add
 // Ingredient" tap first the way this used to work.
-export function SideBuilder({ tabColor }: { tabColor: string }) {
+export function SideBuilder({
+  tabColor,
+  // Set when reached via the Edit button on an already-saved side (see
+  // app/food-items.tsx) -- 2026-08-01. Loads that side's real data into
+  // this same builder rather than a separate edit screen, so add/remove-
+  // ingredient/Cut Prep/Cook Prep all reuse the exact same, already-tested
+  // machinery a fresh side already uses. finishSide below branches on this
+  // to call updateSide (in place) instead of saveSide (a new row), and to
+  // navigate back to the list afterward instead of resetting to blank --
+  // "I fixed this side" should return you to where you came from, not
+  // drop you into building a different one.
+  editSideId,
+}: {
+  tabColor: string;
+  editSideId?: string;
+}) {
+  const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const activeField = useActiveField();
   // The summary card's own two columns' real available width -- screen
@@ -473,6 +522,64 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
   // very first ingredient still starts at a genuinely blank Category list.
   const [lastCategory, setLastCategory] = useState('');
   const [lastSubcategory, setLastSubcategory] = useState<string | null>(null);
+
+  // Loads an existing side's real data in place of the blank-builder
+  // defaults above, 2026-08-01 -- runs once per editSideId. side_ingredients
+  // only stores foodId/source, quantity/unit, cutPrep/cookingMethod/
+  // prepNote, and the descriptive foodName (not base_name/prep_method), so
+  // each ingredient's ResolvedFoodSelection is reconstructed from the
+  // reference database itself (getFoodIdentity) -- always authoritative,
+  // the same row every score/nutrient lookup already reads. Scores are
+  // re-fetched live (getFoodScores) rather than cached anywhere, same as a
+  // freshly-added ingredient's own pendingScores.
+  useEffect(() => {
+    if (!editSideId) return;
+    let isCurrent = true;
+
+    (async () => {
+      const side = await getSide(editSideId);
+      if (!side || !isCurrent) return;
+
+      const details = await getSideIngredients(editSideId);
+      const loaded: SideIngredient[] = [];
+      for (const detail of details) {
+        if (!detail.foodId) continue;
+        const [foodIdStr, source] = detail.foodId.split('|');
+        const foodId = Number(foodIdStr);
+        if (!source || Number.isNaN(foodId)) continue;
+
+        const [identity, scores] = await Promise.all([getFoodIdentity(foodId, source), getFoodScores(foodId, source)]);
+        loaded.push({
+          resolved: {
+            category: detail.category ?? identity?.category ?? '',
+            subcategory: identity?.subcategory ?? null,
+            baseName: identity?.baseName ?? detail.foodName,
+            prepMethod: identity?.prepMethod ?? null,
+            foodId,
+            source,
+          },
+          quantity: formatAmountForPicker(detail.quantity, AMOUNT_PICKER_VALUES),
+          unit: detail.unit,
+          cookingMethod: detail.cookingMethod,
+          cutPrep: detail.cutPrep,
+          prepNote: detail.prepNote ?? '',
+          scores,
+        });
+      }
+
+      if (!isCurrent) return;
+      setDishName(side.name);
+      setServings(formatAmountForPicker(side.servings, SERVINGS_PICKER_VALUES));
+      setServingSizeAmount(formatAmountForPicker(side.servingSizeAmount, AMOUNT_PICKER_VALUES));
+      setServingSizeUnit(side.servingSizeUnit);
+      setServingsConfirmed(true);
+      setIngredients(loaded);
+    })();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [editSideId]);
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);
@@ -645,18 +752,36 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
       prepNote: ingredient.prepNote,
     }));
     const finishedName = dishName.trim() || 'Side Dish';
+    const payload = {
+      name: finishedName,
+      servings: parseAmountValue(servings),
+      servingSizeAmount: parseAmountValue(servingSizeAmount),
+      servingSizeUnit,
+      ingredients: ingredientInputs,
+    };
 
     try {
-      await saveSide({
-        name: finishedName,
-        servings: parseAmountValue(servings),
-        servingSizeAmount: parseAmountValue(servingSizeAmount),
-        servingSizeUnit,
-        ingredients: ingredientInputs,
-      });
+      if (editSideId) {
+        await updateSide(editSideId, payload);
+      } else {
+        await saveSide(payload);
+      }
     } catch (error) {
       console.error('[SideBuilder] Failed to save side', error);
       showInfoAlert('Save failed', 'Something went wrong saving this side dish. Your ingredients are still here -- please try again.');
+      return;
+    }
+
+    // Editing an already-saved side returns to wherever it was opened from
+    // (see app/food-items.tsx's Edit button, which pushed this screen) --
+    // "I fixed this side" should go back to the list, not drop the person
+    // into building a brand new one. No confirmation modal here, matching
+    // this app's own existing edit-save convention elsewhere (Schedule's
+    // own appointment edit just closes and reloads on success, alerting
+    // only on failure) -- the list itself, showing the updated
+    // name/ingredient count, is the confirmation.
+    if (editSideId) {
+      router.back();
       return;
     }
 
@@ -1100,7 +1225,7 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
                   onPress={() => saveIngredient('finish')}
                 >
                   <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
-                    Save &amp; Finish Side
+                    {editSideId ? 'Save Changes' : 'Save & Finish Side'}
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -1158,7 +1283,7 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
                 style={[styles.primaryButton, { backgroundColor: tabColor }]}
                 onPress={() => void finishSide(ingredients)}
               >
-                <Text style={styles.primaryButtonText}>Save &amp; Finish Side</Text>
+                <Text style={styles.primaryButtonText}>{editSideId ? 'Save Changes' : 'Save & Finish Side'}</Text>
               </TouchableOpacity>
             </View>
           )}

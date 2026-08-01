@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
@@ -206,15 +206,32 @@ function ComingSoonBuilder({ lens }: { lens: FoodLens }) {
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
   const router = useRouter();
+  // Set when reached via a saved side's own Edit button (see
+  // app/food-items.tsx), 2026-08-01 -- pushed here as a route param rather
+  // than a prop, since food-items.tsx is a separate stack screen with no
+  // other way to hand SideBuilder a specific side to load. Read once below
+  // to jump straight into Side Builder already revealed, bypassing the
+  // normal "pick a lens from LensHub" step entirely -- editing isn't a
+  // fresh choice of what to build, it's returning to something specific.
+  const { editSideId } = useLocalSearchParams<{ editSideId?: string }>();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   useFocusEffect(
     useCallback(() => {
+      // editSideId overrides the normal "always land on the picker" reset
+      // below -- without this, arriving here to edit a side would still
+      // show the LensHub picker for a beat (or permanently, once revealed
+      // was reset false on focus) instead of the side itself.
+      if (editSideId) {
+        setLens('sideBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, []),
+    }, [editSideId]),
   );
 
   // "My Foods" categories (see MyItemsHub below) -- refetched every time
@@ -273,7 +290,7 @@ export default function FoodScreen() {
             // otherwise) -- see that component's own comment for why,
             // same FlatList-in-ScrollView reasoning as Insights' own Food
             // Lookup lens.
-            <SideBuilder tabColor={TAB_COLOR} />
+            <SideBuilder tabColor={TAB_COLOR} editSideId={editSideId} />
           ) : (
             <ComingSoonBuilder lens={lens} />
           )}

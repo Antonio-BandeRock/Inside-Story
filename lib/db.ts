@@ -1557,6 +1557,100 @@ export async function saveSide(input: {
   return { id };
 }
 
+// Same shape as saveSide's own input, applied to an EXISTING side instead
+// of creating a new one -- 2026-08-01, for SideBuilder's own Edit flow (see
+// app/food-items.tsx's Edit button). Replaces every ingredient row rather
+// than diffing old vs new (delete-then-reinsert, same id ordering
+// convention saveSide already uses) -- simplest correct approach, and safe
+// here since side_ingredients rows carry no independent identity anything
+// else in the app references (unlike, say, a meal_item a schedule entry
+// might point back to).
+export async function updateSide(
+  sideId: string,
+  input: {
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    ingredients: SideIngredientInput[];
+  },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE sides
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    sideId,
+  );
+
+  await db.runAsync('DELETE FROM side_ingredients WHERE side_id = ?', sideId);
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `side_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO side_ingredients
+          (id, side_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      sideId,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id: sideId };
+}
+
+// side_ingredients rows cascade via their own FK (ON DELETE CASCADE, see
+// initializeDatabase) -- deleting the parent sides row is enough.
+export async function deleteSide(sideId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM sides WHERE id = ?', sideId);
+}
+
+// Real base_name/prep_method/category for one exact reference-database row
+// -- 2026-08-01, for SideBuilder's own Edit flow: side_ingredients only
+// stores the full descriptive food_name (e.g. "Broccoli, raw"), not
+// base_name/prep_method, so re-opening a saved side for editing needs this
+// to reconstruct each ingredient's ResolvedFoodSelection (see FoodLookup's
+// own type) from just the stored foodId/source. Always authoritative --
+// this is the exact same row every score/nutrient lookup already reads
+// from, never a second, potentially-stale copy.
+export type FoodIdentity = {
+  baseName: string;
+  prepMethod: string | null;
+  category: string;
+  subcategory: string | null;
+};
+
+export async function getFoodIdentity(foodId: number, source: string): Promise<FoodIdentity | null> {
+  const db = await getReferenceDatabase();
+  return db.getFirstAsync<FoodIdentity>(
+    'SELECT base_name AS baseName, prep_method AS prepMethod, category, subcategory FROM foods WHERE food_id = ? AND source = ?',
+    foodId,
+    source,
+  );
+}
+
 export type SideRecord = {
   id: string;
   name: string;
