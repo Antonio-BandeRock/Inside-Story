@@ -104,14 +104,15 @@ const styles = StyleSheet.create({
   // already map severity onto) rather than introducing a second, parallel
   // set of warning colors.
   //
-  // Light fill + solid border, rather than a solid fill: colors.statusYellow
-  // (#7A5215) is a dark olive designed as TEXT on its own light chip
-  // background, so a solid-filled box in it would be close to invisible
-  // against this app's dark navy surface. Filling with each status's own
-  // *Bg tone and carrying the semantic color in the border keeps both
-  // severities legible on dark while still using only existing tokens.
-  // Exact sizing/tone is worth a look on-device, same iterative process as
-  // every other visual element here.
+  // A muted, dark tinted fill + solid (lighter) border, rather than a
+  // solid fill: colors.statusYellow (#7A5215) is a dark olive designed as
+  // TEXT on its own chip background, so a solid-filled box in it would be
+  // close to invisible against this app's dark navy surface. Filling with
+  // each status's own *Bg tone (corrected 2026-08-01 from a stale pale
+  // tint left over from the pre-redesign light theme -- see
+  // constants/colors.ts's own comment on those two tokens) and carrying
+  // the semantic color in the border keeps both severities legible on
+  // dark while still using only existing tokens.
   boxRed: { backgroundColor: colors.statusRedBg, borderColor: colors.danger },
   boxYellow: { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow },
 });

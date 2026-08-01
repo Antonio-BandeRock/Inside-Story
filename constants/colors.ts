@@ -177,17 +177,28 @@ export const colors = {
   // that's flagged.
   statusGood: '#B9AEA0',
   statusFlagged: '#7A3226',
-  statusFlaggedBg: '#F0D9D3',
+  statusFlaggedBg: '#4A2A22',
 
   // A real green/yellow/red traffic light, specifically for the Nutrients
   // table and 6 Dimensions scorecard (see nutrientStatusSeverity in
   // lib/nutrientAnalysis.ts and tierSeverity in lib/sixDimensionsReference.ts).
-  // These are self-contained chips (dark, saturated text on their own pale
-  // tint), a pattern that stays legible regardless of the surrounding
-  // background, tested across several rounds of the color-system work.
-  statusRedBg: '#F0D9D3',
+  // Backgrounds corrected 2026-08-01 -- these were still pale/cream-and-pink
+  // tints straight from the pre-redesign light "Sage & Cream" theme (see
+  // this file's own top comment on that redesign), never actually updated
+  // when everything else moved to dark tints like primaryTint/accentTint
+  // just above. Reported on-device as "very hard on the eyes" once the 6
+  // Dimensions lens was actually used against the dark background these
+  // rows sit on. Now a dark, muted wash of the same hue instead -- same
+  // "self-contained chip" idea the old comment described, just dark-theme
+  // correct: statusYellow/danger (the text/border drawn on top) are both
+  // meaningfully LIGHTER than these new backgrounds, so the existing
+  // positive (light-text-on-dark) contrast this app uses everywhere else
+  // still holds without needing to also change those two colors, which are
+  // used much more widely (delete buttons, error text, flare markers) and
+  // weren't part of what was reported.
+  statusRedBg: '#4A2A22',
   statusYellow: '#7A5215',
-  statusYellowBg: '#F2E2C4',
+  statusYellowBg: '#4A3A1E',
 
   // Notice -- a heads-up/in-progress state, distinct from both a
   // flagged/needs-attention state and the brand color.
