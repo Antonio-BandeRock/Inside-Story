@@ -12,7 +12,7 @@ import { AppTextInput } from './AppTextInput';
 import { DimensionFlags } from './DimensionFlags';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
-import { WheelPicker } from './WheelPicker';
+import { PopoverSelect } from './PopoverSelect';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
 // scrollable-box treatment, since this is a short, fixed set (unlike
@@ -112,12 +112,13 @@ const SERVINGS_PICKER_VALUES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10
 // Prep", so "Raw" already means "not cooked", and the longer form was
 // setting this whole column's width single-handedly.
 //
-// "N/A" added 2026-08-01, a REAL option (not the wheel's own "—" not-yet-
-// chosen placeholder) -- for foods where the question itself doesn't apply,
-// e.g. olive oil has no meaningful cook-prep state to dial in. Leads the
-// list, right after the wheel's own placeholder row, so it's the first
-// real answer reached scrolling off "—" -- same reasoning as "Raw" leading
-// the rest: a deliberate real answer, not an absent one.
+// "N/A" added 2026-08-01, a REAL option (not PopoverSelect's own "—"
+// not-yet-chosen placeholder, which only ever shows on the closed field
+// itself before anything is picked -- see that file's own comment) -- for
+// foods where the question itself doesn't apply, e.g. olive oil has no
+// meaningful cook-prep state to dial in. Leads the list, so it's the first
+// real answer offered -- same reasoning as "Raw" leading the rest: a
+// deliberate real answer, not an absent one.
 const COOKING_METHODS = [
   'N/A', 'Raw', 'Sautéed', 'Pan-Fried', 'Deep-Fried', 'Steamed', 'Boiled', 'Baked', 'Roasted', 'Grilled', 'Stir-fried',
 ];
@@ -320,10 +321,9 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
   // placeholder until the real value loads.
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   // Memoized (2026-07-31) so its identity is stable between renders. Without
-  // this it was a fresh array on every keystroke, which defeated the memo on
-  // the Units wheel and made it re-render (and rebuild its animated rows)
-  // every time a character was typed into Prep Notes. See WheelPicker's own
-  // comment for the full cascade.
+  // this it was a fresh array on every keystroke, which defeated the Units
+  // field's own memo and made it re-render every time a character was typed
+  // into Prep Notes.
   const unitOptions = useMemo(() => unitsForSystem(measurementSystem), [measurementSystem]);
 
   // Required to Continue, 2026-07-28 (reversed the same day from an
@@ -608,10 +608,15 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
     setIngredients((current) => current.filter((_, i) => i !== index));
   }
 
-  // renderPillPicker lived here until 2026-07-31 -- the flat vertical
-  // pill scroller every selectable field used before the combination-lock
-  // rebuild. All of them now go through renderLabeledPicker/WheelPicker,
-  // so the app has exactly one spinner implementation instead of two.
+  // renderPillPicker lived here until 2026-07-31 -- the flat vertical pill
+  // scroller every selectable field used before the combination-lock wheel
+  // that briefly replaced it. That wheel is gone too now, 2026-08-01,
+  // replaced in turn by PopoverSelect (see that file's own comment for
+  // why: a drag-to-scroll wheel always needed a first touch just to wake
+  // up, and a dragging finger covers the exact row it's trying to watch
+  // settle -- neither is fixable by tuning the wheel further). All
+  // selectable fields go through renderLabeledPicker/PopoverSelect now, so
+  // the app has exactly one field-selection implementation, not several.
 
   // The Dish/Ingredients summary card -- dish name/servings/size on the
   // left (tap to reopen editing, same as the old collapsed summary row),
@@ -653,7 +658,7 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
           {label}
         </Text>
         <View style={styles.labeledPickerBox}>
-          <WheelPicker
+          <PopoverSelect
             options={options}
             selected={selected}
             onSelect={onSelect}
@@ -790,17 +795,18 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
             autoFocus
           />
 
-          {/* Converted to the same combination-lock wheels the ingredient
-              card uses, 2026-07-31 -- explicitly requested so every
-              selectable spinner in the app behaves and looks identical
-              rather than this screen keeping an older flat-pill style of
+          {/* Converted to the same PopoverSelect fields the ingredient card
+              uses (originally combination-lock wheels, 2026-07-31; wheels
+              replaced by PopoverSelect 2026-08-01 -- see that file's own
+              comment) -- every selectable field in the app behaves and
+              looks identical rather than this screen keeping a style of
               its own.
 
               This replaced a separate label row above a separate picker
               row, each holding three equal flex: 1 columns. Those two rows
               had to be kept in sync by hand for the labels to stay over
               their own fields; renderLabeledPicker pairs each label with
-              its wheel directly, so they can't drift apart, and the wheels
+              its field directly, so they can't drift apart, and the fields
               size themselves to their own content the way the ingredient
               fields already do. */}
           <View style={styles.labeledPickerRow}>
@@ -910,7 +916,7 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
                   top. Width left exactly as it was, per an explicit note
                   that the current box is already right. */}
               {/* marginTop 10 -> 7 (2026-07-31): roughly 25% tighter to the
-                  wheels above, tying the note field visually to the fields
+                  fields above, tying the note field visually to the fields
                   it annotates rather than floating between them and the
                   buttons below. */}
               <Text style={[styles.formLabel, { color: tabColor, marginTop: 7 }]}>Prep Notes (optional)</Text>
@@ -1319,13 +1325,18 @@ const styles = StyleSheet.create({
   // breakpoint, no device check, no second layout to maintain -- the row
   // simply uses whatever width the phone gives it.
   //
-  // Measured before committing to this: with "Whole" and "Raw" trimmed (see
-  // CUT_PREP_METHODS/COOKING_METHODS), four across needs ~361px against
-  // ~414px before the trim, which is what moves it from "only the largest
-  // phones" to "most phones", with graceful wrapping for the rest.
-  // space-between (2026-07-31): the four wheels no longer bunch to the left
+  // Measured before committing to this, back when these four fields were
+  // combination-lock wheels (2026-07-31): with "Whole" and "Raw" trimmed
+  // (see CUT_PREP_METHODS/COOKING_METHODS), four across needed ~361px
+  // against ~414px before the trim, moving it from "only the largest
+  // phones" to "most phones," with graceful wrapping for the rest. Those
+  // exact numbers are stale now that the fields are PopoverSelect's own
+  // shorter chevron-style boxes (2026-08-01, narrower than a wheel's own
+  // fixed frame), but the reasoning -- keep the row's own real width
+  // trimmed rather than device-checking a breakpoint -- still holds.
+  // space-between (2026-07-31): the four fields no longer bunch to the left
   // with dead space trailing off the right edge -- whatever width is left
-  // over after the wheels themselves is divided evenly BETWEEN them, so the
+  // over after the fields themselves is divided evenly BETWEEN them, so the
   // row reads as a deliberate set rather than a left-aligned pile. This
   // composes with flexWrap rather than replacing it: each wrapped line
   // distributes its own contents independently, so the two-by-two fallback
@@ -1361,8 +1372,9 @@ const styles = StyleSheet.create({
   },
   // labeledPickerScroll / labeledPickerContent lived here until
   // 2026-07-31 -- they sized the flat vertical pill scroller these four
-  // fields used before the combination-lock rebuild. WheelPicker owns its
-  // own frame and row layout now, so both had no callers left.
+  // fields used before the combination-lock wheel that briefly replaced
+  // it. PopoverSelect (2026-08-01) owns its own field/popover layout
+  // entirely, so both had no callers left.
   // The two Save buttons share the row evenly.
   splitButton: {
     flex: 1,
