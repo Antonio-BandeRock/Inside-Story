@@ -2177,6 +2177,159 @@ def _match_prep_term(text):
     return None
 
 
+# Real, single-ingredient Brassicaceae (cruciferous) vegetable base_names --
+# 2026-08-01, added alongside the goitrogen scoring below. Raw cruciferous
+# vegetables contain glucosinolates that interfere with thyroid iodine
+# uptake; cooking deactivates roughly 90% of that effect (Felker, Bunch &
+# Leung, "Concentrations of thiocyanate and goitrin in human plasma...",
+# Nutr Rev. 2016;74(4):248-58, PMID 26946249 -- the same citation already
+# written into lib/sixDimensionsReference.ts's SUB_CRITERION_SOURCES
+# entry for 'Goitrogenic Load', which has sat unused until now because no
+# food anywhere in this database ever actually had that score: the source
+# workbook's real D1-D6 columns never included it).
+#
+# Built by querying every real base_name in the built database matching a
+# cruciferous keyword root, then hand-reviewing all ~500 raw matches down to
+# genuine single-ingredient vegetable identities. Deliberately excludes,
+# each confirmed against the real `name`/prep data behind it rather than
+# guessed:
+#   - Composite dishes (casseroles, stews, gratins, "with X and Y") -- can't
+#     attribute one ingredient's raw/cooked state to the whole dish.
+#   - Condiment/processed mustard, horseradish, and wasabi products
+#     (prepared mustard, mustard seed/powder, horseradish sauce/mousse,
+#     wasabi paste) -- a fundamentally different food and serving context
+#     from the vegetable itself, confirmed via each one's own `name` field
+#     (e.g. "Mustard hot", "Mustard sweet" are the yellow condiment, not a
+#     mustard-greens variety).
+#   - Fermented/pickled items (sauerkraut, kimchi, and anything whose own
+#     `name` says "pickled" even when base_name itself doesn't, e.g.
+#     "Radish, hawaiian style" / "Cabbage, japanese style, fresh" both
+#     confirmed pickled by checking their real `name` field) -- fermentation
+#     alters glucosinolates differently than heat-cooking, so the
+#     Raw/Cooked binary doesn't honestly apply; already covered by the
+#     existing Fermentability sub-criterion instead.
+#   - Mixed-vegetable blends -- can't attribute a single ingredient's state.
+#   - Foods whose common name merely contains a cruciferous word but aren't
+#     actually Brassicaceae, confirmed via each one's own `name` field:
+#     "Prairie Turnips"/"Turnip, Prairie, native" (Pediomelum esculentum, a
+#     legume) and "Swamp cabbage (skunk cabbage, water convulvolus)"
+#     (Ipomoea aquatica/water spinach, Convolvulaceae).
+#   - Non-English (French Ciqual, most Japanese pickled variants) --
+#     deferred as a known gap, same as this app's own already-disclosed
+#     France_Ciqual prep_method coverage gap (those rows can't reliably get
+#     a Raw/Cooked tier anyway).
+#
+# Every plural/singular/parenthetical variant that's a real distinct
+# base_name in this database gets its own entry here, same reason
+# FOOD_UNIT_WEIGHTS above lists "Banana" and "Bananas" separately.
+GOITROGENIC_BASE_NAMES = {
+    # Broccoli
+    "Broccoli", "Broccoli Inflorescence", "Broccoli Leaves", "Broccoli Sprouts",
+    "Broccoli Stalks", "Broccoli deep-frozen", "Broccoli raab", "Broccoli raab (rapini)",
+    "Broccoli, boiled, drained", "Broccoli, flower clusters", "Broccoli, fresh, baked, no added fat",
+    "Broccoli, fresh, boiled, drained", "Broccoli, fresh, microwaved", "Broccoli, frozen, chopped",
+    "Broccoli, frozen, chopped, boiled, drained", "Broccoli, frozen, spears",
+    "Broccoli, frozen, spears, boiled, drained", "Broccoli, green, frozen, boiled",
+    "Broccolini, fresh, boiled, drained", "Chinese Broccoli", "Fresh Broccoli", "Fresh Broccolini",
+    "Romanesco broccoli",
+    # Cauliflower
+    "Cauliflower", "Cauliflower Inflorescence", "Cauliflower deep-frozen", "Cauliflower, boiled, drained",
+    "Cauliflower, fresh, baked, no added fat", "Cauliflower, fresh, boiled, drained", "Cauliflower, frozen",
+    "Cauliflower, frozen, boiled", "Cauliflower, frozen, boiled, drained", "Fresh Cauliflower",
+    "Green Cauliflower",
+    # Cabbage
+    "Bavarian white cabbage", "Cabbage", "Cabbage, Chinese (pe-tsai), boiled, drained",
+    "Cabbage, Chinese flowering", "Cabbage, Chinese flowering, boiled, drained",
+    "Cabbage, Chinese, boiled, drained", "Cabbage, boiled, drained", "Cabbage, common (danish",
+    "Cabbage, common, head", "Cabbage, frozen, boiled", "Cabbage, green ball, head",
+    "Cabbage, mustard, boiled, drained", "Cabbage, napa", "Cabbage, red cabbage, head",
+    "Cabbage, red, boiled, drained", "Cabbage, savoy, boiled, drained", "Cabbage, white, boiled, drained",
+    "Chinese Cabbage", "Chinese Cabbage (Pak-Choi)", "Chinese Cabbage (Pe-Tsai)", "Chinese cabbage, head",
+    "Chinese white cabbage", "Common Cabbage", "Non-heading Chinese cabbage, \"Hiroshimana\", leaves",
+    "Non-heading Chinese cabbage, \"Osaka-shirona\", leaves", "Non-heading Chinese cabbage, \"Santosai\", leaves",
+    "Pointed cabbage", "Red Cabbage", "Red cabbage canned undrained", "Savoy Cabbage",
+    "Savoy cabbage canned, drained", "Semi-heading Chinese cabbage, \"Nagasaki-hakusai\", leaves",
+    "White Cabbage",
+    # Bok choy / pak choi
+    "Bok Choy Leaves", "Bok choy", "Bok choy, fried, no added fat", "Bok choy, pak-choi",
+    "Bok choy, pak-choi, boiled drained", "Green Bok Choy Leaves", "Pak choi",
+    "Pak choi stewed (prepard without fat)",
+    # Kale
+    "Curly kale", "Curly kale canned, drained", "Curly kale deep-frozen", "Kale", "Kale Leaves",
+    "Kale, boiled, drained", "Kale, fried, no added fat", "Kale, frozen", "Kale, frozen, boiled, drained",
+    "Kale, scotch", "Kale, scotch, boiled, drained",
+    # Brussels sprouts
+    "Brussels sprout", "Brussels sprout, fresh, baked, no added fat", "Brussels sprout, fresh, boiled, drained",
+    "Brussels sprouts canned, drained", "Brussels sprouts deep-frozen", "Brussels sprouts, boiled, drained",
+    "Brussels sprouts, frozen", "Brussels sprouts, frozen, boiled", "Brussels sprouts, frozen, boiled, drained",
+    "Brussels sprouts, head", "Fresh Brussels Sprout",
+    # Turnip / rutabaga / swede
+    "Rutabaga", "Rutabaga (swede)", "Rutabaga (swede), boiled, drained", "Swede", "Swede, peeled, fresh",
+    "Swede, peeled, fresh, boiled, drained", "Turnip", "Turnip Leaves",
+    "Turnip green, \"Mizukakena\", leaves", "Turnip green, \"Nozawana\", leaves", "Turnip greens",
+    "Turnip greens, boiled, drained", "Turnip greens, canned, unsalted", "Turnip greens, frozen",
+    "Turnip greens, frozen, boiled, drained", "Turnip tops/greens", "Turnip, \"Sugukina\", leaves",
+    "Turnip, \"Sugukina\", root", "Turnip, boiled, drained", "Turnip, frozen", "Turnip, frozen, boiled, drained",
+    "Turnip, root, without skin", "Turnip, white, peeled, fresh", "Turnip, white, peeled, fresh, boiled, no added fat",
+    # Watercress / arugula / rocket / collards / kohlrabi
+    "Watercress", "Arugula", "Fresh Rocket", "Rocket", "Collards", "Collards, boiled, drained",
+    "Collards, frozen", "Collards, frozen, boiled, drained", "Kohlrabi", "Kohlrabi canned, drained",
+    "Kohlrabi, boiled, drained", "Kohlrabi, enlarged stems", "Kohlrabi, peeled, fresh",
+    "Kohlrabi, peeled, fresh, boiled, drained",
+    # Mustard greens (leafy vegetable -- NOT the condiment, see exclusions above)
+    "Chinese mustard, \"Taisai\", leaves, raw", "Chinese mustard, \"Taisai\", young leaves, raw",
+    "Leaf mustard, \"Karashina\", leaves", "Leaf mustard, \"Takana\", leaves", "Mustard Cabbage",
+    "Mustard Spinach (Tendergreen)", "Mustard greens", "Mustard greens, boiled, drained",
+    "Mustard greens, frozen", "Mustard greens, frozen, boiled, drained",
+    "Mustard spinach (tendergreen), boiled, drained", "Spinach mustard, \"Komatsuna\", leaves",
+    # Radish (root -- also Brassicaceae, per the citation's own family scope)
+    "Radish", "Radish Sprouts", "Radish, oriental (daikon)", "Radish, oriental (daikon), boiled, drained",
+    "Radish, red skinned, unpeeled", "Radish, white icicle", "Radish, white skinned, peeled",
+    "Radishes, oriental", "Little Radish Root", "Small red radish",
+    "Japanese radishes, Daikon, cultivar for leaf use, leaves", "Japanese radishes, Daikon, leaves",
+    "Japanese radishes, Daikon, root without skin", "Japanese radishes, Daikon, sprouts",
+    # Horseradish / wasabi (root -- also Brassicaceae; eaten in small
+    # condiment-like quantities, so the cook/raw advice is technically
+    # accurate but less practically significant than for the vegetables
+    # above -- flagged honestly here, not omitted).
+    "Drumstick (Horseradish-Tree) Leaves", "Drumstick (Horseradish-Tree) Pods",
+    "Drumstick (horseradish-tree), leaves, boiled, drained", "Drumstick (horseradish-tree), pods, boiled, drained",
+    "Horseradish", "Horseradish (unsalted)", "Horseradish Rhizome", "Japanese horseradish/wasabi root",
+    "Wasabi Rhizome", "Wasabi Root", "Wasabi, root, (Japanese horseradish)",
+}
+
+# Tier vocabulary matches lib/sixDimensionsReference.ts exactly -- both
+# already wired into TIER_DEFINITIONS/RED_TIERS/GREEN_TIERS/
+# SUB_CRITERION_SOURCES there, waiting for real data.
+GOITROGENIC_RAW_TIER = "Goitrogenic (Raw)"
+GOITROGENIC_COOKED_TIER = "Minimal (Cooked)"
+# COOKING_TERMS values are lowercase; prep_method itself is stored .title()
+# (see split_prep_method below), so compare against the titled form. Not
+# simply every COOKING_TERMS entry: "Pickled" and "Cured" are preservation
+# methods, not necessarily heat -- fermented/vinegar-pickled vegetables
+# alter glucosinolates by a different mechanism than the cited study
+# measured (heat deactivating the myrosinase enzyme), so claiming "Minimal
+# (Cooked)" for a pickled food would overstate what the citation actually
+# supports. Those fall through to "Not Assessed" instead -- an honest gap,
+# not a guess.
+_COOKED_PREP_METHODS = {term.title() for term in COOKING_TERMS if term not in ("pickled", "cured")}
+
+
+def goitrogenic_load_tier(base_name, prep_method):
+    """Real tier for a matched cruciferous vegetable, or None if this food
+    isn't one. Not Assessed (via the None fallthrough at the call site) for
+    anything whose prep_method wasn't confidently extracted -- honest gap,
+    not a guess, matching this database's existing 'Not Assessed' pattern
+    for missing data everywhere else."""
+    if base_name not in GOITROGENIC_BASE_NAMES:
+        return None
+    if prep_method == "Raw":
+        return GOITROGENIC_RAW_TIER
+    if prep_method in _COOKED_PREP_METHODS:
+        return GOITROGENIC_COOKED_TIER
+    return "Not Assessed"
+
+
 def split_prep_method(name, short_name=None):
     """Extract a food's cooking/prep state from its full name.
 
@@ -2780,6 +2933,19 @@ def build(xlsx_path, db_path):
                     get("Scientific Classification"),
                     get("Classification Precision"),
                 ))
+
+                # Synthesized, not a real workbook column -- see
+                # GOITROGENIC_BASE_NAMES's own comment above for why. Uses
+                # the same final base_name (post name_override) as the
+                # foods row just appended above, and the same prep_method
+                # already computed for it, so this can never disagree with
+                # what the app itself displays for this food.
+                goitrogenic_tier = goitrogenic_load_tier(base_name, prep_method)
+                if goitrogenic_tier:
+                    goitrogenic_sub_id = get_sub_criterion_id(
+                        "D1 Micronutrient Density & Bioavailability", "Goitrogenic Load"
+                    )
+                    score_rows.append((food_id, source, goitrogenic_sub_id, goitrogenic_tier))
 
                 for idx, dim, sub in score_cols:
                     if idx >= len(row):
