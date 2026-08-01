@@ -639,6 +639,16 @@ export function SideBuilder({
   // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Side"
   // time (see SideIngredient's own comment).
   const [finishStep, setFinishStep] = useState<'building' | 'reviewing'>('building');
+  // Edit mode only (see editSideId's own comment) -- whether the person has
+  // actively tapped "+ Add Ingredient" on the overview screen below.
+  // Create mode never reads this: its own connected picker still shows
+  // automatically the instant nothing's pending, same as always (see the
+  // branch ordering just above the overview screen's own render function).
+  // Starts false so opening an existing side for editing always lands on
+  // the ingredient overview first, not a "pick a Category" prompt --
+  // explicitly requested, since re-opening a side is almost always to
+  // review/fix what's already there, not to add something new right away.
+  const [addingIngredient, setAddingIngredient] = useState(false);
   // Explicit "I looked, I meant it" override -- without this, adding the
   // missing item is the ONLY way out of 'reviewing' once something's
   // flagged, which is wrong for genuinely oil-free/seasoning-free dishes
@@ -841,6 +851,19 @@ export function SideBuilder({
     setIngredients(allIngredients);
     resetIngredientFields();
 
+    if (editSideId) {
+      // Edit mode always returns to the ingredient overview after adding
+      // one ingredient -- 2026-08-01, explicitly requested -- rather than
+      // either of create mode's two behaviors below (immediately
+      // re-prompting for another ingredient, or immediately persisting and
+      // leaving). Saving to the database happens only from the overview's
+      // own explicit Save Changes button, once the person has had a chance
+      // to actually see the updated list. `then` doesn't matter here (see
+      // the single "Save Ingredient" button this feeds in edit mode).
+      setAddingIngredient(false);
+      return;
+    }
+
     if (then === 'finish') {
       void finishSide(allIngredients);
     }
@@ -997,7 +1020,28 @@ export function SideBuilder({
             </View>
           )}
           <View style={styles.summaryDoneRow}>
-            {ingredients.length > 0 && finishStep === 'building' ? (
+            {/* Edit mode: this card only ever shows while addingIngredient
+                is true (mid "+ Add Ingredient"), so its own escape hatch
+                goes back to the overview screen instead of create mode's
+                "reviewing" step -- that ready-screen/missingExtras flow
+                doesn't exist for edit mode at all (see the overview
+                branch's own comment), so leaving this pointed at
+                setFinishStep('reviewing') would have dropped an edit-mode
+                person into a dead-end. Shown even with zero ingredients
+                added yet in edit mode (unlike create mode's own
+                ingredients.length > 0 gate) -- a side being edited already
+                has ingredients by definition, so "back out without
+                picking a new one" should always be available here. */}
+            {editSideId ? (
+              <TouchableOpacity
+                onPress={() => {
+                  dismissKeyboard();
+                  setAddingIngredient(false);
+                }}
+              >
+                <Text style={[styles.summaryDoneText, { color: tabColor }]}>← Back to overview</Text>
+              </TouchableOpacity>
+            ) : ingredients.length > 0 && finishStep === 'building' ? (
               <TouchableOpacity
                 onPress={() => {
                   dismissKeyboard();
@@ -1032,6 +1076,84 @@ export function SideBuilder({
     { label: 'Cut Prep', options: CUT_PREP_METHODS, selected: ingredientCutPrep, onSelect: setIngredientCutPrep },
     { label: 'Cook Prep', options: COOKING_METHODS, selected: ingredientCookingMethod, onSelect: setIngredientCookingMethod },
   ]);
+
+  // Edit mode's own ingredient overview -- 2026-08-01, explicitly
+  // requested: reopening an already-saved side to fix something shouldn't
+  // assume the next thing wanted is picking a whole new Category. Landing
+  // here by default (addingIngredient starts false) shows the dish info
+  // and every current ingredient, each with a real trash-can button (not
+  // the small ✕ the connected picker's own summary card below still uses
+  // mid-add -- see that button's own comment for why THAT one stays small,
+  // and confirmRemoveIngredient for the same Cancel/Remove confirmation
+  // both share). Tapping "+ Add Ingredient" is the only way into the
+  // connected picker below now, for edit mode specifically -- create mode
+  // is completely untouched, still showing that picker automatically
+  // (see the very next branch, whose own condition this one intercepts
+  // ahead of only when editSideId is set).
+  if (editSideId && servingsConfirmed && !pendingResolved && !addingIngredient) {
+    return (
+      <>
+        {infoAlertElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+          <TouchableOpacity
+            style={[styles.formCard, { borderColor: tabColor }]}
+            onPress={() => {
+              dismissKeyboard();
+              setServingsConfirmed(false);
+            }}
+          >
+            <Text style={[styles.overviewDishName, { color: tabColor }]} numberOfLines={2}>
+              {dishName.trim() || 'Side Dish'}
+            </Text>
+            <Text style={styles.summaryDetailText}>Serves {servings || '?'}</Text>
+            <Text style={styles.summaryDetailText}>
+              {servingSizeAmount || '?'} {servingSizeUnit ?? '?'} / serving
+            </Text>
+            <Text style={[styles.secondaryButtonText, { color: tabColor, marginTop: 8 }]}>Tap to change</Text>
+          </TouchableOpacity>
+
+          <View style={[styles.formCard, { borderColor: tabColor }]}>
+            <Text style={[styles.formLabel, { color: tabColor }]}>Ingredients</Text>
+            {ingredients.length === 0 ? (
+              <Text style={[styles.summaryEmptyText, { marginTop: 8 }]}>No ingredients yet</Text>
+            ) : (
+              ingredients.map((ingredient, index) => (
+                <View key={index} style={styles.overviewIngredientRow}>
+                  <View style={styles.overviewIngredientTextWrap}>
+                    <Text style={styles.overviewIngredientText}>
+                      {ingredient.resolved.baseName} — {ingredient.quantity} {ingredient.unit}
+                    </Text>
+                    <DimensionFlags scores={ingredient.scores} onExplain={showInfoAlert} />
+                  </View>
+                  <TouchableOpacity
+                    style={styles.overviewRemoveButton}
+                    onPress={() => confirmRemoveIngredient(index)}
+                    accessibilityLabel={`Remove ${ingredient.resolved.baseName}`}
+                    hitSlop={4}
+                  >
+                    <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                  </TouchableOpacity>
+                </View>
+              ))
+            )}
+            <TouchableOpacity
+              style={styles.secondaryButton}
+              onPress={() => {
+                dismissKeyboard();
+                setAddingIngredient(true);
+              }}
+            >
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add Ingredient</Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={() => void finishSide(ingredients)}>
+            <Text style={styles.primaryButtonText}>Save Changes</Text>
+          </TouchableOpacity>
+        </ScrollView>
+      </>
+    );
+  }
 
   // Actively waiting on a NEW ingredient's Category/Food pick -- the
   // connected FoodLookup can't sit inside the ScrollView below (see its
@@ -1237,33 +1359,51 @@ export function SideBuilder({
                 }}
               />
 
-              {/* Save & Add New (left) / Save & Finish Side (right),
+              {/* Edit mode: one "Save Ingredient" button -- 'add-new' vs.
+                  'finish' no longer mean different things here (see
+                  saveIngredient's own editSideId branch: both just commit
+                  this ingredient and return to the overview screen), so
+                  showing a two-button split that used to mean "add
+                  another" vs. "finish the whole dish" would just be
+                  confusing now that finishing/persisting happens from the
+                  overview instead. Create mode keeps the original Save &
+                  Add New (left) / Save & Finish Side (right) pair,
                   2026-07-31 -- replaces the old Change Food + Add to Side
-                  pair. Change Food moved to the top of the card; "Add to
-                  Side" became "Save & Add New" to say what actually
-                  happens next, and its new sibling ends the dish outright.
-                  Both are muted (not `disabled`) until every required
-                  field is chosen, the same pattern as the dish form's own
-                  Continue button -- a truly disabled button can't explain
-                  what's missing, so these always fire and the handler
-                  decides. */}
+                  pair, unchanged. Both stay muted (not `disabled`) until
+                  every required field is chosen, the same pattern as the
+                  dish form's own Continue button -- a truly disabled
+                  button can't explain what's missing, so these always fire
+                  and the handler decides. */}
               <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
-                  onPress={() => saveIngredient('add-new')}
-                >
-                  <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
-                    Save &amp; Add New
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
-                  onPress={() => saveIngredient('finish')}
-                >
-                  <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
-                    {editSideId ? 'Save Changes' : 'Save & Finish Side'}
-                  </Text>
-                </TouchableOpacity>
+                {editSideId ? (
+                  <TouchableOpacity
+                    style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                    onPress={() => saveIngredient('add-new')}
+                  >
+                    <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
+                      Save Ingredient
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                      onPress={() => saveIngredient('add-new')}
+                    >
+                      <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
+                        Save &amp; Add New
+                      </Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                      onPress={() => saveIngredient('finish')}
+                    >
+                      <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
+                        Save &amp; Finish Side
+                      </Text>
+                    </TouchableOpacity>
+                  </>
+                )}
               </View>
             </View>
           ) : missingExtras.length > 0 && !nudgeDismissed ? (
@@ -1536,6 +1676,39 @@ const styles = StyleSheet.create({
     ...typography.caption,
     color: colors.textSecondary,
     marginTop: 2,
+  },
+  // Edit mode's own overview screen, 2026-08-01 -- full-width equivalents
+  // of summaryDishName/summaryIngredientRow/summaryRemoveButton above,
+  // deliberately not reusing those directly: this screen has a whole
+  // formCard's own width to work with (not summaryLeftColumnWidth's own
+  // narrow half), so nothing here needs to be centered or squeezed the
+  // way the connected-picker's own summary card still is.
+  overviewDishName: {
+    ...typography.bodyEmphasis,
+    fontSize: 17,
+  },
+  // 44px minHeight -- a real, comfortable touch target on its own terms
+  // (not stretched thin across the whole screen width the way the old
+  // half-column list was), so the trash button below has genuine room
+  // without needing the narrow column's own careful row-height tuning.
+  overviewIngredientRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    minHeight: 44,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  overviewIngredientTextWrap: {
+    flex: 1,
+    marginRight: 10,
+  },
+  overviewIngredientText: {
+    ...typography.body,
+    color: colors.textPrimary,
+  },
+  overviewRemoveButton: {
+    padding: 10,
   },
   // Fixed height (SUMMARY_INGREDIENT_LIST_HEIGHT, ~4 rows) whether showing
   // the real scrollable list or the empty-state placeholder -- keeps the
