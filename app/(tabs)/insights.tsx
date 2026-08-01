@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
@@ -10,7 +10,7 @@ import {
   type DailyNutrientScopeTotals,
   type DailySixDimensionsBreakdown,
 } from '../../lib/db';
-import { analyzeNutrientIntake, nutrientStatusSeverity, type StatusSeverity } from '../../lib/nutrientAnalysis';
+import { analyzeNutrientIntake, formatAmount, nutrientStatusSeverity, type StatusSeverity } from '../../lib/nutrientAnalysis';
 import {
   NUTRIENT_STATUS_LABELS,
   flattenItemScores,
@@ -22,19 +22,23 @@ import {
   tierSeverity,
   type TierSeverity,
 } from '../../lib/sixDimensionsReference';
+import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { FoodLookup } from '../../components/FoodLookup';
+import { GatedTabContent } from '../../components/GatedTabContent';
+import type { HelpSection } from '../../components/HelpButton';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
-import { ScreenBackground } from '../../components/ScreenBackground';
-import { ScreenHeader } from '../../components/ScreenHeader';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { MyItemsHub } from '../../components/MyItemsHub';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
   SECONDARY_HUB_CARD_LEFT_MARGIN,
   useFloatingButtonScrollPadding,
+  useMenuCardBottom,
   useSecondaryHubPosition,
 } from '../../constants/floatingButton';
-import { typography } from '../../constants/typography';
+import { textShadow, typography } from '../../constants/typography';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -47,11 +51,6 @@ function todayDateString(): string {
 
 function capitalize(text: string): string {
   return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1);
-}
-
-function formatAmount(value: number, unit: string): string {
-  const decimals = value < 10 ? 1 : 0;
-  return `${value.toFixed(decimals)} ${unit}`;
 }
 
 // Shared green/yellow/red/unknown -> style lookup for both the Nutrients
@@ -88,12 +87,77 @@ function worstTierSeverity(tiers: string[]): TierSeverity {
   return worst;
 }
 
-type Lens = 'nutrients' | 'sixDs' | 'prep';
+// Every text box on this page belongs to this one page's own tab, so
+// there's no per-box lookup needed the way Home's multi-tab dashboard
+// needed (see app/(tabs)/index.tsx's own tabColorFor) -- one fixed color,
+// used everywhere a box on THIS page needs its border to carry that
+// identity. Matches the same "box border = the tab it belongs to" rule
+// applied there, 2026-07-27.
+const TAB_COLOR = colors.tabInsights;
+
+type Lens = 'nutrients' | 'sixDs' | 'prep' | 'foodLookup';
+
+// Shared across all three lenses' own Info content below -- the
+// drill-down navigator (ScopeHub) is the one mechanic all three have in
+// common, so it's worth repeating in each rather than only explaining it
+// once somewhere a person might not be looking when they actually need it.
+const DRILLING_DOWN_HELP: HelpSection = {
+  heading: 'Drilling down',
+  body: 'The third floating button, to the left of the view picker, opens the same navigator every lens shares: Whole Day -> a specific meal -> a side within it -> a single ingredient. Tap any crumb to jump straight back to that level, or tap one of the pills below it to go one level deeper.',
+};
 
 const LENSES: LensOption<Lens>[] = [
-  { key: 'nutrients', label: 'Nutrients', icon: 'nutrition-outline' },
-  { key: 'sixDs', label: '6 Dimensions', icon: 'analytics-outline' },
-  { key: 'prep', label: 'Cooking & Prep', icon: 'flame-outline' },
+  {
+    key: 'nutrients',
+    label: 'Nutrients',
+    icon: 'nutrition-outline',
+    help: [
+      {
+        heading: 'Reading the table',
+        body: 'Each row compares one nutrient to your daily target. At "Whole Day" scope, rows are judged and colored: a flagged (colored) row is short of target, over a safe upper limit, or otherwise worth a look; an unflagged row is quietly fine and stays neutral on purpose, so color only ever draws your eye to what actually needs it.',
+      },
+      {
+        heading: 'Drilling into a meal or ingredient',
+        body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears -- a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
+      },
+      DRILLING_DOWN_HELP,
+    ],
+  },
+  {
+    key: 'sixDs',
+    label: '6 Dimensions',
+    icon: 'analytics-outline',
+    help: [
+      {
+        heading: '6 Dimensions',
+        body: 'Summarizes each of six research-backed factors -- micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load -- for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
+      },
+      DRILLING_DOWN_HELP,
+    ],
+  },
+  {
+    key: 'prep',
+    label: 'Cooking & Prep',
+    icon: 'flame-outline',
+    help: [
+      {
+        heading: 'Cooking & Prep',
+        body: 'Surfaces ingredients in today\'s meals that genuinely change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
+      },
+      DRILLING_DOWN_HELP,
+    ],
+  },
+  {
+    key: 'foodLookup',
+    label: 'Food Lookup',
+    icon: 'search-outline',
+    help: [
+      {
+        heading: 'Food Lookup',
+        body: "Look up any food in this app's own reference database -- pick a category, then (if that category has one) a more specific type, then the food itself -- to see its full nutrient, vitamin, and mineral breakdown per 100g. This is the same reference data every logged meal is scored against; it isn't tied to today's log or any drill-down scope, unlike the other three lenses here.",
+      },
+    ],
+  },
 ];
 
 // Where you currently are in the day -> meal -> side -> item drill-down,
@@ -177,9 +241,55 @@ function scopeBreadcrumbs<M extends NavigableMeal>(
   return crumbs;
 }
 
+const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'Three lenses, one day of data',
+    body: 'Nutrients, 6 Dimensions, and Cooking & Prep -- tap the button to the left of the main navigation button, bottom of the screen -- are three different views over the same set of meals you logged today. Switching views does not reload anything, it just changes how the same data is presented.',
+  },
+  {
+    heading: 'Nutrients: reading the table',
+    body: 'Each row compares one nutrient to your daily target. At "Whole Day" scope, rows are judged and colored: a flagged (colored) row is short of target, over a safe upper limit, or otherwise worth a look; an unflagged row is quietly fine and stays neutral on purpose, so color only ever draws your eye to what actually needs it.',
+  },
+  {
+    heading: 'Nutrients: drilling into a meal or ingredient',
+    body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears -- a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
+  },
+  {
+    heading: '6 Dimensions',
+    body: 'The 6 Dimensions scorecard summarizes each of six research-backed factors -- micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load -- for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
+  },
+  {
+    heading: 'Cooking & Prep',
+    body: 'Surfaces ingredients in today\'s meals that genuinely change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
+  },
+  {
+    heading: 'Drilling down',
+    body: 'The third floating button, to the left of the view picker, opens the same navigator every lens shares: Whole Day -> a specific meal -> a side within it -> a single ingredient. Tap any crumb to jump straight back to that level, or tap one of the pills below it to go one level deeper -- it stays open the whole way down, showing the next level immediately, so you can keep drilling without re-opening it. Tap the ✕ or outside it to close.',
+  },
+];
+
 export default function InsightsScreen() {
+  useRegisterScreenHelp('Insights', INSIGHTS_HELP_SECTIONS, '/insights');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  // Used by the three non-Food-Lookup lenses' own shared ScrollView below.
+  // Food Lookup owns its own separate layout instead (see FoodLookupView's
+  // own opening comment for why) and no longer needs this at all.
+  const scrollViewRef = useRef<ScrollView>(null);
   const [lens, setLens] = useState<Lens>('nutrients');
+  // Whether this tab's own specific background/content is currently risen
+  // (GatedTabContent.tsx) -- separate from `lens` itself, which keeps its
+  // last-picked value indefinitely so LensHub can still show it highlighted
+  // at rest. Reset to false on every focus change (both gaining and losing
+  // focus) so arriving/re-arriving at Insights always shows the resting
+  // "pick a function" prompt first, never an instant resume -- confirmed
+  // product behavior, not an oversight.
+  const [revealed, setRevealed] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setRevealed(false);
+      return () => setRevealed(false);
+    }, []),
+  );
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -233,76 +343,71 @@ export default function InsightsScreen() {
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
 
   return (
-    <SwipeableTabScreen>
     <View style={styles.screen}>
-      <View style={styles.header}>
-        <ScreenHeader
-          title="Insights"
-          tabPath="/insights"
-          helpSections={[
-            {
-              heading: 'Three lenses, one day of data',
-              body: 'Nutrients, 6 Dimensions, and Cooking & Prep -- tap the button to the left of the main navigation button, bottom of the screen -- are three different views over the same set of meals you logged today. Switching views does not reload anything, it just changes how the same data is presented.',
-            },
-            {
-              heading: 'Nutrients: reading the table',
-              body: 'Each row compares one nutrient to your daily target. At "Whole Day" scope, rows are judged and colored: a flagged (colored) row is short of target, over a safe upper limit, or otherwise worth a look; an unflagged row is quietly fine and stays neutral on purpose, so color only ever draws your eye to what actually needs it.',
-            },
-            {
-              heading: 'Nutrients: drilling into a meal or ingredient',
-              body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears -- a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
-            },
-            {
-              heading: '6 Dimensions',
-              body: 'The 6 Dimensions scorecard summarizes each of six research-backed factors -- micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load -- for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
-            },
-            {
-              heading: 'Cooking & Prep',
-              body: 'Surfaces ingredients in today\'s meals that genuinely change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
-            },
-            {
-              heading: 'Drilling down',
-              body: 'The third floating button, to the left of the view picker, opens the same navigator every lens shares: Whole Day -> a specific meal -> a side within it -> a single ingredient. Tap any crumb to jump straight back to that level, or tap one of the pills below it to go one level deeper -- it stays open the whole way down, showing the next level immediately, so you can keep drilling without re-opening it. Tap the ✕ or outside it to close.',
-            },
-          ]}
-        />
-      </View>
 
-      <ScreenBackground variant="insights">
-        <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-          {loading ? (
-            <Text style={styles.emptyText}>Loading…</Text>
-          ) : errorMessage ? (
-            <Text style={styles.errorText}>{errorMessage}</Text>
-          ) : lens === 'nutrients' ? (
-            !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
-              <Text style={styles.emptyText}>Save a meal to see this.</Text>
-            ) : (
-              <NutrientsTable breakdown={nutrientBreakdown} scope={scope} />
-            )
-          ) : !dimensionsBreakdown || dimensionsBreakdown.meals.length === 0 ? (
-            <Text style={styles.emptyText}>Save a meal to see this.</Text>
-          ) : lens === 'sixDs' ? (
-            <SixDsView
-              breakdown={dimensionsBreakdown}
-              scope={scope}
-              expandedDimension={expandedDimension}
-              onToggleDimension={(dimension) => setExpandedDimension((current) => (current === dimension ? null : dimension))}
-              expandedTierKey={expandedTierKey}
-              onToggleTier={(key) => setExpandedTierKey((current) => (current === key ? null : key))}
-            />
+      {/* enabled={!revealed} -- see food.tsx's own comment: swipe-to-
+          change-tab only works from a lens's own picker, not once a real
+          lens's content (with its own scrollable controls) is showing. */}
+      <SwipeableTabScreen enabled={!revealed}>
+        <GatedTabContent pageTitle="Insights" variant="insights" revealed={revealed}>
+          {lens === 'foodLookup' ? (
+            // Deliberately NOT inside the ScrollView below -- Food Lookup's
+            // own InlineSelectList/InlineSearchSelectList each render a
+            // FlatList, and a FlatList (a VirtualizedList) nested inside a
+            // plain ScrollView of the same orientation is an RN
+            // anti-pattern (breaks the list's own windowing/virtualization,
+            // and RN warns about it loudly). FoodLookup owns its own
+            // internal layout for that reason (see its own comment), but
+            // not this page-level wrapper -- that varies per caller (see
+            // FoodLookup's own closing comment), so it's supplied here.
+            <View style={styles.foodLookupActiveListContainer}>
+              <FoodLookup tabColor={TAB_COLOR} />
+            </View>
           ) : (
-            <PrepView breakdown={dimensionsBreakdown} scope={scope} />
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.body}
+              contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
+            >
+              {loading ? (
+              <Text style={styles.emptyText}>Loading…</Text>
+            ) : errorMessage ? (
+              <Text style={styles.errorText}>{errorMessage}</Text>
+            ) : lens === 'nutrients' ? (
+              !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
+                <Text style={styles.emptyText}>Save a meal to see this.</Text>
+              ) : (
+                <NutrientsTable breakdown={nutrientBreakdown} scope={scope} />
+              )
+            ) : !dimensionsBreakdown || dimensionsBreakdown.meals.length === 0 ? (
+              <Text style={styles.emptyText}>Save a meal to see this.</Text>
+            ) : lens === 'sixDs' ? (
+              <SixDsView
+                breakdown={dimensionsBreakdown}
+                scope={scope}
+                expandedDimension={expandedDimension}
+                onToggleDimension={(dimension) => setExpandedDimension((current) => (current === dimension ? null : dimension))}
+                expandedTierKey={expandedTierKey}
+                onToggleTier={(key) => setExpandedTierKey((current) => (current === key ? null : key))}
+              />
+            ) : (
+              <PrepView breakdown={dimensionsBreakdown} scope={scope} />
+              )}
+            </ScrollView>
           )}
-        </ScrollView>
-      </ScreenBackground>
+        </GatedTabContent>
+      </SwipeableTabScreen>
 
       {/* Rendered here, as a sibling of the ScrollView -- not inside any
           lens's own content -- so it truly floats fixed at the bottom of
           the screen. A copy nested inside NutrientsTable/SixDsView/PrepView
           would sit in the scrollable content instead, and scroll away with
-          everything else rather than staying put. */}
-      {lens === 'nutrients'
+          everything else rather than staying put. Gated on `revealed` too --
+          doesn't make sense to offer a drill-down into content that isn't
+          risen/showing yet. */}
+      {!revealed || lens === 'foodLookup'
+        ? null
+        : lens === 'nutrients'
         ? nutrientBreakdown && nutrientBreakdown.meals.length > 0 && (
             <ScopeHub breakdown={nutrientBreakdown} scope={scope} onChangeScope={changeScope} />
           )
@@ -311,10 +416,19 @@ export default function InsightsScreen() {
             <ScopeHub breakdown={dimensionsBreakdown} scope={scope} onChangeScope={changeScope} />
           )}
 
-      <PageIdentityLabel title="Insights" activeLensLabel={activeLensLabel} />
-      <LensHub pageTitle="Insights" options={LENSES} selected={lens} onSelect={setLens} />
+      <PageIdentityLabel title="Insights" activeLensLabel={revealed ? activeLensLabel : undefined} />
+      <MyItemsHub label="My Insights" tabColor={TAB_COLOR} />
+      <LensHub
+        pageTitle="Insights"
+        options={LENSES}
+        selected={revealed ? lens : undefined}
+        columns={3}
+        onSelect={(key) => {
+          setLens(key);
+          setRevealed(true);
+        }}
+      />
     </View>
-    </SwipeableTabScreen>
   );
 }
 
@@ -442,6 +556,12 @@ function NutrientsTable({
 // corner now belongs to LensHub's own button, redesigned to double as a
 // "which tab am I in" marker, which only makes sense anchored at the true
 // corner. This is the swap that made room for it.
+//
+// 2026-07-28: bumped from slot 0 to slot 1 -- slot 0 (closest to the
+// butterfly) now belongs to MyItemsHub's own "My Insights" button, the
+// same shortcut every other Lens page also gets in that exact spot. This
+// button just shifts one slot further out to make room, same idea as the
+// swap that first put it here.
 function ScopeHub<M extends NavigableMeal>({
   breakdown,
   scope,
@@ -452,8 +572,11 @@ function ScopeHub<M extends NavigableMeal>({
   onChangeScope: (scope: Scope) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { bottom: buttonBottom, left: buttonLeft } = useSecondaryHubPosition(0);
-  const cardBottom = buttonBottom + FLOATING_BUTTON_SIZE + 12;
+  const { bottom: buttonBottom, left: buttonLeft } = useSecondaryHubPosition(1);
+  // Independent of buttonBottom -- the button itself stays anchored inside
+  // the footer band; only the popup card floats clear above it (see
+  // useMenuCardBottom's own comment in constants/floatingButton.ts).
+  const cardBottom = useMenuCardBottom();
 
   const crumbs = scopeBreadcrumbs(breakdown, scope);
 
@@ -496,15 +619,19 @@ function ScopeHub<M extends NavigableMeal>({
         activeOpacity={0.85}
         accessibilityLabel="Drill down into today's meals"
       >
-        <Ionicons name="layers-outline" size={24} color={colors.textOnPrimary} />
+        <Ionicons name="layers-outline" size={24} color={colors.textOnPrimary} style={textShadow} />
       </TouchableOpacity>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <View style={styles.backdrop}>
           <Pressable style={StyleSheet.absoluteFill} onPress={() => setOpen(false)} />
-          <View style={[styles.scopeCard, { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN }]}>
+          <View style={[styles.scopeCard, { bottom: cardBottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN, borderColor: TAB_COLOR }]}>
             <View style={styles.scopeCardHeaderRow}>
-              <Text style={styles.cardHeader}>DRILL DOWN</Text>
+              {/* Title case, not the literal "DRILL DOWN" this used before
+                  2026-07-28 -- no all-caps headers anywhere, per explicit
+                  request. This one was hardcoded uppercase text, not just
+                  a textTransform, so it needed fixing here directly too. */}
+              <Text style={styles.cardHeader}>Drill Down</Text>
               <TouchableOpacity onPress={() => setOpen(false)} hitSlop={8} accessibilityLabel="Close">
                 <Text style={styles.scopeCloseText}>✕</Text>
               </TouchableOpacity>
@@ -784,13 +911,6 @@ function PrepView({
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
-    backgroundColor: colors.background,
-  },
-  // No paddingHorizontal here -- ScreenHeader insets its own title/icon
-  // row but leaves its divider full-width, so this wrapper must not clip
-  // it back down to the content width.
-  header: {
-    paddingTop: 12,
   },
   body: {
     flex: 1,
@@ -826,18 +946,31 @@ const styles = StyleSheet.create({
   },
   // Same structural-label language as the table headers below (eyebrow) --
   // both are "this is scaffolding, not content" text, so they should look
-  // like the same tier of thing.
+  // like the same tier of thing. Color is TAB_COLOR, not colors.primary,
+  // matching CardLabel's own eyebrow-tier label on Home -- 2026-07-27.
   sectionLabel: {
     ...typography.eyebrow,
-    color: colors.primary,
+    color: TAB_COLOR,
     marginBottom: 8,
   },
+  // Food Lookup's own layout -- no section labels between steps (each
+  // field's own placeholder/summary text already says what it's for).
+  // Always a plain View, never a ScrollView -- each step's own list and,
+  // once resolved, the results table's own SectionList each handle their
+  // own scrolling already (see FoodLookupView's own closing comment).
+  // paddingTop: 5 puts the first thing on screen (Category) the requested
+  // 5px below the header.
+  foodLookupActiveListContainer: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
   // A real table -- rows have consistent columns, so several numbers/
   // statuses per line can be scanned down a column instead of read one
   // sentence at a time.
+  // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule --
+  // the same "this box's border says which tab it belongs to" treatment,
+  // just a single fixed color here since every box on this page is
+  // Insights' own.
   table: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: colors.surface,
@@ -864,13 +997,20 @@ const styles = StyleSheet.create({
     borderTopWidth: 0,
     backgroundColor: colors.background,
   },
+  // Colors below are TAB_COLOR, not the plain neutrals they used to be --
+  // 2026-07-27, "every font inside a box should match that box's own
+  // border color." Deliberately NOT applied to statusGreenText/Yellow/Red/
+  // Neutral just below, or to anything already wrapped in
+  // severityTextStyle(...) -- that's real green/yellow/red judgment
+  // signal, a different (and more important) meaning than "which tab,"
+  // and overriding it would erase the thing this table exists to show.
   tableCell: {
     ...typography.caption,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
   },
   tableHeaderCell: {
     ...typography.eyebrow,
-    color: colors.textSecondary,
+    color: TAB_COLOR,
   },
   tableCellNutrient: {
     flex: 2,
@@ -889,7 +1029,7 @@ const styles = StyleSheet.create({
   tableCellDimension: {
     ...typography.label,
     flex: 3,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
   },
   // A real green/yellow/red traffic light -- green is a deliberate,
   // visible color here (not just "recede to neutral"), so all three
@@ -929,7 +1069,7 @@ const styles = StyleSheet.create({
   },
   subTableLabel: {
     ...typography.caption,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
     flex: 1,
     marginRight: 8,
   },
@@ -954,26 +1094,30 @@ const styles = StyleSheet.create({
   },
   detailFoodName: {
     ...typography.caption,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
   },
+  // Base color here never actually shows -- always rendered with
+  // severityTextStyle(...) layered on top (see PrepView/SixDsView's own
+  // render) -- left as a plain neutral rather than TAB_COLOR so it's not
+  // misleadingly implied to matter.
   detailFoodTier: {
     ...typography.captionEmphasis,
     color: colors.textPrimary,
   },
   detailText: {
     ...typography.caption,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
     lineHeight: 17,
     marginTop: 4,
   },
   detailSourcesLabel: {
     ...typography.eyebrow,
-    color: colors.textMuted,
+    color: TAB_COLOR,
     marginTop: 6,
   },
   detailSourcesText: {
     ...typography.caption,
-    color: colors.textSecondary,
+    color: TAB_COLOR,
     lineHeight: 15,
     fontStyle: 'italic',
   },
@@ -992,12 +1136,16 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 3 },
     elevation: 6,
   },
+  // Same treatment as LensHub's own popup card, 2026-07-27: menuSurface
+  // background (matching the butterfly menu's own), thicker border in
+  // TAB_COLOR (set inline above) instead of the flat neutral -- this is
+  // just as much "a menu accessed from this page" as LensHub itself.
   scopeCard: {
     position: 'absolute',
     maxWidth: 300,
-    backgroundColor: colors.surface,
+    backgroundColor: colors.menuSurface,
     borderRadius: 14,
-    borderWidth: 1,
+    borderWidth: 2,
     borderColor: colors.border,
     padding: 12,
     shadowColor: '#000',
@@ -1067,14 +1215,14 @@ const styles = StyleSheet.create({
   },
   tipCardTitle: {
     ...typography.label,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
   },
   tipEntry: {
     marginTop: 6,
   },
   tipText: {
     ...typography.body,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
     lineHeight: 18,
   },
 });

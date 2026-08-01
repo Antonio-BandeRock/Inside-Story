@@ -18,7 +18,81 @@ const BASE_BOTTOM_MARGIN = 16;
 // marks as unsafe), a small enough amount that it's very unlikely to
 // cause real clipping even on a zero-inset device, and worth revisiting
 // only if that ever turns out not to hold in practice.
-export const FLOATING_BUTTON_BOTTOM_OFFSET = Math.max(0, BASE_BOTTOM_MARGIN - 20) - 4;
+// The further `+ 20`, 2026-07-26: on Android 3-button navigation, that OS
+// scrim strip sits exactly at insets.bottom, so the -4 above already put the
+// button's own box 4px into it -- and the butterfly artwork itself renders
+// ~9px taller than that box (see BUTTERFLY_OVERHANG_Y in TabHub.tsx), so its
+// visible bottom tip dipped into the scrim too (confirmed on-device: a
+// visible seam behind the artwork specifically in 3-button mode, not
+// present in gesture-nav mode where there's no such scrim to dip into).
+// +20 clears both with a few px of margin to spare, layered on rather than
+// folded into the -4 for the same "keep each request legible" reason as
+// that one.
+// The further `+ 15`, 2026-07-26: every hub still sat a little too close
+// to the bottom footer strip -- explicitly requested a good 10-15px more
+// clearance above it. All of them read this same constant, so this one
+// change lifts every button together and keeps their bottom edges aligned
+// with each other, rather than needing the same delta applied in several
+// places.
+//
+// 2026-07-26, same day: a follow-up briefly moved the BUTTONS themselves
+// to float above the footer band entirely (an attempt at "buttons and
+// their popup menus both need to move up"), then was explicitly corrected
+// -- only the popup MENUS that open from these buttons were ever supposed
+// to move that far; the buttons themselves belong right here, inside the
+// footer, exactly as this offset already put them. See useMenuCardBottom
+// below for the menu-only version of that fix.
+//
+// The further `- 5`, 2026-07-26: the footer band itself (FOOTER_BAND_HEIGHT
+// below, which this offset feeds directly into) was reported too tall --
+// explicitly requested to bring the buttons down 5px "along with the top
+// of the footer." Reducing this one shared offset does both at once:
+// FOOTER_BAND_HEIGHT shrinks by the same 5px (it's derived from this),
+// and every button anchored to it (TabHub, LensHub, ScopeHub) moves down
+// with it -- and since useMenuCardBottom below is itself derived from
+// useFooterBandHeight, every popup menu card moves down the same 5px too,
+// satisfying "bring down the menus... by 5 pixels" from the same edit.
+//
+// The further `- 3`, same day: the footer still read a few px taller than
+// intended -- explicitly requested another 3px off the top of the footer,
+// with the same "icons and both hub popup textboxes move down with it"
+// expectation as the -5 above. Same mechanism, same reasoning, smaller
+// amount.
+export const FLOATING_BUTTON_BOTTOM_OFFSET = Math.max(0, BASE_BOTTOM_MARGIN - 20) - 4 + 20 + 15 - 5 - 3;
+
+// The footer band's own height (image bottom edge / bottomMask / footer
+// line, see ScreenBackground.tsx) -- the flat margin above the button's
+// own top edge (BACKGROUND_IMAGE_BUTTERFLY_GAP's old value, folded in here
+// now that both this and the footer band's height live in one place) is
+// what keeps the button readable against a plain backdrop instead of
+// competing with the busy photo directly behind it.
+const FOOTER_BAND_HEIGHT = FLOATING_BUTTON_BOTTOM_OFFSET + FLOATING_BUTTON_SIZE + 20;
+
+// Exported so ScreenBackground.tsx's own footer band can size itself from
+// the same one formula as everything else in this file, rather than a
+// second, separately-maintained copy.
+export function useFooterBandHeight(): number {
+  const insets = useSafeAreaInsets();
+  return insets.bottom + FOOTER_BAND_HEIGHT;
+}
+
+// How far above the footer band's own top edge (where its color starts --
+// see FOOTER_BAND_HEIGHT above) a hub's popup MENU should float. Explicitly
+// requested as a plain, literal "10 pixels above the top edge of the
+// footer's color" -- a prior pass tried computing this as the midpoint
+// between the footer and GatedTabContent.tsx's resting-prompt text box
+// instead, which wasn't what was actually asked for; this replaces that.
+const MENU_ABOVE_FOOTER_GAP = 10;
+
+// Where every hub's own popup card (TabHub's tab picker, LensHub's lens
+// picker, ScopeHub's drill-down) should set its `bottom` -- one shared
+// value so all three float to the exact same height, regardless of each
+// one's own button position underneath (which, unlike this, still varies
+// slightly -- e.g. ScopeHub's button sits one slot further left than
+// LensHub's, but both open a card ending up at this same height).
+export function useMenuCardBottom(): number {
+  return useFooterBandHeight() + MENU_ABOVE_FOOTER_GAP;
+}
 
 // Gap between adjacent floating hub buttons (TabHub, LensHub, and any
 // screen-specific hub further left, e.g. Insights' ScopeHub), and how far
@@ -71,20 +145,6 @@ export function useBottomLeftHubPosition(): { bottom: number; left: number } {
 // a real handedness setting eventually exists, it's a single value to wire
 // up rather than a search-and-replace across every position calculation.
 export const NAVIGATION_HAND: 'left' | 'right' = 'left';
-
-// The bottom corner OPPOSITE wherever the floating hubs are (see
-// NAVIGATION_HAND) -- for anything that needs to stay out of the hubs' way
-// without shrinking them, rather than sharing their side. Same `bottom` as
-// every hub, so its row lines up with theirs; `left`/`right` (whichever is
-// away from the hubs) is set, the other left `undefined` so it doesn't
-// fight the one that matters.
-export function useOppositeCornerPosition(): { bottom: number; left?: number; right?: number } {
-  const insets = useSafeAreaInsets();
-  const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET;
-  return NAVIGATION_HAND === 'left'
-    ? { bottom, right: SECONDARY_HUB_CARD_LEFT_MARGIN }
-    : { bottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN };
-}
 
 // How much room to leave below the LAST piece of real content on any
 // scrollable screen, so it can always be scrolled clear of whichever

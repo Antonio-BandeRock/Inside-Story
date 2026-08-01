@@ -28,9 +28,15 @@ export const typography = {
   captionEmphasis: { fontSize: 12, fontWeight: '600' as const },
 
   // The smallest tier -- table column headers, eyebrow labels above a
-  // section, footer notes. Uppercase + letter-spacing so it reads as a
-  // structural label rather than actual content even at a glance.
-  eyebrow: { fontSize: 10, fontWeight: '700' as const, textTransform: 'uppercase' as const, letterSpacing: 0.4 },
+  // section, footer notes. Small + bold + letter-spacing so it still reads
+  // as a structural label rather than actual content even at a glance.
+  //
+  // 2026-07-28: textTransform: 'uppercase' removed -- explicitly asked not
+  // to use all-caps for headers anywhere in the app. This is the one
+  // shared style nearly every header/label in the app builds on, so
+  // fixing it here covers all of them at once rather than hunting down
+  // each individual usage.
+  eyebrow: { fontSize: 10, fontWeight: '700' as const, letterSpacing: 0.4 },
 } as const;
 
 // A subtle drop shadow, spread into a text style with `...textShadow` --

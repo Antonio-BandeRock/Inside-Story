@@ -1,8 +1,9 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
+import { AppTextInput } from '../components/AppTextInput';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
@@ -375,14 +376,14 @@ export default function ProfileScreen() {
           Nothing else in the app uses either field.
         </Text>
         <View style={styles.dateRow}>
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.nameInput]}
             placeholder="First name"
             value={firstNameInput}
             onChangeText={setFirstNameInput}
             onBlur={commitFirstName}
           />
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.nameInput]}
             placeholder="Last name"
             value={lastNameInput}
@@ -450,7 +451,7 @@ export default function ProfileScreen() {
           age). Stored as a date rather than a fixed age so it stays accurate over time.
         </Text>
         <View style={styles.dateRow}>
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.dateInputYear]}
             placeholder="YYYY"
             keyboardType="number-pad"
@@ -459,7 +460,7 @@ export default function ProfileScreen() {
             onChangeText={setBirthYear}
             onBlur={commitBirthDate}
           />
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.dateInputSmall]}
             placeholder="MM"
             keyboardType="number-pad"
@@ -468,7 +469,7 @@ export default function ProfileScreen() {
             onChangeText={setBirthMonth}
             onBlur={commitBirthDate}
           />
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.dateInputSmall]}
             placeholder="DD"
             keyboardType="number-pad"
@@ -494,7 +495,7 @@ export default function ProfileScreen() {
         <View style={styles.dateRow}>
           {measurementSystem === 'imperial' ? (
             <>
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="ft"
                 keyboardType="number-pad"
@@ -503,7 +504,7 @@ export default function ProfileScreen() {
                 onChangeText={setHeightFeetInput}
                 onBlur={commitHeight}
               />
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="in"
                 keyboardType="number-pad"
@@ -514,7 +515,7 @@ export default function ProfileScreen() {
               />
             </>
           ) : (
-            <TextInput
+            <AppTextInput
               style={[styles.input, styles.dateInputYear]}
               placeholder="cm"
               keyboardType="number-pad"
@@ -540,7 +541,7 @@ export default function ProfileScreen() {
           <View key={dayPart} style={styles.mealTimeRow}>
             <Text style={styles.mealTimeLabel}>{dayPart[0].toUpperCase() + dayPart.slice(1)}</Text>
             <View style={styles.dateRow}>
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="8"
                 keyboardType="number-pad"
@@ -551,7 +552,7 @@ export default function ProfileScreen() {
                 }
                 onBlur={() => commitMealTime(dayPart)}
               />
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="00"
                 keyboardType="number-pad"
@@ -614,7 +615,7 @@ export default function ProfileScreen() {
           <>
             <Text style={styles.subLabel}>Eating window starts</Text>
             <View style={styles.dateRow}>
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="12"
                 keyboardType="number-pad"
@@ -623,7 +624,7 @@ export default function ProfileScreen() {
                 onChangeText={(text) => setEatingWindowStartBuffer((current) => ({ ...current, hour: text }))}
                 onBlur={() => commitEatingWindow()}
               />
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="00"
                 keyboardType="number-pad"
@@ -653,7 +654,7 @@ export default function ProfileScreen() {
 
             <Text style={styles.subLabel}>Eating window ends</Text>
             <View style={styles.dateRow}>
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="8"
                 keyboardType="number-pad"
@@ -662,7 +663,7 @@ export default function ProfileScreen() {
                 onChangeText={(text) => setEatingWindowEndBuffer((current) => ({ ...current, hour: text }))}
                 onBlur={() => commitEatingWindow()}
               />
-              <TextInput
+              <AppTextInput
                 style={[styles.input, styles.dateInputSmall]}
                 placeholder="00"
                 keyboardType="number-pad"

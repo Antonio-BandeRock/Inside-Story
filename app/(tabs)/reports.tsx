@@ -1,9 +1,12 @@
-import { useState } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
+import type { HelpSection } from '../../components/HelpButton';
+import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
-import { ScreenBackground } from '../../components/ScreenBackground';
-import { ScreenHeader } from '../../components/ScreenHeader';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 
@@ -12,41 +15,62 @@ import { colors } from '../../constants/colors';
 // between. Reserves the button/shape now; gets replaced with real options
 // once Reports' own views are designed.
 type ReportsLens = 'overview';
-const REPORTS_LENSES: LensOption<ReportsLens>[] = [{ key: 'overview', label: 'Overview', icon: 'document-text-outline' }];
+
+// Single source of truth for both the page-level ScreenHeader help and the
+// LensHub Info tile's per-option help -- same reuse pattern as
+// FOOD_LENS_COPY in app/(tabs)/food.tsx.
+const REPORTS_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this page will do',
+    body: 'Not built yet. Once it is, this is where you\'ll generate a printable/shareable summary of your logged meals, nutrient trends, and 6 Dimensions history -- built for handing to a doctor, nutritionist, or trainer, or just for yourself.',
+  },
+  {
+    heading: 'Privacy',
+    body: 'Reports will generate entirely on your device, the same as the rest of this app -- nothing is sent anywhere unless you explicitly export or share it yourself.',
+  },
+];
+
+const REPORTS_LENSES: LensOption<ReportsLens>[] = [
+  { key: 'overview', label: 'Overview', icon: 'document-text-outline', help: REPORTS_HELP_SECTIONS },
+];
 
 export default function ReportsScreen() {
+  useRegisterScreenHelp('Reports', REPORTS_HELP_SECTIONS, '/reports');
   const [lens, setLens] = useState<ReportsLens>('overview');
+  // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
+  const [revealed, setRevealed] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setRevealed(false);
+      return () => setRevealed(false);
+    }, []),
+  );
 
   return (
-    <SwipeableTabScreen>
-      <View style={styles.screen}>
-        <View style={styles.header}>
-          <ScreenHeader
-            title="Reports"
-            tabPath="/reports"
-            helpSections={[
-              {
-                heading: 'What this page will do',
-                body: 'Not built yet. Once it is, this is where you\'ll generate a printable/shareable summary of your logged meals, nutrient trends, and 6 Dimensions history -- built for handing to a doctor, nutritionist, or trainer, or just for yourself.',
-              },
-              {
-                heading: 'Privacy',
-                body: 'Reports will generate entirely on your device, the same as the rest of this app -- nothing is sent anywhere unless you explicitly export or share it yourself.',
-              },
-            ]}
-          />
-        </View>
+    <View style={styles.screen}>
+      {/* enabled={!revealed} -- see food.tsx's own comment: swipe-to-
+          change-tab only works from a lens's own picker, not once a real
+          lens's content (with its own scrollable controls) is showing. */}
+      <SwipeableTabScreen enabled={!revealed}>
+        <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed} />
+      </SwipeableTabScreen>
 
-        <ScreenBackground variant="reports" />
-
-        <PageIdentityLabel title="Reports" />
-        <LensHub pageTitle="Reports" options={REPORTS_LENSES} selected={lens} onSelect={setLens} />
-      </View>
-    </SwipeableTabScreen>
+      <PageIdentityLabel title="Reports" />
+      <MyItemsHub label="My Reports" tabColor={colors.tabReports} />
+      <LensHub
+        pageTitle="Reports"
+        options={REPORTS_LENSES}
+        selected={revealed ? lens : undefined}
+        columns={3}
+        onSelect={(key) => {
+          setLens(key);
+          setRevealed(true);
+        }}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  header: { paddingTop: 12 },
+  screen: { flex: 1 },
 });

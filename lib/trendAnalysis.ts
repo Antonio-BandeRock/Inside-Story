@@ -16,7 +16,7 @@ import { isFlaggedTier } from './sixDimensionsReference';
 // Insights UI -- the screen should only be responsible for rendering.
 
 // Same 'YYYY-MM-DD' local-time helper (and same reasoning) duplicated in
-// home.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is wrong
+// index.tsx (Home)/food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is wrong
 // for anyone not on UTC, especially in the evening.
 function todayDateString(): string {
   const now = new Date();

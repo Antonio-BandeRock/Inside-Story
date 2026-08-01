@@ -12,28 +12,56 @@ import { colors } from '../constants/colors';
 const DAY_START_MINUTES = 6 * 60; // 6:00am
 const DAY_END_MINUTES = 20 * 60; // 8:00pm
 
+// How long, in real minutes, the sun/moon take to sink behind (or rise
+// clear of) the horizon -- deliberately a FIXED, short real-time window,
+// not a fraction of `t`. A first pass tried expressing the horizon dip
+// purely in terms of `t` (extending the arc's own rise/set endpoint past
+// the visible sky band), but a 14-hour day arc moves slowly near its own
+// edges -- even a modest few pixels of extra dip there worked out to a
+// genuine ~30+ real minute transition, long enough that the sun could
+// still be sinking after the stylized 8pm day/night boundary while the
+// moon hadn't started rising yet, an empty-sky gap confirmed on-device.
+// Anchoring this to real minutes instead guarantees a short, predictable
+// transition regardless of how the arc itself is shaped.
+const HORIZON_TRANSITION_MINUTES = 8;
+
 export type SunMoonPosition = {
   // 0..1 across whichever arc is currently active -- 0 at that arc's
   // start (sunrise for day, sunset for night), 1 at its end.
   t: number;
   isDaytime: boolean;
+  // 0 at the exact moment of rise/set, ramping up to 1 once
+  // HORIZON_TRANSITION_MINUTES past it (and back down to 0 approaching the
+  // NEXT rise/set) -- how far AnimatedSky.tsx should blend the disc from
+  // "hidden behind the horizon" toward its normal arc position. Kept
+  // separate from `t` specifically so this transition's own real-world
+  // duration is exact and short, not tied to the arc's own pacing.
+  horizonProgress: number;
 };
+
+function computeHorizonProgress(minutesFromStart: number, minutesUntilEnd: number): number {
+  const minutesFromNearestEdge = Math.min(minutesFromStart, minutesUntilEnd);
+  return Math.max(0, Math.min(1, minutesFromNearestEdge / HORIZON_TRANSITION_MINUTES));
+}
 
 export function getSunMoonPosition(date: Date): SunMoonPosition {
   const minutes = date.getHours() * 60 + date.getMinutes();
   const isDaytime = minutes >= DAY_START_MINUTES && minutes < DAY_END_MINUTES;
 
   if (isDaytime) {
-    const t = (minutes - DAY_START_MINUTES) / (DAY_END_MINUTES - DAY_START_MINUTES);
-    return { t, isDaytime: true };
+    const minutesFromStart = minutes - DAY_START_MINUTES;
+    const minutesUntilEnd = DAY_END_MINUTES - minutes;
+    const t = minutesFromStart / (DAY_END_MINUTES - DAY_START_MINUTES);
+    return { t, isDaytime: true, horizonProgress: computeHorizonProgress(minutesFromStart, minutesUntilEnd) };
   }
 
   // Night wraps over midnight (8pm -> next day's 6am), so "minutes since
   // night start" has to handle both sides of that wrap.
   const nightSpanMinutes = 24 * 60 - (DAY_END_MINUTES - DAY_START_MINUTES);
   const minutesSinceNightStart = minutes >= DAY_END_MINUTES ? minutes - DAY_END_MINUTES : minutes + (24 * 60 - DAY_END_MINUTES);
+  const minutesUntilNightEnd = nightSpanMinutes - minutesSinceNightStart;
   const t = minutesSinceNightStart / nightSpanMinutes;
-  return { t, isDaytime: false };
+  return { t, isDaytime: false, horizonProgress: computeHorizonProgress(minutesSinceNightStart, minutesUntilNightEnd) };
 }
 
 // 0 at the arc's peak (overhead, t=0.5), 1 at rise/set (t=0 or 1). Real
@@ -179,4 +207,17 @@ export function getSkyTint(date: Date): SkyTint {
   const extraDarkness = MAX_EXTRA_NEW_MOON_OPACITY * (1 - moonBrightness) * nightInfluence;
 
   return { color: `rgb(${r}, ${g}, ${b})`, opacity: Math.min(1, baseOpacity + extraDarkness) };
+}
+
+// How visible the starfield (AnimatedSky.tsx's StarField) should be right
+// now, 0..1 -- reuses getSkyTint's own already-tuned day/night curve rather
+// than a second, separately-authored schedule, so stars fade in/out exactly
+// in step with the sky darkening/lightening, not on their own timeline.
+// Normalized against the tint's own typical max (NIGHT_BASE_MAX_OPACITY)
+// so stars reach full visibility right around when the tint reaches its
+// usual deep-night darkness, not only at the rare, slightly-higher new-moon
+// peak.
+export function getStarOpacity(date: Date): number {
+  const tint = getSkyTint(date);
+  return Math.min(1, tint.opacity / NIGHT_BASE_MAX_OPACITY);
 }

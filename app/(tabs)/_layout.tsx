@@ -1,13 +1,16 @@
 import { Tabs } from 'expo-router';
-import { View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { CurrentPageHelpProvider } from '../../components/CurrentPageHelp';
+import { ScreenBackground } from '../../components/ScreenBackground';
+import { ScreenHeader } from '../../components/ScreenHeader';
 import { TabHub } from '../../components/TabHub';
 
-// headerShown: false everywhere here -- each screen renders its own
-// ScreenHeader (title + profile button) at the top of its own content
-// instead. The native Tabs header used to duplicate that same title,
-// stacking two header bars and wasting vertical space, especially in
-// landscape where height is already tight.
+// headerShown: false everywhere here -- <ScreenHeader/> below (rendered
+// once, as a sibling of <Tabs>, not once per screen -- see that
+// component's own 2026-07-27 comment for why) takes its place. The native
+// Tabs header used to duplicate that same title, stacking two header bars
+// and wasting vertical space, especially in landscape where height is
+// already tight.
 //
 // tabBarStyle: display 'none' -- the old 7-icon bottom bar is replaced by
 // TabHub, a single bottom-center floating button that opens a picker for
@@ -19,24 +22,73 @@ import { TabHub } from '../../components/TabHub';
 // The underlying Tabs navigator is kept (not swapped for a Stack) so every
 // screen keeps behaving exactly as it did -- still mounted in the
 // background on switch, still relying on useFocusEffect to refresh data.
+//
+// 2026-07-26: a single `<ScreenBackground variant="field" sky />` renders
+// here, once, permanently mounted behind everything -- the fix for "the
+// shared resting background should be one truly static canvas that never
+// slides, resizes, or remounts between tabs," including the AnimatedSky
+// critters riding on top of it, which need one continuous, uninterrupted
+// animation loop that nothing else in the app ever touches. An earlier
+// attempt had each tab's own GatedTabContent render its own separate copy
+// of this image, which then moved along with that screen's own
+// SwipeableTabScreen drag/slide, betraying the "everything else slides on
+// top of a fixed backdrop" illusion -- moving it here instead, above/behind
+// <Tabs> and never inside any per-screen or animated wrapper, is what
+// actually makes it immovable.
+//
+// 2026-07-27: both the background and <Tabs> now live inside their own
+// nested flex:1 View, placed *after* <ScreenHeader/> in normal document
+// flow -- not an absolutely-positioned offset computed from
+// useScreenHeaderHeight() like this used to be. Flex layout gives that
+// wrapper the exact remaining space below the header for free, so the
+// background's `cover` crop (and everything <Tabs> renders inside it) is
+// automatically confined to the right region without this file needing to
+// know the header's own pixel height at all.
 export default function TabLayout() {
   return (
     <CurrentPageHelpProvider>
       <View style={{ flex: 1 }}>
-        <Tabs
-          screenOptions={{
-            headerShown: false,
-            tabBarStyle: { display: 'none' },
-          }}
-        >
-          <Tabs.Screen name="home" options={{ title: 'Home' }} />
-          <Tabs.Screen name="index" options={{ title: 'Food' }} />
-          <Tabs.Screen name="insights" options={{ title: 'Insights' }} />
-          <Tabs.Screen name="schedule" options={{ title: 'Schedules' }} />
-          <Tabs.Screen name="trends" options={{ title: 'Trends' }} />
-          <Tabs.Screen name="log" options={{ title: 'Bio-Compass' }} />
-          <Tabs.Screen name="reports" options={{ title: 'Reports' }} />
-        </Tabs>
+        <ScreenHeader />
+        <View style={{ flex: 1 }}>
+          <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+            <ScreenBackground variant="field" sky />
+          </View>
+          <Tabs
+            screenOptions={{
+              headerShown: false,
+              tabBarStyle: { display: 'none' },
+              // React Navigation's own per-screen scene wrapper paints an
+              // opaque default background, and since <Tabs> renders after
+              // (on top of) the shared background View above, that default
+              // fully covers it -- background image, sky/critters, and the
+              // footer strip behind TabHub/LensHub all at once -- unless
+              // explicitly made transparent here. `sceneStyle` is the real,
+              // current @react-navigation/bottom-tabs prop for this (see
+              // this file's own git history for why `sceneContainerStyle`,
+              // an older/nonexistent prop name, silently did nothing).
+              sceneStyle: { backgroundColor: 'transparent' },
+            }}
+          >
+            {/* 2026-07-26: Home is now the literal "index" file (formerly
+                home.tsx; Food moved to food.tsx, formerly index.tsx) -- Expo
+                Router always treats the file named "index" as the real route
+                for a group's own bare path ("/"), full stop, no override
+                mechanism involved. This replaces two earlier attempts (a
+                plain initialRouteName prop, then Expo Router's own documented
+                unstable_settings.initialRouteName) that were both, per
+                Expo Router's own source, supposed to work for exactly this
+                case but empirically didn't survive a real cold launch --
+                swapping which file *is* "index" sidesteps that uncertainty
+                entirely instead of relying on a fallback/override layer. */}
+            <Tabs.Screen name="index" options={{ title: 'Home' }} />
+            <Tabs.Screen name="food" options={{ title: 'Food' }} />
+            <Tabs.Screen name="insights" options={{ title: 'Insights' }} />
+            <Tabs.Screen name="schedule" options={{ title: 'Schedules' }} />
+            <Tabs.Screen name="trends" options={{ title: 'Trends' }} />
+            <Tabs.Screen name="log" options={{ title: 'Signals' }} />
+            <Tabs.Screen name="reports" options={{ title: 'Reports' }} />
+          </Tabs>
+        </View>
         <TabHub />
       </View>
     </CurrentPageHelpProvider>

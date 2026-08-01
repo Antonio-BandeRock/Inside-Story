@@ -1,0 +1,975 @@
+import { useCallback, useEffect, useState } from 'react';
+import { SectionList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
+import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
+import { colors } from '../constants/colors';
+import { useFooterBandHeight } from '../constants/floatingButton';
+import { typography } from '../constants/typography';
+import {
+  getDietaryReferenceIntakesForCurrentUser,
+  getFoodNutrients,
+  getFoodUnitWeight,
+  getPreparationMethods,
+  getReferenceCategories,
+  getReferenceSubcategories,
+  resolveFoodChoice,
+  searchReferenceFoodNames,
+  type DietaryReferenceIntake,
+  type FoodNutrient,
+  type FoodUnitWeight,
+} from '../lib/db';
+import { analyzeNutrientIntake, formatAmount } from '../lib/nutrientAnalysis';
+import { useActiveField } from './ActiveInputContext';
+import { AppTextInput } from './AppTextInput';
+import { useInfoAlert } from './InfoAlert';
+import { InlineSearchSelectList } from './InlineSearchSelectList';
+import { InlineSelectList } from './InlineSelectList';
+import { useScreenHeaderHeight } from './ScreenHeader';
+
+const NUTRIENT_GROUP_LABELS: Record<string, string> = {
+  macro: 'Macronutrients',
+  vitamin: 'Vitamins',
+  mineral: 'Minerals',
+};
+
+// What a caller gets back once every step (Category, Type if this
+// category has one, Food, Prep if this food has options) is resolved to a
+// single real food row -- see `onFoodResolved` below. foodId/source come
+// from resolveFoodChoice, the same resolution getFoodNutrients itself
+// depends on, so a caller has a precise reference to one exact row (not
+// just a category/name/prep combo that could still be ambiguous -- see
+// lib/db.ts's own getFoodNutrients comment on duplicate rows across
+// sources) even without ever fetching that row's own nutrients.
+export type ResolvedFoodSelection = {
+  category: string;
+  subcategory: string | null;
+  baseName: string;
+  prepMethod: string | null;
+  foodId: number;
+  source: string;
+};
+
+// The reference database's own `category` column values are short,
+// abbreviated codes (imported straight from the source workbook) -- fine
+// for querying (getReferenceSubcategories/searchReferenceFoodNames/
+// resolveFoodChoice all key off this exact raw string, which is why
+// `category` state itself is never changed), but not what a person should
+// have to read. This maps just the DISPLAY side to something readable;
+// see categoryLabel() below for the one place every rendered category
+// string routes through it. Only categories explicitly asked to be
+// relabeled are listed -- anything else (Alcohol, Algae, Baked, Fats,
+// Fish, Legume, Sweets) falls through to its own raw value unchanged.
+//
+// Mixed -> "Mixed Dishes," not "Mixed Vegetables" -- checked directly
+// against the reference database (2026-07-27): this category has no
+// subcategory breakdown at all, and its actual contents are composite/
+// prepared foods (stews, casseroles, salads, sandwiches -- "Spaghetti
+// with meat sauce," "Burrito, beef and bean," "Potato salad, homemade"),
+// not raw vegetable mixes. This matches USDA's own "Mixed Dishes" food
+// group naming for exactly this kind of multi-ingredient composite food.
+//
+// Dairy -> "Dairy & Eggs" -- also checked directly: there is no separate
+// Egg category in this database at all. Every real egg entry (Egg,
+// chicken/whole/white/yolk; Eggnog; egg substitute, etc.) is filed under
+// Dairy, matching the source data's own USDA-style "Dairy and Egg
+// Products" convention -- renamed here so that's discoverable by the
+// label itself rather than a real category quietly hiding eggs with no
+// hint they're there.
+const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
+  Bev: 'Beverages',
+  Dairy: 'Dairy & Eggs',
+  Fruit: 'Fruits',
+  Grain: 'Grains',
+  Herbs: 'Herbs & Seasonings',
+  Meat: 'Animal Protein',
+  Mixed: 'Mixed Dishes',
+  Mushroom: 'Mushrooms',
+  NutSeed: 'Nuts & Seeds',
+  Sprouts: 'Sprouts',
+  SupplementPowder: 'Supplement Powders',
+  Veg: 'Vegetables',
+};
+
+function categoryLabel(category: string): string {
+  return CATEGORY_DISPLAY_LABELS[category] ?? category;
+}
+
+// General food browser -- category -> optional type -> food -> optional
+// prep method -> a full per-100g/per-portion/%RDA nutrient table. Built
+// first for Insights' own Food Lookup lens (app/(tabs)/insights.tsx), then
+// pulled out here 2026-07-27 as the shared template every future
+// lookup-style screen reuses -- `tabColor` is the only thing that varies
+// per caller, so each page's own identity color still shows through
+// everywhere this used to hardcode Insights' own teal.
+export function FoodLookup({
+  tabColor,
+  title,
+  showNutrients = true,
+  onFoodResolved,
+  topReserve = 0,
+  squareTop = false,
+  initialCategory = '',
+  initialSubcategory = null,
+}: {
+  tabColor: string;
+  // An optional page-level heading above the Category step (e.g. Food's
+  // own Side Builder passes "Side Dish Builder") -- Insights' own Food
+  // Lookup lens leaves this unset, since PageIdentityLabel already names
+  // that page elsewhere. Counted into every list/table height below
+  // (TITLE_HEIGHT) the same way a resolved summary row already is -- this
+  // component owns all of its own layout math, so any extra content it
+  // renders above the picker has to be accounted for here, not left for
+  // the caller to compensate for externally.
+  title?: string;
+  // false for callers that only need to know WHICH food was picked, not
+  // its nutrition -- Side Builder (app/(tabs)/food.tsx's own
+  // components/SideBuilder.tsx), which builds a side from ingredients and
+  // quantities, deliberately doesn't duplicate Insights' own Food Lookup
+  // lens's nutrient table. Skips fetching nutrients/unit weight entirely
+  // (not just hiding the table after fetching it anyway) -- no reason to
+  // pay for a lookup nothing on screen will show. Defaults true, so every
+  // existing caller (Insights) is unaffected.
+  showNutrients?: boolean;
+  // Required when showNutrients is false -- the only way a caller finds
+  // out a selection actually completed, since there's no table to signal
+  // it visually. Fires once, the moment Category(+Type)+Food(+Prep) are
+  // all resolved to one real row -- see ResolvedFoodSelection's own
+  // comment for why this includes a real foodId/source, not just the raw
+  // picks.
+  onFoodResolved?: (resolved: ResolvedFoodSelection) => void;
+  // Extra vertical space already used up by something the CALLER renders
+  // above this component that isn't `title` -- e.g. SideBuilder.tsx's own
+  // connected Dish/Ingredients summary card, which sits directly above a
+  // connected FoodLookup with no gap between them. Folded into every
+  // list/table height below exactly like `title`'s own TITLE_HEIGHT is, so
+  // this component's internal layout math stays the single source of
+  // truth for how much room its own lists actually have, rather than the
+  // caller needing to separately clip/scroll it from outside.
+  topReserve?: number;
+  // Squares off the Category step's own top corners (whichever of
+  // InlineSelectList or its "picked" summary row is currently showing --
+  // Category is always the first thing this component renders when
+  // `title` is unset) -- for a caller that sits this component directly
+  // beneath another box of its own with no gap, so the two read as one
+  // continuous connected unit at that seam. Only Category ever needs this:
+  // every step after it stacks below Category's own (already-resolved)
+  // summary row, never at this component's own top edge.
+  squareTop?: boolean;
+  // Seeds Category(+Type) already resolved, rather than starting blank --
+  // 2026-07-28, for SideBuilder.tsx's own connected picker specifically:
+  // this component always fully remounts between ingredients (a fresh
+  // instance each time, see SideBuilder's own comment on why), so without
+  // this every single ingredient -- and tapping "Change Food" on one
+  // already picked -- landed back on a blank Category list even when the
+  // obvious next ingredient is in the exact same category (a side dish's
+  // second, third, ... vegetable, say). Only ever used to seed this
+  // component's own initial useState -- not a true controlled prop (no
+  // onChange going back out mid-session), which is enough here since a
+  // fresh mount is the only time these values are ever read.
+  initialCategory?: string;
+  initialSubcategory?: string | null;
+}) {
+  const [categories, setCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState(initialCategory);
+  const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [subcategory, setSubcategory] = useState<string | null>(initialSubcategory);
+  const [foodQuery, setFoodQuery] = useState('');
+  const [foodNameOptions, setFoodNameOptions] = useState<string[]>([]);
+  const [baseName, setBaseName] = useState('');
+  const [prepMethods, setPrepMethods] = useState<string[]>([]);
+  const [prepMethod, setPrepMethod] = useState<string | null>(null);
+  const [nutrients, setNutrients] = useState<FoodNutrient[] | null>(null);
+  // A real, cited typical-serving weight for this exact resolved food (see
+  // getFoodUnitWeight's own comment) -- null for the (currently large)
+  // majority of foods without one on file, in which case the table falls
+  // back to plain per-100g amounts rather than inventing a serving size.
+  const [unitWeight, setUnitWeight] = useState<FoodUnitWeight | null>(null);
+  // What the person actually plans to eat, by weight -- the whole reason
+  // this exists: amounts/DRI% below should reflect THIS, not a fixed
+  // reference amount the person has no say over. Reset to a sensible
+  // default (the known serving's own weight, or 100g when none is on file)
+  // every time a new food resolves -- see the effect below -- but otherwise
+  // freely editable.
+  const [portionGrams, setPortionGrams] = useState('100');
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+  // Resolved once against the person's own saved profile (sex/age), not
+  // per food -- reused for whatever food gets looked up. Comes back as
+  // more than one row per nutrient only when the profile is incomplete
+  // (see getDietaryReferenceIntakesForCurrentUser's own comment) -- handled
+  // in the render below by showing every matching percentage rather than
+  // guessing which one applies.
+  const [driRows, setDriRows] = useState<DietaryReferenceIntake[]>([]);
+
+  useEffect(() => {
+    getDietaryReferenceIntakesForCurrentUser().then(setDriRows);
+  }, []);
+
+  // Category/Type are done (whether or not this category even has a Type
+  // step) once this is true -- the Food step only ever renders/mounts once
+  // this flips. Category, Type, and Food are all plain inline content now
+  // (see InlineSelectList.tsx/InlineSearchSelectList.tsx's own comments) --
+  // none of them need a "wait for layout, then arm autoFocus" dance the
+  // way the old Dropdown-based version of this step did, since there's no
+  // measured position left to protect. Food's search box still autofocuses
+  // (see InlineSearchSelectList.tsx) -- that's AppTextInput's own plain,
+  // standard `autoFocus` prop, unrelated to Dropdown's custom
+  // measureInWindow timing.
+  const categoryConfirmed = category !== '' && (subcategories.length === 0 || subcategory !== null);
+
+  // A fixed, deterministic height for whichever step's own list is
+  // currently active -- computed from known constants (header height,
+  // footer band height, AppKeyboard's own height), never from measuring
+  // any actual rendered element, so it can't be wrong the way the old
+  // Dropdown menu's measured position repeatedly was. Fills from just
+  // below the header down to just above TabHub's own floating button (or,
+  // for Food specifically, down to AppKeyboard's own top edge instead --
+  // its search box keeps that keyboard raised the whole time its own list
+  // is showing, so reserving only the footer would let the list extend
+  // in underneath it).
+  const { height: windowHeight } = useWindowDimensions();
+  const headerHeight = useScreenHeaderHeight();
+  const footerBandHeight = useFooterBandHeight();
+  const activeField = useActiveField();
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+
+  // Every already-resolved step above the currently active list renders as
+  // a fixed-height summary row (see the render below) instead of its own
+  // list -- each one eats into how much room the active list actually has,
+  // so this counts them to shrink its height by exactly that much rather
+  // than assuming the active list is always the first thing on screen.
+  // 34/2, down from 46/3, 2026-07-28 -- summaryRow's own paddingVertical
+  // shrank to match (see its own style comment), and this constant has to
+  // track that real height exactly, or the math below would keep
+  // reserving the OLD, larger amount of space and undo the point of
+  // shrinking it in the first place.
+  const SUMMARY_ROW_HEIGHT = 34;
+  const SUMMARY_ROW_GAP = 2;
+  let precedingSummaryRows = 0;
+  if (category !== '') precedingSummaryRows += 1;
+  if (subcategories.length > 0 && subcategory !== null) precedingSummaryRows += 1;
+  if (categoryConfirmed && baseName !== '') precedingSummaryRows += 1;
+  const precedingRowsHeight = precedingSummaryRows * (SUMMARY_ROW_HEIGHT + SUMMARY_ROW_GAP);
+
+  const topGap = 5;
+  const listBottomMargin = 10;
+  // Reserves room for the optional `title` heading above -- 0 when unset,
+  // so a caller that doesn't pass one (Insights' own Food Lookup lens)
+  // sees no change at all. Estimated, not measured, same reasoning as
+  // every other fixed size in this file -- titleBar's own paddingVertical
+  // (10*2) + its text's line height (~22 for fontSize 18) + its top border
+  // (2, the bottom border is overlapped away by its own negative margin).
+  const TITLE_HEIGHT = 44;
+  const titleHeight = title ? TITLE_HEIGHT : 0;
+  const categoryListHeight = Math.max(
+    150,
+    windowHeight - headerHeight - footerBandHeight - topGap - titleHeight - topReserve - precedingRowsHeight - listBottomMargin,
+  );
+  // Food's own list specifically -- also reserves AppKeyboard's full height
+  // (see this block's own comment above for why).
+  const foodListHeight = Math.max(
+    150,
+    windowHeight -
+      headerHeight -
+      footerBandHeight -
+      KEYBOARD_HEIGHT -
+      topGap -
+      titleHeight -
+      topReserve -
+      precedingRowsHeight -
+      listBottomMargin,
+  );
+  // Same idea again for the nutrient results table (a fixed box so only
+  // that box scrolls internally -- see its own SectionList below -- rather
+  // than the whole page). Also counts the Prep summary row, which the two
+  // heights above never need to: nothing before Prep resolves depends on
+  // its height, but by the time the table shows, Prep (if this food had
+  // any prep options) is already a resolved summary row above it.
+  let resolvedRowsForTable = precedingSummaryRows;
+  if (prepMethods.length > 0 && prepMethod !== null) resolvedRowsForTable += 1;
+  const resolvedRowsHeightForTable = resolvedRowsForTable * (SUMMARY_ROW_HEIGHT + SUMMARY_ROW_GAP);
+  // Unlike Category/Food's own lists above -- which are only ever shown
+  // while their search box keeps AppKeyboard permanently risen -- the
+  // table's Portion field can be dismissed (the search row's green
+  // checkmark) while the table itself stays on screen. Only reserve
+  // AppKeyboard's height while it's actually up, so the table grows back
+  // down to the footer once it's gone rather than leaving a permanent gap.
+  const keyboardReserve = activeField ? KEYBOARD_HEIGHT : 0;
+  const tableHeight = Math.max(
+    200,
+    windowHeight -
+      headerHeight -
+      footerBandHeight -
+      keyboardReserve -
+      topGap -
+      titleHeight -
+      topReserve -
+      resolvedRowsHeightForTable -
+      listBottomMargin,
+  );
+
+  useEffect(() => {
+    getReferenceCategories().then(setCategories);
+  }, []);
+
+  useEffect(() => {
+    if (!category) {
+      setSubcategories([]);
+      return;
+    }
+    let cancelled = false;
+    getReferenceSubcategories(category).then((rows) => {
+      if (cancelled) return;
+      setSubcategories(rows);
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category]);
+
+  useEffect(() => {
+    // A category with real sub-categories needs one picked first -- listing
+    // foods across every type in a category before that would mix foods
+    // that don't actually belong together for this search.
+    if (!category || (subcategories.length > 0 && !subcategory)) {
+      setFoodNameOptions([]);
+      return;
+    }
+    let cancelled = false;
+    searchReferenceFoodNames(category, subcategory, foodQuery).then((names) => {
+      if (!cancelled) setFoodNameOptions(names);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [category, subcategory, subcategories.length, foodQuery]);
+
+  useEffect(() => {
+    if (!baseName) {
+      setPrepMethods([]);
+      return;
+    }
+    let cancelled = false;
+    getPreparationMethods(category, subcategory, baseName).then((methods) => {
+      if (!cancelled) setPrepMethods(methods);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [category, subcategory, baseName]);
+
+  useEffect(() => {
+    if (!baseName || (prepMethods.length > 0 && !prepMethod)) {
+      setNutrients(null);
+      setUnitWeight(null);
+      return;
+    }
+    let cancelled = false;
+    setLoading(true);
+    setErrorMessage('');
+    resolveFoodChoice(category, subcategory, baseName, prepMethod)
+      .then((resolved) => {
+        if (cancelled) return null;
+        if (!resolved) {
+          setErrorMessage("Couldn't find that food.");
+          return null;
+        }
+        // showNutrients: false -- report the resolved selection outward
+        // instead of fetching anything nobody will see. The caller is
+        // expected to swap this component out the instant this fires (see
+        // onFoodResolved's own comment), so there's nothing more for this
+        // effect to do here.
+        if (!showNutrients) {
+          onFoodResolved?.({
+            category,
+            subcategory,
+            baseName,
+            prepMethod,
+            foodId: resolved.foodId,
+            source: resolved.source,
+          });
+          return null;
+        }
+        return Promise.all([
+          getFoodNutrients(resolved.foodId, resolved.source),
+          getFoodUnitWeight(resolved.foodId, resolved.source),
+        ]);
+      })
+      .then((result) => {
+        if (cancelled || !result) return;
+        const [rows, weight] = result;
+        setNutrients(rows);
+        setUnitWeight(weight);
+        setPortionGrams(weight ? String(Math.round(weight.gramsPerUnit)) : '100');
+      })
+      .catch((error) => {
+        if (cancelled) return;
+        setErrorMessage(`Could not load nutrients: ${error instanceof Error ? error.message : String(error)}`);
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [category, subcategory, baseName, prepMethod, prepMethods.length, showNutrients]);
+
+  function selectCategory(next: string) {
+    setCategory(next);
+    setSubcategory(null);
+    setFoodQuery('');
+    setBaseName('');
+    setPrepMethod(null);
+    setNutrients(null);
+  }
+
+  function selectSubcategory(next: string) {
+    setSubcategory(next);
+    setFoodQuery('');
+    setBaseName('');
+    setPrepMethod(null);
+    setNutrients(null);
+  }
+
+  function selectBaseName(next: string) {
+    setBaseName(next);
+    setPrepMethod(null);
+    setNutrients(null);
+  }
+
+  // "Change" on the Category summary row (see the render below) -- brings
+  // back the plain inline list instead of the summary, resetting every
+  // downstream step the same way picking a genuinely different category
+  // would.
+  function changeCategory() {
+    setCategory('');
+    setSubcategory(null);
+    setSubcategories([]);
+    setFoodQuery('');
+    setFoodNameOptions([]);
+    setBaseName('');
+    setPrepMethods([]);
+    setPrepMethod(null);
+    setNutrients(null);
+  }
+
+  // Same idea, scoped to just the Type step -- Category stays picked.
+  function changeSubcategory() {
+    setSubcategory(null);
+    setFoodQuery('');
+    setFoodNameOptions([]);
+    setBaseName('');
+    setPrepMethods([]);
+    setPrepMethod(null);
+    setNutrients(null);
+  }
+
+  // Same idea again, scoped to just the Food step -- Category/Type stay
+  // picked, only the food itself (and anything downstream of it) resets.
+  function changeBaseName() {
+    setBaseName('');
+    setFoodQuery('');
+    setPrepMethods([]);
+    setPrepMethod(null);
+    setNutrients(null);
+  }
+
+  const groupedNutrients = nutrients
+    ? nutrients.reduce<Record<string, FoodNutrient[]>>((groups, nutrient) => {
+        groups[nutrient.group] = groups[nutrient.group] ?? [];
+        groups[nutrient.group].push(nutrient);
+        return groups;
+      }, {})
+    : null;
+
+  // SectionList's own shape (one entry per group, each with its own title)
+  // -- built once here rather than inline in the render below, since it's
+  // also referenced by nothing else. Groups with no rows for this food are
+  // dropped rather than shown as an empty section with nothing under it.
+  const nutrientSections = groupedNutrients
+    ? (['macro', 'vitamin', 'mineral'] as const)
+        .map((group) => ({ key: group, title: NUTRIENT_GROUP_LABELS[group], data: groupedNutrients[group] ?? [] }))
+        .filter((section) => section.data.length > 0)
+    : [];
+
+  // Parsed from the person's own portion-size entry (see the render below,
+  // portionGrams/setPortionGrams) -- falls back to 100 for anything that
+  // isn't a real positive number (empty field, mid-edit, a stray "."),
+  // rather than ever showing NaN/zero-divide garbage in the table.
+  const portionGramsNumber = Number(portionGrams);
+  const validPortionGrams = Number.isFinite(portionGramsNumber) && portionGramsNumber > 0 ? portionGramsNumber : 100;
+  // Scales BOTH the displayed amount and the %-Daily figure to that
+  // portion (nutrient content scales linearly with weight, so multiplying
+  // a per-100g value by grams/100 is exact, not an approximation) -- the
+  // two always stay on the same basis as each other, never an
+  // amount-for-one-portion-size next to a percent computed for a
+  // different one.
+  const servingScale = validPortionGrams / 100;
+
+  // Reuses lib/nutrientAnalysis.ts's own analyzeNutrientIntake -- the exact
+  // same "amount vs. DRI target" math the Nutrients lens already runs for a
+  // whole day's logged meals, just fed this one food's own (portion-scaled)
+  // amounts instead of a day's combined total. Deliberately NOT reusing
+  // that function's own `status`/severity coloring here, though -- a
+  // single food isn't "deficient" in something just for not being a whole
+  // day's supply of it on its own; only the plain percentage is shown.
+  const nutrientGapsByCode = new Map<string, number[]>();
+  if (nutrients) {
+    const foodTotals: Record<string, number> = {};
+    nutrients.forEach((nutrient) => {
+      foodTotals[nutrient.code] = nutrient.amountPer100g * servingScale;
+    });
+    analyzeNutrientIntake(driRows, foodTotals).forEach((gap) => {
+      const list = nutrientGapsByCode.get(gap.nutrientCode) ?? [];
+      list.push(gap.percentOfTarget);
+      nutrientGapsByCode.set(gap.nutrientCode, list);
+    });
+  }
+
+  function showPer100gInfo() {
+    showInfoAlert(
+      'Per 100g',
+      "Per 100g is the standard reference amount used by USDA FoodData Central and the other national nutrition authorities this app draws from (the UK, Germany, Japan, Canada, France, and Australia's own food composition databases) when they publish how much of a nutrient a food actually contains.\n\n" +
+        "Reporting a fixed, uniform weight -- rather than a package's own serving size, which varies by manufacturer, culture, and preparation -- lets any two foods be compared on equal footing, gram for gram, regardless of how much of either one a person actually eats. It's also the form the underlying laboratory analysis itself is done in: a food sample is tested once, and its results are reported per 100g so they can be scaled to any amount afterward, rather than re-tested for every possible serving size.\n\n" +
+        "That's why Per 100g never changes here, no matter what you enter in the Portion column next to it -- it's this food's own fixed scientific reference point, the same number nutrition professionals themselves start from before scaling to a real portion.",
+    );
+  }
+
+  // useCallback, not a plain function declaration like showPer100gInfo/
+  // showRdaInfo above -- this one, unlike those, gets passed as
+  // AppTextInput's onInfoPress prop (see the Portion field below), which
+  // AppTextInput folds into the ActiveField object it hands to
+  // ActiveInputContext on every render where it's focused. A fresh
+  // function reference every render would make that effect see a
+  // "changed" prop and refire even when nothing the person did actually
+  // changed, calling setActiveField again -- which, since this component
+  // also reads activeField (see tableHeight's own keyboardReserve above),
+  // re-renders this component, recreating the function again, forever
+  // ("Maximum update depth exceeded"). Memoizing it on its actual
+  // dependencies keeps the reference stable across those unrelated
+  // re-renders, breaking that cycle.
+  const showPortionInfo = useCallback(() => {
+    const autoSelectNote =
+      "\n\nThe amount shown here arrives already highlighted -- just start typing to replace it with your own portion, no need to clear it first.";
+    if (unitWeight) {
+      showInfoAlert(
+        'Portion',
+        `This column and % RDA reflect the weight entered here (currently ${validPortionGrams}g) -- edit it to match what you'll actually eat. Per 100g, to its left, never changes; it's always this food's own raw reference data.\n\nA typical serving of this food is 1 ${unitWeight.unitLabel} (~${Math.round(unitWeight.gramsPerUnit)}g) -- tap "Use serving" below the field to reset to that.\n\nSource: ${unitWeight.citation}` +
+          autoSelectNote,
+      );
+    } else {
+      showInfoAlert(
+        'Portion',
+        `This column and % RDA reflect the weight entered here (currently ${validPortionGrams}g) -- edit it to match what you'll actually eat. Per 100g, to its left, never changes; it's always this food's own raw reference data.\n\nWe don't have a typical serving size on file for this food, so 100g was used as the starting default for this column too.` +
+          autoSelectNote,
+      );
+    }
+  }, [unitWeight, validPortionGrams, showInfoAlert]);
+
+  function showRdaInfo() {
+    showInfoAlert(
+      '% RDA',
+      "% RDA shows how much of your own recommended daily target for that nutrient the Portion column provides, based on the Dietary Reference Intakes set by the National Academies of Sciences, Engineering, and Medicine (NASEM), matched to the sex and age in your own profile.\n\n" +
+        'A few things worth understanding about what this number actually means:\n\n' +
+        "- RDA is a population target, not a personal prescription. It's set high enough to meet the needs of about 97-98% of healthy people in your age and sex group -- it isn't calculated from your own body, labs, or health history, and Hashimoto's itself can change how much of some nutrients (iodine, selenium, and iron among them) your own body actually needs or absorbs.\n\n" +
+        "- Not every nutrient has a true RDA. Some (like biotin or vitamin K) only have an Adequate Intake (AI) instead -- a reasonable estimate used when there isn't yet enough evidence to set a precise RDA. Both are shown here the same way, as a plain percentage.\n\n" +
+        "- Higher isn't always better. For sodium specifically, the figure shown is a recommended daily limit, not a floor -- a lower percentage there is the goal, not a higher one.\n\n" +
+        "- This percentage is one piece of context, not a verdict on any single food. A food that provides only a small percentage of something isn't \"bad\" any more than one that provides a large percentage is automatically \"good\" -- what matters is the pattern across everything you eat in a day, which is what the Nutrients tab tracks over time.",
+    );
+  }
+
+  const content = (
+    <>
+      {title ? (
+        <View style={[styles.titleBar, { borderColor: tabColor }]}>
+          <Text style={[styles.titleText, { color: tabColor }]}>{title}</Text>
+        </View>
+      ) : null}
+      {/* Category: a plain always-visible InlineSelectList until one is
+          picked, then a compact summary row instead (tap Change to bring
+          the list back) -- see InlineSelectList.tsx's own comment for why
+          this replaced a Dropdown here. */}
+      <View>
+        {category === '' ? (
+          <InlineSelectList
+            // getReferenceCategories() orders by the raw database code
+            // (e.g. "Meat"), not the human-readable label shown here (e.g.
+            // "Animal Protein") -- sorting by that raw code left "Animal
+            // Protein" sitting between "Legume" and "Mixed Dishes" instead
+            // of up near the top with the other A's, which is what actually
+            // reads as "out of order" to a person looking at the list.
+            // Re-sorting by the displayed label here (not the query) is
+            // what makes the list alphabetical the way it's actually read.
+            options={[...categories]
+              .sort((a, b) => categoryLabel(a).localeCompare(categoryLabel(b)))
+              .map((value) => ({ label: categoryLabel(value), value }))}
+            value={category}
+            onChange={selectCategory}
+            height={categoryListHeight}
+            tabColor={tabColor}
+            header="Select a Food Category"
+            squareTop={squareTop}
+          />
+        ) : (
+          <TouchableOpacity
+            style={[styles.summaryRow, { borderColor: tabColor }, squareTop && styles.squareTop]}
+            onPress={changeCategory}
+          >
+            <Text style={styles.summaryText} numberOfLines={1}>
+              {categoryLabel(category)}
+            </Text>
+            <Text style={[styles.summaryChange, { color: tabColor }]}>Change</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {category !== '' && subcategories.length > 0 ? (
+        <View style={styles.stackedField}>
+          {subcategory === null ? (
+            <InlineSelectList
+              options={subcategories.map((value) => ({ label: value, value }))}
+              value={subcategory ?? ''}
+              onChange={selectSubcategory}
+              height={categoryListHeight}
+              tabColor={tabColor}
+              header={`Select a ${categoryLabel(category)} Type`}
+            />
+          ) : (
+            <TouchableOpacity style={[styles.summaryRow, { borderColor: tabColor }]} onPress={changeSubcategory}>
+              <Text style={styles.summaryText} numberOfLines={1}>
+                {subcategory}
+              </Text>
+              <Text style={[styles.summaryChange, { color: tabColor }]}>Change</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ) : null}
+
+      {categoryConfirmed ? (
+        <View style={styles.stackedField}>
+          {baseName === '' ? (
+            <InlineSearchSelectList
+              options={foodNameOptions.map((value) => ({ label: value, value }))}
+              value={baseName}
+              onChange={selectBaseName}
+              height={foodListHeight}
+              tabColor={tabColor}
+              header={`Select a ${categoryLabel(category)}`}
+              searchText={foodQuery}
+              onSearchChange={setFoodQuery}
+              searchPlaceholder={`Search ${categoryLabel(category)} foods…`}
+            />
+          ) : (
+            <TouchableOpacity style={[styles.summaryRow, { borderColor: tabColor }]} onPress={changeBaseName}>
+              <Text style={styles.summaryText} numberOfLines={1}>
+                {baseName}
+              </Text>
+              <Text style={[styles.summaryChange, { color: tabColor }]}>Change</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ) : null}
+
+      {prepMethods.length > 0 ? (
+        <View style={styles.stackedField}>
+          {prepMethod === null ? (
+            <InlineSelectList
+              options={prepMethods.map((value) => ({ label: value, value }))}
+              value={prepMethod ?? ''}
+              onChange={setPrepMethod}
+              height={categoryListHeight}
+              tabColor={tabColor}
+              header="Select a Preparation"
+            />
+          ) : (
+            <TouchableOpacity style={[styles.summaryRow, { borderColor: tabColor }]} onPress={() => setPrepMethod(null)}>
+              <Text style={styles.summaryText} numberOfLines={1}>
+                {prepMethod}
+              </Text>
+              <Text style={[styles.summaryChange, { color: tabColor }]}>Change</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+      ) : null}
+
+      {loading ? (
+        <Text style={styles.emptyText}>Loading…</Text>
+      ) : errorMessage ? (
+        <Text style={styles.errorText}>{errorMessage}</Text>
+      ) : groupedNutrients ? (
+        <View style={[styles.table, { height: tableHeight, borderColor: tabColor }]}>
+          {/* One header for the whole table, not per group -- see
+              NUTRIENT_GROUP_LABELS above for the per-group label that
+              replaces what used to be a fully duplicated header row.
+              Rendered here as a fixed sibling above the SectionList below,
+              not as its own section/ListHeaderComponent -- it never
+              scrolls at all, staying visible above even the group labels'
+              own sticky behavior. */}
+          <View style={[styles.tableRow, styles.tableHeaderRow]}>
+            <Text style={[styles.tableHeaderCell, { color: tabColor }, styles.tableCellNutrient]}>Nutrient</Text>
+            {/* Always the food's own raw per-100g reference data -- never
+                scaled, never editable. The Portion column next to it is the
+                one that reflects what the person actually enters. Tapping
+                the label shows why 100g specifically -- see
+                showPer100gInfo above. */}
+            <TouchableOpacity style={styles.tableCellAmount} onPress={showPer100gInfo}>
+              <Text style={[styles.tableHeaderCell, { color: tabColor }]}>Per 100g</Text>
+            </TouchableOpacity>
+            <View style={styles.tableCellPortion}>
+              <Text style={[styles.tableHeaderCell, { color: tabColor }]}>Portion</Text>
+              <View style={styles.portionInputRow}>
+                <AppTextInput
+                  style={styles.portionInput}
+                  value={portionGrams}
+                  onChangeText={setPortionGrams}
+                  keyboardType="decimal-pad"
+                  placeholder="100"
+                  autoFocus
+                  selectAllOnMount
+                  onInfoPress={showPortionInfo}
+                  infoColor={tabColor}
+                  infoLabel="Provide Portion Size"
+                />
+                <Text style={[styles.tableHeaderCell, { color: tabColor }]}>g</Text>
+              </View>
+              {unitWeight ? (
+                <TouchableOpacity onPress={() => setPortionGrams(String(Math.round(unitWeight.gramsPerUnit)))}>
+                  <Text style={[styles.portionResetLink, { color: tabColor }]} numberOfLines={1}>
+                    Use serving ({Math.round(unitWeight.gramsPerUnit)}g)
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+            {/* Tapping shows what % RDA actually means -- see showRdaInfo
+                above. alignItems: 'flex-end', not textAlign --
+                tableCellPercent's own textAlign: 'right' is a Text-only
+                style property; it's a no-op on this TouchableOpacity
+                wrapper, so the right-alignment has to come from the
+                container instead. */}
+            <TouchableOpacity style={[styles.tableCellPercent, styles.percentHeaderButton]} onPress={showRdaInfo}>
+              <Text style={[styles.tableHeaderCell, { color: tabColor }]}>% RDA</Text>
+            </TouchableOpacity>
+          </View>
+          {/* The results themselves are the only thing that scrolls --
+              stickySectionHeadersEnabled keeps whichever group's own label
+              (Macronutrients/Vitamins/Minerals) pinned right below the
+              fixed column header above as its rows scroll past, swapping
+              to the next group's label only once that group's last row
+              has scrolled by, same as a contacts list's alphabet index. */}
+          <SectionList
+            style={styles.tableSectionList}
+            sections={nutrientSections}
+            keyExtractor={(nutrient, index) => `${nutrient.code}-${index}`}
+            stickySectionHeadersEnabled
+            renderSectionHeader={({ section }) => (
+              <View style={styles.tableGroupLabelRow}>
+                <Text style={[styles.tableGroupLabelText, { color: tabColor }]}>{section.title}</Text>
+              </View>
+            )}
+            renderItem={({ item: nutrient }) => {
+              const percents = nutrientGapsByCode.get(nutrient.code);
+              return (
+                <View style={styles.tableRow}>
+                  <Text style={[styles.tableCell, { color: tabColor }, styles.tableCellNutrient]}>{nutrient.displayName}</Text>
+                  <Text style={[styles.tableCell, { color: tabColor }, styles.tableCellAmount]}>
+                    {formatAmount(nutrient.amountPer100g, nutrient.unit)}
+                  </Text>
+                  <Text style={[styles.tableCell, { color: tabColor }, styles.tableCellPortion]}>
+                    {formatAmount(nutrient.amountPer100g * servingScale, nutrient.unit)}
+                  </Text>
+                  <Text style={[styles.tableCell, { color: tabColor }, styles.tableCellPercent]}>
+                    {percents && percents.length > 0 ? percents.map((percent) => `${Math.round(percent)}%`).join(' / ') : '—'}
+                  </Text>
+                </View>
+              );
+            }}
+          />
+        </View>
+      ) : null}
+    </>
+  );
+
+  // Always a plain View, never this component's own ScrollView -- each
+  // step's own list (InlineSelectList/InlineSearchSelectList) and, once a
+  // food is resolved, the results table's own SectionList (see its own
+  // `height: tableHeight` above) each handle their own scrolling already;
+  // nesting a second scrollable container around them here would be
+  // exactly the anti-pattern this whole layout exists to avoid. No
+  // container/padding of its own, either -- the caller (see
+  // app/(tabs)/insights.tsx's own foodLookupActiveListContainer) owns that,
+  // since it varies by how much else is already on that caller's screen.
+  return (
+    <>
+      {content}
+      {infoAlertElement}
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  // Page-level heading above Category, only when the caller passes one
+  // (see FoodLookup's own `title` prop comment). Styled to look physically
+  // attached to the top of whatever's rendered right below it (Category's
+  // own InlineSelectList or its "picked" summary row -- both share the
+  // exact same borderWidth: 2/borderRadius: 10/colors.surface treatment,
+  // which is what this matches): same border width/color, rounded top
+  // corners only (square bottom, since that edge butts against the box
+  // below), and a negative marginBottom exactly equal to the border width
+  // so the two borders overlap into one continuous line instead of a
+  // visible double seam. backgroundColor matches colors.surface too --
+  // without an opaque fill of its own, this text was unreadable directly
+  // over the page's own background photo.
+  titleBar: {
+    borderWidth: 2,
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    marginBottom: -2,
+  },
+  titleText: {
+    ...typography.label,
+    fontSize: 18,
+    textAlign: 'center',
+  },
+  emptyText: {
+    ...typography.body,
+    color: colors.textSecondary,
+  },
+  errorText: {
+    ...typography.body,
+    color: colors.danger,
+  },
+  // Each field/summary-row after the first sits exactly 2px below the one
+  // above it -- matches SUMMARY_ROW_GAP above (was 3px/SUMMARY_ROW_GAP 3,
+  // tightened together 2026-07-28).
+  stackedField: { marginTop: 2 },
+  // Category/Type's own "picked, collapsed" row -- replaces their
+  // InlineSelectList once a value is chosen, same compact single-field
+  // footprint a closed Dropdown used to have. Tap anywhere on it to bring
+  // the list back. paddingVertical tightened 2026-07-28 (was 10) -- same
+  // "shrink the buffer around every row" pass as InlineSelectList.tsx's
+  // own header/item -- SUMMARY_ROW_HEIGHT above tracks this real height.
+  summaryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: colors.surface,
+  },
+  // See the `squareTop` prop's own comment.
+  squareTop: {
+    borderTopLeftRadius: 0,
+    borderTopRightRadius: 0,
+  },
+  summaryText: {
+    ...typography.body,
+    color: colors.textPrimary,
+    flexShrink: 1,
+  },
+  summaryChange: {
+    ...typography.captionEmphasis,
+    marginLeft: 8,
+  },
+  // The Portion column's own header cell -- label, the editable gram input,
+  // and (when known) the "use the typical serving" reset link all stack
+  // inside this one column, rather than a separate full-width row above the
+  // table -- keeps the control scoped to exactly the column it drives.
+  tableCellPortion: {
+    flex: 1.8,
+    alignItems: 'center',
+  },
+  portionInputRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    marginTop: 2,
+  },
+  portionInput: {
+    ...typography.body,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 4,
+    minWidth: 44,
+    textAlign: 'center',
+  },
+  portionResetLink: {
+    ...typography.caption,
+    marginTop: 2,
+  },
+  // Replaces what used to be a fully duplicated header row per nutrient
+  // group -- just the group's own name (NUTRIENT_GROUP_LABELS), enough to
+  // keep macro/vitamin/mineral sections visually distinct without repeating
+  // the column labels (and the Portion input inside them) three times over.
+  tableGroupLabelRow: {
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    backgroundColor: colors.background,
+  },
+  tableGroupLabelText: {
+    ...typography.eyebrow,
+  },
+  // Fills whatever's left of the table box below the fixed column header
+  // (see that box's own `height: tableHeight`) -- this is the one thing
+  // that actually scrolls; everything above it (the header row, and the
+  // summary rows above the table box itself) stays put.
+  tableSectionList: {
+    flex: 1,
+  },
+  // A real table -- rows have consistent columns, so several numbers/
+  // statuses per line can be scanned down a column instead of read one
+  // sentence at a time. borderColor set inline (tabColor) -- this box's
+  // border says which page it belongs to.
+  table: {
+    borderWidth: 2,
+    borderRadius: 10,
+    overflow: 'hidden',
+    backgroundColor: colors.surface,
+  },
+  tableRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    gap: 8,
+  },
+  tableHeaderRow: {
+    borderTopWidth: 0,
+    backgroundColor: colors.background,
+  },
+  // Color set inline (tabColor) -- every font inside this table matches
+  // its own border color.
+  tableCell: {
+    ...typography.caption,
+  },
+  tableHeaderCell: {
+    ...typography.eyebrow,
+  },
+  tableCellNutrient: {
+    flex: 2,
+  },
+  tableCellAmount: {
+    flex: 2,
+  },
+  tableCellPercent: {
+    flex: 1.2,
+    textAlign: 'right',
+  },
+  // See the % RDA header's own JSX comment for why this exists alongside
+  // tableCellPercent rather than relying on its textAlign alone.
+  percentHeaderButton: {
+    alignItems: 'flex-end',
+  },
+});

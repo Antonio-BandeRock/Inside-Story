@@ -22,11 +22,11 @@ export type TabRoute = {
 };
 
 export const TAB_ROUTES: TabRoute[] = [
-  { path: '/home', title: 'Home', icon: 'home', color: colors.tabHome },
-  { path: '/', title: 'Food', icon: 'restaurant', color: colors.tabFood },
+  { path: '/', title: 'Home', icon: 'home', color: colors.tabHome },
+  { path: '/food', title: 'Food', icon: 'restaurant', color: colors.tabFood },
   { path: '/insights', title: 'Insights', icon: 'medical', color: colors.tabInsights },
   { path: '/schedule', title: 'Schedules', icon: 'calendar', color: colors.tabSchedules },
   { path: '/trends', title: 'Trends', icon: 'trending-up', color: colors.tabTrends },
-  { path: '/log', title: 'Bio-Compass', icon: 'compass', color: colors.tabBioCompass },
+  { path: '/log', title: 'Signals', icon: 'compass', color: colors.tabBioCompass },
   { path: '/reports', title: 'Reports', icon: 'document-text', color: colors.tabReports },
 ];

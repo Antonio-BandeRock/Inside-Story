@@ -24,6 +24,8 @@ import sys
 import zipfile
 from xml.etree import ElementTree as ET
 
+from natural_name_reorder import reorder_base_name
+
 NS = {"m": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 R_NS = "{http://schemas.openxmlformats.org/officeDocument/2006/relationships}"
 REL_NS = {"r": "http://schemas.openxmlformats.org/package/2006/relationships"}
@@ -40,6 +42,14 @@ SKIP_SHEETS = {"Botanical_Classification", "ChangeLog"}
 # (category_code, base_name) after prep-stripping; extend by hand if more
 # turn up rather than widening this into a keyword scan.
 CATEGORY_OVERRIDES = {
+    # Baobab powder is the dried, ground baobab-fruit pulp sold as a
+    # smoothie/superfood supplement powder -- not something eaten or added
+    # to a dish as a whole/fresh fruit the way the rest of Fruit is.
+    # Same real category (a powder supplement, not a whole-food ingredient)
+    # as Psyllium (SupplementPowder, see scripts/add_supplement_powder_
+    # category.py), just fruit-derived rather than seed-derived. Found
+    # 2026-07-29 while auditing Fruit for non-whole-food products.
+    ("Fruit", "Baobab powder"): "SupplementPowder",
     ("Veg", "Acorn stew (Apache)"): "Mixed",
     ("Veg", "Cream of mushroom soup instant powder"): "Mixed",
     ("Veg", "Cream of mushroom soup, made from instant powder and water"): "Mixed",
@@ -106,11 +116,155 @@ CATEGORY_OVERRIDES = {
     # under Legume while every parallel entry from every other source sits
     # in Veg. Keyed on the post-rename name (see rename_sprout below,
     # applied earlier in the pipeline than this lookup).
-    ("Legume", "Lentil Sprouts (Microgreens)"): "Veg",
-    ("Legume", "Mung Bean Sprouts (Microgreens)"): "Veg",
-    ("Legume", "Soya Bean Sprouts (Microgreens)"): "Veg",
-    ("Legume", "Bean Sprouts (Microgreens)"): "Veg",
-    ("Legume", "Lucerne/Alfalfa Sprouts (Microgreens)"): "Veg",
+    ("Legume", "Lentil Sprouts"): "Veg",
+    ("Legume", "Mung Bean Sprouts"): "Veg",
+    ("Legume", "Soya Bean Sprouts"): "Veg",
+    ("Legume", "Bean Sprouts"): "Veg",
+    ("Legume", "Lucerne/Alfalfa Sprouts"): "Veg",
+
+    # Coconut WATER (the liquid found inside a coconut, sold/drunk as its
+    # own beverage -- e.g. "Vita Coco") sitting in NutSeed/Fruit alongside
+    # the coconut FLESH, instead of Bev where the identical product already
+    # correctly lives for other sources (Canada_CNF's "Beverage, coconut
+    # water, unsweetened, ready-to-drink", Germany_BLS's "Coconut water
+    # (liquid from coconuts)", USDA's "Beverages, Coconut water,
+    # ready-to-drink, unsweetened" are all already Bev) -- the same
+    # different-product-than-the-whole-food problem as fruit/veg juice,
+    # confirmed by that direct cross-source inconsistency rather than
+    # guessed at. These three have base_names that don't collide with any
+    # other food, so a plain (category, base_name) override is enough; the
+    # two Australia_AFCD rows below (where the liquid shares an identical
+    # base_name with the coconut flesh) need the separate full-name-keyed
+    # NAME_CATEGORY_OVERRIDES instead -- see that dict.
+    ("NutSeed", "Nuts, coconut water (liquid from coconut)"): "Bev",       # Canada_CNF
+    ("NutSeed", "Nuts, coconut water (liquid from coconuts)"): "Bev",      # USDA
+    ("Fruit", "Coconut, coconut water"): "Bev",                            # Japan_MEXT
+    # A third Australia_AFCD coconut-water row missed by the NAME_CATEGORY_
+    # OVERRIDES pair above -- "Water, coconut, commercial" doesn't collide
+    # with the coconut-flesh base_name (its own short_name is already
+    # distinct: "Water, coconut"), so a plain (category, base_name) override
+    # is enough here, same as the other three rows in this dict. Keyed on
+    # the post-natural_name_reorder form ("Coconut Water") since that pass
+    # runs before this lookup. Found while spot-checking the 2026-07-29
+    # rebuild for stray coconut-water miscategorizations after the reorder
+    # pass changed this row's base_name from "Water, coconut".
+    ("NutSeed", "Coconut Water"): "Bev",                                   # Australia_AFCD
+}
+
+# A tiny number of foods whose base_name collides with a completely
+# different product because the source's own short_name field doesn't
+# capture the real distinction -- found while investigating the juice
+# reclassification below. Australia_AFCD's coconut rows are the case in
+# point: "Coconut, fresh, mature fruit, flesh" (the solid meat) and
+# "Coconut, fresh, mature, water or juice" (coconut water, a real
+# beverage -- the same product already correctly filed under Bev for
+# every other source in this database) both curate down to the identical
+# base_name "Coconut, mature" today, because Australia_AFCD's short_name
+# for both is just "Coconut, mature". A (category, base_name) override
+# can't disambiguate two rows that already share the same base_name, so
+# this is keyed on the full, still-unique `name` field instead, and
+# overrides both the category and the base_name (giving the water/juice
+# variant its own distinct identity rather than leaving it merged into
+# the flesh's).
+NAME_CATEGORY_OVERRIDES = {
+    "Coconut, fresh, mature, water or juice": ("Bev", "Coconut water"),
+    "Coconut, fresh, young or immature, water or juice": ("Bev", "Coconut water (young/immature)"),
+
+    # Same collision, found while auditing every other Japan_MEXT row that
+    # shares a base_name with "Carrot, regular (European type)" -- this
+    # source's short_name for canned carrot JUICE is identical to its
+    # short_name for the plain raw/boiled/frozen root, so the juice rule in
+    # reclassify_category() above never sees the word "juice" for this row
+    # at all. Every other source in this database already has "Carrot
+    # juice" as its own distinct, correctly-Bev food (Germany_BLS,
+    # Canada_CNF, USDA all show up under Bev already after this fix), so
+    # this is the same real product filed under the wrong identity, not a
+    # new judgment call.
+    "Carrot, regular (European type), juice, canned": ("Bev", "Carrot juice"),
+
+    # Japan_MEXT's "Tomatoes, canned products" family: "whole, without
+    # salt" (the actual canned tomato pieces) sits alongside four juice
+    # variants that all collapse to the same "Tomatoes" base_name their
+    # short_name shares with the whole-tomato row. "juice, with/without
+    # salt" is plain canned tomato juice; "tomato-based vegetable juice,
+    # with/without salt" is the V8-style mixed-vegetable-and-tomato juice
+    # drink (Japan_MEXT tabulates it as its own distinct sub-item, not the
+    # same product under a different name) -- both are real beverages, not
+    # the whole canned tomato they're currently indistinguishable from.
+    "Tomatoes, canned products, juice, with salt": ("Bev", "Tomato juice with salt"),
+    "Tomatoes, canned products, juice, without salt": ("Bev", "Tomato juice"),
+    "Tomatoes, canned products, tomato-based vegetable juice, with salt": ("Bev", "Tomato-based vegetable juice with salt"),
+    "Tomatoes, canned products, tomato-based vegetable juice, without salt": ("Bev", "Tomato-based vegetable juice"),
+
+    # Japan_MEXT's own short_name for every "Oranges, Valencia" row --
+    # including the whole-fruit "juice sacs, raw" entry (the segments,
+    # eaten raw) -- is uniformly just "Oranges, Valencia" with no further
+    # qualifier, unlike every other Japan_MEXT "X, N% fruit juice beverage"
+    # food (e.g. "Apples, 30 % fruit juice beverage" keeps its full,
+    # distinguishing short_name and was already correctly picked up by the
+    # ordinary base_name juice rule above). Confirmed by checking every
+    # sibling row: these four are genuine bottled/reconstituted juice
+    # products, silently sharing an identity with the whole raw fruit
+    # because of that one source-side short_name gap.
+    "Oranges, Valencia, 30 % fruit juice beverage": ("Bev", "Orange juice beverage, Valencia (30%)"),
+    "Oranges, Valencia, 50 % fruit juice beverage": ("Bev", "Orange juice beverage, Valencia (50%)"),
+    "Oranges, Valencia, reconstituted fruit juice ": ("Bev", "Orange juice, Valencia (reconstituted)"),
+    "Oranges, Valencia, straight fruit juice": ("Bev", "Orange juice, Valencia (straight)"),
+
+    # USDA's own "Short Display Name" column collapses four genuinely
+    # different fluid-dairy products -- light/coffee/table cream (~18-20%
+    # fat), light whipping cream (~30-36%), heavy whipping cream (~36-40%),
+    # and half-and-half (~10-18%) -- down to the identical short_name
+    # "Cream, fluid", losing the real fat-content distinction a Hashimoto's-
+    # focused app specifically cares about. Found while researching a
+    # "heavy cream" search alias and confirmed by reading the full, still-
+    # unique `name` field for each row (not guessed): none of these four are
+    # prep-state variants of one food the way "Beef, raw"/"Beef, cooked"
+    # are, so this is a genuine identity collision like the coconut/juice
+    # ones above, not a judgment call. Renamed to match the equivalent
+    # product's own name in another source where one already exists
+    # (Canada_CNF's "Cream, table (coffee), 18% M.F." -> "Table Cream
+    # (Coffee)"; USDA's own other half-and-half rows -> "Cream, half and
+    # half") rather than inventing a fourth naming scheme.
+    "Cream, fluid, light (coffee cream or table cream)": ("Dairy", "Table Cream (Coffee)"),
+    "Cream, fluid, light whipping": ("Dairy", "Light Whipping Cream"),
+    "Cream, fluid, heavy whipping": ("Dairy", "Heavy Whipping Cream"),
+    "Cream, fluid, half and half": ("Dairy", "Cream, half and half"),
+
+    # Same "Short Display Name" collapse bug as fluid cream above, found
+    # 2026-07-29 while checking a user-reported guava naming question:
+    # USDA's and Canada_CNF's own short_name for "Guava, strawberry, raw" is
+    # already just "Guava"/"Guavas" -- dropping "strawberry" entirely and
+    # silently merging strawberry guava (Psidium cattleyanum -- a smaller,
+    # tart, genuinely different fruit) into the same identity as plain
+    # "Guava" (Germany_BLS's own truly-unspecified-variety row, and
+    # "Common Guava"/"Common Guavas" -- Psidium guajava, a different
+    # species). Confirmed by reading the full `name` field, which still
+    # says "strawberry" even though short_name/base_name already lost it.
+    "Guava, strawberry, raw": ("Fruit", "Strawberry Guava"),
+    "Guavas, strawberry, raw": ("Fruit", "Strawberry Guava"),
+}
+
+# Citrus "juice sacs" are the anatomical juice-filled vesicles that make up
+# a citrus segment's flesh -- i.e. the ordinary way citrus is eaten (with a
+# spoon or by hand), not a poured beverage. Most Japan_MEXT "juice sacs"
+# rows already drop the phrase entirely from their own short_name (e.g.
+# "Citrus, "Harumi", juice sacs, raw" -> short_name "Citrus, "Harumi""), so
+# they never reach the juice check below in the first place. A handful of
+# others keep "juice sacs" as part of their own short_name/base_name and
+# need to be hand-excluded so the juice rule doesn't wrongly treat them as
+# a beverage. "Satsuma mandarins, juice with juice sacs" is the one
+# genuinely ambiguous case (it could plausibly mean "juice, with pulp" --
+# a real drinkable product) -- included here anyway as the conservative
+# choice: staying in Fruit risks nothing (it's still a real citrus food
+# either way), while a wrong move to Bev would misfile an actual
+# whole-fruit-adjacent food as a beverage.
+JUICE_SAC_EXCLUSIONS = {
+    "Oroblanco, juice sacs",
+    "Ponkan mandarins, juice sacs",
+    "Pummelo, juice sacs",
+    "Satsuma mandarins, juice sacs",
+    "Satsuma mandarins, juice with juice sacs",
 }
 
 # The rest of the dataset already names most bean varieties type-first
@@ -145,32 +299,50 @@ def rename_bean_type_first(base_name):
     return f"{_titleize_first_letters(type_part)} {bean_word}"
 
 
-# Sprouted seeds/beans/legumes eaten as fresh shoots -- a special vegetable
-# sub-category (microgreens), but a vegetable nonetheless, so these stay in
-# Veg and are just tagged "(Microgreens)" rather than moved anywhere.
-# Normalizes the mix of "X seeds, sprouted" / "Sprout, X" / "Bean sprouts, X
-# sprouts" source phrasings into a consistent "X Sprouts (Microgreens)"
-# naming, hand-verified so real unrelated vegetables that happen to contain
-# "sprout" (Brussels sprouts is a totally different plant, not a sprouted
-# seed) are never touched.
+# Sprouted seeds/beans/legumes eaten as fresh shoots. Normalizes the mix of
+# "X seeds, sprouted" / "Sprout, X" / "Bean sprouts, X sprouts" source
+# phrasings into a consistent "X Sprouts" naming, hand-verified so real
+# unrelated vegetables that happen to contain "sprout" (Brussels sprouts is
+# a totally different plant, not a sprouted seed) are never touched.
+#
+# 2026-07-31: these move OUT of Veg into their own top-level "Sprouts"
+# category (see SPROUT_BASE_NAMES / reclassify_category below), and the
+# "(Microgreens)" suffix these names used to carry was dropped. Two separate
+# reasons, both real:
+#   1. The suffix was simply wrong. Every one of these 73 rows is a SPROUT
+#      (seed germinated in water, no soil/light, harvested 2-7 days, eaten
+#      whole including seed hull and root), not a microgreen (sown in soil
+#      under light, harvested 7-21 days, cut above the soil line so only
+#      stem and leaves are eaten). The two are routinely conflated in
+#      casual use but are genuinely different foods. This database contains
+#      zero true microgreens, so nothing is left behind by the rename.
+#   2. They earn their own category rather than sitting inside Veg because
+#      they play a different role on the plate: a raw garnish/booster
+#      scattered on top, not the fiber-and-bulk baseline mature vegetables
+#      provide. Filing them alongside mature vegetables invites treating a
+#      handful of sprouts as a vegetable serving, which it isn't.
+# Raw sprouts also carry a real, separately-documented food-safety profile
+# (warm/wet/dark growing conditions, whole-seed consumption) that mature
+# vegetables don't -- deliberately NOT asserted anywhere in the app yet,
+# pending a proper cited research pass, same discipline as D1-D6.
 SPROUT_RENAMES = {
-    "Alfalfa seeds, sprouted": "Alfalfa Sprouts (Microgreens)",
-    "Sprout, alfalfa": "Alfalfa Sprouts (Microgreens)",
-    "Bean sprouts, alfalfa sprouts": "Alfalfa Sprouts (Microgreens)",
-    "Lucerne/alfalfa sprouts": "Lucerne/Alfalfa Sprouts (Microgreens)",
-    "Broccoli, sprouts": "Broccoli Sprouts (Microgreens)",
-    "Radish seeds, sprouted": "Radish Sprouts (Microgreens)",
-    "Lentils, sprouted": "Lentil Sprouts (Microgreens)",
-    "Lentils sprouted": "Lentil Sprouts (Microgreens)",
-    "Peas, sprouts": "Pea Sprouts (Microgreens)",
-    "Bean sprouts, black gram sprouts": "Black Gram Sprouts (Microgreens)",
-    "Bean sprouts, mung bean sprouts": "Mung Bean Sprouts (Microgreens)",
-    "Bean sprouts, soybean sprouts": "Soybean Sprouts (Microgreens)",
-    "Beansprouts, mung": "Mung Bean Sprouts (Microgreens)",
-    "Mung bean sprouts": "Mung Bean Sprouts (Microgreens)",
-    "Soya bean sprouts": "Soya Bean Sprouts (Microgreens)",
-    "Sprout, bean": "Bean Sprouts (Microgreens)",
-    "Water pepper sprouts": "Water Pepper Sprouts (Microgreens)",
+    "Alfalfa seeds, sprouted": "Alfalfa Sprouts",
+    "Sprout, alfalfa": "Alfalfa Sprouts",
+    "Bean sprouts, alfalfa sprouts": "Alfalfa Sprouts",
+    "Lucerne/alfalfa sprouts": "Lucerne/Alfalfa Sprouts",
+    "Broccoli, sprouts": "Broccoli Sprouts",
+    "Radish seeds, sprouted": "Radish Sprouts",
+    "Lentils, sprouted": "Lentil Sprouts",
+    "Lentils sprouted": "Lentil Sprouts",
+    "Peas, sprouts": "Pea Sprouts",
+    "Bean sprouts, black gram sprouts": "Black Gram Sprouts",
+    "Bean sprouts, mung bean sprouts": "Mung Bean Sprouts",
+    "Bean sprouts, soybean sprouts": "Soybean Sprouts",
+    "Beansprouts, mung": "Mung Bean Sprouts",
+    "Mung bean sprouts": "Mung Bean Sprouts",
+    "Soya bean sprouts": "Soya Bean Sprouts",
+    "Sprout, bean": "Bean Sprouts",
+    "Water pepper sprouts": "Water Pepper Sprouts",
 }
 
 # A handful of sprouted foods share their base_name with that same food's
@@ -185,13 +357,13 @@ SPROUT_RENAMES = {
 # genuinely different fresh/immature form like immature pinto beans) is
 # untouched.
 SPROUTED_VARIANT_SPLITS = {
-    "Peas, mature seeds": "Pea Sprouts (Microgreens)",
-    "Mung beans, mature seeds": "Mung Bean Sprouts (Microgreens)",
-    "Soybeans, mature seeds": "Soybean Sprouts (Microgreens)",
-    "Mung Beans": "Mung Bean Sprouts (Microgreens)",
-    "Kidney Beans": "Kidney Bean Sprouts (Microgreens)",
-    "Navy Beans": "Navy Bean Sprouts (Microgreens)",
-    "Pinto Beans": "Pinto Bean Sprouts (Microgreens)",
+    "Peas, mature seeds": "Pea Sprouts",
+    "Mung beans, mature seeds": "Mung Bean Sprouts",
+    "Soybeans, mature seeds": "Soybean Sprouts",
+    "Mung Beans": "Mung Bean Sprouts",
+    "Kidney Beans": "Kidney Bean Sprouts",
+    "Navy Beans": "Navy Bean Sprouts",
+    "Pinto Beans": "Pinto Bean Sprouts",
 }
 
 
@@ -200,6 +372,309 @@ def rename_sprout(base_name, full_name):
     if split_target and full_name and "sprouted" in full_name.lower():
         return split_target
     return SPROUT_RENAMES.get(base_name, base_name)
+
+
+# Every base_name rename_sprout() can possibly produce -- i.e. exactly the
+# set of foods that belong in the "Sprouts" category, derived from the two
+# hand-verified dicts above rather than pattern-matched on the word
+# "sprout". A suffix/substring rule would be actively wrong here: "Brussels
+# sprout" is a completely different plant (a mature brassica, not a
+# germinated seed) and must stay in Veg.
+SPROUT_BASE_NAMES = set(SPROUT_RENAMES.values()) | set(SPROUTED_VARIANT_SPLITS.values())
+
+
+# Plain-language alias fixes -- base_name is technically correct as-is but
+# doesn't include the common household term someone would actually search
+# for. Applied as a durable rename here (rather than a one-off hand-patch
+# directly on assets/data/foods_reference.db) so it survives every future
+# rebuild from the source workbook. "Snap Beans" is the real USDA/Vegetables
+# name for what most people call "green beans"; confirmed on-device
+# (2026-07-27) that searching "green bean" against the shipped database
+# returns nothing without this alias.
+#
+# The block below (2026-07-29) is a scoped Fruit-only pass fixing a
+# different, real duplicate-listing bug: the same whole food often appears
+# TWICE under two different base_name values purely because different
+# national sources spell it differently -- USDA/Japan_MEXT tend to write
+# things plural ("Apples", "Blueberries"), while Canada_CNF/Germany_BLS/
+# Australia_AFCD tend to write the identical real food singular ("Apple",
+# "Blueberry"). Every entry below was hand-verified by reading both sides'
+# full `name` field (and scientific_classification where populated) to
+# confirm they're the same real food, not two different foods that happen
+# to look similar -- this is NOT a blind "strip the trailing s" transform.
+# Deliberately NOT applied to mass-plural-only nouns with no natural
+# singular (e.g. "Oats", "Grits") -- those never had a colliding singular
+# base_name in the data in the first place, so they never became candidates
+# here at all. See scripts/fruit_pluralization_REPORT.md for the full
+# methodology, the complete verified list with justification, everything
+# considered and deliberately left alone, and other collision bugs flagged
+# for a human reviewer rather than fixed here.
+BASE_NAME_ALIAS_RENAMES = {
+    "Snap Beans": "Snap Beans (Green Beans)",
+
+    # --- Fruit: plain plural -> plain singular, same real food/species ---
+    # (verified via matching scientific_classification where populated --
+    # e.g. Malus domestica for every Apple/Apples row -- and by reading the
+    # full `name` field on both sides otherwise.)
+    "Apples": "Apple",
+    "Apricots": "Apricot",
+    "Avocados": "Avocado",
+    "Bananas": "Banana",
+    "Blackberries": "Blackberry",
+    "Blueberries": "Blueberry",
+    "Boysenberries": "Boysenberry",
+    "Chokecherries": "Chokecherry",
+    "Clementines": "Clementine",
+    "Cloudberries": "Cloudberry",
+    "Crabapples": "Crabapple",
+    "Cranberries": "Cranberry",
+    "Dates": "Date",
+    "Elderberries": "Elderberry",
+    "Figs": "Fig",
+    "Goji berries": "Goji berry",
+    "Gooseberries": "Gooseberry",
+    "Grapes": "Grape",
+    "Guavas": "Guava",
+    "Kumquats": "Kumquat",
+    "Lemons": "Lemon",
+    "Limes": "Lime",
+    "Loganberries": "Loganberry",
+    "Longans": "Longan",
+    "Loquats": "Loquat",
+    "Lychees": "Lychee",
+    "Mangoes": "Mango",
+    "Mangos": "Mango",
+    "Mulberries": "Mulberry",
+    "Nectarines": "Nectarine",
+    "Oheloberries": "Oheloberry",
+    "Olives": "Olive",
+    "Oranges": "Orange",
+    "Papayas": "Papaya",
+    "Peaches": "Peach",
+    "Pears": "Pear",
+    "Persimmons": "Persimmon",
+    "Plums": "Plum",
+    "Pomegranates": "Pomegranate",
+    "Prickly pears": "Prickly pear",
+    "Quinces": "Quince",
+    "Raspberries": "Raspberry",
+    "Rose-apples": "Rose-apple",
+    "Salmonberries": "Salmonberry",
+    "Satsuma mandarins": "Satsuma mandarin",
+    "Strawberries": "Strawberry",
+    "Tamarinds": "Tamarind",
+
+    # --- Fruit: plural + a trailing comma-qualifier that matches exactly
+    # on both sides (same variety/prep/state word after the comma) ---
+    "Apples, dehydrated (low moisture)": "Apple, dehydrated (low moisture)",
+    "Apricots, dehydrated (low moisture)": "Apricot, dehydrated (low moisture)",
+    "Blackberries, wild": "Blackberry, wild",
+    "Blueberries, wild": "Blueberry, wild",
+    "Cherries, sour": "Cherry, sour",
+    "Cherries, sweet": "Cherry, sweet",
+    "Currants, european black": "Currant, european black",
+    "Currants, red and white": "Currant, red and white",
+    "Currants, zante": "Currant, zante",
+    "Dates, medjool": "Date, medjool",
+    # Truncated source short_name missing its closing paren on both sides
+    # (a pre-existing upstream data-quality quirk, same pattern already
+    # documented elsewhere in this file for other rows -- not something to
+    # fix here, just preserved identically on both sides of this merge).
+    "Grapes, red or green (European type": "Grape, red or green (European type",
+    "Guavas, common": "Guava, common",
+    "Melons, cantaloupe": "Melon, cantaloupe",
+    "Melons, casaba": "Melon, casaba",
+    "Melons, honeydew": "Melon, honeydew",
+    "Olives, ripe": "Olive, ripe",
+    "Oranges, navel": "Orange, navel",
+    "Peaches, yellow": "Peach, yellow",
+    "Pears, asian": "Pear, asian",
+    "Persimmons, native": "Persimmon, native",
+    "Plantains, green": "Plantain, green",
+    "Raisins, seeded": "Raisin, seeded",
+
+    # --- Fruit: hand-caught special cases the general plural-stripping
+    # patterns above don't reach on their own (a differing hyphen/spacing,
+    # or an alternate-name qualifier phrased slightly differently), each
+    # individually confirmed same species via scientific_classification. ---
+    # USDA's own hyphenated "(low-moisture)" spelling of the same product
+    # Canada_CNF spells "(low moisture)" (a space) -- same food, same
+    # dehydration process, just a source-side punctuation difference.
+    "Apricots, dehydrated (low-moisture)": "Apricot, dehydrated (low moisture)",
+    "Peaches, dehydrated (low-moisture)": "Peach, dehydrated (low moisture)",
+    "Prunes, dehydrated (low-moisture)": "Prune, dehydrated (low moisture)",
+    # Sugar-apple = sweetsop, both real common names for the same species
+    # (Annona squamosa) -- USDA's own base_name keeps the "(sweetsop)"
+    # synonym as well as the plural "Sugar-apples"; merged directly into
+    # Canada_CNF's existing plain singular "Sugar-apple" identity rather
+    # than inventing a third, differently-punctuated bucket.
+    "Sugar-apples, (sweetsop)": "Sugar-apple",
+    # Tangerine = mandarin orange (Citrus reticulata); USDA's own
+    # parenthetical says "(mandarin oranges)" where Canada_CNF's equivalent
+    # singular entry already says "(mandarin)" -- same alternate-name
+    # annotation, just worded slightly differently, so merged into
+    # Canada_CNF's existing phrasing rather than the unannotated bare
+    # "Tangerine" bucket.
+    "Tangerines, (mandarin oranges)": "Tangerine, (mandarin)",
+
+    # --- Bev: intra-source (both USDA) inconsistency, not cross-source --
+    # bare "Alcoholic beverages, X" vs the rest of USDA's own "Alcoholic
+    # beverage, X" rows, same real category (beer/wine) split across a
+    # stray pluralized identity. See scripts/bev_alcohol_mixed_baked_
+    # supplement_cleanup_REPORT.md for full verification.
+    "Alcoholic beverages, beer": "Alcoholic beverage, beer",
+    "Alcoholic beverages, wine": "Alcoholic beverage, wine",
+
+    # --- Mixed ---
+    "Lamb chops": "Lamb chop",
+    "Meatballs": "Meatball",
+    "Pizza rolls": "Pizza roll",
+    "Egg rolls, chicken": "Egg roll, chicken",
+    "Egg rolls, pork": "Egg roll, pork",
+    "Egg rolls, vegetable": "Egg roll, vegetable",
+
+    # --- Baked ---
+    "Taco shells": "Taco shell",
+    "Bagels, cinnamon-raisin": "Bagel, cinnamon-raisin",
+    "Bagels, egg": "Bagel, egg",
+    "Bagels, oat bran": "Bagel, oat bran",
+    "Crackers, cheese": "Cracker, cheese",
+    "Crackers, crispbread": "Cracker, crispbread",
+    "Crackers, matzo": "Cracker, matzo",
+    "Crackers, melba toast": "Cracker, melba toast",
+    "Crackers, milk": "Cracker, milk",
+    "Crackers, multigrain": "Cracker, multigrain",
+    "Crackers, rusk toast": "Cracker, rusk toast",
+    "Crackers, rye": "Cracker, rye",
+    "Crackers, standard snack-type": "Cracker, standard snack-type",
+    "Crackers, wheat": "Cracker, wheat",
+    "Crackers, whole-wheat": "Cracker, whole-wheat",
+    "Croissants, apple": "Croissant, apple",
+    "Croissants, butter": "Croissant, butter",
+    "Croissants, cheese": "Croissant, cheese",
+    "Leavening agents, baking powder": "Leavening agent, baking powder",
+    "Leavening agents, cream of tartar": "Leavening agent, cream of tartar",
+    "Leavening agents, yeast": "Leavening agent, yeast",
+    "Muffins, blueberry": "Muffin, blueberry",
+    "Muffins, corn": "Muffin, corn",
+    "Muffins, plain": "Muffin, plain",
+    "Muffins, wheat bran": "Muffin, wheat bran",
+    "Pancakes, blueberry": "Pancake, blueberry",
+    "Pancakes, buckwheat": "Pancake, buckwheat",
+    "Pancakes, buttermilk": "Pancake, buttermilk",
+    "Pancakes, plain": "Pancake, plain",
+    "Pancakes, whole wheat": "Pancake, whole wheat",
+    "Pancakes, whole-wheat": "Pancake, whole-wheat",
+    "Popovers, dry mix": "Popover, dry mix",
+    "Rolls, dinner": "Roll, dinner",
+    "Rolls, french": "Roll, french",
+    "Rolls, pumpernickel": "Roll, pumpernickel",
+    "Sweet rolls, cheese": "Sweet roll, cheese",
+    "Waffles, buttermilk": "Waffle, buttermilk",
+    "Waffles, chocolate chip": "Waffle, chocolate chip",
+    "Waffles, plain": "Waffle, plain",
+    "Waffles, whole wheat": "Waffle, whole wheat",
+    # Hand-caught (didn't fall out of the mechanical suffix rules -- found
+    # by reading the full base_name list and checking near-miss wording):
+    "Biscuits, plain or buttermilk": "Biscuit, plain/buttermilk",
+    "Muffins, English": "Muffin, English style",
+    "Rolls, hard (includes kaiser)": "Roll (kaiser), hard",
+    "Tortillas, ready-to-bake or -fry": "Tortilla, ready-to-bake / fry",
+    "Wonton wrappers (includes egg roll wrappers)": "Wonton wrapper (egg roll wrapper)",
+    "English muffins, plain": "English muffin, plain (also sourdough)",
+
+    # --- SupplementPowder: no plural/singular candidates found. ---
+
+    # --- Veg: plain plural -> plain singular, whole base_name, no comma
+    # clause (verified via matching scientific_classification where
+    # populated -- e.g. Daucus carota subsp. sativus for every Carrot/
+    # Carrots row -- and by reading the full `name` field on both sides
+    # otherwise). ---
+    "Artichokes": "Artichoke",
+    "Bamboo shoots": "Bamboo shoot",
+    "Brussels sprouts": "Brussels sprout",
+    "Carrots": "Carrot",
+    "Onions": "Onion",
+    "Parsnips": "Parsnip",
+    "Potato puffs": "Potato puff",
+    "Potatoes": "Potato",
+    "Radishes": "Radish",
+    "Rutabagas": "Rutabaga",
+    "Sesbania flowers": "Sesbania flower",
+    "Shallots": "Shallot",
+    "Tomatillos": "Tomatillo",
+    "Tomatoes": "Tomato",
+    "Turnips": "Turnip",
+
+    # --- Veg: plural + a trailing comma-qualifier that matches exactly on
+    # both sides (same variety/color/prep word after the comma). ---
+    "Carrots, baby": "Carrot, baby",
+    "Onions, dehydrated flakes": "Onion, dehydrated flakes",
+    "Onions, sweet": "Onion, sweet",
+    # Case-only difference ("welsh" vs "Welsh") -- same species (Allium
+    # fistulosum, confirmed on the USDA plural row); merged into the
+    # existing singular entry's own capitalization rather than renaming it.
+    "Onions, welsh": "Onion, Welsh",
+    "Onions, yellow": "Onion, yellow",
+    "Onions, young green": "Onion, young green",
+    "Peppers, ancho": "Pepper, ancho",
+    "Peppers, chili": "Pepper, chili",
+    "Peppers, hot chili": "Pepper, hot chili",
+    # Case-only difference ("hungarian" vs "Hungarian"), Capsicum annuum
+    # confirmed both sides.
+    "Peppers, hungarian": "Pepper, Hungarian",
+    "Peppers, jalapeno": "Pepper, jalapeno",
+    "Peppers, pasilla": "Pepper, pasilla",
+    "Peppers, serrano": "Pepper, serrano",
+    "Peppers, sweet": "Pepper, sweet",
+    "Potatoes, flesh and skin": "Potato, flesh and skin",
+    "Potatoes, new": "Potato, new",
+    "Potatoes, red": "Potato, red",
+    # Case-only difference ("russet" vs "Russet"), Solanum tuberosum
+    # confirmed on the USDA plural row. USDA itself is internally
+    # inconsistent about which case it uses across its own two rows
+    # ("Potatoes, russet, ..., raw" vs "Potatoes, Russet, ..., baked"), so
+    # both source casings need their own alias entry -- a plain dict lookup
+    # is case-sensitive even though the foods table's base_name column
+    # itself is declared COLLATE NOCASE for SQL comparisons.
+    "Potatoes, russet": "Potato, Russet",
+    "Potatoes, Russet": "Potato, Russet",
+    "Potatoes, white": "Potato, white",
+    "Radishes, hawaiian style": "Radish, hawaiian style",
+    "Radishes, white icicle": "Radish, white icicle",
+    "Sweet potatoes, tuberous root": "Sweet potato, tuberous root",
+    "Tomatoes, crushed": "Tomato, crushed",
+    "Tomatoes, green": "Tomato, green",
+    "Tomatoes, orange": "Tomato, orange",
+    "Tomatoes, red": "Tomato, red",
+    "Tomatoes, yellow": "Tomato, yellow",
+    # Same species both sides (Psophocarpus tetragonolobus) -- USDA's own
+    # third row ("with salt") happens to be singular "Winged bean" where its
+    # sibling two rows are plural "Winged beans", a same-source internal
+    # inconsistency rather than a cross-source one.
+    "Winged beans, immature seeds": "Winged bean, immature seeds",
+
+    # --- Veg: hand-caught special cases the general plural-stripping
+    # patterns above don't reach on their own (a differing capitalization
+    # stacked on top of the plural, or the pre-existing bean-type-first
+    # renaming producing a plural form that collides with an already-
+    # singular USDA entry). ---
+    # Capitalization difference only ("Potato" vs "potato"), same frozen
+    # potato-puff product.
+    "Sweet Potato puffs": "Sweet potato puff",
+    # Capitalization difference only ("Potatoes" vs "potato"), Ipomoea
+    # batatas confirmed on the USDA plural row.
+    "Sweet Potatoes": "Sweet potato",
+    # rename_bean_type_first() above already turns Canada_CNF's "Beans,
+    # yardlong, (asparagus bean or cowpea)" into "Yardlong Beans" (plural,
+    # title-cased) -- merged into USDA's own pre-existing singular
+    # "Yardlong bean" (Vigna unguiculata subsp. sesquipedalis).
+    "Yardlong Beans": "Yardlong bean",
+}
+
+
+def apply_base_name_alias(base_name):
+    return BASE_NAME_ALIAS_RENAMES.get(base_name, base_name)
 
 
 # --- Raw nutrient import (Phase 1: the "standard panel") -------------------
@@ -1382,6 +1857,14 @@ def reclassify_category(category_code, base_name):
     if override:
         return override
 
+    # Sprouts get their own top-level category rather than sitting inside
+    # Veg -- see SPROUT_RENAMES' own comment for the full reasoning. Checked
+    # against the exact hand-verified set rename_sprout() produces, never a
+    # "contains the word sprout" rule (which would wrongly capture Brussels
+    # sprout, a mature brassica).
+    if base_name in SPROUT_BASE_NAMES:
+        return "Sprouts"
+
     # Refined flours/starches (potato flour, cornstarch, arrowroot flour...)
     # are processed products, not fresh vegetables -- checked against all 28
     # real Veg rows containing "flour"/"starch" before writing this: none of
@@ -1396,6 +1879,69 @@ def reclassify_category(category_code, base_name):
         if "flour" in lowered or "starch" in lowered:
             return "Grain"
 
+    # Fruit/vegetable JUICES are a fundamentally different product from the
+    # whole fruit/vegetable they're made from -- no fiber, concentrated
+    # sugar, drunk rather than eaten -- so they belong in Bev, which already
+    # has a "Juice" subcategory bucket waiting for exactly this (see
+    # SUBCATEGORY_RULES below). Scoped to Fruit/Veg only: Meat's own "in its
+    # own juice"/"with natural juices" (cooking liquid, a completely
+    # different sense of the word) and Mixed's prepared dishes that merely
+    # mention lemon/orange juice as one ingredient ("Mayonnaise with lemon
+    # juice", "Artichokes boiled (with lemon juice and salt)") were both
+    # hand-checked row by row (25 Meat rows, 11 Mixed rows) and contain zero
+    # genuine juice-as-product cases -- widening this rule into Meat/Mixed
+    # would only add false-positive risk for no real benefit, so it isn't.
+    #
+    # The remaining false-positive risk within Fruit/Veg itself -- a fruit
+    # or vegetable CANNED IN juice as its packing liquid ("Apricot in
+    # juice", "Tomato, whole, canned in tomato juice") -- is handled
+    # upstream, not here: "in juice" is now in PREP_TERMS (see above), so a
+    # canned-in-juice food's base_name is already just the plain
+    # fruit/vegetable name (no "juice" substring left at all) by the time
+    # it reaches this function, in every one of the 7 sources. The one
+    # remaining exception is citrus "juice sacs" (Japan_MEXT), hand-excluded
+    # via JUICE_SAC_EXCLUSIONS above.
+    if category_code in ("Fruit", "Veg") and base_name not in JUICE_SAC_EXCLUSIONS:
+        if re.search(r"\bjuices?\b", base_name, re.IGNORECASE):
+            return "Bev"
+
+    # Fruit NECTAR (a thin, often-diluted fruit puree drink -- apple,
+    # apricot, mango, guava, etc.) is the same "this is a beverage, not the
+    # whole fruit" case as juice above, just a different word for it --
+    # found while auditing Fruit for non-whole-food products (2026-07-29).
+    # \bnectar\b (not a bare "nectar" substring) specifically so this never
+    # matches "Nectarine"/"Nectarines" -- an entirely unrelated whole stone
+    # fruit that happens to share the same first six letters. Every real
+    # "nectar" row checked by hand (Apple/Apricot/Banana/Black currant/
+    # Guanabana/Guava/Mango/Mixed fruit/Orange/Papaya/Passion fruit/Peach/
+    # Pear/Sour cherry/Tamarind nectar) is a genuine drink product, zero
+    # false positives -- no exclusion list needed the way JUICE_SAC_
+    # EXCLUSIONS is for juice's own one edge case.
+    if category_code == "Fruit" and re.search(r"\bnectar\b", base_name, re.IGNORECASE):
+        return "Bev"
+
+    # Soymilk is a drunk beverage (fortified with vitamins/calcium the same
+    # way dairy/almond/rice milk is, no fiber, a milk substitute rather
+    # than a preparation of the bean itself) sitting in Legume instead of
+    # Bev -- found while auditing "milk"-named foods for the same
+    # juice-style mismatch. This is a real, demonstrable internal
+    # inconsistency, not a guess: USDA's own "Beverages, almond milk..."
+    # and "Beverages, rice milk..." rows are already correctly filed under
+    # Bev, while its ~25 SILK/Vitasoy/plain "Soymilk" rows sit in Legume.
+    # Scoped narrowly: "soymilk" (one word, no space) only ever appears in
+    # genuine drink rows (USDA's own naming convention); Japan_MEXT's two
+    # genuine soy-milk-as-beverage rows are matched by exact base_name
+    # instead, since that source always writes it as two words and two
+    # words also appears inside "Okara" (soy pulp, a solid cooking
+    # byproduct) and "Yuba" (the skin that forms on heated soy milk, a
+    # solid food eaten on its own) -- both real, distinct solid foods that
+    # must NOT move just because their own name explains what they're made
+    # from.
+    if category_code == "Legume":
+        lowered = base_name.lower()
+        if "soymilk" in lowered or base_name in ("Soybeans, soy milk", "Soybeans, soy milk based beverage"):
+            return "Bev"
+
     return category_code
 
 # Sub-category browsing bins, keyword-based, scoped per top-level category.
@@ -1403,6 +1949,22 @@ def reclassify_category(category_code, base_name):
 # scientific/nutritional classification. Extend this dict with more
 # top-level categories as they turn out to need drill-down too -- a
 # category with no entry here simply gets no sub-category step in the UI.
+#
+# Each keyword now requires a real word ending (2026-07-29) -- not
+# followed immediately by another letter -- rather than a bare substring
+# check. Found while adding Fruit's own rules below: a plain "in" substring
+# check for keyword "jam" also matched "Java-Plum (Jambolan)" and "Wax
+# jambu" (real whole fruits whose names just happen to start with those
+# three letters), which a real person would never call processed. Only the
+# TRAILING edge is checked, deliberately not the leading edge too: "sauce"
+# needs to keep matching "Applesauce" (no separator at all between "Apple"
+# and "sauce"), which a true two-sided word-boundary would break. A
+# trailing-only check fixes the "Jambolan"/"jambu" false-positive (the
+# next letter after "jam" is "b", so it correctly fails) without losing
+# "Applesauce" (nothing follows "sauce" but the end of the string, which
+# counts as a boundary either way). This also fixes the same latent risk
+# for every existing keyword here (e.g. "tea" as a bare substring would
+# also match "instead"/"steak"), not just the new Fruit ones.
 SUBCATEGORY_RULES = {
     "Bev": [
         ("Alcoholic", ["alcohol", "beer", "wine", "spirit", "liqueur", "cocktail", "whisky", "whiskey",
@@ -1425,6 +1987,67 @@ SUBCATEGORY_RULES = {
                                  "tequila", "brandy", "advocaat", "curacao"]),
         ("Cocktails & Mixed", ["cocktail", "daiquiri", "margarita", "pina colada", "sour"]),
     ],
+    # Added 2026-07-29, per an explicit user request: applesauce/jam/candied
+    # fruit reading as ordinary "Fruit" alongside actual whole apples/
+    # berries/etc. was confusing when picking a whole-food ingredient for a
+    # recipe. Deliberately narrow, matching only real manufactured/
+    # preserved products -- NOT plain dried or frozen (unsweetened) fruit,
+    # which the user explicitly confirmed should stay classified as whole
+    # food (it's still just the fruit, no added sugar or manufacturing
+    # step). Fruit NECTAR/JUICE already moves to Bev entirely (see
+    # reclassify_category above) rather than needing a subcategory here.
+    # Keyword list built from an actual query of every real Fruit
+    # base_name/name containing sauce/compote/jam/sugared/candied/syrup/
+    # preserve/jellied/cocktail against the live database, not guessed --
+    # spot-checked per row afterward (classify_subcategory runs against the
+    # full `name`, not base_name, so the same food's canned-in-syrup row
+    # and its raw/dried/water-pack row correctly land in different
+    # subcategories even though they share one base_name).
+    "Fruit": [
+        ("Processed & Preserved", [
+            "sauce", "compote", "jam", "sugared", "candied", "syrup",
+            "preserved", "preserve", "jellied", "jelly", "cocktail",
+        ]),
+    ],
+    # Added 2026-07-30, mirroring Fruit's own split. Deliberately narrow,
+    # matching only real manufactured/preserved products -- NOT plain
+    # fresh/raw/dried/frozen (unsweetened, unseasoned) vegetables, and NOT
+    # plain canned-in-water-or-brine vegetables either (canned carrots/
+    # peas/asparagus/beets stay "whole", the same treatment Fruit already
+    # gives canned-in-its-own-juice "Olives, ripe" -- curing/canning for
+    # preservation alone doesn't make a food a manufactured product).
+    # Keyword list built from an actual query of every real Veg
+    # base_name/name containing pickle/relish/sauce/ketchup/catsup/syrup/
+    # paste/concentrate/cocktail/spread/powder against the live database,
+    # not guessed. "preserve"/"preserved"/"preserving" deliberately left
+    # OUT of this list -- a plain substring check would also match "Chinese
+    # preserving melon"/"Waxgourd (Chinese preserving melon)" (real raw,
+    # whole gourd varieties whose name just describes their traditional
+    # use, not that the row itself is preserved), the same class of false
+    # positive as Fruit's "jam"/"Jambolan" bug. Every genuine preserved/
+    # brined Veg row is already caught by "pickle"/"pickled"/"pickles" or
+    # "syrup" instead, with zero loss of real coverage. See
+    # scripts/veg_cleanup_REPORT.md for the full candidate-by-candidate
+    # reasoning, including why "puree"/"brine" were tried and left out too.
+    "Veg": [
+        ("Processed & Preserved", [
+            "pickle", "pickled", "pickles", "relish", "sauce", "ketchup",
+            "catsup", "syrup", "paste", "concentr", "cocktail", "spread",
+            "ajvar", "powder",
+        ]),
+    ],
+}
+
+# Fallback subcategory label for a row that matches none of its category's
+# own keyword rules -- "Other" (the plain default below) reads fine for
+# Bev/Alcohol, where it's genuinely a small residual bucket, but would be
+# actively misleading for Fruit/Veg: almost every real row is whole/fresh
+# produce, so labeling that majority "Other" instead of naming what it
+# actually is would read backwards. Categories not listed here keep the
+# plain "Other" default.
+SUBCATEGORY_DEFAULT_LABELS = {
+    "Fruit": "Whole / Fresh Fruit",
+    "Veg": "Whole / Fresh Vegetables",
 }
 
 
@@ -1435,10 +2058,13 @@ def classify_subcategory(category_code, name):
 
     lowered = name.lower()
     for label, keywords in rules:
-        if any(keyword in lowered for keyword in keywords):
+        # Trailing-edge word check only -- see SUBCATEGORY_RULES' own
+        # comment for why a full two-sided word boundary would wrongly
+        # exclude "Applesauce" (no separator between "Apple" and "sauce").
+        if any(re.search(re.escape(keyword) + r"(?![a-z])", lowered) for keyword in keywords):
             return label
 
-    return "Other"
+    return SUBCATEGORY_DEFAULT_LABELS.get(category_code, "Other")
 
 
 # Real, unambiguous cooking-state words only -- deliberately excludes
@@ -1457,6 +2083,21 @@ PREP_TERMS = [
     "without fat (oven)",
     "in unsalted water",
     "in salted water",
+    # Packing-liquid descriptor, not a separate food -- "canned in juice" is
+    # how a fruit is packed (vs. syrup/water), not a statement that the
+    # product itself is juice. Only Germany_BLS's own short_name field still
+    # carries this phrase verbatim (e.g. "Apricot in juice", "Pear in
+    # juice") -- every other source (Australia_AFCD, Canada_CNF, UK_CoFID,
+    # USDA) already curates its own short_name down to the bare fruit name
+    # for the identical packing-liquid concept ("canned in pear juice" ->
+    # "Apricot"), confirmed by hand across all 6 Germany_BLS rows this
+    # matches plus their sibling rows in every other source. Stripping it
+    # here brings Germany_BLS's base_name in line with that same
+    # convention and, just as importantly, means these rows no longer
+    # contain the word "juice" by the time reclassify_category() below
+    # decides what's a genuine juice beverage -- so this single fix also
+    # prevents them from being swept into the Fruit->Bev juice rule.
+    "in juice",
     "deep-frozen",
     "unprepared",
     "marinated",
@@ -1983,7 +2624,23 @@ def build(xlsx_path, db_path):
                 base_name, prep_method = apply_prep_overrides(category_code, base_name, prep_method)
                 base_name = rename_bean_type_first(base_name)
                 base_name = rename_sprout(base_name, name)
+                base_name = apply_base_name_alias(base_name)
+                # General "Head, clause" -> natural English word order pass
+                # (see natural_name_reorder.py/natural_name_reorder_REPORT.md).
+                # Deliberately conservative: reorder_base_name() returns the
+                # input unchanged for anything not confidently matched, so
+                # this is safe to run unconditionally on every row.
+                base_name = reorder_base_name(base_name, source=source)["output"]
                 effective_category = reclassify_category(category_code, base_name)
+                # A tiny, hand-verified set of foods whose base_name
+                # collides with a different product entirely (see the
+                # comment on NAME_CATEGORY_OVERRIDES) -- keyed on the full
+                # `name` since base_name can't disambiguate them. Checked
+                # after the ordinary base_name-keyed reclassification so it
+                # always wins for the handful of rows it applies to.
+                name_override = NAME_CATEGORY_OVERRIDES.get(name)
+                if name_override:
+                    effective_category, base_name = name_override
                 # Classify against the full name, not short_name -- for
                 # branded/composite products short_name is often truncated
                 # to something generic (e.g. "Beverages, OCEAN SPRAY"),

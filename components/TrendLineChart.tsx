@@ -107,10 +107,10 @@ const styles = StyleSheet.create({
   container: { alignItems: 'center' },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 2 },
   labelText: { ...typography.caption, color: colors.textMuted },
+  // No border of its own, 2026-07-27 -- this component's only real caller
+  // (app/(tabs)/trends.tsx) now always wraps it in its own bordered
+  // chartCard, so a second border here would nest one box inside another.
   emptyBox: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 12,
     paddingVertical: 24,
     paddingHorizontal: 16,
     alignItems: 'center',

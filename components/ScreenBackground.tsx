@@ -1,20 +1,24 @@
 import { Image } from 'expo-image';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useState, type ReactNode } from 'react';
 import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
+import { useAnimatedProps } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, rotatedIridescentPalette } from '../constants/colors';
-import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE } from '../constants/floatingButton';
+import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../constants/colors';
+import { useFooterBandHeight } from '../constants/floatingButton';
 import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
+import { AnimatedLinearGradient } from './AnimatedLinearGradient';
 import { AnimatedSky } from './AnimatedSky';
 
-// How far above TabHub's own floating button (see constants/floatingButton.ts)
-// the wildflower background image's bottom edge stops -- a plain margin of
-// the page's own dark background, not the image, sits directly behind and
-// around the butterfly (and any secondary/tertiary corner hubs -- LensHub,
-// ScopeHub) so they stay clearly readable on a flat backdrop instead of
-// competing with a busy, detailed scene right behind them.
-const BACKGROUND_IMAGE_BUTTERFLY_GAP = 20;
+// 2026-07-26: this used to be its own local formula (image bottom edge =
+// TabHub's own button position + a 20px margin above it), back when the
+// button sat fully inside this footer band. The button now floats ABOVE
+// the band instead (see constants/floatingButton.ts's own comment for the
+// full reasoning) -- useFooterBandHeight there is the one shared source
+// for this band's own height now, so the band and the buttons floating
+// above it can't quietly drift out of sync with each other.
+export function useBackgroundBottomInset(): number {
+  return useFooterBandHeight();
+}
 
 // The two available background images -- 'field' (the default wildflower
 // scene) everywhere except Food, which uses 'produce' instead (2026-07-25,
@@ -37,6 +41,10 @@ const BACKGROUNDS = {
   reports: { source: require('../assets/backgrounds/Reports_Background.png'), contentFit: 'cover' as const },
 };
 
+// Exported so GatedTabContent.tsx can type its own `variant` prop against
+// the same set of valid values, rather than duplicating this key list.
+export type BackgroundVariant = keyof typeof BACKGROUNDS;
+
 // The shared backdrop for every tab screen's body (everything below its own
 // ScreenHeader, which stays plain colors.background and is rendered outside
 // this component). First built for Home (2026-07-25), then made a shared
@@ -58,7 +66,7 @@ export function ScreenBackground({
   sky = false,
 }: {
   children?: ReactNode;
-  variant?: keyof typeof BACKGROUNDS;
+  variant?: BackgroundVariant;
   // Home-only, opt-in (see components/AnimatedSky.tsx) -- every other
   // screen leaves this unset, so nothing changes for them at all. Only
   // 'field' (Home's own wildflower-field image) actually shows open sky;
@@ -66,13 +74,15 @@ export function ScreenBackground({
   // that would ever pass it.
   sky?: boolean;
 }) {
-  const insets = useSafeAreaInsets();
-  const bottomInset = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET + FLOATING_BUTTON_SIZE + BACKGROUND_IMAGE_BUTTERFLY_GAP;
+  const bottomInset = useBackgroundBottomInset();
   const background = BACKGROUNDS[variant];
-  // Same wall-clock-derived rotation ScreenHeader's own app-name text and
-  // divider use (see hooks/useIridescentHueRotation) -- this line shimmers
+  // Same shared Reanimated value ScreenHeader's own app-name text and
+  // divider read (see hooks/useIridescentHueRotation) -- this line shimmers
   // in lockstep with those, not on its own separate schedule.
   const hueRotation = useIridescentHueRotation();
+  const animatedProps = useAnimatedProps(() => ({
+    colors: rotatedIridescentPalette(hueRotation.value),
+  }));
   // The image's own real rendered size -- AnimatedSky needs this to know
   // where its sky band actually is and how far the tint overlay should
   // reach, and there's no way to know it in advance (varies by device),
@@ -105,8 +115,12 @@ export function ScreenBackground({
           (bottomInset, where the image ends and the flat mask begins).
           The further `- 1` is a small manual nudge down, requested after
           eye testing on-device. */}
-      <LinearGradient
-        colors={rotatedIridescentPalette(hueRotation)}
+      <AnimatedLinearGradient
+        // Static fallback so TypeScript's own required `colors` prop is
+        // satisfied -- animatedProps overrides this at the native level
+        // the instant it mounts.
+        colors={IRIDESCENT_PALETTE}
+        animatedProps={animatedProps}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={[styles.footerLine, { bottom: bottomInset - 4 - 1 }]}

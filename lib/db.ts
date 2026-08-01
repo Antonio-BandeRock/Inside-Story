@@ -324,7 +324,41 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
     ...params,
   );
 
-  return rows.map((row) => row.base_name);
+  const directNames = rows.map((row) => row.base_name);
+  if (!trimmed) {
+    return directNames;
+  }
+
+  // Bridges a genuine vocabulary gap the substring match above can't --
+  // someone typing the everyday name they know a food by ("bell pepper",
+  // "heavy cream") when the database only has a differently-worded name
+  // for the identical food ("Sweet Pepper", "Heavy Whipping Cream"). See
+  // scripts/food_alias_data.py for how each alias was verified real rather
+  // than guessed. A fresh buildScopeClause() call here (not the mutated
+  // `params` above) keeps this query's params independent of the ORDER BY/
+  // LIMIT params already appended to the first query.
+  const collapsedQuery = trimmed.replace(/\s+/g, '');
+  const aliasScope = buildScopeClause(category, subcategory, usdaOnly);
+  const aliasRows = await db.getAllAsync<{ base_name: string }>(
+    `
+      SELECT DISTINCT fa.base_name
+      FROM food_aliases fa
+      WHERE fa.food_category = ?
+        AND (fa.alias LIKE ? OR REPLACE(fa.alias, ' ', '') LIKE ?)
+        AND EXISTS (
+          SELECT 1 FROM foods
+          WHERE base_name = fa.base_name COLLATE NOCASE AND ${aliasScope.clause}
+        )
+    `,
+    category, `%${trimmed}%`, `%${collapsedQuery}%`, ...aliasScope.params,
+  );
+
+  const directSet = new Set(directNames.map((name) => name.toLowerCase()));
+  const aliasOnlyNames = aliasRows
+    .map((row) => row.base_name)
+    .filter((name) => !directSet.has(name.toLowerCase()));
+
+  return [...directNames, ...aliasOnlyNames].slice(0, limit);
 }
 
 // Real, distinct cooking states available for one chosen food name. Returns
@@ -504,11 +538,30 @@ export async function getFoodNutrients(foodId: number, source: string) {
         WHERE fn.nutrient_code NOT IN (SELECT nutrient_code FROM primary_nutrients)
         GROUP BY fn.nutrient_code
       ),
+      -- fallback_source only picks one SOURCE per nutrient, not one ROW --
+      -- the app's own category/base_name/prep_method equivalence key isn't
+      -- always one real food per source (e.g. several distinct wine
+      -- varietals all filed under "Wine, red" from the same source), so
+      -- more than one sibling row can share that chosen source for the
+      -- same nutrient. ROW_NUMBER()/rn = 1 (lowest food_id, same
+      -- deterministic tie-break resolveFoodChoice already uses elsewhere)
+      -- picks exactly one, rather than letting every matching sibling row
+      -- flow through and produce duplicate nutrient_code rows in the final
+      -- result (surfaced 2026-07-27 as a real "two children with the same
+      -- key" duplicate in the UI, not just a rendering-layer bug).
       fallback_nutrients AS (
-        SELECT fn.nutrient_code, fn.amount_per_100g, fn.source
-        FROM food_nutrients fn
-        JOIN siblings s ON s.food_id = fn.food_id AND s.source = fn.source
-        JOIN fallback_source fs ON fs.nutrient_code = fn.nutrient_code AND fs.source = fn.source
+        SELECT nutrient_code, amount_per_100g, source
+        FROM (
+          SELECT
+            fn.nutrient_code,
+            fn.amount_per_100g,
+            fn.source,
+            ROW_NUMBER() OVER (PARTITION BY fn.nutrient_code ORDER BY fn.food_id) AS rn
+          FROM food_nutrients fn
+          JOIN siblings s ON s.food_id = fn.food_id AND s.source = fn.source
+          JOIN fallback_source fs ON fs.nutrient_code = fn.nutrient_code AND fs.source = fn.source
+        )
+        WHERE rn = 1
       )
       SELECT
         n.code AS code,

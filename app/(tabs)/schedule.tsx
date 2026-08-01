@@ -1,7 +1,8 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { Alert, Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppTextInput } from '../../components/AppTextInput';
 import type { HelpSection } from '../../components/HelpButton';
 import {
   applyRotationSelection,
@@ -65,15 +66,23 @@ import {
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
 import type { NutrientGapEntry } from '../../lib/nutrientAnalysis';
 import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
-import { ScreenHeader } from '../../components/ScreenHeader';
+import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { Dropdown, type DropdownOption } from '../../components/Dropdown';
+import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
-import { ScreenBackground } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
+
+// Every text box on this page belongs to this one page's own tab, so
+// there's no per-box lookup needed the way Home's multi-tab dashboard
+// needed (see app/(tabs)/index.tsx's own tabColorFor) -- one fixed color,
+// used everywhere a box on THIS page needs its border/headline text to
+// carry that identity. Matches the same rule applied there, 2026-07-27.
+const TAB_COLOR = colors.tabSchedules;
 
 // Same vocabulary as the Meals builder's own mealTypes -- kept as a
 // separate literal here rather than importing it, since index.tsx doesn't
@@ -94,13 +103,116 @@ const USUAL_TIME_MEAL_TYPES = new Set(['breakfast', 'lunch', 'dinner', 'snack'])
 // haven't been designed yet.
 type Lens = 'meals' | 'hydration' | 'supplements' | 'prescriptions' | 'appointments' | 'exercise';
 
+// A repeat picker exists on Meals, Supplements' own reminder times, and
+// Prescriptions -- shared across those three Info entries below rather
+// than re-worded three times.
+const REPEATING_SCHEDULES_HELP: HelpSection = {
+  heading: 'Repeating schedules',
+  body: 'Can repeat daily -- indefinitely, a set number of times, or until a date you choose. Real entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
+};
+
 const LENSES: LensOption<Lens>[] = [
-  { key: 'meals', label: 'Meals', icon: 'restaurant-outline' },
-  { key: 'hydration', label: 'Hydration', icon: 'water-outline' },
-  { key: 'supplements', label: 'Supplements', icon: 'medkit-outline' },
-  { key: 'prescriptions', label: 'Prescriptions', icon: 'medical-outline' },
-  { key: 'appointments', label: 'Appointments', icon: 'calendar-outline' },
-  { key: 'exercise', label: 'Exercise', icon: 'barbell-outline' },
+  {
+    key: 'meals',
+    label: 'Meals',
+    icon: 'restaurant-outline',
+    help: [
+      {
+        heading: 'Planning vs. logging',
+        body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab -- either through "Log now" here or by creating a meal there directly.',
+      },
+      {
+        heading: 'From templates & favorites, or unplanned',
+        body: 'On the Food tab, pick a meal type first. "From templates & favorites" shows only your saved meals/favorites that match that meal type. "Something unplanned" is for when the day did not go as planned (e.g. you ate out) -- type in your best guess of what you actually had.',
+      },
+      {
+        heading: '"Log now" and "Rotate"',
+        body: '"Log now" turns a planned meal into a real logged entry, prefilled if it came from a template/favorite. "Rotate" (smoothies, mixed vegetables, mixed fruit) only shows up when that favorite has a Rotating ingredient -- your pick applies to this one scheduled occurrence only, so a Tuesday smoothie can vary from a Wednesday one even from the same favorite.',
+      },
+      {
+        heading: 'Planned, Logged, Skipped',
+        body: 'A planned meal you never got to stays honestly marked "Planned," not silently dropped. "Skip" marks it as intentionally not happening today, without deleting the record of what you had planned.',
+      },
+      {
+        heading: 'Usual meal times & fasting window',
+        body: 'Set in Profile. "Usual meal times" just pre-fills the time picker for that meal type. If you turn on fasting and set an eating window, this page will not let you schedule a meal outside it.',
+      },
+      REPEATING_SCHEDULES_HELP,
+    ],
+  },
+  {
+    key: 'hydration',
+    label: 'Hydration',
+    icon: 'water-outline',
+    help: [
+      {
+        heading: 'Hydration is Meals, filtered',
+        body: 'A "Beverage" meal (water, tea, coffee, a smoothie -- see the Food tab) already is a hydration entry. This lens doesn\'t track anything separately -- it\'s the same schedule/meal data, just filtered to beverages and shown with a running water total, so logging or scheduling a drink from either tab shows up in both automatically.',
+      },
+      REPEATING_SCHEDULES_HELP,
+    ],
+  },
+  {
+    key: 'supplements',
+    label: 'Supplements',
+    icon: 'medkit-outline',
+    help: [
+      {
+        heading: 'Document every ingredient',
+        body: 'For a supplement\'s contribution to count toward your daily totals, document exactly what one dose contains -- each ingredient, its amount, and its unit (mg, mcg, g, or IU). A single-ingredient product gets one row; a multivitamin gets one row per nutrient on its label.',
+      },
+      {
+        heading: 'Tracking / Not tracking',
+        body: 'This one toggle covers stopping a supplement, cycling on and off it, or taking it temporarily -- flip it off when you are not taking it and back on when you are. Nothing is deleted either way, so you never have to re-enter its ingredients.',
+      },
+      {
+        heading: 'Reminder times are separate from tracking',
+        body: 'A supplement\'s contribution to your daily totals always comes from the Tracking toggle alone. Adding reminder times underneath it is optional and purely a personal adherence record -- for a supplement that needs a specific dose time (e.g. away from calcium, or with a meal for fat solubility), not a second way of counting it.',
+      },
+      {
+        heading: 'Interaction checking',
+        body: 'Calcium/iron/zinc timing and the fat-soluble vitamins are checked automatically once reminder times are set. Biotin + an upcoming lab draw is checked too, once you\'re tracking biotin and have a "Lab / bloodwork" appointment within the next couple weeks. Anything triggered shows under "Things to check" here.',
+      },
+      REPEATING_SCHEDULES_HELP,
+    ],
+  },
+  {
+    key: 'prescriptions',
+    label: 'Prescriptions',
+    icon: 'medical-outline',
+    help: [
+      {
+        heading: 'Prescriptions',
+        body: 'Track what you take, its dose and frequency, and (optionally) specific reminder times -- same on/off Tracking toggle and repeat picker as Supplements. Prescriptions don\'t contribute nutrients, so there\'s no ingredient list to document.',
+      },
+      {
+        heading: 'Interaction checking',
+        body: 'Levothyroxine + calcium/iron timing is checked automatically once you track levothyroxine as a prescription and calcium/iron as supplements with reminder times set -- this app matches a prescription by name (e.g. "levothyroxine" anywhere in what you named it). Anything triggered shows under "Things to check" here.',
+      },
+      REPEATING_SCHEDULES_HELP,
+    ],
+  },
+  {
+    key: 'appointments',
+    label: 'Appointments',
+    icon: 'calendar-outline',
+    help: [
+      {
+        heading: 'Appointments',
+        body: 'Doctor, lab/bloodwork, nutritionist, trainer, or other visits -- title, type, date/time, location, and provider. Mark one completed or cancelled once it\'s past, or remove it. Appointments don\'t repeat yet -- add each one as it\'s scheduled.',
+      },
+      {
+        heading: 'Phone calendar sync',
+        body: 'Appointments can connect to your phone\'s own Calendar app -- if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in beyond a one-time permission prompt -- this app never talks to Google or Microsoft directly.',
+      },
+    ],
+  },
+  {
+    key: 'exercise',
+    label: 'Exercise',
+    icon: 'barbell-outline',
+    help: [{ heading: 'Exercise', body: 'Schedule planned workouts and activity. Not built yet.' }],
+  },
 ];
 
 const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
@@ -300,7 +412,7 @@ function RepeatPicker({ repeat, onChange }: { repeat: RepeatConfig; onChange: (r
             ))}
           </View>
           {repeat.endType === 'count' ? (
-            <TextInput
+            <AppTextInput
               style={[styles.input, styles.timeInput, { marginTop: 8 }]}
               placeholder="e.g. 14"
               keyboardType="number-pad"
@@ -309,7 +421,7 @@ function RepeatPicker({ repeat, onChange }: { repeat: RepeatConfig; onChange: (r
             />
           ) : null}
           {repeat.endType === 'until_date' ? (
-            <TextInput
+            <AppTextInput
               style={[styles.input, { marginTop: 8 }]}
               placeholder="YYYY-MM-DD"
               value={repeat.until ?? ''}
@@ -527,7 +639,7 @@ function MealsLens() {
 
   function handleLogNow(item: ScheduleItemRecord) {
     router.push({
-      pathname: '/',
+      pathname: '/food',
       params: {
         scheduleItemId: item.id,
         mealType: item.mealType ?? '',
@@ -717,7 +829,7 @@ function MealsLens() {
                         <Text style={styles.helperText}>
                           Didn't go as planned? Log your best guess of what you actually had (or plan to).
                         </Text>
-                        <TextInput
+                        <AppTextInput
                           style={styles.input}
                           placeholder="e.g. Lunch out with a coworker -- probably a sandwich and fries"
                           value={form.title}
@@ -731,7 +843,7 @@ function MealsLens() {
                 {form.editingId ? (
                   <>
                     <Text style={styles.label}>What do you plan to eat?</Text>
-                    <TextInput
+                    <AppTextInput
                       style={styles.input}
                       value={form.title}
                       onChangeText={(text) => setForm((current) => ({ ...current, title: text }))}
@@ -741,7 +853,7 @@ function MealsLens() {
 
                 <Text style={styles.label}>About what time?</Text>
                 <View style={styles.timeRow}>
-                  <TextInput
+                  <AppTextInput
                     style={[styles.input, styles.timeInput]}
                     placeholder="8"
                     keyboardType="number-pad"
@@ -750,7 +862,7 @@ function MealsLens() {
                     onChangeText={(text) => setForm((current) => ({ ...current, time: { ...current.time, hour: text } }))}
                   />
                   <Text style={styles.timeSeparator}>:</Text>
-                  <TextInput
+                  <AppTextInput
                     style={[styles.input, styles.timeInput]}
                     placeholder="00"
                     keyboardType="number-pad"
@@ -1146,7 +1258,7 @@ function HydrationLens() {
 
   function handleLogNow(item: ScheduleItemRecord) {
     router.push({
-      pathname: '/',
+      pathname: '/food',
       params: {
         scheduleItemId: item.id,
         mealType: 'beverage',
@@ -1259,7 +1371,7 @@ function HydrationLens() {
                       <Text style={styles.helperText}>
                         Water, tea, coffee, a smoothie -- whatever you plan to drink, plus anything mixed into it.
                       </Text>
-                      <TextInput
+                      <AppTextInput
                         style={styles.input}
                         placeholder="e.g. Green tea with honey"
                         value={form.title}
@@ -1271,7 +1383,7 @@ function HydrationLens() {
               ) : (
                 <>
                   <Text style={styles.label}>What do you plan to drink?</Text>
-                  <TextInput
+                  <AppTextInput
                     style={styles.input}
                     value={form.title}
                     onChangeText={(text) => setForm((current) => ({ ...current, title: text }))}
@@ -1281,7 +1393,7 @@ function HydrationLens() {
 
               <Text style={styles.label}>About what time?</Text>
               <View style={styles.timeRow}>
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.timeInput]}
                   placeholder="8"
                   keyboardType="number-pad"
@@ -1290,7 +1402,7 @@ function HydrationLens() {
                   onChangeText={(text) => setForm((current) => ({ ...current, time: { ...current.time, hour: text } }))}
                 />
                 <Text style={styles.timeSeparator}>:</Text>
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.timeInput]}
                   placeholder="00"
                   keyboardType="number-pad"
@@ -1657,7 +1769,7 @@ function SupplementsLens() {
           ) : (
             <View style={styles.formCard}>
               <Text style={styles.label}>Name</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Daily Multivitamin"
                 value={form.name}
@@ -1666,13 +1778,13 @@ function SupplementsLens() {
 
               <Text style={styles.label}>Dose</Text>
               <View style={styles.timeRow}>
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.timeInput]}
                   keyboardType="number-pad"
                   value={form.unitsPerDay}
                   onChangeText={(text) => setForm((current) => ({ ...current, unitsPerDay: text }))}
                 />
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.doseUnitInput]}
                   placeholder="capsule, tablet, scoop…"
                   value={form.servingUnitLabel}
@@ -1694,7 +1806,7 @@ function SupplementsLens() {
                       searchPlaceholder="Search nutrients…"
                     />
                   </View>
-                  <TextInput
+                  <AppTextInput
                     style={[styles.input, styles.ingredientAmountInput]}
                     placeholder="Amount"
                     keyboardType="decimal-pad"
@@ -1719,7 +1831,7 @@ function SupplementsLens() {
               </TouchableOpacity>
 
               <Text style={styles.label}>Notes (optional)</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. take with food"
                 value={form.notes}
@@ -1849,7 +1961,7 @@ function SupplementsLens() {
                       {doseFormTreatmentId === treatment.id ? (
                         <View style={styles.doseForm}>
                           <View style={styles.timeRow}>
-                            <TextInput
+                            <AppTextInput
                               style={[styles.input, styles.timeInput]}
                               placeholder="8"
                               keyboardType="number-pad"
@@ -1858,7 +1970,7 @@ function SupplementsLens() {
                               onChangeText={(text) => setDoseFormTime((current) => ({ ...current, hour: text }))}
                             />
                             <Text style={styles.timeSeparator}>:</Text>
-                            <TextInput
+                            <AppTextInput
                               style={[styles.input, styles.timeInput]}
                               placeholder="00"
                               keyboardType="number-pad"
@@ -2131,7 +2243,7 @@ function PrescriptionsLens() {
           ) : (
             <View style={styles.formCard}>
               <Text style={styles.label}>Name</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Levothyroxine"
                 value={form.name}
@@ -2140,14 +2252,14 @@ function PrescriptionsLens() {
 
               <Text style={styles.label}>Dose (optional)</Text>
               <View style={styles.timeRow}>
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.timeInput]}
                   keyboardType="decimal-pad"
                   placeholder="75"
                   value={form.doseAmount}
                   onChangeText={(text) => setForm((current) => ({ ...current, doseAmount: text }))}
                 />
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.doseUnitInput]}
                   placeholder="mcg, mg, tablet…"
                   value={form.doseUnit}
@@ -2156,7 +2268,7 @@ function PrescriptionsLens() {
               </View>
 
               <Text style={styles.label}>Frequency (optional)</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Once daily"
                 value={form.frequency}
@@ -2164,7 +2276,7 @@ function PrescriptionsLens() {
               />
 
               <Text style={styles.label}>Notes (optional)</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. take on an empty stomach"
                 value={form.notes}
@@ -2269,7 +2381,7 @@ function PrescriptionsLens() {
                       {doseFormTreatmentId === treatment.id ? (
                         <View style={styles.doseForm}>
                           <View style={styles.timeRow}>
-                            <TextInput
+                            <AppTextInput
                               style={[styles.input, styles.timeInput]}
                               placeholder="8"
                               keyboardType="number-pad"
@@ -2278,7 +2390,7 @@ function PrescriptionsLens() {
                               onChangeText={(text) => setDoseFormTime((current) => ({ ...current, hour: text }))}
                             />
                             <Text style={styles.timeSeparator}>:</Text>
-                            <TextInput
+                            <AppTextInput
                               style={[styles.input, styles.timeInput]}
                               placeholder="00"
                               keyboardType="number-pad"
@@ -2692,7 +2804,7 @@ function AppointmentsLens() {
           {showForm ? (
             <View style={styles.formCard}>
               <Text style={styles.label}>What is this for?</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Dr. Smith - Endocrinology follow-up"
                 value={form.title}
@@ -2716,7 +2828,7 @@ function AppointmentsLens() {
 
               <Text style={styles.label}>Date</Text>
               <View style={styles.timeRow}>
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.dateInput]}
                   placeholder="YYYY-MM-DD"
                   value={form.date}
@@ -2732,7 +2844,7 @@ function AppointmentsLens() {
 
               <Text style={styles.label}>Time</Text>
               <View style={styles.timeRow}>
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.timeInput]}
                   placeholder="8"
                   keyboardType="number-pad"
@@ -2741,7 +2853,7 @@ function AppointmentsLens() {
                   onChangeText={(text) => setForm((current) => ({ ...current, time: { ...current.time, hour: text } }))}
                 />
                 <Text style={styles.timeSeparator}>:</Text>
-                <TextInput
+                <AppTextInput
                   style={[styles.input, styles.timeInput]}
                   placeholder="00"
                   keyboardType="number-pad"
@@ -2763,7 +2875,7 @@ function AppointmentsLens() {
               </View>
 
               <Text style={styles.label}>Location (optional)</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Riverside Medical, Suite 200"
                 value={form.location}
@@ -2771,7 +2883,7 @@ function AppointmentsLens() {
               />
 
               <Text style={styles.label}>Provider (optional)</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Dr. Smith"
                 value={form.providerName}
@@ -2779,7 +2891,7 @@ function AppointmentsLens() {
               />
 
               <Text style={styles.label}>Notes (optional)</Text>
-              <TextInput
+              <AppTextInput
                 style={styles.input}
                 placeholder="e.g. fasting required, bring insurance card"
                 value={form.notes}
@@ -2892,17 +3004,28 @@ function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'supplements' 
 }
 
 export default function ScheduleScreen() {
+  useRegisterScreenHelp('Schedules', SCHEDULE_HELP_SECTIONS, '/schedule');
   const [lens, setLens] = useState<Lens>('meals');
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
+  // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment
+  // for the full reasoning. `lens` itself keeps its last-picked value
+  // indefinitely; only `revealed` resets on focus, so every arrival shows
+  // the resting prompt first, never an instant resume.
+  const [revealed, setRevealed] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setRevealed(false);
+      return () => setRevealed(false);
+    }, []),
+  );
 
   return (
     <View style={styles.screen}>
-      <View style={styles.header}>
-        <ScreenHeader title="Schedules" tabPath="/schedule" helpSections={SCHEDULE_HELP_SECTIONS} />
-      </View>
-
-      <SwipeableTabScreen>
-        <ScreenBackground variant="schedule">
+      {/* enabled={!revealed} -- see food.tsx's own comment: swipe-to-
+          change-tab only works from a lens's own picker, not once a real
+          lens's content (with its own scrollable controls) is showing. */}
+      <SwipeableTabScreen enabled={!revealed}>
+        <GatedTabContent pageTitle="Schedules" variant="schedule" revealed={revealed}>
           {lens === 'meals' ? (
             <MealsLens />
           ) : lens === 'hydration' ? (
@@ -2916,18 +3039,27 @@ export default function ScheduleScreen() {
           ) : (
             <ComingSoonLens lens={lens} />
           )}
-        </ScreenBackground>
+        </GatedTabContent>
       </SwipeableTabScreen>
 
-      <PageIdentityLabel title="Schedules" activeLensLabel={activeLensLabel} />
-      <LensHub pageTitle="Schedules" options={LENSES} selected={lens} onSelect={setLens} />
+      <PageIdentityLabel title="Schedules" activeLensLabel={revealed ? activeLensLabel : undefined} />
+      <MyItemsHub label="My Schedules" tabColor={TAB_COLOR} />
+      <LensHub
+        pageTitle="Schedules"
+        options={LENSES}
+        selected={revealed ? lens : undefined}
+        columns={3}
+        onSelect={(key) => {
+          setLens(key);
+          setRevealed(true);
+        }}
+      />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  header: { paddingTop: 12 },
+  screen: { flex: 1 },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
   emptyText: { ...typography.body, color: colors.textSecondary },
@@ -2941,25 +3073,39 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   addButtonText: { ...typography.bodyEmphasis, color: colors.primary },
+  // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
+  // 2026-07-27.
   formCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
   },
+  // Same rule extended here, 2026-07-27: a border in TAB_COLOR (this card
+  // had none before), and its own label/headline value both now carry
+  // TAB_COLOR too, matching Home's statNumber -- the loud number is the
+  // "reading" this box exists to show.
   hydrationSummaryCard: {
     backgroundColor: colors.primaryTint,
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
   },
-  hydrationSummaryLabel: { ...typography.eyebrow, color: colors.primary },
-  hydrationSummaryValue: { ...typography.screenTitle, color: colors.textPrimary, marginTop: 4 },
-  hydrationSummaryMeta: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
-  label: { ...typography.label, color: colors.textPrimary, marginBottom: 6, marginTop: 10 },
-  helperText: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 8 },
+  hydrationSummaryLabel: { ...typography.eyebrow, color: TAB_COLOR },
+  hydrationSummaryValue: { ...typography.screenTitle, color: TAB_COLOR, marginTop: 4 },
+  hydrationSummaryMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2 },
+  // Colors below (through interactionCitation) are TAB_COLOR, not the
+  // plain neutrals they used to be -- 2026-07-27, "every font inside a box
+  // should match that box's own border color." Leaves selection-state
+  // colors (pillActive/pillTextActive, sourceRowTextSelected) alone -- that's
+  // a "this option is currently picked" signal, the same convention used
+  // app-wide, a different meaning than "which tab."
+  label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10 },
+  helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8 },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: {
     borderWidth: 1,
@@ -2976,8 +3122,8 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
   },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { ...typography.caption, color: colors.textPrimary, textTransform: 'capitalize' },
-  pillTextSmall: { ...typography.caption, color: colors.textPrimary },
+  pillText: { ...typography.caption, color: TAB_COLOR, textTransform: 'capitalize' },
+  pillTextSmall: { ...typography.caption, color: TAB_COLOR },
   pillTextActive: { color: colors.textOnPrimary },
   modeRow: { flexDirection: 'row', gap: 6, marginTop: 12 },
   modeTab: {
@@ -2988,7 +3134,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   modeTabActive: { backgroundColor: colors.primary },
-  modeTabText: { ...typography.captionEmphasis, color: colors.textSecondary },
+  modeTabText: { ...typography.captionEmphasis, color: TAB_COLOR },
   modeTabTextActive: { color: colors.textOnPrimary },
   sourceList: {
     marginTop: 10,
@@ -3008,9 +3154,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   sourceRowSelected: { backgroundColor: colors.primaryTint },
-  sourceRowText: { ...typography.body, color: colors.textPrimary, flex: 1, marginRight: 8 },
+  sourceRowText: { ...typography.body, color: TAB_COLOR, flex: 1, marginRight: 8 },
   sourceRowTextSelected: { color: colors.primary, fontWeight: '600' },
-  sourceRowKind: { ...typography.caption, color: colors.textMuted },
+  sourceRowKind: { ...typography.caption, color: TAB_COLOR },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -3019,11 +3165,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     backgroundColor: colors.surfaceMuted,
     ...typography.body,
-    color: colors.textPrimary,
+    color: TAB_COLOR,
   },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: { width: 56, textAlign: 'center' },
-  timeSeparator: { ...typography.label, color: colors.textPrimary },
+  timeSeparator: { ...typography.label, color: TAB_COLOR },
   doseUnitInput: { flex: 1 },
   ingredientRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
   ingredientNutrientCol: { flex: 2 },
@@ -3032,12 +3178,14 @@ const styles = StyleSheet.create({
   ingredientRemove: { paddingHorizontal: 6, paddingVertical: 6 },
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.primary },
   primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
+  // 2026-07-27.
   table: {
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
     borderRadius: 10,
     overflow: 'hidden',
     backgroundColor: colors.surface,
@@ -3048,10 +3196,10 @@ const styles = StyleSheet.create({
     padding: 12,
   },
   rowMain: { flexDirection: 'row', alignItems: 'flex-start', gap: 12 },
-  rowTime: { ...typography.captionEmphasis, color: colors.textSecondary, width: 68 },
+  rowTime: { ...typography.captionEmphasis, color: TAB_COLOR, width: 68 },
   rowTextCol: { flex: 1 },
-  rowTitle: { ...typography.label, color: colors.textPrimary },
-  rowMeta: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  rowTitle: { ...typography.label, color: TAB_COLOR },
+  rowMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2 },
   rowActions: { flexDirection: 'row', gap: 16, marginTop: 10, marginLeft: 80 },
   supplementRowActions: { flexDirection: 'row', gap: 16, marginTop: 10 },
   doseSection: {
@@ -3060,10 +3208,10 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.border,
   },
-  doseSectionLabel: { ...typography.captionEmphasis, color: colors.textSecondary, marginBottom: 6 },
+  doseSectionLabel: { ...typography.captionEmphasis, color: TAB_COLOR, marginBottom: 6 },
   doseRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 6 },
-  doseRowTime: { ...typography.captionEmphasis, color: colors.textPrimary, width: 68 },
-  doseRowStatus: { ...typography.caption, color: colors.textSecondary, flex: 1 },
+  doseRowTime: { ...typography.captionEmphasis, color: TAB_COLOR, width: 68 },
+  doseRowStatus: { ...typography.caption, color: TAB_COLOR, flex: 1 },
   doseRowActions: { flexDirection: 'row', gap: 14 },
   doseForm: { marginTop: 8 },
   appointmentTopActions: { gap: 10, marginBottom: 16 },
@@ -3077,21 +3225,23 @@ const styles = StyleSheet.create({
   dateInput: { flex: 1 },
   appointmentRowTime: { width: 76, lineHeight: 16 },
   interactionSection: { marginBottom: 16 },
-  interactionSectionLabel: { ...typography.label, color: colors.textPrimary, marginBottom: 8 },
+  interactionSectionLabel: { ...typography.label, color: TAB_COLOR, marginBottom: 8 },
+  // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
+  // 2026-07-27.
   interactionCard: {
     backgroundColor: colors.surface,
     borderRadius: 12,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
     padding: 12,
     marginBottom: 8,
   },
   interactionCardReference: { backgroundColor: colors.surfaceMuted },
-  interactionTitle: { ...typography.bodyEmphasis, color: colors.textPrimary },
-  interactionMessage: { ...typography.body, color: colors.textSecondary, marginTop: 4 },
-  interactionMeta: { ...typography.caption, color: colors.primary, marginTop: 4, fontStyle: 'italic' },
-  interactionCitation: { ...typography.caption, color: colors.textMuted, marginTop: 6 },
-  actionText: { ...typography.captionEmphasis, color: colors.textSecondary },
+  interactionTitle: { ...typography.bodyEmphasis, color: TAB_COLOR },
+  interactionMessage: { ...typography.body, color: TAB_COLOR, marginTop: 4 },
+  interactionMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 4, fontStyle: 'italic' },
+  interactionCitation: { ...typography.caption, color: TAB_COLOR, marginTop: 6 },
+  actionText: { ...typography.captionEmphasis, color: TAB_COLOR },
   actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary },
   actionTextRemove: { ...typography.captionEmphasis, color: colors.danger },
   backdrop: {

@@ -33,10 +33,19 @@ export function EnergyOrb({
   recentMaxSeverity,
   hasAnyHistory,
   onPress,
+  // Optional override for the label/caption text color -- 2026-07-27, so
+  // Home's own orbCard can tint them to match its border (Signals'
+  // identity color) like every other font inside that box. Safe to
+  // override: the actual mood/severity signal lives entirely in the orb's
+  // own gradient (ORB_STYLES above), never in this text's color, so
+  // recoloring it doesn't touch that semantic meaning. Defaults to the
+  // plain neutral this always used, for any other caller.
+  textColor,
 }: {
   recentMaxSeverity: number | null;
   hasAnyHistory: boolean;
   onPress: () => void;
+  textColor?: string;
 }) {
   const level = resolveOrbLevel(recentMaxSeverity, hasAnyHistory);
   const style = ORB_STYLES[level];
@@ -49,8 +58,8 @@ export function EnergyOrb({
         end={{ x: 1, y: 1 }}
         style={styles.orb}
       />
-      <Text style={styles.label}>{style.label}</Text>
-      <Text style={styles.caption}>Based on your last 2 days in Bio-Compass</Text>
+      <Text style={[styles.label, textColor ? { color: textColor } : null]}>{style.label}</Text>
+      <Text style={[styles.caption, textColor ? { color: textColor } : null]}>Based on your last 2 days in Signals</Text>
     </TouchableOpacity>
   );
 }

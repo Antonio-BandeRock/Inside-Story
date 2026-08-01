@@ -45,11 +45,17 @@ export function DayArc({
   dayStartMinutes = 6 * 60,
   dayEndMinutes = 22 * 60,
   onPressItem,
+  // Optional override for the "6:00 AM"/"10:00 PM" labels' own color --
+  // 2026-07-27, so Home's own arcCard can tint them to match its border
+  // (Schedules' identity color) like every other font inside that box.
+  // Defaults to the plain neutral this always used, for any other caller.
+  labelColor = colors.textMuted,
 }: {
   items: ScheduleItemRecord[];
   dayStartMinutes?: number;
   dayEndMinutes?: number;
   onPressItem: (item: ScheduleItemRecord) => void;
+  labelColor?: string;
 }) {
   const { width: windowWidth } = useWindowDimensions();
   const width = Math.max(200, windowWidth - 40 - NODE_RADIUS * 2);
@@ -100,8 +106,8 @@ export function DayArc({
         })}
       </Svg>
       <View style={styles.labelRow}>
-        <Text style={styles.labelText}>{formatTime12(`${Math.floor(dayStartMinutes / 60)}:00`)}</Text>
-        <Text style={styles.labelText}>{formatTime12(`${Math.floor(dayEndMinutes / 60)}:00`)}</Text>
+        <Text style={[styles.labelText, { color: labelColor }]}>{formatTime12(`${Math.floor(dayStartMinutes / 60)}:00`)}</Text>
+        <Text style={[styles.labelText, { color: labelColor }]}>{formatTime12(`${Math.floor(dayEndMinutes / 60)}:00`)}</Text>
       </View>
     </View>
   );

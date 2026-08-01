@@ -1,11 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppTextInput } from '../../components/AppTextInput';
 import type { HelpSection } from '../../components/HelpButton';
+import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
+import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
-import { ScreenBackground } from '../../components/ScreenBackground';
-import { ScreenHeader } from '../../components/ScreenHeader';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
@@ -32,20 +34,129 @@ import {
 } from '../../lib/db';
 import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../../lib/timeOfDay';
 
-// Four lenses, mirroring the Insights/Schedule tabs' own lens pattern --
-// all four are real/built here, unlike Schedule's "some stubbed" approach,
-// since each is a small, self-contained log rather than a big planning
-// system.
-type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'other';
+// Every text box on this page belongs to this one page's own tab, so
+// there's no per-box lookup needed the way Home's multi-tab dashboard
+// needed (see app/(tabs)/index.tsx's own tabColorFor) -- one fixed color,
+// used everywhere a box on THIS page needs its border to carry that
+// identity. Matches the same rule applied there, 2026-07-27.
+const TAB_COLOR = colors.tabBioCompass;
+
+// Mirrors the Insights/Schedule tabs' own lens pattern -- most of these
+// are real/built here, unlike Schedule's "some stubbed" approach, since
+// each is a small, self-contained log rather than a big planning system.
+//
+// 2026-07-28: Exercise, Blood Pressure, and General Note used to be three
+// sections stacked inside one shared 'other' lens -- promoted to their
+// own top-level lenses instead (their own real components already
+// existed, see ExerciseSection/BloodPressureSection/GeneralNoteSection
+// below; this only changes how they're reached, not what they log).
+// 'other' itself is gone -- it had no content of its own beyond those
+// three sections, so nothing is left for it to hold once they're pulled
+// out. Nocturia added the same day as a new lens -- genuinely new
+// territory, no logging schema exists for it yet (see NocturiaLens's own
+// comment).
+type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressure' | 'generalNote' | 'nocturia';
+
+// Shared caveat, appended to every lens's help -- same pattern as
+// DRILLING_DOWN_HELP (insights.tsx), REPEATING_SCHEDULES_HELP (schedule.tsx),
+// and TRENDS_PATTERN_CAVEAT_HELP (trends.tsx).
+const LOG_PERSONAL_NOTES_HELP: HelpSection = {
+  heading: 'Personal notes, not medical fact',
+  body: "Everything here is your own record of your own body -- distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
+};
 
 const LENSES: LensOption<Lens>[] = [
-  { key: 'flares', label: 'Flares', icon: 'pulse-outline' },
-  { key: 'foodReactions', label: 'Food Reactions', icon: 'warning-outline' },
-  { key: 'newFoods', label: 'New Foods', icon: 'add-circle-outline' },
-  { key: 'other', label: 'Other', icon: 'ellipsis-horizontal-outline' },
+  {
+    key: 'flares',
+    label: 'Flares',
+    icon: 'pulse-outline',
+    help: [
+      {
+        heading: 'Flares',
+        body: "Log a Hashimoto's flare-up: when it started, how severe, and which symptoms were part of it. Over time, Trends can look for patterns between flares and what you were eating, taking, or doing.",
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'foodReactions',
+    label: 'Food Reactions',
+    icon: 'warning-outline',
+    help: [
+      {
+        heading: 'Food Reactions',
+        body: 'A specific food or drink that seems to have caused a problem. Different from Flares in that it starts from a food, not a symptom.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'newFoods',
+    label: 'New Foods',
+    icon: 'add-circle-outline',
+    help: [
+      {
+        heading: 'New Foods',
+        body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged -- or mark it earlier if something happens right away.",
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'exercise',
+    label: 'Exercise',
+    icon: 'walk-outline',
+    help: [
+      {
+        heading: 'Exercise',
+        body: 'A lightweight log of what you did and for how long -- not meant to replace dedicated exercise tracking, just somewhere to jot it down for now.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'bloodPressure',
+    label: 'Blood Pressure',
+    icon: 'heart-outline',
+    help: [
+      {
+        heading: 'Blood Pressure',
+        body: 'Log a reading (systolic, diastolic, and pulse) whenever you take one.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'generalNote',
+    label: 'General Note',
+    icon: 'document-text-outline',
+    help: [
+      {
+        heading: 'General Note',
+        body: 'For anything else worth remembering -- a prescription change, how a supplement felt, a drink you had.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
+  {
+    key: 'nocturia',
+    label: 'Nocturia',
+    icon: 'moon-outline',
+    help: [
+      {
+        heading: 'Nocturia',
+        body: 'Not built yet. Waking at night to urinate is a real, trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
+      },
+      LOG_PERSONAL_NOTES_HELP,
+    ],
+  },
 ];
 
 const LOG_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'Why "Signals"?',
+    body: "Autoimmune flares rarely come out of nowhere -- your body usually sends signals first: fatigue, joint pain, brain fog, and other warning signs worth paying attention to before a full flare hits. This tab (renamed from Bio-Compass, 2026-07-27) is where you capture those signals as they happen, not just the flare itself once it's already arrived.",
+  },
   {
     heading: 'What this tab is for',
     body: "A place to write down what's actually happening to you, separate from what you planned (Schedules) or what the cited D1-D6/nutrient scoring says (Insights). This is your own observations -- flares, reactions, and anything else worth remembering.",
@@ -63,8 +174,20 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
     body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged -- or mark it earlier if something happens right away.",
   },
   {
-    heading: 'Other',
-    body: "A lightweight place for exercise, blood pressure readings, or a quick note about a prescription or supplement. This isn't meant to replace dedicated tracking for any of these -- just somewhere to jot it down for now.",
+    heading: 'Exercise',
+    body: 'A lightweight log of what you did and for how long -- not meant to replace dedicated exercise tracking, just somewhere to jot it down for now.',
+  },
+  {
+    heading: 'Blood Pressure',
+    body: 'Log a reading (systolic, diastolic, and pulse) whenever you take one.',
+  },
+  {
+    heading: 'General Note',
+    body: 'For anything else worth remembering -- a prescription change, how a supplement felt, a drink you had.',
+  },
+  {
+    heading: 'Nocturia',
+    body: 'Not built yet. Waking at night to urinate is a real, trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
   },
   {
     heading: 'Personal notes, not medical fact',
@@ -150,7 +273,7 @@ function DateChoicePicker({
         ))}
       </View>
       {value === 'custom' ? (
-        <TextInput
+        <AppTextInput
           style={styles.input}
           placeholder="YYYY-MM-DD"
           value={customDate}
@@ -164,7 +287,7 @@ function DateChoicePicker({
 function TimePicker({ value, onChange }: { value: TimeOfDayInput; onChange: (value: TimeOfDayInput) => void }) {
   return (
     <View style={styles.timeRow}>
-      <TextInput
+      <AppTextInput
         style={[styles.input, styles.timeInput]}
         placeholder="8"
         keyboardType="number-pad"
@@ -173,7 +296,7 @@ function TimePicker({ value, onChange }: { value: TimeOfDayInput; onChange: (val
         onChangeText={(text) => onChange({ ...value, hour: text })}
       />
       <Text style={styles.timeSeparator}>:</Text>
-      <TextInput
+      <AppTextInput
         style={[styles.input, styles.timeInput]}
         placeholder="00"
         keyboardType="number-pad"
@@ -300,7 +423,7 @@ function CheckinForm({
       {foodNameField ? (
         <>
           <Text style={styles.label}>What did you eat or drink?</Text>
-          <TextInput
+          <AppTextInput
             style={styles.input}
             placeholder="e.g. Greek yogurt with honey"
             value={foodNameField.value}
@@ -322,7 +445,7 @@ function CheckinForm({
       <Text style={styles.label}>What symptoms? (optional)</Text>
       <TagPicker selected={tags} onToggle={onToggleTag} />
       <Text style={styles.label}>Notes (optional)</Text>
-      <TextInput
+      <AppTextInput
         style={[styles.input, styles.multilineInput]}
         placeholder="Anything else worth remembering"
         multiline
@@ -643,7 +766,7 @@ function NewFoodsLens() {
       ) : (
         <View style={styles.formCard}>
           <Text style={styles.label}>What food are you introducing?</Text>
-          <TextInput style={styles.input} placeholder="e.g. Quinoa" value={foodName} onChangeText={setFoodName} />
+          <AppTextInput style={styles.input} placeholder="e.g. Quinoa" value={foodName} onChangeText={setFoodName} />
           <Text style={styles.label}>When did you start?</Text>
           <DateChoicePicker
             value={dateChoice}
@@ -652,7 +775,7 @@ function NewFoodsLens() {
             onCustomDateChange={setCustomDate}
           />
           <Text style={styles.label}>Watch it for how many days?</Text>
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.timeInput]}
             keyboardType="number-pad"
             maxLength={2}
@@ -783,9 +906,9 @@ function ExerciseSection() {
       ) : (
         <View style={styles.formCard}>
           <Text style={styles.label}>What did you do?</Text>
-          <TextInput style={styles.input} placeholder="e.g. Walk, yoga, weights" value={exerciseType} onChangeText={setExerciseType} />
+          <AppTextInput style={styles.input} placeholder="e.g. Walk, yoga, weights" value={exerciseType} onChangeText={setExerciseType} />
           <Text style={styles.label}>How long? (minutes, optional)</Text>
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.timeInput]}
             keyboardType="number-pad"
             value={durationMinutes}
@@ -953,7 +1076,7 @@ function BloodPressureSection() {
         <View style={styles.formCard}>
           <Text style={styles.label}>Reading</Text>
           <View style={styles.timeRow}>
-            <TextInput
+            <AppTextInput
               style={[styles.input, styles.timeInput]}
               placeholder="120"
               keyboardType="number-pad"
@@ -962,7 +1085,7 @@ function BloodPressureSection() {
               onChangeText={setSystolic}
             />
             <Text style={styles.timeSeparator}>/</Text>
-            <TextInput
+            <AppTextInput
               style={[styles.input, styles.timeInput]}
               placeholder="80"
               keyboardType="number-pad"
@@ -974,7 +1097,7 @@ function BloodPressureSection() {
           </View>
           <Text style={styles.label}>Heart rate (optional)</Text>
           <View style={styles.timeRow}>
-            <TextInput
+            <AppTextInput
               style={[styles.input, styles.timeInput]}
               placeholder="72"
               keyboardType="number-pad"
@@ -1071,7 +1194,7 @@ function GeneralNoteSection() {
       ) : (
         <View style={styles.formCard}>
           <Text style={styles.label}>Note</Text>
-          <TextInput
+          <AppTextInput
             style={[styles.input, styles.multilineInput]}
             placeholder="e.g. Started a new dose of vitamin D today"
             multiline
@@ -1114,15 +1237,35 @@ function GeneralNoteSection() {
   );
 }
 
-function OtherLens() {
+// Split from a single OtherLens, 2026-07-28 -- Exercise/Blood Pressure/
+// General Note used to be three sections stacked in one shared lens; each
+// is now reached directly from its own LensHub entry instead. Dropped the
+// section headings each used to need to tell them apart on one shared
+// screen (Exercise/Blood Pressure/General Note) -- redundant now that each
+// has its own whole screen, the same way Flares/Food Reactions/New Foods
+// never repeat their own name as an on-screen heading either.
+function ExerciseLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={styles.sectionHeading}>Exercise</Text>
       <ExerciseSection />
-      <Text style={[styles.sectionHeading, styles.sectionHeadingSpaced]}>Blood Pressure</Text>
+    </ScrollView>
+  );
+}
+
+function BloodPressureLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <BloodPressureSection />
-      <Text style={[styles.sectionHeading, styles.sectionHeadingSpaced]}>General Note</Text>
+    </ScrollView>
+  );
+}
+
+function GeneralNoteLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <Text style={styles.helperText}>
         For anything else worth remembering -- a prescription change, how a supplement felt, a drink you had.
       </Text>
@@ -1131,39 +1274,79 @@ function OtherLens() {
   );
 }
 
+// Genuinely new territory, 2026-07-28 -- no logging schema exists yet for
+// how many times someone woke up, what time, etc. Same honest "not built
+// yet" placeholder pattern already used elsewhere for planned-but-unbuilt
+// features (Food's own builder stubs, Schedule's ComingSoonLens), rather
+// than guessing at a data shape no one's actually decided on yet.
+function NocturiaLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      <Text style={styles.emptyText}>
+        Not built yet. Waking at night to urinate is a real, trackable symptom worth its own log -- this will get its own
+        logging (how many times, what time) built out.
+      </Text>
+    </ScrollView>
+  );
+}
+
 export default function LogScreen() {
+  useRegisterScreenHelp('Signals', LOG_HELP_SECTIONS, '/log');
   const [lens, setLens] = useState<Lens>('flares');
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
+  // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
+  const [revealed, setRevealed] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      setRevealed(false);
+      return () => setRevealed(false);
+    }, []),
+  );
 
   return (
-    <SwipeableTabScreen>
-      <View style={styles.screen}>
-        <View style={styles.header}>
-          <ScreenHeader title="Bio-Compass" tabPath="/log" helpSections={LOG_HELP_SECTIONS} />
-        </View>
-
-        <ScreenBackground variant="bioCompass">
+    <View style={styles.screen}>
+      {/* enabled={!revealed} -- see food.tsx's own comment: swipe-to-
+          change-tab only works from a lens's own picker, not once a real
+          lens's content (with its own scrollable controls) is showing. */}
+      <SwipeableTabScreen enabled={!revealed}>
+        <GatedTabContent pageTitle="Signals" variant="bioCompass" revealed={revealed}>
           {lens === 'flares' ? (
             <FlaresLens />
           ) : lens === 'foodReactions' ? (
             <FoodReactionsLens />
           ) : lens === 'newFoods' ? (
             <NewFoodsLens />
+          ) : lens === 'exercise' ? (
+            <ExerciseLens />
+          ) : lens === 'bloodPressure' ? (
+            <BloodPressureLens />
+          ) : lens === 'generalNote' ? (
+            <GeneralNoteLens />
           ) : (
-            <OtherLens />
+            <NocturiaLens />
           )}
-        </ScreenBackground>
+        </GatedTabContent>
+      </SwipeableTabScreen>
 
-        <PageIdentityLabel title="Bio-Compass" activeLensLabel={activeLensLabel} />
-        <LensHub pageTitle="Bio-Compass" options={LENSES} selected={lens} onSelect={setLens} />
-      </View>
-    </SwipeableTabScreen>
+      <PageIdentityLabel title="Signals" activeLensLabel={revealed ? activeLensLabel : undefined} />
+      <MyItemsHub label="My Signals" tabColor={TAB_COLOR} />
+      <LensHub
+        pageTitle="Signals"
+        options={LENSES}
+        selected={revealed ? lens : undefined}
+        columns={3}
+        onSelect={(key) => {
+          setLens(key);
+          setRevealed(true);
+        }}
+      />
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  screen: { flex: 1, backgroundColor: colors.background },
-  header: { paddingTop: 12 },
+  screen: { flex: 1 },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
   emptyText: { ...typography.body, color: colors.textSecondary, marginBottom: 16 },
@@ -1176,22 +1359,30 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   addButtonText: { ...typography.bodyEmphasis, color: colors.primary },
+  // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
+  // 2026-07-27.
   formCard: {
     backgroundColor: colors.surface,
     borderRadius: 16,
     padding: 16,
     marginBottom: 16,
-    borderWidth: 1,
-    borderColor: colors.border,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
   },
-  label: { ...typography.label, color: colors.textPrimary, marginBottom: 6, marginTop: 10 },
-  helperText: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 8 },
+  // Colors below are TAB_COLOR, not the plain neutrals they used to be --
+  // 2026-07-27, "every font inside a box should match that box's own
+  // border color." Leaves selection-state colors (pillActive/
+  // pillTextActive) and actionTextPrimary/actionTextRemove (a positive/
+  // destructive action convention used app-wide) alone -- different
+  // meanings than "which tab."
+  label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10 },
+  helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8 },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   pillSmall: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 8 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
-  pillText: { ...typography.caption, color: colors.textPrimary },
-  pillTextSmall: { ...typography.caption, color: colors.textPrimary },
+  pillText: { ...typography.caption, color: TAB_COLOR },
+  pillTextSmall: { ...typography.caption, color: TAB_COLOR },
   pillTextActive: { color: colors.textOnPrimary },
   input: {
     borderWidth: 1,
@@ -1204,25 +1395,24 @@ const styles = StyleSheet.create({
   multilineInput: { minHeight: 70, textAlignVertical: 'top' },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: { width: 56, textAlign: 'center' },
-  timeSeparator: { ...typography.label, color: colors.textPrimary },
+  timeSeparator: { ...typography.label, color: TAB_COLOR },
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
-  secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
   primaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, backgroundColor: colors.primary },
   primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
-  table: { borderWidth: 1, borderColor: colors.border, borderRadius: 10, overflow: 'hidden', backgroundColor: colors.surface },
+  // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule, 2026-07-27.
+  table: { borderWidth: 2, borderColor: TAB_COLOR, borderRadius: 10, overflow: 'hidden', backgroundColor: colors.surface },
   row: { borderTopWidth: 1, borderTopColor: colors.border, padding: 12 },
   rowTextCol: { flex: 1 },
-  rowTitle: { ...typography.label, color: colors.textPrimary },
-  rowMeta: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  rowTitle: { ...typography.label, color: TAB_COLOR },
+  rowMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 2 },
   rowActions: { flexDirection: 'row', gap: 16, marginTop: 10 },
-  actionText: { ...typography.captionEmphasis, color: colors.textSecondary },
+  actionText: { ...typography.captionEmphasis, color: TAB_COLOR },
   actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary },
   actionTextRemove: { ...typography.captionEmphasis, color: colors.danger },
   tagGroup: { marginBottom: 8 },
-  tagGroupLabel: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 4 },
-  sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 8 },
-  sectionHeadingSpaced: { marginTop: 20 },
+  tagGroupLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 4 },
   readyText: { color: colors.statusFlagged },
   clearedText: { color: colors.primary },
   flaggedText: { color: colors.danger },

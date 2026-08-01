@@ -1,14 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { LinearGradient } from 'expo-linear-gradient';
 import { useCallback, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useAnimatedProps } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { rotatedIridescentPalette } from '../constants/colors';
-import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
+import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../constants/colors';
+import { useIridescentHueRotation, useThrottledHueDegrees } from '../hooks/useIridescentHueRotation';
 import { getUserProfile } from '../lib/db';
-import { useCurrentPageHelp } from './CurrentPageHelp';
-import type { HelpSection } from './HelpButton';
+import { AnimatedLinearGradient } from './AnimatedLinearGradient';
 
 // The "hard stop" from the true screen edge -- deliberately just a few
 // pixels rather than a real gutter, so the font gets as much width as
@@ -58,6 +57,33 @@ const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [
 ];
 const HIGHLIGHT_OFFSET = -1.5;
 
+// row's own paddingVertical (6+6) + the text SVG's own height + the
+// divider/shadow strip below it -- every piece of this header's fixed
+// vertical footprint, added up once here instead of re-measured. The
+// title text's width auto-shrinks (see fontSize above) but its height
+// never does, so this is a true constant per device, not an estimate.
+const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + 1 + 2 + 2;
+
+// Every screen wraps its own <ScreenHeader/> in a `{ paddingTop: 12 }` box
+// (see e.g. app/(tabs)/insights.tsx's own `styles.header`) -- included here
+// so the one shared persistent background layer (app/(tabs)/_layout.tsx)
+// can start exactly where a screen's real, rendered header ends, without
+// duplicating this number a second place it could quietly drift out of
+// sync with.
+const SCREEN_HEADER_WRAPPER_TOP_PADDING = 12;
+
+// The true on-screen height of "a screen's own header," top of device to
+// where the header's divider line ends -- safe-area inset plus this
+// header's own fixed content height plus the wrapper padding every screen
+// applies around it. Used by app/(tabs)/_layout.tsx to position the one
+// shared, permanently-mounted background layer so it starts exactly at the
+// bottom of whichever header happens to be showing, not underneath it (see
+// that file's own comment for why this must be exact, not approximate).
+export function useScreenHeaderHeight(): number {
+  const insets = useSafeAreaInsets();
+  return insets.top + HEADER_ROW_HEIGHT + SCREEN_HEADER_WRAPPER_TOP_PADDING;
+}
+
 // 2026-07-25: this used to be the one header carrying three things --
 // the page's own title/sub-tab (left), a help icon (far left), and
 // "{name}'s Inside Story" (right). All three moved out: the info icon is
@@ -70,38 +96,28 @@ const HIGHLIGHT_OFFSET = -1.5;
 // shows, in a larger size, centered both ways in the header's own space
 // rather than pinned to one side of a now-empty row.
 //
+// 2026-07-27: mounted exactly ONCE now, in app/(tabs)/_layout.tsx, instead
+// of once per tab screen. Each screen used to render its own <ScreenHeader
+// title=... helpSections=... tabPath=.../>, which meant each one also
+// carried its own local firstName state, starting at null on that
+// screen's own first mount -- swiping to a tab whose header hadn't
+// resolved its own profile fetch yet flashed the "MY Inside Story"
+// placeholder before correcting itself a moment later. A single shared
+// instance has exactly one firstName, fetched once, so there's nothing
+// left to flash: whichever tab is showing, the name is already known.
+// helpSections/tabPath registration moved out to
+// CurrentPageHelp.tsx's own useRegisterScreenHelp, which each screen now
+// calls directly, since a single shared header has no per-screen "just
+// gained focus" moment of its own to hang that on.
+//
 // Still used instead of the native Stack/Tabs header (turned off for the
 // whole (tabs) group -- see app/(tabs)/_layout.tsx) so nothing shows
-// twice, and still the place `helpSections`/`tabPath` get registered
-// (via useCurrentPageHelp) even though neither one renders anything
-// visible here anymore -- TabHub's info tile and active-tab highlight
-// both still depend on this registration happening on every screen.
-export function ScreenHeader({
-  title,
-  helpSections,
-  tabPath,
-}: {
-  // No longer displayed here (see PageIdentityLabel) -- still required so
-  // the help sheet this feeds (via useCurrentPageHelp) can show "About
-  // {title}".
-  title: string;
-  // Omit to register no help content at all (e.g. a screen with nothing
-  // yet worth explaining) -- every tab that has real content should pass
-  // these.
-  helpSections?: HelpSection[];
-  // This screen's own entry in constants/tabs.ts's TAB_ROUTES (e.g. '/',
-  // '/home') -- registered on focus so TabHub can reliably highlight the
-  // tab actually being looked at (see CurrentPageHelp.tsx's activeTabPath
-  // for why this can't just be read off the URL). Only the 7 tab screens
-  // pass this; a screen reached outside the tab bar (Profile, Check-In)
-  // should leave it unset.
-  tabPath?: string;
-}) {
+// twice.
+export function ScreenHeader() {
   const [firstName, setFirstName] = useState<string | null>(null);
   const hueRotation = useIridescentHueRotation();
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
-  const { setCurrentHelp, setActiveTabPath } = useCurrentPageHelp();
   // Matches `row`'s own paddingHorizontal below.
   const textAreaWidth = Math.max(200, windowWidth - ROW_HORIZONTAL_PADDING * 2);
   const appNameText = `${firstName ? `${firstName}'s` : 'MY'} Inside Story`;
@@ -129,12 +145,27 @@ export function ScreenHeader({
   // for a given name -- a fixed offset approximation tuned for one size
   // would drift off-center as the size changes.
   const textCenterY = HEADER_TEXT_HEIGHT / 2;
-  const animatedGradientColors = rotatedIridescentPalette(hueRotation);
+  // The gradient text's stops can't be driven straight off the UI thread
+  // (see useThrottledHueDegrees's own comment above) -- this is the one
+  // throttled JS-thread bridge in the whole rewrite, feeding just this one
+  // array of plain colors.
+  const animatedGradientColors = rotatedIridescentPalette(useThrottledHueDegrees(hueRotation));
+  // The divider line just below, in contrast, is a real host LinearGradient
+  // and reads hueRotation.value directly inside this worklet callback, with
+  // no JS-thread bridge at all.
+  const dividerAnimatedProps = useAnimatedProps(() => ({
+    colors: rotatedIridescentPalette(hueRotation.value),
+  }));
 
-  // Refetched on every focus (not just once on mount) so editing your name
-  // in Profile and coming back to any tab picks it up immediately -- the
-  // same reasoning as every other cross-screen-affected value in this app
-  // (see the useFocusEffect notes on the Meals/Insights/Schedule screens).
+  // Refetched on every focus of the (tabs) group as a whole (not just once
+  // on mount) so editing your name in Profile -- a separate stack screen
+  // outside this group -- and coming back picks it up immediately. This
+  // component is mounted once for the group's entire lifetime now, not
+  // once per screen, so "on focus" here means "the group as a whole
+  // regained focus" (e.g. returning from Profile), not "a particular tab
+  // was swiped to" -- exactly the granularity that avoids the old
+  // per-screen refetch/flash this replaced (see this component's own
+  // opening comment).
   useFocusEffect(
     useCallback(() => {
       let isMounted = true;
@@ -147,51 +178,36 @@ export function ScreenHeader({
     }, []),
   );
 
-  // Registers this screen's own help content as "the current page" the
-  // moment it gains focus, so TabHub's info tile (opened from a totally
-  // different part of the tree) always shows the right thing for whatever
-  // tab the person is actually looking at.
-  useFocusEffect(
-    useCallback(() => {
-      setCurrentHelp(helpSections ? { title, sections: helpSections } : null);
-    }, [title, helpSections, setCurrentHelp]),
-  );
-
-  // Same focus-driven registration, for which tab is actually on screen --
-  // kept as its own effect (not folded into the one above) so a screen
-  // with no helpSections still correctly reports its tab.
-  useFocusEffect(
-    useCallback(() => {
-      if (tabPath) setActiveTabPath(tabPath);
-    }, [tabPath, setActiveTabPath]),
-  );
-
   return (
-    // paddingTop: insets.top -- real safe-area clearance for the status
-    // bar (the app draws edge-to-edge on Android, see app.json's
-    // edgeToEdgeEnabled), not the flat 25px guess this used to be. That
-    // guess happened to be close to a typical status bar height, which is
-    // exactly why shrinking the header (see `row` below) didn't get far
-    // just by cutting this number -- it's a hard minimum, not slack to
-    // trim; the real reduction had to come out of `row`'s own padding.
-    <View style={{ paddingTop: insets.top }}>
-      <View style={styles.row}>
-        <View style={styles.nameStack}>
-          {/* "MY" is a placeholder for when no first name is set in
-              Profile -- same slot, same style as the real possessive, so
-              setting a name later is a straight swap, not a layout
-              change. One text string, not two side by side -- both the
-              name and "Inside Story" belong on the same row, and a single
-              string guarantees that rather than depending on there being
-              enough width for two separate ones to land next to each other. */}
-          <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>
-            <Defs>
-              <SvgLinearGradient id="appNameGradient" x1="0" y1="0" x2="1" y2="0">
-                {animatedGradientColors.map((color, index) => (
-                  <Stop key={index} offset={index / (animatedGradientColors.length - 1)} stopColor={color} />
-                ))}
-              </SvgLinearGradient>
-            </Defs>
+    // Wrapper padding/background -- previously duplicated in every
+    // screen's own `styles.header` box around <ScreenHeader/>, now that
+    // there's only one instance to apply it to. paddingTop: insets.top
+    // (nested below) is real safe-area clearance for the status bar (the
+    // app draws edge-to-edge on Android, see app.json's edgeToEdgeEnabled),
+    // not the flat 25px guess this used to be. That guess happened to be
+    // close to a typical status bar height, which is exactly why shrinking
+    // the header (see `row` below) didn't get far just by cutting this
+    // number -- it's a hard minimum, not slack to trim; the real reduction
+    // had to come out of `row`'s own padding.
+    <View style={styles.wrapper}>
+      <View style={{ paddingTop: insets.top }}>
+        <View style={styles.row}>
+          <View style={styles.nameStack}>
+            {/* "MY" is a placeholder for when no first name is set in
+                Profile -- same slot, same style as the real possessive, so
+                setting a name later is a straight swap, not a layout
+                change. One text string, not two side by side -- both the
+                name and "Inside Story" belong on the same row, and a single
+                string guarantees that rather than depending on there being
+                enough width for two separate ones to land next to each other. */}
+            <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>
+              <Defs>
+                <SvgLinearGradient id="appNameGradient" x1="0" y1="0" x2="1" y2="0">
+                  {animatedGradientColors.map((color, index) => (
+                    <Stop key={index} offset={index / (animatedGradientColors.length - 1)} stopColor={color} />
+                  ))}
+                </SvgLinearGradient>
+              </Defs>
 
             {/* Stacked shadow copies, furthest/faintest first so each
                 nearer one paints cleanly over it -- see SHADOW_LAYERS. */}
@@ -248,8 +264,12 @@ export function ScreenHeader({
           line and the footer's own divider (ScreenBackground.tsx) shimmer
           in lockstep with the header text rather than each drifting on
           its own schedule. */}
-      <LinearGradient
-        colors={animatedGradientColors}
+      <AnimatedLinearGradient
+        // Static fallback so TypeScript's own required `colors` prop is
+        // satisfied -- animatedProps overrides this at the native level
+        // the instant it mounts.
+        colors={IRIDESCENT_PALETTE}
+        animatedProps={dividerAnimatedProps}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 0 }}
         style={styles.divider}
@@ -257,10 +277,18 @@ export function ScreenHeader({
       <View style={styles.shadowFade1} />
       <View style={styles.shadowFade2} />
     </View>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  // Previously each screen's own `styles.header` box (paddingTop: 12,
+  // backgroundColor: colors.background) -- folded in here now that this
+  // is the one place that box is ever needed.
+  wrapper: {
+    paddingTop: 12,
+    backgroundColor: colors.background,
+  },
   // 2026-07-25: reduced roughly a quarter overall, now that this text is
   // the only thing in the header -- paddingVertical cut from 18 to 6 (the
   // biggest lever available, since the safe-area clearance above can't

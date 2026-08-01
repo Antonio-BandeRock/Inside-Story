@@ -9,6 +9,18 @@ import type { DietaryReferenceIntake, FoodNutrient } from './db';
 // Deliberately has no dependency on SQLite/React -- callers in lib/db.ts
 // and the UI supply already-resolved data, so this stays trivially testable.
 
+// Shared "12.3 mg" / "4 g" formatting for a nutrient amount -- one decimal
+// place under 10 (a lot of trace minerals only make sense with one, e.g.
+// "0.8 mg"), a whole number at or above it (nothing here needs more
+// precision than that once the amount is already in double digits). Used
+// by both Insights' own daily Nutrients lens and FoodLookup.tsx's
+// per-food table, which otherwise had two copies of this exact function
+// drifting independently.
+export function formatAmount(value: number, unit: string): string {
+  const decimals = value < 10 ? 1 : 0;
+  return `${value.toFixed(decimals)} ${unit}`;
+}
+
 export type NutrientIntakeItem = {
   // Grams of the food actually consumed -- unit-to-grams conversion (cups,
   // ounces, etc. -> grams) is a separate, not-yet-built piece; callers must
