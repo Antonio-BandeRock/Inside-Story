@@ -1852,6 +1852,176 @@ def parse_nutrient_amount(raw_value):
         return None
 
 
+# 2026-08-01 -- the source workbook's sheets used to be split per
+# (source, category) -- "USDA_Veg", "USDA_Fruit", etc -- and category_code
+# below was always just the CategoryCode half of that sheet name. At some
+# point outside this project (the separate nutrition-database project's own
+# workbook maintenance), the workbook was restructured into one flat sheet
+# per source (confirmed directly: the real sheet names are now just "USDA",
+# "UK_CoFID", "Japan_MEXT", "Germany_BLS", "Canada_CNF", "France_Ciqual",
+# "Australia_AFCD" -- no category suffix on any of them). That silently
+# broke every row's category_code (sheet_name.partition("_") now returns ""
+# for USDA and a meaningless country-code fragment like "BLS"/"CNF" for the
+# others), which cascaded into reclassify_category always falling through
+# to that same empty/meaningless value -- discovered when a Cooking & Prep
+# fix surfaced that ~all of USDA's own foods (this app's default,
+# usdaOnly=true source) had lost their category entirely.
+#
+# Fix: derive category_code from each row's own `category` column instead
+# (raw_category once stored -- a real per-row food-group description, e.g.
+# "Vegetables and Vegetable Products", untouched by the sheet restructuring
+# and still present). RAW_CATEGORY_TO_CODE below maps (source, that exact
+# text) -> the category code it corresponded to historically. Built
+# empirically, not guessed: extracted directly from this project's last
+# known-good compiled database (before the workbook restructuring), where
+# every (source, raw_category) pair's real, historically-correct category
+# was already on record from back when sheet names still carried it.
+# Verified this covers 100% of the (source, raw_category) pairs the current
+# workbook actually contains (124 of 124) -- the `.get(..., category_code)`
+# fallback below only matters if a genuinely new raw_category text shows up
+# in some future workbook update.
+#
+# Known, disclosed imprecision: a small number of raw_category values were
+# themselves heterogeneous catch-all buckets even back when sheet names
+# still existed (e.g. USDA's "American Indian/Alaska Native Foods" spans
+# real Meat/Fish/Veg/Fruit/Mixed rows all under one raw_category label;
+# Germany_BLS's "Starches & Potato Products" spans Mushroom/Veg/Grain/Mixed;
+# France_Ciqual's "Unknown" spans Baked/Grain/Sweets/Legume) -- for these,
+# this mapping uses the single most common historical category as an
+# approximation, which is honestly wrong for the minority of rows in that
+# bucket that weren't the majority category. Affects roughly 350 of 22,016
+# foods (~1.6%), and CATEGORY_OVERRIDES below still corrects any of those
+# 350 that happen to already have a hand-verified entry. Revisit with
+# keyword-based sub-rules (similar to CATEGORY_OVERRIDES itself) if this
+# precision ever matters for a specific food someone hits in practice.
+RAW_CATEGORY_TO_CODE = {
+    ("Australia_AFCD", "Alcoholic Beverages"): "Alcohol",
+    ("Australia_AFCD", "Breads & Bread Products"): "Baked",
+    ("Australia_AFCD", "Cheese & Dairy"): "Dairy",
+    ("Australia_AFCD", "Cocoa & Chocolate Beverage Bases"): "Bev",
+    ("Australia_AFCD", "Confectionery & Preserves"): "Sweets",
+    ("Australia_AFCD", "Dairy Alternatives"): "Dairy",
+    ("Australia_AFCD", "Eggs"): "Dairy",
+    ("Australia_AFCD", "Fats & Oils"): "Fats",
+    ("Australia_AFCD", "Fish & Seafood"): "Fish",
+    ("Australia_AFCD", "Fruit"): "Fruit",
+    ("Australia_AFCD", "Game & Specialty Meats"): "Meat",
+    ("Australia_AFCD", "Herbs & Spices"): "Herbs",
+    ("Australia_AFCD", "Human Breast Milk"): "Dairy",
+    ("Australia_AFCD", "Legume & Soy Products"): "Legume",
+    ("Australia_AFCD", "Legumes, Pulses & Starches"): "Veg",
+    ("Australia_AFCD", "Meat & Meat Products"): "Meat",
+    ("Australia_AFCD", "Nuts, Seeds & Nut/Seed Products"): "NutSeed",
+    ("Australia_AFCD", "Protein Supplements"): "Mixed",
+    ("Australia_AFCD", "Sauces, Dressings & Condiments"): "Mixed",
+    ("Australia_AFCD", "Savoury Biscuits & Crackers"): "Baked",
+    ("Australia_AFCD", "Snack/Muesli Bars"): "Mixed",
+    ("Australia_AFCD", "Soups"): "Mixed",
+    ("Canada_CNF", "Baked Products"): "Baked",
+    ("Canada_CNF", "Beef Products"): "Meat",
+    ("Canada_CNF", "Beverages"): "Bev",
+    ("Canada_CNF", "Breakfast cereals"): "Grain",
+    ("Canada_CNF", "Cereals, Grains and Pasta"): "Grain",
+    ("Canada_CNF", "Dairy and Egg Products"): "Dairy",
+    ("Canada_CNF", "Fats and Oils"): "Fats",
+    ("Canada_CNF", "Finfish and Shellfish Products"): "Fish",
+    ("Canada_CNF", "Fruits and fruit juices"): "Fruit",
+    ("Canada_CNF", "Lamb, Veal and Game"): "Meat",
+    ("Canada_CNF", "Legumes and Legume Products"): "Legume",
+    ("Canada_CNF", "Mixed Dishes"): "Mixed",
+    ("Canada_CNF", "Nuts and Seeds"): "NutSeed",
+    ("Canada_CNF", "Pork Products"): "Meat",
+    ("Canada_CNF", "Poultry Products"): "Meat",
+    ("Canada_CNF", "Sausages and Luncheon meats"): "Meat",
+    ("Canada_CNF", "Snacks"): "Grain",
+    ("Canada_CNF", "Soups, Sauces and Gravies"): "Mixed",
+    ("Canada_CNF", "Spices and Herbs"): "Herbs",
+    ("Canada_CNF", "Sweets"): "Sweets",
+    ("Canada_CNF", "Vegetables and Vegetable Products"): "Veg",
+    ("France_Ciqual", "Cereal Products"): "Grain",
+    ("France_Ciqual", "Culinary Aids & Miscellaneous Ingredients"): "Mixed",
+    ("France_Ciqual", "Dairy Products & Substitutes"): "Dairy",
+    ("France_Ciqual", "Fats"): "Fats",
+    ("France_Ciqual", "Fruits, Vegetables, Legumes & Oilseeds"): "Veg",
+    ("France_Ciqual", "Ice Creams & Sorbets"): "Sweets",
+    ("France_Ciqual", "Meat, Eggs, Fish & Substitutes"): "Meat",
+    ("France_Ciqual", "Starters & Prepared Dishes"): "Mixed",
+    ("France_Ciqual", "Sugary/Sweet Products"): "Sweets",
+    ("France_Ciqual", "Unknown"): "Baked",
+    ("France_Ciqual", "Water & Other Beverages"): "Bev",
+    ("Germany_BLS", "Alcoholic Beverages & Spirits"): "Alcohol",
+    ("Germany_BLS", "Baked Goods & Pastries"): "Baked",
+    ("Germany_BLS", "Bread"): "Baked",
+    ("Germany_BLS", "Cereals & Grains"): "Grain",
+    ("Germany_BLS", "Dairy & Cheese"): "Dairy",
+    ("Germany_BLS", "Fish & Seafood"): "Fish",
+    ("Germany_BLS", "Fruit"): "Fruit",
+    ("Germany_BLS", "Legumes, Nuts, Sprouts & Soy Products"): "NutSeed",
+    ("Germany_BLS", "Meat Fats & Trimmings"): "Meat",
+    ("Germany_BLS", "Non-Alcoholic Beverages"): "Bev",
+    ("Germany_BLS", "Offal, Game & Specialty Meats"): "Meat",
+    ("Germany_BLS", "Oils & Fats"): "Fats",
+    ("Germany_BLS", "Pasta & Noodles"): "Grain",
+    ("Germany_BLS", "Prepared/Cooked Dishes"): "Mixed",
+    ("Germany_BLS", "Salt & Seasonings"): "Herbs",
+    ("Germany_BLS", "Sausages & Cured Meats"): "Meat",
+    ("Germany_BLS", "Soups, Stocks & Consommes"): "Mixed",
+    ("Germany_BLS", "Starches & Potato Products"): "Mushroom",
+    ("Germany_BLS", "Sugars & Sweeteners"): "Sweets",
+    ("Germany_BLS", "Vegetables"): "Veg",
+    ("Japan_MEXT", "Algae"): "Algae",
+    ("Japan_MEXT", "Beverages"): "Bev",
+    ("Japan_MEXT", "Cereals"): "Grain",
+    ("Japan_MEXT", "Eggs"): "Dairy",
+    ("Japan_MEXT", "Fish & Shellfish"): "Fish",
+    ("Japan_MEXT", "Fruits"): "Fruit",
+    ("Japan_MEXT", "Meats"): "Meat",
+    ("Japan_MEXT", "Milks"): "Dairy",
+    ("Japan_MEXT", "Mushrooms"): "Mushroom",
+    ("Japan_MEXT", "Nuts & Seeds"): "NutSeed",
+    ("Japan_MEXT", "Oils & Fats"): "Fats",
+    ("Japan_MEXT", "Potatoes & Starches"): "Veg",
+    ("Japan_MEXT", "Prepared Foods"): "Mixed",
+    ("Japan_MEXT", "Pulses"): "Legume",
+    ("Japan_MEXT", "Seasonings & Spices"): "Herbs",
+    ("Japan_MEXT", "Sugars & Sweeteners"): "Sweets",
+    ("Japan_MEXT", "Vegetables"): "Veg",
+    ("UK_CoFID", "Alcoholic Beverages"): "Alcohol",
+    ("UK_CoFID", "Cereals & Cereal Products"): "Grain",
+    ("UK_CoFID", "Fats & Oils"): "Fats",
+    ("UK_CoFID", "Fish & Fish Products"): "Fish",
+    ("UK_CoFID", "Fruit"): "Fruit",
+    ("UK_CoFID", "Meat & Meat Products"): "Meat",
+    ("UK_CoFID", "Milk & Milk Products"): "Dairy",
+    ("UK_CoFID", "Non-Alcoholic Beverages"): "Bev",
+    ("UK_CoFID", "Nuts & Seeds"): "NutSeed",
+    ("UK_CoFID", "Sugars, Preserves & Confectionery"): "Sweets",
+    ("UK_CoFID", "Vegetables"): "Veg",
+    ("USDA", "American Indian/Alaska Native Foods"): "Meat",
+    ("USDA", "Baked Products"): "Baked",
+    ("USDA", "Beef Products"): "Meat",
+    ("USDA", "Beverages"): "Bev",
+    ("USDA", "Breakfast Cereals"): "Grain",
+    ("USDA", "Cereal Grains and Pasta"): "Grain",
+    ("USDA", "Dairy and Egg Products"): "Dairy",
+    ("USDA", "Fats and Oils"): "Fats",
+    ("USDA", "Finfish and Shellfish Products"): "Fish",
+    ("USDA", "Fruits and Fruit Juices"): "Fruit",
+    ("USDA", "Lamb, Veal, and Game Products"): "Meat",
+    ("USDA", "Legumes and Legume Products"): "Legume",
+    ("USDA", "Meals, Entrees, and Side Dishes"): "Mixed",
+    ("USDA", "Nut and Seed Products"): "NutSeed",
+    ("USDA", "Pork Products"): "Meat",
+    ("USDA", "Poultry Products"): "Meat",
+    ("USDA", "Sausages and Luncheon Meats"): "Meat",
+    ("USDA", "Snacks"): "Grain",
+    ("USDA", "Soups, Sauces, and Gravies"): "Mixed",
+    ("USDA", "Spices and Herbs"): "Herbs",
+    ("USDA", "Sweets"): "Sweets",
+    ("USDA", "Vegetables and Vegetable Products"): "Veg",
+}
+
+
 def reclassify_category(category_code, base_name):
     override = CATEGORY_OVERRIDES.get((category_code, base_name))
     if override:
@@ -2839,8 +3009,14 @@ def build(xlsx_path, db_path):
             if sheet_name in SKIP_SHEETS:
                 continue
 
-            # Sheet name convention: "{SOURCE_PREFIX}_{CategoryCode}"
-            source_prefix, _, category_code = sheet_name.partition("_")
+            # Sheet name convention: "{SOURCE_PREFIX}_{CategoryCode}" -- no
+            # longer true for the real current workbook (every sheet is now
+            # just the bare source name, see RAW_CATEGORY_TO_CODE's own
+            # comment), so category_code from this alone is stale/unreliable
+            # now. Kept only as source_prefix's source and as the last-resort
+            # fallback below for a raw_category text this build has never
+            # seen before.
+            source_prefix, _, sheet_category_code = sheet_name.partition("_")
 
             header, data_rows = parse_sheet(z, sheet_file, shared)
             if not header:
@@ -2891,6 +3067,12 @@ def build(xlsx_path, db_path):
                     continue
 
                 source = get("source") or source_prefix
+                # Real per-row category derivation -- see RAW_CATEGORY_TO_CODE's
+                # own comment for why this replaced the old sheet-name-derived
+                # value. sheet_category_code only matters as a fallback for a
+                # (source, raw_category) pair this build has never seen before.
+                row_raw_category = get("category")
+                category_code = RAW_CATEGORY_TO_CODE.get((source, row_raw_category), sheet_category_code)
                 short_name = get("Short Display Name")
                 base_name, prep_method = split_prep_method(name, short_name)
                 base_name, prep_method = apply_prep_overrides(category_code, base_name, prep_method)
