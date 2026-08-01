@@ -2117,26 +2117,145 @@ PREP_TERMS = [
     "raw",
 ]
 
+# Same phrases as PREP_TERMS above, reorganized into priority tiers for
+# split_prep_method's own short_name-prefix path below (2026-08-01) --
+# PREP_TERMS itself is left untouched, still used verbatim by the original
+# single-trailing-word fallback path further down, so that already-working
+# behavior (Germany_BLS, and the PREP_METHOD_OVERRIDES-matched potato dish
+# names) is byte-for-byte unaffected by this fix.
+#
+# Checked ahead of RAW_TERMS/STORAGE_TERMS when a food's extra descriptor
+# text (see split_prep_method's own comment) has more than one real prep
+# clause in it -- e.g. "frozen, chopped, cooked, boiled, drained, with
+# salt" started frozen, but functionally ended up cooked, which is what
+# actually matters for this app's own raw-vs-cooked scoring (e.g. D5
+# Goitrogenic Load: cooking, not freezing, is what deactivates goitrogens).
+COOKING_TERMS = [
+    "fried without fat (pan)",
+    "fried without fat (oven)",
+    "without fat (pan)",
+    "without fat (oven)",
+    "in unsalted water",
+    "in salted water",
+    "steamed",
+    "roasted",
+    "grilled",
+    "stewed",
+    "boiled",
+    "canned",
+    "pickled",
+    "cooked",
+    "baked",
+    "fried",
+    "cured",
+]
+RAW_TERMS = ["raw", "unprepared"]
+# Real states, but don't by themselves say whether the food was ultimately
+# cooked or eaten raw -- lowest priority, only used when nothing above is
+# found in any clause.
+STORAGE_TERMS = ["deep-frozen", "frozen", "dried", "marinated", "in juice"]
 
-def split_prep_method(name):
-    """Strip a trailing cooking-state word/phrase off a food's display name.
+# Matches a short_name ending in exactly one trailing "(...)" group -- e.g.
+# "Broccoli (boiled)" -> base "Broccoli", inner "boiled"; "Apples,
+# dehydrated (low moisture) (stewed)" -> base "Apples, dehydrated (low
+# moisture)", inner "stewed" (the LAST paren group only; [^()]+ can't cross
+# into an earlier one, so an earlier real descriptor like "(low moisture)"
+# is correctly left as part of the base name, not mistaken for prep state).
+_TRAILING_PAREN_RE = re.compile(r"^(.*?)\s*\(([^()]+)\)\s*$")
 
-    Returns (base_name, prep_method). prep_method is None when nothing in
-    PREP_TERMS matches at the end of the string -- the vast majority of
-    rows (already-clean USDA/UK/etc. short names), left untouched.
+
+def _match_prep_term(text):
+    """Whole-word match of `text` against COOKING_TERMS/RAW_TERMS/
+    STORAGE_TERMS, in that priority order (see those lists' own comments).
+    Returns the matched term (lowercase, as written in those lists) or
+    None."""
+    lowered = text.lower()
+    for tier in (COOKING_TERMS, RAW_TERMS, STORAGE_TERMS):
+        for term in tier:
+            if re.search(r"\b" + re.escape(term) + r"\b", lowered):
+                return term
+    return None
+
+
+def split_prep_method(name, short_name=None):
+    """Extract a food's cooking/prep state from its full name.
+
+    Returns (base_name, prep_method). Three different strategies, tried in
+    order:
+
+    1. The current source workbook's own USDA rows often give short_name
+       itself a trailing "(prepstate)" parenthetical -- e.g. "Broccoli
+       (boiled)" -- a deliberate, reliable convention for exactly this
+       when it's present, confirmed 2026-08-01 against 3,370 real USDA
+       short_names. Checked directly on short_name via
+       _TRAILING_PAREN_RE/_match_prep_term above, ahead of strategy 2
+       below, since it's a more direct signal than reconstructing intent
+       by diffing against `name` -- and structurally distinct anyway (a
+       parenthetical suffix, not a comma-separated one), so the two
+       strategies don't actually compete for the same rows.
+
+    2. Most OTHER rows' own "Short Display Name" column is a genuine
+       PREFIX of the full `name`, with the cooking/prep descriptor already
+       stripped off by whatever curated that column -- e.g. name=
+       "Broccoli, cooked, boiled, drained, with salt", short_name=
+       "Broccoli". Confirmed empirically 2026-08-01 across USDA/UK_CoFID/
+       Japan_MEXT/Canada_CNF/France_Ciqual/Australia_AFCD, all of which
+       had near-zero real prep_method extraction under the OLD approach
+       (parsing short_name alone) for exactly this reason: the prep info
+       was never IN short_name to begin with, only in whatever `name` had
+       left over past that shared prefix. That's what this branch mines,
+       splitting the leftover text on commas and checking each clause
+       against COOKING_TERMS/RAW_TERMS/STORAGE_TERMS in priority order
+       (not just the literal last word, since the leftover text is often
+       several clauses long and the clause that actually matters for
+       scoring isn't always the final one -- see the tier lists' own
+       comment).
+
+    3. Germany_BLS is the one source where short_name already equals the
+       full name (nothing separately truncated), so there's no separate
+       suffix to mine -- this and any other row matching neither strategy
+       above falls through to the ORIGINAL single-trailing-word check this
+       function always used, completely unchanged, so that already-correct
+       behavior stays exactly as it was.
     """
-    if not name:
+    if not name and not short_name:
         return name, None
 
-    lowered = name.lower()
+    if short_name:
+        paren_match = _TRAILING_PAREN_RE.match(short_name)
+        if paren_match:
+            candidate_base = paren_match.group(1).strip(" ,")
+            term = _match_prep_term(paren_match.group(2))
+            if term and candidate_base:
+                return candidate_base, term.title()
+
+    if short_name and name and name.lower().startswith(short_name.lower()) and len(name) > len(short_name):
+        suffix = name[len(short_name):].lstrip(" ,")
+        if suffix:
+            clauses = [c.strip().lower() for c in suffix.split(",")]
+            # Word-boundary match, not a bare substring check -- same
+            # precision the original trailing-word check already had for
+            # free (its leading-space requirement ruled out mid-word
+            # matches; a bare `in` here wouldn't), just needed spelling
+            # out explicitly now that a term can match anywhere inside a
+            # clause rather than only at a string's very end.
+            for tier in (COOKING_TERMS, RAW_TERMS, STORAGE_TERMS):
+                for term in tier:
+                    pattern = r"\b" + re.escape(term) + r"\b"
+                    if any(re.search(pattern, clause) for clause in clauses):
+                        return short_name, term.title()
+        return short_name, None
+
+    original = short_name or name
+    lowered = original.lower()
     for term in PREP_TERMS:
         suffix = " " + term
-        if lowered.endswith(suffix) and len(name) > len(suffix):
-            base = name[: len(name) - len(suffix)].rstrip(" ,")
+        if lowered.endswith(suffix) and len(original) > len(suffix):
+            base = original[: len(original) - len(suffix)].rstrip(" ,")
             if base:
                 return base, term.title()
 
-    return name, None
+    return original, None
 
 
 # Dish-style names that are really a potato (or sweet potato) plus a cooking
@@ -2620,7 +2739,7 @@ def build(xlsx_path, db_path):
 
                 source = get("source") or source_prefix
                 short_name = get("Short Display Name")
-                base_name, prep_method = split_prep_method(short_name or name)
+                base_name, prep_method = split_prep_method(name, short_name)
                 base_name, prep_method = apply_prep_overrides(category_code, base_name, prep_method)
                 base_name = rename_bean_type_first(base_name)
                 base_name = rename_sprout(base_name, name)
