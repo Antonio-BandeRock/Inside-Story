@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -1177,15 +1177,22 @@ export function SideBuilder({
     // value explicitly) so its own internal list-height math immediately
     // reclaims the freed space rather than leaving a gap where the card
     // used to be.
+    //
+    // Deliberately plain Views, not Animated.View/entering/exiting/layout
+    // transitions (tried first, reverted the same day) -- the search box
+    // that's supposed to auto-focus the instant this step is reached lives
+    // in AppKeyboard.tsx (a root-level sibling, via its own real
+    // React Native TextInput autoFocus prop), and wrapping this branch's
+    // own re-render in a Reanimated layout transition made that autoFocus
+    // stop firing reliably -- reported directly ("tap the [Type] link,
+    // list doesn't drop down and keyboard doesn't come up"). An instant
+    // snap is a smaller cost than breaking the auto-focus this whole fix
+    // depends on to be useful without an extra manual tap.
     const searching = !!activeField;
     return (
       <View style={styles.pickerScreen}>
-        {searching ? null : (
-          <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)} layout={LinearTransition}>
-            {renderSummaryCard(true)}
-          </Animated.View>
-        )}
-        <Animated.View style={styles.connectedPickerWrap} layout={LinearTransition}>
+        {searching ? null : renderSummaryCard(true)}
+        <View style={styles.connectedPickerWrap}>
           <FoodLookup
             tabColor={tabColor}
             showNutrients={false}
@@ -1195,7 +1202,7 @@ export function SideBuilder({
             initialCategory={lastCategory}
             initialSubcategory={lastSubcategory}
           />
-        </Animated.View>
+        </View>
       </View>
     );
   }
