@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import {
@@ -37,12 +37,39 @@ import { BUTTERFLY_WIDTH } from './TabHub';
 // guessed pixel offset, so it stays centered in that gap even if either
 // button's own position ever changes.
 //
-// Nothing can actually be saved/favorited yet anywhere in the app (see
-// e.g. SideBuilder.tsx's own "Saving is not built yet" comment) -- this is
-// the button and its own empty-state placeholder, not the save feature
-// itself, matching this app's established "coming soon" honesty
-// elsewhere rather than claiming a working feature that isn't there yet.
-export function MyItemsHub({ label, tabColor }: { label: string; tabColor: string }) {
+// Genuinely generic still -- this component knows nothing about sides,
+// favorites, or any other specific kind of saved item. A caller with real
+// data to show (Food tab, as of 2026-08-01, is the first) passes it in via
+// `sections`; a caller with nothing yet to show (Insights/Schedule/etc.,
+// still) passes nothing and gets the original placeholder text, matching
+// this app's established "coming soon" honesty rather than claiming a
+// working feature that isn't there yet on THAT page.
+export type MyItemsListEntry = { id: string; title: string; subtitle?: string };
+export type MyItemsSection = {
+  title: string;
+  items: MyItemsListEntry[];
+  // Shown in place of the list when this section has no items yet -- kept
+  // per-section rather than one generic message, since "no sides saved
+  // yet" and "nothing favorited yet" mean genuinely different things and
+  // a caller may want to say so.
+  emptyText: string;
+};
+
+export function MyItemsHub({
+  label,
+  tabColor,
+  sections,
+  onOpen,
+}: {
+  label: string;
+  tabColor: string;
+  sections?: MyItemsSection[];
+  // Fires every time the popup opens, before anything renders -- lets the
+  // caller refetch its own data live rather than showing whatever was
+  // fetched once at mount, which could already be stale by the time this
+  // is actually opened (e.g. right after saving a new side).
+  onOpen?: () => void;
+}) {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   const [open, setOpen] = useState(false);
@@ -70,7 +97,10 @@ export function MyItemsHub({ label, tabColor }: { label: string; tabColor: strin
     <>
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          setOpen(true);
+          onOpen?.();
+        }}
         activeOpacity={0.85}
         accessibilityLabel={`${label}, your saved items`}
       >
@@ -101,9 +131,35 @@ export function MyItemsHub({ label, tabColor }: { label: string; tabColor: strin
             <Text style={[styles.cardHeader, { color: tabColor }]} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
               {label}
             </Text>
-            <Text style={styles.emptyText}>
-              {"Nothing saved yet. Once you're able to save or favorite things here, they'll show up in this list."}
-            </Text>
+            {sections ? (
+              <ScrollView style={styles.sectionsScroll} showsVerticalScrollIndicator={false}>
+                {sections.map((section) => (
+                  <View key={section.title} style={styles.section}>
+                    <Text style={[styles.sectionHeader, { color: tabColor }]}>{section.title}</Text>
+                    {section.items.length > 0 ? (
+                      section.items.map((item) => (
+                        <View key={item.id} style={styles.itemRow}>
+                          <Text style={styles.itemTitle} numberOfLines={1}>
+                            {item.title}
+                          </Text>
+                          {item.subtitle ? (
+                            <Text style={styles.itemSubtitle} numberOfLines={1}>
+                              {item.subtitle}
+                            </Text>
+                          ) : null}
+                        </View>
+                      ))
+                    ) : (
+                      <Text style={styles.emptyText}>{section.emptyText}</Text>
+                    )}
+                  </View>
+                ))}
+              </ScrollView>
+            ) : (
+              <Text style={styles.emptyText}>
+                {"Nothing saved yet. Once you're able to save or favorite things here, they'll show up in this list."}
+              </Text>
+            )}
           </View>
           <View style={[styles.navBarMask, { height: insets.bottom }]} pointerEvents="none" />
         </View>
@@ -166,6 +222,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
     width: 240,
     padding: 16,
+    // Caps how tall the card can grow once real saved items exist --
+    // sectionsScroll below is what actually scrolls once content exceeds
+    // the room this leaves it (roughly this minus the header/padding).
+    maxHeight: 320,
     shadowColor: '#000',
     shadowOpacity: 0.15,
     shadowRadius: 10,
@@ -175,6 +235,30 @@ const styles = StyleSheet.create({
   cardHeader: {
     ...typography.eyebrow,
     marginBottom: 8,
+  },
+  sectionsScroll: {
+    maxHeight: 260,
+  },
+  section: {
+    marginBottom: 10,
+  },
+  sectionHeader: {
+    ...typography.captionEmphasis,
+    marginBottom: 4,
+  },
+  itemRow: {
+    paddingVertical: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  itemTitle: {
+    ...typography.body,
+    color: colors.textPrimary,
+  },
+  itemSubtitle: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: 1,
   },
   emptyText: {
     ...typography.body,

@@ -1557,6 +1557,35 @@ export async function saveSide(input: {
   return { id };
 }
 
+export type SideRecord = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredientCount: number;
+  createdAt: string;
+};
+
+// Most-recently-saved first -- matches listFavorites' own ordering, and
+// matches what someone opening "My Foods" right after saving a side
+// actually wants to see first.
+export async function listSides(limit = 50): Promise<SideRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SideRecord>(
+    `
+      SELECT s.id, s.name, s.servings, s.serving_size_amount AS servingSizeAmount, s.serving_size_unit AS servingSizeUnit,
+             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount
+      FROM sides s
+      LEFT JOIN side_ingredients si ON si.side_id = s.id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both
 // mixed together (the original behavior, kept as the default since some
 // callers -- like the very first favorites list this app had -- don't care

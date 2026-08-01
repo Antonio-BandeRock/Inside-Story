@@ -5,13 +5,14 @@ import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
-import { MyItemsHub } from '../../components/MyItemsHub';
+import { MyItemsHub, type MyItemsSection } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SideBuilder } from '../../components/SideBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
+import { listFavorites, listSides } from '../../lib/db';
 
 // This page's own identity color -- every box FoodLookup draws (list
 // borders, the results table, its own text) takes this as its `tabColor`
@@ -214,6 +215,31 @@ export default function FoodScreen() {
     }, []),
   );
 
+  // "My Foods" (see MyItemsHub below) -- refetched every time that popup
+  // opens (via its own onOpen prop), not just once at mount, so a side
+  // saved a moment ago always shows up rather than whatever was fetched
+  // the first time this screen rendered. Favorites filtered to 'side'
+  // specifically -- Side Builder is the only builder that produces
+  // anything favoritable yet, and this list has no use for meal favorites
+  // saved by the old, deleted meal builder.
+  const [mySides, setMySides] = useState<MyItemsSection['items']>([]);
+  const [mySideFavorites, setMySideFavorites] = useState<MyItemsSection['items']>([]);
+  async function loadMyFoods() {
+    const [sides, favorites] = await Promise.all([listSides(), listFavorites(50, 'side')]);
+    setMySides(
+      sides.map((side) => ({
+        id: side.id,
+        title: side.name,
+        subtitle: `${side.ingredientCount} ingredient${side.ingredientCount === 1 ? '' : 's'}`,
+      })),
+    );
+    setMySideFavorites(favorites.map((favorite) => ({ id: favorite.id, title: favorite.name })));
+  }
+  const myFoodsSections: MyItemsSection[] = [
+    { title: 'Saved Sides', items: mySides, emptyText: 'No sides saved yet.' },
+    { title: 'Favorites', items: mySideFavorites, emptyText: 'Nothing favorited yet.' },
+  ];
+
   return (
     <View style={styles.screen}>
       {/* enabled={!revealed} -- 2026-07-28, explicitly requested: with a
@@ -240,7 +266,7 @@ export default function FoodScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Food" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Foods" tabColor={TAB_COLOR} />
+      <MyItemsHub label="My Foods" tabColor={TAB_COLOR} sections={myFoodsSections} onOpen={loadMyFoods} />
       <LensHub
         pageTitle="Food"
         headerLabel="Nutrition Builders"
