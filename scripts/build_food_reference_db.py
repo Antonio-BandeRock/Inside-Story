@@ -2500,6 +2500,216 @@ def goitrogenic_load_tier(base_name, prep_method):
     return "Not Assessed"
 
 
+# 2026-08-01 -- the source workbook's own D6 Oxalate Level/Load Rank/
+# Mineral Binding Risk/Tolerance Note columns used to correctly cover
+# thousands of foods (confirmed against this project's last known-good
+# compiled database: e.g. Broccoli was "Low", not "Not Assessed"). At some
+# point outside this project -- likely the same restructuring event that
+# broke category classification (see RAW_CATEGORY_TO_CODE's own comment) --
+# roughly 900 foods that used to have a real assessed tier regressed to
+# "Not Assessed" in the current workbook. Unlike category, there's no
+# reliable fallback COLUMN to re-derive this from (D6 has no equivalent of
+# category's own raw_category text) -- this is a real backfill, built from
+# scratch, sourced the same way the rest of this app's D1-D6 data is: real,
+# cited external references.
+#
+# Sources (the same two this app already cites for every D6 sub-criterion,
+# see SUB_CRITERION_SOURCES in lib/sixDimensionsReference.ts):
+#   - Wake Forest University Baptist Medical Center Urology's own oxalate
+#     food list (mg oxalate per 100g), fetched directly:
+#     https://www.wakehealth.edu/-/media/wakeforest/clinical/files/urology/oxalate-food-list.pdf
+#   - Oxalosis and Hyperoxaluria Foundation's 2024 oxalate list, fetched
+#     directly: https://ohf.org/wp-content/uploads/2024/02/Oxalate-List-022724.pdf
+#     (its own "Avg oxalate per 100 g" column used here, not its
+#     per-serving column, to stay on the same 100g basis Wake Forest's own
+#     list and this app's overall D1-D6 system already use)
+#
+# Tiered against thresholds empirically reverse-engineered from this
+# project's own last known-good database (cross-referencing real mg/100g
+# values from both sources above against foods that still had a correct,
+# unregressed tier there) rather than importing a generic external scheme
+# wholesale: roughly Low <20mg/100g, Moderate 20-80mg/100g, High
+# 80-180mg/100g, Very High >180mg/100g. Real published oxalate figures
+# vary meaningfully study to study (a well-documented limitation of oxalate
+# content data generally, not specific to this app) -- this lands foods in
+# the same broad tier the app's own prior, correct data already did for
+# every food checked this way (Potato/Moderate, Celery/Moderate, Buckwheat/
+# High, Cashew/High, Walnut/High, Sesame/Very High, Almonds/Very High,
+# Spinach/Very High all matched), not a mechanically precise cutoff.
+#
+# Deliberately scoped to common whole foods only (not every one of the
+# hundreds of items either source lists) -- composite dishes, branded
+# products, and supplements are out of scope, matching this app's own
+# existing "real, hand-verified, bounded" curation discipline (see
+# GOITROGENIC_BASE_NAMES's own comment for the same reasoning).
+OXALATE_LEVEL_BASE_NAMES = {
+    # Very High (>180mg/100g)
+    "Spinach": "Very High",
+    "Rhubarb": "Very High",
+    "Swiss Chard": "Very High",
+    "Beet greens": "Very High",
+    "Purslane": "Very High",
+    "Nuts, almonds": "Very High",
+    "Nuts, almond butter": "Very High",
+    "Seeds, sesame seeds": "Very High",
+    "Seeds, sesame seed kernels": "Very High",
+    "Crude Wheat Bran": "Very High",
+    "Crude Rice Bran": "Very High",
+    "Cocoa, dry powder": "Very High",
+    "Dark Chocolate": "Very High",
+    # High (80-180mg/100g)
+    "Buckwheat": "High",
+    "Buckwheat groats": "High",
+    "Amaranth grain": "High",
+    "Nuts, cashew nuts": "High",
+    "Nuts, cashew butter": "High",
+    "Nuts, walnuts": "High",
+    "Peanuts, all types": "High",
+    "Crude Wheat Germ": "High",
+    "Okra": "High",
+    # Moderate (20-80mg/100g)
+    "Beets": "Moderate",
+    "Eggplant": "Moderate",
+    "Celery": "Moderate",
+    "Potato": "Moderate",
+    "Sweet Potato": "Moderate",
+    "Navy Beans": "Moderate",
+    "Black Beans": "Moderate",
+    "Pinto Beans": "Moderate",
+    "Great Northern Beans": "Moderate",
+    "Soybeans": "Moderate",
+    "Edamame": "Moderate",
+    "Tempeh": "Moderate",
+    "Quinoa": "Moderate",
+    "Bulgur": "Moderate",
+    "Kiwifruit": "Moderate",
+    "Green Kiwifruit": "Moderate",
+    "Common Guava": "Moderate",
+    "Fig": "Moderate",
+    "Pomegranate": "Moderate",
+    # Low (<20mg/100g)
+    "Broccoli": "Low",
+    "Cauliflower": "Low",
+    "Cabbage": "Low",
+    "Kale": "Low",
+    "Brussels sprout": "Low",
+    "Kohlrabi": "Low",
+    "Onion": "Low",
+    "Garlic": "Low",
+    "Lettuce, iceberg (includes crisphead types)": "Low",
+    "Lettuce, cos or romaine": "Low",
+    "Lettuce, green leaf": "Low",
+    "Lettuce, red leaf": "Low",
+    "Cucumber (with peel)": "Low",
+    "Peeled Cucumber": "Low",
+    "Tomato": "Low",
+    "Squash, summer": "Low",
+    "Squash, winter": "Low",
+    "Squash, zucchini": "Low",
+    "Sweet Pepper": "Low",
+    "Radish": "Low",
+    "Turnip": "Low",
+    "Turnip greens": "Low",
+    "Parsnip": "Low",
+    "Asparagus": "Low",
+    "Artichokes, (globe or french)": "Low",
+    "Leeks (Bulb And Lower Leaf-Portion)": "Low",
+    "Snap Beans (Green Beans)": "Low",
+    "White Mushrooms": "Low",
+    "Brown Mushrooms": "Low",
+    "Shiitake Mushrooms": "Low",
+    "Kidney Beans": "Low",
+    "Chickpeas (garbanzo beans, bengal gram)": "Low",
+    "Lentils": "Low",
+    "Split Peas": "Low",
+    "Tofu": "Low",
+    "Millet": "Low",
+    "Corn": "Low",
+    "Blueberry": "Low",
+    "Wild Blueberry": "Low",
+    "Strawberry": "Low",
+    "Raspberry": "Low",
+    "Cantaloupe Melon": "Low",
+    "Watermelon": "Low",
+    "Date, medjool": "Low",
+    "Dates, deglet noor": "Low",
+    "Avocado": "Low",
+    "Apple": "Low",
+    "Banana": "Low",
+    "Orange": "Low",
+    "Grapefruit": "Low",
+    "Grape": "Low",
+    "Pear": "Low",
+    "Peach": "Low",
+    "Plum": "Low",
+    "Pineapple": "Low",
+    "Mango": "Low",
+    "Lemon": "Low",
+    "Lime": "Low",
+    "Chicken": "Low",
+    "Beef": "Low",
+    "Pork": "Low",
+    "Salmon Fish": "Low",
+    "Tuna Fish": "Low",
+    "Milk": "Low",
+    "Cheddar Cheese": "Low",
+    "Yogurt": "Low",
+}
+
+# Mechanically derived from Oxalate Level -- matches the dominant real
+# pattern already found in this project's own last known-good database
+# (>95% of every already-correctly-tiered food followed exactly this
+# mapping; see this section's own top comment) rather than a second,
+# independent research pass -- Load Rank/Mineral Binding Risk/Tolerance
+# Note all describe the same underlying fact as Oxalate Level, just in
+# different vocabulary, not a genuinely separate measurement.
+OXALATE_LOAD_RANK = {"Low": "Safe", "Moderate": "Moderate", "High": "Use Carefully", "Very High": "High Risk"}
+OXALATE_MINERAL_RISK = {"Low": "Low", "Moderate": "Moderate", "High": "High", "Very High": "High"}
+# Exact wording matched to this project's own last known-good database,
+# not paraphrased -- lib/sixDimensionsReference.ts's tierSeverity() keys
+# its own green/yellow/red coloring off these exact opening phrases ("Low
+# oxalate", "Moderate oxalate", "Elevated oxalate", "High oxalate"), so
+# reusing the identical strings verbatim is what makes this slot into that
+# already-correct, unmodified app logic with zero app-code changes.
+OXALATE_TOLERANCE_NOTE = {
+    "Low": "Low oxalate content (real cited value, see Oxalate Level note) -- no specific mitigation needed.",
+    "Moderate": "Moderate oxalate content (real cited value, see Oxalate Level note) -- generally fine in normal portions.",
+    "High": "Elevated oxalate load (real cited value, see Oxalate Level note). Discard cooking water where applicable; pair with a calcium source.",
+    "Very High": "High oxalate load (real cited value, see Oxalate Level note). Boil and discard the cooking water where applicable; pair with a calcium source at the same meal.",
+}
+
+
+def _is_oxalate_unassessed(tier):
+    """True for the workbook's own 'no data' placeholder in any of the 4
+    D6 Oxalate sub-criteria -- 'Not Assessed' verbatim for three of them,
+    a full explanatory sentence (starting the same way every time) for
+    Oxalate Tolerance Note specifically. See lib/sixDimensionsReference.ts's
+    own tierSeverity() for the same distinction handled on the app side."""
+    if not tier:
+        return True
+    return tier == "Not Assessed" or tier.startswith("No real, cited oxalate")
+
+
+def oxalate_backfill_tier(sub_criterion, base_name):
+    """Real, cited backfill value for one D6 sub-criterion, or None if
+    base_name isn't in the curated list above. Only ever consulted when
+    the workbook's own value is the 'Not Assessed' placeholder (see this
+    function's call site) -- never overrides a real, already-correct
+    workbook value."""
+    level = OXALATE_LEVEL_BASE_NAMES.get(base_name)
+    if level is None:
+        return None
+    if sub_criterion == "Oxalate Level":
+        return level
+    if sub_criterion == "Oxalate Load Rank":
+        return OXALATE_LOAD_RANK[level]
+    if sub_criterion == "Mineral Binding Risk":
+        return OXALATE_MINERAL_RISK[level]
+    if sub_criterion == "Oxalate Tolerance Note":
+        return OXALATE_TOLERANCE_NOTE[level]
+    return None
+
+
 def split_prep_method(name, short_name=None):
     """Extract a food's cooking/prep state from its full name.
 
@@ -3133,6 +3343,15 @@ def build(xlsx_path, db_path):
                     if idx >= len(row):
                         continue
                     tier = row[idx]
+                    # Real, cited backfill for the D6 Oxalate regression --
+                    # see OXALATE_LEVEL_BASE_NAMES's own comment above.
+                    # Only ever fires when the workbook's own value is
+                    # missing/the "Not Assessed" placeholder, so a food the
+                    # workbook still correctly assesses is never touched.
+                    if dim.startswith("D6") and _is_oxalate_unassessed(tier):
+                        backfill = oxalate_backfill_tier(sub, base_name)
+                        if backfill:
+                            tier = backfill
                     if tier:
                         sub_id = get_sub_criterion_id(dim, sub)
                         score_rows.append((food_id, source, sub_id, tier))
