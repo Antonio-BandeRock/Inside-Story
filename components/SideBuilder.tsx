@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import Animated, { LinearTransition } from 'react-native-reanimated';
+import Animated, { FadeIn, FadeOut, LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -1163,20 +1163,39 @@ export function SideBuilder({
   // Continue, and again right after each "Add to Side") -- no separate
   // "+ Add Ingredient" tap needed anymore.
   if (servingsConfirmed && finishStep === 'building' && !pendingResolved) {
+    // Collapses the summary card while the food-search keyboard is up,
+    // 2026-08-01 -- explicitly reported: with the card's own real height
+    // (raised for bigger ingredient-removal tap targets, see
+    // SUMMARY_INGREDIENT_ROW_HEIGHT's own comment) plus AppKeyboard on top
+    // of it, the food list below had barely any visible room to scroll or
+    // tap a real result. `activeField` (already tracked for this
+    // component's own keyboardReserve) is a reliable signal specifically
+    // for this branch -- the only focusable field rendered here at all is
+    // FoodLookup's own search box, so it being focused really does mean
+    // "actively searching." topReserve drops to 0 in lockstep (FoodLookup
+    // already defaults to 0 there, so this is just handing it the same
+    // value explicitly) so its own internal list-height math immediately
+    // reclaims the freed space rather than leaving a gap where the card
+    // used to be.
+    const searching = !!activeField;
     return (
       <View style={styles.pickerScreen}>
-        {renderSummaryCard(true)}
-        <View style={styles.connectedPickerWrap}>
+        {searching ? null : (
+          <Animated.View entering={FadeIn.duration(150)} exiting={FadeOut.duration(150)} layout={LinearTransition}>
+            {renderSummaryCard(true)}
+          </Animated.View>
+        )}
+        <Animated.View style={styles.connectedPickerWrap} layout={LinearTransition}>
           <FoodLookup
             tabColor={tabColor}
             showNutrients={false}
             onFoodResolved={handleFoodResolved}
-            squareTop
-            topReserve={SUMMARY_CARD_HEIGHT}
+            squareTop={!searching}
+            topReserve={searching ? 0 : SUMMARY_CARD_HEIGHT}
             initialCategory={lastCategory}
             initialSubcategory={lastSubcategory}
           />
-        </View>
+        </Animated.View>
       </View>
     );
   }
