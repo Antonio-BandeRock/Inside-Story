@@ -146,6 +146,16 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* Same "no fixed title" reasoning as food-items.tsx's own
+                  Stack.Screen just above. */}
+              <Stack.Screen
+                name="food-item-detail"
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
             </Stack>
             {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                 comment: the keyboard must always paint on top of an open

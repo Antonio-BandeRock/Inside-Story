@@ -1586,6 +1586,219 @@ export async function listSides(limit = 50): Promise<SideRecord[]> {
   );
 }
 
+export type SideDetail = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  createdAt: string;
+};
+
+export async function getSide(sideId: string): Promise<SideDetail | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<SideDetail>(
+    `
+      SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
+             created_at AS createdAt
+      FROM sides
+      WHERE id = ?
+    `,
+    sideId,
+  );
+}
+
+export type SideIngredientDetail = {
+  id: string;
+  // "<food_id>|<source>", or null for an ingredient that somehow never
+  // resolved to a real food -- shouldn't happen given SideBuilder requires
+  // a resolved food before an ingredient can be added, but nutrient/score
+  // lookups below still guard for it the same way meal_items' own do.
+  foodId: string | null;
+  foodName: string;
+  category: string | null;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote: string | null;
+};
+
+// Ordered the same way the ingredients were added (sort_order, set at save
+// time) -- the one place this app reads back the actual recorded notes
+// (cutPrep/cookingMethod/prepNote) from SideBuilder's own creation process,
+// as opposed to getSideNutrientBreakdown/getSideSixDimensionsBreakdown
+// below, which use this same data but only care about foodId/quantity/unit
+// for the actual nutrient/score math.
+export async function getSideIngredients(sideId: string): Promise<SideIngredientDetail[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SideIngredientDetail>(
+    `
+      SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+      FROM side_ingredients
+      WHERE side_id = ?
+      ORDER BY sort_order
+    `,
+    sideId,
+  );
+}
+
+// Side-scoped equivalent of getDailyNutrientBreakdown, 2026-08-01 -- same
+// output shape (DailyNutrientBreakdown), reused as-is so
+// app/(tabs)/insights.tsx's own NutrientsTable/ScopeHub machinery can
+// render a saved side's nutrients without any changes to that already-
+// working code. A saved side isn't nested under any real day or meal, so
+// it's represented as the ONLY meal (mealType 'side') containing the ONLY
+// side, both wrapping the exact same totals -- dayTotals/mealTotals/
+// sideTotals are identical here by construction, which is fine: nothing
+// downstream distinguishes "the whole day" from "the whole side" beyond
+// the label a caller chooses to show for the root scope.
+//
+// The actual per-ingredient math is simpler than meal_items' own version:
+// side_ingredients.quantity is already the TOTAL amount of that ingredient
+// in the whole side (not a per-serving size multiplied by a count the way
+// meal_items splits servingSize x quantity), and there's no dishServings/
+// yourSharePercent to divide by -- a saved side has no notion yet of "my
+// share" of it, only its own real total.
+export async function getSideNutrientBreakdown(sideId: string): Promise<DailyNutrientBreakdown> {
+  const empty: DailyNutrientBreakdown = {
+    dayTotals: {},
+    meals: [],
+    driRows: [],
+    supplementTotals: {},
+    unresolvedItems: [],
+    supplementSkipped: [],
+    profileComplete: false,
+  };
+  const side = await getSide(sideId);
+  if (!side) return empty;
+
+  const ingredients = await getSideIngredients(sideId);
+  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
+  const itemBreakdowns: DailyNutrientItemBreakdown[] = [];
+  const sideTotals: Record<string, number> = {};
+  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    let grams: number;
+    if (ingredient.unit.trim().toLowerCase() === 'each') {
+      const unitWeight = await getFoodUnitWeight(foodId, source);
+      if (!unitWeight) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'no_unit_weight_data' });
+        continue;
+      }
+      grams = unitWeight.gramsPerUnit * ingredient.quantity;
+    } else {
+      const unit = normalizeUnitForConversion(ingredient.unit);
+      if (!unit) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'unsupported_unit' });
+        continue;
+      }
+      const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
+        ? null
+        : ingredient.category ?? (await getFoodCategory(foodId, source));
+      const conversion = convertToGrams(ingredient.quantity, unit, { foodCategory: foodCategory ?? undefined });
+      if (!conversion.ok) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: conversion.reason });
+        continue;
+      }
+      grams = conversion.grams;
+    }
+
+    const cacheKey = `${foodId}|${source}`;
+    let nutrients = nutrientCache.get(cacheKey);
+    if (!nutrients) {
+      nutrients = await getFoodNutrients(foodId, source);
+      nutrientCache.set(cacheKey, nutrients);
+    }
+    const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: grams, nutrients }]);
+    itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+    for (const [code, amount] of Object.entries(itemTotals)) {
+      sideTotals[code] = (sideTotals[code] ?? 0) + amount;
+    }
+  }
+
+  const [driRows, profile] = await Promise.all([getDietaryReferenceIntakesForCurrentUser(), getUserProfile()]);
+
+  const sideBreakdown: DailyNutrientSideBreakdown = { sideName: side.name, totals: sideTotals, items: itemBreakdowns };
+  const mealBreakdown: DailyNutrientMealBreakdown = {
+    mealId: side.id,
+    mealName: side.name,
+    mealType: 'side',
+    totals: sideTotals,
+    sides: [sideBreakdown],
+  };
+
+  return {
+    dayTotals: sideTotals,
+    meals: [mealBreakdown],
+    driRows,
+    // No supplements here, same reasoning as meal_items' own -- a
+    // supplement isn't part of any one dish.
+    supplementTotals: {},
+    unresolvedItems,
+    supplementSkipped: [],
+    profileComplete: profile.sex != null && profile.birthDate != null,
+  };
+}
+
+// Side-scoped equivalent of getDailySixDimensionsBreakdown -- same shape,
+// same reasoning as getSideNutrientBreakdown above (one synthetic meal
+// wrapping one synthetic side, both real), reused as-is by
+// app/(tabs)/insights.tsx's own SixDsView and PrepView (PrepView reads the
+// exact same DailySixDimensionsBreakdown shape, no separate data source of
+// its own).
+export async function getSideSixDimensionsBreakdown(sideId: string): Promise<DailySixDimensionsBreakdown> {
+  const side = await getSide(sideId);
+  if (!side) return { day: [], meals: [] };
+
+  const ingredients = await getSideIngredients(sideId);
+  const scoreCache = new Map<string, FoodScore[]>();
+  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) continue;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const cacheKey = `${foodId}|${source}`;
+    let scores = scoreCache.get(cacheKey);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(cacheKey, scores);
+    }
+    foods.push({ foodName: ingredient.foodName, scores });
+  }
+
+  const sideBreakdown: DailyDimensionSideBreakdown = {
+    sideName: side.name,
+    bySubCriterion: aggregateBySubCriterion(foods),
+    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+  };
+  const mealBreakdown: DailyDimensionMealBreakdown = {
+    mealId: side.id,
+    mealName: side.name,
+    mealType: 'side',
+    bySubCriterion: sideBreakdown.bySubCriterion,
+    sides: [sideBreakdown],
+  };
+
+  return { day: sideBreakdown.bySubCriterion, meals: [mealBreakdown] };
+}
+
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both
 // mixed together (the original behavior, kept as the default since some
 // callers -- like the very first favorites list this app had -- don't care

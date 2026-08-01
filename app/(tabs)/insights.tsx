@@ -164,7 +164,7 @@ const LENSES: LensOption<Lens>[] = [
 // shared by both the 6 Dimensions and Cooking & Prep lenses since both are views
 // over the same breakdown. Tracked by index within each level's own array
 // (sides/items don't have stable ids), not by id.
-type Scope =
+export type Scope =
   | { level: 'day' }
   | { level: 'meal'; mealIndex: number }
   | { level: 'side'; mealIndex: number; sideIndex: number }
@@ -445,7 +445,7 @@ export default function InsightsScreen() {
 // status judgment/coloring entirely and just show what fraction of today's
 // target that scope contributed, sorted by biggest contributor first, with
 // only nutrients this scope actually contains listed at all.
-function NutrientsTable({
+export function NutrientsTable({
   breakdown,
   scope,
 }: {
@@ -467,7 +467,7 @@ function NutrientsTable({
       {isDayScope && !breakdown.profileComplete ? (
         <View style={styles.noticeCard}>
           <Text style={styles.noticeText}>
-            Your sex and birth date aren't set in Profile, so these targets cover every applicable population
+            Your sex and birth date aren&apos;t set in Profile, so these targets cover every applicable population
             rather than one tailored to you.
           </Text>
         </View>
@@ -521,18 +521,18 @@ function NutrientsTable({
 
       {isDayScope && breakdown.unresolvedItems.length > 0 ? (
         <Text style={styles.footerNote}>
-          {breakdown.unresolvedItems.length} ingredient{breakdown.unresolvedItems.length === 1 ? '' : 's'} couldn't be
-          counted here -- usually a solid food measured by volume, or logged as "each" for a food without a known
+          {breakdown.unresolvedItems.length} ingredient{breakdown.unresolvedItems.length === 1 ? '' : 's'} couldn&apos;t be
+          counted here -- usually a solid food measured by volume, or logged as &quot;each&quot; for a food without a known
           per-item weight yet. Log it by weight (g/oz) to have it count.
         </Text>
       ) : null}
 
       {isDayScope && breakdown.supplementSkipped.length > 0 ? (
         <Text style={styles.footerNote}>
-          {breakdown.supplementSkipped.length} supplement ingredient{breakdown.supplementSkipped.length === 1 ? '' : 's'} couldn't
+          {breakdown.supplementSkipped.length} supplement ingredient{breakdown.supplementSkipped.length === 1 ? '' : 's'} couldn&apos;t
           be counted here -- usually an IU dose for a nutrient with no single official IU-to-mass conversion (e.g.
-          vitamin E), or a unit this app doesn't recognize yet. Check that supplement's ingredients on the Schedule
-          tab's Supplements lens.
+          vitamin E), or a unit this app doesn&apos;t recognize yet. Check that supplement&apos;s ingredients on the Schedule
+          tab&apos;s Supplements lens.
         </Text>
       ) : null}
     </>
@@ -671,7 +671,7 @@ function ScopeHub<M extends NavigableMeal>({
 // or "Clear") for whatever scope is currently selected, expanding to a
 // real sub-criterion table on tap. Never shows more than one scope's
 // worth of detail at once.
-function SixDsView({
+export function SixDsView({
   breakdown,
   scope,
   expandedDimension,
@@ -843,12 +843,21 @@ function prepRowTitle(row: PrepRow, scopeLevel: Scope['level']): string {
   return row.foodName;
 }
 
-function PrepView({
+export function PrepView({
   breakdown,
   scope,
+  // What to call a 'meal'-level scope in the two labels below -- 'meal' by
+  // default (the real Insights tab's own Whole Day -> Meal hierarchy), but
+  // a saved side's own detail view (app/food-item-detail.tsx, 2026-08-01)
+  // reuses this exact component with its "whole side" view AS a 'meal'-
+  // level scope (see that file's own comment for why), where "Needs
+  // attention in this meal" would be a real, confusing misnomer for
+  // something that was never a meal at all.
+  mealNoun = 'meal',
 }: {
   breakdown: DailySixDimensionsBreakdown;
   scope: Scope;
+  mealNoun?: string;
 }) {
   const rows = itemsInScope(breakdown, scope);
 
@@ -865,7 +874,7 @@ function PrepView({
     scope.level === 'day'
       ? 'Needs attention today'
       : scope.level === 'meal'
-        ? 'Needs attention in this meal'
+        ? `Needs attention in this ${mealNoun}`
         : scope.level === 'side'
           ? "This side's ingredients"
           : 'This ingredient';
@@ -874,7 +883,7 @@ function PrepView({
     scope.level === 'day'
       ? "Nothing in today's meals needs special cooking or prep adjustment."
       : scope.level === 'meal'
-        ? 'Nothing in this meal needs special cooking or prep adjustment.'
+        ? `Nothing in this ${mealNoun} needs special cooking or prep adjustment.`
         : 'Nothing to show for this scope.';
 
   return (

@@ -25,13 +25,14 @@ import { useInfoAlert } from '../components/InfoAlert';
 // -- the STORAGE stays per-builder, but the LIST UI that browses whatever
 // storage exists doesn't need to be.
 //
-// Tapping an item doesn't open a real detail view yet -- that's the next
-// real piece of work (a side-scoped entry point into Insights' own
-// Nutrients/6 Dimensions/Cooking & Prep lenses, reusing that already-built
-// drill-down machinery rather than a parallel one here). This screen is
-// step one: making categories and their real items actually reachable at
-// all. Honest "coming soon" on tap in the meantime, same pattern as this
-// app's own not-yet-built lenses elsewhere.
+// Tapping a real SAVED item (not yet a favorite -- see the tap handler's
+// own comment below) opens app/food-item-detail.tsx, 2026-08-01: a
+// side-scoped entry point into Insights' own Nutrients/6 Dimensions/
+// Cooking & Prep lenses, reusing that already-built rendering rather than
+// a parallel viewer here. Favorites (and any future itemType this
+// screen's own loadItems doesn't handle yet) still show an honest "coming
+// soon" message on tap, same pattern as this app's own not-yet-built
+// lenses elsewhere.
 type FoodItemEntry = { id: string; title: string; subtitle?: string };
 
 export default function FoodItemsScreen() {
@@ -69,12 +70,20 @@ export default function FoodItemsScreen() {
             <TouchableOpacity
               key={item.id}
               style={styles.itemRow}
-              onPress={() =>
+              onPress={() => {
+                // Only a real saved item (not yet a favorite -- those are
+                // a different, JSON-payload shape with no ingredients to
+                // show yet, see lib/db.ts's own favorites table) has
+                // anything for food-item-detail.tsx to actually show.
+                if (status === 'saved' && itemType === 'side') {
+                  router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
+                  return;
+                }
                 showInfoAlert(
                   item.title,
                   'Full detail view -- Nutrients, 6 Dimensions, and Cooking & Prep for this item -- is coming soon.',
-                )
-              }
+                );
+              }}
             >
               <View style={styles.itemTextWrap}>
                 <Text style={styles.itemTitle} numberOfLines={1}>
