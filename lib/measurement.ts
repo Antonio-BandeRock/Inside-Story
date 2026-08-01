@@ -21,3 +21,18 @@ export function cmToFeetInches(cm: number): { feet: number; inches: number } {
 export function feetInchesToCm(feet: number, inches: number): number {
   return (feet * 12 + inches) * 2.54;
 }
+
+// Every "how much" pill picker in the Food tab's builders (Servings,
+// Serving Size, per-ingredient Quantity) shows fractions as home cooking
+// actually talks about them ("a quarter cup," not "0.25 cup") -- see
+// SideBuilder.tsx's own AMOUNT_PICKER_VALUES for why. That's purely a
+// display/entry format; anywhere the value needs to be stored or used in
+// real math (saving a side, a future nutrient calculation) needs a plain
+// number instead. Only ever needs to handle a single "n/d" fraction or a
+// bare integer -- the picker never offers anything more complex (no mixed
+// numbers like "1 1/2") -- so this doesn't try to be a general fraction
+// parser.
+export function parseAmountValue(value: string): number {
+  const [numerator, denominator] = value.split('/');
+  return denominator ? Number(numerator) / Number(denominator) : Number(numerator);
+}

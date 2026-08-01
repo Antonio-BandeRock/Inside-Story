@@ -1199,6 +1199,50 @@ export async function initializeDatabase() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- A "Side" saved on its own, independent of any meal or eaten time --
+      -- 2026-08-01, the first real persistence for the rebuilt Food tab's
+      -- builders. Deliberately NOT a meals row (that table's own
+      -- eaten_at/meal_type shape assumes something eaten at a specific
+      -- moment, which a freshly-built side isn't yet) and NOT a
+      -- favorites row either (a favorite is an explicit "save this as a
+      -- reusable template" action, which Side Builder doesn't do -- see
+      -- FOOD_LENS_COPY's own note in app/(tabs)/food.tsx). This is its own
+      -- third thing: a real, saved side, meant to be assembled into an
+      -- actual meal later once Meal Builder exists to do that assembling.
+      -- The other nine Food builders (Salad, Smoothie, etc.) are expected
+      -- to get their own similarly-shaped tables as each is built out,
+      -- rather than forcing every builder's own kind of "thing" into one
+      -- shared generic table.
+      CREATE TABLE IF NOT EXISTS sides (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        servings REAL NOT NULL,
+        serving_size_amount REAL NOT NULL,
+        serving_size_unit TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- cut_prep has no equivalent column on meal_items -- it's a field
+      -- Side Builder introduced 2026-07-31, after meal_items' own schema
+      -- was designed for the old (deleted) meal builder, which never asked
+      -- the question at all.
+      CREATE TABLE IF NOT EXISTS side_ingredients (
+        id TEXT PRIMARY KEY,
+        side_id TEXT NOT NULL,
+        food_id TEXT,
+        food_name TEXT NOT NULL,
+        category TEXT,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        cut_prep TEXT NOT NULL,
+        cooking_method TEXT NOT NULL,
+        prep_note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (side_id) REFERENCES sides(id) ON DELETE CASCADE
+      );
+
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
       CREATE INDEX IF NOT EXISTS idx_wellbeing_checkins_logged_at ON wellbeing_checkins(logged_at);
       CREATE INDEX IF NOT EXISTS idx_checkin_tags_checkin ON checkin_tags(checkin_id);
@@ -1206,6 +1250,7 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_body_measurements_type_logged_at ON body_measurements(measurement_type, logged_at);
       CREATE INDEX IF NOT EXISTS idx_schedule_items_scheduled_for ON schedule_items(scheduled_for);
       CREATE INDEX IF NOT EXISTS idx_food_trials_started_at ON food_trials(started_at);
+      CREATE INDEX IF NOT EXISTS idx_side_ingredients_side ON side_ingredients(side_id);
     `);
 
     const mealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meals)');
@@ -1435,6 +1480,81 @@ export async function saveFavoriteSide(input: { name: string; cookingMethod: str
   );
 
   return { id, ...payload };
+}
+
+export type SideIngredientInput = {
+  // "<food_id>|<source>", the same combined format meal_items.food_id
+  // already uses -- one column, not two, so a saved ingredient's food
+  // reference is looked up the same way everywhere in this file.
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+};
+
+// Saves a completed Side as its own real, standalone record -- see the
+// `sides`/`side_ingredients` tables' own comment in initializeDatabase for
+// why this is neither a `meals` row nor a `favorites` row. Not a "favorite
+// template" and not (yet) an actual meal log entry; just a real side that
+// exists now, ready to be pulled into a meal once Meal Builder can do that
+// assembling. This app's own scores/6-Dimension data isn't stored here --
+// it's cheap to re-fetch live from foodId/source (see getFoodScores)
+// whenever a saved side is actually displayed, so there's no cached copy
+// here to go stale.
+export async function saveSide(input: {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: SideIngredientInput[];
+}) {
+  const db = await getDatabase();
+  const id = `side_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO sides (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    now,
+  );
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `side_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO side_ingredients
+          (id, side_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      id,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id };
 }
 
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both

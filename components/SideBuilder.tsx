@@ -6,8 +6,8 @@ import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
-import { getFoodScores, getStoredMeasurementSystem, type FoodScore } from '../lib/db';
-import { detectMeasurementSystemFromLocale, type MeasurementSystem } from '../lib/measurement';
+import { getFoodScores, getStoredMeasurementSystem, saveSide, type FoodScore, type SideIngredientInput } from '../lib/db';
+import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { DimensionFlags } from './DimensionFlags';
@@ -320,11 +320,12 @@ const SUMMARY_DIVIDER_SHIFT = 30;
 // screen's job to duplicate. Servings/Serving Size are asked for once, up
 // front, before any ingredient picking starts.
 //
-// Local component state only for now -- there's no save/persistence layer
-// yet (see app/(tabs)/food.tsx's own FOOD_LENS_COPY.sideBuilder), so a
-// side built here doesn't survive navigating away. That's a known,
-// accepted gap, not an oversight: the next piece of this builder is
-// wiring up an actual save, not something this pass tries to also cover.
+// The in-progress dish (dishName/servings/ingredients/etc.) is local
+// component state only, same as before -- a side isn't a real, saved
+// record until Save & Finish Side actually commits it (see finishSide/
+// saveSide in lib/db.ts, 2026-08-01). Navigating away from a side mid-
+// build still loses it; that's still a known, accepted gap, just a
+// narrower one now that finishing a side for real is possible.
 //
 // 2026-07-28: every AppTextInput here previews a new app-wide input-box
 // treatment (background = constants/colors.ts's own `inputBackground`,
@@ -611,15 +612,75 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
     setIngredientPrepNote('');
   }
 
+  // Persists the finished side (see saveSide/the sides/side_ingredients
+  // tables' own comments in lib/db.ts for why this is its own real,
+  // standalone record -- not a favorite, not yet a logged meal) and only
+  // THEN resets the builder back to a blank side, so a save failure never
+  // silently loses what was just built -- the person sees a real error and
+  // keeps their in-progress dish to retry with, rather than it vanishing
+  // either way.
+  //
+  // Takes the final ingredient list as a parameter rather than reading the
+  // `ingredients` state variable, 2026-08-01: setIngredients (in
+  // saveIngredient below) is an async state update, so `ingredients`
+  // itself hasn't picked up the just-added one yet at the point 'finish'
+  // needs to save the whole dish -- the caller builds the true final list
+  // once and passes it to both setIngredients and here.
+  async function finishSide(finalIngredients: SideIngredient[]) {
+    // servingsConfirmed can only become true via handleContinuePress, which
+    // already required all three of these -- this is a type-narrowing
+    // guard against a state that shouldn't be reachable, not a real
+    // validation path a person should ever actually hit.
+    if (!servings || !servingSizeAmount || !servingSizeUnit) return;
+
+    const ingredientInputs: SideIngredientInput[] = finalIngredients.map((ingredient) => ({
+      foodId: ingredient.resolved.foodId,
+      source: ingredient.resolved.source,
+      foodName: foodSummary(ingredient.resolved),
+      category: ingredient.resolved.category,
+      quantity: parseAmountValue(ingredient.quantity),
+      unit: ingredient.unit,
+      cutPrep: ingredient.cutPrep,
+      cookingMethod: ingredient.cookingMethod,
+      prepNote: ingredient.prepNote,
+    }));
+    const finishedName = dishName.trim() || 'Side Dish';
+
+    try {
+      await saveSide({
+        name: finishedName,
+        servings: parseAmountValue(servings),
+        servingSizeAmount: parseAmountValue(servingSizeAmount),
+        servingSizeUnit,
+        ingredients: ingredientInputs,
+      });
+    } catch (error) {
+      console.error('[SideBuilder] Failed to save side', error);
+      showInfoAlert('Save failed', 'Something went wrong saving this side dish. Your ingredients are still here -- please try again.');
+      return;
+    }
+
+    // Back to a blank side dish. From here the Lens Button starts a
+    // different builder and the Butterfly Button leaves the tab, so no
+    // extra "what now?" step is needed.
+    setIngredients([]);
+    setDishName('');
+    setServings(null);
+    setServingSizeAmount(null);
+    setServingSizeUnit(null);
+    setServingsConfirmed(false);
+    setFinishStep('building');
+    setNudgeDismissed(false);
+    showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
+  }
+
   // Commits the pending ingredient, then either loops back for another one
   // or ends the dish entirely -- 2026-07-31, the two Save buttons.
   //
   //   'add-new' -> back to picking a Food Category, then a food, and round
   //                again, indefinitely, until the person chooses 'finish'.
-  //   'finish'  -> the side is done; reset the whole builder to a blank new
-  //                side dish. From there the Lens Button starts a different
-  //                builder and the Butterfly Button leaves the tab, so no
-  //                extra "what now?" step is needed here.
+  //   'finish'  -> saves the whole side (see finishSide above) and resets
+  //                the builder to a blank new side dish.
   function saveIngredient(then: 'add-new' | 'finish') {
     if (!pendingResolved || !quantity || !unit || !ingredientCutPrep || !ingredientCookingMethod) {
       // Names only what's actually still missing, in the order the fields
@@ -634,37 +695,21 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
       return;
     }
     dismissKeyboard();
-    setIngredients((current) => [
-      ...current,
-      {
-        resolved: pendingResolved,
-        quantity,
-        unit,
-        cookingMethod: ingredientCookingMethod,
-        cutPrep: ingredientCutPrep,
-        prepNote: ingredientPrepNote.trim(),
-        scores: pendingScores,
-      },
-    ]);
+    const newIngredient: SideIngredient = {
+      resolved: pendingResolved,
+      quantity,
+      unit,
+      cookingMethod: ingredientCookingMethod,
+      cutPrep: ingredientCutPrep,
+      prepNote: ingredientPrepNote.trim(),
+      scores: pendingScores,
+    };
+    const allIngredients = [...ingredients, newIngredient];
+    setIngredients(allIngredients);
     resetIngredientFields();
 
     if (then === 'finish') {
-      // Back to a blank side dish. Saving itself still isn't built (this
-      // builder has no persistence layer yet -- see the ready-state text
-      // further down), so this is honest about the dish not being kept
-      // rather than silently discarding it behind a "Save" label.
-      setIngredients([]);
-      setDishName('');
-      setServings(null);
-      setServingSizeAmount(null);
-      setServingSizeUnit(null);
-      setServingsConfirmed(false);
-      setFinishStep('building');
-      setNudgeDismissed(false);
-      showInfoAlert(
-        'Side finished',
-        'Your side dish is complete. Saving isn’t built yet, so this one isn’t kept — starting a fresh side dish now.',
-      );
+      void finishSide(allIngredients);
     }
   }
 
@@ -1094,10 +1139,28 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
               </View>
             </View>
           ) : (
-            <Text style={styles.emptyText}>
-              {(dishName.trim() || 'Side Dish')} ready -- {ingredients.length} ingredient
-              {ingredients.length === 1 ? '' : 's'}. Saving is not built yet, so this will not be kept once you leave this tab.
-            </Text>
+            // Reached via "Done adding ingredients" with no ingredient
+            // currently pending and the extras nudge already satisfied/
+            // dismissed -- previously a dead end (a "ready" message with no
+            // way to actually finish from here; the only working Save &
+            // Finish button lived on the pending-ingredient card above,
+            // which doesn't exist in this branch). finishSide is called
+            // directly here, not via saveIngredient('finish') -- that
+            // function's whole job is committing a NEW pending ingredient
+            // first, and there isn't one to commit at this point; every
+            // ingredient is already in `ingredients`.
+            <View style={[styles.formCard, { borderColor: tabColor }]}>
+              <Text style={styles.emptyText}>
+                {(dishName.trim() || 'Side Dish')} ready -- {ingredients.length} ingredient
+                {ingredients.length === 1 ? '' : 's'}.
+              </Text>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: tabColor }]}
+                onPress={() => void finishSide(ingredients)}
+              >
+                <Text style={styles.primaryButtonText}>Save &amp; Finish Side</Text>
+              </TouchableOpacity>
+            </View>
           )}
         </>
       )}

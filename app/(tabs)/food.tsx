@@ -184,7 +184,7 @@ const FOOD_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Status',
-    body: "Being built one at a time. Side can build a real side dish (servings, serving size, one or more ingredients with quantity/unit) but can't save it yet; the other nine are still plain placeholders. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
+    body: "Being built one at a time. Side can build a real side dish (servings, serving size, one or more ingredients with quantity/unit) and save it for real; the other nine are still plain placeholders. Saving as a reusable favorite, and building a full meal out of saved sides, aren't wired up yet. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
   },
 ];
 
