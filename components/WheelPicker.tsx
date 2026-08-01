@@ -1,4 +1,4 @@
-import { memo, useCallback, useEffect, useMemo, useRef } from 'react';
+import { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LinearGradient } from 'expo-linear-gradient';
 import { StyleSheet, Text, TouchableOpacity, View, type NativeScrollEvent, type NativeSyntheticEvent } from 'react-native';
 import Animated, {
@@ -56,46 +56,29 @@ const MAX_ROTATION_DEG = 55;
 const SHADE_STRONG = 'rgba(0,0,0,0.55)';
 const SHADE_NONE = 'rgba(0,0,0,0)';
 
-// The wraparound-copy machinery (REPEAT_COUNT contiguous copies of the row
-// list, spinning past either end into the next copy) that lived here
-// 2026-08-01 is gone as of the same day, a few hours later -- removed
-// outright rather than tuned further. What it cost: every copy was a full
-// set of real, live Reanimated rows (memoized, but still real), and on a
-// four-wheel screen that meant anywhere from ~165 (at REPEAT_COUNT 3, the
-// already-once-corrected value) up to 300-500+ (at the original 9) rows
-// mounted at once -- reported on-device as several seconds to open a
-// wheel screen, and residual lag elsewhere in the app afterward.
-// Switching each wheel to a virtualized Animated.FlatList (so only the
-// rows near the visible window actually mount) was tried as the next
-// step, and DID cut the mount cost -- but a FlatList is a VirtualizedList,
-// and every one of these wheels sits inline inside SideBuilder's own
-// vertical ScrollView (Dish Name field above them, Continue button below)
-// -- nesting a VirtualizedList inside a plain ScrollView of the same
-// orientation is a real, documented React Native anti-pattern (confirmed
-// on-device via RN's own console warning, not just the docs), because the
-// inner list can't reliably determine its own visible window once it's
-// not the page's actual scroll container -- exactly the mechanism this
-// whole rewrite exists to get right. Unlike FoodLookup's own big results
-// list (pulled out of any surrounding ScrollView entirely, see
-// SideBuilder's own comment on that), these wheels can't be pulled out --
-// they're small fields mixed inline with text inputs and buttons in one
-// coherent scrolling form, not a screen of their own.
-// The actual fix: remove the multiplication instead of trying to
-// virtualize it away. Without wraparound copies, a wheel only ever mounts
-// its OWN real option list once -- worst case (Cut Prep) 19 rows, not 19
-// times some copy count. That's a small enough number that a plain
-// Animated.ScrollView (which nests inside another ScrollView without any
-// of the VirtualizedList problem above) never needed virtualizing in the
-// first place. The accepted tradeoff: spinning past either end now stops
-// there, like an ordinary bounded picker, rather than wrapping around --
-// the "just like a real combination lock" wraparound was a nice-to-have
-// layered on top of a working picker, and cost real usability (a
-// multi-second-to-open builder, on the app's single most-used form) for a
-// week before this was caught. Worth reconsidering later with an approach
-// that doesn't multiply mounted rows at all (e.g. a plain modulo on the
-// row index inside the row's own animated style, no extra rows involved)
-// rather than reintroducing either of the two approaches tried and
-// rejected here.
+// Wraparound is back, 2026-08-01, a few hours after being removed outright
+// -- see git history/CLAUDE.md for the two earlier attempts (multiplying
+// every wheel's rows by a fixed copy count, then a rejected FlatList
+// virtualization) and why both were wrong. The actual insight, arrived at
+// after the drop-in-from-above bug on TabHub/LensHub turned out to be
+// gated on WheelPicker having ANY live Reanimated content mounted, not on
+// how much: the ONLY thing that ever needed the wraparound-copy buffer was
+// whichever ONE wheel a person is actively touching at a given moment, not
+// all three or four wheels on a screen simultaneously. A wheel that isn't
+// being touched now renders as a plain, static, non-Reanimated three-row
+// snapshot (see RESTING_*_STYLE and Resting below) until the moment it's
+// tapped, at which point it mounts the real scrollable version below --
+// this file's own WheelPickerActive -- and hands back to the static
+// version the instant its scroll settles. That means the wraparound-copy
+// cost is paid by at most ONE wheel at a time, lazily, only while actually
+// in use, rather than by every wheel on the screen the instant it opens --
+// which is what made copies expensive in the first place, independent of
+// wraparound. REPEAT_COUNT itself can stay modest (matching the old,
+// already-reasoned "one buffer loop each side of centre" value) precisely
+// because it's no longer being multiplied by "every wheel on screen, all
+// at once."
+const REPEAT_COUNT = 3;
+const MIDDLE_COPY = Math.floor(REPEAT_COUNT / 2);
 
 // Sits at the top of every wheel as a real, selectable "nothing chosen
 // yet" position. A wheel always has SOMETHING at its centre, which would
@@ -104,6 +87,29 @@ const SHADE_NONE = 'rgba(0,0,0,0)';
 // picked deliberately. Landing here reports null back to the caller, so
 // "centred" and "chosen" stay honestly distinct.
 export const WHEEL_PLACEHOLDER = '—';
+
+// The three resting-pose transforms every wheel settles into between
+// interactions (see Resting below) -- module-level constants, not computed
+// per row/per instance, because a row at rest is always at EXACTLY
+// distance 0 (the live row) or distance 1 (its immediate neighbour): the
+// same three numbers WheelRow's own useAnimatedStyle would converge to
+// once scrollY stops changing, for every wheel and every value alike.
+// Precomputing them once means the resting display needs zero Reanimated
+// content of its own -- three plain Views with a fixed style, not a
+// worklet in sight -- which is the whole point: nothing here should ever
+// "run" for a wheel nobody is touching.
+const RESTING_LIVE_STYLE = {
+  opacity: 1,
+  transform: [{ perspective: 420 }, { rotateX: '0deg' }, { scale: 1 }],
+} as const;
+const RESTING_TOP_STYLE = {
+  opacity: 0.45,
+  transform: [{ perspective: 420 }, { rotateX: `${-MAX_ROTATION_DEG}deg` }, { scale: 0.88 }],
+} as const;
+const RESTING_BOTTOM_STYLE = {
+  opacity: 0.45,
+  transform: [{ perspective: 420 }, { rotateX: `${MAX_ROTATION_DEG}deg` }, { scale: 0.88 }],
+} as const;
 
 // memo (2026-07-31) because of a real, measured performance path, not as a
 // precaution: AppTextInput re-registers itself with the keyboard context on
@@ -141,86 +147,33 @@ export const WheelPicker = memo(function WheelPicker({
   // here for the same reason it mattered in the Dish Name field: an
   // unstable callback identity feeding a child's effect is exactly what
   // caused a "Maximum update depth exceeded" loop earlier in this build.
-  const optionsKey = options.join('\u0001');
+  const optionsKey = options.join('');
   const rows = useMemo(() => [WHEEL_PLACEHOLDER, ...options], [optionsKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const scrollRef = useRef<Animated.ScrollView>(null);
-  const scrollY = useSharedValue(0);
   const height = itemHeight * VISIBLE_ROWS;
-
-  const scrollHandler = useAnimatedScrollHandler((event) => {
-    scrollY.value = event.contentOffset.y;
-  });
-
   const selectedLabel = selected ?? WHEEL_PLACEHOLDER;
-  // Keeps the wheel physically pointing at whatever the caller says is
-  // selected -- covers first mount, an external reset (the Save buttons
-  // clear every field), and a change of options (switching measurement
-  // system rebuilds the unit list).
-  const centeredIndex = Math.max(0, rows.indexOf(selectedLabel));
-  useEffect(() => {
-    scrollRef.current?.scrollTo({ y: centeredIndex * itemHeight, animated: false });
-    scrollY.value = centeredIndex * itemHeight;
-    // Deliberately keyed on the resolved index only -- adding scrollY/
-    // itemHeight would re-fire this on every frame of a drag.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [centeredIndex]);
+  const canonicalIndex = Math.max(0, rows.indexOf(selectedLabel));
 
-  // Momentum end, not onScroll: reporting mid-flick would fire a selection
-  // for every row the wheel passes through, and each of those is a real
-  // state update in the parent form. Clamped rather than wrapped -- see
-  // this file's own top-of-file comment for why wraparound was removed;
-  // scrolling past either end is now a real, visible stop, same as a
-  // native ScrollView's own bounce/rubber-banding at its edges.
-  const handleSettled = useCallback(
-    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
-      const index = Math.max(0, Math.min(rows.length - 1, Math.round(event.nativeEvent.contentOffset.y / itemHeight)));
-      const value = rows[index];
-      const next = value === WHEEL_PLACEHOLDER ? null : value;
-      if (next !== selected) onSelect(next);
-    },
-    [itemHeight, rows, selected, onSelect],
-  );
-
-  // Stable across renders so the memoized rows below aren't invalidated by a
-  // fresh closure every time. Each row calls this with its own index
-  // rather than receiving a pre-bound arrow, which is what keeps it stable.
-  const handleRowPress = useCallback(
-    (index: number) => scrollRef.current?.scrollTo({ y: index * itemHeight, animated: true }),
-    [itemHeight],
-  );
+  // Whether this ONE wheel currently owns the real, live, Reanimated
+  // scrollable version -- see this file's own top comment. Starts (and
+  // returns to) false: static until touched.
+  const [isActive, setIsActive] = useState(false);
 
   return (
     <View style={[styles.frame, { height, minWidth }]}>
-      <Animated.ScrollView
-        ref={scrollRef}
-        showsVerticalScrollIndicator={false}
-        onScroll={scrollHandler}
-        scrollEventThrottle={16}
-        // Snapping is what makes this feel like detented hardware rather
-        // than a free-scrolling list -- it can only ever come to rest with
-        // a row squarely in the window.
-        snapToInterval={itemHeight}
-        decelerationRate="fast"
-        onMomentumScrollEnd={handleSettled}
-        // Fires when a slow drag ends without throwing any momentum, which
-        // onMomentumScrollEnd never sees.
-        onScrollEndDrag={handleSettled}
-        contentContainerStyle={{ paddingVertical: itemHeight }}
-      >
-        {rows.map((row, index) => (
-          <WheelRow
-            key={index}
-            label={row}
-            index={index}
-            scrollY={scrollY}
-            itemHeight={itemHeight}
-            tabColor={tabColor}
-            isLive={row === selectedLabel}
-            onPress={handleRowPress}
-          />
-        ))}
-      </Animated.ScrollView>
+      {isActive ? (
+        <WheelPickerActive
+          rows={rows}
+          canonicalIndex={canonicalIndex}
+          selected={selected}
+          onSelect={onSelect}
+          tabColor={tabColor}
+          itemHeight={itemHeight}
+          onSettled={() => setIsActive(false)}
+        />
+      ) : (
+        <WheelPickerResting rows={rows} canonicalIndex={canonicalIndex} itemHeight={itemHeight} onActivate={() => setIsActive(true)} />
+      )}
 
       {/* Shading on the curving-away thirds, 2026-07-31. A real cylinder
           doesn't just foreshorten toward its edges, it falls into shadow
@@ -228,8 +181,9 @@ export const WheelPicker = memo(function WheelPicker({
           the lighting of one. These two gradients darken the top and
           bottom bands to transparent at the centre, so the barrel reads as
           a lit surface turning away into shade.
-          Rendered AFTER the list so they sit over the rows, and
-          before the window band so the live value is never shaded.
+          Shared between Resting and Active (rendered here, once, above
+          whichever of the two is showing) so the two never have the
+          slightest visual seam swapping between them.
           pointerEvents none on both so a drag still reaches the wheel. */}
       <LinearGradient
         pointerEvents="none"
@@ -255,16 +209,190 @@ export const WheelPicker = memo(function WheelPicker({
   );
 });
 
+// The at-rest display for a wheel nobody is currently touching -- three
+// plain, non-animated rows (previous value / live value / next value,
+// wrapping around the ends the same way the active version does, via
+// modulo on `rows`) using the precomputed RESTING_*_STYLE constants above.
+// No Reanimated content at all: no SharedValue, no useAnimatedStyle, no
+// ScrollView. This is the literal implementation of "don't run unless
+// selected" -- there is nothing here that COULD run.
+//
+// TouchableOpacity's onPressIn (not onPress) is the activation trigger,
+// deliberately -- onPress only fires after a full tap-and-release, and a
+// person naturally trying to grab-and-drag a wheel picker on their very
+// first touch would have that press cancelled by TouchableOpacity's own
+// movement threshold before it ever fired, silently failing to activate.
+// onPressIn fires the instant a touch begins, regardless of what it turns
+// into next, so activation is reliable either way.
+//
+// Known, accepted UX tradeoff: the touch that activates a wheel is
+// consumed by activation alone -- it does not also feed into the newly-
+// mounted ScrollView as a continuing drag, since that ScrollView doesn't
+// exist yet at the moment the touch began, and React Native's own touch
+// responder system has no mechanism to hand an in-progress touch off to a
+// view that didn't exist when the touch started. A person's first touch on
+// a resting wheel always just wakes it (visually unchanged, since Resting
+// and Active render identically at rest); a second, separate touch is what
+// actually scrolls or selects. This was accepted as the safe option over a
+// fully custom drag-gesture wheel (no real ScrollView, an unbounded
+// Reanimated position driven by a Gesture.Pan and modulo'd per row), which
+// would avoid the two-touch handoff entirely but is a much larger rewrite
+// with its own untested feel/physics -- worth it only if this simpler
+// version genuinely doesn't feel right in practice.
+function WheelPickerResting({
+  rows,
+  canonicalIndex,
+  itemHeight,
+  onActivate,
+}: {
+  rows: string[];
+  canonicalIndex: number;
+  itemHeight: number;
+  onActivate: () => void;
+}) {
+  const topLabel = rows[(canonicalIndex - 1 + rows.length) % rows.length];
+  const liveLabel = rows[canonicalIndex];
+  const bottomLabel = rows[(canonicalIndex + 1) % rows.length];
+  const isLiveChosen = liveLabel !== WHEEL_PLACEHOLDER;
+
+  return (
+    <TouchableOpacity style={styles.restingTouch} onPressIn={onActivate} activeOpacity={1}>
+      <View style={[{ height: itemHeight }, styles.row, RESTING_TOP_STYLE]}>
+        <Text numberOfLines={1} style={[styles.rowText, styles.rowTextIdle]}>
+          {topLabel}
+        </Text>
+      </View>
+      <View style={[{ height: itemHeight }, styles.row, RESTING_LIVE_STYLE]}>
+        <Text numberOfLines={1} style={[styles.rowText, isLiveChosen ? styles.rowTextLive : styles.rowTextIdle]}>
+          {liveLabel}
+        </Text>
+      </View>
+      <View style={[{ height: itemHeight }, styles.row, RESTING_BOTTOM_STYLE]}>
+        <Text numberOfLines={1} style={[styles.rowText, styles.rowTextIdle]}>
+          {bottomLabel}
+        </Text>
+      </View>
+    </TouchableOpacity>
+  );
+}
+
+// The real, live, scrollable barrel -- mounted only while this ONE wheel
+// is the one being touched (see WheelPicker's own isActive state above).
+// Everything below is the same combination-lock mechanics this file has
+// had since 2026-07-31, with wraparound restored (REPEAT_COUNT contiguous
+// copies of `rows`, scrolling off one copy continuing into the next) --
+// see this file's own top comment for why that's safe to do here in a way
+// it wasn't when every wheel carried its own copies all the time.
+function WheelPickerActive({
+  rows,
+  canonicalIndex,
+  selected,
+  onSelect,
+  tabColor,
+  itemHeight,
+  onSettled,
+}: {
+  rows: string[];
+  canonicalIndex: number;
+  selected: string | null;
+  onSelect: (value: string | null) => void;
+  tabColor: string;
+  itemHeight: number;
+  onSettled: () => void;
+}) {
+  const loopedRows = useMemo(
+    () => Array.from({ length: REPEAT_COUNT * rows.length }, (_, i) => rows[i % rows.length]),
+    [rows],
+  );
+  const scrollRef = useRef<Animated.ScrollView>(null);
+  const scrollY = useSharedValue(0);
+
+  const scrollHandler = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+
+  const selectedLabel = selected ?? WHEEL_PLACEHOLDER;
+  const centeredIndex = MIDDLE_COPY * rows.length + canonicalIndex;
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ y: centeredIndex * itemHeight, animated: false });
+    scrollY.value = centeredIndex * itemHeight;
+    // Deliberately keyed on the resolved index only -- adding scrollY/
+    // itemHeight would re-fire this on every frame of a drag.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [centeredIndex]);
+
+  // Momentum end, not onScroll: reporting mid-flick would fire a selection
+  // for every row the wheel passes through, and each of those is a real
+  // state update in the parent form. The settled ABSOLUTE index is folded
+  // back into a canonical row via modulo -- it can land in any of the
+  // REPEAT_COUNT copies, not just the middle one. Always hands control
+  // back to the resting display afterward (onSettled), regardless of
+  // whether the value actually changed -- a wheel that's done being
+  // touched has no reason to stay live.
+  const handleSettled = useCallback(
+    (event: NativeSyntheticEvent<NativeScrollEvent>) => {
+      const absoluteIndex = Math.round(event.nativeEvent.contentOffset.y / itemHeight);
+      const canonical = ((absoluteIndex % rows.length) + rows.length) % rows.length;
+      const value = rows[canonical];
+      const next = value === WHEEL_PLACEHOLDER ? null : value;
+      if (next !== selected) onSelect(next);
+      onSettled();
+    },
+    [itemHeight, rows, selected, onSelect, onSettled],
+  );
+
+  // Stable across renders so the memoized rows below aren't invalidated by a
+  // fresh closure every time. Each row calls this with its own absolute
+  // index rather than receiving a pre-bound arrow, which is what keeps it
+  // stable.
+  const handleRowPress = useCallback(
+    (index: number) => scrollRef.current?.scrollTo({ y: index * itemHeight, animated: true }),
+    [itemHeight],
+  );
+
+  return (
+    <Animated.ScrollView
+      ref={scrollRef}
+      showsVerticalScrollIndicator={false}
+      onScroll={scrollHandler}
+      scrollEventThrottle={16}
+      // Snapping is what makes this feel like detented hardware rather
+      // than a free-scrolling list -- it can only ever come to rest with
+      // a row squarely in the window.
+      snapToInterval={itemHeight}
+      decelerationRate="fast"
+      onMomentumScrollEnd={handleSettled}
+      // Fires when a slow drag ends without throwing any momentum, which
+      // onMomentumScrollEnd never sees.
+      onScrollEndDrag={handleSettled}
+      contentContainerStyle={{ paddingVertical: itemHeight }}
+    >
+      {loopedRows.map((row, index) => (
+        <WheelRow
+          key={index}
+          label={row}
+          index={index}
+          scrollY={scrollY}
+          itemHeight={itemHeight}
+          tabColor={tabColor}
+          isLive={row === selectedLabel}
+          onPress={handleRowPress}
+        />
+      ))}
+    </Animated.ScrollView>
+  );
+}
+
 // One row on the barrel. Its own component rather than an inline map so
 // each can hold its own useAnimatedStyle -- calling a hook inside a .map()
 // breaks the rules of hooks the moment the list length changes, which it
 // genuinely does here (the unit list rebuilds when measurement system
 // changes).
 // memo'd for the same keystroke-cascade reason as WheelPicker above -- this
-// is the component that multiplies (four wheels of 7 to 18 rows each), so
-// it's where the cost actually lived. Its props are all primitives plus one
-// stable callback and one SharedValue whose identity never changes, so the
-// comparison genuinely holds.
+// is the component that multiplies (up to REPEAT_COUNT copies of 7 to 18
+// rows), so it's where the cost actually lived. Only ever mounted by
+// WheelPickerActive now, i.e. for at most one wheel at a time -- see this
+// file's own top comment.
 const WheelRow = memo(function WheelRow({
   label,
   index,
@@ -362,6 +490,10 @@ const styles = StyleSheet.create({
     // No fill: the value behind it must stay fully legible.
     backgroundColor: 'transparent',
   },
+  // Fills the frame exactly the same way the active ScrollView does (no
+  // explicit size of its own, sized entirely by the parent `frame`), so
+  // swapping between Resting and Active never shifts anything.
+  restingTouch: { flex: 1 },
   row: { justifyContent: 'center' },
   rowTouch: { flex: 1, justifyContent: 'center', paddingHorizontal: 6 },
   rowText: { ...typography.caption, textAlign: 'center' },
