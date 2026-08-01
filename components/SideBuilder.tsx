@@ -1,9 +1,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
-import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import { getFoodScores, getStoredMeasurementSystem, type FoodScore } from '../lib/db';
 import { detectMeasurementSystemFromLocale, type MeasurementSystem } from '../lib/measurement';
@@ -206,6 +207,69 @@ type SideIngredient = {
 // itself depends on getting exactly right.
 function foodSummary(resolved: ResolvedFoodSelection): string {
   return resolved.prepMethod ? `${resolved.baseName} (${resolved.prepMethod})` : resolved.baseName;
+}
+
+type LabeledPickerField = {
+  label: string;
+  options: string[];
+  selected: string | null;
+  onSelect: (value: string | null) => void;
+};
+
+// Reorders a row of labeled fields, 2026-08-01, explicitly requested so a
+// person filling several of these in on the same row doesn't have to keep
+// moving their thumb to wherever the next still-blank one happens to sit.
+// As each field is filled in, it slides to the far end of the row -- away
+// from wherever NAVIGATION_HAND says the person's thumb naturally rests --
+// so whatever's still blank stays clustered at the near side. Once every
+// field in the row has a value, the whole row snaps back to its original,
+// declared order (there's nothing left to reach for at that point, so the
+// original left-to-right reading order is the more useful one again).
+//
+// A custom hook, not a plain function, because it needs its own per-row
+// memory of WHICH ORDER fields were actually completed in (a person might
+// fill Cook Prep before Quantity) -- a plain ref, mutated directly during
+// render rather than via a separate effect+state round trip, so the
+// reordered result is available in the SAME render the completing value
+// change already caused, with no extra render cycle for Reanimated's own
+// layout transition (see the two call sites below) to key off. Idempotent
+// by construction (the `includes` guard below), so this is safe even
+// under React StrictMode's dev-only double-render.
+function useReorderedLabeledFields(fields: LabeledPickerField[]): LabeledPickerField[] {
+  const completionOrderRef = useRef<string[]>([]);
+
+  // Appends any field that's newly selected since the last render: never
+  // reorders an already-completed field just because its VALUE changed to
+  // a different option, only the null -> non-null transition counts.
+  for (const field of fields) {
+    if (field.selected !== null && !completionOrderRef.current.includes(field.label)) {
+      completionOrderRef.current.push(field.label);
+    }
+  }
+  // Drops anything that's been cleared back to null since (e.g. the Save
+  // buttons resetting the whole form) -- otherwise a stale label would
+  // keep claiming a spot in the completed group after its own field went
+  // blank again.
+  completionOrderRef.current = completionOrderRef.current.filter((label) =>
+    fields.some((field) => field.label === label && field.selected !== null),
+  );
+
+  if (fields.every((field) => field.selected !== null)) {
+    return fields;
+  }
+
+  const notYetSelected = fields.filter((field) => field.selected === null);
+  const selectedInCompletionOrder = completionOrderRef.current
+    .map((label) => fields.find((field) => field.label === label))
+    .filter((field): field is LabeledPickerField => field !== undefined);
+
+  // Left hand rests toward the left edge (see NAVIGATION_HAND's own
+  // comment), so completed fields move OUT toward the right, keeping
+  // still-blank ones on the left, closer to the thumb -- and the reverse
+  // for right-handed nav.
+  return NAVIGATION_HAND === 'left'
+    ? [...notYetSelected, ...selectedInCompletionOrder]
+    : [...selectedInCompletionOrder, ...notYetSelected];
 }
 
 // The Dish/Ingredients summary card's own fixed footprint (see its own
@@ -743,6 +807,26 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
     );
   }
 
+  // Called unconditionally, here, rather than inline where each row
+  // actually renders below -- both rows sit inside conditional branches
+  // (the dish-name row only shows while !servingsConfirmed; the ingredient
+  // row only once pendingResolved is set), and useReorderedLabeledFields is
+  // a real hook (it holds its own useRef), so calling it from inside either
+  // branch would violate the rule that every hook fires on every render.
+  // Computing both up front costs nothing when a given row isn't currently
+  // showing -- the unused array is just discarded.
+  const dishFormFields = useReorderedLabeledFields([
+    { label: '# of Servings', options: SERVINGS_PICKER_VALUES, selected: servings, onSelect: setServings },
+    { label: 'Serving Size', options: AMOUNT_PICKER_VALUES, selected: servingSizeAmount, onSelect: setServingSizeAmount },
+    { label: 'Units', options: unitOptions, selected: servingSizeUnit, onSelect: setServingSizeUnit },
+  ]);
+  const ingredientFields = useReorderedLabeledFields([
+    { label: 'Quantity', options: AMOUNT_PICKER_VALUES, selected: quantity, onSelect: setQuantity },
+    { label: 'Units', options: unitOptions, selected: unit, onSelect: setUnit },
+    { label: 'Cut Prep', options: CUT_PREP_METHODS, selected: ingredientCutPrep, onSelect: setIngredientCutPrep },
+    { label: 'Cook Prep', options: COOKING_METHODS, selected: ingredientCookingMethod, onSelect: setIngredientCookingMethod },
+  ]);
+
   // Actively waiting on a NEW ingredient's Category/Food pick -- the
   // connected FoodLookup can't sit inside the ScrollView below (see its
   // own comment further down for why), so this whole branch, including
@@ -810,9 +894,11 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
               size themselves to their own content the way the ingredient
               fields already do. */}
           <View style={styles.labeledPickerRow}>
-            {renderLabeledPicker('# of Servings', SERVINGS_PICKER_VALUES, servings, setServings)}
-            {renderLabeledPicker('Serving Size', AMOUNT_PICKER_VALUES, servingSizeAmount, setServingSizeAmount)}
-            {renderLabeledPicker('Units', unitOptions, servingSizeUnit, setServingSizeUnit)}
+            {dishFormFields.map((field) => (
+              <Animated.View key={field.label} layout={LinearTransition}>
+                {renderLabeledPicker(field.label, field.options, field.selected, field.onSelect)}
+              </Animated.View>
+            ))}
           </View>
 
           {/* Not a real `disabled` TouchableOpacity, 2026-07-28, explicitly
@@ -902,10 +988,11 @@ export function SideBuilder({ tabColor }: { tabColor: string }) {
                   own nutrition, so a dish built without them can't be
                   scored honestly. */}
               <View style={styles.labeledPickerRow}>
-                {renderLabeledPicker('Quantity', AMOUNT_PICKER_VALUES, quantity, setQuantity)}
-                {renderLabeledPicker('Units', unitOptions, unit, setUnit)}
-                {renderLabeledPicker('Cut Prep', CUT_PREP_METHODS, ingredientCutPrep, setIngredientCutPrep)}
-                {renderLabeledPicker('Cook Prep', COOKING_METHODS, ingredientCookingMethod, setIngredientCookingMethod)}
+                {ingredientFields.map((field) => (
+                  <Animated.View key={field.label} layout={LinearTransition}>
+                    {renderLabeledPicker(field.label, field.options, field.selected, field.onSelect)}
+                  </Animated.View>
+                ))}
               </View>
 
               {/* Optional free text for detail the structured fields above
@@ -1334,20 +1421,23 @@ const styles = StyleSheet.create({
   // shorter chevron-style boxes (2026-08-01, narrower than a wheel's own
   // fixed frame), but the reasoning -- keep the row's own real width
   // trimmed rather than device-checking a breakpoint -- still holds.
-  // space-between (2026-07-31): the four fields no longer bunch to the left
-  // with dead space trailing off the right edge -- whatever width is left
-  // over after the fields themselves is divided evenly BETWEEN them, so the
-  // row reads as a deliberate set rather than a left-aligned pile. This
-  // composes with flexWrap rather than replacing it: each wrapped line
-  // distributes its own contents independently, so the two-by-two fallback
-  // on a narrow screen stays evenly spread too. columnGap remains as the
-  // minimum separation for the case where there's no slack left to
-  // distribute.
+  // space-between lived here 2026-07-31 to 2026-08-01 -- explicitly
+  // reverted the same day the fields themselves gained NAVIGATION_HAND-
+  // aware reordering (see useReorderedLabeledFields, this file's own
+  // top). Spreading fields evenly across the row fought that reordering
+  // visually: a field that just slid to the "away" end still needs to
+  // read as having moved TOWARD that edge, not as one more evenly-spaced
+  // item in an unchanged layout. flex-start packs every field against its
+  // neighbours instead, so a reordering field visibly travels somewhere,
+  // with columnGap as the only spacing between them. Still composes with
+  // flexWrap the same way: each wrapped line packs its own contents
+  // independently, and the two-by-two fallback on a narrow screen still
+  // reads as one deliberate cluster rather than spread thin.
   labeledPickerRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     columnGap: 6,
     // Separates the whole field group from the card header above it
     // (2026-07-31) -- stacks on top of labeledPickerField's own 12, so the
