@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
 import * as NavigationBar from 'expo-navigation-bar';
 import { usePathname, useRouter, type Href } from 'expo-router';
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import { Image, Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
@@ -241,6 +241,26 @@ export function TabHub() {
   const insets = useSafeAreaInsets();
   const { currentHelp, activeTabPath } = useCurrentPageHelp();
 
+  // TEMPORARY diagnostic instrumentation, 2026-08-01 -- for the still-
+  // unresolved "card drops in from above" bug (see this file's own long
+  // comment on the Modal below for the full history: nine attempts so
+  // far, all reasoned, all disproven). Every prior attempt guessed at a
+  // mechanism from reading code alone; this instead prints real,
+  // millisecond-timestamped events -- when the card's own layout actually
+  // settles, relative to the tap and to Android confirming its Dialog
+  // window is up -- to the Metro/adb log, so the NEXT reproduction (open
+  // TabHub while a WheelPicker is mounted, the confirmed trigger)
+  // produces real data instead of another theory. Remove this block, its
+  // two call sites below, and the card's own onLayout prop once that data
+  // has actually been captured and used -- it's not meant to ship long
+  // term.
+  const dropTimingOpenedAtRef = useRef<number | null>(null);
+  function logDropTiming(label: string) {
+    const openedAt = dropTimingOpenedAtRef.current;
+    const elapsed = openedAt === null ? 0 : Date.now() - openedAt;
+    console.log(`[TabHub drop-timing] +${elapsed}ms: ${label}`);
+  }
+
   // The root layout (app/_layout.tsx) already sets this once for the main
   // Activity window, but this Modal opens as its own separate Android
   // Dialog window (see the comment on the Modal itself, below) -- that
@@ -264,6 +284,7 @@ export function TabHub() {
   // Dialog is actually up, removing that race outright rather than timing
   // around it.
   function handleModalShow() {
+    logDropTiming('Modal onShow (Android Dialog window confirmed up)');
     if (Platform.OS === 'android') {
       NavigationBar.setStyle('dark');
     }
@@ -332,7 +353,11 @@ export function TabHub() {
     <>
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom }]}
-        onPress={() => setOpen(true)}
+        onPress={() => {
+          dropTimingOpenedAtRef.current = Date.now();
+          logDropTiming('tap (setOpen(true) about to run)');
+          setOpen(true);
+        }}
         activeOpacity={0.85}
         accessibilityLabel="Open navigation menu"
         hitSlop={{ left: BUTTERFLY_OVERHANG_X, right: BUTTERFLY_OVERHANG_X, top: BUTTERFLY_OVERHANG_Y, bottom: BUTTERFLY_OVERHANG_Y }}
@@ -429,7 +454,13 @@ export function TabHub() {
           {/* Shadow lives on this outermost box -- overflow: 'hidden' on
               cardRing below (needed to clip the gradient into the same
               rounded rect) would otherwise clip the shadow too. */}
-          <View style={[styles.cardShadowWrap, { bottom: cardBottom, left: CARD_LEFT_MARGIN, width: CARD_WIDTH }]}>
+          <View
+            style={[styles.cardShadowWrap, { bottom: cardBottom, left: CARD_LEFT_MARGIN, width: CARD_WIDTH }]}
+            onLayout={(event) => {
+              const { x, y, width, height } = event.nativeEvent.layout;
+              logDropTiming(`card onLayout: x=${Math.round(x)} y=${Math.round(y)} w=${Math.round(width)} h=${Math.round(height)}`);
+            }}
+          >
             <TabHubCardRing>
               <View style={styles.card}>
                 {TAB_ROUTES.map((route) => {

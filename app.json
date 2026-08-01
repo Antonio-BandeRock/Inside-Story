@@ -54,6 +54,7 @@
       "expo-font",
       "expo-navigation-bar",
       "./plugins/withWindowBackground.js",
+      "./plugins/withAutofillDisabled.js",
       [
         "expo-calendar",
         {
