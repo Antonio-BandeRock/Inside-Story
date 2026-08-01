@@ -1,11 +1,12 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
-import { MyItemsHub, type MyItemsSection } from '../../components/MyItemsHub';
+import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SideBuilder } from '../../components/SideBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
@@ -204,6 +205,7 @@ function ComingSoonBuilder({ lens }: { lens: FoodLens }) {
 
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
+  const router = useRouter();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
@@ -215,29 +217,42 @@ export default function FoodScreen() {
     }, []),
   );
 
-  // "My Foods" (see MyItemsHub below) -- refetched every time that popup
-  // opens (via its own onOpen prop), not just once at mount, so a side
-  // saved a moment ago always shows up rather than whatever was fetched
-  // the first time this screen rendered. Favorites filtered to 'side'
-  // specifically -- Side Builder is the only builder that produces
-  // anything favoritable yet, and this list has no use for meal favorites
-  // saved by the old, deleted meal builder.
-  const [mySides, setMySides] = useState<MyItemsSection['items']>([]);
-  const [mySideFavorites, setMySideFavorites] = useState<MyItemsSection['items']>([]);
-  async function loadMyFoods() {
+  // "My Foods" categories (see MyItemsHub below) -- refetched every time
+  // that popup opens (via its own onOpen prop), not just once at mount, so
+  // a side saved a moment ago is reflected in its own count right away
+  // rather than whatever was fetched the first time this screen rendered.
+  // Only counts are kept here -- the real item lists are fetched again by
+  // app/food-items.tsx itself once a category is actually opened, so this
+  // screen never has to hold two copies of the same data in sync.
+  //
+  // This array is the one place that grows as more builders get a real
+  // save path -- Side is the only one with anything to show yet (Favorites
+  // filtered to 'side' specifically, since Side Builder is the only
+  // builder that produces anything favoritable so far, and this list has
+  // no use for meal favorites saved by the old, deleted meal builder).
+  // Adding Salad's own "Saved Salads"/"Favorite Salads" later is two more
+  // entries here, not a restructure of MyItemsHub or food-items.tsx.
+  const [sideCount, setSideCount] = useState(0);
+  const [sideFavoriteCount, setSideFavoriteCount] = useState(0);
+  async function loadMyFoodsCounts() {
     const [sides, favorites] = await Promise.all([listSides(), listFavorites(50, 'side')]);
-    setMySides(
-      sides.map((side) => ({
-        id: side.id,
-        title: side.name,
-        subtitle: `${side.ingredientCount} ingredient${side.ingredientCount === 1 ? '' : 's'}`,
-      })),
-    );
-    setMySideFavorites(favorites.map((favorite) => ({ id: favorite.id, title: favorite.name })));
+    setSideCount(sides.length);
+    setSideFavoriteCount(favorites.length);
   }
-  const myFoodsSections: MyItemsSection[] = [
-    { title: 'Saved Sides', items: mySides, emptyText: 'No sides saved yet.' },
-    { title: 'Favorites', items: mySideFavorites, emptyText: 'Nothing favorited yet.' },
+  const myFoodsCategories: MyItemsCategory[] = [
+    {
+      id: 'side-saved',
+      label: 'Saved Sides',
+      count: sideCount,
+      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'side', status: 'saved', title: 'Saved Sides' } }),
+    },
+    {
+      id: 'side-favorite',
+      label: 'Favorite Sides',
+      count: sideFavoriteCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'side', status: 'favorite', title: 'Favorite Sides' } }),
+    },
   ];
 
   return (
@@ -266,7 +281,7 @@ export default function FoodScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Food" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Foods" tabColor={TAB_COLOR} sections={myFoodsSections} onOpen={loadMyFoods} />
+      <MyItemsHub label="My Foods" tabColor={TAB_COLOR} categories={myFoodsCategories} onOpen={loadMyFoodsCounts} />
       <LensHub
         pageTitle="Food"
         headerLabel="Nutrition Builders"

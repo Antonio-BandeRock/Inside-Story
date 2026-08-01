@@ -38,32 +38,46 @@ import { BUTTERFLY_WIDTH } from './TabHub';
 // button's own position ever changes.
 //
 // Genuinely generic still -- this component knows nothing about sides,
-// favorites, or any other specific kind of saved item. A caller with real
-// data to show (Food tab, as of 2026-08-01, is the first) passes it in via
-// `sections`; a caller with nothing yet to show (Insights/Schedule/etc.,
-// still) passes nothing and gets the original placeholder text, matching
-// this app's established "coming soon" honesty rather than claiming a
-// working feature that isn't there yet on THAT page.
-export type MyItemsListEntry = { id: string; title: string; subtitle?: string };
-export type MyItemsSection = {
-  title: string;
-  items: MyItemsListEntry[];
-  // Shown in place of the list when this section has no items yet -- kept
-  // per-section rather than one generic message, since "no sides saved
-  // yet" and "nothing favorited yet" mean genuinely different things and
-  // a caller may want to say so.
-  emptyText: string;
+// favorites, salads, or any other specific kind of saved item, and never
+// should: every Food builder is expected to eventually produce its own
+// kind of saved/favorited thing, each wanting its own Insights lens later
+// (see app/food-items.tsx's own comment for the fuller picture). This
+// popup's own job stays fixed regardless of how many builders exist --
+// show whatever CATEGORIES the caller currently has real data for, as
+// plain tappable links, and get out of the way. A caller with real
+// categories to show (Food tab, as of 2026-08-01, is the first, with
+// "Saved Sides"/"Favorite Sides") passes them via `categories`; a caller
+// with nothing yet (Insights/Schedule/etc., still) passes nothing and
+// gets the original placeholder text, matching this app's established
+// "coming soon" honesty rather than claiming a working feature that isn't
+// there yet on THAT page.
+//
+// 2026-08-01: this used to show each category's items inline, expanded,
+// with no way to tap into any of them -- replaced with plain links out to
+// a real list screen (see onPress) after being reported as "nothing is
+// selectable." A category with a real onPress handler is what actually
+// lets a person get somewhere; showing five saved sides' names inline in
+// a cramped popup never did.
+export type MyItemsCategory = {
+  id: string;
+  label: string;
+  // How many real items are in this category, if known -- shown as a
+  // quiet count next to the label (e.g. "Saved Sides · 3") so a person can
+  // tell at a glance whether a category is worth opening, without having
+  // to open every one just to check.
+  count?: number;
+  onPress: () => void;
 };
 
 export function MyItemsHub({
   label,
   tabColor,
-  sections,
+  categories,
   onOpen,
 }: {
   label: string;
   tabColor: string;
-  sections?: MyItemsSection[];
+  categories?: MyItemsCategory[];
   // Fires every time the popup opens, before anything renders -- lets the
   // caller refetch its own data live rather than showing whatever was
   // fetched once at mount, which could already be stale by the time this
@@ -131,28 +145,23 @@ export function MyItemsHub({
             <Text style={[styles.cardHeader, { color: tabColor }]} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
               {label}
             </Text>
-            {sections ? (
-              <ScrollView style={styles.sectionsScroll} showsVerticalScrollIndicator={false}>
-                {sections.map((section) => (
-                  <View key={section.title} style={styles.section}>
-                    <Text style={[styles.sectionHeader, { color: tabColor }]}>{section.title}</Text>
-                    {section.items.length > 0 ? (
-                      section.items.map((item) => (
-                        <View key={item.id} style={styles.itemRow}>
-                          <Text style={styles.itemTitle} numberOfLines={1}>
-                            {item.title}
-                          </Text>
-                          {item.subtitle ? (
-                            <Text style={styles.itemSubtitle} numberOfLines={1}>
-                              {item.subtitle}
-                            </Text>
-                          ) : null}
-                        </View>
-                      ))
-                    ) : (
-                      <Text style={styles.emptyText}>{section.emptyText}</Text>
-                    )}
-                  </View>
+            {categories ? (
+              <ScrollView style={styles.categoriesScroll} showsVerticalScrollIndicator={false}>
+                {categories.map((category) => (
+                  <TouchableOpacity
+                    key={category.id}
+                    style={styles.categoryRow}
+                    onPress={() => {
+                      setOpen(false);
+                      category.onPress();
+                    }}
+                  >
+                    <Text style={styles.categoryLabel} numberOfLines={1}>
+                      {category.label}
+                      {category.count !== undefined ? ` · ${category.count}` : ''}
+                    </Text>
+                    <Ionicons name="chevron-forward" size={16} color={tabColor} />
+                  </TouchableOpacity>
                 ))}
               </ScrollView>
             ) : (
@@ -236,29 +245,21 @@ const styles = StyleSheet.create({
     ...typography.eyebrow,
     marginBottom: 8,
   },
-  sectionsScroll: {
+  categoriesScroll: {
     maxHeight: 260,
   },
-  section: {
-    marginBottom: 10,
-  },
-  sectionHeader: {
-    ...typography.captionEmphasis,
-    marginBottom: 4,
-  },
-  itemRow: {
-    paddingVertical: 6,
+  categoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  itemTitle: {
+  categoryLabel: {
     ...typography.body,
     color: colors.textPrimary,
-  },
-  itemSubtitle: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: 1,
+    flexShrink: 1,
   },
   emptyText: {
     ...typography.body,
