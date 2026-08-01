@@ -174,7 +174,16 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
       // ever sees for ANY field in this app, and an OS Autofill popup is
       // exactly the kind of native input-adjacent UI that design is meant to
       // rule out.
-      importantForAutofill="no"
+      // "no" alone was reported still showing the chip, 2026-08-01 (it
+      // stopped Autofill from actually FILLING anything -- tapping it said
+      // the contents couldn't be autofilled -- but didn't stop the chip
+      // from appearing at all). "noExcludeDescendants" is the stronger of
+      // RN's two "off" values: RN's TextInput isn't a bare EditText, it has
+      // its own internal descendant views, and "no" only opts the
+      // top-level view out, leaving Android's autofill heuristics free to
+      // still consider what's underneath. Excluding descendants too is
+      // what actually removes this field from the autofill tree entirely.
+      importantForAutofill="noExcludeDescendants"
       autoComplete="off"
       selection={selection}
       onSelectionChange={(event) => {

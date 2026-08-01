@@ -101,8 +101,25 @@ export function AppKeyboard() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
 
+  // Slides within its own fixed-height clip window (see the render below),
+  // not the full KEYBOARD_HEIGHT + footerBandHeight the outer box used to
+  // travel, 2026-08-01 -- reported as the keyboard visibly passing IN
+  // FRONT of the footer/TabHub button while closing, rather than tucking
+  // in behind it. AppKeyboard is mounted last at the app root (see this
+  // file's own top comment), so it always paints over the footer by plain
+  // tree order; that was never a problem while RISEN, since its resting
+  // box (`bottom: footerBandHeight`) sits entirely above the footer's own
+  // space with no overlap at all -- but the old translateY distance
+  // carried the box's own bottom edge DOWN THROUGH that space on its way
+  // off-screen, so for part of the close animation it was genuinely
+  // overlapping the footer, and painting on top of it when it did. Now the
+  // box's own position/size never changes (see clipWrap below); only the
+  // CONTENT inside it slides, by exactly its own height, so it can only
+  // ever disappear upward into nothing within a window that never leaves
+  // its resting spot above the footer -- no geometry left to race the
+  // paint order over.
   const risenStyle = useAnimatedStyle(() => ({
-    transform: [{ translateY: (1 - progress.value) * (KEYBOARD_HEIGHT + footerBandHeight) }],
+    transform: [{ translateY: (1 - progress.value) * KEYBOARD_HEIGHT }],
   }));
 
   function insertText(char: string) {
@@ -266,14 +283,20 @@ export function AppKeyboard() {
   );
 
   return (
-    <Animated.View
-      style={[styles.container, { bottom: footerBandHeight, height: KEYBOARD_HEIGHT }, risenStyle]}
-      pointerEvents={visible ? 'auto' : 'none'}
-    >
-      {searchRow}
-      {mainKeys}
-      {bottomRow}
-    </Animated.View>
+    // clipWrap's own position/size is fixed (never animated) -- see
+    // risenStyle's own comment for why this split from a single animated
+    // box exists. overflow: 'hidden' is what actually enforces "the
+    // keyboard can never be visible outside this window": the animated
+    // content below can slide down within it, but is clipped the instant
+    // it would cross this box's own bottom edge, which sits exactly at
+    // the footer's own top edge.
+    <View style={[styles.clipWrap, { bottom: footerBandHeight, height: KEYBOARD_HEIGHT }]} pointerEvents={visible ? 'auto' : 'none'}>
+      <Animated.View style={[styles.container, risenStyle]}>
+        {searchRow}
+        {mainKeys}
+        {bottomRow}
+      </Animated.View>
+    </View>
   );
 }
 
@@ -304,14 +327,25 @@ function Key({
 }
 
 const styles = StyleSheet.create({
+  // Fixed position/size, 2026-08-01 (`bottom`/`height` set inline where
+  // rendered) -- see risenStyle's own comment. overflow: 'hidden' clips
+  // `container` below to this box's own bounds, which is what keeps the
+  // keyboard from ever visually reaching into the footer's space.
+  clipWrap: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    overflow: 'hidden',
+  },
+  // No longer position: 'absolute' (2026-08-01) -- it's a normal block
+  // child of clipWrap now, sized to fill it exactly so risenStyle's own
+  // translateY can slide it fully out of view within that fixed window.
   // Same flat colors.background the footer band itself paints (see
   // ScreenBackground.tsx's own bottomMask) -- the keyboard is meant to read
   // as a continuation of the footer rising up, not a separate floating
   // panel in its own color.
   container: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
+    height: KEYBOARD_HEIGHT,
     backgroundColor: colors.background,
     borderTopWidth: 1,
     borderTopColor: colors.border,
