@@ -53,13 +53,22 @@ export type BackgroundVariant = keyof typeof BACKGROUNDS;
 // same for all pages" only means something if it's actually one
 // implementation, not seven that can quietly drift apart.
 //
-// Layering, bottom to top: the image (fixed -- it does not scroll with
-// `children`'s own content), then the animated sky overlay (Home only --
-// see `sky` below), then `children` itself (typically a ScrollView), then
-// an opaque bottomMask painted last so the area behind
+// Layering, bottom to top: the animated sky overlay (Home only -- see
+// `sky` below), then the image (fixed -- it does not scroll with
+// `children`'s own content), then `children` itself (typically a
+// ScrollView), then an opaque bottomMask painted last so the area behind
 // TabHub/LensHub/ScopeHub is *guaranteed* flat colors.background no matter
 // what's scrolled underneath it, rather than relying on scroll padding
 // alone to happen to leave it empty.
+//
+// Sky BEHIND the image, not in front of it, 2026-08-02 -- explicitly
+// requested, with the tradeoff named and confirmed first: the wildflower
+// photo is a single fully-opaque asset with no transparency anywhere in
+// its own sky band, so with this order the sun/moon/stars/tint are all
+// completely hidden behind it, all the time, on every device -- not a
+// bug, the direct, known consequence of this ordering against the
+// current asset. Revisit this comment (and the order below) if the
+// background image ever gains real transparency in its sky region.
 export function ScreenBackground({
   children,
   variant = 'field',
@@ -96,6 +105,7 @@ export function ScreenBackground({
 
   return (
     <View style={styles.body}>
+      {sky && imageSize ? <AnimatedSky width={imageSize.width} height={imageSize.height} /> : null}
       <Image
         source={background.source}
         style={[styles.backgroundImage, { bottom: bottomInset }]}
@@ -103,7 +113,6 @@ export function ScreenBackground({
         contentPosition="center"
         onLayout={handleImageLayout}
       />
-      {sky && imageSize ? <AnimatedSky width={imageSize.width} height={imageSize.height} /> : null}
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
       {/* The footer's own fine line, mirroring ScreenHeader's divider --
