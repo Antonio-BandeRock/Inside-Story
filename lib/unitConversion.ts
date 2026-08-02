@@ -19,11 +19,18 @@
 // result instead of a silently wrong number.
 
 export type MassUnit = 'g' | 'kg' | 'oz' | 'lb';
-export type VolumeUnit = 'ml' | 'l' | 'tsp' | 'tbsp' | 'fl_oz' | 'cup';
+// pint/quart/gallon added 2026-08-02, alongside the liquid-builders' own
+// Units picker no longer branching on the person's profile measurement
+// system (see BeverageBuilder.tsx's own unitsForSystem comment) -- real
+// liquid quantities (a batch of kombucha, a jug of iced tea) commonly run
+// past a single cup/liter. US customary values throughout, matching the
+// fl_oz conversion already established here (not UK imperial, which uses a
+// different fl oz).
+export type VolumeUnit = 'ml' | 'l' | 'tsp' | 'tbsp' | 'fl_oz' | 'cup' | 'pint' | 'quart' | 'gallon';
 export type MeasurementUnit = MassUnit | VolumeUnit;
 
 export const MASS_UNITS: readonly MassUnit[] = ['g', 'kg', 'oz', 'lb'];
-export const VOLUME_UNITS: readonly VolumeUnit[] = ['ml', 'l', 'tsp', 'tbsp', 'fl_oz', 'cup'];
+export const VOLUME_UNITS: readonly VolumeUnit[] = ['ml', 'l', 'tsp', 'tbsp', 'fl_oz', 'cup', 'pint', 'quart', 'gallon'];
 
 function isMassUnit(unit: string): unit is MassUnit {
   return (MASS_UNITS as readonly string[]).includes(unit);
@@ -47,6 +54,9 @@ const VOLUME_TO_ML: Record<VolumeUnit, number> = {
   tbsp: 14.7868,
   fl_oz: 29.5735,
   cup: 236.588,
+  pint: 473.176,
+  quart: 946.353,
+  gallon: 3785.41,
 };
 
 export type DensityClass = 'water_like' | 'oil_fat';

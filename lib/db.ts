@@ -3,7 +3,7 @@ import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
-import { convertToGrams, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
+import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 
 const DB_NAME = 'inside_story.db';
 const REFERENCE_DB_NAME = 'foods_reference.db';
@@ -6921,7 +6921,12 @@ export async function getSupplementNutrientTotals(): Promise<{
 
 function normalizeUnitForConversion(unit: string): MeasurementUnit | null {
   const normalized = unit.trim().toLowerCase().replace(/\s+/g, '_');
-  const recognized: readonly string[] = ['g', 'kg', 'oz', 'lb', 'ml', 'l', 'tsp', 'tbsp', 'fl_oz', 'cup'];
+  // Reads straight from unitConversion.ts's own MASS_UNITS/VOLUME_UNITS
+  // rather than a second, hand-maintained copy of the same list -- 2026-
+  // 08-02, fixed while adding pint/quart/gallon there specifically so a
+  // future unit addition can't update one list and silently miss the
+  // other again.
+  const recognized: readonly string[] = [...MASS_UNITS, ...VOLUME_UNITS];
   return recognized.includes(normalized) ? (normalized as MeasurementUnit) : null;
 }
 

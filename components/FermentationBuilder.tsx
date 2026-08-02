@@ -33,23 +33,36 @@ import { PopoverSelect } from './PopoverSelect';
 // Category/Food's own long, searchable lists) -- the same "pillRow/pill"
 // pattern already used for Schedule's own small fixed choices.
 //
-// 2026-07-28: split by measurement system rather than shown all mixed
-// together (the original list put g/oz/lb/cup/tbsp/tsp/ml/piece in one
-// row) -- g/ml are metric-only, oz/lb are imperial-only, and mixing both
-// systems in one picker doesn't match how the rest of the app treats this
-// (see lib/measurement.ts's own MeasurementSystem, already used for
-// Profile's height entry: one stored preference, not a per-field mix).
-// cup/tbsp/tsp/piece stay common to both -- their real-world metric vs.
-// imperial volumes technically differ (a "cup" is 250mL metric vs.
-// ~237mL US customary), but home cooking treats them as the same everyday
-// unit regardless of system, unlike g/oz or ml/lb which are genuinely
-// different measurements for the same quantity.
-const METRIC_ONLY_UNITS = ['g', 'ml'];
-const IMPERIAL_ONLY_UNITS = ['oz', 'lb'];
-const COMMON_UNITS = ['cup', 'tbsp', 'tsp', 'piece'];
+// 2026-07-28: originally split by measurement system (g/ml metric-only,
+// oz/lb imperial-only) rather than shown all mixed together, matching how
+// the rest of the app treats this (lib/measurement.ts's own
+// MeasurementSystem, already used for Profile's height entry: one stored
+// preference, not a per-field mix).
+//
+// 2026-08-02, explicitly reconsidered for this builder (a genuinely
+// liquid-heavy one -- kombucha, kefir, other water-based ferments):
+// a person's own profile system is the right rule for something like a
+// body-weight scale, which really is set to one system at a time -- but
+// it's the wrong rule for which measuring UTENSIL happens to be on hand
+// for a liquid batch. A liter jug, a gallon jug, a cup marked in mL vs.
+// fl oz -- what's physically available doesn't track someone's app-wide
+// preference the way a scale reading does. So for this builder, every
+// liquid unit (both families) is offered together, unconditionally; only
+// the MASS unit (grams vs. ounces/pounds -- genuinely tied to which scale
+// is in use) still follows the profile system. lib/unitConversion.ts's own
+// VolumeUnit/VOLUME_TO_ML already supports every unit below (pint/quart/
+// gallon added alongside this change, US customary throughout, matching
+// the existing fl_oz figure) -- this file only had to stop filtering, not
+// add any new conversion math.
+const METRIC_MASS_UNIT = 'g';
+const IMPERIAL_MASS_UNITS = ['oz', 'lb'];
+const LIQUID_UNITS = ['ml', 'l', 'tsp', 'tbsp', 'fl oz', 'cup', 'pint', 'quart', 'gallon'];
+const COMMON_UNITS = ['piece'];
 
 function unitsForSystem(system: MeasurementSystem): string[] {
-  return system === 'imperial' ? [...IMPERIAL_ONLY_UNITS, ...COMMON_UNITS] : [...METRIC_ONLY_UNITS, ...COMMON_UNITS];
+  return system === 'imperial'
+    ? [...IMPERIAL_MASS_UNITS, ...LIQUID_UNITS, ...COMMON_UNITS]
+    : [METRIC_MASS_UNIT, ...LIQUID_UNITS, ...COMMON_UNITS];
 }
 
 // Standard "minor words stay lowercase" title-case list -- articles,
