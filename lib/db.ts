@@ -1291,6 +1291,68 @@ export async function initializeDatabase() {
         FOREIGN KEY (salad_id) REFERENCES salads(id) ON DELETE CASCADE
       );
 
+      -- Smoothie Builder's own real persistence, 2026-08-02 -- same
+      -- per-builder-table reasoning as sides/side_ingredients and
+      -- salads/salad_ingredients above.
+      CREATE TABLE IF NOT EXISTS smoothies (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        servings REAL NOT NULL,
+        serving_size_amount REAL NOT NULL,
+        serving_size_unit TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS smoothie_ingredients (
+        id TEXT PRIMARY KEY,
+        smoothie_id TEXT NOT NULL,
+        food_id TEXT,
+        food_name TEXT NOT NULL,
+        category TEXT,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        cut_prep TEXT NOT NULL,
+        cooking_method TEXT NOT NULL,
+        prep_note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (smoothie_id) REFERENCES smoothies(id) ON DELETE CASCADE
+      );
+
+      -- Fermentation Builder's own real persistence, 2026-08-02 -- same
+      -- per-builder-table reasoning as sides/side_ingredients,
+      -- salads/salad_ingredients, and smoothies/smoothie_ingredients above.
+      -- Deliberately the same shape as those three (no strain-specific
+      -- columns) -- see components/FermentationBuilder.tsx's own top
+      -- comment for why real bacterial-strain tracking is out of scope
+      -- here, a separate future research workstream, not a schema gap.
+      CREATE TABLE IF NOT EXISTS fermentations (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        servings REAL NOT NULL,
+        serving_size_amount REAL NOT NULL,
+        serving_size_unit TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS fermentation_ingredients (
+        id TEXT PRIMARY KEY,
+        fermentation_id TEXT NOT NULL,
+        food_id TEXT,
+        food_name TEXT NOT NULL,
+        category TEXT,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        cut_prep TEXT NOT NULL,
+        cooking_method TEXT NOT NULL,
+        prep_note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (fermentation_id) REFERENCES fermentations(id) ON DELETE CASCADE
+      );
+
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
       CREATE INDEX IF NOT EXISTS idx_wellbeing_checkins_logged_at ON wellbeing_checkins(logged_at);
       CREATE INDEX IF NOT EXISTS idx_checkin_tags_checkin ON checkin_tags(checkin_id);
@@ -2304,11 +2366,701 @@ export async function getSaladSixDimensionsBreakdown(saladId: string): Promise<D
   return { day: saladBreakdown.bySubCriterion, meals: [mealBreakdown] };
 }
 
+// Smoothie Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror
+// of the salads/salad_ingredients functions directly above (see their own
+// comment for the full "why separate tables/functions per builder"
+// reasoning, unchanged here).
+export type SmoothieIngredientInput = {
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+};
+
+export async function saveSmoothie(input: {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: SmoothieIngredientInput[];
+}) {
+  const db = await getDatabase();
+  const id = `smoothie_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO smoothies (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    now,
+  );
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `smoothie_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO smoothie_ingredients
+          (id, smoothie_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      id,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id };
+}
+
+export async function updateSmoothie(
+  smoothieId: string,
+  input: {
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    ingredients: SmoothieIngredientInput[];
+  },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE smoothies
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    smoothieId,
+  );
+
+  await db.runAsync('DELETE FROM smoothie_ingredients WHERE smoothie_id = ?', smoothieId);
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `smoothie_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO smoothie_ingredients
+          (id, smoothie_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      smoothieId,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id: smoothieId };
+}
+
+// smoothie_ingredients rows cascade via their own FK (ON DELETE CASCADE, see
+// initializeDatabase) -- deleting the parent smoothies row is enough.
+export async function deleteSmoothie(smoothieId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM smoothies WHERE id = ?', smoothieId);
+}
+
+export type SmoothieRecord = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredientCount: number;
+  ingredientNames: string | null;
+  createdAt: string;
+};
+
+export async function listSmoothies(limit = 50): Promise<SmoothieRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SmoothieRecord>(
+    `
+      SELECT s.id, s.name, s.servings, s.serving_size_amount AS servingSizeAmount, s.serving_size_unit AS servingSizeUnit,
+             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(food_name, ', ')
+               FROM (SELECT food_name FROM smoothie_ingredients WHERE smoothie_id = s.id ORDER BY sort_order)
+             ) AS ingredientNames
+      FROM smoothies s
+      LEFT JOIN smoothie_ingredients si ON si.smoothie_id = s.id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
+export type SmoothieDetail = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  createdAt: string;
+};
+
+export async function getSmoothie(smoothieId: string): Promise<SmoothieDetail | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<SmoothieDetail>(
+    `
+      SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
+             created_at AS createdAt
+      FROM smoothies
+      WHERE id = ?
+    `,
+    smoothieId,
+  );
+}
+
+export type SmoothieIngredientDetail = {
+  id: string;
+  foodId: string | null;
+  foodName: string;
+  category: string | null;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote: string | null;
+};
+
+export async function getSmoothieIngredients(smoothieId: string): Promise<SmoothieIngredientDetail[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SmoothieIngredientDetail>(
+    `
+      SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+      FROM smoothie_ingredients
+      WHERE smoothie_id = ?
+      ORDER BY sort_order
+    `,
+    smoothieId,
+  );
+}
+
+// Smoothie-scoped equivalent of getSaladNutrientBreakdown -- see that
+// function's own comment for the full reasoning. mealType 'smoothie'
+// instead of 'salad' is the only real difference in the shape produced.
+export async function getSmoothieNutrientBreakdown(smoothieId: string): Promise<DailyNutrientBreakdown> {
+  const empty: DailyNutrientBreakdown = {
+    dayTotals: {},
+    meals: [],
+    driRows: [],
+    supplementTotals: {},
+    unresolvedItems: [],
+    supplementSkipped: [],
+    profileComplete: false,
+  };
+  const smoothie = await getSmoothie(smoothieId);
+  if (!smoothie) return empty;
+
+  const ingredients = await getSmoothieIngredients(smoothieId);
+  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
+  const itemBreakdowns: DailyNutrientItemBreakdown[] = [];
+  const smoothieTotals: Record<string, number> = {};
+  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    let grams: number;
+    if (ingredient.unit.trim().toLowerCase() === 'each') {
+      const unitWeight = await getFoodUnitWeight(foodId, source);
+      if (!unitWeight) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'no_unit_weight_data' });
+        continue;
+      }
+      grams = unitWeight.gramsPerUnit * ingredient.quantity;
+    } else {
+      const unit = normalizeUnitForConversion(ingredient.unit);
+      if (!unit) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'unsupported_unit' });
+        continue;
+      }
+      const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
+        ? null
+        : ingredient.category ?? (await getFoodCategory(foodId, source));
+      const conversion = convertToGrams(ingredient.quantity, unit, { foodCategory: foodCategory ?? undefined });
+      if (!conversion.ok) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: conversion.reason });
+        continue;
+      }
+      grams = conversion.grams;
+    }
+
+    const cacheKey = `${foodId}|${source}`;
+    let nutrients = nutrientCache.get(cacheKey);
+    if (!nutrients) {
+      nutrients = await getFoodNutrients(foodId, source);
+      nutrientCache.set(cacheKey, nutrients);
+    }
+    const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: grams, nutrients }]);
+    itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+    for (const [code, amount] of Object.entries(itemTotals)) {
+      smoothieTotals[code] = (smoothieTotals[code] ?? 0) + amount;
+    }
+  }
+
+  const [driRows, profile] = await Promise.all([getDietaryReferenceIntakesForCurrentUser(), getUserProfile()]);
+
+  const smoothieBreakdown: DailyNutrientSideBreakdown = { sideName: smoothie.name, totals: smoothieTotals, items: itemBreakdowns };
+  const mealBreakdown: DailyNutrientMealBreakdown = {
+    mealId: smoothie.id,
+    mealName: smoothie.name,
+    mealType: 'smoothie',
+    totals: smoothieTotals,
+    sides: [smoothieBreakdown],
+  };
+
+  return {
+    dayTotals: smoothieTotals,
+    meals: [mealBreakdown],
+    driRows,
+    supplementTotals: {},
+    unresolvedItems,
+    supplementSkipped: [],
+    profileComplete: profile.sex != null && profile.birthDate != null,
+  };
+}
+
+// Smoothie-scoped equivalent of getSaladSixDimensionsBreakdown -- see that
+// function's own comment for the full reasoning.
+export async function getSmoothieSixDimensionsBreakdown(smoothieId: string): Promise<DailySixDimensionsBreakdown> {
+  const smoothie = await getSmoothie(smoothieId);
+  if (!smoothie) return { day: [], meals: [] };
+
+  const ingredients = await getSmoothieIngredients(smoothieId);
+  const scoreCache = new Map<string, FoodScore[]>();
+  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) continue;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const cacheKey = `${foodId}|${source}`;
+    let scores = scoreCache.get(cacheKey);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(cacheKey, scores);
+    }
+    foods.push({ foodName: ingredient.foodName, scores });
+  }
+
+  const smoothieBreakdown: DailyDimensionSideBreakdown = {
+    sideName: smoothie.name,
+    bySubCriterion: aggregateBySubCriterion(foods),
+    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+  };
+  const mealBreakdown: DailyDimensionMealBreakdown = {
+    mealId: smoothie.id,
+    mealName: smoothie.name,
+    mealType: 'smoothie',
+    bySubCriterion: smoothieBreakdown.bySubCriterion,
+    sides: [smoothieBreakdown],
+  };
+
+  return { day: smoothieBreakdown.bySubCriterion, meals: [mealBreakdown] };
+}
+
+// Fermentation Builder's own CRUD, 2026-08-02 -- deliberate line-for-line
+// mirror of the smoothies/smoothie_ingredients functions directly above
+// (see the sides/side_ingredients comment further up for the full "why
+// separate tables/functions per builder" reasoning, unchanged here).
+export type FermentationIngredientInput = {
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+};
+
+export async function saveFermentation(input: {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: FermentationIngredientInput[];
+}) {
+  const db = await getDatabase();
+  const id = `fermentation_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO fermentations (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    now,
+  );
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `fermentation_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO fermentation_ingredients
+          (id, fermentation_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      id,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id };
+}
+
+export async function updateFermentation(
+  fermentationId: string,
+  input: {
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    ingredients: FermentationIngredientInput[];
+  },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE fermentations
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    fermentationId,
+  );
+
+  await db.runAsync('DELETE FROM fermentation_ingredients WHERE fermentation_id = ?', fermentationId);
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `fermentation_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO fermentation_ingredients
+          (id, fermentation_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      fermentationId,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id: fermentationId };
+}
+
+// fermentation_ingredients rows cascade via their own FK (ON DELETE CASCADE,
+// see initializeDatabase) -- deleting the parent fermentations row is enough.
+export async function deleteFermentation(fermentationId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM fermentations WHERE id = ?', fermentationId);
+}
+
+export type FermentationRecord = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredientCount: number;
+  ingredientNames: string | null;
+  createdAt: string;
+};
+
+export async function listFermentations(limit = 50): Promise<FermentationRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<FermentationRecord>(
+    `
+      SELECT f.id, f.name, f.servings, f.serving_size_amount AS servingSizeAmount, f.serving_size_unit AS servingSizeUnit,
+             f.created_at AS createdAt, COUNT(fi.id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(food_name, ', ')
+               FROM (SELECT food_name FROM fermentation_ingredients WHERE fermentation_id = f.id ORDER BY sort_order)
+             ) AS ingredientNames
+      FROM fermentations f
+      LEFT JOIN fermentation_ingredients fi ON fi.fermentation_id = f.id
+      GROUP BY f.id
+      ORDER BY f.created_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
+export type FermentationDetail = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  createdAt: string;
+};
+
+export async function getFermentation(fermentationId: string): Promise<FermentationDetail | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<FermentationDetail>(
+    `
+      SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
+             created_at AS createdAt
+      FROM fermentations
+      WHERE id = ?
+    `,
+    fermentationId,
+  );
+}
+
+export type FermentationIngredientDetail = {
+  id: string;
+  foodId: string | null;
+  foodName: string;
+  category: string | null;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote: string | null;
+};
+
+export async function getFermentationIngredients(fermentationId: string): Promise<FermentationIngredientDetail[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<FermentationIngredientDetail>(
+    `
+      SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+      FROM fermentation_ingredients
+      WHERE fermentation_id = ?
+      ORDER BY sort_order
+    `,
+    fermentationId,
+  );
+}
+
+// Fermentation-scoped equivalent of getSmoothieNutrientBreakdown -- see that
+// function's own comment for the full reasoning. mealType 'fermentation'
+// instead of 'smoothie' is the only real difference in the shape produced.
+export async function getFermentationNutrientBreakdown(fermentationId: string): Promise<DailyNutrientBreakdown> {
+  const empty: DailyNutrientBreakdown = {
+    dayTotals: {},
+    meals: [],
+    driRows: [],
+    supplementTotals: {},
+    unresolvedItems: [],
+    supplementSkipped: [],
+    profileComplete: false,
+  };
+  const fermentation = await getFermentation(fermentationId);
+  if (!fermentation) return empty;
+
+  const ingredients = await getFermentationIngredients(fermentationId);
+  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
+  const itemBreakdowns: DailyNutrientItemBreakdown[] = [];
+  const fermentationTotals: Record<string, number> = {};
+  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    let grams: number;
+    if (ingredient.unit.trim().toLowerCase() === 'each') {
+      const unitWeight = await getFoodUnitWeight(foodId, source);
+      if (!unitWeight) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'no_unit_weight_data' });
+        continue;
+      }
+      grams = unitWeight.gramsPerUnit * ingredient.quantity;
+    } else {
+      const unit = normalizeUnitForConversion(ingredient.unit);
+      if (!unit) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'unsupported_unit' });
+        continue;
+      }
+      const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
+        ? null
+        : ingredient.category ?? (await getFoodCategory(foodId, source));
+      const conversion = convertToGrams(ingredient.quantity, unit, { foodCategory: foodCategory ?? undefined });
+      if (!conversion.ok) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: conversion.reason });
+        continue;
+      }
+      grams = conversion.grams;
+    }
+
+    const cacheKey = `${foodId}|${source}`;
+    let nutrients = nutrientCache.get(cacheKey);
+    if (!nutrients) {
+      nutrients = await getFoodNutrients(foodId, source);
+      nutrientCache.set(cacheKey, nutrients);
+    }
+    const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: grams, nutrients }]);
+    itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+    for (const [code, amount] of Object.entries(itemTotals)) {
+      fermentationTotals[code] = (fermentationTotals[code] ?? 0) + amount;
+    }
+  }
+
+  const [driRows, profile] = await Promise.all([getDietaryReferenceIntakesForCurrentUser(), getUserProfile()]);
+
+  const fermentationBreakdown: DailyNutrientSideBreakdown = {
+    sideName: fermentation.name,
+    totals: fermentationTotals,
+    items: itemBreakdowns,
+  };
+  const mealBreakdown: DailyNutrientMealBreakdown = {
+    mealId: fermentation.id,
+    mealName: fermentation.name,
+    mealType: 'fermentation',
+    totals: fermentationTotals,
+    sides: [fermentationBreakdown],
+  };
+
+  return {
+    dayTotals: fermentationTotals,
+    meals: [mealBreakdown],
+    driRows,
+    supplementTotals: {},
+    unresolvedItems,
+    supplementSkipped: [],
+    profileComplete: profile.sex != null && profile.birthDate != null,
+  };
+}
+
+// Fermentation-scoped equivalent of getSmoothieSixDimensionsBreakdown -- see
+// that function's own comment for the full reasoning.
+export async function getFermentationSixDimensionsBreakdown(fermentationId: string): Promise<DailySixDimensionsBreakdown> {
+  const fermentation = await getFermentation(fermentationId);
+  if (!fermentation) return { day: [], meals: [] };
+
+  const ingredients = await getFermentationIngredients(fermentationId);
+  const scoreCache = new Map<string, FoodScore[]>();
+  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) continue;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const cacheKey = `${foodId}|${source}`;
+    let scores = scoreCache.get(cacheKey);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(cacheKey, scores);
+    }
+    foods.push({ foodName: ingredient.foodName, scores });
+  }
+
+  const fermentationBreakdown: DailyDimensionSideBreakdown = {
+    sideName: fermentation.name,
+    bySubCriterion: aggregateBySubCriterion(foods),
+    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+  };
+  const mealBreakdown: DailyDimensionMealBreakdown = {
+    mealId: fermentation.id,
+    mealName: fermentation.name,
+    mealType: 'fermentation',
+    bySubCriterion: fermentationBreakdown.bySubCriterion,
+    sides: [fermentationBreakdown],
+  };
+
+  return { day: fermentationBreakdown.bySubCriterion, meals: [mealBreakdown] };
+}
+
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both
 // mixed together (the original behavior, kept as the default since some
 // callers -- like the very first favorites list this app had -- don't care
 // about the distinction).
-export async function listFavorites(limit = 8, itemType?: 'meal' | 'side' | 'salad') {
+export async function listFavorites(limit = 8, itemType?: 'meal' | 'side' | 'salad' | 'smoothie' | 'fermentation') {
   const db = await getDatabase();
   return db.getAllAsync<FavoriteRecord>(
     `

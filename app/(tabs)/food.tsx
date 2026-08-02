@@ -7,14 +7,16 @@ import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
+import { FermentationBuilder } from '../../components/FermentationBuilder';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SaladBuilder } from '../../components/SaladBuilder';
 import { SideBuilder } from '../../components/SideBuilder';
+import { SmoothieBuilder } from '../../components/SmoothieBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
-import { listFavorites, listSalads, listSides } from '../../lib/db';
+import { listFavorites, listFermentations, listSalads, listSides, listSmoothies } from '../../lib/db';
 
 // This page's own identity color -- every box FoodLookup draws (list
 // borders, the results table, its own text) takes this as its `tabColor`
@@ -57,8 +59,10 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
     "In progress. Name the dish (optional), set # of Servings and Serving Size, then add one or more ingredients (category -> type -> food -> prep, then quantity/unit) -- nutrient lookup itself lives on Insights' own Food Lookup lens instead of being duplicated here. Done leads into a required \"how was this cooked\" step (cooking method changes retained nutrients), then a soft, skippable nudge if no cooking oil/fat or seasoning was logged -- easy to miss both by accident. Saving the finished side as a reusable favorite isn't wired up yet.",
   saladBuilder:
     'In progress. Same builder flow as Side (name, servings/serving size, then ingredients with category -> type -> food -> prep, quantity/unit, cut prep, cook prep), plus its own real twist: finishing a salad checks for two or more raw goitrogenic vegetables mixed together (easy to eat far more of them raw and combined than cooked and separate) and warns before saving, rather than silently letting it through. Saving as a reusable favorite isn\'t wired up yet, same as Side.',
-  smoothieBuilder: 'Not built yet. Its own builder, same reasoning as Salad -- blending makes it easy to eat a much larger raw quantity of goitrogenic ingredients than you would cooked and separate, worth a dedicated check.',
-  fermentationBuilder: 'Not built yet. New territory -- logging homemade fermented foods (yogurt, sauerkraut, etc.), eventually down to the specific bacterial strain involved.',
+  smoothieBuilder:
+    'In progress. Same builder flow as Side and Salad, plus the same real twist Salad has, reworded for blending: finishing a smoothie checks for two or more raw goitrogenic vegetables blended together (easy to eat far more of them at once than cooked and separate) and warns before saving. Saving as a reusable favorite isn\'t wired up yet, same as Side and Salad.',
+  fermentationBuilder:
+    "In progress. Same builder flow as Side (name, servings/serving size, then ingredients), plus a 'Fermented' Cook Prep option the other builders don't have, so the step that actually makes something a fermentation has a real answer to select. Real bacterial-strain tracking (specific cultures like Lactobacillus acidophilus, eventually with cited effects) is still its own separate, not-yet-started research workstream -- this covers logging the fermented food itself, not identifying what's living in it. Saving as a reusable favorite isn't wired up yet, same as Side/Salad/Smoothie.",
   beverageBuilder: 'Not built yet. Replaces "Beverage" as a meal-type dropdown value -- water and other drinks, including anything dissolved or mixed in, as their own builder.',
   snackBuilder: 'Not built yet. A lighter-weight builder for anything that is not really a full meal or a side on its own.',
   bakedGoodsBuilder: 'Not built yet. Bread, muffins, and other home-baked items as their own builder -- distinct from Meal/Side since a baked good is usually made once and portioned out over several separate sittings.',
@@ -188,7 +192,7 @@ const FOOD_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Status',
-    body: "Being built one at a time, in this order: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, Sauces, then Meal last (it assembles the other nine builders' own saved output, so it can't be built until they exist). Side and Salad can both build and save a real dish for real; the other eight are still plain placeholders. Saving as a reusable favorite isn't wired up yet for either. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
+    body: "Being built one at a time, in this order: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, Sauces, then Meal last (it assembles the other nine builders' own saved output, so it can't be built until they exist). Side, Salad, Smoothie, and Fermentation can all build and save a real dish for real; the other six are still plain placeholders. Saving as a reusable favorite isn't wired up yet for any of them. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
   },
 ];
 
@@ -208,26 +212,33 @@ function ComingSoonBuilder({ lens }: { lens: FoodLens }) {
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
   const router = useRouter();
-  // Set when reached via a saved side's/salad's own Edit button (see
-  // app/food-items.tsx), 2026-08-01 (editSaladId added 2026-08-02, same
-  // reasoning) -- pushed here as a route param rather than a prop, since
-  // food-items.tsx is a separate stack screen with no other way to hand
-  // SideBuilder/SaladBuilder a specific record to load. Read once below to
-  // jump straight into the right builder already revealed, bypassing the
-  // normal "pick a lens from LensHub" step entirely -- editing isn't a
-  // fresh choice of what to build, it's returning to something specific.
-  const { editSideId, editSaladId } = useLocalSearchParams<{ editSideId?: string; editSaladId?: string }>();
+  // Set when reached via a saved side's/salad's/smoothie's/fermentation's
+  // own Edit button (see app/food-items.tsx), 2026-08-01 (editSaladId/
+  // editSmoothieId/editFermentationId added 2026-08-02, same reasoning) --
+  // pushed here as a route param rather than a prop, since food-items.tsx is
+  // a separate stack screen with no other way to hand SideBuilder/
+  // SaladBuilder/SmoothieBuilder/FermentationBuilder a specific record to
+  // load. Read once below to jump straight into the right builder already
+  // revealed, bypassing the normal "pick a lens from LensHub" step entirely
+  // -- editing isn't a fresh choice of what to build, it's returning to
+  // something specific.
+  const { editSideId, editSaladId, editSmoothieId, editFermentationId } = useLocalSearchParams<{
+    editSideId?: string;
+    editSaladId?: string;
+    editSmoothieId?: string;
+    editFermentationId?: string;
+  }>();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   useFocusEffect(
     useCallback(() => {
-      // editSideId/editSaladId override the normal "always land on the
-      // picker" reset below -- without this, arriving here to edit a
-      // record would still show the LensHub picker for a beat (or
-      // permanently, once revealed was reset false on focus) instead of
-      // the record itself.
+      // editSideId/editSaladId/editSmoothieId/editFermentationId override
+      // the normal "always land on the picker" reset below -- without this,
+      // arriving here to edit a record would still show the LensHub picker
+      // for a beat (or permanently, once revealed was reset false on
+      // focus) instead of the record itself.
       if (editSideId) {
         setLens('sideBuilder');
         setRevealed(true);
@@ -238,9 +249,19 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      if (editSmoothieId) {
+        setLens('smoothieBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (editFermentationId) {
+        setLens('fermentationBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, [editSideId, editSaladId]),
+    }, [editSideId, editSaladId, editSmoothieId, editFermentationId]),
   );
 
   // "My Foods" categories (see MyItemsHub below) -- refetched every time
@@ -252,29 +273,43 @@ export default function FoodScreen() {
   // screen never has to hold two copies of the same data in sync.
   //
   // This array is the one place that grows as more builders get a real
-  // save path -- Side and Salad are the only two with anything to show yet
-  // (Favorites filtered to 'side'/'salad' specifically, since neither
-  // builder's own favoriting is wired up to actually write one yet, same
-  // as Side's -- see FOOD_LENS_COPY.saladBuilder above -- and this list has
-  // no use for meal favorites saved by the old, deleted meal builder).
-  // Adding each remaining builder's own "Saved X"/"Favorite X" later is two
-  // more entries here per builder, not a restructure of MyItemsHub or
+  // save path -- Side, Salad, Smoothie, and Fermentation are the only four
+  // with anything to show yet (Favorites filtered to
+  // 'side'/'salad'/'smoothie'/'fermentation' specifically, since none of
+  // the four builders' own favoriting is wired up to actually write one yet
+  // -- see FOOD_LENS_COPY.fermentationBuilder above -- and this list has no
+  // use for meal favorites saved by the old, deleted meal builder). Adding
+  // each remaining builder's own "Saved X"/"Favorite X" later is two more
+  // entries here per builder, not a restructure of MyItemsHub or
   // food-items.tsx.
   const [sideCount, setSideCount] = useState(0);
   const [sideFavoriteCount, setSideFavoriteCount] = useState(0);
   const [saladCount, setSaladCount] = useState(0);
   const [saladFavoriteCount, setSaladFavoriteCount] = useState(0);
+  const [smoothieCount, setSmoothieCount] = useState(0);
+  const [smoothieFavoriteCount, setSmoothieFavoriteCount] = useState(0);
+  const [fermentationCount, setFermentationCount] = useState(0);
+  const [fermentationFavoriteCount, setFermentationFavoriteCount] = useState(0);
   async function loadMyFoodsCounts() {
-    const [sides, sideFavorites, salads, saladFavorites] = await Promise.all([
-      listSides(),
-      listFavorites(50, 'side'),
-      listSalads(),
-      listFavorites(50, 'salad'),
-    ]);
+    const [sides, sideFavorites, salads, saladFavorites, smoothies, smoothieFavorites, fermentations, fermentationFavorites] =
+      await Promise.all([
+        listSides(),
+        listFavorites(50, 'side'),
+        listSalads(),
+        listFavorites(50, 'salad'),
+        listSmoothies(),
+        listFavorites(50, 'smoothie'),
+        listFermentations(),
+        listFavorites(50, 'fermentation'),
+      ]);
     setSideCount(sides.length);
     setSideFavoriteCount(sideFavorites.length);
     setSaladCount(salads.length);
     setSaladFavoriteCount(saladFavorites.length);
+    setSmoothieCount(smoothies.length);
+    setSmoothieFavoriteCount(smoothieFavorites.length);
+    setFermentationCount(fermentations.length);
+    setFermentationFavoriteCount(fermentationFavorites.length);
   }
   const myFoodsCategories: MyItemsCategory[] = [
     {
@@ -303,6 +338,37 @@ export default function FoodScreen() {
       onPress: () =>
         router.push({ pathname: '/food-items', params: { itemType: 'salad', status: 'favorite', title: 'Favorite Salads' } }),
     },
+    {
+      id: 'smoothie-saved',
+      label: 'Saved Smoothies',
+      count: smoothieCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'smoothie', status: 'saved', title: 'Saved Smoothies' } }),
+    },
+    {
+      id: 'smoothie-favorite',
+      label: 'Favorite Smoothies',
+      count: smoothieFavoriteCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'smoothie', status: 'favorite', title: 'Favorite Smoothies' } }),
+    },
+    {
+      id: 'fermentation-saved',
+      label: 'Saved Fermentations',
+      count: fermentationCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'fermentation', status: 'saved', title: 'Saved Fermentations' } }),
+    },
+    {
+      id: 'fermentation-favorite',
+      label: 'Favorite Fermentations',
+      count: fermentationFavoriteCount,
+      onPress: () =>
+        router.push({
+          pathname: '/food-items',
+          params: { itemType: 'fermentation', status: 'favorite', title: 'Favorite Fermentations' },
+        }),
+    },
   ];
 
   return (
@@ -329,6 +395,16 @@ export default function FoodScreen() {
             // file's own top comment) -- same layout-ownership reasoning
             // applies here too.
             <SaladBuilder tabColor={TAB_COLOR} editSaladId={editSaladId} />
+          ) : lens === 'smoothieBuilder' ? (
+            // SmoothieBuilder is a direct adaptation of SaladBuilder (see
+            // that file's own top comment) -- same layout-ownership
+            // reasoning applies here too.
+            <SmoothieBuilder tabColor={TAB_COLOR} editSmoothieId={editSmoothieId} />
+          ) : lens === 'fermentationBuilder' ? (
+            // FermentationBuilder is a direct adaptation of SideBuilder
+            // (see that file's own top comment for why Side, not Salad/
+            // Smoothie) -- same layout-ownership reasoning applies here too.
+            <FermentationBuilder tabColor={TAB_COLOR} editFermentationId={editFermentationId} />
           ) : (
             <ComingSoonBuilder lens={lens} />
           )}

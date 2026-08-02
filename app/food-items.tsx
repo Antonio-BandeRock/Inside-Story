@@ -6,7 +6,17 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
-import { deleteSalad, deleteSide, listFavorites, listSalads, listSides } from '../lib/db';
+import {
+  deleteFermentation,
+  deleteSalad,
+  deleteSide,
+  deleteSmoothie,
+  listFavorites,
+  listFermentations,
+  listSalads,
+  listSides,
+  listSmoothies,
+} from '../lib/db';
 import { useInfoAlert } from '../components/InfoAlert';
 
 // A Stack push outside the (tabs) group, same shape as app/profile.tsx/
@@ -105,7 +115,10 @@ export default function FoodItemsScreen() {
                   // a different, JSON-payload shape with no ingredients to
                   // show yet, see lib/db.ts's own favorites table) has
                   // anything for food-item-detail.tsx to actually show.
-                  if (status === 'saved' && (itemType === 'side' || itemType === 'salad')) {
+                  if (
+                    status === 'saved' &&
+                    (itemType === 'side' || itemType === 'salad' || itemType === 'smoothie' || itemType === 'fermentation')
+                  ) {
                     router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
                     return;
                   }
@@ -139,18 +152,25 @@ export default function FoodItemsScreen() {
                 <TouchableOpacity
                   style={styles.itemActionButton}
                   onPress={() => {
-                    // Side/Salad each push into app/(tabs)/food.tsx's own
-                    // builder pre-loaded via editSideId/editSaladId (see
-                    // that file and SideBuilder.tsx/SaladBuilder.tsx's own
-                    // props). Written inline (not returned from a helper)
-                    // so each route's own literal pathname/params stay
-                    // visible to Expo Router's typed-routes checking -- a
-                    // helper returning a plain `string` pathname would
-                    // widen it past what router.push's typed Href accepts.
+                    // Side/Salad/Smoothie/Fermentation each push into
+                    // app/(tabs)/food.tsx's own builder pre-loaded via
+                    // editSideId/editSaladId/editSmoothieId/
+                    // editFermentationId (see that file and
+                    // SideBuilder.tsx/SaladBuilder.tsx/SmoothieBuilder.tsx/
+                    // FermentationBuilder.tsx's own props). Written inline
+                    // (not returned from a helper) so each route's own
+                    // literal pathname/params stay visible to Expo Router's
+                    // typed-routes checking -- a helper returning a plain
+                    // `string` pathname would widen it past what
+                    // router.push's typed Href accepts.
                     if (itemType === 'side') {
                       router.push({ pathname: '/food', params: { editSideId: item.id } });
                     } else if (itemType === 'salad') {
                       router.push({ pathname: '/food', params: { editSaladId: item.id } });
+                    } else if (itemType === 'smoothie') {
+                      router.push({ pathname: '/food', params: { editSmoothieId: item.id } });
+                    } else if (itemType === 'fermentation') {
+                      router.push({ pathname: '/food', params: { editFermentationId: item.id } });
                     }
                   }}
                   accessibilityLabel={`Edit ${item.title}`}
@@ -194,8 +214,8 @@ export default function FoodItemsScreen() {
 
 // Fetches whichever builder's own data this category actually needs --
 // the one place this screen knows about specific builders/tables at all.
-// Grows by one case as each builder gets a real save path; Side and Salad
-// are the first two.
+// Grows by one case as each builder gets a real save path; Side, Salad,
+// Smoothie, and Fermentation are the first four.
 async function loadItems(itemType: string | undefined, status: string | undefined): Promise<FoodItemEntry[]> {
   if (itemType === 'side') {
     if (status === 'favorite') {
@@ -226,20 +246,45 @@ async function loadItems(itemType: string | undefined, status: string | undefine
       subtitle: salad.ingredientNames || `${salad.ingredientCount} ingredient${salad.ingredientCount === 1 ? '' : 's'}`,
     }));
   }
+  if (itemType === 'smoothie') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'smoothie');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const smoothies = await listSmoothies();
+    return smoothies.map((smoothie) => ({
+      id: smoothie.id,
+      title: smoothie.name,
+      subtitle: smoothie.ingredientNames || `${smoothie.ingredientCount} ingredient${smoothie.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
+  if (itemType === 'fermentation') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'fermentation');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const fermentations = await listFermentations();
+    return fermentations.map((fermentation) => ({
+      id: fermentation.id,
+      title: fermentation.name,
+      subtitle:
+        fermentation.ingredientNames || `${fermentation.ingredientCount} ingredient${fermentation.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
   return [];
 }
 
 // Whether this itemType supports Edit/Delete at all -- kept as two
 // separate checks (rather than one) since an itemType could in principle
 // support one without the other, even though today they're the same set
-// (Side and Salad). Grows by one case per builder as each gets a real save
-// path, same as loadItems above.
+// (Side, Salad, Smoothie, and Fermentation). Grows by one case per builder
+// as each gets a real save path, same as loadItems above.
 function supportsEdit(itemType: string | undefined): boolean {
-  return itemType === 'side' || itemType === 'salad';
+  return itemType === 'side' || itemType === 'salad' || itemType === 'smoothie' || itemType === 'fermentation';
 }
 
 function supportsDelete(itemType: string | undefined): boolean {
-  return itemType === 'side' || itemType === 'salad';
+  return itemType === 'side' || itemType === 'salad' || itemType === 'smoothie' || itemType === 'fermentation';
 }
 
 async function deleteItem(itemType: string | undefined, id: string): Promise<void> {
@@ -247,6 +292,10 @@ async function deleteItem(itemType: string | undefined, id: string): Promise<voi
     await deleteSide(id);
   } else if (itemType === 'salad') {
     await deleteSalad(id);
+  } else if (itemType === 'smoothie') {
+    await deleteSmoothie(id);
+  } else if (itemType === 'fermentation') {
+    await deleteFermentation(id);
   }
 }
 

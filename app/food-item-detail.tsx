@@ -8,6 +8,10 @@ import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
+  getFermentation,
+  getFermentationIngredients,
+  getFermentationNutrientBreakdown,
+  getFermentationSixDimensionsBreakdown,
   getSalad,
   getSaladIngredients,
   getSaladNutrientBreakdown,
@@ -16,6 +20,10 @@ import {
   getSideIngredients,
   getSideNutrientBreakdown,
   getSideSixDimensionsBreakdown,
+  getSmoothie,
+  getSmoothieIngredients,
+  getSmoothieNutrientBreakdown,
+  getSmoothieSixDimensionsBreakdown,
   type DailyNutrientBreakdown,
   type DailySixDimensionsBreakdown,
   type SideDetail,
@@ -185,7 +193,7 @@ export default function FoodItemDetailScreen() {
                 onToggleTier={(key) => setExpandedTierKey((current) => (current === key ? null : key))}
               />
             ) : lens === 'prep' && dimensionsBreakdown ? (
-              <PrepView breakdown={dimensionsBreakdown} scope={scope} mealNoun={itemType === 'salad' ? 'salad' : 'side'} />
+              <PrepView breakdown={dimensionsBreakdown} scope={scope} mealNoun={mealNounFor(itemType)} />
             ) : null}
 
             {(lens === 'nutrients' || lens === 'sixDs' || lens === 'prep') && drilledItemIndex === null ? (
@@ -225,11 +233,24 @@ export default function FoodItemDetailScreen() {
   );
 }
 
-// "side" naming kept even though this also now loads a salad -- SideDetail/
-// SideIngredientDetail and SaladDetail/SaladIngredientDetail are
-// structurally identical shapes (see lib/db.ts's own Salad CRUD, a
-// deliberate mirror of Side's), so a loaded salad is assignable straight
-// into these same types with no separate union needed.
+// "side" naming kept even though this also now loads a salad or smoothie --
+// SideDetail/SideIngredientDetail and SaladDetail/SaladIngredientDetail/
+// SmoothieDetail/SmoothieIngredientDetail/FermentationDetail/
+// FermentationIngredientDetail are all structurally identical shapes (see
+// lib/db.ts's own Salad/Smoothie/Fermentation CRUD, each a deliberate
+// mirror of Side's), so a loaded salad, smoothie, or fermentation is
+// assignable straight into these same types with no separate union needed.
+
+// PrepView's own mealNoun prop, factored out once here rather than another
+// nested ternary in the JSX above -- grows by one more itemType per builder,
+// same as loadSide below.
+function mealNounFor(itemType: string | undefined): string {
+  if (itemType === 'salad') return 'salad';
+  if (itemType === 'smoothie') return 'smoothie';
+  if (itemType === 'fermentation') return 'fermentation';
+  return 'side';
+}
+
 async function loadSide(
   itemType: string | undefined,
   id: string | undefined,
@@ -248,6 +269,28 @@ async function loadSide(
       getSaladIngredients(id),
       getSaladNutrientBreakdown(id),
       getSaladSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'smoothie') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getSmoothie(id),
+      getSmoothieIngredients(id),
+      getSmoothieNutrientBreakdown(id),
+      getSmoothieSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'fermentation') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getFermentation(id),
+      getFermentationIngredients(id),
+      getFermentationNutrientBreakdown(id),
+      getFermentationSixDimensionsBreakdown(id),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
