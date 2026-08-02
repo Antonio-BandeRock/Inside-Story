@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -10,6 +10,7 @@ import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { BakedGoodsBuilder } from '../../components/BakedGoodsBuilder';
 import { BeverageBuilder } from '../../components/BeverageBuilder';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
+import { MealBuilder } from '../../components/MealBuilder';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SaladBuilder } from '../../components/SaladBuilder';
 import { SideBuilder } from '../../components/SideBuilder';
@@ -19,8 +20,6 @@ import { SaucesBuilder } from '../../components/SaucesBuilder';
 import { SoupBuilder } from '../../components/SoupBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
-import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { typography } from '../../constants/typography';
 import {
   listBakedGoods,
   listBeverages,
@@ -70,7 +69,8 @@ type FoodLens =
   | 'saucesBuilder';
 
 const FOOD_LENS_COPY: Record<FoodLens, string> = {
-  mealBuilder: 'Not built yet. Replaces the old all-in-one meal builder -- build and log a full meal from one or more sides.',
+  mealBuilder:
+    "Built 2026-08-02, last of the ten. Name the meal (optional) and choose a meal type, then \"Add from...\" pulls in one or more already-saved sides/salads/smoothies/fermentations/beverages/snacks/baked goods/soups/sauces -- pick how much of each you actually had, and repeat for as many items as the meal actually has. Checks for raw goitrogenic foods combined ACROSS the whole meal (not just within one builder's own ingredient list) before logging. Log This Now saves a real meal for right now. Reconnects Schedule's/Home's own \"Log now\" action, broken since the old all-in-one builder was deleted 2026-07-25. Building once and scheduling it for a future date/time isn't wired up yet -- Schedule's own existing scheduling flow still covers that in the meantime.",
   sideBuilder:
     "In progress. Name the dish (optional), set # of Servings and Serving Size, then add one or more ingredients (category -> type -> food -> prep, then quantity/unit) -- nutrient lookup itself lives on Insights' own Food Lookup lens instead of being duplicated here. Done leads into a required \"how was this cooked\" step (cooking method changes retained nutrients), then a soft, skippable nudge if no cooking oil/fat or seasoning was logged -- easy to miss both by accident. Saving the finished side as a reusable favorite isn't wired up yet.",
   saladBuilder:
@@ -212,22 +212,9 @@ const FOOD_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Status',
-    body: "Being built one at a time, in this order: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, Sauces, then Meal last (it assembles the other nine builders' own saved output, so it can't be built until they exist). Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, and Sauces can all build and save a real dish for real -- Meal is the only one left, deliberately last since it assembles all nine of the others' own saved output. Saving as a reusable favorite isn't wired up yet for any of them. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
+    body: "All ten builders are built: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, and Sauces each build and save their own real dish; Meal (built last, on purpose -- it assembles the other nine's own saved output) assembles a real meal out of them and logs it. Saving as a reusable favorite isn't wired up yet for any of the nine sub-builders. Scheduling a Meal-Builder meal for a future date/time isn't wired up yet either -- Schedule's own existing scheduling flow still covers that.",
   },
 ];
-
-// Shared placeholder for all seven builders until each is built for real,
-// one at a time -- same "coming soon" pattern already used for the
-// Trends/Reports tabs and for Schedule's own not-yet-built lenses
-// (see ComingSoonLens in app/(tabs)/schedule.tsx).
-function ComingSoonBuilder({ lens }: { lens: FoodLens }) {
-  const scrollBottomPadding = useFloatingButtonScrollPadding();
-  return (
-    <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
-      <Text style={styles.emptyText}>{FOOD_LENS_COPY[lens]}</Text>
-    </ScrollView>
-  );
-}
 
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
@@ -255,6 +242,19 @@ export default function FoodScreen() {
     editBakedGoodsId,
     editSoupId,
     editSauceId,
+    // Schedule's/Home's own "Log now" action (see schedule.tsx's
+    // handleLogNow and index.tsx's own Day Arc equivalent) -- both push
+    // these same five params, unread by anything until Meal Builder existed
+    // to read them. mealType/title prefill Meal Builder's identity step;
+    // templateMealId, when it names a meal Meal Builder itself built,
+    // resumes with that meal's own component selections already loaded
+    // (see MealBuilder's own templateMealId comment). favoriteId isn't read
+    // here -- none of the nine sub-builders' own favoriting is wired up to
+    // write one yet, so there's nothing for it to resolve against.
+    scheduleItemId,
+    mealType: scheduledMealType,
+    title: scheduledTitle,
+    templateMealId,
   } = useLocalSearchParams<{
     editSideId?: string;
     editSaladId?: string;
@@ -265,6 +265,10 @@ export default function FoodScreen() {
     editBakedGoodsId?: string;
     editSoupId?: string;
     editSauceId?: string;
+    scheduleItemId?: string;
+    mealType?: string;
+    title?: string;
+    templateMealId?: string;
   }>();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
@@ -278,6 +282,11 @@ export default function FoodScreen() {
       // without this, arriving here to edit a record would still show the
       // LensHub picker for a beat (or permanently, once revealed was reset
       // false on focus) instead of the record itself.
+      if (scheduleItemId) {
+        setLens('mealBuilder');
+        setRevealed(true);
+        return;
+      }
       if (editSideId) {
         setLens('sideBuilder');
         setRevealed(true);
@@ -326,6 +335,7 @@ export default function FoodScreen() {
       setRevealed(false);
       return () => setRevealed(false);
     }, [
+      scheduleItemId,
       editSideId,
       editSaladId,
       editSmoothieId,
@@ -578,7 +588,20 @@ export default function FoodScreen() {
           LensHub corner button can back out of it. */}
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Food" variant="produce" revealed={revealed}>
-          {lens === 'sideBuilder' ? (
+          {lens === 'mealBuilder' ? (
+            // MealBuilder owns its own layout entirely, same reasoning as
+            // every other builder below -- but never sits behind a
+            // connected FoodLookup (it assembles from already-saved
+            // records, not raw ingredients), so it's always inside its own
+            // ScrollView, never the plain-View branch some of the others need.
+            <MealBuilder
+              tabColor={TAB_COLOR}
+              scheduleItemId={scheduleItemId}
+              initialMealType={scheduledMealType}
+              initialTitle={scheduledTitle}
+              templateMealId={templateMealId}
+            />
+          ) : lens === 'sideBuilder' ? (
             // SideBuilder owns its own layout entirely (a plain View while
             // FoodLookup's own picker is active, its own ScrollView
             // otherwise) -- see that component's own comment for why,
@@ -627,9 +650,7 @@ export default function FoodScreen() {
             // inside it being named singular) -- same layout-ownership
             // reasoning applies here too.
             <SaucesBuilder tabColor={TAB_COLOR} editSauceId={editSauceId} />
-          ) : (
-            <ComingSoonBuilder lens={lens} />
-          )}
+          ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>
 
@@ -653,6 +674,4 @@ export default function FoodScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  body: { padding: 16, paddingTop: 2 },
-  emptyText: { ...typography.body, color: colors.textSecondary },
 });

@@ -1004,6 +1004,39 @@ export async function initializeDatabase() {
         FOREIGN KEY (meal_id) REFERENCES meals(id) ON DELETE CASCADE
       );
 
+      -- Meal Builder's own record of WHICH saved sub-builder records a meal
+      -- is made of -- 2026-08-02, added alongside Meal Builder itself.
+      -- meal_items above (the flattened ingredient copy) is what every
+      -- already-built screen reads for scoring -- Insights' Whole Day view,
+      -- Trends' three lenses, Home's rings -- and stays exactly as it's
+      -- always been, untouched. But flattening is lossy: once a side's
+      -- ingredients are copied into meal_items rows, there's no link back
+      -- to which 'sides' row they came from, only a text dish_name. This
+      -- table is what re-opening a meal INSIDE Meal Builder itself needs
+      -- to show the real picker state (the 3 things you actually picked)
+      -- instead of a flat ingredient soup -- it's bookkeeping for the
+      -- builder, not a second copy of the data meal_items already owns.
+      -- component_type reuses the exact itemType strings already
+      -- established across food-items.tsx/food-item-detail.tsx (no new
+      -- vocabulary): 'side' | 'salad' | 'smoothie' | 'fermentation' |
+      -- 'beverage' | 'snack' | 'bakedGoods' | 'soup' | 'sauce'.
+      -- component_id is a plain TEXT reference (no FK constraint) into
+      -- whichever of the 9 tables component_type says -- SQLite has no way
+      -- to express "FK into one of N tables depending on a sibling column,"
+      -- so a component whose own saved record is later deleted just becomes
+      -- unresolvable (see lib/db.ts's own resolveMealComponent, which
+      -- returns null for exactly this case) rather than a broken FK.
+      CREATE TABLE IF NOT EXISTS meal_components (
+        id TEXT PRIMARY KEY,
+        meal_id TEXT NOT NULL,
+        component_type TEXT NOT NULL,
+        component_id TEXT NOT NULL,
+        your_share_percent REAL NOT NULL,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (meal_id) REFERENCES meals(id) ON DELETE CASCADE
+      );
+
       CREATE TABLE IF NOT EXISTS favorites (
         id TEXT PRIMARY KEY,
         item_type TEXT NOT NULL,
@@ -1532,6 +1565,7 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_schedule_items_scheduled_for ON schedule_items(scheduled_for);
       CREATE INDEX IF NOT EXISTS idx_food_trials_started_at ON food_trials(started_at);
       CREATE INDEX IF NOT EXISTS idx_side_ingredients_side ON side_ingredients(side_id);
+      CREATE INDEX IF NOT EXISTS idx_meal_components_meal ON meal_components(meal_id);
     `);
 
     const mealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meals)');
@@ -5156,6 +5190,331 @@ export async function replaceMealItems(mealId: string, ingredients: MealIngredie
 export async function deleteMeal(mealId: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM meals WHERE id = ?', mealId);
+}
+
+// Meal Builder's own layer, 2026-08-02 -- assembles a real meal (a normal
+// `meals` row + flattened `meal_items`, via createMeal above -- no changes
+// needed to it) out of one or more already-saved records from the 9 Food
+// sub-builders (sides, salads, smoothies, fermentations, beverages, snacks,
+// baked goods, soups, sauces). See meal_components' own comment (in
+// initializeDatabase) for why a second, bookkeeping-only table sits
+// alongside the flattened meal_items copy rather than replacing it.
+export type MealComponentType =
+  | 'side'
+  | 'salad'
+  | 'smoothie'
+  | 'fermentation'
+  | 'beverage'
+  | 'snack'
+  | 'bakedGoods'
+  | 'soup'
+  | 'sauce';
+
+// The one real difference between the 9 sub-builders' otherwise identical
+// getX/getXIngredients pairs is which functions they are -- this is the
+// single place that knows the mapping, so resolveMealComponent below (and
+// anything else that ever needs "look this component up regardless of
+// which builder it came from") doesn't need its own copy of this switch.
+function getComponentDetail(componentType: MealComponentType, componentId: string) {
+  switch (componentType) {
+    case 'side':
+      return getSide(componentId);
+    case 'salad':
+      return getSalad(componentId);
+    case 'smoothie':
+      return getSmoothie(componentId);
+    case 'fermentation':
+      return getFermentation(componentId);
+    case 'beverage':
+      return getBeverage(componentId);
+    case 'snack':
+      return getSnack(componentId);
+    case 'bakedGoods':
+      return getBakedGoods(componentId);
+    case 'soup':
+      return getSoup(componentId);
+    case 'sauce':
+      return getSauce(componentId);
+  }
+}
+
+function getComponentIngredients(componentType: MealComponentType, componentId: string) {
+  switch (componentType) {
+    case 'side':
+      return getSideIngredients(componentId);
+    case 'salad':
+      return getSaladIngredients(componentId);
+    case 'smoothie':
+      return getSmoothieIngredients(componentId);
+    case 'fermentation':
+      return getFermentationIngredients(componentId);
+    case 'beverage':
+      return getBeverageIngredients(componentId);
+    case 'snack':
+      return getSnackIngredients(componentId);
+    case 'bakedGoods':
+      return getBakedGoodsIngredients(componentId);
+    case 'soup':
+      return getSoupIngredients(componentId);
+    case 'sauce':
+      return getSauceIngredients(componentId);
+  }
+}
+
+export type MealComponentSelection = {
+  componentType: MealComponentType;
+  componentId: string;
+  // "How much of this did you have?" -- asked once per selected component
+  // during assembly, the one new question none of the 9 sub-builders ask
+  // on their own (each only states how many servings the WHOLE saved
+  // record makes). Same field/meaning as meal_items' own your_share_percent
+  // -- see MealIngredientInput's own comment for the full reasoning.
+  yourSharePercent: number;
+};
+
+export type ResolvedMealComponent = {
+  componentType: MealComponentType;
+  componentId: string;
+  name: string;
+  servings: number;
+  yourSharePercent: number;
+  ingredients: MealIngredientInput[];
+};
+
+// Turns one selected component into the MealIngredientInput[] slice
+// createMeal/replaceMealItems already know how to write -- the actual
+// technical center of Meal Builder. Returns null if the component's own
+// saved record has since been deleted (see meal_components' own comment on
+// why there's no real FK to enforce this can't happen).
+export async function resolveMealComponent(selection: MealComponentSelection): Promise<ResolvedMealComponent | null> {
+  const detail = await getComponentDetail(selection.componentType, selection.componentId);
+  if (!detail) return null;
+
+  const ingredients = await getComponentIngredients(selection.componentType, selection.componentId);
+  const mealIngredients: MealIngredientInput[] = ingredients
+    .filter((ingredient) => ingredient.foodId)
+    .map((ingredient) => ({
+      foodId: ingredient.foodId ?? undefined,
+      foodName: ingredient.foodName,
+      category: ingredient.category ?? '',
+      quantity: ingredient.quantity,
+      unit: ingredient.unit,
+      notes: ingredient.prepNote ?? undefined,
+      // component.name is the grouping key AND the display label -- see
+      // meal_items' own dishName/sideName comments for why both exist;
+      // for a Meal-Builder-sourced dish they're always identical, the
+      // same "one real name" every sub-builder already asks for.
+      dishName: detail.name,
+      sideName: detail.name,
+      dishServings: detail.servings,
+      yourSharePercent: selection.yourSharePercent,
+      cookingMethod: ingredient.cookingMethod,
+    }));
+
+  return {
+    componentType: selection.componentType,
+    componentId: selection.componentId,
+    name: detail.name,
+    servings: detail.servings,
+    yourSharePercent: selection.yourSharePercent,
+    ingredients: mealIngredients,
+  };
+}
+
+export async function saveMealComponents(mealId: string, components: MealComponentSelection[]): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  for (const [index, component] of components.entries()) {
+    const id = `meal_component_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO meal_components (id, meal_id, component_type, component_id, your_share_percent, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
+      `,
+      id,
+      mealId,
+      component.componentType,
+      component.componentId,
+      component.yourSharePercent,
+      index,
+      now,
+    );
+  }
+}
+
+// Same delete-then-reinsert pattern as replaceMealItems above -- meal_component
+// rows carry no independent identity anything else references, so this is
+// safe and simplest. Used when Meal Builder re-saves an existing meal (the
+// Log Now resume path, see app/(tabs)/food.tsx's own editMealId handling).
+export async function replaceMealComponents(mealId: string, components: MealComponentSelection[]): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM meal_components WHERE meal_id = ?', mealId);
+  await saveMealComponents(mealId, components);
+}
+
+export type MealComponentRecord = {
+  id: string;
+  mealId: string;
+  componentType: MealComponentType;
+  componentId: string;
+  yourSharePercent: number;
+  sortOrder: number;
+};
+
+// Ordered the same way they were originally selected (sort_order, set at
+// save time) -- what Meal Builder's own resume-for-editing path reads to
+// rebuild the real picker state, per meal_components' own top comment.
+export async function getMealComponents(mealId: string): Promise<MealComponentRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<MealComponentRecord>(
+    `
+      SELECT id, meal_id AS mealId, component_type AS componentType, component_id AS componentId,
+             your_share_percent AS yourSharePercent, sort_order AS sortOrder
+      FROM meal_components
+      WHERE meal_id = ?
+      ORDER BY sort_order
+    `,
+    mealId,
+  );
+}
+
+// The one call Meal Builder's own Finish actions actually make -- resolves
+// every selected component to its own ingredient slice, flattens them into
+// one meal via createMeal (untouched, already-proven), and records the
+// bookkeeping meal_components rows alongside it. Returns an error message
+// instead of throwing when a selected component can no longer be resolved
+// (its own saved record was deleted mid-build) -- a real, honest state to
+// show the person rather than a half-written meal.
+export async function createMealFromComponents(input: {
+  name: string;
+  mealType: string;
+  eatenAt: string;
+  notes?: string;
+  isImmediate: boolean;
+  components: MealComponentSelection[];
+}): Promise<{ id: string } | { error: string }> {
+  const resolved = await Promise.all(input.components.map(resolveMealComponent));
+  const missingIndex = resolved.findIndex((component) => component === null);
+  if (missingIndex !== -1) {
+    return { error: 'One of the items in this meal could not be found -- it may have been deleted. Remove it and try again.' };
+  }
+
+  const ingredients = (resolved as ResolvedMealComponent[]).flatMap((component) => component.ingredients);
+  const meal = await createMeal({
+    name: input.name,
+    mealType: input.mealType,
+    eatenAt: input.eatenAt,
+    notes: input.notes,
+    isImmediate: input.isImmediate,
+    ingredients,
+  });
+  await saveMealComponents(meal.id, input.components);
+  return { id: meal.id };
+}
+
+// Same shape as createMealFromComponents, applied to an EXISTING meal --
+// for Meal Builder's own "resume and re-save" path (editing a still-planned
+// scheduled meal, see app/(tabs)/food.tsx's own editMealId handling).
+// Deliberately does NOT change eaten_at/is_immediate (same reasoning as
+// updateMeal above) -- fixing which components make up a meal shouldn't
+// silently re-date it.
+export async function updateMealFromComponents(
+  mealId: string,
+  input: {
+    name: string;
+    mealType: string;
+    notes?: string;
+    components: MealComponentSelection[];
+  },
+): Promise<{ id: string } | { error: string }> {
+  const resolved = await Promise.all(input.components.map(resolveMealComponent));
+  const missingIndex = resolved.findIndex((component) => component === null);
+  if (missingIndex !== -1) {
+    return { error: 'One of the items in this meal could not be found -- it may have been deleted. Remove it and try again.' };
+  }
+
+  const ingredients = (resolved as ResolvedMealComponent[]).flatMap((component) => component.ingredients);
+  await updateMeal(mealId, { name: input.name, mealType: input.mealType, notes: input.notes });
+  await replaceMealItems(mealId, ingredients);
+  await replaceMealComponents(mealId, input.components);
+  return { id: mealId };
+}
+
+// What Meal Builder's own "Add from..." picker shows once a category is
+// opened -- one row per already-saved record of that type, reusing each
+// sub-builder's own listX() (same ingredientCount/ingredientNames summary
+// already shown in app/food-items.tsx's own list) rather than a second,
+// component-specific query.
+export type MealComponentOption = {
+  id: string;
+  name: string;
+  servings: number;
+  ingredientCount: number;
+  ingredientNames: string | null;
+};
+
+// What Meal Builder's own Log Now resume path (app/(tabs)/food.tsx's own
+// templateMealId handling) reads to redisplay each already-selected
+// component's own name/servings without needing the full ingredient list
+// resolveMealComponent also fetches -- just the two display fields the
+// "Your Meal" summary card actually shows.
+export async function getMealComponentDisplayInfo(
+  componentType: MealComponentType,
+  componentId: string,
+): Promise<{ name: string; servings: number } | null> {
+  const detail = await getComponentDetail(componentType, componentId);
+  return detail ? { name: detail.name, servings: detail.servings } : null;
+}
+
+export async function listMealComponentOptions(componentType: MealComponentType): Promise<MealComponentOption[]> {
+  switch (componentType) {
+    case 'side':
+      return listSides();
+    case 'salad':
+      return listSalads();
+    case 'smoothie':
+      return listSmoothies();
+    case 'fermentation':
+      return listFermentations();
+    case 'beverage':
+      return listBeverages();
+    case 'snack':
+      return listSnacks();
+    case 'bakedGoods':
+      return listBakedGoods();
+    case 'soup':
+      return listSoups();
+    case 'sauce':
+      return listSauces();
+  }
+}
+
+// Pools the raw-goitrogenic-load check every sub-builder already runs on
+// its OWN ingredient list (see e.g. SaladBuilder's own
+// findRawGoitrogenicIngredients) across every component actually selected
+// into this meal -- two separately-built sides can each be individually
+// fine (one raw goitrogenic vegetable apiece) while still combining into
+// the same real risk this checks for elsewhere: easy to eat far more of
+// them raw and combined than any one builder's own ingredient list would
+// show on its own. Reuses getComponentIngredients (the same dispatcher
+// resolveMealComponent uses) rather than a second switch.
+export async function getMealComponentsGoitrogenicFlags(components: MealComponentSelection[]): Promise<string[]> {
+  const flagged: string[] = [];
+  for (const component of components) {
+    const ingredients = await getComponentIngredients(component.componentType, component.componentId);
+    for (const ingredient of ingredients) {
+      if (!ingredient.foodId) continue;
+      const [foodIdStr, source] = ingredient.foodId.split('|');
+      const foodId = Number(foodIdStr);
+      if (!source || Number.isNaN(foodId)) continue;
+      const scores = await getFoodScores(foodId, source);
+      const goitrogenicScore = scores.find((score) => score.subCriterion === 'Goitrogenic Load');
+      if (goitrogenicScore?.tier.startsWith('Goitrogenic')) {
+        flagged.push(ingredient.foodName);
+      }
+    }
+  }
+  return flagged;
 }
 
 export type MealItemRecord = {
