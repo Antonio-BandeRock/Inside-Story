@@ -83,7 +83,15 @@ export default function FoodItemsScreen() {
           no fixed title of its own in app/_layout.tsx's Stack.Screen list
           (unlike profile/assessment/purple-digest) specifically because it
           covers every builder's every category, not one fixed thing. */}
-      <Stack.Screen options={{ title: title || 'Saved Items' }} />
+      {/* headerLeft: () => null, 2026-08-02 -- explicitly requested: this
+          is the actual "Saved Sides" list screen (the request was about
+          this screen the whole time -- an earlier pass mistakenly edited
+          food-item-detail.tsx, a different screen, instead). The floating
+          Close button below already leaves the screen; the native
+          header's own top-left back chevron was a redundant second way to
+          do the same thing, and the one control here that didn't follow
+          this app's own bottom-anchored, thumb-reachable convention. */}
+      <Stack.Screen options={{ title: title || 'Saved Items', headerLeft: () => null }} />
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
         {items === null ? null : items.length === 0 ? (
           <Text style={styles.emptyText}>Nothing here yet.</Text>
