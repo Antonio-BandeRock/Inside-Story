@@ -1445,6 +1445,70 @@ export async function initializeDatabase() {
         FOREIGN KEY (baked_good_id) REFERENCES baked_goods(id) ON DELETE CASCADE
       );
 
+      -- Soup Builder's own real persistence, 2026-08-02 -- same
+      -- per-builder-table reasoning as sides/side_ingredients,
+      -- salads/salad_ingredients, smoothies/smoothie_ingredients,
+      -- fermentations/fermentation_ingredients, beverages/
+      -- beverage_ingredients, snacks/snack_ingredients, and baked_goods/
+      -- baked_goods_ingredients above.
+      CREATE TABLE IF NOT EXISTS soups (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        servings REAL NOT NULL,
+        serving_size_amount REAL NOT NULL,
+        serving_size_unit TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS soup_ingredients (
+        id TEXT PRIMARY KEY,
+        soup_id TEXT NOT NULL,
+        food_id TEXT,
+        food_name TEXT NOT NULL,
+        category TEXT,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        cut_prep TEXT NOT NULL,
+        cooking_method TEXT NOT NULL,
+        prep_note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (soup_id) REFERENCES soups(id) ON DELETE CASCADE
+      );
+
+      -- Sauces Builder's own real persistence, 2026-08-02 -- same
+      -- per-builder-table reasoning as sides/side_ingredients through
+      -- soups/soup_ingredients above. Table/column names stay singular
+      -- ("sauces"/"sauce_ingredients"/"sauce_id") even though the
+      -- component itself is SaucesBuilder (matching the plural lens key) --
+      -- see that file's own top comment for why.
+      CREATE TABLE IF NOT EXISTS sauces (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        servings REAL NOT NULL,
+        serving_size_amount REAL NOT NULL,
+        serving_size_unit TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS sauce_ingredients (
+        id TEXT PRIMARY KEY,
+        sauce_id TEXT NOT NULL,
+        food_id TEXT,
+        food_name TEXT NOT NULL,
+        category TEXT,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        cut_prep TEXT NOT NULL,
+        cooking_method TEXT NOT NULL,
+        prep_note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (sauce_id) REFERENCES sauces(id) ON DELETE CASCADE
+      );
+
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
       CREATE INDEX IF NOT EXISTS idx_wellbeing_checkins_logged_at ON wellbeing_checkins(logged_at);
       CREATE INDEX IF NOT EXISTS idx_checkin_tags_checkin ON checkin_tags(checkin_id);
@@ -4194,13 +4258,710 @@ export async function getBakedGoodsSixDimensionsBreakdown(bakedGoodId: string): 
   return { day: bakedGoodBreakdown.bySubCriterion, meals: [mealBreakdown] };
 }
 
+// Soup Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror of
+// the baked_goods/baked_goods_ingredients functions directly above (see the
+// sides/side_ingredients comment further up for the full "why separate
+// tables/functions per builder" reasoning, unchanged here).
+export type SoupIngredientInput = {
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+};
+
+export async function saveSoup(input: {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: SoupIngredientInput[];
+}) {
+  const db = await getDatabase();
+  const id = `soup_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO soups (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    now,
+  );
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `soup_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO soup_ingredients
+          (id, soup_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      id,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id };
+}
+
+export async function updateSoup(
+  soupId: string,
+  input: {
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    ingredients: SoupIngredientInput[];
+  },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE soups
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    soupId,
+  );
+
+  await db.runAsync('DELETE FROM soup_ingredients WHERE soup_id = ?', soupId);
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `soup_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO soup_ingredients
+          (id, soup_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      soupId,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id: soupId };
+}
+
+// soup_ingredients rows cascade via their own FK (ON DELETE CASCADE, see
+// initializeDatabase) -- deleting the parent soups row is enough.
+export async function deleteSoup(soupId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM soups WHERE id = ?', soupId);
+}
+
+export type SoupRecord = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredientCount: number;
+  ingredientNames: string | null;
+  createdAt: string;
+};
+
+export async function listSoups(limit = 50): Promise<SoupRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SoupRecord>(
+    `
+      SELECT s.id, s.name, s.servings, s.serving_size_amount AS servingSizeAmount, s.serving_size_unit AS servingSizeUnit,
+             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(food_name, ', ')
+               FROM (SELECT food_name FROM soup_ingredients WHERE soup_id = s.id ORDER BY sort_order)
+             ) AS ingredientNames
+      FROM soups s
+      LEFT JOIN soup_ingredients si ON si.soup_id = s.id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
+export type SoupDetail = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  createdAt: string;
+};
+
+export async function getSoup(soupId: string): Promise<SoupDetail | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<SoupDetail>(
+    `
+      SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
+             created_at AS createdAt
+      FROM soups
+      WHERE id = ?
+    `,
+    soupId,
+  );
+}
+
+export type SoupIngredientDetail = {
+  id: string;
+  foodId: string | null;
+  foodName: string;
+  category: string | null;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote: string | null;
+};
+
+export async function getSoupIngredients(soupId: string): Promise<SoupIngredientDetail[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SoupIngredientDetail>(
+    `
+      SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+      FROM soup_ingredients
+      WHERE soup_id = ?
+      ORDER BY sort_order
+    `,
+    soupId,
+  );
+}
+
+// Soup-scoped equivalent of getBakedGoodsNutrientBreakdown -- see that
+// function's own comment for the full reasoning. mealType 'soup' instead
+// of 'baked_good' is the only real difference in the shape produced.
+export async function getSoupNutrientBreakdown(soupId: string): Promise<DailyNutrientBreakdown> {
+  const empty: DailyNutrientBreakdown = {
+    dayTotals: {},
+    meals: [],
+    driRows: [],
+    supplementTotals: {},
+    unresolvedItems: [],
+    supplementSkipped: [],
+    profileComplete: false,
+  };
+  const soup = await getSoup(soupId);
+  if (!soup) return empty;
+
+  const ingredients = await getSoupIngredients(soupId);
+  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
+  const itemBreakdowns: DailyNutrientItemBreakdown[] = [];
+  const soupTotals: Record<string, number> = {};
+  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    let grams: number;
+    if (ingredient.unit.trim().toLowerCase() === 'each') {
+      const unitWeight = await getFoodUnitWeight(foodId, source);
+      if (!unitWeight) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'no_unit_weight_data' });
+        continue;
+      }
+      grams = unitWeight.gramsPerUnit * ingredient.quantity;
+    } else {
+      const unit = normalizeUnitForConversion(ingredient.unit);
+      if (!unit) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'unsupported_unit' });
+        continue;
+      }
+      const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
+        ? null
+        : ingredient.category ?? (await getFoodCategory(foodId, source));
+      const conversion = convertToGrams(ingredient.quantity, unit, { foodCategory: foodCategory ?? undefined });
+      if (!conversion.ok) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: conversion.reason });
+        continue;
+      }
+      grams = conversion.grams;
+    }
+
+    const cacheKey = `${foodId}|${source}`;
+    let nutrients = nutrientCache.get(cacheKey);
+    if (!nutrients) {
+      nutrients = await getFoodNutrients(foodId, source);
+      nutrientCache.set(cacheKey, nutrients);
+    }
+    const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: grams, nutrients }]);
+    itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+    for (const [code, amount] of Object.entries(itemTotals)) {
+      soupTotals[code] = (soupTotals[code] ?? 0) + amount;
+    }
+  }
+
+  const [driRows, profile] = await Promise.all([getDietaryReferenceIntakesForCurrentUser(), getUserProfile()]);
+
+  const soupBreakdown: DailyNutrientSideBreakdown = {
+    sideName: soup.name,
+    totals: soupTotals,
+    items: itemBreakdowns,
+  };
+  const mealBreakdown: DailyNutrientMealBreakdown = {
+    mealId: soup.id,
+    mealName: soup.name,
+    mealType: 'soup',
+    totals: soupTotals,
+    sides: [soupBreakdown],
+  };
+
+  return {
+    dayTotals: soupTotals,
+    meals: [mealBreakdown],
+    driRows,
+    supplementTotals: {},
+    unresolvedItems,
+    supplementSkipped: [],
+    profileComplete: profile.sex != null && profile.birthDate != null,
+  };
+}
+
+// Soup-scoped equivalent of getBakedGoodsSixDimensionsBreakdown -- see that
+// function's own comment for the full reasoning.
+export async function getSoupSixDimensionsBreakdown(soupId: string): Promise<DailySixDimensionsBreakdown> {
+  const soup = await getSoup(soupId);
+  if (!soup) return { day: [], meals: [] };
+
+  const ingredients = await getSoupIngredients(soupId);
+  const scoreCache = new Map<string, FoodScore[]>();
+  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) continue;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const cacheKey = `${foodId}|${source}`;
+    let scores = scoreCache.get(cacheKey);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(cacheKey, scores);
+    }
+    foods.push({ foodName: ingredient.foodName, scores });
+  }
+
+  const soupBreakdown: DailyDimensionSideBreakdown = {
+    sideName: soup.name,
+    bySubCriterion: aggregateBySubCriterion(foods),
+    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+  };
+  const mealBreakdown: DailyDimensionMealBreakdown = {
+    mealId: soup.id,
+    mealName: soup.name,
+    mealType: 'soup',
+    bySubCriterion: soupBreakdown.bySubCriterion,
+    sides: [soupBreakdown],
+  };
+
+  return { day: soupBreakdown.bySubCriterion, meals: [mealBreakdown] };
+}
+
+// Sauces Builder's own CRUD, 2026-08-02 -- deliberate line-for-line mirror
+// of the soups/soup_ingredients functions directly above (see the
+// sides/side_ingredients comment further up for the full "why separate
+// tables/functions per builder" reasoning, unchanged here). Kept singular
+// ("Sauce") throughout, matching Salad/Smoothie/Fermentation/Beverage/
+// Snack/Soup's own naming, even though the component itself is
+// SaucesBuilder (see that file's own top comment for why).
+export type SauceIngredientInput = {
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+};
+
+export async function saveSauce(input: {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: SauceIngredientInput[];
+}) {
+  const db = await getDatabase();
+  const id = `sauce_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO sauces (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    now,
+  );
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `sauce_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO sauce_ingredients
+          (id, sauce_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      id,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id };
+}
+
+export async function updateSauce(
+  sauceId: string,
+  input: {
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    ingredients: SauceIngredientInput[];
+  },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE sauces
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    sauceId,
+  );
+
+  await db.runAsync('DELETE FROM sauce_ingredients WHERE sauce_id = ?', sauceId);
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `sauce_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO sauce_ingredients
+          (id, sauce_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      sauceId,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id: sauceId };
+}
+
+// sauce_ingredients rows cascade via their own FK (ON DELETE CASCADE, see
+// initializeDatabase) -- deleting the parent sauces row is enough.
+export async function deleteSauce(sauceId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM sauces WHERE id = ?', sauceId);
+}
+
+export type SauceRecord = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredientCount: number;
+  ingredientNames: string | null;
+  createdAt: string;
+};
+
+export async function listSauces(limit = 50): Promise<SauceRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SauceRecord>(
+    `
+      SELECT s.id, s.name, s.servings, s.serving_size_amount AS servingSizeAmount, s.serving_size_unit AS servingSizeUnit,
+             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(food_name, ', ')
+               FROM (SELECT food_name FROM sauce_ingredients WHERE sauce_id = s.id ORDER BY sort_order)
+             ) AS ingredientNames
+      FROM sauces s
+      LEFT JOIN sauce_ingredients si ON si.sauce_id = s.id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
+export type SauceDetail = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  createdAt: string;
+};
+
+export async function getSauce(sauceId: string): Promise<SauceDetail | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<SauceDetail>(
+    `
+      SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
+             created_at AS createdAt
+      FROM sauces
+      WHERE id = ?
+    `,
+    sauceId,
+  );
+}
+
+export type SauceIngredientDetail = {
+  id: string;
+  foodId: string | null;
+  foodName: string;
+  category: string | null;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote: string | null;
+};
+
+export async function getSauceIngredients(sauceId: string): Promise<SauceIngredientDetail[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<SauceIngredientDetail>(
+    `
+      SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+      FROM sauce_ingredients
+      WHERE sauce_id = ?
+      ORDER BY sort_order
+    `,
+    sauceId,
+  );
+}
+
+// Sauce-scoped equivalent of getSoupNutrientBreakdown -- see that
+// function's own comment for the full reasoning. mealType 'sauce' instead
+// of 'soup' is the only real difference in the shape produced.
+export async function getSauceNutrientBreakdown(sauceId: string): Promise<DailyNutrientBreakdown> {
+  const empty: DailyNutrientBreakdown = {
+    dayTotals: {},
+    meals: [],
+    driRows: [],
+    supplementTotals: {},
+    unresolvedItems: [],
+    supplementSkipped: [],
+    profileComplete: false,
+  };
+  const sauce = await getSauce(sauceId);
+  if (!sauce) return empty;
+
+  const ingredients = await getSauceIngredients(sauceId);
+  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
+  const itemBreakdowns: DailyNutrientItemBreakdown[] = [];
+  const sauceTotals: Record<string, number> = {};
+  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    let grams: number;
+    if (ingredient.unit.trim().toLowerCase() === 'each') {
+      const unitWeight = await getFoodUnitWeight(foodId, source);
+      if (!unitWeight) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'no_unit_weight_data' });
+        continue;
+      }
+      grams = unitWeight.gramsPerUnit * ingredient.quantity;
+    } else {
+      const unit = normalizeUnitForConversion(ingredient.unit);
+      if (!unit) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'unsupported_unit' });
+        continue;
+      }
+      const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
+        ? null
+        : ingredient.category ?? (await getFoodCategory(foodId, source));
+      const conversion = convertToGrams(ingredient.quantity, unit, { foodCategory: foodCategory ?? undefined });
+      if (!conversion.ok) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: conversion.reason });
+        continue;
+      }
+      grams = conversion.grams;
+    }
+
+    const cacheKey = `${foodId}|${source}`;
+    let nutrients = nutrientCache.get(cacheKey);
+    if (!nutrients) {
+      nutrients = await getFoodNutrients(foodId, source);
+      nutrientCache.set(cacheKey, nutrients);
+    }
+    const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: grams, nutrients }]);
+    itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+    for (const [code, amount] of Object.entries(itemTotals)) {
+      sauceTotals[code] = (sauceTotals[code] ?? 0) + amount;
+    }
+  }
+
+  const [driRows, profile] = await Promise.all([getDietaryReferenceIntakesForCurrentUser(), getUserProfile()]);
+
+  const sauceBreakdown: DailyNutrientSideBreakdown = {
+    sideName: sauce.name,
+    totals: sauceTotals,
+    items: itemBreakdowns,
+  };
+  const mealBreakdown: DailyNutrientMealBreakdown = {
+    mealId: sauce.id,
+    mealName: sauce.name,
+    mealType: 'sauce',
+    totals: sauceTotals,
+    sides: [sauceBreakdown],
+  };
+
+  return {
+    dayTotals: sauceTotals,
+    meals: [mealBreakdown],
+    driRows,
+    supplementTotals: {},
+    unresolvedItems,
+    supplementSkipped: [],
+    profileComplete: profile.sex != null && profile.birthDate != null,
+  };
+}
+
+// Sauce-scoped equivalent of getSoupSixDimensionsBreakdown -- see that
+// function's own comment for the full reasoning.
+export async function getSauceSixDimensionsBreakdown(sauceId: string): Promise<DailySixDimensionsBreakdown> {
+  const sauce = await getSauce(sauceId);
+  if (!sauce) return { day: [], meals: [] };
+
+  const ingredients = await getSauceIngredients(sauceId);
+  const scoreCache = new Map<string, FoodScore[]>();
+  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) continue;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const cacheKey = `${foodId}|${source}`;
+    let scores = scoreCache.get(cacheKey);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(cacheKey, scores);
+    }
+    foods.push({ foodName: ingredient.foodName, scores });
+  }
+
+  const sauceBreakdown: DailyDimensionSideBreakdown = {
+    sideName: sauce.name,
+    bySubCriterion: aggregateBySubCriterion(foods),
+    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+  };
+  const mealBreakdown: DailyDimensionMealBreakdown = {
+    mealId: sauce.id,
+    mealName: sauce.name,
+    mealType: 'sauce',
+    bySubCriterion: sauceBreakdown.bySubCriterion,
+    sides: [sauceBreakdown],
+  };
+
+  return { day: sauceBreakdown.bySubCriterion, meals: [mealBreakdown] };
+}
+
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both
 // mixed together (the original behavior, kept as the default since some
 // callers -- like the very first favorites list this app had -- don't care
 // about the distinction).
 export async function listFavorites(
   limit = 8,
-  itemType?: 'meal' | 'side' | 'salad' | 'smoothie' | 'fermentation' | 'beverage' | 'snack' | 'bakedGoods',
+  itemType?: 'meal' | 'side' | 'salad' | 'smoothie' | 'fermentation' | 'beverage' | 'snack' | 'bakedGoods' | 'soup' | 'sauce',
 ) {
   const db = await getDatabase();
   return db.getAllAsync<FavoriteRecord>(

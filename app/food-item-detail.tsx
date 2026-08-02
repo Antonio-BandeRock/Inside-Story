@@ -36,6 +36,14 @@ import {
   getSnackIngredients,
   getSnackNutrientBreakdown,
   getSnackSixDimensionsBreakdown,
+  getSauce,
+  getSauceIngredients,
+  getSauceNutrientBreakdown,
+  getSauceSixDimensionsBreakdown,
+  getSoup,
+  getSoupIngredients,
+  getSoupNutrientBreakdown,
+  getSoupSixDimensionsBreakdown,
   type DailyNutrientBreakdown,
   type DailySixDimensionsBreakdown,
   type SideDetail,
@@ -246,15 +254,17 @@ export default function FoodItemDetailScreen() {
 }
 
 // "side" naming kept even though this also now loads a salad, smoothie,
-// fermentation, beverage, snack, or baked good -- SideDetail/
+// fermentation, beverage, snack, baked good, soup, or sauce -- SideDetail/
 // SideIngredientDetail and SaladDetail/SaladIngredientDetail/SmoothieDetail/
 // SmoothieIngredientDetail/FermentationDetail/FermentationIngredientDetail/
 // BeverageDetail/BeverageIngredientDetail/SnackDetail/
-// SnackIngredientDetail/BakedGoodsDetail/BakedGoodsIngredientDetail are all
+// SnackIngredientDetail/BakedGoodsDetail/BakedGoodsIngredientDetail/
+// SoupDetail/SoupIngredientDetail/SauceDetail/SauceIngredientDetail are all
 // structurally identical shapes (see lib/db.ts's own Salad/Smoothie/
-// Fermentation/Beverage/Snack/BakedGoods CRUD, each a deliberate mirror of
-// Side's), so a loaded salad, smoothie, fermentation, beverage, snack, or
-// baked good is assignable straight into these same types with no separate
+// Fermentation/Beverage/Snack/BakedGoods/Soup/Sauce CRUD, each a deliberate
+// mirror of Side's), so a loaded salad, smoothie, fermentation, beverage,
+// snack, baked good, soup, or sauce is assignable straight into these same
+// types with no separate
 // union needed.
 
 // PrepView's own mealNoun prop, factored out once here rather than another
@@ -267,6 +277,8 @@ function mealNounFor(itemType: string | undefined): string {
   if (itemType === 'beverage') return 'beverage';
   if (itemType === 'snack') return 'snack';
   if (itemType === 'bakedGoods') return 'baked good';
+  if (itemType === 'soup') return 'soup';
+  if (itemType === 'sauce') return 'sauce';
   return 'side';
 }
 
@@ -343,6 +355,28 @@ async function loadSide(
       getBakedGoodsIngredients(id),
       getBakedGoodsNutrientBreakdown(id),
       getBakedGoodsSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'soup') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getSoup(id),
+      getSoupIngredients(id),
+      getSoupNutrientBreakdown(id),
+      getSoupSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'sauce') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getSauce(id),
+      getSauceIngredients(id),
+      getSauceNutrientBreakdown(id),
+      getSauceSixDimensionsBreakdown(id),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
