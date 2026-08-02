@@ -197,6 +197,23 @@ CATEGORY_OVERRIDES = {
     # other real Tea row.
     ("Meat", "Tea, tundra"): "Bev",                                                  # USDA, "Tea, tundra, herb and laborador combination (Alaska Native)"
     ("Meat", "Tea, herbal"): "Bev",                                                  # USDA, "Tea, herbal, brewed, Hohoysi (Hopi)"
+    # One more real miss, found checking dark/light chocolate specifically
+    # (requested 2026-08-02 right after the Brewing re-audit) -- dark/milk
+    # chocolate BARS (Sweets, e.g. "Dark chocolate", "Whole milk chocolate
+    # with hazelnuts") are correctly candy, not a drink base, and
+    # deliberately untouched; chocolate SYRUP (31-79g/100g water -- already
+    # a pourable liquid you stir in, not a dry good) is also deliberately
+    # untouched. This one row, though, is a genuine dry chocolate drink
+    # powder (7.4g/100g water) that the original cocoa/chocolate sweep
+    # missed -- its own base_name is fully unique, no prepared sibling risk.
+    ("Bev", "Beverages, chocolate powder"): "Brewing",                              # USDA, "Beverages, chocolate powder, no sugar added"
+    # One more real miss, found on a final broad sweep for anything with
+    # "powder" still left in Bev, 2026-08-02 -- Horlicks is a real malted-
+    # milk drink powder, the exact same family as OVALTINE (already moved
+    # above). Own unique base_name, no prepared-sibling risk (the "made up
+    # with water" variant has a fully distinct base_name of its own and
+    # correctly stays in Bev).
+    ("Bev", "Horlicks LowFat Instant powder"): "Brewing",                           # UK_CoFID
     ("Veg", "Acorn stew (Apache)"): "Mixed",
     ("Veg", "Cream of mushroom soup instant powder"): "Mixed",
     ("Veg", "Cream of mushroom soup, made from instant powder and water"): "Mixed",
@@ -450,6 +467,16 @@ NAME_CATEGORY_OVERRIDES = {
     "Beverages, chocolate-flavor beverage mix for milk, powder, with added nutrients": (
         "Brewing",
         "Chocolate-flavor beverage mix for milk, powder",
+    ),
+    # Found on the same final "any powder still in Bev" sweep as Horlicks
+    # above -- shares base_name "Beverages, Dairy drink mix" (case-collapsed
+    # with its own lowercase "dairy drink mix" sibling, which already has
+    # "prepared with water and ice" in its own name and correctly stays in
+    # Bev) with a real prepared sibling, same risk as the other USDA
+    # "Beverages, X" families already handled this way above.
+    "Beverages, Dairy drink mix, chocolate, reduced calorie, with low-calorie sweeteners, powder": (
+        "Brewing",
+        "Dairy drink mix, chocolate, reduced calorie, powder",
     ),
 }
 
