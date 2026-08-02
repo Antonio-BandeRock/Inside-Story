@@ -72,6 +72,49 @@ const GROUP_STOPWORDS = new Set([
   // black salsify together for no reason beyond all being post-canning
   // liquid state, not a shared food identity.
   'drained',
+  // Round 3, 2026-08-02: the remaining 16 categories (Alcohol/Algae/Baked/
+  // Bev/Brewing/Fats/Fish/Fruit/Grain/Herbs/Legume/Mixed/Mushroom/NutSeed/
+  // Sprouts/SupplementPowder/Sweets) hadn't been tested when this feature
+  // first shipped -- the person asked for the same sticky-header treatment
+  // "for the rest of the lists," which was the prompt to actually check
+  // them. Same exact failure shape as before, all confirmed by inspecting
+  // real group membership, not guessed: "Salted" combined Anchovy, Carp,
+  // Cod roe, Herring, Salmon, Trout (Fish) and Cashew/Hazelnut/Macadamia/
+  // Peanut/Pistachio/Almond (NutSeed) -- unrelated species/nuts sharing
+  // only a preservation state; "Toasted" combined Blueberry Muffins,
+  // Bagels, Egg Bread, Rye/Wheat/White Bread (Baked) -- unrelated baked
+  // goods; "Common" combined Bream/Cuttlefish/Mussel/Shrimp (Fish) -- a
+  // generic taxonomy qualifier prefixing many unrelated species, not a
+  // shared identity the way "Wild Blueberry" is one consistent species-
+  // modifier pair; "Sugared"/"Unsweetened"/"Peeled" combined Apricot/
+  // Blackberry/Blueberry/Fig/Gooseberry/Apple/Loquat/Pomegranate/Quince
+  // (Fruit) -- also caused several DIFFERENT fruits to collide on the
+  // exact same stripped label ("Canned, drained"), a real display bug on
+  // top of the false grouping; "Mature" combined Broad bean/Chickpea/
+  // Haricot bean/Kidney bean/Lentil (NutSeed) -- ripeness state, not
+  // identity; "Sugar-Coated" combined Almond/Chocolate/Hazelnut/Peanut
+  // (Sweets); "Gluten-Free" combined Baguette/Bread crumbs/Buckwheat
+  // bread/Chestnut bread/Chocolate biscuits (Baked) -- a dietary
+  // attribute, not identity; "Préemballée"/"préemballé" (French
+  // "prepackaged") combined wildly unrelated composite dishes (Mixed);
+  // "Dough" combined Apple pie/Cheese-ham crescent/Cherry strudel via
+  // parenthetical mentions like "(yeast dough)"/"(strudel dough)," with
+  // badly garbled remaining labels once the match word was stripped
+  // (Baked) -- real standalone dough products ("Phyllo dough," "Yeast
+  // dough (fine)") still show up fine as ungrouped singletons without this
+  // word available as a group key. Deliberately did NOT stopword "salt"
+  // (Herbs' own "Salt" group -- Rock/Sea/Table/Iodised/Common salt -- is a
+  // real, coherent group of actual salt products; only Mixed's unrelated
+  // "X boiled with fat and salt" collisions were bad, and there's no clean
+  // way to tell those two apart with a single global stopword) or "powder"
+  // (Brewing's own "Powder" group -- Cocoa/Coffee/Chicory powder -- is
+  // coherent; only Herbs' own mixed-purpose "Powder" group -- baking
+  // powder, bouillon cubes, cream of tartar, curry, gravy -- was bad) --
+  // both left as accepted, narrower imperfections rather than risk
+  // breaking a real working group elsewhere for a global word.
+  'salted', 'toasted', 'sugared', 'unsweetened', 'peeled', 'mature',
+  'sugar-coated', 'gluten-free', 'common', 'dough',
+  'préemballée', 'préemballé',
 ]);
 
 function normalizeCandidate(word: string | undefined): string | null {

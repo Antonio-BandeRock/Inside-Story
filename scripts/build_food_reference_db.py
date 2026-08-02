@@ -781,30 +781,20 @@ CHICKEN_EGG_EXACT_RENAMES = {
 # A second, different kind of information loss found the same day the
 # chicken-egg fix above was made, while checking a user-reported list of
 # unclear cheese names ("what kind of cheese is cheese, dry white?"):
-# split_prep_method()'s strategy 2 (see its own docstring) only recognizes
-# a trailing comma-clause as real prep info if it matches a known cooking/
-# raw/storage term -- when the leftover clause is something else entirely
-# (a variety name, not a prep state), it's silently discarded rather than
-# kept anywhere. Confirmed directly: USDA's own "Cheese, dry white, queso
-# seco" has short_name "Cheese, dry white", so the trailing ", queso seco"
-# (a real, meaningful variety name -- the Latin American dry salted cheese
-# most people would recognize by that name) matched no known prep term and
-# was simply dropped, leaving base_name "Cheese, dry white" with no hint
-# what kind of white cheese it is. Same mechanism, same day, for "Cheese,
-# low-sodium, cheddar or colby" losing "cheddar or colby". This is a
-# narrower, hand-verified fix for the two specific rows a person actually
-# ran into, not a rewrite of split_prep_method itself -- the same
-# discovered-through-real-testing philosophy already applied throughout
-# this file rather than guessing at every other row that might have the
-# same problem.
-CHEESE_VARIETY_RESTORE = {
-    "Cheese, dry white": "Cheese, Dry White (Queso Seco)",
-    "Cheese, low-sodium": "Cheese, Low-Sodium (Cheddar or Colby)",
-}
-
-
-def restore_dropped_cheese_variety(base_name):
-    return CHEESE_VARIETY_RESTORE.get(base_name, base_name)
+# split_prep_method()'s strategy 2 used to silently discard a trailing
+# comma-clause whenever it didn't match a known cooking/raw/storage term,
+# losing "queso seco" from "Cheese, dry white, queso seco" and "cheddar or
+# colby" from "Cheese, low-sodium, cheddar or colby". Originally fixed here
+# as a narrow, hand-verified rename for just these two rows -- superseded
+# and made dead 2026-08-02, the same day, once the SAME mechanism turned
+# out to be silently erasing 36 USDA wine varietals and 3 branded beers
+# down to "Wine Alcoholic Beverage"/"Beer Alcoholic Beverage" (see
+# split_prep_method's own docstring). That's when the root mechanism
+# itself got fixed instead of patching a fourth one-off case -- and the
+# general fix already produces "Cheese, dry white, queso seco" verbatim as
+# base_name, so this dict's lookup key ("Cheese, dry white", the OLD
+# truncated intermediate value) no longer occurs anywhere in the pipeline.
+# Removed rather than left as unreachable code.
 
 
 def rename_chicken_egg(base_name):
@@ -3328,6 +3318,35 @@ def split_prep_method(name, short_name=None):
        scoring isn't always the final one -- see the tier lists' own
        comment).
 
+       When NONE of the leftover clauses match a known term, the leftover
+       is kept in `name` rather than discarded -- fixed 2026-08-02 after a
+       real, serious case: this branch used to unconditionally collapse to
+       bare `short_name` even when nothing matched, silently destroying
+       whatever the leftover actually said. Reported as "the alcohol
+       brands seem to have been removed"; investigation found that was
+       true (3 real branded USDA beers -- BUDWEISER, BUD LIGHT, BUDWEISER
+       SELECT -- had all collapsed into one indistinguishable "Beer
+       Alcoholic Beverage" alongside 5 OTHER unbranded beer variants with
+       no way to tell any of them apart), but the same mechanism was doing
+       far more damage than just brand names: all 36 of USDA's real wine
+       varietals (Merlot, Cabernet Sauvignon, Chardonnay, Riesling, etc.)
+       had collapsed into one "Wine Alcoholic Beverage," and all 8 of its
+       distilled-spirit rows (rum/vodka/whiskey at various proofs) had
+       collapsed into one "Distilled Alcoholic Beverage" -- exactly the
+       kind of information a person needs to pick the right real product,
+       silently gone. This was already a known, flagged risk (see this
+       file's own git history / CLAUDE.md's Next Steps around this date)
+       from two smaller, individually-patched cases found earlier the same
+       week (a dropped "queso seco"/"cheddar or colby" cheese variety, a
+       Chicken Egg species ambiguity) -- alcohol is what finally showed how
+       large the blast radius of leaving this unfixed really was, so the
+       mechanism itself got fixed here rather than patching a fourth
+       one-off case. This branch's own worst-case fallback now matches
+       strategy 3's below (which already falls back to the full,
+       untruncated string when it can't confidently extract anything) --
+       consistent, and no case where it can lose real information the
+       old behavior didn't already risk losing.
+
     3. Germany_BLS is the one source where short_name already equals the
        full name (nothing separately truncated), so there's no separate
        suffix to mine -- this and any other row matching neither strategy
@@ -3361,6 +3380,13 @@ def split_prep_method(name, short_name=None):
                     pattern = r"\b" + re.escape(term) + r"\b"
                     if any(re.search(pattern, clause) for clause in clauses):
                         return short_name, term.title()
+        # No clause matched a known term -- keep the full name rather than
+        # collapsing to bare short_name (see this function's own docstring,
+        # strategy 2, for why: silently discarding a real, unrecognized
+        # leftover clause is exactly the bug that merged 36 distinct USDA
+        # wines and 3 branded beers into one indistinguishable entry each).
+        if suffix:
+            return name, None
         return short_name, None
 
     original = short_name or name
@@ -3882,7 +3908,6 @@ def build(xlsx_path, db_path):
                 base_name = reorder_base_name(base_name, source=source)["output"]
                 base_name = rename_sweet_pepper_by_color(base_name, name)
                 base_name = rename_chicken_egg(base_name)
-                base_name = restore_dropped_cheese_variety(base_name)
                 effective_category = reclassify_category(category_code, base_name)
                 # A tiny, hand-verified set of foods whose base_name
                 # collides with a different product entirely (see the
