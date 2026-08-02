@@ -116,7 +116,15 @@ export default function FoodItemDetailScreen() {
 
   return (
     <View style={styles.wrapper}>
-      <Stack.Screen options={{ title: title || side?.name || 'Saved Item' }} />
+      {/* headerBackVisible: false, 2026-08-02 -- explicitly requested: the
+          native stack header was still drawing its own back chevron at
+          the top-left, the one interactive control on this screen that
+          didn't follow the rest of the app's own bottom-anchored,
+          thumb-reachable floating-button convention. The floating button
+          pair below now covers that same "go back" job (and more --
+          Back there is context-aware, see its own comment), so the
+          native one is redundant, not just relocated. */}
+      <Stack.Screen options={{ title: title || side?.name || 'Saved Item', headerBackVisible: false }} />
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
         {loading ? (
           <Text style={styles.emptyText}>Loading…</Text>
@@ -187,26 +195,29 @@ export default function FoodItemDetailScreen() {
         )}
       </ScrollView>
 
-      {/* A floating pair, not just the close button alone, 2026-08-02 --
-          explicitly requested: drilled into one ingredient's own Nutrients/
-          6 Dimensions/Cooking & Prep previously only had a small inline
-          "< [side name]" link (scrolled away with the rest of the content)
-          to get back to the whole side's own view. Back sits to Close's
-          own left, in the same row, so both stay reachable together
-          regardless of scroll position -- Back only renders at all while
-          actually drilled into an ingredient, same condition the old
-          inline link used, since it has nothing to do otherwise. */}
+      {/* A floating pair, always both visible now, 2026-08-02 -- explicitly
+          requested: the native stack header's own top-left back chevron
+          (see headerBackVisible above) is replaced by Back here instead,
+          not just duplicated -- the one control on this screen that
+          wasn't already bottom-anchored like everything else in this app.
+          Back is context-aware, stepping back one level at a time rather
+          than always leaving the screen outright: drilled into one
+          ingredient's own Nutrients/6 Dimensions/Cooking & Prep, it
+          returns to the whole side's own view first (previously a small
+          inline "< [side name]" link that scrolled away with the rest of
+          the content); from the whole-side view, it leaves the screen
+          the same as Close does. Close always leaves the screen outright
+          regardless of drill state -- a "jump all the way out" shortcut
+          Back doesn't replace. */}
       <View style={[styles.floatingButtonRow, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}>
-        {drilledItemIndex !== null ? (
-          <TouchableOpacity
-            style={styles.floatingButton}
-            onPress={() => setDrilledItemIndex(null)}
-            activeOpacity={0.85}
-            accessibilityLabel={`Back to ${side?.name ?? 'side'}`}
-          >
-            <Ionicons name="chevron-back" size={26} color={colors.textOnPrimary} />
-          </TouchableOpacity>
-        ) : null}
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={() => (drilledItemIndex !== null ? setDrilledItemIndex(null) : router.back())}
+          activeOpacity={0.85}
+          accessibilityLabel={drilledItemIndex !== null ? `Back to ${side?.name ?? 'side'}` : 'Back'}
+        >
+          <Ionicons name="chevron-back" size={26} color={colors.textOnPrimary} />
+        </TouchableOpacity>
         <TouchableOpacity
           style={styles.floatingButton}
           onPress={() => router.back()}
