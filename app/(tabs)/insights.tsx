@@ -25,6 +25,7 @@ import {
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { linkifyText } from '../../components/InfoAlert';
 import type { HelpSection } from '../../components/HelpButton';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -765,7 +766,7 @@ export function SixDsView({
                               </Text>
                             ))}
                             <Text style={styles.detailSourcesLabel}>Sources</Text>
-                            <Text style={styles.detailSourcesText}>{getSubCriterionSources(item.subCriterion)}</Text>
+                            <Text style={styles.detailSourcesText}>{linkifyText(getSubCriterionSources(item.subCriterion))}</Text>
                           </View>
                         ) : null}
                       </View>
@@ -905,7 +906,7 @@ export function PrepView({
                     <Text style={styles.detailSourcesLabel}>{tip.subCriterion}</Text>
                     <Text style={styles.tipText}>{tip.instruction}</Text>
                     <Text style={styles.detailSourcesLabel}>Source</Text>
-                    <Text style={styles.detailSourcesText}>{getSubCriterionSources(tip.subCriterion)}</Text>
+                    <Text style={styles.detailSourcesText}>{linkifyText(getSubCriterionSources(tip.subCriterion))}</Text>
                   </View>
                 ))
               )}

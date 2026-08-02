@@ -1,10 +1,45 @@
 import { useCallback, useState, type ReactNode } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Linking, Modal, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 
 type InfoAlertRequest = { title: string; message: string };
+
+// Matches a real http(s) URL up to the next whitespace or a trailing
+// close-paren -- citation text in this app sometimes wraps a URL in
+// parens ("(see https://example.com)"), and without excluding ")" that
+// would get swallowed into the link text/target itself.
+const URL_PATTERN = /https?:\/\/[^\s)]+/g;
+
+// Turns any real URL inside `text` into a real, tappable link (opens the
+// device's own browser via Linking) instead of just being inert citation
+// text a person can't act on -- 2026-08-02, explicitly requested: sources
+// cited elsewhere in this app (see lib/sixDimensionsReference.ts's own
+// SUB_CRITERION_SOURCES) are meant to be checkable, not just named.
+// Exported (not just used inline below) so the same treatment applies
+// everywhere source citation text renders, not only inside this
+// component's own popup -- Insights' own SixDsView/PrepView (see
+// app/(tabs)/insights.tsx) render the identical getSubCriterionSources()
+// strings directly in a plain Text, not through useInfoAlert at all, and
+// need this exact same linkification, not a second implementation.
+export function linkifyText(text: string, linkStyle: object = styles.link): ReactNode[] {
+  const parts = text.split(URL_PATTERN);
+  const urls = text.match(URL_PATTERN) ?? [];
+  const nodes: ReactNode[] = [];
+  parts.forEach((part, index) => {
+    if (part) nodes.push(part);
+    const url = urls[index];
+    if (url) {
+      nodes.push(
+        <Text key={url + index} style={linkStyle} onPress={() => Linking.openURL(url)}>
+          {url}
+        </Text>,
+      );
+    }
+  });
+  return nodes;
+}
 
 // Reusable replacement for Alert.alert(title, message) wherever a screen
 // wants its own tap-a-label-for-more-detail popups -- Insights' own Food
@@ -45,7 +80,7 @@ export function useInfoAlert(): [(title: string, message: string) => void, React
         <View style={styles.card}>
           <Text style={styles.title}>{request?.title}</Text>
           <ScrollView style={styles.messageScroll}>
-            <Text style={styles.message}>{request?.message}</Text>
+            <Text style={styles.message}>{request ? linkifyText(request.message) : null}</Text>
           </ScrollView>
           {/* Mirrors AppKeyboard's own Next/Done row -- whichever side
               NAVIGATION_HAND says the person's thumb rests on is where OK
@@ -96,6 +131,10 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textPrimary,
     lineHeight: 21,
+  },
+  link: {
+    color: colors.primary,
+    textDecorationLine: 'underline',
   },
   buttonRow: {
     flexDirection: 'row',
