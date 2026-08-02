@@ -4153,6 +4153,87 @@ def build(xlsx_path, db_path):
                 count += 1
             sheet_report.append((sheet_name, count))
 
+        # Synthetic aged/unaged spirit variants, 2026-08-02 -- not present
+        # anywhere in any of the 7 real sources (confirmed by direct query:
+        # zero rows for "reposado"/"añejo"/"blanco tequila"/"white rum"/
+        # "dark rum" anywhere in the built database, and the only
+        # tequila-adjacent row at all is Germany_BLS's single combined
+        # "Agave spirit (Mezcal/Tequila)"). Added at the user's own explicit
+        # request, after a real discussion about what "branded" alcohol
+        # data would actually need to capture: for PLAIN distilled spirits,
+        # real nutrition research confirms calories/carbs are driven almost
+        # entirely by proof, not brand or aging -- so there was never a
+        # need to chase brand-specific vodka/whiskey/tequila data the way
+        # there might be for beer. What genuinely differs between an aged
+        # and unaged spirit is congener content (esters/aldehydes/tannins
+        # picked up from the barrel, not "oxidation" building up "oxides"
+        # as literally described, though the underlying instinct -- aging
+        # changes the drink in a way that could matter for someone's body
+        # -- was directionally right) -- linked in the research to hangover
+        # severity, but not something any of these 7 national databases
+        # measures or reports as a nutrient. These 5 entries exist so a
+        # person can correctly LOG which one they actually drank (serving
+        # this app's core purpose of letting someone find their own
+        # personal patterns -- see this file's own Assessment/Bio-Compass
+        # framing elsewhere in the app), not because their macro/vitamin/
+        # mineral numbers differ from the real spirit they're based on --
+        # they deliberately don't, since the chemistry doesn't support
+        # inventing different numbers here.
+        #
+        # Each variant's own nutrient and score profile is a straight
+        # duplicate of a real, already-processed row's own values (never
+        # independently invented) -- tequila variants copy USDA's own
+        # generic "distilled, all (gin, rum, vodka, whiskey), 80 proof"
+        # (food_id 7304), the best real analog for a neutral 80-proof
+        # spirit regardless of base plant material, since distillation
+        # removes virtually everything about the source ingredient that
+        # would affect calorie content; rum variants copy USDA's own real
+        # "distilled, rum, 80 proof" row (food_id 7306) directly. `source`
+        # is deliberately "Derived," not "USDA" or any real source name --
+        # this is real, cited nutrition science applied to real official
+        # numbers, but it was never independently measured or submitted by
+        # any of the 7 national agencies, and labeling it as if it were
+        # would misrepresent where it came from. food_id starts at 900001,
+        # far outside any real workbook's own ID range (confirmed max
+        # real food_id is 27980), so there's no collision risk.
+        SYNTHETIC_SPIRIT_VARIANTS = [
+            ("Tequila, Blanco (Unaged)", 7304, "USDA"),
+            ("Tequila, Reposado (Aged 2-12 Months)", 7304, "USDA"),
+            ("Tequila, Añejo (Aged 1-3 Years)", 7304, "USDA"),
+            ("Rum, Light/White (Unaged or Filtered)", 7306, "USDA"),
+            ("Rum, Dark/Aged", 7306, "USDA"),
+        ]
+        synthetic_food_id = 900001
+        for variant_name, template_food_id, template_source in SYNTHETIC_SPIRIT_VARIANTS:
+            template_nutrients = [
+                row for row in nutrient_rows
+                if row[0] == template_food_id and row[1] == template_source
+            ]
+            template_scores = [
+                row for row in score_rows
+                if row[0] == template_food_id and row[1] == template_source
+            ]
+            foods_rows.append((
+                synthetic_food_id,
+                "Derived",
+                None,
+                variant_name,
+                None,
+                variant_name,
+                variant_name,
+                None,
+                "Alcohol",
+                "Spirits & Liqueurs",
+                None,
+                None,
+                None,
+            ))
+            for _, _, code, amount in template_nutrients:
+                nutrient_rows.append((synthetic_food_id, "Derived", code, amount))
+            for _, _, sub_id, tier in template_scores:
+                score_rows.append((synthetic_food_id, "Derived", sub_id, tier))
+            synthetic_food_id += 1
+
         cur.executemany(
             """INSERT OR REPLACE INTO foods
                (food_id, source, source_code, name, name_local, short_name, base_name, prep_method,

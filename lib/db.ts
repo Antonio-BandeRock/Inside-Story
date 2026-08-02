@@ -284,7 +284,14 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
   }
 
   if (usdaOnly) {
-    clause += " AND source = 'USDA'";
+    // 'Derived' rows (see scripts/build_food_reference_db.py's
+    // SYNTHETIC_SPIRIT_VARIANTS, 2026-08-02) are real USDA nutrient values
+    // duplicated onto a handful of aged/unaged spirit variants no source
+    // measures separately -- always included alongside USDA itself so the
+    // default "USDA-only" scope some categories fall back to (see
+    // hasUsdaCoverage below) doesn't hide them the same way it hides every
+    // other non-USDA source.
+    clause += " AND source IN ('USDA', 'Derived')";
   }
 
   return { clause, params };
