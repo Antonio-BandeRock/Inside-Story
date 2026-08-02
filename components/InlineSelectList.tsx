@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
@@ -62,6 +63,27 @@ export function InlineSelectList({
   // corner poking out from under a square one.
   squareTop?: boolean;
 }) {
+  // Group headers (see lib/foodNameGrouping.ts) pin to the top of this
+  // list while their own members scroll underneath, the same "section
+  // header" behavior every native grouped list (Contacts, iOS Settings)
+  // already has -- explicitly requested 2026-08-02 after a header
+  // (e.g. "Butter") scrolled away with its own items, leaving whatever
+  // came next with no visible heading at all until the FOLLOWING group's
+  // header appeared, making unrelated rows look like they belonged to the
+  // section above. FlatList's own `stickyHeaderIndices` is the built-in
+  // mechanism for exactly this -- an array of indices into `data` that
+  // should render pinned rather than scroll normally -- so this recomputes
+  // which indices are headers instead of reaching for a heavier list
+  // primitive (SectionList) that would need a bigger rewrite of every
+  // caller's own flat `options` shape.
+  const stickyHeaderIndices = useMemo(
+    () => options.reduce<number[]>((acc, option, index) => {
+      if (option.isHeader) acc.push(index);
+      return acc;
+    }, []),
+    [options],
+  );
+
   return (
     <View style={[styles.container, { height, borderColor: tabColor }, squareTop && styles.squareTop]}>
       <View style={[styles.header, { borderBottomColor: tabColor }]}>
@@ -73,6 +95,7 @@ export function InlineSelectList({
         style={styles.list}
         data={options}
         keyExtractor={(option, index) => `${option.value}-${index}`}
+        stickyHeaderIndices={stickyHeaderIndices}
         // Android specifically needs this said explicitly for a scrollable
         // list's own gesture to win over the outer page ScrollView it sits
         // inside, rather than the two fighting over the same touch -- iOS
@@ -146,11 +169,17 @@ const styles = StyleSheet.create({
   itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
   // A plain, non-tappable divider row -- deliberately not shaped like
   // `item` (no border, no press feedback) so it reads as organizational
-  // chrome rather than one more option in the list.
+  // chrome rather than one more option in the list. Opaque background
+  // (matching the container's own) is required, not cosmetic, now that
+  // this row pins in place via stickyHeaderIndices above -- without it,
+  // items scrolling underneath would show through the pinned header.
   groupHeader: {
     paddingHorizontal: 16,
     paddingTop: 8,
     paddingBottom: 2,
+    backgroundColor: colors.surface,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
   },
   groupHeaderText: typography.eyebrow,
 });

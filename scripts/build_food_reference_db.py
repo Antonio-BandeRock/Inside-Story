@@ -379,6 +379,31 @@ CATEGORY_OVERRIDES = {
     # rebuild for stray coconut-water miscategorizations after the reorder
     # pass changed this row's base_name from "Water, coconut".
     ("NutSeed", "Coconut Water"): "Bev",                                   # Australia_AFCD
+    # Reported directly by the user, 2026-08-02: a "Butter" heading in the
+    # Dairy & Eggs picker sat right above several items that plainly aren't
+    # dairy staples at all. Two real miscategorizations confirmed by
+    # checking each row directly (not everything under that heading was
+    # actually wrong -- see the session's own investigation notes in
+    # CLAUDE.md for what turned out to be correctly Dairy after all):
+    #   - USDA's own "Beverage, instant breakfast powder" rows are filed
+    #     under Dairy while Canada_CNF's identical real product ("Instant
+    #     Breakfast Powder") is already correctly under Bev -- the name
+    #     itself starts with the word "Beverage."
+    ("Dairy", "Beverage, instant breakfast powder"): "Bev",                # USDA
+    #   - "Cheese sauce, prepared from recipe" (USDA) and "Homemade Cheese
+    #     Sauce" (Canada_CNF) are composite recipes (a roux-based sauce),
+    #     not a whole dairy ingredient -- every OTHER cheese-sauce row in
+    #     the database (Bechamel-based, gratin toppings, etc.) already
+    #     correctly lives in Mixed; these two were the only ones left
+    #     behind in Dairy.
+    ("Dairy", "Cheese sauce, prepared from recipe"): "Mixed",              # USDA
+    ("Dairy", "Homemade Cheese Sauce"): "Mixed",                           # Canada_CNF
+    # Found while spot-checking the new food-name-grouping feature's own
+    # "Cheese" group against the rebuilt database -- "Macaroni cheese,
+    # canned" is a canned pasta dish (UK's own term for mac and cheese),
+    # the exact same kind of composite dish as the two rows just above,
+    # not a cheese variety.
+    ("Dairy", "Macaroni cheese"): "Mixed",                                 # UK_CoFID
 }
 
 # A tiny number of foods whose base_name collides with a completely
@@ -751,6 +776,35 @@ CHICKEN_EGG_EXACT_RENAMES = {
     "Chicken egg white, poached": "Chicken Egg White Poached",
     "Chicken egg yolk": "Chicken Egg Yolk",
 }
+
+
+# A second, different kind of information loss found the same day the
+# chicken-egg fix above was made, while checking a user-reported list of
+# unclear cheese names ("what kind of cheese is cheese, dry white?"):
+# split_prep_method()'s strategy 2 (see its own docstring) only recognizes
+# a trailing comma-clause as real prep info if it matches a known cooking/
+# raw/storage term -- when the leftover clause is something else entirely
+# (a variety name, not a prep state), it's silently discarded rather than
+# kept anywhere. Confirmed directly: USDA's own "Cheese, dry white, queso
+# seco" has short_name "Cheese, dry white", so the trailing ", queso seco"
+# (a real, meaningful variety name -- the Latin American dry salted cheese
+# most people would recognize by that name) matched no known prep term and
+# was simply dropped, leaving base_name "Cheese, dry white" with no hint
+# what kind of white cheese it is. Same mechanism, same day, for "Cheese,
+# low-sodium, cheddar or colby" losing "cheddar or colby". This is a
+# narrower, hand-verified fix for the two specific rows a person actually
+# ran into, not a rewrite of split_prep_method itself -- the same
+# discovered-through-real-testing philosophy already applied throughout
+# this file rather than guessing at every other row that might have the
+# same problem.
+CHEESE_VARIETY_RESTORE = {
+    "Cheese, dry white": "Cheese, Dry White (Queso Seco)",
+    "Cheese, low-sodium": "Cheese, Low-Sodium (Cheddar or Colby)",
+}
+
+
+def restore_dropped_cheese_variety(base_name):
+    return CHEESE_VARIETY_RESTORE.get(base_name, base_name)
 
 
 def rename_chicken_egg(base_name):
@@ -3213,6 +3267,33 @@ def oxalate_backfill_tier(sub_criterion, base_name):
     return None
 
 
+# USDA appends this exact disclaimer to a small number of rows to mark them
+# as eligible for a government commodity-distribution program -- real
+# metadata about a purchasing channel, not a distinguishing characteristic
+# of the food itself. split_prep_method() below only strips a RECOGNIZED
+# prep/cooking term from the end of a name; for the handful of rows where
+# the source spreadsheet's own "Short Display Name" column was never
+# separately curated (short_name == the full name, verbatim disclaimer
+# included), this suffix has nowhere else to go and was leaking straight
+# into base_name -- e.g. "Cheese, cheddar (Includes foods for USDA's Food
+# Distribution Program)" ending up as its own base_name, "Cheddar Cheese
+# (Includes Foods For USDA's Food Distribution Program)", a confusing
+# near-duplicate of the already-correct plain "Cheddar Cheese" entry.
+# Reported directly by the user, 2026-08-02, who spotted the cheese case;
+# confirmed by querying the built database that Wheat Flour/Oats/Peanut
+# Butter had the exact same leak. Stripped unconditionally wherever this
+# literal boilerplate string appears at the end of a name -- it's never
+# itself a real food descriptor, so there's no case where removing it loses
+# information the way a blind trailing-clause strip would.
+_FOOD_DISTRIBUTION_SUFFIX_RE = re.compile(
+    r"\s*\(Includes foods for USDA's Food Distribution Program\)\s*$", re.IGNORECASE
+)
+
+
+def strip_food_distribution_program_suffix(base_name):
+    return _FOOD_DISTRIBUTION_SUFFIX_RE.sub("", base_name).strip()
+
+
 def split_prep_method(name, short_name=None):
     """Extract a food's cooking/prep state from its full name.
 
@@ -3788,6 +3869,7 @@ def build(xlsx_path, db_path):
                 category_code = RAW_CATEGORY_TO_CODE.get((source, row_raw_category), sheet_category_code)
                 short_name = get("Short Display Name")
                 base_name, prep_method = split_prep_method(name, short_name)
+                base_name = strip_food_distribution_program_suffix(base_name)
                 base_name, prep_method = apply_prep_overrides(category_code, base_name, prep_method)
                 base_name = rename_bean_type_first(base_name)
                 base_name = rename_sprout(base_name, name)
@@ -3800,6 +3882,7 @@ def build(xlsx_path, db_path):
                 base_name = reorder_base_name(base_name, source=source)["output"]
                 base_name = rename_sweet_pepper_by_color(base_name, name)
                 base_name = rename_chicken_egg(base_name)
+                base_name = restore_dropped_cheese_variety(base_name)
                 effective_category = reclassify_category(category_code, base_name)
                 # A tiny, hand-verified set of foods whose base_name
                 # collides with a different product entirely (see the

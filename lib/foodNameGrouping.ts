@@ -79,6 +79,24 @@ function normalizeCandidate(word: string | undefined): string | null {
   return lower;
 }
 
+function capitalizeFirst(text: string): string {
+  return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1);
+}
+
+type Candidate = {
+  key: string;
+  // The name with this candidate's own matched word/clause removed --
+  // 2026-08-02, explicitly requested: showing "Cheddar Cheese" under a
+  // "Cheese" header repeats a word the header itself already said. Kept
+  // alongside `key` (rather than re-deriving the strip later from just the
+  // key string) so the exact original-cased substring that was actually
+  // matched gets removed, with no risk of a second, looser re-match
+  // clipping the wrong thing. Falls back to the full name in
+  // buildFoodNameGroups below if this ever comes out empty (a name that
+  // IS just the key, e.g. a lone "Cheese").
+  strippedLabel: string;
+};
+
 // Every real candidate "this is the kind of thing" word a single food
 // name could be grouped under, in priority order (see buildFoodNameGroups
 // below for how ties/multiple matches are resolved):
@@ -91,8 +109,8 @@ function normalizeCandidate(word: string | undefined): string | null {
 //      ingredient/cut rather than a "kind of" relationship (matching
 //      natural_name_reorder.py's own documented "anatomical/cut-of-meat
 //      noun keeps original order" case).
-function candidateKeys(name: string): string[] {
-  const candidates: string[] = [];
+function candidateEntries(name: string): Candidate[] {
+  const candidates: Candidate[] = [];
   // A '%' occurring BEFORE a candidate's own extraction point is a
   // reliable sign that stretch of the name is a measurement clause ("min.
   // 20 % fat in dry matter," "1.5 % fat, with coffee") rather than a plain
@@ -105,21 +123,23 @@ function candidateKeys(name: string): string[] {
   const commaIndex = name.indexOf(',');
   if (commaIndex > 0 && commaIndex < 40 && !name.slice(0, commaIndex).includes('%')) {
     const commaKey = normalizeCandidate(name.slice(0, commaIndex).trim().split(/\s+/).pop());
-    if (commaKey) candidates.push(commaKey);
+    if (commaKey) {
+      candidates.push({ key: commaKey, strippedLabel: capitalizeFirst(name.slice(commaIndex + 1).trim()) });
+    }
   }
   const hasPercent = name.includes('%');
   const words = name.replace(/[()]/g, ' ').trim().split(/\s+/).filter(Boolean);
   if (words.length > 1 && !hasPercent) {
     const lastKey = normalizeCandidate(words[words.length - 1]);
-    if (lastKey && !candidates.includes(lastKey)) candidates.push(lastKey);
+    if (lastKey && !candidates.some((c) => c.key === lastKey)) {
+      candidates.push({ key: lastKey, strippedLabel: capitalizeFirst(words.slice(0, -1).join(' ')) });
+    }
     const firstKey = normalizeCandidate(words[0]);
-    if (firstKey && !candidates.includes(firstKey)) candidates.push(firstKey);
+    if (firstKey && !candidates.some((c) => c.key === firstKey)) {
+      candidates.push({ key: firstKey, strippedLabel: capitalizeFirst(words.slice(1).join(' ')) });
+    }
   }
   return candidates;
-}
-
-function titleCase(word: string): string {
-  return word.length === 0 ? word : word[0].toUpperCase() + word.slice(1);
 }
 
 // Builds the grouped/ungrouped display list for one category's own food
@@ -127,28 +147,33 @@ function titleCase(word: string): string {
 // list that's realistically a few hundred names at most (the same scale
 // FoodLookup.tsx's own live search already filters over instantly).
 export function buildFoodNameGroups(names: string[]): GroupedFoodEntry[] {
+  const namesCandidates = names.map((name) => ({ name, candidates: candidateEntries(name) }));
+
   // Pass 1: how many DISTINCT names produce each candidate key, across
   // every name's own candidate list (not just its top choice) -- a key
   // only becomes a real group once at least two different foods could
   // plausibly share it.
   const keyCounts = new Map<string, number>();
-  const namesCandidates = names.map((name) => ({ name, candidates: candidateKeys(name) }));
   for (const { candidates } of namesCandidates) {
-    for (const key of new Set(candidates)) {
+    for (const key of new Set(candidates.map((c) => c.key))) {
       keyCounts.set(key, (keyCounts.get(key) ?? 0) + 1);
     }
   }
 
   // Pass 2: assign each name to its own highest-priority candidate key
   // that actually cleared the 2+ bar above; otherwise it stays ungrouped.
-  const groups = new Map<string, string[]>();
+  const groups = new Map<string, { name: string; strippedLabel: string }[]>();
   const ungrouped: string[] = [];
   for (const { name, candidates } of namesCandidates) {
-    const chosenKey = candidates.find((key) => (keyCounts.get(key) ?? 0) >= 2);
-    if (chosenKey) {
-      const members = groups.get(chosenKey) ?? [];
-      members.push(name);
-      groups.set(chosenKey, members);
+    const chosen = candidates.find((c) => (keyCounts.get(c.key) ?? 0) >= 2);
+    if (chosen) {
+      const members = groups.get(chosen.key) ?? [];
+      // A stripped label that comes out blank only happens when the whole
+      // name WAS the matched word (a lone "Cheese" grouped alongside
+      // "Cheddar Cheese") -- showing nothing under a header reads as a
+      // broken row, so that one case keeps its full original name instead.
+      members.push({ name, strippedLabel: chosen.strippedLabel || name });
+      groups.set(chosen.key, members);
     } else {
       ungrouped.push(name);
     }
@@ -166,7 +191,7 @@ export function buildFoodNameGroups(names: string[]): GroupedFoodEntry[] {
   for (const [key, members] of [...groups]) {
     if (members.length < 2) {
       groups.delete(key);
-      ungrouped.push(...members);
+      ungrouped.push(...members.map((m) => m.name));
     }
   }
 
@@ -174,18 +199,20 @@ export function buildFoodNameGroups(names: string[]): GroupedFoodEntry[] {
   // order (by the header's own label for a group, by the name itself for a
   // singleton), matching how the plain flat list already reads today --
   // grouping should make browsing easier to scan, not reshuffle the whole
-  // list into an unfamiliar order.
+  // list into an unfamiliar order. Within a group, members sort by their
+  // own STRIPPED label (what's actually shown), not the hidden full name,
+  // so what's on screen reads in true alphabetical order.
   type SortableEntry = { sortKey: string; entries: GroupedFoodEntry[] };
   const sortable: SortableEntry[] = [];
 
   for (const [key, members] of groups) {
-    const label = titleCase(key);
-    const sortedMembers = [...members].sort((a, b) => a.localeCompare(b));
+    const label = capitalizeFirst(key);
+    const sortedMembers = [...members].sort((a, b) => a.strippedLabel.localeCompare(b.strippedLabel));
     sortable.push({
       sortKey: label,
       entries: [
         { type: 'header', key, label },
-        ...sortedMembers.map((name) => ({ type: 'item' as const, label: name, value: name })),
+        ...sortedMembers.map((m) => ({ type: 'item' as const, label: m.strippedLabel, value: m.name })),
       ],
     });
   }
