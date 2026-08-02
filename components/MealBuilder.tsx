@@ -334,17 +334,17 @@ export function MealBuilder({
       <>
         {infoAlertElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
-          <View style={styles.formCard}>
-            <Text style={styles.formLabel}>Meal Name (optional)</Text>
+          <View style={[styles.formCard, { borderColor: tabColor }]}>
+            <Text style={[styles.formLabel, { color: tabColor }]}>Meal Name (optional)</Text>
             <AppTextInput
-              style={styles.formInput}
+              style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
               value={mealName}
               onChangeText={setMealName}
               placeholder="e.g. Sunday Dinner"
               placeholderTextColor={colors.textMuted}
               autoFocus
             />
-            <Text style={[styles.formLabel, styles.formLabelSpaced]}>Meal Type</Text>
+            <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>Meal Type</Text>
             <View style={styles.pillWrap}>
               {mealTypes.map((type) => {
                 const isSelected = type === mealType;
@@ -382,16 +382,16 @@ export function MealBuilder({
       <>
         {infoAlertElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
-          <View style={styles.formCard}>
+          <View style={[styles.formCard, { borderColor: tabColor }]}>
             <Text style={styles.pendingName}>{pendingSelection.name}</Text>
             <Text style={styles.pendingSubtitle}>
               Makes {pendingSelection.servings} serving{pendingSelection.servings === 1 ? '' : 's'}
             </Text>
-            <Text style={[styles.formLabel, styles.formLabelSpaced]}>How much did you have?</Text>
+            <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>How much did you have?</Text>
             <PopoverSelect options={SHARE_PICKER_VALUES} selected={pendingAmount} onSelect={setPendingAmount} tabColor={tabColor} minWidth={80} />
             <View style={styles.buttonRow}>
-              <TouchableOpacity style={[styles.secondaryButton, { borderWidth: 1, borderColor: colors.border, flex: 1 }]} onPress={cancelPendingSelection}>
-                <Text style={styles.secondaryButtonText}>Cancel</Text>
+              <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelPendingSelection}>
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, marginTop: 0 }]} onPress={confirmPendingSelection}>
                 <Text style={styles.primaryButtonText}>Add to Meal</Text>
@@ -414,7 +414,7 @@ export function MealBuilder({
             <Ionicons name="chevron-back" size={18} color={tabColor} />
             <Text style={[styles.backRowText, { color: tabColor }]}>Add from...</Text>
           </TouchableOpacity>
-          <Text style={styles.sectionHeading}>Saved {meta.label}s</Text>
+          <Text style={[styles.sectionHeading, { color: tabColor }]}>Saved {meta.label}s</Text>
           {categoryOptionsLoading ? (
             <ActivityIndicator color={tabColor} style={styles.loadingSpinner} />
           ) : categoryOptions.length === 0 ? (
@@ -448,8 +448,8 @@ export function MealBuilder({
     <>
       {infoAlertElement}
       <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
-        <View style={styles.formCard}>
-          <Text style={styles.mealTitle} numberOfLines={2}>
+        <View style={[styles.formCard, { borderColor: tabColor }]}>
+          <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>
             {mealName.trim() || 'Meal'}
           </Text>
           <Text style={styles.pendingSubtitle}>{mealType ? mealType[0].toUpperCase() + mealType.slice(1) : 'No meal type chosen'}</Text>
@@ -474,7 +474,7 @@ export function MealBuilder({
           )}
         </View>
 
-        <Text style={[styles.sectionHeading, styles.gridHeading]}>Add from...</Text>
+        <Text style={[styles.sectionHeading, styles.gridHeading, { color: tabColor }]}>Add from...</Text>
         <View style={styles.grid}>
           {CATEGORY_META.map((entry) => (
             <TouchableOpacity key={entry.type} style={styles.gridTile} onPress={() => openCategory(entry.type)}>
@@ -544,16 +544,35 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: { ...typography.bodyEmphasis },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
-  pendingName: { ...typography.bodyEmphasis, fontSize: 17 },
+  // colors.textSecondary, not tabColor -- matches SideBuilder's own
+  // pendingHeader exactly (both name a saved item that's about to be
+  // added, i.e. this card's own CONTENT, not the meal's own identity the
+  // way mealTitle/formLabel are -- tabColor is reserved for the form's own
+  // labels/controls, per that file's own comment on pendingHeader).
+  pendingName: { ...typography.bodyEmphasis, fontSize: 17, color: colors.textSecondary },
   pendingSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
+  // tabColor applied inline at its one call site -- matches SideBuilder's
+  // own overviewDishName, the same "this card's own name is the form's
+  // subject" role mealTitle plays here.
   mealTitle: { ...typography.bodyEmphasis, fontSize: 18 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 4 },
   backRowText: { ...typography.bodyEmphasis },
-  sectionHeading: { ...typography.eyebrow, color: colors.textSecondary },
+  // tabColor applied inline at both call sites -- matches SideBuilder's own
+  // "Ingredients" heading (also typography.eyebrow), which gets the same
+  // treatment despite being a section heading rather than a single-field
+  // label.
+  sectionHeading: { ...typography.eyebrow },
   gridHeading: { marginTop: 6 },
   loadingSpinner: { marginTop: 20 },
   emptyText: { ...typography.body, color: colors.textSecondary },
   savedList: { gap: 8 },
+  // A bordered box per row (not SideBuilder's own plain bottom-border list
+  // row) -- deliberately closer to app/food-items.tsx's own itemRow in
+  // spirit but boxed, since each row here is a distinct tappable saved
+  // record, not a passive divided list. Stays plain colors.border, not
+  // tabColor -- consistent with itemRow's own choice, and with formCard
+  // being the one element per step that gets the tabColor-border
+  // treatment, not every box on the page.
   savedRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -567,13 +586,17 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
   },
   savedRowText: { flex: 1 },
-  savedRowName: { ...typography.bodyEmphasis },
+  // colors.textPrimary, matching SideBuilder's own overviewIngredientText --
+  // a plain saved-item name in a list, not the form's own identity.
+  savedRowName: { ...typography.bodyEmphasis, color: colors.textPrimary },
   savedRowDetail: { ...typography.caption, color: colors.textSecondary, marginTop: 2 },
   grid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
     gap: 10,
   },
+  // Same colors.border/colors.surface reasoning as savedRow above -- a grid
+  // tile is a passive-until-tapped chrome box, not the step's own formCard.
   gridTile: {
     width: '31%',
     aspectRatio: 1,
@@ -585,6 +608,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 6,
   },
-  gridTileLabel: { ...typography.caption, textAlign: 'center' },
+  gridTileLabel: { ...typography.caption, textAlign: 'center', color: colors.textPrimary },
   logButton: { marginTop: 4 },
 });

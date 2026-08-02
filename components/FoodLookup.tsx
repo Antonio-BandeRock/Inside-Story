@@ -76,6 +76,12 @@ export type ResolvedFoodSelection = {
 // hint they're there.
 const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   Bev: 'Beverages',
+  // New 2026-08-02 -- dry, not-yet-brewed tea/coffee-type products (instant
+  // powder, granules, ground tea), split out of Bev per explicit request:
+  // you don't drink these directly, you brew a drink FROM them, unlike
+  // everything else left in Bev. See CATEGORY_OVERRIDES' own comment in
+  // scripts/build_food_reference_db.py for exactly which rows moved.
+  Brewing: 'Brewing & Infusions',
   Dairy: 'Dairy & Eggs',
   Fruit: 'Fruits',
   Grain: 'Grains',

@@ -56,6 +56,45 @@ CATEGORY_OVERRIDES = {
     # above (see scripts/add_supplement_powder_category.py) but never
     # actually folded into this override list until now.
     ("NutSeed", "Psyllium, uncooked"): "SupplementPowder",
+    # New 'Brewing' category, 2026-08-02, explicitly requested: dry, not-
+    # yet-brewed tea/coffee-type products (instant powders, granules,
+    # dried/ground tea) don't belong under Bev the same way an already-
+    # brewed, ready-to-drink cup does -- you don't drink instant coffee
+    # granules, you brew a drink FROM them. Real, ready-to-drink liquid
+    # forms ("Coffee, brewed, prepared with tap water", "Tea, brewed,
+    # black", any "(infusion)" row, bottled products like NESTEA/SNAPPLE)
+    # deliberately stay in Bev -- only checked by hand, not a keyword rule,
+    # since several base_names use "powder" for the PREPARED drink too
+    # (e.g. "Tea, instant, unsweetened, powder, water added" already has
+    # water added and stays put; "Tea, instant, unsweetened, powder" alone
+    # does not and moves). All 23 confirmed against the live database
+    # before this list was written, one row each (no source duplicates).
+    ("Bev", 'Green tea, "Maccha" (finely ground tea)'): "Brewing",
+    ("Bev", "Coffee And Cocoa (Mocha) Powder (with whitener and low calorie sweetener)"): "Brewing",
+    ("Bev", "Coffee, instant, with sugar, mocha flavour, powder"): "Brewing",
+    ("Bev", "Tea, instant, unsweetened, lemon flavour, powder"): "Brewing",
+    ("Bev", "Tea, instant, unsweetened, powder"): "Brewing",
+    ("Bev", "Tea, instant, unsweetened, powder, decaffeinated"): "Brewing",
+    ("Bev", "Tea, lemon, instant powder"): "Brewing",
+    ("Bev", "Chicory coffee powder"): "Brewing",
+    ("Bev", "Coffee instant powder"): "Brewing",
+    ("Bev", "Coffee instant powder decaffeinated"): "Brewing",
+    ("Bev", "Coffee mix, with beverage whitener & sugar, dry powder"): "Brewing",
+    ("Bev", "Coffee substitute powder"): "Brewing",
+    ("Bev", "Coffee substitute, cereal grain beverage, powder"): "Brewing",
+    ("Bev", "Coffee, instant coffee, granules"): "Brewing",
+    ("Bev", "Coffee, instant with chicory, powder"): "Brewing",
+    ("Bev", "Coffee, instant, decaffeinated, powder"): "Brewing",
+    ("Bev", "Coffee, instant, dry powder or granules"): "Brewing",
+    ("Bev", "Coffee, instant, dry powder or granules, decaffeinated"): "Brewing",
+    (
+        "Bev",
+        "Coffee, instant, French vanilla flavour, with aspartame and acesulfame potassium, fat free, sugar free, low calorie, powder",
+    ): "Brewing",
+    ("Bev", "Coffee, instant, powder, half the caffeine"): "Brewing",
+    ("Bev", "Coffee, instant, regular, powder"): "Brewing",
+    ("Bev", "Coffee, instant, with sugar, cappucino flavour, powder"): "Brewing",
+    ("Bev", "Coffee, instant, with sugar, French flavour, powder"): "Brewing",
     ("Veg", "Acorn stew (Apache)"): "Mixed",
     ("Veg", "Cream of mushroom soup instant powder"): "Mixed",
     ("Veg", "Cream of mushroom soup, made from instant powder and water"): "Mixed",

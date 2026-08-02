@@ -35,6 +35,12 @@
 //   like psyllium) is its own category, separate from Bev's own "Protein &
 //   Meal Replacement" subcategory (which holds the actual powder products) --
 //   Smoothie/Beverage Builder get both routes to the same real ingredient.
+// - 'Brewing' (added 2026-08-02, split out of Bev per explicit request):
+//   dry, not-yet-brewed tea/coffee-type products (instant powder, granules,
+//   ground tea) -- you brew a drink FROM these, they aren't the drink
+//   itself, unlike everything else still in Bev. Beverage Builder needs it
+//   for the obvious reason (making a cup of tea/coffee); Fermentation
+//   Builder needs it too since kombucha is literally brewed FROM tea.
 export const SIDE_BUILDER_CATEGORIES = [
   'Veg', 'Fruit', 'Grain', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
 ];
@@ -48,11 +54,11 @@ export const SMOOTHIE_BUILDER_CATEGORIES = [
 ];
 
 export const FERMENTATION_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Dairy', 'Grain', 'Legume', 'Bev', 'Alcohol', 'Herbs', 'Sweets',
+  'Veg', 'Fruit', 'Dairy', 'Grain', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'Sweets',
 ];
 
 export const BEVERAGE_BUILDER_CATEGORIES = [
-  'Bev', 'Alcohol', 'SupplementPowder', 'Fruit', 'Herbs', 'Dairy', 'Sweets', 'NutSeed',
+  'Bev', 'Brewing', 'Alcohol', 'SupplementPowder', 'Fruit', 'Herbs', 'Dairy', 'Sweets', 'NutSeed',
 ];
 
 export const SNACK_BUILDER_CATEGORIES = [
