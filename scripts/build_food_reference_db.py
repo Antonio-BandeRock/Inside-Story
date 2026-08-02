@@ -374,6 +374,30 @@ def rename_sprout(base_name, full_name):
     return SPROUT_RENAMES.get(base_name, base_name)
 
 
+# "Sweet Pepper" was, until this fix (2026-08-02), one generic base_name
+# covering every color of bell pepper -- real, reported problem: browsing
+# the Vegetables list (which just shows base_name strings alphabetically,
+# unlike a typed search, aliases never come into play there) never showed
+# anything a person would recognize as a bell pepper by color, even though
+# every single one of the 18 real USDA rows behind that base_name (verified
+# directly against the built database) already names its own color in the
+# full `name` field ("Peppers, sweet, red, raw", "..., green, ...", "...,
+# yellow, ..."). Confirmed no USDA "Sweet Pepper" row is colorless, and no
+# other source uses this base_name at all, so this split has no fallback
+# case to worry about. Applied after reorder_base_name() (base_name is
+# already its final "Sweet Pepper" form by then) rather than earlier in the
+# pipeline, since detecting color needs the untouched full name/prep-state
+# text split_prep_method() already consumed.
+def rename_sweet_pepper_by_color(base_name, full_name):
+    if base_name != "Sweet Pepper" or not full_name:
+        return base_name
+    lowered = full_name.lower()
+    for color in ("red", "green", "yellow", "orange"):
+        if re.search(r"\b" + color + r"\b", lowered):
+            return f"{color.title()} Bell Pepper"
+    return base_name
+
+
 # Every base_name rename_sprout() can possibly produce -- i.e. exactly the
 # set of foods that belong in the "Sprouts" category, derived from the two
 # hand-verified dicts above rather than pattern-matched on the word
@@ -2649,7 +2673,13 @@ OXALATE_LEVEL_BASE_NAMES = {
     "Squash, summer": "Low",
     "Squash, winter": "Low",
     "Squash, zucchini": "Low",
-    "Sweet Pepper": "Low",
+    # Split into three color-specific base_names 2026-08-02 (see
+    # rename_sweet_pepper_by_color's own comment) -- oxalate content doesn't
+    # meaningfully differ by bell pepper color per OHF's own data, so all
+    # three keep the same "Low" tier the old generic "Sweet Pepper" had.
+    "Red Bell Pepper": "Low",
+    "Green Bell Pepper": "Low",
+    "Yellow Bell Pepper": "Low",
     "Radish": "Low",
     "Turnip": "Low",
     "Turnip greens": "Low",
@@ -3338,6 +3368,7 @@ def build(xlsx_path, db_path):
                 # input unchanged for anything not confidently matched, so
                 # this is safe to run unconditionally on every row.
                 base_name = reorder_base_name(base_name, source=source)["output"]
+                base_name = rename_sweet_pepper_by_color(base_name, name)
                 effective_category = reclassify_category(category_code, base_name)
                 # A tiny, hand-verified set of foods whose base_name
                 # collides with a different product entirely (see the

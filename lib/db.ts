@@ -332,9 +332,9 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
   // Bridges a genuine vocabulary gap the substring match above can't --
   // someone typing the everyday name they know a food by ("bell pepper",
   // "heavy cream") when the database only has a differently-worded name
-  // for the identical food ("Sweet Pepper", "Heavy Whipping Cream"). See
-  // scripts/food_alias_data.py for how each alias was verified real rather
-  // than guessed. A fresh buildScopeClause() call here (not the mutated
+  // for the identical food ("Red/Green/Yellow Bell Pepper", "Heavy Whipping
+  // Cream"). See scripts/food_alias_data.py for how each alias was verified
+  // real rather than guessed. A fresh buildScopeClause() call here (not the mutated
   // `params` above) keeps this query's params independent of the ORDER BY/
   // LIMIT params already appended to the first query.
   const collapsedQuery = trimmed.replace(/\s+/g, '');

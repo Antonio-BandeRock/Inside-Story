@@ -177,6 +177,22 @@ export function FoodLookup({
   const [baseName, setBaseName] = useState('');
   const [prepMethods, setPrepMethods] = useState<string[]>([]);
   const [prepMethod, setPrepMethod] = useState<string | null>(null);
+  // True from the moment a new baseName is picked until its own prep-method
+  // list (and Raw default, see below) has actually loaded -- 2026-08-02,
+  // fixes a real race: the resolve effect further down used to fall back to
+  // "prepMethods.length > 0" (left over from the PREVIOUS food) to decide
+  // whether it was safe to resolve yet. When the previous food had no prep
+  // choices to disambiguate, that stale zero-length let the resolve effect
+  // fire immediately for the new food too, with prepMethod still null --
+  // resolveFoodChoice then had no "Raw" to match, fell back to whichever row
+  // has no prep_method at all, and for foods like Sweet Pepper that's a
+  // canned variant (lowest food_id among the untagged rows), not the raw
+  // vegetable. In showNutrients=false mode (SideBuilder etc.) that wrong
+  // first resolution fires onFoodResolved and the caller swaps this
+  // component away immediately, so the later correct Raw re-resolve never
+  // gets a chance to run. Gating on this flag instead of list length makes
+  // the resolve effect wait for the CURRENT baseName's own real answer.
+  const [prepMethodsLoading, setPrepMethodsLoading] = useState(false);
   const [nutrients, setNutrients] = useState<FoodNutrient[] | null>(null);
   // A real, cited typical-serving weight for this exact resolved food (see
   // getFoodUnitWeight's own comment) -- null for the (currently large)
@@ -347,9 +363,11 @@ export function FoodLookup({
   useEffect(() => {
     if (!baseName) {
       setPrepMethods([]);
+      setPrepMethodsLoading(false);
       return;
     }
     let cancelled = false;
+    setPrepMethodsLoading(true);
     getPreparationMethods(category, subcategory, baseName).then((methods) => {
       if (cancelled) return;
       setPrepMethods(methods);
@@ -367,6 +385,7 @@ export function FoodLookup({
       // Dried/etc, e.g. Insights' own Food Lookup lens comparing prep
       // states on purpose.
       setPrepMethod(methods.includes('Raw') ? 'Raw' : null);
+      setPrepMethodsLoading(false);
     });
     return () => {
       cancelled = true;
@@ -374,7 +393,7 @@ export function FoodLookup({
   }, [category, subcategory, baseName]);
 
   useEffect(() => {
-    if (!baseName || (prepMethods.length > 0 && !prepMethod)) {
+    if (!baseName || prepMethodsLoading || (prepMethods.length > 0 && !prepMethod)) {
       setNutrients(null);
       setUnitWeight(null);
       return;
@@ -428,7 +447,7 @@ export function FoodLookup({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [category, subcategory, baseName, prepMethod, prepMethods.length, showNutrients]);
+  }, [category, subcategory, baseName, prepMethod, prepMethods.length, prepMethodsLoading, showNutrients]);
 
   function selectCategory(next: string) {
     setCategory(next);
