@@ -1398,7 +1398,7 @@ export function SmoothieBuilder({
                   Units, Cut Prep, Cook Prep, in that order, each its own
                   vertical pill spinner sized by renderLabeledPicker (see
                   its comment for the two width rules). This replaced a
-                  smoothie-by-smoothie Quantity+Units row plus a wrapping
+                  side-by-side Quantity+Units row plus a wrapping
                   cooking-method chip grid.
 
                   "Cook Prep" is the same required cooking-method list as

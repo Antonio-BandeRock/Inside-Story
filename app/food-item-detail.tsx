@@ -8,6 +8,14 @@ import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
+  getBakedGoods,
+  getBakedGoodsIngredients,
+  getBakedGoodsNutrientBreakdown,
+  getBakedGoodsSixDimensionsBreakdown,
+  getBeverage,
+  getBeverageIngredients,
+  getBeverageNutrientBreakdown,
+  getBeverageSixDimensionsBreakdown,
   getFermentation,
   getFermentationIngredients,
   getFermentationNutrientBreakdown,
@@ -24,6 +32,10 @@ import {
   getSmoothieIngredients,
   getSmoothieNutrientBreakdown,
   getSmoothieSixDimensionsBreakdown,
+  getSnack,
+  getSnackIngredients,
+  getSnackNutrientBreakdown,
+  getSnackSixDimensionsBreakdown,
   type DailyNutrientBreakdown,
   type DailySixDimensionsBreakdown,
   type SideDetail,
@@ -233,13 +245,17 @@ export default function FoodItemDetailScreen() {
   );
 }
 
-// "side" naming kept even though this also now loads a salad or smoothie --
-// SideDetail/SideIngredientDetail and SaladDetail/SaladIngredientDetail/
-// SmoothieDetail/SmoothieIngredientDetail/FermentationDetail/
-// FermentationIngredientDetail are all structurally identical shapes (see
-// lib/db.ts's own Salad/Smoothie/Fermentation CRUD, each a deliberate
-// mirror of Side's), so a loaded salad, smoothie, or fermentation is
-// assignable straight into these same types with no separate union needed.
+// "side" naming kept even though this also now loads a salad, smoothie,
+// fermentation, beverage, snack, or baked good -- SideDetail/
+// SideIngredientDetail and SaladDetail/SaladIngredientDetail/SmoothieDetail/
+// SmoothieIngredientDetail/FermentationDetail/FermentationIngredientDetail/
+// BeverageDetail/BeverageIngredientDetail/SnackDetail/
+// SnackIngredientDetail/BakedGoodsDetail/BakedGoodsIngredientDetail are all
+// structurally identical shapes (see lib/db.ts's own Salad/Smoothie/
+// Fermentation/Beverage/Snack/BakedGoods CRUD, each a deliberate mirror of
+// Side's), so a loaded salad, smoothie, fermentation, beverage, snack, or
+// baked good is assignable straight into these same types with no separate
+// union needed.
 
 // PrepView's own mealNoun prop, factored out once here rather than another
 // nested ternary in the JSX above -- grows by one more itemType per builder,
@@ -248,6 +264,9 @@ function mealNounFor(itemType: string | undefined): string {
   if (itemType === 'salad') return 'salad';
   if (itemType === 'smoothie') return 'smoothie';
   if (itemType === 'fermentation') return 'fermentation';
+  if (itemType === 'beverage') return 'beverage';
+  if (itemType === 'snack') return 'snack';
+  if (itemType === 'bakedGoods') return 'baked good';
   return 'side';
 }
 
@@ -291,6 +310,39 @@ async function loadSide(
       getFermentationIngredients(id),
       getFermentationNutrientBreakdown(id),
       getFermentationSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'beverage') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getBeverage(id),
+      getBeverageIngredients(id),
+      getBeverageNutrientBreakdown(id),
+      getBeverageSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'snack') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getSnack(id),
+      getSnackIngredients(id),
+      getSnackNutrientBreakdown(id),
+      getSnackSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'bakedGoods') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getBakedGoods(id),
+      getBakedGoodsIngredients(id),
+      getBakedGoodsNutrientBreakdown(id),
+      getBakedGoodsSixDimensionsBreakdown(id),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };

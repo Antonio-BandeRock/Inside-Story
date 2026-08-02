@@ -7,15 +7,21 @@ import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
+  deleteBakedGoods,
+  deleteBeverage,
   deleteFermentation,
   deleteSalad,
   deleteSide,
   deleteSmoothie,
+  deleteSnack,
+  listBakedGoods,
+  listBeverages,
   listFavorites,
   listFermentations,
   listSalads,
   listSides,
   listSmoothies,
+  listSnacks,
 } from '../lib/db';
 import { useInfoAlert } from '../components/InfoAlert';
 
@@ -117,7 +123,13 @@ export default function FoodItemsScreen() {
                   // anything for food-item-detail.tsx to actually show.
                   if (
                     status === 'saved' &&
-                    (itemType === 'side' || itemType === 'salad' || itemType === 'smoothie' || itemType === 'fermentation')
+                    (itemType === 'side' ||
+                      itemType === 'salad' ||
+                      itemType === 'smoothie' ||
+                      itemType === 'fermentation' ||
+                      itemType === 'beverage' ||
+                      itemType === 'snack' ||
+                      itemType === 'bakedGoods')
                   ) {
                     router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
                     return;
@@ -152,17 +164,19 @@ export default function FoodItemsScreen() {
                 <TouchableOpacity
                   style={styles.itemActionButton}
                   onPress={() => {
-                    // Side/Salad/Smoothie/Fermentation each push into
-                    // app/(tabs)/food.tsx's own builder pre-loaded via
-                    // editSideId/editSaladId/editSmoothieId/
-                    // editFermentationId (see that file and
+                    // Side/Salad/Smoothie/Fermentation/Beverage/Snack/
+                    // BakedGoods each push into app/(tabs)/food.tsx's own
+                    // builder pre-loaded via editSideId/editSaladId/
+                    // editSmoothieId/editFermentationId/editBeverageId/
+                    // editSnackId/editBakedGoodsId (see that file and
                     // SideBuilder.tsx/SaladBuilder.tsx/SmoothieBuilder.tsx/
-                    // FermentationBuilder.tsx's own props). Written inline
-                    // (not returned from a helper) so each route's own
-                    // literal pathname/params stay visible to Expo Router's
-                    // typed-routes checking -- a helper returning a plain
-                    // `string` pathname would widen it past what
-                    // router.push's typed Href accepts.
+                    // FermentationBuilder.tsx/BeverageBuilder.tsx/
+                    // SnackBuilder.tsx/BakedGoodsBuilder.tsx's own props).
+                    // Written inline (not returned from a helper) so each
+                    // route's own literal pathname/params stay visible to
+                    // Expo Router's typed-routes checking -- a helper
+                    // returning a plain `string` pathname would widen it
+                    // past what router.push's typed Href accepts.
                     if (itemType === 'side') {
                       router.push({ pathname: '/food', params: { editSideId: item.id } });
                     } else if (itemType === 'salad') {
@@ -171,6 +185,12 @@ export default function FoodItemsScreen() {
                       router.push({ pathname: '/food', params: { editSmoothieId: item.id } });
                     } else if (itemType === 'fermentation') {
                       router.push({ pathname: '/food', params: { editFermentationId: item.id } });
+                    } else if (itemType === 'beverage') {
+                      router.push({ pathname: '/food', params: { editBeverageId: item.id } });
+                    } else if (itemType === 'snack') {
+                      router.push({ pathname: '/food', params: { editSnackId: item.id } });
+                    } else if (itemType === 'bakedGoods') {
+                      router.push({ pathname: '/food', params: { editBakedGoodsId: item.id } });
                     }
                   }}
                   accessibilityLabel={`Edit ${item.title}`}
@@ -215,7 +235,8 @@ export default function FoodItemsScreen() {
 // Fetches whichever builder's own data this category actually needs --
 // the one place this screen knows about specific builders/tables at all.
 // Grows by one case as each builder gets a real save path; Side, Salad,
-// Smoothie, and Fermentation are the first four.
+// Smoothie, Fermentation, Beverage, Snack, and Baked Goods are the first
+// seven.
 async function loadItems(itemType: string | undefined, status: string | undefined): Promise<FoodItemEntry[]> {
   if (itemType === 'side') {
     if (status === 'favorite') {
@@ -271,20 +292,73 @@ async function loadItems(itemType: string | undefined, status: string | undefine
         fermentation.ingredientNames || `${fermentation.ingredientCount} ingredient${fermentation.ingredientCount === 1 ? '' : 's'}`,
     }));
   }
+  if (itemType === 'beverage') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'beverage');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const beverages = await listBeverages();
+    return beverages.map((beverage) => ({
+      id: beverage.id,
+      title: beverage.name,
+      subtitle: beverage.ingredientNames || `${beverage.ingredientCount} ingredient${beverage.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
+  if (itemType === 'snack') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'snack');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const snacks = await listSnacks();
+    return snacks.map((snack) => ({
+      id: snack.id,
+      title: snack.name,
+      subtitle: snack.ingredientNames || `${snack.ingredientCount} ingredient${snack.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
+  if (itemType === 'bakedGoods') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'bakedGoods');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const bakedGoods = await listBakedGoods();
+    return bakedGoods.map((bakedGood) => ({
+      id: bakedGood.id,
+      title: bakedGood.name,
+      subtitle: bakedGood.ingredientNames || `${bakedGood.ingredientCount} ingredient${bakedGood.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
   return [];
 }
 
 // Whether this itemType supports Edit/Delete at all -- kept as two
 // separate checks (rather than one) since an itemType could in principle
 // support one without the other, even though today they're the same set
-// (Side, Salad, Smoothie, and Fermentation). Grows by one case per builder
-// as each gets a real save path, same as loadItems above.
+// (Side, Salad, Smoothie, Fermentation, Beverage, Snack, and Baked Goods).
+// Grows by one case per builder as each gets a real save path, same as
+// loadItems above.
 function supportsEdit(itemType: string | undefined): boolean {
-  return itemType === 'side' || itemType === 'salad' || itemType === 'smoothie' || itemType === 'fermentation';
+  return (
+    itemType === 'side' ||
+    itemType === 'salad' ||
+    itemType === 'smoothie' ||
+    itemType === 'fermentation' ||
+    itemType === 'beverage' ||
+    itemType === 'snack' ||
+    itemType === 'bakedGoods'
+  );
 }
 
 function supportsDelete(itemType: string | undefined): boolean {
-  return itemType === 'side' || itemType === 'salad' || itemType === 'smoothie' || itemType === 'fermentation';
+  return (
+    itemType === 'side' ||
+    itemType === 'salad' ||
+    itemType === 'smoothie' ||
+    itemType === 'fermentation' ||
+    itemType === 'beverage' ||
+    itemType === 'snack' ||
+    itemType === 'bakedGoods'
+  );
 }
 
 async function deleteItem(itemType: string | undefined, id: string): Promise<void> {
@@ -296,6 +370,12 @@ async function deleteItem(itemType: string | undefined, id: string): Promise<voi
     await deleteSmoothie(id);
   } else if (itemType === 'fermentation') {
     await deleteFermentation(id);
+  } else if (itemType === 'beverage') {
+    await deleteBeverage(id);
+  } else if (itemType === 'snack') {
+    await deleteSnack(id);
+  } else if (itemType === 'bakedGoods') {
+    await deleteBakedGoods(id);
   }
 }
 

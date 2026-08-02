@@ -10,13 +10,13 @@ import { typography } from '../constants/typography';
 import {
   getFoodIdentity,
   getFoodScores,
-  getFermentation,
-  getFermentationIngredients,
+  getBeverage,
+  getBeverageIngredients,
   getStoredMeasurementSystem,
-  saveFermentation,
-  updateFermentation,
+  saveBeverage,
+  updateBeverage,
   type FoodScore,
-  type FermentationIngredientInput,
+  type BeverageIngredientInput,
 } from '../lib/db';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
@@ -57,8 +57,8 @@ function unitsForSystem(system: MeasurementSystem): string[] {
 // article/conjunction/preposition) -- included anyway since it was named
 // directly, alongside the others it's "words like" this list generalizes
 // from. Always capitalized as the FIRST word of the name regardless (see
-// titleCaseFermentationName below), matching standard title-case convention.
-const FERMENTATION_NAME_MINOR_WORDS = new Set([
+// titleCaseBeverageName below), matching standard title-case convention.
+const BEVERAGE_NAME_MINOR_WORDS = new Set([
   'a', 'an', 'and', 'as', 'at', 'but', 'by', 'for', 'from', 'if', 'in', 'into',
   'it', 'nor', 'of', 'on', 'onto', 'or', 'over', 'per', 'so', 'the', 'to',
   'up', 'via', 'vs', 'with', 'yet',
@@ -74,14 +74,14 @@ const FERMENTATION_NAME_MINOR_WORDS = new Set([
 // e.g. "BBQ" typed via the keyboard's Shift key) is left exactly as typed
 // rather than forced down to "Bbq" -- title-casing an acronym would be
 // actively wrong, not just a style choice.
-function titleCaseFermentationName(text: string): string {
+function titleCaseBeverageName(text: string): string {
   let isFirstWord = true;
   return text.replace(/[A-Za-z']+/g, (word) => {
     const first = isFirstWord;
     isFirstWord = false;
     if (word.length > 1 && word === word.toUpperCase()) return word;
     const lower = word.toLowerCase();
-    if (!first && FERMENTATION_NAME_MINOR_WORDS.has(lower)) return lower;
+    if (!first && BEVERAGE_NAME_MINOR_WORDS.has(lower)) return lower;
     return lower.charAt(0).toUpperCase() + lower.slice(1);
   });
 }
@@ -98,13 +98,13 @@ function titleCaseFermentationName(text: string): string {
 const AMOUNT_PICKER_VALUES = ['1/8', '1/4', '1/3', '1/2', '2/3', '3/4', '1', '2', '3', '4', '5', '6', '7', '8', '9', '10'];
 const SERVINGS_PICKER_VALUES = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12'];
 
-// Reverses parseAmountValue for a saved fermentation being reopened for editing --
+// Reverses parseAmountValue for a saved beverage being reopened for editing --
 // the database only stores the resolved decimal (e.g. 0.5), not which pill
 // ("1/2") produced it. Matches back to the closest real pill string within
 // this list so the picker shows a real, previously-tappable value rather
 // than a decimal that was never one of its own options; falls back to a
 // plain trimmed decimal only for an amount that never came from this list
-// in the first place (shouldn't happen for anything FermentationBuilder itself
+// in the first place (shouldn't happen for anything BeverageBuilder itself
 // saved, but a defensive fallback rather than a silent wrong value).
 function formatAmountForPicker(value: number, options: string[]): string {
   let closest: string | null = null;
@@ -120,14 +120,14 @@ function formatAmountForPicker(value: number, options: string[]): string {
   return String(value);
 }
 
-// Asked per INGREDIENT, not once for the whole fermentation, 2026-07-29 -- a real
-// fermentation routinely combines ingredients that were each prepared
+// Asked per INGREDIENT, not once for the whole beverage, 2026-07-29 -- a real
+// beverage routinely combines ingredients that were each prepared
 // completely differently (garlic added raw as a topping after the rest of
-// the fermentation is cooked; bacon pan-fried into bits in its own separate step
+// the beverage is cooked; bacon pan-fried into bits in its own separate step
 // before joining sautéed beans), and cooking method genuinely changes
 // nutrition (raw vs. cooked retains different nutrients), so a single
-// fermentation-wide answer was actively wrong for any fermentation like that, not just
-// imprecise. Required, not optional the way Fermentation Name is, for the same
+// beverage-wide answer was actively wrong for any beverage like that, not just
+// imprecise. Required, not optional the way Beverage Name is, for the same
 // nutrition reason.
 //
 // 'Pan-Fried' and 'Deep-Fried' are kept as two separate options, not one
@@ -153,15 +153,8 @@ function formatAmountForPicker(value: number, options: string[]): string {
 // meaningful cook-prep state to dial in. Leads the list, so it's the first
 // real answer offered -- same reasoning as "Raw" leading the rest: a
 // deliberate real answer, not an absent one.
-// 'Fermented' added 2026-08-02 for this builder specifically -- the base
-// list above is inherited from Side Builder verbatim, but a fermentation's
-// own defining prep step (the thing that actually made it a fermentation,
-// not just a raw or cooked ingredient) had no option to select at all
-// without this. Placed right after 'Raw', not at the end -- reads as one
-// more real, deliberate answer alongside the others, not an afterthought
-// tacked on.
 const COOKING_METHODS = [
-  'N/A', 'Raw', 'Fermented', 'Sautéed', 'Pan-Fried', 'Deep-Fried', 'Steamed', 'Boiled', 'Baked', 'Roasted', 'Grilled', 'Stir-fried',
+  'N/A', 'Raw', 'Sautéed', 'Pan-Fried', 'Deep-Fried', 'Steamed', 'Boiled', 'Baked', 'Roasted', 'Grilled', 'Stir-fried',
 ];
 
 // How the ingredient is physically cut/broken down BEFORE any cooking --
@@ -197,26 +190,24 @@ const CUT_PREP_METHODS = [
   'Grated', 'Shredded', 'Julienned', 'Crushed', 'Smashed', 'Muddled', 'Mashed', 'Pureed', 'Torn',
 ];
 
-// Checked after cooking method is confirmed, 2026-07-28 -- forgetting to
-// log cooking oil/fat or seasoning is one of the most common silent-error
-// sources in food tracking (it's easy to remember the vegetables and
-// forget the tablespoon of olive oil they were cooked in). category values
-// match the real reference database (assets/data/foods_reference.db) --
-// confirmed both 'Fats' (olive oil, butter, other cooking fats) and
-// 'Herbs' (herbs, spices, vinegars, seasoning mixes) exist there and hold
-// what this label implies, rather than assuming.
-const EXTRAS_TO_CHECK: { category: string; label: string }[] = [
-  { category: 'Fats', label: 'cooking oil or fat' },
-  { category: 'Herbs', label: 'seasoning' },
-];
+// Empty for this builder, 2026-08-02 -- inherited from Side Builder as
+// { category: 'Fats', label: 'cooking oil or fat' } / { category: 'Herbs',
+// label: 'seasoning' }, a real nudge for a cooked dish but not a real
+// concern for a beverage (nobody expects to be reminded about "cooking oil"
+// on a glass of water or a cup of tea). missingExtras below is always empty
+// as a result, so the nudge branch in the render below never shows and
+// finishing goes straight from adding ingredients to the ready screen --
+// simplest correct way to drop a check that doesn't apply, rather than
+// special-casing the render logic around an always-empty list.
+const EXTRAS_TO_CHECK: { category: string; label: string }[] = [];
 
-type FermentationIngredient = {
+type BeverageIngredient = {
   resolved: ResolvedFoodSelection;
   quantity: string;
   unit: string;
-  // How THIS ingredient will be prepared for THIS fermentation -- see
+  // How THIS ingredient will be prepared for THIS beverage -- see
   // COOKING_METHODS' own comment for why this moved from a single
-  // fermentation-wide question to a per-ingredient one. cookingMethod is required
+  // beverage-wide question to a per-ingredient one. cookingMethod is required
   // (same nutrition reasoning as before); prepNote is optional free text
   // for cut/technique detail (e.g. "chopped into 1-inch pieces," "peeled,
   // smashed, chopped, added on top after cooking") -- deliberately not a
@@ -312,7 +303,7 @@ function useReorderedLabeledFields(fields: LabeledPickerField[]): LabeledPickerF
     : [...selectedInCompletionOrder, ...notYetSelected];
 }
 
-// The Fermentation/Ingredients summary card's own fixed footprint (see its own
+// The Beverage/Ingredients summary card's own fixed footprint (see its own
 // render function below) -- estimated the same way every other fixed size
 // in this app's own FoodLookup.tsx is (SUMMARY_ROW_HEIGHT/TITLE_HEIGHT
 // there), not measured. Needs to be a real, known number for two reasons:
@@ -360,7 +351,7 @@ const SUMMARY_DIVIDER_WIDTH = 1;
 // device, not just on whichever width it happened to be eyeballed against.
 const SUMMARY_DIVIDER_SHIFT = 30;
 
-// Builds a single fermentation from one or more ingredients -- Category ->
+// Builds a single beverage from one or more ingredients -- Category ->
 // Type (if needed) -> Food -> Prep (if needed) -> Quantity/Unit per
 // ingredient, reusing FoodLookup for the selection step but with its own
 // nutrient table turned off (showNutrients={false}): that information is
@@ -368,12 +359,12 @@ const SUMMARY_DIVIDER_SHIFT = 30;
 // screen's job to duplicate. Servings/Serving Size are asked for once, up
 // front, before any ingredient picking starts.
 //
-// The in-progress fermentation (fermentationName/servings/ingredients/etc.) is local
-// component state only, same as before -- a fermentation isn't a real, saved
-// record until Save & Finish Fermentation actually commits it (see finishFermentation/
-// saveFermentation in lib/db.ts, 2026-08-01). Navigating away from a fermentation mid-
+// The in-progress beverage (beverageName/servings/ingredients/etc.) is local
+// component state only, same as before -- a beverage isn't a real, saved
+// record until Save & Finish Beverage actually commits it (see finishBeverage/
+// saveBeverage in lib/db.ts, 2026-08-01). Navigating away from a beverage mid-
 // build still loses it; that's still a known, accepted gap, just a
-// narrower one now that finishing a fermentation for real is possible.
+// narrower one now that finishing a beverage for real is possible.
 //
 // 2026-07-28: every AppTextInput here previews a new app-wide input-box
 // treatment (background = constants/colors.ts's own `inputBackground`,
@@ -385,61 +376,56 @@ const SUMMARY_DIVIDER_SHIFT = 30;
 // other AppTextInput call site.
 //
 // 2026-07-28, a second pass: this screen's own in-page title bar
-// ("Fermentation Builder") was removed -- PageIdentityLabel's own bottom-
+// ("Beverage Builder") was removed -- PageIdentityLabel's own bottom-
 // corner box already names whichever builder is open, so repeating it
 // here was pure duplication eating screen space for nothing. In its
-// place, once Fermentation Name/Servings/Size is confirmed, that form splits into
-// a compact two-column summary card (fermentation info on the left, a scrollable
+// place, once Beverage Name/Servings/Size is confirmed, that form splits into
+// a compact two-column summary card (beverage info on the left, a scrollable
 // ingredient list on the right) that then connects directly (flush, square
 // corners at the seam) to FoodLookup's own Category/Food picker below it
 // -- the picker shows automatically the instant there's no ingredient
 // currently pending confirmation, rather than needing an explicit "+ Add
 // Ingredient" tap first the way this used to work.
+
 // Created 2026-08-02 by directly adapting SideBuilder.tsx (the Food tab's
 // first fully-built builder and the proven, on-device-tested pattern every
-// builder is meant to follow -- see CLAUDE.md's Food tab section), the same
-// base Side Builder itself used, rather than Salad/Smoothie -- neither of
-// those two builders' own raw-goitrogenic-load warning applies here (that
-// concern is specifically about eating a large RAW quantity of cruciferous
-// vegetables at once; it isn't what this builder's own placeholder copy in
-// app/(tabs)/food.tsx describes). The comments below that carry earlier
-// 2026-07-xx dates describe reasoning SideBuilder itself arrived at through
-// real iteration -- inherited here as still-accurate design reasoning, not
-// a claim that FermentationBuilder went through that same history itself.
+// builder is meant to follow -- see CLAUDE.md's Food tab section), same base
+// Fermentation Builder used -- neither Salad's nor Smoothie's own
+// raw-goitrogenic-load warning applies to a beverage. The comments below
+// that carry earlier 2026-07-xx dates describe reasoning SideBuilder itself
+// arrived at through real iteration -- inherited here as still-accurate
+// design reasoning, not a claim that BeverageBuilder went through that same
+// history itself.
 //
-// Deliberately scoped to the SAME ingredient/ferment-name/servings shape as
-// Side Builder, nothing more, per CLAUDE.md's own explicit note: real
-// bacterial-strain tracking (Lactobacillus acidophilus, L. plantarum,
-// Bifidobacterium species, Streptococcus thermophilus, Leuconostoc
-// mesenteroides, etc., each with cited, documented effects) is a separate,
-// dedicated research workstream that hasn't started -- there's no reference
-// data layer for it yet to build a real UI against. The one concrete,
-// buildable difference from Side Builder: 'Fermented' added to this file's
-// own COOKING_METHODS list (see that constant's own comment) so the prep
-// step that actually defines a fermented food has a real answer to select,
-// which the inherited list didn't have at all.
-export function FermentationBuilder({
+// One real, deliberate difference from every builder before it: Side/Salad/
+// Smoothie/Fermentation all inherited a "no cooking oil/fat or seasoning
+// logged yet" soft nudge (EXTRAS_TO_CHECK) from Side Builder's own original
+// design -- a real concern for a cooked dish, not for a beverage. Emptied
+// out here rather than left as a nonsensical nudge on every glass of water
+// (see EXTRAS_TO_CHECK's own comment for the full reasoning and how it was
+// removed without touching the render logic around it).
+export function BeverageBuilder({
   tabColor,
-  // Set when reached via the Edit button on an already-saved fermentation (see
-  // app/food-items.tsx) -- 2026-08-01. Loads that fermentation's real data into
+  // Set when reached via the Edit button on an already-saved beverage (see
+  // app/food-items.tsx) -- 2026-08-01. Loads that beverage's real data into
   // this same builder rather than a separate edit screen, so add/remove-
   // ingredient/Cut Prep/Cook Prep all reuse the exact same, already-tested
-  // machinery a fresh fermentation already uses. finishFermentation below branches on this
-  // to call updateFermentation (in place) instead of saveFermentation (a new row), and to
+  // machinery a fresh beverage already uses. finishBeverage below branches on this
+  // to call updateBeverage (in place) instead of saveBeverage (a new row), and to
   // navigate back to the list afterward instead of resetting to blank --
-  // "I fixed this fermentation" should return you to where you came from, not
+  // "I fixed this beverage" should return you to where you came from, not
   // drop you into building a different one.
-  editFermentationId,
+  editBeverageId,
 }: {
   tabColor: string;
-  editFermentationId?: string;
+  editBeverageId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const activeField = useActiveField();
   // The summary card's own two columns' real available width -- screen
   // width minus the screen's own edge padding, the card's own border/
-  // padding, and the divider plus its own two fermentation gaps -- split evenly,
+  // padding, and the divider plus its own two beverage gaps -- split evenly,
   // then shifted SUMMARY_DIVIDER_SHIFT px toward the left column so the
   // right (ingredients) column ends up that much wider. See
   // SUMMARY_DIVIDER_SHIFT's own comment for why.
@@ -458,7 +444,7 @@ export function FermentationBuilder({
   // keyboard gets from KeyboardAvoidingView. Without this, the ScrollView's
   // own max scroll extent stops short of accounting for the space
   // AppKeyboard covers, so content near the bottom (e.g. the Quantity
-  // field itself, or Change Food/Add to Fermentation below it) could end up stuck
+  // field itself, or Change Food/Add to Beverage below it) could end up stuck
   // behind the keyboard with no way to scroll it into view. Same
   // `activeField ? KEYBOARD_HEIGHT : 0` pattern FoodLookup.tsx/Dropdown.tsx
   // already use for their own keyboard-aware sizing.
@@ -481,13 +467,13 @@ export function FermentationBuilder({
   // Required to Continue, 2026-07-28 (reversed the same day from an
   // earlier "optional" decision, explicitly requested) -- see
   // handleContinuePress's own comment for the full validation order. Still
-  // falls back to a plain "Fermentation" in the summary/ingredient views
-  // (fermentationName.trim() || 'Fermentation') as a harmless extra safety net, even
+  // falls back to a plain "Beverage" in the summary/ingredient views
+  // (beverageName.trim() || 'Beverage') as a harmless extra safety net, even
   // though Continue itself should never actually let a blank one through
   // now.
-  const [fermentationName, setFermentationName] = useState('');
+  const [beverageName, setBeverageName] = useState('');
   // A stable function identity, 2026-07-30 -- a fresh inline arrow function
-  // here (`(text) => setFermentationName(titleCaseFermentationName(text))`, passed directly
+  // here (`(text) => setBeverageName(titleCaseBeverageName(text))`, passed directly
   // as onChangeText) gets recreated on every render, and AppTextInput's own
   // useEffect (the one that calls focusField for AppKeyboard) depends on
   // onChangeText by reference -- a changing dependency on every render
@@ -495,16 +481,16 @@ export function FermentationBuilder({
   // (focusField), causing another render, in an infinite loop ("Maximum
   // update depth exceeded", reported 2026-07-30). useCallback with an empty
   // dependency array keeps this one function reference stable across
-  // renders (titleCaseFermentationName is a plain module-level function, setFermentationName
+  // renders (titleCaseBeverageName is a plain module-level function, setBeverageName
   // is already a stable state setter), breaking the loop.
-  const handleFermentationNameChange = useCallback((text: string) => {
-    setFermentationName(titleCaseFermentationName(text));
+  const handleBeverageNameChange = useCallback((text: string) => {
+    setBeverageName(titleCaseBeverageName(text));
   }, []);
   // No defaults, 2026-07-28 -- these started at a pre-selected "1" pill
   // originally, but that meant nothing actually required the person to
   // touch either field at all, and tapping the ALREADY-selected "1" pill
   // again does nothing (no visible change to confirm a real choice was
-  // made). Explicitly corrected: every field in this whole form -- Fermentation
+  // made). Explicitly corrected: every field in this whole form -- Beverage
   // Name aside, which is genuinely optional -- now starts unchosen, and
   // Continue below stays disabled until all three (Servings/Size/Units)
   // are actually picked.
@@ -512,31 +498,31 @@ export function FermentationBuilder({
   const [servingSizeAmount, setServingSizeAmount] = useState<string | null>(null);
   const [servingSizeUnit, setServingSizeUnit] = useState<string | null>(null);
   // Drives the Continue button's own color (see its own JSX comment
-  // below) -- true only once Fermentation Name and all three pickers are actually
+  // below) -- true only once Beverage Name and all three pickers are actually
   // filled in/chosen.
-  const fermentationFormReady = !!fermentationName.trim() && !!servings && !!servingSizeAmount && !!servingSizeUnit;
+  const beverageFormReady = !!beverageName.trim() && !!servings && !!servingSizeAmount && !!servingSizeUnit;
   // Servings/Serving Size collapse to the summary card once confirmed --
   // asked for "at the beginning," not something that needs to stay an
   // open form the whole time after.
   const [servingsConfirmed, setServingsConfirmed] = useState(false);
 
-  const [ingredients, setIngredients] = useState<FermentationIngredient[]>([]);
+  const [ingredients, setIngredients] = useState<BeverageIngredient[]>([]);
   const [pendingResolved, setPendingResolved] = useState<ResolvedFoodSelection | null>(null);
   // The pending food's own 6-Dimension scores, fetched as soon as it
   // resolves so the color-coded warning boxes appear BEFORE the person
   // commits to adding it -- explicitly requested 2026-07-31 ("there should
   // really be an indicator for the food prior to them even adding it").
-  // Carried onto the FermentationIngredient at add time rather than re-fetched
+  // Carried onto the BeverageIngredient at add time rather than re-fetched
   // per row (see that type's own `scores` comment).
   const [pendingScores, setPendingScores] = useState<FoodScore[]>([]);
   // No defaults -- same reasoning as servings/servingSizeAmount/
-  // servingSizeUnit above. "Add to Fermentation" below stays disabled until
+  // servingSizeUnit above. "Add to Beverage" below stays disabled until
   // quantity, unit, AND ingredientCookingMethod are all chosen.
   const [quantity, setQuantity] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>(null);
   // Per-ingredient cooking method/prep note, 2026-07-29 -- see
-  // FermentationIngredient's own comment for why this replaced a single
-  // fermentation-wide question. Reset after each "Add to Fermentation," same as
+  // BeverageIngredient's own comment for why this replaced a single
+  // beverage-wide question. Reset after each "Add to Beverage," same as
   // quantity/unit above, ready for the next ingredient.
   const [ingredientCookingMethod, setIngredientCookingMethod] = useState<string | null>(null);
   const [ingredientCutPrep, setIngredientCutPrep] = useState<string | null>(null);
@@ -552,8 +538,8 @@ export function FermentationBuilder({
   // 2026-07-28 -- seeds the connected picker's own initialCategory/
   // initialSubcategory below (see FoodLookup's own comment on those props)
   // so "Change Food" on an already-picked ingredient, and starting the
-  // NEXT ingredient after "Add to Fermentation," both land back on that same
-  // category instead of a blank Category list -- a fermentation very often
+  // NEXT ingredient after "Add to Beverage," both land back on that same
+  // category instead of a blank Category list -- a beverage very often
   // has several ingredients from the same category (several vegetables,
   // say), and re-picking "Vegetables" every single time was real,
   // needless friction. Blank until the first food ever resolves, so the
@@ -561,8 +547,8 @@ export function FermentationBuilder({
   const [lastCategory, setLastCategory] = useState('');
   const [lastSubcategory, setLastSubcategory] = useState<string | null>(null);
 
-  // Loads an existing fermentation's real data in place of the blank-builder
-  // defaults above, 2026-08-01 -- runs once per editFermentationId. fermentation_ingredients
+  // Loads an existing beverage's real data in place of the blank-builder
+  // defaults above, 2026-08-01 -- runs once per editBeverageId. beverage_ingredients
   // only stores foodId/source, quantity/unit, cutPrep/cookingMethod/
   // prepNote, and the descriptive foodName (not base_name/prep_method), so
   // each ingredient's ResolvedFoodSelection is reconstructed from the
@@ -571,15 +557,15 @@ export function FermentationBuilder({
   // re-fetched live (getFoodScores) rather than cached anywhere, same as a
   // freshly-added ingredient's own pendingScores.
   useEffect(() => {
-    if (!editFermentationId) return;
+    if (!editBeverageId) return;
     let isCurrent = true;
 
     (async () => {
-      const fermentation = await getFermentation(editFermentationId);
-      if (!fermentation || !isCurrent) return;
+      const beverage = await getBeverage(editBeverageId);
+      if (!beverage || !isCurrent) return;
 
-      const details = await getFermentationIngredients(editFermentationId);
-      const loaded: FermentationIngredient[] = [];
+      const details = await getBeverageIngredients(editBeverageId);
+      const loaded: BeverageIngredient[] = [];
       for (const detail of details) {
         if (!detail.foodId) continue;
         const [foodIdStr, source] = detail.foodId.split('|');
@@ -606,10 +592,10 @@ export function FermentationBuilder({
       }
 
       if (!isCurrent) return;
-      setFermentationName(fermentation.name);
-      setServings(formatAmountForPicker(fermentation.servings, SERVINGS_PICKER_VALUES));
-      setServingSizeAmount(formatAmountForPicker(fermentation.servingSizeAmount, AMOUNT_PICKER_VALUES));
-      setServingSizeUnit(fermentation.servingSizeUnit);
+      setBeverageName(beverage.name);
+      setServings(formatAmountForPicker(beverage.servings, SERVINGS_PICKER_VALUES));
+      setServingSizeAmount(formatAmountForPicker(beverage.servingSizeAmount, AMOUNT_PICKER_VALUES));
+      setServingSizeUnit(beverage.servingSizeUnit);
       setServingsConfirmed(true);
       setIngredients(loaded);
     })();
@@ -617,7 +603,7 @@ export function FermentationBuilder({
     return () => {
       isCurrent = false;
     };
-  }, [editFermentationId]);
+  }, [editBeverageId]);
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);
@@ -625,14 +611,14 @@ export function FermentationBuilder({
     setLastSubcategory(resolved.subcategory);
   }
   // Scrolled to the bottom the instant a food resolves (see the effect
-  // below) -- that Quantity/Add-to-Fermentation card's own Quantity field
+  // below) -- that Quantity/Add-to-Beverage card's own Quantity field
   // autoFocuses immediately, raising AppKeyboard (a real, opaque overlay
   // roughly 240px tall, see constants/appKeyboard.ts's own KEYBOARD_HEIGHT)
-  // the same instant. Without scrolling, "Add to Fermentation" -- the very last
+  // the same instant. Without scrolling, "Add to Beverage" -- the very last
   // thing in this card -- could sit behind that overlay with no way to
   // reach it except an ordinary content scroll the person has no reason to
   // know they need to do first. Reported 2026-07-28 as "tapping Add to
-  // Fermentation does nothing," which is exactly what a covered button looks like.
+  // Beverage does nothing," which is exactly what a covered button looks like.
   const scrollViewRef = useRef<ScrollView>(null);
   useEffect(() => {
     if (pendingResolved) {
@@ -666,23 +652,24 @@ export function FermentationBuilder({
   // live below from the current ingredient list (not stored), so adding a
   // missing item via the picker immediately clears its own nudge without a
   // separate transition. Cooking method is no longer a separate step here
-  // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Fermentation"
-  // time (see FermentationIngredient's own comment).
+  // at all, 2026-07-29 -- it's asked per ingredient now, at "Add to Beverage"
+  // time (see BeverageIngredient's own comment).
   const [finishStep, setFinishStep] = useState<'building' | 'reviewing'>('building');
-  // Edit mode only (see editFermentationId's own comment) -- whether the person has
+  // Edit mode only (see editBeverageId's own comment) -- whether the person has
   // actively tapped "+ Add Ingredient" on the overview screen below.
   // Create mode never reads this: its own connected picker still shows
   // automatically the instant nothing's pending, same as always (see the
   // branch ordering just above the overview screen's own render function).
-  // Starts false so opening an existing fermentation for editing always lands on
+  // Starts false so opening an existing beverage for editing always lands on
   // the ingredient overview first, not a "pick a Category" prompt --
-  // explicitly requested, since re-opening a fermentation is almost always to
+  // explicitly requested, since re-opening a beverage is almost always to
   // review/fix what's already there, not to add something new right away.
   const [addingIngredient, setAddingIngredient] = useState(false);
-  // Explicit "I looked, I meant it" override -- without this, adding the
-  // missing item is the ONLY way out of 'reviewing' once something's
-  // flagged, which is wrong for genuinely oil-free/seasoning-free fermentations
-  // (plain steamed vegetables, etc.).
+  // Explicit "I looked, I meant it" override -- kept even though
+  // EXTRAS_TO_CHECK is empty for this builder (see that constant's own
+  // comment) and the nudge branch below can never actually trigger; removing
+  // this state/branch entirely would mean re-adding it by hand if a real,
+  // beverage-appropriate nudge is ever identified later.
   const [nudgeDismissed, setNudgeDismissed] = useState(false);
   const missingExtras = EXTRAS_TO_CHECK.filter(
     (extra) => !ingredients.some((ingredient) => ingredient.resolved.category === extra.category),
@@ -703,7 +690,7 @@ export function FermentationBuilder({
     };
   }, []);
 
-  // 2026-07-28 -- whichever AppTextInput was last focused (Fermentation Name,
+  // 2026-07-28 -- whichever AppTextInput was last focused (Beverage Name,
   // Servings, Size, Quantity) stays "active" (and AppKeyboard visible, on
   // top of everything) until something explicitly blurs it: tapping a
   // plain button never does that on its own, it's not itself a text
@@ -723,26 +710,26 @@ export function FermentationBuilder({
   // the button below for why this deliberately isn't a real `disabled`
   // TouchableOpacity) -- if something's still missing, this tells the
   // person exactly which one to fill in next, in the same top-to-bottom
-  // order they appear on screen (Fermentation Name, then Servings, then Serving
+  // order they appear on screen (Beverage Name, then Servings, then Serving
   // Size, then Units), so only ever one message shows at a time, for
   // whichever is the FIRST thing still missing -- explicitly requested
-  // 2026-07-28, including the exact wording for Fermentation Name/Servings; the
+  // 2026-07-28, including the exact wording for Beverage Name/Servings; the
   // other two follow the same "Please choose/enter..." phrasing.
   function handleContinuePress() {
-    if (!fermentationName.trim()) {
-      showInfoAlert('Almost there', 'Please enter a name for this fermentation.');
+    if (!beverageName.trim()) {
+      showInfoAlert('Almost there', 'Please enter a name for this beverage.');
       return;
     }
     if (!servings) {
-      showInfoAlert('Almost there', 'Please choose the # of Servings this fermentation will contain.');
+      showInfoAlert('Almost there', 'Please choose the # of Servings this beverage will contain.');
       return;
     }
     if (!servingSizeAmount) {
-      showInfoAlert('Almost there', 'Please choose the Serving Size for this fermentation.');
+      showInfoAlert('Almost there', 'Please choose the Serving Size for this beverage.');
       return;
     }
     if (!servingSizeUnit) {
-      showInfoAlert('Almost there', 'Please choose the Units for this fermentation.');
+      showInfoAlert('Almost there', 'Please choose the Units for this beverage.');
       return;
     }
     dismissKeyboard();
@@ -767,28 +754,28 @@ export function FermentationBuilder({
     setIngredientPrepNote('');
   }
 
-  // Persists the finished fermentation (see saveFermentation/the fermentations/fermentation_ingredients
+  // Persists the finished beverage (see saveBeverage/the beverages/beverage_ingredients
   // tables' own comments in lib/db.ts for why this is its own real,
   // standalone record -- not a favorite, not yet a logged meal) and only
-  // THEN resets the builder back to a blank fermentation, so a save failure never
+  // THEN resets the builder back to a blank beverage, so a save failure never
   // silently loses what was just built -- the person sees a real error and
-  // keeps their in-progress fermentation to retry with, rather than it vanishing
+  // keeps their in-progress beverage to retry with, rather than it vanishing
   // either way.
   //
   // Takes the final ingredient list as a parameter rather than reading the
   // `ingredients` state variable, 2026-08-01: setIngredients (in
   // saveIngredient below) is an async state update, so `ingredients`
   // itself hasn't picked up the just-added one yet at the point 'finish'
-  // needs to save the whole fermentation -- the caller builds the true final list
+  // needs to save the whole beverage -- the caller builds the true final list
   // once and passes it to both setIngredients and here.
-  async function finishFermentation(finalIngredients: FermentationIngredient[]) {
+  async function finishBeverage(finalIngredients: BeverageIngredient[]) {
     // servingsConfirmed can only become true via handleContinuePress, which
     // already required all three of these -- this is a type-narrowing
     // guard against a state that shouldn't be reachable, not a real
     // validation path a person should ever actually hit.
     if (!servings || !servingSizeAmount || !servingSizeUnit) return;
 
-    const ingredientInputs: FermentationIngredientInput[] = finalIngredients.map((ingredient) => ({
+    const ingredientInputs: BeverageIngredientInput[] = finalIngredients.map((ingredient) => ({
       foodId: ingredient.resolved.foodId,
       source: ingredient.resolved.source,
       foodName: foodSummary(ingredient.resolved),
@@ -799,7 +786,7 @@ export function FermentationBuilder({
       cookingMethod: ingredient.cookingMethod,
       prepNote: ingredient.prepNote,
     }));
-    const finishedName = fermentationName.trim() || 'Fermentation';
+    const finishedName = beverageName.trim() || 'Beverage';
     const payload = {
       name: finishedName,
       servings: parseAmountValue(servings),
@@ -809,55 +796,55 @@ export function FermentationBuilder({
     };
 
     try {
-      if (editFermentationId) {
-        await updateFermentation(editFermentationId, payload);
+      if (editBeverageId) {
+        await updateBeverage(editBeverageId, payload);
       } else {
-        await saveFermentation(payload);
+        await saveBeverage(payload);
       }
     } catch (error) {
-      console.error('[FermentationBuilder] Failed to save fermentation', error);
-      showInfoAlert('Save failed', 'Something went wrong saving this fermentation. Your ingredients are still here -- please try again.');
+      console.error('[BeverageBuilder] Failed to save beverage', error);
+      showInfoAlert('Save failed', 'Something went wrong saving this beverage. Your ingredients are still here -- please try again.');
       return;
     }
 
-    // Editing an already-saved fermentation returns to wherever it was opened from
+    // Editing an already-saved beverage returns to wherever it was opened from
     // (see app/food-items.tsx's Edit button, which pushed this screen) --
-    // "I fixed this fermentation" should go back to the list, not drop the person
+    // "I fixed this beverage" should go back to the list, not drop the person
     // into building a brand new one. No confirmation modal here, matching
     // this app's own existing edit-save convention elsewhere (Schedule's
     // own appointment edit just closes and reloads on success, alerting
     // only on failure) -- the list itself, showing the updated
     // name/ingredient count, is the confirmation.
-    if (editFermentationId) {
+    if (editBeverageId) {
       router.back();
       return;
     }
 
-    // Back to a blank fermentation. From here the Lens Button starts a
+    // Back to a blank beverage. From here the Lens Button starts a
     // different builder and the Butterfly Button leaves the tab, so no
     // extra "what now?" step is needed.
     setIngredients([]);
-    setFermentationName('');
+    setBeverageName('');
     setServings(null);
     setServingSizeAmount(null);
     setServingSizeUnit(null);
     setServingsConfirmed(false);
     setFinishStep('building');
     setNudgeDismissed(false);
-    showInfoAlert('Fermentation saved', `${finishedName} is saved. Starting a fresh fermentation now.`);
+    showInfoAlert('Beverage saved', `${finishedName} is saved. Starting a fresh beverage now.`);
   }
 
   // Commits the pending ingredient, then either loops back for another one
-  // or ends the fermentation entirely -- 2026-07-31, the two Save buttons.
+  // or ends the beverage entirely -- 2026-07-31, the two Save buttons.
   //
   //   'add-new' -> back to picking a Food Category, then a food, and round
   //                again, indefinitely, until the person chooses 'finish'.
-  //   'finish'  -> saves the whole fermentation (see finishFermentation above) and resets
-  //                the builder to a blank new fermentation.
+  //   'finish'  -> saves the whole beverage (see finishBeverage above) and resets
+  //                the builder to a blank new beverage.
   function saveIngredient(then: 'add-new' | 'finish') {
     if (!pendingResolved || !quantity || !unit || !ingredientCutPrep || !ingredientCookingMethod) {
       // Names only what's actually still missing, in the order the fields
-      // appear on screen -- same approach as the fermentation form's own Continue.
+      // appear on screen -- same approach as the beverage form's own Continue.
       const missing = [
         !quantity && 'Quantity',
         !unit && 'Units',
@@ -868,7 +855,7 @@ export function FermentationBuilder({
       return;
     }
     dismissKeyboard();
-    const newIngredient: FermentationIngredient = {
+    const newIngredient: BeverageIngredient = {
       resolved: pendingResolved,
       quantity,
       unit,
@@ -881,7 +868,7 @@ export function FermentationBuilder({
     setIngredients(allIngredients);
     resetIngredientFields();
 
-    if (editFermentationId) {
+    if (editBeverageId) {
       // Edit mode always returns to the ingredient overview after adding
       // one ingredient -- 2026-08-01, explicitly requested -- rather than
       // either of create mode's two behaviors below (immediately
@@ -895,7 +882,7 @@ export function FermentationBuilder({
     }
 
     if (then === 'finish') {
-      void finishFermentation(allIngredients);
+      void finishBeverage(allIngredients);
     }
   }
 
@@ -905,7 +892,7 @@ export function FermentationBuilder({
 
   // Confirms before actually removing, 2026-08-01 -- explicitly requested
   // after a real mis-tap deleted the wrong ingredient from an already-saved
-  // fermentation (the small X row-remove buttons, packed close together in this
+  // beverage (the small X row-remove buttons, packed close together in this
   // card's own narrow column, made it easy to catch the neighboring row by
   // mistake -- see summaryIngredientRow/summaryRemoveButton's own comments
   // for the size fix that goes with this). Same Cancel/destructive Alert
@@ -930,7 +917,7 @@ export function FermentationBuilder({
   // selectable fields go through renderLabeledPicker/PopoverSelect now, so
   // the app has exactly one field-selection implementation, not several.
 
-  // The Fermentation/Ingredients summary card -- fermentation name/servings/size on the
+  // The Beverage/Ingredients summary card -- beverage name/servings/size on the
   // left (tap to reopen editing, same as the old collapsed summary row),
   // a scrollable ingredient list on the right. Shared between the
   // connected-picker branch below (squareBottom: true, so its own bottom
@@ -994,8 +981,8 @@ export function FermentationBuilder({
             setServingsConfirmed(false);
           }}
         >
-          <Text style={[styles.summaryFermentationName, { color: tabColor }]} numberOfLines={2}>
-            {fermentationName.trim() || 'Fermentation'}
+          <Text style={[styles.summaryBeverageName, { color: tabColor }]} numberOfLines={2}>
+            {beverageName.trim() || 'Beverage'}
           </Text>
           <Text style={styles.summaryDetailText} numberOfLines={1}>
             Serves {servings || '?'}
@@ -1059,10 +1046,10 @@ export function FermentationBuilder({
                 setFinishStep('reviewing') would have dropped an edit-mode
                 person into a dead-end. Shown even with zero ingredients
                 added yet in edit mode (unlike create mode's own
-                ingredients.length > 0 gate) -- a fermentation being edited already
+                ingredients.length > 0 gate) -- a beverage being edited already
                 has ingredients by definition, so "back out without
                 picking a new one" should always be available here. */}
-            {editFermentationId ? (
+            {editBeverageId ? (
               <TouchableOpacity
                 onPress={() => {
                   dismissKeyboard();
@@ -1089,13 +1076,13 @@ export function FermentationBuilder({
 
   // Called unconditionally, here, rather than inline where each row
   // actually renders below -- both rows sit inside conditional branches
-  // (the fermentation-name row only shows while !servingsConfirmed; the ingredient
+  // (the beverage-name row only shows while !servingsConfirmed; the ingredient
   // row only once pendingResolved is set), and useReorderedLabeledFields is
   // a real hook (it holds its own useRef), so calling it from inside either
   // branch would violate the rule that every hook fires on every render.
   // Computing both up front costs nothing when a given row isn't currently
   // showing -- the unused array is just discarded.
-  const fermentationFormFields = useReorderedLabeledFields([
+  const beverageFormFields = useReorderedLabeledFields([
     { label: '# of Servings', options: SERVINGS_PICKER_VALUES, selected: servings, onSelect: setServings },
     { label: 'Serving Size', options: AMOUNT_PICKER_VALUES, selected: servingSizeAmount, onSelect: setServingSizeAmount },
     { label: 'Units', options: unitOptions, selected: servingSizeUnit, onSelect: setServingSizeUnit },
@@ -1108,9 +1095,9 @@ export function FermentationBuilder({
   ]);
 
   // Edit mode's own ingredient overview -- 2026-08-01, explicitly
-  // requested: reopening an already-saved fermentation to fix something shouldn't
+  // requested: reopening an already-saved beverage to fix something shouldn't
   // assume the next thing wanted is picking a whole new Category. Landing
-  // here by default (addingIngredient starts false) shows the fermentation info
+  // here by default (addingIngredient starts false) shows the beverage info
   // and every current ingredient, each with a real trash-can button (not
   // the small ✕ the connected picker's own summary card below still uses
   // mid-add -- see that button's own comment for why THAT one stays small,
@@ -1119,8 +1106,8 @@ export function FermentationBuilder({
   // connected picker below now, for edit mode specifically -- create mode
   // is completely untouched, still showing that picker automatically
   // (see the very next branch, whose own condition this one intercepts
-  // ahead of only when editFermentationId is set).
-  if (editFermentationId && servingsConfirmed && !pendingResolved && !addingIngredient) {
+  // ahead of only when editBeverageId is set).
+  if (editBeverageId && servingsConfirmed && !pendingResolved && !addingIngredient) {
     return (
       <>
         {infoAlertElement}
@@ -1132,8 +1119,8 @@ export function FermentationBuilder({
               setServingsConfirmed(false);
             }}
           >
-            <Text style={[styles.overviewFermentationName, { color: tabColor }]} numberOfLines={2}>
-              {fermentationName.trim() || 'Fermentation'}
+            <Text style={[styles.overviewBeverageName, { color: tabColor }]} numberOfLines={2}>
+              {beverageName.trim() || 'Beverage'}
             </Text>
             <Text style={styles.summaryDetailText}>Serves {servings || '?'}</Text>
             <Text style={styles.summaryDetailText}>
@@ -1177,7 +1164,7 @@ export function FermentationBuilder({
             </TouchableOpacity>
           </View>
 
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={() => void finishFermentation(ingredients)}>
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={() => void finishBeverage(ingredients)}>
             <Text style={styles.primaryButtonText}>Save Changes</Text>
           </TouchableOpacity>
         </ScrollView>
@@ -1190,7 +1177,7 @@ export function FermentationBuilder({
   // own comment further down for why), so this whole branch, including
   // the summary card above it, renders outside of one. Shows
   // automatically the instant there's nothing pending (right after
-  // Continue, and again right after each "Add to Fermentation") -- no separate
+  // Continue, and again right after each "Add to Beverage") -- no separate
   // "+ Add Ingredient" tap needed anymore.
   if (servingsConfirmed && finishStep === 'building' && !pendingResolved) {
     // Collapses the summary card while the food-search keyboard is up,
@@ -1246,15 +1233,15 @@ export function FermentationBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
-          {/* Fermentation Name, 2026-07-28 -- its own full-width field above
+          {/* Beverage Name, 2026-07-28 -- its own full-width field above
               Servings/Size, since it's not part of either's own row/
-              column pairing and applies to the fermentation as a whole. */}
-          <Text style={[styles.formLabel, { color: tabColor }]}>Fermentation Name</Text>
+              column pairing and applies to the beverage as a whole. */}
+          <Text style={[styles.formLabel, { color: tabColor }]}>Beverage Name</Text>
           <AppTextInput
             style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
-            value={fermentationName}
-            onChangeText={handleFermentationNameChange}
-            placeholder="e.g., Homemade Sauerkraut"
+            value={beverageName}
+            onChangeText={handleBeverageNameChange}
+            placeholder="e.g., Iced Green Tea"
             // The first thing this screen asks for -- focused and ready to
             // type into the instant it opens (AppKeyboard rises
             // automatically the same way it would from a real tap, see
@@ -1278,7 +1265,7 @@ export function FermentationBuilder({
               size themselves to their own content the way the ingredient
               fields already do. */}
           <View style={styles.labeledPickerRow}>
-            {fermentationFormFields.map((field) => (
+            {beverageFormFields.map((field) => (
               <Animated.View key={field.label} layout={LinearTransition}>
                 {renderLabeledPicker(field.label, field.options, field.selected, field.onSelect)}
               </Animated.View>
@@ -1301,11 +1288,11 @@ export function FermentationBuilder({
             style={[
               styles.primaryButton,
               styles.continueButtonSpacing,
-              fermentationFormReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted,
+              beverageFormReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted,
             ]}
             onPress={handleContinuePress}
           >
-            <Text style={[styles.primaryButtonText, !fermentationFormReady && styles.primaryButtonTextMuted]}>Continue</Text>
+            <Text style={[styles.primaryButtonText, !beverageFormReady && styles.primaryButtonTextMuted]}>Continue</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -1337,8 +1324,8 @@ export function FermentationBuilder({
                   (which is what made this regress before -- base_name
                   casing varies by national source, so some foods arrived
                   lowercase and there was nothing in this component to
-                  correct them). titleCaseFermentationName is the same helper the
-                  Fermentation Name field uses, so the two can't drift apart. */}
+                  correct them). titleCaseBeverageName is the same helper the
+                  Beverage Name field uses, so the two can't drift apart. */}
               <View style={styles.pendingFoodRow}>
                 {/* foodSummary()'s preparation-state qualifier is folded into
                     this one line, 2026-07-31 -- the separate sub-line that
@@ -1348,7 +1335,7 @@ export function FermentationBuilder({
                     database row was matched. Appending it here keeps that
                     information without a second line. */}
                 <Text style={styles.pendingHeader} numberOfLines={2}>
-                  Preparation Steps for {titleCaseFermentationName(foodSummary(pendingResolved))}
+                  Preparation Steps for {titleCaseBeverageName(foodSummary(pendingResolved))}
                 </Text>
                 {/* The pre-add indicator -- flags show HERE, while the
                     person is still deciding, not only after the food has
@@ -1369,7 +1356,7 @@ export function FermentationBuilder({
                   CUT_PREP_METHODS for why it's a structured field rather
                   than free text). Both are required for the same reason
                   quantity/unit are: each measurably changes the food's
-                  own nutrition, so a fermentation built without them can't be
+                  own nutrition, so a beverage built without them can't be
                   scored honestly. */}
               <View style={styles.labeledPickerRow}>
                 {ingredientFields.map((field) => (
@@ -1417,21 +1404,21 @@ export function FermentationBuilder({
 
               {/* Edit mode: one "Save Ingredient" button -- 'add-new' vs.
                   'finish' no longer mean different things here (see
-                  saveIngredient's own editFermentationId branch: both just commit
+                  saveIngredient's own editBeverageId branch: both just commit
                   this ingredient and return to the overview screen), so
                   showing a two-button split that used to mean "add
-                  another" vs. "finish the whole fermentation" would just be
+                  another" vs. "finish the whole beverage" would just be
                   confusing now that finishing/persisting happens from the
                   overview instead. Create mode keeps the original Save &
-                  Add New (left) / Save & Finish Fermentation (right) pair,
-                  2026-07-31 -- replaces the old Change Food + Add to Fermentation
+                  Add New (left) / Save & Finish Beverage (right) pair,
+                  2026-07-31 -- replaces the old Change Food + Add to Beverage
                   pair, unchanged. Both stay muted (not `disabled`) until
                   every required field is chosen, the same pattern as the
-                  fermentation form's own Continue button -- a truly disabled
+                  beverage form's own Continue button -- a truly disabled
                   button can't explain what's missing, so these always fire
                   and the handler decides. */}
               <View style={styles.buttonRow}>
-                {editFermentationId ? (
+                {editBeverageId ? (
                   <TouchableOpacity
                     style={[styles.splitButton, ingredientReady ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
                     onPress={() => saveIngredient('add-new')}
@@ -1455,7 +1442,7 @@ export function FermentationBuilder({
                       onPress={() => saveIngredient('finish')}
                     >
                       <Text style={[styles.primaryButtonText, !ingredientReady && styles.primaryButtonTextMuted]}>
-                        Save &amp; Finish Fermentation
+                        Save &amp; Finish Beverage
                       </Text>
                     </TouchableOpacity>
                   </>
@@ -1463,16 +1450,16 @@ export function FermentationBuilder({
               </View>
             </View>
           ) : missingExtras.length > 0 && !nudgeDismissed ? (
-            // Soft nudge, 2026-07-28 -- never blocks finishing (see
-            // nudgeDismissed's own comment above): plenty of real fermentations
-            // genuinely have no oil or seasoning. Recomputed live
-            // from `ingredients` every render, so adding the missing
-            // item via the connected picker (back in 'building') clears
-            // its own mention here automatically, no separate
-            // acknowledgement needed.
+            // Dead branch for this builder specifically -- missingExtras can
+            // never be non-empty since EXTRAS_TO_CHECK is empty here (see
+            // that constant's own comment). Kept, not deleted, so this stays
+            // a faithful structural mirror of Side/Salad/Smoothie/
+            // Fermentation Builder; a future real beverage-appropriate nudge
+            // (dilution ratio? sweetener logged?) would slot in here with no
+            // other changes needed.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={styles.emptyText}>
-                No {missingExtras.map((extra) => extra.label).join(' or ')} logged for this fermentation yet.
+                No {missingExtras.map((extra) => extra.label).join(' or ')} logged for this beverage yet.
               </Text>
               <View style={styles.buttonRow}>
                 <TouchableOpacity
@@ -1501,21 +1488,21 @@ export function FermentationBuilder({
             // dismissed -- previously a dead end (a "ready" message with no
             // way to actually finish from here; the only working Save &
             // Finish button lived on the pending-ingredient card above,
-            // which doesn't exist in this branch). finishFermentation is called
+            // which doesn't exist in this branch). finishBeverage is called
             // directly here, not via saveIngredient('finish') -- that
             // function's whole job is committing a NEW pending ingredient
             // first, and there isn't one to commit at this point; every
             // ingredient is already in `ingredients`.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={styles.emptyText}>
-                {(fermentationName.trim() || 'Fermentation')} ready -- {ingredients.length} ingredient
+                {(beverageName.trim() || 'Beverage')} ready -- {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: tabColor }]}
-                onPress={() => void finishFermentation(ingredients)}
+                onPress={() => void finishBeverage(ingredients)}
               >
-                <Text style={styles.primaryButtonText}>{editFermentationId ? 'Save Changes' : 'Save & Finish Fermentation'}</Text>
+                <Text style={styles.primaryButtonText}>{editBeverageId ? 'Save Changes' : 'Save & Finish Beverage'}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -1623,7 +1610,7 @@ const styles = StyleSheet.create({
   // textAlign matters now that renderLabeledPicker stretches every pill to
   // the widest one's width -- without it, short options ("1/8", "Diced")
   // would sit left-aligned in a wide pill instead of centered in it.
-  // Extra room above the Fermentation Name form's own Continue button, 2026-07-28
+  // Extra room above the Beverage Name form's own Continue button, 2026-07-28
   // -- explicitly requested, so a scroll gesture that doesn't quite land
   // on one of the pill pickers just above it can't accidentally end on
   // top of this button instead.
@@ -1661,7 +1648,7 @@ const styles = StyleSheet.create({
   // so the buttons act on the whole card rather than looking like they
   // belong to the note field.
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
-  // Two columns (fermentation info, scrollable ingredients) divided by a thin
+  // Two columns (beverage info, scrollable ingredients) divided by a thin
   // line -- see renderSummaryCard's own comment. A fixed `height`
   // (SUMMARY_CARD_HEIGHT), not content-sized: both so the left/right
   // columns always look proportionate to each other regardless of how
@@ -1691,7 +1678,7 @@ const styles = StyleSheet.create({
   // squeezed narrower than that computed width either.
   //
   // justifyContent: 'flex-start' (was 'center') + alignItems: 'center',
-  // 2026-07-28, explicitly requested -- fermentation name pinned to the top of
+  // 2026-07-28, explicitly requested -- beverage name pinned to the top of
   // this column, Serves/serving-size lines stacked below it, everything
   // horizontally centered rather than left-aligned.
   summaryLeftColumn: {
@@ -1719,12 +1706,12 @@ const styles = StyleSheet.create({
   // the ingredient list it's meant to make room for.
   //
   // textAlign: 'center' -- pairs with numberOfLines={2} at the render
-  // site (was 1), explicitly requested so a longer fermentation name wraps to a
+  // site (was 1), explicitly requested so a longer beverage name wraps to a
   // second row instead of truncating with "…"; without this, a wrapped
   // two-line name would have each line left-aligned relative to the
   // other despite summaryLeftColumn's own alignItems: 'center' centering
   // the wrapped block as a whole.
-  summaryFermentationName: {
+  summaryBeverageName: {
     ...typography.captionEmphasis,
     textAlign: 'center',
   },
@@ -1734,12 +1721,12 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   // Edit mode's own overview screen, 2026-08-01 -- full-width equivalents
-  // of summaryFermentationName/summaryIngredientRow/summaryRemoveButton above,
+  // of summaryBeverageName/summaryIngredientRow/summaryRemoveButton above,
   // deliberately not reusing those directly: this screen has a whole
   // formCard's own width to work with (not summaryLeftColumnWidth's own
   // narrow half), so nothing here needs to be centered or squeezed the
   // way the connected-picker's own summary card still is.
-  overviewFermentationName: {
+  overviewBeverageName: {
     ...typography.bodyEmphasis,
     fontSize: 17,
   },

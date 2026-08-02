@@ -7,16 +7,28 @@ import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
+import { BakedGoodsBuilder } from '../../components/BakedGoodsBuilder';
+import { BeverageBuilder } from '../../components/BeverageBuilder';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SaladBuilder } from '../../components/SaladBuilder';
 import { SideBuilder } from '../../components/SideBuilder';
 import { SmoothieBuilder } from '../../components/SmoothieBuilder';
+import { SnackBuilder } from '../../components/SnackBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
-import { listFavorites, listFermentations, listSalads, listSides, listSmoothies } from '../../lib/db';
+import {
+  listBakedGoods,
+  listBeverages,
+  listFavorites,
+  listFermentations,
+  listSalads,
+  listSides,
+  listSmoothies,
+  listSnacks,
+} from '../../lib/db';
 
 // This page's own identity color -- every box FoodLookup draws (list
 // borders, the results table, its own text) takes this as its `tabColor`
@@ -63,9 +75,12 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
     'In progress. Same builder flow as Side and Salad, plus the same real twist Salad has, reworded for blending: finishing a smoothie checks for two or more raw goitrogenic vegetables blended together (easy to eat far more of them at once than cooked and separate) and warns before saving. Saving as a reusable favorite isn\'t wired up yet, same as Side and Salad.',
   fermentationBuilder:
     "In progress. Same builder flow as Side (name, servings/serving size, then ingredients), plus a 'Fermented' Cook Prep option the other builders don't have, so the step that actually makes something a fermentation has a real answer to select. Real bacterial-strain tracking (specific cultures like Lactobacillus acidophilus, eventually with cited effects) is still its own separate, not-yet-started research workstream -- this covers logging the fermented food itself, not identifying what's living in it. Saving as a reusable favorite isn't wired up yet, same as Side/Salad/Smoothie.",
-  beverageBuilder: 'Not built yet. Replaces "Beverage" as a meal-type dropdown value -- water and other drinks, including anything dissolved or mixed in, as their own builder.',
-  snackBuilder: 'Not built yet. A lighter-weight builder for anything that is not really a full meal or a side on its own.',
-  bakedGoodsBuilder: 'Not built yet. Bread, muffins, and other home-baked items as their own builder -- distinct from Meal/Side since a baked good is usually made once and portioned out over several separate sittings.',
+  beverageBuilder:
+    "In progress. Same builder flow as Side, minus the \"no cooking oil/fat or seasoning\" nudge Side/Salad/Smoothie/Fermentation all have -- not a real concern for a drink, so it's left out here rather than shown for no reason. Water and other drinks, including anything dissolved or mixed in. Saving as a reusable favorite isn't wired up yet, same as the others.",
+  snackBuilder:
+    "In progress. Same builder flow as Side, including the \"no cooking oil/fat or seasoning\" nudge (kept here, unlike Beverage -- spiced nuts or oil-popped popcorn genuinely can involve either). For anything that isn't really a full meal or a side on its own. Saving as a reusable favorite isn't wired up yet, same as the others.",
+  bakedGoodsBuilder:
+    "In progress. Same builder flow as Side, including the \"no cooking oil/fat or seasoning\" nudge (kept here, same reasoning as Snack -- butter/oil and cinnamon/salt are both genuinely common). Bread, muffins, and other home-baked items -- distinct from Meal/Side since a baked good is usually made once and portioned out over several separate sittings (already what Servings/Serving Size capture). Saving as a reusable favorite isn't wired up yet, same as the others.",
   soupBuilder: 'Not built yet. Its own builder rather than a Meal Builder variant -- room for soup-specific handling (broth base, simmered-down ingredient concentration, etc.).',
   saucesBuilder:
     'Not built yet. Covers sauces, gravies, dressings, dips, and anything else in that family -- the tenth builder, added 2026-07-28 after review of the existing nine turned up this as a real gap none of them covered.',
@@ -192,7 +207,7 @@ const FOOD_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Status',
-    body: "Being built one at a time, in this order: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, Sauces, then Meal last (it assembles the other nine builders' own saved output, so it can't be built until they exist). Side, Salad, Smoothie, and Fermentation can all build and save a real dish for real; the other six are still plain placeholders. Saving as a reusable favorite isn't wired up yet for any of them. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
+    body: "Being built one at a time, in this order: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, Sauces, then Meal last (it assembles the other nine builders' own saved output, so it can't be built until they exist). Side, Salad, Smoothie, Fermentation, Beverage, Snack, and Baked Goods can all build and save a real dish for real; the other three are still plain placeholders. Saving as a reusable favorite isn't wired up yet for any of them. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
   },
 ];
 
@@ -212,33 +227,40 @@ function ComingSoonBuilder({ lens }: { lens: FoodLens }) {
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
   const router = useRouter();
-  // Set when reached via a saved side's/salad's/smoothie's/fermentation's
-  // own Edit button (see app/food-items.tsx), 2026-08-01 (editSaladId/
-  // editSmoothieId/editFermentationId added 2026-08-02, same reasoning) --
-  // pushed here as a route param rather than a prop, since food-items.tsx is
-  // a separate stack screen with no other way to hand SideBuilder/
-  // SaladBuilder/SmoothieBuilder/FermentationBuilder a specific record to
-  // load. Read once below to jump straight into the right builder already
-  // revealed, bypassing the normal "pick a lens from LensHub" step entirely
-  // -- editing isn't a fresh choice of what to build, it's returning to
-  // something specific.
-  const { editSideId, editSaladId, editSmoothieId, editFermentationId } = useLocalSearchParams<{
-    editSideId?: string;
-    editSaladId?: string;
-    editSmoothieId?: string;
-    editFermentationId?: string;
-  }>();
+  // Set when reached via a saved side's/salad's/smoothie's/fermentation's/
+  // beverage's/snack's/baked good's own Edit button (see
+  // app/food-items.tsx), 2026-08-01 (editSaladId/editSmoothieId/
+  // editFermentationId/editBeverageId/editSnackId/editBakedGoodsId added
+  // 2026-08-02, same reasoning) -- pushed here as a route param rather than
+  // a prop, since food-items.tsx is a separate stack screen with no other
+  // way to hand SideBuilder/SaladBuilder/SmoothieBuilder/
+  // FermentationBuilder/BeverageBuilder/SnackBuilder/BakedGoodsBuilder a
+  // specific record to load. Read once below to jump straight into the
+  // right builder already revealed, bypassing the normal "pick a lens from
+  // LensHub" step entirely -- editing isn't a fresh choice of what to
+  // build, it's returning to something specific.
+  const { editSideId, editSaladId, editSmoothieId, editFermentationId, editBeverageId, editSnackId, editBakedGoodsId } =
+    useLocalSearchParams<{
+      editSideId?: string;
+      editSaladId?: string;
+      editSmoothieId?: string;
+      editFermentationId?: string;
+      editBeverageId?: string;
+      editSnackId?: string;
+      editBakedGoodsId?: string;
+    }>();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   useFocusEffect(
     useCallback(() => {
-      // editSideId/editSaladId/editSmoothieId/editFermentationId override
-      // the normal "always land on the picker" reset below -- without this,
-      // arriving here to edit a record would still show the LensHub picker
-      // for a beat (or permanently, once revealed was reset false on
-      // focus) instead of the record itself.
+      // editSideId/editSaladId/editSmoothieId/editFermentationId/
+      // editBeverageId/editSnackId/editBakedGoodsId override the normal
+      // "always land on the picker" reset below -- without this, arriving
+      // here to edit a record would still show the LensHub picker for a
+      // beat (or permanently, once revealed was reset false on focus)
+      // instead of the record itself.
       if (editSideId) {
         setLens('sideBuilder');
         setRevealed(true);
@@ -259,9 +281,24 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      if (editBeverageId) {
+        setLens('beverageBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (editSnackId) {
+        setLens('snackBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (editBakedGoodsId) {
+        setLens('bakedGoodsBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, [editSideId, editSaladId, editSmoothieId, editFermentationId]),
+    }, [editSideId, editSaladId, editSmoothieId, editFermentationId, editBeverageId, editSnackId, editBakedGoodsId]),
   );
 
   // "My Foods" categories (see MyItemsHub below) -- refetched every time
@@ -273,13 +310,14 @@ export default function FoodScreen() {
   // screen never has to hold two copies of the same data in sync.
   //
   // This array is the one place that grows as more builders get a real
-  // save path -- Side, Salad, Smoothie, and Fermentation are the only four
-  // with anything to show yet (Favorites filtered to
-  // 'side'/'salad'/'smoothie'/'fermentation' specifically, since none of
-  // the four builders' own favoriting is wired up to actually write one yet
-  // -- see FOOD_LENS_COPY.fermentationBuilder above -- and this list has no
-  // use for meal favorites saved by the old, deleted meal builder). Adding
-  // each remaining builder's own "Saved X"/"Favorite X" later is two more
+  // save path -- Side, Salad, Smoothie, Fermentation, Beverage, Snack, and
+  // Baked Goods are the only seven with anything to show yet (Favorites
+  // filtered to 'side'/'salad'/'smoothie'/'fermentation'/'beverage'/
+  // 'snack'/'bakedGoods' specifically, since none of the seven builders'
+  // own favoriting is wired up to actually write one yet -- see
+  // FOOD_LENS_COPY.bakedGoodsBuilder above -- and this list has no use for
+  // meal favorites saved by the old, deleted meal builder). Adding each
+  // remaining builder's own "Saved X"/"Favorite X" later is two more
   // entries here per builder, not a restructure of MyItemsHub or
   // food-items.tsx.
   const [sideCount, setSideCount] = useState(0);
@@ -290,18 +328,44 @@ export default function FoodScreen() {
   const [smoothieFavoriteCount, setSmoothieFavoriteCount] = useState(0);
   const [fermentationCount, setFermentationCount] = useState(0);
   const [fermentationFavoriteCount, setFermentationFavoriteCount] = useState(0);
+  const [beverageCount, setBeverageCount] = useState(0);
+  const [beverageFavoriteCount, setBeverageFavoriteCount] = useState(0);
+  const [snackCount, setSnackCount] = useState(0);
+  const [snackFavoriteCount, setSnackFavoriteCount] = useState(0);
+  const [bakedGoodsCount, setBakedGoodsCount] = useState(0);
+  const [bakedGoodsFavoriteCount, setBakedGoodsFavoriteCount] = useState(0);
   async function loadMyFoodsCounts() {
-    const [sides, sideFavorites, salads, saladFavorites, smoothies, smoothieFavorites, fermentations, fermentationFavorites] =
-      await Promise.all([
-        listSides(),
-        listFavorites(50, 'side'),
-        listSalads(),
-        listFavorites(50, 'salad'),
-        listSmoothies(),
-        listFavorites(50, 'smoothie'),
-        listFermentations(),
-        listFavorites(50, 'fermentation'),
-      ]);
+    const [
+      sides,
+      sideFavorites,
+      salads,
+      saladFavorites,
+      smoothies,
+      smoothieFavorites,
+      fermentations,
+      fermentationFavorites,
+      beverages,
+      beverageFavorites,
+      snacks,
+      snackFavorites,
+      bakedGoods,
+      bakedGoodsFavorites,
+    ] = await Promise.all([
+      listSides(),
+      listFavorites(50, 'side'),
+      listSalads(),
+      listFavorites(50, 'salad'),
+      listSmoothies(),
+      listFavorites(50, 'smoothie'),
+      listFermentations(),
+      listFavorites(50, 'fermentation'),
+      listBeverages(),
+      listFavorites(50, 'beverage'),
+      listSnacks(),
+      listFavorites(50, 'snack'),
+      listBakedGoods(),
+      listFavorites(50, 'bakedGoods'),
+    ]);
     setSideCount(sides.length);
     setSideFavoriteCount(sideFavorites.length);
     setSaladCount(salads.length);
@@ -310,6 +374,12 @@ export default function FoodScreen() {
     setSmoothieFavoriteCount(smoothieFavorites.length);
     setFermentationCount(fermentations.length);
     setFermentationFavoriteCount(fermentationFavorites.length);
+    setBeverageCount(beverages.length);
+    setBeverageFavoriteCount(beverageFavorites.length);
+    setSnackCount(snacks.length);
+    setSnackFavoriteCount(snackFavorites.length);
+    setBakedGoodsCount(bakedGoods.length);
+    setBakedGoodsFavoriteCount(bakedGoodsFavorites.length);
   }
   const myFoodsCategories: MyItemsCategory[] = [
     {
@@ -369,6 +439,53 @@ export default function FoodScreen() {
           params: { itemType: 'fermentation', status: 'favorite', title: 'Favorite Fermentations' },
         }),
     },
+    {
+      id: 'beverage-saved',
+      label: 'Saved Beverages',
+      count: beverageCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'beverage', status: 'saved', title: 'Saved Beverages' } }),
+    },
+    {
+      id: 'beverage-favorite',
+      label: 'Favorite Beverages',
+      count: beverageFavoriteCount,
+      onPress: () =>
+        router.push({
+          pathname: '/food-items',
+          params: { itemType: 'beverage', status: 'favorite', title: 'Favorite Beverages' },
+        }),
+    },
+    {
+      id: 'snack-saved',
+      label: 'Saved Snacks',
+      count: snackCount,
+      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'snack', status: 'saved', title: 'Saved Snacks' } }),
+    },
+    {
+      id: 'snack-favorite',
+      label: 'Favorite Snacks',
+      count: snackFavoriteCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'snack', status: 'favorite', title: 'Favorite Snacks' } }),
+    },
+    {
+      id: 'baked-goods-saved',
+      label: 'Saved Baked Goods',
+      count: bakedGoodsCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'bakedGoods', status: 'saved', title: 'Saved Baked Goods' } }),
+    },
+    {
+      id: 'baked-goods-favorite',
+      label: 'Favorite Baked Goods',
+      count: bakedGoodsFavoriteCount,
+      onPress: () =>
+        router.push({
+          pathname: '/food-items',
+          params: { itemType: 'bakedGoods', status: 'favorite', title: 'Favorite Baked Goods' },
+        }),
+    },
   ];
 
   return (
@@ -405,6 +522,21 @@ export default function FoodScreen() {
             // (see that file's own top comment for why Side, not Salad/
             // Smoothie) -- same layout-ownership reasoning applies here too.
             <FermentationBuilder tabColor={TAB_COLOR} editFermentationId={editFermentationId} />
+          ) : lens === 'beverageBuilder' ? (
+            // BeverageBuilder is a direct adaptation of SideBuilder (see
+            // that file's own top comment for why Side, not Salad/Smoothie)
+            // -- same layout-ownership reasoning applies here too.
+            <BeverageBuilder tabColor={TAB_COLOR} editBeverageId={editBeverageId} />
+          ) : lens === 'snackBuilder' ? (
+            // SnackBuilder is a direct adaptation of SideBuilder (see that
+            // file's own top comment for why Side, not Salad/Smoothie) --
+            // same layout-ownership reasoning applies here too.
+            <SnackBuilder tabColor={TAB_COLOR} editSnackId={editSnackId} />
+          ) : lens === 'bakedGoodsBuilder' ? (
+            // BakedGoodsBuilder is a direct adaptation of SideBuilder (see
+            // that file's own top comment for why Side, not Salad/Smoothie)
+            // -- same layout-ownership reasoning applies here too.
+            <BakedGoodsBuilder tabColor={TAB_COLOR} editBakedGoodsId={editBakedGoodsId} />
           ) : (
             <ComingSoonBuilder lens={lens} />
           )}
