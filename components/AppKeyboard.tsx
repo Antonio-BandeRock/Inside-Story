@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { usePathname } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { AppState, Keyboard, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useActiveInputControls, useActiveInputValue } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -100,6 +100,45 @@ export function AppKeyboard() {
     // the ref-like closure captured at effect-run time, not a dependency.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pathname]);
+
+  // Android-specific, reported directly 2026-08-02 after a few real
+  // occurrences: the OS's own soft keyboard could appear over this
+  // component's own overlay after minimizing the app (with a field still
+  // focused) and reopening it. showSoftInputOnFocus={false}
+  // (AppTextInput.tsx, the one prop this whole feature rests on) only
+  // suppresses the OS keyboard at the moment JS-driven focus happens --
+  // it doesn't survive the native window itself losing and regaining focus,
+  // which is a separate path Android's own InputMethodManager can trigger
+  // on its own when a backgrounded app with an already-focused EditText
+  // comes back to the foreground, bypassing that prop entirely since no new
+  // JS focus() call is what's causing it to show.
+  //
+  // Dismissing unconditionally on every return to 'active' -- not gated on
+  // activeField being currently set -- is the safe, standard corrective:
+  // Keyboard.dismiss() only ever hides a keyboard that's actually showing (a
+  // harmless no-op otherwise, including on cold start's own first 'active'
+  // transition).
+  //
+  // Confirmed on-device, 2026-08-02: in practice this doesn't leave the
+  // field sitting focused with just the OS keyboard suppressed -- Android
+  // appears to already blur the field itself as a normal part of the window
+  // losing focus while backgrounded (independent of this fix), so by the
+  // time 'active' fires here, this app's own activeField state has usually
+  // already cleared and AppKeyboard has already hidden on its own; this
+  // effect's real job is mopping up the OS keyboard the system tries to
+  // show anyway for that now-blurred view a beat later. Net effect: both
+  // keyboards close and the field shows as deselected after resuming,
+  // requiring one more tap to resume typing -- a clean, fully-closed state
+  // rather than a stale field silently still focused, and the accepted
+  // trade-off here.
+  useEffect(() => {
+    const subscription = AppState.addEventListener('change', (nextState) => {
+      if (nextState === 'active') {
+        Keyboard.dismiss();
+      }
+    });
+    return () => subscription.remove();
+  }, []);
 
   // Slides within its own fixed-height clip window (see the render below),
   // not the full KEYBOARD_HEIGHT + footerBandHeight the outer box used to
