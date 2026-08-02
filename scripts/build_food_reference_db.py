@@ -95,6 +95,108 @@ CATEGORY_OVERRIDES = {
     ("Bev", "Coffee, instant, regular, powder"): "Brewing",
     ("Bev", "Coffee, instant, with sugar, cappucino flavour, powder"): "Brewing",
     ("Bev", "Coffee, instant, with sugar, French flavour, powder"): "Brewing",
+    # Four more found the same day, reported as "no green tea in Brewing":
+    # the original pass above only caught rows whose own naming said
+    # "instant"/"powder"/"granules" -- it missed Japan_MEXT's own separate
+    # naming convention, where a bare "tea" qualifier (not "infusion") means
+    # the dry LEAF itself, e.g. "Green tea, Sencha, infusion" (the brewed
+    # cup) vs. "Green tea, Sencha, tea" (the dry leaves you'd brew it from)
+    # -- confirmed decisively this time using the new `water` nutrient
+    # (2026-08-02, see NUTRIENT_DEFINITIONS) rather than eyeballing names
+    # alone: every "infusion" row measures 97-99% water; every "tea" row
+    # below measures under 7%. "Thé, feuille" (French_Ciqual; "Tea, leaf")
+    # was missed the first time for a different reason -- it was never
+    # filed under the Tea subcategory at all, sitting in Bev's own "Other"
+    # bucket, so the original by-hand review of just the Tea/Coffee
+    # subcategories never saw it. Sencha and Gyokuro are both real green
+    # teas -- the two rows below are exactly the "green tea" reported
+    # missing.
+    ("Bev", "Fermented tea, black tea, tea"): "Brewing",
+    ("Bev", 'Green tea, "Gyokuro" (high grade tea made from shade-grown leaves), tea'): "Brewing",
+    ("Bev", 'Green tea, "Sencha" (common grade tea), tea'): "Brewing",
+    ("Bev", "Thé, feuille"): "Brewing",
+    # A full re-audit of the ENTIRE database, 2026-08-02, requested after
+    # "no green tea" turned up two more real gaps: real coverage was thin
+    # (confirmed -- see this file's own CLAUDE.md entry on the actual final
+    # count) and cocoa/cacao powder was missing outright. This pass covers
+    # every remaining Bev row whose water content (the new nutrient) reads
+    # under ~13g/100g -- i.e. genuinely dry, not a prepared drink -- plus a
+    # cross-category keyword sweep (tea/coffee/cocoa/chicory/malt) that also
+    # caught two herbal teas mis-filed under 'Meat' entirely (see below,
+    # moved to Bev not Brewing, since both are already brewed/prepared).
+    # Every row here has its OWN unique base_name already (verified before
+    # writing this list) -- rows sharing a generic base_name with a real
+    # PREPARED sibling (mostly USDA's own "Beverages, coffee"/"Beverages,
+    # tea"/"Beverages, Cocoa mix"/etc. groups, where prep state was never
+    # parsed into a separate prep_method) went into NAME_CATEGORY_OVERRIDES
+    # instead, keyed per-row, so the prepared siblings aren't swept in too.
+    #
+    # Cocoa/cacao/chocolate/malt drink mixes -- the person's own reported
+    # gap ("I also do not see powdered cacau, or powdered cocoa"):
+    ("Bev", "Cacao, non sucré, poudre soluble"): "Brewing",                          # France_Ciqual
+    ("Bev", "Cocoa powder"): "Brewing",                                              # Australia_AFCD
+    ("Bev", "Cocoa, chocolate milk powder"): "Brewing",                              # Japan_MEXT
+    ("Bev", "Cocoa, pure powder"): "Brewing",                                        # Japan_MEXT
+    ("Bev", "Beverage base, chocolate flavour, added vitamins & minerals (Milo)"): "Brewing",       # Australia_AFCD
+    ("Bev", "Beverage base, chocolate flavour, unfortified (Nesquik brand)"): "Brewing",            # Australia_AFCD
+    ("Bev", "Beverage base, drinking chocolate, unfortified"): "Brewing",            # Australia_AFCD
+    ("Bev", "Beverage mix, carob flavour, powder"): "Brewing",                       # Canada_CNF -- carob is a real cocoa/chocolate substitute, same relationship as chicory:coffee
+    ("Bev", "Beverage mix, chocolate flavour, powder"): "Brewing",                   # Canada_CNF
+    ("Bev", "Beverage mix, chocolate flavour, powder, no added sugar"): "Brewing",   # Canada_CNF
+    ("Bev", "Hot chocolate with marshmallows, powder, mix"): "Brewing",              # Canada_CNF
+    ("Bev", "Hot chocolate, cocoa, without sugar, mix, powder"): "Brewing",          # Canada_CNF
+    (
+        "Bev",
+        "Hot chocolate, low calorie, with aspartame, mix, powder, with added calcium and phosphorus, without added sodium or vitamin A",
+    ): "Brewing",                                                                    # Canada_CNF
+    ("Bev", "Hot chocolate, mix, powder"): "Brewing",                                # Canada_CNF
+    ("Bev", "Hot chocolate, rich, mix, powder"): "Brewing",                          # Canada_CNF
+    ("Bev", "Hot chocolate, with aspartame, mix, powder"): "Brewing",                # Canada_CNF
+    ("Bev", "Malted milk, chocolate flavour, enriched powder"): "Brewing",           # Canada_CNF
+    ("Bev", "Malted milk, chocolate flavour, powder"): "Brewing",                    # Canada_CNF
+    ("Bev", "Malted milk, natural flavour, enriched powder"): "Brewing",             # Canada_CNF
+    ("Bev", "Malted milk, natural flavour, powder"): "Brewing",                      # Canada_CNF
+    ("Bev", "Poudre cacaotée ou au chocolat pour boisson, sucrée"): "Brewing",                                    # France_Ciqual
+    ("Bev", "Poudre cacaotée ou au chocolat pour boisson, sucrée, enrichie en vitamines"): "Brewing",             # France_Ciqual
+    ("Bev", "Poudre cacaotée ou au chocolat sucrée pour boisson, enrichie en vitamines et minéraux"): "Brewing",  # France_Ciqual
+    (
+        "Bev",
+        "Poudre maltée, cacaotée ou au chocolat pour boisson, sucrée, enrichie en vitamines et minéraux",
+    ): "Brewing",                                                                    # France_Ciqual
+    ("Bev", '"Kobu-cha" (kombu powder for drink)'): "Brewing",                       # Japan_MEXT -- kombu/seaweed powder steeped like tea
+    # Pure baking/drinking cocoa powder, found filed under Sweets rather
+    # than Bev at all -- same real product as the Bev-sourced "Cocoa
+    # powder"/"Cocoa, pure powder" above, just a different national
+    # source's own top-level bucket. Excludes cocoa BUTTER/FAT (a
+    # completely different product, stays in Fats), cocoa mass (a solid
+    # baking/candy intermediate, not something dissolved directly into a
+    # drink), and anything already baked into another food (biscuits,
+    # wafers) -- those aren't a beverage base themselves.
+    ("Sweets", "Beverage powder containing cocoa"): "Brewing",                       # Germany_BLS -- already named "beverage powder" in Sweets
+    ("Sweets", "Cocoa powder lightly deoiled"): "Brewing",                           # Germany_BLS
+    ("Sweets", "Cocoa powder strongly deoiled"): "Brewing",                          # Germany_BLS
+    ("Sweets", "Cocoa, dry powder"): "Brewing",                                      # USDA -- covers both the plain and alkali-processed rows sharing this base_name
+    ("Sweets", "Sweets, cocoa, powder, unsweetened"): "Brewing",                     # Canada_CNF
+    ("Sweets", "Sweets, cocoa, powder, unsweetened, dutch process"): "Brewing",      # Canada_CNF
+    # Coffee/chicory powder, French_Ciqual -- missed the first time since
+    # the original pass only reviewed the Tea/Coffee subcategories; these
+    # already had their own fully descriptive (non-generic) base_names.
+    ("Bev", "Café au lait ou cappuccino au chocolat, poudre soluble"): "Brewing",
+    ("Bev", "Café au lait ou cappuccino, poudre soluble"): "Brewing",
+    ("Bev", "Café, décaféiné, poudre soluble"): "Brewing",
+    ("Bev", "Café, poudre soluble"): "Brewing",
+    ("Bev", "Café, moulu"): "Brewing",                                               # "Coffee, ground" -- real ground coffee, not yet brewed
+    ("Bev", "Chicorée et café, poudre soluble"): "Brewing",
+    ("Bev", "Chicorée, poudre soluble"): "Brewing",
+    # Two herbal teas found filed under 'Meat' entirely (a genuine, unrelated
+    # source-data miscategorization bug stumbled onto during this sweep) --
+    # both already say "brewed" in their own name, so they're a prepared
+    # drink, not a Brewing-category dry good; the fix is Meat -> Bev, not
+    # Meat -> Brewing. classify_subcategory() picks up the real Tea
+    # subcategory automatically once category is corrected, same as every
+    # other real Tea row.
+    ("Meat", "Tea, tundra"): "Bev",                                                  # USDA, "Tea, tundra, herb and laborador combination (Alaska Native)"
+    ("Meat", "Tea, herbal"): "Bev",                                                  # USDA, "Tea, herbal, brewed, Hohoysi (Hopi)"
     ("Veg", "Acorn stew (Apache)"): "Mixed",
     ("Veg", "Cream of mushroom soup instant powder"): "Mixed",
     ("Veg", "Cream of mushroom soup, made from instant powder and water"): "Mixed",
@@ -288,6 +390,67 @@ NAME_CATEGORY_OVERRIDES = {
     # says "strawberry" even though short_name/base_name already lost it.
     "Guava, strawberry, raw": ("Fruit", "Strawberry Guava"),
     "Guavas, strawberry, raw": ("Fruit", "Strawberry Guava"),
+
+    # Dry, not-yet-brewed tea/coffee/cocoa products found sharing a generic
+    # base_name with a real PREPARED sibling -- 2026-08-02, part of the same
+    # full-database Brewing re-audit as CATEGORY_OVERRIDES' own entries
+    # above. USDA's own "Beverages, coffee"/"Beverages, tea"/"Beverages,
+    # Cocoa mix"/"Beverages, Malted drink mix"/etc. base_names were never
+    # split by prep state the way most of this database's own prep_method
+    # column is -- e.g. "Beverages, coffee, instant, decaffeinated, powder"
+    # (dry) and "Beverages, coffee, instant, decaffeinated, prepared with
+    # water" (already brewed) both collapse to the identical base_name
+    # "Beverages, coffee". A plain (category, base_name) override in
+    # CATEGORY_OVERRIDES can't separate them -- it would sweep the prepared
+    # row into Brewing right along with the dry one -- so each dry row is
+    # targeted here individually by its own full, still-unique `name`, and
+    # given a real distinct base_name instead of the generic shared one
+    # (so it doesn't just re-collapse into an ambiguous "Beverages, coffee"
+    # label once it's sitting in Brewing on its own). Every row NOT listed
+    # here that shares one of these base_names is a real "prepared with
+    # water/milk" or "brewed" sibling, confirmed by hand, and deliberately
+    # left untouched in Bev.
+    "Beverages, coffee, instant, chicory": ("Brewing", "Coffee, instant, chicory"),
+    "Beverages, coffee, instant, decaffeinated, powder": ("Brewing", "Coffee, instant, decaffeinated, powder"),
+    "Beverages, coffee, instant, regular, half the caffeine": ("Brewing", "Coffee, instant, regular, half the caffeine"),
+    "Beverages, coffee, instant, regular, powder": ("Brewing", "Coffee, instant, regular, powder"),
+    "Beverages, coffee, instant, with chicory": ("Brewing", "Coffee, instant, with chicory"),
+    "Beverages, coffee, instant, with whitener, reduced calorie": ("Brewing", "Coffee, instant, with whitener, reduced calorie"),
+    "Beverages, tea, green, instant, decaffeinated, lemon, unsweetened, fortified with vitamin C": (
+        "Brewing",
+        "Tea, green, instant, decaffeinated, lemon, unsweetened, fortified with vitamin C",
+    ),
+    "Beverages, tea, instant, decaffeinated, lemon, diet": ("Brewing", "Tea, instant, decaffeinated, lemon, diet"),
+    "Beverages, tea, instant, decaffeinated, unsweetened": ("Brewing", "Tea, instant, decaffeinated, unsweetened"),
+    "Beverages, tea, instant, lemon, diet": ("Brewing", "Tea, instant, lemon, diet"),
+    "Beverages, tea, instant, lemon, unsweetened": ("Brewing", "Tea, instant, lemon, unsweetened"),
+    "Beverages, tea, instant, lemon, with added ascorbic acid": ("Brewing", "Tea, instant, lemon, with added ascorbic acid"),
+    # Deliberately given the SAME base_name an existing Canada_CNF row in
+    # Brewing already uses -- both are genuinely the same real product
+    # (plain unsweetened instant tea powder), just measured by two
+    # different national sources, exactly the same cross-source sharing
+    # every other same-named food in this database already does.
+    "Beverages, tea, instant, unsweetened, powder": ("Brewing", "Tea, instant, unsweetened, powder"),
+    "Beverages, Cocoa mix, low calorie, powder, with added calcium, phosphorus, aspartame, without added sodium or vitamin A": (
+        "Brewing",
+        "Cocoa mix, low calorie, powder",
+    ),
+    "Beverages, Cocoa mix, no sugar added, powder": ("Brewing", "Cocoa mix, no sugar added, powder"),
+    "Beverages, Cocoa mix, powder": ("Brewing", "Cocoa mix, powder"),
+    "Beverages, coffee and cocoa, instant, decaffeinated, with whitener and low calorie sweetener": (
+        "Brewing",
+        "Coffee and cocoa, instant, decaffeinated, with whitener",
+    ),
+    "Beverages, Malted drink mix, natural, powder, dairy based.": ("Brewing", "Malted drink mix, natural, powder, dairy based"),
+    "Beverages, malted drink mix, chocolate, powder": ("Brewing", "Malted drink mix, chocolate, powder"),
+    "Beverages, OVALTINE, Classic Malt powder": ("Brewing", "OVALTINE, Classic Malt powder"),
+    "Beverages, OVALTINE, chocolate malt powder": ("Brewing", "OVALTINE, chocolate malt powder"),
+    "Beverages, rich chocolate, powder": ("Brewing", "Rich chocolate, powder"),
+    "Beverages, Carob-flavor beverage mix, powder": ("Brewing", "Carob-flavor beverage mix, powder"),
+    "Beverages, chocolate-flavor beverage mix for milk, powder, with added nutrients": (
+        "Brewing",
+        "Chocolate-flavor beverage mix for milk, powder",
+    ),
 }
 
 # Citrus "juice sacs" are the anatomical juice-filled vesicles that make up

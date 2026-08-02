@@ -235,6 +235,45 @@ export async function getReferenceSubcategories(category: string) {
   return rows.map((row) => row.subcategory).filter((value): value is string => value !== null);
 }
 
+// Categories aren't uniformly covered by USDA -- confirmed 2026-08-02,
+// reported as "no items listed in Brewing and Infusions": that category
+// (and Alcohol, and Algae) has ZERO USDA rows at all, so the usdaOnly
+// default every search/resolve function below otherwise applies was
+// silently returning nothing for all three, not because those categories
+// are genuinely empty (Alcohol alone has 159 real foods) but because
+// USDA-only quietly excluded the only sources that actually cover them.
+// Falls back to searching every source for a category with no USDA
+// coverage; leaves categories that DO have USDA rows (the common case)
+// untouched, so well-covered categories keep the single-source experience
+// searchReferenceFoodNames's own docstring explains usdaOnly exists for
+// (avoiding near-duplicate "Spinach" x7 entries, one per national source).
+// Cached per category rather than re-queried on every keystroke of a live
+// search -- categories are a small, stable set, and a real reference-DB
+// rebuild only ever lands via a fresh app install/update, which restarts
+// this cache fresh along with everything else.
+const categoryHasUsdaCoverage = new Map<string, Promise<boolean>>();
+
+async function hasUsdaCoverage(category: string): Promise<boolean> {
+  let cached = categoryHasUsdaCoverage.get(category);
+  if (!cached) {
+    cached = (async () => {
+      const db = await getReferenceDatabase();
+      const row = await db.getFirstAsync<{ found: number }>(
+        "SELECT EXISTS(SELECT 1 FROM foods WHERE category = ? AND source = 'USDA') AS found",
+        category,
+      );
+      return !!row?.found;
+    })();
+    categoryHasUsdaCoverage.set(category, cached);
+  }
+  return cached;
+}
+
+async function resolveEffectiveUsdaOnly(category: string, usdaOnly: boolean): Promise<boolean> {
+  if (!usdaOnly) return false;
+  return hasUsdaCoverage(category);
+}
+
 function buildScopeClause(category: string, subcategory: string | null, usdaOnly: boolean) {
   const params: (string | number)[] = [category];
   let clause = 'category = ?';
@@ -267,7 +306,8 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
 export async function searchReferenceFoodNames(category: string, subcategory: string | null, query = '', usdaOnly = true, limit = 200) {
   const db = await getReferenceDatabase();
   const trimmed = query.trim();
-  const { clause, params } = buildScopeClause(category, subcategory, usdaOnly);
+  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, usdaOnly);
+  const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
 
   let whereClause = clause;
   let orderByClause = 'base_name';
@@ -338,7 +378,7 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
   // `params` above) keeps this query's params independent of the ORDER BY/
   // LIMIT params already appended to the first query.
   const collapsedQuery = trimmed.replace(/\s+/g, '');
-  const aliasScope = buildScopeClause(category, subcategory, usdaOnly);
+  const aliasScope = buildScopeClause(category, subcategory, effectiveUsdaOnly);
   const aliasRows = await db.getAllAsync<{ base_name: string }>(
     `
       SELECT DISTINCT fa.base_name
@@ -367,7 +407,8 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
 // the Type step being skipped for categories with no sub-categories.
 export async function getPreparationMethods(category: string, subcategory: string | null, baseName: string, usdaOnly = true) {
   const db = await getReferenceDatabase();
-  const { clause, params } = buildScopeClause(category, subcategory, usdaOnly);
+  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, usdaOnly);
+  const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
 
   const rows = await db.getAllAsync<{ prep: string }>(
     `
@@ -416,7 +457,8 @@ export async function getPreparationMethods(category: string, subcategory: strin
 // remaining rows really are the same real food, just redundantly measured.
 export async function resolveFoodChoice(category: string, subcategory: string | null, baseName: string, prepMethod: string | null, usdaOnly = true) {
   const db = await getReferenceDatabase();
-  const { clause, params } = buildScopeClause(category, subcategory, usdaOnly);
+  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, usdaOnly);
+  const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
   const normalizedPrep = prepMethod || 'Standard';
 
   const row = await db.getFirstAsync<{ food_id: number; source: string; name: string; short_name: string | null; category: string }>(
