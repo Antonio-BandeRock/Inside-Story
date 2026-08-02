@@ -153,11 +153,6 @@ export default function FoodItemDetailScreen() {
                   </View>
                 ))}
               </>
-            ) : drilledItemIndex !== null ? (
-              <TouchableOpacity style={styles.backLink} onPress={() => setDrilledItemIndex(null)}>
-                <Ionicons name="chevron-back" size={14} color={colors.tabFood} />
-                <Text style={[styles.backLinkText, { color: colors.tabFood }]}>{side.name}</Text>
-              </TouchableOpacity>
             ) : null}
 
             {lens === 'nutrients' && nutrientBreakdown ? (
@@ -192,14 +187,35 @@ export default function FoodItemDetailScreen() {
         )}
       </ScrollView>
 
-      <TouchableOpacity
-        style={[styles.closeButton, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}
-        onPress={() => router.back()}
-        activeOpacity={0.85}
-        accessibilityLabel="Close"
-      >
-        <Ionicons name="close" size={28} color={colors.textOnPrimary} />
-      </TouchableOpacity>
+      {/* A floating pair, not just the close button alone, 2026-08-02 --
+          explicitly requested: drilled into one ingredient's own Nutrients/
+          6 Dimensions/Cooking & Prep previously only had a small inline
+          "< [side name]" link (scrolled away with the rest of the content)
+          to get back to the whole side's own view. Back sits to Close's
+          own left, in the same row, so both stay reachable together
+          regardless of scroll position -- Back only renders at all while
+          actually drilled into an ingredient, same condition the old
+          inline link used, since it has nothing to do otherwise. */}
+      <View style={[styles.floatingButtonRow, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}>
+        {drilledItemIndex !== null ? (
+          <TouchableOpacity
+            style={styles.floatingButton}
+            onPress={() => setDrilledItemIndex(null)}
+            activeOpacity={0.85}
+            accessibilityLabel={`Back to ${side?.name ?? 'side'}`}
+          >
+            <Ionicons name="chevron-back" size={26} color={colors.textOnPrimary} />
+          </TouchableOpacity>
+        ) : null}
+        <TouchableOpacity
+          style={styles.floatingButton}
+          onPress={() => router.back()}
+          activeOpacity={0.85}
+          accessibilityLabel="Close"
+        >
+          <Ionicons name="close" size={28} color={colors.textOnPrimary} />
+        </TouchableOpacity>
+      </View>
     </View>
   );
 }
@@ -281,15 +297,6 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontStyle: 'italic',
   },
-  backLink: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 2,
-    marginBottom: 10,
-  },
-  backLinkText: {
-    ...typography.bodyEmphasis,
-  },
   sectionLabel: {
     ...typography.eyebrow,
     color: colors.textSecondary,
@@ -310,9 +317,13 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
-  closeButton: {
+  floatingButtonRow: {
     position: 'absolute',
     alignSelf: 'center',
+    flexDirection: 'row',
+    gap: 14,
+  },
+  floatingButton: {
     width: FLOATING_BUTTON_SIZE,
     height: FLOATING_BUTTON_SIZE,
     borderRadius: FLOATING_BUTTON_SIZE / 2,
