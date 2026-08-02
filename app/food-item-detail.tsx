@@ -116,15 +116,21 @@ export default function FoodItemDetailScreen() {
 
   return (
     <View style={styles.wrapper}>
-      {/* headerBackVisible: false, 2026-08-02 -- explicitly requested: the
+      {/* headerLeft: () => null, 2026-08-02 -- explicitly requested: the
           native stack header was still drawing its own back chevron at
-          the top-left, the one interactive control on this screen that
-          didn't follow the rest of the app's own bottom-anchored,
-          thumb-reachable floating-button convention. The floating button
-          pair below now covers that same "go back" job (and more --
-          Back there is context-aware, see its own comment), so the
-          native one is redundant, not just relocated. */}
-      <Stack.Screen options={{ title: title || side?.name || 'Saved Item', headerBackVisible: false }} />
+          the top-left even after an earlier attempt at headerBackVisible:
+          false, which is a real, valid native-stack option (confirmed
+          directly against @react-navigation/native-stack's own type
+          definitions) but apparently didn't take effect through Expo
+          Router's own Stack.Screen wrapper here -- headerLeft: () => null
+          is a more forceful override (replacing the header's whole left
+          slot with nothing, not asking it to hide a button while still
+          reserving the space) and is the standard, reliable way to fully
+          remove it. The Close button alone is enough -- no separate Back
+          control needed at all: switching lenses (changeLens) already
+          resets drilledItemIndex, so there's already a real way out of
+          an ingredient's own drill-down without a dedicated button. */}
+      <Stack.Screen options={{ title: title || side?.name || 'Saved Item', headerLeft: () => null }} />
       <ScrollView contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
         {loading ? (
           <Text style={styles.emptyText}>Loading…</Text>
@@ -195,38 +201,22 @@ export default function FoodItemDetailScreen() {
         )}
       </ScrollView>
 
-      {/* A floating pair, always both visible now, 2026-08-02 -- explicitly
-          requested: the native stack header's own top-left back chevron
-          (see headerBackVisible above) is replaced by Back here instead,
-          not just duplicated -- the one control on this screen that
-          wasn't already bottom-anchored like everything else in this app.
-          Back is context-aware, stepping back one level at a time rather
-          than always leaving the screen outright: drilled into one
-          ingredient's own Nutrients/6 Dimensions/Cooking & Prep, it
-          returns to the whole side's own view first (previously a small
-          inline "< [side name]" link that scrolled away with the rest of
-          the content); from the whole-side view, it leaves the screen
-          the same as Close does. Close always leaves the screen outright
-          regardless of drill state -- a "jump all the way out" shortcut
-          Back doesn't replace. */}
-      <View style={[styles.floatingButtonRow, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}>
-        <TouchableOpacity
-          style={styles.floatingButton}
-          onPress={() => (drilledItemIndex !== null ? setDrilledItemIndex(null) : router.back())}
-          activeOpacity={0.85}
-          accessibilityLabel={drilledItemIndex !== null ? `Back to ${side?.name ?? 'side'}` : 'Back'}
-        >
-          <Ionicons name="chevron-back" size={26} color={colors.textOnPrimary} />
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={styles.floatingButton}
-          onPress={() => router.back()}
-          activeOpacity={0.85}
-          accessibilityLabel="Close"
-        >
-          <Ionicons name="close" size={28} color={colors.textOnPrimary} />
-        </TouchableOpacity>
-      </View>
+      {/* Just Close, 2026-08-02 -- a separate floating Back button was
+          added, then removed the same day: there's no real navigation it
+          would cover that isn't already handled elsewhere. Switching
+          lenses (changeLens) already resets drilledItemIndex, so an
+          ingredient's own drill-down already has a real way out without a
+          dedicated button, and Close already leaves the screen outright.
+          Two controls that both ultimately do "go back" was redundant,
+          not a real choice between two different things. */}
+      <TouchableOpacity
+        style={[styles.floatingButton, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}
+        onPress={() => router.back()}
+        activeOpacity={0.85}
+        accessibilityLabel="Close"
+      >
+        <Ionicons name="close" size={28} color={colors.textOnPrimary} />
+      </TouchableOpacity>
     </View>
   );
 }
@@ -328,13 +318,9 @@ const styles = StyleSheet.create({
     flex: 1,
     marginRight: 8,
   },
-  floatingButtonRow: {
+  floatingButton: {
     position: 'absolute',
     alignSelf: 'center',
-    flexDirection: 'row',
-    gap: 14,
-  },
-  floatingButton: {
     width: FLOATING_BUTTON_SIZE,
     height: FLOATING_BUTTON_SIZE,
     borderRadius: FLOATING_BUTTON_SIZE / 2,
