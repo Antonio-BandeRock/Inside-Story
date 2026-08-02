@@ -5,6 +5,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensi
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
+import { BEVERAGE_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
@@ -21,6 +22,7 @@ import {
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
+import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
 import { DimensionFlags } from './DimensionFlags';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
@@ -1218,6 +1220,7 @@ export function BeverageBuilder({
             topReserve={searching ? 0 : SUMMARY_CARD_HEIGHT}
             initialCategory={lastCategory}
             initialSubcategory={lastSubcategory}
+            allowedCategories={BEVERAGE_BUILDER_CATEGORIES}
           />
         </View>
       </View>
@@ -1344,6 +1347,18 @@ export function BeverageBuilder({
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
               </View>
+              {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
+                  own top comment for why this is a separate mechanism from
+                  DimensionFlags rather than a new D1-D6 sub-criterion. */}
+              {isAlcoholicFood(pendingResolved) && (
+                <TouchableOpacity
+                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
+                  onPress={() => showInfoAlert(ALCOHOL_ADVISORY_TITLE, ALCOHOL_ADVISORY_MESSAGE)}
+                >
+                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol & Hashimoto’s -- tap to learn more</Text>
+                </TouchableOpacity>
+              )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
                   vertical pill spinner sized by renderLabeledPicker (see
@@ -1842,6 +1857,22 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     flexShrink: 1,
   },
+  // Informational tap target, not a warning -- deliberately not
+  // colors.danger/statusYellow (DimensionFlags' own palette), since the
+  // content itself is a real, honestly-mixed case, not a one-sided alert.
+  // Uses tabColor, the same "this is interactive" signal PopoverSelect's
+  // own chevron already gives.
+  alcoholAdvisoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 6,
+  },
+  alcoholAdvisoryText: { ...typography.caption },
   // "Change Food", pinned above the header and left-aligned. alignSelf
   // 'flex-start' keeps its tap target tight to the text instead of
   // spanning the whole card width.

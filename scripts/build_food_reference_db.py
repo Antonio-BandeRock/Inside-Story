@@ -2,12 +2,13 @@
 Transforms hashimotos_foods_combined_scored_and_nutrients_LIVE.xlsx into a
 compact reference SQLite database for the Inside Story app.
 
-Deliberately extracts only: identity (food_id, source, source_code, name,
-short_name, category, botanical classification) and the 31 real D1-D6
-six-dimension score columns. Does NOT import the ~750 raw per-source
-nutrient columns per sheet -- those are inconsistent across sources and not
-needed by anything currently designed in the app; pulling them in safely
-would be its own separate, scoped task.
+Extracts: identity (food_id, source, source_code, name, short_name,
+category, botanical classification), the 31 real D1-D6 six-dimension score
+columns, and a curated "Phase 1 standard panel" of macro/vitamin/mineral
+nutrients (see NUTRIENT_DEFINITIONS/NUTRIENT_COLUMN_ALIASES) resolved via
+per-sheet column-name aliases, since the ~750 raw per-source nutrient
+columns are inconsistently named across sources and not all of them are
+needed by anything currently designed in the app.
 
 Pure standard library (zipfile + xml.etree) -- no openpyxl/pandas available
 in this environment. Re-runnable: drop the output file and re-run any time
@@ -50,6 +51,11 @@ CATEGORY_OVERRIDES = {
     # category.py), just fruit-derived rather than seed-derived. Found
     # 2026-07-29 while auditing Fruit for non-whole-food products.
     ("Fruit", "Baobab powder"): "SupplementPowder",
+    # A raw fiber-supplement powder, not a whole nut/seed food -- the other
+    # half of the SupplementPowder move flagged alongside Baobab powder
+    # above (see scripts/add_supplement_powder_category.py) but never
+    # actually folded into this override list until now.
+    ("NutSeed", "Psyllium, uncooked"): "SupplementPowder",
     ("Veg", "Acorn stew (Apache)"): "Mixed",
     ("Veg", "Cream of mushroom soup instant powder"): "Mixed",
     ("Veg", "Cream of mushroom soup, made from instant powder and water"): "Mixed",
@@ -736,6 +742,15 @@ def apply_base_name_alias(base_name):
 NUTRIENT_DEFINITIONS = [
     # (code, display_name, unit, group)
     ("energy_kcal", "Energy", "kcal", "macro"),
+    # Moisture content -- 2026-08-02, added specifically so hydration can be
+    # tracked as a real sum across everything logged in a day (food AND
+    # drink alike), not a guess based on which builder/category something
+    # came from. Every one of the 7 source sheets already carries this exact
+    # "Water (G)" column (confirmed directly against the raw workbook) --
+    # it just was never pulled into this "Phase 1 standard panel" before
+    # now, the same reason none of the other macros/vitamins/minerals here
+    # needed anything more than a plain NUTRIENT_COLUMN_ALIASES entry.
+    ("water", "Water", "g", "macro"),
     ("protein", "Protein", "g", "macro"),
     ("fat_total", "Total Fat", "g", "macro"),
     ("carbohydrate", "Carbohydrate", "g", "macro"),
@@ -758,6 +773,15 @@ NUTRIENT_DEFINITIONS = [
     ("biotin_b7", "Biotin (B7)", "µg", "vitamin"),
     ("folate_b9", "Folate (B9)", "µg", "vitamin"),
     ("vitamin_b12", "Vitamin B12", "µg", "vitamin"),
+    # Grouped 'vitamin' even though choline is technically its own
+    # essential-nutrient category, not a true vitamin -- matches how
+    # NASEM's own 1998 DRI report bundles it alongside the B-vitamins (see
+    # its DIETARY_REFERENCE_INTAKES citation below), not a claim that it
+    # biochemically is one. Real per-food coverage across all 7 source
+    # sheets ("Choline, total (MG)"/"CHOLINE, TOTAL (mg)", both present --
+    # confirmed directly against the raw workbook), not just the one
+    # synthetic supplement-powder food this was originally scoped to.
+    ("choline", "Choline", "mg", "vitamin"),
     ("calcium", "Calcium", "mg", "mineral"),
     ("iron", "Iron", "mg", "mineral"),
     ("magnesium", "Magnesium", "mg", "mineral"),
@@ -773,6 +797,7 @@ NUTRIENT_DEFINITIONS = [
 
 NUTRIENT_COLUMN_ALIASES = {
     "energy_kcal": ["Energy (KCAL)"],
+    "water": ["Water (G)"],
     "protein": ["Protein (G)"],
     "fat_total": ["Total lipid (fat) (G)"],
     "carbohydrate": ["Carbohydrate, by difference (G)"],
@@ -795,6 +820,7 @@ NUTRIENT_COLUMN_ALIASES = {
     "biotin_b7": ["Biotin (µg)", "Biotin (B7) (ug) (ug)"],
     "folate_b9": ["Folate, total (UG)"],
     "vitamin_b12": ["Vitamin B-12 (UG)"],
+    "choline": ["Choline, total (MG)", "CHOLINE, TOTAL (mg)"],
     "calcium": ["Calcium, Ca (MG)"],
     "iron": ["Iron, Fe (MG)"],
     "magnesium": ["Magnesium, Mg (MG)"],
@@ -1025,6 +1051,14 @@ DIETARY_REFERENCE_INTAKES = [
      "Based on 0.8 g/kg/day for a reference ~57kg adult; scales with real body weight, same "
      "elderly-intake caveat as the male row."),
 
+    # Total water AI from ALL sources, including food -- not a "drink this
+    # many glasses" target layered on top of food. 1 mL of water weighs
+    # ~1 g, so this figure is directly comparable to the water nutrient's
+    # own gram-based per-food tracking. No UL is set for healthy adults
+    # under normal conditions.
+    ("water", "female", 19, None, "AI", 2700, "g", None, None, "NASEM 2005 DRI Water/Electrolytes report.", None),
+    ("water", "male", 19, None, "AI", 3700, "g", None, None, "NASEM 2005 DRI Water/Electrolytes report.", None),
+
     ("fiber_total", "male", 19, 50, "AI", 38, "g", None, None, "NASEM 2005 DRI Macronutrients report.", None),
     ("fiber_total", "male", 51, None, "AI", 30, "g", None, None, "NASEM 2005 DRI Macronutrients report.", None),
     ("fiber_total", "female", 19, 50, "AI", 25, "g", None, None, "NASEM 2005 DRI Macronutrients report.", None),
@@ -1083,6 +1117,12 @@ DIETARY_REFERENCE_INTAKES = [
      "NASEM specifically advises adults over 50 meet the RDA mainly through fortified foods or a "
      "supplement, since food-bound B12 absorption commonly declines with age (reduced stomach acid), "
      "while crystalline supplemental B12 isn't affected by that mechanism."),
+
+    # Set as an Adequate Intake (AI), not an RDA -- NASEM concluded there
+    # wasn't yet enough evidence to set a full RDA for choline when this
+    # report was published.
+    ("choline", "female", 19, None, "AI", 425, "mg", 3500, "UL", "NASEM 1998 DRI B-Vitamins report.", None),
+    ("choline", "male", 19, None, "AI", 550, "mg", 3500, "UL", "NASEM 1998 DRI B-Vitamins report.", None),
 
     ("calcium", "male", 19, 50, "RDA", 1000, "mg", 2500, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),
     ("calcium", "male", 51, 70, "RDA", 1000, "mg", 2000, "UL", "NASEM 2011 DRI Calcium/Vitamin D report.", None),

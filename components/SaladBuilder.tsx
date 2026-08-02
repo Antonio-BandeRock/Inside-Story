@@ -5,6 +5,7 @@ import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensi
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
+import { SALAD_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
@@ -1262,6 +1263,7 @@ export function SaladBuilder({
             topReserve={searching ? 0 : SUMMARY_CARD_HEIGHT}
             initialCategory={lastCategory}
             initialSubcategory={lastSubcategory}
+            allowedCategories={SALAD_BUILDER_CATEGORIES}
           />
         </View>
       </View>

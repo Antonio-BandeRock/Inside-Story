@@ -109,6 +109,7 @@ export function FoodLookup({
   squareTop = false,
   initialCategory = '',
   initialSubcategory = null,
+  allowedCategories,
 }: {
   tabColor: string;
   // An optional page-level heading above the Category step (e.g. Food's
@@ -167,6 +168,16 @@ export function FoodLookup({
   // fresh mount is the only time these values are ever read.
   initialCategory?: string;
   initialSubcategory?: string | null;
+  // Restricts the Category step to a curated subset of the reference
+  // database's own 19 raw category codes (e.g. ['Bev', 'Alcohol'] for
+  // Beverage Builder) -- 2026-08-02, so each Food-tab builder only ever
+  // offers categories someone would actually put in that kind of dish,
+  // instead of the same full list (raw meats included) regardless of
+  // whether the builder is a smoothie or a side dish. Undefined (the
+  // default) means unrestricted -- Insights' own Food Lookup lens, a
+  // general-purpose "look up any food" tool, deliberately never passes
+  // this and keeps seeing the full list.
+  allowedCategories?: string[];
 }) {
   const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState(initialCategory);
@@ -324,7 +335,14 @@ export function FoodLookup({
   );
 
   useEffect(() => {
-    getReferenceCategories().then(setCategories);
+    getReferenceCategories().then((rows) =>
+      setCategories(allowedCategories ? rows.filter((row) => allowedCategories.includes(row)) : rows),
+    );
+    // allowedCategories is read once at mount, same as initialCategory/
+    // initialSubcategory above -- this component always fully remounts
+    // rather than receiving live prop updates (see initialCategory's own
+    // comment), so there's nothing for a live dependency to react to.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
