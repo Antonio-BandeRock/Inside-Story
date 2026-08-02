@@ -17,6 +17,7 @@ import {
   type FoodNutrient,
   type FoodUnitWeight,
 } from '../lib/db';
+import { buildFoodNameGroups } from '../lib/foodNameGrouping';
 import { analyzeNutrientIntake, formatAmount } from '../lib/nutrientAnalysis';
 import { useActiveField } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -645,6 +646,20 @@ export function FoodLookup({
     );
   }
 
+  // Grouped ("Cheese" heading over Colby/Cottage/Cheddar/etc.) only while
+  // plain browsing -- once a search query actively narrows the list, a
+  // flat list of just the matches reads better than headers for a
+  // one-or-two-result set. See lib/foodNameGrouping.ts's own top comment
+  // for why this groups at render time rather than baking a group into
+  // the reference database itself.
+  const foodListOptions = foodQuery.trim()
+    ? foodNameOptions.map((value) => ({ label: value, value }))
+    : buildFoodNameGroups(foodNameOptions).map((entry) =>
+        entry.type === 'header'
+          ? { label: entry.label, value: `__group_${entry.key}`, isHeader: true }
+          : { label: entry.label, value: entry.value },
+      );
+
   const content = (
     <>
       {title ? (
@@ -716,7 +731,7 @@ export function FoodLookup({
         <View style={styles.stackedField}>
           {baseName === '' ? (
             <InlineSearchSelectList
-              options={foodNameOptions.map((value) => ({ label: value, value }))}
+              options={foodListOptions}
               value={baseName}
               onChange={selectBaseName}
               height={foodListHeight}

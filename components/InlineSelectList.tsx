@@ -5,6 +5,12 @@ import { typography } from '../constants/typography';
 export type InlineSelectOption = {
   label: string;
   value: string;
+  // Non-selectable section header, 2026-08-02 -- lets a caller with a
+  // genuinely groupable list (see lib/foodNameGrouping.ts) show a "Cheese"
+  // heading above its own member rows without this component needing to
+  // know anything about WHY those rows are related. Omitted (the default)
+  // for every existing caller -- an ordinary tappable row, unchanged.
+  isHeader?: boolean;
 };
 
 // A plain, always-inline single-select scrollable list -- deliberately NOT
@@ -73,6 +79,15 @@ export function InlineSelectList({
         // already behaves this way without it.
         nestedScrollEnabled
         renderItem={({ item }) => {
+          if (item.isHeader) {
+            return (
+              <View style={styles.groupHeader}>
+                <Text style={[styles.groupHeaderText, { color: tabColor }]} numberOfLines={1}>
+                  {item.label}
+                </Text>
+              </View>
+            );
+          }
           const isSelected = item.value === value;
           return (
             <TouchableOpacity
@@ -129,4 +144,13 @@ const styles = StyleSheet.create({
   },
   itemText: { ...typography.body, color: colors.textPrimary },
   itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  // A plain, non-tappable divider row -- deliberately not shaped like
+  // `item` (no border, no press feedback) so it reads as organizational
+  // chrome rather than one more option in the list.
+  groupHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 2,
+  },
+  groupHeaderText: typography.eyebrow,
 });
