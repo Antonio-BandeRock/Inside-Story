@@ -223,6 +223,20 @@ export async function getReferenceCategories() {
   return rows.map((row) => row.category);
 }
 
+// Reported directly by the user, 2026-08-02: manufactured/packaged
+// alcoholic beverages (beer, cider) and mixed drinks/cocktails shouldn't be
+// loggable via a generic reference-data entry at all right now -- unlike a
+// plain distilled spirit (where real research confirmed proof alone
+// determines nutrition, so a generic entry is already an honest stand-in
+// for any real bottle), beer/cider vary enormously by actual product, and
+// a cocktail's real nutrition depends entirely on its own recipe and
+// proportions, not a single well-defined "thing." The person's own stated
+// direction: these should be "scan only" once a barcode-scan feature
+// exists (not built yet) rather than represented by a misleadingly
+// precise-looking generic entry in the meantime. Scoped to Alcohol only --
+// every other category's own subcategories are unaffected.
+const ALCOHOL_SUBCATEGORIES_PENDING_SCAN_FEATURE = new Set(['Beer & Cider', 'Cocktails & Mixed']);
+
 // Returns [] for categories with no defined sub-categories (most of them,
 // for now) -- the app should skip the drill-down step entirely in that case
 // rather than show an empty/pointless dropdown.
@@ -232,7 +246,11 @@ export async function getReferenceSubcategories(category: string) {
     'SELECT DISTINCT subcategory FROM foods WHERE category = ? AND subcategory IS NOT NULL ORDER BY subcategory',
     category,
   );
-  return rows.map((row) => row.subcategory).filter((value): value is string => value !== null);
+  const subcategories = rows.map((row) => row.subcategory).filter((value): value is string => value !== null);
+  if (category === 'Alcohol') {
+    return subcategories.filter((value) => !ALCOHOL_SUBCATEGORIES_PENDING_SCAN_FEATURE.has(value));
+  }
+  return subcategories;
 }
 
 // Categories aren't uniformly covered by USDA -- confirmed 2026-08-02,
@@ -274,6 +292,92 @@ async function resolveEffectiveUsdaOnly(category: string, usdaOnly: boolean): Pr
   return hasUsdaCoverage(category);
 }
 
+// Hides two different kinds of Alcohol row from browsing, 2026-08-02,
+// reported directly across a few messages in the same conversation:
+//   1. Mixed drinks/cocktails that leaked into "Spirits & Liqueurs" or
+//      "Wine & Champagne" instead of "Cocktails & Mixed" (itself already
+//      hidden entirely, see ALCOHOL_SUBCATEGORIES_PENDING_SCAN_FEATURE
+//      above) -- SUBCATEGORY_RULES in the build script checks Spirits &
+//      Liqueurs' own keywords (whisky/rum/gin/tequila/etc.) BEFORE
+//      Cocktails & Mixed's, so "Alcoholic beverage, whiskey sour" and
+//      "Alcoholic beverage, tequila sunrise" both matched on the spirit
+//      name first and never reached the cocktail check at all -- named
+//      directly: "Whiskey Sour and Tequila Sunrise are names of mixed
+//      drinks. Mixed drinks shouldn't be part of this."
+//   2. Redundant near-duplicate plain-spirit/generic-bucket rows now that
+//      a clean, single canonical entry exists per real spirit (see
+//      scripts/build_food_reference_db.py's SPIRIT_CLEAN_RENAMES and
+//      SYNTHETIC_SPIRIT_VARIANTS) -- reported directly: "the names of
+//      these things are so long that I can't tell why they are
+//      different... These should just have 1 unique entry for each
+//      thing." Confirmed via this database's own numbers before hiding
+//      anything: USDA's vodka/rum/"all" 80-proof rows and Canada_CNF's own
+//      whisky/rum/vodka 40%-ABV rows are EXACT calorie matches within each
+//      source, so keeping 4-5 near-identical entries per spirit added
+//      confusion, not real distinguishing information.
+// Scoped to Alcohol only, by base_name (not deleted from the database --
+// see this file's own comment on 'Derived' above for why keeping the full
+// reference data intact matters for a future scan feature). Every entry
+// checked by hand against its own real name/nutrient data, not guessed.
+const ALCOHOL_HIDDEN_BASE_NAMES = new Set([
+  // Cocktails/mixed drinks that leaked past the Cocktails & Mixed hide.
+  'Alcoholic beverage, whiskey sour',
+  'Alcoholic beverage, whiskey sour, prepared from item 14028',
+  'Alcoholic beverage, whiskey sour, prepared with water, whiskey and powder mix',
+  'Alcoholic beverage, tequila sunrise',
+  'Alcohol, cocktail, daiquiri (rum), homemade',
+  'Alcohol, cocktail, pina colada (rum), homemade',
+  'Alcohol, cocktail, whisky sour mix, bottled, whisky added',
+  'Alcohol, cocktail, whisky sour mix, powder, water and whisky added',
+  'Cocktail à base de whisky',
+  'Cocktail, Gin and tonic',
+  'Cocktail, Tequila sunrise',
+  'Kir royal (au champagne)',
+  // Flavored, ready-to-drink products -- the same "scan only, not a
+  // plain well-defined thing" reasoning as beer/cider.
+  'Vodka cooler, fruit flavours',
+  'Alcohol, wine cooler',
+  'Alcopops',
+  // A mixed dairy+spirit drink, the same "mixed drink" reasoning as the
+  // cocktails above, not a single well-defined spirit/wine/beer.
+  'Egg nog',
+  // Redundant generic "all spirits" buckets, now superseded by
+  // Vodka/Gin/Whiskey's own clean single entries (80/86 proof) -- the
+  // remaining proof tiers (90/94/100) are a real but niche use case,
+  // dropped for now rather than reintroducing multiple choices per spirit.
+  'Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 80 proof',
+  'Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 86 proof',
+  'Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 90 proof',
+  'Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 94 proof',
+  'Alcoholic beverage, distilled, all (gin, rum, vodka, whiskey) 100 proof',
+  'Alcoholic beverage, spirit, ~30% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)',
+  'Alcoholic beverage, spirit, ~40% v/v, all (Brandy, Gin, Rum, Vodka and Whisky)',
+  // Redundant per-source vodka/gin/rum/whiskey duplicates -- the same
+  // real spirit already covered by the clean canonical entry above (or,
+  // for rum, by the Light/White and Dark/Aged Derived variants).
+  'Alcoholic beverage, distilled, rum, 80 proof',
+  'Alcohol, gin (40% alcohol by volume)',
+  'Alcohol, rum  (40% alcohol by volume)',
+  'Alcohol, vodka (40% alcohol by volume)',
+  'Alcohol, whisky (40% alcohol by volume)',
+  'Alcohol, whisky (43% alcohol by volume)',
+  'Alcohol, whisky (45% alcohol by volume)',
+  'Alcohol, whisky (47% alcohol by volume)',
+  'Alcohol, whisky (50% alcohol by volume)',
+  'Gin',
+  'Vodka',
+  'Whisky',
+  'Liqueur',
+  'Agave spirit (Mezcal/Tequila)',
+  'Rum 37.5/40 % vol',
+  'Rum 80 % vol',
+  'Whisky/whiskey',
+  'Distilled alcoholic beverage, gin',
+  'Distilled alcoholic beverage, rum',
+  'Distilled alcoholic beverage, vodka',
+  'Distilled alcoholic beverage, whisky',
+]);
+
 function buildScopeClause(category: string, subcategory: string | null, usdaOnly: boolean) {
   const params: (string | number)[] = [category];
   let clause = 'category = ?';
@@ -292,6 +396,11 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
     // hasUsdaCoverage below) doesn't hide them the same way it hides every
     // other non-USDA source.
     clause += " AND source IN ('USDA', 'Derived')";
+  }
+
+  if (category === 'Alcohol' && ALCOHOL_HIDDEN_BASE_NAMES.size > 0) {
+    clause += ` AND base_name NOT IN (${Array.from(ALCOHOL_HIDDEN_BASE_NAMES).map(() => '?').join(', ')})`;
+    params.push(...ALCOHOL_HIDDEN_BASE_NAMES);
   }
 
   return { clause, params };

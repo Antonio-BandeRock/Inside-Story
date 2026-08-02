@@ -810,6 +810,36 @@ def rename_chicken_egg(base_name):
     return base_name
 
 
+# Reported directly by the user, 2026-08-02: "the names of these things are
+# so long that I can't tell why they are different at all... Is there
+# really no difference between vodka, whiskey, rum, and gin for the proof
+# levels?" Confirmed via WebSearch and directly against this database's own
+# numbers: at a given proof, USDA's own vodka/rum/"all" 80-proof rows and
+# Canada_CNF's own whisky/rum/vodka 40%-ABV rows are EXACT matches (231
+# kcal/100g) within each source -- distillation removes virtually
+# everything about the base ingredient that would affect calories, so
+# proof is what actually distinguishes these, not the grain/plant/brand.
+# These two renames give USDA's own clean, real 80/86-proof rows a short
+# name matching that reality, instead of the verbose "Alcoholic beverage,
+# distilled, X, Y proof" wrapper every row in this whole family shares
+# (which is exactly what made them unreadable side by side). The redundant
+# near-duplicate entries this creates (Canada_CNF/Germany_BLS/France_Ciqual/
+# Japan_MEXT/Australia_AFCD's own separate vodka/gin/rum/whisky rows, all
+# measuring the same real thing) are excluded from the app's own Alcohol
+# browsing in lib/db.ts instead of altered here -- this file's job is
+# keeping the reference data itself correct and complete (useful later, a
+# future barcode-scan feature might want exactly this source diversity),
+# not deciding what a person should be offered to pick from today.
+SPIRIT_CLEAN_RENAMES = {
+    "Alcoholic beverage, distilled, vodka, 80 proof": "Vodka, 80 Proof",
+    "Alcoholic beverage, distilled, whiskey, 86 proof": "Whiskey, 86 Proof",
+}
+
+
+def rename_spirit_clean(base_name):
+    return SPIRIT_CLEAN_RENAMES.get(base_name, base_name)
+
+
 # Every base_name rename_sprout() can possibly produce -- i.e. exactly the
 # set of foods that belong in the "Sprouts" category, derived from the two
 # hand-verified dicts above rather than pattern-matched on the word
@@ -4077,6 +4107,7 @@ def build(xlsx_path, db_path):
                 base_name = reorder_base_name(base_name, source=source)["output"]
                 base_name = rename_sweet_pepper_by_color(base_name, name)
                 base_name = rename_chicken_egg(base_name)
+                base_name = rename_spirit_clean(base_name)
                 effective_category = reclassify_category(category_code, base_name)
                 # A tiny, hand-verified set of foods whose base_name
                 # collides with a different product entirely (see the
@@ -4202,6 +4233,15 @@ def build(xlsx_path, db_path):
             ("Tequila, Añejo (Aged 1-3 Years)", 7304, "USDA"),
             ("Rum, Light/White (Unaged or Filtered)", 7306, "USDA"),
             ("Rum, Dark/Aged", 7306, "USDA"),
+            # Added 2026-08-02, same day, alongside the Spirits & Liqueurs
+            # cleanup: no source has a standalone "Gin, 80 proof" entry the
+            # way USDA has for vodka/whiskey (gin only appears bundled in
+            # the generic "all" bucket, now hidden as redundant -- see
+            # lib/db.ts). Copies the same food_id 7304 template as the
+            # tequila variants -- the confirmed real answer to "is gin any
+            # different" is no, USDA's own combined bucket already treated
+            # it as equivalent to vodka/rum/whiskey at the same proof.
+            ("Gin, 80 Proof", 7304, "USDA"),
         ]
         synthetic_food_id = 900001
         for variant_name, template_food_id, template_source in SYNTHETIC_SPIRIT_VARIANTS:
