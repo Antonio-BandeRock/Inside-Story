@@ -2735,6 +2735,175 @@ def classify_subcategory(category_code, name):
     return SUBCATEGORY_DEFAULT_LABELS.get(category_code, "Other")
 
 
+# Reported directly by the user, 2026-08-02: "The Beverages category still
+# lists alcohol beverages in it... mixed drinks, and various other things."
+# Confirmed by direct query: 264 rows across 6 of the 7 sources already
+# carry subcategory 'Alcoholic' (via SUBCATEGORY_RULES["Bev"]'s own keyword
+# list, just above) but were never actually moved to the dedicated
+# "Alcohol" top-level category the way Germany_BLS/UK_CoFID/Australia_AFCD's
+# OWN alcohol content already was. USDA in particular has ZERO rows in
+# "Alcohol" at all -- its entire wine/beer/spirit/cocktail contribution
+# (every one of the 36 wine varietals and 8 beers just fixed for the
+# split_prep_method bug, plus daiquiris, pina coladas, whiskey sours,
+# coffee liqueurs, hard cider) had been sitting in Bev the whole time.
+#
+# Reuses the SAME "Alcoholic" keyword match already computed above rather
+# than hand-listing every one of the 224 rows that should move -- checked
+# directly, it's already correct for all of them. The other 40 are real,
+# confirmed false positives from that same keyword list necessarily being a
+# broad word-boundary substring match, not real semantic understanding:
+#   - ~58 French "Eau minérale..." (mineral water) rows matched "ale" as a
+#     substring of "minérale" (French for "mineral," an adjective ending in
+#     "-ale") -- the same class of false-cognate collision as the "Matter"/
+#     "Fat" bug found earlier this session in the food-name-grouping work.
+#   - "Ginger ale"/"root beer" (7 rows across 4 sources) matched "ale"/
+#     "beer" literally but are ordinary non-alcoholic sodas.
+#   - Every "cocktail"-named but explicitly non-alcoholic juice/mixer
+#     (cranberry/vegetable/tomato-clam juice cocktail, canned fruit
+#     cocktail, a cocktail mix explicitly labeled non-alcoholic).
+#   - Every row whose own name says "non-alcoholic"/"alcohol-free"/"sans
+#     alcool" (wine, beer, aperitif, sparkling wine) -- the most ironic
+#     case, several matched because "alcohol" is literally a substring of
+#     "alcohol-free."
+#   - Whiskey/whisky sour MIX products with no whiskey actually in them
+#     (the bottled/powder mixer alone) -- Canada_CNF conveniently names its
+#     own "...whisky added" variant separately, which DOES move, unlike the
+#     plain mix.
+#   - "Kale juice, powder" (Japan_MEXT) -- already a known, separately
+#     documented stray subcategory mislabel (see this file's own Brewing-
+#     category audit comments/CLAUDE.md), unrelated to this fix.
+# Every exclusion below was checked by hand against its own full name, not
+# assumed from the keyword match alone.
+BEV_ALCOHOL_FALSE_POSITIVES = {
+    "Cocktail sans alcool (à base de jus de fruits et de sirop)",
+    "Carbonated drinks, ginger ale",
+    "Carbonated drinks, root beer",
+    "Cocktail mix, non-alcoholic, concentrated, frozen",
+    "Fruit cocktail (peach, pear, apricot, pineapple, cherry, grape), canned, juice pack, solids and liquid",
+    "Juice, cocktail, cranberry, vitamin C added, bottled",
+    "Juice, cocktail, cranberry, vitamin C added, frozen concentrate",
+    "Juice, cocktail, cranberry, vitamin C added, frozen concentrate, water added",
+    "Juice, tomato clam cocktail, canned",
+    "Malt beverage, includes non-alcoholic beer (<0.5% alcohol by volume)",
+    "Non-alcoholic, wine",
+    "Vegetable juice cocktail, canned",
+    "Vegetable juice cocktail, canned, low sodium",
+    "Alcohol, cocktail, whisky sour mix, bottled",
+    "Alcohol, cocktail, whisky sour mix, powder",
+    "Aperitif alcohol-free",
+    "Fruit mix/fruit cocktail, in juice, canned, drained",
+    "Ginger Ale",
+    "Sparkling wine alcohol-free",
+    "Wine alcohol-free",
+    "Kale juice, powder",
+    "Ginger ale, dry",
+    "Root beer",
+    "Beverages, Cocktail mix, non-alcoholic, concentrated, frozen",
+    "Beverages, Cranberry juice cocktail",
+    "Beverages, Whiskey sour mix, bottled",
+    "Beverages, Whiskey sour mix, powder",
+    "Beverages, Wine, non-alcoholic",
+    "Beverages, carbonated, ginger ale",
+    "Beverages, carbonated, root beer",
+    "Cranberry juice cocktail, bottled",
+    "Cranberry juice cocktail, bottled, low calorie, with calcium, saccharin and corn sweetener",
+    "Cranberry juice cocktail, frozen concentrate",
+    "Cranberry juice cocktail, frozen concentrate, prepared with water",
+    "Malt beverage, includes non-alcoholic beer",
+    "Vegetable juice cocktail, low sodium, canned",
+    "Whiskey sour mix, bottled, with added potassium and sodium",
+}
+
+
+def reclassify_bev_alcoholic_to_alcohol(effective_category, name):
+    if effective_category != "Bev" or not name:
+        return effective_category
+    if name in BEV_ALCOHOL_FALSE_POSITIVES:
+        return effective_category
+    # A real miss in the first version of this fix, caught by re-checking
+    # the actual rebuilt database rather than trusting the exclusion list
+    # was complete: French "minéral(e)"/"minéralisée" (mineral water) rows
+    # -- ~88 of them, every "Eau minérale..." bottled-water row plus a
+    # handful of flavored mineral-water drinks -- were moving to Alcohol
+    # (and landing in "Beer & Cider" once there) purely because "minérale"
+    # ends in "-ale," the same French adjective-suffix false match as the
+    # "Matter"/"Fat" bug found earlier this session, just newly consequential
+    # now that a subcategory match actually drives a category change.
+    # Hand-listing 88 individual strings risks missing one the same way the
+    # first pass missed all of them -- excluded by the one thing every real
+    # mineral-water row reliably shares instead: it's literally described as
+    # "minéral(e)" somewhere in its own name, and no genuine alcoholic drink
+    # ever is.
+    if "minéral" in name.lower():
+        return effective_category
+    if classify_subcategory("Bev", name) == "Alcoholic":
+        return "Alcohol"
+    return effective_category
+
+
+# Reported directly by the user, 2026-08-02, same day, right after the
+# category fix above: "in the Beverages category, I still see a Alcoholic
+# [subcategory]... Alcoholic shouldn't be listed in beverages at all." A
+# real, confirmed gap in the fix above -- it decides whether a row's
+# CATEGORY should move to Alcohol, but every row it deliberately keeps in
+# Bev (because it isn't really alcoholic) still gets its SUBCATEGORY
+# computed by the exact same classify_subcategory("Bev", name) call, which
+# still returns "Alcoholic" for the identical keyword-match reason -- the
+# category-level fix never touched the subcategory badge those rows
+# display. Every one of the 126 rows this affects is a name already
+# checked by hand for the category fix above (the mineral-water guard plus
+# BEV_ALCOHOL_FALSE_POSITIVES) -- this reuses that same work rather than
+# re-deriving it, just supplying each one's own real subcategory instead of
+# leaving the wrong one in place.
+BEV_ALCOHOL_FALSE_POSITIVE_SUBCATEGORIES = {
+    "Cocktail sans alcool (à base de jus de fruits et de sirop)": "Juice",
+    "Carbonated drinks, ginger ale": "Soft Drinks",
+    "Carbonated drinks, root beer": "Soft Drinks",
+    "Cocktail mix, non-alcoholic, concentrated, frozen": "Other",
+    "Fruit cocktail (peach, pear, apricot, pineapple, cherry, grape), canned, juice pack, solids and liquid": "Juice",
+    "Juice, cocktail, cranberry, vitamin C added, bottled": "Juice",
+    "Juice, cocktail, cranberry, vitamin C added, frozen concentrate": "Juice",
+    "Juice, cocktail, cranberry, vitamin C added, frozen concentrate, water added": "Juice",
+    "Juice, tomato clam cocktail, canned": "Juice",
+    "Malt beverage, includes non-alcoholic beer (<0.5% alcohol by volume)": "Other",
+    "Non-alcoholic, wine": "Other",
+    "Vegetable juice cocktail, canned": "Juice",
+    "Vegetable juice cocktail, canned, low sodium": "Juice",
+    "Alcohol, cocktail, whisky sour mix, bottled": "Other",
+    "Alcohol, cocktail, whisky sour mix, powder": "Other",
+    "Aperitif alcohol-free": "Other",
+    "Fruit mix/fruit cocktail, in juice, canned, drained": "Juice",
+    "Ginger Ale": "Soft Drinks",
+    "Sparkling wine alcohol-free": "Other",
+    "Wine alcohol-free": "Other",
+    "Kale juice, powder": "Juice",
+    "Ginger ale, dry": "Soft Drinks",
+    "Root beer": "Soft Drinks",
+    "Beverages, Cocktail mix, non-alcoholic, concentrated, frozen": "Other",
+    "Beverages, Cranberry juice cocktail": "Juice",
+    "Beverages, Whiskey sour mix, bottled": "Other",
+    "Beverages, Whiskey sour mix, powder": "Other",
+    "Beverages, Wine, non-alcoholic": "Other",
+    "Beverages, carbonated, ginger ale": "Soft Drinks",
+    "Beverages, carbonated, root beer": "Soft Drinks",
+    "Cranberry juice cocktail, bottled": "Juice",
+    "Cranberry juice cocktail, bottled, low calorie, with calcium, saccharin and corn sweetener": "Juice",
+    "Cranberry juice cocktail, frozen concentrate": "Juice",
+    "Cranberry juice cocktail, frozen concentrate, prepared with water": "Juice",
+    "Malt beverage, includes non-alcoholic beer": "Other",
+    "Vegetable juice cocktail, low sodium, canned": "Juice",
+    "Whiskey sour mix, bottled, with added potassium and sodium": "Other",
+}
+
+
+def bev_alcoholic_false_positive_subcategory(effective_category, name):
+    if effective_category != "Bev" or not name:
+        return None
+    if "minéral" in name.lower():
+        return "Water"
+    return BEV_ALCOHOL_FALSE_POSITIVE_SUBCATEGORIES.get(name)
+
+
 # Real, unambiguous cooking-state words only -- deliberately excludes
 # frequent-but-ambiguous trailing words found in the real data (meat, sauce,
 # cream, juice, seeds, heart, breast, leg, liver, giblets, oil, bacon,
@@ -3918,6 +4087,7 @@ def build(xlsx_path, db_path):
                 name_override = NAME_CATEGORY_OVERRIDES.get(name)
                 if name_override:
                     effective_category, base_name = name_override
+                effective_category = reclassify_bev_alcoholic_to_alcohol(effective_category, name)
                 # Classify against the full name, not short_name -- for
                 # branded/composite products short_name is often truncated
                 # to something generic (e.g. "Beverages, OCEAN SPRAY"),
@@ -3933,7 +4103,8 @@ def build(xlsx_path, db_path):
                     base_name,
                     prep_method,
                     effective_category,
-                    classify_subcategory(effective_category, name),
+                    bev_alcoholic_false_positive_subcategory(effective_category, name)
+                    or classify_subcategory(effective_category, name),
                     get("category"),
                     get("Scientific Classification"),
                     get("Classification Precision"),
