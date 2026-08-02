@@ -23,6 +23,7 @@ import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSy
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
+import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE, isCoffeeFood } from '../lib/coffeeAdvisory';
 import { DimensionFlags } from './DimensionFlags';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
@@ -1372,6 +1373,17 @@ export function BeverageBuilder({
                   <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol & Hashimoto’s -- tap to learn more</Text>
                 </TouchableOpacity>
               )}
+              {/* Same informational, non-gating shape as the alcohol row
+                  above -- see lib/coffeeAdvisory.ts's own top comment. */}
+              {isCoffeeFood(pendingResolved) && (
+                <TouchableOpacity
+                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
+                  onPress={() => showInfoAlert(COFFEE_ADVISORY_TITLE, COFFEE_ADVISORY_MESSAGE)}
+                >
+                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Coffee & levothyroxine -- tap to learn more</Text>
+                </TouchableOpacity>
+              )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
                   vertical pill spinner sized by renderLabeledPicker (see
@@ -1874,7 +1886,9 @@ const styles = StyleSheet.create({
   // colors.danger/statusYellow (DimensionFlags' own palette), since the
   // content itself is a real, honestly-mixed case, not a one-sided alert.
   // Uses tabColor, the same "this is interactive" signal PopoverSelect's
-  // own chevron already gives.
+  // own chevron already gives. Named for the first advisory that used it
+  // (alcohol) but shared as-is by the coffee advisory row too -- same
+  // visual treatment, no reason for a second identical style block.
   alcoholAdvisoryRow: {
     flexDirection: 'row',
     alignItems: 'center',

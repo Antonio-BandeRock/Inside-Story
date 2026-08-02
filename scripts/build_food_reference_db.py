@@ -214,6 +214,72 @@ CATEGORY_OVERRIDES = {
     # with water" variant has a fully distinct base_name of its own and
     # correctly stays in Bev).
     ("Bev", "Horlicks LowFat Instant powder"): "Brewing",                           # UK_CoFID
+    # Same "dry, not-yet-prepared base" pattern as Brewing above, checked
+    # 2026-08-02 for Soup/Sauces Builder specifically ("check the sauces
+    # and soups for anything similar"). Germany_BLS/Japan_MEXT already file
+    # their own bouillon cubes/gravy powder/instant roux under 'Herbs' --
+    # already reachable in both Soup and Sauces Builder's own category
+    # allowlists, so no bug there, just a naming quirk (a bouillon cube
+    # isn't literally an herb, but this is the existing precedent, and
+    # only 9 rows total doesn't justify a whole new category the way
+    # Brewing's 90+ did). These 9 join that same precedent -- found
+    # sitting in 'Mixed' instead, which is deliberately excluded from
+    # every builder's own allowlist (composite prepared dishes, not a raw
+    # ingredient anyone adds -- see constants/foodBuilderCategories.ts),
+    # so these were genuinely unreachable in Soup/Sauces Builder before
+    # this fix, not just oddly labeled. Each confirmed dry by its own
+    # name ("déshydraté" = dehydrated, not "reconstitué"/"prêt à
+    # consommer" = prepared; "instant dry mix") -- the real prepared
+    # broths/consommés/gravies sharing this same keyword search (e.g.
+    # "Bouillon de boeuf, déshydraté RECONSTITUÉ", "Soup, broth, beef,
+    # READY-TO-SERVE", every plain consommé) were checked by hand and
+    # deliberately left in Mixed, where they belong as finished dishes.
+    ("Mixed", "Bouillon de boeuf, déshydraté"): "Herbs",                            # France_Ciqual
+    ("Mixed", "Bouillon de volaille, déshydraté"): "Herbs",                         # France_Ciqual
+    ("Mixed", "Bouillon de viande et légumes type pot-au-feu, déshydraté"): "Herbs",              # France_Ciqual
+    ("Mixed", "Bouillon de viande et légumes type pot-au-feu, dégraissé, déshydraté"): "Herbs",   # France_Ciqual
+    ("Mixed", "Bouillon de viande et légumes type pot-au-feu, non dégraissé, déshydraté"): "Herbs", # France_Ciqual
+    ("Mixed", "Court-bouillon pour poissons, déshydraté"): "Herbs",                 # France_Ciqual
+    ("Mixed", "Soup, broth style, with meat, instant dry mix"): "Herbs",            # Australia_AFCD
+    ("Mixed", "Soup, broth style, with meat & noodles, instant dry mix"): "Herbs",  # Australia_AFCD
+    ("Mixed", "Gravy powder, dry mix"): "Herbs",                                    # Australia_AFCD
+    # Same check extended to the rest of the builders ("check the rest of
+    # the builders too"), 2026-08-02. Salad/Smoothie: genuinely nothing
+    # found -- no dry dressing-mix packet or smoothie-mix powder exists
+    # anywhere in this database (checked ranch/Italian/vinaigrette by name
+    # too, not just "dressing mix"); every real salad dressing on file is
+    # already a prepared liquid under Fats, correctly reachable already.
+    # Side Builder: found real, unreachable dry rice-side-dish mixes sitting
+    # in 'Mixed' (RICE-A-RONI and its unbranded equivalents, Spanish rice
+    # mix, seasoned/wild rice mixes) -- unlike the pasta-mix-with-meat-
+    # flavoring "dinner kit" products sharing this same search (Hamburger-
+    # Helper-style "Pasta mix, classic beef"/"...cheeseburger macaroni",
+    # boxed mac-and-cheese, frozen lasagna/Salisbury steak/pizza rolls/
+    # potstickers), which are genuinely a different, composite whole-meal
+    # product, not a side ingredient, and deliberately left in Mixed, same
+    # reasoning as the boxed mac-and-cheese kit already excluded earlier.
+    # Routed to 'Grain' (already in Side Builder's allowlist) rather than
+    # 'Herbs' -- a flavored rice mix is fundamentally a rice/grain product,
+    # not a seasoning concentrate the way bouillon/gravy powder are.
+    ("Mixed", "RICE-A-RONI Chicken Flavor"): "Grain",                               # USDA
+    ("Mixed", "Grains, rice and vermicelli mix, chicken flavour"): "Grain",         # Canada_CNF
+    ("Mixed", "Rice and vermicelli mix, beef flavor"): "Grain",                     # USDA
+    ("Mixed", "Rice and vermicelli mix, rice pilaf flavor"): "Grain",               # USDA
+    ("Mixed", "Rice mix, cheese flavor"): "Grain",                                  # USDA
+    ("Mixed", "Rice mix, white and wild"): "Grain",                                 # USDA
+    ("Mixed", "Rice, spanish rice mix"): "Grain",                                   # Canada_CNF
+    ("Mixed", "Spanish rice mix, dry mix"): "Grain",                                # USDA
+    ("Mixed", "Yellow rice with seasoning, dry packet mix"): "Grain",               # USDA
+    # Three more instant soup mixes missed on the first Soup/Sauces pass
+    # (that search targeted "bouillon/broth/stock/consomme" specifically
+    # and didn't catch these) -- found on this broader "any dry/unprepared
+    # item still in Mixed" sweep. Join the "Soup, broth style..." pair
+    # already moved to Herbs above; the one real sibling this search also
+    # caught ("Soup, chicken & noodle, cup of soup, prepared from instant
+    # dry mix WITH WATER") already has water added and correctly stays.
+    ("Mixed", "Soup, cream variety, instant dry mix"): "Herbs",                     # Australia_AFCD
+    ("Mixed", "Soup, vegetable & noodle, instant dry mix"): "Herbs",                # Australia_AFCD
+    ("Mixed", "Soup, vegetable, instant dry mix"): "Herbs",                         # Australia_AFCD
     ("Veg", "Acorn stew (Apache)"): "Mixed",
     ("Veg", "Cream of mushroom soup instant powder"): "Mixed",
     ("Veg", "Cream of mushroom soup, made from instant powder and water"): "Mixed",
@@ -1011,6 +1077,22 @@ NUTRIENT_DEFINITIONS = [
     # confirmed directly against the raw workbook), not just the one
     # synthetic supplement-powder food this was originally scoped to.
     ("choline", "Choline", "mg", "vitamin"),
+    # Grouped 'macro' -- same pragmatic "no strict bucket fits" call as
+    # water above (caffeine is a bioactive stimulant compound, not a true
+    # macronutrient either, but this app's own nutrient_group only has
+    # three values to choose from). 2026-08-02, added specifically to
+    # ground a real coffee-brewing-method advisory (see lib/
+    # coffeeAdvisory.ts) in real per-food data rather than assumption --
+    # real column ("Caffeine (MG)") confirmed present in all 7 source
+    # sheets, just never imported before now. Deliberately NOT paired with
+    # a DIETARY_REFERENCE_INTAKES row below -- NASEM/IOM has never
+    # published a formal RDA/AI/UL for caffeine (it isn't an essential
+    # nutrient), and this table's own DRI_AGENCY constant is a single
+    # shared "NASEM..." attribution applied to every row, so forcing in
+    # the FDA's separate general 400mg/day guidance here would misattribute
+    # its real source. That guidance is cited properly, by its own real
+    # source, in the coffee advisory's own content instead.
+    ("caffeine", "Caffeine", "mg", "macro"),
     ("calcium", "Calcium", "mg", "mineral"),
     ("iron", "Iron", "mg", "mineral"),
     ("magnesium", "Magnesium", "mg", "mineral"),
@@ -1050,6 +1132,18 @@ NUTRIENT_COLUMN_ALIASES = {
     "folate_b9": ["Folate, total (UG)"],
     "vitamin_b12": ["Vitamin B-12 (UG)"],
     "choline": ["Choline, total (MG)", "CHOLINE, TOTAL (mg)"],
+    # Two real mg-unit column variants across the 7 sheets (checked exact
+    # cell text directly, not assumed) -- "Caffeine (MG)" and a second,
+    # multi-line "Caffeine \n(mg) (mg)" column (normalize_header collapses
+    # the newline to "Caffeine (mg) (mg)"), the same doubled-unit-suffix
+    # pattern already seen for biotin_b7's own second alias. Deliberately
+    # does NOT include "Caffeine (g/100 g)" -- a real column too, but in
+    # grams, not milligrams; this table's own aliasing has no per-alias
+    # unit conversion, so mixing it in here would silently store gram
+    # values as if they were milligrams (a real 1000x error), not just
+    # broaden coverage. Rows only measured in that gram column show no
+    # caffeine value here rather than a wrong one.
+    "caffeine": ["Caffeine (MG)", "Caffeine (mg) (mg)"],
     "calcium": ["Calcium, Ca (MG)"],
     "iron": ["Iron, Fe (MG)"],
     "magnesium": ["Magnesium, Mg (MG)"],

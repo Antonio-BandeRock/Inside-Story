@@ -23,6 +23,7 @@ import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSy
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
+import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE, isCoffeeFood } from '../lib/coffeeAdvisory';
 import { DimensionFlags } from './DimensionFlags';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
@@ -1383,6 +1384,21 @@ export function FermentationBuilder({
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                   <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol & Hashimoto’s -- tap to learn more</Text>
+                </TouchableOpacity>
+              )}
+              {/* Same informational, non-gating shape as the alcohol row
+                  above -- see lib/coffeeAdvisory.ts's own top comment.
+                  Relevant here specifically because kombucha is literally
+                  brewed from tea, and a coffee-based ferment (kombucha
+                  made from coffee, a real if less common practice) would
+                  route through Brewing's own Coffee-keyword items too. */}
+              {isCoffeeFood(pendingResolved) && (
+                <TouchableOpacity
+                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
+                  onPress={() => showInfoAlert(COFFEE_ADVISORY_TITLE, COFFEE_ADVISORY_MESSAGE)}
+                >
+                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Coffee & levothyroxine -- tap to learn more</Text>
                 </TouchableOpacity>
               )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
