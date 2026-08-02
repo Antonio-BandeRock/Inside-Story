@@ -381,7 +381,22 @@ export async function getPreparationMethods(category: string, subcategory: strin
   );
 
   const methods = rows.map((row) => row.prep);
-  return methods.length > 1 ? methods : [];
+  // A single distinct prep_method is still a real answer worth resolving
+  // to -- Garlic's only USDA row is tagged 'Raw', Chia Seeds' only USDA row
+  // is tagged 'Dried'. Unconditionally collapsing every length-1 result to
+  // [] (as this used to do) threw that one real value away entirely: the
+  // caller (FoodLookup.tsx) had no way to learn what it was, defaulted to
+  // null, and resolveFoodChoice's null -> 'Standard' fallback only matches
+  // a genuinely untagged (prep_method IS NULL) row -- which doesn't exist
+  // for either of these foods, so resolution silently failed. Real bug,
+  // confirmed 2026-08-02: reported as "the food doesn't come up in the
+  // pending ingredient card" for garlic/bacon/chia seeds specifically,
+  // while multi-prep foods (asparagus, snap beans) worked fine, which is
+  // exactly this split -- multi-prep foods never hit this collapsed path.
+  // Only still collapse to [] when the single value IS the NULL sentinel
+  // ('Standard') -- a food with no prep_method tagged at all genuinely has
+  // nothing to resolve or show a picker for.
+  return methods.length > 1 ? methods : methods[0] === 'Standard' ? [] : methods;
 }
 
 // Resolves a chosen (category, type, food name, prep method) combination

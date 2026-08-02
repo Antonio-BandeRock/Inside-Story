@@ -384,7 +384,15 @@ export function FoodLookup({
       // the full list for anyone who deliberately wants Boiled/Canned/
       // Dried/etc, e.g. Insights' own Food Lookup lens comparing prep
       // states on purpose.
-      setPrepMethod(methods.includes('Raw') ? 'Raw' : null);
+      // A single real option -- however it's actually labeled ('Raw',
+      // 'Dried', whatever this food's own only tagged state is) -- is
+      // auto-selected the same way 'Raw' already was, 2026-08-02: with
+      // getPreparationMethods now returning that one real value instead of
+      // silently swallowing it (see that function's own comment), there's
+      // no real choice to present for exactly one option regardless of its
+      // name, and leaving it null would resolve against the wrong (empty)
+      // prep_method again.
+      setPrepMethod(methods.includes('Raw') ? 'Raw' : methods.length === 1 ? methods[0] : null);
       setPrepMethodsLoading(false);
     });
     return () => {
