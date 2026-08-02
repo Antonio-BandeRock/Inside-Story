@@ -8,12 +8,13 @@ import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
+import { SaladBuilder } from '../../components/SaladBuilder';
 import { SideBuilder } from '../../components/SideBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
-import { listFavorites, listSides } from '../../lib/db';
+import { listFavorites, listSalads, listSides } from '../../lib/db';
 
 // This page's own identity color -- every box FoodLookup draws (list
 // borders, the results table, its own text) takes this as its `tabColor`
@@ -54,7 +55,8 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
   mealBuilder: 'Not built yet. Replaces the old all-in-one meal builder -- build and log a full meal from one or more sides.',
   sideBuilder:
     "In progress. Name the dish (optional), set # of Servings and Serving Size, then add one or more ingredients (category -> type -> food -> prep, then quantity/unit) -- nutrient lookup itself lives on Insights' own Food Lookup lens instead of being duplicated here. Done leads into a required \"how was this cooked\" step (cooking method changes retained nutrients), then a soft, skippable nudge if no cooking oil/fat or seasoning was logged -- easy to miss both by accident. Saving the finished side as a reusable favorite isn't wired up yet.",
-  saladBuilder: 'Not built yet. Its own builder rather than a dropdown value on a generic meal -- room for salad-specific handling (dressing, raw-quantity checks on goitrogenic greens, etc.).',
+  saladBuilder:
+    'In progress. Same builder flow as Side (name, servings/serving size, then ingredients with category -> type -> food -> prep, quantity/unit, cut prep, cook prep), plus its own real twist: finishing a salad checks for two or more raw goitrogenic vegetables mixed together (easy to eat far more of them raw and combined than cooked and separate) and warns before saving, rather than silently letting it through. Saving as a reusable favorite isn\'t wired up yet, same as Side.',
   smoothieBuilder: 'Not built yet. Its own builder, same reasoning as Salad -- blending makes it easy to eat a much larger raw quantity of goitrogenic ingredients than you would cooked and separate, worth a dedicated check.',
   fermentationBuilder: 'Not built yet. New territory -- logging homemade fermented foods (yogurt, sauerkraut, etc.), eventually down to the specific bacterial strain involved.',
   beverageBuilder: 'Not built yet. Replaces "Beverage" as a meal-type dropdown value -- water and other drinks, including anything dissolved or mixed in, as their own builder.',
@@ -186,7 +188,7 @@ const FOOD_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Status',
-    body: "Being built one at a time. Side can build a real side dish (servings, serving size, one or more ingredients with quantity/unit) and save it for real; the other nine are still plain placeholders. Saving as a reusable favorite, and building a full meal out of saved sides, aren't wired up yet. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
+    body: "Being built one at a time, in this order: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, Sauces, then Meal last (it assembles the other nine builders' own saved output, so it can't be built until they exist). Side and Salad can both build and save a real dish for real; the other eight are still plain placeholders. Saving as a reusable favorite isn't wired up yet for either. Nothing you could do on the old Food tab (build a meal, save a favorite, search ingredients) works here yet.",
   },
 ];
 
@@ -206,32 +208,39 @@ function ComingSoonBuilder({ lens }: { lens: FoodLens }) {
 export default function FoodScreen() {
   useRegisterScreenHelp('Food', FOOD_HELP_SECTIONS, '/food');
   const router = useRouter();
-  // Set when reached via a saved side's own Edit button (see
-  // app/food-items.tsx), 2026-08-01 -- pushed here as a route param rather
-  // than a prop, since food-items.tsx is a separate stack screen with no
-  // other way to hand SideBuilder a specific side to load. Read once below
-  // to jump straight into Side Builder already revealed, bypassing the
+  // Set when reached via a saved side's/salad's own Edit button (see
+  // app/food-items.tsx), 2026-08-01 (editSaladId added 2026-08-02, same
+  // reasoning) -- pushed here as a route param rather than a prop, since
+  // food-items.tsx is a separate stack screen with no other way to hand
+  // SideBuilder/SaladBuilder a specific record to load. Read once below to
+  // jump straight into the right builder already revealed, bypassing the
   // normal "pick a lens from LensHub" step entirely -- editing isn't a
   // fresh choice of what to build, it's returning to something specific.
-  const { editSideId } = useLocalSearchParams<{ editSideId?: string }>();
+  const { editSideId, editSaladId } = useLocalSearchParams<{ editSideId?: string; editSaladId?: string }>();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   useFocusEffect(
     useCallback(() => {
-      // editSideId overrides the normal "always land on the picker" reset
-      // below -- without this, arriving here to edit a side would still
-      // show the LensHub picker for a beat (or permanently, once revealed
-      // was reset false on focus) instead of the side itself.
+      // editSideId/editSaladId override the normal "always land on the
+      // picker" reset below -- without this, arriving here to edit a
+      // record would still show the LensHub picker for a beat (or
+      // permanently, once revealed was reset false on focus) instead of
+      // the record itself.
       if (editSideId) {
         setLens('sideBuilder');
         setRevealed(true);
         return;
       }
+      if (editSaladId) {
+        setLens('saladBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, [editSideId]),
+    }, [editSideId, editSaladId]),
   );
 
   // "My Foods" categories (see MyItemsHub below) -- refetched every time
@@ -243,18 +252,29 @@ export default function FoodScreen() {
   // screen never has to hold two copies of the same data in sync.
   //
   // This array is the one place that grows as more builders get a real
-  // save path -- Side is the only one with anything to show yet (Favorites
-  // filtered to 'side' specifically, since Side Builder is the only
-  // builder that produces anything favoritable so far, and this list has
+  // save path -- Side and Salad are the only two with anything to show yet
+  // (Favorites filtered to 'side'/'salad' specifically, since neither
+  // builder's own favoriting is wired up to actually write one yet, same
+  // as Side's -- see FOOD_LENS_COPY.saladBuilder above -- and this list has
   // no use for meal favorites saved by the old, deleted meal builder).
-  // Adding Salad's own "Saved Salads"/"Favorite Salads" later is two more
-  // entries here, not a restructure of MyItemsHub or food-items.tsx.
+  // Adding each remaining builder's own "Saved X"/"Favorite X" later is two
+  // more entries here per builder, not a restructure of MyItemsHub or
+  // food-items.tsx.
   const [sideCount, setSideCount] = useState(0);
   const [sideFavoriteCount, setSideFavoriteCount] = useState(0);
+  const [saladCount, setSaladCount] = useState(0);
+  const [saladFavoriteCount, setSaladFavoriteCount] = useState(0);
   async function loadMyFoodsCounts() {
-    const [sides, favorites] = await Promise.all([listSides(), listFavorites(50, 'side')]);
+    const [sides, sideFavorites, salads, saladFavorites] = await Promise.all([
+      listSides(),
+      listFavorites(50, 'side'),
+      listSalads(),
+      listFavorites(50, 'salad'),
+    ]);
     setSideCount(sides.length);
-    setSideFavoriteCount(favorites.length);
+    setSideFavoriteCount(sideFavorites.length);
+    setSaladCount(salads.length);
+    setSaladFavoriteCount(saladFavorites.length);
   }
   const myFoodsCategories: MyItemsCategory[] = [
     {
@@ -269,6 +289,19 @@ export default function FoodScreen() {
       count: sideFavoriteCount,
       onPress: () =>
         router.push({ pathname: '/food-items', params: { itemType: 'side', status: 'favorite', title: 'Favorite Sides' } }),
+    },
+    {
+      id: 'salad-saved',
+      label: 'Saved Salads',
+      count: saladCount,
+      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'salad', status: 'saved', title: 'Saved Salads' } }),
+    },
+    {
+      id: 'salad-favorite',
+      label: 'Favorite Salads',
+      count: saladFavoriteCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'salad', status: 'favorite', title: 'Favorite Salads' } }),
     },
   ];
 
@@ -291,6 +324,11 @@ export default function FoodScreen() {
             // same FlatList-in-ScrollView reasoning as Insights' own Food
             // Lookup lens.
             <SideBuilder tabColor={TAB_COLOR} editSideId={editSideId} />
+          ) : lens === 'saladBuilder' ? (
+            // SaladBuilder is a direct adaptation of SideBuilder (see that
+            // file's own top comment) -- same layout-ownership reasoning
+            // applies here too.
+            <SaladBuilder tabColor={TAB_COLOR} editSaladId={editSaladId} />
           ) : (
             <ComingSoonBuilder lens={lens} />
           )}

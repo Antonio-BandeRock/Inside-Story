@@ -6,7 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
-import { deleteSide, listFavorites, listSides } from '../lib/db';
+import { deleteSalad, deleteSide, listFavorites, listSalads, listSides } from '../lib/db';
 import { useInfoAlert } from '../components/InfoAlert';
 
 // A Stack push outside the (tabs) group, same shape as app/profile.tsx/
@@ -105,7 +105,7 @@ export default function FoodItemsScreen() {
                   // a different, JSON-payload shape with no ingredients to
                   // show yet, see lib/db.ts's own favorites table) has
                   // anything for food-item-detail.tsx to actually show.
-                  if (status === 'saved' && itemType === 'side') {
+                  if (status === 'saved' && (itemType === 'side' || itemType === 'salad')) {
                     router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
                     return;
                   }
@@ -139,16 +139,18 @@ export default function FoodItemsScreen() {
                 <TouchableOpacity
                   style={styles.itemActionButton}
                   onPress={() => {
-                    // Side pushes into app/(tabs)/food.tsx's own Side
-                    // Builder pre-loaded via editSideId (see that file and
-                    // SideBuilder.tsx's own editSideId prop). Written
-                    // inline (not returned from a helper) so the route's
-                    // own literal pathname stays visible to Expo Router's
-                    // typed-routes checking -- a helper returning a plain
-                    // `string` pathname would widen it past what
-                    // router.push's typed Href accepts.
+                    // Side/Salad each push into app/(tabs)/food.tsx's own
+                    // builder pre-loaded via editSideId/editSaladId (see
+                    // that file and SideBuilder.tsx/SaladBuilder.tsx's own
+                    // props). Written inline (not returned from a helper)
+                    // so each route's own literal pathname/params stay
+                    // visible to Expo Router's typed-routes checking -- a
+                    // helper returning a plain `string` pathname would
+                    // widen it past what router.push's typed Href accepts.
                     if (itemType === 'side') {
                       router.push({ pathname: '/food', params: { editSideId: item.id } });
+                    } else if (itemType === 'salad') {
+                      router.push({ pathname: '/food', params: { editSaladId: item.id } });
                     }
                   }}
                   accessibilityLabel={`Edit ${item.title}`}
@@ -192,8 +194,8 @@ export default function FoodItemsScreen() {
 
 // Fetches whichever builder's own data this category actually needs --
 // the one place this screen knows about specific builders/tables at all.
-// Grows by one case as each builder gets a real save path; Side is the
-// first and only one right now.
+// Grows by one case as each builder gets a real save path; Side and Salad
+// are the first two.
 async function loadItems(itemType: string | undefined, status: string | undefined): Promise<FoodItemEntry[]> {
   if (itemType === 'side') {
     if (status === 'favorite') {
@@ -212,25 +214,39 @@ async function loadItems(itemType: string | undefined, status: string | undefine
       subtitle: side.ingredientNames || `${side.ingredientCount} ingredient${side.ingredientCount === 1 ? '' : 's'}`,
     }));
   }
+  if (itemType === 'salad') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'salad');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const salads = await listSalads();
+    return salads.map((salad) => ({
+      id: salad.id,
+      title: salad.name,
+      subtitle: salad.ingredientNames || `${salad.ingredientCount} ingredient${salad.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
   return [];
 }
 
 // Whether this itemType supports Edit/Delete at all -- kept as two
 // separate checks (rather than one) since an itemType could in principle
 // support one without the other, even though today they're the same set
-// (Side, only). Grows by one case per builder as each gets a real save
+// (Side and Salad). Grows by one case per builder as each gets a real save
 // path, same as loadItems above.
 function supportsEdit(itemType: string | undefined): boolean {
-  return itemType === 'side';
+  return itemType === 'side' || itemType === 'salad';
 }
 
 function supportsDelete(itemType: string | undefined): boolean {
-  return itemType === 'side';
+  return itemType === 'side' || itemType === 'salad';
 }
 
 async function deleteItem(itemType: string | undefined, id: string): Promise<void> {
   if (itemType === 'side') {
     await deleteSide(id);
+  } else if (itemType === 'salad') {
+    await deleteSalad(id);
   }
 }
 
