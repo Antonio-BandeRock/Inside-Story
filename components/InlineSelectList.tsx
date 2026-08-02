@@ -1,5 +1,5 @@
-import { useMemo } from 'react';
-import { FlatList, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useRef, useState } from 'react';
+import { FlatList, StyleSheet, Text, TouchableOpacity, View, type ViewToken } from 'react-native';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 
@@ -12,6 +12,11 @@ export type InlineSelectOption = {
   // know anything about WHY those rows are related. Omitted (the default)
   // for every existing caller -- an ordinary tappable row, unchanged.
   isHeader?: boolean;
+  // Set on a real group member to that group's own header label (see
+  // lib/foodNameGrouping.ts's own comment on GroupedFoodEntry) -- drives
+  // the sticky-overlay tracking below. Omitted for an ungrouped row and
+  // for header rows themselves.
+  groupLabel?: string;
 };
 
 // A plain, always-inline single-select scrollable list -- deliberately NOT
@@ -63,26 +68,63 @@ export function InlineSelectList({
   // corner poking out from under a square one.
   squareTop?: boolean;
 }) {
-  // Group headers (see lib/foodNameGrouping.ts) pin to the top of this
-  // list while their own members scroll underneath, the same "section
-  // header" behavior every native grouped list (Contacts, iOS Settings)
-  // already has -- explicitly requested 2026-08-02 after a header
-  // (e.g. "Butter") scrolled away with its own items, leaving whatever
-  // came next with no visible heading at all until the FOLLOWING group's
-  // header appeared, making unrelated rows look like they belonged to the
-  // section above. FlatList's own `stickyHeaderIndices` is the built-in
-  // mechanism for exactly this -- an array of indices into `data` that
-  // should render pinned rather than scroll normally -- so this recomputes
-  // which indices are headers instead of reaching for a heavier list
-  // primitive (SectionList) that would need a bigger rewrite of every
-  // caller's own flat `options` shape.
-  const stickyHeaderIndices = useMemo(
-    () => options.reduce<number[]>((acc, option, index) => {
-      if (option.isHeader) acc.push(index);
-      return acc;
-    }, []),
-    [options],
-  );
+  // A hand-rolled sticky group header, 2026-08-02 -- a real, on-device
+  // crash ruled out FlatList's own native `stickyHeaderIndices` (and, by
+  // the same underlying mechanism, SectionList's `stickySectionHeadersEnabled`)
+  // for this list: that native code path apparently can't handle a list
+  // nested inside another ScrollView (required here, see
+  // `nestedScrollEnabled` below) carrying anywhere from ~70 to ~300 group
+  // headers (Dairy/Meat/Veg), even though the identical
+  // stickySectionHeadersEnabled mechanism works fine elsewhere in this app
+  // for a 3-section list that ISN'T nested (see FoodLookup.tsx's own
+  // nutrient results table). Deliberately reimplemented without touching
+  // that native mechanism at all: `onViewableItemsChanged` is a plain JS
+  // callback RN already fires whenever the set of visible rows changes, no
+  // different in kind from a scroll listener -- from the topmost visible
+  // row, look up which group (if any) it belongs to, and render a plain
+  // absolutely-positioned View over the top of the list showing that
+  // group's own label. No native sticky-position bookkeeping is ever
+  // involved, so this doesn't share the crashed native code path regardless
+  // of list size or nesting.
+  const [stickyLabel, setStickyLabel] = useState<string | null>(null);
+
+  // FlatList requires `onViewableItemsChanged` to keep the same identity
+  // across renders (it warns/throws otherwise) -- but `options` itself is
+  // a fresh array every render from most callers (FoodLookup.tsx doesn't
+  // memoize `foodListOptions`). Keeping the latest options in a ref lets
+  // the callback stay referentially stable while still reading current
+  // data.
+  const optionsRef = useRef(options);
+  optionsRef.current = options;
+
+  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+    let topIndex: number | null = null;
+    for (const viewToken of viewableItems) {
+      if (viewToken.index !== null && (topIndex === null || viewToken.index < topIndex)) {
+        topIndex = viewToken.index;
+      }
+    }
+    if (topIndex === null) {
+      setStickyLabel(null);
+      return;
+    }
+    const topOption = optionsRef.current[topIndex];
+    // A header itself scrolled to the top means the real header row is
+    // already visible right there -- showing the overlay too would just
+    // duplicate it, so only show the overlay once we've scrolled past a
+    // header into its own members.
+    if (!topOption || topOption.isHeader) {
+      setStickyLabel(null);
+      return;
+    }
+    setStickyLabel(topOption.groupLabel ?? null);
+  }).current;
+
+  // viewAreaCoveragePercentThreshold: 0 -- fire as soon as a row has ANY
+  // pixel on screen, so the "topmost visible row" this tracks matches what
+  // a person would actually call the top of the list, not something that
+  // requires a full row's height to already be showing.
+  const viewabilityConfig = useRef({ viewAreaCoveragePercentThreshold: 0 }).current;
 
   return (
     <View style={[styles.container, { height, borderColor: tabColor }, squareTop && styles.squareTop]}>
@@ -91,39 +133,49 @@ export function InlineSelectList({
           {header}
         </Text>
       </View>
-      <FlatList
-        style={styles.list}
-        data={options}
-        keyExtractor={(option, index) => `${option.value}-${index}`}
-        stickyHeaderIndices={stickyHeaderIndices}
-        // Android specifically needs this said explicitly for a scrollable
-        // list's own gesture to win over the outer page ScrollView it sits
-        // inside, rather than the two fighting over the same touch -- iOS
-        // already behaves this way without it.
-        nestedScrollEnabled
-        renderItem={({ item }) => {
-          if (item.isHeader) {
+      <View style={styles.listWrapper}>
+        <FlatList
+          style={styles.list}
+          data={options}
+          keyExtractor={(option, index) => `${option.value}-${index}`}
+          onViewableItemsChanged={onViewableItemsChanged}
+          viewabilityConfig={viewabilityConfig}
+          // Android specifically needs this said explicitly for a scrollable
+          // list's own gesture to win over the outer page ScrollView it sits
+          // inside, rather than the two fighting over the same touch -- iOS
+          // already behaves this way without it.
+          nestedScrollEnabled
+          renderItem={({ item }) => {
+            if (item.isHeader) {
+              return (
+                <View style={styles.groupHeader}>
+                  <Text style={[styles.groupHeaderText, { color: tabColor }]} numberOfLines={1}>
+                    {item.label}
+                  </Text>
+                </View>
+              );
+            }
+            const isSelected = item.value === value;
             return (
-              <View style={styles.groupHeader}>
-                <Text style={[styles.groupHeaderText, { color: tabColor }]} numberOfLines={1}>
+              <TouchableOpacity
+                style={[styles.item, isSelected ? { backgroundColor: tabColor } : null]}
+                onPress={() => onChange(item.value)}
+              >
+                <Text style={[styles.itemText, isSelected ? styles.itemTextSelected : null]} numberOfLines={1}>
                   {item.label}
                 </Text>
-              </View>
+              </TouchableOpacity>
             );
-          }
-          const isSelected = item.value === value;
-          return (
-            <TouchableOpacity
-              style={[styles.item, isSelected ? { backgroundColor: tabColor } : null]}
-              onPress={() => onChange(item.value)}
-            >
-              <Text style={[styles.itemText, isSelected ? styles.itemTextSelected : null]} numberOfLines={1}>
-                {item.label}
-              </Text>
-            </TouchableOpacity>
-          );
-        }}
-      />
+          }}
+        />
+        {stickyLabel ? (
+          <View style={[styles.groupHeader, styles.stickyOverlay]} pointerEvents="none">
+            <Text style={[styles.groupHeaderText, { color: tabColor }]} numberOfLines={1}>
+              {stickyLabel}
+            </Text>
+          </View>
+        ) : null}
+      </View>
     </View>
   );
 }
@@ -152,6 +204,10 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
   },
   headerText: typography.label,
+  // Wraps the FlatList and the sticky overlay together so the overlay can
+  // be positioned absolutely relative to this box specifically, not the
+  // whole component (which also contains the fixed `header` bar above).
+  listWrapper: { flex: 1, position: 'relative' },
   // flex: 1, not a fixed height -- fills whatever's left of the container
   // after the header above it, so the container's own `height` prop stays
   // the single source of truth for the whole box's total footprint.
@@ -169,10 +225,11 @@ const styles = StyleSheet.create({
   itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
   // A plain, non-tappable divider row -- deliberately not shaped like
   // `item` (no border, no press feedback) so it reads as organizational
-  // chrome rather than one more option in the list. Opaque background
-  // (matching the container's own) is required, not cosmetic, now that
-  // this row pins in place via stickyHeaderIndices above -- without it,
-  // items scrolling underneath would show through the pinned header.
+  // chrome rather than one more option in the list. Opaque background is
+  // required, not cosmetic, both for its normal in-flow appearance and for
+  // the sticky-overlay copy of this same style (see stickyOverlay below) --
+  // without it, rows scrolling underneath the pinned overlay would show
+  // through.
   groupHeader: {
     paddingHorizontal: 16,
     paddingTop: 8,
@@ -180,6 +237,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+  },
+  // The hand-rolled sticky header itself -- see the component's own top
+  // comment for why this exists instead of a native sticky-header prop.
+  // Positioned at the very top of listWrapper, directly under the fixed
+  // "Select a..." header bar (which lives outside listWrapper entirely),
+  // so it reads as a natural continuation of the list rather than a
+  // second, competing header.
+  stickyOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
   },
   groupHeaderText: typography.eyebrow,
 });

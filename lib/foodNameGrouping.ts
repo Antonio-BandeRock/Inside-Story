@@ -30,7 +30,17 @@
 
 export type GroupedFoodEntry =
   | { type: 'header'; key: string; label: string }
-  | { type: 'item'; label: string; value: string };
+  // groupLabel is set only for an item that's a real member of a group
+  // (matches its own header's `label` exactly) -- omitted for an
+  // ungrouped singleton, even one that happens to sort alphabetically
+  // right next to a group in the flattened list below. A consumer that
+  // wants to know "which header, if any, actually governs this row" (see
+  // InlineSelectList.tsx's own custom sticky-header overlay) needs this
+  // distinction spelled out explicitly rather than inferred by walking
+  // backward through the flattened array, since a group's own block of
+  // members is contiguous but an unrelated singleton can immediately
+  // follow it with no header of its own in between.
+  | { type: 'item'; label: string; value: string; groupLabel?: string };
 
 // Real connector/state words that end up as a name's first or last word
 // often enough to be worth excluding explicitly -- grouping foods under
@@ -212,7 +222,7 @@ export function buildFoodNameGroups(names: string[]): GroupedFoodEntry[] {
       sortKey: label,
       entries: [
         { type: 'header', key, label },
-        ...sortedMembers.map((m) => ({ type: 'item' as const, label: m.strippedLabel, value: m.name })),
+        ...sortedMembers.map((m) => ({ type: 'item' as const, label: m.strippedLabel, value: m.name, groupLabel: label })),
       ],
     });
   }

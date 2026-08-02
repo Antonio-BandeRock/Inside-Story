@@ -657,7 +657,7 @@ export function FoodLookup({
     : buildFoodNameGroups(foodNameOptions).map((entry) =>
         entry.type === 'header'
           ? { label: entry.label, value: `__group_${entry.key}`, isHeader: true }
-          : { label: entry.label, value: entry.value },
+          : { label: entry.label, value: entry.value, groupLabel: entry.groupLabel },
       );
 
   const content = (
