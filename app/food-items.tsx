@@ -196,7 +196,12 @@ async function loadItems(itemType: string | undefined, status: string | undefine
     return sides.map((side) => ({
       id: side.id,
       title: side.name,
-      subtitle: `${side.ingredientCount} ingredient${side.ingredientCount === 1 ? '' : 's'}`,
+      // The actual ingredients, not just a count, 2026-08-02 -- explicitly
+      // requested: two differently-built "Mixed Vegetable Medley" sides
+      // read identically as "N ingredients" before this. Falls back to
+      // the count only for the (not currently reachable) zero-ingredient
+      // case ingredientNames itself can't cover.
+      subtitle: side.ingredientNames || `${side.ingredientCount} ingredient${side.ingredientCount === 1 ? '' : 's'}`,
     }));
   }
   return [];
@@ -223,7 +228,15 @@ async function deleteItem(itemType: string | undefined, id: string): Promise<voi
 
 const styles = StyleSheet.create({
   wrapper: { flex: 1, backgroundColor: colors.background },
-  container: { padding: 16, paddingTop: 12 },
+  // flexGrow + justifyContent: 'flex-end', 2026-08-02, explicitly
+  // requested -- with only a few saved items, they used to stack from the
+  // top, leaving the bottom of the screen (the easiest place for a thumb
+  // to reach one-handed) empty. flexGrow lets this container fill the
+  // ScrollView's own viewport when content is shorter than it, which is
+  // what flex-end has room to push against; once real content exceeds
+  // that height, normal scrolling takes over and this has no effect --
+  // never fights a long list, only fills empty space in a short one.
+  container: { padding: 16, paddingTop: 12, flexGrow: 1, justifyContent: 'flex-end' },
   emptyText: {
     ...typography.body,
     color: colors.textSecondary,
@@ -248,9 +261,15 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingVertical: 12,
   },
+  // marginRight, 2026-08-02, explicitly requested -- Delete in particular
+  // sat flush against the screen's true edge (only the container's own
+  // 16px padding away from it); this pulls both action buttons a bit
+  // further in, and as a side effect gives Edit/Delete a touch more
+  // breathing room from each other too.
   itemActionButton: {
     paddingHorizontal: 8,
     paddingVertical: 12,
+    marginRight: 6,
   },
   itemTextWrap: { flex: 1, marginRight: 12 },
   itemTitle: {

@@ -1673,6 +1673,14 @@ export type SideRecord = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredientCount: number;
+  // Comma-joined ingredient names, in save order -- 2026-08-02, explicitly
+  // requested so app/food-items.tsx's own list can show what's actually IN
+  // a side rather than just a count: two different "Mixed Vegetable
+  // Medley" sides with different real ingredients looked identical in that
+  // list before this. Null only for a side with zero ingredients (not a
+  // real path through SideBuilder today, but the LEFT JOIN below can't
+  // rule it out at the type level).
+  ingredientNames: string | null;
   createdAt: string;
 };
 
@@ -1684,7 +1692,11 @@ export async function listSides(limit = 50): Promise<SideRecord[]> {
   return db.getAllAsync<SideRecord>(
     `
       SELECT s.id, s.name, s.servings, s.serving_size_amount AS servingSizeAmount, s.serving_size_unit AS servingSizeUnit,
-             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount
+             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(food_name, ', ')
+               FROM (SELECT food_name FROM side_ingredients WHERE side_id = s.id ORDER BY sort_order)
+             ) AS ingredientNames
       FROM sides s
       LEFT JOIN side_ingredients si ON si.side_id = s.id
       GROUP BY s.id
