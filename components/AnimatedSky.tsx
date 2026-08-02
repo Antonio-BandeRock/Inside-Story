@@ -31,22 +31,32 @@ import { CONSTELLATIONS } from '../lib/starCatalog';
 // moon stays fully behind the hills" and "it visibly dips in front of
 // them by a few pixels."
 //
-// 2026-07-26: actually measured against the real source asset's own pixel
-// data (assets/backgrounds/App_Background_Image.png, 896x1200) rather than
-// eyeballed -- sampled three vertical strips (25%, 50%, 75% across) and
-// found a sharp brightness/hue drop (pale sky blues to warm hill browns)
-// consistently between y=185 and y=210, i.e. a fraction of about
-// 0.154-0.175. 0.16 (the middle of that range) was reported 2026-07-27 as
-// still letting the moon dip a few pixels in front of the hills at its
-// lowest point -- moved to 0.15, just under the measured range's own
-// lower bound, rather than just picking a different point inside it: the
-// on-screen Image's contentFit: 'cover' crops a different slice of the
-// source per device (see this constant's own history), so the true
-// rendered hill line isn't fixed even within that measured range --
-// erring toward "clips a hair early" is the safe direction, since a moon
-// that disappears very slightly before the true hill line reads as fine,
-// where one that visibly overlaps the hills reads as a real bug.
-const SKY_BAND_HEIGHT_FRACTION = 0.15;
+// 2026-08-02, corrected: the previous value (0.15) came from sampling only
+// three vertical strips (25%/50%/75% across), which found a transition
+// around y=185-210 and looked like a single flat horizon line. It isn't
+// one -- the real photo is a V-shaped valley (hills rising on both sides,
+// dipping to open sky in the center), confirmed by actually decoding the
+// PNG's own pixel data (assets/backgrounds/App_Background_Image.png,
+// 896x1200) and sampling all 448 even-numbered columns across its full
+// width for the real sky-to-hill transition (hill rows detected by a
+// clearly warm cast, red notably exceeding blue -- a signal clouds don't
+// trigger even at full brightness, unlike a simpler
+// blue-vs-red-brightness check, which was tried first and produced false
+// transitions right at cloud edges). The true hill line ranges from
+// fraction ~0.128 at the image's left/right edges (its highest point --
+// missed entirely by the old 3-strip sample, which never looked past
+// 75%) down to ~0.173 at the center valley floor. The old 0.15 sat BELOW
+// the true edge value (0.128), meaning the moon could render in the real
+// gap between 0.128 and 0.15 -- exactly the "coming up in front of the
+// hills" bug reported, specifically whenever the moon's stylized
+// horizontal position was out near the left or right edge of its arc,
+// not just "a few pixels" at its lowest point. 0.12, just under the
+// real measured worst case (0.128), same "clip a hair early rather than
+// risk overlapping" discipline as before -- still accounts for
+// contentFit: 'cover' cropping a different slice of the source per
+// device (see this constant's own history) without needing to re-derive
+// per-device, since 0.12 already clears the true worst case with margin.
+const SKY_BAND_HEIGHT_FRACTION = 0.12;
 
 const DISC_RADIUS = 10;
 
