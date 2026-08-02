@@ -2514,28 +2514,40 @@ def goitrogenic_load_tier(base_name, prep_method):
 # cited external references.
 #
 # Sources (the same two this app already cites for every D6 sub-criterion,
-# see SUB_CRITERION_SOURCES in lib/sixDimensionsReference.ts):
+# see SUB_CRITERION_SOURCES in lib/sixDimensionsReference.ts) -- corrected
+# 2026-08-01 after a direct check found Broccoli isn't actually in the Wake
+# Forest list despite an earlier version of this comment implying every
+# food here was cross-checked against both:
+#   - Oxalosis and Hyperoxaluria Foundation's 2024 oxalate list, fetched
+#     directly: https://ohf.org/wp-content/uploads/2024/02/Oxalate-List-022724.pdf
+#     (its own "Avg oxalate per 100 g" column). ~500 foods -- the PRIMARY
+#     source for most individual entries below, including Broccoli, since
+#     it covers far more real whole foods than Wake Forest's own list does.
 #   - Wake Forest University Baptist Medical Center Urology's own oxalate
 #     food list (mg oxalate per 100g), fetched directly:
 #     https://www.wakehealth.edu/-/media/wakeforest/clinical/files/urology/oxalate-food-list.pdf
-#   - Oxalosis and Hyperoxaluria Foundation's 2024 oxalate list, fetched
-#     directly: https://ohf.org/wp-content/uploads/2024/02/Oxalate-List-022724.pdf
-#     (its own "Avg oxalate per 100 g" column used here, not its
-#     per-serving column, to stay on the same 100g basis Wake Forest's own
-#     list and this app's overall D1-D6 system already use)
+#     Only ~130 foods, mostly older USDA-SR-style entries (no broccoli,
+#     no almonds, no cauliflower/cabbage/kale among them) -- used here
+#     specifically to CROSS-CHECK the smaller subset of foods it does
+#     share with OHF, and to calibrate the tier thresholds below, not as a
+#     second citation behind every individual entry. Any single food's own
+#     entry below is sourced from whichever of the two lists actually
+#     contains it -- usually OHF alone, occasionally both, never Wake
+#     Forest alone (OHF's broader coverage means nothing here relies on
+#     Wake Forest as its only source).
 #
 # Tiered against thresholds empirically reverse-engineered from this
 # project's own last known-good database (cross-referencing real mg/100g
-# values from both sources above against foods that still had a correct,
-# unregressed tier there) rather than importing a generic external scheme
-# wholesale: roughly Low <20mg/100g, Moderate 20-80mg/100g, High
-# 80-180mg/100g, Very High >180mg/100g. Real published oxalate figures
-# vary meaningfully study to study (a well-documented limitation of oxalate
-# content data generally, not specific to this app) -- this lands foods in
-# the same broad tier the app's own prior, correct data already did for
-# every food checked this way (Potato/Moderate, Celery/Moderate, Buckwheat/
-# High, Cashew/High, Walnut/High, Sesame/Very High, Almonds/Very High,
-# Spinach/Very High all matched), not a mechanically precise cutoff.
+# values against foods that still had a correct, unregressed tier there)
+# rather than importing a generic external scheme wholesale: roughly Low
+# <20mg/100g, Moderate 20-80mg/100g, High 80-180mg/100g, Very High
+# >180mg/100g. Real published oxalate figures vary meaningfully study to
+# study (a well-documented limitation of oxalate content data generally,
+# not specific to this app) -- this lands foods in the same broad tier the
+# app's own prior, correct baseline data already did for every food that
+# baseline anchor check could confirm (Potato/Moderate, Celery/Moderate,
+# Buckwheat/High, Cashew/High, Walnut/High, Sesame/Very High, Almonds/Very
+# High, Spinach/Very High), not a mechanically precise cutoff.
 #
 # Deliberately scoped to common whole foods only (not every one of the
 # hundreds of items either source lists) -- composite dishes, branded
