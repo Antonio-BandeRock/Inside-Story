@@ -2519,8 +2519,28 @@ def goitrogenic_load_tier(base_name, prep_method):
 # Forest list despite an earlier version of this comment implying every
 # food here was cross-checked against both:
 #   - Oxalosis and Hyperoxaluria Foundation's 2024 oxalate list, fetched
-#     directly: https://ohf.org/wp-content/uploads/2024/02/Oxalate-List-022724.pdf
-#     (its own "Avg oxalate per 100 g" column). ~500 foods -- the PRIMARY
+#     directly both as the PDF (https://ohf.org/wp-content/uploads/2024/02/
+#     Oxalate-List-022724.pdf) and, 2026-08-01, as its own live category
+#     pages (https://ohf.org/oxalate-food-content-database/ and its
+#     vegetables/fruit/grain/protein/dairy/sweets/etc sub-pages -- same
+#     underlying numbers as the PDF, confirmed identical, but each page
+#     also shows OHF's OWN tier letter per food (L/M/H/VH), which is NOT
+#     what OXALATE_LEVEL_BASE_NAMES below is built from -- their letter is
+#     based on OHF's own chosen reference serving size per food (varies
+#     food to food: 1/4 cup for nuts, 1 medium for fruit, etc), while this
+#     app uses the "avg oxalate per 100g" column consistently across every
+#     food instead, matching the per-100g convention the rest of this
+#     app's D1-D6 data already uses and staying consistent regardless of
+#     how much of a food someone actually logs (this app doesn't rescale
+#     D6 tiers by quantity). The two bases genuinely disagree for some
+#     foods (e.g. Okra: 101mg/100g here is "High" under this app's own
+#     threshold below, vs. OHF's own "Moderate" letter for their smaller
+#     56g reference serving) -- not an error, a deliberate, disclosed
+#     choice of denominator. Every entry below was directly cross-checked
+#     against these live pages' own 100g figures; one real fix came out of
+#     it -- Sweet Potato was wrongly using the peeled/without-skin value
+#     instead of the more standard with-skin one, see that entry's own
+#     comment. ~500 foods total across both PDF and pages -- the PRIMARY
 #     source for most individual entries below, including Broccoli, since
 #     it covers far more real whole foods than Wake Forest's own list does.
 #   - Wake Forest University Baptist Medical Center Urology's own oxalate
@@ -2579,12 +2599,24 @@ OXALATE_LEVEL_BASE_NAMES = {
     "Peanuts, all types": "High",
     "Crude Wheat Germ": "High",
     "Okra": "High",
+    # Sweet Potato: 126mg/100g baked WITH skin vs. 42mg/100g without --
+    # OHF's own vegetables-oxalate page lists both separately (2026-08-01
+    # correction, found while cross-checking this whole list directly
+    # against https://ohf.org/vegetables-oxalate/ rather than the earlier
+    # PDF-only pass). With-skin baked is the more standard, commonly-eaten
+    # form, so this uses that higher, more cautious value rather than the
+    # peeled/mashed one -- was wrongly "Moderate" (the without-skin value)
+    # before this check. Lowercase "potato" -- this app's own real
+    # base_name for this food (verified directly against the database,
+    # not assumed) -- a capital-P "Sweet Potato" silently matched nothing
+    # at all despite looking right, caught by a systematic exact-case
+    # check run after the OHF cross-check above, not by inspection.
+    "Sweet potato": "High",
     # Moderate (20-80mg/100g)
     "Beets": "Moderate",
     "Eggplant": "Moderate",
     "Celery": "Moderate",
     "Potato": "Moderate",
-    "Sweet Potato": "Moderate",
     "Navy Beans": "Moderate",
     "Black Beans": "Moderate",
     "Pinto Beans": "Moderate",
@@ -2594,7 +2626,6 @@ OXALATE_LEVEL_BASE_NAMES = {
     "Tempeh": "Moderate",
     "Quinoa": "Moderate",
     "Bulgur": "Moderate",
-    "Kiwifruit": "Moderate",
     "Green Kiwifruit": "Moderate",
     "Common Guava": "Moderate",
     "Fig": "Moderate",
