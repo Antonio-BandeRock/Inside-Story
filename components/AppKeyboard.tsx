@@ -122,9 +122,15 @@ export function AppKeyboard() {
     transform: [{ translateY: (1 - progress.value) * KEYBOARD_HEIGHT }],
   }));
 
+  // Reads activeField.getValue()/getSelection() at press-time, 2026-08-02 --
+  // see ActiveField's own comment in ActiveInputContext.tsx for why these
+  // are functions now, not plain fields kept fresh via re-registration on
+  // every keystroke.
   function insertText(char: string) {
     if (!activeField) return;
-    const { value, selection, onChangeText, onSelectionChange } = activeField;
+    const { onChangeText, onSelectionChange } = activeField;
+    const value = activeField.getValue();
+    const selection = activeField.getSelection();
     const newValue = value.slice(0, selection.start) + char + value.slice(selection.end);
     const cursor = selection.start + char.length;
     onChangeText(newValue);
@@ -133,8 +139,9 @@ export function AppKeyboard() {
 
   function backspace() {
     if (!activeField) return;
-    const { value, selection, onChangeText, onSelectionChange } = activeField;
-    const { start, end } = selection;
+    const { onChangeText, onSelectionChange } = activeField;
+    const value = activeField.getValue();
+    const { start, end } = activeField.getSelection();
     if (start !== end) {
       onChangeText(value.slice(0, start) + value.slice(end));
       onSelectionChange({ start, end: start });

@@ -71,31 +71,52 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
   const blurTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   // Kept in sync every render (not just at mount) so the Next-key focus
   // callback below always selects the CURRENT text, not whatever it was
-  // when this field first mounted.
+  // when this field first mounted. Also, since 2026-08-02, what
+  // ActiveField's own getValue() reads -- see this component's own
+  // registration effect below for why that matters.
   const valueRef = useRef(value ?? '');
   valueRef.current = value ?? '';
+  // Same idea, for selection -- added 2026-08-02 alongside getSelection()
+  // below, so AppKeyboard can read the live cursor position the same
+  // ref-backed way it now reads the live value.
+  const selectionRef = useRef(selection);
+  selectionRef.current = selection;
 
   const resolvedKeyboardType: AppKeyboardType =
     keyboardType === 'number-pad' || keyboardType === 'decimal-pad' ? keyboardType : 'default';
 
-  // Re-registers on every render this field is focused so AppKeyboard.tsx
-  // always has the live value/onChangeText/selection -- not just a snapshot
-  // from the moment focus happened.
+  // Re-registers whenever this field's own IDENTITY or callbacks actually
+  // change while focused, so AppKeyboard.tsx always has a way to reach the
+  // live value/selection -- but not on every keystroke anymore, 2026-08-02
+  // (a real, reported performance fix): `value`/`selection` used to be
+  // passed as plain fields and listed as this effect's own dependencies, so
+  // a brand-new field object was registered (a real setActiveField() call,
+  // re-rendering both AppKeyboard and whatever screen owns this field) on
+  // every single character typed -- on the Food builders specifically,
+  // each ~1,900 lines of JSX reconciled in full per keystroke, exactly the
+  // input lag reported. Passing getValue()/getSelection() -- closures
+  // reading valueRef/selectionRef above, always current regardless of when
+  // they're actually called -- lets this effect drop `value`/`selection`
+  // from its own dependency array entirely: it now only re-fires on a real
+  // focus change or a genuinely new onChangeText/onInfoPress/etc. (all of
+  // which are stable useState setters or useCallback-wrapped handlers at
+  // every real call site already, per titleCaseDishName's own precedent in
+  // the Food builders), not on every keystroke.
   useEffect(() => {
     if (!isFocused) return;
     focusField({
       id,
-      value: value ?? '',
+      getValue: () => valueRef.current,
       onChangeText: onChangeText ?? (() => {}),
       keyboardType: resolvedKeyboardType,
-      selection,
+      getSelection: () => selectionRef.current,
       onSelectionChange: setSelection,
       blur: () => innerRef.current?.blur(),
       infoPress: onInfoPress,
       infoColor,
       infoLabel,
     });
-  }, [isFocused, id, value, onChangeText, resolvedKeyboardType, selection, focusField, onInfoPress, infoColor, infoLabel]);
+  }, [isFocused, id, onChangeText, resolvedKeyboardType, focusField, onInfoPress, infoColor, infoLabel]);
 
   useEffect(
     () => () => {

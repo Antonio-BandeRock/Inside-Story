@@ -11,10 +11,23 @@ export type ActiveField = {
   // the first field's delayed blur clear the second field's just-registered
   // focus.
   id: string;
-  value: string;
+  // Functions, not raw values, 2026-08-02 -- performance fix: this object is
+  // rebuilt and re-registered (via focusField, below) every time AppKeyboard
+  // needs a fresh read of the field's current text/cursor, and every
+  // registration is a real setActiveField() call that re-renders both
+  // AppKeyboard and the (often large) screen that owns this field. Storing
+  // `value`/`selection` as plain fields meant a brand-new object had to be
+  // registered on literally every keystroke just to keep them current,
+  // which is exactly the re-render cascade reported as keyboard input lag
+  // on the Food builders (each ~1,900 lines of JSX, reconciled in full on
+  // every character typed). Getters backed by a ref (see AppTextInput.tsx's
+  // own valueRef/selectionRef) let AppKeyboard read the live value at
+  // press-time without the registration itself needing to change on every
+  // keystroke -- it now only re-registers on a real focus change.
+  getValue: () => string;
   onChangeText: (text: string) => void;
   keyboardType: AppKeyboardType;
-  selection: { start: number; end: number };
+  getSelection: () => { start: number; end: number };
   onSelectionChange: (selection: { start: number; end: number }) => void;
   blur: () => void;
   // Optional -- lets one specific field (e.g. Insights' own Portion amount)
