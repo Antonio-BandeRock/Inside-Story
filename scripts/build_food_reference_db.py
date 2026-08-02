@@ -699,6 +699,73 @@ def rename_sweet_pepper_by_color(base_name, full_name):
     return base_name
 
 
+# "Chicken Egg" family unification, 2026-08-02 -- reported directly by the
+# user: "we have a bunch of different eggs in the list but none say Chicken
+# Egg." Confirmed against the built database this was never missing data
+# (50+ real chicken-egg rows already existed across USDA, Germany_BLS,
+# Canada_CNF, Australia_AFCD and Japan_MEXT) but inconsistent, sometimes
+# entirely silent, labeling:
+#   - USDA's own unqualified "Egg, whole"/"Egg, white"/"Egg, yolk" rows are
+#     chicken by USDA's own unstated convention -- every other species in
+#     the source data names itself explicitly (Duck/Goose/Turkey/Quail) --
+#     but say nothing about species at all once reordered to "Whole Egg"/
+#     "White Egg"/"Egg, yolk".
+#   - Canada_CNF/Australia_AFCD's own "Egg, chicken, ..." rows and
+#     Japan_MEXT's "Eggs, hen, ..." rows (hen = female chicken) DO say
+#     chicken already, but reorder_base_name() deliberately only reorders
+#     single-comma names (see natural_name_reorder.py) -- every one of
+#     these has 2+ commas, so none of them ever got the same "Duck Egg"/
+#     "Goose Egg"/"Turkey Egg" treatment their non-chicken counterparts got.
+#   - Germany_BLS's own rows already say "Chicken egg ..." but in sentence
+#     case, one letter off this app's Title Case convention -- close enough
+#     to read as a near-duplicate of whatever the fixed USDA rows end up
+#     saying, rather than the exact same entry.
+# Bare, no-further-qualifier forms (just "whole"/"white"/"yolk"/"poached")
+# are merged onto one shared base_name across all these sources -- the same
+# single-family-per-species shape Duck Egg/Goose Egg/Turkey Egg already
+# have, differentiated by prep_method/source rather than by base_name text.
+# Rows with a genuine extra qualifier beyond that (a specific omelet, a
+# frozen/dried processing detail) keep their own comma-clause tail verbatim,
+# minimally re-prefixed with "Chicken Egg," -- consistent with this whole
+# module's standing rule against guessing a fuller natural-language reorder
+# than what's actually known to be safe. "Chicken Egg Roll" (a USDA
+# appetizer dish, not literally an egg) is deliberately not in this dict and
+# doesn't match either generic prefix below, so it's left untouched.
+CHICKEN_EGG_EXACT_RENAMES = {
+    "Whole Egg": "Chicken Egg",
+    "Whole Egg (Poached)": "Chicken Egg Poached",
+    "White Egg": "Chicken Egg White",
+    "Egg, yolk": "Chicken Egg Yolk",
+    "Egg, chicken, whole": "Chicken Egg",
+    "Egg, chicken, white": "Chicken Egg White",
+    "Egg, chicken, yolk": "Chicken Egg Yolk",
+    "Eggs, hen,  whole": "Chicken Egg",
+    "Eggs, hen, whole": "Chicken Egg",
+    "Eggs, hen, white": "Chicken Egg White",
+    "Eggs, hen, yolk": "Chicken Egg Yolk",
+    "Eggs, hen, whole, poached egg": "Chicken Egg Poached",
+    "Chicken egg": "Chicken Egg",
+    "Chicken egg poached": "Chicken Egg Poached",
+    "Chicken egg powder": "Chicken Egg Powder",
+    "Chicken egg white": "Chicken Egg White",
+    "Chicken egg white, poached": "Chicken Egg White Poached",
+    "Chicken egg yolk": "Chicken Egg Yolk",
+}
+
+
+def rename_chicken_egg(base_name):
+    exact = CHICKEN_EGG_EXACT_RENAMES.get(base_name)
+    if exact:
+        return exact
+    if base_name.startswith("Egg, chicken,"):
+        rest = base_name[len("Egg, chicken,"):].strip()
+        return f"Chicken Egg, {rest}"
+    if base_name.startswith("Eggs, hen,"):
+        rest = base_name[len("Eggs, hen,"):].strip()
+        return f"Chicken Egg, {rest}"
+    return base_name
+
+
 # Every base_name rename_sprout() can possibly produce -- i.e. exactly the
 # set of foods that belong in the "Sprouts" category, derived from the two
 # hand-verified dicts above rather than pattern-matched on the word
@@ -3732,6 +3799,7 @@ def build(xlsx_path, db_path):
                 # this is safe to run unconditionally on every row.
                 base_name = reorder_base_name(base_name, source=source)["output"]
                 base_name = rename_sweet_pepper_by_color(base_name, name)
+                base_name = rename_chicken_egg(base_name)
                 effective_category = reclassify_category(category_code, base_name)
                 # A tiny, hand-verified set of foods whose base_name
                 # collides with a different product entirely (see the
