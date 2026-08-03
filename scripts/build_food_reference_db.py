@@ -56,6 +56,20 @@ CATEGORY_OVERRIDES = {
     # above (see scripts/add_supplement_powder_category.py) but never
     # actually folded into this override list until now.
     ("NutSeed", "Psyllium, uncooked"): "SupplementPowder",
+    # Reported directly 2026-08-03: "Konjac... is kind of a cooking
+    # ingredient in powder form, which is how it is listed in the
+    # Vegetables category" -- confirmed by checking the row directly.
+    # "Konjac, fine powder" (Japan_MEXT) is the loose glucomannan powder
+    # itself (6g water/100g -- a concentrated dry powder, not a fresh
+    # vegetable; real konjac corm runs ~95%+ water), used the same two
+    # ways Psyllium already is: a soluble-fiber supplement, or a small-
+    # quantity cooking/thickening aid -- the exact profile this category
+    # already exists for. Every other Konjac row (block made from corm,
+    # block made from powder, freeze-dried, noodles) stays in Veg -- those
+    # are real eaten foods (konnyaku blocks, shirataki noodles), not a
+    # loose ingredient powder, the same distinction Psyllium's own move
+    # already drew against whole nuts/seeds.
+    ("Veg", "Konjac, fine powder"): "SupplementPowder",
     # New 'Brewing' category, 2026-08-02, explicitly requested: dry, not-
     # yet-brewed tea/coffee-type products (instant powders, granules,
     # dried/ground tea) don't belong under Bev the same way an already-
