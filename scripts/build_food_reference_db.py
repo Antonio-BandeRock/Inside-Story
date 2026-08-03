@@ -464,7 +464,14 @@ NAME_CATEGORY_OVERRIDES = {
     "Oranges, Valencia, 30 % fruit juice beverage": ("Bev", "Orange juice beverage, Valencia (30%)"),
     "Oranges, Valencia, 50 % fruit juice beverage": ("Bev", "Orange juice beverage, Valencia (50%)"),
     "Oranges, Valencia, reconstituted fruit juice ": ("Bev", "Orange juice, Valencia (reconstituted)"),
-    "Oranges, Valencia, straight fruit juice": ("Bev", "Orange juice, Valencia (straight)"),
+    # Renamed 2026-08-02 (was "Orange juice, Valencia (straight)") -- once
+    # this is the only Valencia-orange row kept in the app's own curated
+    # Juice allowlist (the "imported from the U.S.A." sibling was dropped
+    # as a near-duplicate of the same variety), "(straight)" no longer
+    # distinguishes it from anything. This override runs AFTER
+    # rename_juice_clean() below and unconditionally wins, so the clean
+    # name has to be set here directly rather than in that dict.
+    "Oranges, Valencia, straight fruit juice": ("Bev", "Valencia Orange"),
 
     # USDA's own "Short Display Name" column collapses four genuinely
     # different fluid-dairy products -- light/coffee/table cream (~18-20%
@@ -858,11 +865,30 @@ def rename_spirit_clean(base_name):
 #     juice) described two different ways -- neither qualifier states any
 #     real difference (everything in this app's Juice list is bottled/
 #     drinkable in some form), so both collapse to the plain name.
+#   - Three more added 2026-08-02, same day, once the person asked for the
+#     Juice list itself trimmed down to one row per real fruit/variety
+#     rather than several near-duplicate rows per fruit: Japan_MEXT's own
+#     "Citrus, Seminole, juice sacs" / "Citrus, sour oranges, juice, fresh"
+#     / "Oranges, navel, juice sacs" -- none of these are Japanese-named
+#     fruits (Seminole is a Florida-bred tangelo; sour/bitter orange and
+#     navel orange are both globally common terms), just rows this
+#     database happens to have only from Japan_MEXT, so each is kept as
+#     its own plain, clean-named entry rather than folded into the
+#     Japanese-cultivar group. The equivalent Valencia-orange clean-up
+#     ("Oranges, Valencia, straight fruit juice" -> "Valencia Orange") had
+#     to go directly into NAME_CATEGORY_OVERRIDES above instead of here --
+#     that override runs AFTER this dict and unconditionally wins for the
+#     handful of rows it covers, so a JUICE_CLEAN_RENAMES entry for it
+#     would silently never be reached.
 JUICE_CLEAN_RENAMES = {
     "Purple Passion-Fruit Juice": "Purple Passion Fruit Juice",
     "Yellow Passion-Fruit Juice": "Yellow Passion Fruit Juice",
     "Bottled Pomegranate Juice": "Pomegranate Juice",
     "Pomegranate juice, ready-to-drink": "Pomegranate Juice",
+    "Citrus, Seminole, juice sacs": "Seminole",
+    "Citrus, sour oranges, juice, fresh": "Sour Orange",
+    "Oranges, navel, juice sacs": "Navel Orange",
+    "Orange juice, Valencia (straight)": "Valencia Orange",
 }
 
 
