@@ -404,6 +404,23 @@ CATEGORY_OVERRIDES = {
     # the exact same kind of composite dish as the two rows just above,
     # not a cheese variety.
     ("Dairy", "Macaroni cheese"): "Mixed",                                 # UK_CoFID
+    # Reported directly by the user, 2026-08-02, asking whether any beans
+    # filed under Vegetables belonged in Legume instead. Checked every
+    # "bean"-named row in Veg by hand, not by a keyword scan -- the
+    # existing, correct convention there is fresh/immature pods (green
+    # beans, snap beans, immature broad/lima/soy beans) and sprouts
+    # (mung/kidney/navy/pinto "mature seeds, sprouted" -- sprouting turns a
+    # dried seed back into a fresh, water-rich food, confirmed via each
+    # one's own real nutrient data: 76-93g water/100g, 20-78 kcal/100g,
+    # matching every other sprout already correctly in Veg, not a dried
+    # bean). Exactly one row broke that pattern: Germany_BLS's "Lima
+    # bean/butter bean, mature" -- its own name says "mature," and its raw
+    # nutrient profile (325 kcal, 11.5g water, 20.6g protein per 100g) is
+    # unambiguously a dried legume, not a fresh vegetable pod. Legume
+    # already carries this same real product from USDA, Japan_MEXT,
+    # Canada_CNF, and Australia_AFCD -- Germany_BLS's own version had just
+    # never been moved over alongside them.
+    ("Veg", "Mature Lima Bean/Butter Bean"): "Legume",                     # Germany_BLS
 }
 
 # A tiny number of foods whose base_name collides with a completely
