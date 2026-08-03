@@ -480,11 +480,17 @@ const BEV_JUICE_ALLOWED_NAMES = new Set([
   'Celeriac juice',
   'Cherry juice, tart',
   'Clementine juice',
-  'Coconut, fresh, mature, water or juice',
+  // Coconut water: was deliberately kept as a mature/young pair (see this
+  // const's own comment above) since young coconut water is a real,
+  // separately marketed product -- reversed 2026-08-02, explicit direct
+  // request ("we only need one coconut water not two"). Young/immature
+  // kept as the one entry: it's what "coconut water" means as a plain
+  // beverage in virtually every commercial/common usage (Vita Coco etc.);
+  // mature coconut water is the less common of the two in practice, more
+  // associated with coconut milk/meat production than a drink on its own.
   'Coconut, fresh, young or immature, water or juice',
   'Cucumber juice',
   'Elderberry juice',
-  'Grapefruit juice',
   'Honeydew melon juice',
   'Kiwi fruit juice',
   'Lemon juice, raw',

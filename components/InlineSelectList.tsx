@@ -117,7 +117,43 @@ export function InlineSelectList({
       setStickyLabel(null);
       return;
     }
-    setStickyLabel(topOption.groupLabel ?? null);
+    const label = topOption.groupLabel;
+    if (!label) {
+      setStickyLabel(null);
+      return;
+    }
+    // Reported directly 2026-08-02: a real group with only 2-3 rows (e.g.
+    // "Grape" -- just Red/White) can be SMALLER than however many rows the
+    // box's own viewport shows at once (tuned for ~3 at a time -- see
+    // `item`'s own comment) -- so the box can display the group's last
+    // member AND the very next, genuinely ungrouped rows (Grapefruit
+    // juice, Honeydew melon juice) all on screen simultaneously. The
+    // pinned overlay only used to check the TOPMOST visible row's own
+    // groupLabel, so it kept showing "Grape" the whole time that row was
+    // still on screen, even with the real boundary already visible right
+    // below it -- reading as if Honeydew/Grapefruit belonged to Grape too.
+    // Neither of the two earlier row-level fixes (a border, then an
+    // opaque accent bar) could ever have addressed this: the bold, pinned
+    // label at the very top of the box is what a person's eye actually
+    // reads as "what this screen is currently showing," regardless of any
+    // per-row edge treatment underneath it. Fixed by checking the WHOLE
+    // visible set, not just the top row: the pin only stays up while
+    // every single visible row -- header or member -- still belongs to
+    // this exact group. The instant a visible row breaks that (ungrouped,
+    // or a different group), the real boundary is already on screen
+    // without scrolling, so showing a pinned duplicate above it would
+    // misrepresent what's actually there -- drop the pin immediately.
+    for (const viewToken of viewableItems) {
+      if (viewToken.index === null) continue;
+      const option = optionsRef.current[viewToken.index];
+      if (!option) continue;
+      const belongsToGroup = option.isHeader ? option.label === label : option.groupLabel === label;
+      if (!belongsToGroup) {
+        setStickyLabel(null);
+        return;
+      }
+    }
+    setStickyLabel(label);
   }).current;
 
   // viewAreaCoveragePercentThreshold: 0 -- fire as soon as a row has ANY
