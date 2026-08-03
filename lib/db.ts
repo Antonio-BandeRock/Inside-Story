@@ -378,6 +378,162 @@ const ALCOHOL_HIDDEN_BASE_NAMES = new Set([
   'Distilled alcoholic beverage, whisky',
 ]);
 
+// Reported directly by the user, 2026-08-02: "look in the Juices of
+// Beverages and eliminate name branded and from concentrate from view...
+// If it isn't just juice from a whole food fruit, it shouldn't be viewed
+// in this list." An allowlist, not a denylist -- deliberately the more
+// conservative choice given how emphatic the ask was ("just juice from a
+// whole food fruit"), and given the category's own real scale (389 rows):
+// a denylist trusts every future addition to be automatically fine, an
+// allowlist doesn't. Built by hand-reviewing all 389 rows, not guessed --
+// removed brand names (OCEAN SPRAY, V8 SPLASH, BOLTHOUSE FARMS, NAKED
+// JUICE, ODWALLA, MOTTS, CONCORD, REAL LEMON), anything "from concentrate"
+// or "chilled," anything fortified/with an addition (added vitamin C,
+// ascorbic acid, calcium, sugar, salt -- but NOT the "without added X"/"no
+// salt added" negations, which are exactly the plain versions worth
+// keeping), every blend of 2+ fruits/vegetables, every "juice drink"/
+// "cocktail"/"nectar"/"cordial"/"spritzer"/"fruit juice beverage" (none of
+// these are pure juice), Japan_MEXT's own "reconstituted"/"X% fruit juice
+// beverage" dilution tiers (kept their own "straight fruit juice" -- their
+// term for undiluted, unblended, 100% juice), canned-fruit-preserved-in-
+// juice products (the fruit itself, not a juice beverage), and "Kale
+// juice, powder" (a dehydrated powder, not juice).
+//
+// A real complication found while building this, not assumed away: many
+// of these rows share one base_name despite being nutritionally different
+// (e.g. all 7 of USDA's "Apple juice" rows -- with/without added ascorbic
+// acid, canned/frozen-concentrate -- collapse to base_name "Apple juice,"
+// 3 of them even sharing prep_method "Canned" too) -- a base_name-only
+// filter couldn't separate the one plain row from the other 6. Filtered by
+// the full `name` column instead, checked below in buildScopeClause,
+// which is precise regardless of what base_name/prep_method a row
+// happens to share with something that should be hidden.
+const BEV_JUICE_ALLOWED_NAMES = new Set([
+  'Coconut, fresh, mature, water or juice',
+  'Coconut, fresh, young or immature, water or juice',
+  'Juice, lemon',
+  'Juice, lime',
+  'Juice, orange, commercial',
+  'Acerola juice, raw',
+  'Apple juice, canned or bottled, without added vitamin C',
+  'Blackberry juice, canned',
+  'Carrot juice, canned',
+  'Cranberry juice, unsweetened',
+  'Grape juice, canned or bottled, without added vitamin C',
+  'Grapefruit juice, canned, no added sugar',
+  'Grapefruit juice, pink, raw',
+  'Grapefruit juice, white, raw',
+  'Juice, tomato, canned',
+  'Juice, tomato, canned, no salt added',
+  'Lemon juice, canned or bottled',
+  'Lemon juice, frozen',
+  'Lemon juice, raw',
+  'Lime juice, canned or bottled',
+  'Lime juice, raw',
+  'Orange juice, canned',
+  'Orange juice, raw',
+  'Passion fruit juice, purple, raw',
+  'Passion fruit juice, yellow, raw',
+  'Pomegranate juice, ready-to-drink',
+  'Prune juice, canned',
+  'Tangerine (mandarin) juice, raw',
+  'Acerola juice',
+  'Apple juice',
+  'Apricot juice',
+  'Beetroot juice',
+  'Black currant juice',
+  'Blueberry juice',
+  'Cape gooseberry juice',
+  'Carrot juice',
+  'Celeriac juice',
+  'Clementine juice',
+  'Cucumber juice',
+  'Elderberry juice',
+  'Grape juice',
+  'Grape red juice',
+  'Grape white juice',
+  'Grapefruit juice',
+  'Honeydew melon juice',
+  'Kiwi fruit juice',
+  'Lemon juice',
+  'Lime juice',
+  'Lingonberry juice',
+  'Lychee juice',
+  'Mandarin juice',
+  'Mango juice',
+  'Mangosteen juice',
+  'Mulberry juice',
+  'Onion juice',
+  'Orange juice',
+  'Passion fruit juice',
+  'Pear juice',
+  'Persimmon juice',
+  'Pineapple juice',
+  'Plum juice',
+  'Pomelo juice',
+  'Quince juice',
+  'Raspberry juice',
+  'Red currant juice',
+  'Rhubarb juice',
+  'Satsuma mandarin juice',
+  'Sauerkraut juice',
+  'Sea buckthorn berry juice',
+  'Sloe fruit juice',
+  'Sour cherry juice',
+  'Spinach juice',
+  'Strawberry juice',
+  'Sweet cherry juice',
+  'Tangerine juice',
+  'Apples, straight fruit juice ',
+  'Carrot, regular (European type), juice, canned',
+  'Citrus, "Harumi", juice sacs, raw',
+  'Citrus, "Hassaku", juice sacs, raw',
+  'Citrus, "Hyuga-natsu", juice sacs, raw',
+  'Citrus, "Iyo", juice sacs',
+  'Citrus, "Kabosu", juice, fresh',
+  'Citrus, "Kawachi-bankan", juice sacs, raw',
+  'Citrus, "Kiyomi", juice sacs, raw',
+  'Citrus, "Natsudaidai", juice sacs, raw',
+  'Citrus, "Sanbokan", juice sacs, raw',
+  'Citrus, "Setoka", juice sacs, raw',
+  'Citrus, "Shiikuwasha", juice, fresh',
+  'Citrus, "Shiranuhi", juice sacs, raw',
+  'Citrus, "Sudachi", juice, fresh',
+  'Citrus, "Yuzu", juice, fresh',
+  'Citrus, Seminole, juice sacs, raw',
+  'Citrus, sour oranges, juice, fresh',
+  'Grapefruit, red flesh type,  juice sacs, raw',
+  'Grapefruit, straight fruit juice',
+  'Grapefruit, white flesh type, juice sacs, raw',
+  'Grapes, straight fruit juice ',
+  'Lemons, juice, fresh',
+  'Limes, juice, fresh',
+  'Oranges, Fukuhara-orange, juice sacs, raw',
+  'Oranges, Valencia, imported from the U.S.A., juice sacs, raw',
+  'Oranges, Valencia, straight fruit juice',
+  'Oranges, navel, juice sacs, raw',
+  'Passion fruit, juice, fresh',
+  'Pineapple, straight fruit juice ',
+  'Satsuma mandarins, juice sacs, early ripening type, raw',
+  'Satsuma mandarins, juice sacs, normal ripening type, raw',
+  'Satsuma mandarins, straight fruit juice',
+  'Tomatoes, canned products, juice, without salt',
+  'Mango juice, canned',
+  'Cherry juice, tart',
+  'Apple juice, canned or bottled, unsweetened, without added ascorbic acid',
+  'Grape juice, canned or bottled, unsweetened, without added ascorbic acid',
+  'Grapefruit juice, white, canned or bottled, unsweetened',
+  'Lime juice, canned or bottled, unsweetened',
+  'Orange juice, canned, unsweetened',
+  "Orange juice, raw (Includes foods for USDA's Food Distribution Program)",
+  'Passion-fruit juice, purple, raw',
+  'Passion-fruit juice, yellow, raw',
+  'Pineapple juice, canned or bottled, unsweetened, without added ascorbic acid',
+  'Pomegranate juice, bottled',
+  'Tangerine juice, raw',
+  'Tomato juice, canned, without salt added',
+]);
+
 function buildScopeClause(category: string, subcategory: string | null, usdaOnly: boolean) {
   const params: (string | number)[] = [category];
   let clause = 'category = ?';
@@ -401,6 +557,11 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
   if (category === 'Alcohol' && ALCOHOL_HIDDEN_BASE_NAMES.size > 0) {
     clause += ` AND base_name NOT IN (${Array.from(ALCOHOL_HIDDEN_BASE_NAMES).map(() => '?').join(', ')})`;
     params.push(...ALCOHOL_HIDDEN_BASE_NAMES);
+  }
+
+  if (category === 'Bev' && subcategory === 'Juice') {
+    clause += ` AND name IN (${Array.from(BEV_JUICE_ALLOWED_NAMES).map(() => '?').join(', ')})`;
+    params.push(...BEV_JUICE_ALLOWED_NAMES);
   }
 
   return { clause, params };
