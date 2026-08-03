@@ -287,8 +287,23 @@ async function hasUsdaCoverage(category: string): Promise<boolean> {
   return cached;
 }
 
-async function resolveEffectiveUsdaOnly(category: string, usdaOnly: boolean): Promise<boolean> {
+async function resolveEffectiveUsdaOnly(category: string, subcategory: string | null, usdaOnly: boolean): Promise<boolean> {
   if (!usdaOnly) return false;
+  // A real bug found 2026-08-02, reported directly as "I 19 jucies listed"
+  // right after BEV_JUICE_ALLOWED_NAMES shipped (see its own comment) --
+  // Bev has plenty of real USDA coverage, so the usdaOnly default here
+  // stayed true and silently crushed the curated 103-entry cross-source
+  // allowlist down to just its 19 USDA-sourced rows, hiding all 84 real,
+  // already-hand-verified entries from the other 6 sources (German
+  // lingonberry/elderberry/quince juice, Japanese yuzu/sudachi/kabosu
+  // citrus, etc.). usdaOnly exists to avoid near-duplicate "Spinach x7"
+  // entries across sources -- but that's already handled here by the
+  // allowlist itself, reviewed name-by-name, WITH cross-source duplicates
+  // (e.g. "Blackberry juice, canned" from both Canada_CNF and USDA)
+  // deliberately kept since they're the same real food independently
+  // measured, not noise. So for this one specific subcategory, forcing
+  // usdaOnly only throws away real, wanted variety for no benefit.
+  if (category === 'Bev' && subcategory === 'Juice') return false;
   return hasUsdaCoverage(category);
 }
 
@@ -423,7 +438,16 @@ const BEV_JUICE_ALLOWED_NAMES = new Set([
   'Grapefruit juice, canned, no added sugar',
   'Grapefruit juice, pink, raw',
   'Grapefruit juice, white, raw',
-  'Juice, tomato, canned',
+  // 'Juice, tomato, canned' (bare, no qualifier) was wrongly kept in the
+  // first pass -- checked directly 2026-08-02 after the person's own
+  // question about the list prompted a closer look: its sodium is 253mg/
+  // 100g, nearly identical to the explicitly-salted "Tomato juice, canned,
+  // with salt added" (USDA, also 253mg) and "Tomato juice with salt"
+  // (Germany_BLS, 264mg) -- vs. 10mg for the genuinely unsalted "no salt
+  // added" rows. Unlike fruit juice, canned tomato juice is salted BY
+  // DEFAULT and only the unsalted version gets called out in these
+  // sources' own naming -- the "no qualifier = plain" assumption used to
+  // build this whole list doesn't hold for this one row. Removed.
   'Juice, tomato, canned, no salt added',
   'Lemon juice, canned or bottled',
   'Lemon juice, frozen',
@@ -583,7 +607,7 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
 export async function searchReferenceFoodNames(category: string, subcategory: string | null, query = '', usdaOnly = true, limit = 200) {
   const db = await getReferenceDatabase();
   const trimmed = query.trim();
-  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, usdaOnly);
+  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, subcategory, usdaOnly);
   const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
 
   let whereClause = clause;
@@ -684,7 +708,7 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
 // the Type step being skipped for categories with no sub-categories.
 export async function getPreparationMethods(category: string, subcategory: string | null, baseName: string, usdaOnly = true) {
   const db = await getReferenceDatabase();
-  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, usdaOnly);
+  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, subcategory, usdaOnly);
   const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
 
   const rows = await db.getAllAsync<{ prep: string }>(
@@ -734,7 +758,7 @@ export async function getPreparationMethods(category: string, subcategory: strin
 // remaining rows really are the same real food, just redundantly measured.
 export async function resolveFoodChoice(category: string, subcategory: string | null, baseName: string, prepMethod: string | null, usdaOnly = true) {
   const db = await getReferenceDatabase();
-  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, usdaOnly);
+  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, subcategory, usdaOnly);
   const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
   const normalizedPrep = prepMethod || 'Standard';
 

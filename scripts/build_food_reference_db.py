@@ -840,6 +840,36 @@ def rename_spirit_clean(base_name):
     return SPIRIT_CLEAN_RENAMES.get(base_name, base_name)
 
 
+# Found while the user was reviewing the new Bev > Juice allowlist
+# (lib/db.ts's BEV_JUICE_ALLOWED_NAMES) row by row, 2026-08-02, same day:
+# two real cross-source near-duplicates that only look like different foods
+# because of inconsistent formatting, not because they measure anything
+# different.
+#   - USDA's own "purple"/"yellow" passion fruit juice rows reorder to
+#     "Purple/Yellow Passion-Fruit Juice" (hyphenated) while Canada_CNF's
+#     otherwise-identical rows reorder to "Purple/Yellow Passion Fruit
+#     Juice" (space) -- purely a hyphen-vs-space difference in how each
+#     source itself writes the word, not a real distinction. Hyphen
+#     dropped to match the more common styling (also matching this
+#     database's own existing "Passion fruit juice"/"Passion fruit, juice,
+#     fresh" rows, neither of which hyphenates it either).
+#   - USDA's "Pomegranate juice, bottled" and Canada_CNF's "Pomegranate
+#     juice, ready-to-drink" are the same real thing (plain pomegranate
+#     juice) described two different ways -- neither qualifier states any
+#     real difference (everything in this app's Juice list is bottled/
+#     drinkable in some form), so both collapse to the plain name.
+JUICE_CLEAN_RENAMES = {
+    "Purple Passion-Fruit Juice": "Purple Passion Fruit Juice",
+    "Yellow Passion-Fruit Juice": "Yellow Passion Fruit Juice",
+    "Bottled Pomegranate Juice": "Pomegranate Juice",
+    "Pomegranate juice, ready-to-drink": "Pomegranate Juice",
+}
+
+
+def rename_juice_clean(base_name):
+    return JUICE_CLEAN_RENAMES.get(base_name, base_name)
+
+
 # Every base_name rename_sprout() can possibly produce -- i.e. exactly the
 # set of foods that belong in the "Sprouts" category, derived from the two
 # hand-verified dicts above rather than pattern-matched on the word
@@ -4108,6 +4138,7 @@ def build(xlsx_path, db_path):
                 base_name = rename_sweet_pepper_by_color(base_name, name)
                 base_name = rename_chicken_egg(base_name)
                 base_name = rename_spirit_clean(base_name)
+                base_name = rename_juice_clean(base_name)
                 effective_category = reclassify_category(category_code, base_name)
                 # A tiny, hand-verified set of foods whose base_name
                 # collides with a different product entirely (see the
