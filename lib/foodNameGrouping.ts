@@ -345,9 +345,23 @@ export function buildFoodNameGroups(
 
   // Forced (source-based) groups -- see this function's own top comment.
   // Bypasses the candidate-key logic entirely; membership and label are
-  // both already decided by the caller, this just builds the same
-  // header+members shape everything else uses so it sorts in correctly
-  // alongside the name-pattern groups above.
+  // both already decided by the caller.
+  //
+  // Kept in a SEPARATE array from `sortable` and appended after it's
+  // already sorted, rather than interleaved alphabetically the way a
+  // name-pattern group is -- 2026-08-02, explicit direct request after the
+  // interleaved placement itself turned out to be the real source of an
+  // extended, repeated confusion: "Japanese" sorts alphabetically as a J,
+  // landing its whole 18-entry block between "Honeydew melon juice" (H)
+  // and "Kiwi fruit juice" (K) in the plain list -- close enough that
+  // Kiwi, sitting immediately after the block ends, kept reading as if it
+  // belonged to "Japanese" too, no matter how the individual row/header
+  // styling was strengthened (see InlineSelectList.tsx's own history of
+  // fixes here). Moving every forced group to the very end of the whole
+  // list removes the adjacency itself, not just its visual signal --
+  // there's no longer any real boundary between an ungrouped fruit and a
+  // forced group for a row to be mistaken as straddling.
+  const forcedSortable: SortableEntry[] = [];
   if (forcedGroups) {
     const byLabel = new Map<string, { name: string; displayLabel: string }[]>();
     for (const name of forcedNames) {
@@ -360,9 +374,13 @@ export function buildFoodNameGroups(
       // Sorts by the visible display label, not the hidden full name --
       // matching Pass 3's own rule above ("members sort by their own
       // STRIPPED label... so what's on screen reads in true alphabetical
-      // order"), so e.g. "Harumi" sorts under H, not buried under "Citrus."
+      // order"), so e.g. "Harumi" sorts under H, not buried under "Citrus,"
+      // within its own group's block -- this is purely about ordering
+      // members WITHIN the forced group, unrelated to where the group
+      // itself lands in the overall list (see this block's own top
+      // comment).
       const sortedMembers = [...members].sort((a, b) => a.displayLabel.localeCompare(b.displayLabel));
-      sortable.push({
+      forcedSortable.push({
         sortKey: label,
         entries: [
           { type: 'header', key: label.toLowerCase(), label },
@@ -378,5 +396,6 @@ export function buildFoodNameGroups(
   }
 
   sortable.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
-  return sortable.flatMap((entry) => entry.entries);
+  forcedSortable.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+  return [...sortable, ...forcedSortable].flatMap((entry) => entry.entries);
 }

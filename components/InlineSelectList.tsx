@@ -97,7 +97,28 @@ export function InlineSelectList({
   const optionsRef = useRef(options);
   optionsRef.current = options;
 
-  const onViewableItemsChanged = useRef(({ viewableItems }: { viewableItems: ViewToken[] }) => {
+  // Real bug found 2026-08-02, after a fix to the function body below
+  // (see its own comment) kept not showing up on-device despite repeated
+  // reloads: `useRef(fn).current` only ever evaluates `fn` on this
+  // component's FIRST render -- every render after that, React ignores
+  // the new argument and hands back the exact same, original closure. A
+  // plain Fast Refresh (the automatic reload Metro does when a file is
+  // saved while the screen is already mounted) re-renders the component
+  // with the edited code, but does NOT unmount/remount it -- so the ref's
+  // `.current` kept pointing at the OLD, pre-edit closure the whole time,
+  // completely independent of whether the edited logic itself was
+  // correct. Fixed by splitting this into a genuinely stable OUTER
+  // wrapper (still `useRef`'d once, satisfying FlatList's own
+  // same-identity requirement) that only ever forwards to an INNER
+  // implementation kept in a plain ref reassigned on every render --  a
+  // normal `ref.current = ...` assignment, unlike `useRef`'s own
+  // initializer, runs every render regardless of Fast Refresh, so the
+  // real logic below now actually updates the moment its own source
+  // changes.
+  const onViewableItemsChangedImplRef = useRef(
+    (_info: { viewableItems: ViewToken[] }) => {},
+  );
+  onViewableItemsChangedImplRef.current = ({ viewableItems }: { viewableItems: ViewToken[] }) => {
     let topIndex: number | null = null;
     for (const viewToken of viewableItems) {
       if (viewToken.index !== null && (topIndex === null || viewToken.index < topIndex)) {
@@ -154,7 +175,10 @@ export function InlineSelectList({
       }
     }
     setStickyLabel(label);
-  }).current;
+  };
+  const onViewableItemsChanged = useRef((info: { viewableItems: ViewToken[] }) =>
+    onViewableItemsChangedImplRef.current(info),
+  ).current;
 
   // viewAreaCoveragePercentThreshold: 0 -- fire as soon as a row has ANY
   // pixel on screen, so the "topmost visible row" this tracks matches what
@@ -181,7 +205,7 @@ export function InlineSelectList({
           // inside, rather than the two fighting over the same touch -- iOS
           // already behaves this way without it.
           nestedScrollEnabled
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             if (item.isHeader) {
               return (
                 <View style={[styles.groupHeader, { borderLeftColor: tabColor }]}>
@@ -225,11 +249,28 @@ export function InlineSelectList({
             // opacity can't get lost in a transparency stack the way a
             // blended color can, so this reads the same regardless of
             // what photo/theme is showing through the surface behind it.
+            //
+            // Reported directly 2026-08-02, once the accent bar itself was
+            // confirmed actually visible on-device: the bar correctly
+            // marks WHICH rows are in a group, but nothing marked where
+            // the group STOPS -- a plain row sitting right after the last
+            // tinted one, with no gap or boundary of its own, still read
+            // as a continuation of the same block. Fixed with an explicit
+            // end-of-group cap: the group's own last member (the next
+            // option in the list is either absent, a new header, or a
+            // different group) gets a bold bottom border in the group's
+            // own color plus real extra spacing below it -- a visible
+            // "this block just ended" break, not just the absence of a
+            // bar on the row that follows.
+            const nextOption = index + 1 < options.length ? options[index + 1] : null;
+            const isLastOfGroup =
+              !!item.groupLabel && (!nextOption || nextOption.isHeader || nextOption.groupLabel !== item.groupLabel);
             return (
               <TouchableOpacity
                 style={[
                   styles.item,
                   item.groupLabel ? { borderLeftColor: tabColor } : null,
+                  isLastOfGroup ? [styles.itemGroupEnd, { borderBottomColor: tabColor }] : null,
                   isSelected ? { backgroundColor: tabColor } : null,
                 ]}
                 onPress={() => onChange(item.value)}
@@ -301,6 +342,17 @@ const styles = StyleSheet.create({
   },
   itemText: { ...typography.body, color: colors.textPrimary },
   itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  // Marks a real group's own LAST member -- see renderItem's own comment
+  // for why this exists alongside the left accent bar. A visibly thicker,
+  // colored bottom border reads as a deliberate "block ends here" cap
+  // (color, not just thickness, so it can't be confused with the plain
+  // 1px `colors.border` every row already has), plus real breathing room
+  // below it so the next, genuinely unrelated row doesn't sit flush
+  // against the group the way every other adjacent pair of rows does.
+  itemGroupEnd: {
+    borderBottomWidth: 3,
+    marginBottom: 8,
+  },
   // A plain, non-tappable divider row -- deliberately not shaped like
   // `item` (no border, no press feedback) so it reads as organizational
   // chrome rather than one more option in the list. Opaque background is
