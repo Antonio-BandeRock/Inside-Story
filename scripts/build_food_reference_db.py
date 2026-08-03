@@ -2795,14 +2795,29 @@ SUBCATEGORY_RULES = {
     # preserving melon"/"Waxgourd (Chinese preserving melon)" (real raw,
     # whole gourd varieties whose name just describes their traditional
     # use, not that the row itself is preserved), the same class of false
-    # positive as Fruit's "jam"/"Jambolan" bug. Every genuine preserved/
-    # brined Veg row is already caught by "pickle"/"pickled"/"pickles" or
-    # "syrup" instead, with zero loss of real coverage. See
+    # positive as Fruit's "jam"/"Jambolan" bug. See
     # scripts/veg_cleanup_REPORT.md for the full candidate-by-candidate
     # reasoning, including why "puree"/"brine" were tried and left out too.
+    #
+    # "pickle"/"pickled"/"pickles" REMOVED 2026-08-02, reported directly:
+    # "Cabbage isn't a processed or preserved food... Eggplant... potato...
+    # radish... sweet potato." Investigated rather than assumed -- the
+    # actual trigger for Cabbage/Eggplant/Radish was specifically the
+    # "pickled" keyword (their own pickled-variant rows), which was always
+    # inconsistent with this exact rule's own stated philosophy two
+    # paragraphs up: pickling is a brine/vinegar preservation method, the
+    # same class as the canning/curing this rule already deliberately
+    # leaves alone ("curing/canning for preservation alone doesn't make a
+    # food a manufactured product"). Removing it doesn't lose real
+    # coverage -- a pickled cabbage/eggplant/radish/kimchi row still
+    # exists and is still fully selectable, just correctly alongside its
+    # own raw/boiled siblings under "Whole / Fresh Vegetables" with
+    # "Pickled" as its own prep_method choice (exactly how canned-in-brine
+    # vegetables already work), rather than as a second, confusing
+    # same-named entry in a different subcategory bucket.
     "Veg": [
         ("Processed & Preserved", [
-            "pickle", "pickled", "pickles", "relish", "sauce", "ketchup",
+            "relish", "sauce", "ketchup",
             "catsup", "syrup", "paste", "concentr", "cocktail", "spread",
             "ajvar", "powder",
         ]),
@@ -3005,6 +3020,35 @@ def bev_alcoholic_false_positive_subcategory(effective_category, name):
     if "minéral" in name.lower():
         return "Water"
     return BEV_ALCOHOL_FALSE_POSITIVE_SUBCATEGORIES.get(name)
+
+
+# Reported directly 2026-08-02, same message that got "pickle"/"pickled"
+# removed from SUBCATEGORY_RULES["Veg"] above: "potato isn't a processed or
+# preserve food" / "neither is... sweet potato." Investigated per base_name
+# rather than assumed: Potato's own "sauce" trigger turned out to be one
+# specific row ("Potatoes, hash brown, frozen, with butter sauce"), and
+# Sweet potato's own "syrup" trigger was "Sweet potato, canned, syrup pack"
+# -- both real keyword matches, not a bug in classify_subcategory itself,
+# but both share their base_name with a real, already-"Whole / Fresh
+# Vegetables"-classified sibling (plain hash-brown Potato, plain canned
+# Sweet potato), the exact same "one row's own seasoning/packing variant
+# gets confusingly split from its own ordinary vegetable identity" pattern
+# already fixed for pickled Cabbage/Eggplant/Radish above -- just triggered
+# by "sauce"/"syrup" instead of "pickle" this time. Unlike that fix, this
+# one is keyed on base_name (not removing the keywords themselves, which
+# are still correctly needed elsewhere -- e.g. Fruit's own genuine
+# applesauce/jam/syrup-preserve products have no whole/fresh sibling to
+# collide with) so only these two specific, already-confirmed base_names
+# are forced back, not every future "sauce"/"syrup" match in Veg.
+VEG_SUBCATEGORY_FORCE_WHOLE_FRESH_BASE_NAMES = {"Potato", "Sweet potato"}
+
+
+def veg_processed_false_positive_subcategory(effective_category, base_name):
+    if effective_category != "Veg":
+        return None
+    if base_name in VEG_SUBCATEGORY_FORCE_WHOLE_FRESH_BASE_NAMES:
+        return "Whole / Fresh Vegetables"
+    return None
 
 
 # Real, unambiguous cooking-state words only -- deliberately excludes
@@ -4209,6 +4253,7 @@ def build(xlsx_path, db_path):
                     prep_method,
                     effective_category,
                     bev_alcoholic_false_positive_subcategory(effective_category, name)
+                    or veg_processed_false_positive_subcategory(effective_category, base_name)
                     or classify_subcategory(effective_category, name),
                     get("category"),
                     get("Scientific Classification"),
