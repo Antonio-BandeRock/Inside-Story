@@ -116,46 +116,59 @@ function categoryLabel(category: string): string {
 // entry isn't exclusively Japanese and labeling it that way would
 // misrepresent what it actually resolves to. Every other name here was
 // confirmed to have no other source sharing its own base_name.
-const JUICE_JAPAN_EXCLUSIVE_NAMES = new Set([
-  'Apples, straight fruit juice ',
-  'Citrus, "Harumi", juice sacs, raw',
-  'Citrus, "Hassaku", juice sacs, raw',
-  'Citrus, "Hyuga-natsu", juice sacs, raw',
-  'Citrus, "Iyo", juice sacs',
-  'Citrus, "Kabosu", juice, fresh',
-  'Citrus, "Kawachi-bankan", juice sacs, raw',
-  'Citrus, "Kiyomi", juice sacs, raw',
-  'Citrus, "Natsudaidai", juice sacs, raw',
-  'Citrus, "Sanbokan", juice sacs, raw',
-  'Citrus, "Setoka", juice sacs, raw',
-  'Citrus, "Shiikuwasha", juice, fresh',
-  'Citrus, "Shiranuhi", juice sacs, raw',
-  'Citrus, "Sudachi", juice, fresh',
-  'Citrus, "Yuzu", juice, fresh',
-  'Citrus, Seminole, juice sacs, raw',
-  'Citrus, sour oranges, juice, fresh',
-  'Grapefruit, red flesh type,  juice sacs, raw',
-  'Grapefruit, straight fruit juice',
-  'Grapefruit, white flesh type, juice sacs, raw',
-  'Grapes, straight fruit juice ',
-  'Lemons, juice, fresh',
-  'Limes, juice, fresh',
-  'Oranges, Fukuhara-orange, juice sacs, raw',
-  'Oranges, Valencia, imported from the U.S.A., juice sacs, raw',
-  'Oranges, Valencia, straight fruit juice',
-  'Oranges, navel, juice sacs, raw',
-  'Passion fruit, juice, fresh',
-  'Pineapple, straight fruit juice ',
-  'Satsuma mandarins, juice sacs, early ripening type, raw',
-  'Satsuma mandarins, juice sacs, normal ripening type, raw',
-  'Satsuma mandarins, straight fruit juice',
-]);
+//
+// Values are the display label shown under the "Japanese" header --
+// follow-up request the same day: "If it's under the Juice header, we
+// shouldn't need the word juice in the name. Let's just have the name of
+// the fruit listed." Hand-curated rather than stripped generically, since
+// a few names carry a real, meaningful qualifier beyond just "juice" that
+// has to survive (Grapefruit's red-vs-white flesh, the two Valencia orange
+// rows -- one grown in Japan, one imported from the U.S. and measured
+// separately -- Satsuma mandarin's three ripening-stage rows). Every label
+// below was checked against the other 31 to confirm no two collide.
+const JUICE_JAPAN_DISPLAY_LABELS: Record<string, string> = {
+  'Apples, straight fruit juice ': 'Apple',
+  'Citrus, "Harumi", juice sacs, raw': 'Harumi',
+  'Citrus, "Hassaku", juice sacs, raw': 'Hassaku',
+  'Citrus, "Hyuga-natsu", juice sacs, raw': 'Hyuga-natsu',
+  'Citrus, "Iyo", juice sacs': 'Iyo',
+  'Citrus, "Kabosu", juice, fresh': 'Kabosu',
+  'Citrus, "Kawachi-bankan", juice sacs, raw': 'Kawachi-bankan',
+  'Citrus, "Kiyomi", juice sacs, raw': 'Kiyomi',
+  'Citrus, "Natsudaidai", juice sacs, raw': 'Natsudaidai',
+  'Citrus, "Sanbokan", juice sacs, raw': 'Sanbokan',
+  'Citrus, "Setoka", juice sacs, raw': 'Setoka',
+  'Citrus, "Shiikuwasha", juice, fresh': 'Shiikuwasha',
+  'Citrus, "Shiranuhi", juice sacs, raw': 'Shiranuhi',
+  'Citrus, "Sudachi", juice, fresh': 'Sudachi',
+  'Citrus, "Yuzu", juice, fresh': 'Yuzu',
+  'Citrus, Seminole, juice sacs, raw': 'Seminole',
+  'Citrus, sour oranges, juice, fresh': 'Sour Orange',
+  'Grapefruit, red flesh type,  juice sacs, raw': 'Grapefruit, Red Flesh',
+  'Grapefruit, straight fruit juice': 'Grapefruit',
+  'Grapefruit, white flesh type, juice sacs, raw': 'Grapefruit, White Flesh',
+  'Grapes, straight fruit juice ': 'Grape',
+  'Lemons, juice, fresh': 'Lemon',
+  'Limes, juice, fresh': 'Lime',
+  'Oranges, Fukuhara-orange, juice sacs, raw': 'Fukuhara Orange',
+  'Oranges, Valencia, imported from the U.S.A., juice sacs, raw': 'Valencia Orange, Imported (U.S.)',
+  'Oranges, Valencia, straight fruit juice': 'Valencia Orange',
+  'Oranges, navel, juice sacs, raw': 'Navel Orange',
+  'Passion fruit, juice, fresh': 'Passion Fruit',
+  'Pineapple, straight fruit juice ': 'Pineapple',
+  'Satsuma mandarins, juice sacs, early ripening type, raw': 'Satsuma Mandarin, Early Ripening',
+  'Satsuma mandarins, juice sacs, normal ripening type, raw': 'Satsuma Mandarin, Normal Ripening',
+  'Satsuma mandarins, straight fruit juice': 'Satsuma Mandarin',
+};
 
-function buildJuiceForcedGroups(category: string, subcategory: string | null): Map<string, string> | undefined {
+function buildJuiceForcedGroups(
+  category: string,
+  subcategory: string | null,
+): Map<string, { groupLabel: string; displayLabel: string }> | undefined {
   if (category !== 'Bev' || subcategory !== 'Juice') return undefined;
-  const map = new Map<string, string>();
-  for (const name of JUICE_JAPAN_EXCLUSIVE_NAMES) {
-    map.set(name, 'Japanese');
+  const map = new Map<string, { groupLabel: string; displayLabel: string }>();
+  for (const [name, displayLabel] of Object.entries(JUICE_JAPAN_DISPLAY_LABELS)) {
+    map.set(name, { groupLabel: 'Japanese', displayLabel });
   }
   return map;
 }

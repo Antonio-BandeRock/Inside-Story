@@ -209,22 +209,31 @@ function candidateEntries(name: string): Candidate[] {
 // This is a genuinely different kind of grouping than the name-pattern
 // matching this whole file otherwise does -- it's grouping by WHERE a food
 // came from, not what its name looks like -- so it's handled as an
-// explicit override map (name -> forced group label) rather than folded
-// into the candidate-key logic above, which has no concept of source.
-// Callers are responsible for only forcing a name into a source-based
-// group when every row behind that name really is exclusively from that
-// source -- FoodLookup.tsx's own JUICE_JAPAN_EXCLUSIVE_NAMES deliberately
-// leaves out "Carrot juice"/"Tomato juice," which merge Japan_MEXT's own
-// row with USDA/Canada_CNF/Germany_BLS rows measuring the same real food;
-// labeling those "Japanese" would misrepresent what the visible entry
-// actually resolves to. Quotation marks are stripped from the forced
-// group's own display labels (never from `value`, which still has to
-// match the real base_name for food resolution) -- once the food sits
-// under a header that already says "Japanese," the quotes' only job
-// (flagging "this word is Japanese, not English") is redundant.
+// explicit override map (name -> forced group + display label) rather than
+// folded into the candidate-key logic above, which has no concept of
+// source. Callers are responsible for only forcing a name into a source-
+// based group when every row behind that name really is exclusively from
+// that source -- FoodLookup.tsx's own JUICE_JAPAN_DISPLAY_LABELS
+// deliberately leaves out "Carrot juice"/"Tomato juice," which merge
+// Japan_MEXT's own row with USDA/Canada_CNF/Germany_BLS rows measuring the
+// same real food; labeling those "Japanese" would misrepresent what the
+// visible entry actually resolves to.
+//
+// `displayLabel` -- 2026-08-02, follow-up request: "If it's under the
+// Juice header, we shouldn't need the word juice in the name. Let's just
+// have the name of the fruit listed." The word "juice"/"juice sacs"/
+// "straight fruit juice" is redundant once a food is already sitting
+// inside a Juice-subcategory list, and the quotation marks are redundant
+// once it's under a header that already says "Japanese" -- so the caller
+// supplies a fully hand-cleaned label per name (just "Yuzu," "Navel
+// Orange," etc.) rather than this function trying to generically strip
+// "juice" out of an arbitrary name, which risks mangling one that has real
+// content after that word. `value` (used for actual food resolution)
+// always stays the real, untouched name -- only the label shown on screen
+// changes.
 export function buildFoodNameGroups(
   names: string[],
-  forcedGroups?: Map<string, string>,
+  forcedGroups?: Map<string, { groupLabel: string; displayLabel: string }>,
 ): GroupedFoodEntry[] {
   const forcedNames = forcedGroups
     ? names.filter((name) => forcedGroups.has(name))
@@ -312,23 +321,27 @@ export function buildFoodNameGroups(
   // header+members shape everything else uses so it sorts in correctly
   // alongside the name-pattern groups above.
   if (forcedGroups) {
-    const byLabel = new Map<string, string[]>();
+    const byLabel = new Map<string, { name: string; displayLabel: string }[]>();
     for (const name of forcedNames) {
-      const label = forcedGroups.get(name)!;
-      const members = byLabel.get(label) ?? [];
-      members.push(name);
-      byLabel.set(label, members);
+      const { groupLabel, displayLabel } = forcedGroups.get(name)!;
+      const members = byLabel.get(groupLabel) ?? [];
+      members.push({ name, displayLabel });
+      byLabel.set(groupLabel, members);
     }
     for (const [label, members] of byLabel) {
-      const sortedMembers = [...members].sort((a, b) => a.localeCompare(b));
+      // Sorts by the visible display label, not the hidden full name --
+      // matching Pass 3's own rule above ("members sort by their own
+      // STRIPPED label... so what's on screen reads in true alphabetical
+      // order"), so e.g. "Harumi" sorts under H, not buried under "Citrus."
+      const sortedMembers = [...members].sort((a, b) => a.displayLabel.localeCompare(b.displayLabel));
       sortable.push({
         sortKey: label,
         entries: [
           { type: 'header', key: label.toLowerCase(), label },
-          ...sortedMembers.map((name) => ({
+          ...sortedMembers.map((m) => ({
             type: 'item' as const,
-            label: name.replace(/"/g, ''),
-            value: name,
+            label: m.displayLabel,
+            value: m.name,
             groupLabel: label,
           })),
         ],
