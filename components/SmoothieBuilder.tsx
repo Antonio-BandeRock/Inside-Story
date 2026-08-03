@@ -25,6 +25,7 @@ import { AppTextInput } from './AppTextInput';
 import { DimensionFlags } from './DimensionFlags';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
+import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE, isJuiceFood } from '../lib/juiceAdvisory';
 import { PopoverSelect } from './PopoverSelect';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
@@ -1407,6 +1408,19 @@ export function SmoothieBuilder({
                     are still loading or when there's no flagged
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
+                {/* Informational, not gating -- see lib/juiceAdvisory.ts's
+                    own top comment. Smoothie Builder has no Alcohol/Brewing
+                    in its own category allowlist, so this is the only
+                    advisory row it needs. */}
+                {isJuiceFood(pendingResolved) && (
+                  <TouchableOpacity
+                    style={[styles.juiceAdvisoryRow, { borderColor: tabColor }]}
+                    onPress={() => showInfoAlert(JUICE_ADVISORY_TITLE, JUICE_ADVISORY_MESSAGE)}
+                  >
+                    <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar -- tap to learn more</Text>
+                  </TouchableOpacity>
+                )}
               </View>
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
@@ -1906,6 +1920,22 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     flexShrink: 1,
   },
+  // Same visual treatment as Beverage/Fermentation Builder's own
+  // alcoholAdvisoryRow/alcoholAdvisoryText -- Smoothie Builder only ever
+  // needs the one (juice) advisory row, so it gets its own name rather
+  // than importing a shared style module for a single reused block.
+  juiceAdvisoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    alignSelf: 'flex-start',
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 6,
+    marginTop: 6,
+  },
+  juiceAdvisoryText: { ...typography.caption },
   // "Change Food", pinned above the header and left-aligned. alignSelf
   // 'flex-start' keeps its tap target tight to the text instead of
   // spanning the whole card width.

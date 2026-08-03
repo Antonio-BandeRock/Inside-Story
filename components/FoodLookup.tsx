@@ -109,13 +109,25 @@ function categoryLabel(category: string): string {
 // and then remove the quotations." Passed to buildFoodNameGroups as a
 // forced (source-based) group, see that function's own comment for why
 // this needed a different mechanism than its normal name-pattern grouping.
-// Deliberately excludes "Carrot, regular (European type), juice, canned"
-// and "Tomatoes, canned products, juice, without salt" -- confirmed by
-// direct query both merge into a base_name ("Carrot juice"/"Tomato juice")
-// that USDA/Canada_CNF/Germany_BLS ALSO contribute rows to, so the visible
+//
+// Keyed by BASE_NAME, not the full `name` column -- a real bug in the
+// first version of this dict, caught 2026-08-02 when the person reported
+// the quotes were still showing after a full dev-server restart ruled out
+// a caching explanation. searchReferenceFoodNames() (lib/db.ts) returns
+// `base_name`, not `name` -- the two differ for most of these rows
+// (base_name has its prep-method clause like ", raw"/", fresh" already
+// split off, and any trailing space trimmed), so a dict keyed by `name`
+// never actually matched anything reaching this component; every entry
+// silently fell through to the normal, unstripped candidate-key path.
+// Confirmed by direct query against the rebuilt database that all 32 of
+// these base_names are still exclusively Japan_MEXT-sourced (one row
+// each, no other source shares any of them) before rekeying. Deliberately
+// excludes "Carrot, regular (European type), juice, canned" and
+// "Tomatoes, canned products, juice, without salt" -- confirmed by direct
+// query both merge into a base_name ("Carrot juice"/"Tomato juice") that
+// USDA/Canada_CNF/Germany_BLS ALSO contribute rows to, so the visible
 // entry isn't exclusively Japanese and labeling it that way would
-// misrepresent what it actually resolves to. Every other name here was
-// confirmed to have no other source sharing its own base_name.
+// misrepresent what it actually resolves to.
 //
 // Values are the display label shown under the "Japanese" header --
 // follow-up request the same day: "If it's under the Juice header, we
@@ -127,37 +139,37 @@ function categoryLabel(category: string): string {
 // separately -- Satsuma mandarin's three ripening-stage rows). Every label
 // below was checked against the other 31 to confirm no two collide.
 const JUICE_JAPAN_DISPLAY_LABELS: Record<string, string> = {
-  'Apples, straight fruit juice ': 'Apple',
-  'Citrus, "Harumi", juice sacs, raw': 'Harumi',
-  'Citrus, "Hassaku", juice sacs, raw': 'Hassaku',
-  'Citrus, "Hyuga-natsu", juice sacs, raw': 'Hyuga-natsu',
+  'Apples, straight fruit juice': 'Apple',
+  'Citrus, "Harumi", juice sacs': 'Harumi',
+  'Citrus, "Hassaku", juice sacs': 'Hassaku',
+  'Citrus, "Hyuga-natsu", juice sacs': 'Hyuga-natsu',
   'Citrus, "Iyo", juice sacs': 'Iyo',
   'Citrus, "Kabosu", juice, fresh': 'Kabosu',
-  'Citrus, "Kawachi-bankan", juice sacs, raw': 'Kawachi-bankan',
-  'Citrus, "Kiyomi", juice sacs, raw': 'Kiyomi',
-  'Citrus, "Natsudaidai", juice sacs, raw': 'Natsudaidai',
-  'Citrus, "Sanbokan", juice sacs, raw': 'Sanbokan',
-  'Citrus, "Setoka", juice sacs, raw': 'Setoka',
+  'Citrus, "Kawachi-bankan", juice sacs': 'Kawachi-bankan',
+  'Citrus, "Kiyomi", juice sacs': 'Kiyomi',
+  'Citrus, "Natsudaidai", juice sacs': 'Natsudaidai',
+  'Citrus, "Sanbokan", juice sacs': 'Sanbokan',
+  'Citrus, "Setoka", juice sacs': 'Setoka',
   'Citrus, "Shiikuwasha", juice, fresh': 'Shiikuwasha',
-  'Citrus, "Shiranuhi", juice sacs, raw': 'Shiranuhi',
+  'Citrus, "Shiranuhi", juice sacs': 'Shiranuhi',
   'Citrus, "Sudachi", juice, fresh': 'Sudachi',
   'Citrus, "Yuzu", juice, fresh': 'Yuzu',
-  'Citrus, Seminole, juice sacs, raw': 'Seminole',
+  'Citrus, Seminole, juice sacs': 'Seminole',
   'Citrus, sour oranges, juice, fresh': 'Sour Orange',
-  'Grapefruit, red flesh type,  juice sacs, raw': 'Grapefruit, Red Flesh',
+  'Grapefruit, red flesh type,  juice sacs': 'Grapefruit, Red Flesh',
   'Grapefruit, straight fruit juice': 'Grapefruit',
-  'Grapefruit, white flesh type, juice sacs, raw': 'Grapefruit, White Flesh',
-  'Grapes, straight fruit juice ': 'Grape',
+  'Grapefruit, white flesh type, juice sacs': 'Grapefruit, White Flesh',
+  'Grapes, straight fruit juice': 'Grape',
   'Lemons, juice, fresh': 'Lemon',
   'Limes, juice, fresh': 'Lime',
-  'Oranges, Fukuhara-orange, juice sacs, raw': 'Fukuhara Orange',
-  'Oranges, Valencia, imported from the U.S.A., juice sacs, raw': 'Valencia Orange, Imported (U.S.)',
-  'Oranges, Valencia, straight fruit juice': 'Valencia Orange',
-  'Oranges, navel, juice sacs, raw': 'Navel Orange',
+  'Orange juice, Valencia (straight)': 'Valencia Orange',
+  'Oranges, Fukuhara-orange, juice sacs': 'Fukuhara Orange',
+  'Oranges, navel, juice sacs': 'Navel Orange',
+  'Oranges, Valencia, imported from the U.S.A., juice sacs': 'Valencia Orange, Imported (U.S.)',
   'Passion fruit, juice, fresh': 'Passion Fruit',
-  'Pineapple, straight fruit juice ': 'Pineapple',
-  'Satsuma mandarins, juice sacs, early ripening type, raw': 'Satsuma Mandarin, Early Ripening',
-  'Satsuma mandarins, juice sacs, normal ripening type, raw': 'Satsuma Mandarin, Normal Ripening',
+  'Pineapple, straight fruit juice': 'Pineapple',
+  'Satsuma mandarins, juice sacs, early ripening type': 'Satsuma Mandarin, Early Ripening',
+  'Satsuma mandarins, juice sacs, normal ripening type': 'Satsuma Mandarin, Normal Ripening',
   'Satsuma mandarins, straight fruit juice': 'Satsuma Mandarin',
 };
 

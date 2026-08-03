@@ -24,6 +24,7 @@ import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
 import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE, isCoffeeFood } from '../lib/coffeeAdvisory';
+import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE, isJuiceFood } from '../lib/juiceAdvisory';
 import { DimensionFlags } from './DimensionFlags';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
@@ -1382,6 +1383,17 @@ export function BeverageBuilder({
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                   <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Coffee & levothyroxine -- tap to learn more</Text>
+                </TouchableOpacity>
+              )}
+              {/* Same informational, non-gating shape as the alcohol/coffee
+                  rows above -- see lib/juiceAdvisory.ts's own top comment. */}
+              {isJuiceFood(pendingResolved) && (
+                <TouchableOpacity
+                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
+                  onPress={() => showInfoAlert(JUICE_ADVISORY_TITLE, JUICE_ADVISORY_MESSAGE)}
+                >
+                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar -- tap to learn more</Text>
                 </TouchableOpacity>
               )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
