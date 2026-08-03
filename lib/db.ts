@@ -304,6 +304,45 @@ async function resolveEffectiveUsdaOnly(category: string, subcategory: string | 
   // measured, not noise. So for this one specific subcategory, forcing
   // usdaOnly only throws away real, wanted variety for no benefit.
   if (category === 'Bev' && subcategory === 'Juice') return false;
+  // Same exact bug, same day, reported directly right after PantryStaples
+  // shipped: "I have the new category, but only 7 rows of data in the
+  // app... Rows in the database are not showing up here for a reason."
+  // Confirmed via direct query -- PantryStaples has SOME real USDA
+  // coverage (7 of its 29 real ingredients, e.g. the "Leavening agent(s),
+  // ..." naming), so this function's own default silently crushed the
+  // category down to just those 7, hiding the other 22 (agar-agar,
+  // gelatine, apple pectin, Konjac, most baking-powder/baker's-yeast
+  // variants) from every other of the 7 national sources. Safe to bypass
+  // entirely, same reasoning as Bev/Juice above: usdaOnly exists to avoid
+  // near-duplicate "Spinach x7"-style entries, but searchReferenceFoodNames
+  // already collapses same-base_name rows from different sources into one
+  // distinct, selectable item (`SELECT DISTINCT base_name`) regardless of
+  // this flag -- so there's no duplication risk to guard against here,
+  // only real cross-source variety this category was built to consolidate.
+  if (category === 'PantryStaples') return false;
+  // A real, pre-existing regression found 2026-08-03 while auditing every
+  // category for this same bug class after the PantryStaples fix above --
+  // not reported directly, found by checking. Alcohol genuinely had ZERO
+  // USDA rows when the original Alcohol/Algae/Brewing hasUsdaCoverage()
+  // bypass was written (documented at the time: "USDA in particular had
+  // ZERO rows in Alcohol at all"). But a LATER fix that same day
+  // (reclassify_bev_alcoholic_to_alcohol(), moving 264 rows -- including
+  // every real USDA wine/beer/spirit row -- out of Bev's own "Alcoholic"
+  // subcategory into the proper Alcohol category) silently flipped
+  // hasUsdaCoverage('Alcohol') from false to true, re-triggering the
+  // USDA-only default for every Alcohol subcategory not already fully
+  // hidden -- invisible in any code diff, since it's a runtime
+  // recomputation, not a code change. Confirmed via direct query: Wine &
+  // Champagne was showing 36 of 111 real entries, Spirits & Liqueurs 21 of
+  // 82, "Other" 1 of 24 -- hiding most of the real German/French/UK/
+  // Australian/Canadian diversity the alcohol cleanup work that same day
+  // was built around. Safe to bypass for the same reason as Bev/Juice and
+  // PantryStaples above: Alcohol already has its own purpose-built
+  // duplicate-avoidance mechanism (ALCOHOL_HIDDEN_BASE_NAMES, built
+  // specifically to consolidate "redundant per-source vodka/gin/rum/
+  // whiskey duplicates"), so USDA-only on top of that hides real,
+  // non-redundant variety rather than doing a job nothing else covers.
+  if (category === 'Alcohol') return false;
   return hasUsdaCoverage(category);
 }
 
