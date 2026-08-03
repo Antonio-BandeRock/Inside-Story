@@ -145,10 +145,10 @@ export function InlineSelectList({
           // inside, rather than the two fighting over the same touch -- iOS
           // already behaves this way without it.
           nestedScrollEnabled
-          renderItem={({ item, index }) => {
+          renderItem={({ item }) => {
             if (item.isHeader) {
               return (
-                <View style={styles.groupHeader}>
+                <View style={[styles.groupHeader, { borderLeftColor: tabColor }]}>
                   <Text style={[styles.groupHeaderText, { color: tabColor }]} numberOfLines={1}>
                     {item.label}
                   </Text>
@@ -169,19 +169,31 @@ export function InlineSelectList({
             // this correctly (it clears itself the moment the topmost
             // visible row has no groupLabel), but that's a small, easy-to-
             // miss text change -- a real ungrouped item needs its OWN
-            // unmistakable visual break from whatever came before it, not
-            // just a correct but subtle overlay update. Flagged only at
-            // the transition point (ungrouped item immediately following a
-            // header or a real grouped member) -- a run of several
-            // ungrouped items in a row needs no repeated break between
-            // them, and the very first row in the list needs none either.
-            const previous = index > 0 ? options[index - 1] : null;
-            const isStartOfUngroupedRun = !item.groupLabel && !!previous && (previous.isHeader || !!previous.groupLabel);
+            // unmistakable visual signal, not just a correct but subtle
+            // overlay update.
+            //
+            // Two earlier attempts both failed to show up on-device, each
+            // confirmed against a real cold reload (bundle downloaded
+            // 0-100%, not a cached one) -- a thicker top border on just the
+            // transition row, then a translucent (~10% alpha) background
+            // tint across every grouped row. The real reason, found only
+            // after actually tracing what these rows render on TOP of:
+            // `colors.surface` (this list's own container background,
+            // `styles.container` below) is itself translucent
+            // (`rgba(69, 84, 111, 0.85)`, letting the tab's own background
+            // photo show through), so a second, even-more-translucent tint
+            // stacked on top of that was compositing into something too
+            // faint to read against a busy photo background -- not a
+            // logic bug, a contrast bug. Fixed with a solid, fully OPAQUE
+            // left accent bar instead of any translucent full-row tint --
+            // opacity can't get lost in a transparency stack the way a
+            // blended color can, so this reads the same regardless of
+            // what photo/theme is showing through the surface behind it.
             return (
               <TouchableOpacity
                 style={[
                   styles.item,
-                  isStartOfUngroupedRun ? styles.itemUngroupedStart : null,
+                  item.groupLabel ? { borderLeftColor: tabColor } : null,
                   isSelected ? { backgroundColor: tabColor } : null,
                 ]}
                 onPress={() => onChange(item.value)}
@@ -194,7 +206,7 @@ export function InlineSelectList({
           }}
         />
         {stickyLabel ? (
-          <View style={[styles.groupHeader, styles.stickyOverlay]} pointerEvents="none">
+          <View style={[styles.groupHeader, { borderLeftColor: tabColor }, styles.stickyOverlay]} pointerEvents="none">
             <Text style={[styles.groupHeaderText, { color: tabColor }]} numberOfLines={1}>
               {stickyLabel}
             </Text>
@@ -245,18 +257,14 @@ const styles = StyleSheet.create({
     paddingVertical: 6,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    // Reserved (transparent) even for an ungrouped row so a grouped row's
+    // own opaque accent bar (see renderItem above) never shifts text left
+    // by 4px relative to its neighbors -- only the color changes.
+    borderLeftWidth: 4,
+    borderLeftColor: 'transparent',
   },
   itemText: { ...typography.body, color: colors.textPrimary },
   itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
-  // Marks the first ungrouped row after a header/real group member -- see
-  // this style's own call site in renderItem for why it's needed. A
-  // visibly thicker top border reuses the same visual language `item`'s
-  // own bottom border already establishes for "a boundary between rows,"
-  // rather than inventing a second, different-looking divider convention.
-  itemUngroupedStart: {
-    borderTopWidth: 3,
-    borderTopColor: colors.border,
-  },
   // A plain, non-tappable divider row -- deliberately not shaped like
   // `item` (no border, no press feedback) so it reads as organizational
   // chrome rather than one more option in the list. Opaque background is
@@ -271,6 +279,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
+    // Matches item's own reserved left border below so a header and its
+    // real members form one continuous colored strip top-to-bottom, and so
+    // header/member text stays aligned at the same left edge either way --
+    // color itself is applied inline in renderItem below (tabColor is a
+    // prop, not available to this static stylesheet).
+    borderLeftWidth: 4,
   },
   // The hand-rolled sticky header itself -- see the component's own top
   // comment for why this exists instead of a native sticky-header prop.
