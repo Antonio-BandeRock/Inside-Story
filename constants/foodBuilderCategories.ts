@@ -41,38 +41,46 @@
 //   itself, unlike everything else still in Bev. Beverage Builder needs it
 //   for the obvious reason (making a cup of tea/coffee); Fermentation
 //   Builder needs it too since kombucha is literally brewed FROM tea.
+// 'PantryStaples' (2026-08-03) is included in every builder below that
+// already included 'Herbs' -- these dry, functional cooking ingredients
+// (baking powder, gelatine, agar-agar, Konjac powder, etc.) used to be
+// reachable through wherever they happened to sit (mostly Herbs, some
+// Baked/Meat/Algae/Mixed), and every one of those homes was already in
+// every builder's own allowlist. Adding the new category everywhere Herbs
+// already was preserves that same reachability rather than silently
+// making these ingredients unfindable in any builder that used them before.
 export const SIDE_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
+  'Veg', 'Fruit', 'Grain', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
 ];
 
 export const SALAD_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae',
+  'Veg', 'Fruit', 'Grain', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae',
 ];
 
 export const SMOOTHIE_BUILDER_CATEGORIES = [
-  'Fruit', 'Veg', 'Dairy', 'NutSeed', 'Bev', 'SupplementPowder', 'Sweets', 'Herbs',
+  'Fruit', 'Veg', 'Dairy', 'NutSeed', 'Bev', 'SupplementPowder', 'Sweets', 'Herbs', 'PantryStaples',
 ];
 
 export const FERMENTATION_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Dairy', 'Grain', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'Sweets',
+  'Veg', 'Fruit', 'Dairy', 'Grain', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'PantryStaples', 'Sweets',
 ];
 
 export const BEVERAGE_BUILDER_CATEGORIES = [
-  'Bev', 'Brewing', 'Alcohol', 'SupplementPowder', 'Fruit', 'Herbs', 'Dairy', 'Sweets', 'NutSeed',
+  'Bev', 'Brewing', 'Alcohol', 'SupplementPowder', 'Fruit', 'Herbs', 'PantryStaples', 'Dairy', 'Sweets', 'NutSeed',
 ];
 
 export const SNACK_BUILDER_CATEGORIES = [
-  'Fruit', 'Veg', 'NutSeed', 'Grain', 'Dairy', 'Meat', 'Fish', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'Mushroom',
+  'Fruit', 'Veg', 'NutSeed', 'Grain', 'Dairy', 'Meat', 'Fish', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom',
 ];
 
 export const BAKED_GOODS_BUILDER_CATEGORIES = [
-  'Grain', 'Baked', 'Dairy', 'Fats', 'Sweets', 'NutSeed', 'Fruit', 'Herbs', 'Legume',
+  'Grain', 'Baked', 'Dairy', 'Fats', 'Sweets', 'NutSeed', 'Fruit', 'Herbs', 'PantryStaples', 'Legume',
 ];
 
 export const SOUP_BUILDER_CATEGORIES = [
-  'Veg', 'Meat', 'Fish', 'Grain', 'Legume', 'Dairy', 'Fats', 'Herbs', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
+  'Veg', 'Meat', 'Fish', 'Grain', 'Legume', 'Dairy', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
 ];
 
 export const SAUCES_BUILDER_CATEGORIES = [
-  'Fats', 'Dairy', 'Fruit', 'Veg', 'Herbs', 'Sweets', 'Alcohol', 'NutSeed', 'Legume',
+  'Fats', 'Dairy', 'Fruit', 'Veg', 'Herbs', 'PantryStaples', 'Sweets', 'Alcohol', 'NutSeed', 'Legume',
 ];

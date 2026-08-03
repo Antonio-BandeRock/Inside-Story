@@ -91,6 +91,14 @@ const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   Mixed: 'Mixed Dishes',
   Mushroom: 'Mushrooms',
   NutSeed: 'Nuts & Seeds',
+  // New 2026-08-03 -- dry, shelf-stable cooking ingredients never eaten on
+  // their own (baking powder, cream of tartar, baker's yeast, gelatine,
+  // pectin, agar-agar, Konjac powder), explicitly requested and
+  // distinguished from SupplementPowder: "Konjac is not a supplement, it
+  // is a cooking ingredient like baking powder would be." See
+  // scripts/build_food_reference_db.py's own CATEGORY_OVERRIDES comment
+  // for the full reasoning and exactly which rows moved.
+  PantryStaples: 'Pantry Staples',
   Sprouts: 'Sprouts',
   SupplementPowder: 'Supplement Powders',
   Veg: 'Vegetables',

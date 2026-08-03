@@ -56,20 +56,77 @@ CATEGORY_OVERRIDES = {
     # above (see scripts/add_supplement_powder_category.py) but never
     # actually folded into this override list until now.
     ("NutSeed", "Psyllium, uncooked"): "SupplementPowder",
-    # Reported directly 2026-08-03: "Konjac... is kind of a cooking
-    # ingredient in powder form, which is how it is listed in the
-    # Vegetables category" -- confirmed by checking the row directly.
-    # "Konjac, fine powder" (Japan_MEXT) is the loose glucomannan powder
-    # itself (6g water/100g -- a concentrated dry powder, not a fresh
-    # vegetable; real konjac corm runs ~95%+ water), used the same two
-    # ways Psyllium already is: a soluble-fiber supplement, or a small-
-    # quantity cooking/thickening aid -- the exact profile this category
-    # already exists for. Every other Konjac row (block made from corm,
-    # block made from powder, freeze-dried, noodles) stays in Veg -- those
-    # are real eaten foods (konnyaku blocks, shirataki noodles), not a
-    # loose ingredient powder, the same distinction Psyllium's own move
-    # already drew against whole nuts/seeds.
-    ("Veg", "Konjac, fine powder"): "SupplementPowder",
+    # New 'PantryStaples' category, 2026-08-03, explicitly requested and
+    # corrected mid-thread: "Konjac... is kind of a cooking ingredient in
+    # powder form... Konjac is not a supplement, it is a cooking ingredient
+    # like baking powder would be. Baking powder would not be included in
+    # supplements either. We need a different category, maybe Pantry
+    # Staples: the broadest category for dry, shelf-stable ingredients that
+    # are not eaten on their own." Konjac's own first move (into
+    # SupplementPowder, same session) was wrong for exactly this reason --
+    # its real-world role is functional (thickening/gelling), not
+    # nutritional-supplement, and lumping it with Psyllium/Baobab (both
+    # primarily consumed AS a supplement) missed that distinction.
+    #
+    # Investigating the one named example (baking powder) surfaced a much
+    # bigger, real, pre-existing inconsistency worth fixing at the same
+    # time, not guessed at: baking powder, cream of tartar, and baker's
+    # yeast were each independently split across BOTH `Baked` (USDA/
+    # Canada_CNF's own naming, "Leavening agent(s), ...") and `Herbs`
+    # (Japan_MEXT/Germany_BLS/Australia_AFCD's own naming, e.g. plain
+    # "Baking powder") -- the exact same real ingredient, filed
+    # inconsistently depending on which of the 7 national sources measured
+    # it. Gelatine/apple pectin/agar-agar showed the identical pattern,
+    # scattered across `Herbs`, `Meat`, `Algae`, and `Mixed`. Every row
+    # below was checked against its own full `name`, not swept in by a
+    # keyword: an EATEN preparation that merely mentions one of these
+    # ingredients (agar JELLY, a gelatine-set fruit CREAM, lingonberry
+    # sugared WITH pectin) is a real finished food and stays exactly where
+    # it was -- only the raw, add-a-small-amount-to-a-recipe ingredient
+    # form moves. "Yeast, dry powder" (Australia_AFCD) and "Yeast extract
+    # spread"/"Yeast flakes/nutritional yeast" are a real, deliberate split
+    # within yeast itself -- baker's/leavening yeast moves (functional,
+    # never eaten alone), nutritional yeast and yeast extract spread do NOT
+    # (both are real foods people eat directly, spread on toast or
+    # sprinkled as a cheese-like topping, not a leavening aid).
+    ("Veg", "Konjac, fine powder"): "PantryStaples",
+    ("Baked", "Leavening agents, baking powder, double-acting, sodium aluminum sulfate"): "PantryStaples",
+    ("Baked", "Leavening agents, baking powder, double-acting, straight phosphate"): "PantryStaples",
+    ("Baked", "Leavening agents, baking powder, low-sodium"): "PantryStaples",
+    ("Baked", "Leavening agent, baking powder, double acting, sodium, aluminium sulfate"): "PantryStaples",
+    ("Baked", "Leavening agent, baking powder, double acting, phosphate"): "PantryStaples",
+    ("Baked", "Leavening agent, baking powder, low sodium"): "PantryStaples",
+    ("Herbs", "Baking powder"): "PantryStaples",
+    ("Herbs", "Baking powder, dry powder"): "PantryStaples",
+    ("Baked", "Leavening agent, cream of tartar"): "PantryStaples",
+    ("Herbs", "Cream of tartar, dry powder"): "PantryStaples",
+    ("Baked", "Leavening agent, yeast, baker's, active, dry"): "PantryStaples",
+    ("Baked", "Leavening agent, yeast, baker's, compressed"): "PantryStaples",
+    ("Baked", "Leavening agents, yeast, baker's, active dry"): "PantryStaples",
+    ("Baked", "Leavening agents, yeast, baker's, compressed"): "PantryStaples",
+    ("Herbs", "Baker's yeast"): "PantryStaples",
+    ("Herbs", "Baker's yeast fresh, pressed"): "PantryStaples",
+    ("Herbs", "Yeast, baker's yeast"): "PantryStaples",
+    ("Herbs", "Yeast, baker's yeast, compressed"): "PantryStaples",
+    ("Herbs", "Yeast, dry powder"): "PantryStaples",
+    ("Herbs", "Apple pectin"): "PantryStaples",
+    ("Herbs", "Gelatine"): "PantryStaples",
+    ("Herbs", "Gelatine, all types"): "PantryStaples",
+    ("Meat", "Pork, gelatin"): "PantryStaples",
+    ("Algae", 'Algae, "Tengusa", agar-agar'): "PantryStaples",
+    ("Algae", 'Algae, "Tengusa", agar-agar powder'): "PantryStaples",
+    ("Mixed", "Agar (algue), cru"): "PantryStaples",
+    ("Mixed", "Agar (algue), séché"): "PantryStaples",
+    ("Veg", "Seaweed, agar"): "PantryStaples",
+    # A smaller, separate, already-confirmed fix surfaced along the way:
+    # "Arrowroot flour" (the pure starch, same real product as cornstarch)
+    # was split three ways -- Grain (Canada_CNF, matching cornstarch's own
+    # correct home), Baked (USDA), and Mushroom (Germany_BLS, a clear
+    # miscategorization glitch). Not folded into PantryStaples above --
+    # deliberately left consistent with cornstarch instead, which stays in
+    # Grain rather than move there too (out of scope for this pass).
+    ("Baked", "Flour, arrowroot"): "Grain",
+    ("Mushroom", "Arrowroot flour"): "Grain",
     # New 'Brewing' category, 2026-08-02, explicitly requested: dry, not-
     # yet-brewed tea/coffee-type products (instant powders, granules,
     # dried/ground tea) don't belong under Bev the same way an already-
