@@ -134,12 +134,33 @@ function categoryLabel(category: string): string {
 // shouldn't need the word juice in the name. Let's just have the name of
 // the fruit listed." Hand-curated rather than stripped generically, since
 // a few names carry a real, meaningful qualifier beyond just "juice" that
-// has to survive (Grapefruit's red-vs-white flesh, the two Valencia orange
-// rows -- one grown in Japan, one imported from the U.S. and measured
-// separately -- Satsuma mandarin's three ripening-stage rows). Every label
-// below was checked against the other 31 to confirm no two collide.
+// has to survive (Satsuma mandarin's three ripening-stage rows).
+//
+// Narrowed a second time the same day, per direct correction: "I was
+// thinking that the Japanese fruit juices listed would just be those that
+// have a Japanese name. All others outside of those that match a USDA or
+// other English entry should be used." The first version forced every
+// Japan_MEXT-EXCLUSIVE row into this group, which is a different thing
+// from a row actually being a distinctively Japanese fruit -- Apple,
+// Grape, Grapefruit, Lemon, Lime, Passion Fruit, Pineapple, Navel Orange,
+// and Valencia Orange only ended up Japan_MEXT-exclusive in THIS
+// database's own source coverage, not because the fruit itself is
+// Japanese; grouping them as "Japanese" read as a confusing, unexplained
+// duplicate of the same common fruit name (worse once `juice` was added to
+// GROUP_STOPWORDS above, since those same common names then also started
+// surfacing normally, unlabeled, right alongside their "Japanese" copy).
+// "Seminole" was cut for the same reason -- a Florida-bred tangelo named
+// for the Seminole people, not a Japanese cultivar; it only had a row here
+// because Japan_MEXT happened to be the one source measuring it. Genuinely
+// Japanese-named citrus cultivars (Harumi, Hassaku, Hyuga-natsu, Iyo,
+// Kabosu, Kawachi-bankan, Kiyomi, Natsudaidai, Sanbokan, Setoka,
+// Shiikuwasha, Shiranuhi, Sudachi, Yuzu, Fukuhara, Satsuma) stay -- these
+// are the names an English speaker wouldn't otherwise recognize as "just
+// an orange," which is the real thing "has a Japanese name" is pointing
+// at. The removed entries aren't dropped from the Juice list itself, only
+// from this forced group -- they fall back to the same plain
+// browsing/candidate-grouping every other juice already gets.
 const JUICE_JAPAN_DISPLAY_LABELS: Record<string, string> = {
-  'Apples, straight fruit juice': 'Apple',
   'Citrus, "Harumi", juice sacs': 'Harumi',
   'Citrus, "Hassaku", juice sacs': 'Hassaku',
   'Citrus, "Hyuga-natsu", juice sacs': 'Hyuga-natsu',
@@ -154,20 +175,7 @@ const JUICE_JAPAN_DISPLAY_LABELS: Record<string, string> = {
   'Citrus, "Shiranuhi", juice sacs': 'Shiranuhi',
   'Citrus, "Sudachi", juice, fresh': 'Sudachi',
   'Citrus, "Yuzu", juice, fresh': 'Yuzu',
-  'Citrus, Seminole, juice sacs': 'Seminole',
-  'Citrus, sour oranges, juice, fresh': 'Sour Orange',
-  'Grapefruit, red flesh type,  juice sacs': 'Grapefruit, Red Flesh',
-  'Grapefruit, straight fruit juice': 'Grapefruit',
-  'Grapefruit, white flesh type, juice sacs': 'Grapefruit, White Flesh',
-  'Grapes, straight fruit juice': 'Grape',
-  'Lemons, juice, fresh': 'Lemon',
-  'Limes, juice, fresh': 'Lime',
-  'Orange juice, Valencia (straight)': 'Valencia Orange',
   'Oranges, Fukuhara-orange, juice sacs': 'Fukuhara Orange',
-  'Oranges, navel, juice sacs': 'Navel Orange',
-  'Oranges, Valencia, imported from the U.S.A., juice sacs': 'Valencia Orange, Imported (U.S.)',
-  'Passion fruit, juice, fresh': 'Passion Fruit',
-  'Pineapple, straight fruit juice': 'Pineapple',
   'Satsuma mandarins, juice sacs, early ripening type': 'Satsuma Mandarin, Early Ripening',
   'Satsuma mandarins, juice sacs, normal ripening type': 'Satsuma Mandarin, Normal Ripening',
   'Satsuma mandarins, straight fruit juice': 'Satsuma Mandarin',

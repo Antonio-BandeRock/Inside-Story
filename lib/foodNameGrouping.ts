@@ -115,6 +115,34 @@ const GROUP_STOPWORDS = new Set([
   'salted', 'toasted', 'sugared', 'unsweetened', 'peeled', 'mature',
   'sugar-coated', 'gluten-free', 'common', 'dough',
   'préemballée', 'préemballé',
+  // Found 2026-08-02 auditing Bev's own Juice subcategory (same session as
+  // the Japanese forced-group work above): 62 of its 100 real base_names
+  // end in the literal word "juice" -- inside a list that's ENTIRELY
+  // juice to begin with, that produces one dominant mega-group ("Juice")
+  // covering most of the subcategory, which tells a browser nothing they
+  // don't already know from the subcategory heading itself. Checked
+  // database-wide before adding (same discipline as every other stopword
+  // here): the only other categories where "juice" is even a last word are
+  // Mixed (3 rows), Alcohol (1), Meat (1) -- each a single unrelated
+  // composite dish ("Chicken breast fillet in its own juice," "Sparkling
+  // wine with orange juice"), never 2+ genuinely related items, so no real
+  // group anywhere else is lost by this.
+  'juice',
+  // Found the same pass, checking the Juice list after the "juice"
+  // stopword above stopped it from swallowing everything: "Lemon juice,
+  // canned or bottled" and "Lime juice, canned or bottled" shared "bottled"
+  // as a last word, forming a real 2-item group -- but stripping just that
+  // one word left each member's own label dangling on a conjunction
+  // ("Lemon juice, canned or"), the same badly-garbled-remaining-label
+  // failure already documented above for "dough"/"gluten-free". Checked
+  // database-wide first: every other "X, bottled" row is either already
+  // excluded from browsing (branded/cocktail/juice-drink entries cut
+  // during the earlier juice-cleanup pass) or the only other real
+  // same-category pair (two bottled mineral waters) reads fine either way
+  // -- grouped under a bare "Bottled" header or, without this stopword,
+  // shown as plain ungrouped singletons with their own full descriptive
+  // name, which loses nothing.
+  'bottled',
 ]);
 
 function normalizeCandidate(word: string | undefined): string | null {
