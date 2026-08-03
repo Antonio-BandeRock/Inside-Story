@@ -199,8 +199,41 @@ function candidateEntries(name: string): Candidate[] {
 // names. Pure and synchronous -- cheap enough to run on every render of a
 // list that's realistically a few hundred names at most (the same scale
 // FoodLookup.tsx's own live search already filters over instantly).
-export function buildFoodNameGroups(names: string[]): GroupedFoodEntry[] {
-  const namesCandidates = names.map((name) => ({ name, candidates: candidateEntries(name) }));
+//
+// `forcedGroups` -- 2026-08-02, explicitly requested for Bev's Juice
+// subcategory after explaining why Japan_MEXT's own citrus/fruit-juice
+// entries carry quotation marks (that source's own convention for marking
+// a Japanese-language term kept in its original form, e.g. "Yuzu"/"Udon" --
+// not specific to these foods): "We could separate them into their own
+// group to identify them as Japanese and then remove the quotations."
+// This is a genuinely different kind of grouping than the name-pattern
+// matching this whole file otherwise does -- it's grouping by WHERE a food
+// came from, not what its name looks like -- so it's handled as an
+// explicit override map (name -> forced group label) rather than folded
+// into the candidate-key logic above, which has no concept of source.
+// Callers are responsible for only forcing a name into a source-based
+// group when every row behind that name really is exclusively from that
+// source -- FoodLookup.tsx's own JUICE_JAPAN_EXCLUSIVE_NAMES deliberately
+// leaves out "Carrot juice"/"Tomato juice," which merge Japan_MEXT's own
+// row with USDA/Canada_CNF/Germany_BLS rows measuring the same real food;
+// labeling those "Japanese" would misrepresent what the visible entry
+// actually resolves to. Quotation marks are stripped from the forced
+// group's own display labels (never from `value`, which still has to
+// match the real base_name for food resolution) -- once the food sits
+// under a header that already says "Japanese," the quotes' only job
+// (flagging "this word is Japanese, not English") is redundant.
+export function buildFoodNameGroups(
+  names: string[],
+  forcedGroups?: Map<string, string>,
+): GroupedFoodEntry[] {
+  const forcedNames = forcedGroups
+    ? names.filter((name) => forcedGroups.has(name))
+    : [];
+  const normalNames = forcedGroups
+    ? names.filter((name) => !forcedGroups.has(name))
+    : names;
+
+  const namesCandidates = normalNames.map((name) => ({ name, candidates: candidateEntries(name) }));
 
   // Pass 1: how many DISTINCT names produce each candidate key, across
   // every name's own candidate list (not just its top choice) -- a key
@@ -271,6 +304,36 @@ export function buildFoodNameGroups(names: string[]): GroupedFoodEntry[] {
   }
   for (const name of ungrouped) {
     sortable.push({ sortKey: name, entries: [{ type: 'item', label: name, value: name }] });
+  }
+
+  // Forced (source-based) groups -- see this function's own top comment.
+  // Bypasses the candidate-key logic entirely; membership and label are
+  // both already decided by the caller, this just builds the same
+  // header+members shape everything else uses so it sorts in correctly
+  // alongside the name-pattern groups above.
+  if (forcedGroups) {
+    const byLabel = new Map<string, string[]>();
+    for (const name of forcedNames) {
+      const label = forcedGroups.get(name)!;
+      const members = byLabel.get(label) ?? [];
+      members.push(name);
+      byLabel.set(label, members);
+    }
+    for (const [label, members] of byLabel) {
+      const sortedMembers = [...members].sort((a, b) => a.localeCompare(b));
+      sortable.push({
+        sortKey: label,
+        entries: [
+          { type: 'header', key: label.toLowerCase(), label },
+          ...sortedMembers.map((name) => ({
+            type: 'item' as const,
+            label: name.replace(/"/g, ''),
+            value: name,
+            groupLabel: label,
+          })),
+        ],
+      });
+    }
   }
 
   sortable.sort((a, b) => a.sortKey.localeCompare(b.sortKey));

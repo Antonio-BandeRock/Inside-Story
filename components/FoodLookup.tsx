@@ -100,6 +100,66 @@ function categoryLabel(category: string): string {
   return CATEGORY_DISPLAY_LABELS[category] ?? category;
 }
 
+// Reported directly by the user, 2026-08-02, while reviewing Bev's own
+// Juice subcategory: Japan_MEXT's citrus cultivar names ("Harumi,"
+// "Kabosu," "Yuzu," etc.) and its "juice sacs"/"straight fruit juice" fruit
+// entries read as unfamiliar and visually noisy (the quotation marks
+// specifically) sitting in an otherwise plain alphabetical list -- "We
+// could separate them into their own group to identify them as Japanese
+// and then remove the quotations." Passed to buildFoodNameGroups as a
+// forced (source-based) group, see that function's own comment for why
+// this needed a different mechanism than its normal name-pattern grouping.
+// Deliberately excludes "Carrot, regular (European type), juice, canned"
+// and "Tomatoes, canned products, juice, without salt" -- confirmed by
+// direct query both merge into a base_name ("Carrot juice"/"Tomato juice")
+// that USDA/Canada_CNF/Germany_BLS ALSO contribute rows to, so the visible
+// entry isn't exclusively Japanese and labeling it that way would
+// misrepresent what it actually resolves to. Every other name here was
+// confirmed to have no other source sharing its own base_name.
+const JUICE_JAPAN_EXCLUSIVE_NAMES = new Set([
+  'Apples, straight fruit juice ',
+  'Citrus, "Harumi", juice sacs, raw',
+  'Citrus, "Hassaku", juice sacs, raw',
+  'Citrus, "Hyuga-natsu", juice sacs, raw',
+  'Citrus, "Iyo", juice sacs',
+  'Citrus, "Kabosu", juice, fresh',
+  'Citrus, "Kawachi-bankan", juice sacs, raw',
+  'Citrus, "Kiyomi", juice sacs, raw',
+  'Citrus, "Natsudaidai", juice sacs, raw',
+  'Citrus, "Sanbokan", juice sacs, raw',
+  'Citrus, "Setoka", juice sacs, raw',
+  'Citrus, "Shiikuwasha", juice, fresh',
+  'Citrus, "Shiranuhi", juice sacs, raw',
+  'Citrus, "Sudachi", juice, fresh',
+  'Citrus, "Yuzu", juice, fresh',
+  'Citrus, Seminole, juice sacs, raw',
+  'Citrus, sour oranges, juice, fresh',
+  'Grapefruit, red flesh type,  juice sacs, raw',
+  'Grapefruit, straight fruit juice',
+  'Grapefruit, white flesh type, juice sacs, raw',
+  'Grapes, straight fruit juice ',
+  'Lemons, juice, fresh',
+  'Limes, juice, fresh',
+  'Oranges, Fukuhara-orange, juice sacs, raw',
+  'Oranges, Valencia, imported from the U.S.A., juice sacs, raw',
+  'Oranges, Valencia, straight fruit juice',
+  'Oranges, navel, juice sacs, raw',
+  'Passion fruit, juice, fresh',
+  'Pineapple, straight fruit juice ',
+  'Satsuma mandarins, juice sacs, early ripening type, raw',
+  'Satsuma mandarins, juice sacs, normal ripening type, raw',
+  'Satsuma mandarins, straight fruit juice',
+]);
+
+function buildJuiceForcedGroups(category: string, subcategory: string | null): Map<string, string> | undefined {
+  if (category !== 'Bev' || subcategory !== 'Juice') return undefined;
+  const map = new Map<string, string>();
+  for (const name of JUICE_JAPAN_EXCLUSIVE_NAMES) {
+    map.set(name, 'Japanese');
+  }
+  return map;
+}
+
 // General food browser -- category -> optional type -> food -> optional
 // prep method -> a full per-100g/per-portion/%RDA nutrient table. Built
 // first for Insights' own Food Lookup lens (app/(tabs)/insights.tsx), then
@@ -654,7 +714,7 @@ export function FoodLookup({
   // the reference database itself.
   const foodListOptions = foodQuery.trim()
     ? foodNameOptions.map((value) => ({ label: value, value }))
-    : buildFoodNameGroups(foodNameOptions).map((entry) =>
+    : buildFoodNameGroups(foodNameOptions, buildJuiceForcedGroups(category, subcategory)).map((entry) =>
         entry.type === 'header'
           ? { label: entry.label, value: `__group_${entry.key}`, isHeader: true }
           : { label: entry.label, value: entry.value, groupLabel: entry.groupLabel },
