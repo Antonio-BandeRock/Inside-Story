@@ -145,7 +145,7 @@ export function InlineSelectList({
           // inside, rather than the two fighting over the same touch -- iOS
           // already behaves this way without it.
           nestedScrollEnabled
-          renderItem={({ item }) => {
+          renderItem={({ item, index }) => {
             if (item.isHeader) {
               return (
                 <View style={styles.groupHeader}>
@@ -156,9 +156,34 @@ export function InlineSelectList({
               );
             }
             const isSelected = item.value === value;
+            // Reported directly 2026-08-02, on Bev's own Juice subcategory
+            // once its own grouping was cut down to just a handful of real
+            // groups scattered among many ungrouped singletons: an
+            // ungrouped item shares this exact same plain row style as a
+            // real group member, so one sitting right after a header's
+            // true members (purely because it happens to sort
+            // alphabetically nearby -- "Cucumber juice" right after the
+            // "Coconut" group, say) visually read as if it belonged to
+            // that group too, even though `groupLabel` correctly says
+            // otherwise. The sticky-header overlay above already tracks
+            // this correctly (it clears itself the moment the topmost
+            // visible row has no groupLabel), but that's a small, easy-to-
+            // miss text change -- a real ungrouped item needs its OWN
+            // unmistakable visual break from whatever came before it, not
+            // just a correct but subtle overlay update. Flagged only at
+            // the transition point (ungrouped item immediately following a
+            // header or a real grouped member) -- a run of several
+            // ungrouped items in a row needs no repeated break between
+            // them, and the very first row in the list needs none either.
+            const previous = index > 0 ? options[index - 1] : null;
+            const isStartOfUngroupedRun = !item.groupLabel && !!previous && (previous.isHeader || !!previous.groupLabel);
             return (
               <TouchableOpacity
-                style={[styles.item, isSelected ? { backgroundColor: tabColor } : null]}
+                style={[
+                  styles.item,
+                  isStartOfUngroupedRun ? styles.itemUngroupedStart : null,
+                  isSelected ? { backgroundColor: tabColor } : null,
+                ]}
                 onPress={() => onChange(item.value)}
               >
                 <Text style={[styles.itemText, isSelected ? styles.itemTextSelected : null]} numberOfLines={1}>
@@ -223,6 +248,15 @@ const styles = StyleSheet.create({
   },
   itemText: { ...typography.body, color: colors.textPrimary },
   itemTextSelected: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  // Marks the first ungrouped row after a header/real group member -- see
+  // this style's own call site in renderItem for why it's needed. A
+  // visibly thicker top border reuses the same visual language `item`'s
+  // own bottom border already establishes for "a boundary between rows,"
+  // rather than inventing a second, different-looking divider convention.
+  itemUngroupedStart: {
+    borderTopWidth: 3,
+    borderTopColor: colors.border,
+  },
   // A plain, non-tappable divider row -- deliberately not shaped like
   // `item` (no border, no press feedback) so it reads as organizational
   // chrome rather than one more option in the list. Opaque background is
