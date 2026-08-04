@@ -492,6 +492,110 @@ CATEGORY_OVERRIDES = {
     # Canada_CNF, and Australia_AFCD -- Germany_BLS's own version had just
     # never been moved over alongside them.
     ("Veg", "Mature Lima Bean/Butter Bean"): "Legume",                     # Germany_BLS
+
+    # New 'PastaNoodles' category, 2026-08-04, explicitly requested. Most of
+    # the real content (156 distinct base_names) already arrives with
+    # category_code "Grain" and is handled by a keyword rule in
+    # reclassify_category() below instead of an exhaustive list here --
+    # these are the real outliers that arrived under a DIFFERENT starting
+    # category_code, each confirmed via its own raw_category/source before
+    # being added, not guessed:
+    #
+    # Konjac shirataki noodles -- a real eaten noodle product (glucomannan-
+    # based, not wheat), the same "genuinely a noodle product" test that
+    # sends rice noodles/soy vermicelli/glass noodles here too, despite none
+    # of them being wheat-based. Deliberately NOT the same call as Konjac's
+    # OTHER forms (block, freeze-dried) or its loose powder (PantryStaples,
+    # see above) -- this is specifically the ready-to-eat noodle form.
+    ("Veg", "Konjac, noodles"): "PastaNoodles",                            # Japan_MEXT
+    # Cellophane/glass/"long rice" noodles made from mung bean starch --
+    # the same real East Asian noodle product measured under three
+    # different naming conventions across three sources, none of which
+    # happened to land in Grain naturally.
+    ("Legume", "Beans, mung, long rice (chinese noodles), dehydrated"): "PastaNoodles",  # Canada_CNF
+    ("Legume", "Noodles, chinese, cellophane or long rice (mung beans), dehydrated"): "PastaNoodles",  # USDA
+    ("Legume", "Vermicelli, made from soy"): "PastaNoodles",               # USDA, Canada_CNF
+    ("NutSeed", "Glass noodles made from mung bean starch"): "PastaNoodles",  # Germany_BLS
+    # Plain pasta/noodle products sitting in Baked -- checked row by row
+    # against the rest of Baked's own real pasta/noodle content (29 rows
+    # total): these 23 are plain dry/fresh/boiled product states with no
+    # sauce or dish qualifier. The other 6 (Macaroni & cheese homemade,
+    # Pasta dish with bolognese sauce, Pasta in cream based sauce dry mix
+    # x2, Spaghetti in tomato & cheese sauce x2) are real composite dishes
+    # or sauce-mix products and deliberately stay in Baked, unmoved.
+    ("Baked", "Noodle, rice stick, boiled, drained"): "PastaNoodles",      # Australia_AFCD
+    ("Baked", "Noodle, soba, boiled, drained"): "PastaNoodles",            # Australia_AFCD
+    ("Baked", "Noodle, soba, dry"): "PastaNoodles",                        # Australia_AFCD
+    ("Baked", "Noodle, wheat with egg, plain, boiled, no added fat"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Noodle, wheat, fresh, soaked, drained"): "PastaNoodles",    # Australia_AFCD
+    ("Baked", "Noodle, wheat, instant, flavoured, boiled, drained"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Noodle, wheat, instant, flavoured, boiled, undrained"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Noodle, wheat, instant, flavoured, dry, uncooked"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Noodle, wheat, instant, unflavoured, boiled, drained"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Noodle, wheat, instant, unflavoured, boiled, undrained"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Noodle, wheat, instant, unflavoured, dry, uncooked"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, gluten free, boiled from dry, no added salt"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, legume based, boiled, no added salt"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour & egg, boiled from dry, no added salt"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour & egg, dry"): "PastaNoodles",      # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour & spinach, boiled from dry, no added salt"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour & spinach, dry"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour, boiled from dry, no added salt"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour, dry"): "PastaNoodles",            # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour, fresh, boiled, no added salt"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, white wheat flour, fresh, uncooked"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, wholemeal wheat flour, boiled from dry, no added salt"): "PastaNoodles",  # Australia_AFCD
+    ("Baked", "Pasta, wholemeal wheat flour, dry"): "PastaNoodles",        # Australia_AFCD
+    # Plain homemade fresh pasta and Japanese starch noodles that ended up
+    # in Mixed via two different, unrelated existing rules -- Germany_BLS's
+    # own raw "Soups, Stocks & Consommes" source label maps straight to
+    # Mixed, and Japan_MEXT's "Potatoes & Starches" maps to Veg and then
+    # gets swept into Mixed by the existing "starch products -> Mixed" rule
+    # a few lines above. Neither rule was wrong for what it was built for
+    # (real soup/stock and real prepared starch products); these specific
+    # rows just happen to be plain pasta/noodles that got carried along.
+    # CATEGORY_OVERRIDES is checked before either rule, so listing them
+    # here by their own real starting category_code wins cleanly.
+    ("Mixed", "Fresh egg pasta with semolina, green, homemade"): "PastaNoodles",  # Germany_BLS
+    ("Mixed", "Fresh egg pasta, red, homemade"): "PastaNoodles",           # Germany_BLS
+    ("Mixed", "Homemade Fresh Egg Pasta"): "PastaNoodles",                 # Germany_BLS
+    ("Mixed", "Homemade Fresh Egg Pasta Spaetzle"): "PastaNoodles",        # Germany_BLS
+    ("Mixed", "Homemade Fresh Egg Pasta Tomato Spaetzle"): "PastaNoodles",  # Germany_BLS
+    ("Mixed", "Homemade Fresh Pasta Egg-Free"): "PastaNoodles",            # Germany_BLS
+    ("Mixed", "Homemade Fresh Wholemeal Egg Pasta"): "PastaNoodles",       # Germany_BLS
+    ("Veg", 'Starch products, "Harusame" (thin starch noodles), made from mung bean starch, dried, uncooked'): "PastaNoodles",  # Japan_MEXT
+    ("Veg", 'Starch products, "Harusame" (thin starch noodles), made from potato and sweet potato starches, dried, uncooked'): "PastaNoodles",  # Japan_MEXT
+    ("Veg", 'Starch products, "kuzukiri" (kudzu starch noodles), dried, uncooked'): "PastaNoodles",  # Japan_MEXT
+    ("Veg", "Starch products, dried noodles, uncooked"): "PastaNoodles",   # Japan_MEXT
+    ("Veg", "Starch products, fresh noodles, uncooked"): "PastaNoodles",   # Japan_MEXT
+    # The BOILED sibling of each of the four "Starch products... noodles"
+    # rows just above -- found by checking, not assumed: split_prep_method()
+    # correctly split "boiled" off into its own prep_method column for
+    # these, but "dried, uncooked" never split the same way for their own
+    # raw counterpart, so the two prep states of the same real product
+    # ended up with two different base_names instead of sharing one, and
+    # only the "uncooked" one was caught by the first pass here. Genuinely
+    # the same noodle product, still not a composite dish -- moves for the
+    # same reason its own sibling did. (Deliberately NOT moving "Starch
+    # products, tapioca pearls" or "Goma-dofu" gel, both real neighbors in
+    # this same list -- tapioca pearls aren't a noodle at all, and Goma-dofu
+    # is a tofu-like gel, not a noodle either.)
+    #
+    # Keyed on "Veg," not "Mixed," on a real first attempt's own mistake,
+    # caught by re-querying the rebuilt database rather than trusting the
+    # override had worked: these rows share the exact same Japan_MEXT
+    # "Potatoes & Starches" raw source label as their own "uncooked"
+    # sibling above, which also starts as category_code "Veg" -- the
+    # "Mixed" seen for them in an unpatched build is only the OUTPUT of the
+    # existing generic "Veg starts-with-starch-products -> Mixed" rule
+    # already a few lines up, not their real starting point. A
+    # CATEGORY_OVERRIDES key has to match the row's true incoming
+    # category_code to ever be checked at all -- "Mixed" never matched
+    # here, so the first version of this entry silently did nothing.
+    ("Veg", 'Starch products, "Harusame" (thin starch noodles), made from mung bean starch'): "PastaNoodles",  # Japan_MEXT
+    ("Veg", 'Starch products, "Harusame" (thin starch noodles), made from potato and sweet potato starches'): "PastaNoodles",  # Japan_MEXT
+    ("Veg", 'Starch products, "kuzukiri" (kudzu starch noodles), dried'): "PastaNoodles",  # Japan_MEXT
+    ("Veg", "Starch products, dried noodles"): "PastaNoodles",             # Japan_MEXT
 }
 
 # A tiny number of foods whose base_name collides with a completely
@@ -2694,6 +2798,26 @@ RAW_CATEGORY_TO_CODE = {
 }
 
 
+# Real exceptions to the Grain "pasta/noodle -> PastaNoodles" keyword rule
+# below, checked by hand against the full 156-name Grain pasta/noodle list
+# before writing this: canned ready-meals (already sauced, a composite
+# dish, not a plain pasta product) and rice-forward flavored mix products
+# (the same call already made for RICE-A-RONI-style rice mixes elsewhere
+# in this file).
+PASTA_NOODLE_GRAIN_EXCLUSIONS = {
+    "Pasta egg-free, Ravioli (meat filling) in tomato sauce, canned",
+    "Pasta egg-free, Ravioli (vegetable filling) in tomato sauce, canned",
+    "Pasta, spaghetti, canned in bolognese sauce",
+    "Grains, rice and vermicelli mix, beef flavour",
+    "Grains, rice and vermicelli mix, chicken flavour",
+    "Grains, rice and vermicelli mix, pilaf flavour",
+    "Grains, rice, white with pasta and seasonings",
+    "Grains, rice, white with pasta and seasonings, dry",
+    "Rice and vermicelli mix, beef flavor",
+    "Rice and vermicelli mix, rice pilaf flavor",
+}
+
+
 def reclassify_category(category_code, base_name):
     override = CATEGORY_OVERRIDES.get((category_code, base_name))
     if override:
@@ -2783,6 +2907,28 @@ def reclassify_category(category_code, base_name):
         lowered = base_name.lower()
         if "soymilk" in lowered or base_name in ("Soybeans, soy milk", "Soybeans, soy milk based beverage"):
             return "Bev"
+
+    # New 'PastaNoodles' category, 2026-08-04, explicitly requested ("Please
+    # add a Pasta & Noodles Food category"). 156 distinct base_names --
+    # every real dry/fresh/boiled pasta and noodle product (wheat, egg,
+    # rice, buckwheat, corn, gluten-free, spelt, filled pasta like ravioli/
+    # tortellini) already arrives here with category_code "Grain," the same
+    # way flour/starch already do -- confirmed by reading the full list by
+    # hand before writing this, not guessed. A handful of real exceptions
+    # stay in Grain, checked individually and excluded below: canned,
+    # already-sauced ready meals (spaghetti/ravioli canned IN sauce -- a
+    # composite dish, not a pasta product) and flavored rice-and-vermicelli
+    # mix products (the same "a flavored rice mix is fundamentally a
+    # rice/grain product" call already made for RICE-A-RONI-style products
+    # elsewhere in this file -- these are rice-forward, not pasta-forward).
+    # Word-boundary regex (not a bare substring check) specifically so this
+    # never matches "Grenouille" (French for frog -- contains "nouille" as
+    # a mid-word substring, not a real word boundary) the way an earlier,
+    # unrelated pass in this same project once got burned by exactly this
+    # class of false positive.
+    if category_code == "Grain" and base_name not in PASTA_NOODLE_GRAIN_EXCLUSIONS:
+        if re.search(r"\b(pasta|noodles?|macaroni|spaghetti|vermicelli|vermicelle|nouilles?|p[âa]tes)\b", base_name, re.IGNORECASE):
+            return "PastaNoodles"
 
     return category_code
 

@@ -99,6 +99,15 @@ const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   // scripts/build_food_reference_db.py's own CATEGORY_OVERRIDES comment
   // for the full reasoning and exactly which rows moved.
   PantryStaples: 'Pantry Staples',
+  // New 2026-08-04, explicitly requested ("Please add a Pasta & Noodles
+  // Food category"). 204 distinct real products moved here, almost all
+  // from Grain (where flour/pasta-adjacent products already lived) plus a
+  // handful of real outliers checked individually -- Konjac shirataki
+  // noodles, soy/mung-bean glass noodles, and homemade fresh pasta/Japanese
+  // starch noodles that had landed in Mixed/Veg via unrelated existing
+  // rules. See scripts/build_food_reference_db.py's own CATEGORY_OVERRIDES
+  // and reclassify_category() comments for exactly which rows moved and why.
+  PastaNoodles: 'Pasta & Noodles',
   Sprouts: 'Sprouts',
   SupplementPowder: 'Supplement Powders',
   Veg: 'Vegetables',

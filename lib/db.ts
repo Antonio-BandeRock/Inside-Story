@@ -343,6 +343,19 @@ async function resolveEffectiveUsdaOnly(category: string, subcategory: string | 
   // whiskey duplicates"), so USDA-only on top of that hides real,
   // non-redundant variety rather than doing a job nothing else covers.
   if (category === 'Alcohol') return false;
+  // Checked proactively, 2026-08-04, right after creating the new
+  // 'PastaNoodles' category -- not waiting for "I only see some rows"
+  // again, since this exact bug has now hit two new categories in a row
+  // (PantryStaples, Alcohol) and is a known, standing risk for any new
+  // category with partial USDA coverage. Confirmed via direct query
+  // before shipping: 204 real distinct pasta/noodle products, only 31
+  // with a USDA row -- without this bypass the category would silently
+  // show just those 31 and hide the other 173 (nearly all of Japan_MEXT's,
+  // Germany_BLS's, and France_Ciqual's real contribution). Safe for the
+  // same reason as every bypass above: searchReferenceFoodNames already
+  // collapses same-base_name rows from different sources into one
+  // distinct, selectable item regardless of this flag.
+  if (category === 'PastaNoodles') return false;
   return hasUsdaCoverage(category);
 }
 

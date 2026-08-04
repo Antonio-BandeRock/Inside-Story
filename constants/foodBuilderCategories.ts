@@ -49,12 +49,18 @@
 // every builder's own allowlist. Adding the new category everywhere Herbs
 // already was preserves that same reachability rather than silently
 // making these ingredients unfindable in any builder that used them before.
+// 'PastaNoodles' (2026-08-04) follows the identical logic against 'Grain'
+// instead: pasta/noodles used to live almost entirely in Grain (204 of
+// 204 distinct products), so it's added to exactly the builders that
+// already had Grain -- Side, Salad, Fermentation, Snack, Baked Goods,
+// Soup -- and skipped for the three that never had Grain (Smoothie,
+// Beverage, Sauces), which never offered pasta before either.
 export const SIDE_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
 ];
 
 export const SALAD_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae',
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae',
 ];
 
 export const SMOOTHIE_BUILDER_CATEGORIES = [
@@ -62,7 +68,7 @@ export const SMOOTHIE_BUILDER_CATEGORIES = [
 ];
 
 export const FERMENTATION_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Dairy', 'Grain', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'PantryStaples', 'Sweets',
+  'Veg', 'Fruit', 'Dairy', 'Grain', 'PastaNoodles', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'PantryStaples', 'Sweets',
 ];
 
 export const BEVERAGE_BUILDER_CATEGORIES = [
@@ -70,15 +76,15 @@ export const BEVERAGE_BUILDER_CATEGORIES = [
 ];
 
 export const SNACK_BUILDER_CATEGORIES = [
-  'Fruit', 'Veg', 'NutSeed', 'Grain', 'Dairy', 'Meat', 'Fish', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom',
+  'Fruit', 'Veg', 'NutSeed', 'Grain', 'PastaNoodles', 'Dairy', 'Meat', 'Fish', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom',
 ];
 
 export const BAKED_GOODS_BUILDER_CATEGORIES = [
-  'Grain', 'Baked', 'Dairy', 'Fats', 'Sweets', 'NutSeed', 'Fruit', 'Herbs', 'PantryStaples', 'Legume',
+  'Grain', 'PastaNoodles', 'Baked', 'Dairy', 'Fats', 'Sweets', 'NutSeed', 'Fruit', 'Herbs', 'PantryStaples', 'Legume',
 ];
 
 export const SOUP_BUILDER_CATEGORIES = [
-  'Veg', 'Meat', 'Fish', 'Grain', 'Legume', 'Dairy', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
+  'Veg', 'Meat', 'Fish', 'Grain', 'PastaNoodles', 'Legume', 'Dairy', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
 ];
 
 export const SAUCES_BUILDER_CATEGORIES = [
