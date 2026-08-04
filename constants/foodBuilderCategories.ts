@@ -55,38 +55,46 @@
 // already had Grain -- Side, Salad, Fermentation, Snack, Baked Goods,
 // Soup -- and skipped for the three that never had Grain (Smoothie,
 // Beverage, Sauces), which never offered pasta before either.
+// 'SaucesCondiments' (2026-08-04) is included in every builder below,
+// same as PantryStaples -- these are exactly the kind of ingredient
+// (ketchup, mustard, soy sauce, gravy, dressing, vinegar) any of the nine
+// builders could plausibly reach for, and until this category existed
+// they'd all been unreachable everywhere, sitting miscategorized in
+// Mixed (excluded from every allowlist). See CATEGORY_DISPLAY_LABELS in
+// FoodLookup.tsx and build_food_reference_db.py's own CATEGORY_OVERRIDES
+// comment for what moved into it and why.
 export const SIDE_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
 ];
 
 export const SALAD_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae',
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae',
 ];
 
 export const SMOOTHIE_BUILDER_CATEGORIES = [
-  'Fruit', 'Veg', 'Dairy', 'NutSeed', 'Bev', 'SupplementPowder', 'Sweets', 'Herbs', 'PantryStaples',
+  'Fruit', 'Veg', 'Dairy', 'NutSeed', 'Bev', 'SupplementPowder', 'Sweets', 'Herbs', 'PantryStaples', 'SaucesCondiments',
 ];
 
 export const FERMENTATION_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Dairy', 'Grain', 'PastaNoodles', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'PantryStaples', 'Sweets',
+  'Veg', 'Fruit', 'Dairy', 'Grain', 'PastaNoodles', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Sweets',
 ];
 
 export const BEVERAGE_BUILDER_CATEGORIES = [
-  'Bev', 'Brewing', 'Alcohol', 'SupplementPowder', 'Fruit', 'Herbs', 'PantryStaples', 'Dairy', 'Sweets', 'NutSeed',
+  'Bev', 'Brewing', 'Alcohol', 'SupplementPowder', 'Fruit', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Sweets', 'NutSeed',
 ];
 
 export const SNACK_BUILDER_CATEGORIES = [
-  'Fruit', 'Veg', 'NutSeed', 'Grain', 'PastaNoodles', 'Dairy', 'Meat', 'Fish', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom',
+  'Fruit', 'Veg', 'NutSeed', 'Grain', 'PastaNoodles', 'Dairy', 'Meat', 'Fish', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Mushroom',
 ];
 
 export const BAKED_GOODS_BUILDER_CATEGORIES = [
-  'Grain', 'PastaNoodles', 'Baked', 'Dairy', 'Fats', 'Sweets', 'NutSeed', 'Fruit', 'Herbs', 'PantryStaples', 'Legume',
+  'Grain', 'PastaNoodles', 'Baked', 'Dairy', 'Fats', 'Sweets', 'NutSeed', 'Fruit', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Legume',
 ];
 
 export const SOUP_BUILDER_CATEGORIES = [
-  'Veg', 'Meat', 'Fish', 'Grain', 'PastaNoodles', 'Legume', 'Dairy', 'Fats', 'Herbs', 'PantryStaples', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
+  'Veg', 'Meat', 'Fish', 'Grain', 'PastaNoodles', 'Legume', 'Dairy', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
 ];
 
 export const SAUCES_BUILDER_CATEGORIES = [
-  'Fats', 'Dairy', 'Fruit', 'Veg', 'Herbs', 'PantryStaples', 'Sweets', 'Alcohol', 'NutSeed', 'Legume',
+  'Fats', 'Dairy', 'Fruit', 'Veg', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Sweets', 'Alcohol', 'NutSeed', 'Legume',
 ];

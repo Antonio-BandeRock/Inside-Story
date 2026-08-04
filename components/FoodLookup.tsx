@@ -108,6 +108,23 @@ const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   // rules. See scripts/build_food_reference_db.py's own CATEGORY_OVERRIDES
   // and reclassify_category() comments for exactly which rows moved and why.
   PastaNoodles: 'Pasta & Noodles',
+  // New 2026-08-04, prompted by a "why is [X] sitting in Mixed Dishes"
+  // report (tomato sauce, Worcestershire sauce, capers cited directly) --
+  // Mixed is deliberately excluded from every Food-tab builder's own
+  // allowlist (it's meant for composite prepared dishes), so anything
+  // standalone that had been miscategorized into it was unreachable in
+  // every builder, not just cluttered browsing. First pass: Australia's
+  // own already-correctly-labeled "Sauces, Dressings & Condiments" raw
+  // source bucket, plus France_Ciqual's "Culinary Aids & Miscellaneous
+  // Ingredients" bucket's own standalone sauces/dressings/dips/pastes/
+  // vinegar (the same bucket's raw herbs/spices/seaweed/leavening agents
+  // went to their own existing homes -- Herbs/Algae/PantryStaples -- not
+  // here). The much larger sweep for standalone sauces hiding inside
+  // Mixed's two giant "mostly real composite dishes" buckets is a
+  // separate, later pass -- see scripts/build_food_reference_db.py's own
+  // CATEGORY_OVERRIDES comment for the full reasoning and what's still
+  // left in Mixed on purpose.
+  SaucesCondiments: 'Sauces & Condiments',
   Sprouts: 'Sprouts',
   SupplementPowder: 'Supplement Powders',
   Veg: 'Vegetables',

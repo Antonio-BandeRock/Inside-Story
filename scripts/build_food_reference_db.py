@@ -603,6 +603,263 @@ CATEGORY_OVERRIDES = {
     ("Veg", 'Starch products, "Harusame" (thin starch noodles), made from potato and sweet potato starches'): "PastaNoodles",  # Japan_MEXT
     ("Veg", 'Starch products, "kuzukiri" (kudzu starch noodles), dried'): "PastaNoodles",  # Japan_MEXT
     ("Veg", "Starch products, dried noodles"): "PastaNoodles",             # Japan_MEXT
+
+    # ------------------------------------------------------------------
+    # 2026-08-04: France_Ciqual's own "Culinary Aids & Miscellaneous
+    # Ingredients" raw_category (203 items) had been mapped wholesale to
+    # "Mixed" -- but it's not a bucket of composite dishes at all, it's a
+    # genuine grab-bag of raw herbs/spices/salt, dried seaweed, baking/
+    # leavening agents, and standalone sauces/condiments that had all been
+    # sitting unreachable in every Food-tab builder (Mixed is excluded
+    # from every builder's own allowlist) because of one overly broad
+    # raw_category mapping. Confirmed via direct query that every one of
+    # these 203 base_names is unique to this one (source, raw_category)
+    # pair within Mixed -- none of these overrides can accidentally catch
+    # an unrelated composite dish from a different source sharing the same
+    # name. Routed to whichever existing category already has the real
+    # precedent for that kind of item (checked directly, not guessed):
+    # dried seaweed -> Algae (matches Nori/Kombu/Wakame already there);
+    # raw herbs/spices/salt -> Herbs (matches Spice/Salt entries already
+    # there); dehydrated stock/bouillon concentrates -> Herbs too (matches
+    # the existing dehydrated-bouillon precedent from the 2026-08-02
+    # Soup/Sauces Builder dry-goods audit); baking/leavening/gelling
+    # agents and vanilla extract -> PantryStaples; raw/cooked garlic ->
+    # Veg (matches "Garlic"/"Garlic Bulb" already there; only the DRIED
+    # POWDER form goes to Herbs, matching "Spice, garlic, powder"); wheat
+    # germ -> Grain (matches "Wheat germ"/"Grains, wheat germ" already
+    # there); nutritional yeast -> Mushroom (matches the existing "Yeast
+    # flakes/nutritional yeast" entry, an established, if unusual, app
+    # convention); silken tofu -> Legume (matches every other Tofu variant
+    # already there). Everything else genuinely standalone and pourable/
+    # spreadable -> the new SaucesCondiments category.
+    #
+    # Left in Mixed, deliberately, as genuinely not fitting any of the
+    # above cleanly: "Céleri rémoulade" (a real prepared composite salad,
+    # not a condiment itself), 4 canned-fruit canning-syrup/juice byproduct
+    # rows (not something anyone would pick as a real ingredient), 4
+    # low-calorie meal-replacement products (the same already-deferred
+    # protein/meal-replacement-powder question this file's own Next Steps
+    # already flags, not something to guess a new home for here), and 3
+    # bee products (royal jelly, pollen -- no clean existing home; worth a
+    # real decision later rather than a forced fit now).
+
+    # Dried seaweed/algae -> Algae (matches existing Nori/Kombu/Wakame precedent)
+    ("Mixed", "Ao-nori (Enteromorpha sp.), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Ascophylle noueux ou goémon noir (Ascophyllum nodosum), séché ou déshydraté"): "Algae",
+    ("Mixed", "Dulse (Palmaria palmata), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Fucus vésiculeux (Fucus serratus ou Fucus vesiculosus), séché ou déshydraté"): "Algae",
+    ("Mixed", "Gracilaire ou ogonori (Gracilaria verrucosa), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Haricot de mer (Himanthalia elongata), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Kombu breton (Laminaria digitata), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Kombu ou kombu japonais (Laminaria japonica), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Kombu royal (Saccharina latissima), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Laitue de mer (Ulva sp.), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Lichen de mer ou pioca ou goémon rouge (Chondrus crispus), séché ou déshydraté"): "Algae",
+    ("Mixed", "Nori (Porphyra sp.), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Spiruline (Spirulina sp.), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Wakamé (Undaria pinnatifida), séchée ou déshydratée"): "Algae",
+    ("Mixed", "Wakamé atlantique (Alaria esculenta), séchée ou déshydratée"): "Algae",
+
+    # Raw herbs/spices/salt/dried aromatics -> Herbs
+    ("Mixed", "Ail séché, poudre"): "Herbs",
+    ("Mixed", "Aneth, frais"): "Herbs",
+    ("Mixed", "Basilic, frais"): "Herbs",
+    ("Mixed", "Basilic, séché"): "Herbs",
+    ("Mixed", "Cannelle, poudre"): "Herbs",
+    ("Mixed", "Cardamome, poudre"): "Herbs",
+    ("Mixed", "Carvi, graine"): "Herbs",
+    ("Mixed", "Cerfeuil, frais"): "Herbs",
+    ("Mixed", "Ciboule ou Ciboulette, fraîche"): "Herbs",
+    ("Mixed", "Clou de girofle"): "Herbs",
+    ("Mixed", "Coriandre, fraiche"): "Herbs",
+    ("Mixed", "Coriandre, graine"): "Herbs",
+    ("Mixed", "Cumin, graine"): "Herbs",
+    ("Mixed", "Curcuma, poudre"): "Herbs",
+    ("Mixed", "Curry, poudre"): "Herbs",
+    ("Mixed", "Epice (aliment moyen)"): "Herbs",
+    ("Mixed", "Estragon, frais"): "Herbs",
+    ("Mixed", "Fenouil, graine"): "Herbs",
+    ("Mixed", "Fenugrec, graine"): "Herbs",
+    ("Mixed", "Fleur de sel, non iodée, non fluorée"): "Herbs",
+    ("Mixed", "Gingembre, poudre"): "Herbs",
+    ("Mixed", "Gingembre, racine crue"): "Herbs",
+    ("Mixed", "Herbes aromatiques fraîches (aliment moyen)"): "Herbs",
+    ("Mixed", "Herbes de Provence, séchées"): "Herbs",
+    ("Mixed", "Laurier, feuille"): "Herbs",
+    ("Mixed", "Lécithine de soja"): "Herbs",  # matches "Lecithin, soy, granules" already in Herbs
+    ("Mixed", "Marjolaine, séchée"): "Herbs",
+    ("Mixed", "Menthe, fraîche"): "Herbs",
+    ("Mixed", "Menthe, séchée"): "Herbs",
+    ("Mixed", "Noix de muscade"): "Herbs",
+    ("Mixed", "Origan, séché"): "Herbs",
+    ("Mixed", "Paprika"): "Herbs",
+    ("Mixed", "Pavot, graine"): "Herbs",
+    ("Mixed", "Persil, frais"): "Herbs",
+    ("Mixed", "Persil, séché"): "Herbs",
+    ("Mixed", "Poivre blanc, poudre"): "Herbs",
+    ("Mixed", "Poivre de Cayenne ou piment de Cayenne"): "Herbs",
+    ("Mixed", "Poivre noir, poudre"): "Herbs",
+    ("Mixed", "Quatre épices"): "Herbs",
+    ("Mixed", "Raifort, cru"): "Herbs",
+    ("Mixed", "Romarin, frais"): "Herbs",
+    ("Mixed", "Romarin, séché"): "Herbs",
+    ("Mixed", "Safran"): "Herbs",
+    ("Mixed", "Sarriette, séchée"): "Herbs",
+    ("Mixed", "Sauge, fraîche"): "Herbs",
+    ("Mixed", "Sauge, séchée"): "Herbs",
+    ("Mixed", "Sel au céleri"): "Herbs",
+    ("Mixed", "Sel blanc alimentaire, iodé, fluoré à 25 mg /100 g (marin, ignigène ou gemme)"): "Herbs",
+    ("Mixed", "Sel blanc alimentaire, iodé, non fluoré (marin, ignigène ou gemme)"): "Herbs",
+    ("Mixed", "Sel blanc alimentaire, non iodé, non fluoré (marin, ignigène ou gemme)"): "Herbs",
+    ("Mixed", "Sel marin gris, non iodé, non fluoré"): "Herbs",
+    ("Mixed", "Thym, frais"): "Herbs",
+    ("Mixed", "Thym, séché"): "Herbs",
+    ("Mixed", "Meloukhia, feuilles de corète séchées, en poudre"): "Herbs",  # dried leaf powder, spice-like
+
+    # Dehydrated stock/bouillon concentrates -> Herbs, matching the
+    # existing dehydrated-bouillon precedent (2026-08-02 audit)
+    ("Mixed", "Fond de veau pour sauces et cuisson, déshydraté"): "Herbs",
+    ("Mixed", "Fond de veau, préemballé"): "Herbs",
+    ("Mixed", "Fond de volaille pour sauces et cuisson, déshydraté"): "Herbs",
+
+    # Raw/cooked garlic (not the dried powder form above) -> Veg, matching
+    # "Garlic"/"Garlic Bulb"/"Garlic braised without fat" already there
+    ("Mixed", "Ail, cru"): "Veg",
+    ("Mixed", "Ail, rôti/cuit au four"): "Veg",
+    ("Mixed", "Ail, sauté/poêlé, sans matière grasse"): "Veg",
+
+    # Baking/leavening/gelling agents and vanilla extract -> PantryStaples
+    ("Mixed", "Bicarbonate de soude"): "PantryStaples",
+    ("Mixed", "Levure chimique ou Poudre à lever"): "PantryStaples",
+    ("Mixed", "Levure de boulanger, compressée"): "PantryStaples",
+    ("Mixed", "Levure de boulanger, déshydratée"): "PantryStaples",
+    ("Mixed", "Gélatine, sèche"): "PantryStaples",
+    ("Mixed", "Gélifiant pour confitures"): "PantryStaples",
+    ("Mixed", "Vanille, extrait alcoolique"): "PantryStaples",
+    ("Mixed", "Vanille, extrait aqueux"): "PantryStaples",
+    ("Mixed", "Vanille, gousse"): "PantryStaples",
+
+    # Wheat germ -> Grain, matching "Wheat germ"/"Grains, wheat germ" already there
+    ("Mixed", "Germe de blé"): "Grain",
+
+    # Nutritional yeast -> Mushroom, matching the existing "Yeast
+    # flakes/nutritional yeast" entry (an established, if unusual, home)
+    ("Mixed", "Levure alimentaire"): "Mushroom",
+
+    # Silken tofu -> Legume, matching every other Tofu variant already there
+    ("Mixed", "Tofu soyeux, préemballé"): "Legume",
+
+    # Genuine standalone sauces/condiments/dressings/dips/pastes/vinegar ->
+    # the new SaucesCondiments category
+    ("Mixed", "Caviar d'aubergine, préemballé"): "SaucesCondiments",
+    ("Mixed", "Caviar de tomates"): "SaucesCondiments",
+    ("Mixed", "Cornichon, aigre-doux"): "SaucesCondiments",
+    ("Mixed", "Cornichon, au vinaigre"): "SaucesCondiments",
+    ("Mixed", "Câpres, au vinaigre"): "SaucesCondiments",
+    ("Mixed", "Guacamole, préemballé"): "SaucesCondiments",
+    ("Mixed", "Harissa (sauce condimentaire), préemballée"): "SaucesCondiments",
+    ("Mixed", "Houmous, préemballé"): "SaucesCondiments",
+    ("Mixed", "Ketchup allégé en sucres, préemballé"): "SaucesCondiments",
+    ("Mixed", "Ketchup, préemballé"): "SaucesCondiments",
+    ("Mixed", "Mayonnaise (70% MG min.), préemballée"): "SaucesCondiments",
+    ("Mixed", "Mayonnaise à teneur réduite en matière grasse ou Mayonnaise allégée, préemballée"): "SaucesCondiments",
+    ("Mixed", "Meloukhia, sauce, artisanale"): "SaucesCondiments",
+    ("Mixed", "Miso"): "SaucesCondiments",
+    ("Mixed", "Moutarde"): "SaucesCondiments",
+    ("Mixed", "Moutarde à l'ancienne"): "SaucesCondiments",
+    ("Mixed", "Olive (aliment moyen)"): "SaucesCondiments",
+    ("Mixed", "Olive noire (aliment moyen)"): "SaucesCondiments",
+    ("Mixed", "Olive noire, en saumure, égouttée"): "SaucesCondiments",
+    ("Mixed", "Olive noire, à l'huile (à la grecque)"): "SaucesCondiments",
+    ("Mixed", "Olive verte, en saumure, égouttée"): "SaucesCondiments",
+    ("Mixed", "Olives vertes, fourrées ou farcies (anchois, poivrons, etc.)"): "SaucesCondiments",
+    ("Mixed", "Pizza, sauce garniture pour"): "SaucesCondiments",
+    ("Mixed", "Base de pizza tomatée"): "SaucesCondiments",
+    ("Mixed", "Base de pizza à la crème"): "SaucesCondiments",
+    ("Mixed", 'Préparation culinaire à base de soja, type "crème de soja"'): "SaucesCondiments",
+    ("Mixed", "Tapenade"): "SaucesCondiments",
+    ("Mixed", "Tzatziki, à base fromage frais, préemballé"): "SaucesCondiments",
+    ("Mixed", "Tzatziki, à base yaourt, préemballé"): "SaucesCondiments",
+    ("Mixed", "Vinaigre"): "SaucesCondiments",
+    ("Mixed", "Vinaigre balsamique"): "SaucesCondiments",
+    ("Mixed", "Vinaigre de cidre"): "SaucesCondiments",
+    ("Mixed", "Vinaigre de vin rouge"): "SaucesCondiments",
+    ("Mixed", "Gelée au madère"): "SaucesCondiments",
+    ("Mixed", "Gelée au madère, déshydratée"): "SaucesCondiments",
+    ("Mixed", "Sauce (aliment moyen)"): "SaucesCondiments",
+    ("Mixed", "Sauce aigre douce, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce américaine, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce armoricaine, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au beurre blanc, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au beurre, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au chocolat, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au curry, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au fromage pour risotto ou pâtes, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au poivre vert, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au poivre, chaude, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au poivre, condimentaire, froide, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au roquefort, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce au vin rouge"): "SaucesCondiments",
+    ("Mixed", "Sauce au yaourt"): "SaucesCondiments",
+    ("Mixed", "Sauce aux champignons et à la crème, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce aux champignons, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce aïoli, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce barbecue, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce basquaise ou Sauce aux poivrons, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce bourguignonne, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce burger, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce béarnaise, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce béchamel, maison"): "SaucesCondiments",
+    ("Mixed", "Sauce béchamel, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce carbonara, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce chasseur, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce chaude (aliment moyen)"): "SaucesCondiments",
+    ("Mixed", "Sauce crudités ou Sauce salade, allégée en matière grasse, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce crudités ou Sauce salade, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce froide (aliment moyen)"): "SaucesCondiments",
+    ("Mixed", "Sauce grand veneur, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce hollandaise, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce indienne type tandoori ou tikka masala, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce kebab, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce madère, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce moutarde, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce Nuoc Mâm ou Sauce au poisson, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce pesto rosso, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce pesto, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce pour nems à base de nuoc-mam dilué, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce rouille, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce soja sucrée, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce soja, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce tartare, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce teriyaki, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce tomate au fromage, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce tomate aux champignons, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce tomate aux oignons, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce tomate aux olives, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce tomate aux petits légumes, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce tomate à la viande ou Sauce bolognaise, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce vinaigrette (50 à 75% d'huile), préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce vinaigrette allégée en MG (25 à 50% d'huile), préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce vinaigrette à l'huile d'olive (50 à 75% d'huile), préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce végétale type bolognaise, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce à l'oseille, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce à l'échalote à la crème, préemballée"): "SaucesCondiments",
+    ("Mixed", "Sauce à la crème"): "SaucesCondiments",
+    ("Mixed", "Sauce à la crème aux herbes"): "SaucesCondiments",
+    ("Mixed", "Sauce à la crème aux épices"): "SaucesCondiments",
+    ("Mixed", "Crème anglaise, préemballée"): "SaucesCondiments",  # pourable dessert custard sauce, same shape as "Sauce au chocolat"
+    ("Mixed", "Oignon au vinaigre"): "SaucesCondiments",  # pickled onion, same treatment as "Cornichon, au vinaigre"
+
+    # Bran (a milling byproduct, not a dish) -> Grain, matching "Oat
+    # bran"/"Wheat bran"/"Rice Bran" already there. Missed on the first
+    # pass through this same France_Ciqual bucket -- caught by re-querying
+    # what was still left in Mixed afterward rather than assuming the
+    # first pass was complete.
+    ("Mixed", "Son (aliment moyen)"): "Grain",
+    ("Mixed", "Son d'avoine"): "Grain",
+    ("Mixed", "Son de blé"): "Grain",
+    ("Mixed", "Son de maïs"): "Grain",
+    ("Mixed", "Son de riz"): "Grain",
 }
 
 # A tiny number of foods whose base_name collides with a completely
@@ -2696,7 +2953,18 @@ RAW_CATEGORY_TO_CODE = {
     ("Australia_AFCD", "Meat & Meat Products"): "Meat",
     ("Australia_AFCD", "Nuts, Seeds & Nut/Seed Products"): "NutSeed",
     ("Australia_AFCD", "Protein Supplements"): "Mixed",
-    ("Australia_AFCD", "Sauces, Dressings & Condiments"): "Mixed",
+    # Redirected straight to the new 'SaucesCondiments' category 2026-08-04
+    # (see CATEGORY_OVERRIDES below for the much larger France_Ciqual
+    # "Culinary Aids & Miscellaneous Ingredients" cleanup done the same
+    # day) -- Australia's own raw_category label already IS "Sauces,
+    # Dressings & Condiments," a clean, pre-sorted bucket (Worcestershire
+    # sauce, mayonnaise, mustard, vinegar, curry paste, hummus dip) that
+    # had simply been falling into the generic "Mixed" composite-dish
+    # bucket like everything else, making it unreachable in any Food-tab
+    # builder (Mixed is deliberately excluded from every builder's own
+    # allowlist). No per-row overrides needed -- Australia's own curators
+    # already did the sorting.
+    ("Australia_AFCD", "Sauces, Dressings & Condiments"): "SaucesCondiments",
     ("Australia_AFCD", "Savoury Biscuits & Crackers"): "Baked",
     ("Australia_AFCD", "Snack/Muesli Bars"): "Mixed",
     ("Australia_AFCD", "Soups"): "Mixed",
