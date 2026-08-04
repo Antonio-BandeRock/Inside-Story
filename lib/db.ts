@@ -356,6 +356,31 @@ async function resolveEffectiveUsdaOnly(category: string, subcategory: string | 
   // collapses same-base_name rows from different sources into one
   // distinct, selectable item regardless of this flag.
   if (category === 'PastaNoodles') return false;
+  // Checked proactively, 2026-08-04, right after the big Mixed-category
+  // sauce sweep pushed 'SaucesCondiments' from zero USDA coverage (safe
+  // on its own via hasUsdaCoverage() below) to partial -- 3 of 280
+  // distinct products, once "Cheese sauce, prepared from recipe" and
+  // "Homemade Cheese Sauce" were re-homed here from Dairy. Same standing
+  // risk flagged at PastaNoodles above, now hit a third time: without
+  // this bypass the category would silently collapse to just those 3
+  // USDA rows and hide the other 277 (Germany_BLS's, France_Ciqual's, and
+  // Australia_AFCD's real sauce/dressing/condiment contribution). Safe
+  // for the same reason as every bypass above.
+  if (category === 'SaucesCondiments') return false;
+  // A real, PRE-EXISTING instance of this same bug, found 2026-08-04 not
+  // by a report but by checking USDA coverage while moving two raw
+  // mushroom items (Chanterelles, Porcini mushrooms) out of Mixed into
+  // this category as part of that day's raw-ingredient-leakage cleanup --
+  // Mushroom has exactly 1 real USDA row ("Fungi, Cloud ears") out of 109
+  // genuinely distinct species (Chanterelle, Morel, Shiitake, Maitake,
+  // Nameko, Matsutake, oyster/beech/king oyster/black poplar mushrooms,
+  // black truffle...), so the usdaOnly default here has apparently been
+  // silently collapsing the whole category down to that one row the
+  // entire time this category has existed -- unrelated to and predating
+  // every other fix in this list. Safe to bypass for the same reason as
+  // every category above: this is real cross-source species variety, not
+  // "Spinach x7"-style near-duplication.
+  if (category === 'Mushroom') return false;
   return hasUsdaCoverage(category);
 }
 

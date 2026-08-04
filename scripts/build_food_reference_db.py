@@ -470,12 +470,20 @@ CATEGORY_OVERRIDES = {
     ("Dairy", "Beverage, instant breakfast powder"): "Bev",                # USDA
     #   - "Cheese sauce, prepared from recipe" (USDA) and "Homemade Cheese
     #     Sauce" (Canada_CNF) are composite recipes (a roux-based sauce),
-    #     not a whole dairy ingredient -- every OTHER cheese-sauce row in
-    #     the database (Bechamel-based, gratin toppings, etc.) already
-    #     correctly lives in Mixed; these two were the only ones left
-    #     behind in Dairy.
-    ("Dairy", "Cheese sauce, prepared from recipe"): "Mixed",              # USDA
-    ("Dairy", "Homemade Cheese Sauce"): "Mixed",                           # Canada_CNF
+    #     not a whole dairy ingredient -- originally pointed at Mixed to
+    #     match every other cheese-sauce row at the time. Superseded
+    #     2026-08-04, same reasoning as the rest of that day's big sauce
+    #     sweep: these are themselves standalone sauce PRODUCTS (not a
+    #     "dish that has cheese sauce in it"), so SaucesCondiments is the
+    #     better home now that it exists. A same-day first attempt to fix
+    #     this via a new ("Mixed", ...) override further down in this same
+    #     file silently did nothing -- CATEGORY_OVERRIDES is checked
+    #     against a row's TRUE incoming category_code, which for both of
+    #     these is "Dairy" (from "Dairy and Egg Products"), not "Mixed";
+    #     the pre-existing Dairy entry here always wins first. Fixed at
+    #     the actual entry instead of leaving a second, unreachable one.
+    ("Dairy", "Cheese sauce, prepared from recipe"): "SaucesCondiments",   # USDA
+    ("Dairy", "Homemade Cheese Sauce"): "SaucesCondiments",                # Canada_CNF
     # Found while spot-checking the new food-name-grouping feature's own
     # "Cheese" group against the rebuilt database -- "Macaroni cheese,
     # canned" is a canned pasta dish (UK's own term for mac and cheese),
@@ -848,6 +856,294 @@ CATEGORY_OVERRIDES = {
     ("Mixed", "Sauce à la crème aux herbes"): "SaucesCondiments",
     ("Mixed", "Sauce à la crème aux épices"): "SaucesCondiments",
     ("Mixed", "Crème anglaise, préemballée"): "SaucesCondiments",  # pourable dessert custard sauce, same shape as "Sauce au chocolat"
+
+    # ------------------------------------------------------------------
+    # 2026-08-04: the big sweep through Mixed's two giant "mostly real
+    # composite dishes" buckets (Germany_BLS "Soups, Stocks & Consommes"
+    # and "Prepared/Cooked Dishes", plus smaller France_Ciqual/Canada_CNF/
+    # USDA/Japan_MEXT dish buckets), deferred from the earlier Australia/
+    # France_Ciqual cleanup specifically because it needed real hand
+    # verification at scale, not a keyword sweep. Queried all 630 Mixed
+    # rows matching a sauce/dressing/gravy/vinegar/mayonnaise/mustard/
+    # ketchup keyword, pre-filtered with a dish-vs-standalone heuristic
+    # (dish markers: "salad", "sandwich", "pizza", "lasagna", "ravioli",
+    # a cooking-verb-then-parenthetical pattern like "Boiled (with...)", or
+    # a protein/vegetable/fish name as the sentence's own subject followed
+    # by "with") down to 267 real candidates, then hand-read every one.
+    # The dividing line, consistent with the France_Ciqual pass above:
+    # a name is a STANDALONE product if the SAUCE/DRESSING ITSELF is the
+    # subject ("Bearnaise sauce", "X sauce from white basic sauce", "Y
+    # dressing") -- the "from white/brown basic sauce" phrasing just
+    # describes the sauce's own roux base, not that it's serving a larger
+    # dish. A name is a DISH (left in Mixed) if a FOOD is the subject and
+    # the sauce is something added to it ("Beef Boiled (with caper
+    # sauce...)", "X salad with Y dressing", any sandwich/pizza/lasagna/
+    # ravioli with a sauce, "Potatoes with herb sauce..."). 143 of the 267
+    # candidates were genuinely standalone; the rest (composite dishes,
+    # sandwiches, dressed salads, branded frozen meals) stayed in Mixed on
+    # purpose. Confirmed zero base_name collisions with any other Mixed
+    # raw_category bucket before writing these overrides -- none of them
+    # risk pulling in an unrelated dish from a different source.
+    #
+    # Deliberately NOT touched in this same pass, flagged for a possible
+    # future one: the family of flavored compound butters (Basil/Herb/
+    # Horseradish/Lemon/Mustard butter) sitting in this same Mixed bucket
+    # -- moving just "Mustard butter" because it happened to match this
+    # sweep's own keyword search would have split an otherwise-identical
+    # small family inconsistently; better to review all of them together
+    # later than fix one by keyword coincidence now.
+
+    ("Mixed", 'Almond sauce'): "SaucesCondiments",
+    ("Mixed", 'Anchovy sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Apple sauce'): "SaucesCondiments",
+    ("Mixed", 'Apple sauce unsweetened'): "SaucesCondiments",
+    ("Mixed", 'Apple sauce with cinnamon'): "SaucesCondiments",
+    ("Mixed", 'Apple-banana sauce (raw) with raisins'): "SaucesCondiments",
+    ("Mixed", 'Apple-banana-pear sauce'): "SaucesCondiments",
+    ("Mixed", 'Apple-banana-pear sauce unsweetened'): "SaucesCondiments",
+    ("Mixed", 'Apple-mango sauce unsweetened'): "SaucesCondiments",
+    ("Mixed", 'Apricot sauce from dried fruit'): "SaucesCondiments",
+    ("Mixed", 'Apricot sauce from fresh fruit'): "SaucesCondiments",
+    ("Mixed", 'Asian dressing'): "SaucesCondiments",
+    ("Mixed", 'Bacon sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Barbecue sauce'): "SaucesCondiments",
+    ("Mixed", 'Basic sauce brown (from game stock)'): "SaucesCondiments",
+    ("Mixed", 'Basic sauce brown (from meat stock)'): "SaucesCondiments",
+    ("Mixed", 'Basic sauce white'): "SaucesCondiments",
+    ("Mixed", 'Basic sauce white with cream'): "SaucesCondiments",
+    ("Mixed", 'Bearnaise sauce'): "SaucesCondiments",
+    ("Mixed", 'Bechamel sauce'): "SaucesCondiments",
+    ("Mixed", 'Bechamel Sauce Vegan (with soya drink)'): "SaucesCondiments",
+    ("Mixed", 'Bechamel sauce with cream'): "SaucesCondiments",
+    ("Mixed", 'Bechamel sauce with milk 3.5 % fat'): "SaucesCondiments",
+    ("Mixed", 'Beef mince sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Beer sauce'): "SaucesCondiments",
+    ("Mixed", 'Bolognese sauce with beef mince'): "SaucesCondiments",
+    ("Mixed", 'Button mushroom sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Button mushroom sauce from white basic sauce, cream and white wine'): "SaucesCondiments",
+    ("Mixed", 'Button mushroom-white wine sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Caesar dressing'): "SaucesCondiments",
+    ("Mixed", 'Caper sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Caramel sauce'): "SaucesCondiments",
+    ("Mixed", 'Caraway seed sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Carbonara sauce'): "SaucesCondiments",
+    ("Mixed", 'Cheese sauce from Bechamel sauce'): "SaucesCondiments",
+    ("Mixed", 'Cherry sauce thickened'): "SaucesCondiments",
+    ("Mixed", 'Chocolate sauce'): "SaucesCondiments",
+    ("Mixed", 'Chocolate sauce with couverture and cream'): "SaucesCondiments",
+    ("Mixed", 'Cocktail dressing'): "SaucesCondiments",
+    ("Mixed", 'Courgette-aubergine sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Courgette-cream sauce'): "SaucesCondiments",
+    ("Mixed", 'Cream sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Cream sauce sweet'): "SaucesCondiments",
+    ("Mixed", 'Cream-cheese sauce'): "SaucesCondiments",
+    ("Mixed", 'Cream-ham sauce from white basic sauce with cream'): "SaucesCondiments",
+    ("Mixed", 'Creamy wine sauce/Wine chadeau'): "SaucesCondiments",
+    ("Mixed", 'Cumberland sauce with red and port wine'): "SaucesCondiments",
+    ("Mixed", 'Curry sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Curry-cream sauce with fruit'): "SaucesCondiments",
+    ("Mixed", "Devil's sauce for barbecue"): "SaucesCondiments",
+    ("Mixed", "Devil's sauce from brown basic sauce"): "SaucesCondiments",
+    ("Mixed", 'Fish-mayonnaise with cod'): "SaucesCondiments",
+    ("Mixed", 'Frankfurt green herb sauce'): "SaucesCondiments",
+    ("Mixed", 'French dressing'): "SaucesCondiments",
+    ("Mixed", 'Game sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Gorgonzola sauce'): "SaucesCondiments",
+    ("Mixed", 'Green egg sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Ham sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Herb sauce from Bechamel sauce'): "SaucesCondiments",
+    ("Mixed", 'Herb sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Herring sauce of herb sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Hollandaise sauce'): "SaucesCondiments",
+    ("Mixed", 'Hollandaise sauce simple'): "SaucesCondiments",
+    ("Mixed", 'Horseradish dressing'): "SaucesCondiments",
+    ("Mixed", 'Horseradish mayonnaise'): "SaucesCondiments",
+    ("Mixed", 'Horseradish sauce from Bechamel sauce with milk 3.5 % fat'): "SaucesCondiments",
+    ("Mixed", 'Horseradish sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Horseradish Sauce Vegan (with soya drink)'): "SaucesCondiments",
+    ("Mixed", 'Hot raspberry sauce'): "SaucesCondiments",
+    ("Mixed", 'Indian curry sauce'): "SaucesCondiments",
+    ("Mixed", 'Italian dressing'): "SaucesCondiments",
+    ("Mixed", 'Lingonberry sauce with red wine'): "SaucesCondiments",
+    ("Mixed", 'Madeira sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Maltese sauce'): "SaucesCondiments",
+    ("Mixed", 'Mayonnaise dressing'): "SaucesCondiments",
+    ("Mixed", 'Mayonnaise with lemon juice'): "SaucesCondiments",
+    ("Mixed", 'Mayonnaise with vinegar'): "SaucesCondiments",
+    ("Mixed", 'Mayonnaise, diluted with quark'): "SaucesCondiments",
+    ("Mixed", 'Mayonnaise, diluted with sour cream'): "SaucesCondiments",
+    ("Mixed", 'Mayonnaise, diluted with whipping cream'): "SaucesCondiments",
+    ("Mixed", 'Mayonnaise, diluted with yogurt'): "SaucesCondiments",
+    ("Mixed", 'Minced meat-sweet pepper sauce'): "SaucesCondiments",
+    ("Mixed", 'Mornay sauce from Bechamel sauce'): "SaucesCondiments",
+    ("Mixed", 'Mousseline sauce'): "SaucesCondiments",
+    ("Mixed", 'Mushroom sauce from Bechamel sauce'): "SaucesCondiments",
+    ("Mixed", 'Mushroom sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Mushroom sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Mussel sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Mustard sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Mustard sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Onion sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Onion sauce made from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Pepper sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Quark dressing'): "SaucesCondiments",
+    ("Mixed", 'Quark mayonnaise'): "SaucesCondiments",
+    ("Mixed", 'Quark remoulade sauce'): "SaucesCondiments",
+    ("Mixed", 'Quark-horseradish dressing'): "SaucesCondiments",
+    ("Mixed", 'Raisin sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Red currant sauce (of fruit juice)'): "SaucesCondiments",
+    ("Mixed", 'Red wine sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Red wine sauce sweet'): "SaucesCondiments",
+    ("Mixed", 'Remoulade sauce, diluted with sour cream'): "SaucesCondiments",
+    ("Mixed", 'Roquefort dressing'): "SaucesCondiments",
+    ("Mixed", 'Roquefort sauce'): "SaucesCondiments",
+    ("Mixed", 'Rose hip sauce of jam'): "SaucesCondiments",
+    ("Mixed", 'Rum sauce from vanilla sauce'): "SaucesCondiments",
+    ("Mixed", 'Russian sauce/tomato mayonnaise'): "SaucesCondiments",
+    ("Mixed", 'Salmon-spinach sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Sauce "Robert" from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Sauce, homemade, white, medium'): "SaucesCondiments",
+    ("Mixed", 'Sauce, homemade, white, thick'): "SaucesCondiments",
+    ("Mixed", 'Sauce, sweet and sour, homemade'): "SaucesCondiments",
+    ("Mixed", 'Sauce, white, medium, 2% milk, homemade'): "SaucesCondiments",
+    ("Mixed", 'Sauce, white, thick, homemade'): "SaucesCondiments",
+    ("Mixed", 'Sauce, white, thin, 2% milk, homemade'): "SaucesCondiments",
+    ("Mixed", 'Sour cream dressing wiht yogurt and mustard'): "SaucesCondiments",
+    ("Mixed", 'Spanish sauce (Salsa)'): "SaucesCondiments",
+    ("Mixed", 'Strawberry sauce (of raw fruit)'): "SaucesCondiments",
+    ("Mixed", 'Sweet pepper sauce from Bechamel sauce'): "SaucesCondiments",
+    ("Mixed", 'Sweet pepper sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Sweet pepper-cream sauce from brown basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Tatar sauce'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce Italian style'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce of canned tomatoes'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce of fresh tomatoes'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce of fresh tomatoes and cream cheese'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce of fresh tomatoes and sour cream'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce of fresh tomatoes with aubergine, courgette and sweet pepper'): "SaucesCondiments",
+    ("Mixed", 'Tomato sauce of tomato paste'): "SaucesCondiments",
+    ("Mixed", 'Tuna dip with mayonnaise'): "SaucesCondiments",
+    ("Mixed", 'Vanilla sauce'): "SaucesCondiments",
+    ("Mixed", 'Vegan Basic Sauce White'): "SaucesCondiments",
+    ("Mixed", 'Vegan Curry Sauce With Coconut Cream'): "SaucesCondiments",
+    ("Mixed", 'Vegetable sauce from Bechamel sauce'): "SaucesCondiments",
+    ("Mixed", 'Vegetable sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Velvety fish sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'Velvety lobster sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'White wine sauce from white basic sauce'): "SaucesCondiments",
+    ("Mixed", 'White wine-cream sauce from white basic sauce with salmon'): "SaucesCondiments",
+    ("Mixed", 'Yogurt dressing'): "SaucesCondiments",
+
+    # ------------------------------------------------------------------
+    # 2026-08-04: raw-ingredient leakage cleanup inside Mixed's two giant
+    # "mostly real composite dishes" buckets (Germany_BLS "Soups, Stocks &
+    # Consommes" and "Prepared/Cooked Dishes"), a separate, non-sauce-
+    # related issue flagged during the same day's earlier sauce sweep and
+    # tackled as its own pass. Confirmed via the same regex-plus-hand-read
+    # discipline: 165 candidates matching a bare protein/fish/vegetable/
+    # mushroom headword with no dish-composition signal, narrowed by hand
+    # to 85 genuinely bare items -- a plain cut/fillet/vegetable with at
+    # most a single generic cooking verb (boiled/fried/floured/poached/
+    # braised) or an explicit "without sauce"/"tossed in butter", nothing
+    # that amounts to a real added recipe. Real recipes stayed in Mixed on
+    # purpose: named regional styles ("Berlin style", "Polish style",
+    # "Zurich style", "Baden style", "American style"), "marinated" (a
+    # real flavoring, not just doneness), a real sauce/cream addition, a
+    # crust/batter/dough coating, ragout/fricassee/skewer/roulade/cordon
+    # bleu (inherently composite formats), "Olive" (a rolled/stuffed meat
+    # preparation in this dataset's own convention, not the fruit),
+    # aspic, gratinated, and compotes (a separate, not-today question).
+    # Existing stock/consomme entries also stayed put, matching the
+    # already-established "real soups/stocks stay in Mixed" precedent.
+    # Confirmed zero base_name collisions with any other Mixed
+    # raw_category bucket before writing these overrides.
+
+    ("Mixed", 'Beef'): 'Meat',
+    ("Mixed", 'Beef chop'): 'Meat',
+    ("Mixed", 'Beef fillet steak'): 'Meat',
+    ("Mixed", 'Beef liver'): 'Meat',
+    ("Mixed", 'Beef roast without sauce'): 'Meat',
+    ("Mixed", 'Beef rump steak'): 'Meat',
+    ("Mixed", 'Beef steak'): 'Meat',
+    ("Mixed", 'Beef tongue boiled (in stock)'): 'Meat',
+    ("Mixed", 'Chicken'): 'Meat',
+    ("Mixed", 'Chicken breast fillet'): 'Meat',
+    ("Mixed", 'Chicken liver'): 'Meat',
+    ("Mixed", 'Chicken thigh fried in oven'): 'Meat',
+    ("Mixed", 'Lamb chop'): 'Meat',
+    ("Mixed", 'Lamb fillet'): 'Meat',
+    ("Mixed", 'Lamb roast without sauce'): 'Meat',
+    ("Mixed", 'Mutton chop'): 'Meat',
+    ("Mixed", 'Mutton fillet'): 'Meat',
+    ("Mixed", 'Mutton steak'): 'Meat',
+    ("Mixed", 'Pork belly'): 'Meat',
+    ("Mixed", 'Pork chop'): 'Meat',
+    ("Mixed", 'Pork fillet'): 'Meat',
+    ("Mixed", 'Pork foreshank (hock) "Eisbein" cured'): 'Meat',
+    ("Mixed", 'Pork Hock Braised (without sauce)'): 'Meat',
+    ("Mixed", 'Pork liver floured'): 'Meat',
+    ("Mixed", 'Pork loin chop cured'): 'Meat',
+    ("Mixed", 'Pork medaillon'): 'Meat',
+    ("Mixed", 'Pork roast without sauce'): 'Meat',
+    ("Mixed", 'Pork spare ribs'): 'Meat',
+    ("Mixed", 'Pork steak'): 'Meat',
+    ("Mixed", 'Rabbit roast without sauce'): 'Meat',
+    ("Mixed", 'Veal brain'): 'Meat',
+    ("Mixed", 'Veal chop'): 'Meat',
+    ("Mixed", 'Veal fillet fried in oven'): 'Meat',
+    ("Mixed", 'Veal Knuckle Fried In Oven (without sauce)'): 'Meat',
+    ("Mixed", 'Veal liver floured'): 'Meat',
+    ("Mixed", 'Veal loin fried in oven'): 'Meat',
+    ("Mixed", 'Veal roast without sauce'): 'Meat',
+    ("Mixed", 'Venison roast without sauce'): 'Meat',
+    ("Mixed", 'Cod poached (without sauce)'): 'Fish',
+    ("Mixed", 'Flounder floured'): 'Fish',
+    ("Mixed", 'Haddock fillet poached (without sauce)'): 'Fish',
+    ("Mixed", 'Hake fillet poached (without sauce)'): 'Fish',
+    ("Mixed", 'Halibut fillet'): 'Fish',
+    ("Mixed", 'Halibut fillet poached (without sauce)'): 'Fish',
+    ("Mixed", 'Halibut floured'): 'Fish',
+    ("Mixed", 'Herring fillet'): 'Fish',
+    ("Mixed", 'Herring fillet floured'): 'Fish',
+    ("Mixed", 'Perch floured'): 'Fish',
+    ("Mixed", 'Pike-perch fillet floured'): 'Fish',
+    ("Mixed", 'Plaice fillet floured'): 'Fish',
+    ("Mixed", 'Redfish fillet'): 'Fish',
+    ("Mixed", 'Redfish fillet poached (without sauce)'): 'Fish',
+    ("Mixed", 'Saithe fillet floured'): 'Fish',
+    ("Mixed", 'Salmon steaks'): 'Fish',
+    ("Mixed", 'Sole fillet'): 'Fish',
+    ("Mixed", 'Sole floured'): 'Fish',
+    ("Mixed", 'Sole fried in butter'): 'Fish',
+    ("Mixed", 'Swordfish poached (without sauce)'): 'Fish',
+    ("Mixed", 'Trout fillet'): 'Fish',
+    ("Mixed", 'Trout floured'): 'Fish',
+    ("Mixed", 'Turbot fillet poached (without sauce)'): 'Fish',
+    ("Mixed", 'Turbot floured'): 'Fish',
+    ("Mixed", 'Whitefish poached (without sauce)'): 'Fish',
+    ("Mixed", 'Witch floured'): 'Fish',
+    ("Mixed", 'Carp poached in root vegetable stock'): 'Fish',
+    ("Mixed", 'Tench poached in root vegetable stock'): 'Fish',
+    ("Mixed", 'Carrot'): 'Veg',
+    ("Mixed", 'Carrots boiled'): 'Veg',
+    ("Mixed", 'Carrots boiled, tossed in butter'): 'Veg',
+    ("Mixed", 'Carrots puree'): 'Veg',
+    ("Mixed", 'Beetroot'): 'Veg',
+    ("Mixed", 'Cucumbers'): 'Veg',
+    ("Mixed", 'Cucumbers braised'): 'Veg',
+    ("Mixed", 'Fennel'): 'Veg',
+    ("Mixed", 'Green beans'): 'Veg',
+    ("Mixed", 'Green beans boiled, tossed in butter'): 'Veg',
+    ("Mixed", 'Green peas'): 'Veg',
+    ("Mixed", 'Onion'): 'Veg',
+    ("Mixed", 'Pumpkin'): 'Veg',
+    ("Mixed", 'Sugar peas boiled, tossed in butter'): 'Veg',
+    ("Mixed", 'Pear'): 'Fruit',
+    ("Mixed", 'Chanterelles'): 'Mushroom',
+    ("Mixed", 'Porcini mushrooms'): 'Mushroom',
+    ("Mixed", 'Kidney beans'): 'Legume',
+    ("Mixed", 'Rice'): 'Grain',
     ("Mixed", "Oignon au vinaigre"): "SaucesCondiments",  # pickled onion, same treatment as "Cornichon, au vinaigre"
 
     # Bran (a milling byproduct, not a dish) -> Grain, matching "Oat
