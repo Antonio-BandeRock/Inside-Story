@@ -83,6 +83,22 @@ const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   // everything else left in Bev. See CATEGORY_OVERRIDES' own comment in
   // scripts/build_food_reference_db.py for exactly which rows moved.
   Brewing: 'Brewing & Infusions',
+  // New 2026-08-04, explicitly requested: "Mixed Dishes should not have
+  // anything in it that is a pre made dish... move them to the area
+  // we're using for things that don't meet the criteria for this app."
+  // Ties to this file's own "home cooking over commercial/branded
+  // products" core-purpose decision -- the intended path for a specific
+  // store-bought/branded product is scanning it in (the still-unbuilt
+  // barcode feature), not picking a generic commercial reference row to
+  // stand in for it. First pass moved 238 high-confidence items (explicit
+  // prepackaged/canned/instant-mix/branded/frozen-refrigerated-product
+  // signals) out of Mixed; the much larger remaining ambiguous bucket
+  // (Germany_BLS dish descriptions with no explicit commercial OR
+  // homemade marker either way) is intentionally left for direct review
+  // in the Reference Database Audit tool rather than guessed at by
+  // keyword. Deliberately excluded from every Food-tab builder's own
+  // allowlist, same as Mixed itself.
+  CommercialPremade: 'Commercial / Pre-Made',
   Dairy: 'Dairy & Eggs',
   Fruit: 'Fruits',
   Grain: 'Grains',

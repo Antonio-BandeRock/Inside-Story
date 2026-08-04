@@ -381,6 +381,15 @@ async function resolveEffectiveUsdaOnly(category: string, subcategory: string | 
   // every category above: this is real cross-source species variety, not
   // "Spinach x7"-style near-duplication.
   if (category === 'Mushroom') return false;
+  // Checked proactively, 2026-08-04, right after creating the new
+  // 'CommercialPremade' category (the same-day "no pre-made dishes in
+  // Mixed" cleanup) -- 13 of 238 distinct products are USDA-covered.
+  // Standing risk by now: this bug hits nearly every new/expanded
+  // category with partial USDA coverage. Safe to bypass for the same
+  // reason as every category above -- two different sources both
+  // measuring, say, "Macaroni and cheese, box mix" are genuinely
+  // independent real products, not "Spinach x7"-style near-duplication.
+  if (category === 'CommercialPremade') return false;
   return hasUsdaCoverage(category);
 }
 
