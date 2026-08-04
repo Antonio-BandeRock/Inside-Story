@@ -105,13 +105,17 @@ FOOD_ALIASES = [
     # specific "Grains, wheat flour, white, all purpose, ..." variants
     # rather than one bare name. Dropped the two now-targetless Baked
     # entries and repointed Grain at the three real "all purpose" variants.
-    ("Grain", "all purpose flour",
+    # Repointed from "Grain" to "PantryStaples" 2026-08-04: the flour/malt
+    # Grain-to-PantryStaples move (build_food_reference_db.py) relocated
+    # these same three "Grains, wheat flour, white, all purpose, ..." rows,
+    # so the alias's own category has to follow them or it dangles.
+    ("PantryStaples", "all purpose flour",
      ["Grains, wheat flour, white, all purpose, bleached",
       "Grains, wheat flour, white, all purpose, unbleached",
       "Grains, wheat flour, white, all purpose, enriched, calcium fortified"],
      "US name for plain wheat flour; not present anywhere in the "
      "database's own wheat-flour naming."),
-    ("Grain", "plain flour",
+    ("PantryStaples", "plain flour",
      ["Grains, wheat flour, white, all purpose, bleached",
       "Grains, wheat flour, white, all purpose, unbleached",
       "Grains, wheat flour, white, all purpose, enriched, calcium fortified"],

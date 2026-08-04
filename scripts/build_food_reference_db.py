@@ -122,11 +122,18 @@ CATEGORY_OVERRIDES = {
     # "Arrowroot flour" (the pure starch, same real product as cornstarch)
     # was split three ways -- Grain (Canada_CNF, matching cornstarch's own
     # correct home), Baked (USDA), and Mushroom (Germany_BLS, a clear
-    # miscategorization glitch). Not folded into PantryStaples above --
-    # deliberately left consistent with cornstarch instead, which stays in
-    # Grain rather than move there too (out of scope for this pass).
-    ("Baked", "Flour, arrowroot"): "Grain",
-    ("Mushroom", "Arrowroot flour"): "Grain",
+    # miscategorization glitch). Originally consolidated onto Grain,
+    # consistent with cornstarch, deliberately out of scope for that pass.
+    # Superseded 2026-08-04 by the Grain-flour-to-PantryStaples move
+    # below: cornstarch is a starch, not a flour, and correctly stays in
+    # Grain -- but "arrowroot FLOUR" is, by its own name, exactly the kind
+    # of ground/milled product PantryStaples now exists for, matching the
+    # USDA row of this identical product (Cereal Grains and Pasta raw
+    # category) which already lands there on its own. Repointed both
+    # overrides to PantryStaples so all sources of this one real product
+    # agree, rather than leaving it split by source.
+    ("Baked", "Flour, arrowroot"): "PantryStaples",
+    ("Mushroom", "Arrowroot flour"): "PantryStaples",
     # New 'Brewing' category, 2026-08-02, explicitly requested: dry, not-
     # yet-brewed tea/coffee-type products (instant powders, granules,
     # dried/ground tea) don't belong under Bev the same way an already-
@@ -2817,6 +2824,45 @@ PASTA_NOODLE_GRAIN_EXCLUSIONS = {
     "Rice and vermicelli mix, rice pilaf flavor",
 }
 
+# Real exceptions to the Grain "flour/malt -> PantryStaples" keyword rule
+# below, checked by hand against the full 174-name flour/malt list before
+# writing this: finished/eaten foods that merely MENTION flour or malt as
+# one ingredient in their own name, not the ingredient itself. "MALT-O-MEAL"
+# (24 rows -- both its ready-to-eat cold cereals and its hot Farina-style
+# cereals) is handled separately, as a substring guard rather than listed
+# here one by one -- it's a brand name that happens to contain the real
+# word "malt" (a hyphen counts as a word boundary), not a case of real
+# malt-as-ingredient.
+FLOUR_MALT_GRAIN_EXCLUSIONS = {
+    # Pretzels -- a finished baked snack that uses flour as one ingredient,
+    # not the flour itself.
+    "Snacks, Pretzels, gluten- free made with cornstarch and potato flour",
+    "Snacks, pretzels, hard, plain, made with enriched flour, unsalted",
+    "Snacks, pretzels, hard, plain, made with unenriched flour, salted",
+    "Snacks, pretzels, hard, plain, made with unenriched flour, unsalted",
+    # French bread (Pain = bread) whose own name happens to describe which
+    # flour type it's made from ("à la farine T150," etc.) -- the bread
+    # itself, not the flour.
+    "Pain blanc maison (avec farine pour machine à pain)",
+    "Pain complet ou intégral (à la farine T150)",
+    "Pain de campagne maison (avec farine pour machine à pain)",
+    "Pain, baguette ou boule, bio (à la farine T55 jusqu'à T110)",
+    # NB: the source spreadsheet's own name for this one row uses a
+    # non-breaking space (U+00A0) between "T80" and "ou", not a plain
+    # space -- confirmed by re-querying the rebuilt database after this
+    # row was first missed by the exclusion list (it slipped through to
+    # PantryStaples on the first attempt, its regular-space sibling right
+    # above it correctly stayed put). Keep this exact character.
+    "Pain, baguette ou boule, bis (à la farine T80 ou T110)",
+    # A branded, fortified corn-and-soy dry mix marketed and used as a
+    # drink/porridge base (the Guatemalan product Incaparina), not a plain
+    # culinary flour.
+    "Incaparina, dry mix (corn and soy flours)",
+    # A prepared rice-flour SNACK product (a cake/confection made from
+    # rice flour), not the raw flour itself.
+    "Rice flour cakes, glutinous,  Chinese",
+}
+
 
 def reclassify_category(category_code, base_name):
     override = CATEGORY_OVERRIDES.get((category_code, base_name))
@@ -2842,7 +2888,19 @@ def reclassify_category(category_code, base_name):
         lowered = base_name.lower()
         if lowered.startswith("starch products"):
             return "Mixed"  # noodles/gel/tapioca made from starch -- a prepared product, not an ingredient
-        if "flour" in lowered or "starch" in lowered:
+        # A real gap found 2026-08-04 while auditing the Grain flour/malt
+        # move below: this early return used to send EVERY "flour" match
+        # straight to "Grain" (a return exits the function immediately),
+        # so root-vegetable flours -- Arrowroot, Cassava, Potato, Sweet
+        # Potato, Yam -- never reached that later Grain-scoped rule at
+        # all, no matter what it did. They belong under the same
+        # "ground, not eaten alone" PantryStaples umbrella as the
+        # grain-derived flours, so route them there directly. Plain
+        # starches (cornstarch, potato starch, etc.) are a real, distinct
+        # product from a flour and stay in Grain, unchanged.
+        if "flour" in lowered:
+            return "PantryStaples"
+        if "starch" in lowered:
             return "Grain"
 
     # Fruit/vegetable JUICES are a fundamentally different product from the
@@ -2929,6 +2987,26 @@ def reclassify_category(category_code, base_name):
     if category_code == "Grain" and base_name not in PASTA_NOODLE_GRAIN_EXCLUSIONS:
         if re.search(r"\b(pasta|noodles?|macaroni|spaghetti|vermicelli|vermicelle|nouilles?|p[âa]tes)\b", base_name, re.IGNORECASE):
             return "PastaNoodles"
+
+    # Same request extended the same day, 2026-08-04: "run the same level
+    # of filtering to move things from the grains group that are flours or
+    # ground version of the grain, such as malt... to Pantry Staples."
+    # 174 real candidates checked by hand -- a plain flour or malt product
+    # is never eaten on its own, the exact PantryStaples test already
+    # established for baking powder/gelatine/Konjac powder, whether it's
+    # grain-derived (wheat, rye, rice, oat, barley malt) or not (arrowroot,
+    # potato, cassava, sweet potato, yam flour -- all sitting in this same
+    # Grain bucket already, functionally identical role). "MALT-O-MEAL" is
+    # a cereal BRAND name that happens to contain the real word "malt" (a
+    # hyphen counts as a word boundary) -- guarded separately by substring
+    # rather than added to the exclusion set one flavor at a time, since
+    # it's 24 rows of the same false-positive pattern. Every other real
+    # exception (finished pretzels/bread that merely mention flour as an
+    # ingredient, a branded fortified drink-mix product, a prepared rice-
+    # flour snack cake) is hand-listed in FLOUR_MALT_GRAIN_EXCLUSIONS above.
+    if category_code == "Grain" and "malt-o-meal" not in base_name.lower() and base_name not in FLOUR_MALT_GRAIN_EXCLUSIONS:
+        if re.search(r"\b(flours?|malts?|farine)\b", base_name, re.IGNORECASE):
+            return "PantryStaples"
 
     return category_code
 

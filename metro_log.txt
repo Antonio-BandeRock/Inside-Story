@@ -1,0 +1,33 @@
+
+> hashimotos-app@1.0.0 start
+> node ./scripts/start-with-qr.js --clear
+
+
+Scan this in Expo Go (or tap "Enter URL manually" and type the address below):
+
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+█ ▄▄▄▄▄ █▀▀ ███▀  █ ▄▄▄▄▄ █
+█ █   █ █▄▀██▀█▄▄██ █   █ █
+█ █▄▄▄█ █ ▄ █ ▄▀ ██ █▄▄▄█ █
+█▄▄▄▄▄▄▄█ █ ▀▄█ ▀ █▄▄▄▄▄▄▄█
+█▄ ▀▄▀█▄ █▀█  ▄▀▄█▀  ▄▀▄▄▀█
+█▀▄ █▄ ▄ ▄▀▀  ▀ █▀▄▀ ▀▀█▄▄█
+█▄██ ▀▀▄▄▄▀▄ █  █▀█ ▄█ ██▀█
+█▄▀▀▀▄▄▄ ▀▄▄ █▀██ ▄▄ ▀▀██▄█
+█▄▄█▄█▄▄█  ██ ▀▄  ▄▄▄ █ ▄ █
+█ ▄▄▄▄▄ █▄  ▄ █▄  █▄█  ▀ ▄█
+█ █   █ █▀█▄▀▄▄▀▀▄ ▄▄ █▀▄██
+█ █▄▄▄█ █▀████  █  █▄  ▄█▄█
+█▄▄▄▄▄▄▄█▄▄███▄▄█▄███▄▄█▄▄█
+
+
+exp://192.168.68.53:8081
+
+(node:26376) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Starting project at C:\Dev\hashimotos-app
+React Compiler enabled
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
