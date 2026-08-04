@@ -40,6 +40,10 @@ import {
   getSauceIngredients,
   getSauceNutrientBreakdown,
   getSauceSixDimensionsBreakdown,
+  getHandheld,
+  getHandheldIngredients,
+  getHandheldNutrientBreakdown,
+  getHandheldSixDimensionsBreakdown,
   getSoup,
   getSoupIngredients,
   getSoupNutrientBreakdown,
@@ -254,18 +258,18 @@ export default function FoodItemDetailScreen() {
 }
 
 // "side" naming kept even though this also now loads a salad, smoothie,
-// fermentation, beverage, snack, baked good, soup, or sauce -- SideDetail/
-// SideIngredientDetail and SaladDetail/SaladIngredientDetail/SmoothieDetail/
-// SmoothieIngredientDetail/FermentationDetail/FermentationIngredientDetail/
-// BeverageDetail/BeverageIngredientDetail/SnackDetail/
-// SnackIngredientDetail/BakedGoodsDetail/BakedGoodsIngredientDetail/
-// SoupDetail/SoupIngredientDetail/SauceDetail/SauceIngredientDetail are all
+// fermentation, beverage, snack, baked good, soup, sauce, or handheld --
+// SideDetail/SideIngredientDetail and SaladDetail/SaladIngredientDetail/
+// SmoothieDetail/SmoothieIngredientDetail/FermentationDetail/
+// FermentationIngredientDetail/BeverageDetail/BeverageIngredientDetail/
+// SnackDetail/SnackIngredientDetail/BakedGoodsDetail/
+// BakedGoodsIngredientDetail/SoupDetail/SoupIngredientDetail/SauceDetail/
+// SauceIngredientDetail/HandheldDetail/HandheldIngredientDetail are all
 // structurally identical shapes (see lib/db.ts's own Salad/Smoothie/
-// Fermentation/Beverage/Snack/BakedGoods/Soup/Sauce CRUD, each a deliberate
-// mirror of Side's), so a loaded salad, smoothie, fermentation, beverage,
-// snack, baked good, soup, or sauce is assignable straight into these same
-// types with no separate
-// union needed.
+// Fermentation/Beverage/Snack/BakedGoods/Soup/Sauce/Handheld CRUD, each a
+// deliberate mirror of Side's), so a loaded salad, smoothie, fermentation,
+// beverage, snack, baked good, soup, sauce, or handheld is assignable
+// straight into these same types with no separate union needed.
 
 // PrepView's own mealNoun prop, factored out once here rather than another
 // nested ternary in the JSX above -- grows by one more itemType per builder,
@@ -279,6 +283,7 @@ function mealNounFor(itemType: string | undefined): string {
   if (itemType === 'bakedGoods') return 'baked good';
   if (itemType === 'soup') return 'soup';
   if (itemType === 'sauce') return 'sauce';
+  if (itemType === 'handheld') return 'handheld';
   return 'side';
 }
 
@@ -377,6 +382,17 @@ async function loadSide(
       getSauceIngredients(id),
       getSauceNutrientBreakdown(id),
       getSauceSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'handheld') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getHandheld(id),
+      getHandheldIngredients(id),
+      getHandheldNutrientBreakdown(id),
+      getHandheldSixDimensionsBreakdown(id),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };

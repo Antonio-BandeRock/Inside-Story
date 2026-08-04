@@ -1450,9 +1450,9 @@ export async function initializeDatabase() {
       -- component_type reuses the exact itemType strings already
       -- established across food-items.tsx/food-item-detail.tsx (no new
       -- vocabulary): 'side' | 'salad' | 'smoothie' | 'fermentation' |
-      -- 'beverage' | 'snack' | 'bakedGoods' | 'soup' | 'sauce'.
+      -- 'beverage' | 'snack' | 'bakedGoods' | 'soup' | 'sauce' | 'handheld'.
       -- component_id is a plain TEXT reference (no FK constraint) into
-      -- whichever of the 9 tables component_type says -- SQLite has no way
+      -- whichever of the 10 tables component_type says -- SQLite has no way
       -- to express "FK into one of N tables depending on a sibling column,"
       -- so a component whose own saved record is later deleted just becomes
       -- unresolvable (see lib/db.ts's own resolveMealComponent, which
@@ -1986,6 +1986,39 @@ export async function initializeDatabase() {
         sort_order INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         FOREIGN KEY (sauce_id) REFERENCES sauces(id) ON DELETE CASCADE
+      );
+
+      -- Handhelds Builder's own real persistence, 2026-08-04 -- same
+      -- per-builder-table reasoning as sides/side_ingredients through
+      -- sauces/sauce_ingredients above. Table/column names stay singular
+      -- ("handhelds"/"handheld_ingredients"/"handheld_id") even though the
+      -- component itself is HandheldsBuilder (matching the plural lens
+      -- key) -- see that file's own top comment for why, the same pattern
+      -- already established for Sauces.
+      CREATE TABLE IF NOT EXISTS handhelds (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        servings REAL NOT NULL,
+        serving_size_amount REAL NOT NULL,
+        serving_size_unit TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS handheld_ingredients (
+        id TEXT PRIMARY KEY,
+        handheld_id TEXT NOT NULL,
+        food_id TEXT,
+        food_name TEXT NOT NULL,
+        category TEXT,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        cut_prep TEXT NOT NULL,
+        cooking_method TEXT NOT NULL,
+        prep_note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (handheld_id) REFERENCES handhelds(id) ON DELETE CASCADE
       );
 
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
@@ -5435,13 +5468,374 @@ export async function getSauceSixDimensionsBreakdown(sauceId: string): Promise<D
   return { day: sauceBreakdown.bySubCriterion, meals: [mealBreakdown] };
 }
 
+// Handhelds Builder's own CRUD, 2026-08-04 -- deliberate line-for-line
+// mirror of the sauces/sauce_ingredients functions directly above (see the
+// sides/side_ingredients comment further up for the full "why separate
+// tables/functions per builder" reasoning, unchanged here). Kept singular
+// ("Handheld") throughout, matching Salad/Smoothie/Fermentation/Beverage/
+// Snack/Soup/Sauces' own naming, even though the component itself is
+// HandheldsBuilder (see that file's own top comment for why).
+export type HandheldIngredientInput = {
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+};
+
+export async function saveHandheld(input: {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: HandheldIngredientInput[];
+}) {
+  const db = await getDatabase();
+  const id = `handheld_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO handhelds (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    now,
+  );
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `handheld_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO handheld_ingredients
+          (id, handheld_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      id,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id };
+}
+
+export async function updateHandheld(
+  handheldId: string,
+  input: {
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    ingredients: HandheldIngredientInput[];
+  },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE handhelds
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    handheldId,
+  );
+
+  await db.runAsync('DELETE FROM handheld_ingredients WHERE handheld_id = ?', handheldId);
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `handheld_ingredient_${Date.now()}_${index}`;
+    await db.runAsync(
+      `
+        INSERT INTO handheld_ingredients
+          (id, handheld_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      handheldId,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+    );
+  }
+
+  return { id: handheldId };
+}
+
+// handheld_ingredients rows cascade via their own FK (ON DELETE CASCADE, see
+// initializeDatabase) -- deleting the parent handhelds row is enough.
+export async function deleteHandheld(handheldId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM handhelds WHERE id = ?', handheldId);
+}
+
+export type HandheldRecord = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredientCount: number;
+  ingredientNames: string | null;
+  createdAt: string;
+};
+
+export async function listHandhelds(limit = 50): Promise<HandheldRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<HandheldRecord>(
+    `
+      SELECT s.id, s.name, s.servings, s.serving_size_amount AS servingSizeAmount, s.serving_size_unit AS servingSizeUnit,
+             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(food_name, ', ')
+               FROM (SELECT food_name FROM handheld_ingredients WHERE handheld_id = s.id ORDER BY sort_order)
+             ) AS ingredientNames
+      FROM handhelds s
+      LEFT JOIN handheld_ingredients si ON si.handheld_id = s.id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
+export type HandheldDetail = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  createdAt: string;
+};
+
+export async function getHandheld(handheldId: string): Promise<HandheldDetail | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<HandheldDetail>(
+    `
+      SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
+             created_at AS createdAt
+      FROM handhelds
+      WHERE id = ?
+    `,
+    handheldId,
+  );
+}
+
+export type HandheldIngredientDetail = {
+  id: string;
+  foodId: string | null;
+  foodName: string;
+  category: string | null;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote: string | null;
+};
+
+export async function getHandheldIngredients(handheldId: string): Promise<HandheldIngredientDetail[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<HandheldIngredientDetail>(
+    `
+      SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+      FROM handheld_ingredients
+      WHERE handheld_id = ?
+      ORDER BY sort_order
+    `,
+    handheldId,
+  );
+}
+
+// Handheld-scoped equivalent of getSoupNutrientBreakdown -- see that
+// function's own comment for the full reasoning. mealType 'handheld' instead
+// of 'soup' is the only real difference in the shape produced.
+export async function getHandheldNutrientBreakdown(handheldId: string): Promise<DailyNutrientBreakdown> {
+  const empty: DailyNutrientBreakdown = {
+    dayTotals: {},
+    meals: [],
+    driRows: [],
+    supplementTotals: {},
+    unresolvedItems: [],
+    supplementSkipped: [],
+    profileComplete: false,
+  };
+  const handheld = await getHandheld(handheldId);
+  if (!handheld) return empty;
+
+  const ingredients = await getHandheldIngredients(handheldId);
+  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
+  const itemBreakdowns: DailyNutrientItemBreakdown[] = [];
+  const handheldTotals: Record<string, number> = {};
+  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    let grams: number;
+    if (ingredient.unit.trim().toLowerCase() === 'each') {
+      const unitWeight = await getFoodUnitWeight(foodId, source);
+      if (!unitWeight) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'no_unit_weight_data' });
+        continue;
+      }
+      grams = unitWeight.gramsPerUnit * ingredient.quantity;
+    } else {
+      const unit = normalizeUnitForConversion(ingredient.unit);
+      if (!unit) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'unsupported_unit' });
+        continue;
+      }
+      const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
+        ? null
+        : ingredient.category ?? (await getFoodCategory(foodId, source));
+      const conversion = convertToGrams(ingredient.quantity, unit, { foodCategory: foodCategory ?? undefined });
+      if (!conversion.ok) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: conversion.reason });
+        continue;
+      }
+      grams = conversion.grams;
+    }
+
+    const cacheKey = `${foodId}|${source}`;
+    let nutrients = nutrientCache.get(cacheKey);
+    if (!nutrients) {
+      nutrients = await getFoodNutrients(foodId, source);
+      nutrientCache.set(cacheKey, nutrients);
+    }
+    const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: grams, nutrients }]);
+    itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+    for (const [code, amount] of Object.entries(itemTotals)) {
+      handheldTotals[code] = (handheldTotals[code] ?? 0) + amount;
+    }
+  }
+
+  const [driRows, profile] = await Promise.all([getDietaryReferenceIntakesForCurrentUser(), getUserProfile()]);
+
+  const handheldBreakdown: DailyNutrientSideBreakdown = {
+    sideName: handheld.name,
+    totals: handheldTotals,
+    items: itemBreakdowns,
+  };
+  const mealBreakdown: DailyNutrientMealBreakdown = {
+    mealId: handheld.id,
+    mealName: handheld.name,
+    mealType: 'handheld',
+    totals: handheldTotals,
+    sides: [handheldBreakdown],
+  };
+
+  return {
+    dayTotals: handheldTotals,
+    meals: [mealBreakdown],
+    driRows,
+    supplementTotals: {},
+    unresolvedItems,
+    supplementSkipped: [],
+    profileComplete: profile.sex != null && profile.birthDate != null,
+  };
+}
+
+// Handheld-scoped equivalent of getSoupSixDimensionsBreakdown -- see that
+// function's own comment for the full reasoning.
+export async function getHandheldSixDimensionsBreakdown(handheldId: string): Promise<DailySixDimensionsBreakdown> {
+  const handheld = await getHandheld(handheldId);
+  if (!handheld) return { day: [], meals: [] };
+
+  const ingredients = await getHandheldIngredients(handheldId);
+  const scoreCache = new Map<string, FoodScore[]>();
+  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) continue;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const cacheKey = `${foodId}|${source}`;
+    let scores = scoreCache.get(cacheKey);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(cacheKey, scores);
+    }
+    foods.push({ foodName: ingredient.foodName, scores });
+  }
+
+  const handheldBreakdown: DailyDimensionSideBreakdown = {
+    sideName: handheld.name,
+    bySubCriterion: aggregateBySubCriterion(foods),
+    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+  };
+  const mealBreakdown: DailyDimensionMealBreakdown = {
+    mealId: handheld.id,
+    mealName: handheld.name,
+    mealType: 'handheld',
+    bySubCriterion: handheldBreakdown.bySubCriterion,
+    sides: [handheldBreakdown],
+  };
+
+  return { day: handheldBreakdown.bySubCriterion, meals: [mealBreakdown] };
+}
+
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both
 // mixed together (the original behavior, kept as the default since some
 // callers -- like the very first favorites list this app had -- don't care
 // about the distinction).
 export async function listFavorites(
   limit = 8,
-  itemType?: 'meal' | 'side' | 'salad' | 'smoothie' | 'fermentation' | 'beverage' | 'snack' | 'bakedGoods' | 'soup' | 'sauce',
+  itemType?:
+    | 'meal'
+    | 'side'
+    | 'salad'
+    | 'smoothie'
+    | 'fermentation'
+    | 'beverage'
+    | 'snack'
+    | 'bakedGoods'
+    | 'soup'
+    | 'sauce'
+    | 'handheld',
 ) {
   const db = await getDatabase();
   return db.getAllAsync<FavoriteRecord>(
@@ -5639,7 +6033,8 @@ export type MealComponentType =
   | 'snack'
   | 'bakedGoods'
   | 'soup'
-  | 'sauce';
+  | 'sauce'
+  | 'handheld';
 
 // The one real difference between the 9 sub-builders' otherwise identical
 // getX/getXIngredients pairs is which functions they are -- this is the
@@ -5666,6 +6061,8 @@ function getComponentDetail(componentType: MealComponentType, componentId: strin
       return getSoup(componentId);
     case 'sauce':
       return getSauce(componentId);
+    case 'handheld':
+      return getHandheld(componentId);
   }
 }
 
@@ -5689,6 +6086,8 @@ function getComponentIngredients(componentType: MealComponentType, componentId: 
       return getSoupIngredients(componentId);
     case 'sauce':
       return getSauceIngredients(componentId);
+    case 'handheld':
+      return getHandheldIngredients(componentId);
   }
 }
 
@@ -5917,6 +6316,8 @@ export async function listMealComponentOptions(componentType: MealComponentType)
       return listSoups();
     case 'sauce':
       return listSauces();
+    case 'handheld':
+      return listHandhelds();
   }
 }
 

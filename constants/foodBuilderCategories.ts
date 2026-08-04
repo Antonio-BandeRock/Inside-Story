@@ -98,3 +98,19 @@ export const SOUP_BUILDER_CATEGORIES = [
 export const SAUCES_BUILDER_CATEGORIES = [
   'Fats', 'Dairy', 'Fruit', 'Veg', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Sweets', 'Alcohol', 'NutSeed', 'Legume',
 ];
+
+// Handhelds (sandwiches, wraps, burgers, tacos), 2026-08-04 -- the
+// eleventh builder, covering all four the same way ("outer casing ->
+// primary protein -> toppings -> condiment/spread" is the same real
+// assembly logic for all of them). Deliberately mirrors
+// SIDE_BUILDER_CATEGORIES exactly rather than a narrower hand-picked
+// list: a sandwich/wrap/burger/taco can genuinely draw on almost any real
+// food category as an ingredient (Baked for bread/buns, Grain for
+// tortillas/rice paper, Meat/Fish/Legume/NutSeed for protein, Fats/Dairy/
+// SaucesCondiments for spreads and condiments, Veg/Fruit/Mushroom/Sprouts/
+// Algae for toppings), the same "deliberately generous" reasoning this
+// whole file already documents at its own top. Alcohol/Bev/Brewing/
+// Sweets/SupplementPowder/CommercialPremade excluded, same as Side.
+export const HANDHELDS_BUILDER_CATEGORIES = [
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
+];

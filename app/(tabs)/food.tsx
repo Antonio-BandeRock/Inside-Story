@@ -10,6 +10,7 @@ import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { BakedGoodsBuilder } from '../../components/BakedGoodsBuilder';
 import { BeverageBuilder } from '../../components/BeverageBuilder';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
+import { HandheldsBuilder } from '../../components/HandheldsBuilder';
 import { MealBuilder } from '../../components/MealBuilder';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SaladBuilder } from '../../components/SaladBuilder';
@@ -25,6 +26,7 @@ import {
   listBeverages,
   listFavorites,
   listFermentations,
+  listHandhelds,
   listSalads,
   listSauces,
   listSides,
@@ -66,29 +68,56 @@ type FoodLens =
   | 'snackBuilder'
   | 'bakedGoodsBuilder'
   | 'soupBuilder'
-  | 'saucesBuilder';
+  | 'saucesBuilder'
+  | 'handheldsBuilder';
 
+// Builder NAMES went plural 2026-08-04, explicitly requested ("I think we
+// should choose if they should all be singular or all plural... make the
+// rest plural that also should be") -- matching the house style
+// CATEGORY_DISPLAY_LABELS in components/FoodLookup.tsx already used
+// (Vegetables, Fruits, Beverages, Mixed Dishes, etc.), the same convention
+// grocery aisles and restaurant menus use. Side -> Sides, Salad -> Salads
+// & Bowls (also a real scope expansion -- grain bowls, poke, burrito
+// bowls, breakfast yogurt bowls; its own category allowlist already
+// covered all of these before the rename, so this was mostly a naming/
+// discoverability fix, not a rebuild), Smoothie -> Smoothies, Beverage ->
+// Beverages, Snack -> Snacks, Soup -> Soups. Two deliberate exceptions,
+// both with real reasons rather than just left alone: Meal stays singular
+// because it isn't a food category the way the other ten are -- it's the
+// assembly action that combines THEIR saved output ("Meal Builder" names
+// doing the assembly; "Meals Builder" would read like a generic app name).
+// Fermentation stays singular because unlike Sauces/Snacks/Soups/Sides/
+// Beverages it has no natural plural food-category form -- "Fermentations"
+// reads clinical, like separate lab batches, not a recognizable menu-style
+// label. Internal identifiers (lens keys below, component file names,
+// database tables, per-item function names, itemType values) deliberately
+// stay singular throughout -- matching the precedent Sauces Builder
+// already set (display name "Sauces," but getSauce/sauces
+// table/'sauce' itemType all stay singular) -- only what's actually shown
+// on screen changed.
 const FOOD_LENS_COPY: Record<FoodLens, string> = {
   mealBuilder:
     "Built 2026-08-02, last of the ten. Name the meal (optional) and choose a meal type, then \"Add from...\" pulls in one or more already-saved sides/salads/smoothies/fermentations/beverages/snacks/baked goods/soups/sauces -- pick how much of each you actually had, and repeat for as many items as the meal actually has. Checks for raw goitrogenic foods combined ACROSS the whole meal (not just within one builder's own ingredient list) before logging. Log This Now saves a real meal for right now. Reconnects Schedule's/Home's own \"Log now\" action, broken since the old all-in-one builder was deleted 2026-07-25. Building once and scheduling it for a future date/time isn't wired up yet -- Schedule's own existing scheduling flow still covers that in the meantime.",
   sideBuilder:
     "In progress. Name the dish (optional), set # of Servings and Serving Size, then add one or more ingredients (category -> type -> food -> prep, then quantity/unit) -- nutrient lookup itself lives on Insights' own Food Lookup lens instead of being duplicated here. Done leads into a required \"how was this cooked\" step (cooking method changes retained nutrients), then a soft, skippable nudge if no cooking oil/fat or seasoning was logged -- easy to miss both by accident. Saving the finished side as a reusable favorite isn't wired up yet.",
   saladBuilder:
-    'In progress. Same builder flow as Side (name, servings/serving size, then ingredients with category -> type -> food -> prep, quantity/unit, cut prep, cook prep), plus its own real twist: finishing a salad checks for two or more raw goitrogenic vegetables mixed together (easy to eat far more of them raw and combined than cooked and separate) and warns before saving, rather than silently letting it through. Saving as a reusable favorite isn\'t wired up yet, same as Side.',
+    'In progress. Same builder flow as Sides (name, servings/serving size, then ingredients with category -> type -> food -> prep, quantity/unit, cut prep, cook prep), plus its own real twist: finishing a salad or bowl checks for two or more raw goitrogenic vegetables mixed together (easy to eat far more of them raw and combined than cooked and separate) and warns before saving, rather than silently letting it through. Covers salads, grain bowls, poke, burrito bowls, and breakfast bowls -- the same ingredient-assembly logic covers all of them. Saving as a reusable favorite isn\'t wired up yet, same as Sides.',
   smoothieBuilder:
-    'In progress. Same builder flow as Side and Salad, plus the same real twist Salad has, reworded for blending: finishing a smoothie checks for two or more raw goitrogenic vegetables blended together (easy to eat far more of them at once than cooked and separate) and warns before saving. Saving as a reusable favorite isn\'t wired up yet, same as Side and Salad.',
+    'In progress. Same builder flow as Sides and Salads & Bowls, plus the same real twist Salads & Bowls has, reworded for blending: finishing a smoothie checks for two or more raw goitrogenic vegetables blended together (easy to eat far more of them at once than cooked and separate) and warns before saving. Saving as a reusable favorite isn\'t wired up yet, same as Sides and Salads & Bowls.',
   fermentationBuilder:
-    "In progress. Same builder flow as Side (name, servings/serving size, then ingredients), plus a 'Fermented' Cook Prep option the other builders don't have, so the step that actually makes something a fermentation has a real answer to select. Real bacterial-strain tracking (specific cultures like Lactobacillus acidophilus, eventually with cited effects) is still its own separate, not-yet-started research workstream -- this covers logging the fermented food itself, not identifying what's living in it. Saving as a reusable favorite isn't wired up yet, same as Side/Salad/Smoothie.",
+    "In progress. Same builder flow as Sides (name, servings/serving size, then ingredients), plus a 'Fermented' Cook Prep option the other builders don't have, so the step that actually makes something a fermentation has a real answer to select. Real bacterial-strain tracking (specific cultures like Lactobacillus acidophilus, eventually with cited effects) is still its own separate, not-yet-started research workstream -- this covers logging the fermented food itself, not identifying what's living in it. Saving as a reusable favorite isn't wired up yet, same as Sides/Salads & Bowls/Smoothies.",
   beverageBuilder:
-    "In progress. Same builder flow as Side, minus the \"no cooking oil/fat or seasoning\" nudge Side/Salad/Smoothie/Fermentation all have -- not a real concern for a drink, so it's left out here rather than shown for no reason. Water and other drinks, including anything dissolved or mixed in. Saving as a reusable favorite isn't wired up yet, same as the others.",
+    "In progress. Same builder flow as Sides, minus the \"no cooking oil/fat or seasoning\" nudge Sides/Salads & Bowls/Smoothies/Fermentation all have -- not a real concern for a drink, so it's left out here rather than shown for no reason. Water and other drinks, including anything dissolved or mixed in. Saving as a reusable favorite isn't wired up yet, same as the others.",
   snackBuilder:
-    "In progress. Same builder flow as Side, including the \"no cooking oil/fat or seasoning\" nudge (kept here, unlike Beverage -- spiced nuts or oil-popped popcorn genuinely can involve either). For anything that isn't really a full meal or a side on its own. Saving as a reusable favorite isn't wired up yet, same as the others.",
+    "In progress. Same builder flow as Sides, including the \"no cooking oil/fat or seasoning\" nudge (kept here, unlike Beverages -- spiced nuts or oil-popped popcorn genuinely can involve either). For anything that isn't really a full meal or a side on its own. Saving as a reusable favorite isn't wired up yet, same as the others.",
   bakedGoodsBuilder:
-    "In progress. Same builder flow as Side, including the \"no cooking oil/fat or seasoning\" nudge (kept here, same reasoning as Snack -- butter/oil and cinnamon/salt are both genuinely common). Bread, muffins, and other home-baked items -- distinct from Meal/Side since a baked good is usually made once and portioned out over several separate sittings (already what Servings/Serving Size capture). Saving as a reusable favorite isn't wired up yet, same as the others.",
+    "In progress. Same builder flow as Sides, including the \"no cooking oil/fat or seasoning\" nudge (kept here, same reasoning as Snacks -- butter/oil and cinnamon/salt are both genuinely common). Bread, muffins, and other home-baked items -- distinct from Meal/Sides since a baked good is usually made once and portioned out over several separate sittings (already what Servings/Serving Size capture). Saving as a reusable favorite isn't wired up yet, same as the others.",
   soupBuilder:
-    "In progress. Same builder flow as Side, plus a 'Simmered' Cook Prep option the other builders don't have, genuinely distinct from 'Boiled' (lower heat, longer time, less mechanical breakdown). Broth-base tracking and simmered-down ingredient-concentration math are still deferred -- both would need real research (how does a given ingredient's nutrient contribution change as broth reduces?) before being more than a guess. Saving as a reusable favorite isn't wired up yet, same as the others.",
+    "In progress. Same builder flow as Sides, plus a 'Simmered' Cook Prep option the other builders don't have, genuinely distinct from 'Boiled' (lower heat, longer time, less mechanical breakdown). Broth-base tracking and simmered-down ingredient-concentration math are still deferred -- both would need real research (how does a given ingredient's nutrient contribution change as broth reduces?) before being more than a guess. Saving as a reusable favorite isn't wired up yet, same as the others.",
   saucesBuilder:
-    "In progress. Same builder flow as Side, plus a 'Reduced' Cook Prep option the other builders don't have -- arguably THE defining sauce-making technique (pan sauces, gravies, glazes). Covers sauces, gravies, dressings, dips, and anything else in that family. Saving as a reusable favorite isn't wired up yet, same as the others.",
+    "In progress. Same builder flow as Sides, plus a 'Reduced' Cook Prep option the other builders don't have -- arguably THE defining sauce-making technique (pan sauces, gravies, glazes). Covers sauces, gravies, dressings, dips, and anything else in that family. Saving as a reusable favorite isn't wired up yet, same as the others.",
+  handheldsBuilder:
+    "New 2026-08-04, requested alongside the plural-naming pass: \"Layers\" as a working name, renamed to \"Handhelds\" since every other builder is named after a recognizable food category, not a structural description. Same builder flow as Sides, reordered around four real layers -- outer casing (bread, tortilla, bun, lettuce wrap), primary protein, toppings, and condiment/spread -- covering sandwiches, wraps, burgers, and tacos with one flexible tool instead of four near-identical ones. Saving as a reusable favorite isn't wired up yet, same as the others.",
 };
 
 // The full name shown in PageIdentityLabel's own corner box once a lens
@@ -98,10 +127,12 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
 // because the popup's shared header already says "Nutrition Builders"
 // once for the whole grid, but the corner box has no such shared header
 // nearby to lean on, so it needs the real full name spelled out on its
-// own. "Side Dish Builder," not the mechanical "Side Builder," to match
-// the name SideBuilder.tsx's own in-page title bar already uses -- the one
-// of these ten that's actually built, and worth matching exactly rather
-// than reconstructing a close-but-different name.
+// own. "Side Dish Builder" was originally chosen, not the mechanical
+// "Side Builder," to match SideBuilder.tsx's own in-page title bar --
+// that title bar was itself removed the same day (see SideBuilder.tsx's
+// own 2026-07-28 comment), so by the time of the 2026-08-04 plural-naming
+// pass there was no in-page title left to stay in sync with, freeing this
+// box to just say "Sides" like everywhere else now does.
 //
 // 2026-07-28: a forced line break (\n) before "Builder" in every one of
 // these, even the ones that would otherwise fit on one line (e.g. "Snack
@@ -110,15 +141,16 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
 // ten rather than some wrapping and some not depending on length alone.
 const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   mealBuilder: 'Meal\nBuilder',
-  sideBuilder: 'Side Dish\nBuilder',
-  saladBuilder: 'Salad\nBuilder',
-  smoothieBuilder: 'Smoothie\nBuilder',
+  sideBuilder: 'Sides\nBuilder',
+  saladBuilder: 'Salads &\nBowls Builder',
+  smoothieBuilder: 'Smoothies\nBuilder',
   fermentationBuilder: 'Fermentation\nBuilder',
-  beverageBuilder: 'Beverage\nBuilder',
-  snackBuilder: 'Snack\nBuilder',
+  beverageBuilder: 'Beverages\nBuilder',
+  snackBuilder: 'Snacks\nBuilder',
   bakedGoodsBuilder: 'Baked Goods\nBuilder',
-  soupBuilder: 'Soup\nBuilder',
+  soupBuilder: 'Soups\nBuilder',
   saucesBuilder: 'Sauces\nBuilder',
+  handheldsBuilder: 'Handhelds\nBuilder',
 };
 
 // Per-builder Info content (LensHub's own bottom-left Info tile) -- one
@@ -141,21 +173,21 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
   },
   {
     key: 'sideBuilder',
-    label: 'Side',
+    label: 'Sides',
     icon: 'fast-food-outline',
-    help: [{ heading: 'Side', body: FOOD_LENS_COPY.sideBuilder }],
+    help: [{ heading: 'Sides', body: FOOD_LENS_COPY.sideBuilder }],
   },
   {
     key: 'saladBuilder',
-    label: 'Salad',
+    label: 'Salads & Bowls',
     icon: 'leaf-outline',
-    help: [{ heading: 'Salad', body: FOOD_LENS_COPY.saladBuilder }],
+    help: [{ heading: 'Salads & Bowls', body: FOOD_LENS_COPY.saladBuilder }],
   },
   {
     key: 'smoothieBuilder',
-    label: 'Smoothie',
+    label: 'Smoothies',
     icon: 'wine-outline',
-    help: [{ heading: 'Smoothie', body: FOOD_LENS_COPY.smoothieBuilder }],
+    help: [{ heading: 'Smoothies', body: FOOD_LENS_COPY.smoothieBuilder }],
   },
   {
     key: 'fermentationBuilder',
@@ -165,15 +197,15 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
   },
   {
     key: 'beverageBuilder',
-    label: 'Beverage',
+    label: 'Beverages',
     icon: 'cafe-outline',
-    help: [{ heading: 'Beverage', body: FOOD_LENS_COPY.beverageBuilder }],
+    help: [{ heading: 'Beverages', body: FOOD_LENS_COPY.beverageBuilder }],
   },
   {
     key: 'snackBuilder',
-    label: 'Snack',
+    label: 'Snacks',
     icon: 'nutrition-outline',
-    help: [{ heading: 'Snack', body: FOOD_LENS_COPY.snackBuilder }],
+    help: [{ heading: 'Snacks', body: FOOD_LENS_COPY.snackBuilder }],
   },
   {
     key: 'bakedGoodsBuilder',
@@ -183,36 +215,43 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
   },
   {
     key: 'soupBuilder',
-    label: 'Soup',
+    label: 'Soups',
     icon: 'flame-outline',
-    help: [{ heading: 'Soup', body: FOOD_LENS_COPY.soupBuilder }],
+    help: [{ heading: 'Soups', body: FOOD_LENS_COPY.soupBuilder }],
   },
   {
-    // Deliberately last, 2026-07-28 -- 10 items in this grid's 3 columns
-    // leaves the final row with just one real item before Info's own
-    // centered row below it, and LensHub's flexWrap layout naturally
-    // places a lone trailing item at the LEFT of its row -- exactly the
-    // bottom-left placement asked for, with no special-case positioning
-    // logic needed.
     key: 'saucesBuilder',
     label: 'Sauces',
     icon: 'water-outline',
     help: [{ heading: 'Sauces', body: FOOD_LENS_COPY.saucesBuilder }],
+  },
+  {
+    // Deliberately last, 2026-08-04 -- 11 items in this grid's 3 columns
+    // leaves the final row with just two real items before Info's own
+    // centered row below it; LensHub's flexWrap layout places that
+    // trailing pair at the LEFT of its row, same reasoning Sauces' own
+    // 2026-07-28 "deliberately last" placement already established when
+    // it was the 10th and final item -- no special-case positioning logic
+    // needed either way.
+    key: 'handheldsBuilder',
+    label: 'Handhelds',
+    icon: 'layers-outline',
+    help: [{ heading: 'Handhelds', body: FOOD_LENS_COPY.handheldsBuilder }],
   },
 ];
 
 const FOOD_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: 'The Food tab is being rebuilt from one all-in-one meal builder into ten focused builders, one per kind of thing you actually make -- a full meal, a side, a salad, a smoothie, a fermented food, a beverage, a snack, a baked good, a soup, or a sauce/gravy/dressing/dip.',
+    body: 'The Food tab is built from one all-in-one meal builder into eleven focused builders, one per kind of thing you actually make -- a full meal, a side, a salad or bowl, a smoothie, a fermented food, a beverage, a snack, a baked good, a soup, a sauce/gravy/dressing/dip, or a sandwich/wrap/burger/taco.',
   },
   {
-    heading: 'The ten builders',
-    body: 'Meal, Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, and Sauces -- pick one from the button to the left of the main navigation button, bottom of the screen.',
+    heading: 'The eleven builders',
+    body: 'Meal, Sides, Salads & Bowls, Smoothies, Fermentation, Beverages, Snacks, Baked Goods, Soups, Sauces, and Handhelds -- pick one from the button to the left of the main navigation button, bottom of the screen.',
   },
   {
     heading: 'Status',
-    body: "All ten builders are built: Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, and Sauces each build and save their own real dish; Meal (built last, on purpose -- it assembles the other nine's own saved output) assembles a real meal out of them and logs it. Saving as a reusable favorite isn't wired up yet for any of the nine sub-builders. Scheduling a Meal-Builder meal for a future date/time isn't wired up yet either -- Schedule's own existing scheduling flow still covers that.",
+    body: "All eleven builders are built: Sides, Salads & Bowls, Smoothies, Fermentation, Beverages, Snacks, Baked Goods, Soups, Sauces, and Handhelds each build and save their own real dish; Meal (built last, on purpose -- it assembles the other ten's own saved output) assembles a real meal out of them and logs it. Saving as a reusable favorite isn't wired up yet for any of the ten sub-builders. Scheduling a Meal-Builder meal for a future date/time isn't wired up yet either -- Schedule's own existing scheduling flow still covers that.",
   },
 ];
 
@@ -242,6 +281,7 @@ export default function FoodScreen() {
     editBakedGoodsId,
     editSoupId,
     editSauceId,
+    editHandheldId,
     // Schedule's/Home's own "Log now" action (see schedule.tsx's
     // handleLogNow and index.tsx's own Day Arc equivalent) -- both push
     // these same five params, unread by anything until Meal Builder existed
@@ -265,6 +305,7 @@ export default function FoodScreen() {
     editBakedGoodsId?: string;
     editSoupId?: string;
     editSauceId?: string;
+    editHandheldId?: string;
     scheduleItemId?: string;
     mealType?: string;
     title?: string;
@@ -332,6 +373,11 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      if (editHandheldId) {
+        setLens('handheldsBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
     }, [
@@ -345,6 +391,7 @@ export default function FoodScreen() {
       editBakedGoodsId,
       editSoupId,
       editSauceId,
+      editHandheldId,
     ]),
   );
 
@@ -358,14 +405,15 @@ export default function FoodScreen() {
   //
   // This array is the one place that grows as more builders get a real
   // save path -- Side, Salad, Smoothie, Fermentation, Beverage, Snack,
-  // Baked Goods, Soup, and Sauces are all nine sub-builders now built (see
-  // Status above); Meal Builder assembles from these rather than saving its
-  // own kind of record, so it never adds an entry here. Favorites filtered
-  // to 'side'/'salad'/'smoothie'/'fermentation'/'beverage'/'snack'/
-  // 'bakedGoods'/'soup'/'sauce' specifically, since none of the nine
-  // builders' own favoriting is wired up to actually write one yet -- see
-  // FOOD_LENS_COPY.saucesBuilder above -- and this list has no use for meal
-  // favorites saved by the old, deleted meal builder.
+  // Baked Goods, Soup, Sauces, and Handhelds are all ten sub-builders now
+  // built (see Status above); Meal Builder assembles from these rather
+  // than saving its own kind of record, so it never adds an entry here.
+  // Favorites filtered to 'side'/'salad'/'smoothie'/'fermentation'/
+  // 'beverage'/'snack'/'bakedGoods'/'soup'/'sauce'/'handheld' specifically,
+  // since none of the ten builders' own favoriting is wired up to
+  // actually write one yet -- see FOOD_LENS_COPY.saucesBuilder above --
+  // and this list has no use for meal favorites saved by the old, deleted
+  // meal builder.
   const [sideCount, setSideCount] = useState(0);
   const [sideFavoriteCount, setSideFavoriteCount] = useState(0);
   const [saladCount, setSaladCount] = useState(0);
@@ -384,6 +432,8 @@ export default function FoodScreen() {
   const [soupFavoriteCount, setSoupFavoriteCount] = useState(0);
   const [sauceCount, setSauceCount] = useState(0);
   const [sauceFavoriteCount, setSauceFavoriteCount] = useState(0);
+  const [handheldCount, setHandheldCount] = useState(0);
+  const [handheldFavoriteCount, setHandheldFavoriteCount] = useState(0);
   async function loadMyFoodsCounts() {
     const [
       sides,
@@ -404,6 +454,8 @@ export default function FoodScreen() {
       soupFavorites,
       sauces,
       sauceFavorites,
+      handhelds,
+      handheldFavorites,
     ] = await Promise.all([
       listSides(),
       listFavorites(50, 'side'),
@@ -423,6 +475,8 @@ export default function FoodScreen() {
       listFavorites(50, 'soup'),
       listSauces(),
       listFavorites(50, 'sauce'),
+      listHandhelds(),
+      listFavorites(50, 'handheld'),
     ]);
     setSideCount(sides.length);
     setSideFavoriteCount(sideFavorites.length);
@@ -442,6 +496,8 @@ export default function FoodScreen() {
     setSoupFavoriteCount(soupFavorites.length);
     setSauceCount(sauces.length);
     setSauceFavoriteCount(sauceFavorites.length);
+    setHandheldCount(handhelds.length);
+    setHandheldFavoriteCount(handheldFavorites.length);
   }
   const myFoodsCategories: MyItemsCategory[] = [
     {
@@ -459,16 +515,20 @@ export default function FoodScreen() {
     },
     {
       id: 'salad-saved',
-      label: 'Saved Salads',
+      label: 'Saved Salads & Bowls',
       count: saladCount,
-      onPress: () => router.push({ pathname: '/food-items', params: { itemType: 'salad', status: 'saved', title: 'Saved Salads' } }),
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'salad', status: 'saved', title: 'Saved Salads & Bowls' } }),
     },
     {
       id: 'salad-favorite',
-      label: 'Favorite Salads',
+      label: 'Favorite Salads & Bowls',
       count: saladFavoriteCount,
       onPress: () =>
-        router.push({ pathname: '/food-items', params: { itemType: 'salad', status: 'favorite', title: 'Favorite Salads' } }),
+        router.push({
+          pathname: '/food-items',
+          params: { itemType: 'salad', status: 'favorite', title: 'Favorite Salads & Bowls' },
+        }),
     },
     {
       id: 'smoothie-saved',
@@ -574,6 +634,23 @@ export default function FoodScreen() {
       onPress: () =>
         router.push({ pathname: '/food-items', params: { itemType: 'sauce', status: 'favorite', title: 'Favorite Sauces' } }),
     },
+    {
+      id: 'handheld-saved',
+      label: 'Saved Handhelds',
+      count: handheldCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'handheld', status: 'saved', title: 'Saved Handhelds' } }),
+    },
+    {
+      id: 'handheld-favorite',
+      label: 'Favorite Handhelds',
+      count: handheldFavoriteCount,
+      onPress: () =>
+        router.push({
+          pathname: '/food-items',
+          params: { itemType: 'handheld', status: 'favorite', title: 'Favorite Handhelds' },
+        }),
+    },
   ];
 
   return (
@@ -650,6 +727,14 @@ export default function FoodScreen() {
             // inside it being named singular) -- same layout-ownership
             // reasoning applies here too.
             <SaucesBuilder tabColor={TAB_COLOR} editSauceId={editSauceId} />
+          ) : lens === 'handheldsBuilder' ? (
+            // HandheldsBuilder is a direct adaptation of SideBuilder (see
+            // that file's own top comment for why Side, not Salad/Smoothie,
+            // and for why this one component is plural despite everything
+            // inside it being named singular, the same situation Sauces
+            // already established) -- same layout-ownership reasoning
+            // applies here too.
+            <HandheldsBuilder tabColor={TAB_COLOR} editHandheldId={editHandheldId} />
           ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>

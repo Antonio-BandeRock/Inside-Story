@@ -10,6 +10,7 @@ import {
   deleteBakedGoods,
   deleteBeverage,
   deleteFermentation,
+  deleteHandheld,
   deleteSalad,
   deleteSauce,
   deleteSide,
@@ -20,6 +21,7 @@ import {
   listBeverages,
   listFavorites,
   listFermentations,
+  listHandhelds,
   listSalads,
   listSauces,
   listSides,
@@ -135,7 +137,8 @@ export default function FoodItemsScreen() {
                       itemType === 'snack' ||
                       itemType === 'bakedGoods' ||
                       itemType === 'soup' ||
-                      itemType === 'sauce')
+                      itemType === 'sauce' ||
+                      itemType === 'handheld')
                   ) {
                     router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
                     return;
@@ -171,17 +174,18 @@ export default function FoodItemsScreen() {
                   style={styles.itemActionButton}
                   onPress={() => {
                     // Side/Salad/Smoothie/Fermentation/Beverage/Snack/
-                    // BakedGoods/Soup/Sauces each push into
+                    // BakedGoods/Soup/Sauces/Handhelds each push into
                     // app/(tabs)/food.tsx's own builder pre-loaded via
                     // editSideId/editSaladId/editSmoothieId/
                     // editFermentationId/editBeverageId/editSnackId/
-                    // editBakedGoodsId/editSoupId/editSauceId (see that file
-                    // and SideBuilder.tsx/SaladBuilder.tsx/
-                    // SmoothieBuilder.tsx/FermentationBuilder.tsx/
-                    // BeverageBuilder.tsx/SnackBuilder.tsx/
-                    // BakedGoodsBuilder.tsx/SoupBuilder.tsx/
-                    // SaucesBuilder.tsx's own props). Written inline (not
-                    // returned from a helper) so each route's own literal
+                    // editBakedGoodsId/editSoupId/editSauceId/
+                    // editHandheldId (see that file and SideBuilder.tsx/
+                    // SaladBuilder.tsx/SmoothieBuilder.tsx/
+                    // FermentationBuilder.tsx/BeverageBuilder.tsx/
+                    // SnackBuilder.tsx/BakedGoodsBuilder.tsx/SoupBuilder.tsx/
+                    // SaucesBuilder.tsx/HandheldsBuilder.tsx's own props).
+                    // Written inline (not returned from a helper) so each
+                    // route's own literal
                     // pathname/params stay visible to Expo Router's
                     // typed-routes checking -- a helper returning a plain
                     // `string` pathname would widen it past what
@@ -204,6 +208,8 @@ export default function FoodItemsScreen() {
                       router.push({ pathname: '/food', params: { editSoupId: item.id } });
                     } else if (itemType === 'sauce') {
                       router.push({ pathname: '/food', params: { editSauceId: item.id } });
+                    } else if (itemType === 'handheld') {
+                      router.push({ pathname: '/food', params: { editHandheldId: item.id } });
                     }
                   }}
                   accessibilityLabel={`Edit ${item.title}`}
@@ -366,6 +372,18 @@ async function loadItems(itemType: string | undefined, status: string | undefine
       subtitle: sauce.ingredientNames || `${sauce.ingredientCount} ingredient${sauce.ingredientCount === 1 ? '' : 's'}`,
     }));
   }
+  if (itemType === 'handheld') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'handheld');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const handhelds = await listHandhelds();
+    return handhelds.map((handheld) => ({
+      id: handheld.id,
+      title: handheld.name,
+      subtitle: handheld.ingredientNames || `${handheld.ingredientCount} ingredient${handheld.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
   return [];
 }
 
@@ -373,9 +391,9 @@ async function loadItems(itemType: string | undefined, status: string | undefine
 // separate checks (rather than one) since an itemType could in principle
 // support one without the other, even though today they're the same set
 // (Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup,
-// and Sauces -- every sub-builder Meal Builder will eventually assemble
-// from). Grows by one case per builder as each gets a real save path, same
-// as loadItems above.
+// Sauces, and Handhelds -- every sub-builder Meal Builder will eventually
+// assemble from). Grows by one case per builder as each gets a real save
+// path, same as loadItems above.
 function supportsEdit(itemType: string | undefined): boolean {
   return (
     itemType === 'side' ||
@@ -386,7 +404,8 @@ function supportsEdit(itemType: string | undefined): boolean {
     itemType === 'snack' ||
     itemType === 'bakedGoods' ||
     itemType === 'soup' ||
-    itemType === 'sauce'
+    itemType === 'sauce' ||
+    itemType === 'handheld'
   );
 }
 
@@ -400,7 +419,8 @@ function supportsDelete(itemType: string | undefined): boolean {
     itemType === 'snack' ||
     itemType === 'bakedGoods' ||
     itemType === 'soup' ||
-    itemType === 'sauce'
+    itemType === 'sauce' ||
+    itemType === 'handheld'
   );
 }
 
@@ -423,6 +443,8 @@ async function deleteItem(itemType: string | undefined, id: string): Promise<voi
     await deleteSoup(id);
   } else if (itemType === 'sauce') {
     await deleteSauce(id);
+  } else if (itemType === 'handheld') {
+    await deleteHandheld(id);
   }
 }
 
