@@ -243,7 +243,7 @@ const ALCOHOL_SUBCATEGORIES_PENDING_SCAN_FEATURE = new Set(['Beer & Cider', 'Coc
 export async function getReferenceSubcategories(category: string) {
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<{ subcategory: string | null }>(
-    'SELECT DISTINCT subcategory FROM foods WHERE category = ? AND subcategory IS NOT NULL ORDER BY subcategory',
+    'SELECT DISTINCT subcategory FROM foods WHERE category = ? AND subcategory IS NOT NULL AND hidden = 0 ORDER BY subcategory',
     category,
   );
   const subcategories = rows.map((row) => row.subcategory).filter((value): value is string => value !== null);
@@ -277,7 +277,7 @@ async function hasUsdaCoverage(category: string): Promise<boolean> {
     cached = (async () => {
       const db = await getReferenceDatabase();
       const row = await db.getFirstAsync<{ found: number }>(
-        "SELECT EXISTS(SELECT 1 FROM foods WHERE category = ? AND source = 'USDA') AS found",
+        "SELECT EXISTS(SELECT 1 FROM foods WHERE category = ? AND source = 'USDA' AND hidden = 0) AS found",
         category,
       );
       return !!row?.found;
@@ -648,7 +648,15 @@ const BEV_JUICE_ALLOWED_NAMES = new Set([
 
 function buildScopeClause(category: string, subcategory: string | null, usdaOnly: boolean) {
   const params: (string | number)[] = [category];
-  let clause = 'category = ?';
+  // 'hidden' column, 2026-08-04 -- see scripts/build_food_reference_db.py's
+  // own apply_audit_decisions() comment for the full reasoning. A single
+  // universal filter here, rather than extending the existing
+  // ALCOHOL_HIDDEN_BASE_NAMES-style per-category hand-typed Set pattern to
+  // the 8,000+-row scale the first real bulk import from the Reference
+  // Database Audit tool needed -- every one of this function's own callers
+  // (searchReferenceFoodNames, getPreparationMethods, resolveFoodChoice,
+  // and the alias-resolution path) gets this for free from one change here.
+  let clause = 'category = ? AND hidden = 0';
 
   if (subcategory) {
     clause += ' AND subcategory = ?';

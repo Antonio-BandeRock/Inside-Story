@@ -19,6 +19,8 @@ Usage:
 """
 
 import datetime
+import json
+import os
 import re
 import sqlite3
 import sys
@@ -5030,6 +5032,151 @@ def parse_sheet(z, sheet_file, shared):
     return header, data_rows
 
 
+# Reference Database Audit tool decisions, 2026-08-04 -- explicitly
+# requested ("Let's apply those changes as they are so far... The answer
+# file is located at ..."). The audit tool (a separate Claude Artifact,
+# not part of the app) lets the person review this database directly --
+# hide, move, or rename (AKA) any (category, subcategory, base_name)
+# group -- and export those decisions as JSON. This is the FIRST real bulk
+# import of that export: 10,165 decisions (8,058 hide, 2,002 move, 105
+# rename-only, plus 31 rows that combine a move with a rename) spanning
+# nearly every category. Applied as-is, trusting the person's own review
+# rather than re-litigating individual calls -- at this scale that's the
+# only sane approach, and re-second-guessing would also waste the actual
+# point of building a review tool in the first place.
+#
+# Applied as ONE final pass over the fully-resolved `foods_rows` list,
+# right before the INSERT -- deliberately NOT folded into
+# CATEGORY_OVERRIDES/reclassify_category (which key off a row's raw,
+# pre-resolution incoming category_code, a repeated source of real bugs
+# this session whenever that distinction was missed -- see the PastaNoodles
+# "boiled sibling" mistake and the Cheese Sauce dead-override mistake, both
+# earlier in this file's own history). The audit tool's own decision keys
+# are built from the FINAL, fully-resolved (category, subcategory,
+# base_name) a person actually saw on screen -- matching against the same
+# final state here, after every other rule has already run, is the only
+# way to guarantee these decisions land on the rows they were actually
+# made against.
+#
+# "hide" decisions don't touch category/subcategory/base_name at all --
+# they mark a new `hidden` column (see the `foods` table's own comment)
+# instead. Deliberately a real, data-driven column rather than extending
+# the existing ALCOHOL_HIDDEN_BASE_NAMES-style hand-typed TS Set pattern
+# in lib/db.ts to 8,000+ entries -- that pattern was fine at the 10s-100s
+# scale it was built for, not this one.
+#
+# "move" decisions reassign category, and subcategory too when the
+# decision specifies a targetSubcategory -- when it doesn't, subcategory is
+# cleared (set to NULL) rather than left as whatever the OLD category's own
+# subcategory rules had computed, since a subcategory label computed under
+# the old category (e.g. Alcohol's "Wine & Champagne") usually doesn't mean
+# anything once the row has moved to a different category entirely.
+#
+# "renameTo" (present with or without an action) replaces base_name only,
+# matching the exact same precedent already established this session for
+# SPIRIT_CLEAN_RENAMES/JUICE_CLEAN_RENAMES -- `name` (the real, full
+# source-provided name) is never touched by any rename in this pipeline.
+def load_audit_decisions(json_path):
+    if not os.path.exists(json_path):
+        return {}
+    with open(json_path, encoding="utf-8") as f:
+        payload = json.load(f)
+    decisions_by_key = {}
+    for decision in payload.get("decisions", []):
+        ctx = decision.get("context") or {}
+        key = (ctx.get("category") or "", ctx.get("subcategory") or "", ctx.get("baseName") or "")
+        decisions_by_key[key] = decision
+    return decisions_by_key
+
+
+def apply_audit_decisions(foods_rows, decisions_by_key):
+    if not decisions_by_key:
+        return foods_rows, 0, 0, 0, set()
+
+    def effective_base_name_of(row):
+        return row[6] or row[3]
+
+    # Fallback index for decisions whose exact (category, subcategory,
+    # base_name) key no longer exists -- found while applying the first
+    # real bulk import: 105 of 10,165 decisions did not match, and every
+    # one turned out to be a food this SAME session had already
+    # independently reorganized earlier the same day (flour -> PantryStaples,
+    # noodles/pasta -> PastaNoodles) before the person's own audit review,
+    # so the decision's own recorded starting category was already stale
+    # by the time this import ran. For "hide" (and rename-only) decisions
+    # -- an intent that does not actually depend on which category the food
+    # currently sits in -- retry matching by base_name alone, but ONLY when
+    # that base_name is unambiguous (maps to exactly one real (category,
+    # subcategory) pair right now); genuinely ambiguous ones are left
+    # unmatched rather than guessed at. "move" decisions are deliberately
+    # excluded from this fallback -- a move's whole point is reassigning
+    # FROM a specific category, so guessing that starting point defeats the
+    # purpose; checked directly this same run that every unmatched "move"
+    # decision was already sitting exactly at its own requested target
+    # category, i.e. already a no-op, so this exclusion cost nothing in
+    # practice.
+    base_name_categories = {}
+    for row in foods_rows:
+        bn = effective_base_name_of(row)
+        base_name_categories.setdefault(bn, set()).add((row[8] or "", row[9] or ""))
+
+    fallback_by_base_name = {}
+    for key, decision in decisions_by_key.items():
+        if decision.get("action") == "move":
+            continue
+        base_name = key[2]
+        if len(base_name_categories.get(base_name, ())) == 1:
+            fallback_by_base_name[base_name] = (key, decision)
+
+    matched_keys = set()
+    hidden_count = 0
+    moved_count = 0
+    renamed_count = 0
+    new_rows = []
+    for row in foods_rows:
+        (
+            food_id, source, source_code, name, name_local, short_name,
+            base_name, prep_method, category, subcategory, raw_category,
+            scientific_classification, classification_precision,
+        ) = row
+        # Same COALESCE(base_name, name) fallback the audit tool's own data
+        # export used, so a row with no real base_name still matches
+        # whatever the audit tool actually displayed for it.
+        effective_base_name = base_name or name
+        key = (category or "", subcategory or "", effective_base_name or "")
+        decision = decisions_by_key.get(key)
+        if not decision:
+            fallback = fallback_by_base_name.get(effective_base_name)
+            if fallback:
+                key, decision = fallback
+        hidden = 0
+        if decision:
+            matched_keys.add(key)
+            action = decision.get("action")
+            if action == "hide":
+                hidden = 1
+                hidden_count += 1
+            elif action == "move":
+                target_category = decision.get("targetCategory")
+                if target_category:
+                    category = target_category
+                    subcategory = decision.get("targetSubcategory") or None
+                    moved_count += 1
+            rename_to = decision.get("renameTo")
+            if rename_to:
+                base_name = rename_to
+                renamed_count += 1
+        new_rows.append((
+            food_id, source, source_code, name, name_local, short_name,
+            base_name, prep_method, category, subcategory, raw_category,
+            scientific_classification, classification_precision, hidden,
+        ))
+
+    unmatched_keys = set(decisions_by_key.keys()) - matched_keys
+    return new_rows, hidden_count, moved_count, renamed_count, unmatched_keys
+
+
+
 def build(xlsx_path, db_path):
     conn = sqlite3.connect(db_path)
     cur = conn.cursor()
@@ -5053,6 +5200,14 @@ def build(xlsx_path, db_path):
             raw_category TEXT,
             scientific_classification TEXT,
             classification_precision TEXT,
+            -- Reference Database Audit tool "hide" decisions, 2026-08-04 --
+            -- see apply_audit_decisions()'s own top comment for the full
+            -- reasoning. A real data-driven column rather than another
+            -- ever-growing hand-typed TS Set (the ALCOHOL_HIDDEN_BASE_NAMES
+            -- pattern already used in lib/db.ts) specifically because this
+            -- first real bulk pass is 8,000+ rows -- far past the scale
+            -- that pattern was ever meant to carry.
+            hidden INTEGER NOT NULL DEFAULT 0,
             PRIMARY KEY (food_id, source)
         );
         CREATE TABLE sub_criteria (
@@ -5074,6 +5229,7 @@ def build(xlsx_path, db_path):
         CREATE INDEX idx_foods_name ON foods(name);
         CREATE INDEX idx_foods_short_name ON foods(short_name);
         CREATE INDEX idx_foods_base_name ON foods(category, base_name);
+        CREATE INDEX idx_foods_hidden ON foods(hidden);
 
         DROP TABLE IF EXISTS nutrients;
         DROP TABLE IF EXISTS food_nutrients;
@@ -5588,11 +5744,27 @@ def build(xlsx_path, db_path):
                 score_rows.append((synthetic_food_id, "Derived", sub_id, tier))
             synthetic_food_id += 1
 
+        audit_decisions_path = os.path.join(os.path.dirname(__file__), "data", "audit_decisions.json")
+        audit_decisions = load_audit_decisions(audit_decisions_path)
+        foods_rows, audit_hidden, audit_moved, audit_renamed, audit_unmatched = apply_audit_decisions(
+            foods_rows, audit_decisions
+        )
+        if audit_decisions:
+            print(
+                f"Applied {len(audit_decisions)} Reference Database Audit decisions: "
+                f"{audit_hidden} hidden, {audit_moved} moved, {audit_renamed} renamed, "
+                f"{len(audit_unmatched)} decisions had no matching row (see below)."
+            )
+            if audit_unmatched:
+                print("Unmatched audit decision keys (category|subcategory|baseName):")
+                for cat, sub, name in sorted(audit_unmatched):
+                    print(f"  {cat}|{sub}|{name}")
+
         cur.executemany(
             """INSERT OR REPLACE INTO foods
                (food_id, source, source_code, name, name_local, short_name, base_name, prep_method,
-                category, subcategory, raw_category, scientific_classification, classification_precision)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                category, subcategory, raw_category, scientific_classification, classification_precision, hidden)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             foods_rows,
         )
         cur.executemany(
