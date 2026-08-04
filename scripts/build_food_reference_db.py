@@ -1144,6 +1144,68 @@ CATEGORY_OVERRIDES = {
     ("Mixed", 'Porcini mushrooms'): 'Mushroom',
     ("Mixed", 'Kidney beans'): 'Legume',
     ("Mixed", 'Rice'): 'Grain',
+
+    # ------------------------------------------------------------------
+    # 2026-08-04: Mushroom category cleanup, same day, direct follow-up
+    # ("check the Mushroom category for the rest of that leakage too") to
+    # two items flagged but not fixed during the earlier raw-ingredient-
+    # leakage pass. Root cause is bigger than those two items suggested:
+    # Germany_BLS's own "Starches & Potato Products" raw_category has
+    # ALWAYS defaulted to "Mushroom" via RAW_CATEGORY_TO_CODE (a known,
+    # disclosed imprecision from this file's own header comment -- "spans
+    # Mushroom/Veg/Grain/Mixed"), so every potato/root-vegetable/starch
+    # product from that one raw source label landed in Mushroom purely by
+    # default, alongside the real mushroom species that make up most of
+    # it. Hand-classified all 33 non-mushroom rows individually rather
+    # than a keyword rule, since destinations genuinely vary: plain root
+    # vegetables/potatoes with minimal prep (peeled/boiled/braised/
+    # steamed, no real recipe -- the same "raw-ingredient leakage" test
+    # as the earlier Mixed pass) -> Veg; plain starches (potato starch,
+    # tapioca/cassava starch) -> Grain, matching "Potato Starch"/"Starch,
+    # cassava starch" already there; dry instant mashed-potato powder (not
+    # eaten alone until reconstituted, the same PantryStaples test as
+    # potato/flour) -> PantryStaples; real prepared potato dishes
+    # (croquettes, dumplings, gnocchi, rösti, stuffed potato pockets,
+    # potato sticks) and cream-of-mushroom soup products -> Mixed, matching
+    # the identical dish/soup precedent already established there. Every
+    # genuine mushroom species (Chanterelle, Morel, Shiitake, Maitake,
+    # Porcini, black truffle, etc.) stayed untouched. Confirmed zero
+    # base_name collisions with any other Mushroom raw_category bucket
+    # before writing these overrides.
+
+    ("Mushroom", 'Batata/sweet potato'): 'Veg',
+    ("Mushroom", 'Jerusalem artichoke/topinambur'): 'Veg',
+    ("Mushroom", 'Manioc/cassava'): 'Veg',
+    ("Mushroom", 'Yam'): 'Veg',
+    ("Mushroom", 'Potatoe peeled'): 'Veg',
+    ("Mushroom", 'Potatoe peeled, boiled, canned, drained'): 'Veg',
+    ("Mushroom", 'Potatoe peeled, braised without fat'): 'Veg',
+    ("Mushroom", 'Potatoe peeled, pressure-steamed'): 'Veg',
+    ("Mushroom", 'Potatoe unpeeled'): 'Veg',
+    ("Mushroom", 'Potatoe unpeeled, deep-frozen'): 'Veg',
+    ("Mushroom", 'Potato starch (potato flour)'): 'Grain',
+    ("Mushroom", 'Tapioca (granulated cassava starch)'): 'Grain',
+    ("Mushroom", 'Potatoes mashed instant powder'): 'PantryStaples',
+    ("Mushroom", 'Cream of mushroom soup instant powder'): 'Mixed',
+    ("Mushroom", 'Cream of mushroom soup, made from instant powder and water'): 'Mixed',
+    ("Mushroom", 'Gnocchi'): 'Mixed',
+    ("Mushroom", 'Gnocchi boiled'): 'Mixed',
+    ("Mushroom", 'Gnocchi deep-frozen'): 'Mixed',
+    ("Mushroom", 'Potato croquettes'): 'Mixed',
+    ("Mushroom", 'Potato croquettes deep-frozen'): 'Mixed',
+    ("Mushroom", 'Potato dumpling (from boiled potatoes) dehydrated product'): 'Mixed',
+    ("Mushroom", 'Potato dumpling (from raw potatoes) dehydrated product'): 'Mixed',
+    ("Mushroom", 'Potato dumpling half and half'): 'Mixed',
+    ("Mushroom", 'Potato dumpling half and half, deep-frozen, poached'): 'Mixed',
+    ("Mushroom", 'Potato pancakes'): 'Mixed',
+    ("Mushroom", 'Potato pancakes deep-frozen'): 'Mixed',
+    ("Mushroom", 'Potato pockets with cream cheese filling'): 'Mixed',
+    ("Mushroom", 'Potato pockets with cream cheese filling, deep-frozen'): 'Mixed',
+    ("Mushroom", 'Potato rösti (fried grated potatoes)'): 'Mixed',
+    ("Mushroom", 'Potato rösti (fried grated potatoes) deep-frozen'): 'Mixed',
+    ("Mushroom", 'Potato rösti with bacon'): 'Mixed',
+    ("Mushroom", 'Potato rösti with bacon, deep-frozen'): 'Mixed',
+    ("Mushroom", 'Potato sticks'): 'Mixed',
     ("Mixed", "Oignon au vinaigre"): "SaucesCondiments",  # pickled onion, same treatment as "Cornichon, au vinaigre"
 
     # Bran (a milling byproduct, not a dish) -> Grain, matching "Oat
