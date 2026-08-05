@@ -215,15 +215,20 @@ function toFoodOption(row: { food_id: number; source: string; name: string; shor
   };
 }
 
-// 'CommercialPremade' ("Commercial / Pre-Made") holds real reference rows
-// (branded/packaged/box-mix products) but per the person's own 2026-08-05
-// direction, the category itself shouldn't appear as a pickable option
-// anywhere in the app, not just be excluded from the Food-tab builders'
-// own allowlists (see foodBuilderCategories.ts) -- Insights' unrestricted
-// Food Lookup lens has no allowlist at all, so without this exclusion the
-// category would still show up there. The underlying rows stay in the
-// database untouched; this only hides the category from the picker.
-const CATEGORIES_HIDDEN_FROM_BROWSING = new Set(['CommercialPremade']);
+// Categories hidden from the app's own category picker entirely, per direct
+// 2026-08-05 requests -- "not needed for our purposes right now" rather than
+// excluded from any one builder's own allowlist (see foodBuilderCategories.ts).
+// Insights' unrestricted Food Lookup lens has no allowlist at all, so without
+// this exclusion these would still show up there even with every builder's own
+// allowlist already leaving them out. The underlying rows stay in the database
+// untouched -- this only hides the category from the picker, and can be
+// reversed by removing an entry here if/when either is wanted again.
+//   'CommercialPremade' ("Commercial / Pre-Made") -- branded/packaged/box-mix
+//     products already present in the source USDA/national databases this app
+//     derives from. NOT where a future barcode-scan feature's own scanned
+//     products will land -- that's a separate, not-yet-decided question.
+//   'Baked' ("Baked Goods") -- bread/cookies/cake/pastry-type reference rows.
+const CATEGORIES_HIDDEN_FROM_BROWSING = new Set(['CommercialPremade', 'Baked']);
 
 export async function getReferenceCategories() {
   const db = await getReferenceDatabase();

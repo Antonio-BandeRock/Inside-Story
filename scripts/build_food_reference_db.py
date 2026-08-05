@@ -1127,6 +1127,23 @@ CATEGORY_OVERRIDES = {
     ("Mixed", 'Witch floured'): 'Fish',
     ("Mixed", 'Carp poached in root vegetable stock'): 'Fish',
     ("Mixed", 'Tench poached in root vegetable stock'): 'Fish',
+    # Found 2026-08-05 while verifying the Fish-into-Meat merge (see
+    # meat_subcategory()'s own comment) didn't leave any stray, inconsistent
+    # rows: USDA's "American Indian/Alaska Native Foods" raw_category is a
+    # known, already-documented heterogeneous catch-all (see
+    # RAW_CATEGORY_TO_CODE's own comment -- it defaults to "Meat" for the
+    # whole bucket, wrong for the minority of rows that aren't actually
+    # meat). "Fish, lingcod, meat, raw (Alaska Native)" is one of those
+    # minority rows -- confirmed directly against the database: its 3
+    # siblings (from "Finfish and Shellfish Products", USDA and Canada_CNF)
+    # all correctly land under Fish/"Fish & Seafood" already, so without
+    # this override this one Alaska Native row would sit alone under "Meat &
+    # Poultry" sharing the exact same base_name -- a confusing split, and
+    # the reason an existing Reference Database Audit "hide" decision for
+    # this base_name couldn't resolve it automatically (genuinely
+    # ambiguous, correctly left for direct human review rather than
+    # guessed).
+    ("Meat", 'Lingcod Fish'): 'Fish',
     ("Mixed", 'Carrot'): 'Veg',
     ("Mixed", 'Carrots boiled'): 'Veg',
     ("Mixed", 'Carrots boiled, tossed in butter'): 'Veg',
@@ -4248,6 +4265,35 @@ def veg_processed_false_positive_subcategory(effective_category, base_name):
     return None
 
 
+# Fish merged into Meat (displayed as "Animal Protein"), 2026-08-05,
+# explicitly requested: "The Fish category belongs in the Animal Protein
+# category, not out on its own." Applied as a normalization step at the call
+# site (see the main build loop: `if effective_category == "Fish":
+# effective_category = "Meat"`) rather than as one more early-return branch
+# inside reclassify_category() -- that function has multiple return paths
+# (the direct RAW_CATEGORY_TO_CODE-derived "Fish" category_code, PLUS ~28
+# CATEGORY_OVERRIDES entries mapping specific Mixed-derived fish/seafood rows
+# straight to "Fish"), and a single post-hoc normalization catches every one
+# of them reliably instead of needing to intercept each path individually.
+#
+# Merging without a real subcategory split would have been a functional
+# regression, not just a cosmetic one: FoodLookup.tsx's own subcategory-step
+# logic (see its useEffect keyed on `subcategories.length > 0 && !subcategory`)
+# blocks food browsing entirely until a subcategory is picked, the moment a
+# category has ANY real subcategory value at all -- so tagging only the
+# ex-Fish rows with a new subcategory while leaving every pre-existing Meat
+# row's subcategory NULL would have made beef/pork/chicken/etc. silently
+# unreachable (no subcategory value exists to select them with). This
+# function assigns EVERY row landing in Meat a real subcategory -- "Fish &
+# Seafood" for former-Fish rows (both paths), "Meat & Poultry" as a plain
+# umbrella for everything else -- so the merged category stays fully
+# browsable via a real two-way subcategory picker, not just Fish.
+def meat_subcategory(effective_category, came_from_fish):
+    if effective_category != "Meat":
+        return None
+    return "Fish & Seafood" if came_from_fish else "Meat & Poultry"
+
+
 # Real, unambiguous cooking-state words only -- deliberately excludes
 # frequent-but-ambiguous trailing words found in the real data (meat, sauce,
 # cream, juice, seeds, heart, breast, leg, liver, giblets, oil, bacon,
@@ -5145,6 +5191,29 @@ def apply_audit_decisions(foods_rows, decisions_by_key):
         effective_base_name = base_name or name
         key = (category or "", subcategory or "", effective_base_name or "")
         decision = decisions_by_key.get(key)
+        if not decision and subcategory:
+            # A category that previously had NO subcategory scheme at all
+            # (every row's own context.subcategory recorded by the audit
+            # tool as "") can gain one later -- 'Meat' did, 2026-08-05, when
+            # Fish merged into it and needed a real subcategory split to
+            # stay browsable (see meat_subcategory()'s own comment above).
+            # Every "move" decision ever recorded against that category is
+            # keyed with subcategory "" and, being a move, is deliberately
+            # excluded from the broader base-name-only fallback below (a
+            # move's whole point is reassigning FROM a known starting
+            # category, so guessing that starting point defeats the
+            # purpose) -- without this, EVERY such decision would silently
+            # stop matching the moment the category gained real
+            # subcategories, not just Fish/Meat's own. Safe specifically
+            # because it's scoped to an exact (category, base_name) match --
+            # the row's own category hasn't changed, only whether it now
+            # carries a subcategory value -- unlike the base-name-only
+            # fallback, this doesn't need a global cross-category uniqueness
+            # check.
+            legacy_key = (category or "", "", effective_base_name or "")
+            legacy_decision = decisions_by_key.get(legacy_key)
+            if legacy_decision:
+                key, decision = legacy_key, legacy_decision
         if not decision:
             fallback = fallback_by_base_name.get(effective_base_name)
             if fallback:
@@ -5588,6 +5657,12 @@ def build(xlsx_path, db_path):
                 if name_override:
                     effective_category, base_name = name_override
                 effective_category = reclassify_bev_alcoholic_to_alcohol(effective_category, name)
+                # See meat_subcategory()'s own comment above for the full
+                # reasoning -- Fish merged into Meat/"Animal Protein" as a
+                # category, 2026-08-05.
+                came_from_fish = effective_category == "Fish"
+                if came_from_fish:
+                    effective_category = "Meat"
                 # Classify against the full name, not short_name -- for
                 # branded/composite products short_name is often truncated
                 # to something generic (e.g. "Beverages, OCEAN SPRAY"),
@@ -5603,7 +5678,8 @@ def build(xlsx_path, db_path):
                     base_name,
                     prep_method,
                     effective_category,
-                    bev_alcoholic_false_positive_subcategory(effective_category, name)
+                    meat_subcategory(effective_category, came_from_fish)
+                    or bev_alcoholic_false_positive_subcategory(effective_category, name)
                     or veg_processed_false_positive_subcategory(effective_category, base_name)
                     or classify_subcategory(effective_category, name),
                     get("category"),

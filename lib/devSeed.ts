@@ -87,7 +87,7 @@ export async function seedTestDay(): Promise<void> {
     isImmediate: false,
     ingredients: [
       ...side('dn_salmon', 'Baked salmon', 'Baked', [
-        { foodId: '4490|USDA', foodName: 'Fish, salmon', category: 'Fish', quantity: 150, unit: 'g' },
+        { foodId: '4490|USDA', foodName: 'Fish, salmon', category: 'Meat', quantity: 150, unit: 'g' },
         { foodId: '3902|USDA', foodName: 'Oil, olive', category: 'Fats', quantity: 5, unit: 'g' },
         { foodId: '1719|USDA', foodName: 'Garlic', category: 'Veg', quantity: 3, unit: 'g' },
       ]),

@@ -64,11 +64,11 @@
 // FoodLookup.tsx and build_food_reference_db.py's own CATEGORY_OVERRIDES
 // comment for what moved into it and why.
 export const SIDE_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
 ];
 
 export const SALAD_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae',
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Mushroom', 'Sprouts', 'Algae',
 ];
 
 export const SMOOTHIE_BUILDER_CATEGORIES = [
@@ -84,7 +84,7 @@ export const BEVERAGE_BUILDER_CATEGORIES = [
 ];
 
 export const SNACK_BUILDER_CATEGORIES = [
-  'Fruit', 'Veg', 'NutSeed', 'Grain', 'PastaNoodles', 'Dairy', 'Meat', 'Fish', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Mushroom',
+  'Fruit', 'Veg', 'NutSeed', 'Grain', 'PastaNoodles', 'Dairy', 'Meat', 'Legume', 'Sweets', 'Baked', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Mushroom',
 ];
 
 export const BAKED_GOODS_BUILDER_CATEGORIES = [
@@ -92,7 +92,7 @@ export const BAKED_GOODS_BUILDER_CATEGORIES = [
 ];
 
 export const SOUP_BUILDER_CATEGORIES = [
-  'Veg', 'Meat', 'Fish', 'Grain', 'PastaNoodles', 'Legume', 'Dairy', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
+  'Veg', 'Meat', 'Grain', 'PastaNoodles', 'Legume', 'Dairy', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Mushroom', 'NutSeed', 'Sprouts', 'Algae', 'Fruit', 'Alcohol',
 ];
 
 export const SAUCES_BUILDER_CATEGORIES = [
@@ -106,11 +106,12 @@ export const SAUCES_BUILDER_CATEGORIES = [
 // SIDE_BUILDER_CATEGORIES exactly rather than a narrower hand-picked
 // list: a sandwich/wrap/burger/taco can genuinely draw on almost any real
 // food category as an ingredient (Baked for bread/buns, Grain for
-// tortillas/rice paper, Meat/Fish/Legume/NutSeed for protein, Fats/Dairy/
+// tortillas/rice paper, Meat/Legume/NutSeed for protein (Fish merged into
+// Meat/"Animal Protein" 2026-08-05, see lib/db.ts's own comment), Fats/Dairy/
 // SaucesCondiments for spreads and condiments, Veg/Fruit/Mushroom/Sprouts/
 // Algae for toppings), the same "deliberately generous" reasoning this
 // whole file already documents at its own top. Alcohol/Bev/Brewing/
 // Sweets/SupplementPowder/CommercialPremade excluded, same as Side.
 export const HANDHELDS_BUILDER_CATEGORIES = [
-  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Fish', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
+  'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
 ];

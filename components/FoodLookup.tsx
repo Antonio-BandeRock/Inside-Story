@@ -103,6 +103,18 @@ const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   Fruit: 'Fruits',
   Grain: 'Grains',
   Herbs: 'Herbs & Seasonings',
+  // 2026-08-05, explicitly requested ("Rename the Legume Category to
+  // Legumes") -- this category previously had no entry here at all, so
+  // categoryLabel()'s own fallback (`?? category`) was showing the raw code
+  // "Legume" verbatim.
+  Legume: 'Legumes',
+  // 'Fish' merged into 'Meat' entirely, 2026-08-05, explicitly requested
+  // ("The Fish category belongs in the Animal Protein category, not out on
+  // its own.") -- see scripts/build_food_reference_db.py's own
+  // reclassify_category()/meat_subcategory() comments for the full
+  // mechanism. No display-label entry needed for 'Fish' any more (there was
+  // never one here to begin with -- it showed as the raw code "Fish" before
+  // this).
   Meat: 'Animal Protein',
   Mixed: 'Mixed Dishes',
   Mushroom: 'Mushrooms',
