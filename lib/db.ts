@@ -215,12 +215,22 @@ function toFoodOption(row: { food_id: number; source: string; name: string; shor
   };
 }
 
+// 'CommercialPremade' ("Commercial / Pre-Made") holds real reference rows
+// (branded/packaged/box-mix products) but per the person's own 2026-08-05
+// direction, the category itself shouldn't appear as a pickable option
+// anywhere in the app, not just be excluded from the Food-tab builders'
+// own allowlists (see foodBuilderCategories.ts) -- Insights' unrestricted
+// Food Lookup lens has no allowlist at all, so without this exclusion the
+// category would still show up there. The underlying rows stay in the
+// database untouched; this only hides the category from the picker.
+const CATEGORIES_HIDDEN_FROM_BROWSING = new Set(['CommercialPremade']);
+
 export async function getReferenceCategories() {
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<{ category: string }>(
     'SELECT DISTINCT category FROM foods ORDER BY category',
   );
-  return rows.map((row) => row.category);
+  return rows.map((row) => row.category).filter((category) => !CATEGORIES_HIDDEN_FROM_BROWSING.has(category));
 }
 
 // Reported directly by the user, 2026-08-02: manufactured/packaged
