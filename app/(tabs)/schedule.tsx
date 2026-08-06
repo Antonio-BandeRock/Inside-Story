@@ -7,6 +7,7 @@ import type { HelpSection } from '../../components/HelpButton';
 import {
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
+  createOtcTreatment,
   createPrescriptionTreatment,
   createSupplementTreatment,
   deleteScheduledMeal,
@@ -14,9 +15,13 @@ import {
   deleteTreatment,
   ensureScheduleSeriesGenerated,
   getDailyNutrientAnalysis,
+  getNutrientTiming,
+  getSupplementForms,
   getTreatmentNutrients,
   getUserProfile,
   linkAppointmentToDeviceCalendarEvent,
+  listAllActiveTreatments,
+  listCommonMedications,
   listFavorites,
   listMeals,
   listMealsForDate,
@@ -39,16 +44,20 @@ import {
   setTreatmentActive,
   unlinkAppointmentFromDeviceCalendarEvent,
   updateAppointment,
+  updateOtcTreatment,
   updateScheduledMeal,
   updatePrescriptionTreatment,
   updateSupplementTreatment,
+  type CommonMedication,
   type FavoriteRecord,
   type MealFavoritePayload,
   type MealIngredientInput,
   type MealRecord,
+  type NutrientTiming,
   type RepeatConfig,
   type RotationSelection,
   type ScheduleItemRecord,
+  type SupplementForm,
   type SupplementIngredientInput,
   type TrackedNutrient,
   type TreatmentNutrientRecord,
@@ -101,7 +110,7 @@ const USUAL_TIME_MEAL_TYPES = new Set(['breakfast', 'lunch', 'dinner', 'snack'])
 // soon" placeholders, the same pattern already used for the Trends/Reports
 // bottom tabs, rather than guessing at data models for domains that
 // haven't been designed yet.
-type Lens = 'meals' | 'hydration' | 'supplements' | 'prescriptions' | 'appointments' | 'exercise';
+type Lens = 'meals' | 'hydration' | 'myMeds' | 'supplements' | 'prescriptions' | 'appointments' | 'exercise';
 
 // A repeat picker exists on Meals, Supplements' own reminder times, and
 // Prescriptions -- shared across those three Info entries below rather
@@ -150,6 +159,29 @@ const LENSES: LensOption<Lens>[] = [
         body: 'A "Beverage" meal (water, tea, coffee, a smoothie -- see the Food tab) already is a hydration entry. This lens doesn\'t track anything separately -- it\'s the same schedule/meal data, just filtered to beverages and shown with a running water total, so logging or scheduling a drink from either tab shows up in both automatically.',
       },
       REPEATING_SCHEDULES_HELP,
+    ],
+  },
+  {
+    key: 'myMeds',
+    label: 'My Meds',
+    icon: 'flask-outline',
+    help: [
+      {
+        heading: 'One place for everything you take',
+        body: 'Prescriptions, over-the-counter drugs, and supplements, all in one registry -- pick a prescription or OTC item from a real, cited reference list where it exists, or enter it yourself when it doesn\'t. A supplement asks which nutrient(s) it contains and, for the ones this app has researched, which specific form (e.g. magnesium glycinate vs. oxide) -- the form genuinely changes how well it absorbs.',
+      },
+      {
+        heading: 'Real research, not just a name and a dose',
+        body: 'Once a nutrient and form are picked, this shows when to take it (empty stomach, with food, before bed), what to avoid taking it with, what pairs well with it, and, where this app has real data, how much you\'re already getting from food today -- so a supplement decision starts from what food is already covering, not a guess.',
+      },
+      {
+        heading: 'Interactions',
+        body: 'Reuses the same cited interaction-checking engine as Supplements and Prescriptions, extended for My Meds specifically -- e.g. potassium supplements with blood pressure medications, or metformin\'s real effect on TSH readings for anyone also on levothyroxine.',
+      },
+      {
+        heading: 'What this doesn\'t do yet',
+        body: 'Reminder times and repeat schedules for prescriptions and supplements still live on those two lenses, unchanged -- adding an item here does not yet also set up a reminder for it. Looking up a medication this app doesn\'t already have online is a planned future capability, not built yet -- for now, anything not in the list can still be tracked by entering it yourself.',
+      },
     ],
   },
   {
@@ -215,7 +247,7 @@ const LENSES: LensOption<Lens>[] = [
   },
 ];
 
-const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
+const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
 };
 
@@ -1494,6 +1526,745 @@ const SUPPLEMENT_UNIT_OPTIONS: DropdownOption[] = [
   { label: 'g', value: 'g' },
   { label: 'IU', value: 'IU' },
 ];
+
+// --- My Meds -----------------------------------------------------------
+//
+// A real, cited registry over the same underlying `treatments` table
+// Supplements and Prescriptions already use -- plus, as of 2026-08-08, a
+// third real treatment_type ('otc', see createOtcTreatment in lib/db.ts).
+// Direct request: "This is a place to document all prescription,
+// nonprescription over the counter drugs, and macro and micronutrients
+// regimen... exact ingredients of every supplement... true interaction
+// logic built in."
+//
+// Deliberate scope boundary, stated here and in this lens's own Info
+// content above: reminder times and repeat schedules for prescriptions and
+// supplements still live on those two lenses, unchanged -- adding an item
+// here doesn't also set up a dose reminder for it. Building a real,
+// working third parallel reminder system for OTC in the same pass as
+// everything else below would have meant either rushing it or blocking
+// everything on it; tracking on/off (which is what actually feeds
+// interaction checking and nutrient totals) works for all three types
+// today, reminders are a real, separate fast-follow.
+//
+// The "pick from a researched list, or enter it yourself" flow for
+// prescriptions/OTC (COMMON_MED_OPTIONS below) is intentionally NOT a live
+// internet lookup for medications this app doesn't already have -- that's
+// a real, separate product/architecture decision (which data source, what
+// it costs, what it means for this app's own local-first privacy stance)
+// that hasn't been made yet, not something to silently wire up. Manual
+// entry is the honest, working fallback today.
+type MyMedsCategory = 'supplement' | 'prescription' | 'otc';
+
+type MedIngredientRow = { key: string; nutrientCode: string; supplementForm: string; amount: string; unit: string };
+
+function blankMedIngredientRow(): MedIngredientRow {
+  return { key: `ingredient_${Date.now()}_${Math.random().toString(36).slice(2)}`, nutrientCode: '', supplementForm: '', amount: '', unit: 'mg' };
+}
+
+type MyMedsSupplementFormState = {
+  editingId: string | null;
+  name: string;
+  unitsPerDay: string;
+  servingUnitLabel: string;
+  notes: string;
+  ingredients: MedIngredientRow[];
+};
+
+function blankMyMedsSupplementForm(): MyMedsSupplementFormState {
+  return { editingId: null, name: '', unitsPerDay: '1', servingUnitLabel: '', notes: '', ingredients: [blankMedIngredientRow()] };
+}
+
+type MedFormState = {
+  editingId: string | null;
+  category: 'prescription' | 'otc';
+  commonMedId: string;
+  manualEntry: boolean;
+  name: string;
+  genericName: string;
+  doseAmount: string;
+  doseUnit: string;
+  frequency: string;
+  notes: string;
+};
+
+function blankMedForm(category: 'prescription' | 'otc'): MedFormState {
+  return {
+    editingId: null,
+    category,
+    commonMedId: '',
+    manualEntry: false,
+    name: '',
+    genericName: '',
+    doseAmount: '',
+    doseUnit: '',
+    frequency: '',
+    notes: '',
+  };
+}
+
+const EVIDENCE_TIER_LABEL: Record<string, string> = {
+  established: 'Established',
+  emerging: 'Emerging evidence',
+  strong: 'Strong evidence',
+  moderate: 'Moderate evidence',
+};
+
+function MyMedsLens() {
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [treatments, setTreatments] = useState<TreatmentRecord[]>([]);
+  const [ingredientsByTreatment, setIngredientsByTreatment] = useState<Record<string, TreatmentNutrientRecord[]>>({});
+  const [interactionWarnings, setInteractionWarnings] = useState<InteractionWarning[]>([]);
+  const [referenceOnlyRules, setReferenceOnlyRules] = useState<ReferenceOnlyRule[]>([]);
+  const [nutrients, setNutrients] = useState<TrackedNutrient[]>([]);
+  const [commonMedications, setCommonMedications] = useState<CommonMedication[]>([]);
+  const [foodEntries, setFoodEntries] = useState<NutrientGapEntry[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+  const [addMode, setAddMode] = useState<MyMedsCategory | null>(null);
+  const [supplementForm, setSupplementForm] = useState<MyMedsSupplementFormState>(blankMyMedsSupplementForm());
+  const [medForm, setMedForm] = useState<MedFormState>(blankMedForm('prescription'));
+  const [expandedId, setExpandedId] = useState<string | null>(null);
+
+  // Lazily loaded, cached by nutrient code -- there's no reason to fetch
+  // supplement_forms/nutrient_timing for every nutrient this app tracks up
+  // front when a person will only ever pick a handful.
+  const [formsByNutrient, setFormsByNutrient] = useState<Record<string, SupplementForm[]>>({});
+  const [timingByNutrient, setTimingByNutrient] = useState<Record<string, NutrientTiming | null>>({});
+
+  const load = useCallback(() => {
+    setLoading(true);
+    ensureScheduleSeriesGenerated()
+      .then(() =>
+        Promise.all([
+          listAllActiveTreatments(),
+          listTrackedNutrients(),
+          listCommonMedications(),
+          getDailyNutrientAnalysis(todayDateString()),
+          evaluateInteractionRules(todayDateString()),
+        ]),
+      )
+      .then(async ([loadedTreatments, loadedNutrients, loadedMeds, dailyAnalysis, evaluation]) => {
+        setTreatments(loadedTreatments);
+        setNutrients(loadedNutrients);
+        setCommonMedications(loadedMeds);
+        setFoodEntries(dailyAnalysis.entries);
+        setInteractionWarnings(evaluation.warnings);
+        setReferenceOnlyRules(evaluation.referenceOnly);
+        const supplementTreatments = loadedTreatments.filter((treatment) => treatment.treatmentType === 'supplement');
+        const entries = await Promise.all(
+          supplementTreatments.map(async (treatment) => [treatment.id, await getTreatmentNutrients(treatment.id)] as const),
+        );
+        setIngredientsByTreatment(Object.fromEntries(entries));
+      })
+      .catch((error) => {
+        setErrorMessage(`Could not load My Meds: ${error instanceof Error ? error.message : String(error)}`);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  // Notice this DOESN'T include activeOnly=false the way Supplements/
+  // Prescriptions do (those show every treatment ever added so re-enabling
+  // one doesn't mean re-entering it) -- My Meds is deliberately the
+  // "what am I taking right now" view; a paused/stopped item is still
+  // fully preserved in the database and still editable/re-enable-able from
+  // its own original Supplements/Prescriptions lens.
+
+  function nutrientDisplayName(code: string): string {
+    return nutrients.find((nutrient) => nutrient.code === code)?.displayName ?? code;
+  }
+
+  async function ensureNutrientDataLoaded(nutrientCode: string) {
+    if (!nutrientCode) return;
+    if (!(nutrientCode in formsByNutrient)) {
+      const forms = await getSupplementForms(nutrientCode);
+      setFormsByNutrient((current) => ({ ...current, [nutrientCode]: forms }));
+    }
+    if (!(nutrientCode in timingByNutrient)) {
+      const timing = await getNutrientTiming(nutrientCode);
+      setTimingByNutrient((current) => ({ ...current, [nutrientCode]: timing }));
+    }
+  }
+
+  function foodStatusFor(nutrientCode: string): NutrientGapEntry | null {
+    return foodEntries.find((entry) => entry.nutrientCode === nutrientCode) ?? null;
+  }
+
+  // --- Add flow: category picker ---
+  function openAddSupplement() {
+    setSupplementForm(blankMyMedsSupplementForm());
+    setAddMode('supplement');
+  }
+  function openAddMed(category: 'prescription' | 'otc') {
+    setMedForm(blankMedForm(category));
+    setAddMode(category);
+  }
+  function closeAddForm() {
+    setAddMode(null);
+    setSupplementForm(blankMyMedsSupplementForm());
+    setMedForm(blankMedForm('prescription'));
+  }
+
+  // --- Supplement ingredient rows ---
+  function addIngredientRow() {
+    setSupplementForm((current) => ({ ...current, ingredients: [...current.ingredients, blankMedIngredientRow()] }));
+  }
+  function removeIngredientRow(key: string) {
+    setSupplementForm((current) => ({ ...current, ingredients: current.ingredients.filter((row) => row.key !== key) }));
+  }
+  function updateIngredientRow(key: string, update: Partial<MedIngredientRow>) {
+    setSupplementForm((current) => ({
+      ...current,
+      ingredients: current.ingredients.map((row) => (row.key === key ? { ...row, ...update } : row)),
+    }));
+  }
+
+  async function handleSaveSupplement() {
+    if (!supplementForm.name.trim()) {
+      Alert.alert("Enter the supplement's name.");
+      return;
+    }
+    const unitsPerDay = Number(supplementForm.unitsPerDay);
+    if (!unitsPerDay || unitsPerDay <= 0) {
+      Alert.alert('Enter how many are taken per day (e.g. 1 or 2).');
+      return;
+    }
+    if (!supplementForm.servingUnitLabel.trim()) {
+      Alert.alert('Enter what one dose is called (e.g. capsule, tablet, scoop, powder).');
+      return;
+    }
+    const validIngredients = supplementForm.ingredients.filter((row) => row.nutrientCode && row.amount);
+    if (validIngredients.length === 0) {
+      Alert.alert('Add at least one ingredient with an amount.');
+      return;
+    }
+
+    const ingredients: SupplementIngredientInput[] = validIngredients.map((row) => ({
+      nutrientCode: row.nutrientCode,
+      supplementForm: row.supplementForm || undefined,
+      amountPerUnit: Number(row.amount),
+      unit: row.unit,
+    }));
+
+    try {
+      if (supplementForm.editingId) {
+        await updateSupplementTreatment(supplementForm.editingId, {
+          name: supplementForm.name,
+          unitsPerDay,
+          servingUnitLabel: supplementForm.servingUnitLabel,
+          ingredients,
+          notes: supplementForm.notes,
+        });
+      } else {
+        await createSupplementTreatment({
+          name: supplementForm.name,
+          unitsPerDay,
+          servingUnitLabel: supplementForm.servingUnitLabel,
+          ingredients,
+          notes: supplementForm.notes,
+        });
+      }
+      closeAddForm();
+      load();
+    } catch (error) {
+      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  // --- Prescription / OTC form ---
+  function selectCommonMed(med: CommonMedication) {
+    setMedForm((current) => ({
+      ...current,
+      commonMedId: med.id,
+      manualEntry: false,
+      name: med.genericName,
+      genericName: med.id,
+    }));
+  }
+
+  async function handleSaveMed() {
+    if (!medForm.name.trim()) {
+      Alert.alert('Enter a name for this medication.');
+      return;
+    }
+    const input = {
+      name: medForm.name,
+      genericName: medForm.genericName || undefined,
+      doseAmount: medForm.doseAmount ? Number(medForm.doseAmount) : undefined,
+      doseUnit: medForm.doseUnit || undefined,
+      frequency: medForm.frequency || undefined,
+      notes: medForm.notes || undefined,
+    };
+    try {
+      if (medForm.editingId) {
+        if (medForm.category === 'prescription') {
+          await updatePrescriptionTreatment(medForm.editingId, input);
+        } else {
+          await updateOtcTreatment(medForm.editingId, input);
+        }
+      } else if (medForm.category === 'prescription') {
+        await createPrescriptionTreatment(input);
+      } else {
+        await createOtcTreatment(input);
+      }
+      closeAddForm();
+      load();
+    } catch (error) {
+      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  function handleRemove(treatment: TreatmentRecord) {
+    Alert.alert('Remove this item?', `"${treatment.name}" will be permanently deleted from My Meds.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          await deleteTreatment(treatment.id);
+          load();
+        },
+      },
+    ]);
+  }
+
+  async function handleToggleActive(treatment: TreatmentRecord) {
+    await setTreatmentActive(treatment.id, !treatment.active);
+    load();
+  }
+
+  const nutrientOptions: DropdownOption[] = nutrients.map((nutrient) => ({ label: nutrient.displayName, value: nutrient.code }));
+  const commonMedOptionsForCategory: DropdownOption[] = commonMedications
+    .filter((med) => med.treatmentType === medForm.category)
+    .map((med) => ({ label: med.commonBrandNames ? `${med.genericName} (${med.commonBrandNames})` : med.genericName, value: med.id }));
+  const selectedCommonMed = commonMedications.find((med) => med.id === medForm.commonMedId) ?? null;
+
+  function renderNutrientResearchCard(nutrientCode: string, chosenForm: string) {
+    const forms = formsByNutrient[nutrientCode] ?? [];
+    const timing = timingByNutrient[nutrientCode];
+    const foodStatus = foodStatusFor(nutrientCode);
+    const formDetail = forms.find((form) => form.formName === chosenForm);
+
+    if (!nutrientCode) return null;
+
+    return (
+      <View style={styles.myMedsResearchCard}>
+        {formDetail ? (
+          <>
+            <Text style={styles.myMedsResearchLabel}>
+              {formDetail.formName} -- {EVIDENCE_TIER_LABEL[formDetail.evidenceStrength] ?? formDetail.evidenceStrength}
+            </Text>
+            <Text style={styles.helperText}>{formDetail.absorptionNote}</Text>
+            {formDetail.giToleranceNote ? <Text style={styles.helperText}>{formDetail.giToleranceNote}</Text> : null}
+            {formDetail.notes ? <Text style={styles.helperText}>{formDetail.notes}</Text> : null}
+          </>
+        ) : null}
+        {timing ? (
+          <>
+            <Text style={styles.myMedsResearchLabel}>When to take it</Text>
+            <Text style={styles.helperText}>{timing.bestTaken}</Text>
+            {timing.avoidWith ? <Text style={styles.helperText}>Avoid taking with: {timing.avoidWith}</Text> : null}
+            {timing.pairsWellWith ? <Text style={styles.helperText}>Pairs well with: {timing.pairsWellWith}</Text> : null}
+          </>
+        ) : null}
+        <Text style={styles.myMedsResearchLabel}>From food today</Text>
+        {foodStatus ? (
+          <Text style={styles.helperText}>
+            You&apos;re already getting about {Math.round(foodStatus.percentOfTarget)}% of today&apos;s {foodStatus.displayName} target
+            from food ({Math.round(foodStatus.fromFood)}{foodStatus.unit}).
+          </Text>
+        ) : (
+          <Text style={styles.helperText}>This app doesn&apos;t track {nutrientDisplayName(nutrientCode)} content in food yet.</Text>
+        )}
+      </View>
+    );
+  }
+
+  function renderTreatmentGroup(title: string, groupTreatments: TreatmentRecord[]) {
+    if (groupTreatments.length === 0) return null;
+    return (
+      <View style={styles.myMedsGroup}>
+        <Text style={styles.doseSectionLabel}>{title}</Text>
+        {groupTreatments.map((treatment) => {
+          const isExpanded = expandedId === treatment.id;
+          const ingredients = ingredientsByTreatment[treatment.id] ?? [];
+          const matchedMed = treatment.genericName ? commonMedications.find((med) => med.id === treatment.genericName) : null;
+
+          return (
+            <View key={treatment.id} style={styles.row}>
+              <TouchableOpacity style={styles.rowTextCol} onPress={() => setExpandedId(isExpanded ? null : treatment.id)}>
+                <Text style={styles.rowTitle}>{treatment.name}</Text>
+                <Text style={styles.rowMeta}>
+                  {treatment.treatmentType === 'supplement'
+                    ? `${treatment.unitsPerDay} ${treatment.servingUnitLabel}${Number(treatment.unitsPerDay) === 1 ? '' : 's'}/day`
+                    : [treatment.doseAmount ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : null, treatment.frequency]
+                        .filter(Boolean)
+                        .join(', ') || 'No dose details entered'}
+                  {treatment.active ? '' : ' -- Not tracking'}
+                </Text>
+                {ingredients.length > 0 ? (
+                  <Text style={styles.rowMeta}>
+                    {ingredients
+                      .map(
+                        (ingredient) =>
+                          `${nutrientDisplayName(ingredient.nutrientCode)}${ingredient.supplementForm ? ` (${ingredient.supplementForm})` : ''}`,
+                      )
+                      .join(', ')}
+                  </Text>
+                ) : null}
+              </TouchableOpacity>
+
+              <View style={styles.supplementRowActions}>
+                <TouchableOpacity onPress={() => handleToggleActive(treatment)}>
+                  <Text style={treatment.active ? styles.actionTextPrimary : styles.actionText}>
+                    {treatment.active ? 'Tracking' : 'Not tracking'}
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setExpandedId(isExpanded ? null : treatment.id)}>
+                  <Text style={styles.actionText}>{isExpanded ? 'Hide details' : 'Details'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handleRemove(treatment)}>
+                  <Text style={styles.actionTextRemove}>Remove</Text>
+                </TouchableOpacity>
+              </View>
+
+              {isExpanded ? (
+                <View style={styles.myMedsDetail}>
+                  {treatment.treatmentType === 'supplement'
+                    ? ingredients.map((ingredient) => (
+                        <View key={ingredient.id}>
+                          <Text style={styles.myMedsResearchLabel}>
+                            {nutrientDisplayName(ingredient.nutrientCode)} -- {ingredient.amountPerUnit}
+                            {ingredient.unit}/dose
+                          </Text>
+                          {renderNutrientResearchCard(ingredient.nutrientCode, ingredient.supplementForm ?? '')}
+                        </View>
+                      ))
+                    : matchedMed ? (
+                        <>
+                          <Text style={styles.myMedsResearchLabel}>{matchedMed.drugClass}</Text>
+                          <Text style={styles.helperText}>{matchedMed.commonUse}</Text>
+                          {matchedMed.thyroidRelevantNotes ? (
+                            <Text style={styles.helperText}>{matchedMed.thyroidRelevantNotes}</Text>
+                          ) : null}
+                          {matchedMed.timingGuidance ? (
+                            <>
+                              <Text style={styles.myMedsResearchLabel}>Timing</Text>
+                              <Text style={styles.helperText}>{matchedMed.timingGuidance}</Text>
+                            </>
+                          ) : null}
+                          {matchedMed.keyInteractions ? (
+                            <>
+                              <Text style={styles.myMedsResearchLabel}>Key interactions</Text>
+                              <Text style={styles.helperText}>{matchedMed.keyInteractions}</Text>
+                            </>
+                          ) : null}
+                          {matchedMed.commonSideEffects ? (
+                            <>
+                              <Text style={styles.myMedsResearchLabel}>Common side effects</Text>
+                              <Text style={styles.helperText}>{matchedMed.commonSideEffects}</Text>
+                            </>
+                          ) : null}
+                        </>
+                      ) : (
+                        <Text style={styles.helperText}>
+                          Not matched to this app&apos;s researched medication list -- entered manually.
+                        </Text>
+                      )}
+                </View>
+              ) : null}
+            </View>
+          );
+        })}
+      </View>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {loading ? (
+        <Text style={styles.emptyText}>Loading…</Text>
+      ) : errorMessage ? (
+        <Text style={styles.errorText}>{errorMessage}</Text>
+      ) : (
+        <>
+          {addMode === null ? (
+            <View style={styles.myMedsAddRow}>
+              <TouchableOpacity style={styles.addButton} onPress={() => openAddMed('prescription')}>
+                <Text style={styles.addButtonText}>+ Prescription</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.addButton} onPress={() => openAddMed('otc')}>
+                <Text style={styles.addButtonText}>+ OTC drug</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.addButton} onPress={openAddSupplement}>
+                <Text style={styles.addButtonText}>+ Supplement</Text>
+              </TouchableOpacity>
+            </View>
+          ) : addMode === 'supplement' ? (
+            <View style={styles.formCard}>
+              <Text style={styles.label}>Name</Text>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. Daily Multivitamin, or just Magnesium"
+                value={supplementForm.name}
+                onChangeText={(text) => setSupplementForm((current) => ({ ...current, name: text }))}
+              />
+
+              <Text style={styles.label}>Dose</Text>
+              <View style={styles.timeRow}>
+                <AppTextInput
+                  style={[styles.input, styles.timeInput]}
+                  keyboardType="number-pad"
+                  value={supplementForm.unitsPerDay}
+                  onChangeText={(text) => setSupplementForm((current) => ({ ...current, unitsPerDay: text }))}
+                />
+                <AppTextInput
+                  style={[styles.input, styles.doseUnitInput]}
+                  placeholder="capsule, tablet, scoop, powder…"
+                  value={supplementForm.servingUnitLabel}
+                  onChangeText={(text) => setSupplementForm((current) => ({ ...current, servingUnitLabel: text }))}
+                />
+                <Text style={styles.timeSeparator}>/ day</Text>
+              </View>
+
+              <Text style={styles.label}>Ingredients (per single dose)</Text>
+              {supplementForm.ingredients.map((row) => {
+                const forms = formsByNutrient[row.nutrientCode] ?? [];
+                const formOptions: DropdownOption[] = forms.map((form) => ({ label: form.formName, value: form.formName }));
+                return (
+                  <View key={row.key}>
+                    <View style={styles.ingredientRow}>
+                      <View style={styles.ingredientNutrientCol}>
+                        <Dropdown
+                          value={row.nutrientCode}
+                          options={nutrientOptions}
+                          onChange={(value) => {
+                            updateIngredientRow(row.key, { nutrientCode: value, supplementForm: '' });
+                            ensureNutrientDataLoaded(value);
+                          }}
+                          placeholder="Nutrient"
+                          searchable
+                          searchPlaceholder="Search nutrients…"
+                        />
+                      </View>
+                      <AppTextInput
+                        style={[styles.input, styles.ingredientAmountInput]}
+                        placeholder="Amount"
+                        keyboardType="decimal-pad"
+                        value={row.amount}
+                        onChangeText={(text) => updateIngredientRow(row.key, { amount: text })}
+                      />
+                      <View style={styles.ingredientUnitCol}>
+                        <Dropdown
+                          value={row.unit}
+                          options={SUPPLEMENT_UNIT_OPTIONS}
+                          onChange={(value) => updateIngredientRow(row.key, { unit: value })}
+                          compact
+                        />
+                      </View>
+                      <TouchableOpacity onPress={() => removeIngredientRow(row.key)} style={styles.ingredientRemove}>
+                        <Text style={styles.actionTextRemove}>✕</Text>
+                      </TouchableOpacity>
+                    </View>
+                    {row.nutrientCode && formOptions.length > 0 ? (
+                      <View style={styles.ingredientFormRow}>
+                        <Dropdown
+                          value={row.supplementForm}
+                          options={formOptions}
+                          onChange={(value) => updateIngredientRow(row.key, { supplementForm: value })}
+                          placeholder="Which form? (optional, but changes absorption)"
+                        />
+                      </View>
+                    ) : null}
+                    {row.nutrientCode ? renderNutrientResearchCard(row.nutrientCode, row.supplementForm) : null}
+                  </View>
+                );
+              })}
+              <TouchableOpacity onPress={addIngredientRow} style={styles.secondaryButton}>
+                <Text style={styles.secondaryButtonText}>+ Add ingredient</Text>
+              </TouchableOpacity>
+
+              <Text style={styles.label}>Notes (optional)</Text>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. take with food"
+                value={supplementForm.notes}
+                onChangeText={(text) => setSupplementForm((current) => ({ ...current, notes: text }))}
+              />
+
+              <View style={styles.formActions}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={closeAddForm}>
+                  <Text style={styles.secondaryButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.primaryButton} onPress={handleSaveSupplement}>
+                  <Text style={styles.primaryButtonText}>Add supplement</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.formCard}>
+              <Text style={styles.label}>{medForm.category === 'prescription' ? 'Prescription' : 'OTC drug'}</Text>
+
+              {!medForm.manualEntry ? (
+                <>
+                  <Dropdown
+                    value={medForm.commonMedId}
+                    options={commonMedOptionsForCategory}
+                    onChange={(value) => {
+                      const med = commonMedications.find((candidate) => candidate.id === value);
+                      if (med) selectCommonMed(med);
+                    }}
+                    placeholder="Search this app's researched list…"
+                    searchable
+                    searchPlaceholder="e.g. levothyroxine, metformin, ibuprofen…"
+                  />
+                  <TouchableOpacity onPress={() => setMedForm((current) => ({ ...current, manualEntry: true }))}>
+                    <Text style={styles.actionTextPrimary}>Not in the list? Enter it myself</Text>
+                  </TouchableOpacity>
+                </>
+              ) : (
+                <TouchableOpacity onPress={() => setMedForm((current) => ({ ...current, manualEntry: false, commonMedId: '' }))}>
+                  <Text style={styles.actionTextPrimary}>Search the researched list instead</Text>
+                </TouchableOpacity>
+              )}
+
+              {selectedCommonMed ? (
+                <View style={styles.myMedsResearchCard}>
+                  <Text style={styles.myMedsResearchLabel}>
+                    {selectedCommonMed.drugClass} -- {EVIDENCE_TIER_LABEL[selectedCommonMed.evidenceStrength] ?? selectedCommonMed.evidenceStrength}
+                  </Text>
+                  <Text style={styles.helperText}>{selectedCommonMed.commonUse}</Text>
+                  {selectedCommonMed.thyroidRelevantNotes ? (
+                    <Text style={styles.helperText}>{selectedCommonMed.thyroidRelevantNotes}</Text>
+                  ) : null}
+                  {selectedCommonMed.timingGuidance ? (
+                    <Text style={styles.helperText}>Timing: {selectedCommonMed.timingGuidance}</Text>
+                  ) : null}
+                  {selectedCommonMed.keyInteractions ? (
+                    <Text style={styles.helperText}>Key interactions: {selectedCommonMed.keyInteractions}</Text>
+                  ) : null}
+                </View>
+              ) : medForm.manualEntry ? (
+                <Text style={styles.helperText}>
+                  Not in this app&apos;s researched list yet -- you can still track it with the details you know. Looking this up
+                  online automatically is a planned future capability, not built yet.
+                </Text>
+              ) : null}
+
+              <Text style={styles.label}>Name</Text>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. Synthroid 75mcg"
+                value={medForm.name}
+                onChangeText={(text) => setMedForm((current) => ({ ...current, name: text }))}
+              />
+
+              {medForm.manualEntry ? (
+                <>
+                  <Text style={styles.label}>Generic name (optional, helps interaction checking)</Text>
+                  <AppTextInput
+                    style={styles.input}
+                    placeholder="e.g. levothyroxine"
+                    value={medForm.genericName}
+                    onChangeText={(text) => setMedForm((current) => ({ ...current, genericName: text }))}
+                  />
+                </>
+              ) : null}
+
+              <Text style={styles.label}>Dose</Text>
+              <View style={styles.timeRow}>
+                <AppTextInput
+                  style={[styles.input, styles.timeInput]}
+                  placeholder="75"
+                  keyboardType="decimal-pad"
+                  value={medForm.doseAmount}
+                  onChangeText={(text) => setMedForm((current) => ({ ...current, doseAmount: text }))}
+                />
+                <AppTextInput
+                  style={[styles.input, styles.doseUnitInput]}
+                  placeholder="mcg, mg…"
+                  value={medForm.doseUnit}
+                  onChangeText={(text) => setMedForm((current) => ({ ...current, doseUnit: text }))}
+                />
+              </View>
+
+              <Text style={styles.label}>Frequency (optional)</Text>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. once daily"
+                value={medForm.frequency}
+                onChangeText={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
+              />
+
+              <Text style={styles.label}>Notes (optional)</Text>
+              <AppTextInput
+                style={styles.input}
+                placeholder="e.g. prescribed by Dr. …"
+                value={medForm.notes}
+                onChangeText={(text) => setMedForm((current) => ({ ...current, notes: text }))}
+              />
+
+              <View style={styles.formActions}>
+                <TouchableOpacity style={styles.secondaryButton} onPress={closeAddForm}>
+                  <Text style={styles.secondaryButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.primaryButton} onPress={handleSaveMed}>
+                  <Text style={styles.primaryButtonText}>{medForm.category === 'prescription' ? 'Add prescription' : 'Add OTC drug'}</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          )}
+
+          {interactionWarnings.length > 0 ? (
+            <View style={styles.interactionSection}>
+              <Text style={styles.interactionSectionLabel}>Things to check</Text>
+              {interactionWarnings.map((warning, index) => (
+                <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
+                  <Text style={styles.interactionTitle}>{warning.title}</Text>
+                  <Text style={styles.interactionMessage}>{warning.message}</Text>
+                  {warning.confidence === 'unverified' ? (
+                    <Text style={styles.interactionMeta}>Not checked precisely -- add dose times to verify.</Text>
+                  ) : null}
+                  <Text style={styles.interactionCitation}>{warning.citation}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          {referenceOnlyRules.length > 0 ? (
+            <View style={styles.interactionSection}>
+              <Text style={styles.interactionSectionLabel}>Worth knowing (reference only -- not personalized)</Text>
+              {referenceOnlyRules.map((rule) => (
+                <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
+                  <Text style={styles.interactionTitle}>{rule.title}</Text>
+                  <Text style={styles.interactionMessage}>{rule.guidance}</Text>
+                  <Text style={styles.interactionCitation}>{rule.citation}</Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
+
+          {treatments.length === 0 ? (
+            <Text style={styles.emptyText}>Nothing tracked yet -- add a prescription, OTC drug, or supplement above.</Text>
+          ) : (
+            <>
+              {renderTreatmentGroup('Prescriptions', treatments.filter((treatment) => treatment.treatmentType === 'prescription'))}
+              {renderTreatmentGroup('OTC drugs', treatments.filter((treatment) => treatment.treatmentType === 'otc'))}
+              {renderTreatmentGroup('Supplements', treatments.filter((treatment) => treatment.treatmentType === 'supplement'))}
+            </>
+          )}
+        </>
+      )}
+    </ScrollView>
+  );
+}
 
 // The Supplements lens -- a list of every supplement ever added (active or
 // not, so turning one back on later doesn't mean re-entering its whole
@@ -2994,7 +3765,7 @@ function AppointmentsLens() {
 // A short, honest placeholder for the remaining schedule type not built
 // yet -- same "coming soon" pattern already used for the Trends/Reports
 // bottom tabs, one level deeper inside Schedule.
-function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'> }) {
+function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'> }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
@@ -3030,6 +3801,8 @@ export default function ScheduleScreen() {
             <MealsLens />
           ) : lens === 'hydration' ? (
             <HydrationLens />
+          ) : lens === 'myMeds' ? (
+            <MyMedsLens />
           ) : lens === 'supplements' ? (
             <SupplementsLens />
           ) : lens === 'prescriptions' ? (
@@ -3176,6 +3949,34 @@ const styles = StyleSheet.create({
   ingredientAmountInput: { flex: 1, minWidth: 64 },
   ingredientUnitCol: { minWidth: 76 },
   ingredientRemove: { paddingHorizontal: 6, paddingVertical: 6 },
+  // Same "which form?" picker sits directly under its own ingredient row --
+  // full-width on its own line rather than squeezed into the row (a form
+  // name like "Myo-inositol + D-chiro-inositol (40:1 blend)" needs real
+  // room), 2026-08-08 for My Meds.
+  ingredientFormRow: { marginBottom: 4 },
+  myMedsAddRow: { flexDirection: 'row', gap: 8, marginBottom: 16, flexWrap: 'wrap' },
+  myMedsGroup: { marginBottom: 16 },
+  // The researched-content card shown once a nutrient/form (or a matched
+  // common medication) is picked -- deliberately a lighter, dashed-border
+  // look, distinct from formCard/interactionCard's own solid TAB_COLOR
+  // border, so it reads as "supporting information," not another thing to
+  // fill in or another warning to act on.
+  myMedsResearchCard: {
+    backgroundColor: colors.surfaceMuted,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderStyle: 'dashed',
+    borderColor: TAB_COLOR,
+    padding: 10,
+    marginBottom: 10,
+  },
+  myMedsResearchLabel: { ...typography.captionEmphasis, color: TAB_COLOR, marginTop: 4 },
+  myMedsDetail: {
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
   formActions: { flexDirection: 'row', justifyContent: 'flex-end', gap: 12, marginTop: 16 },
   secondaryButton: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 8, borderWidth: 1, borderColor: colors.border },
   secondaryButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },

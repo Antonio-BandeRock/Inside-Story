@@ -2,6 +2,7 @@ import {
   getDailyNutrientBreakdown,
   getTreatmentNutrients,
   listInteractionRules,
+  listOtcTreatments,
   listPrescriptionTreatments,
   listScheduledPrescriptionsForDate,
   listScheduledSupplementsForDate,
@@ -62,11 +63,19 @@ function timeToHours(hhmm: string): number {
 }
 
 // A rule's subject is either a nutrient (matched against a supplement's
-// documented ingredients by nutrient_code) or a prescription (matched
-// against a prescription treatment's own name, case-insensitively -- a
-// prescription has no structured ingredient list the way a supplement
-// does, so free-text name matching is the only option, e.g. subject
-// 'levothyroxine' matching a treatment named "Levothyroxine 75mcg").
+// documented ingredients by nutrient_code) or a prescription/OTC treatment.
+// Updated 2026-08-08 for My Meds: prefers an exact match against the
+// treatment's own structured genericName when one is set (reliable
+// regardless of what the person actually named the item, e.g. "Metformin
+// 500mg" or "my diabetes pill" both have genericName 'metformin'), and
+// only falls back to the original free-text substring match against
+// `name` for treatments that predate genericName or were never given one --
+// the same graceful-degradation shape this app already uses elsewhere
+// rather than a breaking change to matching that's worked until now.
+// `prescriptionTreatments` here is deliberately still named for
+// prescriptions only in the type below, but as of My Meds also receives
+// OTC treatments from the caller, since both are matched identically by
+// this same function -- see evaluateInteractionRules' own subjectContext.
 function activeTreatmentsForSubject(
   kind: string,
   subject: string,
@@ -83,7 +92,9 @@ function activeTreatmentsForSubject(
   }
   if (kind === 'prescription') {
     const needle = subject.toLowerCase();
-    return context.prescriptionTreatments.filter((treatment) => treatment.name.toLowerCase().includes(needle));
+    return context.prescriptionTreatments.filter((treatment) =>
+      treatment.genericName ? treatment.genericName.toLowerCase() === needle : treatment.name.toLowerCase().includes(needle),
+    );
   }
   return [];
 }
@@ -96,11 +107,12 @@ function activeTreatmentsForSubject(
 // timing_separation pair) ever produce a warning -- consistent with the
 // rest of the app not nagging about hypothetical, inapplicable situations.
 export async function evaluateInteractionRules(date: string): Promise<InteractionEvaluation> {
-  const [rules, activeSupplements, activePrescriptions, scheduledSupplementDoses, scheduledPrescriptionDoses, breakdown, upcomingAppointments] =
+  const [rules, activeSupplements, activePrescriptions, activeOtc, scheduledSupplementDoses, scheduledPrescriptionDoses, breakdown, upcomingAppointments] =
     await Promise.all([
       listInteractionRules(),
       listSupplementTreatments(true),
       listPrescriptionTreatments(true),
+      listOtcTreatments(true),
       listScheduledSupplementsForDate(date),
       listScheduledPrescriptionsForDate(date),
       getDailyNutrientBreakdown(date),
@@ -123,7 +135,15 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
   const subjectContext = {
     supplementTreatments: activeSupplements,
     ingredientsByTreatment,
-    prescriptionTreatments: activePrescriptions,
+    // OTC treatments merged in alongside prescriptions, 2026-08-08 for My
+    // Meds -- a rule's own subject_a_kind='prescription' is really "matched
+    // by generic name/free-text name against a single-substance treatment,"
+    // which is exactly as true of an OTC item (e.g. omeprazole) as a real
+    // prescription. Not renamed to something more generic (e.g.
+    // 'medication') to avoid touching every existing rule row's own
+    // subject_a_kind value in the reference database for a naming-only
+    // change.
+    prescriptionTreatments: [...activePrescriptions, ...activeOtc],
   };
 
   const warnings: InteractionWarning[] = [];
@@ -233,6 +253,32 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
           confidence: 'confirmed',
         });
       }
+      continue;
+    }
+
+    // Added 2026-08-08 for My Meds -- a real new rule shape, not just a new
+    // row in an existing one. Unlike timing_separation, this doesn't care
+    // about dose TIMES at all (e.g. metformin measurably lowering TSH
+    // isn't fixed by spacing the two doses apart -- it's a real,
+    // persistent pharmacological effect for as long as both are active).
+    // Fires once, at 'note' or 'caution' severity as the rule itself
+    // specifies, whenever both named subjects are simultaneously active,
+    // with no scheduled-dose-time dependency the way timing_separation
+    // has.
+    if (rule.ruleType === 'concurrent_use_caution' && rule.subjectBKind && rule.subjectB) {
+      const treatmentsA = activeTreatmentsForSubject(rule.subjectAKind, rule.subjectA, subjectContext);
+      const treatmentsB = activeTreatmentsForSubject(rule.subjectBKind, rule.subjectB, subjectContext);
+      if (treatmentsA.length === 0 || treatmentsB.length === 0) {
+        continue;
+      }
+      warnings.push({
+        ruleId: rule.id,
+        severity: rule.severity,
+        title: rule.title,
+        message: rule.guidance,
+        citation: rule.citation,
+        confidence: 'confirmed',
+      });
     }
   }
 

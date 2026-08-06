@@ -1195,6 +1195,141 @@ export async function getSupplementForms(nutrientCode: string) {
   );
 }
 
+// When to take a given nutrient, what to avoid taking it with, and what
+// pairs well with it -- added for My Meds, 2026-08-08. A separate table
+// from supplement_forms (which answers "which chemical form"): this
+// answers "when, and alongside what" -- a different question with its own
+// citations, not a duplicate. See scripts/add_my_meds_reference_data.py
+// for the real research behind every row.
+export type NutrientTiming = {
+  nutrientCode: string;
+  solubility: string;
+  bestTaken: string;
+  avoidWith: string | null;
+  pairsWellWith: string | null;
+  citation: string | null;
+  notes: string | null;
+};
+
+export async function getNutrientTiming(nutrientCode: string): Promise<NutrientTiming | null> {
+  const db = await getReferenceDatabase();
+  const row = await db.getFirstAsync<{
+    nutrient_code: string;
+    solubility: string;
+    best_taken: string;
+    avoid_with: string | null;
+    pairs_well_with: string | null;
+    citation: string | null;
+    notes: string | null;
+  }>(
+    `
+      SELECT nutrient_code, solubility, best_taken, avoid_with, pairs_well_with, citation, notes
+      FROM nutrient_timing
+      WHERE nutrient_code = ?
+    `,
+    nutrientCode,
+  );
+  if (!row) return null;
+  return {
+    nutrientCode: row.nutrient_code,
+    solubility: row.solubility,
+    bestTaken: row.best_taken,
+    avoidWith: row.avoid_with,
+    pairsWellWith: row.pairs_well_with,
+    citation: row.citation,
+    notes: row.notes,
+  };
+}
+
+// A real, deliberately bounded starting set of common medications -- see
+// scripts/add_my_meds_reference_data.py's own header comment for exactly
+// what's covered and why this is Phase 1 of an ongoing research project,
+// not a claim of covering "every commonly prescribed medication." Powers
+// My Meds' own "search before you type it in by hand" flow for
+// prescriptions/OTC, the same "pick from a researched list, fall back to
+// manual entry" shape this app already uses for the Food reference
+// database.
+export type CommonMedication = {
+  id: string;
+  genericName: string;
+  commonBrandNames: string | null;
+  drugClass: string;
+  treatmentType: 'prescription' | 'otc';
+  commonUse: string;
+  thyroidRelevantNotes: string | null;
+  timingGuidance: string | null;
+  keyInteractions: string | null;
+  commonSideEffects: string | null;
+  evidenceStrength: string;
+  citation: string | null;
+  notes: string | null;
+};
+
+function mapCommonMedicationRow(row: {
+  id: string;
+  generic_name: string;
+  common_brand_names: string | null;
+  drug_class: string;
+  treatment_type: string;
+  common_use: string;
+  thyroid_relevant_notes: string | null;
+  timing_guidance: string | null;
+  key_interactions: string | null;
+  common_side_effects: string | null;
+  evidence_strength: string;
+  citation: string | null;
+  notes: string | null;
+}): CommonMedication {
+  return {
+    id: row.id,
+    genericName: row.generic_name,
+    commonBrandNames: row.common_brand_names,
+    drugClass: row.drug_class,
+    treatmentType: row.treatment_type as CommonMedication['treatmentType'],
+    commonUse: row.common_use,
+    thyroidRelevantNotes: row.thyroid_relevant_notes,
+    timingGuidance: row.timing_guidance,
+    keyInteractions: row.key_interactions,
+    commonSideEffects: row.common_side_effects,
+    evidenceStrength: row.evidence_strength,
+    citation: row.citation,
+    notes: row.notes,
+  };
+}
+
+const COMMON_MEDICATION_COLUMNS =
+  'id, generic_name, common_brand_names, drug_class, treatment_type, common_use, thyroid_relevant_notes, timing_guidance, key_interactions, common_side_effects, evidence_strength, citation, notes';
+
+export async function listCommonMedications(): Promise<CommonMedication[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<Parameters<typeof mapCommonMedicationRow>[0]>(
+    `SELECT ${COMMON_MEDICATION_COLUMNS} FROM common_medications ORDER BY generic_name`,
+  );
+  return rows.map(mapCommonMedicationRow);
+}
+
+// Matches against generic_name OR common_brand_names, so searching "Advil"
+// finds ibuprofen just as well as searching "ibuprofen" itself -- the
+// common real-world case, since most people know a medication by its
+// brand name first.
+export async function searchCommonMedications(query: string): Promise<CommonMedication[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const db = await getReferenceDatabase();
+  const needle = `%${trimmed}%`;
+  const rows = await db.getAllAsync<Parameters<typeof mapCommonMedicationRow>[0]>(
+    `
+      SELECT ${COMMON_MEDICATION_COLUMNS}
+      FROM common_medications
+      WHERE generic_name LIKE ? COLLATE NOCASE OR common_brand_names LIKE ? COLLATE NOCASE
+      ORDER BY generic_name
+    `,
+    needle,
+    needle,
+  );
+  return rows.map(mapCommonMedicationRow);
+}
+
 export type BodySystem = {
   code: string;
   displayName: string;
@@ -2110,6 +2245,23 @@ export async function initializeDatabase() {
 
     if (!hasServingUnitLabelColumn) {
       await db.execAsync('ALTER TABLE treatments ADD COLUMN serving_unit_label TEXT;');
+    }
+
+    // Added for My Meds, 2026-08-08 -- a structured, canonical identity for
+    // a prescription or OTC treatment, separate from the free-text `name`
+    // the person actually typed (e.g. name might be "Synthroid 75mcg
+    // morning" while genericName is "levothyroxine"). This is what lets
+    // interaction checking and the common_medications reference lookup
+    // match reliably instead of depending on a substring of whatever the
+    // person happened to type -- see lib/interactionRules.ts's own updated
+    // activeTreatmentsForSubject. Nullable and never backfilled for
+    // existing rows -- a treatment created before this column existed
+    // simply has no generic name until edited, same as every other
+    // additive column in this migration block.
+    const hasGenericNameColumn = treatmentColumns.some((column) => column.name === 'generic_name');
+
+    if (!hasGenericNameColumn) {
+      await db.execAsync('ALTER TABLE treatments ADD COLUMN generic_name TEXT;');
     }
 
     const userProfileColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(user_profile)');
@@ -7321,6 +7473,14 @@ export type TreatmentRecord = {
   id: string;
   treatmentType: string;
   name: string;
+  // Structured, canonical identity for a prescription/OTC item -- e.g.
+  // name might be "Synthroid 75mcg morning" while genericName is
+  // "levothyroxine". Null for supplements (their real identity is their
+  // per-ingredient nutrient_code rows, not a single generic name) and for
+  // any prescription/OTC treatment created before this field existed or
+  // left blank on purpose. See My Meds (2026-08-08) and
+  // lib/interactionRules.ts's own genericName-aware matching.
+  genericName: string | null;
   doseAmount: number | null;
   doseUnit: string | null;
   frequency: string | null;
@@ -7409,6 +7569,7 @@ export async function listSupplementTreatments(activeOnly = true): Promise<Treat
     id: string;
     treatment_type: string;
     name: string;
+    generic_name: string | null;
     dose_amount: number | null;
     dose_unit: string | null;
     frequency: string | null;
@@ -7418,7 +7579,7 @@ export async function listSupplementTreatments(activeOnly = true): Promise<Treat
     notes: string | null;
   }>(
     `
-      SELECT id, treatment_type, name, dose_amount, dose_unit, frequency, units_per_day, serving_unit_label, active, notes
+      SELECT id, treatment_type, name, generic_name, dose_amount, dose_unit, frequency, units_per_day, serving_unit_label, active, notes
       FROM treatments
       WHERE treatment_type = 'supplement' ${activeOnly ? 'AND active = 1' : ''}
       ORDER BY name
@@ -7429,6 +7590,7 @@ export async function listSupplementTreatments(activeOnly = true): Promise<Treat
     id: row.id,
     treatmentType: row.treatment_type,
     name: row.name,
+    genericName: row.generic_name,
     doseAmount: row.dose_amount,
     doseUnit: row.dose_unit,
     frequency: row.frequency,
@@ -7543,9 +7705,14 @@ export async function deleteTreatment(treatmentId: string) {
 // instead of units_per_day/serving_unit_label/treatment_nutrients -- a
 // prescription is a genuinely single-substance product (see TreatmentRecord),
 // so it has no per-ingredient breakdown to document the way a multivitamin
-// supplement does.
+// supplement does. genericName added 2026-08-08 for My Meds -- optional,
+// since a person can still just type a name the way this always worked,
+// but filling it in (directly, or by picking a common_medications entry,
+// see searchCommonMedications) is what lets interaction checking match
+// reliably instead of depending on a name substring.
 export async function createPrescriptionTreatment(input: {
   name: string;
+  genericName?: string;
   doseAmount?: number;
   doseUnit?: string;
   frequency?: string;
@@ -7558,11 +7725,12 @@ export async function createPrescriptionTreatment(input: {
   await db.runAsync(
     `
       INSERT INTO treatments
-        (id, treatment_type, name, dose_amount, dose_unit, frequency, active, notes, created_at, updated_at)
-      VALUES (?, 'prescription', ?, ?, ?, ?, 1, ?, ?, ?)
+        (id, treatment_type, name, generic_name, dose_amount, dose_unit, frequency, active, notes, created_at, updated_at)
+      VALUES (?, 'prescription', ?, ?, ?, ?, ?, 1, ?, ?, ?)
     `,
     id,
     input.name.trim(),
+    input.genericName?.trim() || null,
     input.doseAmount ?? null,
     input.doseUnit?.trim() || null,
     input.frequency?.trim() || null,
@@ -7580,6 +7748,7 @@ export async function listPrescriptionTreatments(activeOnly = true): Promise<Tre
     id: string;
     treatment_type: string;
     name: string;
+    generic_name: string | null;
     dose_amount: number | null;
     dose_unit: string | null;
     frequency: string | null;
@@ -7589,7 +7758,7 @@ export async function listPrescriptionTreatments(activeOnly = true): Promise<Tre
     notes: string | null;
   }>(
     `
-      SELECT id, treatment_type, name, dose_amount, dose_unit, frequency, units_per_day, serving_unit_label, active, notes
+      SELECT id, treatment_type, name, generic_name, dose_amount, dose_unit, frequency, units_per_day, serving_unit_label, active, notes
       FROM treatments
       WHERE treatment_type = 'prescription' ${activeOnly ? 'AND active = 1' : ''}
       ORDER BY name
@@ -7600,6 +7769,7 @@ export async function listPrescriptionTreatments(activeOnly = true): Promise<Tre
     id: row.id,
     treatmentType: row.treatment_type,
     name: row.name,
+    genericName: row.generic_name,
     doseAmount: row.dose_amount,
     doseUnit: row.dose_unit,
     frequency: row.frequency,
@@ -7612,7 +7782,7 @@ export async function listPrescriptionTreatments(activeOnly = true): Promise<Tre
 
 export async function updatePrescriptionTreatment(
   treatmentId: string,
-  input: { name: string; doseAmount?: number; doseUnit?: string; frequency?: string; notes?: string },
+  input: { name: string; genericName?: string; doseAmount?: number; doseUnit?: string; frequency?: string; notes?: string },
 ) {
   const db = await getDatabase();
   const now = new Date().toISOString();
@@ -7620,10 +7790,11 @@ export async function updatePrescriptionTreatment(
   await db.runAsync(
     `
       UPDATE treatments
-      SET name = ?, dose_amount = ?, dose_unit = ?, frequency = ?, notes = ?, updated_at = ?
+      SET name = ?, generic_name = ?, dose_amount = ?, dose_unit = ?, frequency = ?, notes = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
+    input.genericName?.trim() || null,
     input.doseAmount ?? null,
     input.doseUnit?.trim() || null,
     input.frequency?.trim() || null,
@@ -7631,6 +7802,127 @@ export async function updatePrescriptionTreatment(
     now,
     treatmentId,
   );
+}
+
+// OTC (over-the-counter, non-prescription) treatments -- added 2026-08-08
+// for My Meds. A third real treatment_type alongside 'supplement' and
+// 'prescription', not a special case bolted onto Prescriptions -- the
+// distinction matters for the person's own record-keeping (an antihistamine
+// isn't a doctor's prescription) even though the underlying shape (a
+// single-substance product with a dose/frequency, no per-ingredient
+// nutrient breakdown) is identical to a prescription. These three
+// functions are deliberately near-identical copies of the Prescription
+// ones above rather than a shared generic helper -- matches this whole
+// file's own established practice of favoring a few duplicated, readable
+// functions over one parameterized one for genuinely different real-world
+// categories (see e.g. every Food builder's own sides/salads/soups tables).
+export async function createOtcTreatment(input: {
+  name: string;
+  genericName?: string;
+  doseAmount?: number;
+  doseUnit?: string;
+  frequency?: string;
+  notes?: string;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `treatment_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO treatments
+        (id, treatment_type, name, generic_name, dose_amount, dose_unit, frequency, active, notes, created_at, updated_at)
+      VALUES (?, 'otc', ?, ?, ?, ?, ?, 1, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.genericName?.trim() || null,
+    input.doseAmount ?? null,
+    input.doseUnit?.trim() || null,
+    input.frequency?.trim() || null,
+    input.notes?.trim() || null,
+    now,
+    now,
+  );
+
+  return id;
+}
+
+export async function listOtcTreatments(activeOnly = true): Promise<TreatmentRecord[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{
+    id: string;
+    treatment_type: string;
+    name: string;
+    generic_name: string | null;
+    dose_amount: number | null;
+    dose_unit: string | null;
+    frequency: string | null;
+    units_per_day: number | null;
+    serving_unit_label: string | null;
+    active: number;
+    notes: string | null;
+  }>(
+    `
+      SELECT id, treatment_type, name, generic_name, dose_amount, dose_unit, frequency, units_per_day, serving_unit_label, active, notes
+      FROM treatments
+      WHERE treatment_type = 'otc' ${activeOnly ? 'AND active = 1' : ''}
+      ORDER BY name
+    `,
+  );
+
+  return rows.map((row) => ({
+    id: row.id,
+    treatmentType: row.treatment_type,
+    name: row.name,
+    genericName: row.generic_name,
+    doseAmount: row.dose_amount,
+    doseUnit: row.dose_unit,
+    frequency: row.frequency,
+    unitsPerDay: row.units_per_day,
+    servingUnitLabel: row.serving_unit_label,
+    active: Boolean(row.active),
+    notes: row.notes,
+  }));
+}
+
+export async function updateOtcTreatment(
+  treatmentId: string,
+  input: { name: string; genericName?: string; doseAmount?: number; doseUnit?: string; frequency?: string; notes?: string },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE treatments
+      SET name = ?, generic_name = ?, dose_amount = ?, dose_unit = ?, frequency = ?, notes = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.genericName?.trim() || null,
+    input.doseAmount ?? null,
+    input.doseUnit?.trim() || null,
+    input.frequency?.trim() || null,
+    input.notes?.trim() || null,
+    now,
+    treatmentId,
+  );
+}
+
+// The unified "everything I currently take" view My Meds is built around --
+// one flat list across all three treatment_types rather than three separate
+// queries the screen has to merge itself. Deliberately tags each row with
+// its own treatmentType (already on TreatmentRecord) rather than returning
+// three separate arrays, since the whole point is one list, sorted
+// together, not three lists stacked.
+export async function listAllActiveTreatments(): Promise<TreatmentRecord[]> {
+  const [supplements, prescriptions, otc] = await Promise.all([
+    listSupplementTreatments(true),
+    listPrescriptionTreatments(true),
+    listOtcTreatments(true),
+  ]);
+  return [...supplements, ...prescriptions, ...otc].sort((a, b) => a.name.localeCompare(b.name));
 }
 
 export type TrackedNutrient = {
@@ -7664,7 +7956,7 @@ export async function listTrackedNutrients(): Promise<TrackedNutrient[]> {
 // track, not on prescription tracking).
 export type InteractionRuleRecord = {
   id: string;
-  ruleType: 'timing_separation' | 'dietary_cofactor' | 'appointment_caution' | 'reference_only';
+  ruleType: 'timing_separation' | 'dietary_cofactor' | 'appointment_caution' | 'reference_only' | 'dose_consistency_caution' | 'concurrent_use_caution';
   checkable: boolean;
   subjectAKind: string;
   subjectA: string;
