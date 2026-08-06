@@ -59,6 +59,14 @@ export const DIGEST_CATEGORY_KEYS = [
   'organSystems',
   'history',
   'nutrientInteractions',
+  // 2026-08-07, same day: a fifth addition, folding in the standalone
+  // "What Happened to Food" research Artifact as its own category rather
+  // than leaving it external -- see foodIndustryHistory.ts's own header
+  // comment for the full story, including two real corrections made during
+  // re-verification (a untraceable autoimmune-rise statistic replaced with
+  // a real, more nuanced 2023 Lancet finding; an unverifiable margarine
+  // consumption figure replaced with a verified one).
+  'foodIndustryHistory',
 ] as const;
 
 // 'problemFoods' is deliberately its own type (ProblemFoodEntry, below),

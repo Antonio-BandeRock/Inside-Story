@@ -2,6 +2,7 @@ import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
+import { FOOD_INDUSTRY_HISTORY_ENTRIES } from './foodIndustryHistory';
 import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
 import { HEALING_STAGES_ENTRIES } from './healingStages';
 import { HISTORY_ENTRIES } from './history';
@@ -23,7 +24,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260807120000';
+export const PURPLE_DIGEST_VERSION = '20260807180000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -44,6 +45,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...ORGAN_SYSTEMS_ENTRIES,
   ...HISTORY_ENTRIES,
   ...NUTRIENT_INTERACTIONS_ENTRIES,
+  ...FOOD_INDUSTRY_HISTORY_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -143,6 +145,16 @@ export const DIGEST_CATEGORY_META: {
     label: 'Nutrient Interactions',
     icon: 'link-outline',
     description: 'Which nutrients help each other absorb, which ones compete -- and the real food-level moves that work with either.',
+  },
+  // 2026-08-07, same day, fifth addition: folds in the standalone "What
+  // Happened to Food" research Artifact -- the correlational history of
+  // food industrialization, soil decline, pesticides, and the four
+  // wrongly-blamed whole foods -- as a real category, not an external link.
+  {
+    key: 'foodIndustryHistory',
+    label: 'Food Industry & History',
+    icon: 'trending-up-outline',
+    description: 'How food itself changed over 150 years, against how autoimmune disease rose -- the real trends, the real mechanisms, and an honest opinion open for debate.',
   },
 ];
 
