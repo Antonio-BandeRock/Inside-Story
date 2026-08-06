@@ -344,3 +344,216 @@ Call Stack
 Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
 Android Bundled 83ms node_modules\expo-router\entry.js (1 module)
  WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 432ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 274ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 56ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 61ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 63ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 197ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 62ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+ LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +215ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +264ms: Modal onShow (Android Dialog window confirmed up)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 58ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 65ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+ ERROR  SyntaxError: C:\Dev\hashimotos-app\lib\digest\selfAdvocacy.ts: Unexpected token, expected "," (202:131)
+
+  200 |     category: 'selfAdvocacy',
+  201 |     title: 'Hemoglobin A1c & Fasting Glucose: Autoimmune Diseases Have a Real Habit of Traveling Together',
+> 202 |     teaser: 'Hashimoto\'s and type 1 diabetes share enough real biology that checking blood sugar isn\'t an unrelated add-on -- it's a genuinely adjacent risk.',
+      |                                                                                                                                    ^
+  203 |     summary:
+  204 |       "This app's own Other Autoimmune Diseases category already makes the case that autoimmune conditions don't stay neatly siloed -- Hashimoto's and type 1 diabetes are both named, real examples of diseases that co-occur more than chance would predict, sharing enough underlying immune biology that checking one genuinely informs watching for the other. Fasting glucose and hemoglobin A1c (a real, longer-window average of blood sugar over roughly three months rather than a single-moment snapshot) are the standard way that gets tracked, and this app's own Mitochondria & Metabolism research separately ties visceral fat and insulin resistance directly to Hashimoto's-specific findings, not just general population risk. Neither test needs Hashimoto's-specific extra frequency -- following the general diabetes-screening schedule already agreed with a doctor (typically periodic, more often only if a prior result was borderline or genuinely abnormal) is the reasonable, non-excessive approach here, not a reason to add quarterly rechecks with no new symptom or result prompting it.",
+  205 |     citations: [],
+    at constructor (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:365:19)
+    at TypeScriptParserMixin.raise (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6616:19)
+    at TypeScriptParserMixin.unexpected (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6636:16)
+    at TypeScriptParserMixin.expect (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6916:12)
+    at TypeScriptParserMixin.parseObjectLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11839:14)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11356:23)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12443:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12510:17)
+    at TypeScriptParserMixin.parseExprListItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12192:18)
+    at TypeScriptParserMixin.parseExprList (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12167:22)
+    at TypeScriptParserMixin.parseArrayLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12074:26)
+    at TypeScriptParserMixin.parseArrayLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9210:24)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11352:23)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12438:16)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:17)
+    at TypeScriptParserMixin.parseVar (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13401:91)
+    at TypeScriptParserMixin.parseVarStatement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13247:10)
+    at TypeScriptParserMixin.parseVarStatement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9425:31)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12868:23)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12784:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12764:17)
+    at TypeScriptParserMixin.parseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13951:17)
+    at TypeScriptParserMixin.parseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9646:85)
+    at TypeScriptParserMixin.maybeParseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13910:31)
+    at TypeScriptParserMixin.parseExport (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13829:29)
+    at TypeScriptParserMixin.parseExport (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9402:20)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12895:27)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
+ ERROR  SyntaxError: C:\Dev\hashimotos-app\lib\digest\selfAdvocacy.ts: Unexpected token, expected "," (202:131)
+
+  200 |     category: 'selfAdvocacy',
+  201 |     title: 'Hemoglobin A1c & Fasting Glucose: Autoimmune Diseases Have a Real Habit of Traveling Together',
+> 202 |     teaser: 'Hashimoto\'s and type 1 diabetes share enough real biology that checking blood sugar isn\'t an unrelated add-on -- it's a genuinely adjacent risk.',
+      |                                                                                                                                    ^
+  203 |     summary:
+  204 |       "This app's own Other Autoimmune Diseases category already makes the case that autoimmune conditions don't stay neatly siloed -- Hashimoto's and type 1 diabetes are both named, real examples of diseases that co-occur more than chance would predict, sharing enough underlying immune biology that checking one genuinely informs watching for the other. Fasting glucose and hemoglobin A1c (a real, longer-window average of blood sugar over roughly three months rather than a single-moment snapshot) are the standard way that gets tracked, and this app's own Mitochondria & Metabolism research separately ties visceral fat and insulin resistance directly to Hashimoto's-specific findings, not just general population risk. Neither test needs Hashimoto's-specific extra frequency -- following the general diabetes-screening schedule already agreed with a doctor (typically periodic, more often only if a prior result was borderline or genuinely abnormal) is the reasonable, non-excessive approach here, not a reason to add quarterly rechecks with no new symptom or result prompting it.",
+  205 |     citations: [],
+    at constructor (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:365:19)
+    at TypeScriptParserMixin.raise (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6616:19)
+    at TypeScriptParserMixin.unexpected (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6636:16)
+    at TypeScriptParserMixin.expect (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6916:12)
+    at TypeScriptParserMixin.parseObjectLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11839:14)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11356:23)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12443:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12510:17)
+    at TypeScriptParserMixin.parseExprListItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12192:18)
+    at TypeScriptParserMixin.parseExprList (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12167:22)
+    at TypeScriptParserMixin.parseArrayLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12074:26)
+    at TypeScriptParserMixin.parseArrayLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9210:24)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11352:23)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12438:16)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:17)
+    at TypeScriptParserMixin.parseVar (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13401:91)
+    at TypeScriptParserMixin.parseVarStatement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13247:10)
+    at TypeScriptParserMixin.parseVarStatement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9425:31)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12868:23)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12784:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12764:17)
+    at TypeScriptParserMixin.parseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13951:17)
+    at TypeScriptParserMixin.parseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9646:85)
+    at TypeScriptParserMixin.maybeParseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13910:31)
+    at TypeScriptParserMixin.parseExport (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13829:29)
+    at TypeScriptParserMixin.parseExport (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9402:20)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12895:27)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
+ ERROR  SyntaxError: C:\Dev\hashimotos-app\lib\digest\selfAdvocacy.ts: Unexpected token, expected "," (202:131)
+
+  200 |     category: 'selfAdvocacy',
+  201 |     title: 'Hemoglobin A1c & Fasting Glucose: Autoimmune Diseases Have a Real Habit of Traveling Together',
+> 202 |     teaser: 'Hashimoto\'s and type 1 diabetes share enough real biology that checking blood sugar isn\'t an unrelated add-on -- it's a genuinely adjacent risk.',
+      |                                                                                                                                    ^
+  203 |     summary:
+  204 |       "This app's own Other Autoimmune Diseases category already makes the case that autoimmune conditions don't stay neatly siloed -- Hashimoto's and type 1 diabetes are both named, real examples of diseases that co-occur more than chance would predict, sharing enough underlying immune biology that checking one genuinely informs watching for the other. Fasting glucose and hemoglobin A1c (a real, longer-window average of blood sugar over roughly three months rather than a single-moment snapshot) are the standard way that gets tracked, and this app's own Mitochondria & Metabolism research separately ties visceral fat and insulin resistance directly to Hashimoto's-specific findings, not just general population risk. Neither test needs Hashimoto's-specific extra frequency -- following the general diabetes-screening schedule already agreed with a doctor (typically periodic, more often only if a prior result was borderline or genuinely abnormal) is the reasonable, non-excessive approach here, not a reason to add quarterly rechecks with no new symptom or result prompting it.",
+  205 |     citations: [],
+    at constructor (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:365:19)
+    at TypeScriptParserMixin.raise (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6616:19)
+    at TypeScriptParserMixin.unexpected (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6636:16)
+    at TypeScriptParserMixin.expect (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6916:12)
+    at TypeScriptParserMixin.parseObjectLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11839:14)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11356:23)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12443:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12510:17)
+    at TypeScriptParserMixin.parseExprListItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12192:18)
+    at TypeScriptParserMixin.parseExprList (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12167:22)
+    at TypeScriptParserMixin.parseArrayLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12074:26)
+    at TypeScriptParserMixin.parseArrayLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9210:24)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11352:23)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12438:16)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:17)
+    at TypeScriptParserMixin.parseVar (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13401:91)
+    at TypeScriptParserMixin.parseVarStatement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13247:10)
+    at TypeScriptParserMixin.parseVarStatement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9425:31)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12868:23)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12784:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12764:17)
+    at TypeScriptParserMixin.parseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13951:17)
+    at TypeScriptParserMixin.parseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9646:85)
+    at TypeScriptParserMixin.maybeParseExportDeclaration (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13910:31)
+    at TypeScriptParserMixin.parseExport (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13829:29)
+    at TypeScriptParserMixin.parseExport (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9402:20)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12895:27)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 97ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+ LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +200ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +237ms: Modal onShow (Android Dialog window confirmed up)

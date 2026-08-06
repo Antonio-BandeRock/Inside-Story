@@ -269,6 +269,19 @@ export default function PurpleDigestScreen() {
   // a skip-if-already-close threshold -- both reverted; see below.)
   const ENTRY_SCROLL_TOP_MARGIN = 10;
 
+  // How long the card list's own LinearTransition (below, on each card's
+  // Animated.View) takes to finish sliding every card into its real, final
+  // position after an expand/collapse -- pinned to an explicit number here
+  // (LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS) below) rather
+  // than left at Reanimated's own implicit default, specifically so
+  // scrollEntryIntoView has a real, known number to wait out instead of
+  // guessing at one.
+  const CARD_LAYOUT_TRANSITION_MS = 300;
+  // A little slack on top of the animation's own real duration -- covers
+  // ordinary JS-thread/bridge scheduling delay, not because the animation
+  // itself is expected to run long.
+  const CARD_LAYOUT_SETTLE_BUFFER_MS = 60;
+
   // Scrolls the ScrollView so the named card's own top edge lands exactly
   // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- on
   // EVERY tap, unconditionally, regardless of where the card already sits.
@@ -278,29 +291,36 @@ export default function PurpleDigestScreen() {
   // approximate location and approximate destination at the time instead
   // of just assigning something to be the mechanism for each box... place
   // the header of this box 10 pixels from the bottom of the header of the
-  // app." That's the actual fix -- the same thing a web page's own anchor
-  // navigation does: ask the real element where it currently is, then
-  // scroll there, rather than trusting a value computed and cached at some
-  // earlier moment. `.measure()` (a real, standard React Native primitive,
-  // available on both the target card's own ref and the ScrollView's own
-  // ref) reports each one's own real, current on-screen (`pageY`)
-  // position, queried fresh at the exact instant this function runs --
-  // never a stale value. The math: `pageY - scrollPageY` is how far below
-  // the ScrollView's own visible top edge the card currently sits (its
-  // real on-screen offset within the viewport); adding that to the
-  // ScrollView's own current absolute scroll position gives the real
-  // absolute target to scroll to -- not a guess, a direct, current
-  // measurement each time.
+  // app." `.measure()` (a real, standard React Native primitive, available
+  // on both the target card's own ref and the ScrollView's own ref)
+  // reports each one's own real, current on-screen (`pageY`) position,
+  // queried fresh at the exact instant this function runs. The math:
+  // `pageY - scrollPageY` is how far below the ScrollView's own visible
+  // top edge the card currently sits; adding that to the ScrollView's own
+  // current absolute scroll position gives the real absolute target.
   //
-  // Deferred by one real animation frame first -- not to "wait for an
-  // offset to become available" (there's no cached value left to wait on),
-  // but because tapping a NEW entry also collapses whatever was previously
-  // expanded, and that layout change needs to actually land before
-  // `.measure()` would report this card's own true, POST-collapse
-  // position. Retries a few more frames only if the target card's own ref
-  // doesn't exist yet at all (e.g. jumpToRelated switching to a category
-  // whose cards haven't mounted for the first time yet), not because a
-  // measurement came back wrong.
+  // 2026-08-07, a real, later report: "some of the time" the box still
+  // doesn't land under the header -- found by actually reasoning through
+  // what "some of the time" implied, not by guessing again. Live
+  // measurement was already correct in principle, but this function only
+  // waited one real animation frame (~16ms) before measuring -- nowhere
+  // near enough time for the LinearTransition animation collapsing
+  // whatever card was previously open to actually finish (its own real,
+  // now-explicit duration is CARD_LAYOUT_TRANSITION_MS above). Measuring
+  // that early caught the target card still mid-slide, not yet at its real
+  // final position -- exactly a "some of the time" bug, since it only ever
+  // showed up when a DIFFERENT card had to collapse first (tapping the
+  // very first card of a session, with nothing else open to collapse, has
+  // nothing to wait for and was never actually broken). Fixed by waiting
+  // the animation's own known duration (plus a small buffer) before
+  // measuring at all, every time -- not a guess at "probably long enough,"
+  // the literal real number the same LinearTransition call below is
+  // configured to actually take. The one remaining frame of deferral below
+  // is unrelated: it's still needed first, just to confirm the target
+  // card's own ref exists at all yet (jumpToRelated can switch to a
+  // category whose cards haven't mounted for the first time), retried a
+  // few more frames if not -- once it exists, the real animation-settle
+  // wait begins.
   //
   // The momentum-halt step (an immediate, unanimated scroll to the current
   // position before the real animated scroll) is kept from the previous
@@ -316,13 +336,15 @@ export default function PurpleDigestScreen() {
         if (attemptsLeft > 0) scrollEntryIntoView(id, attemptsLeft - 1);
         return;
       }
-      cardNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
-        (scrollNode as unknown as Measurable).measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
-          const target = currentScrollY.current + (cardPageY - scrollPageY) - ENTRY_SCROLL_TOP_MARGIN;
-          scrollNode.scrollTo({ y: currentScrollY.current, animated: false });
-          scrollNode.scrollTo({ y: Math.max(target, 0), animated: true });
+      setTimeout(() => {
+        cardNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
+          (scrollNode as unknown as Measurable).measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
+            const target = currentScrollY.current + (cardPageY - scrollPageY) - ENTRY_SCROLL_TOP_MARGIN;
+            scrollNode.scrollTo({ y: currentScrollY.current, animated: false });
+            scrollNode.scrollTo({ y: Math.max(target, 0), animated: true });
+          });
         });
-      });
+      }, CARD_LAYOUT_TRANSITION_MS + CARD_LAYOUT_SETTLE_BUFFER_MS);
     });
   }
 
@@ -382,7 +404,12 @@ export default function PurpleDigestScreen() {
               entries.map((entry) => (
                 <Animated.View
                   key={entry.id}
-                  layout={LinearTransition}
+                  // Explicit duration, not Reanimated's own implicit
+                  // default -- CARD_LAYOUT_TRANSITION_MS above (see
+                  // scrollEntryIntoView's own comment) has to wait out this
+                  // exact real number, not a guess at what the default
+                  // might be.
+                  layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}
                   // A real ref to this card, not a cached measurement --
                   // scrollEntryIntoView calls .measure() on it directly, at
                   // the moment it's needed, rather than trusting a value
@@ -409,6 +436,14 @@ export default function PurpleDigestScreen() {
       <PageIdentityLabel title="Purple Digest" activeLensLabel={revealed ? activeLensLabel : undefined} />
       <LensHub
         pageTitle="Purple Digest"
+        // Corner trigger button reads just "Digest", 2026-08-07, explicitly
+        // requested -- same buttonLabel-vs-pageTitle split Food's own corner
+        // button already uses (that one says "Food" while its popup header
+        // stays "Nutrition Builders"). pageTitle itself is untouched: it
+        // still has to match TAB_ROUTES' own title exactly (constants/
+        // tabs.ts) for the TAB_ROUTES lookup above (icon/color resolution)
+        // to keep working, and it still drives the popup's own header text.
+        buttonLabel="Digest"
         options={LENSES}
         selected={revealed ? lens : undefined}
         columns={2}
