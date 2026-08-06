@@ -7,6 +7,17 @@ import type { ProblemFoodEntry } from './types';
 // them about the food in general," per the explicit request that prompted
 // this whole category. Every entry still cites its real evidence, but the
 // swap list is the point, not a footnote.
+//
+// 2026-08-06: rewritten in a friendlier, plainer-language voice, and grown
+// by 2 real entries (excess iodine, charred/high-heat meat) -- direct
+// feedback that the first pass read as dense/academic ("not written for
+// the average person... isn't really all that fun") and that stating a
+// fixed entry count elsewhere in this app's own docs made every category
+// read as artificially capped rather than a living, growing thing. The
+// underlying facts and every citation are unchanged in substance from the
+// first pass (re-verified against real sources, not just reworded) --
+// only the voice and the roster grew. This file's own comment intentionally
+// does not restate a running entry count, for the same reason.
 export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-garlic-onion',
@@ -14,160 +25,210 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     foodName: 'Garlic & Onion',
     teaser: 'The single most common "why does this always upset me" pair -- and it has nothing to do with allergy.',
     problem:
-      'Garlic and onion are both extremely high in fructans, a type of FODMAP (fermentable oligo-, di-, mono-saccharide and polyol) that a real share of people -- not just those with a diagnosed IBS -- digest poorly, leading to bloating, gas, and cramping as gut bacteria ferment the undigested fructans in the colon.',
+      'Garlic and onion are both loaded with fructans, a type of carbohydrate a lot of people digest poorly -- bloating, gas, cramping -- whether or not they\'ve ever been formally diagnosed with IBS.',
     mechanism:
-      'Fructans are chains of fructose molecules the human small intestine has no enzyme to break down, so they pass through undigested to the colon, where bacterial fermentation produces gas as a direct byproduct -- a real digestive-mechanics issue, not an immune allergic reaction.',
+      'Fructans are chains of fructose your small intestine simply has no enzyme to break down. They travel on to the colon undigested, where your own gut bacteria ferment them -- and gas is the direct, entirely normal byproduct of that fermentation. Nothing is wrong with you; it\'s just plumbing.',
     swaps: [
-      'Garlic-infused oil -- FODMAPs are water-soluble, not oil-soluble, so infused oil carries real garlic flavor without the fructans (discard the actual garlic solids, don\'t blend them in).',
-      'Chives or the green tops of scallions -- carry allium flavor with a much lower FODMAP load than the bulb itself.',
-      'Asafoetida (hing) -- a traditional Indian substitute for both garlic and onion flavor, used in a tiny pinch.',
+      'Garlic-infused oil -- fructans dissolve in water, not oil, so a strained infused oil carries real garlic flavor without the gassy part (just don\'t blend the actual garlic solids back in).',
+      'Chives or the green tops of scallions -- same allium flavor family, a much smaller fructan hit than the bulb itself.',
+      'A tiny pinch of asafoetida (hing) -- a traditional Indian stand-in for both garlic and onion flavor.',
     ],
-    citations: [{ source: 'Monash University FODMAP research group, fructan content database' }],
+    citations: [
+      {
+        source: 'Monash University FODMAP research group -- fructan content in garlic, onion & other high-FODMAP foods',
+        url: 'http://www.monashfodmap.com/about-fodmap-and-ibs/high-and-low-fodmap-foods/',
+      },
+    ],
   },
   {
     id: 'problem-gluten-grains',
     category: 'problemFoods',
     foodName: 'Gluten-Containing Grains',
-    teaser: 'The single most-cited elimination in Hashimoto\'s food advice -- and the celiac-autoimmunity link behind it is real.',
+    teaser: 'The single most-cited elimination in Hashimoto\'s food advice -- and the link to autoimmunity behind it is real.',
     problem:
-      'Wheat, barley, and rye all contain gluten, a protein structure a genuine subset of people (not just those with celiac disease) react to with real gut symptoms and, in celiac disease specifically, a well-documented, mechanistically-linked autoimmune cascade that shares real biological overlap with thyroid autoimmunity.',
+      'Wheat, barley, and rye all contain gluten. A real subset of people -- not just those with celiac disease -- react to it with genuine gut symptoms, and in celiac disease specifically, the connection to autoimmune disease is well documented and shares real biology with thyroid autoimmunity.',
     mechanism:
-      'Gliadin (a gluten component) can trigger zonulin release in the gut lining, increasing intestinal permeability -- the same mechanism this app\'s own gut-repair research names as a real contributor to autoimmune disease risk generally, not unique to celiac disease.',
+      'Gliadin, a piece of the gluten protein, can trigger your gut lining to release a substance called zonulin, which loosens the tight seals between your intestinal cells. That "leakier" gut lining is the same mechanism this app\'s own gut-repair research keeps coming back to as a real contributor to autoimmune risk in general -- not something unique to celiac disease.',
     swaps: [
-      'Rice, buckwheat (genuinely gluten-free despite the name), and quinoa -- whole-grain, naturally gluten-free staples.',
-      'Certified gluten-free oats -- ordinary oats are often cross-contaminated during processing; the certified label specifically addresses that.',
-      'A real elimination-and-reintroduction trial through Stage 2 of this app\'s own Healing Stages guide, rather than an indefinite blanket avoidance with no re-test plan.',
+      'Rice, buckwheat (genuinely gluten-free despite the name), and quinoa -- solid, whole-grain staples with none of the gluten.',
+      'Certified gluten-free oats specifically -- ordinary oats are often cross-contaminated during processing, and the certified label is what actually addresses that.',
+      'A real elimination-and-reintroduction trial (see this app\'s own Healing Stages guide) instead of an indefinite "just avoid it forever" with no way to ever find out if it was actually the culprit.',
     ],
-    citations: [{ source: 'Fasano 2011, Physiological Reviews (zonulin/intestinal permeability)' }],
+    citations: [
+      {
+        source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/',
+      },
+    ],
     stageNote: 'Elimination trial is a Stage 2 ("Digging") action; reintroduction testing per the Healing Stages guide.',
   },
   {
     id: 'problem-conventional-dairy',
     category: 'problemFoods',
     foodName: 'Conventional Dairy',
-    teaser: "Not every dairy reaction is lactose intolerance -- and the fix isn't always \"avoid dairy.\"",
+    teaser: "Not every dairy reaction is lactose intolerance -- and the fix isn't always \"just avoid dairy.\"",
     problem:
-      'Conventional dairy is a common trigger through two genuinely different mechanisms that get conflated: lactose intolerance (a real enzyme deficiency, unrelated to autoimmunity) and, separately, a casein-protein sensitivity some people report alongside their thyroid symptoms, with much thinner formal evidence behind it.',
+      'Dairy trips people up through two genuinely different mechanisms that tend to get lumped together: plain lactose intolerance (a common enzyme shortfall, nothing to do with autoimmunity) and, separately, a casein-protein sensitivity some people notice alongside their thyroid symptoms -- real, but with much thinner formal evidence behind it than lactose intolerance has.',
     mechanism:
-      'Lactase deficiency means undigested lactose reaches the colon and ferments, the same gas-producing mechanism as FODMAPs above. Casein sensitivity, where reported, is a different and less well-characterized immune/digestive response, not the same pathway.',
+      'Without enough lactase enzyme, undigested lactose reaches your colon and ferments -- the same gas-producing process as the garlic/onion fructans above. Casein sensitivity, where it\'s real, works through a completely different and less well-understood pathway, so "cutting dairy" for one reason doesn\'t necessarily fix the other.',
     swaps: [
-      'Lactase-treated (\"lactose-free\") milk and hard aged cheeses -- naturally very low in lactose to begin with.',
-      'A real, long-fermented homemade yogurt -- extended fermentation measurably consumes much of the milk\'s own lactose as the culture feeds on it, often making a well-fermented batch tolerable even for lactose-sensitive people.',
-      'Full elimination-and-reintroduction (not indefinite avoidance) is the only real way to tell which mechanism, if either, is actually in play for a given person.',
+      'Lactase-treated ("lactose-free") milk, and hard aged cheeses -- naturally very low in lactose to begin with.',
+      'A real, long-fermented homemade yogurt -- a long culture time genuinely eats up most of the milk\'s own lactose, which is often enough to make a well-fermented batch sit fine even for someone lactose-sensitive.',
+      'A real elimination-and-reintroduction, not indefinite avoidance -- it\'s the only honest way to find out which mechanism (if either) is actually behind a given reaction.',
     ],
-    citations: [{ source: 'Lactase deficiency prevalence and mechanism reviews' }],
+    citations: [
+      {
+        source: 'Deng et al. 2015, Nutrients -- Lactose Intolerance in Adults: Biological Mechanism and Dietary Management',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4586575/',
+      },
+    ],
   },
   {
     id: 'problem-raw-cruciferous',
     category: 'problemFoods',
     foodName: 'Raw Cruciferous Vegetables',
-    teaser: 'The most misunderstood "avoid list" item in Hashimoto\'s food advice -- the fix is cooking, not avoiding.',
+    teaser: 'The most misunderstood item on any Hashimoto\'s "avoid list" -- the real fix is cooking, not avoiding.',
     problem:
-      'Broccoli, cauliflower, cabbage, kale, and Brussels sprouts contain goitrogenic compounds (glucosinolates, which convert to goitrin) that, in large raw quantities, can interfere with thyroid iodine uptake.',
+      'Broccoli, cauliflower, cabbage, kale, and Brussels sprouts contain compounds that, eaten raw and in large amounts, can get in the way of your thyroid\'s ability to take up iodine.',
     mechanism:
-      'The enzyme that converts glucosinolates to their active goitrogenic form (myrosinase) is substantially deactivated by heat -- this app\'s own Cooking & Prep research already cites real data showing cooking meaningfully reduces the goitrogenic load compared to eating the same vegetable raw.',
+      'It takes an enzyme called myrosinase to unlock that effect -- and myrosinase is largely deactivated by heat. This app\'s own Cooking & Prep research already shows real data that simply cooking these vegetables meaningfully cuts that risk compared to eating the same amount raw.',
     swaps: [
-      'Simply cook them -- steaming, roasting, or sautéing all reduce the goitrogenic compounds while keeping most of the real nutritional value (fiber, vitamin C, sulforaphane precursors) intact.',
-      'If eating raw (a salad, a smoothie), keep portions moderate rather than large, and avoid stacking multiple raw goitrogenic vegetables in the same meal.',
-      'Adequate iodine and selenium intake genuinely blunts goitrogenic impact -- this isn\'t purely about the vegetable in isolation.',
+      'Just cook them -- steaming, roasting, or sautéing all knock down the goitrogenic effect while keeping most of the good stuff (fiber, vitamin C, sulforaphane) intact.',
+      'Eating them raw is fine in moderate portions -- the real risk is a large amount, and especially several raw goitrogenic vegetables piled into one meal.',
+      'Getting enough iodine and selenium genuinely blunts the whole effect -- this was never really about the vegetable in isolation.',
     ],
-    citations: [{ source: 'Goitrogen/myrosinase heat-deactivation studies' }],
+    citations: [
+      {
+        source: 'Song & Thornalley 2007, Food & Chemical Toxicology -- effect of storage, processing & cooking on glucosinolate content',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/17011103/',
+      },
+    ],
   },
   {
     id: 'problem-nightshades',
     category: 'problemFoods',
     foodName: 'Nightshades',
-    teaser: 'The most genuinely contested item on this whole list -- and the honest answer is "test it yourself."',
+    teaser: 'The most genuinely contested item on this whole list -- and the honest answer really is "test it yourself."',
     problem:
-      'Tomatoes, peppers, eggplant, and white potatoes are excluded on the Autoimmune Protocol (AIP) diet over concerns about lectins, alkaloids (solanine), and a proposed link to intestinal permeability -- but this exclusion is elimination-based/mechanistic reasoning, not backed by controlled human trial evidence, and plenty of people with autoimmune conditions tolerate nightshades with no issue at all.',
+      'Tomatoes, peppers, eggplant, and white potatoes get excluded on the Autoimmune Protocol (AIP) diet over concerns about certain plant compounds and a possible link to gut permeability -- but that exclusion comes from elimination-diet reasoning, not a controlled human trial proving nightshades themselves are the problem, and plenty of people with autoimmune conditions eat them with zero issue.',
     mechanism:
-      'Solanine and related glycoalkaloids are real compounds present in nightshades at low levels in normal ripe produce (much higher in green/unripe potatoes specifically) -- the proposed gut-permeability link is mechanistically plausible but not demonstrated in controlled human research the way the gluten/zonulin pathway above is.',
+      'The compounds in question (solanine and its relatives) are real and present at low levels in normal ripe produce -- much higher in green, unripe potatoes specifically. The gut-permeability concern is a plausible idea, not something demonstrated in people the way the gluten/zonulin story above is.',
     swaps: [
-      "There isn't a universal swap here the way there is for gluten or garlic -- the real recommendation is individual testing (elimination, then a real single-food reintroduction) rather than blanket avoidance.",
-      'If testing shows a real reaction: winter squash, sweet potato, and beets are common AIP-friendly stand-ins for the starchy/savory role potatoes and tomatoes play in a dish.',
+      'There\'s no universal swap here the way there is for gluten or garlic -- the honest move is testing it on yourself (a real elimination, then a careful single-food reintroduction) rather than avoiding it forever on principle.',
+      'If a real test does turn up a reaction: winter squash, sweet potato, and beets make good stand-ins for the starchy, savory role potatoes and tomatoes usually play in a dish.',
     ],
-    citations: [{ source: 'AIP protocol literature (Ballantyne, elimination-diet framework, not RCT-based)' }],
+    citations: [
+      {
+        source: 'Konijeti et al. 2017, Inflammatory Bowel Diseases -- efficacy of the Autoimmune Protocol diet',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28858071/',
+      },
+    ],
     stageNote: 'A Stage 2 reintroduction-protocol candidate, not a default avoid.',
   },
   {
     id: 'problem-high-histamine',
     category: 'problemFoods',
     foodName: 'High-Histamine Foods (aged cheese, cured meat, most ferments, leftovers)',
-    teaser: 'A real, direct tension with this app\'s own fermented-food research -- worth naming honestly.',
+    teaser: 'A real, honest tension with this app\'s own fermented-food research -- worth naming plainly.',
     problem:
-      'Aged cheese, cured/smoked meat, most fermented foods, and even fresh food left too long in the fridge accumulate histamine as a natural byproduct of bacterial activity and protein breakdown -- a real problem for the subset of people with histamine intolerance (often tied to reduced DAO enzyme activity), which shows up disproportionately often alongside autoimmune conditions.',
+      'Aged cheese, cured or smoked meat, most fermented foods, and even fresh food that\'s sat in the fridge a bit too long all build up histamine as bacteria and protein naturally break down over time. For the subset of people with genuine histamine intolerance -- which shows up disproportionately alongside autoimmune conditions -- that\'s a real, recognizable trigger.',
     mechanism:
-      'Diamine oxidase (DAO), the enzyme that breaks down dietary histamine in the gut, can be reduced by gut inflammation itself -- meaning someone already dealing with autoimmune gut involvement may have less capacity to clear histamine than usual, creating a real feedback loop worth knowing about.',
+      'Your gut clears dietary histamine mainly through an enzyme called DAO -- and gut inflammation itself can reduce how much of that enzyme you have on hand. So someone already dealing with autoimmune gut trouble may genuinely have less capacity to clear histamine than usual, which becomes its own small feedback loop worth knowing about.',
     swaps: [
-      'Choose fresh over aged wherever possible -- fresh mozzarella over aged cheddar, freshly cooked meat over cured/smoked.',
-      'Freeze leftovers immediately rather than refrigerating for several days -- histamine accumulation is time-dependent.',
-      'If pursuing fermented foods for gut health specifically, shorter-fermented, fresher batches (young sauerkraut, fresh kefir) generally carry a lower histamine load than long-aged ferments -- a real, practical way to get some fermentation benefit without the full histamine hit.',
+      'Fresh over aged, wherever you can -- fresh mozzarella instead of aged cheddar, freshly cooked meat instead of cured or smoked.',
+      'Freeze leftovers right away instead of letting them sit in the fridge for days -- histamine buildup is genuinely time-dependent.',
+      'If fermented foods are part of your gut-health plan, shorter, fresher batches (young sauerkraut, fresh kefir) carry noticeably less histamine than a long-aged ferment -- a real way to get some benefit without the full histamine hit.',
     ],
-    citations: [{ source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition (histamine intolerance review)' }],
+    citations: [
+      {
+        source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition -- histamine and histamine intolerance',
+        url: 'https://ajcn.nutrition.org/article/S0002-9165(23)28053-3/fulltext',
+      },
+    ],
     relatedIds: ['fermented-sauerkraut-succession'],
   },
   {
     id: 'problem-sugar-sweetened-beverages',
     category: 'problemFoods',
     foodName: 'Sugar-Sweetened Beverages',
-    teaser: "Not \"sugar\" broadly -- the specific problem is drinking it, not eating it.",
+    teaser: "Not \"sugar\" broadly -- the real problem is drinking it, not eating it.",
     problem:
-      'Soda, sweetened tea, and other sugar-sweetened beverages deliver a large, fast dose of sugar with none of the fiber or chewing time that naturally slows absorption from whole food -- a real, distinct risk profile from equivalent sugar eaten as part of a meal.',
+      'Soda, sweetened tea, and other sugary drinks deliver a big, fast hit of sugar with none of the fiber or chewing that naturally slows absorption from real food -- a genuinely different risk than the same sugar eaten as part of a meal.',
     mechanism:
-      'Rapid glucose absorption drives a sharper insulin spike, and the subsequent glucose crash triggers cortisol and other counter-regulatory stress hormones -- cortisol, in turn, suppresses the enzymes that convert T4 to active T3, the same mechanism already covered in this app\'s own alcohol and juice advisories.',
+      'Fast sugar means a sharper insulin spike, and the crash that follows triggers cortisol and other stress hormones -- and cortisol, in turn, dampens the enzymes that convert T4 into active T3. It\'s the same mechanism behind this app\'s own alcohol and juice advisories.',
     swaps: [
-      'Whole fruit instead of fruit juice or a sweetened drink -- the fiber measurably slows sugar absorption.',
-      'Unsweetened sparkling water with a real fruit splash, rather than a diet soda swap (which trades one open question, sugar, for another, artificial sweeteners -- see Food Additives).',
-      'Water itself, tracked -- this app\'s own hydration tracking already counts food-source water toward the same daily target.',
+      'Whole fruit instead of fruit juice or a sweetened drink -- the fiber genuinely slows the sugar hit down.',
+      'Unsweetened sparkling water with a real fruit splash, rather than swapping to diet soda (which just trades one open question, sugar, for another -- see Food Additives).',
+      'Plain water, tracked -- this app\'s own hydration tracking already counts water from food toward the same daily goal, so it adds up faster than it feels like.',
     ],
-    citations: [{ source: 'Muraki et al. 2013, BMJ (juice vs. whole fruit, diabetes risk)' }],
+    citations: [
+      {
+        source: 'Muraki et al. 2013, BMJ -- fruit consumption and risk of type 2 diabetes',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23990623/',
+      },
+    ],
   },
   {
     id: 'problem-soy',
     category: 'problemFoods',
     foodName: 'Soy (Conditional, Not Universal)',
-    teaser: 'The real risk applies to a specific subgroup -- not to everyone eating tofu.',
+    teaser: 'The real risk lands on a specific subgroup -- not on everyone who eats tofu.',
     problem:
-      'Soy contains isoflavones, plant compounds with a real, if modest, goitrogenic effect -- but the research specifically shows this risk is conditional: one study found roughly a 3x progression risk to overt hypothyroidism specifically in people who already had subclinical hypothyroidism, not a blanket effect in the general population.',
+      'Soy contains isoflavones, plant compounds with a real, modest goitrogenic effect -- but the research is specific about who this actually matters for: one randomized trial found roughly a 3.6x higher chance of tipping into overt hypothyroidism, but only in people who already had subclinical hypothyroidism going in. It wasn\'t a general-population effect.',
     mechanism:
-      'Soy isoflavones can inhibit thyroid peroxidase (TPO), the enzyme central to thyroid hormone synthesis, an effect that becomes more consequential when thyroid function is already compromised, versus negligible in a fully functioning thyroid.',
+      'Soy isoflavones can get in the way of thyroid peroxidase (TPO), the enzyme your thyroid needs to actually make hormone -- which matters a lot more if your thyroid function is already compromised, and barely at all if it\'s working normally.',
     swaps: [
-      'Fermented soy (tempeh, miso, natto) generally carries a lower isoflavone-activity profile than unfermented soy and provides real probiotic value on top.',
-      'Simply space soy intake a few hours from levothyroxine dosing (the same absorption-interference logic that applies to calcium/coffee) rather than eliminating soy outright.',
-      'If subclinical hypothyroidism is a known factor, this is a genuine case for a direct conversation with a doctor about soy intake specifically, not a general population-wide warning.',
+      'Fermented soy (tempeh, miso, natto) generally carries less of that isoflavone activity than unfermented soy, plus real probiotic value on top.',
+      'Simply space soy out from your levothyroxine dose by a few hours -- the same spacing logic that already applies to calcium and coffee -- rather than cutting soy out entirely.',
+      'If subclinical hypothyroidism is already in the picture, this is a real, specific conversation worth having with a doctor -- not a reason for everyone to avoid soy.',
     ],
-    citations: [{ source: 'Soy isoflavone/subclinical hypothyroidism progression studies' }],
+    citations: [
+      {
+        source: 'Sathyapalan et al. 2011, JCEM -- soy phytoestrogen crossover trial in subclinical hypothyroidism',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/21325465/',
+      },
+    ],
   },
   {
     id: 'problem-refined-vegetable-oils',
     category: 'problemFoods',
     foodName: 'Refined Vegetable & Seed Oils (esp. Fried Foods)',
-    teaser: 'The real issue is an imbalance, not that any one oil is "toxic."',
+    teaser: 'The real issue is a balance problem, not that any one oil is "toxic."',
     problem:
-      'Common refined oils (soybean, corn, cottonseed, conventional sunflower) are very high in omega-6 fatty acids relative to omega-3 -- and the modern diet\'s overall omega-6:omega-3 ratio has drifted from an estimated historical ~1:1 to often 15:1 or higher, an imbalance linked to a more pro-inflammatory baseline state. Deep frying compounds this by also generating oxidized lipid compounds at high heat.',
+      'Common refined oils (soybean, corn, cottonseed, conventional sunflower) run heavy on omega-6 fat relative to omega-3 -- and the modern diet\'s overall ratio has drifted from something like an even 1:1 in the past to often 15:1 or higher today, which tracks with a more inflammatory baseline. Deep frying adds a second problem on top: real oxidized compounds form at high heat.',
     mechanism:
-      'Omega-6 fatty acids are precursors to pro-inflammatory eicosanoids, while omega-3s are precursors to anti-inflammatory/resolving ones -- the RATIO between the two, not omega-6 intake in isolation, is what the inflammation research actually tracks.',
+      'Omega-6 fats are the raw material for pro-inflammatory signaling molecules, while omega-3s build the anti-inflammatory ones -- and it\'s genuinely the ratio between the two, not omega-6 on its own, that the research actually tracks.',
     swaps: [
-      'Extra virgin olive oil or avocado oil for most cooking -- both far lower in omega-6 relative to their monounsaturated fat content.',
-      'Fatty fish (salmon, sardines, mackerel) a few times a week to directly raise omega-3 intake rather than only cutting omega-6.',
-      'Baking, roasting, or air-frying in place of deep frying when a crispy texture is the actual goal.',
+      'Extra virgin olive oil or avocado oil for most everyday cooking -- both much lower in omega-6 relative to their healthy fat content.',
+      'Fatty fish (salmon, sardines, mackerel) a few times a week to actually raise omega-3 intake, not just cut omega-6.',
+      'Baking, roasting, or air-frying instead of deep frying when what you\'re really after is the crispy texture.',
     ],
-    citations: [{ source: 'Simopoulos 2002, Biomedicine & Pharmacotherapy (omega-6:omega-3 ratio review)' }],
+    citations: [
+      {
+        source: 'Simopoulos 2002, Biomedicine & Pharmacotherapy -- the importance of the omega-6/omega-3 ratio',
+        url: 'https://doi.org/10.1016/S0753-3322(02)00253-6',
+      },
+    ],
   },
   {
     id: 'problem-commercial-premade',
     category: 'problemFoods',
     foodName: 'Commercial / Pre-Made Products',
-    teaser: 'This app\'s own design philosophy, stated as a food-literacy lesson: build it yourself when you can.',
+    teaser: 'This app\'s own design philosophy, said out loud: build it yourself when you can.',
     problem:
-      'Branded, packaged, box-mix, and other commercial pre-made products typically stack several of this list\'s other concerns at once (refined oils, added sugar, synthetic dyes, emulsifiers, sodium) in a single item, and their exact recipe and ratios aren\'t something the eater controls or necessarily even sees on the label.',
+      'Branded, boxed, and other pre-made products tend to stack several of this list\'s other concerns into one item at once -- refined oils, added sugar, synthetic dyes, emulsifiers, sodium -- and the exact recipe and ratios genuinely aren\'t something you control, or always even see on the label.',
     mechanism:
-      'It isn\'t any single mechanism -- it\'s cumulative, uncontrolled exposure to several of the other entries on this list stacked together, exactly why this app\'s own reference database and ten Food-tab builders were built around assembling real meals from real, individually-chosen ingredients rather than picking a pre-made stand-in.',
+      "It isn't any single mechanism -- it's cumulative, less-visible exposure to several of this list's other entries stacked together at once. A large 2024 umbrella review pooling nearly 10 million people found ultra-processed food consistently tied to 32 different adverse health outcomes -- exactly why this app's own ten Food-tab builders exist to assemble real meals from real, individually-chosen ingredients instead of reaching for a pre-made stand-in.",
     swaps: [
-      "Build the equivalent yourself using this app's own Food-tab builders -- Sides, Sauces, Soups, and Handhelds all cover ground a box mix or frozen meal usually fills.",
-      'When a commercial product genuinely is the only practical option, reading the full ingredient list (not just the front label) at least makes the actual tradeoff visible rather than hidden.',
+      "Build the equivalent yourself with this app's own Food-tab builders -- Sides, Sauces, Soups, and Handhelds cover most of the ground a box mix or frozen meal usually fills.",
+      'When a commercial product really is the only practical option, reading the full ingredient list (not just the front label) at least makes the real tradeoff visible instead of hidden.',
     ],
-    citations: [{ source: "This app's own core-purpose framing, CLAUDE.md, 2026-08-05" }],
+    citations: [
+      {
+        source: 'Lane et al. 2024, BMJ -- ultra-processed food exposure and adverse health outcomes, umbrella review',
+        url: 'https://doi.org/10.1136/bmj-2023-077310',
+      },
+    ],
   },
   {
     id: 'problem-conventional-high-pesticide-produce',
@@ -175,30 +236,84 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     foodName: 'Conventional Produce, High-Residue Items Specifically',
     teaser: 'The real, checkable version of "wash your produce" -- not every fruit or vegetable carries the same exposure.',
     problem:
-      'Pesticide residue on conventionally grown produce varies enormously by crop -- some items (strawberries, spinach, kale) reliably test with detectable residue on nearly every sample in annual testing programs, while others (avocado, sweet corn, pineapple) reliably test clean, mostly due to a thick outer skin or peel the eaten part never touches.',
+      'Pesticide residue on conventionally grown produce varies a lot by crop. Some items -- strawberries, spinach, kale -- reliably test with detectable residue on nearly every sample in annual testing, while others -- avocado, sweet corn, pineapple -- reliably test clean, mostly thanks to a thick skin the edible part never actually touches.',
     mechanism:
-      'Several commonly used pesticides are documented endocrine disruptors in animal and cell studies -- meaning the concern here connects directly to this app\'s own Lifestyle & Environment research on environmental endocrine disruptors, not a separate topic.',
+      "Several commonly used pesticides are documented endocrine disruptors in animal and cell studies -- which connects this directly to this app's own Lifestyle & Environment research on environmental endocrine disruptors, not a separate topic on its own.",
     swaps: [
-      'Buy organic selectively for the highest-residue items (thin-skinned produce eaten whole) rather than assuming every item needs it equally.',
-      'Conventional is a genuinely reasonable choice for thick-skinned produce (avocado, banana, melon, pineapple) where the edible part is naturally shielded.',
-      'A thorough rinse under running water measurably reduces surface residue on any produce, organic or not -- a real, free step worth doing regardless.',
+      'Buy organic selectively, for the highest-residue, thin-skinned items -- not as a blanket rule for everything.',
+      'Conventional is a genuinely reasonable, money-saving choice for thick-skinned produce (avocado, banana, melon, pineapple), where the part you eat is naturally shielded.',
+      'A good rinse under running water measurably cuts surface residue on any produce, organic or not -- a real, free step worth doing either way.',
     ],
-    citations: [{ source: 'EWG Shopper\'s Guide to Pesticides in Produce, annual USDA residue testing data' }],
+    citations: [
+      { source: "EWG's Shopper's Guide to Pesticides in Produce -- annual USDA residue testing data", url: 'https://www.ewg.org/foodnews/' },
+    ],
   },
   {
     id: 'problem-coffee-timing',
     category: 'problemFoods',
     foodName: 'Coffee Taken Too Close to Levothyroxine',
-    teaser: "The single most clinically actionable food-medication interaction on this app's own advisory list.",
+    teaser: "The single most useful, most fixable food-medication timing tip on this app's own list.",
     problem:
-      'A real pharmacokinetic study found coffee taken alongside a levothyroxine dose delays and measurably reduces its absorption -- peak plasma levels down 19-36%, total absorption (AUC) down 27-36% in that trial.',
+      'A real pharmacokinetic study found coffee taken alongside a levothyroxine dose measurably cuts how much of it actually gets absorbed -- peak blood levels down 19-36%, total absorption down 27-36% in that trial.',
     mechanism:
-      'The exact mechanism isn\'t fully characterized, but the effect is dose-timing-dependent, not a reason to avoid coffee altogether -- resolved in the study by simply spacing the two roughly an hour apart.',
+      "The exact chemistry isn't fully worked out, but the effect is entirely about timing, not a reason to give up coffee -- the same study found the interference disappeared once espresso was taken a full hour after the dose instead of alongside it.",
     swaps: [
-      'Take levothyroxine with plain water, then wait at least 30-60 minutes before the first cup of coffee.',
-      'If mornings are tight, ask a doctor about taking levothyroxine at bedtime instead (a real, studied alternative dosing schedule) rather than skipping the spacing.',
+      'Take levothyroxine with plain water, then hold off on that first cup for at least 30-60 minutes.',
+      "If mornings are just too tight for that, ask a doctor about taking levothyroxine at bedtime instead -- a real, studied alternative -- rather than skipping the spacing altogether.",
     ],
-    citations: [{ source: 'Benvenga et al., coffee/levothyroxine absorption crossover study' }],
+    citations: [
+      {
+        source: 'Benvenga et al. 2008, Thyroid -- altered intestinal absorption of L-thyroxine caused by coffee',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/18341376/',
+      },
+    ],
     relatedIds: ['labs-biotin-interference'],
+  },
+  {
+    id: 'problem-excess-iodine-kelp',
+    category: 'problemFoods',
+    foodName: 'Kelp, Dulse & Iodine-Heavy Sea Vegetables',
+    teaser: '"More iodine is always better for your thyroid" is exactly backwards for a lot of people with Hashimoto\'s.',
+    problem:
+      "Kelp, dulse, and similar sea vegetables (plus kelp-based supplements) can carry enormous amounts of iodine in a single serving -- and for someone who already has Hashimoto's, a sudden iodine overload is a real, documented way to trigger or worsen a flare, not just a harmless \"extra nutrient.\"",
+    mechanism:
+      "Your thyroid actually has a built-in safety brake for iodine (the Wolff-Chaikoff effect) that's supposed to shut hormone production down temporarily when iodine floods in -- but in Hashimoto's, that brake can misfire or get stuck, and the antibody attack itself can flare right alongside it. It's the same reason this app's own iodine reference entry calls it a genuine two-edged nutrient: too little is a problem, but so is too much.",
+    swaps: [
+      "Nori (the seaweed used for sushi) runs far lower in iodine than kelp or dulse -- a reasonable way to still get some real sea-vegetable flavor and nutrition without the same overload risk.",
+      "Skip kelp-based supplements entirely unless a doctor has specifically checked your iodine status first -- this is one case where \"a little extra can't hurt\" genuinely isn't true.",
+      "If a recipe calls for kelp/kombu just for umami flavor (like a broth base), a small piece removed after simmering delivers the flavor without leaving the iodine payload behind in what you actually eat.",
+    ],
+    citations: [
+      {
+        source: 'Iodine intake from universal salt iodization programs and Hashimoto\'s thyroiditis: a systematic review',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12191997/',
+      },
+      {
+        source: 'A case of Hashimoto\'s thyroiditis with thyroid immunological abnormality manifested after habitual seaweed ingestion',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/581113/',
+      },
+    ],
+    relatedIds: ['nutrient-iodine'],
+  },
+  {
+    id: 'problem-charred-grilled-meat',
+    category: 'problemFoods',
+    foodName: 'Charred, Grilled & Deep-Fried Meat',
+    teaser: "It's not the meat -- it's how hot and how dry it got cooked.",
+    problem:
+      "Grilling, broiling, and deep-frying meat at high, dry heat forms real compounds -- advanced glycation end products (AGEs) among them -- that build up in the body over time and are linked to more inflammation. The same cut of meat can carry wildly different amounts depending purely on how it was cooked.",
+    mechanism:
+      "AGEs form when proteins and fats react with sugars under high, dry heat -- a process that barely happens in moist, lower-heat cooking. Research mapping this out found grilled chicken breast can carry 4-5 times the AGEs of the same chicken poached, and french fries up to 90 times more than the same potato boiled -- a genuinely enormous swing driven entirely by cooking method, not the food itself.",
+    swaps: [
+      'Braising, stewing, poaching, or slow-cooking instead of grilling or frying -- moist heat barely forms these compounds at all.',
+      "Marinating meat before grilling (something acidic like lemon juice or vinegar) measurably cuts AGE formation, if grilling is genuinely the goal.",
+      'A quick sear for flavor is fine -- the real risk builds with long, hard, repeated dry-heat cooking as an everyday habit, not one grilled dinner.',
+    ],
+    citations: [
+      {
+        source: 'Formation of advanced glycation end products in foods during cooking, a review of experimental studies',
+        url: 'https://www.cambridge.org/core/journals/nutrition-research-reviews/article/formation-of-advanced-glycation-endproducts-in-foods-during-cooking-process-and-underlying-mechanisms-a-comprehensive-review-of-experimental-studies/85036557AFBCC896D886B7872C092AA2',
+      },
+    ],
   },
 ];

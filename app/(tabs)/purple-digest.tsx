@@ -1,6 +1,7 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
@@ -90,6 +91,7 @@ export default function PurpleDigestScreen() {
   // within whichever category is showing -- at most one open at a time,
   // same "tap again to collapse" accordion shape as Insights' own SixDsView.
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const scrollRef = useRef<ScrollView>(null);
 
   const LENSES: LensOption<DigestCategoryKey>[] = DIGEST_CATEGORY_META.map((meta) => ({
     key: meta.key,
@@ -100,16 +102,44 @@ export default function PurpleDigestScreen() {
 
   const activeLensLabel = DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
   const entries = getEntriesForCategory(lens);
+  // Whichever entry is expanded sorts to the very front of the list (its
+  // relative order among the rest is otherwise unchanged), animated via
+  // Animated.View's own layout={LinearTransition} below (same reorder-
+  // animation technique as SideBuilder's own NAVIGATION_HAND-aware field
+  // reordering) -- "the one chosen should rise to the top so as much as
+  // possible can be seen," per explicit request. Collapsing (expandedId
+  // back to null) restores the plain, original category order.
+  const expandedIndex = expandedId ? entries.findIndex((entry) => entry.id === expandedId) : -1;
+  const displayEntries =
+    expandedIndex > 0
+      ? [entries[expandedIndex], ...entries.slice(0, expandedIndex), ...entries.slice(expandedIndex + 1)]
+      : entries;
+
+  // Companion to the reorder above: since the newly-expanded card also
+  // moves to the very top of the list, scrolling back to y=0 is what
+  // actually brings it into view rather than leaving it sitting off-screen
+  // above wherever the list happened to be scrolled to already.
+  function scrollToTop() {
+    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  }
+
+  function toggleEntry(id: string) {
+    const wasExpanded = expandedId === id;
+    setExpandedId(wasExpanded ? null : id);
+    if (!wasExpanded) scrollToTop();
+  }
 
   // Jumping to a related entry: switch category (if it's a different one),
-  // expand that entry, and collapse whatever was open before -- a related
-  // chip always lands you looking at exactly that entry, not just its
-  // category's list.
+  // expand that entry (which also carries it to the top of its own
+  // category's list -- see displayEntries above), and collapse whatever
+  // was open before -- a related chip always lands you looking at exactly
+  // that entry, not buried wherever it sorts in its category.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     setLens(target.category as DigestCategoryKey);
     setExpandedId(id);
+    scrollToTop();
   }
 
   return (
@@ -117,28 +147,40 @@ export default function PurpleDigestScreen() {
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Purple Digest" variant="field" revealed={revealed}>
           <ScrollView
+            ref={scrollRef}
             style={styles.body}
             contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
           >
-            <View style={styles.categoryHeaderRow}>
-              <PurpleRibbonIcon size={22} color={TAB_COLOR} />
-              <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+            {/* Wrapped in an opaque card, not sitting bare on the shared
+                flower background -- reported as unreadable that way. Every
+                other tab's own top-of-content text either already sits on a
+                card (Insights/Schedule) or opts into textShadow when it
+                truly has to render straight over the photo (Home's
+                greeting) -- a card is the better fit here, since this
+                header block is real page-identity content, not a one-line
+                caption over open sky. */}
+            <View style={styles.headerCard}>
+              <View style={styles.categoryHeaderRow}>
+                <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+              </View>
+              <Text style={styles.categoryDescription}>
+                {DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
+              </Text>
             </View>
-            <Text style={styles.categoryDescription}>
-              {DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
-            </Text>
 
-            {entries.length === 0 ? (
+            {displayEntries.length === 0 ? (
               <Text style={styles.emptyText}>Nothing here yet.</Text>
             ) : (
-              entries.map((entry) => (
-                <DigestCard
-                  key={entry.id}
-                  entry={entry}
-                  expanded={expandedId === entry.id}
-                  onToggle={() => setExpandedId((current) => (current === entry.id ? null : entry.id))}
-                  onJumpToRelated={jumpToRelated}
-                />
+              displayEntries.map((entry) => (
+                <Animated.View key={entry.id} layout={LinearTransition}>
+                  <DigestCard
+                    entry={entry}
+                    expanded={expandedId === entry.id}
+                    onToggle={() => toggleEntry(entry.id)}
+                    onJumpToRelated={jumpToRelated}
+                  />
+                </Animated.View>
               ))
             )}
           </ScrollView>
@@ -151,6 +193,15 @@ export default function PurpleDigestScreen() {
         options={LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
+        // Same real custom mark used everywhere else this tab is
+        // represented (Home's own shortcut button, TabHub's own grid) --
+        // without this, LensHub falls back to TAB_ROUTES' plain Ionicons
+        // "ribbon" glyph, which reads as a race/award rosette rather than
+        // an awareness ribbon (see PurpleRibbonIcon.tsx's own history).
+        // TabHub already special-cases this same path; LensHub has no such
+        // per-route special-casing of its own, so it needs this override
+        // explicitly.
+        renderIcon={(size) => <PurpleRibbonIcon size={size} color={TAB_COLOR} />}
         onSelect={(key) => {
           setLens(key);
           setExpandedId(null);
@@ -276,9 +327,20 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
+  // An opaque card, same surface every DigestCard below already sits on --
+  // fixes this header text being unreadable directly over the shared
+  // flower background (see the JSX's own comment above this style's use).
+  headerCard: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: TAB_COLOR,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 16,
+  },
   categoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   categoryHeaderText: { ...typography.screenTitle, color: TAB_COLOR },
-  categoryDescription: { ...typography.body, color: colors.textSecondary, marginBottom: 16, lineHeight: 19 },
+  categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   emptyText: { ...typography.body, color: colors.textSecondary },
   card: {
     borderWidth: 2,
