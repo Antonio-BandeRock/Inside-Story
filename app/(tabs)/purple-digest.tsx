@@ -219,12 +219,11 @@ export default function PurpleDigestScreen() {
   // only the ScrollView's own scroll position moves, to wherever that
   // card already sits in its own unchanged, original position.
   const cardOffsets = useRef<Record<string, number>>({});
-  // The ScrollView's own current scroll position -- 2026-08-07, added
-  // alongside the "skip a trivial scroll" fix below (see
-  // scrollEntryIntoView's own comment). Kept live via the ScrollView's own
-  // onScroll, the same plain-ref-not-state pattern already used for
-  // LensHub's own scroll-hint tracking, so a scroll in progress doesn't
-  // itself force a re-render.
+  // The ScrollView's own current, live scroll position -- 2026-08-07,
+  // re-added specifically to stop residual scroll momentum before issuing
+  // a programmatic scroll (see scrollEntryIntoView's own comment). Plain
+  // ref, not state, so onScroll firing repeatedly during a manual drag
+  // doesn't itself force a re-render.
   const currentScrollY = useRef(0);
 
   const LENSES: LensOption<DigestCategoryKey>[] = DIGEST_CATEGORY_META.map((meta) => ({
@@ -241,45 +240,61 @@ export default function PurpleDigestScreen() {
   // expanded card to the front of the list" approach).
   const entries = getEntriesForCategory(lens);
 
-  // How far above a scrolled-to card's own top edge to stop, so it doesn't
-  // land flush against the screen's physical top edge -- roughly matching
-  // bodyContent's own top padding (16) minus a little, so the card reads
-  // as "the very next thing" rather than crammed against the edge.
-  const ENTRY_SCROLL_TOP_MARGIN = 12;
-  // Below this many pixels of actual movement, skip the scroll entirely
-  // rather than animate it -- 2026-08-07, direct report: tapping a card
-  // that was already visible just a little way down the screen (having
-  // "scrolled down just a little" to see it) still triggered a full,
-  // forced jump to the exact top -- combined with whatever OTHER card was
-  // open collapsing at the very same moment (shifting layout on its own),
-  // two things moving the screen at once read as genuinely wrong, not
-  // just unnecessary. A card that's already sitting close to the top
-  // doesn't need to be moved there at all; it can simply expand in place.
-  // 80px is roughly the height of one collapsed card's own header --
-  // small enough that a genuinely deep-in-the-list card (the actual case
-  // this whole mechanism exists for) still gets scrolled for real.
-  const SCROLL_SKIP_THRESHOLD = 80;
+  // How far above a scrolled-to card's own top edge to stop -- 2026-08-07,
+  // set to the exact figure given directly: "The header of the one I
+  // tapped should be at the top of the screen under the app's own header
+  // section by about 10 pixels." (Previously 12, and briefly gated behind
+  // a skip-if-already-close threshold -- both reverted; see below.)
+  const ENTRY_SCROLL_TOP_MARGIN = 10;
 
-  // Scrolls the ScrollView so the named card's own top edge lands near the
-  // top of the visible screen -- its position in the (unchanged) list,
-  // not a reorder. Deferred by a real animation frame (same pattern
-  // already used elsewhere in this app for "wait for a just-triggered
-  // layout change to land before scrolling," e.g. SideBuilder's own
-  // onFocus/scrollToEnd) rather than reading cardOffsets synchronously:
-  // a sibling card collapsing (the previously-expanded one, if this is a
-  // different entry) can shift this card's own offset, and onLayout only
-  // reports that new offset after React's own layout pass actually lands.
-  // Retries a few more frames if the target's offset isn't known yet at
-  // all (e.g. jumpToRelated switching to a category whose cards haven't
-  // rendered/measured for the first time yet) rather than silently doing
-  // nothing -- bounded so a genuinely bad id can't retry forever.
+  // Scrolls the ScrollView so the named card's own top edge lands exactly
+  // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- its
+  // position in the (unchanged) list, not a reorder -- on EVERY tap,
+  // unconditionally, regardless of where the card already sits on screen.
+  // 2026-08-07: a same-day earlier attempt added a "skip the scroll if the
+  // card's already close to the top" threshold, guessing that was the real
+  // fix for a reported jarring jump -- direct correction: "No matter which
+  // box I choose, no matter where it is at that moment on the screen, its
+  // header moves to the top of the screen." The skip logic directly
+  // contradicted that and is gone; every tap scrolls, full stop.
+  //
+  // Deferred by a real animation frame (same pattern already used
+  // elsewhere in this app for "wait for a just-triggered layout change to
+  // land before scrolling," e.g. SideBuilder's own onFocus/scrollToEnd)
+  // rather than reading cardOffsets synchronously: a sibling card
+  // collapsing (the previously-expanded one, if this is a different
+  // entry) can shift this card's own offset, and onLayout only reports
+  // that new offset after React's own layout pass actually lands. Retries
+  // a few more frames if the target's offset isn't known yet at all (e.g.
+  // jumpToRelated switching to a category whose cards haven't rendered/
+  // measured for the first time yet) rather than silently doing nothing --
+  // bounded so a genuinely bad id can't retry forever.
+  //
+  // 2026-08-07, a real, separate bug found after the margin/threshold
+  // fixes above: reported as working correctly when tapping entries in
+  // order, but overshooting -- landing on the chosen entry's own BOTTOM
+  // edge instead of its top -- specifically after manually scrolling
+  // further down (past the next entry) before tapping one farther away.
+  // The real difference between those two cases isn't tap order, it's
+  // scroll momentum: a bigger manual scroll leaves the ScrollView still
+  // decelerating (a "fling") when the tap lands, and calling `scrollTo`
+  // while Android's native scroll is still mid-fling is a real, documented
+  // source of an inconsistent final resting position -- the new,
+  // programmatic scroll can compound with the still-running momentum
+  // instead of replacing it. Fixed with the standard workaround: an
+  // immediate, unanimated `scrollTo` to the CURRENT position first, which
+  // halts any in-flight momentum outright (an unanimated scroll to
+  // wherever the view already is has nothing to animate, but it does
+  // cancel the native scroll responder's own running fling), followed by
+  // the real animated scroll to the actual target -- so the animated
+  // scroll always starts from a known-stopped state, never a still-moving
+  // one.
   function scrollEntryIntoView(id: string, attemptsLeft = 5) {
     requestAnimationFrame(() => {
       const y = cardOffsets.current[id];
       if (y != null) {
-        const target = Math.max(y - ENTRY_SCROLL_TOP_MARGIN, 0);
-        if (Math.abs(target - currentScrollY.current) < SCROLL_SKIP_THRESHOLD) return;
-        scrollRef.current?.scrollTo({ y: target, animated: true });
+        scrollRef.current?.scrollTo({ y: currentScrollY.current, animated: false });
+        scrollRef.current?.scrollTo({ y: Math.max(y - ENTRY_SCROLL_TOP_MARGIN, 0), animated: true });
       } else if (attemptsLeft > 0) {
         scrollEntryIntoView(id, attemptsLeft - 1);
       }
@@ -316,7 +331,7 @@ export default function PurpleDigestScreen() {
             onScroll={(event) => {
               currentScrollY.current = event.nativeEvent.contentOffset.y;
             }}
-            scrollEventThrottle={100}
+            scrollEventThrottle={16}
           >
             {/* Wrapped in an opaque card, not sitting bare on the shared
                 flower background -- reported as unreadable that way. Every
