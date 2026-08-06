@@ -74,6 +74,22 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
   },
   {
+    id: 'labs-breakfast-higher-dose',
+    category: 'labsMedication',
+    title: 'A Real 2026 Trial: Levothyroxine WITH Breakfast, at a Higher Dose',
+    teaser: 'Not fasting, not bedtime -- a real, brand-new randomized trial found a third real option works just as well.',
+    summary:
+      "The standard fasting rule and the bedtime alternative above both still ask for a real, empty-stomach window. A genuinely new 2026 randomized trial tested something different: what if the dose itself, not the timing, absorbed the difference? 88 patients were randomized to either standard fasting levothyroxine or the same drug taken with breakfast at a 15% higher dose. The two groups ended up statistically indistinguishable on real thyroid stability -- 74.4% of the fasting group and 73.3% of the breakfast group maintained their target TSH, a gap with no real statistical significance. The breakfast group also reported real, measurably greater improvements in self-reported well-being, and by the end of the trial, 88.9% of that group chose to keep taking their dose with breakfast rather than switch back. A real, third legitimate option -- worth a direct conversation with a doctor for anyone who finds both the standard fasting window and the bedtime alternative genuinely hard to keep consistent, not just a theoretical one.",
+    citations: [
+      {
+        source: 'Willems JIA, van Twist DJL, Helmich F, et al. 2026, Journal of Clinical Endocrinology & Metabolism -- "Fasting vs Nonfasting, Dose-adjusted Levothyroxine Ingestion in Hypothyroidism: A Randomized Clinical Trial"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/41431302/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['labs-bedtime-dosing'],
+  },
+  {
     id: 'labs-timing-master-rule',
     category: 'labsMedication',
     title: 'The Practical Timing Rule, Pulled Together',

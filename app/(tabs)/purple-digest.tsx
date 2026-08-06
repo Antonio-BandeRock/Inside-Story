@@ -23,6 +23,18 @@ import {
   type EvidenceTier,
 } from '../../lib/digest';
 
+// The minimal shape scrollEntryIntoView actually needs from a card ref or
+// the ScrollView ref -- both `Animated.View` (via Reanimated's own ref
+// forwarding) and `ScrollView` expose a real `.measure()` imperative
+// method (the same primitive React Native itself is built on for "where is
+// this view really, right now" queries), so a narrow structural type here
+// avoids needing an exact, brittle component type for either.
+type Measurable = {
+  measure: (
+    callback: (x: number, y: number, width: number, height: number, pageX: number, pageY: number) => void,
+  ) => void;
+};
+
 // Promoted 2026-08-05 from a Stack-push placeholder (formerly
 // app/purple-digest.tsx, now deleted -- see that file's own former header
 // comment for the naming history) to a real tab: "a real location for the
@@ -82,6 +94,10 @@ const DIGEST_READING_HELP: HelpSection = {
 // still used for the on-screen subtitle -- this is genuinely additional
 // content, not a replacement for it.
 const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
+  glossary: {
+    heading: 'Glossary',
+    body: "Every acronym and term this Digest actually uses -- TSH, zonulin, deiodinase, Treg, SCFA, and dozens more -- defined plainly in three parts: what it really is, what it does in the body, and how it connects to Hashimoto's specifically. Built to be looked something up in, not read start to finish -- each entry stays short on purpose, and a Related chip jumps straight to the deeper, full-length entry elsewhere in this Digest where that term actually does its real work.",
+  },
   foodAdditives: {
     heading: 'Food Additives',
     body: "Real dose-and-mechanism detail on the additives people actually ask about -- carboxymethylcellulose and polysorbate 80's own gut-mucus research, sodium nitrite's real thyroid-transport mechanism, potassium bromate's tumor data, the 2025 Red Dye 3 ban. Most entries here are genuine concerns, but one (xanthan and guar gum) is included specifically because the evidence says it's fine, so this list doesn't read as uniformly alarmist.",
@@ -204,24 +220,26 @@ export default function PurpleDigestScreen() {
   // same "tap again to collapse" accordion shape as Insights' own SixDsView.
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
-  // Each card's own current Y offset within the ScrollView's content,
-  // keyed by entry id -- kept live via each card's own onLayout below (a
-  // direct child of the ScrollView's contentContainer, so layout.y IS its
-  // real scroll-content offset, no separate measurement call needed).
-  // 2026-08-07: this replaces the earlier "reorder the list so the
-  // expanded card becomes the first item" approach entirely, per direct
-  // correction: "The animation to place each selected box at the top of
-  // the screen wasn't what I meant, please remove that. What I meant was
-  // when I select one, the screen scrolls it to the top... If they select
-  // a new one, the old one collapses while the new one expands and
-  // scrolls itself to the top." The list itself never reorders now (see
-  // `entries` used directly below, no more displayEntries derivation) --
-  // only the ScrollView's own scroll position moves, to wherever that
-  // card already sits in its own unchanged, original position.
-  const cardOffsets = useRef<Record<string, number>>({});
-  // The ScrollView's own current, live scroll position -- 2026-08-07,
-  // re-added specifically to stop residual scroll momentum before issuing
-  // a programmatic scroll (see scrollEntryIntoView's own comment). Plain
+  // A real ref to each rendered card, keyed by entry id -- 2026-08-07,
+  // replacing the earlier onLayout-tracked "cached offset" approach
+  // entirely, per direct, explicit correction: "You seem to be trying to
+  // judge their approximate location and approximate destination at the
+  // time instead of just assigning something to be the mechanism... place
+  // the header of this box 10 pixels from the bottom of the header of the
+  // app." That's exactly right, and it's what this now does: rather than
+  // trusting a Y offset computed and cached at some earlier moment (which
+  // onLayout only updates asynchronously, after the fact, and which three
+  // separate real bugs turned out to trace back to), scrollEntryIntoView
+  // below asks each card's own real, current position directly, at the
+  // exact instant it's needed -- the same thing a web page's own anchor-
+  // link navigation does under the hood (query the element's real
+  // position, then scroll there), not a pre-computed guess.
+  const cardRefs = useRef<Record<string, Measurable | null>>({});
+  // The ScrollView's own current, live scroll position -- kept live via
+  // onScroll, needed for two real reasons: converting the viewport-
+  // relative measurement below into an absolute scroll target, and
+  // stopping any in-flight scroll momentum before issuing a new
+  // programmatic scroll (see scrollEntryIntoView's own comment). Plain
   // ref, not state, so onScroll firing repeatedly during a manual drag
   // doesn't itself force a re-render.
   const currentScrollY = useRef(0);
@@ -248,56 +266,59 @@ export default function PurpleDigestScreen() {
   const ENTRY_SCROLL_TOP_MARGIN = 10;
 
   // Scrolls the ScrollView so the named card's own top edge lands exactly
-  // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- its
-  // position in the (unchanged) list, not a reorder -- on EVERY tap,
-  // unconditionally, regardless of where the card already sits on screen.
-  // 2026-08-07: a same-day earlier attempt added a "skip the scroll if the
-  // card's already close to the top" threshold, guessing that was the real
-  // fix for a reported jarring jump -- direct correction: "No matter which
-  // box I choose, no matter where it is at that moment on the screen, its
-  // header moves to the top of the screen." The skip logic directly
-  // contradicted that and is gone; every tap scrolls, full stop.
+  // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- on
+  // EVERY tap, unconditionally, regardless of where the card already sits.
   //
-  // Deferred by a real animation frame (same pattern already used
-  // elsewhere in this app for "wait for a just-triggered layout change to
-  // land before scrolling," e.g. SideBuilder's own onFocus/scrollToEnd)
-  // rather than reading cardOffsets synchronously: a sibling card
-  // collapsing (the previously-expanded one, if this is a different
-  // entry) can shift this card's own offset, and onLayout only reports
-  // that new offset after React's own layout pass actually lands. Retries
-  // a few more frames if the target's offset isn't known yet at all (e.g.
-  // jumpToRelated switching to a category whose cards haven't rendered/
-  // measured for the first time yet) rather than silently doing nothing --
-  // bounded so a genuinely bad id can't retry forever.
+  // 2026-08-07, rebuilt around real, live measurement rather than a cached
+  // offset, per explicit correction: "You seem to be trying to judge their
+  // approximate location and approximate destination at the time instead
+  // of just assigning something to be the mechanism for each box... place
+  // the header of this box 10 pixels from the bottom of the header of the
+  // app." That's the actual fix -- the same thing a web page's own anchor
+  // navigation does: ask the real element where it currently is, then
+  // scroll there, rather than trusting a value computed and cached at some
+  // earlier moment. `.measure()` (a real, standard React Native primitive,
+  // available on both the target card's own ref and the ScrollView's own
+  // ref) reports each one's own real, current on-screen (`pageY`)
+  // position, queried fresh at the exact instant this function runs --
+  // never a stale value. The math: `pageY - scrollPageY` is how far below
+  // the ScrollView's own visible top edge the card currently sits (its
+  // real on-screen offset within the viewport); adding that to the
+  // ScrollView's own current absolute scroll position gives the real
+  // absolute target to scroll to -- not a guess, a direct, current
+  // measurement each time.
   //
-  // 2026-08-07, a real, separate bug found after the margin/threshold
-  // fixes above: reported as working correctly when tapping entries in
-  // order, but overshooting -- landing on the chosen entry's own BOTTOM
-  // edge instead of its top -- specifically after manually scrolling
-  // further down (past the next entry) before tapping one farther away.
-  // The real difference between those two cases isn't tap order, it's
-  // scroll momentum: a bigger manual scroll leaves the ScrollView still
-  // decelerating (a "fling") when the tap lands, and calling `scrollTo`
-  // while Android's native scroll is still mid-fling is a real, documented
-  // source of an inconsistent final resting position -- the new,
-  // programmatic scroll can compound with the still-running momentum
-  // instead of replacing it. Fixed with the standard workaround: an
-  // immediate, unanimated `scrollTo` to the CURRENT position first, which
-  // halts any in-flight momentum outright (an unanimated scroll to
-  // wherever the view already is has nothing to animate, but it does
-  // cancel the native scroll responder's own running fling), followed by
-  // the real animated scroll to the actual target -- so the animated
-  // scroll always starts from a known-stopped state, never a still-moving
-  // one.
+  // Deferred by one real animation frame first -- not to "wait for an
+  // offset to become available" (there's no cached value left to wait on),
+  // but because tapping a NEW entry also collapses whatever was previously
+  // expanded, and that layout change needs to actually land before
+  // `.measure()` would report this card's own true, POST-collapse
+  // position. Retries a few more frames only if the target card's own ref
+  // doesn't exist yet at all (e.g. jumpToRelated switching to a category
+  // whose cards haven't mounted for the first time yet), not because a
+  // measurement came back wrong.
+  //
+  // The momentum-halt step (an immediate, unanimated scroll to the current
+  // position before the real animated scroll) is kept from the previous
+  // fix for the same reason as before: Android can otherwise blend a new
+  // programmatic scroll with any still-running fling from a recent manual
+  // drag, producing an inconsistent final position even when the target
+  // itself was computed correctly.
   function scrollEntryIntoView(id: string, attemptsLeft = 5) {
     requestAnimationFrame(() => {
-      const y = cardOffsets.current[id];
-      if (y != null) {
-        scrollRef.current?.scrollTo({ y: currentScrollY.current, animated: false });
-        scrollRef.current?.scrollTo({ y: Math.max(y - ENTRY_SCROLL_TOP_MARGIN, 0), animated: true });
-      } else if (attemptsLeft > 0) {
-        scrollEntryIntoView(id, attemptsLeft - 1);
+      const cardNode = cardRefs.current[id];
+      const scrollNode = scrollRef.current;
+      if (!cardNode || !scrollNode) {
+        if (attemptsLeft > 0) scrollEntryIntoView(id, attemptsLeft - 1);
+        return;
       }
+      cardNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
+        (scrollNode as unknown as Measurable).measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
+          const target = currentScrollY.current + (cardPageY - scrollPageY) - ENTRY_SCROLL_TOP_MARGIN;
+          scrollNode.scrollTo({ y: currentScrollY.current, animated: false });
+          scrollNode.scrollTo({ y: Math.max(target, 0), animated: true });
+        });
+      });
     });
   }
 
@@ -358,16 +379,14 @@ export default function PurpleDigestScreen() {
                 <Animated.View
                   key={entry.id}
                   layout={LinearTransition}
-                  // Keeps cardOffsets current -- this View is a direct
-                  // child of the ScrollView's own contentContainer, so
-                  // layout.y IS this card's real scroll-content offset,
-                  // no separate measurement call needed. Fires again
-                  // automatically whenever this card's own position
-                  // shifts (e.g. a sibling above it collapsing), which is
-                  // exactly the "wait for the real, settled offset" this
-                  // component's own scrollEntryIntoView relies on.
-                  onLayout={(event) => {
-                    cardOffsets.current[entry.id] = event.nativeEvent.layout.y;
+                  // A real ref to this card, not a cached measurement --
+                  // scrollEntryIntoView calls .measure() on it directly, at
+                  // the moment it's needed, rather than trusting a value
+                  // recorded earlier. Reanimated's Animated.View forwards
+                  // refs to the underlying native view, so this exposes the
+                  // same real .measure() every plain View has.
+                  ref={(r) => {
+                    cardRefs.current[entry.id] = r as unknown as Measurable | null;
                   }}
                 >
                   <DigestCard

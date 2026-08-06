@@ -4,6 +4,7 @@ import { BIG_PICTURE_ENTRIES } from './bigPicture';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
 import { FOOD_INDUSTRY_HISTORY_ENTRIES } from './foodIndustryHistory';
+import { GLOSSARY_ENTRIES } from './glossary';
 import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
 import { HEALING_STAGES_ENTRIES } from './healingStages';
 import { HISTORY_ENTRIES } from './history';
@@ -25,7 +26,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260807220000';
+export const PURPLE_DIGEST_VERSION = '20260807223000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -33,6 +34,7 @@ export const PURPLE_DIGEST_VERSION = '20260807220000';
 // isProblemFoodEntry (types.ts) rather than the aggregator needing two
 // parallel lists.
 export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
+  ...GLOSSARY_ENTRIES,
   ...FOOD_ADDITIVES_ENTRIES,
   ...FERMENTED_FOODS_ENTRIES,
   ...PROBLEM_FOODS_ENTRIES,
@@ -66,6 +68,23 @@ export const DIGEST_CATEGORY_META: {
   icon: ComponentProps<typeof Ionicons>['name'];
   description: string;
 }[] = [
+  // 2026-08-07, same day, seventh addition: Glossary, placed FIRST -- a
+  // deliberate, explicit exception to this array's own established
+  // "append, never reorder" practice for every category before it (see the
+  // healingStages/organSystems/history/nutrientInteractions block below,
+  // and foodIndustryHistory/bigPicture after that, all appended in place).
+  // The request here was specific about position, not just content: "It
+  // might be a good idea to make it the first one at the top left." A
+  // glossary is also genuinely the right thing to put first on the merits,
+  // not just per instruction -- it's the one category meant to be reached
+  // for constantly while reading any of the other fourteen, not read start
+  // to finish on its own.
+  {
+    key: 'glossary',
+    label: 'Glossary',
+    icon: 'reader-outline',
+    description: 'Every acronym and term used across this Digest, defined plainly -- what it is, what it does in the body, and how it connects to Hashimoto\'s.',
+  },
   {
     key: 'foodAdditives',
     label: 'Food Additives',

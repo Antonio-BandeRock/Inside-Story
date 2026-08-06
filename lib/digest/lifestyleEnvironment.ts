@@ -153,6 +153,22 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     relatedIds: ['lifestyle-alcohol-advisory', 'mito-exercise-cortisol'],
   },
   {
+    id: 'lifestyle-il6-deiodinase',
+    category: 'lifestyleEnvironment',
+    title: 'A Second Real Pathway From Inflammation to Low Thyroid Hormone -- Not Just Cortisol',
+    teaser: 'Cortisol isn\'t the only real route from "inflamed" to "low active thyroid hormone." A specific immune messenger does the same thing, a completely different way.',
+    summary:
+      "This category has already named cortisol as the real, recurring thread connecting alcohol, chronic stress, sleep, and exercise intensity to reduced active thyroid hormone. There's a second, genuinely separate pathway that gets to the exact same destination. IL-6, a real inflammatory signaling molecule the body produces during illness, infection, or chronic inflammation, directly suppresses the D1 and D2 deiodinase enzymes responsible for converting inactive T4 into active T3 -- and, in the same move, activates D3, the enzyme that breaks T3 down. Researchers found this happens through a real, specific mechanism: IL-6 triggers oxidative stress that depletes glutathione, a cofactor those conversion enzymes need to function, and restoring glutathione directly reversed the effect in the lab. This dual hit -- less T3 being made, more T3 being destroyed -- is the real biology behind \"non-thyroidal illness syndrome,\" where someone can look hypothyroid on paper during a real illness or major inflammatory episode without their thyroid gland itself being the cause. A second, independent reason -- alongside cortisol -- that general inflammation, not just direct thyroid autoimmunity, can genuinely suppress how much active thyroid hormone actually reaches the body's cells.",
+    citations: [
+      {
+        source: 'Wajner SM, Goemann IM, Bueno AL, Larsen PR, Maia AL 2011, Journal of Clinical Investigation -- "IL-6 promotes nonthyroidal illness syndrome by blocking thyroxine activation while promoting thyroid hormone inactivation in human cells"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/21540553/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'organ-liver-t4t3-conversion'],
+  },
+  {
     id: 'lifestyle-smoking-paradox',
     category: 'lifestyleEnvironment',
     title: "Smoking: A Real, Counterintuitive Split Between Hashimoto's and Graves'",

@@ -77,6 +77,15 @@ export const DIGEST_CATEGORY_KEYS = [
   // reviewing it category by category. See bigPicture.ts's own header
   // comment for the full reasoning.
   'bigPicture',
+  // 2026-08-07, same day, seventh addition: "Provide a glossary of words
+  // and phrases and acronyms and definitions of all of them... Make it
+  // another lens on the Digest." A genuinely different kind of category
+  // from the other 14 -- see glossary.ts's own header comment for why it's
+  // deliberately short-entry/lookup-shaped rather than narrative, and
+  // index.ts's own DIGEST_CATEGORY_META comment for why, unlike every
+  // category before it, this one was placed FIRST rather than appended
+  // last (a direct, explicit request: "the first one at the top left").
+  'glossary',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
