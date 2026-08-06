@@ -192,7 +192,22 @@ export default function PurpleDigestScreen() {
         pageTitle="Purple Digest"
         options={LENSES}
         selected={revealed ? lens : undefined}
-        columns={3}
+        columns={2}
+        // 2 columns, not the original 3 -- switched 2026-08-07 alongside
+        // itemLabelLines below, explicitly requested: "we need to make the
+        // names of the digest lenses be on two rows so they can be read, or
+        // we need shorter names for them." Real category names here
+        // ("Mitochondria & Metabolism", "Other Autoimmune Diseases") are
+        // meaningfully longer than any other page's lens labels, and even
+        // wrapped to 2 lines, 3 columns' own ~95px-wide column was still
+        // too narrow for several of them not to need a 3rd line. 2 columns
+        // (~142px wide) comfortably fits every real category name at 2
+        // lines without shortening any of them. This also means Info
+        // reverts to its usual floating bottom-right corner (showInfoInGrid
+        // only applies at columns !== 2) instead of sitting inside the
+        // grid -- the same behavior every other 2-column LensHub page
+        // (Insights, Schedule, Bio-Compass) already uses.
+        itemLabelLines={2}
         // Same real custom mark used everywhere else this tab is
         // represented (Home's own shortcut button, TabHub's own grid) --
         // without this, LensHub falls back to TAB_ROUTES' plain Ionicons

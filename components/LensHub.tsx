@@ -1,5 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState, type ComponentProps, type ReactNode } from 'react';
+import { LinearGradient } from 'expo-linear-gradient';
+import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -193,6 +194,7 @@ export function LensHub<T extends string>({
   headerLabel,
   buttonLabel,
   columns = 2,
+  itemLabelLines = 1,
 }: {
   // Used to find this page's own entry in TAB_ROUTES, for the trigger
   // button's icon/color (see below) -- must match a `title` there exactly.
@@ -262,6 +264,19 @@ export function LensHub<T extends string>({
   // Only meaningfully centers Info when this is odd (Food's 3) -- an even
   // count has no true middle column, but nothing currently passes one.
   columns?: number;
+  // How many lines an option's own label can wrap to before truncating,
+  // default 1 (every existing page's labels were already tuned to fit one
+  // line at CARD_WIDTH's 2-column default). 2026-08-07: added for Purple
+  // Digest specifically, whose real category names ("Mitochondria &
+  // Metabolism", "Other Autoimmune Diseases") run meaningfully longer than
+  // any other page's own lens labels and were reading as truncated,
+  // unreadable ellipses at 1 line -- explicitly requested as "two rows"
+  // rather than shortening the names themselves, which would have lost
+  // real meaning. Only changes numberOfLines on the grid's own item labels
+  // (below) -- the corner trigger button's label and the Info tile's own
+  // short "Info" text are unaffected regardless of this prop, since
+  // neither has ever needed more than one line.
+  itemLabelLines?: number;
 }) {
   // 2026-07-26: used to auto-open on arrival (a `forceOpen` prop, driven by
   // the calling screen's own GatedTabContent.tsx resting state) so the
@@ -289,6 +304,29 @@ export function LensHub<T extends string>({
   // ready.
   const [cardReady, setCardReady] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
+  // Whether the grid still has real content below the visible window --
+  // drives the fade-plus-chevron scroll hint below. 2026-08-07: added
+  // alongside the ScrollView itself (see gridScroll's own comment), once
+  // Purple Digest's real category count made scrolling genuinely necessary
+  // -- "since the digest LensHub menu scrolls, it should have some
+  // characteristic that tells people to scroll it," explicitly requested.
+  // Tracked via a plain ref (not state) for the three raw measurements, so
+  // onScroll firing repeatedly during a drag doesn't itself force a
+  // re-render every time -- only the derived boolean below (which only
+  // flips at the moment there's genuinely nothing left to reveal) causes
+  // one. Harmless for every other page: a grid that already fits within
+  // CARD_HEIGHT never sets this true in the first place (contentHeight
+  // never exceeds containerHeight), so the hint simply never renders there.
+  const [canScrollMore, setCanScrollMore] = useState(false);
+  const scrollMetrics = useRef({ containerHeight: 0, contentHeight: 0, scrollY: 0 });
+  function recomputeScrollHint() {
+    const { containerHeight, contentHeight, scrollY } = scrollMetrics.current;
+    const remainingBelow = contentHeight - containerHeight - scrollY;
+    setCanScrollMore((current) => {
+      const next = remainingBelow > 4; // small slop so settling exactly at the bottom doesn't flicker
+      return current === next ? current : next;
+    });
+  }
   const insets = useSafeAreaInsets();
   const { bottom: buttonBottom, left: buttonLeft } = useBottomLeftHubPosition();
   // Falls back to the brand teal/list icon only if a page ever passes a
@@ -351,6 +389,13 @@ export function LensHub<T extends string>({
         style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
         onPress={() => {
           setCardReady(false);
+          // Fresh measurements each time the popup opens -- a stale
+          // canScrollMore from a previous open (e.g. this same page
+          // re-opened after scrolling to the bottom last time) would
+          // otherwise show a wrong hint for one frame before the new
+          // ScrollView's own onLayout/onContentSizeChange fire.
+          scrollMetrics.current = { containerHeight: 0, contentHeight: 0, scrollY: 0 };
+          setCanScrollMore(false);
           setOpen(true);
         }}
         activeOpacity={0.85}
@@ -452,7 +497,25 @@ export function LensHub<T extends string>({
                 exceeds it. Harmless for every page whose grid already fits
                 (a ScrollView with shorter-than-container content simply
                 doesn't scroll) -- not gated behind a per-page flag. */}
-            <ScrollView style={styles.gridScroll} contentContainerStyle={styles.grid} showsVerticalScrollIndicator={false}>
+            <View style={styles.gridWrapper}>
+            <ScrollView
+              style={styles.gridScroll}
+              contentContainerStyle={styles.grid}
+              showsVerticalScrollIndicator={false}
+              scrollEventThrottle={100}
+              onLayout={(event) => {
+                scrollMetrics.current.containerHeight = event.nativeEvent.layout.height;
+                recomputeScrollHint();
+              }}
+              onContentSizeChange={(_width, height) => {
+                scrollMetrics.current.contentHeight = height;
+                recomputeScrollHint();
+              }}
+              onScroll={(event) => {
+                scrollMetrics.current.scrollY = event.nativeEvent.contentOffset.y;
+                recomputeScrollHint();
+              }}
+            >
               {options.map((option) => {
                 const active = option.key === selected;
                 // 2026-07-26: icon color no longer varies with `active` --
@@ -488,7 +551,7 @@ export function LensHub<T extends string>({
                     )}
                     <Text
                       style={[styles.itemLabel, { color: labelColor }]}
-                      numberOfLines={1}
+                      numberOfLines={itemLabelLines}
                       ellipsizeMode="tail"
                       maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
                     >
@@ -535,6 +598,26 @@ export function LensHub<T extends string>({
                 </>
               ) : null}
             </ScrollView>
+            {/* The scroll hint itself -- a soft fade from transparent into
+                the card's own menuSurface color, plus a small chevron,
+                pinned to the bottom edge of gridWrapper (not the whole
+                card), so it reads as "more of THIS list below" rather than
+                a stray mark near the Info tile. pointerEvents="none": it's
+                a visual cue only, never intercepts the tap that would
+                otherwise reach whatever grid item happens to sit under it.
+                Rendered after the ScrollView but still inside gridWrapper,
+                so it paints over the last partially-visible row -- exactly
+                the effect that reads as "there's more, scroll to see it." */}
+            {canScrollMore ? (
+              <View style={styles.scrollHint} pointerEvents="none">
+                <LinearGradient
+                  colors={['transparent', colors.menuSurface]}
+                  style={StyleSheet.absoluteFillObject}
+                />
+                <Ionicons name="chevron-down" size={13} color={tabColor} />
+              </View>
+            ) : null}
+            </View>
             {/* Absolutely positioned over the card's own bottom-right
                 corner, deliberately NOT part of the wrapping options grid
                 above -- explicitly moved here from a dedicated row (which
@@ -681,8 +764,25 @@ const styles = StyleSheet.create({
   // own default column flexDirection + this flex: 1 does that) -- the
   // actual scrolling boundary. `grid` itself is now this ScrollView's
   // contentContainerStyle, not a plain child View's style.
+  // Wraps gridScroll so the scroll-hint overlay below has something to
+  // anchor to that's scoped to just the grid's own footprint -- not the
+  // whole `card`, which would misalign it against cardHeader/infoCorner.
+  gridWrapper: { flex: 1 },
   gridScroll: { flex: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
+  // Pinned to gridWrapper's own bottom edge -- see the JSX's own comment
+  // for why this exists and why it's conditional on canScrollMore. Short
+  // (18px) on purpose: just enough for the gradient to read as a fade, not
+  // so tall it hides a meaningful slice of the last visible row.
+  scrollHint: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+  },
   // 2 columns -- wide enough that even this app's longest lens labels
   // ("Cooking & Prep", "Prescriptions", "Food Reactions") sit on one line.
   // width: '50%' here is only ever a fallback -- every real usage overrides

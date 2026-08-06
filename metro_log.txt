@@ -147,3 +147,68 @@ Android Bundled 1360ms node_modules\expo-router\entry.js (1 module)
 Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
 Android Bundled 388ms node_modules\expo-router\entry.js (1 module)
  WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 62ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+ ERROR  SyntaxError: C:\Dev\hashimotos-app\components\LensHub.tsx: Expected corresponding JSX closing tag for <ScrollView>. (537:12)
+
+  535 |                 </>
+  536 |               ) : null}
+> 537 |             </View>
+      |             ^
+  538 |             {/* Absolutely positioned over the card's own bottom-right
+  539 |                 corner, deliberately NOT part of the wrapping options grid
+  540 |                 above -- explicitly moved here from a dedicated row (which
+    at constructor (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:365:19)
+    at TypeScriptParserMixin.raise (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6616:19)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4739:16)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4710:32)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4710:32)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4710:32)
+    at TypeScriptParserMixin.jsxParseElementAt (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4710:32)
+    at TypeScriptParserMixin.jsxParseElement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4761:17)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4771:19)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9792:39
+    at TypeScriptParserMixin.tryParse (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6924:20)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9792:18)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12443:12)
+    at TypeScriptParserMixin.parseMaybeAssignAllowIn (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10817:17)
+    at TypeScriptParserMixin.parseMaybeAssignAllowInOrVoidPattern (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12510:17)
+    at TypeScriptParserMixin.parseParenAndDistinguishExpression (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11692:28)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11348:23)
+    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4776:20)
+    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
+    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
+    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
+    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
+    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
+    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
+    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
+    at TypeScriptParserMixin.parseExpressionBase (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10801:23)
+    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10797:39
+    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12438:16)
+    at TypeScriptParserMixin.parseExpression (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10797:17)
+    at TypeScriptParserMixin.parseReturnStatement (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13159:28)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12815:21)
+    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
+    at TypeScriptParserMixin.parseStatementLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12784:17)
+    at TypeScriptParserMixin.parseStatementListItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12764:17)
+    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13333:61)
+    at TypeScriptParserMixin.parseBlockBody (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13326:10)
+    at TypeScriptParserMixin.parseBlock (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13314:10)
+    at TypeScriptParserMixin.parseFunctionBody (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12117:24)
+    at TypeScriptParserMixin.parseFunctionBodyAndFinish (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12103:10)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 148ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
