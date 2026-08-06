@@ -26,7 +26,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
     id: 'healing-stage-map',
     category: 'healingStages',
     title: 'Three Practical Stages, Mapped Onto the Five Already Named',
-    teaser: 'Start here -- the organizing idea behind everything else in this category.',
+    teaser: 'The organizing idea behind everything else in this category.',
     summary:
       'This app\'s own already-decided 5-stage clinical framework (Triage, Digging, Gut Repair, Rebalancing, Maintenance) only really drives food decisions in two of those five stages -- the rest are mostly about hormone dosing, nutrient correction, and lab monitoring. A simpler, more practically useful 3-tier structure covers the same ground for food purposes: Stage 1 "Getting Started" (elimination first, a short, well-reasoned list of genuinely safe foods), Stage 2 "Rebuilding" (systematic, one-food-at-a-time reintroduction, fermented foods enter here deliberately), and Stage 3 "Well-Healed" (broad, diverse eating; tracking becomes a spot-check tool rather than a daily requirement).',
     citations: [
@@ -36,7 +36,6 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'This entry is the map for the rest of this category -- read it first.',
   },
   {
     id: 'healing-stage1-eat',
@@ -219,5 +218,21 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
+  },
+  {
+    id: 'healing-tying-together',
+    category: 'healingStages',
+    title: 'Tying It All Together: A Journey With Real Checkpoints, Not a Fixed Timeline',
+    teaser: 'Three stages, real milestones at each -- and the honest point is that this moves at the pace your own data shows, not a calendar.',
+    summary:
+      "Read end to end, these entries describe a real, sequenced journey -- narrow and restrictive in Stage 1, systematically widening in Stage 2, broad and mostly self-monitoring by Stage 3 -- built on real elimination-diet, gut-barrier-repair, and Hashimoto's-specific trial timelines, not guesswork. The honest throughline across all three stages: this app's own tracking is what actually shows which stage someone is really in, not a fixed number of weeks on a calendar -- the milestones in each stage (symptom stability, a real tolerance map, a declining antibody trend) are checkable signals to look for in real logged data, and a real flare or disruption is a legitimate reason to step back a stage temporarily, not a failure of the process.",
+    citations: [
+      {
+        source: 'The Autoimmune Protocol diet: a systematic review of the literature -- the real 6-week elimination + 5-week reintroduction clinical protocol structure',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/31832627/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['healing-stage-map', 'healing-stage3-what-it-looks-like'],
   },
 ];

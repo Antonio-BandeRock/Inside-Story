@@ -129,6 +129,15 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     relatedIds: ['problem-commercial-premade'],
+    chart: {
+      title: 'Ultra-Processed Share of US Adult Caloric Intake',
+      unit: '%',
+      data: [
+        { label: '2001-02', value: 53.5 },
+        { label: '2017-18', value: 57.0 },
+      ],
+      sourceNote: 'Juul et al. 2022, American Journal of Clinical Nutrition',
+    },
   },
 
   // --- Soil & Nutrient Decline ---
@@ -189,6 +198,15 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     stageNote: 'Directly relevant to selenium and iodine, both soil-dependent nutrients this app already tracks as protective against thyroid autoimmunity specifically.',
     relatedIds: ['foodhistory-mechanism-soil-nutrients-bridge', 'nutrient-selenium', 'nutrient-iodine'],
+    chart: {
+      title: 'Trace Mineral Loss After 75 Years of Continuous Tillage',
+      unit: '%',
+      data: [
+        { label: 'Zinc', value: 43 },
+        { label: 'Copper', value: 53 },
+      ],
+      sourceNote: 'Real, controlled same-field comparison, PMC6700142',
+    },
   },
 
   // --- Pesticides & Carcinogens ---

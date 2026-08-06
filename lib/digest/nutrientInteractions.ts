@@ -122,6 +122,16 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['problem-coffee-timing'],
+    chart: {
+      title: 'Reduction in Iron Absorption From a Meal',
+      unit: '%',
+      data: [
+        { label: 'Black tea (up to)', value: 94 },
+        { label: 'Peppermint tea', value: 84 },
+        { label: 'Cocoa', value: 71 },
+      ],
+      sourceNote: 'Inhibition of non-haem iron absorption by polyphenolic beverages, PMID 10999016',
+    },
   },
   {
     id: 'interaction-phytates-minerals',
@@ -138,6 +148,16 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['fermented-sauerkraut-succession'],
+    chart: {
+      title: 'Real Prep-Method Reduction in Mineral Blockers',
+      unit: '%',
+      data: [
+        { label: 'Sprouting (phytic acid cut, 4 days)', value: 87 },
+        { label: 'Soak + sprout + ferment (phytate:zinc)', value: 81 },
+        { label: 'Soak + sprout + ferment (phytate:iron)', value: 85 },
+      ],
+      sourceNote: 'Fermentation and phytate reduction in maize, PMC11646714',
+    },
   },
   {
     id: 'interaction-curcumin-piperine',
@@ -177,5 +197,22 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
+  },
+  {
+    id: 'interaction-tying-together',
+    category: 'nutrientInteractions',
+    title: 'Tying It All Together: Absorption Is a System, Not a Nutrient List',
+    teaser: 'Twelve interactions -- and the real, repeating lesson is that WHEN and WITH WHAT you eat something often matters more than the nutrient itself.',
+    summary:
+      "Read as a whole rather than one pairing at a time, this category's real throughline is that nutrient absorption is a system, not a checklist of individual targets -- the same food choice can help or block a completely different nutrient depending on timing and combination alone. Tea, coffee, and cocoa can cut iron absorption by up to 90% simply by being consumed too close to a meal, and moving that same cup an hour away removes nearly the entire effect -- no elimination required, just timing, the same lesson this Digest's own Labs & Medication Timing category reaches independently for levothyroxine. Soaking, sprouting, and fermenting aren't old-fashioned habits; they measurably unlock minerals phytates would otherwise block, directly connecting this category to this app's own Fermented Foods research. And the honest complications matter too: selenium and iodine both help and hurt each other depending on sequencing, and vitamin A/zinc's real biochemistry hasn't yet translated into a clean human recommendation -- not every real interaction in this category comes with an equally clean fix.",
+    citations: [
+      { source: 'Inhibition of non-haem iron absorption in man by polyphenolic-containing beverages', url: 'https://pubmed.ncbi.nlm.nih.gov/10999016/' },
+      {
+        source: 'Enhancing iron and zinc bioavailability in maize through phytate reduction: the impact of fermentation alone and in combination with soaking and germination',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11646714/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['labs-timing-master-rule', 'interaction-phytates-minerals', 'interaction-tannins-iron'],
   },
 ];

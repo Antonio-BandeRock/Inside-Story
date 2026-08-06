@@ -126,4 +126,20 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
   },
+  {
+    id: 'nutrient-tying-together',
+    category: 'nutrients',
+    title: 'Tying It All Together: Which of These Actually Has the Strongest Evidence',
+    teaser: 'Seven real nutrients, honestly ranked by how strong their own evidence actually is.',
+    summary:
+      "Read side by side rather than one at a time, these seven nutrients sort into a real hierarchy. Selenium (paired with myo-inositol) carries the strongest trial-level evidence of anything in this app's entire research base, with iodine's own two-edged deficiency/excess risk close behind as similarly well-established. Vitamin D, zinc/iron/B12, and Nigella sativa sit in a real middle tier -- genuine mechanisms and real trial data, but less consistent or less replicated. Folate and the antioxidant vitamins sit at the honest bottom -- real findings worth knowing, but thin and mostly observational. None of this is a reason to ignore the weaker entries; it's a reason to prioritize selenium and iodine status first if choosing where to start, and to treat everything below that as worth a real conversation with a doctor rather than aggressive self-supplementing.",
+    citations: [
+      {
+        source: 'Selenium supplementation in patients with Hashimoto thyroiditis: a systematic review and meta-analysis of 21 studies (1,610 subjects)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10194801/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['nutrient-selenium', 'nutrient-iodine'],
+  },
 ];

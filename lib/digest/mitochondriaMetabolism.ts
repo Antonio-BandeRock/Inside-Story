@@ -186,4 +186,20 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mito-fasting-autophagy-tension'],
   },
+  {
+    id: 'mito-tying-together',
+    category: 'mitochondriaMetabolism',
+    title: 'Tying It All Together: Two Real Tensions, Not a Clean Story',
+    teaser: 'Twelve entries in cellular biology -- and the honest takeaway is two genuine tradeoffs, not a simple "do more of this" answer.',
+    summary:
+      "This category doesn't resolve into one clean recommendation, and that's deliberate. Fasting is the most potent known trigger of the exact autophagy process IL-23 was shown suppressing in real Hashimoto's thyroid tissue -- but fasting also measurably suppresses active thyroid hormone, so the two effects have to be weighed against each other, not treated as a free win. Visceral fat is genuinely linked to Treg depletion and insulin resistance in real Hashimoto's-specific research -- but a 2024 reappraisal suggests some of that same fat may be defending against a leaky gut rather than simply causing harm, meaning gut repair and fat reduction likely need pursuing together, not as substitutes. The one genuinely uncomplicated finding in the whole category: moderate, consistent, low-intensity exercise triggers real autophagy of its own, through a completely different pathway than fasting, without fasting's own thyroid-hormone tradeoff -- the closest thing to a clean answer this category actually has.",
+    citations: [
+      {
+        source: 'Increased Interleukin-23 in Hashimoto\'s Thyroiditis Disease Induces Autophagy Suppression and Reactive Oxygen Species Accumulation (Frontiers in Immunology, 2018)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/29434604/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['mito-fasting-autophagy-tension', 'mito-visceral-fat-endotoxin-barrier', 'mito-exercise-autophagy-pgc1a'],
+  },
 ];

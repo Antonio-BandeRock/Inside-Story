@@ -67,7 +67,49 @@ export const DIGEST_CATEGORY_KEYS = [
   // a real, more nuanced 2023 Lancet finding; an unverifiable margarine
   // consumption figure replaced with a verified one).
   'foodIndustryHistory',
+  // 2026-08-07, same day, sixth addition: "we need some what to Tie it all
+  // together of all of the digest lenses. Sort of a short story." Every
+  // other category's own new "Tying it all together" entry (see each
+  // category file's own closing entry) synthesizes WITHIN that one
+  // category -- this one is different in kind, not degree: a short,
+  // continuous narrative that crosses all 14 other categories in a single
+  // read, grounding the research in one illustrative day rather than
+  // reviewing it category by category. See bigPicture.ts's own header
+  // comment for the full reasoning.
+  'bigPicture',
 ] as const;
+
+// A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
+// graph images that depict the trends and data in ways that make it easy
+// to understand... to provide a professional view of the data." Every
+// number in a `DigestChart` must trace back to the same real, cited source
+// already backing that entry's own `summary` -- this is a visual
+// restatement of a real, already-verified figure, never a new or invented
+// data point (deliberately no `title`/generic decorative use -- if an
+// entry's own claim isn't fundamentally a small set of real, comparable
+// numbers, it doesn't get a chart). Deliberately just one simple shape
+// (horizontal bars) rather than a charting library -- react-native has no
+// built-in charting, and a plain, small set of styled Views (see
+// DigestBarChart.tsx) covers this app's real need without adding a new
+// dependency or introducing SVG-specific rendering risk for something this
+// simple.
+export type DigestChartDatum = {
+  label: string;
+  value: number;
+};
+
+export type DigestChart = {
+  // Shown above the bars -- usually a shorter restatement of the entry's
+  // own title, not a repeat of the full sentence already in the summary.
+  title: string;
+  // Appended after each bar's own numeric value, e.g. '%', 'mg', 'kcal' --
+  // omit for a plain unitless count.
+  unit?: string;
+  data: DigestChartDatum[];
+  // A short attribution shown beneath the chart -- reuses the same source
+  // name already in this entry's own `citations`, not a new one.
+  sourceNote: string;
+};
 
 // 'problemFoods' is deliberately its own type (ProblemFoodEntry, below),
 // never mixed into DigestEntry's own category union -- the two are shaped
@@ -102,6 +144,12 @@ export type DigestEntry = {
   // worth surfacing as "related" -- e.g. the vitamin D nutrient entry
   // relates to the leaky-gut CLDN2 gut-microbiome entry.
   relatedIds?: string[];
+  // A real, small dataset visualized as a horizontal bar chart, shown
+  // directly under this entry's own summary when expanded -- see
+  // DigestChart's own comment for the discipline behind what qualifies.
+  // Optional: only added where an entry's own claim is fundamentally a
+  // small set of real, comparable numbers, not retrofitted everywhere.
+  chart?: DigestChart;
 };
 
 export type ProblemFoodEntry = {
@@ -123,6 +171,12 @@ export type ProblemFoodEntry = {
   citations: DigestCitation[];
   stageNote?: string;
   relatedIds?: string[];
+  // Same chart mechanism as DigestEntry's own `chart` -- see that field's
+  // comment. Duplicated here rather than hoisted onto a shared base type,
+  // matching this file's own standing rule that DigestEntry and
+  // ProblemFoodEntry stay two genuinely separate shapes, not one schema
+  // with optional fields papering over the difference.
+  chart?: DigestChart;
 };
 
 export type AnyDigestEntry = DigestEntry | ProblemFoodEntry;

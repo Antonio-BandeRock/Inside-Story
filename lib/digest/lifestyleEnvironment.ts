@@ -238,4 +238,17 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'weak',
   },
+  {
+    id: 'lifestyle-tying-together',
+    category: 'lifestyleEnvironment',
+    title: 'Tying It All Together: One Hormone Keeps Showing Up',
+    teaser: 'Seventeen entries spanning alcohol to air pollution -- and cortisol runs through more of them than any other single factor.',
+    summary:
+      "Cortisol and the HPA axis show up, by name, across alcohol, chronic stress, sleep disruption, and high-intensity exercise (see Mitochondria & Metabolism) -- not as four separate warnings, but as one real, repeated pathway: cortisol suppresses the deiodinase enzymes that convert T4 into active T3. That single mechanism is worth understanding once, rather than as four unrelated lifestyle rules. Separately, this category's own honest corrections (the coffee-and-milk antioxidant claim, sedentary behavior's comparatively modest effect) are as much the point as its strongest findings (NSAIDs and gut permeability, antibiotic disruption) -- not everything commonly repeated about lifestyle and Hashimoto's holds up equally well under a direct check.",
+    citations: [
+      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews -- stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'mito-exercise-cortisol'],
+  },
 ];

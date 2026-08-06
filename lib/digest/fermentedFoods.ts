@@ -225,4 +225,20 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
   },
+  {
+    id: 'fermented-tying-together',
+    category: 'fermentedFoods',
+    title: 'Tying It All Together: Diversity Over Any Single "Best" Strain',
+    teaser: 'Fourteen strains and ferments -- the real, recurring lesson is variety, not a single magic bullet.',
+    summary:
+      "No single strain across these fourteen entries does everything -- L. acidophilus helps lactose digestion, Bifidobacterium bifidum specifically rebuilds occludin, E. coli Nissle restores different tight-junction proteins entirely, S. boulardii survives antibiotics precisely because it isn't a bacterium at all. Milk kefir's own 30+ species is the clearest illustration of what this category keeps pointing toward: real gut-microbiome diversity itself, not any one \"best\" probiotic, is the actual target -- rotating between a home yogurt, sauerkraut, kefir, and an occasional kombucha realistically does more than picking one and eating it exclusively. The CFU-dosing and sourcing entries exist for the same reason: knowing what's actually being cultured matters more than how big the number on a label says it is.",
+    citations: [
+      {
+        source: 'PLOS ONE -- sequencing-based analysis of kefir grains and milks from multiple sources',
+        url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0069371',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['gut-strain-specific-mechanisms', 'fermented-cfu-dosing'],
+  },
 ];

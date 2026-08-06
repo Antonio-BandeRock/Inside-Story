@@ -12,7 +12,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
     id: 'other-why-cross-disease-evidence',
     category: 'otherAutoimmune',
     title: 'Why This Category Exists At All',
-    teaser: 'An honest framing, read this one first: none of these seven entries are Hashimoto\'s studies.',
+    teaser: 'An honest framing: none of these seven entries are Hashimoto\'s studies.',
     summary:
       'Autoimmune diseases share real, recurring underlying mechanisms -- SCFA-driven Treg induction, Th17/Treg imbalance, zonulin-mediated gut permeability, molecular mimicry (all covered in Gut & Microbiome) -- documented independently across rheumatoid arthritis, IBD, multiple sclerosis, type 1 diabetes, lupus, Sjögren\'s syndrome, and psoriasis. When the identical pattern shows up across genuinely unrelated diseases studied by different research groups, that\'s real corroborating weight for the underlying mechanism -- but it is corroboration, not proof of a Hashimoto\'s-specific effect. Every entry below names its actual disease plainly rather than blurring it into "autoimmune disease" generally.',
     citations: [
@@ -122,5 +122,21 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     relatedIds: ['mito-visceral-fat-endotoxin-barrier'],
+  },
+  {
+    id: 'other-tying-together',
+    category: 'otherAutoimmune',
+    title: 'Tying It All Together: The Same Few Mechanisms, Seven Different Diseases',
+    teaser: 'Rheumatoid arthritis, IBD, MS, T1D, lupus, Sjögren\'s, psoriasis -- seven different diagnoses, a strikingly short list of real shared mechanisms.',
+    summary:
+      "Step back from the seven individual diseases in this category and the same handful of mechanisms keep reappearing: Th17/Treg imbalance (rheumatoid arthritis, IBD, MS, lupus), the vitamin D \"real correlation, unreliable trials\" pattern (confirmed independently in three separate diseases -- Hashimoto's, RA, and MS), and gut-barrier/zonulin involvement (lupus's own named bacterial strain, IBD's directly-measurable inflammation). That repetition, across diseases studied by different research groups with no reason to agree with each other, is exactly what makes this cross-disease evidence worth including at all -- not proof of anything Hashimoto's-specific, but real corroborating weight for the same gut-and-immune mechanisms this app's own Gut & Microbiome research is built around.",
+    citations: [
+      {
+        source: 'Metabolic reprogramming as a therapeutic target for modulating the Th17/Treg balance in autoimmune diseases: a comprehensive review',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12747992/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['gut-th17-treg-imbalance', 'nutrient-vitamin-d'],
   },
 ];

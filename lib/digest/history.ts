@@ -117,4 +117,17 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['history-desiccated-to-levothyroxine'],
   },
+  {
+    id: 'history-tying-together',
+    category: 'history',
+    title: 'Tying It All Together: What This History Actually Teaches',
+    teaser: 'From "the body cannot attack itself" to a genome-wide search for the genes that let it -- a real arc, not just a list of dates.',
+    summary:
+      "Read start to finish, this isn't just a list of dates -- it's a real record of how much of what this whole app relies on had to be discovered before it could exist at all. The disease had to be described (1912) before it could be studied; autoimmunity itself had to be proven real (1956) before Hashimoto's could be understood as more than a mystery; a genuinely sensitive lab test had to be invented (1960s-80s) before \"subclinical\" disease could even be diagnosed; and the actual antigen had to be identified (1985) before a TPO antibody test -- the same lab value this app's own Healing Stages tracking leans on -- could exist. The honest closing note: genetics research remains real but limited (known variants explain only a modest share of who develops Hashimoto's), which is itself part of why environmental and dietary factors, this app's own core focus, matter as much as they do.",
+    citations: [
+      { source: 'Autoimmune thyroid disease -- a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['history-1985-tpo-identified', 'history-genetic-era'],
+  },
 ];

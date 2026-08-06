@@ -256,4 +256,20 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'weak',
   },
+  {
+    id: 'additive-tying-together',
+    category: 'foodAdditives',
+    title: 'Tying It All Together: One Real Pattern Across These 15',
+    teaser: 'Read individually these look like 15 separate dangers -- read together, one real pattern explains most of them.',
+    summary:
+      "Read one at a time, these 15 entries can look like an intimidating list of unrelated dangers. Read together, a real pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding -- a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold -- not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my real, ongoing diet,\" which is exactly what this app's own longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under real scrutiny.",
+    citations: [
+      {
+        source: 'Lane et al. 2024, BMJ -- ultra-processed food exposure and adverse health outcomes, umbrella review',
+        url: 'https://doi.org/10.1136/bmj-2023-077310',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['problem-commercial-premade', 'lifestyle-ultra-processed-food'],
+  },
 ];

@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { DigestBarChart } from '../../components/DigestChart';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -136,6 +137,10 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   foodIndustryHistory: {
     heading: 'Food Industry & History',
     body: "A correlational history of food itself over roughly 150 years, laid out era by era against real autoimmune and digestive-disease trends over the same span -- plus soil-nutrient decline, the pesticide dispute, and four real cases of a whole food (salt, butter, sugar's own reputation, eggs) taking public blame while an industrial substitute got the pass. Closes with a clearly labeled personal opinion, written to be argued with, not just accepted.",
+  },
+  bigPicture: {
+    heading: 'The Big Picture',
+    body: "A short, continuous narrative -- one illustrative day, following the same imagined person from her morning dose through dinner -- that touches all 14 other categories in a single read, rather than reviewing each one in isolation. Every fact woven into the story is real and still cited or linked back to its own full entry elsewhere in this Digest; only the day itself is a storytelling device, not a real logged person's data. A good place to see how this whole research base actually connects, at any point, not just after everything else.",
   },
 };
 
@@ -464,6 +469,7 @@ function DigestCard({
                 {'•'} {swap}
               </Text>
             ))}
+            {entry.chart ? <DigestBarChart chart={entry.chart} color={colors.accent} /> : null}
             {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
             <CitationsBlock citations={entry.citations} />
             {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
@@ -486,6 +492,7 @@ function DigestCard({
             {tierLabel(entry.overallTier)}
           </Text>
           <Text style={styles.detailText}>{entry.summary}</Text>
+          {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
           <CitationsBlock citations={entry.citations} />
           {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}

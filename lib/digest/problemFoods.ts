@@ -268,6 +268,17 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
       },
     ],
     relatedIds: ['labs-biotin-interference'],
+    chart: {
+      title: 'Levothyroxine Absorption Impact From Coffee Taken at the Same Time',
+      unit: '%',
+      data: [
+        { label: 'Peak blood level, low estimate', value: 19 },
+        { label: 'Peak blood level, high estimate', value: 36 },
+        { label: 'Total absorption, low estimate', value: 27 },
+        { label: 'Total absorption, high estimate', value: 36 },
+      ],
+      sourceNote: 'Benvenga et al. 2008, Thyroid',
+    },
   },
   {
     id: 'problem-excess-iodine-kelp',
@@ -314,6 +325,24 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         source: 'Formation of advanced glycation end products in foods during cooking, a review of experimental studies',
         url: 'https://www.cambridge.org/core/journals/nutrition-research-reviews/article/formation-of-advanced-glycation-endproducts-in-foods-during-cooking-process-and-underlying-mechanisms-a-comprehensive-review-of-experimental-studies/85036557AFBCC896D886B7872C092AA2',
       },
+    ],
+  },
+  {
+    id: 'problem-tying-together',
+    category: 'problemFoods',
+    foodName: 'Tying It All Together: The Patterns Across This Whole List',
+    teaser: 'Fourteen very different foods, four repeating mechanisms underneath most of them.',
+    problem:
+      "Taken food by food, this list can look like fourteen unrelated warnings. Taken as a whole, most of them trace back to just a handful of real, repeating mechanisms: a fermentable carbohydrate the gut can't break down (garlic, onion, sugar-sweetened drinks), a gut-permeability trigger (gluten), a heat-reversible enzyme effect (raw crucifers), a histamine-clearance bottleneck (aged, cured, and most fermented foods), and the same cortisol/HPA-axis pathway this whole app's research keeps returning to (sugar-sweetened drinks, and see Lifestyle & Environment).",
+    mechanism:
+      "None of this is separate, unrelated biology -- it's a small number of real gut and hormone mechanisms this whole Digest keeps coming back to, just triggered by different foods each time.",
+    swaps: [
+      'Test one food at a time, not the whole list at once -- most of these are genuinely conditional (soy, nightshades, dairy), not universal.',
+      'Cooking, timing, and freshness resolve more of this list than outright avoidance does -- only gluten, and for a specific subgroup soy, really call for a longer elimination.',
+      "This app's own Healing Stages guide sequences exactly this kind of reintroduction -- lowest-risk first, one variable at a time.",
+    ],
+    citations: [
+      { source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
   },
 ];

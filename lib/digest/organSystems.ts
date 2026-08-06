@@ -125,6 +125,16 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
+    chart: {
+      title: 'Kidney Filtration Rate (eGFR) by Thyroid Status',
+      unit: '',
+      data: [
+        { label: 'Euthyroid', value: 88.0 },
+        { label: 'Subclinical Hypothyroid', value: 83.5 },
+        { label: 'Overt Hypothyroid', value: 72.2 },
+      ],
+      sourceNote: '74,356-adult cross-sectional study, Scientific Reports (PMC5795015)',
+    },
   },
   {
     id: 'organ-reproductive-fertility',
@@ -177,5 +187,21 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       { source: 'Impact of Thyroid Dysfunction on Hair Disorders', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10492440/' },
     ],
     overallTier: 'moderate',
+  },
+  {
+    id: 'organ-tying-together',
+    category: 'organSystems',
+    title: 'Tying It All Together: Why So Many Organs, and Why So Much of It Reverses',
+    teaser: 'Ten organ systems in this category -- and the same real reason connects nearly all of them.',
+    summary:
+      "Thyroid hormone doesn't act on one organ -- it regulates cellular metabolism nearly everywhere in the body, which is exactly why Hashimoto's shows up in the liver, heart, brain, kidneys, muscles, skin, and reproductive system all at once, not because the disease is spreading, but because one hormone deficit touches that many real metabolic processes simultaneously. The genuinely encouraging thread running through this whole category: most of these organ-level effects are documented as reversible with real treatment -- liver enzymes normalizing within months, kidney filtration rate recovering, coronary microvascular function improving, hair and muscle symptoms resolving -- because the underlying cause in each case is often the shared hormone deficit itself, not separate, independent organ damage. The liver gets the most attention here for a real reason: it does the largest single share of the body's own T4-to-T3 conversion, making it less a bystander and more a second organ actually running the thyroid's own job.",
+    citations: [
+      {
+        source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10160546/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['organ-liver-t4t3-conversion', 'organ-liver-fixing-helps-thyroid'],
   },
 ];

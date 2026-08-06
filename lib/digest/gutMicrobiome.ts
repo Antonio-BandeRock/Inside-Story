@@ -48,7 +48,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['other-lupus-probiotic-rct'],
+    relatedIds: ['other-lupus'],
   },
   {
     id: 'gut-glutamine-null-result',
@@ -145,6 +145,16 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A realistic milestone marker for this app\'s own Stage 3 ("Gut Repair").',
+    chart: {
+      title: 'Real Trial Timelines for a Measured Zonulin Reduction',
+      unit: ' wks',
+      data: [
+        { label: 'First significant reduction (MaPLE trial)', value: 8 },
+        { label: 'Confirmed, weight-loss trial (first check)', value: 12 },
+        { label: 'Confirmed, weight-loss trial (later check)', value: 24 },
+      ],
+      sourceNote: "Del Bo' et al. 2021; MASH/liver-fibrosis weight-loss trial, PMC11444513",
+    },
   },
   {
     id: 'gut-larazotide',
@@ -245,5 +255,18 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Biomarkers for assessment of intestinal permeability in clinical practice (Scandinavian Journal of Gastroenterology, 2021)', url: 'https://pubmed.ncbi.nlm.nih.gov/34009040/' },
     ],
     overallTier: 'moderate',
+  },
+  {
+    id: 'gut-tying-together',
+    category: 'gutMicrobiome',
+    title: 'Tying It All Together: The Gut Barrier Is the Hub',
+    teaser: 'Sixteen entries, one real physical structure underneath nearly all of them.',
+    summary:
+      "Every mechanism in this category -- SCFAs and Treg induction, zonulin and gliadin, molecular mimicry, Th17/Treg imbalance -- ultimately converges on the same real, physical structure: the intestinal barrier itself, and how permeable it currently is. Strengthen it (fiber and SCFAs, specific probiotic strains, zinc carnosine) and less gets through that shouldn't; weaken it (gluten's own zonulin trigger, chronic antibiotic disruption, a still-inflamed gut) and more does. This is why this app treats gut health as a real, central mechanism rather than one wellness topic among many -- and why the honest caveats scattered through this category (L-glutamine's null result, the 4R Protocol's unvalidated packaging, \"leaky gut\" as a contested diagnosis) matter just as much as the positive findings: the barrier itself is real and measurable, but not every proposed fix for it has actually been proven to work.",
+    citations: [
+      { source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['healing-stage-map', 'mito-visceral-fat-endotoxin-barrier'],
   },
 ];

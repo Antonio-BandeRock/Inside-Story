@@ -1,5 +1,6 @@
 import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
+import { BIG_PICTURE_ENTRIES } from './bigPicture';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
 import { FOOD_INDUSTRY_HISTORY_ENTRIES } from './foodIndustryHistory';
@@ -24,7 +25,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260807180000';
+export const PURPLE_DIGEST_VERSION = '20260807220000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -46,6 +47,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...HISTORY_ENTRIES,
   ...NUTRIENT_INTERACTIONS_ENTRIES,
   ...FOOD_INDUSTRY_HISTORY_ENTRIES,
+  ...BIG_PICTURE_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -155,6 +157,18 @@ export const DIGEST_CATEGORY_META: {
     label: 'Food Industry & History',
     icon: 'trending-up-outline',
     description: 'How food itself changed over 150 years, against how autoimmune disease rose -- the real trends, the real mechanisms, and an honest opinion open for debate.',
+  },
+  // 2026-08-07, same day, sixth addition: the cross-category short story --
+  // see bigPicture.ts's own header comment and types.ts's own comment on
+  // this key for the full reasoning. Placed last, matching this file's own
+  // established practice of appending new categories rather than
+  // reordering existing ones -- but genuinely readable at any point, not
+  // just after every other category.
+  {
+    key: 'bigPicture',
+    label: 'The Big Picture',
+    icon: 'book-outline',
+    description: 'One short story, one illustrative day, touching every other category in this Digest -- a way to see how it all actually connects.',
   },
 ];
 
