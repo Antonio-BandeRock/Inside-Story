@@ -260,6 +260,45 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
   },
   {
+    id: 'lifestyle-ebv-viral-trigger',
+    category: 'lifestyleEnvironment',
+    title: 'Epstein-Barr Virus: A Real, Detected Presence Inside Hashimoto\'s Thyroid Tissue Itself',
+    teaser: 'Not a correlation from a questionnaire -- a virus actually found sitting inside the diseased tissue, in a real majority of cases studied.',
+    summary:
+      "Most of this Digest's own viral/infectious research works by inference -- a real statistical association, a plausible mechanism. This finding is more direct than that. A real study examined actual thyroid tissue samples from Hashimoto's thyroiditis patients and found genetic evidence of Epstein-Barr virus (EBV, the same virus behind mononucleosis, and one of the most common viral infections in adults worldwide) present in 80.7% of samples via one marker (EBER nuclear expression), and a second, more specific marker of active viral activity (LMP1) in 34.5% of Hashimoto's tissue -- compared to 0% in Graves' disease tissue from the same study, a real, meaningful contrast between two different autoimmune thyroid diseases, not just \"virus present somewhere near the thyroid.\" The proposed real mechanism is genuinely specific too: rather than the molecular-mimicry route covered elsewhere in this Digest, the researchers suggest EBV's own active infection of thyroid follicular cells directly triggers local inflammatory signaling that recruits immune cells into the tissue -- a real, if still theoretical, proposed first domino. Worth knowing not because there's currently anything actionable to do about a common, usually-dormant childhood/young-adult viral infection nearly everyone has already had, but because it's a real, concrete example of how a real virus can end up physically present inside the exact tissue an autoimmune disease attacks, not just statistically associated with it from a distance.",
+    citations: [
+      { source: 'Janegova A, Janega P, Rychly B, et al. 2015 -- The role of Epstein-Barr virus infection in the development of autoimmune thyroid diseases', url: 'https://pubmed.ncbi.nlm.nih.gov/25931043/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['gut-molecular-mimicry'],
+  },
+  {
+    id: 'lifestyle-covid19-thyroid-trigger',
+    category: 'lifestyleEnvironment',
+    title: 'COVID-19 and the Thyroid: A Real, Documented Trigger -- and a Real Reason to Get Levels Checked After a Serious Infection',
+    teaser: 'A real, systematic review found actual new-onset and reactivated thyroid autoimmunity following COVID-19 infection, most cases resolving -- two, tragically, did not.',
+    summary:
+      "A real systematic review specifically searched for documented cases of thyroid autoimmunity connected to COVID-19 infection and found a genuine, if still uncommon, pattern: 20 real cases of new or reactivated autoimmune thyroid disease following COVID-19 -- 14 Graves' disease, 5 Hashimoto's thyroiditis, and 1 postpartum thyroiditis. A real, telling detail: 8 of those 14 Graves' cases had pre-existing, previously stable thyroid disease, suggesting COVID-19 can genuinely reactivate a dormant autoimmune process, not just trigger entirely new cases. The real, reassuring majority finding: most affected patients reached remission within 3 months. The real, sobering minority: two of the documented cases were fatal (one thyroid storm, one myxedema coma), both real, severe complications of thyroid dysfunction left unrecognized. The review's own real, practical recommendation is the actionable takeaway here: routinely checking thyroid function both during the acute phase of a serious COVID-19 infection and again during recovery, especially for anyone with pre-existing autoimmune thyroid disease -- a real, concrete reason a bout of COVID-19 is worth a follow-up thyroid check, not just monitoring for the more commonly discussed respiratory or cardiovascular effects.",
+    citations: [
+      { source: 'Tutal E, Ozaras R, Leblebicioglu H 2022 -- Systematic review of COVID-19 and autoimmune thyroiditis (Travel Medicine and Infectious Disease)', url: 'https://pubmed.ncbi.nlm.nih.gov/35307540/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['advocacy-core-thyroid-panel'],
+  },
+  {
+    id: 'lifestyle-sleep-apnea',
+    category: 'lifestyleEnvironment',
+    title: 'Sleep Apnea and the Thyroid: A Real, Documented Association -- With an Honest Admission the Mechanism Isn\'t Settled',
+    teaser: 'A real connection shows up in the data. What\'s actually causing it is, honestly, still an open question.',
+    summary:
+      "This category already covers ordinary sleep disruption's real link to inflammation elsewhere -- obstructive sleep apnea specifically deserves its own honest look, since it's a real, distinct, and often undiagnosed condition rather than just poor sleep habits. A real, recent review confirms genuine, significant epidemiological associations between obstructive sleep apnea and thyroid disorders -- but states directly, in its own words, that \"discrepancies and contradictory results remain\" across the studies it reviewed, and that the specific underlying mechanism connecting the two \"is not clear.\" That's a real, honest admission worth respecting rather than papering over with a tidier-sounding explanation this app can't actually verify. What IS worth knowing regardless of the unsettled mechanism: sleep apnea is both underdiagnosed and treatable (typically via a real, standard CPAP evaluation), and given how much this whole app's own research already ties poor sleep to real, measurable inflammation and thyroid-hormone-conversion effects, ruling out sleep apnea specifically -- not just \"trying to sleep more\" -- is a real, concrete step worth raising with a doctor for anyone with persistent fatigue, especially alongside snoring or witnessed breathing pauses, rather than assuming every sleep-related symptom is explained by Hashimoto's alone.",
+    citations: [
+      { source: 'Zhai L, Gao X 2025 -- Recent Advances in the Study of the Correlation Between Obstructive Sleep Apnea and Thyroid-Disorders (Sleep and Breathing)', url: 'https://pubmed.ncbi.nlm.nih.gov/40323542/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['lifestyle-sleep-circadian'],
+  },
+  {
     id: 'lifestyle-tying-together',
     category: 'lifestyleEnvironment',
     title: 'Tying It All Together: One Hormone Keeps Showing Up',

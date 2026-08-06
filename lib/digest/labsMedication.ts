@@ -90,6 +90,98 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
     relatedIds: ['labs-bedtime-dosing'],
   },
   {
+    id: 'labs-combination-t3-ndt',
+    category: 'labsMedication',
+    title: "When Levothyroxine Alone Doesn't Feel Like Enough: What the Real Trials on Combination T4/T3 and NDT Actually Found",
+    teaser: 'A huge, real question in every Hashimoto\'s community: "my labs are normal but I still feel awful -- should I ask for T3 or natural desiccated thyroid?" The honest answer is more nuanced than either side of that argument usually admits.',
+    summary:
+      "Levothyroxine (synthetic T4) works well enough for most people that a normal TSH is treated as the finish line -- but a real, acknowledged minority of patients stay genuinely symptomatic even once their labs look perfect. That gap is exactly what drives two of the most common real questions in Hashimoto's patient communities: should I ask for liothyronine (synthetic T3) added to my levothyroxine, or switch to natural desiccated thyroid (NDT, e.g. Armour Thyroid), which contains both T4 and T3 from pig thyroid gland? The honest answer, built from real trial data rather than either side's own talking points: a 2006 meta-analysis of 11 randomized trials (1,216 patients) found no measurable difference between combination T4/T3 and T4 alone across mood, cognition, bodily pain, fatigue, weight, or cholesterol -- and a 2013 randomized crossover trial specifically comparing NDT to levothyroxine (70 patients) found the same thing: no significant overall difference in symptoms or quality of life, though NDT did cause a modest ~3-pound weight loss. Here's the real, honest twist: despite trials not measuring a group-level symptom difference, patients themselves keep preferring the combination anyway -- that same 2013 NDT trial found 48.6% of patients preferred NDT versus 18.6% preferring levothyroxine, and a larger 2025 systematic review of 11 RCTs (1,135 patients) found 52% preferred combination therapy versus 24% for T4 alone. That's not a contradiction; it's a real, unresolved gap between what a trial can measure at the group level and what an individual person actually experiences -- and it's exactly why a 2024 review states plainly that a real minority of levothyroxine-treated patients remain genuinely symptomatic despite normal labs. Worth a direct, honest conversation with a doctor specifically framed around that real patient-preference data -- shared decision-making, not needing to prove the symptoms are real -- rather than either dismissing the request outright or assuming NDT/combination therapy is a guaranteed fix current trials simply haven't found evidence for yet.",
+    citations: [
+      {
+        source: 'Grozinsky-Glasberg S, et al. 2006 -- Thyroxine-triiodothyronine combination therapy versus thyroxine monotherapy for clinical hypothyroidism: meta-analysis of randomized controlled trials (11 RCTs, 1,216 patients)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/16670166/',
+      },
+      {
+        source: 'Hoang TD, et al. 2013 -- Desiccated Thyroid Extract Compared With Levothyroxine in the Treatment of Hypothyroidism: A Randomized, Double-Blind, Crossover Study (Journal of Clinical Endocrinology & Metabolism)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23539727/',
+      },
+      {
+        source: 'de Lima Beltrão FE, et al. 2025 -- Treatment Preferences in Patients With Hypothyroidism: systematic review and meta-analysis (11 RCTs, 1,135 patients)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/39290156/',
+      },
+      {
+        source: 'Bianco AC 2024 -- Emerging Therapies in Hypothyroidism (Annual Review of Medicine)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37738506/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['history-desiccated-to-levothyroxine', 'history-desiccated-thyroid-standardization', 'advocacy-how-to-ask'],
+  },
+  {
+    id: 'labs-drug-induced-thyroid-dysfunction',
+    category: 'labsMedication',
+    title: 'Two Real, Common Medications That Can Trigger or Worsen Thyroid Dysfunction on Their Own',
+    teaser: 'Not every thyroid problem starts with the thyroid. Sometimes it starts with a prescription written for something else entirely.',
+    summary:
+      "Amiodarone (a real, commonly prescribed heart-rhythm medication) is structurally similar to thyroid hormone itself and carries a real iodine load -- and real ETA clinical guidelines put the rate of resulting thyroid dysfunction (both hypo- and hyperthyroid forms) at roughly 15-20% of patients taking it. Lithium (a real, standard mood-stabilizing medication) works differently but reaches a similar destination: it directly slows the same peripheral deiodination process (covered elsewhere in this Digest as the real, main route T4 becomes active T3) and acts as a real immune stimulant specifically in people who already carry thyroid antibodies -- a genuinely direct, mechanistic reason someone with existing Hashimoto's antibodies may be more susceptible to lithium's thyroid effects than someone without them. Real data puts lithium-induced goiter/hypothyroidism at around 8% of patients. Neither of these facts means avoiding a real, necessary heart or mood medication -- both are often genuinely irreplaceable for what they treat -- but both are real, well-documented reasons thyroid function specifically deserves its own periodic check while taking either one, not just a general assumption that any new fatigue or mood shift is \"just the Hashimoto's again.\"",
+    citations: [
+      {
+        source: 'Bartalena L, et al. 2018 -- 2018 European Thyroid Association (ETA) Guidelines for the Management of Amiodarone-Associated Thyroid Dysfunction',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/29594056/',
+      },
+      {
+        source: 'Danzi S, Klein I 2015 -- Amiodarone-induced thyroid dysfunction',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/24067547/',
+      },
+      {
+        source: 'Scanelli G 2002 -- Lithium thyrotoxicosis (Recenti Progressi in Medicina)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/11887342/',
+      },
+      {
+        source: 'Kibirige D, Luzinda K, Ssekitoleko R 2013 -- Spectrum of lithium induced thyroid abnormalities: a current perspective (Thyroid Research)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23391071/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['organ-liver-t4t3-conversion'],
+  },
+  {
+    id: 'labs-checkpoint-inhibitor-thyroiditis',
+    category: 'labsMedication',
+    title: 'Cancer Immunotherapy and the Thyroid: A Real Risk That\'s Genuinely Higher for Anyone Already Antibody-Positive',
+    teaser: 'A newer class of cancer drug, saving real lives -- with a real, documented side effect this Digest\'s own core audience should specifically know about.',
+    summary:
+      "Immune checkpoint inhibitors (drugs like pembrolizumab and nivolumab, a real and often genuinely life-saving advance in cancer treatment) work by releasing a brake on the immune system so it attacks cancer more aggressively -- and a real, well-documented side effect of releasing that same brake is that the immune system sometimes turns on healthy tissue too. Real research names thyroiditis as the single most common such immune-related side effect of this whole drug class. The genuinely Hashimoto's-relevant finding: real research found the risk of checkpoint-inhibitor thyroiditis is measurably higher specifically in patients who already test positive for thyroid antibodies before treatment even starts -- meaning someone with existing Hashimoto's antibodies facing a real cancer diagnosis requiring this kind of treatment has a real, elevated, and worth-naming risk their oncology team should know about directly. This isn't a reason to avoid or delay genuinely necessary cancer treatment -- it's a real, practical piece of self-advocacy: mentioning an existing Hashimoto's/antibody history to an oncology team before starting checkpoint-inhibitor therapy, so baseline and follow-up thyroid function get checked as a matter of course rather than only after symptoms appear.",
+    citations: [
+      {
+        source: 'Muir CA, Menzies AM, Clifton-Bligh R, Tsang VHM 2020 -- Thyroid Toxicity Following Immune Checkpoint Inhibitor Treatment in Advanced Cancer',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/32264785/',
+      },
+      {
+        source: 'Iwama S, Kobayashi T, Yasuda Y, Arima H 2022 -- Immune checkpoint inhibitor-related thyroid dysfunction',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/35501263/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['advocacy-thyroid-antibodies'],
+  },
+  {
+    id: 'labs-absorption-interferers-beyond-food',
+    category: 'labsMedication',
+    title: 'Beyond Calcium, Iron & Coffee: Real Medications That Also Block Levothyroxine Absorption',
+    teaser: 'A common heartburn medication, a cholesterol-lowering drug, an antibiotic -- all real, documented additions to the same absorption-blocking list as calcium and iron.',
+    summary:
+      "This category's own core timing rules (calcium, iron, coffee, soy, fiber) cover food-level interference -- but a real, comprehensive 2017 review pooling the existing literature confirms a longer list of real medications that interfere with levothyroxine absorption through the same general mechanism, \"established and clinically significant\": cholestyramine and colesevelam (real cholesterol-lowering bile-acid binders), lanthanum and sevelamer (real phosphate binders used in kidney disease), calcium and iron supplements (already covered elsewhere in this category), ciprofloxacin (a real, commonly prescribed antibiotic), aluminum hydroxide (a real antacid ingredient), and proton pump inhibitors -- a genuinely common class of heartburn/reflux medication (omeprazole and similar) taken daily by a huge number of people, often without ever connecting it to their own thyroid dose. The same review's own real, practical fix applies across this whole list: separating levothyroxine from any of these by enough time resolves the interference, the identical principle behind this category's own calcium/iron timing rule, just applied to a longer real list of medications than food alone. Worth a direct question for anyone on a stable levothyroxine dose who's also started one of these medications and later finds their TSH has drifted -- the real cause may be the newer medication, not a change in Hashimoto's itself.",
+    citations: [
+      {
+        source: 'Skelin M, et al. 2017 -- Factors Affecting Gastrointestinal Absorption of Levothyroxine: A Review (Clinical Therapeutics)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28153426/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['labs-calcium-iron-absorption', 'labs-timing-master-rule'],
+  },
+  {
     id: 'labs-timing-master-rule',
     category: 'labsMedication',
     title: 'The Practical Timing Rule, Pulled Together',

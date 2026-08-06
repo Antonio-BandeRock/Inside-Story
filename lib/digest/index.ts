@@ -15,6 +15,7 @@ import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
 import { NUTRIENTS_ENTRIES } from './nutrients';
 import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
+import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import type { AnyDigestEntry, DigestEntryCategory } from './types';
@@ -27,7 +28,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260807230000';
+export const PURPLE_DIGEST_VERSION = '20260807234500';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -52,6 +53,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...FOOD_INDUSTRY_HISTORY_ENTRIES,
   ...BIG_PICTURE_ENTRIES,
   ...SELF_ADVOCACY_ENTRIES,
+  ...PREGNANCY_FAMILY_PLANNING_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -199,6 +201,14 @@ export const DIGEST_CATEGORY_META: {
     label: 'Self Advocacy',
     icon: 'megaphone-outline',
     description: 'Which lab tests to actually ask for, why each one matters for Hashimoto\'s, and how often retesting is real signal rather than noise.',
+  },
+  // 2026-08-07, same day, ninth addition: Pregnancy & Family Planning --
+  // appended normally. See pregnancyFamilyPlanning.ts's own header comment.
+  {
+    key: 'pregnancyFamilyPlanning',
+    label: 'Pregnancy & Family Planning',
+    icon: 'flower-outline',
+    description: 'What actually changes about managing Hashimoto\'s during pregnancy and after -- TSH targets, postpartum thyroiditis, breastfeeding, and iodine needs.',
   },
 ];
 

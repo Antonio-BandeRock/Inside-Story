@@ -132,12 +132,41 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
   },
   {
+    id: 'nutrient-ashwagandha',
+    category: 'nutrients',
+    title: 'Ashwagandha: The Most Commonly Asked-About Herb in Hashimoto\'s Communities, With Real Trial Evidence Behind It',
+    teaser: 'Nigella sativa already got its own entry here for real trial evidence. Ashwagandha, the herb Hashimoto\'s patients actually ask about most, hadn\'t -- until now.',
+    summary:
+      "Nigella sativa (black seed) already earned its own entry in this app for real, if newer, trial evidence -- but it's genuinely not the herbal supplement most commonly discussed in real Hashimoto's patient communities. That title belongs to ashwagandha, an adaptogenic herb used in Ayurvedic medicine for centuries, and it has real, if still limited, randomized trial evidence behind it too. A real double-blind, placebo-controlled trial of 50 subclinical hypothyroid patients (46 completed) found 8 weeks of 600mg daily ashwagandha root extract significantly improved TSH, T3, and T4 compared to placebo -- a real, measured effect, not just a traditional-use claim. Worth a real, honest caveat specifically because of how it works: as a real thyroid-hormone-raising herb, it carries a real, mechanistic reason for caution in anyone already hyperthyroid or being treated for Graves' disease, not just Hashimoto's -- adding a hormone-raising supplement on top of a condition that already has too much thyroid hormone is a real, avoidable risk, not a theoretical one. Worth discussing with a doctor before starting, the same standing advice this app gives for every real supplement candidate, especially given this evidence is still just one trial deep, not the multi-study depth selenium's own entry has.",
+    citations: [
+      { source: 'Sharma AK, Basu I, Singh S 2018 -- Efficacy and Safety of Ashwagandha Root Extract in Subclinical Hypothyroid Patients: A Double-Blind, Randomized Placebo-Controlled Trial (Journal of Alternative and Complementary Medicine)', url: 'https://pubmed.ncbi.nlm.nih.gov/28829155/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['nutrient-nigella-sativa'],
+  },
+  {
+    id: 'nutrient-iodine-supplement-caution',
+    category: 'nutrients',
+    title: 'Iodine Pills Are a Real, Different Risk Than Iodine-Rich Food -- Worth Knowing the Distinction',
+    teaser: 'The same real warning this app already gives about kelp applies just as much to a bottle of "thyroid support" iodine tablets -- arguably more.',
+    summary:
+      "This app's own iodine entry above already makes the real case that iodine is a genuine exception to \"more is better\" -- excess intake, especially a sudden increase from a lower baseline, is a real, documented trigger for autoimmune thyroid flares in genetically susceptible people, and Problem Foods & Swaps already covers exactly how that plays out with kelp and other iodine-heavy sea vegetables. The same real mechanism applies at least as strongly, arguably more, to a genuinely different and easy-to-overlook source: standalone potassium iodide or iodine supplement pills, often marketed directly as \"thyroid support\" to the exact population -- people with a diagnosed thyroid condition -- most at risk of the excess-iodine trigger this app's own research already documents. A supplement pill makes it far easier to take a large, concentrated, precisely-repeatable dose than eating kelp ever would, which is exactly what makes it a genuinely higher-risk exposure route for the identical underlying mechanism, not a separate concern needing its own new evidence base. The real, practical takeaway: a \"thyroid support\" label on a supplement bottle is not, on its own, a reason to trust it's safe for a Hashimoto's-specific iodine level -- worth checking with a doctor before starting one, the same as any other supplement decision in this app.",
+    citations: [
+      {
+        source: "Iodine intake from universal salt iodization programs and Hashimoto's thyroiditis: a systematic review",
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12191997/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['nutrient-iodine', 'problem-excess-iodine-kelp'],
+  },
+  {
     id: 'nutrient-tying-together',
     category: 'nutrients',
     title: 'Tying It All Together: Which of These Actually Has the Strongest Evidence',
-    teaser: 'Seven real nutrients, honestly ranked -- not by how often each one gets talked about, but by how strong its own actual evidence really is.',
+    teaser: 'Nine real nutrient entries, honestly ranked -- not by how often each one gets talked about, but by how strong its own actual evidence really is.',
     summary:
-      "Read one at a time, all seven of these nutrients can start to sound equally important -- each entry makes its own real case, and none of them says \"skip this one.\" Read side by side instead, and they sort into a real hierarchy. Selenium, paired with myo-inositol, carries the strongest trial-level evidence of anything in this app's entire research base, with iodine's own two-edged deficiency/excess risk close behind as similarly well-established. Vitamin D, zinc/iron/B12, and Nigella sativa sit in a real middle tier -- genuine mechanisms and real trial data, but less consistent or less replicated than the top two. Folate and the antioxidant vitamins sit at the honest bottom -- real findings worth knowing, but thin and mostly observational. None of this is a reason to ignore the weaker entries. It's a reason to prioritize selenium and iodine status first if choosing where to actually start, and to treat everything below that as worth a real conversation with a doctor rather than aggressive self-supplementing based on a correlation alone.",
+      "Read one at a time, all of these nutrients can start to sound equally important -- each entry makes its own real case, and none of them says \"skip this one.\" Read side by side instead, and they sort into a real hierarchy. Selenium, paired with myo-inositol, carries the strongest trial-level evidence of anything in this app's entire research base, with iodine's own two-edged deficiency/excess risk close behind as similarly well-established -- a risk that applies whether the source is food, kelp, or a supplement pill, not three separate concerns. Vitamin D, zinc/iron/B12, Nigella sativa, and ashwagandha sit in a real middle tier -- genuine mechanisms and real trial data, but each still resting on fewer, smaller trials than selenium's own much deeper evidence base. Folate and the antioxidant vitamins sit at the honest bottom -- real findings worth knowing, but thin and mostly observational. None of this is a reason to ignore the weaker entries. It's a reason to prioritize selenium and iodine status first if choosing where to actually start, and to treat everything below that as worth a real conversation with a doctor rather than aggressive self-supplementing based on a correlation alone.",
     citations: [
       {
         source: 'Selenium supplementation in patients with Hashimoto thyroiditis: a systematic review and meta-analysis of 21 studies (1,610 subjects)',

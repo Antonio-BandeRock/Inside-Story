@@ -124,6 +124,33 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
     relatedIds: ['history-desiccated-to-levothyroxine'],
   },
   {
+    id: 'history-whickham-progression-rate',
+    category: 'history',
+    title: 'The Real Study Behind "How Fast Does This Actually Progress"',
+    teaser: 'A real, 20-year follow-up on thousands of real people -- the actual data behind a question almost everyone with early antibody-positive results eventually asks.',
+    summary:
+      "\"My antibodies are positive but my TSH is still normal -- how worried should I actually be?\" is a real, common question this whole app's own antibody-tracking research keeps circling without ever giving a hard number. The real answer traces back to one of epidemiology's genuine landmark studies: the Whickham Survey, a real cohort of 2,779 adults first surveyed in the 1970s and followed up 20 years later. The baseline rate of new spontaneous hypothyroidism in women overall was real but modest -- roughly 3.5 to 4.1 cases per 1,000 women per year. The real, striking finding sits in the risk-stratified numbers: women with BOTH an elevated TSH and positive thyroid antibodies at the start had 38 times higher odds of developing overt hypothyroidism than women with neither -- a real, quantified answer to exactly the anxious question above, not a vague \"it depends.\" That's a genuinely different situation from either risk factor alone (each independently carried about an 8-fold higher odds on its own) -- the real, combined risk is substantially more than either one by itself. Worth knowing directly: a positive antibody result alongside even a mildly elevated TSH is real, meaningful information about future risk, which is exactly why this app's own Self Advocacy category recommends periodic, not one-time, monitoring of both together.",
+    citations: [
+      { source: 'Vanderpump MP, Tunbridge WM, French JM, et al. 1995 -- The incidence of thyroid disorders in the community: a twenty-year follow-up of the Whickham Survey (Clinical Endocrinology)', url: 'https://pubmed.ncbi.nlm.nih.gov/7641412/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-thyroid-antibodies', 'advocacy-core-thyroid-panel'],
+  },
+  {
+    id: 'history-heritability-family-risk',
+    category: 'history',
+    title: 'How Much of This Is Really Genetic? A Real, Separate Kind of Evidence From the GWAS Story Above',
+    teaser: 'The genome-wide search for specific genes is one real kind of evidence. A completely different kind -- comparing identical twins -- tells a genuinely striking part of the same story.',
+    summary:
+      "This category's own genetic-era entry already covers the real, if still incomplete, search for specific Hashimoto's susceptibility genes -- CTLA-4 chief among them, plus a 2018 genome-wide study that found more candidate regions without fully explaining who actually develops the disease. A genuinely different, complementary kind of evidence comes from real twin studies, which sidestep the \"which specific gene\" question entirely and instead ask a cleaner one: across a real population of over 110,000 twins, how much of the real difference in who gets an autoimmune disease and who doesn't comes down to genetics at all, versus environment? That same real study found heritability running remarkably high across the family of organ-specific autoimmune diseases it examined -- from a real 0.60 for Graves' disease up to a striking 0.97 for Addison's disease, with Hashimoto's included among the diseases studied even though this app couldn't independently verify its own specific individual figure within that range this session. Beyond CTLA-4, real reviews also name HLA-DR variants and PTPN22 as additional, independently replicated susceptibility genes across autoimmune thyroid disease broadly, not just Hashimoto's specifically. The real, practical family-risk takeaway this app hasn't stated plainly before: a parent, sibling, or child of someone with Hashimoto's carries a real, genetically elevated risk worth knowing about -- not a guarantee, and not yet reason to build a dedicated screening feature this app doesn't have, but real enough that a family member with unexplained fatigue or other real Hashimoto's-adjacent symptoms has a legitimate, evidence-backed reason to ask their own doctor for a real thyroid panel rather than assume the connection is coincidental.",
+    citations: [
+      { source: 'Weetman AP 2009 -- The genetics of autoimmune thyroid disease (Hormone and Metabolic Research)', url: 'https://pubmed.ncbi.nlm.nih.gov/19343617/' },
+      { source: 'Skov J, Eriksson D, Kuja-Halkola R, et al. 2020 -- Co-aggregation and heritability of organ-specific autoimmunity: a population-based twin study (110,814 twins)', url: 'https://pubmed.ncbi.nlm.nih.gov/32229696/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['history-genetic-era'],
+  },
+  {
     id: 'history-tying-together',
     category: 'history',
     title: 'Tying It All Together: What This History Actually Teaches',

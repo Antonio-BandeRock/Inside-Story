@@ -328,6 +328,28 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
   },
   {
+    id: 'problem-gluten-free-without-celiac',
+    category: 'problemFoods',
+    foodName: 'Going Gluten-Free Without Celiac Disease -- a Real, Honestly Mixed Answer',
+    teaser: 'Probably the single most common Hashimoto\'s diet question, with a real answer more surprising and less settled than most advice admits.',
+    problem:
+      "The gluten entry elsewhere in this category already covers a real, general gut-permeability mechanism (gliadin, zonulin) that applies to anyone, celiac or not. This is a genuinely different, more specific question: does actually removing gluten measurably change Hashimoto's antibody levels or thyroid numbers in someone WITHOUT celiac disease? A real, very recent (2025) systematic review and meta-analysis pooling 3 randomized trials (110 participants) found a genuinely surprising, mixed answer -- not the clean \"yes, it helps\" most gluten-free advice for Hashimoto's assumes.",
+    mechanism:
+      "The real numbers themselves are the honest story here: going gluten-free significantly DECREASED anti-thyroglobulin antibodies, but significantly INCREASED anti-TPO antibodies -- moving in opposite directions on the two real antibody markers this app's own tracking is built around. TSH, free T3, and free T4 showed no significant change either way. The review's own authors rated the underlying evidence as having \"serious methodological concerns\" and being \"very uncertain\" -- an honest admission from the researchers themselves, not this app's own hedge. None of this changes the real, separate case for a true celiac disease diagnosis, where gluten-free eating is genuinely medically necessary regardless of any thyroid-specific effect -- this is specifically about the much more common situation of choosing to go gluten-free FOR the Hashimoto's itself, without a celiac diagnosis driving it.",
+    swaps: [
+      'A real celiac disease test (not a guess) before committing to a strict, genuinely difficult gluten-free diet specifically for thyroid reasons -- worth ruling in or out first, covered under Self Advocacy.',
+      'If choosing to try it anyway, a real, honest personal experiment -- tracked symptoms over weeks, not assumed results -- is a more defensible approach than expecting a guaranteed antibody or TSH change the current evidence doesn\'t actually support.',
+      'The separate, real gut-permeability case for reducing gluten (covered in this category\'s own Gluten-Containing Grains entry) still stands on its own mechanism, independent of this specific antibody-level question.',
+    ],
+    citations: [
+      {
+        source: "Araújo et al. 2025 -- Effects of Gluten-Free Diet in Non-Celiac Hashimoto's Thyroiditis: A Systematic Review and Meta-Analysis (Nutrients)",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/41228508/',
+      },
+    ],
+    relatedIds: ['problem-gluten-grains', 'advocacy-thyroid-antibodies'],
+  },
+  {
     id: 'problem-tying-together',
     category: 'problemFoods',
     foodName: 'Tying It All Together: The Patterns Across This Whole List',

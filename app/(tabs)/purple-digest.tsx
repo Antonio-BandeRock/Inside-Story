@@ -162,6 +162,10 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
     heading: 'Self Advocacy',
     body: "Which lab tests are actually worth asking for with Hashimoto's -- the full thyroid panel (not just TSH), antibodies, ferritin, vitamin D, B12, magnesium, zinc and copper together, a CBC and CMP, lipids, and situational tests like sex hormones and cortisol -- each with the real reason it matters and an honest, non-excessive sense of how often retesting it actually adds new information. Includes two real corrections to how these tests often get pitched (reverse T3's genuinely unsettled evidence, and perimenopause usually being a clinical rather than lab diagnosis), plus a practical closing entry on how to actually ask a doctor for any of this.",
   },
+  pregnancyFamilyPlanning: {
+    heading: 'Pregnancy & Family Planning',
+    body: "What actually changes about managing Hashimoto's around pregnancy, beyond the miscarriage-risk research already covered in Organs & Body Systems: a real, lower TSH target once pregnancy starts or is being planned, postpartum thyroiditis as its own distinct condition (real data showing over half of cases still have persistent hypothyroidism a year later, not the temporary blip it's often assumed to be), a genuinely reassuring answer on breastfeeding and levothyroxine safety, and why iodine's already-established two-edged nature carries real, higher stakes during pregnancy specifically.",
+  },
 };
 
 // A deliberate line-break point for each category name that's long enough
@@ -189,6 +193,7 @@ const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {
   history: 'History &\nMilestones',
   nutrientInteractions: 'Nutrient\nInteractions',
   foodIndustryHistory: 'Food Industry &\nHistory',
+  pregnancyFamilyPlanning: 'Pregnancy &\nFamily Planning',
 };
 
 function tierColor(tier: EvidenceTier): string {

@@ -194,6 +194,34 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
   },
   {
+    id: 'organ-overtreatment-bone-heart-risk',
+    category: 'organSystems',
+    title: 'The Real Risk on the Other Side: What Happens When a Dose Runs Too High, Not Too Low',
+    teaser: 'Nearly everything in this whole app is about the risk of too little thyroid hormone. There is a real, opposite risk too, and it deserves equal attention.',
+    summary:
+      "Every entry in this category so far has been about what happens when thyroid hormone runs low. The real, less-discussed flip side matters just as much: levothyroxine dosed a little too high -- enough to push TSH below the normal range even without any overt symptoms, a state called subclinical hyperthyroidism -- carries its own real, measurable risks, particularly for anyone taking it long-term. A real, decade-long study of older adults found a low TSH level was associated with a threefold higher risk of atrial fibrillation developing over the following ten years (relative risk 3.1). A separate real study from the Study of Osteoporotic Fractures found women with a suppressed TSH had a 3.6-fold higher risk of hip fracture and a 4.5-fold higher risk of vertebral fracture compared to women with normal TSH. Neither finding is a reason to fear levothyroxine itself -- undertreatment carries its own well-documented real risks throughout this whole category -- it's a real, practical argument for exactly the kind of periodic, real lab monitoring this app's own Self Advocacy category already recommends, rather than assuming a dose set once, years ago, is still the right one now. \"On thyroid medication\" and \"correctly dosed\" are not the same claim, and only real, periodic testing can confirm the second one.",
+    citations: [
+      { source: 'Sawin CT, et al. 1994 -- Low serum thyrotropin concentrations as a risk factor for atrial fibrillation in older persons (New England Journal of Medicine)', url: 'https://pubmed.ncbi.nlm.nih.gov/7935681/' },
+      { source: 'Bauer DC, Ettinger B, Nevitt MC, Stone KL 2001 -- Risk for fracture in women with low serum levels of thyroid-stimulating hormone (Annals of Internal Medicine)', url: 'https://pubmed.ncbi.nlm.nih.gov/12803168/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-core-thyroid-panel', 'advocacy-tying-together'],
+  },
+  {
+    id: 'organ-primary-thyroid-lymphoma',
+    category: 'organSystems',
+    title: 'A Real, Rare Complication Worth Knowing the One Warning Sign For',
+    teaser: 'Genuinely rare. Genuinely worth knowing about anyway, because the one real warning sign is easy to notice and easy to act on.',
+    summary:
+      "This is the one entry in this whole app included specifically because it's rare enough to never come up in casual conversation, yet serious enough that recognizing its one real warning sign matters. Long-standing Hashimoto's thyroiditis carries a real, documented -- if genuinely small -- elevated risk of primary thyroid lymphoma, a distinct condition from ordinary Hashimoto's or the more common thyroid cancers. Real research describes a significantly increased incidence specifically in people with Hashimoto's compared to the general population, strongly suggesting a real biological link, not coincidence -- though the actual absolute risk stays low: one real analysis put transformation from Hashimoto's thyroiditis to primary thyroid lymphoma at roughly 0.5% of cases, and primary thyroid lymphoma itself accounts for under 5% of all thyroid cancers overall. The one real, practical takeaway: a thyroid or goiter that's been stable for years and then starts enlarging rapidly (over weeks, not the slow, gradual changes Hashimoto's itself typically produces) is a real, worth-mentioning-to-a-doctor symptom, not something to wait out. Not a reason for alarm about ordinary Hashimoto's -- a reason to know the one real red flag that's genuinely different from everything else this disease normally does.",
+    citations: [
+      { source: "Noureldine SI, Tufano RP 2015 -- Association of Hashimoto's thyroiditis and thyroid cancer (Current Opinion in Oncology)", url: 'https://pubmed.ncbi.nlm.nih.gov/25390557/' },
+      { source: 'Zakkor MJ, et al. 2023 -- Intra-Abdominal Paraganglioma and Primary Thyroid Lymphoma in a Single Patient (Case Reports in Oncology)', url: 'https://pubmed.ncbi.nlm.nih.gov/37933315/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['advocacy-core-thyroid-panel'],
+  },
+  {
     id: 'organ-tying-together',
     category: 'organSystems',
     title: 'Tying It All Together: Why So Many Organs, and Why So Much of It Reverses',

@@ -95,6 +95,11 @@ export const DIGEST_CATEGORY_KEYS = [
   // correction (reverse T3, sex-hormone testing for perimenopause).
   // Appended normally -- unlike Glossary, no explicit request to reorder.
   'selfAdvocacy',
+  // 2026-08-07, ninth addition, part of a real, requested gap-filling pass
+  // ("I agree with all of what you determined and I want you to begin on
+  // all of it") -- Pregnancy & Family Planning. See
+  // pregnancyFamilyPlanning.ts's own header comment for the full reasoning.
+  'pregnancyFamilyPlanning',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

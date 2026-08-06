@@ -281,6 +281,34 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
   },
   {
+    id: 'advocacy-tsh-optimal-range-debate',
+    category: 'selfAdvocacy',
+    title: '"Your TSH Is Normal" Doesn\'t Always Mean the Same Number to Every Doctor',
+    teaser: 'A real, named, ongoing disagreement within endocrinology itself about how wide "normal" should actually be.',
+    summary:
+      "A frustrating, common real experience: TSH comes back at, say, 3.8 -- technically inside the standard lab reference range, which typically runs up to somewhere around 4.0-4.5 mIU/L -- and gets called normal, while real symptoms persist. This isn't necessarily being dismissed unfairly; it's a real, named, ongoing disagreement within the field itself, not something invented by a frustrated patient. A real 2005 review directly argued the standard reference range is too wide, since the population used to originally set it likely included people with undiagnosed thyroid disease, skewing the \"normal\" upper limit higher than it should be -- the same authors, in a companion paper the same year, explicitly proposed a narrower \"optimal\" range of 0.4 to 2.5 mIU/L instead. That real, published argument has never fully displaced the wider standard range most labs and major endocrine society guidance still use -- this remains a genuine, unresolved disagreement, not a settled case either way. The real, practical use of knowing this: a TSH result sitting in the upper end of the standard range, alongside real, persistent symptoms, is a legitimate, evidence-backed thing to raise directly (\"I know this is technically in range, but I've read there's real debate about whether the optimal target is narrower\") rather than something to assume is fully resolved just because the lab report says \"normal.\"",
+    citations: [
+      { source: 'Wartofsky L, Dickey RA 2005 -- The evidence for a narrower thyrotropin reference range is compelling (Journal of Clinical Endocrinology & Metabolism)', url: 'https://pubmed.ncbi.nlm.nih.gov/16148345/' },
+      { source: 'Dickey RA, Wartofsky L, Feld S 2005 -- Optimal thyrotropin level: normal ranges and reference intervals are not equivalent (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/16187911/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['advocacy-core-thyroid-panel'],
+  },
+  {
+    id: 'advocacy-seronegative-hashimotos',
+    category: 'selfAdvocacy',
+    title: 'A Real, Meaningful Minority of Hashimoto\'s Never Tests Antibody-Positive at All',
+    teaser: 'This whole app\'s own antibody tracking assumes a positive result. A real, documented minority of genuine Hashimoto\'s cases never gets one.',
+    summary:
+      "This category's own antibody entry, and much of this app's own tracking, is built around a real, positive TPO or thyroglobulin antibody result as the confirming signal that a low thyroid is genuinely autoimmune. A real, worth-knowing exception exists: seronegative Hashimoto's, where someone has the real clinical and ultrasound picture of Hashimoto's thyroiditis but tests negative on both standard antibody markers. Real research puts this at a genuine, non-trivial share of cases -- one real pediatric cohort study found 12.3% of confirmed Hashimoto's cases were seronegative, and a separate adult study found the same real phenomenon, with seronegative cases tending to show a milder clinical picture than classic antibody-positive Hashimoto's. This isn't a reason to doubt a real diagnosis reached through symptoms and imaging just because an antibody test came back negative -- it's a real, useful thing to know specifically so a negative antibody result doesn't get treated as ruling out Hashimoto's entirely, especially if the rest of the clinical picture (ultrasound findings, thyroid function, family history) still points that direction. Worth raising directly if a negative antibody test is being used to question an otherwise well-supported diagnosis.",
+    citations: [
+      { source: "Rizzardi P, et al. 2022 -- Seronegative phenotype in a pediatric population with Hashimoto's thyroiditis (Hormones)", url: 'https://pubmed.ncbi.nlm.nih.gov/35377135/' },
+      { source: "Rotondi M, et al. 2014 -- Serum negative autoimmune thyroiditis displays a milder clinical picture compared with classic Hashimoto's thyroiditis (European Journal of Endocrinology)", url: 'https://pubmed.ncbi.nlm.nih.gov/24743395/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['advocacy-thyroid-antibodies'],
+  },
+  {
     id: 'advocacy-tying-together',
     category: 'selfAdvocacy',
     title: 'A Real, Reasonable Testing Calendar -- Pulled Together From Every Entry Above',
