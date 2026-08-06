@@ -74,7 +74,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       "Fasting shows up in wellness conversations as an almost universally positive intervention. The actual research on it, specifically for someone with Hashimoto's, is more complicated than that. Fasting and caloric restriction are the most potent known triggers of autophagy, the exact cellular cleanup process IL-23 was shown above to suppress in Hashimoto's specifically. But fasting also reliably suppresses T3 and raises reverse-T3 via hypothalamic TRH downregulation, a well-documented thyroid-specific cost, not a minor footnote. Both facts are presented here together deliberately, rather than picking the flattering one. The most plausible reading is that short, moderate fasting windows, not multi-day extended fasts, are where the two effects most reasonably balance out.",
     citations: [
       { source: 'The effect of fasting or calorie restriction on autophagy induction: a review of the literature', url: 'https://pubmed.ncbi.nlm.nih.gov/30172870/' },
-      { source: 'Boelen, Wiersinga & Fliers 2008, Thyroid -- fasting-induced changes in the hypothalamus-pituitary-thyroid axis', url: 'https://pubmed.ncbi.nlm.nih.gov/18225975/' },
+      { source: 'Boelen, Wiersinga & Fliers 2008, Thyroid: fasting-induced changes in the hypothalamus-pituitary-thyroid axis', url: 'https://pubmed.ncbi.nlm.nih.gov/18225975/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['mito-ramadan-fasting-study'],
@@ -120,7 +120,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       "Finding that Tregs are missing from visceral fat is one thing. Proving their absence actually causes a problem is a different, much stronger kind of evidence, and this is exactly that. In a Hashimoto's mouse model, reinfusing healthy regulatory T cells, which preferentially homed back into visceral adipose tissue on their own, measurably improved insulin sensitivity. A causal experiment, not just an observed association, directly connecting the Treg depletion finding above to a concrete, measurable metabolic outcome: putting the missing piece back in, and watching things actually improve.",
     citations: [
       {
-        source: "Depletion of Regulatory T Cells in Visceral Adipose Tissues Contributes to Insulin Resistance in Hashimoto's Thyroiditis (same study -- covers both the depletion and the reinfusion experiment)",
+        source: "Depletion of Regulatory T Cells in Visceral Adipose Tissues Contributes to Insulin Resistance in Hashimoto's Thyroiditis (same study: covers both the depletion and the reinfusion experiment)",
         url: 'https://pubmed.ncbi.nlm.nih.gov/29541033/',
       },
     ],

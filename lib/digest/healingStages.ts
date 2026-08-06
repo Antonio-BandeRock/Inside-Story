@@ -42,7 +42,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       'Five clinical stages sound thorough, right up until it\'s time to figure out what to actually put on a plate. Two of them are genuinely all this category needs to worry about. This app\'s own already-decided 5-stage clinical framework (Triage, Digging, Gut Repair, Rebalancing, Maintenance) only really drives food decisions in two of those five stages. The rest are mostly about hormone dosing, nutrient correction, and lab monitoring. A simpler, more practically useful 3-tier structure covers the same ground for food purposes: Stage 1 "Getting Started" (elimination first, a short, well-reasoned list of genuinely safe foods), Stage 2 "Rebuilding" (systematic, one-food-at-a-time reintroduction, fermented foods enter here deliberately), and Stage 3 "Well-Healed" (broad, diverse eating; tracking becomes a spot-check tool rather than a daily requirement). Everything else in this category maps onto one of these three stages, worth having in mind before diving into any single entry.',
     citations: [
       {
-        source: 'The Autoimmune Protocol diet: a systematic review of the literature -- the real 6-week elimination + 5-week reintroduction clinical protocol structure',
+        source: 'The Autoimmune Protocol diet: a systematic review of the literature: the real 6-week elimination + 5-week reintroduction clinical protocol structure',
         url: 'https://pubmed.ncbi.nlm.nih.gov/31832627/',
       },
     ],
@@ -135,7 +135,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       "The temptation once Stage 1 feels stable is to just start eating normally again. Stage 2 asks for something more disciplined than that, on purpose. The methodology: one food, in its purest additive-free form, a small amount on an empty stomach, a 24-hour wait, then a full portion, then 2 more days of monitoring before the next food, roughly every 3-5 days per food. The reasoned order, lowest-risk first: cooked goitrogenic vegetables and legumes first (mechanism already well-characterized, risk concentrated specifically in raw form and low-iodine status), nightshades next, since Stage 1 isolated them cleanly and a genuinely contested food deserves individual data rather than a blanket guess, dairy next, watching specifically for the lactose-intolerance-linked TSH pattern, gluten last and most cautiously, given the real celiac-screening stakes. A deliberate order, not an arbitrary one. Each food's own position in the sequence is chosen for a specific reason, the same discipline this whole app applies everywhere else.",
     citations: [
       {
-        source: "Long-term restriction (staying low-fiber/low-variety past the diagnostic window) causes MORE dysbiosis and permeability, not less -- IBD-population evidence that Stage 1's restriction is a temporary diagnostic tool, not a destination",
+        source: "Long-term restriction (staying low-fiber/low-variety past the diagnostic window) causes MORE dysbiosis and permeability, not less: IBD-population evidence that Stage 1's restriction is a temporary diagnostic tool, not a destination",
         url: 'https://pubmed.ncbi.nlm.nih.gov/38674799/',
       },
     ],
@@ -197,7 +197,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: '6+ months, ongoing -- the maintenance phase.',
+    stageNote: '6+ months, ongoing: the maintenance phase.',
   },
   {
     id: 'healing-stage3-practical-shifts',
@@ -239,7 +239,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
       "Read end to end, these entries describe a real, sequenced journey, narrow and restrictive in Stage 1, systematically widening in Stage 2, broad and mostly self-monitoring by Stage 3, built on elimination-diet, gut-barrier-repair, and Hashimoto's-specific trial timelines, not guesswork. The honest throughline across all three stages: this app's own tracking is what actually shows which stage someone is really in, not a fixed number of weeks on a calendar. The milestones in each stage (symptom stability, a tolerance map, a declining antibody trend) are checkable signals to look for in real logged data, and a genuine flare or disruption is a legitimate reason to step back a stage temporarily, not a failure of the process. The same systems-thinking this app is built around applies here directly: a healing gut, like any real system being brought back online, gets checked at real checkpoints, not simply declared fixed on a fixed schedule.",
     citations: [
       {
-        source: 'The Autoimmune Protocol diet: a systematic review of the literature -- the real 6-week elimination + 5-week reintroduction clinical protocol structure',
+        source: 'The Autoimmune Protocol diet: a systematic review of the literature: the real 6-week elimination + 5-week reintroduction clinical protocol structure',
         url: 'https://pubmed.ncbi.nlm.nih.gov/31832627/',
       },
     ],

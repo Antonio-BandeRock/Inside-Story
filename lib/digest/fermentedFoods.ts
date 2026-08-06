@@ -27,7 +27,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       "Walk down a grocery aisle and L. acidophilus is probably the one probiotic name that actually sounds familiar, printed on yogurt cartons and supplement labels alike, often without much explanation of what it actually does. It's a homofermentative lactic acid bacterium found in most live-culture yogurt and many commercial probiotic blends. Clinical evidence supports it for improving lactose digestion (it produces lactase during fermentation, reducing residual lactose in the finished product) and for restoring gut flora after antibiotic use. Thyroid-specific human trials of this strain alone don't exist yet. Its relevance here is as one contributor to overall gut microbial diversity, the mechanism this app's Gut & Microbiome research keeps returning to as the real target.",
     citations: [
       {
-        source: 'Kim & Gilliland 1983, Journal of Dairy Science -- "Lactobacillus acidophilus as a Dietary Adjunct for Milk to Aid Lactose Digestion in Humans"',
+        source: 'Kim & Gilliland 1983, Journal of Dairy Science: "Lactobacillus acidophilus as a Dietary Adjunct for Milk to Aid Lactose Digestion in Humans"',
         url: 'https://pubmed.ncbi.nlm.nih.gov/6409948/',
       },
     ],
@@ -58,7 +58,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       "Before a baby ever eats solid food, Bifidobacterium is already one of the dominant residents of a healthy infant gut. It doesn't stay that dominant forever, and that decline turns out to matter. Several Bifidobacterium species (B. bifidum, B. longum, B. animalis) show up across yogurt, kefir, and many probiotic supplements. B. bifidum specifically has mechanistic evidence for restoring occludin, one of the core tight-junction proteins that keeps the intestinal barrier sealed, directly relevant to this app's own leaky-gut-repair research. Bifidobacterium counts also decline measurably with age and antibiotic exposure, both common reasons someone's baseline gut diversity might be lower than ideal. A specific repair mechanism attached to a genus most people only vaguely associate with \"good bacteria\" in general.",
     citations: [
       {
-        source: 'Hsieh et al. 2015, Physiological Reports -- "Strengthening of the intestinal epithelial tight junction by Bifidobacterium bifidum"',
+        source: 'Hsieh et al. 2015, Physiological Reports: "Strengthening of the intestinal epithelial tight junction by Bifidobacterium bifidum"',
         url: 'https://pubmed.ncbi.nlm.nih.gov/25780093/',
       },
     ],
@@ -73,7 +73,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       '"Streptococcus" is a genus name that understandably makes people uneasy. It\'s also the genus behind strep throat and other real infections. S. thermophilus deserves a separate introduction. Paired with L. bulgaricus as the two required starter cultures for anything legally labeled "yogurt" in most countries, S. thermophilus is a distinct, well-characterized, food-safe species entirely unrelated to Streptococcus pyogenes or pneumoniae. It\'s notably efficient at breaking down lactose during fermentation, part of why traditional long-fermented yogurt is often better tolerated by lactose-sensitive people than fresh milk, a mechanistic reason behind a folk claim this app\'s own Healing Stages guide already leans on. A safe, genuinely useful organism, saddled with a name that does it no favors.',
     citations: [
       {
-        source: 'Global Regulatory Frameworks for Fermented Foods -- A Review (Frontiers in Nutrition, 2022), discussing Codex Alimentarius CXS 243-2003',
+        source: 'Global Regulatory Frameworks for Fermented Foods: A Review (Frontiers in Nutrition, 2022), discussing Codex Alimentarius CXS 243-2003',
         url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2022.902642/full',
       },
     ],
@@ -88,7 +88,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       "Sauerkraut's fermentation gets credited almost entirely to Lactobacillus in casual conversation. The first act belongs to a different organism entirely. The bacterium that kicks off sauerkraut fermentation isn't Lactobacillus at all. It's Leuconostoc mesenteroides, which dominates the first few days, producing carbon dioxide and lowering pH just enough to make conditions hospitable for the more acid-tolerant Lactobacillus species that take over later. A distinct organism with its own metabolic profile, not simply an early-stage Lactobacillus standing in until the \"real\" bacteria arrive. See the Sauerkraut Succession entry below for the full three-act story.",
     citations: [
       {
-        source: 'Microbiology Spectrum -- microbiome composition and biochemical changes during sauerkraut fermentation',
+        source: 'Microbiology Spectrum: microbiome composition and biochemical changes during sauerkraut fermentation',
         url: 'https://journals.asm.org/doi/10.1128/spectrum.00168-22',
       },
     ],
@@ -119,7 +119,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       "A jar of sauerkraut looks like one static thing sitting on a shelf. What's actually happening inside it is a sequential relay race between different organisms. Leuconostoc mesenteroides dominates days 1-3, producing enough acid to suppress spoilage organisms and pave the way for itself to be outcompeted. Lactobacillus brevis and other heterofermentative species take over as pH continues dropping. The more acid-tolerant Lactobacillus plantarum finishes the job over 2-4+ weeks, producing the bulk of the final, stable lactic acid. A sauerkraut eaten at day 3 genuinely has a different microbial profile than one eaten at day 21, both real, just different, and worth knowing if the goal is a specific strain rather than \"sauerkraut\" as one undifferentiated food.",
     citations: [
       {
-        source: 'Microbiology Spectrum -- microbiome composition and biochemical changes during sauerkraut fermentation',
+        source: 'Microbiology Spectrum: microbiome composition and biochemical changes during sauerkraut fermentation',
         url: 'https://journals.asm.org/doi/10.1128/spectrum.00168-22',
       },
     ],
@@ -166,7 +166,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       "Most fermented foods on this list are built around one or two named strains. Milk kefir is built differently, on purpose. Traditional milk kefir grains host a complex symbiotic community, often 30 or more distinct bacterial and yeast species living together in one starter culture, far beyond the handful of strains in a typical commercial yogurt. That diversity is exactly what this app's own gut-microbiome research keeps identifying as the real target: diversity itself, not any single \"best\" strain. Kefir is one of the most direct, practical ways to work toward that diversity through food rather than through a supplement.",
     citations: [
       {
-        source: 'PLOS ONE -- sequencing-based analysis of kefir grains and milks from multiple sources',
+        source: 'PLOS ONE: sequencing-based analysis of kefir grains and milks from multiple sources',
         url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0069371',
       },
     ],
@@ -196,7 +196,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       "Open a book on home fermentation and vegetables dominate almost every recipe. Fruit isn't off-limits. It just needs extra attention. Most home fermentation defaults to vegetables (cabbage, cucumbers) because their lower natural sugar content favors lactic acid bacteria over the wild yeasts that would otherwise dominate a sweeter substrate and push the ferment toward alcohol instead. Fruit can be lacto-fermented in a salt brine the same way, apple is a workable example, but needs closer monitoring for that yeast and mold competition than a standard vegetable ferment, and the finished product is genuinely tarter and more complex than raw fruit, not simply \"fruit plus probiotics.\"",
     citations: [
       {
-        source: 'NCBI Bookshelf -- "Lactic Acid Fermentations," Applications of Biotechnology to Fermented Foods',
+        source: 'NCBI Bookshelf: "Lactic Acid Fermentations," Applications of Biotechnology to Fermented Foods',
         url: 'https://www.ncbi.nlm.nih.gov/books/NBK234703/',
       },
     ],
@@ -226,11 +226,11 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       'Reaching for a probiotic yogurt at the store feels like a straightforward way to get a specific strain into a diet. The label rarely guarantees what that actually means. Commercial yogurt is only required to contain the two legal minimum starter cultures, S. thermophilus and L. bulgaricus, at the time of manufacture. Live cultures can decline well before the sell-by date, and "contains live active cultures" labeling doesn\'t guarantee a specific strain or count. For anyone trying to work with a specific, research-backed strain like Lp299v, a verified single-strain starter culture, sold specifically for home fermentation, with a real certificate of analysis, is a more reliable tool than hoping a random store product happens to still be active.',
     citations: [
       {
-        source: 'FDA 21 CFR 131.200 -- Yogurt standard of identity, live/active culture labeling',
+        source: 'FDA 21 CFR 131.200: Yogurt standard of identity, live/active culture labeling',
         url: 'https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-131/subpart-B/section-131.200',
       },
       {
-        source: 'Global Regulatory Frameworks for Fermented Foods -- A Review (Frontiers in Nutrition, 2022), discussing Codex Alimentarius CXS 243-2003',
+        source: 'Global Regulatory Frameworks for Fermented Foods: A Review (Frontiers in Nutrition, 2022), discussing Codex Alimentarius CXS 243-2003',
         url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2022.902642/full',
       },
     ],
@@ -245,7 +245,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       "No single strain across these fourteen entries does everything. L. acidophilus helps lactose digestion, Bifidobacterium bifidum specifically rebuilds occludin, E. coli Nissle restores different tight-junction proteins entirely, S. boulardii survives antibiotics precisely because it isn't a bacterium at all. Milk kefir's own 30+ species is the clearest illustration of what this category keeps pointing toward: gut-microbiome diversity itself, not any one \"best\" probiotic, is the actual target. Rotating between a home yogurt, sauerkraut, kefir, and an occasional kombucha realistically does more than picking one and eating it exclusively. The CFU-dosing and sourcing entries exist for the same reason: knowing what's actually being cultured matters more than how big the number on a label says it is. Building a varied fermentation habit, not chasing one perfect strain, is the honest, practical takeaway this whole category keeps arriving at.",
     citations: [
       {
-        source: 'PLOS ONE -- sequencing-based analysis of kefir grains and milks from multiple sources',
+        source: 'PLOS ONE: sequencing-based analysis of kefir grains and milks from multiple sources',
         url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0069371',
       },
     ],

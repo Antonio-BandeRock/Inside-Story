@@ -37,8 +37,8 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
     summary:
       "Picture the gut lining the way a systems engineer might picture a network's own outermost firewall: the first checkpoint deciding what gets let through and what doesn't. That checkpoint isn't passive. It's actively staffed by trillions of gut bacteria, and what they do with the fiber someone eats determines a lot about how well that checkpoint actually holds. When those bacteria ferment dietary fiber, they produce short-chain fatty acids, mainly butyrate, propionate, and acetate. These aren't leftover byproducts. They're potent signaling molecules that drive measurable immune tolerance through regulatory T cell (Treg) induction, through two separate, independently confirmed mechanisms: HDAC inhibition (chemically loosening how tightly certain genes are wound, making tolerance-promoting genes easier to switch on) and direct signaling through a trio of receptors, GPR43, GPR41, and GPR109A, carried by both gut cells and immune cells. Two independently published studies (Smith et al. 2013, Science; Furusawa et al. 2013, Nature) confirmed this from two different angles, landing on the same conclusion from two different directions: SCFAs directly train the immune system toward tolerance, not attack. This is the actual mechanistic bridge between \"eat more fiber\" and \"calm an overactive immune system,\" real biology standing behind what could otherwise sound like a vague wellness slogan. It's also, by a wide margin, the single most directly food-controllable lever this whole Digest has found. Unlike a gene, a diagnosis, or a decade of processed-food history, how much fiber reaches the gut tomorrow is a choice available today.",
     citations: [
-      { source: 'Smith et al. 2013, Science -- SCFAs regulate colonic Treg cell homeostasis', url: 'https://pubmed.ncbi.nlm.nih.gov/23828891/' },
-      { source: 'Furusawa et al. 2013, Nature -- commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
+      { source: 'Smith et al. 2013, Science: SCFAs regulate colonic Treg cell homeostasis', url: 'https://pubmed.ncbi.nlm.nih.gov/23828891/' },
+      { source: 'Furusawa et al. 2013, Nature: commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
     ],
     overallTier: 'strong',
     relatedIds: ['gut-fiber-hashimotos-microbiota'],
@@ -51,7 +51,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
     summary:
       "\"Leaky gut\" gets used so loosely in casual health conversation that it's easy to assume there's no real biology behind it, just a catchy phrase standing in for \"something's wrong down there.\" That assumption doesn't survive contact with the actual research. Gliadin, a specific fragment of the gluten protein, binds directly to a receptor called CXCR3 on the surface of intestinal cells. That binding event triggers those cells to release zonulin, a real, named protein whose entire job is regulating how tightly the junctions between gut lining cells stay sealed. Zonulin doesn't destroy the barrier. It reversibly opens it, the molecular equivalent of a security checkpoint temporarily waving more traffic through than it should. This pathway was first fully characterized in celiac disease, but it doesn't stay confined there. The same gliadin-CXCR3-zonulin sequence is now documented as relevant across several other autoimmune conditions this Digest covers under Other Autoimmune Diseases, not just celiac. This is exactly the kind of specific, named mechanism this whole Digest tries to insist on instead of vague gut-health language: a receptor, a protein, a reversible effect, not a mystery standing in for one.",
     citations: [
-      { source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
+      { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
     overallTier: 'strong',
     relatedIds: ['problem-gluten-grains'],
@@ -81,7 +81,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       "Walk into almost any conversation about healing a \"leaky gut\" and L-glutamine will come up within the first few sentences. It's probably the single most commonly recommended supplement in this entire space, repeated confidently enough that it rarely gets questioned. It's not a baseless recommendation to begin with. Glutamine has a specific mechanism: it regulates the tight-junction proteins occludin and claudin-1, and it's the preferred fuel source enterocytes (the cells lining the small intestine) burn directly. It also has genuine positive trial results in specific, narrower contexts: HIV, burn injuries, exercise-induced heat stress. But when a systematic review pooled 10 clinical trials, 352 participants total, specifically testing whether glutamine improves intestinal permeability, the answer came back no, no significant overall improvement. This is exactly the kind of correction this Digest exists to make plainly rather than quietly bury: a real mechanism and genuine trial support in narrow contexts doesn't automatically mean the popular, broader claim holds up once it's actually pooled and tested at scale.",
     citations: [
       {
-        source: 'Abbasi et al. 2024, Amino Acids -- systematic review & meta-analysis of glutamine supplementation and gut permeability',
+        source: 'Abbasi et al. 2024, Amino Acids: systematic review & meta-analysis of glutamine supplementation and gut permeability',
         url: 'https://doi.org/10.1007/s00726-024-03420-7',
       },
     ],
@@ -95,7 +95,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
     summary:
       "Vitamin D's own track record against Hashimoto's antibodies directly, covered elsewhere in this Digest under Nutrients & Micronutrients, is honestly mixed: a real correlation, inconsistent intervention trials. That mixed picture doesn't mean vitamin D has nothing real to do with Hashimoto's. It may simply mean the research has been looking in the wrong place. A gene called CLDN2 codes for claudin-2, one of the actual structural proteins making up a tight junction between gut cells. ChIP-assay research, a direct, molecular method for confirming a gene is genuinely under another molecule's control, not just associated with it, found CLDN2 is a direct, confirmed target of the vitamin D receptor. That means vitamin D receptor signaling has a specific, non-speculative role protecting gut-barrier integrity through the MLCK signaling pathway, entirely separate from whatever it's doing (or not clearly doing) to TPO antibodies directly. If vitamin D turns out to matter for Hashimoto's, this gut-barrier pathway is a plausible reason why, a second, independent route to the same disease, found by researchers who weren't even asking about Hashimoto's when they found it.",
     citations: [
-      { source: 'Zhang et al. 2015, Scientific Reports -- tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
+      { source: 'Zhang et al. 2015, Scientific Reports: tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['nutrient-vitamin-d'],
@@ -109,7 +109,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       "Zinc on its own already has a fairly general role in immune function, covered elsewhere in this Digest. Zinc carnosine, a specific bonded compound of zinc and the amino acid carnosine, not interchangeable with plain zinc, has something more specific and more directly useful to say about the gut barrier itself. A randomized controlled trial found zinc carnosine completely blocked the intestinal-permeability increase caused by NSAIDs, the same everyday over-the-counter pain relievers (ibuprofen, naproxen, aspirin) covered under Lifestyle & Environment for their own documented gut-barrier effect. Separate trial evidence supports zinc carnosine for tight-junction integrity in two more specific populations: athletes and people with gastric ulcers. A more consistently positive picture than glutamine's own honest null result above, worth knowing by its specific compound name, not lumped in with \"zinc\" generally the way it usually gets marketed.",
     citations: [
       {
-        source: 'Mahmood et al. 2007, Gut -- zinc carnosine stabilises small bowel integrity and stimulates gut repair',
+        source: 'Mahmood et al. 2007, Gut: zinc carnosine stabilises small bowel integrity and stimulates gut repair',
         url: 'https://pubmed.ncbi.nlm.nih.gov/16777920/',
       },
     ],
@@ -141,7 +141,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       "The 4R Protocol (Remove triggers, Replace digestive support, Reinoculate with probiotics, Repair the gut lining) is one of the most widely used frameworks in functional medicine, repeated across countless practitioner sites and patient guides as an established, proven protocol. Piece by piece, it genuinely holds up. Elimination, probiotics, glutamine, zinc carnosine (with glutamine's own real limits, honestly noted above), every individual component covered elsewhere in this category has its own separately-tested evidence base. What doesn't hold up under a direct search is the packaged, 4-step protocol itself. A search for clinical validation of the 4R Protocol as a whole turned up almost entirely practitioner and wellness-industry sources, not a peer-reviewed trial of the combined program as its own intervention. That's a meaningfully different thing to know than either \"this protocol works\" or \"this protocol is fake.\" It's a useful organizing framework built from separately-evidenced parts, honestly tiered here as exactly that: a practitioner framework, not a validated package.",
     citations: [
       {
-        source: 'The Institute for Functional Medicine -- "Five R Gut Restoration Program"',
+        source: 'The Institute for Functional Medicine: "Five R Gut Restoration Program"',
         url: 'https://www.marioninstitute.org/wp-content/uploads/2020/04/FiveRFrameworkforGutRestoration_v3.pdf',
       },
     ],
@@ -157,7 +157,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       '"Healing the gut takes time" is true, and almost useless on its own. It gives no real sense of whether that means two weeks or two years. Dietary-intervention studies that measured zonulin directly, not just symptoms, put an actual number on it. A randomized crossover trial in older adults eating a polyphenol-rich diet (the MaPLE trial) found significant zonulin reductions within just 8 weeks. A second, independent trial following weight loss in patients with MASH/liver fibrosis confirmed genuine reductions holding at both the 12-week and the 24-week mark. A checkable timeline instead of an open-ended promise, worth pairing with the honest caveat that these are group averages from specific interventions in specific populations, not a guarantee of any one person\'s own exact pace.',
     citations: [
       {
-        source: "Del Bo' et al. 2021, Clinical Nutrition -- polyphenol-rich diet reduces serum zonulin in older subjects (the MaPLE trial)",
+        source: "Del Bo' et al. 2021, Clinical Nutrition: polyphenol-rich diet reduces serum zonulin in older subjects (the MaPLE trial)",
         url: 'https://pubmed.ncbi.nlm.nih.gov/33388204/',
       },
       {
@@ -216,7 +216,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
     summary:
       "The Autoimmune Protocol diet shows up throughout this app's research as a real, if imperfectly evidenced, elimination-and-reintroduction strategy. Its single strongest piece of trial evidence doesn't come from Hashimoto's research at all. A randomized controlled trial of the AIP diet in inflammatory bowel disease (Crohn's and ulcerative colitis) found improvement in both quality of life and endoscopic (directly visualized) inflammation. That's a larger, more rigorous trial than the single small Hashimoto's-specific AIP pilot study this app otherwise leans on, run in a disease where \"did the gut actually get better\" can be checked directly on camera rather than inferred from how someone says they feel. Corroborating weight for AIP as a strategy worth considering, not proof it works for Hashimoto's specifically, but a meaningfully stronger foundation than the thin Hashimoto's-only evidence would provide on its own.",
     citations: [
-      { source: 'Konijeti et al. 2017, Inflammatory Bowel Diseases -- efficacy of the Autoimmune Protocol diet', url: 'https://pubmed.ncbi.nlm.nih.gov/28858071/' },
+      { source: 'Konijeti et al. 2017, Inflammatory Bowel Diseases: efficacy of the Autoimmune Protocol diet', url: 'https://pubmed.ncbi.nlm.nih.gov/28858071/' },
     ],
     overallTier: 'moderate',
   },
@@ -283,7 +283,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
     summary:
       "Step back far enough from the seventeen entries in this category and a single, physical structure keeps reappearing underneath almost all of them: the intestinal barrier itself, and how permeable it currently is. Think of it the way a systems engineer might think about a network's own outermost firewall, the first checkpoint deciding what gets let through and what doesn't, and the one point in the whole system where a single failure has the widest possible downstream effect. Strengthen that checkpoint (fiber and SCFAs, specific probiotic strains like E. coli Nissle or B. bifidum, zinc carnosine) and less gets through that shouldn't. Weaken it (gluten's own zonulin trigger, chronic antibiotic disruption, a gut that's already inflamed) and more does, setting off molecular mimicry, feeding a Th17/Treg imbalance, and touching nearly every other mechanism this category covers. That's not a loose metaphor. It's the literal, mechanistic reason this app treats the gut as the body's first line of defense, rather than one wellness topic sitting alongside dozens of others of equal weight. The honest caveats scattered through this category (L-glutamine's null result, the 4R Protocol's unvalidated packaging, \"leaky gut\" as a contested diagnosis) matter just as much as the positive findings do. The barrier itself is real and measurable. Not every proposed fix for it has actually been proven to work, and knowing the difference is exactly what turns \"protect your gut\" from a slogan into something a person can actually act on.",
     citations: [
-      { source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
+      { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
     overallTier: 'strong',
     relatedIds: ['healing-stage-map', 'mito-visceral-fat-endotoxin-barrier'],

@@ -30,11 +30,11 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       "The instinctive assumption is that alcohol can only make an autoimmune condition worse. Two population studies say the actual picture is more complicated, and more interesting, than that instinct suggests. Two peer-reviewed studies (a Danish population-based case-control study and a prospective Amsterdam autoimmune-thyroid-disease cohort) found moderate alcohol consumption is not linked to new thyroid-antibody development and tracks with lower risk of progressing to overt autoimmune hypothyroidism, mirroring alcohol's documented protective association with other autoimmune diseases. The dose-dependent concerns concentrate specifically at heavier and more frequent drinking: the liver's ~80% share of T4-to-T3 conversion competing with alcohol's own hepatic processing load, a small preliminary study linking chronic heavy drinking to gut permeability and inflammatory thyroid-axis effects, and alcohol's well-documented effect on HPA-axis and cortisol regulation. Not a green light to drink more, and not the blanket warning most people expect either. A dose-dependent picture worth understanding on its own terms.",
     citations: [
       {
-        source: 'Carlé et al. 2012, European Journal of Endocrinology -- moderate alcohol consumption may protect against overt autoimmune hypothyroidism',
+        source: 'Carlé et al. 2012, European Journal of Endocrinology: moderate alcohol consumption may protect against overt autoimmune hypothyroidism',
         url: 'https://pubmed.ncbi.nlm.nih.gov/22802427/',
       },
       {
-        source: 'Effraimidis et al. 2012, European Thyroid Journal -- alcohol consumption as a risk factor for autoimmune thyroid disease, prospective Amsterdam AITD cohort',
+        source: 'Effraimidis et al. 2012, European Thyroid Journal: alcohol consumption as a risk factor for autoimmune thyroid disease, prospective Amsterdam AITD cohort',
         url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3821464/',
       },
     ],
@@ -85,7 +85,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     summary:
       "Fruit juice occupies an odd space in nutrition advice, treated as healthy by some, as concentrated sugar by others. The research supports pieces of both views, in a more specific way than either side usually states. Three large prospective cohorts found daily juice intake tracks with up to 21% higher type 2 diabetes risk while whole fruit tracks with lower risk, but a 2025 randomized crossover trial in adults with type 2 diabetes found no real difference in glucose/insulin response between orange juice and whole orange pieces at matched sugar content eaten with a meal, meaning portion size (juice makes it easier to drink more sugar at once) is likely the more consistent driver than a fundamentally different absorption curve every time. The proposed juice-to-cortisol-to-thyroid-conversion chain is mechanistically plausible (a glucose crash after a spike triggers cortisol, and cortisol suppresses T4-to-T3 conversion enzymes) but hasn't been directly tested as one continuous chain. Presented as plausible, not proven. A carefully-qualified concern rather than a guaranteed acute effect every time a glass of juice is poured.",
     citations: [
-      { source: 'Muraki et al. 2013, BMJ -- fruit consumption and risk of type 2 diabetes (3-cohort study)', url: 'https://pubmed.ncbi.nlm.nih.gov/23990623/' },
+      { source: 'Muraki et al. 2013, BMJ: fruit consumption and risk of type 2 diabetes (3-cohort study)', url: 'https://pubmed.ncbi.nlm.nih.gov/23990623/' },
       {
         source: 'Acute glycaemic response of orange juice consumption with breakfast in individuals with type 2 diabetes: a randomized cross-over trial (2025)',
         url: 'https://pubmed.ncbi.nlm.nih.gov/40628708/',
@@ -156,7 +156,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     summary:
       "By this point in the category, cortisol has already come up repeatedly, in the alcohol entry, the juice entry, the sleep entry above. It's worth pausing to understand the actual mechanism once, directly. Chronic stress drives well-documented dysregulation of the hypothalamic-pituitary-adrenal (HPA) axis, the body's central stress-hormone regulation system, and cortisol, in turn, is documented to suppress the deiodinase enzymes responsible for converting inactive T4 into active T3, favoring inactive reverse T3 instead. This single mechanism is the common thread this app's own research keeps finding underneath several seemingly unrelated topics: alcohol, juice, sleep, high-intensity exercise. Worth understanding as one real pathway rather than several separate warnings repeated independently.",
     citations: [
-      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews -- stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
+      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
     overallTier: 'strong',
     relatedIds: ['lifestyle-alcohol-advisory', 'mito-exercise-cortisol'],
@@ -170,7 +170,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       "This category has already named cortisol as the recurring thread connecting alcohol, chronic stress, sleep, and exercise intensity to reduced active thyroid hormone. There's a second, genuinely separate pathway that gets to the exact same destination. IL-6, an inflammatory signaling molecule the body produces during illness, infection, or chronic inflammation, directly suppresses the D1 and D2 deiodinase enzymes responsible for converting inactive T4 into active T3, and, in the same move, activates D3, the enzyme that breaks T3 down. Researchers found this happens through a specific mechanism: IL-6 triggers oxidative stress that depletes glutathione, a cofactor those conversion enzymes need to function, and restoring glutathione directly reversed the effect in the lab. This dual hit (less T3 being made, more T3 being destroyed) is the real biology behind \"non-thyroidal illness syndrome,\" where someone can look hypothyroid on paper during a real illness or major inflammatory episode without their thyroid gland itself being the cause. A second, independent reason, alongside cortisol, that general inflammation, not just direct thyroid autoimmunity, can suppress how much active thyroid hormone actually reaches the body's cells.",
     citations: [
       {
-        source: 'Wajner SM, Goemann IM, Bueno AL, Larsen PR, Maia AL 2011, Journal of Clinical Investigation -- "IL-6 promotes nonthyroidal illness syndrome by blocking thyroxine activation while promoting thyroid hormone inactivation in human cells"',
+        source: 'Wajner SM, Goemann IM, Bueno AL, Larsen PR, Maia AL 2011, Journal of Clinical Investigation: "IL-6 promotes nonthyroidal illness syndrome by blocking thyroxine activation while promoting thyroid hormone inactivation in human cells"',
         url: 'https://pubmed.ncbi.nlm.nih.gov/21540553/',
       },
     ],
@@ -185,7 +185,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     summary:
       "Smoking's health risks are about as well-established as anything in medicine. Its specific relationship with Hashimoto's is one of the genuinely stranger findings in this whole research base. Well-established endocrinology research shows smoking is a documented risk factor for Graves' disease, the hyperthyroid autoimmune condition, but is associated with lower risk of developing Hashimoto's thyroiditis specifically. A replicated, and genuinely counterintuitive split between two autoimmune thyroid conditions that are otherwise often lumped together. This is included as a finding worth knowing, not a suggestion to smoke. Smoking carries enough separately well-established harm, cardiovascular disease, cancer, to outweigh this one narrow thyroid-specific association many times over.",
     citations: [
-      { source: 'Wiersinga -- Smoking and thyroid disorders: a meta-analysis (Clinical Endocrinology)', url: 'https://pubmed.ncbi.nlm.nih.gov/11834423/' },
+      { source: 'Wiersinga: Smoking and thyroid disorders: a meta-analysis (Clinical Endocrinology)', url: 'https://pubmed.ncbi.nlm.nih.gov/11834423/' },
     ],
     overallTier: 'strong',
   },
@@ -276,7 +276,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     summary:
       "Most of this Digest's own viral/infectious research works by inference, a statistical association, a plausible mechanism. This finding is more direct than that. A study examined actual thyroid tissue samples from Hashimoto's thyroiditis patients and found genetic evidence of Epstein-Barr virus (EBV, the same virus behind mononucleosis, and one of the most common viral infections in adults worldwide) present in 80.7% of samples via one marker (EBER nuclear expression), and a second, more specific marker of active viral activity (LMP1) in 34.5% of Hashimoto's tissue, compared to 0% in Graves' disease tissue from the same study, a meaningful contrast between two different autoimmune thyroid diseases, not just \"virus present somewhere near the thyroid.\" The proposed mechanism is genuinely specific too. Rather than the molecular-mimicry route covered elsewhere in this Digest, the researchers suggest EBV's own active infection of thyroid follicular cells directly triggers local inflammatory signaling that recruits immune cells into the tissue, a real, if still theoretical, proposed first domino. Worth knowing not because there's currently anything actionable to do about a common, usually-dormant childhood/young-adult viral infection nearly everyone has already had, but because it's a concrete example of how a virus can end up physically present inside the exact tissue an autoimmune disease attacks, not just statistically associated with it from a distance.",
     citations: [
-      { source: 'Janegova A, Janega P, Rychly B, et al. 2015 -- The role of Epstein-Barr virus infection in the development of autoimmune thyroid diseases', url: 'https://pubmed.ncbi.nlm.nih.gov/25931043/' },
+      { source: 'Janegova A, Janega P, Rychly B, et al. 2015: The role of Epstein-Barr virus infection in the development of autoimmune thyroid diseases', url: 'https://pubmed.ncbi.nlm.nih.gov/25931043/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['gut-molecular-mimicry'],
@@ -289,7 +289,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     summary:
       "A systematic review specifically searched for documented cases of thyroid autoimmunity connected to COVID-19 infection and found a genuine, if still uncommon, pattern: 20 cases of new or reactivated autoimmune thyroid disease following COVID-19 (14 Graves' disease, 5 Hashimoto's thyroiditis, and 1 postpartum thyroiditis). A telling detail: 8 of those 14 Graves' cases had pre-existing, previously stable thyroid disease, suggesting COVID-19 can genuinely reactivate a dormant autoimmune process, not just trigger entirely new cases. The reassuring majority finding: most affected patients reached remission within 3 months. The sobering minority: two of the documented cases were fatal (one thyroid storm, one myxedema coma), both severe complications of thyroid dysfunction left unrecognized. The review's own practical recommendation is the actionable takeaway here: routinely checking thyroid function both during the acute phase of a serious COVID-19 infection and again during recovery, especially for anyone with pre-existing autoimmune thyroid disease. A real reason a bout of COVID-19 is worth a follow-up thyroid check, not just monitoring for the more commonly discussed respiratory or cardiovascular effects.",
     citations: [
-      { source: 'Tutal E, Ozaras R, Leblebicioglu H 2022 -- Systematic review of COVID-19 and autoimmune thyroiditis (Travel Medicine and Infectious Disease)', url: 'https://pubmed.ncbi.nlm.nih.gov/35307540/' },
+      { source: 'Tutal E, Ozaras R, Leblebicioglu H 2022: Systematic review of COVID-19 and autoimmune thyroiditis (Travel Medicine and Infectious Disease)', url: 'https://pubmed.ncbi.nlm.nih.gov/35307540/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['advocacy-core-thyroid-panel'],
@@ -302,7 +302,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     summary:
       "This category already covers ordinary sleep disruption's link to inflammation elsewhere. Obstructive sleep apnea specifically deserves its own honest look, since it's a distinct, and often undiagnosed condition rather than just poor sleep habits. A recent review confirms genuine, significant epidemiological associations between obstructive sleep apnea and thyroid disorders, but states directly, in its own words, that \"discrepancies and contradictory results remain\" across the studies it reviewed, and that the specific underlying mechanism connecting the two \"is not clear.\" That's an honest admission worth respecting rather than papering over with a tidier-sounding explanation this app can't actually verify. What's worth knowing regardless of the unsettled mechanism: sleep apnea is both underdiagnosed and treatable (typically via a standard CPAP evaluation), and given how much this whole app's own research already ties poor sleep to measurable inflammation and thyroid-hormone-conversion effects, ruling out sleep apnea specifically, not just \"trying to sleep more,\" is a concrete step worth raising with a doctor for anyone with persistent fatigue, especially alongside snoring or witnessed breathing pauses, rather than assuming every sleep-related symptom is explained by Hashimoto's alone.",
     citations: [
-      { source: 'Zhai L, Gao X 2025 -- Recent Advances in the Study of the Correlation Between Obstructive Sleep Apnea and Thyroid-Disorders (Sleep and Breathing)', url: 'https://pubmed.ncbi.nlm.nih.gov/40323542/' },
+      { source: 'Zhai L, Gao X 2025: Recent Advances in the Study of the Correlation Between Obstructive Sleep Apnea and Thyroid-Disorders (Sleep and Breathing)', url: 'https://pubmed.ncbi.nlm.nih.gov/40323542/' },
     ],
     overallTier: 'weak',
     relatedIds: ['lifestyle-sleep-circadian'],
@@ -315,7 +315,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     summary:
       "Cortisol and the HPA axis show up, by name, across alcohol, chronic stress, sleep disruption, and high-intensity exercise (see Mitochondria & Metabolism), not as four separate warnings, but as one repeated pathway: cortisol suppresses the deiodinase enzymes that convert T4 into active T3. That single mechanism is worth understanding once, rather than as four unrelated lifestyle rules. Separately, this category's own honest corrections (the coffee-and-milk antioxidant claim, sedentary behavior's comparatively modest effect) are as much the point as its strongest findings, NSAIDs and gut permeability, antibiotic disruption. Not everything commonly repeated about lifestyle and Hashimoto's holds up equally well under a direct check. The practical shape of this whole category: a handful of everyday, non-food choices (how coffee gets brewed, how food gets reheated, how consistently sleep happens, how hard a workout runs) turn out to route through the same small set of hormonal and gut mechanisms this entire Digest keeps returning to.",
     citations: [
-      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews -- stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
+      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['lifestyle-chronic-stress-hpa', 'mito-exercise-cortisol'],

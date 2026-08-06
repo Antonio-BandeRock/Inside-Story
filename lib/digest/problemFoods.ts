@@ -42,7 +42,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Monash University FODMAP research group -- fructan content in garlic, onion & other high-FODMAP foods',
+        source: 'Monash University FODMAP research group: fructan content in garlic, onion & other high-FODMAP foods',
         url: 'https://www.monashfodmap.com/about-fodmap-and-ibs/high-and-low-fodmap-foods/',
       },
     ],
@@ -63,7 +63,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function',
+        source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function',
         url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/',
       },
     ],
@@ -85,7 +85,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Deng et al. 2015, Nutrients -- Lactose Intolerance in Adults: Biological Mechanism and Dietary Management',
+        source: 'Deng et al. 2015, Nutrients: Lactose Intolerance in Adults: Biological Mechanism and Dietary Management',
         url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4586575/',
       },
     ],
@@ -106,7 +106,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Song & Thornalley 2007, Food & Chemical Toxicology -- effect of storage, processing & cooking on glucosinolate content',
+        source: 'Song & Thornalley 2007, Food & Chemical Toxicology: effect of storage, processing & cooking on glucosinolate content',
         url: 'https://pubmed.ncbi.nlm.nih.gov/17011103/',
       },
     ],
@@ -126,7 +126,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Konijeti et al. 2017, Inflammatory Bowel Diseases -- efficacy of the Autoimmune Protocol diet',
+        source: 'Konijeti et al. 2017, Inflammatory Bowel Diseases: efficacy of the Autoimmune Protocol diet',
         url: 'https://pubmed.ncbi.nlm.nih.gov/28858071/',
       },
     ],
@@ -148,7 +148,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition -- histamine and histamine intolerance',
+        source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition: histamine and histamine intolerance',
         url: 'https://pubmed.ncbi.nlm.nih.gov/17490952/',
       },
     ],
@@ -170,7 +170,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Muraki et al. 2013, BMJ -- fruit consumption and risk of type 2 diabetes',
+        source: 'Muraki et al. 2013, BMJ: fruit consumption and risk of type 2 diabetes',
         url: 'https://pubmed.ncbi.nlm.nih.gov/23990623/',
       },
     ],
@@ -191,7 +191,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Sathyapalan et al. 2011, JCEM -- soy phytoestrogen crossover trial in subclinical hypothyroidism',
+        source: 'Sathyapalan et al. 2011, JCEM: soy phytoestrogen crossover trial in subclinical hypothyroidism',
         url: 'https://pubmed.ncbi.nlm.nih.gov/21325465/',
       },
     ],
@@ -212,7 +212,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Simopoulos 2002, Biomedicine & Pharmacotherapy -- the importance of the omega-6/omega-3 ratio',
+        source: 'Simopoulos 2002, Biomedicine & Pharmacotherapy: the importance of the omega-6/omega-3 ratio',
         url: 'https://doi.org/10.1016/S0753-3322(02)00253-6',
       },
     ],
@@ -232,7 +232,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Lane et al. 2024, BMJ -- ultra-processed food exposure and adverse health outcomes, umbrella review',
+        source: 'Lane et al. 2024, BMJ: ultra-processed food exposure and adverse health outcomes, umbrella review',
         url: 'https://doi.org/10.1136/bmj-2023-077310',
       },
     ],
@@ -252,7 +252,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
       'A good rinse under running water measurably cuts surface residue on any produce, organic or not, a real, free step worth doing either way.',
     ],
     citations: [
-      { source: "EWG's Shopper's Guide to Pesticides in Produce -- annual USDA residue testing data", url: 'https://www.ewg.org/foodnews/' },
+      { source: "EWG's Shopper's Guide to Pesticides in Produce: annual USDA residue testing data", url: 'https://www.ewg.org/foodnews/' },
     ],
   },
   {
@@ -270,7 +270,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: 'Benvenga et al. 2008, Thyroid -- altered intestinal absorption of L-thyroxine caused by coffee',
+        source: 'Benvenga et al. 2008, Thyroid: altered intestinal absorption of L-thyroxine caused by coffee',
         url: 'https://pubmed.ncbi.nlm.nih.gov/18341376/',
       },
     ],
@@ -350,7 +350,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
     citations: [
       {
-        source: "Araújo et al. 2025 -- Effects of Gluten-Free Diet in Non-Celiac Hashimoto's Thyroiditis: A Systematic Review and Meta-Analysis (Nutrients)",
+        source: "Araújo et al. 2025: Effects of Gluten-Free Diet in Non-Celiac Hashimoto's Thyroiditis: A Systematic Review and Meta-Analysis (Nutrients)",
         url: 'https://pubmed.ncbi.nlm.nih.gov/41228508/',
       },
     ],
@@ -371,7 +371,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
       "This app's own Healing Stages guide sequences exactly this kind of reintroduction: lowest-risk first, one variable at a time.",
     ],
     citations: [
-      { source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
+      { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
   },
 ];

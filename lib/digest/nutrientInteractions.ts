@@ -90,7 +90,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       "Of every nutrient pairing in this category, this is the one most directly relevant to Hashimoto's specifically, and the one where getting the sequence wrong can make things worse, not just fail to help. Selenium and iodine are both required together for healthy thyroid hormone metabolism. Selenoproteins are what actually convert T4 into active T3 and safely deactivate it afterward. The important complication: giving selenium supplementation to someone who is iodine-deficient can make iodine deficiency worse, not better. Selenium activates deiodinase enzymes throughout the body that then consume circulating thyroid hormone faster, accelerating iodine loss through urine and stool. This is why research recommends confirming adequate iodine status before starting meaningful selenium supplementation, not the other way around. A practical sequencing rule, not just two nutrients that happen to both matter for the same organ.",
     citations: [
       {
-        source: 'Selenium, Iodine and Iron -- Essential Trace Elements for Thyroid Hormone Synthesis and Metabolism',
+        source: 'Selenium, Iodine and Iron: Essential Trace Elements for Thyroid Hormone Synthesis and Metabolism',
         url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9967593/',
       },
     ],
@@ -178,7 +178,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
     summary:
       "\"Add black pepper to turmeric\" sounds like exactly the kind of folk pairing that turns out, on closer inspection, to be more superstition than science. This one is the exception. Curcumin, turmeric's own active compound, is poorly absorbed on its own, rapidly broken down by the liver and gut wall before it can do much. A landmark human trial found that adding just 20mg of piperine, black pepper's own active compound, roughly the amount in a pinch of fresh-ground pepper, alongside curcumin increased its bioavailability by 2000%. Piperine slows the liver and gut enzymes that would otherwise break curcumin down almost immediately. A direct, checkable reason this specific pairing isn't just folk wisdom. It's one of the most dramatic, well-documented food-level bioavailability boosts in nutrition science.",
     citations: [
-      { source: 'Shoba et al. 1998, Planta Medica -- Influence of Piperine on the Pharmacokinetics of Curcumin in Animals and Human Volunteers', url: 'https://pubmed.ncbi.nlm.nih.gov/9619120/' },
+      { source: 'Shoba et al. 1998, Planta Medica: Influence of Piperine on the Pharmacokinetics of Curcumin in Animals and Human Volunteers', url: 'https://pubmed.ncbi.nlm.nih.gov/9619120/' },
     ],
     overallTier: 'strong',
   },

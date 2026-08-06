@@ -80,7 +80,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       "ALT (alanine aminotransferase) and AST (aspartate aminotransferase) are enzymes that live inside liver cells. When those cells become measurably \"leakier\" or damaged, more of each enzyme escapes into the bloodstream, which is exactly what a standard liver blood panel checks for. Research shows hypothyroidism itself can raise both through a documented membrane-permeability mechanism. See Organs & Body Systems for the full explanation and why it's reversible with treatment.",
     citations: [
-      { source: 'Bayraktar & Van Thiel -- Abnormalities in measures of liver function and injury in thyroid disorders (Hepatogastroenterology)', url: 'https://pubmed.ncbi.nlm.nih.gov/9427032/' },
+      { source: 'Bayraktar & Van Thiel: Abnormalities in measures of liver function and injury in thyroid disorders (Hepatogastroenterology)', url: 'https://pubmed.ncbi.nlm.nih.gov/9427032/' },
     ],
     overallTier: 'strong',
     relatedIds: ['organ-liver-hashimotos-damage'],
@@ -117,7 +117,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'A broad category of disease where the immune system fails to distinguish the body\'s own tissue from an outside threat, and attacks it directly. Hashimoto\'s thyroiditis is one specific example (the thyroid gland is the target); this Digest\'s own Other Autoimmune Diseases category covers seven more examples, each attacking a different organ through some of the same recurring underlying mechanisms.',
     citations: [
-      { source: 'Autoimmune thyroid disease -- a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
+      { source: 'Autoimmune thyroid disease: a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
     ],
     overallTier: 'strong',
     relatedIds: ['history-1956-autoimmune-mechanism', 'other-why-cross-disease-evidence'],
@@ -185,7 +185,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'A hormone released by the adrenal glands during stress, regulated by the HPA axis. Cortisol is documented to directly suppress the deiodinase enzymes that convert inactive T4 into active T3, favoring inactive reverse T3 instead. This is the single most recurring mechanism this whole Digest keeps finding underneath seemingly unrelated topics: alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise, all covered under Lifestyle & Environment.',
     citations: [
-      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews -- stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
+      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
     overallTier: 'strong',
     relatedIds: ['lifestyle-chronic-stress-hpa', 'lifestyle-tying-together'],
@@ -229,7 +229,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'DAO is the enzyme mainly responsible for breaking down histamine absorbed from food. Gut inflammation can reduce how much DAO is available, meaning someone with an already-inflamed gut may have less capacity to clear dietary histamine than usual. This is a direct reason this app\'s Healing Stages guide asks most fermented foods, a genuinely high-histamine food category, to wait until Stage 2, once that capacity is no longer an unknown variable.',
     citations: [
-      { source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition -- histamine and histamine intolerance', url: 'https://pubmed.ncbi.nlm.nih.gov/17490952/' },
+      { source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition: histamine and histamine intolerance', url: 'https://pubmed.ncbi.nlm.nih.gov/17490952/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['problem-high-histamine', 'healing-stage1-fermented-exclusion'],
@@ -332,7 +332,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       'FODMAP stands for Fermentable Oligosaccharides, Disaccharides, Monosaccharides, and Polyols, a category of carbohydrates the small intestine often can\'t fully digest, which then get fermented by gut bacteria in the colon, producing gas and bloating. Garlic and onion, common high-FODMAP foods, are covered directly under Problem Foods & Swaps, and the whole category is the highest-confidence exclusion in this app\'s own Healing Stages Stage 1 elimination list.',
     citations: [
       {
-        source: 'Monash University FODMAP research group -- fructan content in garlic, onion & other high-FODMAP foods',
+        source: 'Monash University FODMAP research group: fructan content in garlic, onion & other high-FODMAP foods',
         url: 'https://www.monashfodmap.com/about-fodmap-and-ibs/high-and-low-fodmap-foods/',
       },
     ],
@@ -347,7 +347,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'A specific protein fragment within gluten (found in wheat, barley, and rye). Gliadin binds a receptor called CXCR3 on intestinal cells, triggering those cells to release zonulin, a specific, reversible mechanism for increased gut permeability, first fully characterized in celiac disease but now documented as relevant across several autoimmune conditions this Digest covers, not just celiac.',
     citations: [
-      { source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
+      { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
     overallTier: 'strong',
     relatedIds: ['gut-zonulin-gliadin', 'problem-gluten-grains'],
@@ -361,7 +361,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       'A goitrogen is any compound that interferes with the thyroid\'s ability to use iodine, found naturally in raw cruciferous vegetables (mostly heat-deactivated by cooking), and in additives like dietary nitrate. A goiter is the resulting visibly enlarged thyroid, historically caused mainly by iodine deficiency. See History & Milestones for the story of the American "goiter belt" and iodized salt.',
     citations: [
       {
-        source: 'Song & Thornalley 2007, Food & Chemical Toxicology -- effect of storage, processing & cooking on glucosinolate content',
+        source: 'Song & Thornalley 2007, Food & Chemical Toxicology: effect of storage, processing & cooking on glucosinolate content',
         url: 'https://pubmed.ncbi.nlm.nih.gov/17011103/',
       },
     ],
@@ -376,7 +376,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'An autoimmune thyroid disease, like Hashimoto\'s, but with the opposite effect: antibodies stimulate the thyroid into overproducing hormone rather than attacking and destroying thyroid tissue. Smoking is a documented risk factor for Graves\', the counterintuitive opposite of its protective association with Hashimoto\'s specifically, covered under Lifestyle & Environment.',
     citations: [
-      { source: 'Wiersinga -- Smoking and thyroid disorders: a meta-analysis (Clinical Endocrinology)', url: 'https://pubmed.ncbi.nlm.nih.gov/11834423/' },
+      { source: 'Wiersinga: Smoking and thyroid disorders: a meta-analysis (Clinical Endocrinology)', url: 'https://pubmed.ncbi.nlm.nih.gov/11834423/' },
     ],
     overallTier: 'strong',
     relatedIds: ['lifestyle-smoking-paradox'],
@@ -389,7 +389,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'The hypothalamic-pituitary-adrenal axis, the body\'s own central system for regulating cortisol and the stress response. Chronic activation of this system is documented to suppress the deiodinase enzymes that make active thyroid hormone, a single mechanism this Digest keeps finding underneath alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise.',
     citations: [
-      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews -- stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
+      { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
     overallTier: 'strong',
     relatedIds: ['lifestyle-chronic-stress-hpa'],
@@ -565,7 +565,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'A specific protein transporter the thyroid uses to actively pull iodine out of the bloodstream, the essential first step in making thyroid hormone at all. Dietary nitrate (Food Additives) and environmental perchlorate (Lifestyle & Environment) both competitively block this exact same transporter, through the identical mechanism, despite coming from completely different real-world sources.',
     citations: [
-      { source: 'Tonacchera et al. 2004, Thyroid -- NIS inhibition potency of nitrate/perchlorate/thiocyanate', url: 'https://pubmed.ncbi.nlm.nih.gov/15650353/' },
+      { source: 'Tonacchera et al. 2004, Thyroid: NIS inhibition potency of nitrate/perchlorate/thiocyanate', url: 'https://pubmed.ncbi.nlm.nih.gov/15650353/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['additive-nitrates-nitrites', 'lifestyle-environmental-goitrogens-water'],
@@ -609,7 +609,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'A biologically inactive molecule structurally similar to T3, produced when T4 is converted down a different metabolic path than the one that makes active T3. Fasting research shows the body favors producing more reverse T3 (and less active T3) during extended caloric restriction, a measurable signal of the same fasting/thyroid-hormone tension covered under Mitochondria & Metabolism.',
     citations: [
-      { source: 'Boelen, Wiersinga & Fliers 2008, Thyroid -- fasting-induced changes in the hypothalamus-pituitary-thyroid axis', url: 'https://pubmed.ncbi.nlm.nih.gov/18225975/' },
+      { source: 'Boelen, Wiersinga & Fliers 2008, Thyroid: fasting-induced changes in the hypothalamus-pituitary-thyroid axis', url: 'https://pubmed.ncbi.nlm.nih.gov/18225975/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['mito-fasting-autophagy-tension'],
@@ -638,7 +638,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'Molecules, mainly butyrate, propionate, and acetate, produced when gut bacteria ferment dietary fiber. SCFAs drive measurable immune tolerance through regulatory T cell (Treg) induction, the mechanistic bridge between "eat more fiber" and "calm an overactive immune system." See Gut & Microbiome for the full, two-study-confirmed mechanism.',
     citations: [
-      { source: 'Smith et al. 2013, Science -- SCFAs regulate colonic Treg cell homeostasis', url: 'https://pubmed.ncbi.nlm.nih.gov/23828891/' },
+      { source: 'Smith et al. 2013, Science: SCFAs regulate colonic Treg cell homeostasis', url: 'https://pubmed.ncbi.nlm.nih.gov/23828891/' },
     ],
     overallTier: 'strong',
     relatedIds: ['gut-scfa-treg', 'gut-tying-together'],
@@ -683,7 +683,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'Thyroglobulin is a protein the thyroid gland uses as scaffolding to store and synthesize thyroid hormone. Anti-Tg antibodies, antibodies mistakenly targeting this protein, were the first evidence, discovered in 1956, that Hashimoto\'s was genuinely an autoimmune disease at all. TPO antibodies (a separate, later-identified target) are the more commonly tracked marker today, but Tg\'s own history is where this whole field of evidence actually began.',
     citations: [
-      { source: 'Autoimmune thyroid disease -- a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
+      { source: 'Autoimmune thyroid disease: a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
     ],
     overallTier: 'strong',
     relatedIds: ['history-1956-autoimmune-mechanism'],
@@ -712,7 +712,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'Physical protein structures that seal the spaces between individual gut lining cells, controlling what can and can\'t pass through the gut barrier. Occludin and claudin (including CLDN2 specifically) are two of the core proteins that make up these seals. CLDN2 is a direct, confirmed target of the vitamin D receptor, a second, independent mechanism connecting vitamin D to gut-barrier integrity beyond its own thyroid-antibody research. See Gut & Microbiome.',
     citations: [
-      { source: 'Zhang et al. 2015, Scientific Reports -- tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
+      { source: 'Zhang et al. 2015, Scientific Reports: tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['gut-vitamin-d-cldn2', 'gut-strain-specific-mechanisms'],
@@ -741,7 +741,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'A specific subtype of T cell whose job is promoting immune tolerance, helping keep the immune system from attacking the body\'s own tissue. SCFAs from dietary fiber directly induce Treg activity in the gut. Separately, Hashimoto\'s research found Tregs specifically depleted in visceral fat, with an experiment showing that reinfusing them measurably improved insulin sensitivity. See Gut & Microbiome and Mitochondria & Metabolism.',
     citations: [
-      { source: 'Furusawa et al. 2013, Nature -- commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
+      { source: 'Furusawa et al. 2013, Nature: commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
     ],
     overallTier: 'strong',
     relatedIds: ['gut-scfa-treg', 'mito-visceral-fat-treg-depletion'],
@@ -799,7 +799,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     summary:
       'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. First fully characterized in celiac disease, zonulin\'s own role is now documented across several autoimmune conditions this app\'s research covers, the physical mechanism behind "leaky gut" throughout this whole Digest.',
     citations: [
-      { source: 'Fasano 2011, Physiological Reviews -- zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
+      { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
     overallTier: 'strong',
     relatedIds: ['gut-zonulin-gliadin', 'gut-tying-together'],

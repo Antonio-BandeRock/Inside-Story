@@ -42,9 +42,9 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "A primary care visit is built around triage, not a deep investigation. A doctor sees a TSH in range and, correctly by their own training, moves on. That's not negligence. It's the plain limit of what a 15-minute visit with one lab requisition can cover, and it's why the tests further down this category (free T4 and free T3 alongside TSH, ferritin, vitamin D, an antibody trend) so often never get ordered unless the person in the room asks for them by name. Research backs this up: patients who are more \"activated,\" meaning informed, prepared, and an active participant in their own care rather than a passive recipient of it, measurably have better outcomes managing chronic conditions. Not because they argue harder, but because they show up with the right questions already framed. That's the practical skill this whole category is built around: not confrontation, just knowing which test to name, why it matters for Hashimoto's specifically, and how often asking for it again actually adds information instead of noise.",
     citations: [
-      { source: 'Hibbard JH, Stockard J, Mahoney ER, Tusler M 2004 -- Development of the Patient Activation Measure (PAM): conceptualizing and measuring activation in patients and consumers (Health Services Research)', url: 'https://pubmed.ncbi.nlm.nih.gov/15230939/' },
-      { source: 'Newland P, Lorenz R, Oliver BJ 2021 -- Patient activation in adults with chronic conditions: A systematic review (Journal of Health Psychology)', url: 'https://pubmed.ncbi.nlm.nih.gov/32830587/' },
-      { source: 'Bodenheimer T, Lorig K, Holman H, Grumbach K 2002 -- Patient self-management of chronic disease in primary care (JAMA)', url: 'https://pubmed.ncbi.nlm.nih.gov/12435261/' },
+      { source: 'Hibbard JH, Stockard J, Mahoney ER, Tusler M 2004: Development of the Patient Activation Measure (PAM): conceptualizing and measuring activation in patients and consumers (Health Services Research)', url: 'https://pubmed.ncbi.nlm.nih.gov/15230939/' },
+      { source: 'Newland P, Lorenz R, Oliver BJ 2021: Patient activation in adults with chronic conditions: A systematic review (Journal of Health Psychology)', url: 'https://pubmed.ncbi.nlm.nih.gov/32830587/' },
+      { source: 'Bodenheimer T, Lorig K, Holman H, Grumbach K 2002: Patient self-management of chronic disease in primary care (JAMA)', url: 'https://pubmed.ncbi.nlm.nih.gov/12435261/' },
     ],
     overallTier: 'moderate',
   },
@@ -56,7 +56,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "A standard thyroid check very often means one test: TSH. That's a reasonable starting point. Clinical guidance calls TSH the single best screening test for primary hypothyroidism. But it's a screening test, not the full picture, and Hashimoto's is exactly the situation where the full picture matters. Free T4 shows how much actual usable hormone the thyroid itself is releasing; free T3 shows how much of that hormone the body is actually converting into its active form, a separate step (covered elsewhere in this Digest's Organs & Body Systems category) that TSH alone says nothing about. Someone can have a technically normal TSH while still converting poorly, or sit right at the edge of a lab's reference range in a way a single number obscures. It's worth asking for both by name at any full panel, not assuming they're automatically included. On timing: clinical guidance recommends rechecking thyroid function about six weeks after any dose change or a switch between brand and generic levothyroxine, since that's roughly how long it takes levels to fully re-settle. Checking sooner just measures a value still in motion.",
     citations: [
-      { source: 'Gaitonde DY, Rowley KD, Sweeney LB 2012 -- Hypothyroidism: An Update (American Family Physician)', url: 'https://www.aafp.org/pubs/afp/issues/2012/0801/p244.html' },
+      { source: 'Gaitonde DY, Rowley KD, Sweeney LB 2012: Hypothyroidism: An Update (American Family Physician)', url: 'https://www.aafp.org/pubs/afp/issues/2012/0801/p244.html' },
     ],
     overallTier: 'strong',
     relatedIds: ['labs-tsh-diurnal-timing', 'organ-liver-t4t3-conversion'],
@@ -69,8 +69,8 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "A low thyroid on its own doesn't say what's causing it. TPO and thyroglobulin antibodies confirm an autoimmune process is the reason, the specific test this whole app's tracking is built around (see the Glossary's TPO entry for that history). Clinical guidance notes that elevated TPO antibody titers in someone with only mildly abnormal thyroid numbers (subclinical hypothyroidism) meaningfully raise the odds of progressing to full, overt hypothyroidism, which is why a positive antibody result matters even before TSH itself looks clearly abnormal. Once confirmed, though, retesting antibodies often doesn't change day-to-day treatment the way retesting TSH does. Antibody titers aren't used to adjust a levothyroxine dose, and Hashimoto's antibody levels can stay elevated for a long time without a clean, predictable decline pattern. That makes this an exception to \"more testing is better\": once confirmed, checking once a year at most is enough to notice a genuine long-term trend, rising, falling, or holding steady, without chasing normal week-to-week fluctuation that doesn't mean anything.",
     citations: [
-      { source: 'Gaitonde DY, Rowley KD, Sweeney LB 2012 -- Hypothyroidism: An Update (American Family Physician)', url: 'https://www.aafp.org/pubs/afp/issues/2012/0801/p244.html' },
-      { source: 'Hasse-Lazar K, Jarzab B, et al. 1997 -- TSH-receptor antibodies in thyroid diseases (thyroid peroxidase antibody titer data)', url: 'https://pubmed.ncbi.nlm.nih.gov/9333770/' },
+      { source: 'Gaitonde DY, Rowley KD, Sweeney LB 2012: Hypothyroidism: An Update (American Family Physician)', url: 'https://www.aafp.org/pubs/afp/issues/2012/0801/p244.html' },
+      { source: 'Hasse-Lazar K, Jarzab B, et al. 1997: TSH-receptor antibodies in thyroid diseases (thyroid peroxidase antibody titer data)', url: 'https://pubmed.ncbi.nlm.nih.gov/9333770/' },
     ],
     overallTier: 'strong',
   },
@@ -82,7 +82,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Reverse T3 (introduced in the Glossary) shows up on a lot of functional-medicine \"complete thyroid panel\" lists, often presented as the missing piece a standard workup skips. The actual picture is more contested than that framing suggests. A 2018 analysis of national laboratory order data studied how often reverse T3 gets ordered and by whom, treating the test's clinical utility as an open, debated question rather than settled fact. There's no broadly accepted reference range tied to a specific treatment decision the way TSH or free T4 have. That doesn't mean it's meaningless. A high reverse T3 alongside other findings can still be one more data point. But walking in and asking for it as though it's a routine, universally-endorsed test risks the conversation stalling on that one item instead of the tests with much stronger, more actionable evidence behind them (the core panel above, ferritin, vitamin D). A doctor's hesitation to order it is a defensible, evidence-based position, not knee-jerk resistance.",
     citations: [
-      { source: 'Schmidt RL, LoPresti JS, McDermott MT, Zick SM, Straseski JA 2018 -- Does Reverse Triiodothyronine Testing Have Clinical Utility? An Analysis of Practice Variation Based on Order Data from a National Reference Laboratory (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/29756541/' },
+      { source: 'Schmidt RL, LoPresti JS, McDermott MT, Zick SM, Straseski JA 2018: Does Reverse Triiodothyronine Testing Have Clinical Utility? An Analysis of Practice Variation Based on Order Data from a National Reference Laboratory (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/29756541/' },
     ],
     overallTier: 'weak',
   },
@@ -94,9 +94,9 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Iron deficiency and hypothyroidism share enough symptoms that it's easy to attribute everything to the thyroid alone and stop looking. The research says that's often the wrong call to make blindly. A 2023 systematic review and meta-analysis pooling ten studies found people with iron deficiency had measurably lower TSH, free T4, and free T3 than those without it, and serum ferritin itself correlated positively with both TSH and free T4: iron status and thyroid hormone levels move together, not independently. A separate 2024 systematic review confirmed documented iron and ferritin deficiency in women with hypothyroidism and chronic lymphocytic (Hashimoto's) thyroiditis. Iron deficiency has also been separately linked to a measurable increase in thyroid autoantibody positivity, a second, more direct reason this isn't just a symptom-overlap coincidence. A full iron panel, not ferritin alone, is worth asking for at least once, especially for anyone menstruating or with fatigue that hasn't fully resolved on thyroid treatment. Checking every 6-12 months is reasonable for ongoing tracking; more often, roughly every 8-12 weeks, only makes sense while actively correcting a confirmed deficiency, to catch overcorrection before it becomes its own problem.",
     citations: [
-      { source: 'Garofalo V, Condorelli RA, Cannarella R, Aversa A, Calogero AE, La Vignera S 2023 -- Relationship between Iron Deficiency and Thyroid Function: A Systematic Review and Meta-Analysis', url: 'https://pubmed.ncbi.nlm.nih.gov/38004184/' },
-      { source: 'Gierach M, Rudewicz M, Junik R 2024 -- Iron and ferritin deficiency in women with hypothyroidism and chronic lymphocytic thyroiditis: systematic review', url: 'https://pubmed.ncbi.nlm.nih.gov/38923898/' },
-      { source: "Hu S, Rayman MP 2017 -- Multiple Nutritional Factors and the Risk of Hashimoto's Thyroiditis", url: 'https://pubmed.ncbi.nlm.nih.gov/28290237/' },
+      { source: 'Garofalo V, Condorelli RA, Cannarella R, Aversa A, Calogero AE, La Vignera S 2023: Relationship between Iron Deficiency and Thyroid Function: A Systematic Review and Meta-Analysis', url: 'https://pubmed.ncbi.nlm.nih.gov/38004184/' },
+      { source: 'Gierach M, Rudewicz M, Junik R 2024: Iron and ferritin deficiency in women with hypothyroidism and chronic lymphocytic thyroiditis: systematic review', url: 'https://pubmed.ncbi.nlm.nih.gov/38923898/' },
+      { source: "Hu S, Rayman MP 2017: Multiple Nutritional Factors and the Risk of Hashimoto's Thyroiditis", url: 'https://pubmed.ncbi.nlm.nih.gov/28290237/' },
     ],
     overallTier: 'strong',
   },
@@ -108,8 +108,8 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "This Digest's own Nutrients & Micronutrients category already covers vitamin D's mixed trial evidence for Hashimoto's itself. This entry is about the practical side: getting it checked at all. A 2022 systematic review found a consistent association between vitamin D deficiency and autoimmune thyroid disease broadly, and more recent mechanistic research keeps tying vitamin D status directly to immune regulation relevant to Hashimoto's specifically, not just bone health, which is usually the only reason it gets checked by default. Deficiency is common enough in this population that it's worth asking for an actual 25-hydroxyvitamin D blood level rather than assuming a general multivitamin covers it. A reasonable, non-excessive cadence: check once at baseline, recheck about 3 months after starting or adjusting a supplement dose to confirm the level actually moved, then settle into checking once or twice a year (many people find once in winter, when levels run lowest, is the most useful annual check) once a stable, adequate level is established. There's little reason to check more often than that outside of a genuine dose change.",
     citations: [
-      { source: 'Khozam SA, Sumaili AM, Alflan MA, Shawabkeh RAS 2022 -- Association Between Vitamin D Deficiency and Autoimmune Thyroid Disorder: A Systematic Review', url: 'https://pubmed.ncbi.nlm.nih.gov/35836431/' },
-      { source: "Sun W, Ding C, Wang Y, Li G, Su Z, Wang X 2025 -- Vitamin D deficiency in Hashimoto's thyroiditis: mechanisms, immune modulation, and therapeutic implications", url: 'https://pubmed.ncbi.nlm.nih.gov/40822954/' },
+      { source: 'Khozam SA, Sumaili AM, Alflan MA, Shawabkeh RAS 2022: Association Between Vitamin D Deficiency and Autoimmune Thyroid Disorder: A Systematic Review', url: 'https://pubmed.ncbi.nlm.nih.gov/35836431/' },
+      { source: "Sun W, Ding C, Wang Y, Li G, Su Z, Wang X 2025: Vitamin D deficiency in Hashimoto's thyroiditis: mechanisms, immune modulation, and therapeutic implications", url: 'https://pubmed.ncbi.nlm.nih.gov/40822954/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['nutrient-vitamin-d'],
@@ -122,7 +122,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "B12 deficiency and hypothyroidism share symptoms (fatigue, brain fog, tingling), but there's also a direct biological reason they show up together so often. A 2006 study found 28% of autoimmune thyroid disease patients had low B12 levels, and of those, 31% had evidence of pernicious anemia: autoimmune damage to the stomach cells needed to absorb B12 at all, a second, separate autoimmune process riding alongside the thyroid one, not just an unrelated dietary gap. That's a specific, checkable, fixable finding, not a vague overlap. Folate works alongside B12 in the same metabolic pathway and is reasonable to check at the same time, especially for anyone whose diet has changed recently (a new elimination protocol, cutting fortified grains, going more plant-based). A proper B12 test, not just a symptom guess, is worth asking for at least once for anyone with Hashimoto's, with retesting reasonable about once a year, or sooner (within a few months) for anyone found low and starting supplementation, to confirm it actually corrected rather than assuming it did.",
     citations: [
-      { source: 'Ness-Abramof R, et al. 2006 -- Prevalence and evaluation of B12 deficiency in patients with autoimmune thyroid disease (American Journal of the Medical Sciences)', url: 'https://pubmed.ncbi.nlm.nih.gov/16969140/' },
+      { source: 'Ness-Abramof R, et al. 2006: Prevalence and evaluation of B12 deficiency in patients with autoimmune thyroid disease (American Journal of the Medical Sciences)', url: 'https://pubmed.ncbi.nlm.nih.gov/16969140/' },
     ],
     overallTier: 'moderate',
   },
@@ -134,7 +134,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "This is the one test in this category worth requesting with the caveat stated up front, because the caveat is well documented: less than 1% of the body's total magnesium actually circulates in the blood, which is exactly what a standard serum magnesium test measures. The vast majority sits inside cells and bone, invisible to that one number. A 1998 study demonstrated this directly, finding oral magnesium supplementation could shift the body's magnesium stores with barely any corresponding change in serum levels. That doesn't mean skip the test; a genuinely low serum result is still a meaningful finding worth treating. It means a normal serum result doesn't fully rule out a deficiency the way it might for a nutrient measured more sensitively, like vitamin D. Given that limitation, there's little value in retesting frequently expecting the number to track supplementation cleanly. A reasonable approach is checking once as a baseline and again only if new symptoms suggest a problem (muscle cramps, irregular heartbeat, unusual fatigue), not on a fixed schedule.",
     citations: [
-      { source: 'Weller E, Bachert P, Meinck HM, et al. 1998 -- Lack of effect of oral Mg-supplementation on Mg in serum, blood cells, and calf muscle', url: 'https://pubmed.ncbi.nlm.nih.gov/9813870/' },
+      { source: 'Weller E, Bachert P, Meinck HM, et al. 1998: Lack of effect of oral Mg-supplementation on Mg in serum, blood cells, and calf muscle', url: 'https://pubmed.ncbi.nlm.nih.gov/9813870/' },
     ],
     overallTier: 'moderate',
   },
@@ -146,8 +146,8 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Zinc gets recommended often enough for immune support and hair/skin symptoms that it's easy to start supplementing without ever checking a blood level, and that's exactly the situation where a second, related problem can develop unnoticed. Zinc and copper are absorbed through a competing pathway in the gut, and documented case reports show sustained zinc supplementation causing copper deficiency serious enough to produce anemia and, in some cases, real neurological symptoms (gait problems, nerve damage) before anyone thought to check copper as the actual cause. This isn't a rare theoretical risk. It's been reported repeatedly enough in the literature to be a recognized, named clinical picture. The fix is simple: if zinc is being supplemented at all, ask for copper to be checked alongside it, not as an afterthought. For someone not supplementing either, checking both once as a baseline is reasonable; for someone actively supplementing zinc, rechecking both every 6-12 months is a sensible cadence to catch a problem before it becomes serious.",
     citations: [
-      { source: 'Gupta N, Carmichael MF 2023 -- Zinc-Induced Copper Deficiency as a Rare Cause of Neurological Deficit and Anemia', url: 'https://pubmed.ncbi.nlm.nih.gov/37736439/' },
-      { source: 'Magham K, Han J, Eilbert W, Bunney EB 2023 -- Severe copper deficiency anemia caused by zinc supplement use', url: 'https://pubmed.ncbi.nlm.nih.gov/37640593/' },
+      { source: 'Gupta N, Carmichael MF 2023: Zinc-Induced Copper Deficiency as a Rare Cause of Neurological Deficit and Anemia', url: 'https://pubmed.ncbi.nlm.nih.gov/37736439/' },
+      { source: 'Magham K, Han J, Eilbert W, Bunney EB 2023: Severe copper deficiency anemia caused by zinc supplement use', url: 'https://pubmed.ncbi.nlm.nih.gov/37640593/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['interaction-zinc-copper'],
@@ -195,8 +195,8 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Thyroid hormone directly regulates how the liver clears LDL cholesterol from the blood via the LDL receptor pathway, meaning cholesterol numbers in someone with Hashimoto's are, in a direct way, partly a thyroid-function readout, not purely a diet-and-exercise scorecard. A double-blind, placebo-controlled 6-month trial confirmed this isn't just theory: treating subclinical hypothyroidism with levothyroxine significantly reduced both total and LDL cholesterol, and the improvement in artery-wall thickness tracked directly with how much cholesterol and TSH both improved together. That's a useful, motivating fact to know: a cholesterol number that looks stubborn on diet alone may move once thyroid treatment is well-dialed-in, worth re-checking specifically after a dose change rather than assumed to be a separate, unrelated problem. Outside of a dose change, following the general cholesterol-screening schedule already set with a doctor is reasonable. This isn't a number that needs Hashimoto's-specific extra-frequent checking once thyroid treatment itself is stable.",
     citations: [
-      { source: 'Newman CB 2023 -- Effects of endocrine disorders on lipids and lipoproteins', url: 'https://pubmed.ncbi.nlm.nih.gov/35654682/' },
-      { source: 'Monzani F, et al. 2004 -- Effect of levothyroxine replacement on lipid profile and intima-media thickness in subclinical hypothyroidism: a double-blind, placebo-controlled study', url: 'https://pubmed.ncbi.nlm.nih.gov/15126526/' },
+      { source: 'Newman CB 2023: Effects of endocrine disorders on lipids and lipoproteins', url: 'https://pubmed.ncbi.nlm.nih.gov/35654682/' },
+      { source: 'Monzani F, et al. 2004: Effect of levothyroxine replacement on lipid profile and intima-media thickness in subclinical hypothyroidism: a double-blind, placebo-controlled study', url: 'https://pubmed.ncbi.nlm.nih.gov/15126526/' },
     ],
     overallTier: 'strong',
   },
@@ -219,7 +219,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "The logic behind fasting insulin testing is sound on paper: insulin can start rising before blood sugar itself does, as the body works harder to keep glucose normal, meaning, in theory, it could flag developing insulin resistance years before A1c or fasting glucose would catch it. A 2008 review of methods for assessing insulin sensitivity and resistance laid out exactly this appeal alongside its limitations. Fasting insulin assays aren't as tightly standardized across different labs as glucose or A1c are, and no single, universally agreed cutoff value exists the way one does for A1c. That doesn't make it worthless, but it is a more debated, less standardized test than the rest of this category's metabolic entries. It's worth asking about specifically if there's a real reason to suspect early insulin resistance (strong family history, visible weight changes, PCOS-type symptoms) rather than requesting it as a routine, no-reason addition to every panel. Not a test to chase repeatedly without a specific concern driving it.",
     citations: [
-      { source: 'Muniyappa R, Lee S, Chen H, Quon MJ 2008 -- Current approaches for assessing insulin sensitivity and resistance in vivo: advantages, limitations, and appropriate usage', url: 'https://pubmed.ncbi.nlm.nih.gov/17957034/' },
+      { source: 'Muniyappa R, Lee S, Chen H, Quon MJ 2008: Current approaches for assessing insulin sensitivity and resistance in vivo: advantages, limitations, and appropriate usage', url: 'https://pubmed.ncbi.nlm.nih.gov/17957034/' },
     ],
     overallTier: 'weak',
   },
@@ -244,7 +244,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "This is the one panel in this category where the honest answer runs against how routinely it tends to get ordered. An influential 2003 clinical review directly asked the question \"is this woman perimenopausal?\" and concluded the most reliable answer usually comes from symptoms and menstrual pattern change, not a single hormone blood draw. Estradiol and FSH in particular fluctuate enough within the same person, cycle to cycle, that one snapshot value can mislead more than it clarifies. That doesn't mean the panel is never useful. It's genuinely valuable in specific situations: symptoms that don't fit the usual pattern, ruling out a different cause before starting hormone therapy, or making an actual treatment decision about HRT where a baseline number matters. Given the real overlap between perimenopause symptoms and Hashimoto's symptoms (fatigue, mood shifts, temperature sensitivity, sleep disruption) named directly in this app's own founding brief, this panel is worth asking for specifically when those two pictures are hard to tell apart, not as a routine, repeat-every-visit addition, since the same day-to-day fluctuation that makes one snapshot unreliable also makes frequent retesting mostly noise.",
     citations: [
-      { source: 'Bastian LA, Smith CM, Nanda K 2003 -- Is This Woman Perimenopausal? (JAMA)', url: 'https://pubmed.ncbi.nlm.nih.gov/12588275/' },
+      { source: 'Bastian LA, Smith CM, Nanda K 2003: Is This Woman Perimenopausal? (JAMA)', url: 'https://pubmed.ncbi.nlm.nih.gov/12588275/' },
     ],
     overallTier: 'moderate',
   },
@@ -256,7 +256,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Two different things both get called \"cortisol testing,\" and telling them apart matters. A 2025 review states this about as plainly as a medical paper ever does: the terms \"adrenal fatigue,\" \"adrenal asthenia,\" and \"adrenal burnout,\" often attached to mail-order salivary cortisol test kits marketed directly to consumers, \"are not a part of the medical or endocrine lexicon,\" meaning they aren't a diagnosis a real endocrinologist would treat as one. That's worth knowing before spending money on one of those kits. What IS worth testing through an actual doctor: this app's own Organs & Body Systems category covers Autoimmune Polyglandular Syndrome Type 2, a documented autoimmune attack on the adrenal glands that can occur alongside Hashimoto's, diagnosed with an AM serum cortisol test or an ACTH stimulation test, not a saliva kit. It's worth raising directly with a doctor only when there's a real reason to (unexplained low blood pressure, unusual skin darkening, severe unremitting fatigue with other red flags), not something to test on a fixed schedule without one of those signs present.",
     citations: [
-      { source: "Kalra S, Dhingra A, Kapoor N 2025 -- Adrenal Asthenia (Journal of the Pakistan Medical Association)", url: 'https://pubmed.ncbi.nlm.nih.gov/40143493/' },
+      { source: "Kalra S, Dhingra A, Kapoor N 2025: Adrenal Asthenia (Journal of the Pakistan Medical Association)", url: 'https://pubmed.ncbi.nlm.nih.gov/40143493/' },
     ],
     overallTier: 'strong',
     relatedIds: ['organ-adrenal-aps2', 'lifestyle-chronic-stress-hpa'],
@@ -280,8 +280,8 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Research on patient self-management found something consistently practical: patients who prepare specific, written questions ahead of a visit get more of those questions actually answered than patients who raise the same concerns verbally, in the moment, under time pressure. That's the single most actionable piece of advice in this whole category: not a script for confrontation, just a short, specific, written list (this app's own Bio-Compass symptom log is a ready-made source for exactly this) naming the actual tests from this category relevant to a specific situation, handed over or read from directly rather than described from memory. Framing matters too. \"I'd like to also check my free T4 and ferritin this visit, given my Hashimoto's\" lands very differently from an open-ended \"can you test everything.\" It's also worth knowing which tests are realistically a same-visit primary-care request (the core thyroid panel, CBC, CMP, lipids, vitamin D, B12, ferritin) versus ones that more often need a referral to an endocrinologist or a functional-medicine practitioner to access at all (reverse T3, a full sex-hormone panel, selenium), not because a PCP is unwilling, but because ordering habits and lab access genuinely differ by specialty. Insurance coverage is a separate constraint worth asking about directly rather than assuming; some of the less-routine tests in this category may need a specific documented reason to be covered.",
     citations: [
-      { source: 'Bodenheimer T, Lorig K, Holman H, Grumbach K 2002 -- Patient self-management of chronic disease in primary care (JAMA)', url: 'https://pubmed.ncbi.nlm.nih.gov/12435261/' },
-      { source: 'Hibbard JH, Stockard J, Mahoney ER, Tusler M 2004 -- Development of the Patient Activation Measure (PAM) (Health Services Research)', url: 'https://pubmed.ncbi.nlm.nih.gov/15230939/' },
+      { source: 'Bodenheimer T, Lorig K, Holman H, Grumbach K 2002: Patient self-management of chronic disease in primary care (JAMA)', url: 'https://pubmed.ncbi.nlm.nih.gov/12435261/' },
+      { source: 'Hibbard JH, Stockard J, Mahoney ER, Tusler M 2004: Development of the Patient Activation Measure (PAM) (Health Services Research)', url: 'https://pubmed.ncbi.nlm.nih.gov/15230939/' },
     ],
     overallTier: 'moderate',
   },
@@ -293,8 +293,8 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "A frustrating, common experience: TSH comes back at, say, 3.8 (technically inside the standard lab reference range, which typically runs up to somewhere around 4.0-4.5 mIU/L) and gets called normal, while symptoms persist. This isn't necessarily being dismissed unfairly. It's a named, ongoing disagreement within the field itself, not something invented by a frustrated patient. A 2005 review directly argued the standard reference range is too wide, since the population used to originally set it likely included people with undiagnosed thyroid disease, skewing the \"normal\" upper limit higher than it should be. The same authors, in a companion paper the same year, proposed a narrower \"optimal\" range of 0.4 to 2.5 mIU/L instead. That argument has never fully displaced the wider standard range most labs and major endocrine society guidance still use. This remains an unresolved disagreement, not a settled case either way. The practical use of knowing this: a TSH result sitting in the upper end of the standard range, alongside persistent symptoms, is a legitimate, evidence-backed thing to raise directly (\"I know this is technically in range, but I've read there's real debate about whether the optimal target is narrower\") rather than something to assume is fully resolved just because the lab report says \"normal.\"",
     citations: [
-      { source: 'Wartofsky L, Dickey RA 2005 -- The evidence for a narrower thyrotropin reference range is compelling (Journal of Clinical Endocrinology & Metabolism)', url: 'https://pubmed.ncbi.nlm.nih.gov/16148345/' },
-      { source: 'Dickey RA, Wartofsky L, Feld S 2005 -- Optimal thyrotropin level: normal ranges and reference intervals are not equivalent (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/16187911/' },
+      { source: 'Wartofsky L, Dickey RA 2005: The evidence for a narrower thyrotropin reference range is compelling (Journal of Clinical Endocrinology & Metabolism)', url: 'https://pubmed.ncbi.nlm.nih.gov/16148345/' },
+      { source: 'Dickey RA, Wartofsky L, Feld S 2005: Optimal thyrotropin level: normal ranges and reference intervals are not equivalent (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/16187911/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['advocacy-core-thyroid-panel'],
@@ -307,8 +307,8 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "This category's own antibody entry, and much of this app's tracking, is built around a positive TPO or thyroglobulin antibody result as the confirming signal that a low thyroid is genuinely autoimmune. One exception is worth knowing: seronegative Hashimoto's, where someone has the clinical and ultrasound picture of Hashimoto's thyroiditis but tests negative on both standard antibody markers. Research puts this at a genuine, non-trivial share of cases. One pediatric cohort study found 12.3% of confirmed Hashimoto's cases were seronegative, and a separate adult study found the same phenomenon, with seronegative cases tending to show a milder clinical picture than classic antibody-positive Hashimoto's. This isn't a reason to doubt a diagnosis reached through symptoms and imaging just because an antibody test came back negative. It's useful to know specifically so a negative antibody result doesn't get treated as ruling out Hashimoto's entirely, especially if the rest of the clinical picture (ultrasound findings, thyroid function, family history) still points that direction. It's worth raising directly if a negative antibody test is being used to question an otherwise well-supported diagnosis.",
     citations: [
-      { source: "Rizzardi P, et al. 2022 -- Seronegative phenotype in a pediatric population with Hashimoto's thyroiditis (Hormones)", url: 'https://pubmed.ncbi.nlm.nih.gov/35377135/' },
-      { source: "Rotondi M, et al. 2014 -- Serum negative autoimmune thyroiditis displays a milder clinical picture compared with classic Hashimoto's thyroiditis (European Journal of Endocrinology)", url: 'https://pubmed.ncbi.nlm.nih.gov/24743395/' },
+      { source: "Rizzardi P, et al. 2022: Seronegative phenotype in a pediatric population with Hashimoto's thyroiditis (Hormones)", url: 'https://pubmed.ncbi.nlm.nih.gov/35377135/' },
+      { source: "Rotondi M, et al. 2014: Serum negative autoimmune thyroiditis displays a milder clinical picture compared with classic Hashimoto's thyroiditis (European Journal of Endocrinology)", url: 'https://pubmed.ncbi.nlm.nih.gov/24743395/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['advocacy-thyroid-antibodies'],
@@ -321,9 +321,9 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "There's a specific term in the medical literature for a pattern many people with a chronic condition eventually recognize in their own medicine cabinet: the prescribing cascade. An authoritative definition states it plainly. It begins when a drug's own side effect gets misinterpreted as a new medical condition in its own right, leading to a second drug being started to treat what was actually the first drug's side effect all along, sometimes repeating again from there. This isn't a fringe idea. It's an established concept in clinical pharmacology, tracing back to a classic 1997 paper on optimizing drug treatment. The honest, hopeful flip side, backed by real trial data rather than just intuition: when an underlying driver of a problem (in this app's own core framing, chronic inflammation and metabolic health) genuinely improves, some medications originally started for a downstream symptom can be medically-supervised candidates for reduction. A well-known trial (DiRECT) found that among people who achieved diabetes remission through a structured weight-loss intervention (a mean weight loss of 11.4 kg), 28% remained completely off blood pressure medication at 24 months, a quantified, if honestly partial, success rate, not a guaranteed outcome for everyone. This is emphatically not a case for stopping any medication without medical supervision. It's an evidence-backed reason to ask a doctor directly, as underlying health measurably improves, whether a medication started for a downstream symptom is still actually needed, rather than assuming a prescription written years ago is permanent by default.",
     citations: [
-      { source: 'McCarthy LM, Visentin JD, Rochon PA 2019 -- Assessing the Scope and Appropriateness of Prescribing Cascades', url: 'https://pubmed.ncbi.nlm.nih.gov/30747997/' },
-      { source: 'Rochon PA, Gurwitz JH 1997 -- Optimising drug treatment for elderly people: the prescribing cascade (BMJ)', url: 'https://pubmed.ncbi.nlm.nih.gov/9366745/' },
-      { source: 'Leslie WS, Ali E, Harris L, et al. 2021 -- Antihypertensive medication needs and blood pressure control with weight loss in the Diabetes Remission Clinical Trial (DiRECT)', url: 'https://pubmed.ncbi.nlm.nih.gov/34056684/' },
+      { source: 'McCarthy LM, Visentin JD, Rochon PA 2019: Assessing the Scope and Appropriateness of Prescribing Cascades', url: 'https://pubmed.ncbi.nlm.nih.gov/30747997/' },
+      { source: 'Rochon PA, Gurwitz JH 1997: Optimising drug treatment for elderly people: the prescribing cascade (BMJ)', url: 'https://pubmed.ncbi.nlm.nih.gov/9366745/' },
+      { source: 'Leslie WS, Ali E, Harris L, et al. 2021: Antihypertensive medication needs and blood pressure control with weight loss in the Diabetes Remission Clinical Trial (DiRECT)', url: 'https://pubmed.ncbi.nlm.nih.gov/34056684/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['advocacy-how-to-ask', 'mito-visceral-fat-treg-depletion'],
@@ -336,9 +336,9 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Fibromyalgia and Hashimoto's share enough symptom overlap (fatigue, muscle pain, brain fog) that untangling which is actually driving a given symptom is a legitimate clinical challenge, not a simple either/or. Research backs up that the overlap runs deeper than shared symptoms alone: several studies have found autoimmune thyroiditis and thyroid antibodies present in an elevated share of fibromyalgia patients compared to the general population, across independent research groups. One specific finding worth knowing: a study examining thyroid hormone treatment among fibromyalgia patients found 34% (33 of 103) were being treated with thyroid hormone, a high enough number that the study's own title characterizes it as \"excess use.\" That doesn't mean thyroid treatment is wrong for any individual person with both diagnoses; some genuinely have both independent conditions. But it's a direct reason a fibromyalgia diagnosis is worth pairing with the full thyroid panel this app's own Self Advocacy category already recommends, rather than either diagnosis fully explaining away symptoms that might actually belong to the other, or reflect a real overlap of both at once.",
     citations: [
-      { source: 'Suk JH, Lee JH, Kim JM 2012 -- Association between thyroid autoimmunity and fibromyalgia', url: 'https://pubmed.ncbi.nlm.nih.gov/22549342/' },
-      { source: 'Ribeiro LS, Proietti FA 2004 -- Interrelations between fibromyalgia, thyroid autoantibodies, and depression (Journal of Rheumatology)', url: 'https://pubmed.ncbi.nlm.nih.gov/15468372/' },
-      { source: 'Aleksi V, Elise K, Koskela TH 2022 -- Excess use of thyroid hormone treatment among patients with fibromyalgia (BMC Research Notes)', url: 'https://pubmed.ncbi.nlm.nih.gov/35209937/' },
+      { source: 'Suk JH, Lee JH, Kim JM 2012: Association between thyroid autoimmunity and fibromyalgia', url: 'https://pubmed.ncbi.nlm.nih.gov/22549342/' },
+      { source: 'Ribeiro LS, Proietti FA 2004: Interrelations between fibromyalgia, thyroid autoantibodies, and depression (Journal of Rheumatology)', url: 'https://pubmed.ncbi.nlm.nih.gov/15468372/' },
+      { source: 'Aleksi V, Elise K, Koskela TH 2022: Excess use of thyroid hormone treatment among patients with fibromyalgia (BMC Research Notes)', url: 'https://pubmed.ncbi.nlm.nih.gov/35209937/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['advocacy-core-thyroid-panel', 'organ-musculoskeletal'],

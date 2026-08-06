@@ -31,7 +31,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
         url: 'https://www.iarc.who.int/news-events/iarc-monographs-volume-114-evaluation-of-consumption-of-red-meat-and-processed-meat/',
       },
       {
-        source: 'Tonacchera et al. 2004, Thyroid -- NIS inhibition potency of nitrate/perchlorate/thiocyanate',
+        source: 'Tonacchera et al. 2004, Thyroid: NIS inhibition potency of nitrate/perchlorate/thiocyanate',
         url: 'https://pubmed.ncbi.nlm.nih.gov/15650353/',
       },
     ],
@@ -63,7 +63,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       "Red Dye 3 has a strange regulatory history worth knowing: banned from cosmetics decades before it was ever pulled from food, for the same reason. Red Dye 3, erythrosine, was formally banned from FDA-regulated food in January 2025, decades after being banned in cosmetics, specifically because of the Delaney Clause. It causes thyroid follicular cell tumors in male rats at high doses. Red 40, Yellow 5, and Yellow 6 carry a weaker but real evidence base linking them to hyperactivity in children, the basis of California's 2023 school-food dye ban, rather than a thyroid-specific mechanism. Worth distinguishing rather than treating all synthetic dyes as one undifferentiated risk. Red 3's thyroid-tumor data is a genuinely different, more specific finding than the others' hyperactivity link.",
     citations: [
       {
-        source: 'FDA -- Revoking authorization for FD&C Red No. 3 in food and ingested drugs, 2025',
+        source: 'FDA: Revoking authorization for FD&C Red No. 3 in food and ingested drugs, 2025',
         url: 'https://www.fda.gov/food/hfp-constituent-updates/fda-revoke-authorization-use-red-no-3-food-and-ingested-drugs',
       },
       {
@@ -250,7 +250,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
         url: 'https://www.ncbi.nlm.nih.gov/books/NBK590883/',
       },
       {
-        source: 'Søndergaard & Olsen 1982, Toxicology Letters -- "The effect of BHT on the rat thyroid"',
+        source: 'Søndergaard & Olsen 1982, Toxicology Letters: "The effect of BHT on the rat thyroid"',
         url: 'https://pubmed.ncbi.nlm.nih.gov/7080091/',
       },
     ],
@@ -277,7 +277,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       "Read one at a time, these 16 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what this app's own longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under real scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
     citations: [
       {
-        source: 'Lane et al. 2024, BMJ -- ultra-processed food exposure and adverse health outcomes, umbrella review',
+        source: 'Lane et al. 2024, BMJ: ultra-processed food exposure and adverse health outcomes, umbrella review',
         url: 'https://doi.org/10.1136/bmj-2023-077310',
       },
     ],

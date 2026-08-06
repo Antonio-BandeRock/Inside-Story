@@ -35,7 +35,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
     summary:
       "She takes her levothyroxine with plain water, a habit that a century ago didn't even have a name to take. Levothyroxine itself didn't become the standard treatment until well into the 1970s, replacing decades of inconsistent desiccated animal thyroid (see History & Milestones). She waits before her coffee, not out of superstition but because a pharmacokinetic study found coffee taken alongside the dose cuts absorption by more than a quarter (see Labs & Medication Timing), the same reasoning behind why calcium and iron get the same hour-long buffer. None of this is arbitrary. Decades of dosing-consistency problems and absorption research, compressed into one small daily habit that takes about ten extra seconds to follow.",
     citations: [
-      { source: 'Benvenga et al. 2008, Thyroid -- altered intestinal absorption of L-thyroxine caused by coffee', url: 'https://pubmed.ncbi.nlm.nih.gov/18341376/' },
+      { source: 'Benvenga et al. 2008, Thyroid: altered intestinal absorption of L-thyroxine caused by coffee', url: 'https://pubmed.ncbi.nlm.nih.gov/18341376/' },
     ],
     overallTier: 'strong',
     relatedIds: ['history-desiccated-to-levothyroxine', 'problem-coffee-timing', 'labs-timing-master-rule'],
