@@ -51,6 +51,14 @@ export const DIGEST_CATEGORY_KEYS = [
   'lifestyleEnvironment',
   'mitochondriaMetabolism',
   'otherAutoimmune',
+  // 2026-08-07: four categories added in direct response to "this area MUST
+  // include everything at all worth knowing" -- explicitly not exhaustive
+  // even after this addition (nothing in a growing medical literature ever
+  // truly is), but a real, substantial expansion rather than a token one.
+  'healingStages',
+  'organSystems',
+  'history',
+  'nutrientInteractions',
 ] as const;
 
 // 'problemFoods' is deliberately its own type (ProblemFoodEntry, below),

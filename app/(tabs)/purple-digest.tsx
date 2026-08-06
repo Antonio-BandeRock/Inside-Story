@@ -46,8 +46,8 @@ const TAB_COLOR = colors.tabPurpleDigest;
 
 const DIGEST_HELP_SECTIONS: HelpSection[] = [
   {
-    heading: 'Nine categories, one evidence standard',
-    body: 'Every entry here is tiered Strong/Moderate/Weak by its own actual evidence, the same discipline as this app\'s own 6 Dimensions scoring -- a gold dot means real trial-level support, not just "this app trusts it."',
+    heading: 'A growing set of categories, one evidence standard',
+    body: 'Every entry here is tiered Strong/Moderate/Weak by its own actual evidence, the same discipline as this app\'s own 6 Dimensions scoring -- a gold dot means real trial-level support, not just "this app trusts it." This tab is meant to keep growing -- if the picker below runs past what fits on screen at once, it scrolls.',
   },
   {
     heading: 'Problem Foods & Swaps is different on purpose',

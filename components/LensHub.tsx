@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useState, type ComponentProps, type ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import {
@@ -440,7 +440,19 @@ export function LensHub<T extends string>({
             <Text style={styles.cardHeader} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
               {headerLabel ?? pageTitle}
             </Text>
-            <View style={styles.grid}>
+            {/* ScrollView, not a plain View, 2026-08-07 -- Purple Digest
+                grew past what CARD_HEIGHT's own shared row budget (sized to
+                Food's 9-option worst case) can show at once, and explicitly
+                "let's set that up" was the direction rather than growing
+                CARD_HEIGHT itself (which every other page's card would also
+                grow by, most of them with nothing to fill the extra space).
+                Scoped to just the grid's own content -- `card`'s outer
+                height stays exactly what it always was, this only lets that
+                fixed space scroll internally when a page's own option count
+                exceeds it. Harmless for every page whose grid already fits
+                (a ScrollView with shorter-than-container content simply
+                doesn't scroll) -- not gated behind a per-page flag. */}
+            <ScrollView style={styles.gridScroll} contentContainerStyle={styles.grid} showsVerticalScrollIndicator={false}>
               {options.map((option) => {
                 const active = option.key === selected;
                 // 2026-07-26: icon color no longer varies with `active` --
@@ -522,7 +534,7 @@ export function LensHub<T extends string>({
                   </TouchableOpacity>
                 </>
               ) : null}
-            </View>
+            </ScrollView>
             {/* Absolutely positioned over the card's own bottom-right
                 corner, deliberately NOT part of the wrapping options grid
                 above -- explicitly moved here from a dedicated row (which
@@ -665,6 +677,11 @@ const styles = StyleSheet.create({
     marginBottom: 6,
     marginLeft: 4,
   },
+  // Fills whatever vertical space `card` has left after cardHeader (card's
+  // own default column flexDirection + this flex: 1 does that) -- the
+  // actual scrolling boundary. `grid` itself is now this ScrollView's
+  // contentContainerStyle, not a plain child View's style.
+  gridScroll: { flex: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
   // 2 columns -- wide enough that even this app's longest lens labels
   // ("Cooking & Prep", "Prescriptions", "Food Reactions") sit on one line.

@@ -3,10 +3,14 @@ import type { ComponentProps } from 'react';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
 import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
+import { HEALING_STAGES_ENTRIES } from './healingStages';
+import { HISTORY_ENTRIES } from './history';
 import { LABS_MEDICATION_ENTRIES } from './labsMedication';
 import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
+import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
 import { NUTRIENTS_ENTRIES } from './nutrients';
+import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
 import type { AnyDigestEntry, DigestEntryCategory } from './types';
@@ -19,7 +23,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260806180000';
+export const PURPLE_DIGEST_VERSION = '20260807120000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -36,6 +40,10 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...LIFESTYLE_ENVIRONMENT_ENTRIES,
   ...MITOCHONDRIA_METABOLISM_ENTRIES,
   ...OTHER_AUTOIMMUNE_ENTRIES,
+  ...HEALING_STAGES_ENTRIES,
+  ...ORGAN_SYSTEMS_ENTRIES,
+  ...HISTORY_ENTRIES,
+  ...NUTRIENT_INTERACTIONS_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -107,6 +115,34 @@ export const DIGEST_CATEGORY_META: {
     label: 'Other Autoimmune Diseases',
     icon: 'shield-outline',
     description: 'Real corroborating research from other autoimmune diseases -- each one clearly labeled as exactly that, not Hashimoto\'s data.',
+  },
+  // 2026-08-07: four categories added in direct response to "this area
+  // MUST include everything at all worth knowing" -- placed after the
+  // original nine rather than interleaved, so the original build order
+  // (and anyone's own muscle memory of where things are) stays intact.
+  {
+    key: 'healingStages',
+    label: 'Healing Stages',
+    icon: 'footsteps-outline',
+    description: 'What to actually eat at each stage of the healing journey -- real foods, real timelines, real milestones to graduate by.',
+  },
+  {
+    key: 'organSystems',
+    label: 'Organs & Body Systems',
+    icon: 'body-outline',
+    description: 'How Hashimoto\'s reaches beyond the thyroid -- the liver, heart, brain, kidneys, and more -- and how treating them helps back.',
+  },
+  {
+    key: 'history',
+    label: 'History & Milestones',
+    icon: 'time-outline',
+    description: 'From the 1912 discovery to today\'s genetics -- the real, dated turning points behind everything else in this app.',
+  },
+  {
+    key: 'nutrientInteractions',
+    label: 'Nutrient Interactions',
+    icon: 'link-outline',
+    description: 'Which nutrients help each other absorb, which ones compete -- and the real food-level moves that work with either.',
   },
 ];
 
