@@ -599,6 +599,28 @@ export function LensHub<T extends string>({
                 scrollMetrics.current.scrollY = event.nativeEvent.contentOffset.y;
                 recomputeScrollHint();
               }}
+              // 2026-08-07, reported directly: the bottom hint wasn't
+              // reliably disappearing once genuinely scrolled all the way
+              // down. `onScroll` alone is throttled (scrollEventThrottle
+              // above) -- real on a fast fling that decelerates and comes
+              // to rest close to the boundary, the very last position
+              // update can land just before the true settled offset,
+              // never getting corrected since nothing fires again once
+              // the motion actually stops. `onMomentumScrollEnd` (a fling
+              // that decelerates to a stop) and `onScrollEndDrag` (a slow
+              // drag released directly at the boundary, no momentum
+              // phase to end) both fire exactly once, unthrottled, the
+              // instant their own kind of scroll motion is genuinely
+              // over -- reusing the same recompute here guarantees one
+              // more, accurate check right at the moment it matters most.
+              onMomentumScrollEnd={(event) => {
+                scrollMetrics.current.scrollY = event.nativeEvent.contentOffset.y;
+                recomputeScrollHint();
+              }}
+              onScrollEndDrag={(event) => {
+                scrollMetrics.current.scrollY = event.nativeEvent.contentOffset.y;
+                recomputeScrollHint();
+              }}
             >
               {options.map((option) => {
                 const active = option.key === selected;

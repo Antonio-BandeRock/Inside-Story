@@ -10,6 +10,7 @@ import {
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
+import { PurpleRibbonIcon } from './PurpleRibbonIcon';
 import { BUTTERFLY_OVERHANG_Y, BUTTERFLY_WIDTH } from './TabHub';
 
 // 2026-07-25: the page title and sub-tab label (e.g. "Insights" / "6
@@ -92,6 +93,26 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
     >
       {activeLensLabel ? (
         <Text style={[styles.text, { color: tabColor }]}>{activeLensLabel}</Text>
+      ) : tabRoute?.path === '/purple-digest' ? (
+        // Purple Digest's real custom mark (a traced awareness-ribbon
+        // shape, see PurpleRibbonIcon.tsx's own history), not the generic
+        // Ionicons "ribbon" glyph `icon` falls back to for this route --
+        // 2026-08-07, reported directly as "the wrong icon." TabHub.tsx and
+        // LensHub.tsx both already special-case this same path (the bare
+        // Ionicons glyph was already tried and rejected everywhere else --
+        // it reads as a race/award rosette, not an awareness ribbon); this
+        // component just never got the same fix when it was built. Can't
+        // reuse the single-Text-with-inline-icon trick below for this one:
+        // Ionicons renders as a font glyph, which nests inside Text
+        // natively, but PurpleRibbonIcon is a real SVG (react-native-svg),
+        // which Android does not reliably lay out nested inside a RN Text
+        // the way an inline glyph does -- so this renders as a real row of
+        // siblings (Text, icon, Text) instead of one continuous Text block.
+        <View style={styles.textRow}>
+          <Text style={[styles.text, { color: tabColor }]}>Tap the </Text>
+          <PurpleRibbonIcon size={12} color={tabColor} />
+          <Text style={[styles.text, { color: tabColor }]}> button to select a function.</Text>
+        </View>
       ) : (
         // Same icon+label pairing LensHub's own corner button uses, just
         // inline within the sentence instead of stacked above it -- a
@@ -135,5 +156,15 @@ const styles = StyleSheet.create({
     ...textShadow,
     fontSize: 11,
     textAlign: 'center',
+  },
+  // Purple Digest's own resting message only -- see its own comment above
+  // for why it can't reuse the plain single-Text approach every other tab
+  // uses. flexWrap so the row still wraps onto a second line on a narrow
+  // screen, same as the plain Text version's own natural word-wrap would.
+  textRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

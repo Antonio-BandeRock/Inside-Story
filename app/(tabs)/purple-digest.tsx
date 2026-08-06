@@ -59,6 +59,86 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+// Appended to every lens's own Info content below (DIGEST_LENS_HELP) --
+// same shared-trailing-section pattern Insights already uses for its own
+// DRILLING_DOWN_HELP, rather than repeating this same "how to use this
+// screen" explanation inside all 13 lenses' own bespoke text.
+const DIGEST_READING_HELP: HelpSection = {
+  heading: 'Reading an entry',
+  body: 'Tap any card in this category to expand it to its full write-up and real citations -- tap it again, or tap a different card, to collapse it and jump to the new one. The colored dot on each card is its own evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
+};
+
+// One real, bespoke explanation per lens for the LensHub Info tile --
+// 2026-08-07, explicitly requested: "Write the information about each
+// digest lens for the information icon to display about it explaining
+// that lens, as we have been doing on each of the other lenshub menus."
+// Previously every lens's own `help` just reused DIGEST_CATEGORY_META's
+// own one-line `description` (already shown as this screen's own category
+// subtitle, see categoryDescription below) -- fine as a picker-tile
+// caption, too thin to stand alone as a real explanation the way Insights'
+// own lens help write-ups already do (see e.g. that file's own "Reading
+// the table"/"Food Lookup" sections). `description` itself is untouched --
+// still used for the on-screen subtitle -- this is genuinely additional
+// content, not a replacement for it.
+const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
+  foodAdditives: {
+    heading: 'Food Additives',
+    body: "Real dose-and-mechanism detail on the additives people actually ask about -- carboxymethylcellulose and polysorbate 80's own gut-mucus research, sodium nitrite's real thyroid-transport mechanism, potassium bromate's tumor data, the 2025 Red Dye 3 ban. Most entries here are genuine concerns, but one (xanthan and guar gum) is included specifically because the evidence says it's fine, so this list doesn't read as uniformly alarmist.",
+  },
+  problemFoods: {
+    heading: 'Problem Foods & Swaps',
+    body: "The one category built differently from the rest: instead of reviewing a body of research, each entry starts from a real food -- garlic, raw cruciferous vegetables, kelp, charred meat -- names the actual mechanism behind why it can be a problem, and gives real, concrete swaps rather than just \"eat less of it.\"",
+  },
+  gutMicrobiome: {
+    heading: 'Gut & Microbiome',
+    body: "The mechanisms this app's own gut-healing mission keeps coming back to: short-chain fatty acids and real regulatory-T-cell induction, the gliadin-to-zonulin permeability pathway, and what real trials have actually shown does or doesn't repair a leaky gut. Includes an honest correction of L-glutamine, probably the most commonly recommended \"leaky gut\" supplement -- a systematic review of 10 trials found it doesn't move the needle.",
+  },
+  fermentedFoods: {
+    heading: 'Fermented Foods',
+    body: "Real, independently verified bacterial strains -- the ones already in this app's own two home-yogurt recipes, plus kvass, kefir, and sauerkraut's own strain research -- with real dosing science (roughly how many CFU a home ferment can reach) and where to source a verified single-strain starter, not just a general \"fermented food is good for you.\"",
+  },
+  nutrients: {
+    heading: 'Nutrients & Micronutrients',
+    body: "Selenium, iodine, vitamin D, zinc, and a few genuinely newer candidates like Nigella sativa (black seed) -- each tiered honestly by its own real trial evidence, including places where that evidence is more mixed than it's usually presented, like selenium's own Cochrane-review caveat and vitamin D's inconsistent placebo-controlled results.",
+  },
+  labsMedication: {
+    heading: 'Labs & Medication Timing',
+    body: "What actually interferes with a thyroid lab result or a levothyroxine dose -- biotin's real lab-assay interference, the classic calcium-and-iron absorption block, TSH's own daily rhythm and how a fasting-versus-fed blood draw can change the number. Each entry ends on the real, practical fix, usually just spacing something by an hour, not a lifelong restriction.",
+  },
+  lifestyleEnvironment: {
+    heading: 'Lifestyle & Environment',
+    body: "Everything that affects the thyroid beyond what's on the plate: the same real alcohol, coffee, and juice advisories already surfaced in this app's own Food builders, plus sleep, chronic stress, smoking's own genuinely counterintuitive Hashimoto's-versus-Graves' split, and real environmental exposures like air pollution and endocrine-disrupting plastics.",
+  },
+  mitochondriaMetabolism: {
+    heading: 'Mitochondria & Metabolism',
+    body: "Real cellular-level mechanisms -- autophagy, visceral fat as an active inflammatory organ rather than just stored energy, exercise's own real effect on inflammation. Includes two genuine tensions stated plainly rather than resolved: fasting is the most potent known autophagy trigger but also suppresses active thyroid hormone, and visceral fat may partly be the body's own defense against a leaky gut rather than simply harmful.",
+  },
+  otherAutoimmune: {
+    heading: 'Other Autoimmune Diseases',
+    body: "Real corroborating research from rheumatoid arthritis, inflammatory bowel disease, multiple sclerosis, type 1 diabetes, lupus, Sjogren's, and psoriasis -- every entry labeled with exactly which disease it actually studied, since none of it is Hashimoto's-specific data. Included because the same gut-barrier and immune mechanisms keep showing up across all of them: real corroborating weight for a hypothesis, not proof of one.",
+  },
+  healingStages: {
+    heading: 'Healing Stages',
+    body: "What to actually eat at each stage of a Hashimoto's healing journey -- a reasoned first-foods list for day one, a real reintroduction order and timeline, and real milestones to look for before moving on, cross-mapping the five-stage clinical framework onto three practical tiers: Getting Started, Rebuilding, and Well-Healed. Every specific week-or-month figure here traces back to an actual cited study.",
+  },
+  organSystems: {
+    heading: 'Organs & Body Systems',
+    body: "How Hashimoto's reaches past the thyroid itself. The liver gets sustained coverage here -- it does the largest share of T4-to-T3 conversion, and can show real, reversible enzyme changes from hypothyroidism alone -- alongside the heart, brain, kidneys, adrenal glands, joints, and skin, each covered in both directions: how the disease affects that system, and how treating that system can help the thyroid picture back.",
+  },
+  history: {
+    heading: 'History & Milestones',
+    body: "From Hashimoto's own 1912 discovery, through the 1924 iodized-salt program and 1956's finding that this is an autoimmune disease at all, to 1985's identification of TPO (the actual antigen this app's own tracking is built around) and today's still-early genetic research -- the real, dated turning points behind almost everything else in this app.",
+  },
+  nutrientInteractions: {
+    heading: 'Nutrient Interactions',
+    body: "Which nutrients help each other absorb -- vitamin C and iron, turmeric and black pepper -- and which ones compete, like calcium and iron, zinc and copper, and selenium and iodine's own more complicated relationship. Each entry ends on a real, practical food-level move, like soaking or fermenting to cut the phytates that block mineral absorption in the first place.",
+  },
+  foodIndustryHistory: {
+    heading: 'Food Industry & History',
+    body: "A correlational history of food itself over roughly 150 years, laid out era by era against real autoimmune and digestive-disease trends over the same span -- plus soil-nutrient decline, the pesticide dispute, and four real cases of a whole food (salt, butter, sugar's own reputation, eggs) taking public blame while an industrial substitute got the pass. Closes with a clearly labeled personal opinion, written to be argued with, not just accepted.",
+  },
+};
+
 // A deliberate line-break point for each category name that's long enough
 // to wrap at 2 columns (see LensHub's own itemLabelLines), so the grid
 // item's own auto-wrap never has to guess where to break -- 2026-08-07,
@@ -119,55 +199,83 @@ export default function PurpleDigestScreen() {
   // same "tap again to collapse" accordion shape as Insights' own SixDsView.
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
+  // Each card's own current Y offset within the ScrollView's content,
+  // keyed by entry id -- kept live via each card's own onLayout below (a
+  // direct child of the ScrollView's contentContainer, so layout.y IS its
+  // real scroll-content offset, no separate measurement call needed).
+  // 2026-08-07: this replaces the earlier "reorder the list so the
+  // expanded card becomes the first item" approach entirely, per direct
+  // correction: "The animation to place each selected box at the top of
+  // the screen wasn't what I meant, please remove that. What I meant was
+  // when I select one, the screen scrolls it to the top... If they select
+  // a new one, the old one collapses while the new one expands and
+  // scrolls itself to the top." The list itself never reorders now (see
+  // `entries` used directly below, no more displayEntries derivation) --
+  // only the ScrollView's own scroll position moves, to wherever that
+  // card already sits in its own unchanged, original position.
+  const cardOffsets = useRef<Record<string, number>>({});
 
   const LENSES: LensOption<DigestCategoryKey>[] = DIGEST_CATEGORY_META.map((meta) => ({
     key: meta.key,
     label: meta.label,
     gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
     icon: meta.icon,
-    help: [{ heading: meta.label, body: meta.description }],
+    help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
   }));
 
   const activeLensLabel = DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
+  // Plain, original category order -- no reordering. See cardOffsets' own
+  // comment above for why (a real correction of an earlier "move the
+  // expanded card to the front of the list" approach).
   const entries = getEntriesForCategory(lens);
-  // Whichever entry is expanded sorts to the very front of the list (its
-  // relative order among the rest is otherwise unchanged), animated via
-  // Animated.View's own layout={LinearTransition} below (same reorder-
-  // animation technique as SideBuilder's own NAVIGATION_HAND-aware field
-  // reordering) -- "the one chosen should rise to the top so as much as
-  // possible can be seen," per explicit request. Collapsing (expandedId
-  // back to null) restores the plain, original category order.
-  const expandedIndex = expandedId ? entries.findIndex((entry) => entry.id === expandedId) : -1;
-  const displayEntries =
-    expandedIndex > 0
-      ? [entries[expandedIndex], ...entries.slice(0, expandedIndex), ...entries.slice(expandedIndex + 1)]
-      : entries;
 
-  // Companion to the reorder above: since the newly-expanded card also
-  // moves to the very top of the list, scrolling back to y=0 is what
-  // actually brings it into view rather than leaving it sitting off-screen
-  // above wherever the list happened to be scrolled to already.
-  function scrollToTop() {
-    scrollRef.current?.scrollTo({ y: 0, animated: true });
+  // How far above a scrolled-to card's own top edge to stop, so it doesn't
+  // land flush against the screen's physical top edge -- roughly matching
+  // bodyContent's own top padding (16) minus a little, so the card reads
+  // as "the very next thing" rather than crammed against the edge.
+  const ENTRY_SCROLL_TOP_MARGIN = 12;
+
+  // Scrolls the ScrollView so the named card's own top edge lands near the
+  // top of the visible screen -- its position in the (unchanged) list,
+  // not a reorder. Deferred by a real animation frame (same pattern
+  // already used elsewhere in this app for "wait for a just-triggered
+  // layout change to land before scrolling," e.g. SideBuilder's own
+  // onFocus/scrollToEnd) rather than reading cardOffsets synchronously:
+  // a sibling card collapsing (the previously-expanded one, if this is a
+  // different entry) can shift this card's own offset, and onLayout only
+  // reports that new offset after React's own layout pass actually lands.
+  // Retries a few more frames if the target's offset isn't known yet at
+  // all (e.g. jumpToRelated switching to a category whose cards haven't
+  // rendered/measured for the first time yet) rather than silently doing
+  // nothing -- bounded so a genuinely bad id can't retry forever.
+  function scrollEntryIntoView(id: string, attemptsLeft = 5) {
+    requestAnimationFrame(() => {
+      const y = cardOffsets.current[id];
+      if (y != null) {
+        scrollRef.current?.scrollTo({ y: Math.max(y - ENTRY_SCROLL_TOP_MARGIN, 0), animated: true });
+      } else if (attemptsLeft > 0) {
+        scrollEntryIntoView(id, attemptsLeft - 1);
+      }
+    });
   }
 
   function toggleEntry(id: string) {
     const wasExpanded = expandedId === id;
     setExpandedId(wasExpanded ? null : id);
-    if (!wasExpanded) scrollToTop();
+    if (!wasExpanded) scrollEntryIntoView(id);
   }
 
   // Jumping to a related entry: switch category (if it's a different one),
-  // expand that entry (which also carries it to the top of its own
-  // category's list -- see displayEntries above), and collapse whatever
-  // was open before -- a related chip always lands you looking at exactly
-  // that entry, not buried wherever it sorts in its category.
+  // expand that entry, and collapse whatever was open before -- a related
+  // chip always lands you looking at exactly that entry, scrolled to the
+  // top of the screen, at wherever it actually sits in its own category's
+  // real (unreordered) list.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     setLens(target.category as DigestCategoryKey);
     setExpandedId(id);
-    scrollToTop();
+    scrollEntryIntoView(id);
   }
 
   return (
@@ -197,11 +305,25 @@ export default function PurpleDigestScreen() {
               </Text>
             </View>
 
-            {displayEntries.length === 0 ? (
+            {entries.length === 0 ? (
               <Text style={styles.emptyText}>Nothing here yet.</Text>
             ) : (
-              displayEntries.map((entry) => (
-                <Animated.View key={entry.id} layout={LinearTransition}>
+              entries.map((entry) => (
+                <Animated.View
+                  key={entry.id}
+                  layout={LinearTransition}
+                  // Keeps cardOffsets current -- this View is a direct
+                  // child of the ScrollView's own contentContainer, so
+                  // layout.y IS this card's real scroll-content offset,
+                  // no separate measurement call needed. Fires again
+                  // automatically whenever this card's own position
+                  // shifts (e.g. a sibling above it collapsing), which is
+                  // exactly the "wait for the real, settled offset" this
+                  // component's own scrollEntryIntoView relies on.
+                  onLayout={(event) => {
+                    cardOffsets.current[entry.id] = event.nativeEvent.layout.y;
+                  }}
+                >
                   <DigestCard
                     entry={entry}
                     expanded={expandedId === entry.id}
