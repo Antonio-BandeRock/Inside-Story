@@ -24,12 +24,22 @@ export type EvidenceTier = 'strong' | 'moderate' | 'weak';
 
 export type DigestCitation = {
   // A short, human-readable pointer -- author/year/journal or the name of
-  // the trial/review, e.g. "Wu et al. 2024 meta-analysis, 21 RCTs".
+  // the trial/review, e.g. "Wu et al. 2024 meta-analysis, 21 RCTs". This is
+  // the tappable link's own display text (see PurpleDigestScreen's
+  // CitationsBlock), not just a label.
   source: string;
-  // Real PubMed ID when one exists -- lets a reader jump straight to
-  // https://pubmed.ncbi.nlm.nih.gov/{pmid} rather than trusting the
-  // attribution alone.
-  pmid?: string;
+  // The real, verified page the finding above actually comes from --
+  // PubMed, a journal's own DOI page, or the source agency's own page
+  // (FDA/EFSA/IARC/Cochrane/NIH ODS/etc.). 2026-08-06: made real and
+  // required, not optional -- "the references... need to also be linked
+  // to the webpage where the information is derived, not just cited," per
+  // explicit request. Every entry in lib/digest/*.ts was individually
+  // checked via WebSearch before this field was added -- a citation this
+  // app could not find a real, verifiable page for was reworded or
+  // re-sourced rather than shipped with a fabricated link (see each
+  // category file's own header comment for any citation still flagged
+  // unresolved).
+  url: string;
 };
 
 export const DIGEST_CATEGORY_KEYS = [

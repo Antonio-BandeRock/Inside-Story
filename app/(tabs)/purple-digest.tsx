@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
@@ -184,15 +184,27 @@ function RelatedChips({ ids, onJumpToRelated }: { ids: string[]; onJumpToRelated
   );
 }
 
-function CitationsBlock({ citations }: { citations: { source: string; pmid?: string }[] }) {
+// Each citation's own source text IS the tappable link (opens the real,
+// verified page in the device's own browser) -- a real hyperlink-style
+// reference list, not the URL-as-plain-text pattern linkifyText uses
+// elsewhere in this app (Insights' own getSubCriterionSources): that
+// pattern fits inline prose with an occasional embedded link; a references
+// section reads better with the citation's own name as the link text.
+// 2026-08-06: `url` is real and required now, not optional -- "the
+// references... need to also be linked to the webpage where the
+// information is derived, not just cited," per explicit request.
+function CitationsBlock({ citations }: { citations: { source: string; url: string }[] }) {
   if (citations.length === 0) return null;
   return (
     <View style={styles.citationsBlock}>
       <Text style={styles.citationsLabel}>Sources</Text>
       {citations.map((citation, index) => (
-        <Text key={index} style={styles.citationText}>
+        <Text
+          key={index}
+          style={styles.citationLink}
+          onPress={() => Linking.openURL(citation.url)}
+        >
           {citation.source}
-          {citation.pmid ? ` (PMID ${citation.pmid})` : ''}
         </Text>
       ))}
     </View>
@@ -288,7 +300,13 @@ const styles = StyleSheet.create({
   stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8 },
   citationsBlock: { marginTop: 10 },
   citationsLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 2 },
-  citationText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', lineHeight: 15 },
+  citationLink: {
+    ...typography.caption,
+    color: colors.primary,
+    textDecorationLine: 'underline',
+    lineHeight: 16,
+    marginBottom: 2,
+  },
   relatedBlock: { marginTop: 10 },
   relatedLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 4 },
   relatedRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
