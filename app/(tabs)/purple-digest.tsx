@@ -219,6 +219,13 @@ export default function PurpleDigestScreen() {
   // only the ScrollView's own scroll position moves, to wherever that
   // card already sits in its own unchanged, original position.
   const cardOffsets = useRef<Record<string, number>>({});
+  // The ScrollView's own current scroll position -- 2026-08-07, added
+  // alongside the "skip a trivial scroll" fix below (see
+  // scrollEntryIntoView's own comment). Kept live via the ScrollView's own
+  // onScroll, the same plain-ref-not-state pattern already used for
+  // LensHub's own scroll-hint tracking, so a scroll in progress doesn't
+  // itself force a re-render.
+  const currentScrollY = useRef(0);
 
   const LENSES: LensOption<DigestCategoryKey>[] = DIGEST_CATEGORY_META.map((meta) => ({
     key: meta.key,
@@ -239,6 +246,19 @@ export default function PurpleDigestScreen() {
   // bodyContent's own top padding (16) minus a little, so the card reads
   // as "the very next thing" rather than crammed against the edge.
   const ENTRY_SCROLL_TOP_MARGIN = 12;
+  // Below this many pixels of actual movement, skip the scroll entirely
+  // rather than animate it -- 2026-08-07, direct report: tapping a card
+  // that was already visible just a little way down the screen (having
+  // "scrolled down just a little" to see it) still triggered a full,
+  // forced jump to the exact top -- combined with whatever OTHER card was
+  // open collapsing at the very same moment (shifting layout on its own),
+  // two things moving the screen at once read as genuinely wrong, not
+  // just unnecessary. A card that's already sitting close to the top
+  // doesn't need to be moved there at all; it can simply expand in place.
+  // 80px is roughly the height of one collapsed card's own header --
+  // small enough that a genuinely deep-in-the-list card (the actual case
+  // this whole mechanism exists for) still gets scrolled for real.
+  const SCROLL_SKIP_THRESHOLD = 80;
 
   // Scrolls the ScrollView so the named card's own top edge lands near the
   // top of the visible screen -- its position in the (unchanged) list,
@@ -257,7 +277,9 @@ export default function PurpleDigestScreen() {
     requestAnimationFrame(() => {
       const y = cardOffsets.current[id];
       if (y != null) {
-        scrollRef.current?.scrollTo({ y: Math.max(y - ENTRY_SCROLL_TOP_MARGIN, 0), animated: true });
+        const target = Math.max(y - ENTRY_SCROLL_TOP_MARGIN, 0);
+        if (Math.abs(target - currentScrollY.current) < SCROLL_SKIP_THRESHOLD) return;
+        scrollRef.current?.scrollTo({ y: target, animated: true });
       } else if (attemptsLeft > 0) {
         scrollEntryIntoView(id, attemptsLeft - 1);
       }
@@ -291,6 +313,10 @@ export default function PurpleDigestScreen() {
             ref={scrollRef}
             style={styles.body}
             contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
+            onScroll={(event) => {
+              currentScrollY.current = event.nativeEvent.contentOffset.y;
+            }}
+            scrollEventThrottle={100}
           >
             {/* Wrapped in an opaque card, not sitting bare on the shared
                 flower background -- reported as unreadable that way. Every
