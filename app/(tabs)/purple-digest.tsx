@@ -59,6 +59,33 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
   },
 ];
 
+// A deliberate line-break point for each category name that's long enough
+// to wrap at 2 columns (see LensHub's own itemLabelLines), so the grid
+// item's own auto-wrap never has to guess where to break -- 2026-08-07,
+// explicitly requested: "Make sure the names of the icons have a forced
+// carriage return at a logical spot." Every entry here breaks after a
+// natural phrase boundary (usually right after an "&") so both halves
+// still read as coherent pieces on their own, rather than wherever plain
+// word-wrap happens to land. Short names that already fit comfortably on
+// one line (Food Additives, Gut & Microbiome, Fermented Foods, Healing
+// Stages) are deliberately left out -- forcing an unnecessary break on a
+// name that already fits would just leave the second line looking sparse.
+// Only affects the grid tile's own label (LensOption.gridLabel) -- the
+// plain, unbroken `label` is still what's used everywhere else this name
+// appears (the Info sheet's own heading, activeLensLabel, etc.).
+const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {
+  problemFoods: 'Problem Foods\n& Swaps',
+  nutrients: 'Nutrients &\nMicronutrients',
+  labsMedication: 'Labs &\nMedication Timing',
+  lifestyleEnvironment: 'Lifestyle &\nEnvironment',
+  mitochondriaMetabolism: 'Mitochondria &\nMetabolism',
+  otherAutoimmune: 'Other Autoimmune\nDiseases',
+  organSystems: 'Organs &\nBody Systems',
+  history: 'History &\nMilestones',
+  nutrientInteractions: 'Nutrient\nInteractions',
+  foodIndustryHistory: 'Food Industry &\nHistory',
+};
+
 function tierColor(tier: EvidenceTier): string {
   if (tier === 'strong') return colors.accent;
   if (tier === 'moderate') return colors.primary;
@@ -96,6 +123,7 @@ export default function PurpleDigestScreen() {
   const LENSES: LensOption<DigestCategoryKey>[] = DIGEST_CATEGORY_META.map((meta) => ({
     key: meta.key,
     label: meta.label,
+    gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
     icon: meta.icon,
     help: [{ heading: meta.label, body: meta.description }],
   }));
@@ -202,12 +230,19 @@ export default function PurpleDigestScreen() {
         // wrapped to 2 lines, 3 columns' own ~95px-wide column was still
         // too narrow for several of them not to need a 3rd line. 2 columns
         // (~142px wide) comfortably fits every real category name at 2
-        // lines without shortening any of them. This also means Info
-        // reverts to its usual floating bottom-right corner (showInfoInGrid
-        // only applies at columns !== 2) instead of sitting inside the
-        // grid -- the same behavior every other 2-column LensHub page
-        // (Insights, Schedule, Bio-Compass) already uses.
+        // lines without shortening any of them.
         itemLabelLines={2}
+        // Explicit `true`, same day, immediate follow-up: switching to 2
+        // columns above defaulted Info back to its usual floating
+        // bottom-right corner (LensHub's own `infoInGrid` default is
+        // `columns !== 2`) -- reported directly as "gets in the way being
+        // on top of the rest" once Purple Digest's own grid grew tall
+        // enough to scroll (the floating-corner trick assumes that corner
+        // is always blank, which stops being true the moment real content
+        // scrolls underneath it). Forcing this true keeps Info as a real
+        // grid tile -- right after the last category, filling the empty
+        // half of the final row -- regardless of the 2-column layout.
+        infoInGrid={true}
         // Same real custom mark used everywhere else this tab is
         // represented (Home's own shortcut button, TabHub's own grid) --
         // without this, LensHub falls back to TAB_ROUTES' plain Ionicons

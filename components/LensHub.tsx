@@ -26,6 +26,19 @@ export type LensOption<T extends string> = {
   // per-screen as each one's own content gets written, not because
   // showing nothing is an acceptable end state for a real option.
   help?: HelpSection[];
+  // Overrides just the grid item's own label text, independent of `label`
+  // (still used everywhere else this option's name appears -- the Info
+  // sheet's own heading, activeLensLabel, etc.) -- 2026-08-07, added for
+  // Purple Digest's own longer category names. A label left to wrap on its
+  // own (see itemLabelLines) breaks wherever plain word-wrap happens to
+  // land, which isn't always the most readable split ("Other Autoimmune" /
+  // "Diseases" reads fine; a name that wrapped mid-phrase wouldn't).
+  // `gridLabel`, when set, carries an explicit "\n" at a deliberately
+  // chosen, logical spot (e.g. after a "&") instead -- React Native's Text
+  // renders a literal "\n" as a real line break. Optional: every other
+  // page's options keep rendering plain `label` as before, letting it wrap
+  // (or not) on its own.
+  gridLabel?: string;
 };
 
 // 2026-07-26: widened from 260 -- that size was tuned against Insights/
@@ -52,6 +65,26 @@ const CARD_WIDTH = 300;
 // retested at the "too high" step, adjust this one number rather than
 // hunting down every Text below individually.
 const LABEL_MAX_FONT_SCALE = 1.3;
+
+// What the Info tile shows when nothing's selected yet -- 2026-08-07,
+// explicitly requested: "When I touch any Info button in any lens prior to
+// touching a lens first, there needs to be a short message explaining they
+// need to tap one of the functions to see the information about that
+// function." Previously the Info tile was simply disabled (a silent no-op)
+// until a real selection existed; now it's always tappable, and opens the
+// same HelpSheet used for a real option's own content, just with this one
+// generic section instead. Deliberately NOT used for a real, selected
+// option that just doesn't have its own `help` authored yet (see
+// LensOption's own `help?` comment) -- that's a different, narrower case
+// (this page's own content rollout still in progress), kept disabled as
+// before rather than shown this "pick a function" message, which would be
+// actively wrong there since a function IS already picked.
+const NO_SELECTION_HELP: HelpSection[] = [
+  {
+    heading: 'Choose a function first',
+    body: 'Tap one of the functions above to see information about it.',
+  },
+];
 
 // A stronger, more visible shadow than constants/typography.ts's shared
 // textShadow -- specifically for this button's icon, which (unlike every
@@ -194,6 +227,7 @@ export function LensHub<T extends string>({
   headerLabel,
   buttonLabel,
   columns = 2,
+  infoInGrid = columns !== 2,
   itemLabelLines = 1,
 }: {
   // Used to find this page's own entry in TAB_ROUTES, for the trigger
@@ -261,9 +295,36 @@ export function LensHub<T extends string>({
   // explicitly asked to lay out 3 wide, 4 tall (2026-07-27), with Info
   // centered on that 4th row (see infoInGrid below) rather than floating
   // in the corner the way every 2-column page's own Info tile still does.
-  // Only meaningfully centers Info when this is odd (Food's 3) -- an even
-  // count has no true middle column, but nothing currently passes one.
   columns?: number;
+  // Whether the Info tile renders as a real grid item (a trailing tile
+  // right after the real options) instead of floating over the card's own
+  // bottom-right corner. Defaults to `columns !== 2` -- i.e. every existing
+  // 3-column page (just Food, historically) already got this for free
+  // without asking for it explicitly, and every 2-column page kept the
+  // floating corner, matching the behavior this prop replaces.
+  //
+  // 2026-08-07: made independently settable, not just implied by column
+  // count -- Purple Digest needed 2 columns for its own long category
+  // labels to read comfortably (see itemLabelLines/gridLabel below), but
+  // the floating corner Info tile it fell back to under the old `columns
+  // !== 2` rule was then reported as sitting on top of/getting in the way
+  // of the real grid content once that grid grew tall enough to scroll --
+  // a problem the corner trick was never actually designed to handle (see
+  // CARD_HEIGHT's own comment: that trick assumes the card's own bottom-
+  // right corner is always blank, true for a short 2-column grid that
+  // never scrolls, not true once a grid genuinely overflows). Purple
+  // Digest now passes `infoInGrid={true}` explicitly to get a real grid
+  // tile at 2 columns, a combination the old `columns !== 2` shortcut
+  // couldn't express on its own.
+  //
+  // When true and `columns` is odd (Food's 3), Info still centers on its
+  // own fresh row exactly as before. When true and `columns` is even
+  // (Purple Digest's 2), there's no true middle column to center on, so
+  // Info simply renders as the next tile after the last real option --
+  // filling whatever slot that naturally is (the empty half of an
+  // otherwise-odd last row, or alone on a fresh row if the last row was
+  // already full).
+  infoInGrid?: boolean;
   // How many lines an option's own label can wrap to before truncating,
   // default 1 (every existing page's labels were already tuned to fit one
   // line at CARD_WIDTH's 2-column default). 2026-08-07: added for Purple
@@ -304,26 +365,43 @@ export function LensHub<T extends string>({
   // ready.
   const [cardReady, setCardReady] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
-  // Whether the grid still has real content below the visible window --
-  // drives the fade-plus-chevron scroll hint below. 2026-08-07: added
+  // Whether the grid has real content below/above the visible window --
+  // drives the fade-plus-chevron scroll hints below. 2026-08-07: added
   // alongside the ScrollView itself (see gridScroll's own comment), once
   // Purple Digest's real category count made scrolling genuinely necessary
   // -- "since the digest LensHub menu scrolls, it should have some
   // characteristic that tells people to scroll it," explicitly requested.
+  // Split into two independent booleans (was a single canScrollMore) the
+  // same day, direct follow-up describing the exact desired behavior at
+  // each scroll position: only a bottom hint at rest (top of the list),
+  // BOTH hints while genuinely in the middle, only a top hint once fully
+  // scrolled to the bottom (nothing left below, only "scroll back up" left
+  // to show) -- and the same in reverse scrolling back up. That's exactly
+  // what two independent conditions (canScrollUp / canScrollDown) produce
+  // on their own, with no extra state machine needed: canScrollUp is just
+  // "not at the top," canScrollDown is just "not at the bottom."
   // Tracked via a plain ref (not state) for the three raw measurements, so
   // onScroll firing repeatedly during a drag doesn't itself force a
-  // re-render every time -- only the derived boolean below (which only
-  // flips at the moment there's genuinely nothing left to reveal) causes
-  // one. Harmless for every other page: a grid that already fits within
-  // CARD_HEIGHT never sets this true in the first place (contentHeight
-  // never exceeds containerHeight), so the hint simply never renders there.
-  const [canScrollMore, setCanScrollMore] = useState(false);
+  // re-render every time -- only the two derived booleans below (which
+  // only flip at the moment either edge is actually reached) cause one.
+  // Harmless for every other page: a grid that already fits within
+  // CARD_HEIGHT never sets canScrollDown true in the first place
+  // (contentHeight never exceeds containerHeight), so neither hint ever
+  // renders there.
+  const [canScrollDown, setCanScrollDown] = useState(false);
+  const [canScrollUp, setCanScrollUp] = useState(false);
   const scrollMetrics = useRef({ containerHeight: 0, contentHeight: 0, scrollY: 0 });
   function recomputeScrollHint() {
     const { containerHeight, contentHeight, scrollY } = scrollMetrics.current;
     const remainingBelow = contentHeight - containerHeight - scrollY;
-    setCanScrollMore((current) => {
-      const next = remainingBelow > 4; // small slop so settling exactly at the bottom doesn't flicker
+    // Same small slop on both edges so settling exactly at either end
+    // doesn't flicker.
+    setCanScrollDown((current) => {
+      const next = remainingBelow > 4;
+      return current === next ? current : next;
+    });
+    setCanScrollUp((current) => {
+      const next = scrollY > 4;
       return current === next ? current : next;
     });
   }
@@ -366,22 +444,22 @@ export function LensHub<T extends string>({
 
   const itemWidthPercent = 100 / columns;
   // Info moves off the floating corner and into the grid's own flow
-  // whenever a page asks for a non-default column count (currently just
-  // Food, columns={3}) -- the corner trick assumes a 2-column layout (see
-  // infoCorner's own comment/CARD_HEIGHT's), which no longer applies once
-  // a page picks its own grid shape.
-  const showInfoInGrid = columns !== 2;
-  // How many blank cells to render before Info so it lands centered on
-  // its own fresh row, rather than wherever the real options happen to
-  // leave off. First, pad out whatever's left of the current partial row
-  // (0 if options.length is already a clean multiple of columns, e.g.
-  // Food's 9 in 3 columns); then one more blank places Info at column
-  // index floor(columns / 2) of the NEXT row -- the true middle column
-  // for an odd `columns` (Food's 3: index 1, i.e. the 2nd of 3). An even
-  // `columns` has no true middle, but nothing currently passes one.
+  // whenever a page asks for it (see infoInGrid's own comment above for
+  // the default and the 2026-08-07 reasoning) -- the corner trick assumes
+  // the card's bottom-right corner is always blank (see infoCorner's own
+  // comment/CARD_HEIGHT's), true for a short, non-scrolling grid, not true
+  // once a page's own grid grows tall enough to scroll.
+  const showInfoInGrid = infoInGrid;
+  // How many blank cells to render before Info. For an ODD column count
+  // (Food's 3), pad out whatever's left of the current partial row, then
+  // one more blank places Info at column index floor(columns / 2) of the
+  // NEXT row -- the true middle column. For an EVEN column count (Purple
+  // Digest's 2), there's no true middle to center on, so no padding at all
+  // -- Info just renders as the very next tile after the real options,
+  // landing in whatever slot that naturally is.
   const itemsInPartialRow = options.length % columns;
   const rowPadding = itemsInPartialRow === 0 ? 0 : columns - itemsInPartialRow;
-  const blanksBeforeInfo = rowPadding + Math.floor(columns / 2);
+  const blanksBeforeInfo = columns % 2 === 0 ? 0 : rowPadding + Math.floor(columns / 2);
 
   return (
     <>
@@ -389,13 +467,19 @@ export function LensHub<T extends string>({
         style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
         onPress={() => {
           setCardReady(false);
-          // Fresh measurements each time the popup opens -- a stale
-          // canScrollMore from a previous open (e.g. this same page
-          // re-opened after scrolling to the bottom last time) would
-          // otherwise show a wrong hint for one frame before the new
-          // ScrollView's own onLayout/onContentSizeChange fire.
+          // Fresh measurements each time the popup opens -- stale hint
+          // state from a previous open (e.g. this same page re-opened
+          // after scrolling to the bottom last time) would otherwise show
+          // the wrong hint for one frame before the new ScrollView's own
+          // onLayout/onContentSizeChange fire. ScrollView also always
+          // remounts scrolled to the top on a fresh open (RN's own default,
+          // never overridden here), so canScrollDown/canScrollUp resetting
+          // to "top of list" (false/false, corrected to true/false the
+          // instant the real measurements land) matches where it will
+          // actually be, not just a safe placeholder.
           scrollMetrics.current = { containerHeight: 0, contentHeight: 0, scrollY: 0 };
-          setCanScrollMore(false);
+          setCanScrollDown(false);
+          setCanScrollUp(false);
           setOpen(true);
         }}
         activeOpacity={0.85}
@@ -555,7 +639,7 @@ export function LensHub<T extends string>({
                       ellipsizeMode="tail"
                       maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
                     >
-                      {option.label}
+                      {option.gridLabel ?? option.label}
                     </Text>
                   </TouchableOpacity>
                 );
@@ -575,7 +659,12 @@ export function LensHub<T extends string>({
                     style={[styles.item, { width: `${itemWidthPercent}%` }]}
                     onPress={() => setHelpVisible(true)}
                     activeOpacity={0.7}
-                    disabled={!selectedOption?.help}
+                    // Only disabled for the narrower "an option IS selected
+                    // but has no help authored yet" case -- never disabled
+                    // just because nothing's selected, since that case now
+                    // has its own real content to show (NO_SELECTION_HELP,
+                    // via the HelpSheet's own sections prop below).
+                    disabled={Boolean(selectedOption) && !selectedOption?.help}
                     accessibilityLabel={selectedOption ? `About ${selectedOption.label}` : 'Select a function to see information about it'}
                   >
                     {selectedOption ? (
@@ -598,18 +687,38 @@ export function LensHub<T extends string>({
                 </>
               ) : null}
             </ScrollView>
-            {/* The scroll hint itself -- a soft fade from transparent into
-                the card's own menuSurface color, plus a small chevron,
-                pinned to the bottom edge of gridWrapper (not the whole
-                card), so it reads as "more of THIS list below" rather than
-                a stray mark near the Info tile. pointerEvents="none": it's
-                a visual cue only, never intercepts the tap that would
+            {/* The scroll hints themselves -- a soft fade from transparent
+                into the card's own menuSurface color, plus a small
+                chevron, pinned to whichever edge of gridWrapper (not the
+                whole card) still has real content past it, so each one
+                reads as "more of THIS list that way" rather than a stray
+                mark near the Info tile. pointerEvents="none" on both: a
+                visual cue only, never intercepts the tap that would
                 otherwise reach whatever grid item happens to sit under it.
                 Rendered after the ScrollView but still inside gridWrapper,
-                so it paints over the last partially-visible row -- exactly
-                the effect that reads as "there's more, scroll to see it." */}
-            {canScrollMore ? (
-              <View style={styles.scrollHint} pointerEvents="none">
+                so each one paints over its own edge's last partially-
+                visible row -- exactly the effect that reads as "there's
+                more, scroll to see it."
+                2026-08-07, direct follow-up describing the exact behavior
+                wanted at each scroll position: only the bottom hint at
+                rest (top of the list, canScrollUp false), BOTH hints while
+                genuinely in the middle of the list, only the top hint once
+                fully scrolled to the bottom (canScrollDown false, nothing
+                left below) -- and back through the same states in reverse
+                while scrolling back up. Two independent conditions
+                (canScrollUp/canScrollDown, see their own comment above)
+                produce exactly that without any extra state machine. */}
+            {canScrollUp ? (
+              <View style={styles.scrollHintTop} pointerEvents="none">
+                <LinearGradient
+                  colors={[colors.menuSurface, 'transparent']}
+                  style={StyleSheet.absoluteFillObject}
+                />
+                <Ionicons name="chevron-up" size={13} color={tabColor} />
+              </View>
+            ) : null}
+            {canScrollDown ? (
+              <View style={styles.scrollHintBottom} pointerEvents="none">
                 <LinearGradient
                   colors={['transparent', colors.menuSurface]}
                   style={StyleSheet.absoluteFillObject}
@@ -675,7 +784,7 @@ export function LensHub<T extends string>({
         visible={helpVisible}
         onClose={() => setHelpVisible(false)}
         pageTitle={selectedOption?.label ?? pageTitle}
-        sections={selectedOption?.help ?? []}
+        sections={selectedOption ? (selectedOption.help ?? []) : NO_SELECTION_HELP}
       />
     </>
   );
@@ -770,11 +879,21 @@ const styles = StyleSheet.create({
   gridWrapper: { flex: 1 },
   gridScroll: { flex: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
-  // Pinned to gridWrapper's own bottom edge -- see the JSX's own comment
-  // for why this exists and why it's conditional on canScrollMore. Short
-  // (18px) on purpose: just enough for the gradient to read as a fade, not
-  // so tall it hides a meaningful slice of the last visible row.
-  scrollHint: {
+  // Pinned to gridWrapper's own top/bottom edge -- see the JSX's own
+  // comment for why these exist and why each is conditional on its own
+  // canScrollUp/canScrollDown. Short (18px) on purpose: just enough for
+  // the gradient to read as a fade, not so tall it hides a meaningful
+  // slice of the nearest visible row.
+  scrollHintTop: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 0,
+    height: 18,
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+  },
+  scrollHintBottom: {
     position: 'absolute',
     left: 0,
     right: 0,
@@ -806,5 +925,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { ...typography.caption, fontSize: 11 },
+  // textAlign: 'center', 2026-08-07 -- alignItems: 'center' on `item`
+  // (above) only ever centered the label's own text BLOCK as a whole
+  // within its column; once a label wraps to more than one line (see
+  // itemLabelLines/gridLabel), each individual line still defaulted to
+  // left-aligned within that block, reading as ragged rather than
+  // centered underneath its icon. Harmless for every single-line label
+  // (this app's existing majority) -- centering a one-line block that
+  // already sizes to its own text content changes nothing visible.
+  itemLabel: { ...typography.caption, fontSize: 11, textAlign: 'center' },
 });

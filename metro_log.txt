@@ -212,3 +212,6 @@ Android Bundled 62ms node_modules\expo-router\entry.js (1 module)
 Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
 Android Bundled 148ms node_modules\expo-router\entry.js (1 module)
  WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 476ms node_modules\expo-router\entry.js (1 module)
+ WARN  [Layout children]: No route named "purple-digest" exists in nested children: ["assessment", "food-item-detail", "food-items", "profile", "(tabs)"]
