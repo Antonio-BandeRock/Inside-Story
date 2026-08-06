@@ -52,12 +52,12 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       'Red Dye 3 (erythrosine) was formally banned from FDA-regulated food in January 2025, decades after being banned in cosmetics, specifically because of the Delaney Clause: it causes thyroid follicular cell tumors in male rats at high doses. Red 40, Yellow 5, and Yellow 6 carry a weaker but real evidence base linking them to hyperactivity in children (the basis of California\'s 2023 school-food dye ban) rather than a thyroid-specific mechanism -- worth distinguishing rather than treating all synthetic dyes as one undifferentiated risk.',
     citations: [
       {
-        source: 'FDA final rule revoking authorization for FD&C Red No. 3, 2025',
-        url: 'https://www.federalregister.gov/documents/2025/01/16/2025-00830/color-additive-petition-from-center-for-science-in-the-public-interest-et-al-request-to-revoke-color',
+        source: 'FDA -- Revoking authorization for FD&C Red No. 3 in food and ingested drugs, 2025',
+        url: 'https://www.fda.gov/food/hfp-constituent-updates/fda-revoke-authorization-use-red-no-3-food-and-ingested-drugs',
       },
       {
         source: 'McCann et al. 2007, Lancet (Southampton dye/hyperactivity RCT)',
-        url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(07)61306-3/abstract',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/17825405/',
       },
     ],
     overallTier: 'moderate',
@@ -89,7 +89,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     citations: [
       {
         source: 'Tobacman 2001 review, Environmental Health Perspectives',
-        url: 'https://ehp.niehs.nih.gov/doi/10.1289/ehp.01109983',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/11675262/',
       },
       {
         source: 'Weiner 2014, Critical Reviews in Toxicology (in vivo safety review)',
@@ -108,7 +108,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     citations: [
       {
         source: 'Geha et al. 2000, Journal of Allergy and Clinical Immunology (double-blind MSG challenge trial)',
-        url: 'https://www.jacionline.org/article/S0091-6749(00)44233-8/fulltext',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/11080723/',
       },
     ],
     overallTier: 'weak',
@@ -141,8 +141,8 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       'A 2023 North Carolina State University study found that sucralose-6-acetate, a real breakdown product formed as sucralose degrades (including in the gut), was genotoxic to human cells in vitro and broke down the intestinal barrier in a mouse model at doses within a normal daily intake range. This is early, in-vitro/animal evidence, not a human outcome trial, and regulators have not changed sucralose\'s approved status in response -- but it is a real, mechanistically specific finding, not a repeat of the older, weaker sucralose-microbiome concerns.',
     citations: [
       {
-        source: 'Schiffman et al. 2023, Journal of Toxicology and Environmental Health',
-        url: 'https://www.tandfonline.com/doi/full/10.1080/10937404.2023.2213903',
+        source: 'Schiffman et al. 2023, Journal of Toxicology and Environmental Health, Part B',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37246822/',
       },
     ],
     overallTier: 'weak',
@@ -157,7 +157,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     citations: [
       {
         source: 'FDA final determination, 2015',
-        url: 'https://www.federalregister.gov/documents/2015/06/17/2015-14883/final-determination-regarding-partially-hydrogenated-oils',
+        url: 'https://www.fda.gov/food/food-additives-petitions/final-determination-regarding-partially-hydrogenated-oils-removing-trans-fat',
       },
       { source: 'Mozaffarian et al. 2006, NEJM review', url: 'https://pubmed.ncbi.nlm.nih.gov/16611951/' },
     ],

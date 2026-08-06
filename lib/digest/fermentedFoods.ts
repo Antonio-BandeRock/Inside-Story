@@ -16,8 +16,8 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       'A homofermentative lactic acid bacterium found in most live-culture yogurt and many commercial probiotic blends. Real clinical evidence supports it for improving lactose digestion (it produces lactase during fermentation, reducing residual lactose in the finished product) and for restoring gut flora after antibiotic use. Thyroid-specific human trials of this strain alone don\'t exist yet -- its relevance here is as one contributor to overall gut microbial diversity, the mechanism this app\'s Gut & Microbiome research keeps returning to.',
     citations: [
       {
-        source: 'Journal of Dairy Science -- "Lactobacillus acidophilus as a Dietary Adjunct for Milk to Aid Lactose Digestion in Humans"',
-        url: 'https://www.sciencedirect.com/science/article/pii/S0022030283818876',
+        source: 'Kim & Gilliland 1983, Journal of Dairy Science -- "Lactobacillus acidophilus as a Dietary Adjunct for Milk to Aid Lactose Digestion in Humans"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/6409948/',
       },
     ],
     overallTier: 'moderate',
@@ -62,8 +62,8 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       'Paired with L. bulgaricus as the two required starter cultures for anything legally labeled "yogurt" in most countries, S. thermophilus is a distinct, well-characterized, food-safe species unrelated to Streptococcus pyogenes or pneumoniae. It\'s notably efficient at breaking down lactose during fermentation, which is part of why traditional long-fermented yogurt is often better tolerated by lactose-sensitive people than fresh milk -- a real, mechanistic reason behind a folk claim this app\'s own Healing Stages guide already leans on.',
     citations: [
       {
-        source: 'Codex Alimentarius CXS 243-2003, Standard for Fermented Milks',
-        url: 'https://www.fao.org/fao-who-codexalimentarius/sh-proxy/es/?lnk=1&url=https%3A%2F%2Fworkspace.fao.org%2Fsites%2Fcodex%2FStandards%2FCXS+243-2003%2FCXS_243e.pdf',
+        source: 'Global Regulatory Frameworks for Fermented Foods -- A Review (Frontiers in Nutrition, 2022), discussing Codex Alimentarius CXS 243-2003',
+        url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2022.902642/full',
       },
     ],
     overallTier: 'moderate',
@@ -124,8 +124,8 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       'The "SCOBY" (symbiotic culture of bacteria and yeast) fermenting sweetened tea contains a genuine mixed community -- typically Acetobacter species, various yeasts, and often Gluconobacter -- distinct from the single-strain focus of most other entries here. Because yeast fermentation of sugar always produces some ethanol as a byproduct, commercially sold kombucha is capped at under 0.5% ABV to stay classified as non-alcoholic in most markets, but home-brewed batches (especially longer-fermented or a "second ferment") can measurably exceed that -- a real, practical caveat worth knowing, not a reason to avoid it outright.',
     citations: [
       {
-        source: 'Jayabalan et al. 2014, Comprehensive Reviews in Food Science and Food Safety',
-        url: 'https://ift.onlinelibrary.wiley.com/doi/abs/10.1111/1541-4337.12073',
+        source: 'Microbial composition of kombucha determined using amplicon sequencing and shotgun metagenomics (Journal of Food Science, 2020)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7027524/',
       },
     ],
     overallTier: 'moderate',
@@ -140,8 +140,8 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       'Water kefir grains ferment sugar water (often with dried fruit added) via a different bacterial/yeast community than milk kefir grains -- genuinely not interchangeable starters despite the shared name. Like kombucha, yeast activity means real trace ethanol is produced; typically lower than kombucha at a similar brew time, but not zero, and rises the longer a batch ferments. A real, dairy-free ferment option, distinct from milk kefir\'s own much broader strain diversity (see next entry).',
     citations: [
       {
-        source: 'Applied and Environmental Microbiology -- microbial diversity/metabolite kinetics of water kefir fermentation',
-        url: 'https://journals.asm.org/doi/full/10.1128/aem.03978-13',
+        source: 'The core microbiomes and associated metabolic potential of water kefir, revealed by pan multi-omics (Communications Biology, 2025)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11897133/',
       },
     ],
     overallTier: 'weak',
@@ -201,7 +201,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
     citations: [
       {
         source: 'Strain-Specificity and Disease-Specificity of Probiotic Efficacy: A Systematic Review and Meta-Analysis',
-        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5949321/',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5949321/',
       },
     ],
     overallTier: 'moderate',
@@ -219,8 +219,8 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
         url: 'https://www.ecfr.gov/current/title-21/chapter-I/subchapter-B/part-131/subpart-B/section-131.200',
       },
       {
-        source: 'Codex Alimentarius CXS 243-2003, Standard for Fermented Milks',
-        url: 'https://www.fao.org/fao-who-codexalimentarius/sh-proxy/es/?lnk=1&url=https%3A%2F%2Fworkspace.fao.org%2Fsites%2Fcodex%2FStandards%2FCXS+243-2003%2FCXS_243e.pdf',
+        source: 'Global Regulatory Frameworks for Fermented Foods -- A Review (Frontiers in Nutrition, 2022), discussing Codex Alimentarius CXS 243-2003',
+        url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2022.902642/full',
       },
     ],
     overallTier: 'moderate',

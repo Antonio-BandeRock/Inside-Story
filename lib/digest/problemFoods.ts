@@ -36,7 +36,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     citations: [
       {
         source: 'Monash University FODMAP research group -- fructan content in garlic, onion & other high-FODMAP foods',
-        url: 'http://www.monashfodmap.com/about-fodmap-and-ibs/high-and-low-fodmap-foods/',
+        url: 'https://www.monashfodmap.com/about-fodmap-and-ibs/high-and-low-fodmap-foods/',
       },
     ],
   },
@@ -142,7 +142,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     citations: [
       {
         source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition -- histamine and histamine intolerance',
-        url: 'https://ajcn.nutrition.org/article/S0002-9165(23)28053-3/fulltext',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/17490952/',
       },
     ],
     relatedIds: ['fermented-sauerkraut-succession'],
