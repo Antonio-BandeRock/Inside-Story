@@ -13,6 +13,7 @@ import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
 import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
 import { NUTRIENTS_ENTRIES } from './nutrients';
+import { COMPLEMENTARY_THERAPIES_ENTRIES } from './complementaryTherapies';
 import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
@@ -28,7 +29,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260807234500';
+export const PURPLE_DIGEST_VERSION = '20260808003000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -54,6 +55,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...BIG_PICTURE_ENTRIES,
   ...SELF_ADVOCACY_ENTRIES,
   ...PREGNANCY_FAMILY_PLANNING_ENTRIES,
+  ...COMPLEMENTARY_THERAPIES_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -87,61 +89,61 @@ export const DIGEST_CATEGORY_META: {
     key: 'glossary',
     label: 'Glossary',
     icon: 'reader-outline',
-    description: 'Every acronym and term used across this Digest, defined plainly -- what it is, what it does in the body, and how it connects to Hashimoto\'s.',
+    description: 'Every acronym and term used across this Digest, defined plainly: what it is, what it does in the body, and how it connects to Hashimoto\'s.',
   },
   {
     key: 'foodAdditives',
     label: 'Food Additives',
     icon: 'flask-outline',
-    description: 'Real dose and mechanism specifics for the additives that actually matter -- and a few that don\'t.',
+    description: 'Dose and mechanism specifics for the additives that actually matter, and a few that don\'t.',
   },
   {
     key: 'problemFoods',
     label: 'Problem Foods & Swaps',
     icon: 'swap-horizontal-outline',
-    description: 'Why a food is a problem, the real mechanism behind it, and real, concrete substitutes.',
+    description: 'Why a food is a problem, the mechanism behind it, and concrete substitutes.',
   },
   {
     key: 'gutMicrobiome',
     label: 'Gut & Microbiome',
     icon: 'git-network-outline',
-    description: 'The mechanisms this app\'s own gut-healing mission keeps coming back to -- SCFAs, zonulin, and real repair evidence.',
+    description: 'The mechanisms this app\'s own gut-healing mission keeps coming back to: SCFAs, zonulin, and repair evidence.',
   },
   {
     key: 'fermentedFoods',
     label: 'Fermented Foods',
     icon: 'beaker-outline',
-    description: 'Verified bacterial strains, real dosing science, and how to source starters that actually work.',
+    description: 'Verified bacterial strains, dosing science, and how to source starters that actually work.',
   },
   {
     key: 'nutrients',
     label: 'Nutrients & Micronutrients',
     icon: 'nutrition-outline',
-    description: 'Selenium, iodine, vitamin D, and the rest -- each tiered honestly by its own real trial evidence.',
+    description: 'Selenium, iodine, vitamin D, and the rest, each tiered honestly by its own trial evidence.',
   },
   {
     key: 'labsMedication',
     label: 'Labs & Medication Timing',
     icon: 'medkit-outline',
-    description: 'What actually interferes with a thyroid lab result or a levothyroxine dose -- and the real fix for each.',
+    description: 'What actually interferes with a thyroid lab result or a levothyroxine dose, and the fix for each.',
   },
   {
     key: 'lifestyleEnvironment',
     label: 'Lifestyle & Environment',
     icon: 'earth-outline',
-    description: 'Alcohol, coffee, sleep, stress, and real environmental exposures -- beyond what\'s on the plate.',
+    description: 'Alcohol, coffee, sleep, stress, and environmental exposures, beyond what\'s on the plate.',
   },
   {
     key: 'mitochondriaMetabolism',
     label: 'Mitochondria & Metabolism',
     icon: 'flame-outline',
-    description: 'Autophagy, visceral fat, and exercise -- real cellular-level mechanisms, including two genuine tensions worth knowing.',
+    description: 'Autophagy, visceral fat, and exercise: cellular-level mechanisms, including two genuine tensions worth knowing.',
   },
   {
     key: 'otherAutoimmune',
     label: 'Other Autoimmune Diseases',
     icon: 'shield-outline',
-    description: 'Real corroborating research from other autoimmune diseases -- each one clearly labeled as exactly that, not Hashimoto\'s data.',
+    description: 'Corroborating research from other autoimmune diseases, each one clearly labeled as exactly that, not Hashimoto\'s data.',
   },
   // 2026-08-07: four categories added in direct response to "this area
   // MUST include everything at all worth knowing" -- placed after the
@@ -151,25 +153,25 @@ export const DIGEST_CATEGORY_META: {
     key: 'healingStages',
     label: 'Healing Stages',
     icon: 'footsteps-outline',
-    description: 'What to actually eat at each stage of the healing journey -- real foods, real timelines, real milestones to graduate by.',
+    description: 'What to actually eat at each stage of the healing journey: foods, timelines, and milestones to graduate by.',
   },
   {
     key: 'organSystems',
     label: 'Organs & Body Systems',
     icon: 'body-outline',
-    description: 'How Hashimoto\'s reaches beyond the thyroid -- the liver, heart, brain, kidneys, and more -- and how treating them helps back.',
+    description: 'How Hashimoto\'s reaches beyond the thyroid, into the liver, heart, brain, and kidneys, and how treating them helps back.',
   },
   {
     key: 'history',
     label: 'History & Milestones',
     icon: 'time-outline',
-    description: 'From the 1912 discovery to today\'s genetics -- the real, dated turning points behind everything else in this app.',
+    description: 'From the 1912 discovery to today\'s genetics: the dated turning points behind everything else in this app.',
   },
   {
     key: 'nutrientInteractions',
     label: 'Nutrient Interactions',
     icon: 'link-outline',
-    description: 'Which nutrients help each other absorb, which ones compete -- and the real food-level moves that work with either.',
+    description: 'Which nutrients help each other absorb, which ones compete, and the food-level moves that work with either.',
   },
   // 2026-08-07, same day, fifth addition: folds in the standalone "What
   // Happened to Food" research Artifact -- the correlational history of
@@ -179,7 +181,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'foodIndustryHistory',
     label: 'Food Industry & History',
     icon: 'trending-up-outline',
-    description: 'How food itself changed over 150 years, against how autoimmune disease rose -- the real trends, the real mechanisms, and an honest opinion open for debate.',
+    description: 'How food itself changed over 150 years, against how autoimmune disease rose: the trends, the mechanisms, and a stated opinion open for debate.',
   },
   // 2026-08-07, same day, sixth addition: the cross-category short story --
   // see bigPicture.ts's own header comment and types.ts's own comment on
@@ -191,7 +193,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'bigPicture',
     label: 'The Big Picture',
     icon: 'book-outline',
-    description: 'One short story, one illustrative day, touching every other category in this Digest -- a way to see how it all actually connects.',
+    description: 'One short story, one illustrative day, touching every other category in this Digest, a way to see how it all actually connects.',
   },
   // 2026-08-07, same day, eighth addition: Self Advocacy -- appended
   // normally, unlike Glossary's own explicit front-placement exception.
@@ -200,7 +202,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'selfAdvocacy',
     label: 'Self Advocacy',
     icon: 'megaphone-outline',
-    description: 'Which lab tests to actually ask for, why each one matters for Hashimoto\'s, and how often retesting is real signal rather than noise.',
+    description: 'Which lab tests to actually ask for, why each one matters for Hashimoto\'s, and how often retesting is signal rather than noise.',
   },
   // 2026-08-07, same day, ninth addition: Pregnancy & Family Planning --
   // appended normally. See pregnancyFamilyPlanning.ts's own header comment.
@@ -208,7 +210,15 @@ export const DIGEST_CATEGORY_META: {
     key: 'pregnancyFamilyPlanning',
     label: 'Pregnancy & Family Planning',
     icon: 'flower-outline',
-    description: 'What actually changes about managing Hashimoto\'s during pregnancy and after -- TSH targets, postpartum thyroiditis, breastfeeding, and iodine needs.',
+    description: 'What actually changes about managing Hashimoto\'s during pregnancy and after: TSH targets, postpartum thyroiditis, breastfeeding, and iodine needs.',
+  },
+  // 2026-08-07, same day, tenth addition: Complementary & Manual Therapies.
+  // See complementaryTherapies.ts's own header comment.
+  {
+    key: 'complementaryTherapies',
+    label: 'Complementary & Manual Therapies',
+    icon: 'hand-left-outline',
+    description: 'Chiropractic, acupuncture, massage, and heat/cold therapy, checked honestly against the evidence, including a null result and a contested claim, not just the encouraging findings.',
   },
 ];
 

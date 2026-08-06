@@ -100,6 +100,14 @@ export const DIGEST_CATEGORY_KEYS = [
   // all of it") -- Pregnancy & Family Planning. See
   // pregnancyFamilyPlanning.ts's own header comment for the full reasoning.
   'pregnancyFamilyPlanning',
+  // 2026-08-07, same day, tenth addition -- Complementary & Manual
+  // Therapies: chiropractic, acupuncture/acupressure, massage, heat/cold
+  // therapy, researched directly per request but deliberately bounded (the
+  // person's own stated concern: "this sounds like maybe it could go down
+  // a rabbit hole quickly"). See complementaryTherapies.ts's own header
+  // comment for the full reasoning, including a real, flat null
+  // (chiropractic) reported honestly rather than smoothed over.
+  'complementaryTherapies',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

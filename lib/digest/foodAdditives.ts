@@ -1,24 +1,30 @@
 import type { DigestEntry } from './types';
 
 // Food Additives -- 16 entries, the most consumer-legible category to start
-// with (real dose/mechanism specifics exist for most of these, not just a
-// vague "avoid processed food" gesture). Deliberately includes both real
-// concerns AND at least one honest "generally fine" entry (xanthan/guar
-// gum) -- teaching food literacy means not implying every additive is
-// equally worth worrying about.
+// with (dose/mechanism specifics exist for most of these, not just a
+// vague "avoid processed food" gesture). Deliberately includes both
+// genuine concerns AND at least one honest "generally fine" entry
+// (xanthan/guar gum) -- teaching food literacy means not implying every
+// additive is equally worth worrying about.
 //
 // 2026-08-07, same day, rewritten in the same narrative shape as the other
-// categories already given this treatment -- every entry opens on a real
-// hook, develops the finding, and closes on why it matters. Every
-// underlying fact and citation is unchanged from the original pass.
+// categories already given this treatment -- every entry opens on a hook,
+// develops the finding, and closes on why it matters. Every underlying
+// fact and citation is unchanged from the original pass.
+//
+// 2026-08-08: content fields rewritten a second time to remove AI-writing
+// tics flagged directly by the person -- em dashes as punctuation, "not X,
+// it's Y" contrast, and overused words like "real"/"genuinely"/
+// "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
+// full context. Every fact, number, and citation is unchanged.
 export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-nitrates-nitrites',
     category: 'foodAdditives',
     title: 'Nitrates & Nitrites: The One Additive on This List With a Direct, Well-Established Thyroid Mechanism',
-    teaser: 'A cured-meat preservative that does double duty -- one real cancer classification, and one real, specific thyroid mechanism most people never hear about.',
+    teaser: 'A cured-meat preservative that does double duty: one cancer classification, and one specific thyroid mechanism most people never hear about.',
     summary:
-      "Bacon, deli meat, hot dogs -- sodium nitrate and nitrite are what keep them pink and safe from botulism. What they also do, separately from their more famous cancer risk, is worth knowing specifically for anyone managing Hashimoto's. Separately from IARC classifying processed meat as a Group 1 carcinogen (via N-nitroso compound formation when cured meat is cooked at high heat), nitrate itself is a documented goitrogen: it competitively blocks the sodium-iodide symporter (NIS), the exact same transporter the thyroid uses to pull iodine out of the bloodstream. In someone already iodine-marginal, that competition can measurably reduce thyroid iodine uptake -- a real, specific, checkable mechanism, not just \"processed meat is bad\" in general.",
+      "Bacon, deli meat, hot dogs: sodium nitrate and nitrite are what keep them pink and safe from botulism. What they also do, separately from their more famous cancer risk, is worth knowing specifically for anyone managing Hashimoto's. Separately from IARC classifying processed meat as a Group 1 carcinogen (via N-nitroso compound formation when cured meat is cooked at high heat), nitrate itself is a documented goitrogen. It competitively blocks the sodium-iodide symporter (NIS), the exact same transporter the thyroid uses to pull iodine out of the bloodstream. In someone already iodine-marginal, that competition can measurably reduce thyroid iodine uptake, a specific, checkable mechanism, not just \"processed meat is bad\" in general.",
     citations: [
       {
         source: 'IARC Monograph 114 (processed meat, Group 1)',
@@ -36,9 +42,9 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     id: 'additive-potassium-bromate',
     category: 'foodAdditives',
     title: 'Potassium Bromate: A Dough Conditioner Banned Across Most of the World, Still Legal in the U.S.',
-    teaser: 'Banned in the EU, UK, Canada, and Brazil. Still legal in American bread -- and its animal data points directly at the thyroid.',
+    teaser: 'Banned in the EU, UK, Canada, and Brazil. Still legal in American bread, and its animal data points directly at the thyroid.',
     summary:
-      "Most of the food additives on this list carry a real but general risk profile. This one is unusual for how specifically its animal data points at the thyroid. Used to strengthen bread dough and speed rising, potassium bromate is banned in the EU, UK, Canada, and Brazil, but remains legal, if declining in use, in U.S. commercial baking. IARC classifies it as possibly carcinogenic to humans (Group 2B). The animal data is unusually specific for a food additive: it reliably produces thyroid follicular cell tumors in rats, via oxidative DNA damage. Real bread should mostly bake it out during baking, since it converts to bromide -- but residual levels have been measured in some finished loaves, a real reason this one is worth knowing by name rather than lumped in with \"dough conditioners\" generally.",
+      "Most of the food additives on this list carry a general risk profile. This one is unusual for how specifically its animal data points at the thyroid. Used to strengthen bread dough and speed rising, potassium bromate is banned in the EU, UK, Canada, and Brazil, but remains legal, if declining in use, in U.S. commercial baking. IARC classifies it as possibly carcinogenic to humans (Group 2B). The animal data is unusually specific for a food additive: it reliably produces thyroid follicular cell tumors in rats, via oxidative DNA damage. Bread should mostly bake it out during baking, since it converts to bromide, but residual levels have been measured in some finished loaves, a reason this one is worth knowing by name rather than lumped in with \"dough conditioners\" generally.",
     citations: [
       { source: 'IARC Monograph 73 (potassium bromate)', url: 'https://www.inchem.org/documents/iarc/vol73/73-17.html' },
       {
@@ -51,10 +57,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-synthetic-dyes',
     category: 'foodAdditives',
-    title: 'Synthetic Food Dyes: Red Dye 3 Was Banned From U.S. Food in January 2025 -- Because of Rat Thyroid Tumors',
-    teaser: 'A dye banned from cosmetics decades ago stayed legal in food until a real thyroid-tumor finding finally caught up with it.',
+    title: 'Synthetic Food Dyes: Red Dye 3 Was Banned From U.S. Food in January 2025, Because of Rat Thyroid Tumors',
+    teaser: 'A dye banned from cosmetics decades ago stayed legal in food until a thyroid-tumor finding finally caught up with it.',
     summary:
-      "Red Dye 3 has a strange regulatory history worth knowing: banned from cosmetics decades before it was ever pulled from food, for the same real reason. Red Dye 3, erythrosine, was formally banned from FDA-regulated food in January 2025, decades after being banned in cosmetics, specifically because of the Delaney Clause: it causes thyroid follicular cell tumors in male rats at high doses. Red 40, Yellow 5, and Yellow 6 carry a weaker but real evidence base linking them to hyperactivity in children -- the basis of California's 2023 school-food dye ban -- rather than a thyroid-specific mechanism. Worth distinguishing rather than treating all synthetic dyes as one undifferentiated risk -- Red 3's real thyroid-tumor data is a genuinely different, more specific finding than the others' hyperactivity link.",
+      "Red Dye 3 has a strange regulatory history worth knowing: banned from cosmetics decades before it was ever pulled from food, for the same reason. Red Dye 3, erythrosine, was formally banned from FDA-regulated food in January 2025, decades after being banned in cosmetics, specifically because of the Delaney Clause. It causes thyroid follicular cell tumors in male rats at high doses. Red 40, Yellow 5, and Yellow 6 carry a weaker but real evidence base linking them to hyperactivity in children, the basis of California's 2023 school-food dye ban, rather than a thyroid-specific mechanism. Worth distinguishing rather than treating all synthetic dyes as one undifferentiated risk. Red 3's thyroid-tumor data is a genuinely different, more specific finding than the others' hyperactivity link.",
     citations: [
       {
         source: 'FDA -- Revoking authorization for FD&C Red No. 3 in food and ingested drugs, 2025',
@@ -71,9 +77,9 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     id: 'additive-emulsifiers-cmc-polysorbate80',
     category: 'foodAdditives',
     title: 'Emulsifiers: Carboxymethylcellulose & Polysorbate 80, Now Shown to Alter the Human Gut Microbiome in a Real Trial',
-    teaser: 'Common in packaged bread, ice cream, and sauces -- and a real 2015 mouse study, now confirmed in real human volunteers, found they change the gut itself.',
+    teaser: 'Common in packaged bread, ice cream, and sauces, and a 2015 mouse study, now confirmed in human volunteers, found they change the gut itself.',
     summary:
-      "Emulsifiers get added to food for texture, not nutrition -- keeping oil and water mixed in everything from packaged bread to ice cream. What they do to the gut, once inside it, wasn't seriously studied until relatively recently. A landmark 2015 mouse study (Chassaing et al., Nature) found these two widely used emulsifiers thinned the protective gut mucus layer, altered microbiota composition, and triggered low-grade intestinal inflammation and metabolic syndrome. A 2022 controlled human trial confirmed a real, if smaller, version of the same pattern in healthy volunteers given dietary-relevant doses of CMC: altered gut microbiota, reduced short-chain fatty acids, and mild GI symptoms in a subset. This directly touches this app's own gut-repair research, covered in full under Gut & Microbiome -- emulsifiers are a genuinely different exposure pathway than \"processed food is bad\" in general, with a real, specific, now-human-confirmed mechanism behind it.",
+      "Emulsifiers get added to food for texture, not nutrition, keeping oil and water mixed in everything from packaged bread to ice cream. What they do to the gut, once inside it, wasn't seriously studied until relatively recently. A landmark 2015 mouse study (Chassaing et al., Nature) found these two widely used emulsifiers thinned the protective gut mucus layer, altered microbiota composition, and triggered low-grade intestinal inflammation and metabolic syndrome. A 2022 controlled human trial confirmed a smaller version of the same pattern in healthy volunteers given dietary-relevant doses of CMC: altered gut microbiota, reduced short-chain fatty acids, and mild GI symptoms in a subset. This directly touches this app's own gut-repair research, covered in full under Gut & Microbiome. Emulsifiers are a genuinely different exposure pathway than \"processed food is bad\" in general, with a specific, now-human-confirmed mechanism behind it.",
     citations: [
       { source: 'Chassaing et al. 2015, Nature', url: 'https://pubmed.ncbi.nlm.nih.gov/25731162/' },
       {
@@ -87,10 +93,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-carrageenan',
     category: 'foodAdditives',
-    title: 'Carrageenan: A Seaweed-Derived Thickener With a Real, Contested Split Between Two Chemically Different Forms',
-    teaser: 'One form is in your almond milk. A chemically related form is a documented gut irritant not approved for food use -- and whether the first turns into the second is a genuinely open question.',
+    title: 'Carrageenan: A Seaweed-Derived Thickener With a Contested Split Between Two Chemically Different Forms',
+    teaser: 'One form is in your almond milk. A chemically related form is a documented gut irritant not approved for food use, and whether the first turns into the second is genuinely unresolved.',
     summary:
-      "Carrageenan shows up in almond milk, deli meat, and ice cream as a plant-derived thickener -- and it also has a real, more troubling chemical relative that sounds confusingly similar. Food-grade carrageenan is chemically distinct from degraded carrageenan, or poligeenan, which is reliably shown in animal and in-vitro studies to trigger gut inflammation and ulceration and is not approved for food use. The real, unresolved question -- whether food-grade carrageenan degrades to the harmful form under stomach acid or during processing -- has produced genuinely conflicting findings, and no large human trial has settled it. Worth knowing the two forms are chemically different, not worth a blanket verdict either way yet -- a real, honest \"still unsettled\" rather than a false confidence in either direction.",
+      "Carrageenan shows up in almond milk, deli meat, and ice cream as a plant-derived thickener, and it also has a more troubling chemical relative that sounds confusingly similar. Food-grade carrageenan is chemically distinct from degraded carrageenan, or poligeenan, which is reliably shown in animal and in-vitro studies to trigger gut inflammation and ulceration and is not approved for food use. The unresolved question, whether food-grade carrageenan degrades to the harmful form under stomach acid or during processing, has produced genuinely conflicting findings, and no large human trial has settled it. Worth knowing the two forms are chemically different, not worth a blanket verdict either way yet. An honest \"still unsettled\" rather than false confidence in either direction.",
     citations: [
       {
         source: 'Tobacman 2001 review, Environmental Health Perspectives',
@@ -106,10 +112,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-msg',
     category: 'foodAdditives',
-    title: 'MSG: The Most Over-Blamed Additive on This List -- Controlled Trials Mostly Clear It',
-    teaser: '"Chinese restaurant syndrome" became a real cultural phenomenon. Real double-blind trials mostly couldn\'t reproduce it.',
+    title: 'MSG: The Most Over-Blamed Additive on This List, Controlled Trials Mostly Clear It',
+    teaser: '"Chinese restaurant syndrome" became a real cultural phenomenon. Double-blind trials mostly couldn\'t reproduce it.',
     summary:
-      "Few food additives have carried as much cultural baggage as MSG, built almost entirely around a symptom pattern that real controlled science has struggled to actually reproduce. The FDA classifies MSG as Generally Recognized As Safe, and double-blind placebo-controlled trials have largely failed to reproduce \"Chinese restaurant syndrome\" symptoms when MSG is given in capsule form without a person knowing which they received. High-dose animal studies -- far beyond realistic dietary exposure, often injected rather than fed -- do show hypothalamic effects, a genuinely different question from ordinary dietary use. Included here as a deliberate counterexample: not every commonly feared additive holds up under real experimental scrutiny, and this is one of the clearer cases where it doesn't.",
+      "Few food additives have carried as much cultural baggage as MSG, built almost entirely around a symptom pattern that controlled science has struggled to actually reproduce. The FDA classifies MSG as Generally Recognized As Safe, and double-blind placebo-controlled trials have largely failed to reproduce \"Chinese restaurant syndrome\" symptoms when MSG is given in capsule form without a person knowing which they received. High-dose animal studies, far beyond realistic dietary exposure, often injected rather than fed, do show hypothalamic effects, a genuinely different question from ordinary dietary use. Included here as a deliberate counterexample. Not every commonly feared additive holds up under experimental scrutiny, and this is one of the clearer cases where it doesn't.",
     citations: [
       {
         source: 'Geha et al. 2000, Journal of Allergy and Clinical Immunology (double-blind MSG challenge trial)',
@@ -121,10 +127,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-aspartame',
     category: 'foodAdditives',
-    title: "Aspartame: Classified 'Possibly Carcinogenic' in 2023 -- But Its Own Safety Limit Didn't Move",
-    teaser: 'Two real global health bodies reviewed the identical evidence the same week and reached genuinely different verdicts.',
+    title: "Aspartame: Classified 'Possibly Carcinogenic' in 2023, But Its Own Safety Limit Didn't Move",
+    teaser: 'Two global health bodies reviewed the identical evidence the same week and reached genuinely different verdicts.',
     summary:
-      "Aspartame's own 2023 headlines told an alarming-sounding story on their own. The full regulatory picture, read completely, is more nuanced than the headline alone suggested. In 2023, IARC classified aspartame as possibly carcinogenic to humans (Group 2B), based on limited evidence, largely from one large observational cohort. The same week, the WHO/FAO's own additive safety committee (JECFA) reviewed the identical evidence and left aspartame's acceptable daily intake unchanged, explicitly calling the evidence for harm inadequate to justify a stricter limit. A real, publicly visible disagreement between a hazard classification (IARC's job) and a risk assessment (JECFA's job) that gets conflated in most consumer coverage -- worth knowing the difference between the two questions those two bodies were actually each answering.",
+      "Aspartame's own 2023 headlines told an alarming-sounding story on their own. The full regulatory picture, read completely, is more nuanced than the headline alone suggested. In 2023, IARC classified aspartame as possibly carcinogenic to humans (Group 2B), based on limited evidence, largely from one large observational cohort. The same week, the WHO/FAO's own additive safety committee (JECFA) reviewed the identical evidence and left aspartame's acceptable daily intake unchanged, explicitly calling the evidence for harm inadequate to justify a stricter limit. A publicly visible disagreement between a hazard classification (IARC's job) and a risk assessment (JECFA's job) that gets conflated in most consumer coverage. Worth knowing the difference between the two questions those two bodies were actually each answering.",
     citations: [
       {
         source: 'IARC Monograph 134, 2023',
@@ -141,9 +147,9 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     id: 'additive-sucralose',
     category: 'foodAdditives',
     title: 'Sucralose: A 2023 Lab Finding Reopened a Question Regulators Had Considered Closed',
-    teaser: "A real breakdown product, formed inside the gut itself, just gave sucralose's own settled safety story a genuine new wrinkle.",
+    teaser: "A breakdown product, formed inside the gut itself, just gave sucralose's own settled safety story a genuine new wrinkle.",
     summary:
-      "Sucralose has largely enjoyed a settled reputation as one of the more benign artificial sweeteners. A 2023 finding complicated that settled story, at least a little. A 2023 North Carolina State University study found that sucralose-6-acetate, a real breakdown product formed as sucralose degrades -- including inside the gut itself -- was genotoxic to human cells in vitro and broke down the intestinal barrier in a mouse model at doses within a normal daily intake range. This is early, in-vitro and animal evidence, not a human outcome trial, and regulators haven't changed sucralose's approved status in response -- but it's a real, mechanistically specific finding, not a repeat of the older, weaker sucralose-microbiome concerns that came before it.",
+      "Sucralose has largely enjoyed a settled reputation as one of the more benign artificial sweeteners. A 2023 finding complicated that settled story, at least a little. A 2023 North Carolina State University study found that sucralose-6-acetate, a breakdown product formed as sucralose degrades, including inside the gut itself, was genotoxic to human cells in vitro and broke down the intestinal barrier in a mouse model at doses within a normal daily intake range. This is early, in-vitro and animal evidence, not a human outcome trial, and regulators haven't changed sucralose's approved status in response, but it's a mechanistically specific finding, not a repeat of the older, weaker sucralose-microbiome concerns that came before it.",
     citations: [
       {
         source: 'Schiffman et al. 2023, Journal of Toxicology and Environmental Health, Part B',
@@ -155,10 +161,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-trans-fats',
     category: 'foodAdditives',
-    title: 'Trans Fats: The One Additive on This List With the Strongest Evidence of All -- Which Is Exactly Why It Was Banned',
+    title: 'Trans Fats: The One Additive on This List With the Strongest Evidence of All, Which Is Exactly Why It Was Banned',
     teaser: "Decades of strong evidence, a full FDA ban, and a real reason it still matters for someone managing Hashimoto's specifically.",
     summary:
-      "Of everything on this list, trans fats are the one case where the evidence was strong enough, and the harm severe enough, that regulators actually acted decisively. Artificial trans fats raise LDL cholesterol while simultaneously lowering HDL, a combined effect essentially unique among dietary fats, with decades of strong RCT and cohort evidence tying them to cardiovascular disease. The FDA revoked their Generally Recognized As Safe status in 2015 and completed a full ban from the U.S. food supply by 2018. Relevant here less for a thyroid-specific mechanism and more because systemic vascular inflammation is one of the general inflammatory-burden pathways this app's own Lifestyle & Environment research keeps surfacing across unrelated topics -- a real, cross-cutting reason this one still matters even though the direct thyroid link is thinner than its cardiovascular case.",
+      "Of everything on this list, trans fats are the one case where the evidence was strong enough, and the harm severe enough, that regulators actually acted decisively. Artificial trans fats raise LDL cholesterol while simultaneously lowering HDL, a combined effect essentially unique among dietary fats, with decades of strong RCT and cohort evidence tying them to cardiovascular disease. The FDA revoked their Generally Recognized As Safe status in 2015 and completed a full ban from the U.S. food supply by 2018. Relevant here less for a thyroid-specific mechanism and more because systemic vascular inflammation is one of the general inflammatory-burden pathways this app's own Lifestyle & Environment research keeps surfacing across unrelated topics. A cross-cutting reason this one still matters even though the direct thyroid link is thinner than its cardiovascular case.",
     citations: [
       {
         source: 'FDA final determination, 2015',
@@ -171,10 +177,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-sulfites',
     category: 'foodAdditives',
-    title: 'Sulfites: A Real, Well-Documented Sensitivity in a Defined Subset of People',
-    teaser: 'Dried fruit, wine, and some processed potatoes carry a real, well-characterized additive that a specific minority of people react to directly.',
+    title: 'Sulfites: A Well-Documented Sensitivity in a Defined Subset of People',
+    teaser: 'Dried fruit, wine, and some processed potatoes carry a well-characterized additive that a specific minority of people react to directly.',
     summary:
-      'Most of this list is about slow, cumulative risk. Sulfites are a rarer case: a real, sometimes fast, acute reaction in a specific, identifiable group of people. Sulfites -- sulfur dioxide and related sulfite salts -- prevent browning and microbial growth in dried fruit, wine, and some pre-cut produce. A genuine, well-characterized minority of people, especially those with asthma, experience real reactions -- wheezing, flushing, GI symptoms -- to sulfite exposure, which is why the FDA requires "contains sulfites" labeling above 10ppm. No specific thyroid or Hashimoto\'s mechanism is documented here; included because reaction-tracking, this app\'s own Bio-Compass feature, is exactly the tool for someone to find out whether they\'re personally in that sensitive minority.',
+      'Most of this list is about slow, cumulative risk. Sulfites are a rarer case: a sometimes fast, acute reaction in a specific, identifiable group of people. Sulfites (sulfur dioxide and related sulfite salts) prevent browning and microbial growth in dried fruit, wine, and some pre-cut produce. A well-characterized minority of people, especially those with asthma, experience real reactions (wheezing, flushing, GI symptoms) to sulfite exposure, which is why the FDA requires "contains sulfites" labeling above 10ppm. No specific thyroid or Hashimoto\'s mechanism is documented here. Included because reaction-tracking, this app\'s own Bio-Compass feature, is exactly the tool for someone to find out whether they\'re personally in that sensitive minority.',
     citations: [
       {
         source: 'FDA sulfite labeling rule, 21 CFR 101.100',
@@ -190,10 +196,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-hfcs',
     category: 'foodAdditives',
-    title: "High-Fructose Corn Syrup: Not Just 'More Sugar' -- Fructose Is Metabolized Differently, and That Difference Routes Through the Liver",
-    teaser: 'The same sugar molecule count, handled by a completely different metabolic pathway -- one that runs straight through the same organ doing most of the body\'s T4-to-T3 conversion.',
+    title: "High-Fructose Corn Syrup: Not Just 'More Sugar,' Fructose Is Metabolized Differently, and That Difference Routes Through the Liver",
+    teaser: "The same sugar molecule count, handled by a completely different metabolic pathway, one that runs straight through the same organ doing most of the body's T4-to-T3 conversion.",
     summary:
-      "HFCS often gets treated as interchangeable with regular sugar -- more or less the same thing, just cheaper to manufacture. The real metabolic pathway it travels through tells a more specific story. Unlike glucose, which is used by nearly every cell in the body, dietary fructose is metabolized almost entirely in the liver -- and at high intake, a meaningful share of it converts to fat there, contributing to non-alcoholic fatty liver disease and insulin resistance. This matters specifically for Hashimoto's because the liver performs roughly 80% of the body's T4-to-T3 conversion, covered in full under Organs & Body Systems -- a chronically overburdened liver is a plausible, if not yet directly trial-tested, contributor to suboptimal thyroid hormone conversion.",
+      "HFCS often gets treated as interchangeable with regular sugar, more or less the same thing, just cheaper to manufacture. The metabolic pathway it travels through tells a more specific story. Unlike glucose, which is used by nearly every cell in the body, dietary fructose is metabolized almost entirely in the liver, and at high intake, a meaningful share of it converts to fat there, contributing to non-alcoholic fatty liver disease and insulin resistance. This matters specifically for Hashimoto's because the liver performs roughly 80% of the body's T4-to-T3 conversion, covered in full under Organs & Body Systems. A chronically overburdened liver is a plausible, if not yet directly trial-tested, contributor to suboptimal thyroid hormone conversion.",
     citations: [
       {
         source: 'Softic et al. 2020, Critical Reviews in Clinical Laboratory Sciences (hepatic fructose metabolism review)',
@@ -206,10 +212,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-azodicarbonamide',
     category: 'foodAdditives',
-    title: 'Azodicarbonamide: Nicknamed "the Yoga Mat Chemical" -- and a Real Regulatory Gap, Not an Urban Legend',
+    title: 'Azodicarbonamide: Nicknamed "the Yoga Mat Chemical," and a Real Regulatory Gap, Not an Urban Legend',
     teaser: 'The nickname sounds like exaggeration. The actual overlap between bread dough and yoga mats is real.',
     summary:
-      '"The yoga mat chemical" sounds like the kind of alarmist nickname that turns out to be an exaggeration on closer inspection. This one genuinely isn\'t. Azodicarbonamide is used both as a bleaching and dough-conditioning agent in bread and as a foaming agent in yoga mats and shoe soles -- a genuinely true, if attention-grabbing, coincidence. It\'s banned in the EU, UK, and Australia. It breaks down during baking into semicarbazide, a compound animal studies link to tumor formation at high doses. U.S. regulators haven\'t found the levels used in bread baking to pose a comparable risk, which is the real crux of the international disagreement -- not a settled safety verdict in either direction, just two different regulatory judgment calls applied to the same real chemistry.',
+      '"The yoga mat chemical" sounds like the kind of alarmist nickname that turns out to be an exaggeration on closer inspection. This one genuinely isn\'t. Azodicarbonamide is used both as a bleaching and dough-conditioning agent in bread and as a foaming agent in yoga mats and shoe soles, a true, if attention-grabbing, coincidence. It\'s banned in the EU, UK, and Australia. It breaks down during baking into semicarbazide, a compound animal studies link to tumor formation at high doses. U.S. regulators haven\'t found the levels used in bread baking to pose a comparable risk, which is the crux of the international disagreement. Not a settled safety verdict in either direction, just two different regulatory judgment calls applied to the same chemistry.',
     citations: [
       { source: 'EFSA opinion on semicarbazide, 2005', url: 'https://www.efsa.europa.eu/en/efsajournal/pub/219' },
     ],
@@ -218,10 +224,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-phosphates',
     category: 'foodAdditives',
-    title: 'Phosphate Additives: The Same Mineral the Body Needs -- But the Additive Form Absorbs Almost Twice as Efficiently',
+    title: 'Phosphate Additives: The Same Mineral the Body Needs, But the Additive Form Absorbs Almost Twice as Efficiently',
     teaser: 'Phosphorus is essential. The engineered, additive form of it behaves differently in the body than the same mineral occurring naturally in whole food.',
     summary:
-      "Phosphorus is a real, essential mineral -- nobody's suggesting avoiding it. What's worth knowing is that the additive form and the whole-food form aren't absorbed the same way. Phosphate additives, used as preservatives and texture enhancers in processed meat, cheese, and baked goods, are absorbed at roughly 90%, compared to 40-60% for phosphate naturally bound in whole foods like meat, dairy, and legumes -- real, established physiology. What that difference actually does downstream is more open than often presented: a real 3-week randomized crossover trial in early-stage CKD patients found higher phosphate-additive intake did raise urinary phosphorus excretion as expected, but did NOT significantly raise albuminuria or FGF23 in that specific trial. No thyroid-specific data exists here; flagged as a real example of \"the same nutrient behaves differently depending on its source,\" directly echoing this app's own D1-D6 scoring philosophy that source and form matter, not just a nutrient's name.",
+      "Phosphorus is an essential mineral. Nobody's suggesting avoiding it. What's worth knowing is that the additive form and the whole-food form aren't absorbed the same way. Phosphate additives, used as preservatives and texture enhancers in processed meat, cheese, and baked goods, are absorbed at roughly 90%, compared to 40-60% for phosphate naturally bound in whole foods like meat, dairy, and legumes, well-established physiology. What that difference actually does downstream is more open than often presented. A 3-week randomized crossover trial in early-stage CKD patients found higher phosphate-additive intake did raise urinary phosphorus excretion as expected, but did not significantly raise albuminuria or FGF23 in that specific trial. No thyroid-specific data exists here. Flagged as an example of \"the same nutrient behaves differently depending on its source,\" directly echoing this app's own D1-D6 scoring philosophy that source and form matter, not just a nutrient's name.",
     citations: [
       { source: 'NIH Office of Dietary Supplements, Phosphorus Health Professional Fact Sheet', url: 'https://ods.od.nih.gov/factsheets/Phosphorus-HealthProfessional/' },
       {
@@ -234,10 +240,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-bha-bht',
     category: 'foodAdditives',
-    title: 'BHA & BHT: One Is Flagged by U.S. Federal Toxicology as a Likely Carcinogen; the Other Has Real Thyroid-Hormone Animal Data',
-    teaser: 'Two closely related preservatives, two genuinely different real concerns attached to each one.',
+    title: 'BHA & BHT: One Is Flagged by U.S. Federal Toxicology as a Likely Carcinogen; the Other Has Thyroid-Hormone Animal Data',
+    teaser: 'Two closely related preservatives, two genuinely different concerns attached to each one.',
     summary:
-      "BHA and BHT get mentioned together often enough that it's easy to assume they carry the same concern. They don't -- each has its own real, separate finding worth knowing. BHA, butylated hydroxyanisole, is listed by the National Toxicology Program as reasonably anticipated to be a human carcinogen, based on animal studies, and is more heavily restricted in the EU than the U.S. Its close chemical relative BHT has separate animal research showing measurable effects on circulating thyroid hormone levels at high doses. Both remain FDA-approved at current use levels for preserving fats, oils, and cereal-based products from oxidation -- two real, genuinely different concerns, not one shared risk profile just because the names look similar.",
+      "BHA and BHT get mentioned together often enough that it's easy to assume they carry the same concern. They don't. Each has its own separate finding worth knowing. BHA, butylated hydroxyanisole, is listed by the National Toxicology Program as reasonably anticipated to be a human carcinogen, based on animal studies, and is more heavily restricted in the EU than the U.S. Its close chemical relative BHT has separate animal research showing measurable effects on circulating thyroid hormone levels at high doses. Both remain FDA-approved at current use levels for preserving fats, oils, and cereal-based products from oxidation. Two genuinely different concerns, not one shared risk profile just because the names look similar.",
     citations: [
       {
         source: 'National Toxicology Program, Report on Carcinogens, 15th ed. (BHA profile)',
@@ -253,10 +259,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-xanthan-guar-gum',
     category: 'foodAdditives',
-    title: 'Xanthan Gum & Guar Gum: Included Deliberately -- Two Very Common Thickeners With Genuinely Little Evidence of Harm',
+    title: 'Xanthan Gum & Guar Gum: Included Deliberately, Two Very Common Thickeners With Genuinely Little Evidence of Harm',
     teaser: 'Not every entry on this list is a warning. This one exists specifically to prove that.',
     summary:
-      "A list built entirely around real concerns risks implying every food additive deserves equal suspicion. This entry exists specifically to push back against that impression. Both xanthan gum and guar gum are fermentation- or plant-derived thickeners used across gluten-free baking, sauces, and dairy alternatives. Neither has a meaningful body of evidence linking normal dietary use to harm -- guar gum in particular has real, if modest, positive data as a soluble fiber source supporting gut motility and short-chain fatty acid production. Included on this list specifically to avoid implying every additive deserves equal suspicion; teaching what's actually fine is as much a part of food literacy as flagging what isn't.",
+      "A list built entirely around real concerns risks implying every food additive deserves equal suspicion. This entry exists specifically to push back against that impression. Both xanthan gum and guar gum are fermentation- or plant-derived thickeners used across gluten-free baking, sauces, and dairy alternatives. Neither has a meaningful body of evidence linking normal dietary use to harm. Guar gum in particular has positive, if modest, data as a soluble fiber source supporting gut motility and short-chain fatty acid production. Included on this list specifically to avoid implying every additive deserves equal suspicion. Teaching what's actually fine is as much a part of food literacy as flagging what isn't.",
     citations: [
       { source: 'EFSA re-evaluation of guar gum (E412), 2017', url: 'https://www.efsa.europa.eu/en/efsajournal/pub/4669' },
     ],
@@ -265,10 +271,10 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-tying-together',
     category: 'foodAdditives',
-    title: 'Tying It All Together: One Real Pattern Across These 16',
-    teaser: 'Read individually these look like 16 separate dangers -- read together, one real pattern explains most of them.',
+    title: 'Tying It All Together: One Pattern Across These 16',
+    teaser: 'Read individually these look like 16 separate dangers. Read together, one pattern explains most of them.',
     summary:
-      "Read one at a time, these 16 entries can look like an intimidating list of unrelated dangers. Read together, a real pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding -- a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold -- not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my real, ongoing diet,\" which is exactly what this app's own longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under real scrutiny -- knowing which real concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
+      "Read one at a time, these 16 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what this app's own longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under real scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
     citations: [
       {
         source: 'Lane et al. 2024, BMJ -- ultra-processed food exposure and adverse health outcomes, umbrella review',
