@@ -86,6 +86,15 @@ export const DIGEST_CATEGORY_KEYS = [
   // category before it, this one was placed FIRST rather than appended
   // last (a direct, explicit request: "the first one at the top left").
   'glossary',
+  // 2026-08-07, eighth addition: Self Advocacy -- prompted by a real
+  // Google-search summary the person's wife found, asking how to advocate
+  // for a genuinely fuller lab panel (thyroid, nutrient, hormone,
+  // metabolic, inflammatory markers) and how often each is actually worth
+  // retesting. See selfAdvocacy.ts's own header comment for the full
+  // reasoning, including where that summary's own framing needed real
+  // correction (reverse T3, sex-hormone testing for perimenopause).
+  // Appended normally -- unlike Glossary, no explicit request to reorder.
+  'selfAdvocacy',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

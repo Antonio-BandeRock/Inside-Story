@@ -158,6 +158,10 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
     heading: 'The Big Picture',
     body: "A short, continuous narrative -- one illustrative day, following the same imagined person from her morning dose through dinner -- that touches all 14 other categories in a single read, rather than reviewing each one in isolation. Every fact woven into the story is real and still cited or linked back to its own full entry elsewhere in this Digest; only the day itself is a storytelling device, not a real logged person's data. A good place to see how this whole research base actually connects, at any point, not just after everything else.",
   },
+  selfAdvocacy: {
+    heading: 'Self Advocacy',
+    body: "Which lab tests are actually worth asking for with Hashimoto's -- the full thyroid panel (not just TSH), antibodies, ferritin, vitamin D, B12, magnesium, zinc and copper together, a CBC and CMP, lipids, and situational tests like sex hormones and cortisol -- each with the real reason it matters and an honest, non-excessive sense of how often retesting it actually adds new information. Includes two real corrections to how these tests often get pitched (reverse T3's genuinely unsettled evidence, and perimenopause usually being a clinical rather than lab diagnosis), plus a practical closing entry on how to actually ask a doctor for any of this.",
+  },
 };
 
 // A deliberate line-break point for each category name that's long enough

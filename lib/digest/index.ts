@@ -16,6 +16,7 @@ import { NUTRIENTS_ENTRIES } from './nutrients';
 import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
+import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import type { AnyDigestEntry, DigestEntryCategory } from './types';
 
 export * from './types';
@@ -26,7 +27,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260807223000';
+export const PURPLE_DIGEST_VERSION = '20260807230000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -50,6 +51,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...NUTRIENT_INTERACTIONS_ENTRIES,
   ...FOOD_INDUSTRY_HISTORY_ENTRIES,
   ...BIG_PICTURE_ENTRIES,
+  ...SELF_ADVOCACY_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -188,6 +190,15 @@ export const DIGEST_CATEGORY_META: {
     label: 'The Big Picture',
     icon: 'book-outline',
     description: 'One short story, one illustrative day, touching every other category in this Digest -- a way to see how it all actually connects.',
+  },
+  // 2026-08-07, same day, eighth addition: Self Advocacy -- appended
+  // normally, unlike Glossary's own explicit front-placement exception.
+  // See selfAdvocacy.ts's own header comment for the full reasoning.
+  {
+    key: 'selfAdvocacy',
+    label: 'Self Advocacy',
+    icon: 'megaphone-outline',
+    description: 'Which lab tests to actually ask for, why each one matters for Hashimoto\'s, and how often retesting is real signal rather than noise.',
   },
 ];
 
