@@ -29,4 +29,16 @@ export const TAB_ROUTES: TabRoute[] = [
   { path: '/trends', title: 'Trends', icon: 'trending-up', color: colors.tabTrends },
   { path: '/log', title: 'Signals', icon: 'compass', color: colors.tabBioCompass },
   { path: '/reports', title: 'Reports', icon: 'document-text', color: colors.tabReports },
+  // Promoted from a Stack-push-only screen (like Profile) to a real swipeable
+  // tab, 2026-08-05 -- explicitly requested so it has "a real location for
+  // the aggregator to exist full time" rather than being reached only via a
+  // shortcut. Appended last (not interleaved among the existing seven) so no
+  // other tab's own swipe-adjacency changes. `icon: 'ribbon'` is a plain
+  // Ionicons fallback for any generic consumer of this list that doesn't
+  // know about the real custom mark -- TabHub's own TabRouteIcon helper
+  // special-cases this path (same way it already does for Home) to render
+  // the real PurpleRibbonIcon instead, since a bare Ionicons "ribbon" glyph
+  // was already tried and rejected once (see LensHub.tsx's own history: it
+  // read as a race/award rosette, not an awareness ribbon).
+  { path: '/purple-digest', title: 'Purple Digest', icon: 'ribbon', color: colors.tabPurpleDigest },
 ];

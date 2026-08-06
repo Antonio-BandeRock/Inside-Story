@@ -157,9 +157,26 @@ function TabInfoIcon({ size }: { size: number }) {
 // Centralizes the "Home gets a different color treatment" check in one
 // place so the grid's own active/inactive branches below don't each need
 // their own copy of it.
+//
+// 2026-08-05: also special-cases Purple Digest, now that it's a real tab in
+// TAB_ROUTES (previously rendered from its own hardcoded 4th-row block,
+// which called PurpleRibbonIcon directly at PURPLE_RIBBON_SIZE rather than
+// through this shared helper). A bare Ionicons "ribbon" glyph (what
+// route.icon falls back to for any other consumer of this list) was already
+// tried and rejected here once -- see LensHub.tsx's own history: it read as
+// a race/award rosette, not an awareness ribbon -- so this renders the real
+// custom mark instead, same as it always has. PURPLE_RIBBON_SIZE, not the
+// passed-through `size` (always 20 from this grid's own call site below),
+// deliberately -- that constant was itself tuned specifically to visually
+// match a 20px Ionicons glyph's footprint (see its own comment), so
+// preserving it here keeps that same calibration rather than silently
+// changing it.
 function TabRouteIcon({ route, size }: { route: TabRoute; size: number }) {
   if (route.path === '/') {
     return <TabHomeIcon size={size} />;
+  }
+  if (route.path === '/purple-digest') {
+    return <PurpleRibbonIcon size={PURPLE_RIBBON_SIZE} color={route.color} />;
   }
   return <Ionicons name={route.icon} size={size} color={route.color} style={textShadow} />;
 }
@@ -220,9 +237,12 @@ const CARD_ITEM_PADDING_VERTICAL = 4; // matches `item`'s own paddingVertical be
 const CARD_ITEM_GAP = 1; // matches `item`'s own gap below
 const CARD_ITEM_LABEL_LINE_HEIGHT = 13; // itemLabel's own fontSize (10) * ~1.3, same estimate approach as LensHub.tsx's own GRID_ITEM_LABEL_LINE_HEIGHT
 const CARD_ROW_HEIGHT = CARD_ITEM_PADDING_VERTICAL * 2 + ICON_PILL_SIZE + CARD_ITEM_GAP + CARD_ITEM_LABEL_LINE_HEIGHT;
-// 7 tabs + Profile + Info fill 3 rows exactly at 3 columns; the 4th row
-// (blank spacer + The Purple Digest) is still a full row even though only
-// 2 of its 3 columns are populated.
+// 8 tabs (TAB_ROUTES, Purple Digest promoted from its own hardcoded slot to
+// a real tab here 2026-08-05) + Profile fill 3 rows exactly at 3 columns;
+// Info -- now alone as the 10th item -- gets its own 4th row, centered via
+// a single blank spacer before it (see its own render below), the same
+// trick this file previously used to center Purple Digest in that same
+// spot before it became a real tab.
 const CARD_ROW_COUNT = 4;
 const CARD_PADDING_VERTICAL = 4; // matches `card`'s own paddingVertical below, top + bottom
 const CARD_HEIGHT = CARD_ROW_COUNT * CARD_ROW_HEIGHT + CARD_PADDING_VERTICAL * 2;
@@ -343,15 +363,10 @@ export function TabHub() {
     router.push('/profile');
   }
 
-  // Same exception as Profile above, same reasoning -- The Purple Digest
-  // (2026-07-27) is also a Stack push outside the (tabs) group, reached
-  // from anywhere via this menu rather than living in the swipe rotation.
-  const purpleDigestActive = pathname === '/purple-digest';
-
-  function openPurpleDigest() {
-    setOpen(false);
-    router.push('/purple-digest');
-  }
+  // The Purple Digest used to be a Stack-push exception here too (like
+  // Profile, above) -- promoted to a real tab 2026-08-05 (see
+  // constants/tabs.ts), so it now flows through the ordinary TAB_ROUTES.map()
+  // loop and go() below like every other tab; no special handling left here.
 
   // The Info tile opens the help sheet for whichever page is currently
   // open (see openHelpForCurrentPage below) -- it should read as "about
@@ -565,19 +580,25 @@ export function TabHub() {
               </Text>
             </TouchableOpacity>
 
-            {/* 9th and last slot -- fills the 3x3 grid exactly (see
-                CARD_WIDTH's comment, which already reserved room for this),
-                landing in the true bottom-right corner now that Profile
-                (above) renders first. Opens the help sheet for whichever
-                page is currently open (see CurrentPageHelp) -- lets
-                someone check "what does this page do" from the same
-                picker they'd use to navigate, without first closing it and
-                hunting for the info icon in the header. Colored in that
-                page's own identity color (2026-07-25) rather than
-                permanently muted -- unlike the tab items above, this one
-                has no "inactive" state at all: it's always about whichever
-                page you're already on, so it always shows that page's
-                color.
+            {/* A single blank, non-interactive spacer -- fills row 4's own
+                left column first, so Info (right after it) lands centered
+                in the middle column instead of starting a new row flush
+                left. Same trick this file previously used to center The
+                Purple Digest in this exact spot, before it was promoted to
+                a real tab (2026-08-05, see constants/tabs.ts) and started
+                flowing through the TAB_ROUTES.map() loop above instead --
+                Info is now the one lone leftover item needing it. */}
+            <View style={styles.item} pointerEvents="none" />
+            {/* Last slot -- centered on its own 4th row (see the blank
+                spacer just above). Opens the help sheet for whichever page
+                is currently open (see CurrentPageHelp) -- lets someone
+                check "what does this page do" from the same picker they'd
+                use to navigate, without first closing it and hunting for
+                the info icon in the header. Colored in that page's own
+                identity color (2026-07-25) rather than permanently muted --
+                unlike the tab items above, this one has no "inactive"
+                state at all: it's always about whichever page you're
+                already on, so it always shows that page's color.
                 2026-07-26, twice over: first the ring was made
                 unconditional (wrong -- Info was never really "selected"
                 the way a real tab is), then removed entirely to fix that.
@@ -609,44 +630,6 @@ export function TabHub() {
                 numberOfLines={1}
               >
                 Info
-              </Text>
-            </TouchableOpacity>
-
-            {/* A 4th row, explicitly requested 2026-07-27: the previous 9
-                items (7 tabs + Profile + Info) already filled the 3x3 grid
-                exactly, so a 10th item on its own would start a new row in
-                the LEFT column, not the middle one asked for. A blank,
-                non-interactive spacer of the same footprint as a real item
-                fills that row's own left column first, so The Purple
-                Digest (right after it) lands in the middle column instead
-                -- still governed by the same flexWrap flow as every other
-                item above, no separate row container needed. The card
-                itself has no fixed height (see its own style comment), so
-                it grows by exactly one row and its top edge rises to make
-                room, automatically.
-                Label reads "Digest," not the full "The Purple Digest" --
-                every other item in this grid is a single short word
-                ("Schedules"/"Insights" are the longest); the full
-                name is used in the page's own header/title instead (see
-                app/purple-digest.tsx and app/_layout.tsx), the same
-                "short label here, full name on the page itself" split
-                ordinary tab bars use. */}
-            <View style={styles.item} pointerEvents="none" />
-            <TouchableOpacity style={styles.item} onPress={openPurpleDigest} activeOpacity={0.7}>
-              {purpleDigestActive ? (
-                <IridescentRingCircle size={ICON_PILL_SIZE}>
-                  <PurpleRibbonIcon size={PURPLE_RIBBON_SIZE} color={colors.tabPurpleDigest} />
-                </IridescentRingCircle>
-              ) : (
-                <View style={styles.iconPillPlain}>
-                  <PurpleRibbonIcon size={PURPLE_RIBBON_SIZE} color={colors.tabPurpleDigest} />
-                </View>
-              )}
-              <Text
-                style={[styles.itemLabel, { color: purpleDigestActive ? colors.tabPurpleDigest : colors.menuLabelMuted }]}
-                numberOfLines={1}
-              >
-                Digest
               </Text>
             </TouchableOpacity>
               </View>

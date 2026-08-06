@@ -87,6 +87,11 @@ export default function TabLayout() {
             <Tabs.Screen name="trends" options={{ title: 'Trends' }} />
             <Tabs.Screen name="log" options={{ title: 'Signals' }} />
             <Tabs.Screen name="reports" options={{ title: 'Reports' }} />
+            {/* Promoted from a Stack push (app/purple-digest.tsx, outside this
+                group entirely) to a real tab, 2026-08-05 -- see
+                constants/tabs.ts's own TAB_ROUTES entry for the full
+                reasoning. */}
+            <Tabs.Screen name="purple-digest" options={{ title: 'Purple Digest' }} />
           </Tabs>
         </View>
         <TabHub />

@@ -524,17 +524,20 @@ export function iridescentSheen(tabColor: string): readonly [string, string, str
 
 // Every tab's real identity color (constants/tabs.ts's TAB_ROUTES, sampled
 // from the butterfly artwork), swept in hue order -- warm gold, green,
-// teal, periwinkle, sky blue, purple, warm terracotta. The one shared base
-// palette for every iridescent element in the app (the header's own
+// teal, periwinkle, sky blue, purple (Purple Digest, added 2026-08-05 when
+// it was promoted from a Stack-push screen to a real tab -- see
+// constants/tabs.ts), grayscale Reports, warm terracotta. The one shared
+// base palette for every iridescent element in the app (the header's own
 // app-name text, its divider line, and the footer's divider line above
 // TabHub) so all of them cycle through the exact same colors rather than
 // each defining its own separate set that could drift apart.
-export const IRIDESCENT_PALETTE: readonly [string, string, string, string, string, string, string] = [
+export const IRIDESCENT_PALETTE: readonly [string, string, string, string, string, string, string, string] = [
   colors.tabHome,
   colors.tabFood,
   colors.tabInsights,
   colors.tabSchedules,
   colors.tabTrends,
+  colors.tabPurpleDigest,
   colors.tabReports,
   colors.tabBioCompass,
 ];

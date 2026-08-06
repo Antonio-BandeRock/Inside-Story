@@ -11,13 +11,12 @@ import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
-import { LensHub, type LensOption } from '../../components/LensHub';
 import { ProgressRing } from '../../components/ProgressRing';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../../constants/colors';
-import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
 import { useIridescentHueRotation } from '../../hooks/useIridescentHueRotation';
@@ -340,57 +339,29 @@ function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
   );
 }
 
-// The Purple Digest's own corner hub, 2026-07-27 -- explicitly requested:
-// Home is the one page with no LensHub of its own (nothing to switch
-// between), so its own bottom-left corner sits unused; this gives Home a
-// direct, always-visible way into The Purple Digest, "just like the other
-// main tabs" have for their own lenses, rather than only being reachable
-// through the butterfly menu's own grid (TabHub.tsx, added earlier the
-// same day). Not a real tab in TAB_ROUTES (same reasoning as Profile --
-// a Stack push, not part of the swipe rotation), so LensHub's icon/color
-// come from its own explicit override props instead of the usual
-// pageTitle -> TAB_ROUTES lookup (see LensHub.tsx's own comment on why
-// that override exists). Picking an option here doesn't change anything
-// on Home itself -- it navigates into The Purple Digest with that source
-// pre-selected, the same "pick, then go look at it" shape Schedule's own
-// "Log now" deep link already uses.
-type PurpleDigestLens = 'medlinePlus' | 'ata' | 'autoimmuneAssociation';
-
-const PURPLE_DIGEST_LENSES: LensOption<PurpleDigestLens>[] = [
-  {
-    key: 'medlinePlus',
-    label: 'MedlinePlus',
-    icon: 'medkit-outline',
-    help: [
-      {
-        heading: 'MedlinePlus',
-        body: "The U.S. National Library of Medicine's own consumer health service -- plain-language, physician-reviewed pages and news links for thyroid and autoimmune conditions specifically, with no editorial spin. The anchor source for this page.",
-      },
-    ],
-  },
-  {
-    key: 'ata',
-    label: 'Thyroid Association',
-    icon: 'body-outline',
-    help: [
-      {
-        heading: 'American Thyroid Association',
-        body: 'The professional medical society for thyroid specialists -- clinical guidance, research highlights, and organizational news specific to thyroid disease, including Hashimoto\'s.',
-      },
-    ],
-  },
-  {
-    key: 'autoimmuneAssociation',
-    label: 'Autoimmune Assoc.',
-    icon: 'ribbon-outline',
-    help: [
-      {
-        heading: 'Autoimmune Association',
-        body: "The leading nonprofit for autoimmune disease advocacy and awareness -- patient stories and organizational news alongside the clinical sources above, the more human side of what living with these conditions looks like.",
-      },
-    ],
-  },
-];
+// The Purple Digest's own corner shortcut, 2026-07-27 -- explicitly
+// requested: Home is the one page with no LensHub of its own (nothing to
+// switch between), so its own bottom-left corner sits unused; this gives
+// Home a direct, always-visible way into The Purple Digest, "just like the
+// other main tabs" have for their own lenses, rather than only being
+// reachable through the butterfly menu's own grid (TabHub.tsx, added
+// earlier the same day).
+//
+// 2026-08-05: simplified from its own 3-option LensHub (MedlinePlus/ATA/
+// Autoimmune Association -- the original external-source plan named in the
+// old app/purple-digest.tsx's own header comment) down to a single plain
+// button, once Purple Digest was promoted to a real tab (see
+// constants/tabs.ts) with its own real 9-category LensHub of its own. "The
+// icon on the Home page can stay a shortcut to that Hub," per the request
+// that prompted this -- a single tap into the real tab, not a second,
+// now-redundant picker with three options that no longer map onto anything
+// (this app builds its own real cited content now, rather than pointing at
+// those three external sites). Position matches the corner button LensHub
+// itself would render there (useBottomLeftHubPosition, the same hook
+// LensHub uses internally) -- so this reads as "the same slot," not a new
+// element. Rendered inline in the main return below (using that
+// component's own `router`), not a separate component -- every other
+// floating element on this screen is inlined the same way.
 
 type UpNext = { item: ScheduleItemRecord; isPast: boolean };
 
@@ -455,6 +426,11 @@ export default function HomeScreen() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const { height: windowHeight } = useWindowDimensions();
   const bottomInset = useBackgroundBottomInset();
+  // The Purple Digest corner shortcut's own position -- same hook LensHub
+  // uses internally, called here directly since this button is now a plain
+  // TouchableOpacity rather than a LensHub instance (see that button's own
+  // render/comment below).
+  const purpleDigestShortcutPosition = useBottomLeftHubPosition();
   // Feeds Home's own footerLine below -- same shared Reanimated value every
   // other iridescent element in the app reads (ScreenHeader's own divider/
   // app-name text, ScreenBackground.tsx's own footer line for every other
@@ -930,15 +906,17 @@ export default function HomeScreen() {
         </View>
       </SwipeableTabScreen>
 
-      <LensHub
-        pageTitle="The Purple Digest"
-        buttonLabel="Digest"
-        options={PURPLE_DIGEST_LENSES}
-        selected={undefined}
-        renderIcon={(size) => <PurpleRibbonIcon size={size} color={colors.tabPurpleDigest} />}
-        color={colors.tabPurpleDigest}
-        onSelect={(source) => router.push({ pathname: '/purple-digest', params: { source } })}
-      />
+      <TouchableOpacity
+        style={[styles.purpleDigestShortcut, purpleDigestShortcutPosition]}
+        onPress={() => router.push('/purple-digest')}
+        activeOpacity={0.85}
+        accessibilityLabel="Open The Purple Digest"
+      >
+        <PurpleRibbonIcon size={32} color={colors.tabPurpleDigest} />
+        <Text style={[styles.purpleDigestShortcutLabel, { color: colors.tabPurpleDigest }]} numberOfLines={1}>
+          Digest
+        </Text>
+      </TouchableOpacity>
 
       <Modal visible={selectedItem != null} transparent animationType="fade" onRequestClose={() => setSelectedItem(null)}>
           <View style={styles.modalBackdrop}>
@@ -1087,6 +1065,23 @@ const TAB_BORDER_WIDTH = 2;
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  // Same footprint/shadow treatment as LensHub's own corner button at rest
+  // (components/LensHub.tsx's own `button`/`buttonLabel` styles) -- this
+  // replaced a real LensHub instance, 2026-08-05, so it should still read
+  // as "the same kind of button," just without a popup behind it.
+  purpleDigestShortcut: {
+    position: 'absolute',
+    width: FLOATING_BUTTON_SIZE,
+    height: FLOATING_BUTTON_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  purpleDigestShortcutLabel: {
+    ...typography.caption,
+    ...textShadow,
+    fontSize: 11,
+    marginTop: 2,
+  },
   // position: 'relative' so bottomMask (position: 'absolute' inside it)
   // places relative to this box, not the whole screen.
   contentArea: { flex: 1, position: 'relative' },
