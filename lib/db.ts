@@ -2,7 +2,11 @@ import * as SQLite from 'expo-sqlite';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
+import { isAlcoholicFood } from './alcoholAdvisory';
+import { isCoffeeFood } from './coffeeAdvisory';
+import { isJuiceFood } from './juiceAdvisory';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
+import { isFlaggedTier } from './sixDimensionsReference';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 
 const DB_NAME = 'inside_story.db';
@@ -1268,6 +1272,405 @@ export async function getFoodNutrients(foodId: number, source: string) {
   );
 
   return rows.map((row) => ({ ...row, isSupplemented: Boolean(row.isSupplemented) }));
+}
+
+// Insights' own Nutrient Ranking lens, 2026-08-08 -- "a lens that is used
+// to show food items based on how much of any specific thing is within
+// them, such as to provide the list of foods in order of most protein to
+// least." Its own nutrient picker reuses listTrackedNutrients/
+// TrackedNutrient (defined near listAllActiveTreatments below) rather than
+// a second, separately-maintained "every nutrient" list -- caught and
+// fixed in the same pass this was written, before it could become a real,
+// drifting duplicate of that already-existing function.
+export type RankedFood = {
+  foodId: number;
+  source: string;
+  baseName: string;
+  category: string;
+  subcategory: string | null;
+  amountPer100g: number;
+};
+
+// Real, visible foods ranked by how much of one chosen nutrient they carry
+// per 100g -- most to least. Dedupes to one row per (category, base_name),
+// the same "Spinach x7" concern named throughout this file (see
+// resolveEffectiveUsdaOnly's own comment) -- but keeps whichever SOURCE row
+// reports the LARGEST amount for that food rather than dropping every
+// non-USDA source outright, so real cross-source measurement variance
+// doesn't silently under-report a food's own best-measured value the way a
+// blanket usdaOnly filter would. Pulls every matching row first (one
+// nutrient code is sparse enough across 22,016 foods that this is a cheap
+// scan, not a full-table one) and dedupes/sorts in JS, since the dedup key
+// itself needs case-insensitive base_name comparison SQL's own GROUP BY
+// can't cleanly express alongside "keep the whole row, not just the max
+// value."
+export async function rankFoodsByNutrient(nutrientCode: string, limit = 100): Promise<RankedFood[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<RankedFood>(
+    `
+      SELECT f.food_id AS foodId, f.source, f.base_name AS baseName, f.category, f.subcategory,
+             fn.amount_per_100g AS amountPer100g
+      FROM food_nutrients fn
+      JOIN foods f ON f.food_id = fn.food_id AND f.source = fn.source
+      WHERE fn.nutrient_code = ? AND f.hidden = 0 AND fn.amount_per_100g > 0
+    `,
+    nutrientCode,
+  );
+
+  const byFood = new Map<string, RankedFood>();
+  for (const row of rows) {
+    const key = `${row.category}|${row.baseName.toLowerCase()}`;
+    const existing = byFood.get(key);
+    if (!existing || row.amountPer100g > existing.amountPer100g) byFood.set(key, row);
+  }
+
+  return Array.from(byFood.values())
+    .sort((a, b) => b.amountPer100g - a.amountPer100g)
+    .slice(0, limit);
+}
+
+// Which broad group a food's protein counts toward for the Nutrient
+// Ranking lens's own Animal-vs-Plant protein split -- deliberately framed
+// around what actually matters practically (can a vegetarian eat this),
+// not strict biology: Mushroom (a fungus) and Algae (a protist) are
+// grouped with 'plant' since a vegetarian can eat both, rather than left
+// in a confusing third bucket. 'Meat' already carries the real
+// app-wide display label "Animal Protein" (see FoodLookup.tsx's own
+// CATEGORY_DISPLAY_LABELS) -- this mapping is consistent with that, not a
+// new, separate judgment call. Returns null for a category that isn't
+// meaningfully a "protein source" category at all (Sweets, Fats, Herbs,
+// Bev, Brewing, Alcohol, SaucesCondiments, Mixed) -- excluded from the
+// split entirely rather than forced into either side.
+export function classifyProteinSource(category: string): 'animal' | 'plant' | null {
+  if (category === 'Meat' || category === 'Dairy') return 'animal';
+  if (
+    category === 'Legume' ||
+    category === 'NutSeed' ||
+    category === 'Grain' ||
+    category === 'PastaNoodles' ||
+    category === 'Veg' ||
+    category === 'Fruit' ||
+    category === 'Mushroom' ||
+    category === 'Algae' ||
+    category === 'PantryStaples'
+  ) {
+    return 'plant';
+  }
+  return null;
+}
+
+// Insights' own Safe Foods lens, 2026-08-08 -- "foods listed in this
+// section have zero relevance to the 6-DFF and will not cause a problem
+// for them if they eat it." A food qualifies when NONE of its own
+// food_scores rows are a real yellow/red concern -- isFlaggedTier, reused
+// directly from lib/sixDimensionsReference.ts (the exact same severity
+// logic every other D1-D6 view in this app already trusts) rather than a
+// second, drifting reimplementation of that logic here. 'Not Assessed'
+// rows and real green rows are both fine; only a genuinely flagged tier
+// disqualifies a food. Safe to import isFlaggedTier here -- see this
+// file's own precedent with analyzeNutrientIntake (./nutrientAnalysis):
+// sixDimensionsReference.ts's only reference back to this file is a
+// type-only import (`import type`), which is erased entirely at compile
+// time, so there's no real runtime circular dependency.
+//
+// Computed once per app session and cached in memory rather than a new DB
+// column/rebuild: food_scores is static bundled reference data that never
+// changes at runtime, so a one-time bulk fetch (~180K small rows) plus a
+// JS group-by is cheap enough not to need a schema migration just for
+// this -- the same "compute once, cache for the session" shape
+// hasUsdaCoverage's own per-category cache already uses above.
+let safeFoodIdsCache: Promise<Set<string>> | null = null;
+
+async function getSafeFoodIds(): Promise<Set<string>> {
+  if (!safeFoodIdsCache) {
+    safeFoodIdsCache = (async () => {
+      const db = await getReferenceDatabase();
+      const rows = await db.getAllAsync<{ foodId: number; source: string; tier: string }>(
+        'SELECT food_id AS foodId, source, tier FROM food_scores',
+      );
+      const flagged = new Set<string>();
+      const allKeys = new Set<string>();
+      for (const row of rows) {
+        const key = `${row.foodId}|${row.source}`;
+        allKeys.add(key);
+        if (isFlaggedTier(row.tier)) flagged.add(key);
+      }
+      const safe = new Set<string>();
+      for (const key of allKeys) {
+        if (!flagged.has(key)) safe.add(key);
+      }
+      return safe;
+    })();
+  }
+  return safeFoodIdsCache;
+}
+
+// Which real categories currently have at least one safe food -- the Safe
+// Foods lens's own first picker step. Deliberately queries every category
+// (not CATEGORIES_HIDDEN_FROM_BROWSING-filtered like getReferenceCategories
+// above) since a safe food is only ever a real, visible one anyway
+// (hidden = 0 is enforced inside listSafeFoods below); a category that's
+// fully hidden from ordinary browsing simply never contributes any safe
+// foods and drops out of this list naturally.
+export async function listSafeFoodCategories(): Promise<string[]> {
+  const safeIds = await getSafeFoodIds();
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<{ foodId: number; source: string; category: string }>(
+    'SELECT food_id AS foodId, source, category FROM foods WHERE hidden = 0',
+  );
+  const categories = new Set<string>();
+  for (const row of rows) {
+    if (safeIds.has(`${row.foodId}|${row.source}`)) categories.add(row.category);
+  }
+  return Array.from(categories).sort();
+}
+
+export type SafeFood = { foodId: number; source: string; baseName: string; category: string; subcategory: string | null };
+
+// Real, visible, zero-flagged foods within one category -- deduped to one
+// row per base_name (the same cross-source "Spinach x7" concern named
+// throughout this file), sorted alphabetically. A v1 list, not paginated
+// beyond `limit` -- a category with more real safe foods than that just
+// shows its first `limit` alphabetically, matching the same cap shape
+// rankFoodsByNutrient above already uses.
+export async function listSafeFoods(category: string, limit = 200): Promise<SafeFood[]> {
+  const safeIds = await getSafeFoodIds();
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<SafeFood>(
+    'SELECT food_id AS foodId, source, base_name AS baseName, category, subcategory FROM foods WHERE category = ? AND hidden = 0',
+    category,
+  );
+  const byName = new Map<string, SafeFood>();
+  for (const row of rows) {
+    if (!safeIds.has(`${row.foodId}|${row.source}`)) continue;
+    const key = row.baseName.toLowerCase();
+    if (!byName.has(key)) byName.set(key, row);
+  }
+  return Array.from(byName.values())
+    .sort((a, b) => a.baseName.localeCompare(b.baseName))
+    .slice(0, limit);
+}
+
+// Insights' own Healing Stage Food Finder lens, 2026-08-08 -- "a lens that
+// identifies foods based on the Healing Stages." A real food-FINDER, not
+// the separate, larger, still-unbuilt Profile self-declaration + app-wide
+// advisory-reordering feature CLAUDE.md's own healing-journey section
+// describes (that one needs a real "which stage are you in" field on
+// Profile that doesn't exist yet, and reordering every Food builder's own
+// pickers -- explicitly out of scope here). This is scoped to Stage 1
+// ("Getting Started") and Stage 2 ("Rebuilding"), matching the app's own
+// documented practical-scoping note that only these two meaningfully
+// drive food decisions -- built directly from the real, published Healing
+// Stages guide (https://claude.ai/code/artifact/48bbddce-c75a-4d31-a57b-8f71df74368c).
+//
+// Every keyword below was checked directly against the live reference
+// database before being written here (via the sqlite3 CLI against
+// assets/data/foods_reference.db), not guessed -- including one real,
+// consequential finding along the way: nearly every plain chicken cut
+// (breast, thigh, drumstick, whole bird) is currently hidden from
+// browsing (244 of 256 chicken base_names), while beef/pork/turkey all
+// kept their common cuts visible -- looks like an unintended casualty of
+// an earlier bulk-hide pass, not a deliberate choice (nobody would
+// deliberately keep "Chicken Gizzard" visible while hiding "Chicken
+// Breast"). Not fixed here -- that's the person's own curation call, not
+// mine to silently reverse -- so 'chicken breast'/'chicken, breast' stay
+// in this list as a harmless no-op today that starts working the moment
+// those rows are unhidden; Turkey Breast (confirmed visible) covers the
+// real poultry recommendation in the meantime.
+type StageFoodGroup = { label: string; category: string; keywords: string[]; exclude?: string[] };
+
+const STAGE_1_GROUPS: StageFoodGroup[] = [
+  {
+    label: 'Proteins',
+    category: 'Meat',
+    keywords: ['turkey breast', 'turkey, breast', 'chicken breast', 'chicken, breast', 'cod', 'halibut', 'haddock'],
+    exclude: ['smoked'],
+  },
+  { label: 'Proteins', category: 'Dairy', keywords: ['chicken egg'], exclude: ['egg roll'] },
+  // Cooked, not raw, to start -- see this lens's own help text; browsing
+  // still surfaces every prep-state row (the guide's own "cook it first"
+  // is advisory, not a hard gate this app enforces by hiding raw rows).
+  {
+    label: 'Vegetables (cook first)',
+    category: 'Veg',
+    keywords: ['carrot', 'cucumber', 'zucchini', 'courgette', 'green bean', 'snap bean', 'bok choy', 'pak choi', 'lettuce', 'spinach'],
+  },
+  { label: 'Starches', category: 'Grain', keywords: ['rice, white'] },
+  { label: 'Starches', category: 'Veg', keywords: ['sweet potato'], exclude: ['syrup', 'french-fried', 'puff'] },
+  { label: 'Fruits (in moderation)', category: 'Fruit', keywords: ['blueberr', 'cantaloupe', 'kiwi', 'strawberr'], exclude: ['guava'] },
+  { label: 'Fats', category: 'Fats', keywords: ['olive oil', 'coconut oil'] },
+];
+
+// Stage 2's own real reintroduction rounds -- "cooked goitrogenic
+// vegetables and legumes first... nightshades next... dairy next...
+// gluten last." Legumes and the Gluten round both reuse this app's own
+// real, already-scored D1-D6 data (Goitrogenic Load / Gluten sub-
+// criteria) rather than a second, separate judgment call about which
+// foods count -- see foodsWithSubCriterionTag below. Nightshades has no
+// real per-food D1-D6 tag in the live database (checked directly, not
+// assumed -- the "Nightshades" sub-criterion referenced in this app's own
+// citation text turned out to have no matching row in the live
+// sub_criteria table), so that round is name-matched the same way Stage 1
+// is, against real, hand-verified nightshade vegetables instead.
+const STAGE_2_LEGUME_GROUP: StageFoodGroup = { label: 'Round 1: Legumes', category: 'Legume', keywords: [] };
+const STAGE_2_NIGHTSHADE_GROUP: StageFoodGroup = {
+  label: 'Round 2: Nightshades',
+  category: 'Veg',
+  keywords: ['tomato', 'potato', 'bell pepper', 'chili pepper', 'eggplant', 'aubergine'],
+  exclude: ['sweet potato', 'ketchup'],
+};
+const STAGE_2_GLUTEN_CATEGORIES = ['Grain', 'PastaNoodles', 'PantryStaples'];
+
+export type StageFood = { foodId: number; source: string; baseName: string; subcategory: string | null };
+export type StageFoodGroupResult = { label: string; foods: StageFood[] };
+
+async function queryStageGroup(group: StageFoodGroup, limit: number): Promise<StageFood[]> {
+  const db = await getReferenceDatabase();
+  const keywordClause = group.keywords.length > 0 ? group.keywords.map(() => 'base_name LIKE ?').join(' OR ') : '1';
+  const excludeClause = (group.exclude ?? []).map(() => 'base_name NOT LIKE ?').join(' AND ');
+  const rows = await db.getAllAsync<StageFood>(
+    `
+      SELECT food_id AS foodId, source, base_name AS baseName, subcategory
+      FROM foods
+      WHERE hidden = 0 AND category = ? AND (${keywordClause})
+      ${excludeClause ? `AND ${excludeClause}` : ''}
+    `,
+    stageGroupQueryParams(group),
+  );
+  const byName = new Map<string, StageFood>();
+  for (const row of rows) {
+    const key = row.baseName.toLowerCase();
+    if (!byName.has(key)) byName.set(key, row);
+  }
+  return Array.from(byName.values())
+    .sort((a, b) => a.baseName.localeCompare(b.baseName))
+    .slice(0, limit);
+}
+
+function stageGroupQueryParams(group: StageFoodGroup): (string | number)[] {
+  return [
+    group.category,
+    ...group.keywords.map((keyword) => `%${keyword}%`),
+    ...(group.exclude ?? []).map((keyword) => `%${keyword}%`),
+  ];
+}
+
+// Stage 1's own "eat" list -- grouped under real category headings
+// (Proteins/Vegetables/Starches/Fruits/Fats), each group's own real,
+// visible foods merged together when more than one STAGE_1_GROUPS entry
+// shares the same label (Proteins spans both Meat and Dairy).
+export async function listStage1Foods(): Promise<StageFoodGroupResult[]> {
+  const results = new Map<string, StageFood[]>();
+  for (const group of STAGE_1_GROUPS) {
+    const foods = await queryStageGroup(group, 60);
+    const existing = results.get(group.label) ?? [];
+    results.set(group.label, [...existing, ...foods].sort((a, b) => a.baseName.localeCompare(b.baseName)));
+  }
+  return Array.from(results.entries()).map(([label, foods]) => ({ label, foods }));
+}
+
+// Reused by Stage 2's own goitrogenic-vegetables half of Round 1 -- real
+// foods tagged with a given D1-D6 sub-criterion, any tier other than 'Not
+// Assessed' (a real tag either way is the actual signal here, not which
+// specific tier it landed on).
+async function foodsWithSubCriterionTag(subCriterion: string, category: string, limit: number): Promise<StageFood[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<StageFood>(
+    `
+      SELECT DISTINCT f.food_id AS foodId, f.source, f.base_name AS baseName, f.subcategory
+      FROM foods f
+      JOIN food_scores fs ON fs.food_id = f.food_id AND fs.source = f.source
+      JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+      WHERE f.hidden = 0 AND f.category = ? AND sc.sub_criterion = ? AND fs.tier != 'Not Assessed'
+    `,
+    category,
+    subCriterion,
+  );
+  const byName = new Map<string, StageFood>();
+  for (const row of rows) {
+    const key = row.baseName.toLowerCase();
+    if (!byName.has(key)) byName.set(key, row);
+  }
+  return Array.from(byName.values())
+    .sort((a, b) => a.baseName.localeCompare(b.baseName))
+    .slice(0, limit);
+}
+
+// Stage 2's own real reintroduction order, one round at a time --
+// "cooked goitrogenic vegetables and legumes first; nightshades next;
+// dairy next; gluten last."
+export async function listStage2ReintroductionRounds(): Promise<StageFoodGroupResult[]> {
+  const [legumes, goitrogenicVeg, nightshades, dairy] = await Promise.all([
+    queryStageGroup(STAGE_2_LEGUME_GROUP, 60),
+    foodsWithSubCriterionTag('Goitrogenic Load', 'Veg', 60),
+    queryStageGroup(STAGE_2_NIGHTSHADE_GROUP, 60),
+    queryStageGroup({ label: 'Round 3: Dairy', category: 'Dairy', keywords: [] }, 60),
+  ]);
+
+  const gluten = (
+    await Promise.all(STAGE_2_GLUTEN_CATEGORIES.map((category) => foodsWithSubCriterionTag('Gluten', category, 40)))
+  ).flat();
+
+  const round1 = [...legumes, ...goitrogenicVeg].sort((a, b) => a.baseName.localeCompare(b.baseName));
+
+  return [
+    { label: 'Round 1: Cooked Goitrogenic Vegetables & Legumes', foods: round1 },
+    { label: 'Round 2: Nightshades', foods: nightshades },
+    { label: 'Round 3: Dairy', foods: dairy },
+    { label: 'Round 4: Gluten', foods: gluten.sort((a, b) => a.baseName.localeCompare(b.baseName)).slice(0, 60) },
+  ];
+}
+
+// Insights' own Today's Additives & Advisories lens, 2026-08-08 -- "Right
+// now the alcohol/coffee/juice advisories only ever appear as small rows
+// buried inside four individual Food builders, one item at a time. There's
+// no single place to see everything those advisories cover across today's
+// whole log" (Lens Coverage Audit). Deliberately scoped to the 3 advisories
+// that already exist and already have real, verified per-food detection
+// logic (isAlcoholicFood/isCoffeeFood/isJuiceFood, all leaf modules with no
+// dependency back on this file, so importing them here carries no real
+// circular-import risk -- see this file's own precedent with
+// isFlaggedTier/sixDimensionsReference.ts just above for the same
+// reasoning). NOT a real per-food additive-detection system (the still-
+// unbuilt lib/additivesReference.ts CLAUDE.md names) -- that needs a real
+// per-food additive-tagging data layer this database doesn't have yet, and
+// guessing at one here would be exactly the kind of unverified claim this
+// app's own research discipline avoids everywhere else.
+export type TriggeredAdvisory = { kind: 'alcohol' | 'coffee' | 'juice'; foodName: string; mealName: string };
+
+export async function getTodaysAdvisories(date: string): Promise<TriggeredAdvisory[]> {
+  const meals = await listMealsForDate(date);
+  const triggered: TriggeredAdvisory[] = [];
+  const seenKeys = new Set<string>();
+
+  for (const meal of meals) {
+    const items = await getMealItems(meal.id);
+    for (const item of items) {
+      if (!item.foodId) continue;
+      const [foodIdStr, source] = item.foodId.split('|');
+      const foodId = Number(foodIdStr);
+      if (!source || Number.isNaN(foodId)) continue;
+
+      const identity = await getFoodIdentity(foodId, source);
+      if (!identity) continue;
+      const resolved = { category: identity.category, subcategory: identity.subcategory, baseName: identity.baseName };
+
+      const checks: { kind: TriggeredAdvisory['kind']; matches: boolean }[] = [
+        { kind: 'alcohol', matches: isAlcoholicFood(resolved) },
+        { kind: 'coffee', matches: isCoffeeFood(resolved) },
+        { kind: 'juice', matches: isJuiceFood(resolved) },
+      ];
+      for (const check of checks) {
+        if (!check.matches) continue;
+        const key = `${check.kind}|${foodId}|${source}`;
+        if (seenKeys.has(key)) continue;
+        seenKeys.add(key);
+        triggered.push({ kind: check.kind, foodName: identity.baseName, mealName: meal.name || meal.meal_type });
+      }
+    }
+  }
+
+  return triggered;
 }
 
 export type DietarySex = 'male' | 'female';
@@ -8132,14 +8535,16 @@ export type TrackedNutrient = {
 
 // Every nutrient this app tracks (the same list the Insights Nutrients
 // table and DRI targets are built from) -- what populates the ingredient
-// picker when documenting a supplement's per-dose contents.
+// picker when documenting a supplement's per-dose contents, AND (2026-08-08)
+// Insights' own Nutrient Ranking lens's picker -- the same real list
+// either way, not two separately-maintained copies of it.
 export async function listTrackedNutrients(): Promise<TrackedNutrient[]> {
   const db = await getReferenceDatabase();
   return db.getAllAsync<TrackedNutrient>(
     `
       SELECT code, display_name AS displayName, unit, nutrient_group AS "group"
       FROM nutrients
-      ORDER BY nutrient_group, display_name
+      ORDER BY CASE nutrient_group WHEN 'macro' THEN 0 WHEN 'vitamin' THEN 1 WHEN 'mineral' THEN 2 ELSE 3 END, display_name
     `,
   );
 }

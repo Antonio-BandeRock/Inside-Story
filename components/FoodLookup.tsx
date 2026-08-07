@@ -75,7 +75,11 @@ export type ResolvedFoodSelection = {
 // Products" convention -- renamed here so that's discoverable by the
 // label itself rather than a real category quietly hiding eggs with no
 // hint they're there.
-const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
+// Exported, 2026-08-08 -- Insights' own new Nutrient Ranking/Safe Foods/
+// Healing Stage lenses all need to show a real category name next to a
+// food, the same label this file's own picker already uses, rather than
+// a second, drifting copy of this same map.
+export const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   Bev: 'Beverages',
   // New 2026-08-02 -- dry, not-yet-brewed tea/coffee-type products (instant
   // powder, granules, ground tea), split out of Bev per explicit request:
@@ -158,7 +162,7 @@ const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   Veg: 'Vegetables',
 };
 
-function categoryLabel(category: string): string {
+export function categoryLabel(category: string): string {
   return CATEGORY_DISPLAY_LABELS[category] ?? category;
 }
 

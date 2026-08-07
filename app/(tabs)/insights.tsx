@@ -1,15 +1,40 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
+  classifyProteinSource,
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
+  getLabTests,
+  getTodaysAdvisories,
+  listAllActiveTreatments,
+  listLabResults,
+  listSafeFoodCategories,
+  listSafeFoods,
+  listStage1Foods,
+  listStage2ReintroductionRounds,
+  listTrackedNutrients,
+  rankFoodsByNutrient,
+  recordLabResult,
   type DailyDimensionScore,
   type DailyNutrientBreakdown,
   type DailyNutrientScopeTotals,
   type DailySixDimensionsBreakdown,
+  type LabResultRecord,
+  type LabTest,
+  type RankedFood,
+  type SafeFood,
+  type StageFood,
+  type StageFoodGroupResult,
+  type TrackedNutrient,
+  type TreatmentRecord,
+  type TriggeredAdvisory,
 } from '../../lib/db';
+import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE } from '../../lib/alcoholAdvisory';
+import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE } from '../../lib/coffeeAdvisory';
+import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
+import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE } from '../../lib/juiceAdvisory';
 import { analyzeNutrientIntake, formatAmount, nutrientStatusSeverity, type StatusSeverity } from '../../lib/nutrientAnalysis';
 import {
   NUTRIENT_STATUS_LABELS,
@@ -22,14 +47,17 @@ import {
   tierSeverity,
   type TierSeverity,
 } from '../../lib/sixDimensionsReference';
+import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
-import { FoodLookup } from '../../components/FoodLookup';
+import { FoodLookup, categoryLabel } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { linkifyText } from '../../components/InfoAlert';
 import type { HelpSection } from '../../components/HelpButton';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
+import { PopoverSelect } from '../../components/PopoverSelect';
+import { ProgressRing } from '../../components/ProgressRing';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import {
@@ -97,7 +125,18 @@ function worstTierSeverity(tiers: string[]): TierSeverity {
 // applied there, 2026-07-27.
 const TAB_COLOR = colors.tabInsights;
 
-type Lens = 'nutrients' | 'sixDs' | 'prep' | 'foodLookup';
+type Lens =
+  | 'nutrients'
+  | 'sixDs'
+  | 'prep'
+  | 'foodLookup'
+  | 'nutrientRanking'
+  | 'safeFoods'
+  | 'healingStage'
+  | 'hydration'
+  | 'labs'
+  | 'myMeds'
+  | 'advisories';
 
 // Shared across all three lenses' own Info content below -- the
 // drill-down navigator (ScopeHub) is the one mechanic all three have in
@@ -157,6 +196,111 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Food Lookup',
         body: "Look up any food in this app's own reference database -- pick a category, then (if that category has one) a more specific type, then the food itself -- to see its full nutrient, vitamin, and mineral breakdown per 100g. This is the same reference data every logged meal is scored against; it isn't tied to today's log or any drill-down scope, unlike the other three lenses here.",
+      },
+    ],
+  },
+  {
+    key: 'nutrientRanking',
+    label: 'Nutrient Ranking',
+    icon: 'bar-chart-outline',
+    help: [
+      {
+        heading: 'Nutrient Ranking',
+        body: 'Pick any nutrient this app tracks to see real foods ranked from most to least, per 100g -- a way to actually find foods to build a meal around, not just check one you already picked. Same reference data as Food Lookup, independent of today\'s log.',
+      },
+      {
+        heading: 'Protein: Animal vs. Plant',
+        body: 'Protein specifically splits into two ranked lists -- Animal (meat, poultry, fish, dairy, eggs) and Plant (legumes, nuts/seeds, grains, vegetables, fruit, mushrooms, algae) -- so a vegetarian can find their own high-protein foods just as easily as anyone else. Grouped by what you can actually eat, not strict biology (mushrooms and algae count as Plant here).',
+      },
+    ],
+  },
+  {
+    key: 'safeFoods',
+    label: 'Safe Foods',
+    icon: 'shield-checkmark-outline',
+    help: [
+      {
+        heading: 'Safe Foods',
+        body: "Foods with zero flagged concerns across every one of the 6 Dimensions -- nothing here should give the D1-D6 scoring any reason to worry, based on what this app has actually assessed. Pick a category to browse what qualifies within it.",
+      },
+      {
+        heading: 'What "safe" means here',
+        body: '"Not Assessed" (no data either way) and a real green rating both count as safe -- only an actual yellow or red flag on any of the 24 sub-criteria disqualifies a food. This is the same tier logic the 6 Dimensions lens itself uses, just applied across the whole reference database instead of one day\'s meals.',
+      },
+    ],
+  },
+  {
+    key: 'healingStage',
+    label: 'Healing Stage',
+    icon: 'leaf-outline',
+    help: [
+      {
+        heading: 'Stage 1: Getting Started',
+        body: "Real foods matching this app's own published Healing Stages guide -- a short, deliberately narrow list meant to build a stable, low-noise baseline, not variety. Grouped by Proteins, Vegetables, Starches, Fruits, and Fats.",
+      },
+      {
+        heading: 'Stage 2: Rebuilding',
+        body: 'A real, reasoned reintroduction order, one round at a time: cooked goitrogenic vegetables and legumes first, nightshades next, dairy next, gluten last and most cautiously. Tap a round to see real foods in it.',
+      },
+      {
+        heading: 'What this is not',
+        body: "This is a food finder, not a personal advisory reordering system -- it doesn't know which stage YOU are in (that would need a real self-declared field in Profile, which doesn't exist yet) or hide anything from you. It just shows real, verified foods that fit each stage's own published reasoning.",
+      },
+    ],
+  },
+  {
+    key: 'hydration',
+    label: 'Hydration',
+    icon: 'water-outline',
+    help: [
+      {
+        heading: 'Hydration',
+        body: "Today's total water intake against your own real target -- a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table -- this is just its own dedicated view.",
+      },
+    ],
+  },
+  {
+    key: 'labs',
+    label: 'Labs',
+    icon: 'flask-outline',
+    help: [
+      {
+        heading: 'Labs',
+        body: 'Your most recent result for every test you\'ve logged, plus how long ago it was drawn. Log a new result any time -- pick the test, enter the value and date, and (optionally) your own lab\'s reference range, since that varies by lab/assay and matters more than the educational typical range shown here.',
+      },
+      {
+        heading: "What isn't built yet",
+        body: "A real \"you're due for a retest\" reminder isn't built -- there's no standard interval for most tests, and guessing one would be worse than not claiming it. This is a log and a quick reference, not a scheduler.",
+      },
+    ],
+  },
+  {
+    key: 'myMeds',
+    label: 'My Meds & Interactions',
+    icon: 'medkit-outline',
+    help: [
+      {
+        heading: 'My Meds & Interactions',
+        body: 'A read-only view of what Schedule\'s own My Meds lens already tracks (prescriptions, OTC, supplements) plus every real interaction warning currently triggered -- calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
+      },
+      {
+        heading: 'Adding or editing',
+        body: "This lens doesn't add or edit anything -- to change what you're tracking, use Schedule's own My Meds lens. This is just a more visible, always-checked place to see what's currently flagged, without having to go looking for it.",
+      },
+    ],
+  },
+  {
+    key: 'advisories',
+    label: "Today's Advisories",
+    icon: 'information-circle-outline',
+    help: [
+      {
+        heading: "Today's Advisories",
+        body: 'Every real, cited advisory this app already has (alcohol, coffee, fruit juice) checked across your whole day at once, instead of only appearing one item at a time buried inside a Food builder.',
+      },
+      {
+        heading: "What isn't covered",
+        body: "This is scoped to the 3 advisories that already exist -- a real per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
       },
     ],
   },
@@ -306,6 +450,136 @@ export default function InsightsScreen() {
   const [expandedDimension, setExpandedDimension] = useState<string | null>(null);
   const [expandedTierKey, setExpandedTierKey] = useState<string | null>(null);
 
+  // Nutrient Ranking lens, 2026-08-08 -- independent of today's log (same
+  // "reference data, not today's meals" nature as Food Lookup), so this
+  // loads once on mount rather than on every focus change. `nutrients`
+  // itself never changes at runtime (static reference data); `rankedFoods`
+  // refetches only when the picked nutrient actually changes.
+  const [allNutrients, setAllNutrients] = useState<TrackedNutrient[]>([]);
+  const [rankingNutrient, setRankingNutrient] = useState<string | null>(null);
+  const [rankedFoods, setRankedFoods] = useState<RankedFood[]>([]);
+  const [rankingLoading, setRankingLoading] = useState(false);
+  useEffect(() => {
+    listTrackedNutrients().then(setAllNutrients);
+  }, []);
+  useEffect(() => {
+    if (!rankingNutrient) {
+      setRankedFoods([]);
+      return;
+    }
+    let isCurrent = true;
+    setRankingLoading(true);
+    rankFoodsByNutrient(rankingNutrient, 100).then((rows) => {
+      if (isCurrent) {
+        setRankedFoods(rows);
+        setRankingLoading(false);
+      }
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [rankingNutrient]);
+
+  // Safe Foods lens, 2026-08-08 -- same "independent of today's log,
+  // load once" nature as Nutrient Ranking above. Categories load once on
+  // mount (the underlying safe-food computation is cached for the whole
+  // session anyway, see getSafeFoodIds in lib/db.ts); the actual food list
+  // refetches only when the picked category changes.
+  const [safeFoodCategories, setSafeFoodCategories] = useState<string[]>([]);
+  const [safeFoodCategory, setSafeFoodCategory] = useState<string | null>(null);
+  const [safeFoods, setSafeFoods] = useState<SafeFood[]>([]);
+  const [safeFoodsLoading, setSafeFoodsLoading] = useState(false);
+  useEffect(() => {
+    listSafeFoodCategories().then(setSafeFoodCategories);
+  }, []);
+  useEffect(() => {
+    if (!safeFoodCategory) {
+      setSafeFoods([]);
+      return;
+    }
+    let isCurrent = true;
+    setSafeFoodsLoading(true);
+    listSafeFoods(safeFoodCategory, 200).then((rows) => {
+      if (isCurrent) {
+        setSafeFoods(rows);
+        setSafeFoodsLoading(false);
+      }
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [safeFoodCategory]);
+
+  // Healing Stage Food Finder lens, 2026-08-08 -- same "independent of
+  // today's log, load once" nature as the two lenses just above. Both
+  // stages' own food lists are static reference-data queries, so both
+  // load together on mount; `healingStageTab` just switches which already-
+  // loaded result set is showing, no separate per-tab fetch needed.
+  const [healingStageTab, setHealingStageTab] = useState<'stage1' | 'stage2'>('stage1');
+  const [stage1Groups, setStage1Groups] = useState<StageFoodGroupResult[]>([]);
+  const [stage2Rounds, setStage2Rounds] = useState<StageFoodGroupResult[]>([]);
+  const [healingStageLoading, setHealingStageLoading] = useState(true);
+  useEffect(() => {
+    Promise.all([listStage1Foods(), listStage2ReintroductionRounds()]).then(([stage1, stage2]) => {
+      setStage1Groups(stage1);
+      setStage2Rounds(stage2);
+      setHealingStageLoading(false);
+    });
+  }, []);
+
+  // Labs lens, 2026-08-08 -- unlike the four lenses above, this reads a
+  // real, growing personal log (lab_results), not static reference data,
+  // so it reloads every time the tab regains focus (useFocusEffect, same
+  // reasoning as the daily-breakdown fetch below) rather than loading
+  // once on mount.
+  const [labTests, setLabTests] = useState<LabTest[]>([]);
+  const [labResults, setLabResults] = useState<LabResultRecord[]>([]);
+  const [labsLoading, setLabsLoading] = useState(true);
+  const loadLabs = useCallback(() => {
+    setLabsLoading(true);
+    Promise.all([getLabTests(), listLabResults(undefined, 300)]).then(([tests, results]) => {
+      setLabTests(tests);
+      setLabResults(results);
+      setLabsLoading(false);
+    });
+  }, []);
+  useFocusEffect(useCallback(() => loadLabs(), [loadLabs]));
+
+  // My Meds & Interactions lens, 2026-08-08 -- a read-only surface over
+  // real, already-changing data (active treatments + live interaction
+  // checks), so this reloads on focus too, same reasoning as Labs above.
+  const [myMedsTreatments, setMyMedsTreatments] = useState<TreatmentRecord[]>([]);
+  const [myMedsWarnings, setMyMedsWarnings] = useState<InteractionWarning[]>([]);
+  const [myMedsReferenceOnly, setMyMedsReferenceOnly] = useState<ReferenceOnlyRule[]>([]);
+  const [myMedsLoading, setMyMedsLoading] = useState(true);
+  useFocusEffect(
+    useCallback(() => {
+      setMyMedsLoading(true);
+      Promise.all([listAllActiveTreatments(), evaluateInteractionRules(todayDateString())]).then(
+        ([treatments, evaluation]) => {
+          setMyMedsTreatments(treatments);
+          setMyMedsWarnings(evaluation.warnings);
+          setMyMedsReferenceOnly(evaluation.referenceOnly);
+          setMyMedsLoading(false);
+        },
+      );
+    }, []),
+  );
+
+  // Today's Advisories lens, 2026-08-08 -- today's real, changing log, so
+  // this reloads on focus too, same reasoning as Labs/My Meds above.
+  const [advisories, setAdvisories] = useState<TriggeredAdvisory[]>([]);
+  const [advisoriesLoading, setAdvisoriesLoading] = useState(true);
+  useFocusEffect(
+    useCallback(() => {
+      setAdvisoriesLoading(true);
+      getTodaysAdvisories(todayDateString()).then((rows) => {
+        setAdvisories(rows);
+        setAdvisoriesLoading(false);
+      });
+    }, []),
+  );
+
   // useFocusEffect (not a plain useEffect) -- Expo Router's tab screens
   // stay mounted in the background when you switch tabs, they don't
   // unmount, so a one-time useEffect only ever fetched once for this
@@ -372,7 +646,63 @@ export default function InsightsScreen() {
               style={styles.body}
               contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
             >
-              {loading ? (
+              {lens === 'nutrientRanking' ? (
+              // Independent of today's log (same reference-data nature as
+              // Food Lookup) -- checked ahead of `loading`/`errorMessage`
+              // below, which are specific to the daily-breakdown fetch this
+              // lens never waits on.
+              <NutrientRankingView
+                nutrients={allNutrients}
+                selected={rankingNutrient}
+                onSelect={setRankingNutrient}
+                rankedFoods={rankedFoods}
+                loading={rankingLoading}
+                tabColor={TAB_COLOR}
+              />
+            ) : lens === 'safeFoods' ? (
+              // Also independent of today's log -- same reasoning as
+              // nutrientRanking just above.
+              <SafeFoodsView
+                categories={safeFoodCategories}
+                selected={safeFoodCategory}
+                onSelect={setSafeFoodCategory}
+                foods={safeFoods}
+                loading={safeFoodsLoading}
+                tabColor={TAB_COLOR}
+              />
+            ) : lens === 'healingStage' ? (
+              // Also independent of today's log -- same reasoning as
+              // nutrientRanking/safeFoods just above.
+              <HealingStageView
+                tab={healingStageTab}
+                onTabChange={setHealingStageTab}
+                stage1Groups={stage1Groups}
+                stage2Rounds={stage2Rounds}
+                loading={healingStageLoading}
+                tabColor={TAB_COLOR}
+              />
+            ) : lens === 'labs' ? (
+              // A real, growing personal log, not reference data -- see
+              // loadLabs' own comment above for why this one lens still
+              // reloads on focus like nutrients/sixDs/prep do.
+              <LabsView
+                labTests={labTests}
+                labResults={labResults}
+                loading={labsLoading}
+                onSaved={loadLabs}
+                tabColor={TAB_COLOR}
+              />
+            ) : lens === 'myMeds' ? (
+              <MyMedsView
+                treatments={myMedsTreatments}
+                warnings={myMedsWarnings}
+                referenceOnly={myMedsReferenceOnly}
+                loading={myMedsLoading}
+                tabColor={TAB_COLOR}
+              />
+            ) : lens === 'advisories' ? (
+              <AdvisoriesView advisories={advisories} loading={advisoriesLoading} tabColor={TAB_COLOR} />
+            ) : loading ? (
               <Text style={styles.emptyText}>Loading…</Text>
             ) : errorMessage ? (
               <Text style={styles.errorText}>{errorMessage}</Text>
@@ -381,6 +711,12 @@ export default function InsightsScreen() {
                 <Text style={styles.emptyText}>Save a meal to see this.</Text>
               ) : (
                 <NutrientsTable breakdown={nutrientBreakdown} scope={scope} />
+              )
+            ) : lens === 'hydration' ? (
+              !nutrientBreakdown || nutrientBreakdown.meals.length === 0 ? (
+                <Text style={styles.emptyText}>Save a meal to see this.</Text>
+              ) : (
+                <HydrationView breakdown={nutrientBreakdown} tabColor={TAB_COLOR} />
               )
             ) : !dimensionsBreakdown || dimensionsBreakdown.meals.length === 0 ? (
               <Text style={styles.emptyText}>Save a meal to see this.</Text>
@@ -408,7 +744,15 @@ export default function InsightsScreen() {
           everything else rather than staying put. Gated on `revealed` too --
           doesn't make sense to offer a drill-down into content that isn't
           risen/showing yet. */}
-      {!revealed || lens === 'foodLookup'
+      {!revealed ||
+      lens === 'foodLookup' ||
+      lens === 'nutrientRanking' ||
+      lens === 'safeFoods' ||
+      lens === 'healingStage' ||
+      lens === 'hydration' ||
+      lens === 'labs' ||
+      lens === 'myMeds' ||
+      lens === 'advisories'
         ? null
         : lens === 'nutrients'
         ? nutrientBreakdown && nutrientBreakdown.meals.length > 0 && (
@@ -540,6 +884,56 @@ export function NutrientsTable({
         </Text>
       ) : null}
     </>
+  );
+}
+
+// Hydration lens, 2026-08-08 -- "already explicitly named and not yet
+// built. A dedicated ring or section instead of one more row buried in
+// the Nutrients table" (Lens Coverage Audit). Whole-day only, deliberately
+// simpler than NutrientsTable's own scope-drillable table -- a single,
+// glanceable ring is the whole point here, not a second full table.
+// Reuses the exact same analyzeNutrientIntake call NutrientsTable's own
+// day-scope branch already makes; water's own amount is stored in grams
+// (see scripts/build_food_reference_db.py's own DIETARY_REFERENCE_INTAKES),
+// numerically equivalent to mL for water specifically (density ~1g/mL),
+// converted to liters here purely for a more readable display.
+function HydrationView({ breakdown, tabColor }: { breakdown: DailyNutrientBreakdown; tabColor: string }) {
+  const entries = analyzeNutrientIntake(breakdown.driRows, breakdown.dayTotals, breakdown.supplementTotals);
+  const water = entries.find((entry) => entry.nutrientCode === 'water');
+
+  if (!water) {
+    return <Text style={styles.emptyText}>No water target found -- check your sex and birth date in Profile.</Text>;
+  }
+
+  const litersConsumed = water.combinedTotal / 1000;
+  const litersTarget = water.target / 1000;
+
+  return (
+    <View style={styles.hydrationWrap}>
+      <ProgressRing
+        percent={water.percentOfTarget}
+        color={tabColor}
+        size={150}
+        strokeWidth={12}
+        label={`${litersConsumed.toFixed(1)}L`}
+        sublabel={`of ${litersTarget.toFixed(1)}L`}
+      />
+      <Text style={[styles.hydrationStatus, { color: tabColor }]}>
+        {NUTRIENT_STATUS_LABELS[water.status] ?? water.status} ({Math.round(water.percentOfTarget)}%)
+      </Text>
+      <Text style={styles.hydrationNote}>
+        Counts everything logged today, drinks and water-rich foods alike (soup, watermelon, and similar all
+        contribute) -- not just what you drank directly.
+      </Text>
+      {!breakdown.profileComplete ? (
+        <View style={styles.noticeCard}>
+          <Text style={styles.noticeText}>
+            Your sex and birth date aren&apos;t set in Profile, so this target covers every applicable population
+            rather than one tailored to you.
+          </Text>
+        </View>
+      ) : null}
+    </View>
   );
 }
 
@@ -921,6 +1315,637 @@ export function PrepView({
   );
 }
 
+// Nutrient Ranking lens, 2026-08-08 -- "a lens that is used to show food
+// items based on how much of any specific thing is within them, such as
+// to provide the list of foods in order of most protein to least, but
+// separated by whether they are animal protein versus plant protein."
+// Plain PopoverSelect + mapped rows, the same shape NutrientsTable/
+// SixDsView above already use -- no FlatList needed at this scale (100
+// rows max, see rankFoodsByNutrient's own limit).
+function NutrientRankingView({
+  nutrients,
+  selected,
+  onSelect,
+  rankedFoods,
+  loading,
+  tabColor,
+}: {
+  nutrients: TrackedNutrient[];
+  selected: string | null;
+  onSelect: (code: string) => void;
+  rankedFoods: RankedFood[];
+  loading: boolean;
+  tabColor: string;
+}) {
+  const nutrientOptions = nutrients.map((n) => ({ label: `${n.displayName} (${n.unit})`, value: n.code }));
+  const selectedNutrient = nutrients.find((n) => n.code === selected) ?? null;
+
+  function renderRow(food: RankedFood, rank: number) {
+    return (
+      <View key={`${food.category}|${food.foodId}|${food.source}`} style={styles.rankRow}>
+        <Text style={styles.rankNumber}>{rank}</Text>
+        <View style={styles.rankTextWrap}>
+          <Text style={styles.rankFoodName} numberOfLines={1}>
+            {food.baseName}
+          </Text>
+          <Text style={styles.rankFoodCategory} numberOfLines={1}>
+            {categoryLabel(food.category)}
+            {food.subcategory ? ` · ${food.subcategory}` : ''}
+          </Text>
+        </View>
+        <Text style={styles.rankAmount}>{formatAmount(food.amountPer100g, selectedNutrient?.unit ?? '')}</Text>
+      </View>
+    );
+  }
+
+  return (
+    <>
+      <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
+      <PopoverSelect
+        options={nutrientOptions}
+        selected={selected}
+        onSelect={onSelect}
+        tabColor={tabColor}
+        searchable
+        placeholder="Pick a nutrient..."
+        minWidth={220}
+      />
+      {!selected ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>
+          Pick a nutrient above to see real foods ranked by how much of it they contain, per 100g.
+        </Text>
+      ) : loading ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+      ) : rankedFoods.length === 0 ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>No foods with a measured amount of this found.</Text>
+      ) : selected === 'protein' ? (
+        // Protein specifically splits into Animal vs. Plant -- see
+        // classifyProteinSource's own comment in lib/db.ts for exactly
+        // which categories land where and why. A food whose category isn't
+        // a real "protein source" category at all (a sauce, a sweetener)
+        // is simply left out of both lists rather than forced into either.
+        <>
+          <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Animal Protein</Text>
+          <View style={styles.table}>
+            {(() => {
+              const animal = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'animal');
+              return animal.length === 0 ? (
+                <Text style={styles.emptyText}>None found.</Text>
+              ) : (
+                animal.map((food, index) => renderRow(food, index + 1))
+              );
+            })()}
+          </View>
+          <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Plant Protein</Text>
+          <View style={styles.table}>
+            {(() => {
+              const plant = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'plant');
+              return plant.length === 0 ? (
+                <Text style={styles.emptyText}>None found.</Text>
+              ) : (
+                plant.map((food, index) => renderRow(food, index + 1))
+              );
+            })()}
+          </View>
+        </>
+      ) : (
+        <View style={[styles.table, styles.rankSpaced]}>{rankedFoods.map((food, index) => renderRow(food, index + 1))}</View>
+      )}
+    </>
+  );
+}
+
+// Safe Foods lens, 2026-08-08 -- "foods listed in this section have zero
+// relevance to the 6-DFF and will not cause a problem for them if they eat
+// it." A category picker (only categories that actually have at least one
+// qualifying food, per listSafeFoodCategories) plus the real, deduped list
+// within it -- see listSafeFoods' own comment in lib/db.ts for exactly
+// what "safe" means here.
+function SafeFoodsView({
+  categories,
+  selected,
+  onSelect,
+  foods,
+  loading,
+  tabColor,
+}: {
+  categories: string[];
+  selected: string | null;
+  onSelect: (category: string) => void;
+  foods: SafeFood[];
+  loading: boolean;
+  tabColor: string;
+}) {
+  const categoryOptions = categories.map((category) => ({ label: categoryLabel(category), value: category }));
+
+  return (
+    <>
+      <Text style={[styles.sectionLabel, { color: tabColor }]}>Category</Text>
+      <PopoverSelect
+        options={categoryOptions}
+        selected={selected}
+        onSelect={onSelect}
+        tabColor={tabColor}
+        searchable
+        placeholder="Pick a category..."
+        minWidth={220}
+      />
+      {!selected ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>
+          Pick a category above to see which of its foods have zero flagged 6 Dimensions concerns.
+        </Text>
+      ) : loading ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+      ) : foods.length === 0 ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>No fully unflagged foods found in this category.</Text>
+      ) : (
+        <View style={[styles.table, styles.rankSpaced]}>
+          {foods.map((food) => (
+            <View key={`${food.category}|${food.foodId}|${food.source}`} style={styles.rankRow}>
+              <Ionicons name="shield-checkmark-outline" size={16} color={tabColor} style={textShadow} />
+              <View style={styles.rankTextWrap}>
+                <Text style={styles.rankFoodName} numberOfLines={1}>
+                  {food.baseName}
+                </Text>
+                {food.subcategory ? (
+                  <Text style={styles.rankFoodCategory} numberOfLines={1}>
+                    {food.subcategory}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+          ))}
+        </View>
+      )}
+    </>
+  );
+}
+
+// Healing Stage Food Finder lens, 2026-08-08 -- "a lens that identifies
+// foods based on the Healing Stages." Stage 1 shows its own grouped "eat"
+// list directly; Stage 2 shows its own real reintroduction rounds, each
+// collapsible so a long combined list doesn't dump every round's worth of
+// foods on screen at once -- see listStage1Foods/listStage2ReintroductionRounds'
+// own comments in lib/db.ts for exactly how each group/round is built.
+function HealingStageView({
+  tab,
+  onTabChange,
+  stage1Groups,
+  stage2Rounds,
+  loading,
+  tabColor,
+}: {
+  tab: 'stage1' | 'stage2';
+  onTabChange: (tab: 'stage1' | 'stage2') => void;
+  stage1Groups: StageFoodGroupResult[];
+  stage2Rounds: StageFoodGroupResult[];
+  loading: boolean;
+  tabColor: string;
+}) {
+  const [expandedRound, setExpandedRound] = useState<string | null>(null);
+  const groups = tab === 'stage1' ? stage1Groups : stage2Rounds;
+
+  function renderFoodRow(food: StageFood) {
+    return (
+      <View key={`${food.foodId}|${food.source}`} style={styles.rankRow}>
+        <View style={styles.rankTextWrap}>
+          <Text style={styles.rankFoodName} numberOfLines={1}>
+            {food.baseName}
+          </Text>
+          {food.subcategory ? (
+            <Text style={styles.rankFoodCategory} numberOfLines={1}>
+              {food.subcategory}
+            </Text>
+          ) : null}
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <>
+      <View style={styles.pillWrap}>
+        <TouchableOpacity
+          style={[styles.stagePill, tab === 'stage1' ? { backgroundColor: tabColor, borderColor: tabColor } : { borderColor: tabColor }]}
+          onPress={() => onTabChange('stage1')}
+        >
+          <Text style={[styles.stagePillText, tab === 'stage1' ? styles.stagePillTextActive : { color: tabColor }]}>
+            Stage 1: Getting Started
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.stagePill, tab === 'stage2' ? { backgroundColor: tabColor, borderColor: tabColor } : { borderColor: tabColor }]}
+          onPress={() => onTabChange('stage2')}
+        >
+          <Text style={[styles.stagePillText, tab === 'stage2' ? styles.stagePillTextActive : { color: tabColor }]}>
+            Stage 2: Rebuilding
+          </Text>
+        </TouchableOpacity>
+      </View>
+
+      {loading ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+      ) : tab === 'stage1' ? (
+        // Stage 1's own groups always show in full -- a deliberately short
+        // list by design (see this lens's own help text), so there's
+        // nothing to collapse.
+        groups.map((group) => (
+          <View key={group.label} style={styles.rankSpaced}>
+            <Text style={[styles.rankGroupHeading, { color: tabColor }]}>{group.label}</Text>
+            {group.foods.length === 0 ? (
+              <Text style={styles.emptyText}>None found.</Text>
+            ) : (
+              <View style={styles.table}>{group.foods.map(renderFoodRow)}</View>
+            )}
+          </View>
+        ))
+      ) : (
+        // Stage 2's own rounds each collapse to just their heading until
+        // tapped -- one open at a time, the same accordion shape SixDsView
+        // above already uses, so browsing four real rounds' worth of foods
+        // doesn't mean scrolling past all of them at once.
+        groups.map((round) => {
+          const expanded = expandedRound === round.label;
+          return (
+            <TouchableOpacity
+              key={round.label}
+              style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}
+              onPress={() => setExpandedRound((current) => (current === round.label ? null : round.label))}
+              activeOpacity={0.7}
+            >
+              <View style={styles.roundHeaderRow}>
+                <Text style={[styles.rankGroupHeading, { color: tabColor }]}>{round.label}</Text>
+                <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={18} color={tabColor} />
+              </View>
+              {expanded ? (
+                round.foods.length === 0 ? (
+                  <Text style={[styles.emptyText, styles.rankSpaced]}>None found.</Text>
+                ) : (
+                  <View style={[styles.table, styles.rankSpaced]}>{round.foods.map(renderFoodRow)}</View>
+                )
+              ) : null}
+            </TouchableOpacity>
+          );
+        })
+      )}
+    </>
+  );
+}
+
+// Labs lens, 2026-08-08 -- "Most recent results plus when the next retest
+// is actually due" (Lens Coverage Audit), scoped down to "most recent
+// results plus how long ago" -- see this lens's own help text for why a
+// real due-date calculation isn't attempted (no real standard interval to
+// build one from). lab_results/lab_tests are both real, already-built
+// infrastructure (recordLabResult/listLabResults/getLabTests) that simply
+// had zero UI anywhere in the app before this.
+const LAB_DATE_YEAR_OPTIONS = Array.from({ length: 6 }, (_, i) => String(new Date().getFullYear() - i));
+const LAB_DATE_MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const LAB_DATE_DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => String(i + 1));
+
+function daysAgoLabel(dateString: string): string {
+  const then = new Date(`${dateString.slice(0, 10)}T00:00:00`);
+  const now = new Date();
+  const days = Math.max(0, Math.round((now.getTime() - then.getTime()) / (1000 * 60 * 60 * 24)));
+  if (days === 0) return 'today';
+  if (days === 1) return '1 day ago';
+  if (days < 30) return `${days} days ago`;
+  const months = Math.round(days / 30);
+  if (months < 12) return `${months} month${months === 1 ? '' : 's'} ago`;
+  const years = Math.round(days / 365);
+  return `${years} year${years === 1 ? '' : 's'} ago`;
+}
+
+function LabsView({
+  labTests,
+  labResults,
+  loading,
+  onSaved,
+  tabColor,
+}: {
+  labTests: LabTest[];
+  labResults: LabResultRecord[];
+  loading: boolean;
+  onSaved: () => void;
+  tabColor: string;
+}) {
+  const [formOpen, setFormOpen] = useState(false);
+  const [formTestCode, setFormTestCode] = useState<string | null>(null);
+  const [formValue, setFormValue] = useState('');
+  const [formLabName, setFormLabName] = useState('');
+  const now = new Date();
+  const [formYear, setFormYear] = useState(String(now.getFullYear()));
+  const [formMonth, setFormMonth] = useState(String(now.getMonth() + 1));
+  const [formDay, setFormDay] = useState(String(now.getDate()));
+  const [saving, setSaving] = useState(false);
+
+  const testByCode = new Map(labTests.map((test) => [test.code, test]));
+  const testOptions = labTests.map((test) => ({ label: test.displayName, value: test.code }));
+
+  // Most recent result per test -- listLabResults already returns
+  // most-recent-first, so the first row seen per testCode is the one to
+  // keep.
+  const mostRecentByTest = new Map<string, LabResultRecord>();
+  for (const result of labResults) {
+    if (!mostRecentByTest.has(result.testCode)) mostRecentByTest.set(result.testCode, result);
+  }
+  const recentResults = Array.from(mostRecentByTest.values()).sort((a, b) => b.testedAt.localeCompare(a.testedAt));
+
+  function resetForm() {
+    setFormTestCode(null);
+    setFormValue('');
+    setFormLabName('');
+    setFormYear(String(now.getFullYear()));
+    setFormMonth(String(now.getMonth() + 1));
+    setFormDay(String(now.getDate()));
+  }
+
+  async function handleSave() {
+    if (!formTestCode) {
+      Alert.alert('Pick a test first.');
+      return;
+    }
+    const value = Number(formValue);
+    if (!Number.isFinite(value)) {
+      Alert.alert('Enter a valid number for the result.');
+      return;
+    }
+    const year = Number(formYear);
+    const month = Number(formMonth);
+    const day = Number(formDay);
+    const pad = (n: number) => String(n).padStart(2, '0');
+    const testedAt = `${year}-${pad(month)}-${pad(day)}`;
+    const test = testByCode.get(formTestCode);
+    setSaving(true);
+    try {
+      await recordLabResult({
+        testCode: formTestCode,
+        value,
+        unit: test?.rangeUnit ?? '',
+        testedAt,
+        labName: formLabName.trim() || undefined,
+      });
+    } catch (error) {
+      setSaving(false);
+      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      return;
+    }
+    setSaving(false);
+    setFormOpen(false);
+    resetForm();
+    onSaved();
+  }
+
+  return (
+    <>
+      {loading ? (
+        <Text style={styles.emptyText}>Loading…</Text>
+      ) : recentResults.length === 0 ? (
+        <Text style={styles.emptyText}>Nothing logged yet -- tap below to log your first result.</Text>
+      ) : (
+        <View style={styles.table}>
+          {recentResults.map((result) => {
+            const test = testByCode.get(result.testCode);
+            const low = result.labRangeLow ?? test?.typicalRangeLow ?? null;
+            const high = result.labRangeHigh ?? test?.typicalRangeHigh ?? null;
+            const outsideRange = low != null && high != null && (result.value < low || result.value > high);
+            return (
+              <View key={result.testCode} style={styles.rankRow}>
+                <View style={styles.rankTextWrap}>
+                  <Text style={styles.rankFoodName} numberOfLines={1}>
+                    {test?.displayName ?? result.testCode}
+                  </Text>
+                  <Text style={styles.rankFoodCategory} numberOfLines={1}>
+                    {daysAgoLabel(result.testedAt)}
+                    {outsideRange ? ' · outside typical range' : ''}
+                  </Text>
+                </View>
+                <Text style={styles.rankAmount}>
+                  {result.value} {result.unit}
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+
+      {formOpen ? (
+        <View style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
+          <Text style={[styles.sectionLabel, { color: tabColor }]}>Test</Text>
+          <PopoverSelect
+            options={testOptions}
+            selected={formTestCode}
+            onSelect={setFormTestCode}
+            tabColor={tabColor}
+            searchable
+            placeholder="Pick a test..."
+            minWidth={220}
+          />
+          <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>
+            Result{testByCode.get(formTestCode ?? '')?.rangeUnit ? ` (${testByCode.get(formTestCode ?? '')?.rangeUnit})` : ''}
+          </Text>
+          <AppTextInput
+            style={styles.labInput}
+            value={formValue}
+            onChangeText={setFormValue}
+            placeholder="e.g. 2.4"
+            placeholderTextColor={colors.textMuted}
+            keyboardType="decimal-pad"
+          />
+          <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Date Drawn</Text>
+          <View style={styles.labDateRow}>
+            <PopoverSelect options={LAB_DATE_YEAR_OPTIONS} selected={formYear} onSelect={setFormYear} tabColor={tabColor} minWidth={72} />
+            <PopoverSelect options={LAB_DATE_MONTH_OPTIONS} selected={formMonth} onSelect={setFormMonth} tabColor={tabColor} minWidth={52} />
+            <PopoverSelect options={LAB_DATE_DAY_OPTIONS} selected={formDay} onSelect={setFormDay} tabColor={tabColor} minWidth={52} />
+          </View>
+          <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Lab Name (optional)</Text>
+          <AppTextInput
+            style={styles.labInput}
+            value={formLabName}
+            onChangeText={setFormLabName}
+            placeholder="e.g. Quest Diagnostics"
+            placeholderTextColor={colors.textMuted}
+          />
+          <View style={styles.buttonRow}>
+            <TouchableOpacity
+              style={[styles.secondaryButton, { flex: 1 }]}
+              onPress={() => {
+                setFormOpen(false);
+                resetForm();
+              }}
+            >
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, opacity: saving ? 0.6 : 1 }]}
+              onPress={handleSave}
+              disabled={saving}
+            >
+              <Text style={styles.primaryButtonText}>{saving ? 'Saving…' : 'Save Result'}</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      ) : (
+        <TouchableOpacity
+          style={[styles.secondaryButton, styles.rankSpaced, { borderWidth: 1, borderColor: tabColor }]}
+          onPress={() => setFormOpen(true)}
+        >
+          <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Log a Result</Text>
+        </TouchableOpacity>
+      )}
+    </>
+  );
+}
+
+// My Meds & Interactions lens, 2026-08-08 -- "today's active regimen plus
+// everything currently flagged... an already-built engine, and the My
+// Meds registry itself, far more visible day to day" (Lens Coverage
+// Audit). Deliberately read-only -- adding/editing a treatment stays on
+// Schedule's own My Meds lens, the same "one real place owns writing this
+// data" boundary Hydration already keeps with Meals.
+function MyMedsView({
+  treatments,
+  warnings,
+  referenceOnly,
+  loading,
+  tabColor,
+}: {
+  treatments: TreatmentRecord[];
+  warnings: InteractionWarning[];
+  referenceOnly: ReferenceOnlyRule[];
+  loading: boolean;
+  tabColor: string;
+}) {
+  if (loading) {
+    return <Text style={styles.emptyText}>Loading…</Text>;
+  }
+
+  function renderGroup(label: string, type: string) {
+    const items = treatments.filter((treatment) => treatment.treatmentType === type);
+    if (items.length === 0) return null;
+    return (
+      <View style={styles.rankSpaced}>
+        <Text style={[styles.rankGroupHeading, { color: tabColor }]}>{label}</Text>
+        <View style={styles.table}>
+          {items.map((treatment) => (
+            <View key={treatment.id} style={styles.rankRow}>
+              <View style={styles.rankTextWrap}>
+                <Text style={styles.rankFoodName} numberOfLines={1}>
+                  {treatment.name}
+                </Text>
+                {treatment.doseAmount != null ? (
+                  <Text style={styles.rankFoodCategory} numberOfLines={1}>
+                    {treatment.doseAmount} {treatment.doseUnit}
+                    {treatment.frequency ? ` · ${treatment.frequency}` : ''}
+                  </Text>
+                ) : null}
+              </View>
+            </View>
+          ))}
+        </View>
+      </View>
+    );
+  }
+
+  return (
+    <>
+      {warnings.length > 0 ? (
+        <View style={styles.rankSpaced}>
+          <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Things to check</Text>
+          {warnings.map((warning, index) => (
+            <View key={`${warning.ruleId}_${index}`} style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
+              <Text style={[styles.rankFoodName, { color: tabColor }]}>{warning.title}</Text>
+              <Text style={styles.myMedsMessage}>{warning.message}</Text>
+              {warning.confidence === 'unverified' ? (
+                <Text style={styles.myMedsMeta}>Not checked precisely -- add dose times to verify.</Text>
+              ) : null}
+              <Text style={styles.myMedsCitation}>{warning.citation}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      {referenceOnly.length > 0 ? (
+        <View style={styles.rankSpaced}>
+          <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Worth knowing (reference only)</Text>
+          {referenceOnly.map((rule) => (
+            <View key={rule.ruleId} style={[styles.formCard, styles.rankSpaced, { borderColor: colors.border }]}>
+              <Text style={styles.rankFoodName}>{rule.title}</Text>
+              <Text style={styles.myMedsMessage}>{rule.guidance}</Text>
+              <Text style={styles.myMedsCitation}>{rule.citation}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      {treatments.length === 0 ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>
+          Nothing tracked yet -- add a prescription, OTC drug, or supplement on Schedule&apos;s own My Meds lens.
+        </Text>
+      ) : (
+        <>
+          {renderGroup('Prescriptions', 'prescription')}
+          {renderGroup('OTC', 'otc')}
+          {renderGroup('Supplements', 'supplement')}
+        </>
+      )}
+    </>
+  );
+}
+
+const ADVISORY_META: Record<TriggeredAdvisory['kind'], { title: string; message: string; icon: keyof typeof Ionicons.glyphMap }> = {
+  alcohol: { title: ALCOHOL_ADVISORY_TITLE, message: ALCOHOL_ADVISORY_MESSAGE, icon: 'wine-outline' },
+  coffee: { title: COFFEE_ADVISORY_TITLE, message: COFFEE_ADVISORY_MESSAGE, icon: 'cafe-outline' },
+  juice: { title: JUICE_ADVISORY_TITLE, message: JUICE_ADVISORY_MESSAGE, icon: 'nutrition-outline' },
+};
+
+// Today's Advisories lens, 2026-08-08 -- see getTodaysAdvisories' own
+// comment in lib/db.ts for exactly what's checked and why the scope stops
+// at these 3. Grouped by kind, since the same advisory can trigger more
+// than once in a day (coffee at breakfast AND after lunch, say) -- one
+// real card per kind, listing every food/meal that triggered it.
+function AdvisoriesView({ advisories, loading, tabColor }: { advisories: TriggeredAdvisory[]; loading: boolean; tabColor: string }) {
+  if (loading) {
+    return <Text style={styles.emptyText}>Loading…</Text>;
+  }
+  if (advisories.length === 0) {
+    return (
+      <Text style={styles.emptyText}>
+        Nothing triggered today -- no alcohol, coffee, or plain fruit juice logged so far.
+      </Text>
+    );
+  }
+
+  const byKind = new Map<TriggeredAdvisory['kind'], TriggeredAdvisory[]>();
+  for (const advisory of advisories) {
+    const existing = byKind.get(advisory.kind) ?? [];
+    byKind.set(advisory.kind, [...existing, advisory]);
+  }
+
+  return (
+    <>
+      {Array.from(byKind.entries()).map(([kind, items]) => {
+        const meta = ADVISORY_META[kind];
+        return (
+          <View key={kind} style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
+            <View style={styles.advisoryHeaderRow}>
+              <Ionicons name={meta.icon} size={18} color={tabColor} style={textShadow} />
+              <Text style={[styles.rankFoodName, styles.advisoryTitle, { color: tabColor }]}>{meta.title}</Text>
+            </View>
+            <Text style={styles.myMedsMessage}>{meta.message}</Text>
+            <Text style={[styles.rankGroupHeading, styles.rankSpaced]}>Today</Text>
+            {items.map((item, index) => (
+              <Text key={index} style={styles.myMedsMessage}>
+                {item.foodName} -- {item.mealName}
+              </Text>
+            ))}
+          </View>
+        );
+      })}
+    </>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: {
     flex: 1,
@@ -1238,4 +2263,92 @@ const styles = StyleSheet.create({
     color: TAB_COLOR,
     lineHeight: 18,
   },
+  // Nutrient Ranking lens, 2026-08-08.
+  rankSpaced: { marginTop: 14 },
+  rankGroupHeading: { ...typography.eyebrow, marginBottom: 8 },
+  rankRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+    gap: 10,
+  },
+  rankNumber: {
+    ...typography.captionEmphasis,
+    color: TAB_COLOR,
+    width: 22,
+    textAlign: 'right',
+  },
+  rankTextWrap: { flex: 1 },
+  rankFoodName: { ...typography.bodyEmphasis, color: colors.textPrimary },
+  rankFoodCategory: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
+  rankAmount: { ...typography.captionEmphasis, color: TAB_COLOR },
+  // Healing Stage lens, 2026-08-08.
+  pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  stagePill: {
+    borderWidth: 1,
+    borderRadius: 999,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
+  stagePillText: { ...typography.captionEmphasis },
+  stagePillTextActive: { color: colors.textOnPrimary },
+  // Same colors.surface/2px-tabColor-border treatment every other card on
+  // this page already uses (see table's own comment above) -- a round is
+  // a tappable card (the whole thing opens/closes on tap), not a plain row.
+  formCard: {
+    borderWidth: 2,
+    borderRadius: 10,
+    backgroundColor: colors.surface,
+    padding: 12,
+  },
+  roundHeaderRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  // Hydration lens, 2026-08-08.
+  hydrationWrap: { alignItems: 'center', paddingTop: 12 },
+  hydrationStatus: { ...typography.bodyEmphasis, marginTop: 12 },
+  hydrationNote: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    marginTop: 10,
+    maxWidth: 280,
+  },
+  // Labs lens, 2026-08-08 -- this page's first real form, so these four
+  // (button row/primary/secondary button) are new here even though the
+  // exact same shape already exists in most other tabs' own files.
+  buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
+  primaryButton: {
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  secondaryButton: {
+    borderRadius: 8,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    alignItems: 'center',
+  },
+  secondaryButtonText: { ...typography.bodyEmphasis },
+  labInput: {
+    ...typography.body,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    marginTop: 4,
+  },
+  labDateRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  // My Meds & Interactions lens, 2026-08-08.
+  myMedsMessage: { ...typography.body, color: colors.textPrimary, marginTop: 6 },
+  myMedsMeta: { ...typography.caption, color: colors.textSecondary, marginTop: 6, fontStyle: 'italic' },
+  myMedsCitation: { ...typography.caption, color: colors.textMuted, marginTop: 6 },
+  // Today's Advisories lens, 2026-08-08.
+  advisoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  advisoryTitle: { flex: 1 },
 });
