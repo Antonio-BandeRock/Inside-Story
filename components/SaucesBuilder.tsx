@@ -1456,7 +1456,7 @@ export function SaucesBuilder({
                   onPress={() => showInfoAlert(ALCOHOL_ADVISORY_TITLE, ALCOHOL_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol & Hashimoto’s -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory -- tap to learn more</Text>
                 </TouchableOpacity>
               )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,

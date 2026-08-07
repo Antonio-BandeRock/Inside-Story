@@ -869,9 +869,9 @@ export default function ProfileScreen() {
       <View style={styles.card}>
         <Text style={styles.label}>Hashimoto's diagnosis</Text>
         <Text style={styles.helpText}>
-          This app is built around Hashimoto's, but works for household members without it too (e.g. a
-          companion account). This just tells the app which of its Hashimoto's-specific notes are relevant to
-          you personally.
+          Inside Story is built to support people with autoimmune conditions -- Hashimoto&apos;s is the first one
+          fully supported, with more in active development. This tells the app which of its Hashimoto&apos;s-specific
+          notes are relevant to you personally; household members without it can still use a companion account.
         </Text>
         <View style={styles.pillRow}>
           {([

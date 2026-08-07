@@ -442,7 +442,7 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'What Inside Story does',
-    body: "Not a generic calorie counter -- Inside Story exists to help someone with Hashimoto's relearn how and what to eat, and understand how food affects their own body specifically. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
+    body: "Not a generic calorie counter -- Inside Story exists to help someone with an autoimmune condition relearn how and what to eat, and understand how food affects their own body specifically. Hashimoto's is the first condition built out in full depth, with more autoimmune conditions in active development. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
   },
   {
     heading: 'Personal notes, not medical fact',

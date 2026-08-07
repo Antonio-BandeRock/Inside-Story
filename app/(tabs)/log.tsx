@@ -74,7 +74,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Flares',
-        body: "Log a Hashimoto's flare-up: when it started, how severe, and which symptoms were part of it. Over time, Trends can look for patterns between flares and what you were eating, taking, or doing.",
+        body: "Log a flare-up: when it started, how severe, and which symptoms were part of it. Over time, Trends can look for patterns between flares and what you were eating, taking, or doing.",
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
