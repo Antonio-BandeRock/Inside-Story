@@ -14,6 +14,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
+import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import {
   ALL_DIGEST_ENTRIES,
   DIGEST_CATEGORY_META,
@@ -244,6 +245,7 @@ function tierLabel(tier: EvidenceTier): string {
 export default function PurpleDigestScreen() {
   useRegisterScreenHelp('Purple Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
 
   const [lens, setLens] = useState<PurpleDigestLens>('foodAdditives');
   // The Search All lens's own live query text -- reset whenever the tab
@@ -571,6 +573,7 @@ export default function PurpleDigestScreen() {
         // per-route special-casing of its own, so it needs this override
         // explicitly.
         renderIcon={(size) => <PurpleRibbonIcon size={size} color={TAB_COLOR} />}
+        autoOpenSignal={autoOpenLensHub}
         onSelect={(key) => {
           setLens(key);
           setExpandedId(null);

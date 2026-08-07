@@ -321,6 +321,14 @@ export default function FoodScreen() {
     mealType: scheduledMealType,
     title: scheduledTitle,
     templateMealId,
+    // Set by TabHub's own go() (components/TabHub.tsx) whenever Food is
+    // picked directly from the hub -- 2026-08-08, see
+    // hooks/useAutoOpenLensHubSignal.ts for the full reasoning. Read
+    // directly out of this screen's own existing useLocalSearchParams
+    // call rather than that shared hook, purely to avoid a second,
+    // redundant call to it in this one file (every other tab screen has
+    // no pre-existing params of its own to fold this into).
+    openLensHub,
   } = useLocalSearchParams<{
     editSideId?: string;
     editSaladId?: string;
@@ -347,6 +355,7 @@ export default function FoodScreen() {
     mealType?: string;
     title?: string;
     templateMealId?: string;
+    openLensHub?: string;
   }>();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
@@ -884,6 +893,7 @@ export default function FoodScreen() {
         options={FOOD_LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
+        autoOpenSignal={openLensHub}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

@@ -337,7 +337,19 @@ export function TabHub() {
   // instant now, so there's nothing left to wait for before navigating.
   function go(path: Href) {
     setOpen(false);
-    router.navigate(path);
+    // Appends a fresh, ever-changing openLensHub query param, 2026-08-08,
+    // explicitly requested: picking a tab from this menu should land with
+    // that tab's own LensHub already open, ready to pick a function --
+    // see hooks/useAutoOpenLensHubSignal.ts for the full reasoning
+    // (including why this is safe now, unlike two earlier, reverted
+    // attempts at auto-opening on arrival) and LensHub.tsx's own
+    // `autoOpenSignal` prop, which actually reacts to it. Every real
+    // TAB_ROUTES path is a plain string, not the {pathname, params}
+    // object form Href also allows, so a plain query-string append (cast
+    // back to Href) is simpler here than trying to type an object literal
+    // against that broader union.
+    const target = typeof path === 'string' ? (`${path}?openLensHub=${Date.now()}` as Href) : path;
+    router.navigate(target);
   }
 
   function openHelpForCurrentPage() {

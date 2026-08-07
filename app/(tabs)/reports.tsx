@@ -9,6 +9,7 @@ import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
+import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 
 // Placeholder for the LensHub corner button (see components/LensHub.tsx) --
 // the page itself isn't built yet, so there's nothing real to switch
@@ -45,6 +46,14 @@ export default function ReportsScreen() {
       return () => setRevealed(false);
     }, []),
   );
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
+  // 2026-08-08 -- this page had never actually passed activeLensLabel to
+  // PageIdentityLabel below (every sibling tab does), so the "which lens
+  // you're in" box never showed here even after picking the one real
+  // option this page has. Real, if small, gap -- fixed alongside this same
+  // pass since "the boxes that show up to tell which lens they are in
+  // should all still appear for each lens for all tabs" was explicit.
+  const activeLensLabel = REPORTS_LENSES.find((option) => option.key === lens)?.label;
 
   return (
     <View style={styles.screen}>
@@ -55,13 +64,14 @@ export default function ReportsScreen() {
         <GatedTabContent pageTitle="Reports" variant="reports" revealed={revealed} />
       </SwipeableTabScreen>
 
-      <PageIdentityLabel title="Reports" />
+      <PageIdentityLabel title="Reports" activeLensLabel={revealed ? activeLensLabel : undefined} />
       <MyItemsHub label="My Reports" tabColor={colors.tabReports} />
       <LensHub
         pageTitle="Reports"
         options={REPORTS_LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
+        autoOpenSignal={autoOpenLensHub}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

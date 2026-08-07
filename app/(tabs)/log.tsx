@@ -12,6 +12,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
+import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
 import {
   createFoodTrial,
@@ -1303,6 +1304,7 @@ export default function LogScreen() {
       return () => setRevealed(false);
     }, []),
   );
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
 
   return (
     <View style={styles.screen}>
@@ -1336,6 +1338,7 @@ export default function LogScreen() {
         options={LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
+        autoOpenSignal={autoOpenLensHub}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

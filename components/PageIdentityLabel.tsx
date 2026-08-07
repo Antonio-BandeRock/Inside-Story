@@ -1,4 +1,3 @@
-import { Ionicons } from '@expo/vector-icons';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -10,7 +9,6 @@ import {
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
-import { PurpleRibbonIcon } from './PurpleRibbonIcon';
 import { BUTTERFLY_OVERHANG_Y, BUTTERFLY_WIDTH } from './TabHub';
 
 // 2026-07-25: the page title and sub-tab label (e.g. "Insights" / "6
@@ -28,12 +26,23 @@ import { BUTTERFLY_OVERHANG_Y, BUTTERFLY_WIDTH } from './TabHub';
 // identity color/icon from TAB_ROUTES (must match a `title` there exactly,
 // same contract as LensHub/GatedTabContent's own `pageTitle` prop).
 //
-// 2026-07-28: also carries GatedTabContent.tsx's own former on-page
-// resting prompt now, in a real bordered box (border = this page's own
-// tabColor; no fill, so whatever's already behind it shows straight
-// through). Precisely positioned/sized, per explicit spec, to match the
-// exact same buffers the butterfly artwork already keeps elsewhere in the
-// footer, rather than picking new numbers of its own:
+// 2026-07-28: also carried GatedTabContent.tsx's own former on-page
+// resting prompt ("Tap the [icon] button to select a function"), in a
+// real bordered box (border = this page's own tabColor; no fill, so
+// whatever's already behind it shows straight through).
+//
+// 2026-08-08: that resting-prompt text removed entirely -- explicitly
+// requested, once LensHub itself started auto-opening on arrival from
+// TabHub (see LensHub.tsx's own `autoOpenSignal`): "we won't need to have
+// the little box... telling them to Tap the (icon) button to select a
+// function," since the popup is already open by the time anyone would
+// read it. This component now renders nothing at all (see the early
+// `return null` below) until a real lens is actually selected -- the
+// "which lens am I in" box (activeLensLabel) is the one job left here,
+// and it's unaffected by this change, still shown for every lens on
+// every tab as before. The box's own positioning math below is otherwise
+// unchanged, still matching the exact same buffers the butterfly artwork
+// already keeps elsewhere in the footer:
 // - bottom/top edges: exactly the butterfly's own bottom/top edges (same
 //   buffer from the system nav bar as the butterfly has below it, same
 //   buffer from the footer's iridescent line as the butterfly has above
@@ -59,7 +68,11 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   const { width: windowWidth } = useWindowDimensions();
   const tabRoute = TAB_ROUTES.find((route) => route.title === title);
   const tabColor = tabRoute?.color ?? colors.primary;
-  const icon = tabRoute?.icon ?? 'list';
+
+  // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
+  // this file's own 2026-08-08 comment above for why the box no longer
+  // shows a resting-state prompt in the meantime.
+  if (!activeLensLabel) return null;
 
   // The butterfly's own bottom edge sits BUTTERFLY_OVERHANG_Y below the
   // button's own bottom edge (the artwork is taller than the 60px button
@@ -91,38 +104,7 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
       style={[styles.container, horizontalPosition, { bottom: boxBottom, height: boxHeight, borderColor: tabColor }]}
       pointerEvents="none"
     >
-      {activeLensLabel ? (
-        <Text style={[styles.text, { color: tabColor }]}>{activeLensLabel}</Text>
-      ) : tabRoute?.path === '/purple-digest' ? (
-        // Purple Digest's real custom mark (a traced awareness-ribbon
-        // shape, see PurpleRibbonIcon.tsx's own history), not the generic
-        // Ionicons "ribbon" glyph `icon` falls back to for this route --
-        // 2026-08-07, reported directly as "the wrong icon." TabHub.tsx and
-        // LensHub.tsx both already special-case this same path (the bare
-        // Ionicons glyph was already tried and rejected everywhere else --
-        // it reads as a race/award rosette, not an awareness ribbon); this
-        // component just never got the same fix when it was built. Can't
-        // reuse the single-Text-with-inline-icon trick below for this one:
-        // Ionicons renders as a font glyph, which nests inside Text
-        // natively, but PurpleRibbonIcon is a real SVG (react-native-svg),
-        // which Android does not reliably lay out nested inside a RN Text
-        // the way an inline glyph does -- so this renders as a real row of
-        // siblings (Text, icon, Text) instead of one continuous Text block.
-        <View style={styles.textRow}>
-          <Text style={[styles.text, { color: tabColor }]}>Tap the </Text>
-          <PurpleRibbonIcon size={12} color={tabColor} />
-          <Text style={[styles.text, { color: tabColor }]}> button to select a function.</Text>
-        </View>
-      ) : (
-        // Same icon+label pairing LensHub's own corner button uses, just
-        // inline within the sentence instead of stacked above it -- a
-        // "miniature" version of that icon (12px, versus that button's own
-        // 32px). Ionicons renders as a font glyph under the hood, which is
-        // what lets it sit inline inside a Text like this at all.
-        <Text style={[styles.text, { color: tabColor }]}>
-          Tap the <Ionicons name={icon} size={12} color={tabColor} style={textShadow} /> button to select a function.
-        </Text>
-      )}
+      <Text style={[styles.text, { color: tabColor }]}>{activeLensLabel}</Text>
     </View>
   );
 }
@@ -156,15 +138,5 @@ const styles = StyleSheet.create({
     ...textShadow,
     fontSize: 11,
     textAlign: 'center',
-  },
-  // Purple Digest's own resting message only -- see its own comment above
-  // for why it can't reuse the plain single-Text approach every other tab
-  // uses. flexWrap so the row still wraps onto a second line on a narrow
-  // screen, same as the plain Text version's own natural word-wrap would.
-  textRow: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
 });

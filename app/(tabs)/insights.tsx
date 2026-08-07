@@ -40,6 +40,7 @@ import {
   useSecondaryHubPosition,
 } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
+import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 
 // 'YYYY-MM-DD' in LOCAL time -- same reasoning as the rest of the app
 // (see lib/db.ts/app/(tabs)/index.tsx): UTC's calendar date is wrong for
@@ -272,6 +273,7 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
 export default function InsightsScreen() {
   useRegisterScreenHelp('Insights', INSIGHTS_HELP_SECTIONS, '/insights');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
   // Used by the three non-Food-Lookup lenses' own shared ScrollView below.
   // Food Lookup owns its own separate layout instead (see FoodLookupView's
   // own opening comment for why) and no longer needs this at all.
@@ -424,6 +426,7 @@ export default function InsightsScreen() {
         options={LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
+        autoOpenSignal={autoOpenLensHub}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

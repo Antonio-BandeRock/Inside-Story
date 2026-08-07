@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useRef, useState, type ComponentProps, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -229,6 +229,7 @@ export function LensHub<T extends string>({
   columns = 2,
   infoInGrid = columns !== 2,
   itemLabelLines = 1,
+  autoOpenSignal,
 }: {
   // Used to find this page's own entry in TAB_ROUTES, for the trigger
   // button's icon/color (see below) -- must match a `title` there exactly.
@@ -338,6 +339,13 @@ export function LensHub<T extends string>({
   // short "Info" text are unaffected regardless of this prop, since
   // neither has ever needed more than one line.
   itemLabelLines?: number;
+  // Set to a fresh, ever-changing value (e.g. a timestamp string) whenever
+  // this popup should open itself automatically, 2026-08-08 -- see
+  // hooks/useAutoOpenLensHubSignal.ts for the full reasoning behind why
+  // this is finally safe to reintroduce (scoped to a real "picked from
+  // TabHub" signal, unlike the two earlier, reverted attempts named just
+  // below). A screen that never wants this can simply omit the prop.
+  autoOpenSignal?: string;
 }) {
   // 2026-07-26: used to auto-open on arrival (a `forceOpen` prop, driven by
   // the calling screen's own GatedTabContent.tsx resting state) so the
@@ -354,7 +362,26 @@ export function LensHub<T extends string>({
   // this without a real mitigation for that specific problem (e.g. only
   // auto-opening on a page's true first visit each session, not every
   // arrival).
+  //
+  // 2026-08-08: reintroduced a third time, this time via `autoOpenSignal`
+  // above -- the real mitigation this comment asked for. Unlike both
+  // earlier attempts, the signal driving this one is sourced from a real,
+  // narrow event (a genuine TabHub tap or Home's Purple Digest shortcut,
+  // see useAutoOpenLensHubSignal's own comment) that a horizontal swipe
+  // between tabs never produces, so the exact swipe-through friction named
+  // above can't recur through this path.
   const [open, setOpen] = useState(false);
+  // Tracks the last autoOpenSignal value this popup has already reacted
+  // to, so it opens once per genuinely NEW signal rather than every
+  // re-render -- undefined at rest (no signal yet), matching a screen
+  // that never received one from a TabHub tap this session.
+  const lastAutoOpenSignal = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (autoOpenSignal && autoOpenSignal !== lastAutoOpenSignal.current) {
+      lastAutoOpenSignal.current = autoOpenSignal;
+      setOpen(true);
+    }
+  }, [autoOpenSignal]);
   // Same fix as TabHub's own Modal (components/TabHub.tsx) -- see that
   // file's longer comment for the full reasoning and the real, captured
   // timing data behind it: the card's own layout was already correct on

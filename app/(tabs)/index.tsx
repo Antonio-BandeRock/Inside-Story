@@ -1160,7 +1160,11 @@ export default function HomeScreen() {
 
       <TouchableOpacity
         style={[styles.purpleDigestShortcut, purpleDigestShortcutPosition]}
-        onPress={() => router.push('/purple-digest')}
+        // openLensHub query param, 2026-08-08 -- same mechanism TabHub's
+        // own go() now uses (see that file's comment), so this shortcut
+        // lands on Purple Digest with its own LensHub already open too,
+        // exactly like tapping "Purple Digest" from TabHub itself would.
+        onPress={() => router.push(`/purple-digest?openLensHub=${Date.now()}` as Href)}
         activeOpacity={0.85}
         accessibilityLabel="Open The Purple Digest"
       >

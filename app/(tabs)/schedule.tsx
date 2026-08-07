@@ -86,6 +86,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
+import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 
 // Every text box on this page belongs to this one page's own tab, so
 // there's no per-box lookup needed the way Home's multi-tab dashboard
@@ -3823,6 +3824,7 @@ export default function ScheduleScreen() {
       return () => setRevealed(false);
     }, []),
   );
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
 
   return (
     <View style={styles.screen}>
@@ -3856,6 +3858,7 @@ export default function ScheduleScreen() {
         options={LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
+        autoOpenSignal={autoOpenLensHub}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

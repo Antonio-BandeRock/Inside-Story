@@ -62,6 +62,14 @@ const CATEGORY_META: { type: MealComponentType; label: string; icon: keyof typeo
   { type: 'bakedGoods', label: 'Baked Goods', icon: 'pizza-outline' },
   { type: 'soup', label: 'Soup', icon: 'flame-outline' },
   { type: 'sauce', label: 'Sauce', icon: 'water-outline' },
+  // Added 2026-08-08 -- a real, separate gap found while building the
+  // "nothing to build from yet" check below: Handhelds Builder (the 11th
+  // sub-builder, added 2026-08-04) was already fully wired into
+  // MealComponentType/listMealComponentOptions/getComponentDetail (see
+  // lib/db.ts), but this grid itself was never updated to actually offer it
+  // as an "Add from..." category -- 'layers-outline', matching that
+  // builder's own icon in FOOD_LENSES (app/(tabs)/food.tsx).
+  { type: 'handheld', label: 'Handheld', icon: 'layers-outline' },
 ];
 
 // meals.eaten_at's own stored format ('YYYY-MM-DDTHH:mm', local time,
@@ -182,7 +190,37 @@ export function MealBuilder({
   // "No meal type chosen" while that load is still in flight, the same way
   // templateMealId's own component list starts empty and fills in).
   const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId || !!favoriteId);
-  const identityReady = !!mealType;
+
+  // A meal can only be assembled FROM the other ten builders' own saved
+  // output (see this file's own top comment) -- with nothing saved
+  // anywhere yet, "Add from..." would just be ten empty lists, so
+  // Continue is blocked before that dead end is ever reached, 2026-08-08,
+  // explicitly requested: "The Meal builder should not allow the Continue
+  // button to turn green and activate... [it] should actually say
+  // something that causes the user to know they have to make sides or
+  // other things before a meal can be built." null while the real check is
+  // still in flight (Continue stays muted/disabled either way, since
+  // identityReady below requires a confirmed `true`, not just "not
+  // false") -- only flips to a definite true/false once every category has
+  // actually been checked, so this can never say "you have nothing" while
+  // still genuinely finding out. Reruns on every mount, which in practice
+  // is every time this screen is actually reached -- switching to a
+  // different builder and back is a real unmount/remount of this whole
+  // component (see food.tsx's own lens ternary), so building a first Side
+  // elsewhere and returning here always sees the fresh count, no separate
+  // focus-listener needed.
+  const [hasAnySavedComponents, setHasAnySavedComponents] = useState<boolean | null>(null);
+  useEffect(() => {
+    let isCurrent = true;
+    Promise.all(CATEGORY_META.map((entry) => listMealComponentOptions(entry.type))).then((lists) => {
+      if (isCurrent) setHasAnySavedComponents(lists.some((list) => list.length > 0));
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  const identityReady = !!mealType && hasAnySavedComponents === true;
 
   const [components, setComponents] = useState<SelectedComponent[]>([]);
 
@@ -492,6 +530,13 @@ export function MealBuilder({
   }
 
   function handleContinuePress() {
+    if (hasAnySavedComponents !== true) {
+      showInfoAlert(
+        'Nothing to build from yet',
+        "A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items -- there aren't any saved yet. Build one of those first (the Lens Button, bottom of the screen), then come back here.",
+      );
+      return;
+    }
     if (!mealType) {
       showInfoAlert('Almost there', 'Please choose a meal type.');
       return;
@@ -509,6 +554,19 @@ export function MealBuilder({
       <>
         {infoAlertElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
+          {hasAnySavedComponents === false ? (
+            // Confirmed (not just "still loading") that every one of the
+            // eleven other builders' own saved lists is empty, 2026-08-08 --
+            // shown ahead of the identity form itself, not just baked into
+            // the Continue button's own label below, so this is the very
+            // first thing explaining why nothing here can proceed yet.
+            <View style={[styles.formCard, styles.emptyStateCard, { borderColor: tabColor }]}>
+              <Ionicons name="information-circle-outline" size={22} color={tabColor} />
+              <Text style={styles.emptyStateText}>
+                {"Nothing saved yet to build a meal from. A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items -- build one of those first (the Lens Button at the bottom of the screen), then come back here to put a meal together."}
+              </Text>
+            </View>
+          ) : null}
           <View style={[styles.formCard, { borderColor: tabColor }]}>
             <Text style={[styles.formLabel, { color: tabColor }]}>Meal Name (optional)</Text>
             <AppTextInput
@@ -543,7 +601,9 @@ export function MealBuilder({
               style={[styles.primaryButton, { backgroundColor: identityReady ? tabColor : colors.border }]}
               onPress={handleContinuePress}
             >
-              <Text style={[styles.primaryButtonText, identityReady ? null : styles.primaryButtonTextMuted]}>Continue</Text>
+              <Text style={[styles.primaryButtonText, identityReady ? null : styles.primaryButtonTextMuted]}>
+                {hasAnySavedComponents === false ? 'Build a Side or Other Item First' : 'Continue'}
+              </Text>
             </TouchableOpacity>
           </View>
         </ScrollView>
@@ -771,6 +831,12 @@ const styles = StyleSheet.create({
   },
   formLabel: { ...typography.eyebrow },
   formLabelSpaced: { marginTop: 14 },
+  // The "nothing saved yet" notice above the identity form, 2026-08-08 --
+  // row layout (icon beside the explanation) rather than formCard's own
+  // usual stacked-fields shape, since this card holds one message, not a
+  // form.
+  emptyStateCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
+  emptyStateText: { ...typography.body, color: colors.textPrimary, flex: 1 },
   formInput: {
     ...typography.body,
     color: colors.textPrimary,

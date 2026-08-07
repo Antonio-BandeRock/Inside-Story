@@ -12,6 +12,7 @@ import { TrendLineChart } from '../../components/TrendLineChart';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
+import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getDietaryReferenceIntakesForCurrentUser } from '../../lib/db';
 import { nutrientStatusSeverity, type NutrientStatus } from '../../lib/nutrientAnalysis';
 import {
@@ -126,6 +127,7 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
 export default function TrendsScreen() {
   useRegisterScreenHelp('Trends', TRENDS_HELP_SECTIONS, '/trends');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<TrendsLens>('nutrients');
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
@@ -300,6 +302,7 @@ export default function TrendsScreen() {
         options={TRENDS_LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
+        autoOpenSignal={autoOpenLensHub}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);
