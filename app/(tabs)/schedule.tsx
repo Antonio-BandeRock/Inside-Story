@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -81,6 +81,7 @@ import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
+import { PopoverSelect } from '../../components/PopoverSelect';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
@@ -1840,10 +1841,25 @@ function MyMedsLens() {
     load();
   }
 
-  const nutrientOptions: DropdownOption[] = nutrients.map((nutrient) => ({ label: nutrient.displayName, value: nutrient.code }));
-  const commonMedOptionsForCategory: DropdownOption[] = commonMedications
-    .filter((med) => med.treatmentType === medForm.category)
-    .map((med) => ({ label: med.commonBrandNames ? `${med.genericName} (${med.commonBrandNames})` : med.genericName, value: med.id }));
+  // useMemo, not a plain inline .map() -- PopoverSelect (unlike the old
+  // Dropdown) is memoized against referentially-stable `options`, so a
+  // fresh array on every render (e.g. every Name/Notes keystroke, which
+  // re-renders this whole lens) would otherwise force these two pickers'
+  // own popovers to rebuild for no real reason.
+  const nutrientOptions: DropdownOption[] = useMemo(
+    () => nutrients.map((nutrient) => ({ label: nutrient.displayName, value: nutrient.code })),
+    [nutrients],
+  );
+  const commonMedOptionsForCategory: DropdownOption[] = useMemo(
+    () =>
+      commonMedications
+        .filter((med) => med.treatmentType === medForm.category)
+        .map((med) => ({
+          label: med.commonBrandNames ? `${med.genericName} (${med.commonBrandNames})` : med.genericName,
+          value: med.id,
+        })),
+    [commonMedications, medForm.category],
+  );
   const selectedCommonMed = commonMedications.find((med) => med.id === medForm.commonMedId) ?? null;
 
   function renderNutrientResearchCard(nutrientCode: string, chosenForm: string) {
@@ -2042,14 +2058,16 @@ function MyMedsLens() {
                   <View key={row.key}>
                     <View style={styles.ingredientRow}>
                       <View style={styles.ingredientNutrientCol}>
-                        <Dropdown
-                          value={row.nutrientCode}
+                        <PopoverSelect
+                          selected={row.nutrientCode || null}
                           options={nutrientOptions}
-                          onChange={(value) => {
+                          onSelect={(value) => {
                             updateIngredientRow(row.key, { nutrientCode: value, supplementForm: '' });
                             ensureNutrientDataLoaded(value);
                           }}
                           placeholder="Nutrient"
+                          tabColor={TAB_COLOR}
+                          width={220}
                           searchable
                           searchPlaceholder="Search nutrients…"
                         />
@@ -2062,11 +2080,12 @@ function MyMedsLens() {
                         onChangeText={(text) => updateIngredientRow(row.key, { amount: text })}
                       />
                       <View style={styles.ingredientUnitCol}>
-                        <Dropdown
-                          value={row.unit}
+                        <PopoverSelect
+                          selected={row.unit || null}
                           options={SUPPLEMENT_UNIT_OPTIONS}
-                          onChange={(value) => updateIngredientRow(row.key, { unit: value })}
-                          compact
+                          onSelect={(value) => updateIngredientRow(row.key, { unit: value })}
+                          tabColor={TAB_COLOR}
+                          minWidth={64}
                         />
                       </View>
                       <TouchableOpacity onPress={() => removeIngredientRow(row.key)} style={styles.ingredientRemove}>
@@ -2075,11 +2094,13 @@ function MyMedsLens() {
                     </View>
                     {row.nutrientCode && formOptions.length > 0 ? (
                       <View style={styles.ingredientFormRow}>
-                        <Dropdown
-                          value={row.supplementForm}
+                        <PopoverSelect
+                          selected={row.supplementForm || null}
                           options={formOptions}
-                          onChange={(value) => updateIngredientRow(row.key, { supplementForm: value })}
+                          onSelect={(value) => updateIngredientRow(row.key, { supplementForm: value })}
                           placeholder="Which form? (optional, but changes absorption)"
+                          tabColor={TAB_COLOR}
+                          width={240}
                         />
                       </View>
                     ) : null}
@@ -2114,14 +2135,16 @@ function MyMedsLens() {
 
               {!medForm.manualEntry ? (
                 <>
-                  <Dropdown
-                    value={medForm.commonMedId}
+                  <PopoverSelect
+                    selected={medForm.commonMedId || null}
                     options={commonMedOptionsForCategory}
-                    onChange={(value) => {
+                    onSelect={(value) => {
                       const med = commonMedications.find((candidate) => candidate.id === value);
                       if (med) selectCommonMed(med);
                     }}
                     placeholder="Search this app's researched list…"
+                    tabColor={TAB_COLOR}
+                    width={260}
                     searchable
                     searchPlaceholder="e.g. levothyroxine, metformin, ibuprofen…"
                   />
