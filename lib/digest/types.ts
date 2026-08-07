@@ -108,6 +108,17 @@ export const DIGEST_CATEGORY_KEYS = [
   // comment for the full reasoning, including a real, flat null
   // (chiropractic) reported honestly rather than smoothed over.
   'complementaryTherapies',
+  // 2026-08-08, eleventh addition: Rheumatoid Arthritis -- this app's
+  // second real condition, following the priority order from the Beyond
+  // Hashimoto's research. A genuinely different kind of category from
+  // every one before it: the other ten are all still Hashimoto's-specific
+  // (even Other Autoimmune Diseases is corroborating evidence FOR
+  // Hashimoto's), while this one is written as RA's own primary content,
+  // for someone who has RA rather than Hashimoto's, or both. See
+  // rheumatoidArthritis.ts's own header comment for the full reasoning,
+  // including how it deliberately doesn't duplicate the existing
+  // 'other-rheumatoid-arthritis' entry in otherAutoimmune.ts.
+  'rheumatoidArthritis',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

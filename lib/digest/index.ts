@@ -18,6 +18,7 @@ import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
+import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import { isProblemFoodEntry, type AnyDigestEntry, type DigestEntryCategory } from './types';
 
@@ -29,7 +30,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808010000';
+export const PURPLE_DIGEST_VERSION = '20260808020000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -56,6 +57,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...SELF_ADVOCACY_ENTRIES,
   ...PREGNANCY_FAMILY_PLANNING_ENTRIES,
   ...COMPLEMENTARY_THERAPIES_ENTRIES,
+  ...RHEUMATOID_ARTHRITIS_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -219,6 +221,17 @@ export const DIGEST_CATEGORY_META: {
     label: 'Complementary & Manual Therapies',
     icon: 'hand-left-outline',
     description: 'Chiropractic, acupuncture, massage, and heat/cold therapy, checked honestly against the evidence, including a null result and a contested claim, not just the encouraging findings.',
+  },
+  // 2026-08-08, eleventh addition, and the first genuinely new condition
+  // this app has ever built out: Rheumatoid Arthritis. See
+  // rheumatoidArthritis.ts's own header comment for the full reasoning.
+  // Appended normally, matching every category's own standing practice
+  // apart from Glossary's explicit front-placement exception.
+  {
+    key: 'rheumatoidArthritis',
+    label: 'Rheumatoid Arthritis',
+    icon: 'pulse-outline',
+    description: 'Real food and medication guidance for RA on its own terms, including the most common real overlap with Hashimoto\'s of any two conditions in the research.',
   },
 ];
 

@@ -199,6 +199,10 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
     heading: 'Complementary & Manual Therapies',
     body: "Chiropractic, acupuncture, acupressure, massage, and heat/cold therapy, each checked directly against the evidence rather than assumed to help. Reported honestly regardless of what turned up: a flat null for chiropractic (zero studies exist connecting it to thyroid or autoimmune disease at all), a contested claim for massage and cortisol, and more limited but positive evidence for the rest, including sauna/heat therapy's striking cardiovascular data. Closes with a direct answer to how this compares to exercise's own already-covered evidence in Mitochondria & Metabolism.",
   },
+  rheumatoidArthritis: {
+    heading: 'Rheumatoid Arthritis',
+    body: "This app's second real condition, written as RA's own primary content rather than as evidence borrowed for someone else's disease. Covers the two food levers with the strongest trial evidence (omega-3s at a specific dose threshold, a Mediterranean eating pattern with real disease-activity-score results), a landmark fasting-then-vegetarian trial that only holds up for a real subset of people, and two medication interactions -- methotrexate with folate, and methotrexate with alcohol -- both more precise and more forgiving than the blanket warnings patients often hear. Closes on the real, common overlap between RA and Hashimoto's, the reason this condition was built first.",
+  },
 };
 
 // A deliberate line-break point for each category name that's long enough

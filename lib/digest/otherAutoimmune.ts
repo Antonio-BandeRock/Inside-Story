@@ -57,7 +57,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin D level in rheumatoid arthritis and its correlation with the disease activity: a meta-analysis', url: 'https://pubmed.ncbi.nlm.nih.gov/27049238/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-vitamin-d'],
+    relatedIds: ['nutrient-vitamin-d', 'ra-overview'],
   },
   {
     id: 'other-ibd',
