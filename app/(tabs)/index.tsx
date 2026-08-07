@@ -20,18 +20,24 @@ import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScroll
 import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
 import { useIridescentHueRotation } from '../../hooks/useIridescentHueRotation';
+import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import {
+  getCheckinForDate,
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
   getUserProfile,
   listCheckins,
   listMealsForDate,
   listScheduledMealsForDate,
+  listSymptomAssessments,
   recordBodyMeasurement,
+  recordCheckin,
   recordExercise,
   setScheduledMealSkipped,
+  type CheckinValence,
   type MealRecord,
   type ScheduleItemRecord,
+  type WellbeingCheckin,
 } from '../../lib/db';
 import {
   analyzeNutrientIntake,
@@ -277,7 +283,27 @@ type DashboardData = {
   sixDsFlagCount: number;
   recentMaxSeverity: number | null;
   hasAnyLogHistory: boolean;
+  // 2026-08-08: today's own "Today's Check-In" entry (checkinType
+  // 'general'), if one's already been logged -- null means the picker
+  // itself should show instead of a summary.
+  feelingCheckin: WellbeingCheckin | null;
+  // null = the periodic symptom check-in (app/assessment.tsx) has never
+  // been taken at all -- treated the same as "due" as a real number would
+  // be past the cadence below.
+  daysSinceAssessment: number | null;
 };
+
+// The periodic symptom check-in's own automatic re-prompt cadence --
+// 2026-08-08, explicitly requested: "They need to automatically pop up
+// every 30 days or on the first of every month." A rolling "N days since
+// last completion" cadence, not a calendar-anchored "1st of the month"
+// one -- the two aren't the same thing (anchoring to the 1st would mean a
+// real gap anywhere from 1 to 31 days depending on when someone happens to
+// finish one), and a rolling window is what actually keeps the gap between
+// check-ins consistent regardless of when someone started, which is also
+// what the assessment's own new domain-level "past 30 days" framing (see
+// scripts/patch_assessment_item_timeframes.py) now assumes.
+const ASSESSMENT_DUE_AFTER_DAYS = 30;
 
 type WeekTrend = { thisWeekCount: number; lastWeekCount: number | null };
 
@@ -395,6 +421,14 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
     body: "Reflects the most severe flare or food reaction you've logged in Signals over the last 2 days -- cool and calm with nothing recent, warmer the more severe. Gray means you haven't logged anything there yet, which is different from calm.",
   },
   {
+    heading: "Today's Check-In",
+    body: "A real, quick daily question: how are you feeling today, across a wide, categorized list covering digestion, energy, mood, sleep, skin, physical symptoms, and cognitive state -- pick everything that applies, positives included. One entry per day; tap it again any time today to change it. This builds a genuine daily trend alongside Signals' own flare/reaction logging, not a replacement for it.",
+  },
+  {
+    heading: 'Symptom check-in reminder',
+    body: "The full symptom check-in (13 hypothyroid items, 5 digestive/IBS items, 5 wellbeing items) is a periodic, not daily, thing -- a banner appears here automatically every 30 days (or the first time you haven't taken one at all) so it's easy to notice without having to remember. It stays available any time from the \"Symptom check-in\" button below, whether or not the banner is currently showing.",
+  },
+  {
     heading: 'What is Hashimoto’s thyroiditis?',
     body: "An autoimmune condition: the immune system produces antibodies (most often against thyroid peroxidase, sometimes thyroglobulin) that gradually attack the thyroid gland, reducing its ability to make thyroid hormone. It's the most common cause of an underactive thyroid (hypothyroidism) in the US and other iodine-sufficient countries, and roughly 7-10x more common in women than men. The course is often slow and uneven -- some people pass through a period of normal, or even briefly overactive, thyroid function before settling into an underactive pattern.",
   },
@@ -449,6 +483,16 @@ export default function HomeScreen() {
   const [exerciseType, setExerciseType] = useState('');
   const [exerciseDuration, setExerciseDuration] = useState('');
   const [exerciseIntensity, setExerciseIntensity] = useState<'light' | 'moderate' | 'vigorous' | null>(null);
+  // Today's Check-In (see "Today's Check-In" render section below) --
+  // false/[] until either the picker's own "Change" link is tapped, or the
+  // first load finds no existing entry for today at all (see the effect
+  // paired with `data` below). `selectedFeelingTags` is the working
+  // selection while the picker is open, seeded from today's already-saved
+  // entry when one exists so reopening it to add/remove a tag doesn't lose
+  // what's already there.
+  const [feelingPickerOpen, setFeelingPickerOpen] = useState(false);
+  const [selectedFeelingTags, setSelectedFeelingTags] = useState<string[]>([]);
+  const [feelingSaving, setFeelingSaving] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
   // undefined = not fetched yet, null = fetched but no logged days this
   // week (nothing worth showing), object = real comparison.
@@ -504,26 +548,58 @@ export default function HomeScreen() {
       listCheckins({ checkinType: 'flare', limit: 60 }),
       listCheckins({ checkinType: 'post_meal', limit: 60 }),
       getUserProfile(),
-    ]).then(([todaysMeals, scheduledToday, nutrientBreakdown, dimensionsBreakdown, flareEntries, reactionEntries, profile]) => {
-      setFirstName(profile.firstName);
-      const nutrientEntries = analyzeNutrientIntake(
-        nutrientBreakdown.driRows,
-        nutrientBreakdown.dayTotals,
-        nutrientBreakdown.supplementTotals,
-      );
-      const sixDsFlagCount = dimensionsBreakdown.day.filter((score) =>
-        score.entries.some((entry) => isFlaggedTier(entry.tier)),
-      ).length;
+      // 2026-08-08: the two new additions for Today's Check-In / the
+      // periodic-assessment due banner. getCheckinForDate is a real,
+      // targeted single-row query (see its own comment in lib/db.ts), not
+      // a listCheckins() call filtered client-side.
+      getCheckinForDate(date, 'general'),
+      listSymptomAssessments(1),
+    ]).then(
+      ([
+        todaysMeals,
+        scheduledToday,
+        nutrientBreakdown,
+        dimensionsBreakdown,
+        flareEntries,
+        reactionEntries,
+        profile,
+        feelingCheckin,
+        recentAssessments,
+      ]) => {
+        setFirstName(profile.firstName);
+        const nutrientEntries = analyzeNutrientIntake(
+          nutrientBreakdown.driRows,
+          nutrientBreakdown.dayTotals,
+          nutrientBreakdown.supplementTotals,
+        );
+        const sixDsFlagCount = dimensionsBreakdown.day.filter((score) =>
+          score.entries.some((entry) => isFlaggedTier(entry.tier)),
+        ).length;
 
-      const negativeEntries = [...flareEntries, ...reactionEntries];
-      const hasAnyLogHistory = negativeEntries.length > 0;
-      const recentSeverities = negativeEntries
-        .filter((entry) => entry.loggedAt.slice(0, 10) >= twoDayFloor && entry.severity != null)
-        .map((entry) => entry.severity as number);
-      const recentMaxSeverity = recentSeverities.length > 0 ? Math.max(...recentSeverities) : null;
+        const negativeEntries = [...flareEntries, ...reactionEntries];
+        const hasAnyLogHistory = negativeEntries.length > 0;
+        const recentSeverities = negativeEntries
+          .filter((entry) => entry.loggedAt.slice(0, 10) >= twoDayFloor && entry.severity != null)
+          .map((entry) => entry.severity as number);
+        const recentMaxSeverity = recentSeverities.length > 0 ? Math.max(...recentSeverities) : null;
 
-      setData({ todaysMeals, scheduledToday, nutrientEntries, sixDsFlagCount, recentMaxSeverity, hasAnyLogHistory });
-    });
+        const lastAssessment = recentAssessments[0] ?? null;
+        const daysSinceAssessment = lastAssessment
+          ? Math.floor((Date.now() - new Date(lastAssessment.completedAt).getTime()) / (24 * 60 * 60 * 1000))
+          : null;
+
+        setData({
+          todaysMeals,
+          scheduledToday,
+          nutrientEntries,
+          sixDsFlagCount,
+          recentMaxSeverity,
+          hasAnyLogHistory,
+          feelingCheckin,
+          daysSinceAssessment,
+        });
+      },
+    );
   }, []);
 
   // Both loaded together, on every focus (so returning from Food/Bio-
@@ -544,6 +620,69 @@ export default function HomeScreen() {
       });
     }, [load, loadWeekTrend]),
   );
+
+  // --- Today's Check-In (2026-08-08) -------------------------------------
+  //
+  // "On the home page they need to have the ability to select how they
+  // feel today, just a one question thing... the list to choose from...
+  // might need to be quite extensive." Reuses lib/checkinTags.ts's own
+  // already-extensive, categorized vocabulary (30 tags across 7 categories,
+  // covering both symptoms and positives) and the existing
+  // wellbeing_checkins table (via recordCheckin, checkinType 'general')
+  // rather than building either from scratch -- this is genuinely "one
+  // question" (which of these describes today), just with a rich set of
+  // real answers to pick from, the same tags Signals' own flare/reaction
+  // logging already uses, so a pattern noticed there and here is the same
+  // real tag, not two different vocabularies describing the same thing.
+
+  function openFeelingPicker() {
+    // Seeds from today's already-saved entry (if any) so reopening this to
+    // add/remove a tag -- not just create one from nothing -- keeps
+    // whatever's already there instead of starting blank.
+    setSelectedFeelingTags(data?.feelingCheckin?.tags ?? []);
+    setFeelingPickerOpen(true);
+  }
+
+  function toggleFeelingTag(code: string) {
+    setSelectedFeelingTags((current) =>
+      current.includes(code) ? current.filter((tag) => tag !== code) : [...current, code],
+    );
+  }
+
+  // No separate valence question -- asking a second question would break
+  // the "just a one question thing" this was explicitly asked to be.
+  // Derived instead from the real usualValence of whatever got picked: all
+  // positive -> positive, all negative -> negative, a genuine mix (or
+  // nothing selected) -> neutral, the same "informational, not inherently
+  // good or bad" reading the schema's own comment already gives a
+  // checkin with no single clear direction.
+  function derivedValenceFor(tags: string[]): CheckinValence {
+    if (tags.length === 0) return 'neutral';
+    const definitions = getCheckinTagsByCategory()
+      .flatMap((group) => group.tags)
+      .filter((tag) => tags.includes(tag.code));
+    const allPositive = definitions.every((tag) => tag.usualValence === 'positive');
+    const allNegative = definitions.every((tag) => tag.usualValence === 'negative');
+    if (allPositive) return 'positive';
+    if (allNegative) return 'negative';
+    return 'neutral';
+  }
+
+  async function saveFeelingCheckin() {
+    setFeelingSaving(true);
+    try {
+      await recordCheckin({
+        loggedAt: new Date().toISOString(),
+        checkinType: 'general',
+        valence: derivedValenceFor(selectedFeelingTags),
+        tags: selectedFeelingTags,
+      });
+      setFeelingPickerOpen(false);
+      await load();
+    } finally {
+      setFeelingSaving(false);
+    }
+  }
 
   async function handleSkipFromArc(item: ScheduleItemRecord) {
     await setScheduledMealSkipped(item.id, item.status !== 'skipped');
@@ -617,6 +756,7 @@ export default function HomeScreen() {
   const nutrientFlagCount = data ? findNutrientGaps(data.nutrientEntries).length + findExcessRisks(data.nutrientEntries).length : 0;
   const worthALookCount = nutrientFlagCount + (data?.sixDsFlagCount ?? 0);
   const todayLabel = new Date().toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric' });
+  const assessmentDue = data ? data.daysSinceAssessment === null || data.daysSinceAssessment >= ASSESSMENT_DUE_AFTER_DAYS : false;
 
   const coreNutrientRings = data
     ? CORE_NUTRIENT_CODES.map((code) => data.nutrientEntries.find((entry) => entry.nutrientCode === code)).filter(
@@ -652,7 +792,110 @@ export default function HomeScreen() {
             </View>
           ) : (
             <>
-              <View style={[styles.arcCard, { borderColor: tabColorFor('/schedule') }]}>
+              {/* 2026-08-08, explicitly requested: the periodic symptom
+                  check-in (app/assessment.tsx) "need[s] to automatically
+                  pop up every 30 days" -- this is that pop-up. A rolling
+                  cadence (see ASSESSMENT_DUE_AFTER_DAYS's own comment
+                  above), not a calendar-anchored one; shown right at the
+                  top of Home, above everything else, so it's genuinely
+                  hard to miss rather than something to notice buried in
+                  the quick-actions row's own "Symptom check-in" pill
+                  further down (which stays available regardless, for
+                  taking it early/again any time). */}
+              {assessmentDue ? (
+                <TouchableOpacity style={styles.assessmentDueBanner} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
+                  <Ionicons name="pulse-outline" size={20} color={colors.primary} />
+                  <View style={styles.assessmentDueTextCol}>
+                    <Text style={styles.assessmentDueTitle}>
+                      {data?.daysSinceAssessment == null ? 'Take your first symptom check-in' : 'Time for your symptom check-in'}
+                    </Text>
+                    <Text style={styles.assessmentDueSubtitle}>
+                      {data?.daysSinceAssessment == null
+                        ? "A few minutes now becomes a real baseline to compare against next time."
+                        : `It's been ${data.daysSinceAssessment} days since your last one -- retaking it is what turns today into a real trend.`}
+                    </Text>
+                  </View>
+                  <Ionicons name="chevron-forward" size={18} color={colors.primary} />
+                </TouchableOpacity>
+              ) : null}
+
+              {/* Today's Check-In -- 2026-08-08, explicitly requested: "on
+                  the home page they need to have the ability to select how
+                  they feel today, just a one question thing... the list to
+                  choose from... might need to be quite extensive." Reuses
+                  lib/checkinTags.ts's own already-extensive, categorized
+                  vocabulary and the existing wellbeing_checkins table
+                  (checkinType 'general') -- see the handlers above
+                  (openFeelingPicker/toggleFeelingTag/saveFeelingCheckin)
+                  for the full reasoning, including how valence is derived
+                  rather than asked as its own separate question. */}
+              <View style={[styles.feelingCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/log') }]}>
+                <CardLabel tabPath="/log" text="Today's Check-In" />
+                {feelingPickerOpen ? (
+                  <>
+                    <Text style={[styles.feelingPrompt, { color: tabColorFor('/log') }]}>
+                      How are you feeling today? Pick everything that applies.
+                    </Text>
+                    {getCheckinTagsByCategory().map((group) => (
+                      <View key={group.category} style={styles.feelingCategoryBlock}>
+                        <Text style={styles.feelingCategoryLabel}>{group.label}</Text>
+                        <View style={styles.feelingTagRow}>
+                          {group.tags.map((tag) => {
+                            const active = selectedFeelingTags.includes(tag.code);
+                            return (
+                              <TouchableOpacity
+                                key={tag.code}
+                                style={[
+                                  styles.feelingTagChip,
+                                  active && { backgroundColor: tabColorFor('/log'), borderColor: tabColorFor('/log') },
+                                ]}
+                                onPress={() => toggleFeelingTag(tag.code)}
+                              >
+                                <Text style={[styles.feelingTagText, active && styles.feelingTagTextActive]}>{tag.label}</Text>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    ))}
+                    <View style={styles.feelingActionsRow}>
+                      <TouchableOpacity style={styles.feelingCancelButton} onPress={() => setFeelingPickerOpen(false)}>
+                        <Text style={styles.feelingCancelButtonText}>Cancel</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={[
+                          styles.feelingSaveButton,
+                          { backgroundColor: tabColorFor('/log') },
+                          selectedFeelingTags.length === 0 && styles.feelingSaveButtonDisabled,
+                        ]}
+                        onPress={saveFeelingCheckin}
+                        disabled={selectedFeelingTags.length === 0 || feelingSaving}
+                      >
+                        <Text style={styles.feelingSaveButtonText}>{feelingSaving ? 'Saving…' : 'Save'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  </>
+                ) : data?.feelingCheckin ? (
+                  <TouchableOpacity onPress={openFeelingPicker} activeOpacity={0.75}>
+                    <Text style={[styles.feelingLoggedText, { color: tabColorFor('/log') }]}>
+                      {data.feelingCheckin.tags.length > 0
+                        ? data.feelingCheckin.tags.map((code) => getCheckinTagDefinition(code)?.label ?? code).join(', ')
+                        : 'Logged for today, no specific tags'}
+                    </Text>
+                    <Text style={styles.feelingChangeLink}>Tap to update</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={[styles.feelingStartButton, { borderColor: tabColorFor('/log') }]}
+                    onPress={openFeelingPicker}
+                    activeOpacity={0.85}
+                  >
+                    <Text style={[styles.feelingStartButtonText, { color: tabColorFor('/log') }]}>Log how you feel today</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+
+              <View style={[styles.arcCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/schedule') }]}>
                 <CardLabel tabPath="/schedule" text="Your Day" />
                 <DayArc items={data?.scheduledToday ?? []} onPressItem={setSelectedItem} labelColor={tabColorFor('/schedule')} />
                 <Text style={[styles.arcCaption, { color: tabColorFor('/schedule') }]}>
@@ -705,10 +948,19 @@ export default function HomeScreen() {
                     screen outside TAB_ROUTES entirely (see TabHub.tsx's
                     own profileActive comment for the same "not really a
                     tab" situation), so there's no real tab color to
-                    borrow here. */}
+                    borrow here.
+                    Relabeled "Symptom check-in," 2026-08-08 -- this opens
+                    the full periodic assessment (30 real questions across
+                    3 domains), which was never actually a daily action;
+                    "Daily check-in" became genuinely misleading once a
+                    real daily action (Today's Check-In, above) exists on
+                    this same page. This pill still opens the same
+                    assessment as always -- just named for what it actually
+                    is, available any time regardless of whether the new
+                    30-day due banner above is currently showing. */}
                 <TouchableOpacity style={styles.quickActionSecondary} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
                   <Ionicons name="pulse-outline" size={18} color={colors.primary} />
-                  <Text style={styles.quickActionSecondaryText}>Daily check-in</Text>
+                  <Text style={styles.quickActionSecondaryText}>Symptom check-in</Text>
                 </TouchableOpacity>
                 {/* Reverted the solid green fill, same day -- just the
                     border/icon/text carry Food's color now, matching every
@@ -1236,6 +1488,82 @@ const styles = StyleSheet.create({
     borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
   },
+
+  // The periodic-assessment due banner -- colors.primary throughout (same
+  // "no real tab owns this" reasoning as the Symptom check-in pill below
+  // it), deliberately more attention-grabbing than a plain info card
+  // (solid-tinted background, not just a bordered surface card) since the
+  // whole point is that it's hard to miss.
+  assessmentDueBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+    backgroundColor: colors.primaryMuted,
+    borderRadius: 16,
+    paddingVertical: 14,
+    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
+    borderWidth: TAB_BORDER_WIDTH,
+    borderColor: colors.primary,
+  },
+  assessmentDueTextCol: { flex: 1 },
+  assessmentDueTitle: { ...typography.bodyEmphasis, color: colors.primary },
+  assessmentDueSubtitle: { ...typography.caption, color: colors.textSecondary, marginTop: 2, lineHeight: 16 },
+
+  // Today's Check-In -- same card shape as orbCard/fuelGaugesCard above,
+  // alignItems left at the default (stretch) rather than orbCard's own
+  // 'center', since this one's real content (the tag grid, the prompt
+  // text) is naturally left-aligned, not a single centered widget.
+  feelingCard: {
+    paddingVertical: 16,
+    paddingHorizontal: INFO_CARD_PADDING_HORIZONTAL,
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    borderWidth: TAB_BORDER_WIDTH,
+    borderColor: colors.border,
+  },
+  feelingPrompt: { ...typography.body, marginBottom: 12 },
+  feelingCategoryBlock: { marginBottom: 12 },
+  feelingCategoryLabel: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 6 },
+  feelingTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  feelingTagChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    backgroundColor: colors.surfaceMuted,
+  },
+  feelingTagText: { ...typography.caption, color: colors.textPrimary },
+  feelingTagTextActive: { color: colors.textOnPrimary },
+  feelingActionsRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  feelingCancelButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  feelingCancelButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  feelingSaveButton: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+  },
+  feelingSaveButtonDisabled: { opacity: 0.5 },
+  feelingSaveButtonText: { ...typography.bodyEmphasis, color: colors.textOnPrimary },
+  // Shown once today's entry already exists -- tapping it reopens the
+  // picker (openFeelingPicker), pre-filled with what's already saved.
+  feelingLoggedText: { ...typography.bodyEmphasis },
+  feelingChangeLink: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  feelingStartButton: {
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+  },
+  feelingStartButtonText: { ...typography.bodyEmphasis },
 
   trendCard: {
     backgroundColor: colors.surface,

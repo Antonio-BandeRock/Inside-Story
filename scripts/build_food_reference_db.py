@@ -3415,32 +3415,42 @@ ASSESSMENT_DOMAINS = [
 # response_type: 'severity_0_4' (5-point Not at all..Very severe),
 # 'vas_0_100_10step' (11-point 0/10/.../100 visual-analog-style scale),
 # 'frequency_days_0_10' (0-10 days), 'wellbeing_0_5' (6-point WHO-5-style scale).
+#
+# 2026-08-08: every item prompt below now states its own explicit real
+# recall period (was previously bare, relying only on the domain's own
+# description text above the whole list) -- see
+# scripts/patch_assessment_item_timeframes.py's own docstring for the full
+# reasoning and the direct request behind it ("they don't get a frame of
+# reference per question otherwise"). That script is what actually applied
+# this to the already-built assets/data/foods_reference.db (patching the
+# compiled db directly, not a full rebuild); kept in sync here too so a
+# FUTURE full rebuild from this script doesn't silently revert the fix.
 ASSESSMENT_ITEMS = [
-    ("hypo_fatigue", "hypothyroid_symptoms", "Fatigue or low energy", "severity_0_4", 1),
-    ("hypo_cold_intolerance", "hypothyroid_symptoms", "Feeling cold when others around you don't", "severity_0_4", 2),
-    ("hypo_dry_skin", "hypothyroid_symptoms", "Dry or itchy skin", "severity_0_4", 3),
-    ("hypo_hair_loss", "hypothyroid_symptoms", "Hair thinning or hair loss", "severity_0_4", 4),
-    ("hypo_constipation", "hypothyroid_symptoms", "Constipation", "severity_0_4", 5),
-    ("hypo_weight_gain", "hypothyroid_symptoms", "Weight gain that's hard to explain", "severity_0_4", 6),
-    ("hypo_muscle_aches", "hypothyroid_symptoms", "Muscle aches or weakness", "severity_0_4", 7),
-    ("hypo_brain_fog", "hypothyroid_symptoms", "Brain fog or difficulty concentrating", "severity_0_4", 8),
-    ("hypo_swelling", "hypothyroid_symptoms", "Puffiness or swelling (face, hands, or feet)", "severity_0_4", 9),
-    ("hypo_slowed_movement", "hypothyroid_symptoms", "Feeling physically slowed down or sluggish", "severity_0_4", 10),
-    ("hypo_voice_changes", "hypothyroid_symptoms", "Voice hoarseness or a deepened voice", "severity_0_4", 11),
-    ("hypo_joint_pain", "hypothyroid_symptoms", "Joint pain or stiffness", "severity_0_4", 12),
-    ("hypo_hearing_changes", "hypothyroid_symptoms", "Noticeable changes in hearing", "severity_0_4", 13),
+    ("hypo_fatigue", "hypothyroid_symptoms", "Over the past 30 days, how much has fatigue or low energy bothered you?", "severity_0_4", 1),
+    ("hypo_cold_intolerance", "hypothyroid_symptoms", "Over the past 30 days, how much has feeling cold when others around you don't bothered you?", "severity_0_4", 2),
+    ("hypo_dry_skin", "hypothyroid_symptoms", "Over the past 30 days, how much has dry or itchy skin bothered you?", "severity_0_4", 3),
+    ("hypo_hair_loss", "hypothyroid_symptoms", "Over the past 30 days, how much has hair thinning or hair loss bothered you?", "severity_0_4", 4),
+    ("hypo_constipation", "hypothyroid_symptoms", "Over the past 30 days, how much has constipation bothered you?", "severity_0_4", 5),
+    ("hypo_weight_gain", "hypothyroid_symptoms", "Over the past 30 days, how much has unexplained weight gain bothered you?", "severity_0_4", 6),
+    ("hypo_muscle_aches", "hypothyroid_symptoms", "Over the past 30 days, how much have muscle aches or weakness bothered you?", "severity_0_4", 7),
+    ("hypo_brain_fog", "hypothyroid_symptoms", "Over the past 30 days, how much has brain fog or difficulty concentrating bothered you?", "severity_0_4", 8),
+    ("hypo_swelling", "hypothyroid_symptoms", "Over the past 30 days, how much has puffiness or swelling (face, hands, or feet) bothered you?", "severity_0_4", 9),
+    ("hypo_slowed_movement", "hypothyroid_symptoms", "Over the past 30 days, how much has feeling physically slowed down or sluggish bothered you?", "severity_0_4", 10),
+    ("hypo_voice_changes", "hypothyroid_symptoms", "Over the past 30 days, how much has voice hoarseness or a deepened voice bothered you?", "severity_0_4", 11),
+    ("hypo_joint_pain", "hypothyroid_symptoms", "Over the past 30 days, how much has joint pain or stiffness bothered you?", "severity_0_4", 12),
+    ("hypo_hearing_changes", "hypothyroid_symptoms", "Over the past 30 days, how much have you noticed changes in your hearing?", "severity_0_4", 13),
 
-    ("ibs_pain_severity", "digestive_ibs", "How severe has your abdominal pain been?", "vas_0_100_10step", 1),
+    ("ibs_pain_severity", "digestive_ibs", "Over the last 10 days, how severe has your abdominal pain been?", "vas_0_100_10step", 1),
     ("ibs_pain_frequency", "digestive_ibs", "Over the last 10 days, how many days did you have abdominal pain?", "frequency_days_0_10", 2),
-    ("ibs_bloating", "digestive_ibs", "How severe has your bloating or abdominal distension been?", "vas_0_100_10step", 3),
-    ("ibs_bowel_satisfaction", "digestive_ibs", "How dissatisfied have you been with your bowel habits?", "vas_0_100_10step", 4),
-    ("ibs_life_interference", "digestive_ibs", "How much have digestive symptoms interfered with your daily life?", "vas_0_100_10step", 5),
+    ("ibs_bloating", "digestive_ibs", "Over the last 10 days, how severe has your bloating or abdominal distension been?", "vas_0_100_10step", 3),
+    ("ibs_bowel_satisfaction", "digestive_ibs", "Over the last 10 days, how dissatisfied have you been with your bowel habits?", "vas_0_100_10step", 4),
+    ("ibs_life_interference", "digestive_ibs", "Over the last 10 days, how much have digestive symptoms interfered with your daily life?", "vas_0_100_10step", 5),
 
-    ("wellbeing_cheerful", "wellbeing", "I have felt cheerful and in good spirits", "wellbeing_0_5", 1),
-    ("wellbeing_calm", "wellbeing", "I have felt calm and relaxed", "wellbeing_0_5", 2),
-    ("wellbeing_energetic", "wellbeing", "I have felt active and had good energy", "wellbeing_0_5", 3),
-    ("wellbeing_rested", "wellbeing", "I have woken up feeling rested", "wellbeing_0_5", 4),
-    ("wellbeing_engaged", "wellbeing", "My daily life has felt full of things that interest me", "wellbeing_0_5", 5),
+    ("wellbeing_cheerful", "wellbeing", "Over the past two weeks, I have felt cheerful and in good spirits", "wellbeing_0_5", 1),
+    ("wellbeing_calm", "wellbeing", "Over the past two weeks, I have felt calm and relaxed", "wellbeing_0_5", 2),
+    ("wellbeing_energetic", "wellbeing", "Over the past two weeks, I have felt active and had good energy", "wellbeing_0_5", 3),
+    ("wellbeing_rested", "wellbeing", "Over the past two weeks, I have woken up feeling rested", "wellbeing_0_5", 4),
+    ("wellbeing_engaged", "wellbeing", "Over the past two weeks, my daily life has felt full of things that interest me", "wellbeing_0_5", 5),
 ]
 
 

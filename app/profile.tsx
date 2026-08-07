@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
@@ -128,6 +128,23 @@ function toIsoDate(year: number, month: number, day: number): string {
   const mm = String(month).padStart(2, '0');
   const dd = String(day).padStart(2, '0');
   return `${year}-${mm}-${dd}`;
+}
+
+// A small label above a single PopoverSelect field -- 2026-08-08, explicitly
+// requested ("put labels above the list box scrollable selectors... for
+// each field"), matching Side Builder's own renderLabeledPicker pattern
+// (a Text above a PopoverSelect, same file/field shape, just without that
+// version's own measured-minWidth stretching, which these fixed-width
+// fields don't need). A plain function, not a wrapped component, would
+// have worked too, but a real component reads more clearly at each call
+// site than a function returning JSX.
+function PickerField({ label, children }: { label: string; children: ReactNode }) {
+  return (
+    <View style={styles.pickerFieldGroup}>
+      <Text style={styles.pickerFieldLabel}>{label}</Text>
+      {children}
+    </View>
+  );
 }
 
 export default function ProfileScreen() {
@@ -551,39 +568,45 @@ export default function ProfileScreen() {
           age). Stored as a date rather than a fixed age so it stays accurate over time.
         </Text>
         <View style={styles.dateRow}>
-          <PopoverSelect
-            options={BIRTH_YEAR_OPTIONS}
-            selected={birthYear || null}
-            minWidth={72}
-            tabColor={colors.menuIconMuted}
-            tintedSurface
-            onSelect={(value) => {
-              setBirthYear(value);
-              commitBirthDate({ year: value });
-            }}
-          />
-          <PopoverSelect
-            options={BIRTH_MONTH_OPTIONS}
-            selected={birthMonth || null}
-            minWidth={52}
-            tabColor={colors.menuIconMuted}
-            tintedSurface
-            onSelect={(value) => {
-              setBirthMonth(value);
-              commitBirthDate({ month: value });
-            }}
-          />
-          <PopoverSelect
-            options={BIRTH_DAY_OPTIONS}
-            selected={birthDay || null}
-            minWidth={52}
-            tabColor={colors.menuIconMuted}
-            tintedSurface
-            onSelect={(value) => {
-              setBirthDay(value);
-              commitBirthDate({ day: value });
-            }}
-          />
+          <PickerField label="Year">
+            <PopoverSelect
+              options={BIRTH_YEAR_OPTIONS}
+              selected={birthYear || null}
+              minWidth={72}
+              tabColor={colors.menuIconMuted}
+              tintedSurface
+              onSelect={(value) => {
+                setBirthYear(value);
+                commitBirthDate({ year: value });
+              }}
+            />
+          </PickerField>
+          <PickerField label="Month">
+            <PopoverSelect
+              options={BIRTH_MONTH_OPTIONS}
+              selected={birthMonth || null}
+              minWidth={52}
+              tabColor={colors.menuIconMuted}
+              tintedSurface
+              onSelect={(value) => {
+                setBirthMonth(value);
+                commitBirthDate({ month: value });
+              }}
+            />
+          </PickerField>
+          <PickerField label="Day">
+            <PopoverSelect
+              options={BIRTH_DAY_OPTIONS}
+              selected={birthDay || null}
+              minWidth={52}
+              tabColor={colors.menuIconMuted}
+              tintedSurface
+              onSelect={(value) => {
+                setBirthDay(value);
+                commitBirthDate({ day: value });
+              }}
+            />
+          </PickerField>
           <TouchableOpacity onPress={clearBirthDate} style={styles.clearButton}>
             <Text style={styles.clearButtonText}>Clear</Text>
           </TouchableOpacity>
@@ -601,41 +624,47 @@ export default function ProfileScreen() {
         <View style={styles.dateRow}>
           {measurementSystem === 'imperial' ? (
             <>
-              <PopoverSelect
-                options={HEIGHT_FEET_OPTIONS}
-                selected={heightFeetInput || null}
-                minWidth={52}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setHeightFeetInput(value);
-                  commitHeight({ feet: value });
-                }}
-              />
-              <PopoverSelect
-                options={HEIGHT_INCHES_OPTIONS}
-                selected={heightInchesInput || null}
-                minWidth={52}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setHeightInchesInput(value);
-                  commitHeight({ inches: value });
-                }}
-              />
+              <PickerField label="Feet">
+                <PopoverSelect
+                  options={HEIGHT_FEET_OPTIONS}
+                  selected={heightFeetInput || null}
+                  minWidth={52}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setHeightFeetInput(value);
+                    commitHeight({ feet: value });
+                  }}
+                />
+              </PickerField>
+              <PickerField label="Inches">
+                <PopoverSelect
+                  options={HEIGHT_INCHES_OPTIONS}
+                  selected={heightInchesInput || null}
+                  minWidth={52}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setHeightInchesInput(value);
+                    commitHeight({ inches: value });
+                  }}
+                />
+              </PickerField>
             </>
           ) : (
-            <PopoverSelect
-              options={HEIGHT_CM_OPTIONS}
-              selected={heightCmInput || null}
-              minWidth={72}
-              tabColor={colors.menuIconMuted}
-              tintedSurface
-              onSelect={(value) => {
-                setHeightCmInput(value);
-                commitHeight({ cm: value });
-              }}
-            />
+            <PickerField label="Centimeters">
+              <PopoverSelect
+                options={HEIGHT_CM_OPTIONS}
+                selected={heightCmInput || null}
+                minWidth={72}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
+                onSelect={(value) => {
+                  setHeightCmInput(value);
+                  commitHeight({ cm: value });
+                }}
+              />
+            </PickerField>
           )}
           <TouchableOpacity onPress={clearHeight} style={styles.clearButton}>
             <Text style={styles.clearButtonText}>Clear</Text>
@@ -653,28 +682,32 @@ export default function ProfileScreen() {
           <View key={dayPart} style={styles.mealTimeRow}>
             <Text style={styles.mealTimeLabel}>{dayPart[0].toUpperCase() + dayPart.slice(1)}</Text>
             <View style={styles.dateRow}>
-              <PopoverSelect
-                options={HOUR_OPTIONS}
-                selected={mealTimeBuffers[dayPart].hour || null}
-                minWidth={48}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
-                  commitMealTime(dayPart, { hour: value });
-                }}
-              />
-              <PopoverSelect
-                options={MINUTE_OPTIONS}
-                selected={mealTimeBuffers[dayPart].minute || null}
-                minWidth={52}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
-                  commitMealTime(dayPart, { minute: value });
-                }}
-              />
+              <PickerField label="Hour">
+                <PopoverSelect
+                  options={HOUR_OPTIONS}
+                  selected={mealTimeBuffers[dayPart].hour || null}
+                  minWidth={48}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
+                    commitMealTime(dayPart, { hour: value });
+                  }}
+                />
+              </PickerField>
+              <PickerField label="Minute">
+                <PopoverSelect
+                  options={MINUTE_OPTIONS}
+                  selected={mealTimeBuffers[dayPart].minute || null}
+                  minWidth={52}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
+                    commitMealTime(dayPart, { minute: value });
+                  }}
+                />
+              </PickerField>
               <View style={styles.pillRow}>
                 {(['AM', 'PM'] as const).map((option) => {
                   const active = mealTimeBuffers[dayPart].ampm === option;
@@ -727,28 +760,32 @@ export default function ProfileScreen() {
           <>
             <Text style={styles.subLabel}>Eating window starts</Text>
             <View style={styles.dateRow}>
-              <PopoverSelect
-                options={HOUR_OPTIONS}
-                selected={eatingWindowStartBuffer.hour || null}
-                minWidth={48}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
-                  commitEatingWindow({ start: { hour: value } });
-                }}
-              />
-              <PopoverSelect
-                options={MINUTE_OPTIONS}
-                selected={eatingWindowStartBuffer.minute || null}
-                minWidth={52}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
-                  commitEatingWindow({ start: { minute: value } });
-                }}
-              />
+              <PickerField label="Hour">
+                <PopoverSelect
+                  options={HOUR_OPTIONS}
+                  selected={eatingWindowStartBuffer.hour || null}
+                  minWidth={48}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
+                    commitEatingWindow({ start: { hour: value } });
+                  }}
+                />
+              </PickerField>
+              <PickerField label="Minute">
+                <PopoverSelect
+                  options={MINUTE_OPTIONS}
+                  selected={eatingWindowStartBuffer.minute || null}
+                  minWidth={52}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
+                    commitEatingWindow({ start: { minute: value } });
+                  }}
+                />
+              </PickerField>
               <View style={styles.pillRow}>
                 {(['AM', 'PM'] as const).map((option) => {
                   const active = eatingWindowStartBuffer.ampm === option;
@@ -770,28 +807,32 @@ export default function ProfileScreen() {
 
             <Text style={styles.subLabel}>Eating window ends</Text>
             <View style={styles.dateRow}>
-              <PopoverSelect
-                options={HOUR_OPTIONS}
-                selected={eatingWindowEndBuffer.hour || null}
-                minWidth={48}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
-                  commitEatingWindow({ end: { hour: value } });
-                }}
-              />
-              <PopoverSelect
-                options={MINUTE_OPTIONS}
-                selected={eatingWindowEndBuffer.minute || null}
-                minWidth={52}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
-                  commitEatingWindow({ end: { minute: value } });
-                }}
-              />
+              <PickerField label="Hour">
+                <PopoverSelect
+                  options={HOUR_OPTIONS}
+                  selected={eatingWindowEndBuffer.hour || null}
+                  minWidth={48}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
+                    commitEatingWindow({ end: { hour: value } });
+                  }}
+                />
+              </PickerField>
+              <PickerField label="Minute">
+                <PopoverSelect
+                  options={MINUTE_OPTIONS}
+                  selected={eatingWindowEndBuffer.minute || null}
+                  minWidth={52}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
+                    commitEatingWindow({ end: { minute: value } });
+                  }}
+                />
+              </PickerField>
               <View style={styles.pillRow}>
                 {(['AM', 'PM'] as const).map((option) => {
                   const active = eatingWindowEndBuffer.ampm === option;
@@ -1074,6 +1115,17 @@ const styles = StyleSheet.create({
   },
   label: {
     ...typography.sectionTitle,
+    // 2026-08-08, explicitly requested: these card headers ("Birth date,"
+    // "Height," etc.) had no color set at all before this -- defaulting to
+    // React Native's own plain black -- and needed to be "a lighter color
+    // of grey, maybe like the color of the icon." colors.menuLabelMuted is
+    // exactly that: the same grey-blue family as colors.menuIconMuted (the
+    // Profile icon's own real, muted color -- see the picker fields'
+    // tabColor below), just deliberately lighter, since it was already
+    // split off from that darker token specifically to stay legible as
+    // real word-shaped text (see that token's own comment in
+    // constants/colors.ts).
+    color: colors.menuLabelMuted,
     marginBottom: 4,
   },
   helpText: {
@@ -1136,6 +1188,16 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 12,
   },
+  // Wraps a PickerField's own label + PopoverSelect -- same shape as Side
+  // Builder's own labeledPickerField/formLabel pair.
+  pickerFieldGroup: {
+    alignItems: 'flex-start',
+  },
+  pickerFieldLabel: {
+    ...typography.eyebrow,
+    color: colors.menuIconMuted,
+    marginBottom: 4,
+  },
   input: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -1143,6 +1205,16 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     backgroundColor: colors.surfaceMuted,
+    // 2026-08-08, explicitly requested: First/Last name's own typed text
+    // had no color set, defaulting to plain black -- unreadable against
+    // this dark input background once real text (not just the muted
+    // placeholder) was actually there. colors.textPrimary is this app's
+    // own standard light, readable body-text color, used everywhere else
+    // real content text appears. Only affects the two AppTextInputs left
+    // in this file (First/Last name -- every other field here is a
+    // PopoverSelect now) since `input` is this file's own local style, not
+    // a shared token other screens also depend on.
+    color: colors.textPrimary,
   },
   dateInputYear: {
     width: 76,

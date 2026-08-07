@@ -8708,6 +8708,34 @@ export async function deleteCheckin(id: string) {
   await db.runAsync('DELETE FROM wellbeing_checkins WHERE id = ?', id);
 }
 
+// The one check-in of a given type for a given LOCAL calendar date, if any
+// -- 2026-08-08, built for Home's own new "Today's Check-In" widget, which
+// needs to know whether today's real answer already exists (to show it
+// instead of the picker) without fetching/filtering a whole list client-
+// side the way a plain listCheckins() call would require. `logged_at` is a
+// real ISO timestamp, not a bare date, so this matches on its date prefix
+// rather than equality -- the same "YYYY-MM-DD" local-date convention this
+// app already uses everywhere else (see e.g. index.tsx's own
+// todayDateString()).
+export async function getCheckinForDate(date: string, checkinType: CheckinType): Promise<WellbeingCheckin | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<Omit<WellbeingCheckin, 'tags'>>(
+    `
+      SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
+             related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, created_at AS createdAt
+      FROM wellbeing_checkins
+      WHERE checkin_type = ? AND logged_at LIKE ?
+      ORDER BY logged_at DESC
+      LIMIT 1
+    `,
+    checkinType,
+    `${date}%`,
+  );
+  if (!row) return null;
+  const [withTags] = await attachCheckinTags(db, [row]);
+  return withTags;
+}
+
 export type ExerciseLog = {
   id: string;
   loggedAt: string;
