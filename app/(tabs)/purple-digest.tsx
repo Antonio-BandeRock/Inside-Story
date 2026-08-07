@@ -1,7 +1,8 @@
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
+import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -14,14 +15,29 @@ import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import {
+  ALL_DIGEST_ENTRIES,
   DIGEST_CATEGORY_META,
   findDigestEntryById,
   getEntriesForCategory,
   isProblemFoodEntry,
+  searchDigestEntries,
   type AnyDigestEntry,
   type DigestCategoryKey,
   type EvidenceTier,
 } from '../../lib/digest';
+
+// A synthetic lens key, alongside every real category -- 2026-08-08,
+// explicitly requested: "a way to search for things the person wants to
+// read about in the Digest... draw from the entire list of all the
+// available information," the same shape as Insights' own Food Lookup
+// searching across every category at once rather than one at a time.
+// Deliberately not folded into DigestCategoryKey itself (lib/digest/
+// types.ts) -- 'search' isn't a real content category with its own
+// entries, it's a tool for finding entries that already live in a real
+// category, so it stays a screen-local concern rather than something every
+// other consumer of DigestCategoryKey (getEntriesForCategory, etc.) would
+// have to account for.
+type PurpleDigestLens = DigestCategoryKey | 'search';
 
 // The minimal shape scrollEntryIntoView actually needs from a card ref or
 // the ScrollView ref -- both `Animated.View` (via Reanimated's own ref
@@ -80,6 +96,18 @@ const DIGEST_READING_HELP: HelpSection = {
   heading: 'Reading an entry',
   body: 'Tap any card in this category to expand it to its full write-up and citations. Tap it again, or tap a different card, to collapse it and jump to the new one. The colored dot on each card is its own evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
 };
+
+// The 'search' lens's own Info content -- kept separate from
+// DIGEST_LENS_HELP (typed Record<DigestCategoryKey, HelpSection>, so
+// 'search' can't be a key there without widening every other consumer of
+// that type unnecessarily).
+const DIGEST_SEARCH_HELP: HelpSection[] = [
+  {
+    heading: 'Search All',
+    body: 'Searches every entry in this Digest at once, across all categories, not just the one you last had open. Matches a word anywhere it appears: a title, a food name, the full write-up, or a cited source. Tap a result to jump straight to it, wherever it actually lives.',
+  },
+  DIGEST_READING_HELP,
+];
 
 // One real, bespoke explanation per lens for the LensHub Info tile --
 // 2026-08-07, explicitly requested: "Write the information about each
@@ -217,7 +245,11 @@ export default function PurpleDigestScreen() {
   useRegisterScreenHelp('Purple Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
 
-  const [lens, setLens] = useState<DigestCategoryKey>('foodAdditives');
+  const [lens, setLens] = useState<PurpleDigestLens>('foodAdditives');
+  // The Search All lens's own live query text -- reset whenever the tab
+  // loses/regains focus below, same as `revealed`, so returning to Purple
+  // Digest never resumes a stale search.
+  const [searchQuery, setSearchQuery] = useState('');
   // Same reset-on-focus-change pattern as Insights/Schedule/Food -- arriving
   // or re-arriving at this tab always shows the resting "pick a category"
   // prompt first, never an instant resume of whatever was last open.
@@ -225,7 +257,11 @@ export default function PurpleDigestScreen() {
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
-      return () => setRevealed(false);
+      setSearchQuery('');
+      return () => {
+        setRevealed(false);
+        setSearchQuery('');
+      };
     }, []),
   );
 
@@ -258,19 +294,38 @@ export default function PurpleDigestScreen() {
   // doesn't itself force a re-render.
   const currentScrollY = useRef(0);
 
-  const LENSES: LensOption<DigestCategoryKey>[] = DIGEST_CATEGORY_META.map((meta) => ({
-    key: meta.key,
-    label: meta.label,
-    gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
-    icon: meta.icon,
-    help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
-  }));
+  const LENSES: LensOption<PurpleDigestLens>[] = [
+    // Placed first, same reasoning Glossary's own front placement already
+    // established (see DIGEST_CATEGORY_META's own comment on that entry) --
+    // a cross-category tool reached for constantly, not a category read
+    // start to finish, belongs at the front of the picker, not appended
+    // after every real category.
+    {
+      key: 'search',
+      label: 'Search All',
+      icon: 'search-outline',
+      help: DIGEST_SEARCH_HELP,
+    },
+    ...DIGEST_CATEGORY_META.map((meta) => ({
+      key: meta.key,
+      label: meta.label,
+      gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
+      icon: meta.icon,
+      help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
+    })),
+  ];
 
-  const activeLensLabel = DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
+  const activeLensLabel =
+    lens === 'search' ? 'Search All' : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
   // Plain, original category order -- no reordering. See cardOffsets' own
   // comment above for why (a real correction of an earlier "move the
   // expanded card to the front of the list" approach).
-  const entries = getEntriesForCategory(lens);
+  const entries = lens === 'search' ? [] : getEntriesForCategory(lens);
+  // Recomputed on every keystroke -- a plain in-memory scan over a few
+  // hundred entries (see searchDigestEntries's own comment, lib/digest/
+  // index.ts), cheap enough that no debounce is needed for this to feel
+  // instant.
+  const searchResults = useMemo(() => searchDigestEntries(searchQuery), [searchQuery]);
 
   // How far above a scrolled-to card's own top edge to stop -- 2026-08-07,
   // set to the exact figure given directly: "The header of the one I
@@ -404,11 +459,39 @@ export default function PurpleDigestScreen() {
                 <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
               </View>
               <Text style={styles.categoryDescription}>
-                {DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
+                {lens === 'search'
+                  ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
+                  : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
               </Text>
             </View>
 
-            {entries.length === 0 ? (
+            {lens === 'search' ? (
+              <>
+                <AppTextInput
+                  style={styles.searchInput}
+                  placeholder="Search titles, findings, mechanisms, sources..."
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
+                {searchQuery.trim().length === 0 ? (
+                  <Text style={styles.emptyText}>
+                    Type a word or phrase to search every category at once -- a mechanism, a food, an
+                    author&apos;s name, anything this Digest actually says somewhere.
+                  </Text>
+                ) : searchResults.length === 0 ? (
+                  <Text style={styles.emptyText}>No matches for &ldquo;{searchQuery.trim()}&rdquo;.</Text>
+                ) : (
+                  <>
+                    <Text style={styles.searchResultCount}>
+                      {searchResults.length} match{searchResults.length === 1 ? '' : 'es'}
+                    </Text>
+                    {searchResults.map((entry) => (
+                      <SearchResultCard key={entry.id} entry={entry} onPress={() => jumpToRelated(entry.id)} />
+                    ))}
+                  </>
+                )}
+              </>
+            ) : entries.length === 0 ? (
               <Text style={styles.emptyText}>Nothing here yet.</Text>
             ) : (
               entries.map((entry) => (
@@ -495,6 +578,31 @@ export default function PurpleDigestScreen() {
         }}
       />
     </View>
+  );
+}
+
+function categoryLabelForEntry(entry: AnyDigestEntry): string {
+  return DIGEST_CATEGORY_META.find((meta) => meta.key === entry.category)?.label ?? entry.category;
+}
+
+// A compact, unexpandable result row for the Search All lens -- tapping it
+// reuses jumpToRelated (the same mechanism a Related chip already uses),
+// so it lands you at the real card, in its real category, expanded and
+// scrolled into view, rather than trying to render the full entry a second
+// time inside the search results themselves.
+function SearchResultCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: () => void }) {
+  const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
+  return (
+    <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
+      <View style={styles.cardHeaderRow}>
+        {!isProblemFoodEntry(entry) ? (
+          <View style={[styles.tierDot, { backgroundColor: tierColor(entry.overallTier) }]} />
+        ) : null}
+        <Text style={styles.cardTitle}>{title}</Text>
+      </View>
+      <Text style={styles.searchResultCategory}>{categoryLabelForEntry(entry)}</Text>
+      <Text style={styles.cardTeaser}>{entry.teaser}</Text>
+    </TouchableOpacity>
   );
 }
 
@@ -630,6 +738,19 @@ const styles = StyleSheet.create({
   categoryHeaderText: { ...typography.screenTitle, color: TAB_COLOR },
   categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   emptyText: { ...typography.body, color: colors.textSecondary },
+  searchInput: {
+    ...typography.body,
+    borderWidth: 1,
+    borderColor: TAB_COLOR,
+    borderRadius: 10,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    backgroundColor: colors.surface,
+    color: colors.textPrimary,
+    marginBottom: 14,
+  },
+  searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
+  searchResultCategory: { ...typography.caption, color: TAB_COLOR, marginBottom: 4 },
   card: {
     borderWidth: 2,
     borderColor: TAB_COLOR,

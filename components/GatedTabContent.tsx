@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { TAB_ROUTES } from '../constants/tabs';
 import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 
 // 2026-07-26: replaces every non-Home tab's own distinct background always
@@ -44,6 +45,7 @@ import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 // swipe/hub-tap away" signaling, since dropping is now instant and needs
 // no advance notice) is gone along with it.
 export function GatedTabContent({
+  pageTitle,
   variant,
   revealed,
   children,
@@ -66,10 +68,17 @@ export function GatedTabContent({
   revealed: boolean;
   children?: ReactNode;
 }) {
+  // 2026-08-08: which per-tab visual-preferences override (if any) applies
+  // to this screen's own revealed background -- resolved from pageTitle via
+  // TAB_ROUTES rather than requiring every one of the 7 call sites to pass
+  // a second, redundant prop. See ScreenBackground.tsx's own `routeKey`
+  // comment for how it's used.
+  const routeKey = TAB_ROUTES.find((route) => route.title === pageTitle)?.path as string | undefined;
+
   return (
     <View style={styles.body}>
       {revealed ? (
-        <ScreenBackground variant={variant}>{children}</ScreenBackground>
+        <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
       ) : null}
     </View>
   );

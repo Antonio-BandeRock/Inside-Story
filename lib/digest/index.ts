@@ -19,7 +19,7 @@ import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
-import type { AnyDigestEntry, DigestEntryCategory } from './types';
+import { isProblemFoodEntry, type AnyDigestEntry, type DigestEntryCategory } from './types';
 
 export * from './types';
 
@@ -234,4 +234,51 @@ export function findDigestEntriesByIds(ids: string[]): AnyDigestEntry[] {
   return ids
     .map((id) => findDigestEntryById(id))
     .filter((entry): entry is AnyDigestEntry => entry != null);
+}
+
+// 2026-08-08, explicitly requested: "a way to search for things the person
+// wants to read about in the Digest... draw from the entire list of all the
+// available information." Every category's own list stays scoped to just
+// that category (unchanged) -- this is a separate, cross-category search
+// over ALL_DIGEST_ENTRIES at once, the same shape as Insights' own Food
+// Lookup searching the whole reference database regardless of which
+// category a food happens to sit in.
+//
+// A plain, in-memory, every-term-must-match-somewhere substring search --
+// no SQL involved (this content lives in TS arrays, not the SQLite
+// reference database), and with only a few hundred entries total, no
+// indexing or debouncing is needed for this to feel instant. Matches
+// against everything a person would actually recognize a topic by: the
+// title/food name and one-line teaser (what shows on the collapsed card),
+// the full summary/problem/mechanism/swaps text (so a search for a specific
+// mechanism like "zonulin" or "deiodinase" finds entries that discuss it
+// without naming it in the title), and each citation's own source text (so
+// a remembered author/journal name works too).
+function digestSearchHaystack(entry: AnyDigestEntry): string {
+  const citationText = entry.citations.map((citation) => citation.source).join(' ');
+  if (isProblemFoodEntry(entry)) {
+    return [entry.foodName, entry.teaser, entry.problem, entry.mechanism, entry.swaps.join(' '), citationText]
+      .join(' ')
+      .toLowerCase();
+  }
+  return [entry.title, entry.teaser, entry.summary, citationText].join(' ').toLowerCase();
+}
+
+export function searchDigestEntries(query: string, limit = 60): AnyDigestEntry[] {
+  const terms = query
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+  if (terms.length === 0) return [];
+
+  const matches: AnyDigestEntry[] = [];
+  for (const entry of ALL_DIGEST_ENTRIES) {
+    const haystack = digestSearchHaystack(entry);
+    if (terms.every((term) => haystack.includes(term))) {
+      matches.push(entry);
+      if (matches.length >= limit) break;
+    }
+  }
+  return matches;
 }

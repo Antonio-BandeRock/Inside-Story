@@ -59,7 +59,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: '6 Dimensions',
-        body: 'How many D1-D6 flags (goitrogenic, high-risk, etc.) got logged per day, across the date range.',
+        body: 'How many 6-DFF flags (goitrogenic, high-risk, etc.) got logged per day, across the date range.',
       },
       TRENDS_PATTERN_CAVEAT_HELP,
     ],
@@ -111,7 +111,7 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: '6 Dimensions',
-    body: 'How many D1-D6 flags (goitrogenic, high-risk, etc.) got logged per day, across the date range.',
+    body: 'How many 6-DFF flags (goitrogenic, high-risk, etc.) got logged per day, across the date range.',
   },
   {
     heading: 'Symptoms & Flares',

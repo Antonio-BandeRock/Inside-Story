@@ -214,10 +214,10 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   {
     id: 'glossary-d1-d6',
     category: 'glossary',
-    title: "D1-D6 (This App's Six Dimensions)",
+    title: '6-DFF (The 6 Dimensions of Food Friendliness)',
     teaser: 'This app\'s own scoring framework, scoring every food across six separate, research-backed factors.',
     summary:
-      'This app\'s own six-dimension scoring rubric, used throughout Insights: micronutrient density and bioavailability, inflammatory response potential, lipid metabolic compatibility, hormonal support and conversion, digestive tolerance and absorption, and oxalate load and mineral interference. Not the same six-digit code as the deiodinase enzymes (D1, D2, D3) covered elsewhere in this glossary, an easy naming collision worth knowing about.',
+      'This app\'s own six-dimension scoring rubric, used throughout Insights, referred to by its acronym 6-DFF or, just as often, plainly as "the 6 Dimensions." It covers micronutrient density and bioavailability, inflammatory response potential, lipid metabolic compatibility, hormonal support and conversion, digestive tolerance and absorption, and oxalate load and mineral interference. These six are specific to Hashimoto\'s -- plenty of other food dimensions exist that would matter to anyone, not just someone with Hashimoto\'s. Worth knowing: this isn\'t the same thing as the deiodinase enzymes (D1, D2, D3) covered elsewhere in this glossary, an easy naming collision.',
     citations: [],
     overallTier: 'strong',
   },

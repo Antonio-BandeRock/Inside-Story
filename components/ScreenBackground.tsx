@@ -6,8 +6,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { AnimatedLinearGradient } from './AnimatedLinearGradient';
 import { AnimatedSky } from './AnimatedSky';
+import { GenericBackground } from './GenericBackground';
 
 // 2026-07-26: this used to be its own local formula (image bottom edge =
 // TabHub's own button position + a 20px margin above it), back when the
@@ -70,6 +72,7 @@ export function ScreenBackground({
   children,
   variant = 'field',
   sky = false,
+  routeKey,
 }: {
   children?: ReactNode;
   variant?: BackgroundVariant;
@@ -79,12 +82,23 @@ export function ScreenBackground({
   // this isn't validated against `variant` since Home is the only caller
   // that would ever pass it.
   sky?: boolean;
+  // 2026-08-08: which of visualPreferences' own per-tab overrides applies
+  // here (a real TAB_ROUTES path, e.g. '/insights') -- passed by
+  // GatedTabContent.tsx for every individually-revealed tab background.
+  // Left undefined for the one other real caller, the shared/resting layer
+  // mounted once in app/(tabs)/_layout.tsx, which instead follows
+  // `homeBackgroundStyle` (see effectiveStyle below) -- that's "the
+  // flowery shared background" the person named as its own, separate
+  // toggle from each individual tab's own image.
+  routeKey?: string;
 }) {
   const bottomInset = useBackgroundBottomInset();
   const background = BACKGROUNDS[variant];
   // Same shared Reanimated value ScreenHeader's own app-name text and
   // divider read (see hooks/useIridescentHueRotation) -- this line shimmers
-  // in lockstep with those, not on its own separate schedule.
+  // in lockstep with those, not on its own separate schedule. Untouched by
+  // the visual-preferences opt-out below, per explicit direction: "the
+  // iridescence also stays."
   const hueRotation = useIridescentHueRotation();
   const animatedProps = useAnimatedProps(() => ({
     colors: rotatedIridescentPalette(hueRotation.value),
@@ -100,16 +114,28 @@ export function ScreenBackground({
     setImageSize({ width, height });
   }
 
+  const visualPrefs = useVisualPreferences();
+  const effectiveStyle = routeKey
+    ? (visualPrefs.tabBackgroundStyle[routeKey] ?? 'photo')
+    : visualPrefs.homeBackgroundStyle;
+  // Sky only ever pairs with the real photo -- there's no open-sky band to
+  // animate a sun/moon/starfield over a generic gradient or a flat off
+  // state, so this is forced off the instant the photo itself is.
+  const effectiveSky = sky && effectiveStyle === 'photo' && visualPrefs.skyAnimationsEnabled;
+
   return (
-    <View style={styles.body}>
-      <Image
-        source={background.source}
-        style={[styles.backgroundImage, { bottom: bottomInset }]}
-        contentFit={background.contentFit}
-        contentPosition="center"
-        onLayout={handleImageLayout}
-      />
-      {sky && imageSize ? <AnimatedSky width={imageSize.width} height={imageSize.height} /> : null}
+    <View style={[styles.body, effectiveStyle === 'off' && styles.bodyFlat]}>
+      {effectiveStyle === 'photo' ? (
+        <Image
+          source={background.source}
+          style={[styles.backgroundImage, { bottom: bottomInset }]}
+          contentFit={background.contentFit}
+          contentPosition="center"
+          onLayout={handleImageLayout}
+        />
+      ) : null}
+      {effectiveStyle === 'generic' ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
+      {effectiveSky && imageSize ? <AnimatedSky width={imageSize.width} height={imageSize.height} /> : null}
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
       {/* The footer's own fine line, mirroring ScreenHeader's divider --
@@ -141,6 +167,11 @@ const styles = StyleSheet.create({
   // place relative to this box, not the whole screen; overflow: 'hidden'
   // keeps the image from ever bleeding up behind the header above it.
   body: { flex: 1, position: 'relative', overflow: 'hidden' },
+  // Only applied when the effective style is 'off' -- no Image, no
+  // GenericBackground, so this fills the space they'd otherwise have with
+  // the same flat color bottomMask already uses, rather than leaving it
+  // whatever transparent color happens to be behind this View.
+  bodyFlat: { backgroundColor: colors.background },
   backgroundImage: {
     position: 'absolute',
     top: 0,

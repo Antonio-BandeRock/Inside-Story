@@ -6,7 +6,9 @@ import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import {
   DietarySex,
   getStoredMeasurementSystem,
@@ -20,6 +22,27 @@ import {
 import { ageFromBirthDate } from '../lib/profile';
 import { cmToFeetInches, detectMeasurementSystemFromLocale, feetInchesToCm, MeasurementSystem } from '../lib/measurement';
 import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../lib/timeOfDay';
+import {
+  GENERIC_PALETTE_LABELS,
+  setVisualPreferences,
+  type BackgroundStyle,
+  type GenericPalette,
+} from '../lib/visualPreferences';
+
+// Every tab that gets its own revealed background image (see
+// GatedTabContent.tsx) -- Home is deliberately excluded, since it has no
+// background of its own to individually toggle; it always shows the shared
+// resting layer (see the "Shared background" card below), never a
+// GatedTabContent reveal.
+const BACKGROUND_TAB_ROUTES = TAB_ROUTES.filter((route) => route.path !== '/');
+
+const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
+  { value: 'photo', label: 'Photo' },
+  { value: 'generic', label: 'Generic' },
+  { value: 'off', label: 'Off' },
+];
+
+const GENERIC_PALETTE_OPTIONS: GenericPalette[] = ['lavender', 'seafoam', 'sand', 'dusk'];
 
 type DayPart = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const DAY_PARTS: DayPart[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -89,6 +112,12 @@ export default function ProfileScreen() {
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   const [savedFlash, setSavedFlash] = useState(false);
   const [lastAssessment, setLastAssessment] = useState<SymptomAssessmentRecord | null>(null);
+  // Live, app-wide (lib/visualPreferences.ts) -- reading it via the same
+  // hook every consumer uses means this screen's own pills always reflect
+  // whatever's really stored, and every edit here reaches the shared
+  // background / each tab's own revealed background immediately, with no
+  // extra local state to keep in sync.
+  const visualPrefs = useVisualPreferences();
 
   // Local text-field buffers -- kept separate from `profile` so the person
   // can type a partial value (e.g. just a year) without it being parsed/
@@ -752,6 +781,118 @@ export default function ProfileScreen() {
           </TouchableOpacity>
         </View>
       ) : null}
+
+      {/* Appearance -- 2026-08-08, explicitly requested as an opt-out for
+          the shared flowery background, its animated sky overlay, and each
+          individual tab's own background photo, with a calmer generic
+          alternative in place of any of them. Header/footer colors, box/
+          font/line colors, and the iridescent shimmer are deliberately
+          untouched by any setting here -- this only ever affects the
+          background layer itself. */}
+      <View style={styles.card}>
+        <Text style={styles.label}>Shared background</Text>
+        <Text style={styles.helpText}>
+          The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps it
+          for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it entirely,
+          leaving the same flat background color as the header and footer.
+        </Text>
+        <View style={styles.pillRow}>
+          {BACKGROUND_STYLE_OPTIONS.map((option) => {
+            const active = option.value === visualPrefs.homeBackgroundStyle;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.pillSmall, active && styles.pillActive]}
+                onPress={() => setVisualPreferences({ homeBackgroundStyle: option.value })}
+              >
+                <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        <Text style={styles.subLabel}>Animated sky (sun, moon, stars, day/night)</Text>
+        <Text style={styles.helpText}>
+          Only shows while the shared background above is set to &ldquo;Photo.&rdquo; Turning it off stops the
+          continuously-running animation, which is the real thing to disable if battery use matters more
+          than the visual.
+        </Text>
+        <View style={styles.pillRow}>
+          {([
+            { value: true, label: 'Animated' },
+            { value: false, label: 'Off' },
+          ]).map((option) => (
+            <TouchableOpacity
+              key={option.label}
+              style={[styles.pillSmall, visualPrefs.skyAnimationsEnabled === option.value && styles.pillActive]}
+              onPress={() => setVisualPreferences({ skyAnimationsEnabled: option.value })}
+            >
+              <Text
+                style={[
+                  styles.pillTextSmall,
+                  visualPrefs.skyAnimationsEnabled === option.value && styles.pillTextActive,
+                ]}
+              >
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      </View>
+
+      <View style={styles.card}>
+        <Text style={styles.label}>Individual tab backgrounds</Text>
+        <Text style={styles.helpText}>
+          Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
+          rather than all at once -- turn off just the ones you don&apos;t want, and leave the rest as they are.
+        </Text>
+        {BACKGROUND_TAB_ROUTES.map((route) => (
+          <View key={route.path as string} style={styles.mealTimeRow}>
+            <Text style={styles.mealTimeLabel}>{route.title}</Text>
+            <View style={styles.pillRow}>
+              {BACKGROUND_STYLE_OPTIONS.map((option) => {
+                const current = visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo';
+                const active = option.value === current;
+                return (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[styles.pillSmall, active && styles.pillActive]}
+                    onPress={() =>
+                      setVisualPreferences({
+                        tabBackgroundStyle: { [route.path as string]: option.value },
+                      })
+                    }
+                  >
+                    <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ))}
+
+        <Text style={styles.subLabel}>Generic color combination</Text>
+        <Text style={styles.helpText}>
+          Used anywhere above (or the shared background) set to &ldquo;Generic.&rdquo; One shared choice, not a
+          separate pick per tab.
+        </Text>
+        <View style={styles.pillRow}>
+          {GENERIC_PALETTE_OPTIONS.map((palette) => {
+            const active = palette === visualPrefs.genericPalette;
+            return (
+              <TouchableOpacity
+                key={palette}
+                style={[styles.pillSmall, active && styles.pillActive]}
+                onPress={() => setVisualPreferences({ genericPalette: palette })}
+              >
+                <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
+                  {GENERIC_PALETTE_LABELS[palette]}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
     </ScrollView>
     {closeButton}
     </View>
