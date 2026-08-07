@@ -203,6 +203,10 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
     heading: 'Rheumatoid Arthritis',
     body: "This app's second real condition, written as RA's own primary content rather than as evidence borrowed for someone else's disease. Covers the two food levers with the strongest trial evidence (omega-3s at a specific dose threshold, a Mediterranean eating pattern with real disease-activity-score results), a landmark fasting-then-vegetarian trial that only holds up for a real subset of people, and two medication interactions -- methotrexate with folate, and methotrexate with alcohol -- both more precise and more forgiving than the blanket warnings patients often hear. Closes on the real, common overlap between RA and Hashimoto's, the reason this condition was built first.",
   },
+  psoriasis: {
+    heading: 'Psoriasis',
+    body: "This app's third real condition, covering psoriasis and psoriatic arthritis on their own terms. Weight loss and a Mediterranean eating pattern both carry strong trial evidence with real, measured PASI-score improvement; alcohol tracks with worse disease (most clearly in men) and a striking mortality finding regardless of sex; a specific antibody-positive minority sees real, biopsy-confirmed skin improvement from cutting gluten. Also covers two findings honestly reported as unproven rather than smoothed into false confidence -- nightshade avoidance and oral vitamin D supplementation -- plus two serious, specific medication-food interactions (cyclosporine with grapefruit, acitretin with alcohol) worth knowing exactly, not just generally.",
+  },
 };
 
 // A deliberate line-break point for each category name that's long enough

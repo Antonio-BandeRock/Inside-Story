@@ -144,7 +144,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
       { source: 'Psoriasis patients with antibodies to gliadin can be improved by a gluten-free diet', url: 'https://pubmed.ncbi.nlm.nih.gov/10651693/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mito-visceral-fat-endotoxin-barrier'],
+    relatedIds: ['mito-visceral-fat-endotoxin-barrier', 'psoriasis-overview'],
   },
   {
     id: 'other-tying-together',

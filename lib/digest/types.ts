@@ -119,6 +119,13 @@ export const DIGEST_CATEGORY_KEYS = [
   // including how it deliberately doesn't duplicate the existing
   // 'other-rheumatoid-arthritis' entry in otherAutoimmune.ts.
   'rheumatoidArthritis',
+  // 2026-08-08, twelfth addition, same day: Psoriasis / Psoriatic Arthritis
+  // -- this app's third real condition, next in the same priority order.
+  // Same reuse-first pattern as RA: see psoriasis.ts's own header comment,
+  // including two entries (oral vitamin D, omega-3) that honestly report
+  // mixed or null evidence rather than smoothing a popular claim into false
+  // confidence.
+  'psoriasis',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

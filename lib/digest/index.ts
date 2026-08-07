@@ -18,6 +18,7 @@ import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
+import { PSORIASIS_ENTRIES } from './psoriasis';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import { isProblemFoodEntry, type AnyDigestEntry, type DigestEntryCategory } from './types';
@@ -30,7 +31,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808020000';
+export const PURPLE_DIGEST_VERSION = '20260808040000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -58,6 +59,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...PREGNANCY_FAMILY_PLANNING_ENTRIES,
   ...COMPLEMENTARY_THERAPIES_ENTRIES,
   ...RHEUMATOID_ARTHRITIS_ENTRIES,
+  ...PSORIASIS_ENTRIES,
 ];
 
 export type DigestCategoryKey = DigestEntryCategory | 'problemFoods';
@@ -232,6 +234,15 @@ export const DIGEST_CATEGORY_META: {
     label: 'Rheumatoid Arthritis',
     icon: 'pulse-outline',
     description: 'Real food and medication guidance for RA on its own terms, including the most common real overlap with Hashimoto\'s of any two conditions in the research.',
+  },
+  // 2026-08-08, twelfth addition, same day: Psoriasis / Psoriatic Arthritis,
+  // this app's third real condition, next in the same priority order. See
+  // psoriasis.ts's own header comment for the full reasoning.
+  {
+    key: 'psoriasis',
+    label: 'Psoriasis',
+    icon: 'bandage-outline',
+    description: 'Real food and medication guidance for psoriasis and psoriatic arthritis on their own terms, including two findings honestly reported as unproven rather than smoothed into false confidence.',
   },
 ];
 
