@@ -1157,6 +1157,61 @@ export async function getFoodScores(foodId: number, source: string) {
   );
 }
 
+// Condition-aware food scoring, added for the multi-autoimmune expansion (Rheumatoid
+// Arthritis is the first condition built out this way, 2026-08-08 -- see CLAUDE.md's
+// own Status entry for the full reasoning). This is a genuinely additive layer, not a
+// replacement: getFoodScores() above and all 11 get*SixDimensionsBreakdown functions
+// throughout this file are untouched and keep reading Hashimoto's own 25 sub-criteria
+// exactly as before. A condition's own "6-DFF-equivalent" score draws from two real
+// sources rather than needing a from-scratch re-score of all 22,022 foods:
+//   1. Sub-criteria this condition owns outright (sub_criteria.home_condition_code),
+//      e.g. RA's own "Common Elimination-Diet Trigger Food".
+//   2. Existing sub-criteria (usually Hashimoto's own) that real research confirms are
+//      chemically/scientifically identical to what this condition's own literature
+//      calls for -- reused via sub_criterion_condition_relevance rather than
+//      duplicated, carrying that table's own condition-specific dimension label,
+//      relevance note, and citation instead of the Hashimoto's-framed original.
+// Real UI wiring (making an Insights/builder screen actually condition-aware, and any
+// per-dish/per-meal aggregation equivalent to aggregateBySubCriterion) is a deliberate,
+// separate next step -- this function only makes the data reachable.
+export type ConditionFoodScore = {
+  dimension: string;
+  subCriterion: string;
+  tier: string;
+  relevanceNote: string | null;
+  citation: string | null;
+};
+
+export async function getFoodScoresForCondition(
+  foodId: number,
+  source: string,
+  conditionCode: string,
+) {
+  const db = await getReferenceDatabase();
+  return db.getAllAsync<ConditionFoodScore>(
+    `
+      SELECT
+        COALESCE(scr.dimension_label, sc.dimension) AS dimension,
+        sc.sub_criterion AS subCriterion,
+        fs.tier AS tier,
+        scr.relevance_note AS relevanceNote,
+        scr.citation AS citation
+      FROM food_scores fs
+      JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+      LEFT JOIN sub_criterion_condition_relevance scr
+        ON scr.sub_criterion_id = sc.id AND scr.condition_code = ?
+      WHERE fs.food_id = ? AND fs.source = ?
+        AND (sc.home_condition_code = ? OR scr.condition_code = ?)
+      ORDER BY dimension, sc.sub_criterion
+    `,
+    conditionCode,
+    foodId,
+    source,
+    conditionCode,
+    conditionCode,
+  );
+}
+
 // Phase 1 "standard panel" nutrients (energy, macros, common vitamins and
 // minerals) -- amounts are per 100g as imported from each food's own
 // national source. `source` on the returned rows doubles as the
