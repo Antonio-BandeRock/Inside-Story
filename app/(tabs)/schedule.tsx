@@ -2058,6 +2058,11 @@ function MyMedsLens() {
                   <View key={row.key}>
                     <View style={styles.ingredientRow}>
                       <View style={styles.ingredientNutrientCol}>
+                        {/* colors.tabFood, not this lens's own TAB_COLOR (tabSchedules) --
+                            2026-08-08, explicitly requested to match "the same color as
+                            those on the Side Dish Builder," which passes this same
+                            constant as its own tabColor. All four PopoverSelect fields
+                            in this lens share it, for one consistent picker color. */}
                         <PopoverSelect
                           selected={row.nutrientCode || null}
                           options={nutrientOptions}
@@ -2066,7 +2071,7 @@ function MyMedsLens() {
                             ensureNutrientDataLoaded(value);
                           }}
                           placeholder="Nutrient"
-                          tabColor={TAB_COLOR}
+                          tabColor={colors.tabFood}
                           width={220}
                           searchable
                           searchPlaceholder="Search nutrients…"
@@ -2084,7 +2089,7 @@ function MyMedsLens() {
                           selected={row.unit || null}
                           options={SUPPLEMENT_UNIT_OPTIONS}
                           onSelect={(value) => updateIngredientRow(row.key, { unit: value })}
-                          tabColor={TAB_COLOR}
+                          tabColor={colors.tabFood}
                           minWidth={64}
                         />
                       </View>
@@ -2099,7 +2104,7 @@ function MyMedsLens() {
                           options={formOptions}
                           onSelect={(value) => updateIngredientRow(row.key, { supplementForm: value })}
                           placeholder="Which form? (optional, but changes absorption)"
-                          tabColor={TAB_COLOR}
+                          tabColor={colors.tabFood}
                           width={240}
                         />
                       </View>
@@ -2143,7 +2148,7 @@ function MyMedsLens() {
                       if (med) selectCommonMed(med);
                     }}
                     placeholder="Search this app's researched list…"
-                    tabColor={TAB_COLOR}
+                    tabColor={colors.tabFood}
                     width={260}
                     searchable
                     searchPlaceholder="e.g. levothyroxine, metformin, ibuprofen…"

@@ -2,7 +2,7 @@ import { memo, useEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
-import { colors, inputBackground } from '../constants/colors';
+import { colors, inputBackground, popoverBackground } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { useActiveInputControls } from './ActiveInputContext';
 import type { DropdownOption } from './Dropdown';
@@ -127,6 +127,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   searchable = false,
   searchPlaceholder = 'Type to search…',
   width = POPOVER_WIDTH,
+  tintedSurface = false,
 }: {
   options: PopoverSelectOption[];
   selected: string | null;
@@ -149,6 +150,14 @@ export const PopoverSelect = memo(function PopoverSelect({
   searchPlaceholder?: string;
   // Popover width override -- see POPOVER_WIDTH's own comment.
   width?: number;
+  // Opt-in, default false (every existing caller keeps the standard
+  // app-wide colors.menuSurface list background, unchanged). When true,
+  // the popover's own list surface is instead a lighter, opaque tint of
+  // `tabColor` (see popoverBackground in constants/colors.ts) -- paired
+  // with a dark/muted `tabColor` (the "line"), this is what produces a
+  // "dark line, lighter field and list" look, rather than the list reading
+  // as an unrelated app-wide grey next to a picker's own accent color.
+  tintedSurface?: boolean;
 }) {
   const fieldRef = useRef<View>(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -172,6 +181,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   // reserve room for it -- a plain short list keeps behaving exactly as
   // before, free to use the full screen height like it always has.
   const bottomReserve = searchable ? insets.bottom + KEYBOARD_HEIGHT : 0;
+  const resolvedPopoverBackground = tintedSurface ? popoverBackground(tabColor) : colors.menuSurface;
 
   function closeMenu() {
     setIsOpen(false);
@@ -217,7 +227,14 @@ export const PopoverSelect = memo(function PopoverSelect({
         <View
           style={[
             styles.popover,
-            { left: menuPosition.left, top: menuPosition.top, width, height: listHeight, borderColor: tabColor },
+            {
+              left: menuPosition.left,
+              top: menuPosition.top,
+              width,
+              height: listHeight,
+              borderColor: tabColor,
+              backgroundColor: resolvedPopoverBackground,
+            },
           ]}
         >
           <FlatList
@@ -315,7 +332,10 @@ const styles = StyleSheet.create({
     position: 'absolute',
     borderWidth: 1,
     borderRadius: 10,
-    backgroundColor: colors.menuSurface,
+    // backgroundColor set inline per-instance (resolvedPopoverBackground
+    // above) -- either the standard colors.menuSurface or, when
+    // tintedSurface is set, a lighter tint of that instance's own
+    // tabColor.
     overflow: 'hidden',
     // Same shadow recipe as Dropdown's own menu/TabHub's own card -- reads
     // as floating chrome above the page, not part of its normal content.

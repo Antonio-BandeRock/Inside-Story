@@ -491,6 +491,21 @@ export function lighten(hex: string, fraction: number): string {
 const INPUT_BACKGROUND_LIGHTEN_FRACTION = 0.35;
 const INPUT_BACKGROUND_ALPHA = 0.35;
 
+// A fully opaque counterpart to inputBackground above, for a PopoverSelect
+// popover's own floating list surface (see PopoverSelect.tsx's own
+// `tintedSurface` prop) -- same lighten fraction, so the closed field and
+// its own open list read as the same "lighter" family, but opaque rather
+// than alpha-blended: the popover floats via a portal over arbitrary
+// content (OverlayContext.tsx), not a known card background the way a
+// closed field sits on, so alpha isn't a safe option here. 2026-08-08,
+// added for Profile's own picker fields: "dark grey [for] the line and
+// lighter grey for the field and scrollable table backgrounds" -- the
+// existing `inputBackground` above already handles the field; this is the
+// missing other half, for the list itself.
+export function popoverBackground(tabColor: string): string {
+  return lighten(tabColor, INPUT_BACKGROUND_LIGHTEN_FRACTION);
+}
+
 export function inputBackground(tabColor: string): string {
   return hexToRgba(lighten(tabColor, INPUT_BACKGROUND_LIGHTEN_FRACTION), INPUT_BACKGROUND_ALPHA);
 }

@@ -4,6 +4,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
+import { GenericBackground } from '../components/GenericBackground';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -432,9 +433,20 @@ export default function ProfileScreen() {
     </TouchableOpacity>
   );
 
+  // 2026-08-08, explicitly requested: Profile's own background should
+  // follow the shared "Generic" background choice (see the Shared
+  // background card below) when that's what's selected, rather than always
+  // staying the plain flat colors.background it always has -- otherwise
+  // (Photo or Off) it stays exactly that same flat color, matching the
+  // header/footer, same as before. Profile never shows the Photo option
+  // itself (it has no background image of its own, and isn't one of the
+  // per-tab GatedTabContent screens) -- only Generic is followed here.
+  const showGenericBackground = visualPrefs.homeBackgroundStyle === 'generic';
+
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
+      <View style={[styles.loadingContainer, showGenericBackground && styles.transparentBackground]}>
+        {showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
         <ActivityIndicator />
         {closeButton}
       </View>
@@ -444,8 +456,12 @@ export default function ProfileScreen() {
   const currentAge = profile.birthDate ? ageFromBirthDate(profile.birthDate) : null;
 
   return (
-    <View style={styles.wrapper}>
-    <ScrollView style={styles.screen} contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}>
+    <View style={[styles.wrapper, showGenericBackground && styles.transparentBackground]}>
+    {showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
+    <ScrollView
+      style={[styles.screen, showGenericBackground && styles.transparentBackground]}
+      contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
+    >
       <Text style={styles.intro}>
         Everything below is optional. This app works fine with nothing set here -- unset fields simply mean
         you'll see recommendations for every applicable population instead of one tailored to you. Nothing here
@@ -539,7 +555,8 @@ export default function ProfileScreen() {
             options={BIRTH_YEAR_OPTIONS}
             selected={birthYear || null}
             minWidth={72}
-            tabColor={colors.tabProfile}
+            tabColor={colors.menuIconMuted}
+            tintedSurface
             onSelect={(value) => {
               setBirthYear(value);
               commitBirthDate({ year: value });
@@ -549,7 +566,8 @@ export default function ProfileScreen() {
             options={BIRTH_MONTH_OPTIONS}
             selected={birthMonth || null}
             minWidth={52}
-            tabColor={colors.tabProfile}
+            tabColor={colors.menuIconMuted}
+            tintedSurface
             onSelect={(value) => {
               setBirthMonth(value);
               commitBirthDate({ month: value });
@@ -559,7 +577,8 @@ export default function ProfileScreen() {
             options={BIRTH_DAY_OPTIONS}
             selected={birthDay || null}
             minWidth={52}
-            tabColor={colors.tabProfile}
+            tabColor={colors.menuIconMuted}
+            tintedSurface
             onSelect={(value) => {
               setBirthDay(value);
               commitBirthDate({ day: value });
@@ -586,7 +605,8 @@ export default function ProfileScreen() {
                 options={HEIGHT_FEET_OPTIONS}
                 selected={heightFeetInput || null}
                 minWidth={52}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setHeightFeetInput(value);
                   commitHeight({ feet: value });
@@ -596,7 +616,8 @@ export default function ProfileScreen() {
                 options={HEIGHT_INCHES_OPTIONS}
                 selected={heightInchesInput || null}
                 minWidth={52}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setHeightInchesInput(value);
                   commitHeight({ inches: value });
@@ -608,7 +629,8 @@ export default function ProfileScreen() {
               options={HEIGHT_CM_OPTIONS}
               selected={heightCmInput || null}
               minWidth={72}
-              tabColor={colors.tabProfile}
+              tabColor={colors.menuIconMuted}
+              tintedSurface
               onSelect={(value) => {
                 setHeightCmInput(value);
                 commitHeight({ cm: value });
@@ -635,7 +657,8 @@ export default function ProfileScreen() {
                 options={HOUR_OPTIONS}
                 selected={mealTimeBuffers[dayPart].hour || null}
                 minWidth={48}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
                   commitMealTime(dayPart, { hour: value });
@@ -645,7 +668,8 @@ export default function ProfileScreen() {
                 options={MINUTE_OPTIONS}
                 selected={mealTimeBuffers[dayPart].minute || null}
                 minWidth={52}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
                   commitMealTime(dayPart, { minute: value });
@@ -707,7 +731,8 @@ export default function ProfileScreen() {
                 options={HOUR_OPTIONS}
                 selected={eatingWindowStartBuffer.hour || null}
                 minWidth={48}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
                   commitEatingWindow({ start: { hour: value } });
@@ -717,7 +742,8 @@ export default function ProfileScreen() {
                 options={MINUTE_OPTIONS}
                 selected={eatingWindowStartBuffer.minute || null}
                 minWidth={52}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
                   commitEatingWindow({ start: { minute: value } });
@@ -748,7 +774,8 @@ export default function ProfileScreen() {
                 options={HOUR_OPTIONS}
                 selected={eatingWindowEndBuffer.hour || null}
                 minWidth={48}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
                   commitEatingWindow({ end: { hour: value } });
@@ -758,7 +785,8 @@ export default function ProfileScreen() {
                 options={MINUTE_OPTIONS}
                 selected={eatingWindowEndBuffer.minute || null}
                 minWidth={52}
-                tabColor={colors.tabProfile}
+                tabColor={colors.menuIconMuted}
+                tintedSurface
                 onSelect={(value) => {
                   setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
                   commitEatingWindow({ end: { minute: value } });
@@ -966,6 +994,18 @@ const styles = StyleSheet.create({
   wrapper: {
     flex: 1,
     backgroundColor: colors.background,
+    position: 'relative',
+  },
+  // Applied alongside `wrapper`/`screen`/`loadingContainer`'s own flat
+  // colors.background, only when the shared "Generic" background is
+  // selected -- lets GenericBackground (rendered as an absolute-fill
+  // sibling, first in the tree so it paints behind everything else) show
+  // through instead of being covered by this screen's own normally-opaque
+  // background. Same "make the real content layer transparent so a shared
+  // backdrop shows through" approach ScreenBackground.tsx/app/(tabs)/
+  // _layout.tsx already use for every tab screen's own scene.
+  transparentBackground: {
+    backgroundColor: 'transparent',
   },
   // Same circular floating-button footprint/position/color as every other
   // close ("X") button in the app -- HelpSheet's own close button
@@ -1001,6 +1041,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.background,
+    position: 'relative',
   },
   container: {
     padding: 20,
