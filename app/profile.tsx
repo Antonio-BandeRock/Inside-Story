@@ -12,11 +12,15 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import {
+  type ConditionReference,
   DietarySex,
   getStoredMeasurementSystem,
+  getUserConditions,
   getUserProfile,
+  listAllConditions,
   listSymptomAssessments,
   setStoredMeasurementSystem,
+  setUserConditionSelected,
   setUserProfile,
   SymptomAssessmentRecord,
   UserProfile,
@@ -170,6 +174,12 @@ export default function ProfileScreen() {
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   const [savedFlash, setSavedFlash] = useState(false);
   const [lastAssessment, setLastAssessment] = useState<SymptomAssessmentRecord | null>(null);
+  // Multi-condition model, 2026-08-08 -- replaces the old single
+  // Hashimoto's-only pill row. allConditions is the full reference roster
+  // (built/in_progress/planned); selectedConditions is this person's own
+  // real picks, local-only, backed by user_conditions.
+  const [allConditions, setAllConditions] = useState<ConditionReference[]>([]);
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
   // Live, app-wide (lib/visualPreferences.ts) -- reading it via the same
   // hook every consumer uses means this screen's own pills always reflect
   // whatever's really stored, and every edit here reaches the shared
@@ -204,12 +214,20 @@ export default function ProfileScreen() {
   useEffect(() => {
     let isMounted = true;
 
-    Promise.all([getUserProfile(), getStoredMeasurementSystem(), listSymptomAssessments(1)]).then(
-      ([storedProfile, storedSystem, recentAssessments]) => {
+    Promise.all([
+      getUserProfile(),
+      getStoredMeasurementSystem(),
+      listSymptomAssessments(1),
+      listAllConditions(),
+      getUserConditions(),
+    ]).then(
+      ([storedProfile, storedSystem, recentAssessments, conditionRoster, storedConditions]) => {
       if (!isMounted) return;
 
       setProfile(storedProfile);
       setLastAssessment(recentAssessments[0] ?? null);
+      setAllConditions(conditionRoster);
+      setSelectedConditions(storedConditions);
       setFirstNameInput(storedProfile.firstName ?? '');
       setLastNameInput(storedProfile.lastName ?? '');
 
@@ -280,8 +298,13 @@ export default function ProfileScreen() {
     updateProfile({ sex });
   }
 
-  function handleHashimotosSelect(hasHashimotos: TriState<boolean>) {
-    updateProfile({ hasHashimotos });
+  async function toggleCondition(code: string) {
+    const nowSelected = !selectedConditions.includes(code);
+    setSelectedConditions((current) =>
+      nowSelected ? [...current, code] : current.filter((c) => c !== code),
+    );
+    await setUserConditionSelected(code, nowSelected);
+    flashSaved();
   }
 
   // overrides, same reason commitMealTime/commitEatingWindow already take
@@ -867,33 +890,42 @@ export default function ProfileScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Hashimoto's diagnosis</Text>
+        <Text style={styles.label}>Your conditions</Text>
         <Text style={styles.helpText}>
-          Inside Story is built to support people with autoimmune conditions -- Hashimoto&apos;s is the first one
-          fully supported, with more in active development. This tells the app which of its Hashimoto&apos;s-specific
-          notes are relevant to you personally; household members without it can still use a companion account.
+          Select every condition that applies to you -- this tells the app which condition-specific notes,
+          scoring, and medications are relevant to you personally. Multiple selections are fully supported;
+          having more than one is common.
         </Text>
         <View style={styles.pillRow}>
-          {([
-            { value: null, label: 'Not set' },
-            { value: true, label: "Yes, I have Hashimoto's" },
-            { value: false, label: "No, I don't" },
-          ]).map((option) => {
-            const active = option.value === profile.hasHashimotos;
-            return (
-              <TouchableOpacity
-                key={option.label}
-                style={[styles.pill, active && styles.pillActive]}
-                onPress={() => handleHashimotosSelect(option.value)}
-              >
-                <Text style={[styles.pillText, active && styles.pillTextActive]}>{option.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
+          {allConditions
+            .filter((condition) => condition.status !== 'planned')
+            .map((condition) => {
+              const active = selectedConditions.includes(condition.code);
+              return (
+                <TouchableOpacity
+                  key={condition.code}
+                  style={[styles.pill, active && styles.pillActive]}
+                  onPress={() => toggleCondition(condition.code)}
+                >
+                  <Text style={[styles.pillText, active && styles.pillTextActive]}>
+                    {condition.name}
+                    {condition.status === 'in_progress' ? ' (early access)' : ''}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
         </View>
+        {allConditions.some((condition) => condition.status === 'planned') ? (
+          <Text style={[styles.helpText, { marginTop: 10 }]}>
+            Coming soon: {allConditions
+              .filter((condition) => condition.status === 'planned')
+              .map((condition) => condition.name)
+              .join(', ')}
+          </Text>
+        ) : null}
       </View>
 
-      {profile.hasHashimotos ? (
+      {selectedConditions.includes('hashimotos') ? (
         <View style={styles.card}>
           <Text style={styles.label}>Where you're at</Text>
           <Text style={styles.helpText}>

@@ -2364,6 +2364,23 @@ export async function initializeDatabase() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- The real multi-condition model, added 2026-08-08 alongside the
+      -- Rheumatoid Arthritis build -- supersedes user_profile.has_hashimotos
+      -- as the source of truth going forward, but that column is
+      -- deliberately left in place rather than dropped (SQLite column
+      -- removal is a real table-rebuild migration, not worth the risk for
+      -- a column that's now simply unused). One row per condition the
+      -- person has said they have; condition_code matches conditions.code
+      -- in the bundled reference database, the same cross-database
+      -- free-text-reference pattern nutrient_code/test_code already use.
+      -- getUserConditions() below one-time-migrates an existing
+      -- has_hashimotos=1 into this table the first time it's read, so
+      -- nobody who already answered that question loses their answer.
+      CREATE TABLE IF NOT EXISTS user_conditions (
+        condition_code TEXT PRIMARY KEY,
+        selected_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own actual lab results over time. test_code matches
       -- lab_tests.code in the bundled reference database (a cross-database
       -- free-text reference, the same pattern nutrient_code already uses
@@ -8058,6 +8075,88 @@ export async function setUserProfile(update: Partial<UserProfile>) {
     () => undefined,
   );
   return result;
+}
+
+// The real multi-condition model, 2026-08-08 -- see user_conditions' own
+// schema comment above for why has_hashimotos wasn't touched. `conditions`
+// itself lives in the bundled reference database (the canonical list of
+// every condition this app knows about, autoimmune and otherwise, each
+// with a real build-status flag) -- the same "reference data ships with
+// the app, personal data lives locally" split every other cross-database
+// lookup here already follows.
+export type ConditionReference = {
+  code: string;
+  name: string;
+  category: string;
+  status: 'built' | 'in_progress' | 'planned';
+  sortOrder: number;
+};
+
+function mapConditionRow(row: {
+  code: string;
+  name: string;
+  category: string;
+  status: string;
+  sort_order: number;
+}): ConditionReference {
+  return {
+    code: row.code,
+    name: row.name,
+    category: row.category,
+    status: row.status as ConditionReference['status'],
+    sortOrder: row.sort_order,
+  };
+}
+
+// Every condition this app knows about, `built`/`in_progress` first (the
+// ones actually worth showing as selectable today) -- `planned` entries
+// are included too, since Insights/Purple Digest may still want the full
+// roster for "coming soon" messaging, but a picker UI should filter to
+// non-`planned` itself rather than assume this function already did.
+export async function listAllConditions(): Promise<ConditionReference[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<Parameters<typeof mapConditionRow>[0]>(
+    'SELECT code, name, category, status, sort_order FROM conditions ORDER BY sort_order',
+  );
+  return rows.map(mapConditionRow);
+}
+
+// The person's own selected conditions, local-only. One-time migrates an
+// existing user_profile.has_hashimotos=1 into a real 'hashimotos' row the
+// first time this is called against a fresh user_conditions table, so an
+// existing answer to the old single-condition question isn't silently
+// lost the moment this ships -- checked via a plain "table is still
+// completely empty" test rather than a version flag, since that's exactly
+// the one real case (a person who already said yes, and has never opened
+// the new multi-select picker yet) this needs to catch.
+export async function getUserConditions(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ condition_code: string }>(
+    'SELECT condition_code FROM user_conditions ORDER BY selected_at',
+  );
+  if (rows.length === 0) {
+    const legacy = await db.getFirstAsync<{ has_hashimotos: number | null }>(
+      'SELECT has_hashimotos FROM user_profile WHERE id = 1',
+    );
+    if (legacy?.has_hashimotos) {
+      await db.runAsync(
+        'INSERT OR IGNORE INTO user_conditions (condition_code) VALUES (?)',
+        'hashimotos',
+      );
+      return ['hashimotos'];
+    }
+    return [];
+  }
+  return rows.map((row) => row.condition_code);
+}
+
+export async function setUserConditionSelected(code: string, selected: boolean): Promise<void> {
+  const db = await getDatabase();
+  if (selected) {
+    await db.runAsync('INSERT OR IGNORE INTO user_conditions (condition_code) VALUES (?)', code);
+  } else {
+    await db.runAsync('DELETE FROM user_conditions WHERE condition_code = ?', code);
+  }
 }
 
 // Whether a "HH:mm" time falls inside [windowStart, windowEnd) -- handles a
