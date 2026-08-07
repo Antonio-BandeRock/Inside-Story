@@ -1188,3 +1188,60 @@ Android Bundled 559ms node_modules\expo-router\entry.js (1 module)
  LOG  [TabHub drop-timing] +141ms: card onLayout: x=16 y=403 w=216 h=234
  LOG  [TabHub drop-timing] +227ms: Modal onShow (Android Dialog window confirmed up)
  LOG  [TabHub drop-timing] +229ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +151ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +196ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +125ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +149ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +127ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +159ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +129ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +160ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +130ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +162ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +137ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +168ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +139ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +216ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +127ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +196ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +125ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +153ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +148ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +178ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +145ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +200ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +139ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +169ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +124ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +157ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +132ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +159ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +131ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +158ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +126ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +153ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +129ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +155ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +145ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +178ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +133ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +170ms: Modal onShow (Android Dialog window confirmed up)

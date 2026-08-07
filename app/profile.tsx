@@ -4,6 +4,7 @@ import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
+import { PopoverSelect } from '../components/PopoverSelect';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
@@ -47,6 +48,45 @@ const GENERIC_PALETTE_OPTIONS: GenericPalette[] = ['lavender', 'seafoam', 'sand'
 type DayPart = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const DAY_PARTS: DayPart[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 const BLANK_TIME: TimeOfDayInput = { hour: '', minute: '', ampm: '' };
+
+// 2026-08-08, explicitly requested: every Profile field that meant typing
+// a number (birth date, height, meal times) gets the same tap-a-list
+// pattern Side Builder's own Dish Name page already uses for its Servings/
+// Serving Size fields (PopoverSelect -- see that component's own header
+// comment for why it replaced free typing/dragging there), leaving only
+// First/Last name as real text entry. Every option list below is a module-
+// level constant, not built inline in the component -- PopoverSelect is
+// memoized against referentially-stable props, the same contract Side
+// Builder's own SERVINGS_PICKER_VALUES etc. already follow.
+//
+// Birth year: every real year from 1900 through this year (matches
+// isValidIsoDate's own existing bound), newest first -- someone tapping a
+// still-blank field is scrolling from "today" backward, not from 1900
+// forward. Month/day stay plain, unpadded numbers ("1".."12"/"1".."31"),
+// matching how birthMonth/birthDay were already stored (String(Number(m))
+// when loading a saved profile) -- day intentionally isn't narrowed by
+// month/year here, the same "any 1-31, real validity checked on commit"
+// looseness the original free-text fields already had.
+const CURRENT_YEAR = new Date().getFullYear();
+const BIRTH_YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => String(CURRENT_YEAR - i));
+const BIRTH_MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const BIRTH_DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => String(i + 1));
+
+// Height: a generous but real human range either system, matching what the
+// old free-text maxLength implicitly allowed. Feet/inches split rather than
+// one combined list, same two-field shape the original had.
+const HEIGHT_CM_OPTIONS = Array.from({ length: 151 }, (_, i) => String(100 + i)); // 100-250 cm
+const HEIGHT_FEET_OPTIONS = Array.from({ length: 6 }, (_, i) => String(3 + i)); // 3-8 ft
+const HEIGHT_INCHES_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i)); // 0-11 in
+
+// Meal/eating-window times: hour stays plain ("1".."12", matching
+// buildTime24's own expected shape); minute is zero-padded ("00".."59") to
+// match splitTime24's own output for an already-saved time, so a saved
+// "05" minute value shows up already selected rather than failing to match
+// an unpadded "5" in this list. AM/PM stays the existing pill row -- that
+// was never a text box to begin with.
+const HOUR_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
 
 function usualTimeFieldFor(dayPart: DayPart): 'usualBreakfastTime' | 'usualLunchTime' | 'usualDinnerTime' | 'usualSnackTime' {
   switch (dayPart) {
@@ -226,24 +266,35 @@ export default function ProfileScreen() {
     updateProfile({ hasHashimotos });
   }
 
-  function commitBirthDate() {
+  // overrides, same reason commitMealTime/commitEatingWindow already take
+  // one: a PopoverSelect onSelect both updates the field's own state AND
+  // needs to commit immediately, in the same synchronous tap -- reading
+  // birthYear/birthMonth/birthDay from closure here would still see the
+  // PRE-update value, since React state updates aren't applied
+  // synchronously. Passing the just-picked value straight through sidesteps
+  // that stale-closure gap entirely.
+  function commitBirthDate(overrides?: { year?: string; month?: string; day?: string }) {
     setDateError(null);
 
-    if (!birthYear && !birthMonth && !birthDay) {
+    const year = overrides?.year ?? birthYear;
+    const month = overrides?.month ?? birthMonth;
+    const day = overrides?.day ?? birthDay;
+
+    if (!year && !month && !day) {
       if (profile.birthDate) updateProfile({ birthDate: null });
       return;
     }
 
-    const year = Number(birthYear);
-    const month = Number(birthMonth);
-    const day = Number(birthDay);
+    const numericYear = Number(year);
+    const numericMonth = Number(month);
+    const numericDay = Number(day);
 
-    if (!isValidIsoDate(year, month, day)) {
+    if (!isValidIsoDate(numericYear, numericMonth, numericDay)) {
       setDateError('Enter a real, complete date (not in the future).');
       return;
     }
 
-    updateProfile({ birthDate: toIsoDate(year, month, day) });
+    updateProfile({ birthDate: toIsoDate(numericYear, numericMonth, numericDay) });
   }
 
   function clearBirthDate() {
@@ -254,22 +305,26 @@ export default function ProfileScreen() {
     if (profile.birthDate) updateProfile({ birthDate: null });
   }
 
-  function commitHeight() {
+  // overrides -- same stale-closure reason as commitBirthDate above.
+  function commitHeight(overrides?: { feet?: string; inches?: string; cm?: string }) {
     if (measurementSystem === 'imperial') {
-      if (!heightFeetInput && !heightInchesInput) {
+      const feetValue = overrides?.feet ?? heightFeetInput;
+      const inchesValue = overrides?.inches ?? heightInchesInput;
+      if (!feetValue && !inchesValue) {
         if (profile.heightCm != null) updateProfile({ heightCm: null });
         return;
       }
-      const feet = Number(heightFeetInput) || 0;
-      const inches = Number(heightInchesInput) || 0;
+      const feet = Number(feetValue) || 0;
+      const inches = Number(inchesValue) || 0;
       if (feet <= 0 && inches <= 0) return;
       updateProfile({ heightCm: feetInchesToCm(feet, inches) });
     } else {
-      if (!heightCmInput) {
+      const cmValue = overrides?.cm ?? heightCmInput;
+      if (!cmValue) {
         if (profile.heightCm != null) updateProfile({ heightCm: null });
         return;
       }
-      const cm = Number(heightCmInput);
+      const cm = Number(cmValue);
       if (!cm || cm <= 0) return;
       updateProfile({ heightCm: cm });
     }
@@ -480,32 +535,35 @@ export default function ProfileScreen() {
           age). Stored as a date rather than a fixed age so it stays accurate over time.
         </Text>
         <View style={styles.dateRow}>
-          <AppTextInput
-            style={[styles.input, styles.dateInputYear]}
-            placeholder="YYYY"
-            keyboardType="number-pad"
-            maxLength={4}
-            value={birthYear}
-            onChangeText={setBirthYear}
-            onBlur={commitBirthDate}
+          <PopoverSelect
+            options={BIRTH_YEAR_OPTIONS}
+            selected={birthYear || null}
+            minWidth={72}
+            tabColor={colors.tabProfile}
+            onSelect={(value) => {
+              setBirthYear(value);
+              commitBirthDate({ year: value });
+            }}
           />
-          <AppTextInput
-            style={[styles.input, styles.dateInputSmall]}
-            placeholder="MM"
-            keyboardType="number-pad"
-            maxLength={2}
-            value={birthMonth}
-            onChangeText={setBirthMonth}
-            onBlur={commitBirthDate}
+          <PopoverSelect
+            options={BIRTH_MONTH_OPTIONS}
+            selected={birthMonth || null}
+            minWidth={52}
+            tabColor={colors.tabProfile}
+            onSelect={(value) => {
+              setBirthMonth(value);
+              commitBirthDate({ month: value });
+            }}
           />
-          <AppTextInput
-            style={[styles.input, styles.dateInputSmall]}
-            placeholder="DD"
-            keyboardType="number-pad"
-            maxLength={2}
-            value={birthDay}
-            onChangeText={setBirthDay}
-            onBlur={commitBirthDate}
+          <PopoverSelect
+            options={BIRTH_DAY_OPTIONS}
+            selected={birthDay || null}
+            minWidth={52}
+            tabColor={colors.tabProfile}
+            onSelect={(value) => {
+              setBirthDay(value);
+              commitBirthDate({ day: value });
+            }}
           />
           <TouchableOpacity onPress={clearBirthDate} style={styles.clearButton}>
             <Text style={styles.clearButtonText}>Clear</Text>
@@ -524,34 +582,37 @@ export default function ProfileScreen() {
         <View style={styles.dateRow}>
           {measurementSystem === 'imperial' ? (
             <>
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="ft"
-                keyboardType="number-pad"
-                maxLength={1}
-                value={heightFeetInput}
-                onChangeText={setHeightFeetInput}
-                onBlur={commitHeight}
+              <PopoverSelect
+                options={HEIGHT_FEET_OPTIONS}
+                selected={heightFeetInput || null}
+                minWidth={52}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setHeightFeetInput(value);
+                  commitHeight({ feet: value });
+                }}
               />
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="in"
-                keyboardType="number-pad"
-                maxLength={2}
-                value={heightInchesInput}
-                onChangeText={setHeightInchesInput}
-                onBlur={commitHeight}
+              <PopoverSelect
+                options={HEIGHT_INCHES_OPTIONS}
+                selected={heightInchesInput || null}
+                minWidth={52}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setHeightInchesInput(value);
+                  commitHeight({ inches: value });
+                }}
               />
             </>
           ) : (
-            <AppTextInput
-              style={[styles.input, styles.dateInputYear]}
-              placeholder="cm"
-              keyboardType="number-pad"
-              maxLength={3}
-              value={heightCmInput}
-              onChangeText={setHeightCmInput}
-              onBlur={commitHeight}
+            <PopoverSelect
+              options={HEIGHT_CM_OPTIONS}
+              selected={heightCmInput || null}
+              minWidth={72}
+              tabColor={colors.tabProfile}
+              onSelect={(value) => {
+                setHeightCmInput(value);
+                commitHeight({ cm: value });
+              }}
             />
           )}
           <TouchableOpacity onPress={clearHeight} style={styles.clearButton}>
@@ -570,27 +631,25 @@ export default function ProfileScreen() {
           <View key={dayPart} style={styles.mealTimeRow}>
             <Text style={styles.mealTimeLabel}>{dayPart[0].toUpperCase() + dayPart.slice(1)}</Text>
             <View style={styles.dateRow}>
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="8"
-                keyboardType="number-pad"
-                maxLength={2}
-                value={mealTimeBuffers[dayPart].hour}
-                onChangeText={(text) =>
-                  setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: text } }))
-                }
-                onBlur={() => commitMealTime(dayPart)}
+              <PopoverSelect
+                options={HOUR_OPTIONS}
+                selected={mealTimeBuffers[dayPart].hour || null}
+                minWidth={48}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
+                  commitMealTime(dayPart, { hour: value });
+                }}
               />
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="00"
-                keyboardType="number-pad"
-                maxLength={2}
-                value={mealTimeBuffers[dayPart].minute}
-                onChangeText={(text) =>
-                  setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: text } }))
-                }
-                onBlur={() => commitMealTime(dayPart)}
+              <PopoverSelect
+                options={MINUTE_OPTIONS}
+                selected={mealTimeBuffers[dayPart].minute || null}
+                minWidth={52}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
+                  commitMealTime(dayPart, { minute: value });
+                }}
               />
               <View style={styles.pillRow}>
                 {(['AM', 'PM'] as const).map((option) => {
@@ -644,23 +703,25 @@ export default function ProfileScreen() {
           <>
             <Text style={styles.subLabel}>Eating window starts</Text>
             <View style={styles.dateRow}>
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="12"
-                keyboardType="number-pad"
-                maxLength={2}
-                value={eatingWindowStartBuffer.hour}
-                onChangeText={(text) => setEatingWindowStartBuffer((current) => ({ ...current, hour: text }))}
-                onBlur={() => commitEatingWindow()}
+              <PopoverSelect
+                options={HOUR_OPTIONS}
+                selected={eatingWindowStartBuffer.hour || null}
+                minWidth={48}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
+                  commitEatingWindow({ start: { hour: value } });
+                }}
               />
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="00"
-                keyboardType="number-pad"
-                maxLength={2}
-                value={eatingWindowStartBuffer.minute}
-                onChangeText={(text) => setEatingWindowStartBuffer((current) => ({ ...current, minute: text }))}
-                onBlur={() => commitEatingWindow()}
+              <PopoverSelect
+                options={MINUTE_OPTIONS}
+                selected={eatingWindowStartBuffer.minute || null}
+                minWidth={52}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
+                  commitEatingWindow({ start: { minute: value } });
+                }}
               />
               <View style={styles.pillRow}>
                 {(['AM', 'PM'] as const).map((option) => {
@@ -683,23 +744,25 @@ export default function ProfileScreen() {
 
             <Text style={styles.subLabel}>Eating window ends</Text>
             <View style={styles.dateRow}>
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="8"
-                keyboardType="number-pad"
-                maxLength={2}
-                value={eatingWindowEndBuffer.hour}
-                onChangeText={(text) => setEatingWindowEndBuffer((current) => ({ ...current, hour: text }))}
-                onBlur={() => commitEatingWindow()}
+              <PopoverSelect
+                options={HOUR_OPTIONS}
+                selected={eatingWindowEndBuffer.hour || null}
+                minWidth={48}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
+                  commitEatingWindow({ end: { hour: value } });
+                }}
               />
-              <AppTextInput
-                style={[styles.input, styles.dateInputSmall]}
-                placeholder="00"
-                keyboardType="number-pad"
-                maxLength={2}
-                value={eatingWindowEndBuffer.minute}
-                onChangeText={(text) => setEatingWindowEndBuffer((current) => ({ ...current, minute: text }))}
-                onBlur={() => commitEatingWindow()}
+              <PopoverSelect
+                options={MINUTE_OPTIONS}
+                selected={eatingWindowEndBuffer.minute || null}
+                minWidth={52}
+                tabColor={colors.tabProfile}
+                onSelect={(value) => {
+                  setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
+                  commitEatingWindow({ end: { minute: value } });
+                }}
               />
               <View style={styles.pillRow}>
                 {(['AM', 'PM'] as const).map((option) => {
