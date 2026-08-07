@@ -282,6 +282,32 @@ export default function FoodScreen() {
     editSoupId,
     editSauceId,
     editHandheldId,
+    // Set when reached via a saved favorite's own "Use this Favorite" tap
+    // (see app/food-items.tsx), 2026-08-08 -- same routing shape as
+    // editSideId/etc. just above, except these never mark anything as an
+    // edit: each sub-builder's own fromFavoriteId prop (see e.g.
+    // SideBuilder.tsx) always produces a genuinely NEW saved item,
+    // pre-filled from the favorite's own saved ingredients.
+    fromSideFavoriteId,
+    fromSaladFavoriteId,
+    fromSmoothieFavoriteId,
+    fromFermentationFavoriteId,
+    fromBeverageFavoriteId,
+    fromSnackFavoriteId,
+    fromBakedGoodsFavoriteId,
+    fromSoupFavoriteId,
+    fromSauceFavoriteId,
+    fromHandheldFavoriteId,
+    // Set when reached via a saved MEAL favorite's own "Use this Favorite"
+    // tap (see app/food-items.tsx) -- 2026-08-08. Named mealFavoriteId
+    // rather than fromMealFavoriteId (unlike the ten fromXFavoriteId params
+    // just above) since it maps straight onto MealBuilder's own
+    // favoriteId prop, not a builder-specific fromFavoriteId one -- Meal
+    // Builder assembles from the other builders' saved records rather than
+    // having its own X_ingredients table, so its favorite payload is a
+    // genuinely different shape (see MealFavoriteComponentsPayload in
+    // lib/db.ts) with no "editSideId-style" edit concept to mirror either.
+    mealFavoriteId,
     // Schedule's/Home's own "Log now" action (see schedule.tsx's
     // handleLogNow and index.tsx's own Day Arc equivalent) -- both push
     // these same five params, unread by anything until Meal Builder existed
@@ -306,6 +332,17 @@ export default function FoodScreen() {
     editSoupId?: string;
     editSauceId?: string;
     editHandheldId?: string;
+    fromSideFavoriteId?: string;
+    fromSaladFavoriteId?: string;
+    fromSmoothieFavoriteId?: string;
+    fromFermentationFavoriteId?: string;
+    fromBeverageFavoriteId?: string;
+    fromSnackFavoriteId?: string;
+    fromBakedGoodsFavoriteId?: string;
+    fromSoupFavoriteId?: string;
+    fromSauceFavoriteId?: string;
+    fromHandheldFavoriteId?: string;
+    mealFavoriteId?: string;
     scheduleItemId?: string;
     mealType?: string;
     title?: string;
@@ -324,6 +361,11 @@ export default function FoodScreen() {
       // LensHub picker for a beat (or permanently, once revealed was reset
       // false on focus) instead of the record itself.
       if (scheduleItemId) {
+        setLens('mealBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (mealFavoriteId) {
         setLens('mealBuilder');
         setRevealed(true);
         return;
@@ -378,10 +420,65 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      // Favorite-reuse routing, 2026-08-08 -- same shape as the ten
+      // editXId checks just above, checked after them so an edit link
+      // always wins if somehow both were present (shouldn't happen in
+      // practice, since food-items.tsx only ever pushes one or the other).
+      if (fromSideFavoriteId) {
+        setLens('sideBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromSaladFavoriteId) {
+        setLens('saladBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromSmoothieFavoriteId) {
+        setLens('smoothieBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromFermentationFavoriteId) {
+        setLens('fermentationBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromBeverageFavoriteId) {
+        setLens('beverageBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromSnackFavoriteId) {
+        setLens('snackBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromBakedGoodsFavoriteId) {
+        setLens('bakedGoodsBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromSoupFavoriteId) {
+        setLens('soupBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromSauceFavoriteId) {
+        setLens('saucesBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromHandheldFavoriteId) {
+        setLens('handheldsBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
     }, [
       scheduleItemId,
+      mealFavoriteId,
       editSideId,
       editSaladId,
       editSmoothieId,
@@ -392,6 +489,16 @@ export default function FoodScreen() {
       editSoupId,
       editSauceId,
       editHandheldId,
+      fromSideFavoriteId,
+      fromSaladFavoriteId,
+      fromSmoothieFavoriteId,
+      fromFermentationFavoriteId,
+      fromBeverageFavoriteId,
+      fromSnackFavoriteId,
+      fromBakedGoodsFavoriteId,
+      fromSoupFavoriteId,
+      fromSauceFavoriteId,
+      fromHandheldFavoriteId,
     ]),
   );
 
@@ -434,6 +541,13 @@ export default function FoodScreen() {
   const [sauceFavoriteCount, setSauceFavoriteCount] = useState(0);
   const [handheldCount, setHandheldCount] = useState(0);
   const [handheldFavoriteCount, setHandheldFavoriteCount] = useState(0);
+  // Meal favorites, 2026-08-08 -- no "Saved Meals" count alongside it the
+  // way every sub-builder gets: Meal Builder logs a real meals row directly
+  // (via createMealFromComponents), it never saves its own separate
+  // standalone record the way sides/salads/etc. do, so there's nothing to
+  // browse here except favorites (see saveMealFavorite/getMealFavorite in
+  // lib/db.ts).
+  const [mealFavoriteCount, setMealFavoriteCount] = useState(0);
   async function loadMyFoodsCounts() {
     const [
       sides,
@@ -456,6 +570,7 @@ export default function FoodScreen() {
       sauceFavorites,
       handhelds,
       handheldFavorites,
+      mealFavorites,
     ] = await Promise.all([
       listSides(),
       listFavorites(50, 'side'),
@@ -477,6 +592,7 @@ export default function FoodScreen() {
       listFavorites(50, 'sauce'),
       listHandhelds(),
       listFavorites(50, 'handheld'),
+      listFavorites(50, 'meal'),
     ]);
     setSideCount(sides.length);
     setSideFavoriteCount(sideFavorites.length);
@@ -498,6 +614,7 @@ export default function FoodScreen() {
     setSauceFavoriteCount(sauceFavorites.length);
     setHandheldCount(handhelds.length);
     setHandheldFavoriteCount(handheldFavorites.length);
+    setMealFavoriteCount(mealFavorites.length);
   }
   const myFoodsCategories: MyItemsCategory[] = [
     {
@@ -651,6 +768,16 @@ export default function FoodScreen() {
           params: { itemType: 'handheld', status: 'favorite', title: 'Favorite Handhelds' },
         }),
     },
+    // No 'meal-saved' tile alongside it -- see mealFavoriteCount's own
+    // comment above for why Meal Builder has nothing standalone to browse
+    // besides its favorites.
+    {
+      id: 'meal-favorite',
+      label: 'Favorite Meals',
+      count: mealFavoriteCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'meal', status: 'favorite', title: 'Favorite Meals' } }),
+    },
   ];
 
   return (
@@ -677,6 +804,7 @@ export default function FoodScreen() {
               initialMealType={scheduledMealType}
               initialTitle={scheduledTitle}
               templateMealId={templateMealId}
+              favoriteId={mealFavoriteId}
             />
           ) : lens === 'sideBuilder' ? (
             // SideBuilder owns its own layout entirely (a plain View while
@@ -684,49 +812,57 @@ export default function FoodScreen() {
             // otherwise) -- see that component's own comment for why,
             // same FlatList-in-ScrollView reasoning as Insights' own Food
             // Lookup lens.
-            <SideBuilder tabColor={TAB_COLOR} editSideId={editSideId} />
+            <SideBuilder tabColor={TAB_COLOR} editSideId={editSideId} fromFavoriteId={fromSideFavoriteId} />
           ) : lens === 'saladBuilder' ? (
             // SaladBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment) -- same layout-ownership reasoning
             // applies here too.
-            <SaladBuilder tabColor={TAB_COLOR} editSaladId={editSaladId} />
+            <SaladBuilder tabColor={TAB_COLOR} editSaladId={editSaladId} fromFavoriteId={fromSaladFavoriteId} />
           ) : lens === 'smoothieBuilder' ? (
             // SmoothieBuilder is a direct adaptation of SaladBuilder (see
             // that file's own top comment) -- same layout-ownership
             // reasoning applies here too.
-            <SmoothieBuilder tabColor={TAB_COLOR} editSmoothieId={editSmoothieId} />
+            <SmoothieBuilder tabColor={TAB_COLOR} editSmoothieId={editSmoothieId} fromFavoriteId={fromSmoothieFavoriteId} />
           ) : lens === 'fermentationBuilder' ? (
             // FermentationBuilder is a direct adaptation of SideBuilder
             // (see that file's own top comment for why Side, not Salad/
             // Smoothie) -- same layout-ownership reasoning applies here too.
-            <FermentationBuilder tabColor={TAB_COLOR} editFermentationId={editFermentationId} />
+            <FermentationBuilder
+              tabColor={TAB_COLOR}
+              editFermentationId={editFermentationId}
+              fromFavoriteId={fromFermentationFavoriteId}
+            />
           ) : lens === 'beverageBuilder' ? (
             // BeverageBuilder is a direct adaptation of SideBuilder (see
             // that file's own top comment for why Side, not Salad/Smoothie)
             // -- same layout-ownership reasoning applies here too.
-            <BeverageBuilder tabColor={TAB_COLOR} editBeverageId={editBeverageId} />
+            <BeverageBuilder tabColor={TAB_COLOR} editBeverageId={editBeverageId} fromFavoriteId={fromBeverageFavoriteId} />
           ) : lens === 'snackBuilder' ? (
             // SnackBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment for why Side, not Salad/Smoothie) --
             // same layout-ownership reasoning applies here too.
-            <SnackBuilder tabColor={TAB_COLOR} editSnackId={editSnackId} />
+            <SnackBuilder tabColor={TAB_COLOR} editSnackId={editSnackId} fromFavoriteId={fromSnackFavoriteId} />
           ) : lens === 'bakedGoodsBuilder' ? (
             // BakedGoodsBuilder is a direct adaptation of SideBuilder (see
             // that file's own top comment for why Side, not Salad/Smoothie)
             // -- same layout-ownership reasoning applies here too.
-            <BakedGoodsBuilder tabColor={TAB_COLOR} editBakedGoodsId={editBakedGoodsId} />
+            <BakedGoodsBuilder
+              tabColor={TAB_COLOR}
+              editBakedGoodsId={editBakedGoodsId}
+              fromFavoriteId={fromBakedGoodsFavoriteId}
+            />
           ) : lens === 'soupBuilder' ? (
             // SoupBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment for why Side, not Salad/Smoothie) --
             // same layout-ownership reasoning applies here too.
-            <SoupBuilder tabColor={TAB_COLOR} editSoupId={editSoupId} />
+            <SoupBuilder tabColor={TAB_COLOR} editSoupId={editSoupId} fromFavoriteId={fromSoupFavoriteId} />
           ) : lens === 'saucesBuilder' ? (
             // SaucesBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment for why Side, not Salad/Smoothie, and
             // for why this one component is plural despite everything
             // inside it being named singular) -- same layout-ownership
             // reasoning applies here too.
-            <SaucesBuilder tabColor={TAB_COLOR} editSauceId={editSauceId} />
+            <SaucesBuilder tabColor={TAB_COLOR} editSauceId={editSauceId} fromFavoriteId={fromSauceFavoriteId} />
           ) : lens === 'handheldsBuilder' ? (
             // HandheldsBuilder is a direct adaptation of SideBuilder (see
             // that file's own top comment for why Side, not Salad/Smoothie,
@@ -734,7 +870,7 @@ export default function FoodScreen() {
             // inside it being named singular, the same situation Sauces
             // already established) -- same layout-ownership reasoning
             // applies here too.
-            <HandheldsBuilder tabColor={TAB_COLOR} editHandheldId={editHandheldId} />
+            <HandheldsBuilder tabColor={TAB_COLOR} editHandheldId={editHandheldId} fromFavoriteId={fromHandheldFavoriteId} />
           ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>

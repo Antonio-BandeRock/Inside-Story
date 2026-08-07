@@ -829,7 +829,7 @@ export default function HomeScreen() {
                   (openFeelingPicker/toggleFeelingTag/saveFeelingCheckin)
                   for the full reasoning, including how valence is derived
                   rather than asked as its own separate question. */}
-              <View style={[styles.feelingCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/log') }]}>
+              <View style={[styles.feelingCard, { borderColor: tabColorFor('/log') }]}>
                 <CardLabel tabPath="/log" text="Today's Check-In" />
                 {feelingPickerOpen ? (
                   <>
@@ -895,7 +895,7 @@ export default function HomeScreen() {
                 )}
               </View>
 
-              <View style={[styles.arcCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/schedule') }]}>
+              <View style={[styles.arcCard, { borderColor: tabColorFor('/schedule') }]}>
                 <CardLabel tabPath="/schedule" text="Your Day" />
                 <DayArc items={data?.scheduledToday ?? []} onPressItem={setSelectedItem} labelColor={tabColorFor('/schedule')} />
                 <Text style={[styles.arcCaption, { color: tabColorFor('/schedule') }]}>
@@ -1022,7 +1022,7 @@ export default function HomeScreen() {
                   that up; see TAB_BORDER_WIDTH's own comment for the other
                   half of this fix (a thicker border makes each individual
                   color easier to read regardless of ordering). */}
-              <View style={[styles.orbCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/log') }]}>
+              <View style={[styles.orbCard, { borderColor: tabColorFor('/log') }]}>
                 <CardLabel tabPath="/log" text="How You're Feeling" />
                 <EnergyOrb
                   recentMaxSeverity={data?.recentMaxSeverity ?? null}
@@ -1033,12 +1033,12 @@ export default function HomeScreen() {
               </View>
 
               {mealsLoggedToday === 0 ? (
-                <View style={[styles.emptyCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/insights') }]}>
+                <View style={[styles.emptyCard, { borderColor: tabColorFor('/insights') }]}>
                   <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
                   <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today's fuel gauges fill in.</Text>
                 </View>
               ) : (
-                <View style={[styles.fuelGaugesCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/insights') }]}>
+                <View style={[styles.fuelGaugesCard, { borderColor: tabColorFor('/insights') }]}>
                   <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
                   <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.ringRow}>
                     {coreNutrientRings.map((entry) => (
@@ -1057,7 +1057,7 @@ export default function HomeScreen() {
 
               {weekTrend ? (
                 <TouchableOpacity
-                  style={[styles.trendCard, styles.sectionHeadingSpaced, { borderColor: tabColorFor('/trends') }]}
+                  style={[styles.trendCard, { borderColor: tabColorFor('/trends') }]}
                   onPress={() => router.navigate('/trends')}
                   activeOpacity={0.75}
                 >
@@ -1090,7 +1090,7 @@ export default function HomeScreen() {
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={[styles.fullBleedScroll, styles.sectionHeadingSpaced]}
+            style={[styles.fullBleedScroll]}
             contentContainerStyle={styles.flipRow}
           >
             {visibleFlipCards.map((card) => (
@@ -1360,7 +1360,21 @@ const styles = StyleSheet.create({
   // card below it, present from the start (not just something scrolling
   // reveals) -- otherwise the greeting card sits flush against the header
   // the instant the page loads.
-  content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 32 },
+  // 2026-08-08, explicitly requested: "the individual boxes and buttons per
+  // rows [should] be the same 10 pixel distance away from each other...
+  // both vertically and horizontally." `gap` here is the vertical half of
+  // that -- applies uniformly between every direct top-level child of this
+  // ScrollView's content (greetingCard, the assessment-due banner, Today's
+  // Check-In, the Day Arc, the stat tiles row, the quick-actions row, the
+  // mood orb, fuel gauges, this week's trend, the flip-card row), including
+  // correctly skipping a gap on either side of any that don't render at all
+  // right now (the due banner, trendCard) -- a real advantage over each
+  // element carrying its own marginTop by hand, which is what every one of
+  // those used to do (several different values -- 16, 24 -- not even
+  // consistent with each other before this). The horizontal half of the
+  // same request is each row's own `gap` (statRow/quickActionsRow/ringRow/
+  // flipRow/feelingTagRow below), normalized to this same 10.
+  content: { paddingHorizontal: 20, paddingTop: 12, paddingBottom: 32, gap: 10 },
   // Same colors.surface "dark blue" card used everywhere else on this page
   // (arcCard, statTile, trendCard, etc.) -- every text-bearing element on
   // Home sits on this same box now, since the background underneath is a
@@ -1381,7 +1395,9 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: colors.border,
-    marginBottom: 16,
+    // marginBottom removed, 2026-08-08 -- content's own new `gap: 10`
+    // handles the space after this now; keeping this too would have
+    // stacked on top of it (26px instead of the real, intended 10).
   },
   greetingText: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary },
   affirmationText: { ...typography.body, ...textShadow, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
@@ -1390,10 +1406,12 @@ const styles = StyleSheet.create({
   // Used to precede every content card on this page as its own separate
   // box -- 2026-07-26, folded into each of those cards instead (see
   // CardLabel above). The last holdout, "A Few Things Worth Knowing," lost
-  // its own header entirely on 2026-07-27 (explicitly requested), so this
-  // chip/heading pair is unused now -- only sectionHeadingSpaced (the
-  // plain top-margin spacer) is still needed, kept on its own below.
-  sectionHeadingSpaced: { marginTop: 24 },
+  // its own header entirely on 2026-07-27 (explicitly requested). Its own
+  // replacement, sectionHeadingSpaced (a plain per-card marginTop: 24
+  // spacer), is gone too now, 2026-08-08 -- superseded by content's own
+  // `gap: 10`, which handles this same job uniformly for every top-level
+  // card at once (see that style's own comment) rather than needing it
+  // repeated, inconsistently, on each card individually.
   // CardLabel's own row -- alignSelf: 'flex-start' so it hugs the box's
   // own left edge even inside a parent using alignItems: 'center'
   // (arcCard, fuelGaugesCard, orbCard all center their real content).
@@ -1426,7 +1444,9 @@ const styles = StyleSheet.create({
   // The card's own border + CardLabel already carry the tab-color signal.
   arcCaption: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 8, textAlign: 'center' },
 
-  statRow: { flexDirection: 'row', gap: 12, marginTop: 16 },
+  // gap 10 (was 12), marginTop removed (content's own gap: 10 handles the
+  // space before this row now) -- 2026-08-08, see content's own comment.
+  statRow: { flexDirection: 'row', gap: 10 },
   statTile: {
     flex: 1,
     backgroundColor: colors.surface,
@@ -1455,7 +1475,9 @@ const styles = StyleSheet.create({
   // padding so the row still starts/ends flush with everything else at
   // rest; only the *scrollable* viewport is full-bleed, not the resting look.
   fullBleedScroll: { marginHorizontal: -20 },
-  quickActionsRow: { flexDirection: 'row', gap: 10, marginTop: 16, paddingHorizontal: 20 },
+  // marginTop removed, 2026-08-08 -- content's own gap: 10 handles the
+  // space before this row now; gap was already 10, unchanged.
+  quickActionsRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 20 },
   quickActionSecondary: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -1477,7 +1499,8 @@ const styles = StyleSheet.create({
     borderWidth: TAB_BORDER_WIDTH,
     borderColor: colors.border,
   },
-  ringRow: { flexDirection: 'row', gap: 16, paddingRight: 8 },
+  // gap 10 (was 16), 2026-08-08 -- see content's own comment.
+  ringRow: { flexDirection: 'row', gap: 10, paddingRight: 8 },
 
   orbCard: {
     alignItems: 'center',
@@ -1524,7 +1547,8 @@ const styles = StyleSheet.create({
   feelingPrompt: { ...typography.body, marginBottom: 12 },
   feelingCategoryBlock: { marginBottom: 12 },
   feelingCategoryLabel: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 6 },
-  feelingTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  // gap 10 (was 8), 2026-08-08 -- see content's own comment.
+  feelingTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
   feelingTagChip: {
     borderWidth: 1,
     borderColor: colors.border,
@@ -1578,7 +1602,8 @@ const styles = StyleSheet.create({
   trendDelta: { ...typography.bodyEmphasis, ...textShadow, marginTop: 4 },
   trendCaption: { ...typography.caption, ...textShadow, color: colors.textSecondary, marginTop: 4 },
 
-  flipRow: { flexDirection: 'row', gap: 12, paddingHorizontal: 20, paddingBottom: 8 },
+  // gap 10 (was 12), 2026-08-08 -- see content's own comment.
+  flipRow: { flexDirection: 'row', gap: 10, paddingHorizontal: 20, paddingBottom: 8 },
   // Same footprint as FlipCard's own default width/height (220x260) so it
   // sits in this row as an equal, not an odd one out -- a plain button,
   // not a flip card itself (no back face, no flip animation), dashed

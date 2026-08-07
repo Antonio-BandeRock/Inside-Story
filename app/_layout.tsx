@@ -123,7 +123,21 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
-              <Stack.Screen name="assessment" options={{ headerShown: true, title: 'Check-In' }} />
+              {/* headerStyle/headerTintColor added 2026-08-08 -- this native
+                  header was the one Stack.Screen left out when every other
+                  one (profile, purple-digest, food-items, food-item-detail)
+                  already got themed to match the app, defaulting to a
+                  plain white bar with black text against everything else's
+                  dark navy. */}
+              <Stack.Screen
+                name="assessment"
+                options={{
+                  headerShown: true,
+                  title: 'Check-In',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               <Stack.Screen
                 name="purple-digest"
                 options={{

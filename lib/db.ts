@@ -115,6 +115,204 @@ export type SideFavoritePayload = {
   ingredients: MealIngredientInput[];
 };
 
+// --- Sub-builder favorites (2026-08-08) -----------------------------------
+//
+// Wires up "Saving a reusable favorite," named as a real, deliberately
+// scoped-out gap in CLAUDE.md's own Next Steps since 2026-08-02: every one
+// of the nine sub-builders (Side, Salad, Smoothie, Fermentation, Beverage,
+// Snack, Baked Goods, Soup, Sauces) plus Handhelds already saves a real
+// standalone record when finished, but none could be saved as a template
+// for fast reuse. Direct request, 2026-08-08: "Let's wire up favoriting for
+// the sub-builders... If they only want to save the meal they created, or
+// if they want it to be a favorite should [both] be available" -- i.e. an
+// independent, additive choice, not a replacement for the real save.
+//
+// One generic payload/pair of functions serves all ten builders rather than
+// ten near-identical copies -- confirmed, not assumed, that their own
+// XIngredientInput types (SideIngredientInput, SaladIngredientInput, ...)
+// are field-for-field identical before writing this, and that every one of
+// their own saveX() input shapes is exactly
+// { name, servings, servingSizeAmount, servingSizeUnit, ingredients }.
+//
+// Deliberately a real, self-contained JSON snapshot (payload_json on the
+// existing `favorites` table), not a pointer into sides/salads/etc. -- a
+// favorite has to keep working even if the original record it was saved
+// from is later edited or deleted, and "reuse a favorite" should always
+// mean "start a fresh new [side/salad/...] from this template," never
+// silently editing whatever the original happened to become since. Same
+// design already established for the app's original two favorite payloads
+// above (MealFavoritePayload/SideFavoritePayload, both pre-2026-07-25
+// rebuild) -- this is the same idea, just generic across all ten of the
+// rebuilt builders' own real shape instead of the old flat
+// MealIngredientInput one.
+export type BuilderFavoriteIngredient = {
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+};
+
+export type BuilderFavoritePayload = {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: BuilderFavoriteIngredient[];
+};
+
+export type BuilderFavoriteItemType =
+  | 'side'
+  | 'salad'
+  | 'smoothie'
+  | 'fermentation'
+  | 'beverage'
+  | 'snack'
+  | 'bakedGoods'
+  | 'soup'
+  | 'sauce'
+  | 'handheld';
+
+export async function saveBuilderFavorite(itemType: BuilderFavoriteItemType, payload: BuilderFavoritePayload) {
+  const db = await getDatabase();
+  const id = `favorite_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO favorites (id, item_type, name, payload_json, last_used_at, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    itemType,
+    payload.name.trim(),
+    JSON.stringify(payload),
+    now,
+    now,
+    now,
+  );
+
+  return { id, ...payload };
+}
+
+// The inverse -- reads a favorite's own saved payload back out for a
+// builder to pre-fill itself from (see e.g. SideBuilder.tsx's own
+// fromFavoriteId effect, the same shape as its existing editSideId one,
+// just sourced from here instead of getSide/getSideIngredients). Touches
+// last_used_at so "most recently used" ordering (already how listFavorites
+// sorts) reflects real reuse, not just creation time.
+export async function getBuilderFavorite(id: string): Promise<(BuilderFavoritePayload & { id: string }) | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ payload_json: string }>('SELECT payload_json FROM favorites WHERE id = ?', id);
+  if (!row) return null;
+
+  const now = new Date().toISOString();
+  await db.runAsync('UPDATE favorites SET last_used_at = ? WHERE id = ?', now, id);
+
+  const payload = JSON.parse(row.payload_json) as BuilderFavoritePayload;
+  return { id, ...payload };
+}
+
+// --- Meal favorites (2026-08-08) ------------------------------------------
+//
+// A second, genuinely different payload shape under the SAME 'meal'
+// item_type the app's original MealFavoritePayload already uses (see
+// above) -- the old shape is a flat MealIngredientInput[] snapshot, built
+// for the old, deleted all-in-one meal builder; the real, current Meal
+// Builder assembles a meal from meal_components (references into the nine
+// sub-builder tables, not raw ingredients), so a meal favorite has to save
+// THAT shape instead -- a list of component references, not ingredients.
+//
+// Both shapes coexist safely in the same table/item_type: Schedule's own
+// MealsLens (matchingFavorites) only ever reads `payload.mealType`, present
+// in both shapes, so a new-shape favorite still surfaces correctly as a
+// pickable "Template/Favorite" source when scheduling a meal. Its own
+// favoriteRotatingIngredients was made defensive (payload.ingredients ??
+// []) rather than assuming the old shape's `ingredients` field is always
+// present -- a new-shape favorite genuinely has no per-ingredient rotation
+// data (that was an old-builder-specific feature), so reporting zero
+// rotating ingredients for one is the correct answer, not a bug.
+export type MealFavoriteComponent = {
+  componentType: MealComponentType;
+  componentId: string;
+  yourSharePercent: number;
+};
+
+export type MealFavoriteComponentsPayload = {
+  name: string;
+  mealType: string;
+  notes?: string;
+  components: MealFavoriteComponent[];
+  // Always empty for a new-shape favorite -- present only so any code
+  // still reading the OLD MealFavoritePayload shape (Schedule's own
+  // favoriteBaseIngredients) sees a real, safe empty array rather than
+  // undefined if it ever reads a new-shape row without checking first.
+  ingredients: [];
+};
+
+export async function saveMealFavorite(payload: {
+  name: string;
+  mealType: string;
+  notes?: string;
+  components: MealFavoriteComponent[];
+}) {
+  const db = await getDatabase();
+  const id = `favorite_${Date.now()}`;
+  const now = new Date().toISOString();
+  const fullPayload: MealFavoriteComponentsPayload = {
+    name: payload.name.trim(),
+    mealType: payload.mealType,
+    notes: payload.notes?.trim() || undefined,
+    components: payload.components,
+    ingredients: [],
+  };
+
+  await db.runAsync(
+    `
+      INSERT INTO favorites (id, item_type, name, payload_json, last_used_at, created_at, updated_at)
+      VALUES (?, 'meal', ?, ?, ?, ?, ?)
+    `,
+    id,
+    fullPayload.name,
+    JSON.stringify(fullPayload),
+    now,
+    now,
+    now,
+  );
+
+  return { id, ...fullPayload };
+}
+
+// Returns null for an old-shape (pre-rebuild) meal favorite -- genuinely a
+// different, incompatible shape (raw ingredients, not component
+// references) with nothing here for Meal Builder to resume from. Real,
+// not-yet-shipped software with no installed users to migrate, so this is
+// a clean, honest "can't resume this one" rather than a data migration.
+export async function getMealFavorite(id: string): Promise<(MealFavoriteComponentsPayload & { id: string }) | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<{ payload_json: string }>('SELECT payload_json FROM favorites WHERE id = ?', id);
+  if (!row) return null;
+
+  const parsed = JSON.parse(row.payload_json) as Partial<MealFavoriteComponentsPayload>;
+  if (!Array.isArray(parsed.components)) return null;
+
+  const now = new Date().toISOString();
+  await db.runAsync('UPDATE favorites SET last_used_at = ? WHERE id = ?', now, id);
+
+  return {
+    id,
+    name: parsed.name ?? 'Meal',
+    mealType: parsed.mealType ?? '',
+    notes: parsed.notes,
+    components: parsed.components,
+    ingredients: [],
+  };
+}
+
 export type FavoriteRecord = {
   id: string;
   item_type: string;

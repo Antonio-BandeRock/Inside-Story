@@ -9,11 +9,13 @@ import { SALAD_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
+  getBuilderFavorite,
   getFoodIdentity,
   getFoodScores,
   getSalad,
   getSaladIngredients,
   getStoredMeasurementSystem,
+  saveBuilderFavorite,
   saveSalad,
   updateSalad,
   type FoodScore,
@@ -416,9 +418,17 @@ export function SaladBuilder({
   // "I fixed this salad" should return you to where you came from, not
   // drop you into building a different one.
   editSaladId,
+  // Set when reached via "Use this Favorite" on a saved favorite (see
+  // app/food-items.tsx) -- 2026-08-08. Same shape as editSaladId's own
+  // prefill just below, except this never marks anything as an edit --
+  // Save & Finish Salad always creates a genuinely NEW salad from a
+  // favorite (see lib/db.ts's own BuilderFavoritePayload comment for why
+  // a favorite is a real snapshot, not a pointer to a live record).
+  fromFavoriteId,
 }: {
   tabColor: string;
   editSaladId?: string;
+  fromFavoriteId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -505,6 +515,9 @@ export function SaladBuilder({
   // asked for "at the beginning," not something that needs to stay an
   // open form the whole time after.
   const [servingsConfirmed, setServingsConfirmed] = useState(false);
+  // 2026-08-08 -- independent of the real save; see SideBuilder.tsx's own
+  // identical field for the full reasoning.
+  const [alsoSaveAsFavorite, setAlsoSaveAsFavorite] = useState(!!fromFavoriteId);
 
   const [ingredients, setIngredients] = useState<SaladIngredient[]>([]);
   const [pendingResolved, setPendingResolved] = useState<ResolvedFoodSelection | null>(null);
@@ -604,6 +617,57 @@ export function SaladBuilder({
       isCurrent = false;
     };
   }, [editSaladId]);
+
+  // Same shape as editSaladId's own effect just above -- reconstructs each
+  // ingredient's real ResolvedFoodSelection/scores from the favorite's own
+  // saved foodId/source (getBuilderFavorite already returns exactly
+  // SaladIngredientInput's own field set). Never sets editSaladId-
+  // equivalent state, so finishSalad below always creates a new salad.
+  useEffect(() => {
+    if (!fromFavoriteId) return;
+    let isCurrent = true;
+
+    (async () => {
+      const favorite = await getBuilderFavorite(fromFavoriteId);
+      if (!favorite || !isCurrent) return;
+
+      const loaded: SaladIngredient[] = [];
+      for (const detail of favorite.ingredients) {
+        const [identity, scores] = await Promise.all([
+          getFoodIdentity(detail.foodId, detail.source),
+          getFoodScores(detail.foodId, detail.source),
+        ]);
+        loaded.push({
+          resolved: {
+            category: detail.category ?? identity?.category ?? '',
+            subcategory: identity?.subcategory ?? null,
+            baseName: identity?.baseName ?? detail.foodName,
+            prepMethod: identity?.prepMethod ?? null,
+            foodId: detail.foodId,
+            source: detail.source,
+          },
+          quantity: formatAmountForPicker(detail.quantity, AMOUNT_PICKER_VALUES),
+          unit: detail.unit,
+          cookingMethod: detail.cookingMethod,
+          cutPrep: detail.cutPrep,
+          prepNote: detail.prepNote ?? '',
+          scores,
+        });
+      }
+
+      if (!isCurrent) return;
+      setSaladName(favorite.name);
+      setServings(formatAmountForPicker(favorite.servings, SERVINGS_PICKER_VALUES));
+      setServingSizeAmount(formatAmountForPicker(favorite.servingSizeAmount, AMOUNT_PICKER_VALUES));
+      setServingSizeUnit(favorite.servingSizeUnit);
+      setServingsConfirmed(true);
+      setIngredients(loaded);
+    })();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [fromFavoriteId]);
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);
@@ -852,6 +916,17 @@ export function SaladBuilder({
       return;
     }
 
+    // Independent of the real save above -- 2026-08-08, see
+    // SideBuilder.tsx's own identical block for the full reasoning.
+    if (alsoSaveAsFavorite) {
+      try {
+        await saveBuilderFavorite('salad', payload);
+      } catch (error) {
+        console.error('[SaladBuilder] Failed to save favorite', error);
+        showInfoAlert('Salad saved, favorite failed', `${finishedName} is saved, but saving it as a favorite didn't work. You can try favoriting it again later.`);
+      }
+    }
+
     // Editing an already-saved salad returns to wherever it was opened from
     // (see app/food-items.tsx's Edit button, which pushed this screen) --
     // "I fixed this salad" should go back to the list, not drop the person
@@ -874,9 +949,20 @@ export function SaladBuilder({
     setServingSizeAmount(null);
     setServingSizeUnit(null);
     setServingsConfirmed(false);
+    setAlsoSaveAsFavorite(false);
     setFinishStep('building');
     setNudgeDismissed(false);
     showInfoAlert('Salad saved', `${finishedName} is saved. Starting a fresh salad now.`);
+  }
+
+  // 2026-08-08 -- see SideBuilder.tsx's own identical function.
+  function renderFavoriteToggle() {
+    return (
+      <TouchableOpacity style={styles.favoriteToggleRow} onPress={() => setAlsoSaveAsFavorite((current) => !current)} activeOpacity={0.7}>
+        <Ionicons name={alsoSaveAsFavorite ? 'checkbox' : 'square-outline'} size={20} color={tabColor} />
+        <Text style={styles.favoriteToggleText}>Also save as a Favorite, for fast reuse later</Text>
+      </TouchableOpacity>
+    );
   }
 
   // Commits the pending ingredient, then either loops back for another one
@@ -1463,6 +1549,7 @@ export function SaladBuilder({
                   salad form's own Continue button -- a truly disabled
                   button can't explain what's missing, so these always fire
                   and the handler decides. */}
+              {editSaladId ? null : renderFavoriteToggle()}
               <View style={styles.buttonRow}>
                 {editSaladId ? (
                   <TouchableOpacity
@@ -1544,6 +1631,7 @@ export function SaladBuilder({
                 {(saladName.trim() || 'Salad')} ready -- {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
+              {renderFavoriteToggle()}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: tabColor }]}
                 onPress={() => confirmAndFinishSalad(ingredients)}
@@ -1694,6 +1782,9 @@ const styles = StyleSheet.create({
   // so the buttons act on the whole card rather than looking like they
   // belong to the note field.
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
+  // 2026-08-08 -- renderFavoriteToggle's own row.
+  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
   // Two columns (salad info, scrollable ingredients) divided by a thin
   // line -- see renderSummaryCard's own comment. A fixed `height`
   // (SUMMARY_CARD_HEIGHT), not content-sized: both so the left/right

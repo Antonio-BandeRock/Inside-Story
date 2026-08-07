@@ -702,7 +702,13 @@ function MealsLens() {
     if (!favorite) return [];
     try {
       const payload = JSON.parse(favorite.payload_json) as MealFavoritePayload;
-      return payload.ingredients;
+      // ?? [], 2026-08-08 -- a real, not just defensive, case now: Meal
+      // Builder's own new meal favorites (lib/db.ts's MealFavoriteComponentsPayload)
+      // share this same 'meal' item_type/table but genuinely carry no
+      // per-ingredient rotation data (that's an old-builder-specific
+      // feature) -- reporting zero rotating ingredients for one is the
+      // correct answer, not a bug to guard against.
+      return payload.ingredients ?? [];
     } catch {
       return [];
     }

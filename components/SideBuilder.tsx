@@ -9,11 +9,13 @@ import { SIDE_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
+  getBuilderFavorite,
   getFoodIdentity,
   getFoodScores,
   getSide,
   getSideIngredients,
   getStoredMeasurementSystem,
+  saveBuilderFavorite,
   saveSide,
   updateSide,
   type FoodScore,
@@ -401,9 +403,19 @@ export function SideBuilder({
   // "I fixed this side" should return you to where you came from, not
   // drop you into building a different one.
   editSideId,
+  // Set when reached via "Use this Favorite" on a saved favorite (see
+  // app/food-items.tsx) -- 2026-08-08. Pre-fills this same builder from
+  // that favorite's own saved payload, the same shape as editSideId's own
+  // prefill just below, EXCEPT this never sets anything marking it as an
+  // edit -- Save & Finish Side always creates a genuinely NEW side from a
+  // favorite, never silently overwrites whatever the favorite happens to
+  // be pointing at (favorites don't point at a live record at all; see
+  // lib/db.ts's own BuilderFavoritePayload comment for why).
+  fromFavoriteId,
 }: {
   tabColor: string;
   editSideId?: string;
+  fromFavoriteId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -490,6 +502,12 @@ export function SideBuilder({
   // asked for "at the beginning," not something that needs to stay an
   // open form the whole time after.
   const [servingsConfirmed, setServingsConfirmed] = useState(false);
+  // 2026-08-08 -- independent of Save & Finish Side itself: checking this
+  // doesn't change what gets saved as the real side record, it just ALSO
+  // saves a reusable copy. Defaults on when arriving from an existing
+  // favorite (editing a favorite-based side most often means "fix the
+  // template too," not just this one occurrence) and off otherwise.
+  const [alsoSaveAsFavorite, setAlsoSaveAsFavorite] = useState(!!fromFavoriteId);
 
   const [ingredients, setIngredients] = useState<SideIngredient[]>([]);
   const [pendingResolved, setPendingResolved] = useState<ResolvedFoodSelection | null>(null);
@@ -589,6 +607,58 @@ export function SideBuilder({
       isCurrent = false;
     };
   }, [editSideId]);
+
+  // Same shape as editSideId's own effect just above -- reconstructs each
+  // ingredient's real ResolvedFoodSelection/scores from the favorite's own
+  // saved foodId/source (getBuilderFavorite already returns exactly
+  // SideIngredientInput's own field set, so no reshaping is needed between
+  // the two) -- but never sets editSideId-equivalent state, so Save &
+  // Finish Side below always creates a genuinely new side, not an update.
+  useEffect(() => {
+    if (!fromFavoriteId) return;
+    let isCurrent = true;
+
+    (async () => {
+      const favorite = await getBuilderFavorite(fromFavoriteId);
+      if (!favorite || !isCurrent) return;
+
+      const loaded: SideIngredient[] = [];
+      for (const detail of favorite.ingredients) {
+        const [identity, scores] = await Promise.all([
+          getFoodIdentity(detail.foodId, detail.source),
+          getFoodScores(detail.foodId, detail.source),
+        ]);
+        loaded.push({
+          resolved: {
+            category: detail.category ?? identity?.category ?? '',
+            subcategory: identity?.subcategory ?? null,
+            baseName: identity?.baseName ?? detail.foodName,
+            prepMethod: identity?.prepMethod ?? null,
+            foodId: detail.foodId,
+            source: detail.source,
+          },
+          quantity: formatAmountForPicker(detail.quantity, AMOUNT_PICKER_VALUES),
+          unit: detail.unit,
+          cookingMethod: detail.cookingMethod,
+          cutPrep: detail.cutPrep,
+          prepNote: detail.prepNote ?? '',
+          scores,
+        });
+      }
+
+      if (!isCurrent) return;
+      setDishName(favorite.name);
+      setServings(formatAmountForPicker(favorite.servings, SERVINGS_PICKER_VALUES));
+      setServingSizeAmount(formatAmountForPicker(favorite.servingSizeAmount, AMOUNT_PICKER_VALUES));
+      setServingSizeUnit(favorite.servingSizeUnit);
+      setServingsConfirmed(true);
+      setIngredients(loaded);
+    })();
+
+    return () => {
+      isCurrent = false;
+    };
+  }, [fromFavoriteId]);
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);
@@ -791,6 +861,21 @@ export function SideBuilder({
       return;
     }
 
+    // Independent of the real save above -- 2026-08-08, "if they only want
+    // to save the [side] they created, or if they want it to be a
+    // favorite should [both] be available." A failure here doesn't block
+    // or undo the real save that already succeeded; it just surfaces its
+    // own, separate notice so the person knows the favorite copy didn't
+    // take, rather than silently losing it.
+    if (alsoSaveAsFavorite) {
+      try {
+        await saveBuilderFavorite('side', payload);
+      } catch (error) {
+        console.error('[SideBuilder] Failed to save favorite', error);
+        showInfoAlert('Side saved, favorite failed', `${finishedName} is saved, but saving it as a favorite didn't work. You can try favoriting it again later.`);
+      }
+    }
+
     // Editing an already-saved side returns to wherever it was opened from
     // (see app/food-items.tsx's Edit button, which pushed this screen) --
     // "I fixed this side" should go back to the list, not drop the person
@@ -813,9 +898,25 @@ export function SideBuilder({
     setServingSizeAmount(null);
     setServingSizeUnit(null);
     setServingsConfirmed(false);
+    setAlsoSaveAsFavorite(false);
     setFinishStep('building');
     setNudgeDismissed(false);
     showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
+  }
+
+  // 2026-08-08 -- shown above whichever "Save & Finish Side"/"Save
+  // Changes" button is actually reachable right now (the pending-
+  // ingredient card's own two-button pair, or the "ready" screen's single
+  // button -- see finishSide's own call sites). A plain tappable row, not
+  // a styled checkbox component this app doesn't otherwise have -- same
+  // "icon + text, whole row tappable" shape as everywhere else here.
+  function renderFavoriteToggle() {
+    return (
+      <TouchableOpacity style={styles.favoriteToggleRow} onPress={() => setAlsoSaveAsFavorite((current) => !current)} activeOpacity={0.7}>
+        <Ionicons name={alsoSaveAsFavorite ? 'checkbox' : 'square-outline'} size={20} color={tabColor} />
+        <Text style={styles.favoriteToggleText}>Also save as a Favorite, for fast reuse later</Text>
+      </TouchableOpacity>
+    );
   }
 
   // Commits the pending ingredient, then either loops back for another one
@@ -1402,6 +1503,7 @@ export function SideBuilder({
                   dish form's own Continue button -- a truly disabled
                   button can't explain what's missing, so these always fire
                   and the handler decides. */}
+              {editSideId ? null : renderFavoriteToggle()}
               <View style={styles.buttonRow}>
                 {editSideId ? (
                   <TouchableOpacity
@@ -1483,6 +1585,7 @@ export function SideBuilder({
                 {(dishName.trim() || 'Side Dish')} ready -- {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
+              {renderFavoriteToggle()}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: tabColor }]}
                 onPress={() => void finishSide(ingredients)}
@@ -1633,6 +1736,9 @@ const styles = StyleSheet.create({
   // so the buttons act on the whole card rather than looking like they
   // belong to the note field.
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
+  // 2026-08-08 -- renderFavoriteToggle's own row.
+  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
   // Two columns (dish info, scrollable ingredients) divided by a thin
   // line -- see renderSummaryCard's own comment. A fixed `height`
   // (SUMMARY_CARD_HEIGHT), not content-sized: both so the left/right

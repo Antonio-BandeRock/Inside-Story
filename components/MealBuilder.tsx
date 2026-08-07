@@ -10,13 +10,17 @@ import {
   getMealComponentDisplayInfo,
   getMealComponents,
   getMealComponentsGoitrogenicFlags,
+  getMealFavorite,
   listMealComponentOptions,
   markScheduledMealLogged,
+  saveMealFavorite,
+  scheduleMeal,
   type MealComponentOption,
   type MealComponentSelection,
   type MealComponentType,
 } from '../lib/db';
 import { parseAmountValue } from '../lib/measurement';
+import { buildTime24, formatTime12, type TimeOfDayInput } from '../lib/timeOfDay';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { useInfoAlert } from './InfoAlert';
@@ -72,6 +76,22 @@ function nowLocalDateTimeString(): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
+// Just the date half of nowLocalDateTimeString above -- schedule_items'
+// own scheduled_for column wants "YYYY-MM-DDTHH:mm" too (see Schedule's own
+// todayDateString in app/(tabs)/schedule.tsx), local time same as above.
+function todayLocalDateString(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+// Same 12-value hour/60-value minute lists Profile's own time pickers use
+// (see app/profile.tsx's own HOUR_OPTIONS/MINUTE_OPTIONS) -- "Save &
+// Schedule for Later" below reuses that exact Hour/Minute/AM-PM PopoverSelect
+// shape, not a new time-entry pattern.
+const HOUR_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
+
 // One selected component, as this builder tracks it on screen -- carries
 // its own display name/servings alongside the bare componentType/
 // componentId/yourSharePercent MealComponentSelection needs, so the "Your
@@ -118,12 +138,25 @@ export function MealBuilder({
   // ingredients, which would need a whole separate read-only rendering
   // path for an increasingly rare, legacy case.
   templateMealId,
+  // Set when reached via a saved meal favorite's own "Use this Favorite"
+  // tap (see app/food-items.tsx) -- 2026-08-08. Same shape as
+  // templateMealId just above (resolves each saved component via
+  // getMealComponentDisplayInfo), except sourced from getMealFavorite
+  // instead of getMealComponents, and it also prefills mealName/mealType
+  // from the favorite's own name/mealType, since a favorite is reached
+  // with no other identity info the way Log Now's initialMealType/
+  // initialTitle props already carry. Skips the identity step entirely
+  // (see identityConfirmed's own initializer below) for the same reason
+  // scheduleItemId does -- resuming a favorite isn't a fresh choice of
+  // what to build.
+  favoriteId,
 }: {
   tabColor: string;
   scheduleItemId?: string;
   initialMealType?: string;
   initialTitle?: string;
   templateMealId?: string;
+  favoriteId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -141,10 +174,14 @@ export function MealBuilder({
 
   const [mealName, setMealName] = useState(initialTitle ?? '');
   const [mealType, setMealType] = useState<string | null>(initialMealType || null);
-  // Reached via Log Now already knows both of the above -- skips straight
-  // to assembling instead of showing an identity form for information
-  // that's already settled.
-  const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId);
+  // Reached via Log Now, or via a saved favorite's own "Use this Favorite"
+  // tap, already knows both of the above -- skips straight to assembling
+  // instead of showing an identity form for information that's already
+  // settled (the favoriteId effect below fills mealName/mealType in
+  // asynchronously; identityReady/the assembling screen tolerate a beat of
+  // "No meal type chosen" while that load is still in flight, the same way
+  // templateMealId's own component list starts empty and fills in).
+  const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId || !!favoriteId);
   const identityReady = !!mealType;
 
   const [components, setComponents] = useState<SelectedComponent[]>([]);
@@ -176,6 +213,43 @@ export function MealBuilder({
       isCurrent = false;
     };
   }, [templateMealId]);
+
+  // Loads a saved meal favorite's own real data in place of the blank-
+  // builder defaults above, 2026-08-08 -- runs once per favoriteId. Mirrors
+  // the templateMealId effect just above almost exactly (same
+  // getMealComponentDisplayInfo resolution, same silent-drop for a
+  // component whose own saved record has since been deleted), except this
+  // also carries the favorite's own name/mealType, which templateMealId's
+  // meal record doesn't need to (Log Now already gets those from
+  // initialTitle/initialMealType instead).
+  useEffect(() => {
+    if (!favoriteId) return;
+    let isCurrent = true;
+    (async () => {
+      const favorite = await getMealFavorite(favoriteId);
+      if (!favorite || !isCurrent) return;
+      const resolved: SelectedComponent[] = [];
+      for (const component of favorite.components) {
+        const detail = await getMealComponentDisplayInfo(component.componentType, component.componentId);
+        if (!detail) continue;
+        resolved.push({
+          key: `${component.componentType}_${component.componentId}_${Date.now()}_${resolved.length}`,
+          componentType: component.componentType,
+          componentId: component.componentId,
+          name: detail.name,
+          servings: detail.servings,
+          yourSharePercent: component.yourSharePercent,
+        });
+      }
+      if (!isCurrent) return;
+      setMealName(favorite.name);
+      setMealType(favorite.mealType);
+      setComponents(resolved);
+    })();
+    return () => {
+      isCurrent = false;
+    };
+  }, [favoriteId]);
 
   // null: showing the "Add from..." grid. Set: showing that one category's
   // own saved-items list.
@@ -253,6 +327,13 @@ export function MealBuilder({
   }
 
   const [saving, setSaving] = useState(false);
+  // 2026-08-08 -- independent of the real "Log This Now" save; see
+  // SideBuilder.tsx's own identical field for the full reasoning. Only
+  // governs Log This Now -- "Save & Schedule for Later" below always saves
+  // its own favorite regardless of this, since scheduleMeal's own
+  // sourceFavoriteId needs a real favorite to point at either way (see
+  // confirmScheduleForLater's own comment).
+  const [alsoSaveAsFavorite, setAlsoSaveAsFavorite] = useState(!!favoriteId);
 
   async function logMealNow() {
     setSaving(true);
@@ -268,6 +349,16 @@ export function MealBuilder({
       showInfoAlert('Save failed', result.error);
       return;
     }
+    // Independent of the real log above -- 2026-08-08, see SideBuilder.tsx's
+    // own identical block for the full reasoning.
+    if (alsoSaveAsFavorite) {
+      try {
+        await saveMealFavorite({ name: mealName.trim() || 'Meal', mealType: mealType!, components: components.map(toSelection) });
+      } catch (error) {
+        console.error('[MealBuilder] Failed to save favorite', error);
+        showInfoAlert('Meal logged, favorite failed', "This meal is logged, but saving it as a favorite didn't work. You can try favoriting it again later.");
+      }
+    }
     if (scheduleItemId) {
       await markScheduledMealLogged(scheduleItemId, result.id);
       router.back();
@@ -278,7 +369,18 @@ export function MealBuilder({
     setMealName('');
     setMealType(null);
     setIdentityConfirmed(false);
+    setAlsoSaveAsFavorite(false);
     showInfoAlert('Meal logged', `${finishedName} is logged. Starting a fresh meal now.`);
+  }
+
+  // 2026-08-08 -- see SideBuilder.tsx's own identical function.
+  function renderFavoriteToggle() {
+    return (
+      <TouchableOpacity style={styles.favoriteToggleRow} onPress={() => setAlsoSaveAsFavorite((current) => !current)} activeOpacity={0.7}>
+        <Ionicons name={alsoSaveAsFavorite ? 'checkbox' : 'square-outline'} size={20} color={tabColor} />
+        <Text style={styles.favoriteToggleText}>Also save as a Favorite, for fast reuse later</Text>
+      </TouchableOpacity>
+    );
   }
 
   // Pools the raw-goitrogenic-load check every sub-builder already runs on
@@ -314,6 +416,79 @@ export function MealBuilder({
       return;
     }
     void logMealNow();
+  }
+
+  // "Save & Schedule for Later," 2026-08-08 -- the Phase 3 convenience
+  // shortcut this file's own top comment used to flag as deliberately
+  // deferred, now built. Deliberately TODAY-only (see schedulingTime's own
+  // step below) -- Schedule's own Meals lens (app/(tabs)/schedule.tsx)
+  // only supports "today, at a specific time" itself right now, not an
+  // arbitrary future date, and this shouldn't hand Meal Builder more
+  // scheduling reach than Schedule's own UI actually has.
+  const [schedulingTime, setSchedulingTime] = useState(false);
+  const [scheduleTimeBuffer, setScheduleTimeBuffer] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
+  const [scheduling, setScheduling] = useState(false);
+
+  function openScheduleForLater() {
+    if (components.length === 0) {
+      showInfoAlert('Nothing to schedule yet', 'Add at least one item to this meal first.');
+      return;
+    }
+    if (!mealType) {
+      showInfoAlert('Almost there', 'Please choose a meal type.');
+      return;
+    }
+    dismissKeyboard();
+    setScheduleTimeBuffer({ hour: '', minute: '', ampm: '' });
+    setSchedulingTime(true);
+  }
+
+  function cancelScheduleForLater() {
+    setSchedulingTime(false);
+  }
+
+  async function confirmScheduleForLater() {
+    const time24 = buildTime24(scheduleTimeBuffer.hour, scheduleTimeBuffer.minute, scheduleTimeBuffer.ampm);
+    if (!time24) {
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, and AM or PM).');
+      return;
+    }
+    if (!mealType) return;
+    dismissKeyboard();
+    setScheduling(true);
+    const finishedName = mealName.trim() || 'Meal';
+    try {
+      // Always saves a real favorite here, independent of
+      // alsoSaveAsFavorite's own checkbox (which only governs Log This
+      // Now) -- scheduleMeal's own sourceFavoriteId is how a scheduled
+      // occurrence remembers which components to resume with later (the
+      // same mechanism the favoriteId effect above reads back), so there's
+      // no way to schedule this meal at all without a real favorite to
+      // point at. Structurally required, not a preference.
+      const favorite = await saveMealFavorite({ name: finishedName, mealType, components: components.map(toSelection) });
+      await scheduleMeal({
+        title: finishedName,
+        mealType,
+        scheduledFor: `${todayLocalDateString()}T${time24}`,
+        sourceFavoriteId: favorite.id,
+      });
+    } catch (error) {
+      console.error('[MealBuilder] Failed to schedule meal', error);
+      setScheduling(false);
+      showInfoAlert('Schedule failed', 'Something went wrong scheduling this meal. Please try again.');
+      return;
+    }
+    setScheduling(false);
+    setSchedulingTime(false);
+    setComponents([]);
+    setMealName('');
+    setMealType(null);
+    setIdentityConfirmed(false);
+    setAlsoSaveAsFavorite(false);
+    showInfoAlert(
+      'Meal scheduled',
+      `${finishedName} is scheduled for ${formatTime12(time24)} today. Find it on the Schedule tab's own Meals lens.`,
+    );
   }
 
   function handleContinuePress() {
@@ -395,6 +570,79 @@ export function MealBuilder({
               </TouchableOpacity>
               <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, marginTop: 0 }]} onPress={confirmPendingSelection}>
                 <Text style={styles.primaryButtonText}>Add to Meal</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </>
+    );
+  }
+
+  // Collecting a time before scheduling this meal for later today --
+  // 2026-08-08. See openScheduleForLater's own comment for why this is
+  // deliberately today-only, not a real date picker.
+  if (schedulingTime) {
+    return (
+      <>
+        {infoAlertElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
+          <View style={[styles.formCard, { borderColor: tabColor }]}>
+            <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>
+              {mealName.trim() || 'Meal'}
+            </Text>
+            <Text style={styles.pendingSubtitle}>What time today?</Text>
+            <View style={styles.timeRow}>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>Hour</Text>
+                <PopoverSelect
+                  options={HOUR_OPTIONS}
+                  selected={scheduleTimeBuffer.hour || null}
+                  minWidth={48}
+                  tabColor={tabColor}
+                  onSelect={(value) => setScheduleTimeBuffer((current) => ({ ...current, hour: value }))}
+                />
+              </View>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>Minute</Text>
+                <PopoverSelect
+                  options={MINUTE_OPTIONS}
+                  selected={scheduleTimeBuffer.minute || null}
+                  minWidth={52}
+                  tabColor={tabColor}
+                  onSelect={(value) => setScheduleTimeBuffer((current) => ({ ...current, minute: value }))}
+                />
+              </View>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>AM/PM</Text>
+                <View style={styles.pillWrap}>
+                  {(['AM', 'PM'] as const).map((option) => {
+                    const active = scheduleTimeBuffer.ampm === option;
+                    return (
+                      <TouchableOpacity
+                        key={option}
+                        style={[
+                          styles.typePill,
+                          { backgroundColor: active ? tabColor : inputBackground(tabColor), borderColor: active ? tabColor : colors.border },
+                        ]}
+                        onPress={() => setScheduleTimeBuffer((current) => ({ ...current, ampm: option }))}
+                      >
+                        <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelScheduleForLater} disabled={scheduling}>
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, marginTop: 0, opacity: scheduling ? 0.6 : 1 }]}
+                onPress={confirmScheduleForLater}
+                disabled={scheduling}
+              >
+                {scheduling ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Schedule It</Text>}
               </TouchableOpacity>
             </View>
           </View>
@@ -485,13 +733,28 @@ export function MealBuilder({
         </View>
 
         {components.length > 0 && (
-          <TouchableOpacity
-            style={[styles.primaryButton, styles.logButton, { backgroundColor: tabColor, opacity: saving ? 0.6 : 1 }]}
-            onPress={confirmAndLogMealNow}
-            disabled={saving}
-          >
-            {saving ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Log This Now</Text>}
-          </TouchableOpacity>
+          <>
+            {renderFavoriteToggle()}
+            <TouchableOpacity
+              style={[styles.primaryButton, styles.logButton, { backgroundColor: tabColor, opacity: saving ? 0.6 : 1 }]}
+              onPress={confirmAndLogMealNow}
+              disabled={saving}
+            >
+              {saving ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Log This Now</Text>}
+            </TouchableOpacity>
+            {/* "Save & Schedule for Later," 2026-08-08 -- a separate action
+                from Log This Now, not a variant of it: this always saves its
+                own favorite regardless of the checkbox above (see
+                confirmScheduleForLater's own comment), so the two buttons
+                stay independently reachable rather than gated behind one
+                shared "what do you want to do" choice. secondaryButton
+                (outlined, not filled) -- Log This Now stays the visually
+                primary action, matching how every other builder's own
+                single real "finish" action is the filled button. */}
+            <TouchableOpacity style={[styles.secondaryButton, styles.scheduleButton]} onPress={openScheduleForLater}>
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Save &amp; Schedule for Later</Text>
+            </TouchableOpacity>
+          </>
         )}
       </ScrollView>
     </>
@@ -544,6 +807,21 @@ const styles = StyleSheet.create({
   },
   secondaryButtonText: { ...typography.bodyEmphasis },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
+  // 2026-08-08 -- renderFavoriteToggle's own row, same shape as every
+  // sub-builder's identical style (see SideBuilder.tsx's own
+  // favoriteToggleRow/favoriteToggleText).
+  favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
+  favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
+  // schedulingTime's own Hour/Minute/AM-PM row, 2026-08-08 -- three roughly
+  // equal fields side by side, same flexDirection: 'row' shape as Profile's
+  // own dateRow (app/profile.tsx).
+  timeRow: { flexDirection: 'row', gap: 10, marginTop: 6, flexWrap: 'wrap' },
+  timeField: { gap: 4 },
+  // marginTop 10 (not buttonRow's own 16-ish default via primaryButton/
+  // secondaryButton) -- sits directly under Log This Now with a bit less
+  // separation than that button has from the card above it, since these
+  // two are a related pair of finishing actions, not two separate steps.
+  scheduleButton: { marginTop: 10 },
   // colors.textSecondary, not tabColor -- matches SideBuilder's own
   // pendingHeader exactly (both name a saved item that's about to be
   // added, i.e. this card's own CONTENT, not the meal's own identity the

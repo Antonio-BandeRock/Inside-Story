@@ -9,6 +9,7 @@ import { typography } from '../constants/typography';
 import {
   deleteBakedGoods,
   deleteBeverage,
+  deleteFavorite,
   deleteFermentation,
   deleteHandheld,
   deleteSalad,
@@ -91,7 +92,14 @@ export default function FoodItemsScreen() {
         text: 'Delete',
         style: 'destructive',
         onPress: async () => {
-          await deleteItem(itemType, item.id);
+          // Favorites live in the one shared, generic favorites table
+          // (see lib/db.ts) regardless of itemType, so deleting one never
+          // needs the per-builder deleteItem switch below -- 2026-08-08.
+          if (status === 'favorite') {
+            await deleteFavorite(item.id);
+          } else {
+            await deleteItem(itemType, item.id);
+          }
           await refreshItems();
         },
       },
@@ -142,6 +150,58 @@ export default function FoodItemsScreen() {
                   ) {
                     router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
                     return;
+                  }
+                  // "Use this Favorite," 2026-08-08 -- tapping a favorite
+                  // resumes the matching builder pre-loaded with its own
+                  // saved ingredients (via app/(tabs)/food.tsx's own
+                  // fromSideFavoriteId/fromSaladFavoriteId/etc. params, the
+                  // exact same shape as the Edit button's editSideId/etc.
+                  // params just below, except this always produces a
+                  // genuinely NEW saved item rather than editing the
+                  // favorite itself -- a favorite is a reusable template,
+                  // not a record with its own detail view). Written inline
+                  // for the same typed-routes reason the Edit button's own
+                  // block already explains.
+                  if (status === 'favorite') {
+                    if (itemType === 'side') {
+                      router.push({ pathname: '/food', params: { fromSideFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'salad') {
+                      router.push({ pathname: '/food', params: { fromSaladFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'smoothie') {
+                      router.push({ pathname: '/food', params: { fromSmoothieFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'fermentation') {
+                      router.push({ pathname: '/food', params: { fromFermentationFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'beverage') {
+                      router.push({ pathname: '/food', params: { fromBeverageFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'snack') {
+                      router.push({ pathname: '/food', params: { fromSnackFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'bakedGoods') {
+                      router.push({ pathname: '/food', params: { fromBakedGoodsFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'soup') {
+                      router.push({ pathname: '/food', params: { fromSoupFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'sauce') {
+                      router.push({ pathname: '/food', params: { fromSauceFavoriteId: item.id } });
+                      return;
+                    } else if (itemType === 'handheld') {
+                      router.push({ pathname: '/food', params: { fromHandheldFavoriteId: item.id } });
+                      return;
+                    }
+                    // 'meal' favorites (see saveMealFavorite in lib/db.ts),
+                    // 2026-08-08 -- resumes Meal Builder pre-loaded with the
+                    // favorite's own saved components (see
+                    // MealBuilder.tsx's own favoriteId prop/effect).
+                    if (itemType === 'meal') {
+                      router.push({ pathname: '/food', params: { mealFavoriteId: item.id } });
+                      return;
+                    }
                   }
                   showInfoAlert(
                     item.title,
@@ -218,7 +278,14 @@ export default function FoodItemsScreen() {
                   <Ionicons name="pencil-outline" size={19} color={colors.textSecondary} />
                 </TouchableOpacity>
               ) : null}
-              {status === 'saved' && supportsDelete(itemType) ? (
+              {/* Favorites are deletable too, 2026-08-08 -- the same generic
+                  favorites table every itemType shares (see handleDelete's
+                  own comment above), so this reuses supportsDelete's
+                  existing itemType check rather than a separate favorite-
+                  specific allowlist. No Edit button for a favorite -- "Use
+                  this Favorite" (the tap handler above) already opens it in
+                  a real, editable builder before anything is saved. */}
+              {(status === 'saved' || status === 'favorite') && supportsDelete(itemType) ? (
                 <TouchableOpacity
                   style={styles.itemActionButton}
                   onPress={() => handleDelete(item)}
@@ -384,6 +451,13 @@ async function loadItems(itemType: string | undefined, status: string | undefine
       subtitle: handheld.ingredientNames || `${handheld.ingredientCount} ingredient${handheld.ingredientCount === 1 ? '' : 's'}`,
     }));
   }
+  // 'meal' has no 'saved' status ever reachable here (My Foods has no
+  // "Saved Meals" tile -- see food.tsx's own mealFavoriteCount comment for
+  // why), only 'favorite'.
+  if (itemType === 'meal' && status === 'favorite') {
+    const favorites = await listFavorites(50, 'meal');
+    return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+  }
   return [];
 }
 
@@ -420,7 +494,16 @@ function supportsDelete(itemType: string | undefined): boolean {
     itemType === 'bakedGoods' ||
     itemType === 'soup' ||
     itemType === 'sauce' ||
-    itemType === 'handheld'
+    itemType === 'handheld' ||
+    // 'meal' only ever reaches this screen as a favorite (see loadItems'
+    // own 'meal' case above -- there's no 'saved' status for it), and
+    // handleDelete's own status === 'favorite' branch always routes through
+    // deleteFavorite rather than the deleteItem switch below, so this is
+    // safe without a matching case there. Deliberately absent from
+    // supportsEdit above -- "Use this Favorite" (the tap handler) already
+    // covers reusing one; there's no separate "edit a meal favorite in
+    // place" concept the way editSideId etc. has for a real saved record.
+    itemType === 'meal'
   );
 }
 
