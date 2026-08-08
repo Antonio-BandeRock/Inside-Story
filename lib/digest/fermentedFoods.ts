@@ -55,6 +55,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
+    relatedIds: ['ibs-overview'],
   },
   {
     id: 'fermented-bifidobacterium',

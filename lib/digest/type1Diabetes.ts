@@ -41,7 +41,7 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Type 1 Diabetes, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)', url: 'https://www.niddk.nih.gov/health-information/diabetes/overview/what-is-diabetes/type-1-diabetes' },
     ],
     overallTier: 'strong',
-    relatedIds: ['type1-celiac-comorbidity'],
+    relatedIds: ['type1-celiac-comorbidity', 'type2-vs-type1-distinction'],
   },
   {
     id: 'type1-carb-counting-accuracy',
@@ -55,6 +55,7 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Effectiveness of advanced carbohydrate counting in type 1 diabetes mellitus: a systematic review and meta-analysis', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5107938/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['type2-low-carb-diet-evidence'],
   },
   {
     id: 'type1-exercise-glucose',
@@ -147,7 +148,7 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
       { source: '6. Glycemic Goals and Hypoglycemia: Standards of Care in Diabetes, American Diabetes Association', url: 'https://diabetesjournals.org/care/article/47/Supplement_1/S111/153951/6-Glycemic-Goals-and-Hypoglycemia-Standards-of' },
     ],
     overallTier: 'strong',
-    relatedIds: ['type1-honeymoon-phase'],
+    relatedIds: ['type1-honeymoon-phase', 'type2-individualized-hba1c-targets'],
   },
   {
     id: 'type1-complication-screening',
@@ -161,6 +162,7 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Screening for Kidney Disease in Adults With Diabetes, Diabetes Care', url: 'https://diabetesjournals.org/care/article/28/7/1813/27976/Screening-for-Kidney-Disease-in-Adults-With' },
     ],
     overallTier: 'strong',
+    relatedIds: ['type2-screening-at-diagnosis'],
   },
   {
     id: 'type1-tying-together',

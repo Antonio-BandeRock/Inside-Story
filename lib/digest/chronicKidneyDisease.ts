@@ -36,7 +36,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Chronic Kidney Disease, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/chronickidneydisease.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['organ-kidney'],
+    relatedIds: ['organ-kidney', 'type2-overview', 'type2-metabolic-syndrome-cluster'],
   },
   {
     id: 'ckd-potassium-restriction-reconsidered',
@@ -99,6 +99,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'dapagliflozin and prevention of adverse outcomes in chronic kidney disease (DAPA-CKD) trial: baseline characteristics', url: 'https://academic.oup.com/ndt/article/35/10/1700/5899227' },
     ],
     overallTier: 'strong',
+    relatedIds: ['type2-glp1-sglt2-paradigm-shift'],
   },
   {
     id: 'ckd-anemia-erythropoietin',
@@ -123,6 +124,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'KDIGO 2024 Clinical Practice Guideline for the Evaluation and Management of Chronic Kidney Disease in Children and Adults', url: 'https://kdigo.org/wp-content/uploads/2024/03/KDIGO-2024-CKD-Guideline.pdf' },
     ],
     overallTier: 'strong',
+    relatedIds: ['type2-sulfonylurea-hypoglycemia-ckd'],
   },
   {
     id: 'ckd-ace-arb-potassium-monitoring',

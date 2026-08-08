@@ -37,7 +37,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'Crohn\'s Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)', url: 'https://www.niddk.nih.gov/health-information/digestive-diseases/crohns-disease' },
     ],
     overallTier: 'strong',
-    relatedIds: ['other-ibd'],
+    relatedIds: ['other-ibd', 'ibs-vs-ibd-distinction'],
   },
   {
     id: 'ibd-smoking-paradox',
@@ -90,7 +90,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'Low-FODMAP Diet for the Management of Irritable Bowel Syndrome in Remission of IBD', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9658010/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['ibd-calprotectin'],
+    relatedIds: ['ibd-calprotectin', 'ibs-low-fodmap-diet'],
   },
   {
     id: 'ibd-extraintestinal-manifestations',
@@ -130,7 +130,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'Fecal Calprotectin for the Evaluation of Inflammatory Bowel Disease, American Family Physician', url: 'https://www.aafp.org/afp/2021/0900/p303' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibd-fodmap-remission-symptoms'],
+    relatedIds: ['ibd-fodmap-remission-symptoms', 'ibs-red-flags-workup'],
   },
   {
     id: 'ibd-colonoscopy-surveillance',

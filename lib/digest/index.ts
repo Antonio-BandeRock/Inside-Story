@@ -13,6 +13,7 @@ import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
 import { HEALING_STAGES_ENTRIES } from './healingStages';
 import { HISTORY_ENTRIES } from './history';
 import { IBD_ENTRIES } from './ibd';
+import { IBS_ENTRIES } from './ibs';
 import { LABS_MEDICATION_ENTRIES } from './labsMedication';
 import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
 import { LUPUS_ENTRIES } from './lupus';
@@ -31,6 +32,7 @@ import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import { SJOGRENS_ENTRIES } from './sjogrens';
 import { TYPE_1_DIABETES_ENTRIES } from './type1Diabetes';
+import { TYPE_2_DIABETES_ENTRIES } from './type2Diabetes';
 import { isProblemFoodEntry, type AnyDigestEntry, type DigestEntryCategory } from './types';
 
 export * from './types';
@@ -41,7 +43,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808200000';
+export const PURPLE_DIGEST_VERSION = '20260808220000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -80,6 +82,8 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...PCOS_ENTRIES,
   ...CHRONIC_KIDNEY_DISEASE_ENTRIES,
   ...FATTY_LIVER_DISEASE_ENTRIES,
+  ...TYPE_2_DIABETES_ENTRIES,
+  ...IBS_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -245,6 +249,26 @@ export const DIGEST_CATEGORY_META: {
     label: 'Fatty Liver Disease',
     icon: 'flame-outline',
     description: 'Real evidence for MASLD: a graded weight-loss staircase, coffee\'s consistently protective effect, resmetirom\'s thyroid-hormone-receptor mechanism, semaglutide\'s major trial results, and self-advocacy via the FIB-4 screening tool.',
+  },
+  // 2026-08-08, same day, fourteenth condition: Type 2 Diabetes. See
+  // type2Diabetes.ts's own header comment -- sits at the real center of
+  // the metabolic-syndrome cluster already built out across PCOS, MASLD,
+  // and CKD.
+  {
+    key: 'type2Diabetes',
+    label: 'Type 2 Diabetes',
+    icon: 'trending-down-outline',
+    description: 'Real evidence for T2D: the DiRECT remission trial, low-carb diet evidence, a real distinction from Type 1, a recent GLP-1/SGLT2 treatment paradigm shift, and self-advocacy on individualized HbA1c targets.',
+  },
+  // 2026-08-08, same day, fifteenth condition: Irritable Bowel Syndrome.
+  // See ibs.ts's own header comment -- a real disorder of gut-brain
+  // interaction, leaning heavily on cross-links to this app's own
+  // already-built FODMAP and gut-microbiome content.
+  {
+    key: 'ibs',
+    label: 'Irritable Bowel Syndrome',
+    icon: 'sync-outline',
+    description: 'Real evidence for IBS: the low-FODMAP diet, peppermint oil and gut-directed hypnotherapy, the post-infectious mechanism behind over half of all cases, and self-advocacy for distinguishing IBS from conditions that mimic it.',
   },
 ];
 

@@ -36,7 +36,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Steatotic Liver Disease, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/steatoticliverdisease.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['organ-liver-t4t3-conversion', 'organ-liver-hashimotos-damage', 'organ-liver-nafld-link', 'organ-liver-fixing-helps-thyroid'],
+    relatedIds: ['organ-liver-t4t3-conversion', 'organ-liver-hashimotos-damage', 'organ-liver-nafld-link', 'organ-liver-fixing-helps-thyroid', 'type2-overview', 'type2-metabolic-syndrome-cluster'],
   },
   {
     id: 'masld-weight-loss-thresholds',
@@ -125,7 +125,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Phase 3 ESSENCE Trial: Semaglutide in Metabolic Dysfunction-Associated Steatohepatitis', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11784563/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['masld-weight-loss-thresholds'],
+    relatedIds: ['masld-weight-loss-thresholds', 'type2-glp1-sglt2-paradigm-shift'],
   },
   {
     id: 'masld-fib4-fibrosis-screening',

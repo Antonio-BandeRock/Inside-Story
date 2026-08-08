@@ -65,6 +65,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         url: 'https://www.monashfodmap.com/about-fodmap-and-ibs/high-and-low-fodmap-foods/',
       },
     ],
+    relatedIds: ['ibs-low-fodmap-diet'],
   },
   {
     id: 'problem-gluten-grains',

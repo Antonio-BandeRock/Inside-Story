@@ -337,7 +337,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-garlic-onion', 'healing-stage1-avoid'],
+    relatedIds: ['problem-garlic-onion', 'healing-stage1-avoid', 'ibs-overview', 'ibs-low-fodmap-diet'],
   },
   {
     id: 'glossary-gliadin',

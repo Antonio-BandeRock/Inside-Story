@@ -92,7 +92,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: 'Gaitonde DY, Rowley KD, Sweeney LB 2012: Hypothyroidism: An Update (American Family Physician)', url: 'https://www.aafp.org/pubs/afp/issues/2012/0801/p244.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['labs-tsh-diurnal-timing', 'organ-liver-t4t3-conversion'],
+    relatedIds: ['labs-tsh-diurnal-timing', 'organ-liver-t4t3-conversion', 'ibs-red-flags-workup'],
   },
   {
     id: 'advocacy-thyroid-antibodies',
@@ -359,7 +359,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: 'Leslie WS, Ali E, Harris L, et al. 2021: Antihypertensive medication needs and blood pressure control with weight loss in the Diabetes Remission Clinical Trial (DiRECT)', url: 'https://pubmed.ncbi.nlm.nih.gov/34056684/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['advocacy-how-to-ask', 'mito-visceral-fat-treg-depletion'],
+    relatedIds: ['advocacy-how-to-ask', 'mito-visceral-fat-treg-depletion', 'type2-direct-remission-trial'],
   },
   {
     id: 'advocacy-fibromyalgia-thyroid-overlap',

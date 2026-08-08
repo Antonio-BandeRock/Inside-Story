@@ -52,6 +52,7 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
       { source: 'Celiac disease diagnosis: transglutaminase, duodenal biopsy and genetic tests correlations', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11390444/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['ibs-red-flags-workup'],
   },
   {
     id: 'celiac-cross-contamination',

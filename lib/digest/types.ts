@@ -163,6 +163,24 @@ export const DIGEST_CATEGORY_KEYS = [
   // first-ever approved MASH drug) tying this category directly back to
   // this app's own core focus.
   'fattyLiverDisease',
+  // 2026-08-08, same day, fourteenth condition, next in the same priority
+  // order: Type 2 Diabetes. See type2Diabetes.ts's own header comment --
+  // this app's fourth genuinely non-autoimmune condition, sitting at the
+  // real center of the metabolic-syndrome cluster already built out
+  // across PCOS, MASLD, and CKD, with heavy cross-linking to that
+  // existing content rather than re-derivation, plus a real, important
+  // distinction from Type 1 Diabetes (already built out in this app,
+  // genuinely often confused with T2D by name alone).
+  'type2Diabetes',
+  // 2026-08-08, same day, fifteenth condition, next in the same priority
+  // order: Irritable Bowel Syndrome. See ibs.ts's own header comment --
+  // this app's fifth genuinely non-autoimmune condition, a real disorder
+  // of gut-brain interaction rather than structural intestinal damage,
+  // leaning heavily on cross-links to this app's own already-built FODMAP
+  // and gut-microbiome content, plus a real, important distinction from
+  // IBD (already built out in this app, genuinely often confused with IBS
+  // by name alone).
+  'ibs',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
