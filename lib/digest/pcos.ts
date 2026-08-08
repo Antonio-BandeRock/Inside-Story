@@ -45,7 +45,7 @@ export const PCOS_ENTRIES: DigestEntry[] = [
       { source: 'A case-control observational study of insulin resistance and metabolic syndrome among the four phenotypes of polycystic ovary syndrome based on Rotterdam criteria', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4417246/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['pcos-myo-dchiro-inositol', 'pcos-weight-loss-modest', 'type2-overview', 'type2-metabolic-syndrome-cluster', 'pcos-dairy-igf1-hyperandrogenism'],
+    relatedIds: ['pcos-myo-dchiro-inositol', 'pcos-weight-loss-modest', 'type2-overview', 'type2-metabolic-syndrome-cluster', 'pcos-dairy-igf1-hyperandrogenism', 'prostate-metabolic-syndrome-bph-link'],
   },
   {
     id: 'pcos-myo-dchiro-inositol',

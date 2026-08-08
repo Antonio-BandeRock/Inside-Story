@@ -317,4 +317,30 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-vs-ibd-distinction'],
   },
+  {
+    id: 'ibs-fecal-microbiota-transplant-mixed',
+    category: 'ibs',
+    title: 'Fecal Transplant Shows Real Promise in IBD, But the Real Evidence for IBS Specifically Stays Genuinely Unsettled',
+    teaser: 'Real, individual randomized trials of fecal microbiota transplant for IBS have found genuinely conflicting results, and current real guidelines don\'t recommend it.',
+    summary:
+      "This category's own already-built research draws heavily on real gut-microbiome science, and IBD's own category already covers real, positive fecal microbiota transplant (FMT) trial data for ulcerative colitis specifically. IBS is a real, honest, different story worth knowing directly: multiple real, randomized controlled trials have tested FMT for IBS, and they've produced genuinely conflicting results, some finding real symptom improvement, others finding none. A real, pooled systematic review and meta-analysis found the overall picture still inconclusive, with real, unresolved variability in how the procedure itself is done (single-donor versus multi-donor stool, one dose versus repeated doses, delivery by capsule versus colonoscopy versus enema), any of which could plausibly explain why different trials land on different answers. Worth knowing plainly: real, current management guidelines don't recommend FMT for IBS, citing the evidence as still too weak and inconsistent to support it as a standard treatment. This is a genuinely different real evidence picture from IBD's own more encouraging FMT data covered elsewhere in this app, real evidence that the same treatment idea doesn't automatically transfer cleanly from one gut condition to a different one, even when both are commonly discussed in the same breath.",
+    citations: [
+      { source: 'Fecal Microbiota Transplantation in Irritable Bowel Syndrome: A Systematic Review and Meta-Analysis of Randomized Controlled Trials, International Journal of Molecular Sciences 2023, PMID 37834010', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10573019/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['ibd-fecal-microbiota-transplant', 'ibs-gut-serotonin-mechanism'],
+  },
+  {
+    id: 'ibs-gut-directed-antidepressants',
+    category: 'ibs',
+    title: 'A Real, Large Trial Found a Low-Dose Antidepressant Genuinely Helps IBS, Working Through the Gut, Not Mood',
+    teaser: 'The largest real trial of its kind found low-dose amitriptyline, titrated up as needed, significantly beat placebo for IBS symptoms in primary care, used here for a real, different reason than treating depression.',
+    summary:
+      "A specific class of antidepressant, tricyclics like amitriptyline, has real, separate, well-documented value in IBS at doses far lower than what's used for depression, working through this category's own already-covered gut-brain axis rather than through mood. The real, largest trial of its kind (ATLANTIS, 463 adults across 55 English primary-care practices) tested amitriptyline, started at a real, low 10mg nightly dose and titrated up to a maximum of 30mg based on response and side effects, as a genuine second-line IBS treatment. The real result: titrated low-dose amitriptyline significantly outperformed placebo across multiple real, measured outcomes at 6 months, with the trial's own authors calling it definitive evidence of real benefit. The real, proposed mechanism is distinct from its antidepressant use: these medications appear to directly change how the central nervous system processes and dampens pain signals coming from the gut, addressing visceral hypersensitivity, the same real, documented mechanism already named in this app's own gut-serotonin research. Worth knowing honestly: real, common side effects (dry mouth, drowsiness, blurred vision, difficulty urinating) affected a real, meaningful share of trial participants, part of why this stays a genuine second-line option, tried after simpler dietary and lifestyle approaches, rather than a first choice, and always started at a real low dose with real, gradual titration.",
+    citations: [
+      { source: 'Amitriptyline at Low-Dose and Titrated for Irritable Bowel Syndrome as Second-Line Treatment in primary care (ATLANTIS): a randomised, double-blind, placebo-controlled, phase 3 trial, The Lancet 2023, PMID 37858323', url: 'https://www.thelancet.com/article/S0140-6736(23)01523-4/fulltext' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-gut-serotonin-mechanism', 'ibs-cbt-brain-gut-therapy'],
+  },
 ];

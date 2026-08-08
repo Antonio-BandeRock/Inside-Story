@@ -81,7 +81,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Efficacy and safety of cholesterol-lowering treatment: prospective meta-analysis of data from 90,056 participants in 14 randomised trials of statins, PMID 16214597', url: 'https://pubmed.ncbi.nlm.nih.gov/16214597/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['foodhistory-cholesterol-real-drivers', 'masld-statin-safety-myth'],
+    relatedIds: ['foodhistory-cholesterol-real-drivers', 'masld-statin-safety-myth', 'ckd-sharp-trial-statins'],
   },
   {
     id: 'cvd-aspirin-primary-prevention-reversal',

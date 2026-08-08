@@ -325,4 +325,30 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-diagnostic-panel'],
   },
+  {
+    id: 'celiac-lymphoma-malignancy-risk',
+    category: 'celiac',
+    title: 'A Real, Rare Cancer Risk That Strict Diet Adherence Genuinely Lowers',
+    teaser: 'Enteropathy-associated T-cell lymphoma is a rare, serious real complication of celiac disease, and real evidence finds sticking to a gluten-free diet genuinely lowers the odds of it developing at all.',
+    summary:
+      "Celiac disease carries a real, if rare, elevated risk of a specific cancer: enteropathy-associated T-cell lymphoma (EATL), a malignant transformation of the same immune cells already driving the disease's own intestinal damage. Real research finds this and other serious complications, including refractory celiac disease, develop in a real 2 to 5% of adults diagnosed with celiac disease. Real, identified risk factors include poor adherence to a gluten-free diet, a specific genetic profile (HLA-DQ2 homozygosity), and a late diagnosis, all pointing toward the same practical conclusion: real evidence finds sticking to the diet itself measurably lowers the odds of this complication developing. Worth knowing honestly: EATL itself carries a real, serious prognosis once it does develop, and diagnosing it can be genuinely difficult, since the exact same red flags (weight loss, abdominal pain, diarrhea returning despite a strict diet) can also just mean the diet itself has slipped or another condition has been missed. This isn't meant to cause alarm over an already rare event, it's real, honest context for why sustained, strict adherence matters for reasons beyond day-to-day symptom control, and why new or returning symptoms after a period of feeling well are always worth raising directly rather than assumed to be a minor slip.",
+    citations: [
+      { source: 'The Risk of Malignancies in Celiac Disease — A Literature Review, Cancers 2021, PMID 34771450', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8582432/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-refractory-celiac', 'celiac-gf-diet-nutritional-pitfalls'],
+  },
+  {
+    id: 'celiac-enzyme-therapy-emerging',
+    category: 'celiac',
+    title: 'A Real, Emerging Enzyme Pill Aims to Catch Accidental Gluten, Not Replace the Diet',
+    teaser: 'A real investigational enzyme (latiglutenase) broke down 95% of gluten in the stomach in trial testing, protecting against the accidental cross-contamination this category\'s own research already covers.',
+    summary:
+      "This category's own research already covers how genuinely hard real-world cross-contamination is to avoid entirely, even with careful, strict effort. Latiglutenase (formerly ALV003) is a real, investigational two-enzyme therapy, taken with meals, specifically designed to break down gluten in the stomach before it can reach and damage the small intestine, an adjunct to the gluten-free diet, not a replacement for it. A real, controlled trial in adults with celiac disease found latiglutenase significantly protected against gluten-induced intestinal damage during a deliberate gluten challenge, with stable villus height and immune-cell counts compared to a real, measurable decline in the placebo group, and urine testing found it broke down 95% of ingested gluten in the stomach itself. Worth knowing honestly: this remains a real, investigational therapy, still working through the trial process rather than an approved, available treatment, and its own intended real-world role is protecting against accidental, low-level gluten exposure (a shared fryer, an unlabeled sauce), not permitting someone to eat gluten freely. Worth watching directly for anyone whose biggest real, remaining risk is the accidental exposure this category's own cross-contamination research already names, rather than a deliberate dietary choice.",
+    citations: [
+      { source: 'Latiglutenase Protects the Mucosa and Attenuates Symptom Severity in Patients With Celiac Disease Exposed to a Gluten Challenge, Gastroenterology 2022', url: 'https://www.gastrojournal.org/article/S0016-5085(22)00901-5/fulltext' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['celiac-cross-contamination'],
+  },
 ];

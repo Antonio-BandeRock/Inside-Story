@@ -334,4 +334,30 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-treat-to-target-remission'],
   },
+  {
+    id: 'ra-periodontal-disease-pgingivalis',
+    category: 'rheumatoidArthritis',
+    title: 'A Specific Gum-Disease Bacterium Carries a Real, Unique Enzyme That Directly Triggers RA\'s Own Core Mechanism',
+    teaser: 'Porphyromonas gingivalis, a real, common cause of gum disease, is the only known bacterium carrying an enzyme that citrullinates proteins, the exact same process this app\'s own smoking research already names as RA\'s central trigger.',
+    summary:
+      "This category's own already-built research covers how smoking triggers citrullination, a real chemical change to certain proteins that the immune system can then mistakenly attack, driving RA's own core autoimmune mechanism. Periodontal disease (gum disease) offers a real, second, independent route to that exact same mechanism. Porphyromonas gingivalis, a real, common bacterium behind chronic gum disease, is the only known bacterium carrying its own version of the enzyme (peptidylarginine deiminase, or PAD) that performs this citrullination, and real laboratory research found it can citrullinate several of the exact same proteins already implicated as RA autoantigens (fibrinogen, alpha-enolase, vimentin). A real, controlled animal study found infection with this bacterium directly worsened arthritis severity and measurably increased citrullinated-protein antibodies, and this effect depended specifically on the bacterium's own unique enzyme being present and active. Real human research has independently found periodontal disease a genuine, documented risk factor for developing RA, consistent with this same real, direct mechanism rather than just a coincidental shared risk factor. Worth knowing directly: this gives real, practical weight to something easy to treat as a minor, unrelated health habit, real, routine dental care and periodontal treatment is a genuine, low-cost, low-risk piece of RA management worth taking seriously, not just general oral hygiene advice.",
+    citations: [
+      { source: 'Porphyromonas gingivalis Facilitates the Development and Progression of Destructive Arthritis through Its Unique Bacterial Peptidylarginine Deiminase (PAD), PLoS Pathogens 2013, PMID 24068934', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3771902/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-smoking-citrullination'],
+  },
+  {
+    id: 'ra-nsaid-cardiovascular-risk',
+    category: 'rheumatoidArthritis',
+    title: 'NSAIDs Carry Real Cardiovascular Risk, but a Real, Large Study Found It\'s Not Worse in RA Than It Already Is Elsewhere',
+    teaser: 'A real, 17,320-patient Danish cohort found NSAID-related cardiovascular risk in RA patients genuinely lower than in the general population, an honest, reassuring nuance to RA\'s own already-elevated heart risk.',
+    summary:
+      "This category's own already-built research already covers RA's own real, independently elevated cardiovascular risk (roughly 2 to 5 times higher than the general population), and RA's own treatment regularly involves NSAIDs, medications this app's own cardiovascular research already documents as carrying real cardiovascular risk on their own. Put together, that raises a real, reasonable worry: does using NSAIDs regularly for RA symptom control compound an already-elevated risk? A real, large Danish nationwide cohort study (17,320 RA patients matched against 69,280 controls) tested this directly, and found something genuinely reassuring: the cardiovascular risk associated with overall NSAID use was significantly LOWER in RA patients than in the matched control group (a hazard ratio of 1.22 in RA patients versus 1.51 in controls). Worth knowing honestly, since it's not a blanket clearance: the same real study found this protective difference didn't hold for every individual NSAID, specific drugs (rofecoxib and diclofenac by name) still showed real, elevated cardiovascular risk in RA patients specifically. This is real, useful, two-sided context: NSAID use for RA symptom control isn't automatically compounding this app's own already-covered elevated RA cardiovascular risk the way a first, worried assumption might suggest, but which specific NSAID gets used still matters, a real, concrete detail worth raising directly when discussing symptom management with a rheumatologist.",
+    citations: [
+      { source: 'Non-steroidal anti-inflammatory drugs and risk of cardiovascular disease in patients with rheumatoid arthritis: a nationwide cohort study, Annals of the Rheumatic Diseases 2014, PMID 23749610', url: 'https://pubmed.ncbi.nlm.nih.gov/23749610/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-cardiovascular-risk', 'ckd-nsaid-kidney-injury-real-data'],
+  },
 ];

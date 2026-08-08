@@ -315,4 +315,30 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-weight-loss-thresholds', 'masld-exercise-independent-weight-loss'],
   },
+  {
+    id: 'masld-time-restricted-eating',
+    category: 'fattyLiverDisease',
+    title: 'A Real Trial Found Eating Within a Shorter Daily Window Reduced Liver Fat, Even Without Cutting Calories',
+    teaser: 'A real, controlled crossover trial found time-restricted eating measurably reduced liver fat and waist circumference in MASLD, without participants actually eating less overall.',
+    summary:
+      "This category's own research already covers exactly how much weight loss it takes to meaningfully improve MASLD. Time-restricted eating, confining food intake to a shorter daily window (commonly 16 hours of fasting, 8 hours of eating) without necessarily reducing total calories, is a real, separate, actively-tested lever worth knowing about directly. A real, single-blind, randomized crossover trial in people with MASLD found 12 weeks of time-restricted eating produced a real, measured reduction in liver fat (via a real ultrasound-based measurement) alongside real reductions in body weight and waist circumference, compared with standard dietary advice, and genuinely without a reduction in reported calorie intake, real evidence the timing of eating itself may be doing independent work, not just the total amount eaten. Other real trials testing different intermittent-fasting patterns (the 5:2 diet, alternate-day fasting) have found broadly similar real improvements in liver fat and metabolic markers. Worth knowing honestly: most of this evidence comes from real but still fairly small, short-duration trials, not yet the kind of large, multi-year outcome data this category's own weight-loss-threshold research is built on. It's real, worth-knowing context for anyone who finds a specific eating WINDOW more sustainable day to day than counting every calorie, a real, different lever toward the same real liver-fat goal.",
+    citations: [
+      { source: 'Time-Restricted Fasting Improves Liver Steatosis in Non-Alcoholic Fatty Liver Disease — A Single Blinded Crossover Trial, Nutrients 2023, PMID 38068729', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10708421/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['masld-weight-loss-thresholds'],
+  },
+  {
+    id: 'masld-colorectal-cancer-risk',
+    category: 'fattyLiverDisease',
+    title: 'MASLD Carries a Real, Independently Elevated Colorectal Cancer Risk Worth Knowing Plainly',
+    teaser: 'A real meta-analysis of nearly 10 million people found MASLD tracked with a real 25% higher colorectal cancer risk and a real 38% higher colorectal adenoma risk.',
+    summary:
+      "MASLD's own real health reach extends beyond the liver and the cardiovascular/kidney risk already covered in this category, a real, growing body of research finds it independently associated with colorectal cancer and its own precursor lesions, colorectal adenomas (polyps). A real, updated meta-analysis pooling 15 cohort studies and nearly 10 million participants found MASLD tracked with a real 25% higher colorectal cancer risk and a real 38% higher colorectal adenoma risk, and a separate, even larger analysis of over 56 million people found broadly consistent, real elevated risk across colorectal polyps, adenomas, and cancer alike. The real, proposed mechanism runs through the same shared metabolic dysfunction already covered elsewhere in this category, insulin resistance, chronic low-grade inflammation, and altered gut-bacteria metabolites, all of which have their own separately documented links to colorectal cancer risk too. Worth knowing directly and practically: this real, elevated risk is a genuine, concrete reason someone with MASLD has real, individual standing to ask specifically whether their own colorectal cancer screening should start earlier or run more frequently than standard age-based guidelines alone would suggest, the same kind of direct self-advocacy conversation this app's own research already encourages for other real, condition-specific risk elevations.",
+    citations: [
+      { source: 'Association between metabolic dysfunction-associated steatotic liver disease and risk of colorectal cancer or colorectal adenoma: an updated meta-analysis of cohort studies, Frontiers in Oncology 2024, PMID 39045565', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11263091/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-systemic-cvd-ckd-real-data'],
+  },
 ];

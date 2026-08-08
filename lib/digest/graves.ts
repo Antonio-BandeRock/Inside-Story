@@ -321,4 +321,31 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-radioactive-iodine-timing', 'graves-remission-real-rates'],
   },
+  {
+    id: 'graves-euthyroid-ophthalmopathy',
+    category: 'graves',
+    title: 'Graves\' Eye Disease Can Genuinely Show Up With Completely Normal Thyroid Labs',
+    teaser: 'A real, pooled review found close to 1 in 10 people with thyroid eye disease have normal-functioning or even underactive thyroids, not the overactive one the disease is usually assumed to require.',
+    summary:
+      "Thyroid eye disease (Graves' orbitopathy) is usually assumed to travel together with overactive thyroid hormone levels, but real research finds a genuine, if smaller, exception worth knowing directly: a real, pooled systematic review found the global prevalence of thyroid eye disease broke down to 86.2% with hyperthyroidism, 10.36% with hypothyroidism, and 7.9% with completely normal thyroid function (euthyroid), meaning close to 1 in 10 cases occur without the overactive thyroid hormone levels the condition is usually assumed to require. Real research defines this as a genuine, distinct entity, real orbital inflammation occurring with no current or past thyroid hormone abnormality and no antithyroid treatment, and finds it's still frequently associated with high levels of the same real thyroid-stimulating antibody driving Graves' disease itself, even when standard thyroid hormone levels look entirely normal. Worth knowing directly: real euthyroid ophthalmopathy can represent an early stage, with real thyroid dysfunction developing later, or it can genuinely stay euthyroid throughout. This matters plainly for self-advocacy: real eye symptoms (bulging, dryness, double vision, pressure) shouldn't be dismissed as unrelated to Graves' disease just because a recent thyroid panel came back normal, the two don't always move together.",
+    citations: [
+      { source: 'Prevalence of hyperthyroidism, hypothyroidism, and euthyroidism in thyroid eye disease: a systematic review of the literature, Systematic Reviews 2020, PMID 32873324', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7465839/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-teprotumumab-thyroid-eye-disease'],
+  },
+  {
+    id: 'graves-vitamin-d-deficiency-risk',
+    category: 'graves',
+    title: 'Vitamin D and Graves\' Disease: a Real Association, With Genuinely Mixed Evidence on What to Do About It',
+    teaser: 'A real meta-analysis found Graves\' patients over twice as likely to be vitamin D deficient as healthy controls, but a real supplementation trial found no effect on preventing the disease from coming back.',
+    summary:
+      "Vitamin D deficiency shows up repeatedly across this app's own autoimmune-disease research, and Graves' disease is no exception, but the real evidence here is honestly more mixed than a simple 'take vitamin D' recommendation would suggest. A real meta-analysis found people with Graves' disease significantly more likely to be vitamin D deficient than healthy controls (odds ratio 2.24), with one individual study finding a real, striking gap (64% deficient in Graves' patients versus 30% in controls). Worth knowing honestly, and directly relevant to what this actually means for treatment: a real, separate prospective study found vitamin D deficiency was NOT associated with actually developing Graves' disease or its eye complications, and a real supplementation trial found giving vitamin D didn't prevent Graves' disease from recurring after treatment. Put together, this is a real, genuine association between having Graves' disease and running low on vitamin D, without solid, real evidence yet that the deficiency causes the disease or that correcting it changes the disease's own course, the same honest 'real correlation, unproven intervention' pattern this app's own research has already found repeating across several other autoimmune conditions. Worth knowing directly: checking vitamin D status remains reasonable, general health practice, just not, based on real current evidence, a specific lever for preventing or reversing Graves' disease itself.",
+    citations: [
+      { source: "Vitamin D and Graves' Disease: A Meta-Analysis Update, Nutrients 2015, PMID 26007334", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4446781/' },
+      { source: "Vitamin D supplementation does not prevent the recurrence of Graves' disease, Scientific Reports 2019", url: 'https://www.nature.com/articles/s41598-019-55107-9' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['graves-bone-density'],
+  },
 ];

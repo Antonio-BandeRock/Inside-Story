@@ -239,7 +239,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'Capsulized Fecal Microbiota Transplantation Induces Remission in Patients with Ulcerative Colitis by Gut Microbial Colonization and Metabolite Regulation, PMC10269780', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10269780/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['ibd-fiber-flare-myth'],
+    relatedIds: ['ibd-fiber-flare-myth', 'ibs-fecal-microbiota-transplant-mixed'],
   },
 
   // -- Volumetric depth pass, 2026-08-08, continuing toward genuine

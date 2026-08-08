@@ -316,4 +316,30 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-active-surveillance', 'prostate-diet-pattern'],
   },
+  {
+    id: 'prostate-5ari-cancer-risk-controversy',
+    category: 'prostateHealth',
+    title: 'A Real, Decades-Long Cancer-Risk Scare Around a Common BPH Medication Turned Out to Be a Detection Artifact',
+    teaser: 'A landmark trial once found finasteride tracked with more high-grade cancer, sparking real, lasting worry. Real, 18-year follow-up found no actual difference at all, the original signal was better detection, not more real cancer.',
+    summary:
+      "Finasteride and dutasteride, both already named in this category's own medication research, carried a real, genuine cancer-risk controversy worth knowing the full, resolved story on. The landmark Prostate Cancer Prevention Trial (PCPT) found finasteride reduced overall prostate cancer prevalence by a real 24.8%, a genuinely strong result, but also found men who developed cancer while on the drug were somewhat more likely to have a higher-grade tumor (6.4% versus 5.1% on placebo), a real, alarming-sounding finding at the time. Real, later analysis found the actual explanation: finasteride measurably shrinks the prostate, which makes standard PSA testing and biopsy genuinely more sensitive at detecting cancer that was already there, including higher-grade cancer, rather than the drug causing more aggressive disease to develop. Real, 18-year long-term follow-up data confirmed this directly: there was no significant difference in high-grade prostate cancer between the finasteride and placebo groups over that much longer real-world timeframe, and no real difference in prostate-cancer-specific survival either. Worth knowing directly: this is a real, honest example of an initial trial finding that looked alarming turning out, once real, longer follow-up data came in, to be a detection artifact rather than a real, biological risk, worth remembering for anyone who's heard the older, unresolved version of this story and hasn't heard the real, later correction.",
+    citations: [
+      { source: 'Long-Term Survival of Participants in the Prostate Cancer Prevention Trial, New England Journal of Medicine 2013, PMID 23944298', url: 'https://pubmed.ncbi.nlm.nih.gov/23944298/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-medications-psa-monitoring', 'prostate-psa-screening'],
+  },
+  {
+    id: 'prostate-metabolic-syndrome-bph-link',
+    category: 'prostateHealth',
+    title: 'Metabolic Syndrome Is a Real, Independent Driver of BPH\'s Own Progression, Not Just a Coincidental Overlap',
+    teaser: 'A real, large prospective cohort found metabolic syndrome tracked with a faster prostate growth rate and worse urinary symptoms, the same real insulin-resistance mechanism already covered elsewhere in this app.',
+    summary:
+      "Metabolic syndrome (the real cluster of insulin resistance, obesity, high blood pressure, and abnormal cholesterol already covered across several other conditions in this app, including PCOS and Type 2 Diabetes) has real, direct, documented reach into prostate health specifically. A real, large prospective cohort study found metabolic syndrome a significant, independent risk factor for developing BPH in the first place, and a separate real study of men with moderate-to-severe urinary symptoms found metabolic syndrome tracked with a real, faster annual prostate growth rate, larger prostate volume, lower peak urine flow, and more residual urine left in the bladder after voiding, real, measured markers of the disease's own actual clinical progression, not just its presence. The real, proposed mechanisms run through several already-familiar pathways: insulin resistance and inflammation both directly promoting prostate tissue growth, plus a real, documented shift in sex-hormone balance (including lower sex-hormone-binding protein) that metabolic syndrome itself tends to cause. Worth knowing directly: this gives someone managing both BPH and metabolic syndrome a real, concrete, twofold reason to address the metabolic side specifically, not just for the separately well-documented cardiovascular and diabetes benefits already covered elsewhere in this app, but as a real, direct lever on BPH's own actual day-to-day urinary symptoms and its own future progression.",
+    citations: [
+      { source: 'The association between metabolic syndrome and benign prostatic hyperplasia: a systematic review and meta-analysis, PMID 32482153', url: 'https://pubmed.ncbi.nlm.nih.gov/32482153/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'type2-metabolic-syndrome-cluster'],
+  },
 ];

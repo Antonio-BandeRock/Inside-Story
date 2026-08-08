@@ -255,7 +255,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'NSAID-Induced acute kidney injury risk in patients on renin-angiotensin system inhibitors and diuretics: nationwide cohort study, PMC12359997', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12359997/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ckd-ace-arb-potassium-monitoring', 'gout-diuretics-prescribing-cascade'],
+    relatedIds: ['ckd-ace-arb-potassium-monitoring', 'gout-diuretics-prescribing-cascade', 'ra-nsaid-cardiovascular-risk'],
   },
   {
     id: 'ckd-gut-derived-uremic-toxins',
@@ -316,5 +316,31 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['ckd-overview'],
+  },
+  {
+    id: 'ckd-sharp-trial-statins',
+    category: 'chronicKidneyDisease',
+    title: 'The Largest Real Trial of Cholesterol-Lowering in CKD Found a Real Benefit, With One Real Exception',
+    teaser: 'A real, 9,270-patient trial found lowering LDL cholesterol cut major cardiovascular events by 17% in people with CKD, but the benefit didn\'t hold for people already on dialysis specifically.',
+    summary:
+      "Cardiovascular disease is a real, leading cause of death in CKD, well before kidney failure itself becomes the bigger threat, so a real, direct question worth answering is whether standard cholesterol-lowering treatment actually helps this specific population the way it helps the general population. The SHARP trial, the largest real trial ever run on this question (9,270 participants, split between people with CKD not yet on dialysis and people already on it), tested simvastatin plus ezetimibe against placebo. The real, headline result: a real 0.85 mmol/L average LDL reduction tracked with a real 17% reduction in major atherosclerotic events (heart attack, stroke, and the need for an artery-opening procedure) across the trial as a whole. Worth knowing honestly, and directly relevant to anyone already on dialysis: real subgroup analysis found the benefit was clearly present in the earlier-stage CKD group but genuinely less certain in the dialysis-dependent group specifically, a real, honest limitation this trial's own authors and later reviews have both noted rather than glossed over. This is real, large-scale evidence that cholesterol management remains a real, worthwhile part of CKD care for most people with the condition, while being honest that its own strength varies by how advanced the kidney disease already is, a real, concrete reason to ask directly where a specific treatment's own evidence is strongest for a given stage of CKD.",
+    citations: [
+      { source: 'The effects of lowering LDL cholesterol with simvastatin plus ezetimibe in patients with chronic kidney disease (Study of Heart and Renal Protection): a randomised placebo-controlled trial, The Lancet 2011, PMID 21663949', url: 'https://pubmed.ncbi.nlm.nih.gov/21663949/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence', 'ckd-mineral-bone-cardiovascular-real-data'],
+  },
+  {
+    id: 'ckd-fiber-intake-inflammation',
+    category: 'chronicKidneyDisease',
+    title: 'Dietary Fiber Has Real, Measured Evidence Behind the Gut-Toxin Mechanism This Category Already Names',
+    teaser: 'Real trials find fiber supplementation measurably lowers two specific gut-derived uremic toxins already covered in this category\'s own research, not just a general "eat more fiber" gesture.',
+    summary:
+      "This category's own research already covers how gut bacteria manufacture real uremic toxins, indoxyl sulfate and p-cresyl sulfate specifically, that build up as kidney function declines. Real, controlled trial evidence gives a real, concrete, food-first lever against exactly that mechanism: a real meta-analysis of randomized controlled trials found dietary fiber supplementation significantly reduced both indoxyl sulfate and p-cresyl sulfate levels in CKD patients, with a separate, broader systematic review also finding real reductions in inflammatory markers (IL-6 most consistently, TNF-alpha in some studies) tracking with higher fiber intake. The real, underlying mechanism ties directly to this app's own gut-microbiome research: fermentable fiber feeds beneficial gut bacteria that produce short-chain fatty acids instead of the protein-fermentation byproducts that become these same uremic toxins, genuinely shifting what the gut's own bacterial population is doing with a person's food. Worth knowing honestly: current, real CKD nutrition guidelines don't yet include a formal fiber-intake recommendation, a genuine gap between what the trial evidence already shows and what standard clinical guidance has caught up to codify. This is real, actionable, food-first context worth raising directly with a renal dietitian, especially alongside this category's own already-covered protein and potassium guidance, since fiber-rich foods and protein-restriction goals can be planned together rather than treated as separate concerns.",
+    citations: [
+      { source: 'The Role of Dietary Fiber Supplementation in Regulating Uremic Toxins in Patients With Chronic Kidney Disease: A Meta-Analysis of Randomized Controlled Trials, PMID 33741249', url: 'https://pubmed.ncbi.nlm.nih.gov/33741249/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-gut-derived-uremic-toxins', 'gut-scfa-treg'],
   },
 ];

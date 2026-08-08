@@ -338,8 +338,50 @@ function basicHealthTopicPathForEntryId(id: string): string[] {
   return [];
 }
 
+// A real, deterministic sort applied to every rendered group of entries
+// (a Basic Health topic/subtopic leaf list, a condition's own pillar
+// shelf) -- 2026-08-08, direct request: "there seems to be a randomness
+// to how the data within each Digest area are being listed from start to
+// finish or which other information is next to them. There needs to be an
+// order to sorting applied to the group of each area so even if the user
+// just decides to scroll around and look at random things it should all
+// track in a logical order in each section." Before this, a group's own
+// entries rendered in whatever order they happen to sit in the source
+// array -- which reflects the literal order they were WRITTEN across many
+// separate build passes over many days (an entry added in an early batch
+// sits before one covering a closely related topic added weeks later),
+// not any real reading order, so scrolling through felt arbitrary.
+//
+// The fix: within any one group, an "-overview" entry (at most one per
+// condition/topic) always leads, a "tying-together" synthesis entry (if
+// present in this same group -- a condition's own is already pulled out
+// into its own standalone card by groupConditionEntries below, but a
+// Basic Health topic can genuinely have one sitting right in its own leaf
+// list) always trails, and everything in between sorts alphabetically by
+// its own real title (or food name, for a ProblemFoodEntry). Alphabetical
+// is the one ordering scheme that's fully deterministic, needs zero
+// per-topic editorial judgment call, and lets someone scanning a list
+// predict roughly where a given entry should sit -- the same "logical,
+// not random" standard this request asks for, applied identically
+// everywhere rather than hand-curating a bespoke narrative order for the
+// 60+ separate groups (18 conditions x up to 4 pillars, plus every Basic
+// Health topic/subtopic) this would otherwise mean reviewing one at a
+// time.
+function sortDigestEntriesLogically(entries: AnyDigestEntry[]): AnyDigestEntry[] {
+  const titleOf = (entry: AnyDigestEntry) => (isProblemFoodEntry(entry) ? entry.foodName : entry.title);
+  return [...entries].sort((a, b) => {
+    const aOverview = a.id.endsWith('overview');
+    const bOverview = b.id.endsWith('overview');
+    if (aOverview !== bOverview) return aOverview ? -1 : 1;
+    const aTying = isTyingTogetherEntry(a);
+    const bTying = isTyingTogetherEntry(b);
+    if (aTying !== bTying) return aTying ? 1 : -1;
+    return titleOf(a).localeCompare(titleOf(b));
+  });
+}
+
 function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: string[]): AnyDigestEntry[] {
-  return entries.filter((entry) => prefixes.some((p) => entry.id.startsWith(p)));
+  return sortDigestEntriesLogically(entries.filter((entry) => prefixes.some((p) => entry.id.startsWith(p))));
 }
 
 // Resolves whichever real node a path currently points at (top-level
@@ -351,7 +393,7 @@ function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: stri
 function basicHealthEntriesForPath(entries: AnyDigestEntry[], path: string[]): AnyDigestEntry[] {
   if (path.length === 0) return [];
   if (path[0] === BASIC_HEALTH_MORE_TOPIC_LABEL) {
-    return entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0);
+    return sortDigestEntriesLogically(entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0));
   }
   const topic = BASIC_HEALTH_TOPICS.find((t) => t.label === path[0]);
   if (!topic) return [];
@@ -388,7 +430,7 @@ function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entri
       groups.push({ label: topic.label, entries: basicHealthEntriesForPrefixes(entries, topic.prefixes ?? []) });
     }
   }
-  const unmatched = entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0);
+  const unmatched = sortDigestEntriesLogically(entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0));
   if (unmatched.length > 0) {
     groups.push({ label: BASIC_HEALTH_MORE_TOPIC_LABEL, entries: unmatched });
   }
@@ -546,7 +588,7 @@ function groupConditionEntries(entries: AnyDigestEntry[]): {
   }
   const pillars = CONDITION_PILLAR_ORDER.map((pillar) => ({
     label: CONDITION_PILLAR_LABELS[pillar],
-    entries: buckets.get(pillar) ?? [],
+    entries: sortDigestEntriesLogically(buckets.get(pillar) ?? []),
   })).filter((group) => group.entries.length > 0);
   return { pillars, tyingTogether };
 }
