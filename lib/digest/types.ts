@@ -132,6 +132,19 @@ export const DIGEST_CATEGORY_KEYS = [
   // to this disease, and self-advocacy spanning eyes, kidneys, and the
   // immune system directly.
   'lupus',
+  // 2026-08-08, same day, tenth condition, next in the same priority
+  // order: Sjögren's Syndrome. See sjogrens.ts's own header comment -- a
+  // disease defined by its attack on the exocrine (moisture-making)
+  // glands, giving this category a real, direct, same-day relationship
+  // with food and drink most other conditions in this app don't share.
+  'sjogrens',
+  // 2026-08-08, same day, eleventh condition, next in the same priority
+  // order: PCOS (Polycystic Ovary Syndrome). See pcos.ts's own header
+  // comment -- this app's FIRST genuinely non-autoimmune condition, a real
+  // endocrine/metabolic disorder driven centrally by insulin resistance,
+  // named directly in CLAUDE.md's own Beyond Hashimoto's research as one
+  // of the "9 non-autoimmune candidates."
+  'pcos',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

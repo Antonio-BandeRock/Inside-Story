@@ -133,6 +133,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'weak',
+    relatedIds: ['sjogrens-overview', 'sjogrens-secondary-ra-lupus-overlap'],
   },
   {
     id: 'other-psoriasis',

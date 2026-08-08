@@ -21,11 +21,13 @@ import { NUTRIENTS_ENTRIES } from './nutrients';
 import { COMPLEMENTARY_THERAPIES_ENTRIES } from './complementaryTherapies';
 import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
+import { PCOS_ENTRIES } from './pcos';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
 import { PSORIASIS_ENTRIES } from './psoriasis';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
+import { SJOGRENS_ENTRIES } from './sjogrens';
 import { TYPE_1_DIABETES_ENTRIES } from './type1Diabetes';
 import { isProblemFoodEntry, type AnyDigestEntry, type DigestEntryCategory } from './types';
 
@@ -37,7 +39,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808160000';
+export const PURPLE_DIGEST_VERSION = '20260808180000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -72,6 +74,8 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...IBD_ENTRIES,
   ...MULTIPLE_SCLEROSIS_ENTRIES,
   ...LUPUS_ENTRIES,
+  ...SJOGRENS_ENTRIES,
+  ...PCOS_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -195,6 +199,26 @@ export const DIGEST_CATEGORY_META: {
     label: 'Lupus (SLE)',
     icon: 'shield-half-outline',
     description: 'Real evidence for lupus: the alfalfa sprout food trigger, the photosensitivity/vitamin D catch-22, omega-3\'s genuinely mixed evidence, and self-advocacy for retinopathy screening, kidney monitoring, and biologic treatment.',
+  },
+  // 2026-08-08, same day, tenth condition: Sjögren's Syndrome. See
+  // sjogrens.ts's own header comment -- a disease defined by its attack on
+  // the exocrine (moisture-making) glands, with a real, direct, same-day
+  // relationship to food and drink.
+  {
+    key: 'sjogrens',
+    label: "Sjögren's Syndrome",
+    icon: 'rainy-outline',
+    description: "Real evidence for Sjögren's: the direct dental-caries mechanism, alcohol/caffeine's immediate dryness effect, omega-3's genuinely positive trials, a real lymphoma risk, and self-advocacy for diagnosis and medication.",
+  },
+  // 2026-08-08, same day, eleventh condition, and this app's first
+  // genuinely non-autoimmune one: PCOS. See pcos.ts's own header comment
+  // -- a real endocrine/metabolic disorder driven centrally by insulin
+  // resistance.
+  {
+    key: 'pcos',
+    label: 'PCOS',
+    icon: 'infinite-outline',
+    description: 'Real evidence for PCOS: insulin resistance as the central mechanism, the well-studied 40:1 inositol ratio, modest weight loss\'s real quantified benefit, a real endometrial cancer risk, and self-advocacy for glucose/lipid screening.',
   },
 ];
 
