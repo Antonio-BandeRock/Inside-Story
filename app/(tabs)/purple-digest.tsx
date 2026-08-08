@@ -82,6 +82,10 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
     body: 'Every entry here is tiered Strong/Moderate/Weak by its own actual evidence, the same discipline as this app\'s own 6 Dimensions scoring. A gold dot means trial-level support, not just "this app trusts it." This tab is meant to keep growing; if the picker below runs past what fits on screen at once, it scrolls.',
   },
   {
+    heading: 'Search the whole Digest, or just one category',
+    body: 'The search bar always visible at the top of this screen searches every entry in this Digest at once, regardless of which category is currently open. Every category also has its own, separate search box, further down, scoped to just that one category\'s own entries.',
+  },
+  {
     heading: 'Problem Foods & Swaps is different on purpose',
     body: 'Every other category reviews evidence. This one starts from a food, names the problem and mechanism, then gives substitutes, teaching food choices directly rather than reviewing a body of research.',
   },
@@ -100,17 +104,12 @@ const DIGEST_READING_HELP: HelpSection = {
   body: 'Tap any card in this category to expand it to its full write-up and citations. Tap it again, or tap a different card, to collapse it and jump to the new one. The colored dot on each card is its own evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
 };
 
-// The 'search' lens's own Info content -- kept separate from
-// DIGEST_LENS_HELP (typed Record<DigestCategoryKey, HelpSection>, so
-// 'search' can't be a key there without widening every other consumer of
-// that type unnecessarily).
-const DIGEST_SEARCH_HELP: HelpSection[] = [
-  {
-    heading: 'Search All',
-    body: 'Searches every entry in this Digest at once, across all categories, not just the one you last had open. Matches a word anywhere it appears: a title, a food name, the full write-up, or a cited source. Tap a result to jump straight to it, wherever it actually lives.',
-  },
-  DIGEST_READING_HELP,
-];
+// Formerly the 'search' lens's own dedicated Info-sheet content -- removed
+// entirely 2026-08-08 alongside 'search' itself no longer being a pickable
+// LensHub tile (see LENSES' own comment for why). Its real content lives
+// on in DIGEST_HELP_SECTIONS' own new "Search the whole Digest, or just
+// one category" section above instead, reachable from this screen's own
+// regular Info affordance rather than a per-lens one that no longer exists.
 
 // One real, bespoke explanation per lens for the LensHub Info tile --
 // 2026-08-07, explicitly requested: "Write the information about each
@@ -228,118 +227,120 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
 // may need it again.
 const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 
-// Basic Health groups related entries into horizontally-scrollable rows,
-// 2026-08-08, direct request: "The Basic Health information isn't very
-// well organized. Please make it more organized by grouping like or
-// related kinds of information in a group on one row and the next group
-// on the next row and then the next row, and all of the rows move when
-// being scrolled vertically but each row scrolls horizantally." Scoped to
-// Basic Health specifically, matching the request -- every other
-// category's own entry count (9-18) already reads fine as one flat list;
-// Basic Health alone has grown past 120 entries spanning genuinely
-// different topics (a glossary, food additives, food-industry history,
-// fermented-food strains, nutrient interactions, lifestyle/environment,
-// mitochondria/metabolism, self-advocacy, problem foods, and now a real,
-// growing "Essential Nutrients" deep-dive series).
-//
-// Groups are derived from each entry's own id prefix, the same real,
-// already-established one-prefix-per-source-file convention every
-// lib/digest/*.ts file already follows (glossary-, additive-, etc.) --
-// not a new field added to every entry, which would have meant touching
-// hundreds of existing entry objects by hand for a purely presentational
-// concern. A new prefix (a future nutrient added to essentialNutrients.ts,
-// say) needs one new line added here, the same "explicit, hand-maintained
-// mapping" precedent this app already uses for DIGEST_CATEGORY_META and
-// CATEGORY_DISPLAY_LABELS. Order here is the real, intentional row order
-// on screen, not alphabetical -- Essential Nutrients (the newest, deepest
-// content) and Glossary (reached for constantly, same reasoning as its
-// own front-of-picker placement) lead; Food Industry & History, more a
-// history essay than a lookup tool, trails last.
-const BASIC_HEALTH_GROUPS: { label: string; prefix: string }[] = [
-  // Note: a "Why This App Exists" shelf (prefix 'about-') existed here
-  // 2026-08-08 through 2026-08-08, then was removed the same day per
-  // direct instruction -- the whole lib/digest/aboutThisApp.ts file was
-  // deleted outright, not just hidden from this list.
-  { label: 'Magnesium', prefix: 'magnesium-' },
-  { label: 'Vitamin D', prefix: 'vitamind-' },
-  { label: 'Iron', prefix: 'iron-' },
-  { label: 'Zinc', prefix: 'zinc-' },
-  { label: 'Vitamin B12', prefix: 'b12-' },
-  { label: 'Folate', prefix: 'folate-' },
-  { label: 'Calcium', prefix: 'calcium-' },
-  { label: 'Potassium', prefix: 'potassium-' },
-  { label: 'Iodine (Deep-Dive)', prefix: 'iodine-' },
-  { label: 'Vitamin C', prefix: 'vitaminc-' },
-  { label: 'Vitamin A', prefix: 'vitamina-' },
-  { label: 'Vitamin E', prefix: 'vitamine-' },
-  { label: 'Vitamin K', prefix: 'vitamink-' },
-  { label: 'Omega-3 & Omega-6', prefix: 'omega' },
-  { label: 'Protein & Amino Acids', prefix: 'protein-' },
-  // 2026-08-08, direct request: "Finish the rest of the macronutrients,
-  // micronutrients, acids, and hormones" -- the B-vitamin family, four
-  // remaining trace minerals/choline, the two remaining macronutrients,
-  // and the new Hormones topic, completing the Essential Nutrients series
-  // this app named as its own real "next" list two sessions earlier.
-  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'thiamine-' },
-  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'riboflavin-' },
-  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'niacin-' },
-  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'biotin-' },
-  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'pantothenate-' },
-  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'b6-' },
-  { label: 'Chromium, Manganese & Copper', prefix: 'chromium-' },
-  { label: 'Chromium, Manganese & Copper', prefix: 'manganese-' },
-  { label: 'Chromium, Manganese & Copper', prefix: 'copper-' },
-  { label: 'Choline', prefix: 'choline-' },
-  { label: 'Carbohydrates & Fiber', prefix: 'carbfiber-' },
-  { label: 'Water & Hydration', prefix: 'water-' },
-  { label: 'Dietary Fat', prefix: 'dietfat-' },
-  { label: 'Hormones', prefix: 'hormone' },
-  { label: 'Glossary', prefix: 'glossary-' },
-  { label: 'Problem Foods & Swaps', prefix: 'problem-' },
-  { label: 'Food Additives', prefix: 'additive-' },
-  { label: 'Nutrient Interactions', prefix: 'interaction-' },
-  { label: 'Fermented Foods', prefix: 'fermented-' },
-  { label: 'Lifestyle & Environment', prefix: 'lifestyle-' },
-  { label: 'Mitochondria & Metabolism', prefix: 'mito-' },
-  { label: 'Self Advocacy', prefix: 'advocacy-' },
-  { label: 'Food Industry & History', prefix: 'foodhistory-' },
+// Basic Health's own real, 2-level TREE, 2026-08-08 -- replacing the
+// earlier flat, 31-group, all-shown-at-once shelf list (a real, direct
+// correction after that flat list itself grew too large to be genuinely
+// scannable): "a combination of tree style and categorized topic cards in
+// related groups... moving strictly from broad categories down to highly
+// specific, bite-sized pieces of information... all of the deep dive into
+// macro, micro, acid, and hormone related nutrients should be one of the
+// topics to dive into." That's exactly this structure: a real, named
+// "Essential Nutrients" parent topic, containing every one of the 22
+// individual nutrient shelves the old flat list used to show side by side
+// as its own real, drill-down-able subtopics, alongside 9 other real
+// topics that don't have a natural further subdivision and stay one level
+// deep. Still built from each entry's own id prefix (the same real,
+// already-established convention the old flat list already used) -- not a
+// new field added to every entry, the same reasoning that design choice
+// already carried.
+type BasicHealthSubtopic = { label: string; prefixes: string[] };
+type BasicHealthTopic = { label: string; prefixes?: string[]; subtopics?: BasicHealthSubtopic[] };
+
+const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
+  {
+    label: 'Essential Nutrients',
+    subtopics: [
+      { label: 'Magnesium', prefixes: ['magnesium-'] },
+      { label: 'Vitamin D', prefixes: ['vitamind-'] },
+      { label: 'Iron', prefixes: ['iron-'] },
+      { label: 'Zinc', prefixes: ['zinc-'] },
+      { label: 'Vitamin B12', prefixes: ['b12-'] },
+      { label: 'Folate', prefixes: ['folate-'] },
+      { label: 'Calcium', prefixes: ['calcium-'] },
+      { label: 'Potassium', prefixes: ['potassium-'] },
+      { label: 'Iodine (Deep-Dive)', prefixes: ['iodine-'] },
+      { label: 'Vitamin C', prefixes: ['vitaminc-'] },
+      { label: 'Vitamin A', prefixes: ['vitamina-'] },
+      { label: 'Vitamin E', prefixes: ['vitamine-'] },
+      { label: 'Vitamin K', prefixes: ['vitamink-'] },
+      { label: 'Omega-3 & Omega-6', prefixes: ['omega'] },
+      { label: 'Protein & Amino Acids', prefixes: ['protein-'] },
+      {
+        label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)',
+        prefixes: ['thiamine-', 'riboflavin-', 'niacin-', 'biotin-', 'pantothenate-', 'b6-'],
+      },
+      { label: 'Chromium, Manganese & Copper', prefixes: ['chromium-', 'manganese-', 'copper-'] },
+      { label: 'Choline', prefixes: ['choline-'] },
+      { label: 'Carbohydrates & Fiber', prefixes: ['carbfiber-'] },
+      { label: 'Water & Hydration', prefixes: ['water-'] },
+      { label: 'Dietary Fat', prefixes: ['dietfat-'] },
+      // A real, corrected prefix list -- 2026-08-08, caught by validating
+      // this whole tree against every real Basic Health entry id before
+      // shipping (the same throwaway-script discipline already established
+      // for the pillar classifier above): the old flat list's own single
+      // `'hormone'` prefix never actually matched any of this topic's real
+      // entries, since `lib/digest/hormones.ts` names most of its own ids
+      // after the specific hormone itself (`insulin-`, `cortisol-`,
+      // `estrogen-`, etc.), not a shared "hormone-" prefix -- a real,
+      // pre-existing gap this validation pass surfaced and fixed, not
+      // something this restructure introduced.
+      {
+        label: 'Hormones',
+        prefixes: ['hormone-', 'hormones-', 'insulin-', 'cortisol-', 'thyroid-hormones-', 'leptin-', 'estrogen-', 'testosterone-'],
+      },
+    ],
+  },
+  { label: 'Glossary', prefixes: ['glossary-'] },
+  { label: 'Problem Foods & Swaps', prefixes: ['problem-'] },
+  { label: 'Food Additives', prefixes: ['additive-'] },
+  { label: 'Nutrient Interactions', prefixes: ['interaction-'] },
+  { label: 'Fermented Foods', prefixes: ['fermented-'] },
+  { label: 'Lifestyle & Environment', prefixes: ['lifestyle-'] },
+  { label: 'Mitochondria & Metabolism', prefixes: ['mito-'] },
+  { label: 'Self Advocacy', prefixes: ['advocacy-'] },
+  { label: 'Food Industry & History', prefixes: ['foodhistory-'] },
 ];
 
-function basicHealthGroupLabel(id: string): string {
-  const match = BASIC_HEALTH_GROUPS.find((group) => id.startsWith(group.prefix));
-  return match?.label ?? 'More';
+// A real, dynamic safety net, not a hardcoded 32nd topic -- only ever
+// appears if a real Basic Health entry's own id doesn't match any prefix
+// above, the same "unmatched catch-all, not an expected real bucket" role
+// the old flat list's own 'More' bucket already played.
+const BASIC_HEALTH_MORE_TOPIC_LABEL = 'More';
+
+function basicHealthTopicPathForEntryId(id: string): string[] {
+  for (const topic of BASIC_HEALTH_TOPICS) {
+    if (topic.subtopics) {
+      const sub = topic.subtopics.find((s) => s.prefixes.some((p) => id.startsWith(p)));
+      if (sub) return [topic.label, sub.label];
+    } else if (topic.prefixes?.some((p) => id.startsWith(p))) {
+      return [topic.label];
+    }
+  }
+  return [];
 }
 
-// Buckets a category's own already-ordered entry list into real groups,
-// preserving each group's own internal order exactly as it already comes
-// out of getEntriesForCategory (which itself follows ALL_DIGEST_ENTRIES'
-// own file-by-file spread order in lib/digest/index.ts) -- no re-sorting
-// needed, since each source file's entries are already contiguous there.
-// 'More', the unmatched catch-all, only appears if a real entry's id
-// doesn't match any known prefix above -- a safety net, not an expected
-// real bucket, so it's appended after every named group rather than
-// reserved a fixed position.
-//
-// 2026-08-08: BASIC_HEALTH_GROUPS itself can now list several DIFFERENT
-// prefixes under the SAME label (e.g. 'thiamine-'/'riboflavin-'/'niacin-'
-// all sharing "B-Vitamins"), since basicHealthGroupLabel's own .find()
-// only ever returns one label per prefix match, not a merge -- so `order`
-// must be de-duplicated before use, or a shared label would otherwise
-// produce one identical, fully-duplicated shelf row per prefix that maps
-// to it (six B-Vitamins rows, not one) rather than the single real,
-// merged shelf this is actually meant to render.
-const order = [...new Set(BASIC_HEALTH_GROUPS.map((group) => group.label))];
-function groupBasicHealthEntries(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
-  const buckets = new Map<string, AnyDigestEntry[]>();
-  for (const entry of entries) {
-    const label = basicHealthGroupLabel(entry.id);
-    if (!buckets.has(label)) buckets.set(label, []);
-    buckets.get(label)!.push(entry);
+function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: string[]): AnyDigestEntry[] {
+  return entries.filter((entry) => prefixes.some((p) => entry.id.startsWith(p)));
+}
+
+// Resolves whichever real node a path currently points at (top-level
+// topic list when `path` is empty, a topic's own subtopics when `path` is
+// one real "Essential Nutrients"-shaped topic, or the real leaf entries at
+// the end of either path) -- the one real function every level of
+// BasicHealthTree below reads from, so the path itself stays the single
+// source of truth for "where the person currently is."
+function basicHealthEntriesForPath(entries: AnyDigestEntry[], path: string[]): AnyDigestEntry[] {
+  if (path.length === 0) return [];
+  if (path[0] === BASIC_HEALTH_MORE_TOPIC_LABEL) {
+    return entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0);
   }
-  const orderedLabels = [...order, ...[...buckets.keys()].filter((label) => !order.includes(label))];
-  return orderedLabels
-    .map((label) => ({ label, entries: buckets.get(label) ?? [] }))
-    .filter((group) => group.entries.length > 0);
+  const topic = BASIC_HEALTH_TOPICS.find((t) => t.label === path[0]);
+  if (!topic) return [];
+  if (path.length === 2 && topic.subtopics) {
+    const sub = topic.subtopics.find((s) => s.label === path[1]);
+    return sub ? basicHealthEntriesForPrefixes(entries, sub.prefixes) : [];
+  }
+  return topic.prefixes ? basicHealthEntriesForPrefixes(entries, topic.prefixes) : [];
 }
 
 // Maps the `conditions` reference table's own real, snake_case codes
@@ -390,7 +391,7 @@ const CONDITION_CODE_TO_DIGEST_KEY: Record<string, DigestCategoryKey> = {
 // 800+ entries and 19 conditions, and NOT stored as a new field on
 // DigestEntry (which would have meant touching every existing entry object
 // by hand for a purely presentational concern, the same reasoning
-// BASIC_HEALTH_GROUPS above already gives for its own choice). Worth a
+// BASIC_HEALTH_TOPICS above already gives for its own choice). Worth a
 // real spot-check across a few conditions once seen on-device before
 // trusting the classification fully -- some entries will genuinely land in
 // a less-than-ideal pillar (keyword heuristics always do), the same
@@ -409,7 +410,7 @@ const CONDITION_PILLAR_LABELS: Record<ConditionPillar, string> = {
 // this category to actually read lead; self-advocacy (what to ask a doctor
 // for) and whole-body effects follow; history (interesting, but the least
 // actionable day-to-day) trails last, the same "most useful first" ordering
-// already established for BASIC_HEALTH_GROUPS above.
+// already established for BASIC_HEALTH_TOPICS above.
 const CONDITION_PILLAR_ORDER: ConditionPillar[] = ['science', 'advocacy', 'body', 'stages'];
 
 // Every condition's own real closing synthesis entry (see each condition
@@ -475,10 +476,10 @@ function classifyConditionPillar(entry: AnyDigestEntry): ConditionPillar {
 
 // Buckets a condition's own entry list into the 4 real pillars above, with
 // the "tying together" synthesis entry (if the condition has one) pulled
-// out separately rather than folded into any of them -- mirrors
-// groupBasicHealthEntries's own shape (`{label, entries}[]`) exactly, so
-// the same BasicHealthShelves component below can render either grouping
-// with zero changes to that component itself.
+// out separately rather than folded into any of them -- shaped
+// (`{label, entries}[]`) to match exactly what BasicHealthShelves below
+// already expects, the shared shelf-row-plus-detail-panel component every
+// condition's own pillar grouping renders through.
 function groupConditionEntries(entries: AnyDigestEntry[]): {
   pillars: { label: string; entries: AnyDigestEntry[] }[];
   tyingTogether: AnyDigestEntry | null;
@@ -574,25 +575,38 @@ export default function PurpleDigestScreen() {
   // or re-arriving at this tab always shows the resting "pick a category"
   // prompt first, never an instant resume of whatever was last open.
   const [revealed, setRevealed] = useState(false);
-  // Basic Health's own real, category-scoped search -- 2026-08-08, direct
-  // request: "build a search utility for the Basic Health category before
-  // moving on to the next one." Deliberately a separate query string from
-  // Search All's own `searchQuery` above (not the same state reused) --
-  // the two searches have genuinely different scope (this app's whole
-  // Digest vs. just this one category) and can't share a single "what's
-  // the user typing" value without one clobbering the other on a lens
-  // switch. Reset alongside everything else on a fresh tab visit and a
-  // fresh lens selection, same as searchQuery.
-  const [basicHealthSearchQuery, setBasicHealthSearchQuery] = useState('');
+  // A real, category-scoped search -- 2026-08-08, originally built for
+  // Basic Health alone ("build a search utility for the Basic Health
+  // category"), now generalized to every real category: "Basic Health
+  // needs its own search utility, just as all of the other areas of the
+  // Digest do." Deliberately a separate query string from Search All's own
+  // `searchQuery` above (not the same state reused) -- the two searches
+  // have genuinely different scope (this app's whole Digest vs. just
+  // whichever one category is currently open) and can't share a single
+  // "what's the user typing" value without one clobbering the other on a
+  // lens switch. Reset alongside everything else on a fresh tab visit and
+  // a fresh lens selection, same as searchQuery. Whichever category is
+  // active reads this same state -- there's only ever one real "local
+  // search" box on screen at a time, so one shared string is safe.
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  // Basic Health's own real tree position -- [] at the top-level topic
+  // grid, [topicLabel] one level in, [topicLabel, subtopicLabel] two
+  // levels in (only "Essential Nutrients" currently has real subtopics).
+  // Reset the same way as everything else on a fresh tab visit and a fresh
+  // lens selection -- landing back on Basic Health should always start at
+  // its own top level, never mid-tree from a previous visit.
+  const [basicHealthTopicPath, setBasicHealthTopicPath] = useState<string[]>([]);
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
       setSearchQuery('');
-      setBasicHealthSearchQuery('');
+      setCategorySearchQuery('');
+      setBasicHealthTopicPath([]);
       return () => {
         setRevealed(false);
         setSearchQuery('');
-        setBasicHealthSearchQuery('');
+        setCategorySearchQuery('');
+        setBasicHealthTopicPath([]);
       };
     }, []),
   );
@@ -649,18 +663,18 @@ export default function PurpleDigestScreen() {
   );
   const orderedCategoryMetas = [basicHealthMeta, ...pinnedConditionMetas, ...otherConditionMetas];
 
+  // 'search' is deliberately NOT one of these tiles -- 2026-08-08, direct
+  // correction: "Search the whole digest should be on the outside of Basic
+  // Health, not inside of it." Search All used to sit as a co-equal grid
+  // tile right alongside Basic Health and every condition, which read as
+  // "one of the topics" rather than the real, structurally separate,
+  // always-available capability it's meant to be. The persistent search
+  // bar rendered at the very top of this whole screen (see the JSX below)
+  // is now the one real way to search everything -- `lens` can still be
+  // set to `'search'` internally (typing in that bar does exactly that,
+  // reusing the same results-rendering branch this file already had), it
+  // just never appears as a pickable card in this list anymore.
   const LENSES: LensOption<PurpleDigestLens>[] = [
-    // Placed first, same reasoning Glossary's own front placement already
-    // established (see DIGEST_CATEGORY_META's own comment on that entry) --
-    // a cross-category tool reached for constantly, not a category read
-    // start to finish, belongs at the front of the picker, not appended
-    // after every real category.
-    {
-      key: 'search',
-      label: 'Search All',
-      icon: 'search-outline',
-      help: DIGEST_SEARCH_HELP,
-    },
     ...orderedCategoryMetas.map((meta) => ({
       key: meta.key,
       // A leading star marks a condition the person has actually told the
@@ -772,25 +786,27 @@ export default function PurpleDigestScreen() {
     scrollNodeIntoView(() => groupRefs.current[label]);
   }
 
-  // Resolves which shelf group a given entry's own card should scroll to --
-  // Basic Health uses its own by-topic grouping; every real condition uses
-  // the pillar grouping above, with its own "tying together" entry (if it
-  // has one) routed to the fixed key that card renders under instead.
-  // 'search' never reaches this (a search-result tap always resolves to a
-  // real underlying category via jumpToRelated before this is called).
+  // Resolves which shelf/leaf group a given entry's own card should scroll
+  // to -- Basic Health resolves the entry's own real tree path (joined into
+  // one string, matching the ref key BasicHealthTree's own leaf container
+  // registers itself under); every real condition uses the pillar grouping
+  // above, with its own "tying together" entry (if it has one) routed to
+  // the fixed key that card renders under instead. 'search' never reaches
+  // this (a search-result tap always resolves to a real underlying
+  // category via jumpToRelated before this is called).
   function shelfGroupKeyForEntry(id: string, category: DigestCategoryKey): string {
-    if (category === 'basicHealth') return basicHealthGroupLabel(id);
+    if (category === 'basicHealth') return basicHealthTopicPathForEntryId(id).join('::');
     const entry = findDigestEntryById(id);
     if (entry && isTyingTogetherEntry(entry)) return TYING_TOGETHER_GROUP_KEY;
     if (entry) return CONDITION_PILLAR_LABELS[classifyConditionPillar(entry)];
     return TYING_TOGETHER_GROUP_KEY;
   }
 
-  // Expanding/collapsing a single entry, wherever it's shown -- every real
-  // category (Basic Health's own by-topic shelves, or a condition's own
-  // pillar shelves) now uses the same shelf-row-plus-detail-panel shape, so
-  // every tap scrolls to that entry's own GROUP section, not the individual
-  // card, matching BasicHealthShelves' own established behavior.
+  // Expanding/collapsing a single entry, wherever it's shown -- a
+  // condition's own pillar shelf, or a leaf inside Basic Health's own tree
+  // (the tree's own drill-down navigation, separately, is owned by
+  // BasicHealthTree itself, not this function) -- scrolls to that entry's
+  // own group/leaf section, not the individual card.
   function toggleEntry(id: string, category: DigestCategoryKey) {
     const wasExpanded = expandedId === id;
     setExpandedId(wasExpanded ? null : id);
@@ -800,16 +816,19 @@ export default function PurpleDigestScreen() {
 
   // Jumping to a related entry: switch category (if it's a different one),
   // expand that entry, and collapse whatever was open before -- a related
-  // chip always lands you looking at exactly that entry's own group
-  // section, wherever it actually sits. The same real function a shelf
-  // card's own tap, a Related chip, and a search result (Search All or
-  // Basic Health's own scoped search) all use.
+  // chip always lands you looking at exactly that entry, wherever it
+  // actually sits. For Basic Health specifically, this also has to drive
+  // the tree itself directly to the entry's own real leaf (its own topic,
+  // or topic+subtopic) -- without this, the tree would still be sitting
+  // wherever it was left, and the entry wouldn't be showing at all. The
+  // same real function a shelf card's own tap, a Related chip, and a
+  // search result (Search All or any category's own scoped search) all use.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     const category = target.category as DigestCategoryKey;
     setLens(category);
-    // A previous category's own shelf refs (Basic Health topic labels, or a
+    // A previous category's own shelf refs (Basic Health topic paths, or a
     // condition's own pillar labels -- both real, plain strings that can
     // legitimately repeat across different categories, e.g. every
     // condition has its own "Core Science" shelf) are cleared here rather
@@ -819,13 +838,16 @@ export default function PurpleDigestScreen() {
     // frame before the new category's real shelf finishes mounting and
     // overwrites it.
     groupRefs.current = {};
-    // Jumping always lands on the grouped shelf view -- there's no separate
+    if (category === 'basicHealth') {
+      setBasicHealthTopicPath(basicHealthTopicPathForEntryId(id));
+    }
+    // Jumping always lands on the grouped view -- there's no separate
     // "list mode" to switch into anymore -- and a search-in-progress
-    // (either Search All or Basic Health's own scoped search) is cleared,
+    // (either Search All or any category's own scoped search) is cleared,
     // since the person just told us exactly what they wanted by tapping a
     // real result.
     setSearchQuery('');
-    setBasicHealthSearchQuery('');
+    setCategorySearchQuery('');
     setExpandedId(id);
     scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
   }
@@ -918,86 +940,96 @@ export default function PurpleDigestScreen() {
                   </>
                 )}
               </>
-            ) : lens === 'basicHealth' ? (
+            ) : (
+              // Every real category -- Basic Health included -- gets its
+              // own, separate, scoped search box now: "Basic Health needs
+              // its own search utility, just as all of the other areas of
+              // the Digest do." One shared `categorySearchQuery` state
+              // (only one such box is ever on screen at a time, so nothing
+              // clobbers anything else), searched against just THIS
+              // category's own `entries`, entirely independent of the
+              // persistent, whole-Digest search bar above.
               <>
                 <AppTextInput
                   style={styles.searchInput}
-                  placeholder="Search within Basic Health..."
-                  value={basicHealthSearchQuery}
-                  onChangeText={setBasicHealthSearchQuery}
+                  placeholder={`Search within ${activeLensLabel}...`}
+                  value={categorySearchQuery}
+                  onChangeText={setCategorySearchQuery}
                 />
-                {basicHealthSearchQuery.trim().length > 0 ? (
+                {categorySearchQuery.trim().length > 0 ? (
                   (() => {
-                    const basicHealthResults = searchEntries(entries, basicHealthSearchQuery);
-                    return basicHealthResults.length === 0 ? (
+                    const categoryResults = searchEntries(entries, categorySearchQuery);
+                    return categoryResults.length === 0 ? (
                       <Text style={styles.emptyText}>
-                        No matches for &ldquo;{basicHealthSearchQuery.trim()}&rdquo; in Basic Health.
+                        No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {activeLensLabel}.
                       </Text>
                     ) : (
                       <>
                         <Text style={styles.searchResultCount}>
-                          {basicHealthResults.length} match{basicHealthResults.length === 1 ? '' : 'es'}
+                          {categoryResults.length} match{categoryResults.length === 1 ? '' : 'es'}
                         </Text>
-                        {basicHealthResults.map((entry) => (
+                        {categoryResults.map((entry) => (
                           <SearchResultCard key={entry.id} entry={entry} onPress={() => jumpToRelated(entry.id)} />
                         ))}
                       </>
                     );
                   })()
-                ) : (
-                  <BasicHealthShelves
-                    groups={groupBasicHealthEntries(entries)}
+                ) : lens === 'basicHealth' ? (
+                  <BasicHealthTree
+                    entries={entries}
+                    path={basicHealthTopicPath}
+                    onDrillIn={(label) => setBasicHealthTopicPath((prev) => [...prev, label])}
+                    onBack={() => setBasicHealthTopicPath((prev) => prev.slice(0, -1))}
                     expandedId={expandedId}
                     groupRefs={groupRefs}
                     onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
                     onJumpToRelated={jumpToRelated}
                   />
+                ) : entries.length === 0 ? (
+                  <Text style={styles.emptyText}>Nothing here yet.</Text>
+                ) : (
+                  // Every real condition category -- 2026-08-08, the same
+                  // shelf-row-plus-detail-panel shape Basic Health's own
+                  // leaf level uses, grouped into 4 real pillars (see
+                  // groupConditionEntries' own comment above). The
+                  // category's own closing "tying together" synthesis, if
+                  // it has one, is pulled out of the shelves and shown as
+                  // its own standalone card below them, always visible,
+                  // never nested inside a pillar it doesn't really belong to.
+                  (() => {
+                    const { pillars, tyingTogether } = groupConditionEntries(entries);
+                    return (
+                      <>
+                        <BasicHealthShelves
+                          groups={pillars}
+                          expandedId={expandedId}
+                          groupRefs={groupRefs}
+                          onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
+                          onJumpToRelated={jumpToRelated}
+                        />
+                        {tyingTogether ? (
+                          <View
+                            style={styles.shelfSection}
+                            ref={(r) => {
+                              groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
+                            }}
+                          >
+                            <Text style={styles.shelfHeading}>Putting It Together</Text>
+                            <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
+                              <DigestCard
+                                entry={tyingTogether}
+                                expanded={expandedId === tyingTogether.id}
+                                onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
+                                onJumpToRelated={jumpToRelated}
+                              />
+                            </Animated.View>
+                          </View>
+                        ) : null}
+                      </>
+                    );
+                  })()
                 )}
               </>
-            ) : entries.length === 0 ? (
-              <Text style={styles.emptyText}>Nothing here yet.</Text>
-            ) : (
-              // Every real condition category -- 2026-08-08, replacing the
-              // old flat, one-long-accordion-list rendering with the same
-              // real shelf-row-plus-detail-panel shape Basic Health already
-              // uses, grouped into 4 real pillars (see groupConditionEntries'
-              // own comment above) instead of by topic. The category's own
-              // closing "tying together" synthesis, if it has one, is pulled
-              // out of the shelves and shown as its own standalone card
-              // below them, always visible, never nested inside a pillar it
-              // doesn't really belong to.
-              (() => {
-                const { pillars, tyingTogether } = groupConditionEntries(entries);
-                return (
-                  <>
-                    <BasicHealthShelves
-                      groups={pillars}
-                      expandedId={expandedId}
-                      groupRefs={groupRefs}
-                      onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
-                      onJumpToRelated={jumpToRelated}
-                    />
-                    {tyingTogether ? (
-                      <View
-                        style={styles.shelfSection}
-                        ref={(r) => {
-                          groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
-                        }}
-                      >
-                        <Text style={styles.shelfHeading}>Putting It Together</Text>
-                        <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
-                          <DigestCard
-                            entry={tyingTogether}
-                            expanded={expandedId === tyingTogether.id}
-                            onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
-                            onJumpToRelated={jumpToRelated}
-                          />
-                        </Animated.View>
-                      </View>
-                    ) : null}
-                  </>
-                );
-              })()
             )}
           </ScrollView>
         </GatedTabContent>
@@ -1058,7 +1090,13 @@ export default function PurpleDigestScreen() {
           groupRefs.current = {};
           setLens(key);
           setExpandedId(null);
-          setBasicHealthSearchQuery('');
+          setCategorySearchQuery('');
+          // Picking Basic Health from the picker always lands on its own
+          // top-level topic grid, never mid-tree from an earlier visit --
+          // the same "never an instant resume of whatever was last open"
+          // convention this whole screen already follows on every fresh
+          // arrival at the tab.
+          setBasicHealthTopicPath([]);
           setRevealed(true);
         }}
       />
@@ -1125,10 +1163,168 @@ function SearchResultCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: 
   );
 }
 
-// Basic Health's own real, grouped browsing view -- see BASIC_HEALTH_GROUPS'
-// own comment above for the original grouping reasoning. The per-row
-// interaction itself was rebuilt 2026-08-08, direct correction after the
-// first version (tapping a card jumped clean out of the shelf view into a
+// Basic Health's own real, 2-level tree navigation -- 2026-08-08, direct
+// correction: "I think there needs to be a combination of tree style and
+// categorized topic cards in related groups... moving strictly from broad
+// categories down to highly specific, bite-sized pieces of information."
+// Replaces Basic Health's earlier all-31-groups-shown-at-once shelf view
+// entirely (BasicHealthShelves below is now used only by conditions' own
+// 4-pillar grouping, not by Basic Health at all).
+//
+// Top level (`path` is empty): a real, scannable grid of topic cards --
+// BASIC_HEALTH_TOPICS' own 10 real entries (9 standalone, plus "Essential
+// Nutrients" as one single topic representing all 22 individual nutrient
+// deep-dives, exactly the example given: "all of the deep dive into macro,
+// micro, acid, and hormone related nutrients should be one of the topics
+// to dive into"). One level in: either a real subtopic grid (only
+// "Essential Nutrients" has one today) or, for every standalone topic,
+// straight to the real leaf. A real leaf -- one or two levels down,
+// depending on the topic -- is a plain, scannable list of that leaf's own
+// entries, reusing DigestCard exactly as every other category's own
+// accordion list already does ("the app dynamically generates a clean...
+// list of distinct, scannable visual cards... letting the user immediately
+// choose the exact type of information they want to read").
+function BasicHealthTree({
+  entries,
+  path,
+  onDrillIn,
+  onBack,
+  expandedId,
+  groupRefs,
+  onToggleEntry,
+  onJumpToRelated,
+}: {
+  entries: AnyDigestEntry[];
+  path: string[];
+  onDrillIn: (label: string) => void;
+  onBack: () => void;
+  expandedId: string | null;
+  groupRefs: MutableRefObject<Record<string, Measurable | null>>;
+  onToggleEntry: (id: string) => void;
+  onJumpToRelated: (id: string) => void;
+}) {
+  if (path.length === 0) {
+    const unmatchedCount = entries.filter(
+      (entry) => basicHealthTopicPathForEntryId(entry.id).length === 0,
+    ).length;
+    return (
+      <View style={styles.topicGrid}>
+        {BASIC_HEALTH_TOPICS.map((topic) => (
+          <TopicCard
+            key={topic.label}
+            label={topic.label}
+            count={
+              topic.subtopics ? topic.subtopics.length : basicHealthEntriesForPrefixes(entries, topic.prefixes ?? []).length
+            }
+            countNoun={topic.subtopics ? 'topics' : 'entries'}
+            onPress={() => onDrillIn(topic.label)}
+          />
+        ))}
+        {/* A real, dynamic safety net -- only ever appears if a real entry
+            genuinely doesn't match any known topic's own prefixes. See
+            BASIC_HEALTH_MORE_TOPIC_LABEL's own comment. */}
+        {unmatchedCount > 0 ? (
+          <TopicCard
+            label={BASIC_HEALTH_MORE_TOPIC_LABEL}
+            count={unmatchedCount}
+            countNoun="entries"
+            onPress={() => onDrillIn(BASIC_HEALTH_MORE_TOPIC_LABEL)}
+          />
+        ) : null}
+      </View>
+    );
+  }
+
+  const topic = BASIC_HEALTH_TOPICS.find((t) => t.label === path[0]);
+
+  // One level in, and this real topic has its own real subtopics
+  // (Essential Nutrients, the only one today) -- a subtopic grid, not the
+  // leaf list yet.
+  if (path.length === 1 && topic?.subtopics) {
+    return (
+      <>
+        <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
+          <Text style={styles.treeBackLink}>{'‹'} Basic Health</Text>
+        </TouchableOpacity>
+        <Text style={styles.treeHeading}>{topic.label}</Text>
+        <View style={styles.topicGrid}>
+          {topic.subtopics.map((sub) => (
+            <TopicCard
+              key={sub.label}
+              label={sub.label}
+              count={basicHealthEntriesForPrefixes(entries, sub.prefixes).length}
+              countNoun="entries"
+              onPress={() => onDrillIn(sub.label)}
+            />
+          ))}
+        </View>
+      </>
+    );
+  }
+
+  // A real leaf -- either a standalone topic with no subtopics, or one
+  // specific Essential Nutrients subtopic (or the dynamic "More" bucket).
+  const leafEntries = basicHealthEntriesForPath(entries, path);
+  const leafKey = path.join('::');
+  const backLabel = path.length === 2 ? path[0] : 'Basic Health';
+  return (
+    <View
+      ref={(r) => {
+        groupRefs.current[leafKey] = r as unknown as Measurable | null;
+      }}
+    >
+      <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
+        <Text style={styles.treeBackLink}>
+          {'‹'} {backLabel}
+        </Text>
+      </TouchableOpacity>
+      <Text style={styles.treeHeading}>{path[path.length - 1]}</Text>
+      {leafEntries.length === 0 ? (
+        <Text style={styles.emptyText}>Nothing here yet.</Text>
+      ) : (
+        leafEntries.map((entry) => (
+          <Animated.View key={entry.id} layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
+            <DigestCard
+              entry={entry}
+              expanded={expandedId === entry.id}
+              onToggle={() => onToggleEntry(entry.id)}
+              onJumpToRelated={onJumpToRelated}
+            />
+          </Animated.View>
+        ))
+      )}
+    </View>
+  );
+}
+
+function TopicCard({
+  label,
+  count,
+  countNoun,
+  onPress,
+}: {
+  label: string;
+  count: number;
+  countNoun: string;
+  onPress: () => void;
+}) {
+  return (
+    <TouchableOpacity style={styles.topicCard} onPress={onPress} activeOpacity={0.85}>
+      <Text style={styles.topicCardTitle}>{label}</Text>
+      <Text style={styles.topicCardCount}>
+        {count} {countNoun}
+      </Text>
+    </TouchableOpacity>
+  );
+}
+
+// Every real CONDITION's own grouped browsing view -- 2026-08-08, since
+// Basic Health moved to its own real tree (BasicHealthTree above), this
+// component is now used only for a condition's own 4-pillar grouping, not
+// for Basic Health at all (its earlier, original job, before Basic Health
+// outgrew a flat shelf list entirely). The per-row interaction itself was
+// rebuilt 2026-08-08, direct correction after an even earlier version (tapping a
+// card jumped clean out of the shelf view into a
 // completely different, much longer flat list) read as genuinely
 // disorienting: "I kind of got lost looking at a few of the magnesium
 // cards because it jumped around." The real fix, per direct, exact
@@ -1436,6 +1632,24 @@ const styles = StyleSheet.create({
   },
   searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
   searchResultCategory: { ...typography.caption, color: TAB_COLOR, marginBottom: 4 },
+  // Basic Health's own real tree navigation -- a wrapping grid of topic
+  // cards (top level and, for Essential Nutrients, one level in), plus a
+  // plain back-link and heading shown once a real leaf is reached.
+  topicGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
+  topicCard: {
+    width: '47%',
+    minHeight: 76,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    padding: 12,
+    justifyContent: 'center',
+  },
+  topicCardTitle: { ...typography.label, color: TAB_COLOR, fontSize: 14, marginBottom: 4 },
+  topicCardCount: { ...typography.caption, color: colors.textMuted },
+  treeBackLink: { ...typography.captionEmphasis, color: colors.primary, marginBottom: 10 },
+  treeHeading: { ...typography.screenTitle, color: TAB_COLOR, marginBottom: 12 },
   shelfSection: { marginBottom: 18 },
   shelfHeading: { ...typography.label, color: TAB_COLOR, marginBottom: 8 },
   // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
