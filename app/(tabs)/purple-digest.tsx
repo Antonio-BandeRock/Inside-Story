@@ -640,9 +640,12 @@ export default function PurpleDigestScreen() {
       };
     }, []),
   );
-  // The Search All lens's own live query text -- reset whenever the tab
-  // loses/regains focus below, same as `revealed`, so returning to Purple
-  // Digest never resumes a stale search.
+  // The Search All lens's own COMMITTED query text -- 2026-08-08, no longer
+  // written to on every keystroke (see DigestSearchInput's own comment
+  // below for the real, reported keyboard-lag reason why). This is now the
+  // already-debounced value, updated only once per real pause in typing.
+  // Still reset whenever the tab loses/regains focus below, same as
+  // `revealed`, so returning to Purple Digest never resumes a stale search.
   const [searchQuery, setSearchQuery] = useState('');
   // Same reset-on-focus-change pattern as Insights/Schedule/Food -- arriving
   // or re-arriving at this tab always shows the resting "pick a category"
@@ -660,8 +663,29 @@ export default function PurpleDigestScreen() {
   // lens switch. Reset alongside everything else on a fresh tab visit and
   // a fresh lens selection, same as searchQuery. Whichever category is
   // active reads this same state -- there's only ever one real "local
-  // search" box on screen at a time, so one shared string is safe.
+  // search" box on screen at a time, so one shared string is safe. Also the
+  // already-debounced COMMITTED value now, same as searchQuery above.
   const [categorySearchQuery, setCategorySearchQuery] = useState('');
+  // Whether a real search is actively narrowing what's on screen right
+  // now -- 2026-08-08, real parent state now (used to be derived every
+  // render from the raw query text) so DigestSearchInput's own instant
+  // onActiveChange callback can flip it the moment typing starts or the box
+  // empties, without this screen needing to re-render on every keystroke in
+  // between just to keep re-deriving the same boolean. Drives headerCard's
+  // own visibility and the empty/results branching below -- see
+  // DigestSearchInput's own comment for the fuller reasoning.
+  const [isSearchActive, setIsSearchActive] = useState(false);
+  // A real, deliberate remount trigger for DigestSearchInput (used as its
+  // own `key` in the JSX below) -- 2026-08-08. Since that component now
+  // owns its own local, per-keystroke text state (the whole point of this
+  // fix), this screen can no longer just call a setter to clear the box the
+  // way it used to; bumping this forces React to tear down and remount a
+  // fresh instance, which resets that local state to its own default ('')
+  // for free, no extra reset-effect logic needed inside the child at all.
+  // Bumped everywhere this screen already resets searchQuery/
+  // categorySearchQuery directly (focus change, jumpToRelated, a fresh
+  // LensHub selection) -- see each of those for why.
+  const [searchResetKey, setSearchResetKey] = useState(0);
   // Basic Health's own real tree position -- [] at the top-level topic
   // grid, [topicLabel] one level in, [topicLabel, subtopicLabel] two
   // levels in (only "Essential Nutrients" currently has real subtopics).
@@ -674,11 +698,15 @@ export default function PurpleDigestScreen() {
       setRevealed(false);
       setSearchQuery('');
       setCategorySearchQuery('');
+      setIsSearchActive(false);
+      setSearchResetKey((key) => key + 1);
       setBasicHealthTopicPath([]);
       return () => {
         setRevealed(false);
         setSearchQuery('');
         setCategorySearchQuery('');
+        setIsSearchActive(false);
+        setSearchResetKey((key) => key + 1);
         setBasicHealthTopicPath([]);
       };
     }, []),
@@ -790,36 +818,29 @@ export default function PurpleDigestScreen() {
   // own point of skipping recomputation on unrelated re-renders (e.g. a
   // feedback tap, an unrelated state change elsewhere on screen).
   const entries = useMemo(() => (lens === 'search' ? [] : getEntriesForCategory(lens)), [lens]);
-  // Debounced, 2026-08-08, a real, reported keyboard-lag fix -- the raw
-  // string-matching cost here really is cheap (see searchDigestEntries's
-  // own comment), but reconciling potentially dozens of real result cards
-  // on every single keystroke is not, and that reconciliation happens
-  // inside THIS component (which also owns the search box's own state),
-  // so a slow render here was dragging down how quickly the custom
-  // AppKeyboard could register the next keypress -- the same class of bug
-  // already root-caused and fixed once for the Food builders (a heavy
-  // owning screen re-rendering in full per keystroke, see AppTextInput.tsx's
-  // own history comment), just triggered by expensive DERIVED rendering
-  // here rather than AppKeyboard's own internal registration. The search
-  // box's own displayed text is untouched by this -- it still binds
-  // directly to the raw, instant searchQuery/categorySearchQuery below, so
-  // typing itself never visibly lags; only the expensive results/shelf
-  // rendering waits until 200ms after typing actually pauses.
-  const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
-  const debouncedCategorySearchQuery = useDebouncedValue(categorySearchQuery, 200);
-  const searchResults = useMemo(() => searchDigestEntries(debouncedSearchQuery), [debouncedSearchQuery]);
+  // searchQuery/categorySearchQuery are already the debounced, COMMITTED
+  // values by construction now (see DigestSearchInput below) -- a real,
+  // second attempt at the reported keyboard-lag fix, 2026-08-08. The first
+  // attempt (debouncing a value derived FROM this screen's own raw,
+  // per-keystroke state) didn't actually work: this screen still re-
+  // rendered its entire tree on every single character, since the raw text
+  // itself lived here -- the debounce only skipped recomputing the
+  // EXPENSIVE data, not the (much more expensive) React reconciliation of
+  // however many real card/shelf components that data feeds, which still
+  // happened in full on every keystroke regardless. The real fix moves the
+  // raw, per-keystroke text into its own small, isolated child component
+  // instead -- this screen (and everything below) now only re-renders once
+  // per real pause in typing, not once per character, because it's simply
+  // never told about a keystroke until the debounce inside that child
+  // component has already settled.
+  const searchResults = useMemo(() => searchDigestEntries(searchQuery), [searchQuery]);
   // The same filtered, grouped hierarchical view built for category search
   // (see the JSX below) -- pulled into its own real useMemo here, alongside
   // searchResults above, rather than left as an inline IIFE recomputed on
-  // every render regardless of whether the debounced query (or the
-  // category itself) actually changed. Always a real array (possibly
-  // empty, e.g. while lens === 'search', where `entries` is already
-  // empty) -- the JSX below decides whether to even look at this based on
-  // the RAW, instant categorySearchQuery, not this debounced one, so the
-  // "you're searching" UI itself switches on immediately even though the
-  // actual result content briefly lags behind by up to 200ms.
+  // every render regardless of whether the query (or the category itself)
+  // actually changed.
   const categorySearchGroups = useMemo(() => {
-    const matchedIds = new Set(searchEntries(entries, debouncedCategorySearchQuery).map((entry) => entry.id));
+    const matchedIds = new Set(searchEntries(entries, categorySearchQuery).map((entry) => entry.id));
     const baseGroups =
       lens === 'basicHealth'
         ? basicHealthAllGroups(entries)
@@ -833,7 +854,7 @@ export default function PurpleDigestScreen() {
         entries: group.entries.filter((entry) => matchedIds.has(entry.id)),
       }))
       .filter((group) => group.entries.length > 0);
-  }, [entries, debouncedCategorySearchQuery, lens]);
+  }, [entries, categorySearchQuery, lens]);
   const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
 
   // Scrolls the ScrollView so the named card's own top edge lands exactly
@@ -977,45 +998,54 @@ export default function PurpleDigestScreen() {
     // "list mode" to switch into anymore -- and a search-in-progress
     // (either Search All or any category's own scoped search) is cleared,
     // since the person just told us exactly what they wanted by tapping a
-    // real result.
+    // real result. searchResetKey also bumps, 2026-08-08, so
+    // DigestSearchInput's own local, per-keystroke text actually clears too
+    // -- these two setters alone no longer reach it now that it lives in
+    // its own isolated child component (see that component's own comment).
     setSearchQuery('');
     setCategorySearchQuery('');
+    setIsSearchActive(false);
+    setSearchResetKey((key) => key + 1);
     setExpandedId(id);
     scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
   }
 
-  // The search box actually driving whichever content shows below it --
-  // Search All's own whole-Digest `searchQuery`, or every other lens's
-  // shared, category-scoped `categorySearchQuery` -- factored out once,
-  // since both the fixed header below and the filtered-results branch need
-  // the same pairing.
-  const activeSearchValue = lens === 'search' ? searchQuery : categorySearchQuery;
-  const setActiveSearchValue = lens === 'search' ? setSearchQuery : setCategorySearchQuery;
-  // Whether a real search is actively narrowing what's on screen right
-  // now -- the RAW, instant query (not the debounced copy driving the
-  // expensive results themselves), since the goal here is UI that reacts
-  // the moment someone starts typing, not once results catch up.
-  const isSearchActive = activeSearchValue.trim().length > 0;
-  // Two real fixes, 2026-08-08, direct request: "when I start to search in
-  // any section... the search results should automatically be displayed
-  // right below the subheader... either moving the section specific
-  // starting box up out of the way or some other method that displays the
-  // search results without having to scroll to find them." headerCard
-  // (below) is hidden outright the instant a real search starts, so
-  // results become the very first thing in the ScrollView rather than
-  // sitting below it -- and this effect guards against a stale scroll
+  // Commits DigestSearchInput's own debounced text up to this screen's
+  // real, "everything downstream reads this" state -- Search All's own
+  // whole-Digest searchQuery, or every other lens's shared, category-scoped
+  // categorySearchQuery. Only fires ~200ms after a real pause in typing
+  // (the debounce lives inside DigestSearchInput itself now), so this
+  // screen only re-renders that rarely while someone's actively typing, not
+  // once per character.
+  const handleDebouncedSearchChange = useCallback(
+    (text: string) => {
+      if (lens === 'search') setSearchQuery(text);
+      else setCategorySearchQuery(text);
+    },
+    [lens],
+  );
+  // Fires the INSTANT DigestSearchInput's own local text crosses the empty/
+  // non-empty boundary -- not once per character either, only on that one
+  // real transition -- so headerCard can hide/show and the empty-vs-results
+  // branching below can react immediately, well before the debounced text
+  // above ever catches up. Two real fixes bundled into one callback, both
+  // 2026-08-08, direct request: "when I start to search in any section...
+  // the search results should automatically be displayed right below the
+  // subheader... either moving the section specific starting box up out of
+  // the way or some other method that displays the search results without
+  // having to scroll to find them." headerCard (below) hides outright the
+  // instant isSearchActive turns true, so results become the very first
+  // thing in the ScrollView rather than sitting below it -- and snapping
+  // the scroll position back to the top right here guards against a stale
   // position from before searching started (already scrolled deep into a
-  // shelf or the tree when typing begins) by snapping back to the top the
-  // moment a search actually goes from inactive to active, so results
-  // land right under the fixed subheader with nothing to scroll past
-  // either way.
-  const wasSearchActive = useRef(false);
-  useEffect(() => {
-    if (isSearchActive && !wasSearchActive.current) {
+  // shelf or the tree when typing begins), so results land right under the
+  // fixed subheader with nothing to scroll past either way.
+  const handleSearchActiveChange = useCallback((active: boolean) => {
+    setIsSearchActive(active);
+    if (active) {
       scrollRef.current?.scrollTo({ y: 0, animated: true });
     }
-    wasSearchActive.current = isSearchActive;
-  }, [isSearchActive]);
+  }, []);
 
   return (
     <View style={styles.screen}>
@@ -1083,11 +1113,12 @@ export default function PurpleDigestScreen() {
                 <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
               </TouchableOpacity>
 
-              <AppTextInput
+              <DigestSearchInput
+                key={searchResetKey}
                 style={styles.searchInput}
                 placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${activeLensLabel}...`}
-                value={activeSearchValue}
-                onChangeText={setActiveSearchValue}
+                onDebouncedChange={handleDebouncedSearchChange}
+                onActiveChange={handleSearchActiveChange}
               />
             </View>
 
@@ -1131,11 +1162,17 @@ export default function PurpleDigestScreen() {
               )}
 
               {lens === 'search' ? (
-                searchQuery.trim().length === 0 ? (
+                !isSearchActive ? (
                   <Text style={styles.emptyText}>
                     Type a word or phrase to search every category at once -- a mechanism, a food, an
                     author&apos;s name, anything this Digest actually says somewhere.
                   </Text>
+                ) : searchQuery.trim().length === 0 ? (
+                  // isSearchActive already flipped true (DigestSearchInput's
+                  // own instant signal), but the debounced searchQuery
+                  // hasn't caught up yet -- render nothing for this brief
+                  // window rather than a misleading "no matches" message.
+                  null
                 ) : searchResults.length === 0 ? (
                   <Text style={styles.emptyText}>No matches for &ldquo;{searchQuery.trim()}&rdquo;.</Text>
                 ) : (
@@ -1148,7 +1185,7 @@ export default function PurpleDigestScreen() {
                     ))}
                   </>
                 )
-              ) : categorySearchQuery.trim().length > 0 ? (
+              ) : isSearchActive ? (
                 // Every real category -- Basic Health included -- filters
                 // its OWN real hierarchical structure now, rather than
                 // swapping to a flat, undifferentiated results list --
@@ -1166,9 +1203,12 @@ export default function PurpleDigestScreen() {
                 // shelf-row-plus-detail-panel rendering unchanged, the same
                 // real component every category already uses to show its
                 // groups when NOT searching. categorySearchGroups is a real
-                // useMemo above (not an inline IIFE anymore, a real,
-                // reported keyboard-lag fix -- see its own comment).
-                categorySearchTotalMatches === 0 ? (
+                // useMemo above. Gated on isSearchActive (not
+                // categorySearchQuery directly) so this branch is reached
+                // the instant typing starts, never falling through to the
+                // tree/shelf view below for the brief window before the
+                // debounced categorySearchQuery itself catches up.
+                categorySearchQuery.trim().length === 0 ? null : categorySearchTotalMatches === 0 ? (
                   <Text style={styles.emptyText}>
                     No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {activeLensLabel}.
                   </Text>
@@ -1301,7 +1341,13 @@ export default function PurpleDigestScreen() {
           groupRefs.current = {};
           setLens(key);
           setExpandedId(null);
+          setSearchQuery('');
           setCategorySearchQuery('');
+          setIsSearchActive(false);
+          // Forces DigestSearchInput to remount with fresh, empty local
+          // text -- 2026-08-08, see its own comment for why the two plain
+          // setters above alone no longer reach it.
+          setSearchResetKey((key2) => key2 + 1);
           // Picking Basic Health from the picker always lands on its own
           // top-level topic grid, never mid-tree from an earlier visit --
           // the same "never an instant resume of whatever was last open"
@@ -1351,6 +1397,83 @@ function crossConditionCategories(entry: AnyDigestEntry): { id: string; label: s
     results.push({ id: relatedId, label });
   }
   return results;
+}
+
+// The fixed subheader's own search box -- 2026-08-08, a real second attempt
+// at a reported keyboard-lag fix, this time the actual root cause: this
+// component owns its own local, per-keystroke text (a cheap, tiny re-render
+// on every character, this component only), and only reports up to
+// PurpleDigestScreen via onDebouncedChange once ~200ms has passed with no
+// further typing. The earlier attempt debounced a value DERIVED from that
+// screen's own raw state instead of moving the raw state itself out of that
+// screen -- meaning the screen (and its entire large content tree below)
+// still re-rendered on every single keystroke regardless, since its own
+// state was what changed; only the EXPENSIVE recomputation was skipped, not
+// the (much more expensive) React reconciliation of however many real
+// shelf/card components read that data. Isolating the raw keystroke here
+// means PurpleDigestScreen is never even told a keystroke happened until
+// the debounce below has already settled -- it only re-renders once per
+// real pause in typing, the same real fix already proven for a very
+// similar problem elsewhere in this app (AppTextInput.tsx's own history,
+// which fixed a different specific mechanism but the same underlying
+// "heavy owning screen blocking the next keypress" symptom).
+//
+// onActiveChange is a SEPARATE, non-debounced signal -- fires the instant
+// this box's own text crosses the empty/non-empty boundary, not on every
+// character, so the parent can hide headerCard and snap the scroll position
+// immediately without needing to know about every keystroke to do it.
+//
+// Deliberately has no reset-on-prop-change logic of its own -- the caller
+// remounts this component outright (via a changing `key`) whenever the box
+// should clear, which resets `localValue` to its own default for free. See
+// PurpleDigestScreen's own searchResetKey for where that's driven from.
+function DigestSearchInput({
+  placeholder,
+  style,
+  onDebouncedChange,
+  onActiveChange,
+}: {
+  placeholder: string;
+  style: TextStyle;
+  onDebouncedChange: (text: string) => void;
+  onActiveChange: (active: boolean) => void;
+}) {
+  const [localValue, setLocalValue] = useState('');
+  const wasActive = useRef(false);
+
+  // Wrapped in useCallback -- real, not just tidiness. AppTextInput's own
+  // registration effect (see that file's own history comment) re-fires
+  // AppKeyboard's own registration whenever onChangeText's identity
+  // changes, not just when this component's own state does -- a plain,
+  // unmemoized function here would get a brand new identity every time
+  // this component re-renders (i.e. every keystroke), silently
+  // reintroducing the exact per-keystroke AppKeyboard re-render cascade
+  // this whole fix exists to avoid, just one layer further down than
+  // before. onActiveChange is already stable from the parent (its own
+  // useCallback), so this stays stable across every keystroke too.
+  const handleChangeText = useCallback(
+    (text: string) => {
+      setLocalValue(text);
+      const active = text.trim().length > 0;
+      if (active !== wasActive.current) {
+        wasActive.current = active;
+        onActiveChange(active);
+      }
+    },
+    [onActiveChange],
+  );
+
+  const debouncedValue = useDebouncedValue(localValue, 200);
+  useEffect(() => {
+    onDebouncedChange(debouncedValue);
+    // onDebouncedChange is expected to be stable-ish (PurpleDigestScreen's
+    // own useCallback), and even if it weren't, re-committing the same
+    // already-current text is harmless -- this effect's real trigger is
+    // debouncedValue changing, not onDebouncedChange's own identity.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedValue]);
+
+  return <AppTextInput style={style} placeholder={placeholder} value={localValue} onChangeText={handleChangeText} />;
 }
 
 // A compact, unexpandable result row for the Search All lens -- tapping it

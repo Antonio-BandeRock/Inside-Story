@@ -362,30 +362,202 @@ function digestSearchHaystack(entry: AnyDigestEntry): string {
   return [entry.title, entry.teaser, entry.summary, citationText].join(' ').toLowerCase();
 }
 
-// 2026-08-08, extracted from searchDigestEntries's own original body (below)
-// so a real, scoped search over an arbitrary subset of entries -- Basic
-// Health's own new category-scoped search utility, see purple-digest.tsx --
-// can reuse the exact same real matching logic rather than a second,
-// separately-maintained copy of it. searchDigestEntries itself is now just
-// this function called with the full ALL_DIGEST_ENTRIES pool, unchanged in
-// behavior for every existing caller.
-export function searchEntries(pool: AnyDigestEntry[], query: string, limit = 60): AnyDigestEntry[] {
-  const terms = query
-    .trim()
+// Just the title/food name, lowercased -- used by searchEntries below to
+// weight a real title match higher than an incidental mention buried in a
+// citation or a long paragraph. Not part of digestSearchHaystack's own
+// return value -- kept as a separate, smaller function since it's already
+// a substring of that larger haystack, and computing it twice from scratch
+// would be wasteful.
+function digestSearchTitle(entry: AnyDigestEntry): string {
+  return (isProblemFoodEntry(entry) ? entry.foodName : entry.title).toLowerCase();
+}
+
+// Stripped out of a query before matching -- 2026-08-08, built specifically
+// so this search can handle a real, typed QUESTION reasonably well
+// ("Why do I have such a bad reaction to horchata but I can eat rice
+// dishes without a problem?"), not just a short keyword phrase. English
+// question/connector words that would otherwise count as real search
+// terms and dilute relevance scoring with near-universal matches (almost
+// every entry in this Digest contains "the," "to," "of," etc. somewhere).
+// Deliberately does NOT filter by term length -- a real, short, meaningful
+// token like a bare vitamin letter ("d," "c," "k") needs to survive this
+// list untouched (see the real "vitamin a" collision named directly below,
+// an accepted, narrow exception, not something this list tries to solve).
+const SEARCH_STOPWORDS = new Set([
+  'a',
+  'an',
+  'the',
+  'i',
+  'me',
+  'my',
+  'you',
+  'your',
+  'he',
+  'she',
+  'it',
+  'we',
+  'they',
+  'them',
+  'is',
+  'are',
+  'was',
+  'were',
+  'be',
+  'been',
+  'being',
+  'do',
+  'does',
+  'did',
+  'have',
+  'has',
+  'had',
+  'can',
+  'could',
+  'will',
+  'would',
+  'should',
+  'shall',
+  'may',
+  'might',
+  'must',
+  'why',
+  'what',
+  'when',
+  'where',
+  'who',
+  'whom',
+  'which',
+  'how',
+  'and',
+  'or',
+  'but',
+  'if',
+  'so',
+  'because',
+  'due',
+  'to',
+  'of',
+  'for',
+  'in',
+  'on',
+  'at',
+  'with',
+  'without',
+  'from',
+  'by',
+  'about',
+  'than',
+  'then',
+  'that',
+  'this',
+  'these',
+  'those',
+  'not',
+  'no',
+  'yet',
+  'just',
+  'such',
+  'very',
+  'really',
+  'too',
+  'also',
+  'get',
+  'getting',
+  'need',
+  'needs',
+  'want',
+  'wants',
+  'help',
+  'out',
+  'please',
+  'tell',
+  'know',
+]);
+
+// Splits a raw query into real search terms -- lowercased, punctuation
+// stripped (so "horchata?" matches the same as "horchata"), and every
+// stopword above removed. A single-letter token like "d" (a real vitamin
+// code, not filtered here at all) can survive right alongside a whole
+// question's worth of filler getting stripped out around it.
+function extractSearchTerms(query: string): string[] {
+  return query
     .toLowerCase()
+    .replace(/[?!.,;:'"()]/g, ' ')
     .split(/\s+/)
-    .filter(Boolean);
+    .map((term) => term.trim())
+    .filter((term) => term.length > 0 && !SEARCH_STOPWORDS.has(term));
+}
+
+function escapeForRegExp(text: string): string {
+  return text.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+// A real, caught-before-shipping bug, found by test-running this against a
+// real "vitamin d" search before trusting it: a short term (any single- or
+// double-letter one, most importantly the bare vitamin letters -- "d,"
+// "a," "c," "k") matched via plain substring is nearly useless, since
+// almost any real sentence contains that letter somewhere ("and," "diet,"
+// "reaction" all contain a bare "d") -- meaning "vitamin d" was scoring
+// nearly every entry in the whole Digest as if it genuinely matched "d,"
+// drowning out the entries actually about Vitamin D specifically. A real
+// word-boundary check fixes this for short terms without giving up
+// substring matching for longer, more distinctive ones -- "vitamin"
+// matching "vitamins," or "goitrogen" matching "goitrogenic," is a real,
+// wanted feature this app's search has always had, only the SHORT-term
+// case needed a different rule.
+function termMatches(haystack: string, term: string): boolean {
+  if (term.length <= 2) {
+    return new RegExp(`\\b${escapeForRegExp(term)}\\b`).test(haystack);
+  }
+  return haystack.includes(term);
+}
+
+// 2026-08-08, rebuilt from a strict "every term must appear somewhere"
+// substring match into a real, relevance-ranked one -- direct request:
+// someone should be able to type an actual question ("Why do I have such
+// a bad reaction to horchata but I can eat rice dishes without a
+// problem?") and get back whatever this Digest's own real entries say
+// that's most relevant, not nothing at all because the exact phrase never
+// appears verbatim anywhere. Every real content word (see
+// extractSearchTerms above) is checked independently now -- an entry needs
+// to match at least ONE of them, not all of them, and results are sorted
+// by how many terms actually matched (title matches count 3x an ordinary
+// body/citation match, so an entry literally about the thing being asked
+// about outranks one that just happens to mention it once in passing).
+// This is still a real, honest search over this app's own already-written
+// content, not a generated answer -- see this app's own recorded
+// architecture decision (2026-08-08) for why a real AI-summarized-answer
+// version of this was deliberately NOT built: it would mean a person's own
+// typed health question leaving the device to reach an external API, a
+// real, first-time departure from this app's whole local-first design that
+// needs its own dedicated conversation before ever being built, not folded
+// into this pass.
+//
+// Extracted from searchDigestEntries's own original body (below) so a
+// real, scoped search over an arbitrary subset of entries -- Basic
+// Health's own category-scoped search utility, see purple-digest.tsx --
+// can reuse the exact same real matching/ranking logic rather than a
+// second, separately-maintained copy of it. searchDigestEntries itself is
+// now just this function called with the full ALL_DIGEST_ENTRIES pool.
+export function searchEntries(pool: AnyDigestEntry[], query: string, limit = 60): AnyDigestEntry[] {
+  const terms = extractSearchTerms(query);
   if (terms.length === 0) return [];
 
-  const matches: AnyDigestEntry[] = [];
+  const scored: { entry: AnyDigestEntry; score: number }[] = [];
   for (const entry of pool) {
     const haystack = digestSearchHaystack(entry);
-    if (terms.every((term) => haystack.includes(term))) {
-      matches.push(entry);
-      if (matches.length >= limit) break;
+    const title = digestSearchTitle(entry);
+    let score = 0;
+    for (const term of terms) {
+      if (termMatches(title, term)) score += 3;
+      else if (termMatches(haystack, term)) score += 1;
     }
+    if (score > 0) scored.push({ entry, score });
   }
-  return matches;
+  // Highest relevance first; a stable sort keeps equally-relevant entries
+  // in their own original pool order rather than shuffling them.
+  scored.sort((a, b) => b.score - a.score);
+  return scored.slice(0, limit).map((item) => item.entry);
 }
 
 export function searchDigestEntries(query: string, limit = 60): AnyDigestEntry[] {
