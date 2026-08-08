@@ -236,4 +236,52 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['pcos-insulin-resistance-mechanism'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing toward genuine
+  // volumetric parity with Hashimoto's own depth, per direct instruction
+  // that all 18 non-Hashimoto's conditions deserve the same fully
+  // encompassing treatment, individually and in combination. Every
+  // citation independently verified via WebSearch.
+  {
+    id: 'pcos-nafld-comorbidity',
+    category: 'pcos',
+    title: 'Fatty Liver Disease Affects Over Half of Women With PCOS, a Real, Striking Comorbidity Driven by the Same Core Mechanism',
+    teaser: 'Real, current worldwide data finds MASLD (fatty liver disease) in 51.56% of women with PCOS versus 29.64% of women without it, driven by the same insulin resistance and high androgen levels already central to PCOS itself.',
+    summary:
+      "PCOS carries a real, striking comorbidity with metabolic dysfunction-associated steatotic liver disease (MASLD, already covered in real depth in this app's own dedicated fatty-liver-disease research), worth knowing about directly rather than treating the two as unrelated diagnoses. Real, current, racially and ethnically diverse worldwide data finds MASLD in 51.56% of women with PCOS compared to 29.64% of women without it, with a real meta-analysis finding a pooled prevalence around 43% and a real, roughly 2.5-fold higher odds (odds ratio 2.54) of MASLD in PCOS. Genuinely important: real research finds this connection independent of body weight, high androgen levels and insulin resistance, PCOS's own real, already-covered core mechanisms, appear to drive liver injury directly, not merely through obesity as a middle step. Real research specifically finds women with PCOS who have hyperandrogenism (the classic phenotype) show a higher MASLD prevalence than PCOS without hyperandrogenism, even after accounting for other confounding factors. Worth knowing directly: this is a real, concrete, worth-raising reason for anyone with PCOS to ask about liver health as part of routine screening, since this app's own already-established MASLD research (weight-loss thresholds, exercise's independent benefit, the real FIB-4 fibrosis-screening tool) applies directly and usefully to this real, common PCOS comorbidity, not just to fatty liver disease encountered on its own.",
+    citations: [
+      { source: 'Nonalcoholic Fatty Liver Disease in Women and Girls With Polycystic Ovary Syndrome, Journal of Clinical Endocrinology & Metabolism', url: 'https://academic.oup.com/jcem/article/107/1/258/6365752' },
+      { source: 'Non-Alcoholic Fatty Liver Disease in Patients with Polycystic Ovary Syndrome: A Systematic Review, Meta-Analysis, and Meta-Regression, PMC9917911', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9917911/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-overview', 'masld-fib4-fibrosis-screening'],
+  },
+  {
+    id: 'pcos-combined-oral-contraceptives-first-line',
+    category: 'pcos',
+    title: 'Combined Oral Contraceptives Are the Real, Formal First-Line Treatment for PCOS Itself, Not Just Birth Control',
+    teaser: 'Real current international guidelines name combined oral contraceptives the first-line treatment specifically for PCOS symptoms, with real trial data finding cycle regularity improved from 0% to 100% versus no treatment.',
+    summary:
+      "Combined oral contraceptive pills (COCPs) are worth knowing directly as PCOS's own real, formal, guideline-designated first-line pharmacologic treatment, not simply a birth control option that happens to also be used in PCOS. The real, current 2023 International Evidence-based Guideline for PCOS names combined oral contraceptives the first-line option specifically for managing irregular menstrual cycles and hirsutism (excess hair growth), the two hallmark symptoms already covered elsewhere in this app's own PCOS research. Real trial data finds a striking effect on cycle regularity specifically, 100% regularity with COCP treatment versus 0% with no medical treatment at all, alongside real improvements in quality of life and modest weight benefit. Worth stating honestly: real research finds the certainty of evidence for benefits beyond cycle regulation, and for potential adverse effects, genuinely low, meaning COCPs' status as first-line treatment rests partly on their own well-established general safety and efficacy record rather than PCOS-specific trial data at every level. A real, specific nuance worth knowing: combined regimens containing an antiandrogen component may reduce hyperandrogenism somewhat more effectively, but real research finds they carry a higher venous thrombotic event (blood clot) risk, so they aren't recommended as a first-line choice despite the theoretical androgen advantage. Worth knowing directly: this is real, useful context for anyone with PCOS being offered a birth control pill as treatment, it's not a generic prescription, it's the real, evidence-backed, guideline-recommended first-line therapy for the condition itself.",
+    citations: [
+      { source: 'Update to Guidelines for Treatment and Management of PCOS Using Combined Oral Contraceptive Pills, Endocrinology Advisor', url: 'https://www.endocrinologyadvisor.com/news/update-to-guidelines-for-treatment-and-management-of-pcos-using-combined-oral-contraceptive-pills/' },
+      { source: 'Combined oral contraceptive pill compared with no medical treatment in the management of polycystic ovary syndrome: A systematic review, PMC10952804', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10952804/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-spironolactone-potassium', 'pcos-rotterdam-phenotypes'],
+  },
+  {
+    id: 'pcos-ivf-real-outcomes',
+    category: 'pcos',
+    title: 'Real Fertility Data: Women With PCOS Actually Achieve Strong, Sometimes Better-Than-Average IVF Success Rates',
+    teaser: 'A real study of over 1,300 PCOS patients found a 63.48% cumulative live birth rate through IVF, and PCOS patients showed higher live birth rates than matched controls even after adjusting for age and weight.',
+    summary:
+      "PCOS is a real, common cause of infertility (already covered through this app's own letrozole-and-ovulation-induction research), but real IVF outcome data offers a genuinely more hopeful picture than the diagnosis alone might suggest. A real study of 1,380 PCOS patients found a conservative cumulative live birth rate of 63.48% through IVF, and a real comparison of older PCOS patients (ages 35-46) against age- and weight-matched controls without PCOS found PCOS patients actually achieved a HIGHER cumulative live birth rate, 55.51% versus 38.02%, over two years of treatment. Real research finds this reflects a genuine, distinctive PCOS trait, better ovarian reserve and response to ovarian stimulation, which continues working in a woman's favor for IVF specifically even as PCOS's own real fertility challenges (irregular or absent ovulation) make natural conception harder. For those using the less invasive option first, intrauterine insemination (IUI), real research finds a live birth rate of 17.80% per cycle and 30.95% cumulative per patient. Worth knowing directly: this is real, genuinely encouraging data worth knowing early in a PCOS fertility conversation, rather than assuming PCOS automatically means a difficult or lower-probability path to a successful pregnancy through assisted reproduction, real outcomes, particularly through IVF, are often favorable.",
+    citations: [
+      { source: 'Comparison of Cumulative Live Birth Rate Between Aged PCOS Women and Controls in IVF/ICSI Cycles, PMC8505977', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8505977/' },
+      { source: 'Factors affecting cumulative live birth rate after the 1st oocyte retrieved in polycystic ovary syndrome patients in women during IVF/ICSI-ET, PMC10571446', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10571446/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-pregnancy-real-complications-letrozole'],
+  },
 ];

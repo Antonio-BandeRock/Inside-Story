@@ -223,4 +223,52 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ibs-post-infectious-mechanism'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing toward genuine
+  // volumetric parity with Hashimoto's own depth, per direct instruction
+  // that all 18 non-Hashimoto's conditions deserve the same fully
+  // encompassing treatment, individually and in combination. Every
+  // citation independently verified via WebSearch.
+  {
+    id: 'ibs-bile-acid-diarrhea-underdiagnosed',
+    category: 'ibs',
+    title: 'Bile Acid Diarrhea: A Real, Genuinely Underdiagnosed Cause of Diarrhea-Predominant IBS With Its Own Treatable Answer',
+    teaser: 'A real systematic review found up to a third of people diagnosed with diarrhea-predominant IBS actually have bile acid malabsorption instead, a real, distinct, testable, and treatable condition most never get tested for.',
+    summary:
+      "Bile acid diarrhea (BAD), also called bile acid malabsorption, is a real, genuinely underdiagnosed condition hiding inside a real, substantial share of diarrhea-predominant IBS (IBS-D) diagnoses, already covered in this app's own Rome IV subtype research. Real research finds bile acids, made by the liver to help digest fat, aren't properly reabsorbed in the small intestine in a real subset of people, spilling into the colon and directly triggering diarrhea through their own irritant effect on the colon lining. A real systematic review of 15 studies (1,223 IBS-D patients) found roughly 10% had severe malabsorption, 32% moderate, and 26% mild, by real diagnostic testing, meaning a genuinely large share of people labeled with IBS-D may actually have this distinct, separately treatable condition. Real research finds diagnosis delayed by more than 5 years on average, and a real UK study found only 1% of new chronic diarrhea cases were actually tested for it, despite real treatment (bile acid sequestrant medications) being available and effective once correctly identified. The gold-standard SeHCAT test remains real but not widely available everywhere; a newer, real fecal bile acid stool test shows promise as a more accessible alternative. Worth knowing directly: this is a real, concrete, worth-raising question for anyone with a real diarrhea-predominant IBS diagnosis who hasn't improved on standard IBS treatment, since a distinct, testable, treatable cause may be hiding underneath the same symptoms.",
+    citations: [
+      { source: 'Pathophysiology and Clinical Management of Bile Acid Diarrhea, PMC9180966', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9180966/' },
+      { source: 'Systematic review: the prevalence of idiopathic bile acid malabsorption as diagnosed by SeHCAT scanning in patients with diarrhoea-predominant IBS', url: 'https://onlinelibrary.wiley.com/doi/10.1111/j.1365-2036.2009.04081.x' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-rome-iv-subtypes'],
+  },
+  {
+    id: 'ibs-cbt-brain-gut-therapy',
+    category: 'ibs',
+    title: 'Cognitive Behavioral Therapy Has Real, Well-Established Evidence for IBS, Distinct From Hypnotherapy',
+    teaser: 'Real meta-analyses find CBT genuinely improves IBS bowel symptoms and quality of life, with a real number-needed-to-treat between 3.5 and 5.5, making it a real, guideline-recommended option in its own right.',
+    summary:
+      "Cognitive behavioral therapy (CBT) is a real, distinct, well-evidenced brain-gut treatment for IBS, worth knowing about separately from the gut-directed hypnotherapy already covered in this app's own research, since it works through a genuinely different real mechanism, addressing the anxiety response to abdominal symptoms directly rather than a hypnotic-suggestion approach. Real systematic reviews and meta-analyses repeatedly confirm CBT's efficacy for IBS, with pooled results favoring real improvement in bowel symptoms, quality of life, and psychological state. Real research quantifies the benefit with a number-needed-to-treat (NNT) between 3.5 and 5.5 for brain-gut psychological therapies broadly, a real, meaningful effect size by clinical standards. A specific real approach, manual-based CBT using interoceptive exposure (deliberately confronting the fear response to physical gut sensations rather than avoiding it), has shown particularly strong real results. Real, current practice guidelines recommend CBT specifically for people whose symptoms haven't responded well to lifestyle changes or standard medication. Worth knowing directly: this is a real, legitimate, guideline-backed treatment option in its own right, not just a fallback when other treatments haven't worked, and it's worth asking about directly and by name, alongside or instead of gut-directed hypnotherapy, when discussing IBS management with a doctor or therapist.",
+    citations: [
+      { source: 'Efficacy of behavioural therapies for irritable bowel syndrome: a systematic review and network meta-analysis', url: 'https://www.sciencedirect.com/science/article/abs/pii/S2468125325002389' },
+      { source: 'Durability and Effectiveness of Cognitive-Behavioral Therapy for Irritable Bowel Syndrome, Gastroenterology', url: 'https://www.gastrojournal.org/article/S0016-5085(19)41447-9/fulltext' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-gut-directed-hypnotherapy'],
+  },
+  {
+    id: 'ibs-gut-serotonin-mechanism',
+    category: 'ibs',
+    title: 'Roughly 90% of the Body\'s Serotonin Is Made in the Gut, and Its Dysregulation Is a Real, Direct Piece of IBS\'s Own Mechanism',
+    teaser: 'Specialized gut cells produce the overwhelming majority of the body\'s serotonin, directly controlling motility and gut-brain signaling, and real research finds this system genuinely dysregulated in IBS itself.',
+    summary:
+      "One of the most genuinely surprising real facts about IBS's own underlying biology: roughly 90-95% of the body's total serotonin is made not in the brain, but in the gut, by specialized cells called enterochromaffin (EC) cells, even though these cells make up only about 1% of the gut's own lining. Real research finds this gut-made serotonin performs real, direct local jobs, regulating gut motility, coordinating digestive reflexes, and activating the vagus nerve, the same nerve already covered elsewhere in this app's own gut-brain-axis research. Real, current research finds gut serotonin production is directly regulated by the gut microbiome itself, through short-chain fatty acids and other microbial metabolites, tying this directly to this app's own already-established fermentation and gut-health research. Real research finds dysregulation in this exact serotonin-signaling system a genuine contributor to IBS, alongside other real signaling molecules already implicated (bacterial byproducts, stress-related catecholamines like dopamine and norepinephrine). Worth knowing directly: this gives a real, concrete biological reason IBS is genuinely a brain-gut condition and not \"just in someone's head,\" and it directly explains why the real, established treatments already covered in this app's own IBS research, from dietary changes that reshape the gut microbiome to CBT and hypnotherapy that work through brain-gut signaling, both have a real, physiological pathway to actually help.",
+    citations: [
+      { source: 'The Mechanism of Secretion and Metabolism of Gut-Derived 5-Hydroxytryptamine, PMC8347425', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8347425/' },
+      { source: 'Mechanosensory Signaling in Enterochromaffin Cells and 5-HT Release: Potential Implications for Gut Inflammation, PMC5165017', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5165017/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-overview', 'gut-scfa-treg'],
+  },
 ];

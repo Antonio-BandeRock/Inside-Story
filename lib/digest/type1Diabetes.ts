@@ -248,4 +248,52 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-hba1c-time-in-range'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing toward genuine
+  // volumetric parity with Hashimoto's own depth, per direct instruction
+  // that all 18 non-Hashimoto's conditions deserve the same fully
+  // encompassing treatment, individually and in combination. Every
+  // citation independently verified via WebSearch.
+  {
+    id: 'type1-hypoglycemia-unawareness',
+    category: 'type1Diabetes',
+    title: 'Hypoglycemia Unawareness: A Real, Dangerous Phenomenon Where the Body Stops Warning About Low Blood Sugar',
+    teaser: 'Real research finds 25-50% of people with type 1 diabetes lose the normal warning signs of low blood sugar over time, most strongly tied to a diabetes duration exceeding 20 years, a real, six-fold increased risk of a severe episode as a result.',
+    summary:
+      "Hypoglycemia unawareness is a real, genuinely dangerous phenomenon worth knowing about directly: the loss of the body's own normal early-warning symptoms (shakiness, sweating, a racing heart) that would otherwise alert someone to dangerously low blood sugar before it becomes severe. Real research finds partial or complete hypoglycemia unawareness in 25-50% of people with type 1 diabetes, strongly correlated with a real, longer disease duration, typically exceeding 20 years. The real, underlying mechanism has its own name, hypoglycemia-associated autonomic failure (HAAF): real, frequent or recent low-blood-sugar episodes progressively blunt the body's own counter-regulatory hormone response, particularly epinephrine, which is precisely what normally produces the warning symptoms in the first place. Real research finds this creates a real, dangerous feedback loop, more hypoglycemia leads to less warning of hypoglycemia, which leads to a real, six-fold increased risk of another severe episode. Genuinely important to know: real research finds intensive glycemic control, the exact kind aimed for by the closed-loop insulin systems and tight Time-in-Range targets already covered elsewhere in this app's own research, itself carries a real, increased risk of triggering this same unawareness pattern if lows aren't also being actively minimized. Worth knowing directly: this is a real, worth-raising conversation for anyone with long-standing type 1 diabetes, or their family, since real, structured strategies exist (a deliberate period of strict low-blood-sugar avoidance can partially restore awareness), and recognizing the pattern itself is the real, necessary first step.",
+    citations: [
+      { source: 'Hypoglycemia in Type 1 Diabetes Mellitus, IntechOpen', url: 'https://www.intechopen.com/chapters/1151359' },
+      { source: 'Impaired Awareness of Hypoglycemia Continues to be a Risk Factor for Severe Hypoglycemia Despite Use of CGM in Type 1 Diabetes', url: 'https://www.sciencedirect.com/science/article/abs/pii/S1530891X20359784' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-alcohol-nocturnal-hypoglycemia', 'type1-hba1c-time-in-range'],
+  },
+  {
+    id: 'type1-islet-pancreas-transplantation',
+    category: 'type1Diabetes',
+    title: 'Islet Cell Transplantation: A Real, Working, if Still Limited, Path to Genuine Insulin Independence',
+    teaser: 'Real registry data finds 50% of adults with type 1 diabetes achieved complete insulin independence one year after islet cell transplantation, with real, documented stabilization of kidney and other complications afterward.',
+    summary:
+      "Islet cell transplantation is a real, genuinely working, if still limited and specialized, treatment that can restore the body's own natural insulin production in type 1 diabetes, worth knowing about directly as a real option beyond the closed-loop insulin-delivery technology already covered in this app's own research. The real procedure involves transplanting insulin-producing islet cells, harvested from a donor pancreas, into the recipient, a real, less invasive and more affordable alternative to a full, whole-organ pancreas transplant. Real, registry-based data (the Collaborative Islet Transplant Registry) finds 50% of adults achieved complete insulin independence one year after transplantation, a real, striking outcome for a condition otherwise requiring lifelong insulin. Real research finds benefits beyond glucose numbers alone: stabilization or improvement in most microvascular complications, real preservation of long-term kidney function, and improvements in vascular health markers with possible reductions in cardiovascular risk, though that specific data remains more limited. Real, quality-of-life research finds benefits sustained up to 36 months, including a genuinely meaningful reduction in fear of hypoglycemia. Worth knowing honestly: this isn't risk-free or universally available, real downsides include short-term procedural pain, the need for lifelong immunosuppressant medication with its own real side effects, and real emotional impact if the transplanted graft eventually loses function. Worth knowing directly: this is a real, specialized option worth discussing with an endocrinologist specifically for people with type 1 diabetes experiencing severe, hard-to-manage hypoglycemia or hypoglycemia unawareness (already covered elsewhere in this app's own research), not a mainstream first-line treatment for most people with the condition.",
+    citations: [
+      { source: 'Pancreatic Islet Cell Transplantation: Graft Stability and Metabolic Outcomes, PMC7409867', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7409867/' },
+      { source: 'Impact of Islet Transplantation on Type 1 Diabetes-Related Complication: A Systematic Review, PMC12648045', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12648045/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-hypoglycemia-unawareness', 'type1-closed-loop-automated-insulin'],
+  },
+  {
+    id: 'type1-bone-health-fracture-risk',
+    category: 'type1Diabetes',
+    title: 'Type 1 Diabetes Carries a Real, Striking, Sevenfold Higher Hip Fracture Risk, Independent of Bone Density Alone',
+    teaser: 'Real research finds hip fracture risk seven times higher in type 1 diabetes compared to people without diabetes, and genuinely, this real elevated risk isn\'t fully explained by lower bone density alone.',
+    summary:
+      "Type 1 diabetes carries a real, substantially elevated fracture risk worth knowing directly, present at both young and old age, not just a concern for later in life. Real research finds hip fracture risk seven times higher in people with type 1 diabetes compared to people without it, a real, striking figure. Genuinely important and worth understanding correctly: real research finds people with type 1 diabetes do show lower bone mineral density (BMD) on average, with osteoporosis prevalence around 5.5% by one real measure, but real research also finds these BMD reductions do NOT fully explain the increased fracture risk, meaning something about type 1 diabetes itself affects real bone quality or strength beyond what a density scan alone captures. Because of this real, elevated risk, real, current clinical guidance recommends lowering the bone-density threshold used to decide on osteoporosis treatment in type 1 diabetes, from a T-score of -2.5 down to -2.0, meaning treatment may be genuinely warranted at an earlier, less severe stage of bone loss than in the general population. Real research finds this changes real treatment eligibility substantially, one study found 25.5% to 36% of people with type 1 diabetes over 50 would qualify for anti-osteoporosis therapy under this adjusted threshold. The American Diabetes Association recommends fracture-risk assessment and BMD monitoring for anyone with diabetes over 65, and for younger adults carrying multiple additional risk factors. Worth knowing directly: this is a real, concrete, worth-raising reason for someone with long-standing type 1 diabetes to ask about bone density screening earlier than the general population's own standard recommendation.",
+    citations: [
+      { source: 'Prevalence and risk factors for osteoporosis in type 1 diabetes, Osteoporosis International (Springer Nature)', url: 'https://link.springer.com/article/10.1007/s00198-025-07443-y' },
+      { source: 'Type 1 Diabetes and Bone Fragility: Links and Risks, PMID 31819579', url: 'https://pubmed.ncbi.nlm.nih.gov/31819579/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-complication-screening', 'type1-long-term-complications-real-data'],
+  },
 ];

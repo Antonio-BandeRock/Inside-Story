@@ -239,4 +239,52 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-overview'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing toward genuine
+  // volumetric parity with Hashimoto's own depth, per direct instruction
+  // that all 18 non-Hashimoto's conditions deserve the same fully
+  // encompassing treatment, individually and in combination. Every
+  // citation independently verified via WebSearch.
+  {
+    id: 'lupus-antiphospholipid-syndrome',
+    category: 'lupus',
+    title: 'Antiphospholipid Syndrome: A Real, Distinct, Clotting-Driven Condition That Often Rides Along With Lupus',
+    teaser: 'Real research finds antiphospholipid antibodies present in about 15% of women with recurrent miscarriage, and this syndrome can cause real, dangerous blood clots even in young, otherwise healthy women, separate from lupus\'s own more familiar symptoms.',
+    summary:
+      "Antiphospholipid syndrome (APS), sometimes called Hughes syndrome, is a real, distinct autoimmune clotting disorder that can occur on its own or alongside lupus, worth knowing directly since it carries its own real, separate, and genuinely serious risks beyond the pregnancy-related content already covered in this app's own lupus research. Real research finds APS strongly associated with recurrent miscarriage, deep vein thrombosis, pulmonary embolism, and stroke, even in young, otherwise healthy women with no other apparent risk factors. Real data finds antiphospholipid antibodies present in about 15% of women experiencing recurrent miscarriage, with APS itself contributing to an estimated 7-25% of recurrent pregnancy loss cases specifically, compared to under 2% in women with a low-risk obstetric history. The real, proposed mechanism involves these antibodies directly promoting blood clot formation or impairing blood flow through the placenta. Real, formal diagnosis requires two separate positive tests, at least 12 weeks apart, for either lupus anticoagulant or anticardiolipin antibodies, a real, deliberate double-testing requirement meant to rule out a temporary, incidental antibody blip. Worth knowing directly: this is a real, concrete, worth-raising question for anyone with lupus who has experienced unexplained blood clots or recurrent pregnancy loss, since APS is real, separately treatable (typically with blood thinners), and identifying it changes real, practical management decisions beyond standard lupus care alone.",
+    citations: [
+      { source: 'Prevalence of antiphospholipid syndrome among women with recurrent pregnancy loss: a cohort study, PMC12097438', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12097438/' },
+      { source: 'Prevalence of Antiphospholipid Antibody Syndrome Among Patients with Recurrent Pregnancy Loss, PMC11677686', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11677686/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-pregnancy-real-flare-neonatal', 'lupus-cardiovascular-risk'],
+  },
+  {
+    id: 'lupus-complement-c3-c4-monitoring',
+    category: 'lupus',
+    title: 'Complement Proteins C3 and C4 Are Real, Useful Early-Warning Blood Markers for an Approaching Lupus Flare',
+    teaser: 'Real research finds falling C3 levels can precede a real clinical flare by days to weeks, and C3 specifically appears more sensitive than C4 for tracking real, active disease, a genuine, worth-knowing addition to this app\'s own SLEDAI research.',
+    summary:
+      "Complement proteins C3 and C4, part of the immune system's own normal defense machinery, are real, useful, and genuinely practical blood markers for tracking lupus disease activity, worth knowing directly alongside the SLEDAI scoring system already covered in this app's own lupus research. Real research finds low C3 and C4 levels commonly seen during an active lupus flare, since the disease process itself consumes these complement proteins faster than the body can replace them. Genuinely useful in practice: real research finds falling C3 over the course of weeks can precede an actual clinical flare by days to weeks, giving a real, measurable early-warning signal before symptoms fully develop. Real research also finds C3 specifically appears more sensitive than C4 for this purpose, with C3 tending to normalize with high specificity during genuine remission, while C4 shows no comparably reliable pattern. In lupus nephritis specifically (already covered in this app's own nephritis-monitoring research), real research finds complement levels correlating directly with kidney disease activity and rising back toward normal after 6 months of effective treatment. Worth stating honestly: real research also finds these traditional markers can reflect disease activity imperfectly on their own, and newer complement-based biomarkers are being studied as potentially more sensitive tools. Worth knowing directly: this is a real, worth-naming-by-name pair of tests to ask about as part of routine lupus monitoring, giving a real, complementary signal alongside symptom tracking and the SLEDAI score itself.",
+    citations: [
+      { source: 'Complement as a Biomarker for Systemic Lupus Erythematosus, PMC9953581', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9953581/' },
+      { source: 'Serum C3 Levels Are Diagnostically More Sensitive and Specific for Systemic Lupus Erythematosus Activity Than Are Serum C4 Levels', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0272638612806093' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-sledai-disease-activity', 'lupus-nephritis-monitoring'],
+  },
+  {
+    id: 'lupus-discoid-vs-systemic',
+    category: 'lupus',
+    title: 'Discoid Lupus Is a Real, Distinct Skin-Only Condition, but Real Research Finds a Genuine Risk of It Progressing to Full Systemic Lupus',
+    teaser: 'Real research finds 6-30% of discoid lupus cases eventually progress to systemic lupus, with real, named, checkable risk factors (young age at onset, high ANA titers) helping identify who\'s most at risk.',
+    summary:
+      "Discoid lupus erythematosus (DLE) is a real, distinct, chronic skin-only form of lupus, causing real, scarring, disc-shaped skin lesions, and it's worth knowing directly that it's not automatically the same thing as systemic lupus, though a real, genuine minority of cases do eventually progress. Real research finds progression rates from DLE to full systemic lupus erythematosus (SLE) ranging from 6% to 21% in earlier studies, with a more recent, larger systematic review finding higher rates, 30.0% in pediatric cases and 25.4% in adults. Real, specific, checkable risk factors for this progression have been identified: age younger than 25 at DLE diagnosis, widespread (rather than localized) lesions, joint pain or arthritis, anemia, low white blood cell counts, high erythrocyte sedimentation rates, and high antinuclear antibody (ANA) titers (specifically 1:320 or higher) all real, independently associated with a greater chance of progressing to severe systemic disease. Real research also finds a family history of rheumatic disease among the real, contributing risk factors. Worth knowing directly: this gives someone diagnosed with discoid lupus, or a doctor monitoring them, a real, concrete, evidence-backed checklist for deciding how closely to monitor for systemic involvement, rather than treating every DLE diagnosis as either automatically benign or automatically destined to become systemic.",
+    citations: [
+      { source: 'Discoid lupus erythematosus and its progression to systemic lupus erythematosus across age groups: a systematic review, PMC12577789', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12577789/' },
+      { source: 'Risk factors of progression from discoid lupus to severe systemic lupus erythematosus: a registry-based cohort study of 164 patients, PMID 36156304', url: 'https://pubmed.ncbi.nlm.nih.gov/36156304/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-overview'],
+  },
 ];

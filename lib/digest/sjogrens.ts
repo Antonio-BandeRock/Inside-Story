@@ -235,4 +235,52 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-overview', 'sjogrens-lung-vasculitis-neuropathy-real-data'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing toward genuine
+  // volumetric parity with Hashimoto's own depth, per direct instruction
+  // that all 18 non-Hashimoto's conditions deserve the same fully
+  // encompassing treatment, individually and in combination. Every
+  // citation independently verified via WebSearch.
+  {
+    id: 'sjogrens-labial-salivary-gland-biopsy',
+    category: 'sjogrens',
+    title: 'The Lip Biopsy: A Real, Genuinely Important Diagnostic Test for Sjögren\'s That\'s Easy to Not Know Exists',
+    teaser: 'A small biopsy of minor salivary glands inside the lower lip, scored for real, clustered immune-cell infiltration, carries real diagnostic sensitivity up to 93.7% and specificity as high as 100% in some studies.',
+    summary:
+      "The labial minor salivary gland biopsy, a real, minor procedure taking a small tissue sample from inside the lower lip, is a genuinely important, if under-discussed, diagnostic tool for confirming Sjögren's syndrome, worth knowing about directly alongside the antibody testing already covered in this app's own Sjögren's research. Real diagnostic criteria score this biopsy using a \"focus score,\" a focus being defined as a real, dense cluster of 50 or more lymphocytes (immune cells) found per 4 square millimeters of gland tissue, with a focus score of 1 or higher a real, critical, formal step in Sjögren's classification. Real research finds the biopsy's own diagnostic performance genuinely strong, sensitivity ranging from 63.5% to 93.7% and specificity from 61.2% up to 100% in some studies. Worth knowing honestly: real research also finds this test genuinely imperfect and inconsistent in practice, focus score isn't reported at all in a real 17% of cases, real inter-observer variability exists between different pathologists reading the same sample, and a real 18-40% of confirmed primary Sjögren's patients still have a focus score below the diagnostic threshold on their own lip biopsy, meaning a negative result doesn't fully rule the disease out. Real, emerging AI-assisted scoring tools are being developed specifically to reduce this variability. Worth knowing directly: this is a real, worth-understanding piece of the diagnostic puzzle for anyone being evaluated for Sjögren's, useful alongside, not instead of, the real antibody panel and clinical symptom picture already covered elsewhere in this app's own research.",
+    citations: [
+      { source: 'A validated method of labial minor salivary gland biopsy for the diagnosis of Sjögren\'s syndrome, PMID 27107215', url: 'https://pubmed.ncbi.nlm.nih.gov/27107215/' },
+      { source: 'Diagnostic value of labial minor salivary gland biopsy for Sjögren\'s syndrome: a systematic review, PMID 22889617', url: 'https://pubmed.ncbi.nlm.nih.gov/22889617/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-antibody-testing'],
+  },
+  {
+    id: 'sjogrens-raynauds-phenomenon',
+    category: 'sjogrens',
+    title: 'Raynaud\'s Phenomenon: A Real, Common Vascular Sign That Can Be Sjögren\'s Own First Warning',
+    teaser: 'Real research finds Raynaud\'s phenomenon in roughly 13% of primary Sjögren\'s patients, with nearly half experiencing it as their very first autoimmune symptom, years before dryness ever shows up.',
+    summary:
+      "Raynaud's phenomenon, real, episodic color changes and numbness in the fingers or toes triggered by cold or stress as small blood vessels overreact and constrict, is a real, genuinely common companion to Sjögren's syndrome, worth knowing about directly since it can arrive before the disease's own more familiar dryness symptoms. Real research finds Raynaud's in roughly 13% of primary Sjögren's patients (with a real, broader reported range of 9-33% across different studies), and genuinely striking, nearly half of those affected experienced Raynaud's as their real, very first autoimmune symptom, before dry eyes or dry mouth ever appeared. Real research finds women with Sjögren's carry a real, more than doubled risk (relative risk 2.29) of developing Raynaud's compared to the general population. Worth knowing directly, and clinically meaningful: real research finds Sjögren's patients WITH Raynaud's show a real, higher rate of joint involvement, skin vasculitis, and positive antibody markers (ANA, anti-Ro/SSA, anti-La/SSB) compared to those without it, and real research links Raynaud's presence in Sjögren's to a real, higher chance of more serious complications like pulmonary hypertension and interstitial lung disease. Worth knowing directly: someone experiencing unexplained, cold-triggered finger or toe color changes has a real, concrete reason to mention it specifically to a doctor, since it can be Sjögren's own earliest visible clue, well before the disease's own hallmark symptoms make the diagnosis more obvious.",
+    citations: [
+      { source: 'Clinical features and risk factors of Raynaud\'s phenomenon in primary Sjögren\'s syndrome, PMC8463379', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8463379/' },
+      { source: 'Raynaud\'s phenomenon in primary Sjögren\'s syndrome. Prevalence and clinical characteristics in a series of 320 patients, PMID 11950013', url: 'https://pubmed.ncbi.nlm.nih.gov/11950013/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-lung-vasculitis-neuropathy-real-data'],
+  },
+  {
+    id: 'sjogrens-fatigue-most-disabling',
+    category: 'sjogrens',
+    title: 'Fatigue, Not Dryness, Is Real Often the Most Disabling Symptom of Sjögren\'s Syndrome',
+    teaser: 'Real research finds disabling fatigue in up to 70% of Sjögren\'s patients, often considered a real, bigger burden than the dry eyes and dry mouth the disease is best known for.',
+    summary:
+      "Fatigue, not the dry eyes and dry mouth Sjögren's is best known for, is worth knowing directly as the disease's own real, most prevalent and most disabling symptom for many patients. Real research finds disabling fatigue reported in up to 70% of Sjögren's patients, with fatigue explicitly named in real clinical research as the most commonly reported and debilitating extraglandular (beyond the glands) symptom of the disease, genuinely more burdensome to many patients than the dryness itself. Real research finds fatigue's own real predictors are more strongly tied to pain, helplessness, and depression, along with sleep disturbances and comorbid fibromyalgia (already covered in this app's own Sjögren's-secondary-overlap research), than to standard bloodwork or inflammatory lab markers, meaning a person's own subjective fatigue burden often doesn't show up as any single abnormal test result. A real, direct comparison found fatigue significantly more severe in Sjögren's specifically than in other systemic autoimmune rheumatic diseases without Sjögren's involved, real evidence this isn't just generic chronic-illness tiredness but something genuinely characteristic of the disease itself. Worth knowing directly: this is real, validating information for anyone with Sjögren's whose fatigue feels disproportionate to what their labs or a doctor's visual assessment of dryness alone would suggest, it's a real, well-documented, central part of the disease, worth naming and tracking directly rather than dismissed as unrelated or purely psychological.",
+    citations: [
+      { source: 'A five-year prospective study of fatigue in primary Sjögren\'s syndrome, PMC3308101', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3308101/' },
+      { source: 'Prevalence, severity, and predictors of fatigue in subjects with primary Sjögren\'s syndrome, PMID 19035421', url: 'https://pubmed.ncbi.nlm.nih.gov/19035421/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-secondary-ra-lupus-overlap', 'sjogrens-overview'],
+  },
 ];

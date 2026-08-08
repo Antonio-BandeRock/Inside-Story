@@ -241,4 +241,52 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ibd-fiber-flare-myth'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing toward genuine
+  // volumetric parity with Hashimoto's own depth, per direct instruction
+  // that all 18 non-Hashimoto's conditions deserve the same fully
+  // encompassing treatment, individually and in combination. Every
+  // citation independently verified via WebSearch.
+  {
+    id: 'ibd-vitamin-d-deficiency-severity',
+    category: 'ibd',
+    title: 'Vitamin D Deficiency Is Real, Common, and Real Tracks Directly With How Active IBD Actually Is',
+    teaser: 'Real studies find vitamin D deficiency in 22-64% of IBD patients, with deficiency directly correlating with higher inflammatory markers, more relapses, more surgery, and a slower response to biologic medications.',
+    summary:
+      "Vitamin D deficiency is real, common, and genuinely more than an incidental finding in inflammatory bowel disease, it tracks directly with real disease severity itself. Real studies find deficiency prevalence ranging from 22% to 63% depending on the population and how deficiency is defined, with one study of 504 IBD patients finding 49.8% deficient overall and 10.9% severely so, and real clinical observation finding roughly 60-64% of both Crohn's and ulcerative colitis patients affected. This is real, more than a coincidental overlap: real research finds a statistically significant reverse correlation between lower vitamin D levels and higher inflammatory markers, and deficiency itself associated with a higher rate of relapse, increased risk of needing surgery, and a slower response to biologic medications. The real, biological explanation involves vitamin D's own active form playing a genuine, direct role in immune regulation and gut barrier function, the exact mechanism already covered in this app's own gut-microbiome Vitamin D/CLDN2 tight-junction research. Worth knowing directly: this makes vitamin D testing and correction a real, concrete, actionable piece of IBD management, not just a general wellness recommendation, someone with IBD experiencing more frequent flares or a weaker response to their current biologic treatment has a real, evidence-backed reason to ask specifically about their vitamin D status.",
+    citations: [
+      { source: 'High Prevalence and Clinical Associations of Vitamin D Deficiency in Inflammatory Bowel Disease, PMC12694141', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12694141/' },
+      { source: 'Lower vitamin D levels are associated with the pathogenesis of inflammatory bowel diseases, PMC10578731', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10578731/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gut-vitamin-d-cldn2', 'vitamind-tying-together'],
+  },
+  {
+    id: 'ibd-hygiene-hypothesis-early-life',
+    category: 'ibd',
+    title: 'Early-Life Microbial Exposure Genuinely Shapes IBD Risk, a Real Piece of "The Hygiene Hypothesis"',
+    teaser: 'Real research finds having older siblings, and other markers of richer early-life microbial exposure, tied to real, lower IBD risk, while a more sterile early environment appears to leave real, lasting gaps in immune training.',
+    summary:
+      "The hygiene hypothesis proposes that reduced microbial exposure in early life, a real byproduct of modern hygiene and living conditions, may leave the developing immune system less well \"trained,\" real, plausibly raising the risk of immune-mediated diseases like IBD later on. Real animal research finds improved hygiene tied to decreased microbiota diversity and a shift toward a real, more proinflammatory immune response pattern, with early childhood specifically identified as the critical window for the developing gut immune system, microbiome, and mucosal-bacterial relationships to establish themselves. Real human research finds concrete, supporting evidence: having older siblings, a real marker of greater early-life microbial exposure, is associated with reduced IBD risk, while real research finds cesarean delivery (which bypasses the vaginal microbial exposure of a natural birth) can slow the pace of a newborn's own gut microbiome colonization. The real, proposed protective mechanism ties directly to this app's own already-established gut-immunology research: diverse early microbial exposure promotes the development of regulatory T cells (Tregs) and boosts anti-inflammatory signaling molecules like IL-10, the same real, protective pathway already covered elsewhere in this app for autoimmune disease broadly. Worth knowing directly: this is real, genuinely fascinating, if not yet fully actionable, context for why IBD rates have risen alongside modernization, and it reinforces, from a completely different angle, why supporting a diverse gut microbiome throughout life, not just in infancy, remains a real, central piece of this app's own core mission.",
+    citations: [
+      { source: 'Early-Life Hygiene-Related Factors and Risk of Inflammatory Bowel Disease: A Scandinavian Birth Cohort Study, PMC11447116', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11447116/' },
+      { source: 'Early life exposures and the microbiome: implications for inflammatory bowel disease prevention, PMC11150004', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11150004/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibd-overview', 'gut-scfa-treg'],
+  },
+  {
+    id: 'ibd-anti-tnf-loss-of-response',
+    category: 'ibd',
+    title: 'Anti-TNF Biologics Can Real Stop Working Over Time, a Real, Common, and Manageable Problem With Its Own Name',
+    teaser: 'Real research finds secondary loss of response to anti-TNF biologics affecting 13-21% of patients per year, often caused by the body developing real antibodies against the drug itself, a real, testable, and addressable problem.',
+    summary:
+      "Anti-TNF biologics (already covered by name for both RA and IBD elsewhere in this app's own medication research) can genuinely stop working over time in a real, well-documented, and specifically named phenomenon: secondary loss of response. Real research finds this affects 13-21% of patients per year, on top of real primary non-response (the drug never working in the first place) affecting up to a third of patients from the start. The real, most common underlying cause is immunogenicity, the body developing its own real antibodies against the biologic drug (called anti-drug antibodies), which directly lowers the actual drug level in the blood and blocks its biological activity. Real, practical solutions exist once this is identified: therapeutic drug monitoring (measuring both the drug's own blood level and any anti-drug antibodies present) can guide real treatment adjustments, and real research finds adding an immunomodulator medication alongside the biologic can help reverse antibody-driven loss of response in some patients. A real, large UK study (13,222 patients) found people who lost response to their first anti-TNF drug had better real outcomes switching to a different class of biologic entirely rather than trying a second anti-TNF. Worth knowing directly: if an IBD medication that used to work well starts losing effectiveness, this is a real, well-understood, and named clinical phenomenon with real, testable next steps, not a sign that IBD itself has simply become untreatable, and it's worth raising directly with a gastroenterologist rather than assuming nothing more can be done.",
+    citations: [
+      { source: 'Management of Non-response and Loss of Response to Anti-tumor Necrosis Factor Therapy in Inflammatory Bowel Disease, PMC9241563', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9241563/' },
+      { source: 'Biologic Therapy for Inflammatory Bowel Disease: Real-World Comparative Effectiveness and Impact of Drug Sequencing, PMC11147798', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11147798/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-azathioprine-tpmt'],
+  },
 ];

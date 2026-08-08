@@ -219,4 +219,52 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing toward genuine
+  // volumetric parity with Hashimoto's own depth, per direct instruction
+  // that all 18 non-Hashimoto's conditions deserve the same fully
+  // encompassing treatment, individually and in combination. Every
+  // citation independently verified via WebSearch.
+  {
+    id: 'type2-bariatric-surgery-remission',
+    category: 'type2Diabetes',
+    title: 'Bariatric Surgery Real Outperforms Lifestyle Intervention Alone for Achieving Diabetes Remission',
+    teaser: 'Real trial data found 40% of gastric bypass patients achieved diabetes remission at 3 years versus 0% with lifestyle intervention alone, with real benefit still measurable up to 12 years later.',
+    summary:
+      "Bariatric (weight-loss) surgery carries real, substantially stronger remission evidence for type 2 diabetes than lifestyle intervention alone, worth knowing alongside the real DiRECT lifestyle-trial remission data already covered in this app's own research. A real, randomized trial comparing Roux-en-Y gastric bypass (RYGB), laparoscopic adjustable gastric banding (LAGB), and intensive lifestyle intervention found any diabetes remission (partial or complete) at 3 years in 40% of RYGB patients and 29% of LAGB patients, compared to real, literal 0% in the lifestyle-only group. A real 5-year follow-up of a separate trial found bariatric surgery patients achieving better long-term blood glucose control than medical management plus lifestyle changes, with benefit documented as far out as 12 years. Genuinely striking: real research found 65% of RYGB patients went from needing insulin or oral medication at baseline to needing NO diabetes medication at all by year 3, versus none in the lifestyle-only group. Worth knowing honestly: this is real, quantified evidence favoring surgery for appropriate candidates, not a claim that surgery is risk-free or right for everyone, it carries its own real surgical risks and requires lifelong nutritional monitoring (already covered elsewhere in this app's own bariatric-adjacent nutrient research). Worth knowing directly: this is a real, concrete, evidence-backed option worth discussing directly with an endocrinologist for anyone with obesity and type 2 diabetes who hasn't achieved real, lasting control through lifestyle measures alone.",
+    citations: [
+      { source: 'Bariatric Surgery versus Intensive Medical Therapy for Diabetes — 5-Year Outcomes, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1600869' },
+      { source: 'Bariatric Surgery and Type 2 Diabetes Mellitus: Assessing Factors Leading to Remission. A Systematic Review, PMID 32983676', url: 'https://pubmed.ncbi.nlm.nih.gov/32983676/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-direct-remission-trial'],
+  },
+  {
+    id: 'type2-metformin-b12-deficiency',
+    category: 'type2Diabetes',
+    title: 'Metformin, the Most Commonly Prescribed Diabetes Medication, Carries a Real, Well-Documented B12 Depletion Risk',
+    teaser: 'Real research finds vitamin B12 deficiency in anywhere from 6% to over 60% of long-term metformin users depending on the study, a real, common, actionable side effect worth routine monitoring.',
+    summary:
+      "Metformin, the real, standard first-line medication for type 2 diabetes, carries a real, well-documented risk of depleting vitamin B12 over time, likely through impaired B12 absorption in the small intestine, though the exact mechanism isn't fully settled. Real research finds the reported prevalence varies substantially by study, from 5.8% to 30% in general long-term metformin users, with one study finding a striking 65.7% affected and another 24.3% at borderline-low levels. A real, large, long-term study (the Diabetes Prevention Program Outcomes Study) found combined low and borderline-low B12 significantly more common in metformin-treated patients than controls, both at 5 years (19.1% vs. 9.5%) and 13 years (20.3% vs. 15.6%), with real risk rising by about 13% for every additional year of metformin use. Real, documented consequences of the resulting deficiency include neuropathy (worse peripheral nerve symptoms have been specifically linked to low B12 in metformin users), anemia, cognitive changes, and increased osteoporosis risk. Worth knowing directly: this connects straight to this app's own already-established B12 self-advocacy and Essential Nutrients research, someone on long-term metformin has a real, concrete, evidence-backed reason to ask specifically for a periodic B12 level check, not just standard diabetes labs, since deficiency symptoms can otherwise be mistaken for diabetic neuropathy itself rather than treated as the real, separate, correctable nutrient issue it actually is.",
+    citations: [
+      { source: 'Long-term Metformin Use and Vitamin B12 Deficiency in the Diabetes Prevention Program Outcomes Study, Journal of Clinical Endocrinology & Metabolism', url: 'https://academic.oup.com/jcem/article/101/4/1754/2804585' },
+      { source: 'Vitamin B12 Deficiency in Patients Taking Metformin: Pathogenesis and Recommendations, PMC11374140', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11374140/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['b12-overview', 'advocacy-b12-folate'],
+  },
+  {
+    id: 'type2-cgm-non-insulin-benefit',
+    category: 'type2Diabetes',
+    title: 'Continuous Glucose Monitoring Real Helps People With Type 2 Diabetes Even When They\'re Not on Insulin',
+    teaser: 'A real, large randomized trial (CONNECT) found CGM lowered HbA1c by 1.6 percentage points over 26 weeks in people not on insulin, a full 0.9 points more than routine care alone.',
+    summary:
+      "Continuous glucose monitoring (CGM), already covered in this app's own research for its real, strong benefit in type 1 diabetes, carries genuinely real, high-grade evidence for type 2 diabetes too, including in people managing their condition without insulin at all. The real, landmark CONNECT trial, the first randomized trial providing high-grade evidence in this specific, large, mostly primary-care population, found CGM use over 26 weeks produced an average HbA1c reduction of 1.6 percentage points, a full 0.9 points better than routine care alone, with participants spending roughly 5 more hours per day in their target glucose range. A real, broader systematic review and meta-analysis found generally consistent benefit across both randomized trials and observational studies, on both glycemic outcomes and real-world measures like cost-effectiveness and reduced healthcare resource use, with real evidence that even when the HbA1c change was smaller in non-insulin-treated groups, glycemic variability improved and treatment satisfaction was consistently higher. Worth knowing directly: CGM isn't just a tool for people on complex insulin regimens, it's a real, evidence-backed option worth asking about directly for anyone managing type 2 diabetes with oral medications alone, giving real, immediate feedback on how specific foods and habits actually move blood sugar, directly supporting this app's own core mission of helping someone discover their own personal food-effect patterns.",
+    citations: [
+      { source: 'Continuous glucose monitoring in type 2 diabetes benefits people not on insulin, CONNECT trial shows, Cleveland Clinic Journal of Medicine', url: 'https://www.ccjm.org/page/ada-2026/glucose-connect' },
+      { source: 'Continuous glucose monitoring in noninsulin-treated type 2 diabetes: A critical review with an updated systematic review and meta-analysis of RCTs, PMID 40757453', url: 'https://pubmed.ncbi.nlm.nih.gov/40757453/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-closed-loop-automated-insulin', 'type1-hba1c-time-in-range'],
+  },
 ];
