@@ -23,12 +23,14 @@ import type { DigestEntry } from './types';
 // part of the Digest-wide Hashimoto's/Basic Health restructure (see
 // types.ts's own header comment). This category is overwhelmingly
 // Hashimoto's-specific by its own original design (see the top comment
-// above) -- 10 of 13 entries carry `category: 'hashimotos'`. Three are
-// general enough biology/exercise-science, not specific to Hashimoto's in
-// their own content, to carry `category: 'basicHealth'` instead: the
-// visceral-fat-as-endotoxin-barrier reappraisal, exercise intensity's own
-// null effect on inflammation markers, and exercise's independent
-// autophagy/mitophagy mechanism.
+// above) -- 11 of 13 entries carry `category: 'hashimotos'` (including,
+// after a same-day correction, the visceral-fat-as-endotoxin-barrier
+// entry, whose own gut-permeability/autoimmune-barrier framing was
+// initially misjudged as general enough to stay basic). Two are genuinely
+// universal exercise-science with no disease-outcome claim, to carry
+// `category: 'basicHealth'` instead: exercise intensity's own null effect
+// on inflammation markers, and exercise's independent autophagy/mitophagy
+// mechanism.
 export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   {
     id: 'mito-mots-c',
@@ -152,7 +154,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-visceral-fat-endotoxin-barrier',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'A Complication: Visceral Fat as a Gut-Endotoxin Barrier',
     teaser: '"Bad" visceral fat inflammation may partly be the body actually defending itself against a leaky gut.',
     summary:

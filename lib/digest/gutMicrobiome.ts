@@ -31,21 +31,20 @@ import type { DigestEntry } from './types';
 //
 // 2026-08-08, same day, third change: `category` reassigned per entry as
 // part of the Digest-wide Hashimoto's/Basic Health restructure (see
-// types.ts's own header comment). Most of this category's own mechanisms
-// (SCFA/Treg, zonulin/gliadin, molecular-mimicry-in-general, Th17/Treg
-// imbalance, the 4R protocol, "leaky gut" as a contested diagnosis, and
-// every cross-disease entry borrowed from lupus/IBD research) are real,
-// condition-agnostic gut-barrier biology and now carry `category:
-// 'basicHealth'`. Three entries are explicitly Hashimoto's-specific and
-// moved to `category: 'hashimotos'` instead: the vitamin D/CLDN2 entry
-// (its own title names Hashimoto's directly), the one study actually run
-// on Hashimoto's patients, and the molecular-mimicry-to-thyroid entry
-// (general immunology applied specifically to explain the gut-thyroid
-// connection).
+// types.ts's own header comment). First pass put most of this category in
+// `basicHealth` on the reasoning that the underlying mechanisms (SCFA/Treg,
+// zonulin, Th17/Treg, molecular mimicry) are general immunology, not
+// Hashimoto's-exclusive. Direct correction the same day: gut-barrier
+// dysfunction, "leaky gut," and immune-tolerance mechanisms are inherently
+// autoimmune-disease content, not universal body-function education the
+// way organ physiology or a nutrient's own RDA is -- this whole category is
+// the foundation this app's own autoimmune-gut-healing mission is built on,
+// and belongs with the condition it was researched for. All 17 entries now
+// carry `category: 'hashimotos'`.
 export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   {
     id: 'gut-scfa-treg',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Short-Chain Fatty Acids: The First Line of Defense, Doing Its Actual Job',
     teaser: 'Somewhere in a gut, right now, bacteria are turning fiber into a signal the immune system can actually read: the most food-controllable lever in this app\'s entire research base.',
     summary:
@@ -59,7 +58,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-zonulin-gliadin',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Zonulin & the Gliadin-CXCR3 Pathway: How a Gut Feels "Loose" Isn\'t a Metaphor',
     teaser: '"Leaky gut" sounds like a vague wellness phrase, until you learn the actual protein responsible has a name, a receptor, and a reversible mechanism.',
     summary:
@@ -72,7 +71,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-blautia-lupus-zonulin',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'A Named Bacterium, Caught Directly Causing Permeability',
     teaser: 'Most of this category infers gut permeability indirectly. This one identifies the actual organism responsible, red-handed.',
     summary:
@@ -88,7 +87,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-glutamine-null-result',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'L-Glutamine: Almost Certainly the Most Recommended "Leaky Gut" Supplement, and a Humbling Correction',
     teaser: "If there's one supplement everyone assumes fixes a leaky gut, it's this one. The actual trial data, pooled honestly, says otherwise.",
     summary:
@@ -116,7 +115,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-zinc-carnosine',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Zinc Carnosine: A Specific Compound With Better Evidence Than Its Quiet Reputation Suggests',
     teaser: 'Not just "zinc": a specific paired compound with a real trial showing it fully blocked a documented, everyday cause of gut damage.',
     summary:
@@ -132,7 +131,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-strain-specific-mechanisms',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: '"Take a Probiotic" Undersells What\'s Actually Known: Different Strains Repair Different Proteins',
     teaser: '"Probiotics are good for gut health" is technically true and almost useless. The actual research is far more specific than that ever lets on.',
     summary:
@@ -148,7 +147,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-4r-protocol',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'The 4R Protocol: Real Evidence in Every Piece, No Trial of the Whole Package',
     teaser: 'Every individual ingredient in this popular framework checks out on its own. The framework itself, as packaged and sold, has never actually been tested as a unit.',
     summary:
@@ -164,7 +163,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-zonulin-timeline',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'How Long Does Gut Repair Actually Take? A Checkable Answer',
     teaser: 'Not an indefinite "it takes time." Real trials measured zonulin directly and put an actual number of weeks on it.',
     summary:
@@ -194,7 +193,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-larazotide',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Larazotide Acetate: When Pharmaceutical Research Takes This Biology as Seriously as It Deserves',
     teaser: 'A drug, built specifically to block zonulin, has reached Phase III trials, with one honest, humbling result attached to it.',
     summary:
@@ -224,7 +223,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-aip-ibd-rct',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: "The Strongest AIP Evidence in This App's Research Base Comes From a Different Disease Entirely",
     teaser: "A larger, more rigorous trial than anything ever run on Hashimoto's directly, and it happened somewhere else.",
     summary:
@@ -236,7 +235,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-probiotic-yogurt-lupus-rct',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: "A Real Human Trial of One of This App's Own Everyday Foods, Just Not in Hashimoto's Patients",
     teaser: 'Not a mouse study, not an observation: a randomized human trial of ordinary probiotic yogurt, in a genuinely different autoimmune disease.',
     summary:
@@ -252,7 +251,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-th17-treg-imbalance',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Th17/Treg Imbalance: The Mechanism That Keeps Showing Up No Matter Which Disease You Read About',
     teaser: 'Follow enough different autoimmune diseases far enough back and they keep arriving at the exact same immune-cell imbalance.',
     summary:
@@ -279,7 +278,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-leaky-gut-contested',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: '"Leaky Gut": Real Biology, a Genuinely Contested Diagnosis',
     teaser: 'The mechanism is measurable. The label is still debated. This app is built to be honest about exactly where that line actually sits.',
     summary:
@@ -291,7 +290,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'gut-tying-together',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Tying It All Together: The Gut Barrier Is the Hub',
     teaser: "Seventeen entries, one physical checkpoint underneath nearly all of them: the body's actual first line of defense.",
     summary:

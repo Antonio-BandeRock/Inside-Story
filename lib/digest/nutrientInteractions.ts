@@ -22,6 +22,17 @@ import type { DigestEntry } from './types';
 // it's Y" contrast, and overused words like "real"/"genuinely"/
 // "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged.
+//
+// 2026-08-08, same day, third change: bulk-tagged `category: 'basicHealth'`
+// in the Digest-wide restructure (see types.ts's own header comment),
+// corrected the same day for the one entry (selenium/iodine) whose own
+// summary opens by naming itself "the one most directly relevant to
+// Hashimoto's specifically" -- a real thyroid-hormone-metabolism-specific
+// sequencing rule, not general "two nutrients interact" content the way
+// calcium/iron or zinc/copper is. Now carries `category: 'hashimotos'`.
+// The other 12 pairings are genuinely universal nutrient science and
+// stayed `'basicHealth'` -- exactly the "vitamins and minerals and
+// interactions" content this category exists to hold.
 export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   {
     id: 'interaction-calcium-iron',
@@ -83,7 +94,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-selenium-iodine',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Selenium & Iodine: Both a Synergy and an Antagonism, Depending on the Order',
     teaser: 'The single most directly thyroid-relevant nutrient interaction in this whole app, and it cuts both ways.',
     summary:

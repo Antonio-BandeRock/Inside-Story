@@ -23,18 +23,20 @@ import type { DigestEntry } from './types';
 //
 // 2026-08-08, same day, third change: `category` reassigned per entry as
 // part of the Digest-wide Hashimoto's/Basic Health restructure (see
-// types.ts's own header comment). 11 of 21 entries route through a real,
-// specific thyroid mechanism (cortisol/HPA-axis-to-deiodinase suppression,
-// IL-6-to-deiodinase suppression, TSH's own diurnal rhythm, the Hashimoto's-
-// vs-Graves' smoking split, EBV found inside Hashimoto's thyroid tissue
-// specifically, COVID-19 as a documented thyroid trigger, sleep apnea's own
-// thyroid-disorder association, perchlorate's NIS-inhibition mechanism, and
-// the alcohol/BPA-thyroid-receptor entries) and now carry `category:
-// 'hashimotos'`. The other 11, genuinely condition-agnostic (coffee brewing
-// and caffeine facts, juice, ultra-processed food, the personal-care-
-// product EDC exposure route, air pollution, NSAIDs and gut permeability,
-// antibiotic disruption, plastic food storage, sedentary behavior) carry
-// `category: 'basicHealth'`.
+// types.ts's own header comment). 13 of 21 entries route through a real,
+// specific thyroid or autoimmune-disease mechanism (cortisol/HPA-axis-to-
+// deiodinase suppression, IL-6-to-deiodinase suppression, TSH's own diurnal
+// rhythm, the Hashimoto's-vs-Graves' smoking split, EBV found inside
+// Hashimoto's thyroid tissue specifically, COVID-19 as a documented thyroid
+// trigger, sleep apnea's own thyroid-disorder association, perchlorate's
+// NIS-inhibition mechanism, the alcohol/BPA-thyroid-receptor entries, and,
+// corrected the same day, air pollution's own explicit "autoimmune disease
+// risk" framing and NSAIDs' gut-permeability/autoimmune-barrier mechanism)
+// and now carry `category: 'hashimotos'`. The other 9, genuinely universal
+// food-and-environment science with no disease-outcome claim (coffee
+// brewing and caffeine facts, juice, ultra-processed food, the personal-
+// care-product EDC exposure route, antibiotic disruption, plastic food
+// storage, sedentary behavior) carry `category: 'basicHealth'`.
 export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   {
     id: 'lifestyle-alcohol-advisory',
@@ -223,7 +225,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-air-pollution',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Air Pollution & Autoimmune Risk',
     teaser: "An emerging research area, genuinely less mature than most of this app's other environmental findings, and honestly labeled as such.",
     summary:
@@ -235,7 +237,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-nsaids-gut',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'NSAIDs & Gut Permeability',
     teaser: 'A common over-the-counter medication with a documented gut-barrier effect, not just a food or lifestyle factor.',
     summary:

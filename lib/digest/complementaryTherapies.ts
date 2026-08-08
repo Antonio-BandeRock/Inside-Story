@@ -29,10 +29,19 @@ import type { DigestEntry } from './types';
 // directly by the person -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged; this is a
 // prose pass only.
+//
+// 2026-08-08, same day, second change: initially tagged `category:
+// 'basicHealth'` in the Digest-wide restructure (see types.ts's own header
+// comment), corrected the same day. Every entry here evaluates a therapy
+// against a real thyroid/autoimmune-disease outcome, not a universal
+// health-and-wellness claim -- two entries even name Hashimoto's directly
+// in their own title. That's disease-outcome content, not the organ/
+// nutrient-literacy content Basic Health is actually meant to hold. All 7
+// entries now carry `category: 'hashimotos'`.
 export const COMPLEMENTARY_THERAPIES_ENTRIES: DigestEntry[] = [
   {
     id: 'complementary-chiropractic',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Chiropractic Care: A Flat Null, Stated Plainly Rather Than Guessed At',
     teaser: 'A direct search for evidence connecting chiropractic care to thyroid or autoimmune disease turned up nothing at all.',
     summary:
@@ -42,7 +51,7 @@ export const COMPLEMENTARY_THERAPIES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'complementary-acupuncture',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: "Acupuncture: A Trial Was Designed Specifically for Hashimoto's, and the Answer Is Still Pending",
     teaser: "Someone built the study this question deserves. As of this research pass, its results haven't surfaced yet.",
     summary:
@@ -54,7 +63,7 @@ export const COMPLEMENTARY_THERAPIES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'complementary-acupressure',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: "Acupressure: Fatigue-Relief Evidence From Other Chronic Illnesses, Not Yet Tested in Hashimoto's",
     teaser: 'The same "borrow evidence honestly, label it clearly" approach this app already uses for other autoimmune diseases, applied here to a technique instead of a disease.',
     summary:
@@ -68,7 +77,7 @@ export const COMPLEMENTARY_THERAPIES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'complementary-massage-cortisol',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: "Massage Therapy: A Widely Repeated Claim the Evidence Doesn't Cleanly Support",
     teaser: '"Massage lowers cortisol" is one of the most commonly repeated wellness claims anywhere. A comprehensive review found the actual research disagrees with itself.',
     summary:
@@ -81,7 +90,7 @@ export const COMPLEMENTARY_THERAPIES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'complementary-heat-sauna',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Sauna & Heat Therapy: The Strongest Evidence in This Category, With a Caveat About Whose Data It Is',
     teaser: 'A large cohort study found frequent sauna use tied to a striking reduction in cardiac death, in one population, studied one way.',
     summary:
@@ -95,7 +104,7 @@ export const COMPLEMENTARY_THERAPIES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'complementary-cold-exposure',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Cold Exposure: A Striking Study, With a Correction to What It Actually Tested',
     teaser: "A published experiment found trained subjects could measurably blunt their own inflammatory response to a genuine immune challenge. It wasn't cold exposure alone that did it.",
     summary:
@@ -107,7 +116,7 @@ export const COMPLEMENTARY_THERAPIES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'complementary-tying-together',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Tying It All Together: Where This Sits Next to Exercise',
     teaser: 'Should this connect to exercise? Yes, and exercise turns out to be the stronger evidence of the two.',
     summary:

@@ -44,6 +44,21 @@ import type { DigestEntry } from './types';
 // "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged; the closing
 // opinion entry keeps its own first-person, personal-read voice.
+//
+// 2026-08-08, same day, third change: bulk-tagged `category: 'basicHealth'`
+// in the Digest-wide restructure (see types.ts's own header comment),
+// corrected the same day for 3 of 19 entries whose own real content is
+// autoimmune-disease mechanism, not general food/industry history: the
+// modern-surge timeline entry (autoimmune-incidence trend data), the
+// gut-barrier mechanism entry (explicitly ties to molecular mimicry and
+// Th17/Treg imbalance "underneath rheumatoid arthritis, IBD, multiple
+// sclerosis, lupus, and Hashimoto's alike"), and the soil/pesticide-to-
+// nutrients bridge entry (explicitly about "protective nutrients against
+// thyroid autoimmunity"). All three now carry `category: 'hashimotos'`.
+// The other 16 -- the timeline's other three eras, both soil sections, both
+// pesticide sections, all four scapegoat cases, the disappearing-
+// microbiota mechanism entry, and the closing opinion -- make no disease-
+// specific claim and stayed `'basicHealth'`.
 export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- The Timeline ---
   {
@@ -111,7 +126,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-timeline-modern-surge',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'The Measured Modern Surge (1988 – Today)',
     teaser: 'Antinuclear antibodies nearly doubled, ultra-processed food became the majority of the American diet, and one large cohort found the picture is more complicated than "everything is rising."',
     summary:
@@ -348,7 +363,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- The Mechanism Bridge ---
   {
     id: 'foodhistory-mechanism-gut-barrier',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'The Gut Barrier Is the Physical Connection Point',
     teaser: 'Two already-verified mechanisms in this app\'s own research explain how "the food changed" could plausibly reach "the immune system noticed."',
     summary:
@@ -378,7 +393,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-mechanism-soil-nutrients-bridge',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Where Soil and Pesticides Plug Back Into Thyroid-Specific Nutrients',
     teaser: 'Selenium and iodine are exactly the soil-dependent trace minerals the depletion research above documents declining.',
     summary:

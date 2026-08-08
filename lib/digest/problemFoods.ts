@@ -31,17 +31,19 @@ import type { ProblemFoodEntry } from './types';
 // types.ts's own header comment). ProblemFoodEntry's own `category` field
 // was widened from the old hardcoded literal 'problemFoods' to the same
 // union DigestEntry uses -- see types.ts for how the two shapes are told
-// apart now that `category` can't serve as the discriminant. 7 of 16
-// entries route through a specific thyroid mechanism (gluten's zonulin
-// pathway framed for Hashimoto's specifically, raw goitrogenic crucifers'
-// iodine-uptake interference, sugar's cortisol-to-T4/T3-conversion route,
-// soy's TPO-enzyme interference, coffee's own levothyroxine-absorption
-// timing, kelp/iodine's Wolff-Chaikoff mechanism, and the gluten-free-
-// without-celiac antibody finding) and now carry `category: 'hashimotos'`.
-// The other 9, genuinely condition-agnostic (garlic/onion FODMAPs, dairy's
-// lactose/casein mechanisms, nightshades, high-histamine foods, refined
-// oils, commercial/pre-made products, pesticide residue, charred/grilled
-// meat, and the closing synthesis) carry `category: 'basicHealth'`.
+// apart now that `category` can't serve as the discriminant. 9 of 16
+// entries route through a specific thyroid or autoimmune mechanism
+// (gluten's zonulin pathway framed for Hashimoto's specifically, raw
+// goitrogenic crucifers' iodine-uptake interference, sugar's cortisol-to-
+// T4/T3-conversion route, soy's TPO-enzyme interference, coffee's own
+// levothyroxine-absorption timing, kelp/iodine's Wolff-Chaikoff mechanism,
+// the gluten-free-without-celiac antibody finding, and, corrected the same
+// day, nightshades' own AIP/autoimmune-elimination-diet framing and high-
+// histamine's own autoimmune-gut-trouble mechanism) and now carry
+// `category: 'hashimotos'`. The other 7, genuinely condition-agnostic
+// (garlic/onion FODMAPs, dairy's lactose/casein mechanisms, refined oils,
+// commercial/pre-made products, pesticide residue, charred/grilled meat,
+// and the closing synthesis) carry `category: 'basicHealth'`.
 export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-garlic-onion',
@@ -92,7 +94,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     foodName: 'Conventional Dairy',
     teaser: "Not every dairy reaction is lactose intolerance, and the fix isn't always \"just avoid dairy.\"",
     problem:
-      'Dairy trips people up through two genuinely different mechanisms that tend to get lumped together: plain lactose intolerance (a common enzyme shortfall, nothing to do with autoimmunity) and, separately, a casein-protein sensitivity some people notice alongside their thyroid symptoms, real, but with much thinner formal evidence behind it than lactose intolerance has.',
+      'Dairy trips people up through two genuinely different mechanisms that tend to get lumped together: plain lactose intolerance (a common enzyme shortfall, nothing to do with autoimmunity) and, separately, a casein-protein sensitivity some people notice alongside other chronic symptoms, real, but with much thinner formal evidence behind it than lactose intolerance has.',
     mechanism:
       'Without enough lactase enzyme, undigested lactose reaches your colon and ferments, the same gas-producing process as the garlic/onion fructans above. Casein sensitivity, where it\'s real, works through a completely different and less well-understood pathway, so "cutting dairy" for one reason doesn\'t necessarily fix the other.',
     swaps: [
@@ -130,7 +132,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-nightshades',
-    category: 'basicHealth',
+    category: 'hashimotos',
     foodName: 'Nightshades',
     teaser: 'The most genuinely contested item on this whole list, and the honest answer really is "test it yourself."',
     problem:
@@ -151,7 +153,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-high-histamine',
-    category: 'basicHealth',
+    category: 'hashimotos',
     foodName: 'High-Histamine Foods (aged cheese, cured meat, most ferments, leftovers)',
     teaser: "A real, honest tension with this app's own fermented-food research, worth naming plainly.",
     problem:

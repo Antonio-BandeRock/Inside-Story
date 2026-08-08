@@ -17,10 +17,21 @@ import type { DigestEntry } from './types';
 // it's Y" contrast, and overused words like "real"/"genuinely"/
 // "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged.
+//
+// 2026-08-08, same day, third change: bulk-tagged `category: 'basicHealth'`
+// in the Digest-wide restructure (see types.ts's own header comment),
+// corrected the same day for one entry -- nitrates/nitrites has a direct,
+// well-established thyroid mechanism (NIS inhibition) as its own real
+// point, not a passing aside, and now carries `category: 'hashimotos'`.
+// The other 15 additives genuinely affect anyone regardless of diagnosis
+// and stayed `'basicHealth'`; a handful of passing Hashimoto's mentions in
+// their own prose (trans fats, sulfites, HFCS) were reworded to state the
+// same real, general finding without implying a disease-specific claim the
+// entry doesn't actually support.
 export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-nitrates-nitrites',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Nitrates & Nitrites: The One Additive on This List With a Direct, Well-Established Thyroid Mechanism',
     teaser: 'A cured-meat preservative that does double duty: one cancer classification, and one specific thyroid mechanism most people never hear about.',
     summary:
@@ -162,7 +173,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     id: 'additive-trans-fats',
     category: 'basicHealth',
     title: 'Trans Fats: The One Additive on This List With the Strongest Evidence of All, Which Is Exactly Why It Was Banned',
-    teaser: "Decades of strong evidence, a full FDA ban, and a real reason it still matters for someone managing Hashimoto's specifically.",
+    teaser: "Decades of strong evidence, a full FDA ban, and the clearest case of any additive on this list.",
     summary:
       "Of everything on this list, trans fats are the one case where the evidence was strong enough, and the harm severe enough, that regulators actually acted decisively. Artificial trans fats raise LDL cholesterol while simultaneously lowering HDL, a combined effect essentially unique among dietary fats, with decades of strong RCT and cohort evidence tying them to cardiovascular disease. The FDA revoked their Generally Recognized As Safe status in 2015 and completed a full ban from the U.S. food supply by 2018. Relevant here less for a thyroid-specific mechanism and more because systemic vascular inflammation is one of the general inflammatory-burden pathways this app's own Lifestyle & Environment research keeps surfacing across unrelated topics. A cross-cutting reason this one still matters even though the direct thyroid link is thinner than its cardiovascular case.",
     citations: [
@@ -180,7 +191,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     title: 'Sulfites: A Well-Documented Sensitivity in a Defined Subset of People',
     teaser: 'Dried fruit, wine, and some processed potatoes carry a well-characterized additive that a specific minority of people react to directly.',
     summary:
-      'Most of this list is about slow, cumulative risk. Sulfites are a rarer case: a sometimes fast, acute reaction in a specific, identifiable group of people. Sulfites (sulfur dioxide and related sulfite salts) prevent browning and microbial growth in dried fruit, wine, and some pre-cut produce. A well-characterized minority of people, especially those with asthma, experience real reactions (wheezing, flushing, GI symptoms) to sulfite exposure, which is why the FDA requires "contains sulfites" labeling above 10ppm. No specific thyroid or Hashimoto\'s mechanism is documented here. Included because reaction-tracking, this app\'s own Bio-Compass feature, is exactly the tool for someone to find out whether they\'re personally in that sensitive minority.',
+      'Most of this list is about slow, cumulative risk. Sulfites are a rarer case: a sometimes fast, acute reaction in a specific, identifiable group of people. Sulfites (sulfur dioxide and related sulfite salts) prevent browning and microbial growth in dried fruit, wine, and some pre-cut produce. A well-characterized minority of people, especially those with asthma, experience real reactions (wheezing, flushing, GI symptoms) to sulfite exposure, which is why the FDA requires "contains sulfites" labeling above 10ppm. No specific disease-mechanism connection is documented here, just a real, identifiable sensitivity in a defined minority. Included because reaction-tracking, this app\'s own Bio-Compass feature, is exactly the tool for someone to find out whether they\'re personally in that sensitive minority.',
     citations: [
       {
         source: 'FDA sulfite labeling rule, 21 CFR 101.100',
@@ -197,9 +208,9 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     id: 'additive-hfcs',
     category: 'basicHealth',
     title: "High-Fructose Corn Syrup: Not Just 'More Sugar,' Fructose Is Metabolized Differently, and That Difference Routes Through the Liver",
-    teaser: "The same sugar molecule count, handled by a completely different metabolic pathway, one that runs straight through the same organ doing most of the body's T4-to-T3 conversion.",
+    teaser: "The same sugar molecule count, handled by a completely different metabolic pathway, one that runs straight through a single, heavily-loaded organ.",
     summary:
-      "HFCS often gets treated as interchangeable with regular sugar, more or less the same thing, just cheaper to manufacture. The metabolic pathway it travels through tells a more specific story. Unlike glucose, which is used by nearly every cell in the body, dietary fructose is metabolized almost entirely in the liver, and at high intake, a meaningful share of it converts to fat there, contributing to non-alcoholic fatty liver disease and insulin resistance. This matters specifically for Hashimoto's because the liver performs roughly 80% of the body's T4-to-T3 conversion, covered in full under Organs & Body Systems. A chronically overburdened liver is a plausible, if not yet directly trial-tested, contributor to suboptimal thyroid hormone conversion.",
+      "HFCS often gets treated as interchangeable with regular sugar, more or less the same thing, just cheaper to manufacture. The metabolic pathway it travels through tells a more specific story. Unlike glucose, which is used by nearly every cell in the body, dietary fructose is metabolized almost entirely in the liver, and at high intake, a meaningful share of it converts to fat there, contributing to non-alcoholic fatty liver disease and insulin resistance. A chronically overburdened liver has downstream consequences well beyond fat storage, since it's the single organ responsible for a wide range of other real metabolic work, including the hormone-conversion role covered in full under Organs & Body Systems.",
     citations: [
       {
         source: 'Softic et al. 2020, Critical Reviews in Clinical Laboratory Sciences (hepatic fructose metabolism review)',
