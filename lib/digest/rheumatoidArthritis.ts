@@ -179,7 +179,7 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
       { source: 'Cardiovascular Risk in Rheumatoid Arthritis: Considerations on Assessment and Management', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11500121/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ra-advocacy-bone-density'],
+    relatedIds: ['ra-advocacy-bone-density', 'cvd-overview', 'cvd-lipid-panel-self-advocacy'],
   },
   {
     id: 'ra-advocacy-bone-density',

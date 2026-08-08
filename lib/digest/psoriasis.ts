@@ -197,7 +197,7 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
       { source: 'Using Guidelines of Care to Lower Cardiovascular Risk in Patients with Psoriasis', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11128720/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['psoriasis-weight-loss'],
+    relatedIds: ['psoriasis-weight-loss', 'cvd-overview', 'cvd-lipid-panel-self-advocacy'],
   },
   {
     id: 'psoriasis-advocacy-systemic-med-monitoring',

@@ -188,6 +188,14 @@ export const DIGEST_CATEGORY_KEYS = [
   // inhibitors) and a real, honest correction to oversimplified food
   // trigger lists.
   'migraine',
+  // 2026-08-08, same day, seventeenth condition, next in the same priority
+  // order: Cardiovascular Disease. See cardiovascularDisease.ts's own
+  // header comment -- this app's seventh genuinely non-autoimmune
+  // condition, already touched from five separate angles across existing
+  // content (lupus, Hashimoto's organ systems, PCOS, psoriasis, and RA all
+  // reference elevated cardiovascular risk) before this category itself
+  // existed to link back to.
+  'cardiovascularDisease',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

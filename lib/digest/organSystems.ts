@@ -110,6 +110,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
+    relatedIds: ['cvd-overview', 'cvd-lipid-panel-self-advocacy'],
   },
   {
     id: 'organ-brain-cognitive',

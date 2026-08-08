@@ -1,6 +1,7 @@
 import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
+import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
 import { CHRONIC_KIDNEY_DISEASE_ENTRIES } from './chronicKidneyDisease';
 import { FATTY_LIVER_DISEASE_ENTRIES } from './fattyLiverDisease';
@@ -44,7 +45,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808230000';
+export const PURPLE_DIGEST_VERSION = '20260808250000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -86,6 +87,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...TYPE_2_DIABETES_ENTRIES,
   ...IBS_ENTRIES,
   ...MIGRAINE_ENTRIES,
+  ...CARDIOVASCULAR_DISEASE_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -280,6 +282,17 @@ export const DIGEST_CATEGORY_META: {
     label: 'Migraine',
     icon: 'thunderstorm-outline',
     description: 'Real evidence for migraine: an honest correction to food-trigger lists, the magnesium/riboflavin/CoQ10 combination trial, CGRP inhibitors, medication-overuse headache, and self-advocacy for recognizing real emergency red flags.',
+  },
+  // 2026-08-08, same day, seventeenth condition: Cardiovascular Disease.
+  // See cardiovascularDisease.ts's own header comment -- already touched
+  // from five separate angles across existing content (lupus, Hashimoto's
+  // organ systems, PCOS, psoriasis, and RA) before this category itself
+  // existed to link back to.
+  {
+    key: 'cardiovascularDisease',
+    label: 'Cardiovascular Disease',
+    icon: 'heart-outline',
+    description: 'Real evidence for cardiovascular disease: the Mediterranean diet and DASH, an honest statin evidence review, a real reversal on daily aspirin and omega-3s for prevention, and self-advocacy for lipid testing and heart attack red flags.',
   },
 ];
 

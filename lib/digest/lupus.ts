@@ -115,6 +115,7 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
       { source: 'Cardiovascular Complications in Systemic Lupus Erythematosus', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9358056/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['cvd-overview', 'cvd-lipid-panel-self-advocacy'],
   },
   {
     id: 'lupus-hydroxychloroquine-retinopathy',

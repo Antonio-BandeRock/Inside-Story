@@ -134,6 +134,7 @@ export const PCOS_ENTRIES: DigestEntry[] = [
       { source: 'Polycystic Ovarian Syndrome Workup, Medscape', url: 'https://emedicine.medscape.com/article/256806-workup' },
     ],
     overallTier: 'strong',
+    relatedIds: ['cvd-overview', 'cvd-lipid-panel-self-advocacy'],
   },
   {
     id: 'pcos-spironolactone-potassium',
