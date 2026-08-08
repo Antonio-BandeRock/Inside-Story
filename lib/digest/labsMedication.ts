@@ -206,6 +206,6 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-coffee-timing', 'problem-soy'],
+    relatedIds: ['problem-coffee-timing', 'problem-soy', 'magnesium-levothyroxine-timing'],
   },
 ];

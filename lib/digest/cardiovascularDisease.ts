@@ -67,6 +67,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'DASH Eating Plan, National Heart, Lung, and Blood Institute', url: 'https://www.nhlbi.nih.gov/education/dash-eating-plan' },
     ],
     overallTier: 'strong',
+    relatedIds: ['magnesium-blood-pressure'],
   },
   {
     id: 'cvd-statin-evidence',

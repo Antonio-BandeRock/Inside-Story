@@ -219,7 +219,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Directly relevant to selenium and iodine, both soil-dependent nutrients this app already tracks as protective against thyroid autoimmunity specifically.',
-    relatedIds: ['foodhistory-mechanism-soil-nutrients-bridge', 'nutrient-selenium', 'nutrient-iodine'],
+    relatedIds: ['foodhistory-mechanism-soil-nutrients-bridge', 'nutrient-selenium', 'nutrient-iodine', 'magnesium-deficiency-prevalence-causes'],
     chart: {
       title: 'Trace Mineral Loss After 75 Years of Continuous Tillage',
       unit: '%',

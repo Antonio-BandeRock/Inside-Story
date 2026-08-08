@@ -56,6 +56,7 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
       { source: 'Improvement of migraine symptoms with a proprietary supplement containing riboflavin, magnesium and Q10: a randomized, placebo-controlled, double-blind, multicenter trial, PMID 25916335', url: 'https://pubmed.ncbi.nlm.nih.gov/25916335/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['magnesium-tying-together'],
   },
   {
     id: 'migraine-cgrp-inhibitors',

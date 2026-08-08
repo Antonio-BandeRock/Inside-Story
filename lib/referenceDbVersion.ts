@@ -26,6 +26,17 @@
 // 2 new `sub_criterion_condition_relevance` rows instead, reusing
 // Additives and Processing under a real "Processed & Sugar-Sweetened Food
 // Pattern" dimension label, tied directly to the real, cited
-// sugar-sweetened-beverage/gout finding -- since no Python interpreter was
+// sugar-sweetened-beverage/gout finding.
+//
+// Bumped a nineteenth time the same day, alongside a real Magnesium deep
+// dive (lib/digest/essentialNutrients.ts): 1 new `interaction_rules` row
+// (levothyroxine_magnesium_timing, a real, checkable timing_separation
+// rule mirroring levothyroxine_calcium_timing/levothyroxine_iron_timing
+// exactly -- magnesium's own effect on levothyroxine absorption had never
+// actually been directly tested until a real November 2025 randomized
+// crossover trial, PMID 41221788, found a real, if modest, 7-12%
+// reduction in drug exposure, smaller than calcium or iron's own
+// already-documented effect but real all the same). No sub_criteria or
+// food_scores changes this pass -- since no Python interpreter was
 // available in this session to run a real rebuild -- do not edit by hand.
-export const REFERENCE_DB_VERSION = "20260808280000";
+export const REFERENCE_DB_VERSION = "20260808320000";

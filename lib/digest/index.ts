@@ -4,6 +4,7 @@ import { BIG_PICTURE_ENTRIES } from './bigPicture';
 import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
 import { CHRONIC_KIDNEY_DISEASE_ENTRIES } from './chronicKidneyDisease';
+import { ESSENTIAL_NUTRIENTS_ENTRIES } from './essentialNutrients';
 import { FATTY_LIVER_DISEASE_ENTRIES } from './fattyLiverDisease';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
@@ -46,7 +47,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808300000';
+export const PURPLE_DIGEST_VERSION = '20260808310000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -84,6 +85,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...SJOGRENS_ENTRIES,
   ...PCOS_ENTRIES,
   ...CHRONIC_KIDNEY_DISEASE_ENTRIES,
+  ...ESSENTIAL_NUTRIENTS_ENTRIES,
   ...FATTY_LIVER_DISEASE_ENTRIES,
   ...TYPE_2_DIABETES_ENTRIES,
   ...IBS_ENTRIES,

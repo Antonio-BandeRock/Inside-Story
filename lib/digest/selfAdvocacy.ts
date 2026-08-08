@@ -170,6 +170,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: 'Weller E, Bachert P, Meinck HM, et al. 1998: Lack of effect of oral Mg-supplementation on Mg in serum, blood cells, and calf muscle', url: 'https://pubmed.ncbi.nlm.nih.gov/9813870/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['magnesium-tying-together'],
   },
   {
     id: 'advocacy-zinc-copper',
