@@ -350,4 +350,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['migraine-food-triggers-honest-nuance'],
   },
+  {
+    id: 'migraine-menopause-new-onset-redflag',
+    category: 'migraine',
+    title: "Migraine Genuinely Shifts Around Menopause, but a Brand-New Headache After 50 Needs a Real Look First",
+    teaser: 'Migraine frequency often changes sharply around menopause, real data splitting roughly a quarter better and a third worse, but a headache that starts fresh after 50 always deserves real medical evaluation.',
+    summary:
+      "Hormonal transition genuinely reshapes migraine, in both directions, and real data shows the picture is more mixed than a simple 'menopause makes it better' story. In a real study of over 3,600 women, those in perimenopause and menopause were 50 to 60% more likely to report frequent headaches (10 or more days a month), and a separate, real 2025 population study of nearly 5,000 women found 46% still had migraine attacks after menopause, with one in five still having attacks past age 60. Once past menopause, when estrogen settles into a new, stable, low baseline, many people do genuinely improve, real clinic-based data finding 24.4% improved with menopause while 35.7% actually worsened, an honest, roughly even split rather than a guaranteed relief. The real, separate and more urgent point: a headache that starts brand-new after age 50, one that was never a pattern before, always warrants real medical evaluation to rule out a vascular, structural, or other systemic cause, rather than being assumed to be ordinary menopause-related migraine. This is especially true for aura symptoms (visual disturbances, numbness, or speech changes) appearing for the very first time in an older woman, since these can closely mimic a transient ischemic attack or seizure. Worth knowing directly: a lifelong migraine pattern shifting around menopause is expected and usually not a red flag on its own, but a genuinely new headache pattern starting after 50 is a real, separate situation that deserves its own real workup.",
+    citations: [
+      { source: 'Patterns of migraine in postmenopausal women: a systematic review, Neuropsychiatric Disease and Treatment, Dove Medical Press', url: 'https://www.dovepress.com/patterns-of-migraine-in-postmenopausal-women-a-systematic-review-peer-reviewed-fulltext-article-NDT' },
+      { source: 'Understanding and Treating Headache Related to Menopause, American Headache Society', url: 'https://americanheadachesociety.org/research/library/understanding-and-treating-headache-related-to-menopause' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-red-flags', 'migraine-menstrual-estrogen-withdrawal'],
+  },
 ];

@@ -364,4 +364,18 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-systemic-comorbidities', 'psoriasis-psa-progression-real-data'],
   },
+  {
+    id: 'psoriasis-guttate-pediatric-strep',
+    category: 'psoriasis',
+    title: 'A Distinct Form of Psoriasis Shows Up in Children, Usually Right After Strep Throat',
+    teaser: 'Guttate psoriasis, a real, distinct pattern of small, drop-shaped spots, is the second most common form of psoriasis in children and follows a real streptococcal infection in up to 80% of cases.',
+    summary:
+      "Psoriasis in children often looks and behaves differently than the more familiar adult plaque form, and the clearest example is guttate psoriasis, a real, distinct variant defined by an acute eruption of many small papules and plaques, typically under a centimeter across, scattered mostly on the trunk and limbs. It is the second most common form of psoriasis in children, after chronic plaque psoriasis, and is often a person's very first presentation of psoriasis at all, sometimes before any other psoriasis diagnosis exists. The real, specific trigger connects directly to a common childhood infection: guttate psoriasis classically develops 1 to 2 weeks after a streptococcal infection, most often strep throat (tonsillopharyngitis), and up to 80% of people with guttate psoriasis have a documented streptococcal infection shortly before the outbreak. The real, honest range of outcomes matters here too: guttate psoriasis can resolve on its own or with treatment, but it can also become persistent and progress into the more familiar chronic plaque form. Worth knowing directly: a sudden, widespread outbreak of small, drop-shaped skin spots in a child following a sore throat is a real, recognizable pattern worth mentioning to a doctor by name, since recognizing guttate psoriasis specifically (rather than assuming a generic rash) can point toward both the right treatment and the right explanation for what triggered it.",
+    citations: [
+      { source: 'Guttate Psoriasis, StatPearls, NCBI Bookshelf, NBK482498', url: 'https://www.ncbi.nlm.nih.gov/books/NBK482498/' },
+      { source: 'Roles of Infection in Psoriasis, PMC9266590', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9266590/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-pasi-severity-staging', 'psoriasis-koebner-phenomenon'],
+  },
 ];

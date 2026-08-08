@@ -57,4 +57,23 @@
 // risk-factor study). Direct request: "new rules that should be sure to
 // be applied correctly based on the age the person uses in their
 // profile." No sub_criteria or food_scores changes this pass.
-export const REFERENCE_DB_VERSION = "20260808510000";
+//
+// Bumped a twenty-first time the same day: "extensively" applying the age-
+// rules engine to all 19 conditions, per direct request, meant more than 4
+// rows -- 6 new age_threshold_caution rows added, all reusing already-
+// existing common_medications entries, no new medications needed:
+// diphenhydramine_elderly_anticholinergic_risk, ppi_longterm_elderly_
+// fracture_risk, glyburide_elderly_hypoglycemia_beers, and
+// lithium_elderly_renal_clearance (all 65+, all citing the same 2023 AGS
+// Beers Criteria already used for the ibuprofen/methotrexate rules --
+// Beers is the real, standard, single authoritative source for exactly
+// this class of prescribing caution); levothyroxine_elderly_lower_
+// starting_dose (65+, a real, checkable functional companion to the new
+// Digest entry on the same topic, labs-age-adjusted-tsh-target-older-
+// adults); and aspirin_pediatric_reyes_syndrome (under 18, a real,
+// well-established CDC/AAP/FDA-endorsed caution, Reye's syndrome). Now 10
+// real age_threshold_caution rows total, spanning Hashimoto's, Graves',
+// RA, Type 1 Diabetes, Type 2 Diabetes, and general OTC/prescription use
+// regardless of condition. No sub_criteria or food_scores changes this
+// pass.
+export const REFERENCE_DB_VERSION = "20260808530000";

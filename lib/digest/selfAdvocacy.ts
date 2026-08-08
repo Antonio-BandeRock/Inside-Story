@@ -333,7 +333,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: 'Dickey RA, Wartofsky L, Feld S 2005: Optimal thyrotropin level: normal ranges and reference intervals are not equivalent (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/16187911/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['advocacy-core-thyroid-panel'],
+    relatedIds: ['advocacy-core-thyroid-panel', 'labs-age-adjusted-tsh-target-older-adults'],
   },
   {
     id: 'advocacy-seronegative-hashimotos',

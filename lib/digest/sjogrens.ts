@@ -351,4 +351,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-fatigue-most-disabling', 'sjogrens-secondary-ra-lupus-overlap'],
   },
+  {
+    id: 'sjogrens-elderly-diagnostic-delay',
+    category: 'sjogrens',
+    title: "Sjögren's Symptoms in Older Adults Often Get Written Off as Ordinary Aging",
+    teaser: "Dry eyes, dry mouth, fatigue, and joint pain are all common features of Sjögren's syndrome and of normal aging alike, a real overlap that delays diagnosis specifically in older patients.",
+    summary:
+      "Sjögren's syndrome is already a commonly delayed diagnosis, real registry data putting the median gap between first symptoms (age 47) and actual diagnosis (age 50) at around three years, and that delay gets real, extra reinforcement in older patients specifically. Dryness of the eyes and mouth, fatigue, weight changes, and muscle pain, the very symptoms that should prompt a Sjögren's workup, are also simply common features of getting older, so a genuine autoimmune cause can plausibly hide in plain sight behind an assumption of ordinary aging. One real, documented case illustrates the risk directly: an older patient unable to eat a normal diet for a full year went untreated, in part because his age and other health circumstances made the underlying cause easy to overlook, and in some patients dry eye and dry mouth get dismissed as having no real cause at all once initial antibody tests come back negative, missing the real share of Sjögren's cases that are seronegative. Worth knowing directly: persistent, unexplained dryness in an older adult, especially alongside fatigue or joint aches, deserves the same real diagnostic consideration it would get in a younger person, not a default assumption that it is simply what getting older feels like.",
+    citations: [
+      { source: "Sjögren's syndrome in older patients: aetiology, diagnosis and management, Drugs & Aging, PMID 23341116", url: 'https://pubmed.ncbi.nlm.nih.gov/23341116/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-antibody-testing', 'sjogrens-primary-secondary-real-distinction'],
+  },
 ];

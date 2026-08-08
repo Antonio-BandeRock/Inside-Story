@@ -352,4 +352,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['pcos-lipid-panel-cardiometabolic', 'vitamind-tying-together'],
   },
+  {
+    id: 'pcos-adolescent-diagnosis-challenge',
+    category: 'pcos',
+    title: "PCOS Is Genuinely Hard to Diagnose in Teenagers, Because Normal Puberty Looks a Lot Like It",
+    teaser: 'Real research finds it is nearly impossible to distinguish PCOS-related irregular periods from the normal cycle irregularity of the first few years after a first period, so real, age-adjusted criteria exist specifically for teenagers.',
+    summary:
+      "Diagnosing PCOS in adolescents runs into a genuine, well-documented overlap problem: the same irregular periods that can signal PCOS are also completely normal in the first few years after menarche (a first period). Real data finds roughly 75% of menstruating adolescents report cycles between 21 and 45 days in that first year, and most teens don't settle into a regular cycle until 2 to 3 years after their first period, with only 6.3% still having irregular cycles by the 3-year mark. Because of this real overlap, medical guidelines use age-adjusted criteria rather than a single fixed rule: cycles under 21 or over 45 days count as irregular between 1 and 3 years post-menarche, tightening to under 21 or over 35 days after year 3, with true primary amenorrhea only flagged by age 15 or more than 3 years after breast development begins. Irregular cycles alone, especially in the first year after a first period, are considered a normal part of pubertal transition, not evidence of PCOS on their own, and real guidance specifically advises against using pelvic ultrasound in this age group, since polycystic-looking ovaries are also a normal finding during typical puberty. Worth knowing directly: a teenager with irregular periods alone very likely does not have PCOS, and a real, careful diagnosis in this age group depends on additional signs (persistent irregularity well past the expected window, or real signs of excess androgen) rather than menstrual irregularity by itself.",
+    citations: [
+      { source: 'PCOS in Adolescents—Ongoing Riddles in Diagnosis and Treatment, PMC9918268', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9918268/' },
+      { source: 'Adolescent polycystic ovary syndrome according to the international evidence-based guideline, PMC7092491', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7092491/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-rotterdam-phenotypes', 'pcos-amh-diagnostic-marker'],
+  },
 ];

@@ -214,7 +214,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       { source: 'Bauer DC, Ettinger B, Nevitt MC, Stone KL 2001: Risk for fracture in women with low serum levels of thyroid-stimulating hormone (Annals of Internal Medicine)', url: 'https://pubmed.ncbi.nlm.nih.gov/12803168/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['advocacy-core-thyroid-panel', 'advocacy-tying-together'],
+    relatedIds: ['advocacy-core-thyroid-panel', 'advocacy-tying-together', 'labs-age-adjusted-tsh-target-older-adults'],
   },
   {
     id: 'organ-primary-thyroid-lymphoma',

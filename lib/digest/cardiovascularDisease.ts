@@ -371,4 +371,17 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-resistant-hypertension-adherence'],
   },
+  {
+    id: 'cvd-elderly-atypical-mi-presentation',
+    category: 'cardiovascularDisease',
+    title: 'Heart Attacks in Older Adults Often Skip Chest Pain Entirely, a Real, Documented Age Effect',
+    teaser: 'Silent or atypical heart attacks make up more than 60% of cases in adults over 60, presenting as confusion, weakness, or falling rather than classic chest pain.',
+    summary:
+      "The 'classic' heart attack picture, crushing chest pain radiating down the arm, is genuinely less reliable with age. Silent myocardial infarctions (heart attacks with no recognized symptoms at the time) make up as much as 54% of all heart attacks in the general population and more than 60% in adults over 60, and the real reasons compound with age: autonomic nerve changes, cumulative damage to the heart's own sensory nerves from prior ischemia, a higher pain threshold, and overlapping cognitive or neurological conditions all blunt the classic warning signal. When an older adult does have a recognized heart attack, dyspnea (shortness of breath) is frequently the dominant symptom rather than chest pressure, and geriatric medicine has a real, specific pattern worth knowing directly: new confusion, unusual weakness, loss of appetite, or an unexplained fall can all be the presenting sign of a heart attack in an older person, standing in for the chest pain a younger patient would report. Real autopsy data underscores how easily this gets missed: in one large elderly series, the correct heart attack diagnosis had been made in life in fewer than half of cases, especially among the oldest patients. Worth knowing directly for anyone caring for or checking in on an older adult: a sudden change in mental clarity, energy, or balance deserves the same real urgency a chest-pain complaint would get, not a slower, wait-and-see response.",
+    citations: [
+      { source: 'Atypical manifestation of myocardial ischemia in the elderly, Clinics in Geriatric Medicine, PMID 24714791', url: 'https://pubmed.ncbi.nlm.nih.gov/24714791/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-heart-attack-red-flags', 'cvd-women-underdiagnosis-gender-gap'],
+  },
 ];

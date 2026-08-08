@@ -356,4 +356,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['lupus-drug-induced-reversible'],
   },
+  {
+    id: 'lupus-late-onset-after-50-milder',
+    category: 'lupus',
+    title: 'Lupus Diagnosed After 50 Genuinely Looks Different, Often Milder, and Easily Mistaken for Aging',
+    teaser: 'One in five lupus diagnoses happens at age 50 or later, and real data finds this later-onset form tends to be genuinely milder, with less kidney involvement and fewer of the classic warning signs.',
+    summary:
+      "Lupus is often pictured as a young woman's disease, but a real, meaningful share of cases, 20% by one real estimate, are diagnosed at age 50 or later, and this late-onset form has its own real, distinct clinical shape. Real comparative data finds late-onset lupus produces lower disease-activity scores on average, with significantly less fever, fewer of the classic skin and mucous-membrane findings, and fewer positive antibody results than lupus diagnosed earlier in life. The real, practical risk this creates: late-onset lupus often lacks the textbook butterfly rash and is less likely to involve the kidneys at the outset, instead presenting as pleurisy or pericarditis (inflammation around the lungs or heart), persistent dry eyes and mouth, or joint and muscle aches that get chalked up to ordinary osteoarthritis or general wear and tear. Serologically, late-onset patients are less likely to test positive for anti-dsDNA and RNP antibodies, and more likely to test positive for rheumatoid factor, a real pattern that can point evaluation toward the wrong diagnosis. Worth knowing directly: real cohort data does describe a genuinely milder overall disease course with less frequent kidney involvement in this later-onset group, real, honest reassurance that softens, but does not erase, the real risk of a slower, harder-to-recognize diagnosis in this age group.",
+    citations: [
+      { source: 'Unveiling the dual nature of late-onset systemic lupus erythematosus: A cross-sectional study, PMC12743268', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12743268/' },
+      { source: 'Comparison of late-onset and non-late-onset systemic lupus erythematosus individuals in a real-world electronic health record cohort, PMC10954386', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10954386/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-sledai-disease-activity', 'lupus-overview'],
+  },
 ];

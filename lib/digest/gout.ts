@@ -356,4 +356,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['gout-four-stage-natural-history'],
   },
+  {
+    id: 'gout-early-onset-genetic-kidney-cause',
+    category: 'gout',
+    title: 'Gout Before Age 40 Is Different: Genetics, Not Diet, Is Usually the Real Driver',
+    teaser: 'Gout diagnosed in someone under 40 is far more likely to trace back to a real, identifiable genetic or kidney cause than to lifestyle alone, and often warrants real, dedicated testing.',
+    summary:
+      "Gout is usually framed as a disease of aging, but when it shows up early, in the teens, twenties, or thirties, real research points toward a genuinely different, more concentrated set of causes than the diet and lifestyle factors this category otherwise emphasizes. Adolescents and young adults with gout tend to have real, measurably higher uric acid levels, faster development of tophi (visible urate deposits), and a real, higher rate of family history compared with people who develop gout later in life, evidence that genetics plays an even larger role in early-onset cases than in the more common, later-life form. Two real, specific genetic causes account for a meaningful share of these early cases: mutations in the UMOD gene cause a distinct inherited kidney condition (ADTKD-UMOD) that produces early hyperuricemia, gout, and progressive kidney scarring, often reaching kidney failure by around age 40, and dysfunction in the ABCG2 urate transporter gene is strongly associated with pediatric- and early-onset hyperuricemia and gout independent of any kidney disease. Worth knowing directly: gout appearing well before the typical age, especially alongside a family history of gout or unexplained kidney problems, is a real, reasonable trigger for asking a doctor about genetic testing or a kidney-function workup, rather than assuming diet alone explains it.",
+    citations: [
+      { source: 'A novel uromodulin mutation in autosomal dominant tubulointerstitial kidney disease, BMC Nephrology, PMC6014484', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6014484/' },
+      { source: 'Identification of Two Dysfunctional Variants in the ABCG2 Urate Transporter Associated with Pediatric-Onset of Familial Hyperuricemia and Early-Onset Gout, PMC7920026', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7920026/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-kidney-cardiovascular-real-data', 'gout-four-stage-natural-history'],
+  },
 ];

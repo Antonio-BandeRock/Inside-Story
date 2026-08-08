@@ -358,4 +358,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-smoking-paradox'],
   },
+  {
+    id: 'ibd-elderly-onset-distinct-diagnosis-delay',
+    category: 'ibd',
+    title: 'IBD Diagnosed Later in Life Looks Different, and Takes Real, Measurably Longer to Diagnose',
+    teaser: 'IBD that first appears after age 60 tends to be milder-looking on the surface, and real data finds it takes roughly three times longer to diagnose than IBD in younger adults.',
+    summary:
+      "Inflammatory bowel disease that first appears later in life follows a real, distinct pattern from the same disease in a younger person, and that difference has real, practical consequences for how quickly it gets recognized. Elderly-onset IBD often presents atypically and less severely, showing up as mild diarrhea, rectal bleeding, or vague abdominal discomfort that can easily be mistaken for ischemic or diverticular colitis rather than the more classic, more clearly IBD-looking picture doctors are trained to recognize in younger patients. The disease pattern itself differs too: multiple real, population-based studies have found late-onset ulcerative colitis tends toward left-sided involvement, and late-onset Crohn's disease tends to affect the colon rather than the small bowel, the opposite distribution from younger-onset cases. The real, practical cost of this atypical picture is a genuinely longer diagnostic delay, up to 6 years in elderly patients compared with roughly 2 years in younger adults in one real dataset, and a real, higher initial misdiagnosis rate, 51% of adults over 40 receiving an incorrect first diagnosis compared with 39% of younger patients in the same study. Worth knowing directly: the wide list of other conditions that can look similar in an older adult, infectious colitis, diverticular disease, NSAID-related injury, radiation colitis, or colorectal cancer, means real, careful evaluation matters even more than usual, and persistent bowel symptoms in an older adult deserve real follow-through rather than an easy default assumption.",
+    citations: [
+      { source: 'Challenges and Treatment Strategies in Elderly Patients with Inflammatory Bowel Disease: A Systematic Review, PMC12941479', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12941479/' },
+      { source: 'Management of Inflammatory Bowel Disease in the Elderly Patient: Challenges and Opportunities, PMC5687915', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5687915/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-montreal-classification', 'ibd-overview'],
+  },
 ];

@@ -209,4 +209,18 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['problem-coffee-timing', 'problem-soy', 'magnesium-levothyroxine-timing'],
   },
+  {
+    id: 'labs-age-adjusted-tsh-target-older-adults',
+    category: 'hashimotos',
+    title: 'The TSH Target Itself Is Supposed to Shift With Age, a Real, Often-Missed Adjustment',
+    teaser: "Real thyroid-society guidance recommends a higher TSH target, 4-6 mIU/L, for people age 70-80, because normal TSH itself rises with age and the standard target can lead to overtreatment.",
+    summary:
+      "This category's own self-advocacy content already covers real overtreatment risk (bone loss, atrial fibrillation) at length, and one of the clearest, most concrete ways to avoid it is often simply missed: the TSH target itself is supposed to change with age. Real population data finds normal TSH reference ranges genuinely shift upward with age, one study of adults 65 to 84 finding the typical (2.5th to 97.5th percentile) range running from 0.49 to 5.56 mIU/L, measurably higher than the range used for younger adults, evidence that mild TSH elevations often labeled 'subclinical hypothyroidism' in an older person may simply reflect normal aging rather than a condition needing treatment. Current thyroid-society guidance reflects this directly: the recommended TSH target for people age 70 to 80 is raised to roughly 4 to 6 mIU/L, meaningfully higher than the target typically used in a 30- or 40-year-old, and treatment in older adults is meant to start at a lower dose with slower, more careful titration specifically because thyroid hormone requirements often genuinely decrease with age. Worth knowing directly: an older adult whose levothyroxine dose was set years earlier, using a younger-adult target, may be carrying a real, avoidable overtreatment risk simply because the target itself was never re-adjusted for age, a real, concrete, and specific question worth raising directly at a next appointment.",
+    citations: [
+      { source: 'Age-Specific TSH Ranges Needed to Prevent Overdiagnosis of Hypothyroidism, Endocrinology Advisor', url: 'https://www.endocrinologyadvisor.com/news/age-specific-tsh-reference-range-older-adults/' },
+      { source: 'Hypothyroidism in the older population, Thyroid Research, PMC6367787', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6367787/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['organ-overtreatment-bone-heart-risk', 'advocacy-tsh-optimal-range-debate'],
+  },
 ];

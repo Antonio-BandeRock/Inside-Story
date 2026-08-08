@@ -368,4 +368,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-hypoglycemia-unawareness'],
   },
+  {
+    id: 'type1-lada-adult-onset-misdiagnosed',
+    category: 'type1Diabetes',
+    title: 'Autoimmune Diabetes Diagnosed as an Adult Is Real, Distinct, and Often Mistaken for Type 2',
+    teaser: "LADA, a slower-progressing form of autoimmune diabetes that shows up in adulthood, may account for 4 to 14% of people currently diagnosed with type 2 diabetes.",
+    summary:
+      "Type 1 diabetes is often pictured as a childhood diagnosis, but a real, distinct autoimmune form, latent autoimmune diabetes in adults (LADA), shows up later in life and is genuinely easy to mistake for type 2 diabetes. Real estimates put LADA at 4 to 14% of everyone currently carrying a type 2 diabetes diagnosis, with some studies suggesting closer to 10%, meaning a meaningful share of people labeled as type 2 may actually have a slower-moving autoimmune process instead. The real, distinguishing features: LADA patients tend to be younger at diagnosis (under 50), leaner, and less likely to show the insulin resistance or metabolic syndrome features typical of type 2 diabetes, while still testing positive for the same autoantibodies used to diagnose classic type 1 diabetes and following the same real, gradual but inevitable path toward needing insulin. Worth knowing directly: misdiagnosis carries real, concrete stakes here, since LADA's real underlying autoimmune process usually calls for a different treatment approach than standard type 2 management, and inappropriate treatment has been linked to a real, increased complication risk. Anyone diagnosed with type 2 diabetes as a lean adult, or with no clear metabolic-syndrome features, has real, reasonable standing to ask whether an autoantibody panel, the same one already covered in this category, should be checked before assuming the diagnosis is settled.",
+    citations: [
+      { source: 'Latent Autoimmune Diabetes in Adults: Not type 1, not type 2, a little of both, Cleveland Clinic Journal of Medicine', url: 'https://www.ccjm.org/content/92/12/757' },
+      { source: 'Development and Validation of a Prevalence Model for Latent Autoimmune Diabetes in Adults (LADA) Among Patients First Diagnosed with Type 2 Diabetes Mellitus, PMC8451248', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8451248/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-autoantibody-panel', 'type1-overview'],
+  },
 ];
