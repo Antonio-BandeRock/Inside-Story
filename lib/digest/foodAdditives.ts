@@ -218,7 +218,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['organ-liver-t4t3-conversion'],
+    relatedIds: ['organ-liver-t4t3-conversion', 'masld-hfcs-fructose'],
   },
   {
     id: 'additive-azodicarbonamide',
@@ -247,6 +247,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
+    relatedIds: ['ckd-phosphate-additives'],
   },
   {
     id: 'additive-bha-bht',

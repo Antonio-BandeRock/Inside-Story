@@ -2,6 +2,8 @@ import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
 import { CELIAC_ENTRIES } from './celiac';
+import { CHRONIC_KIDNEY_DISEASE_ENTRIES } from './chronicKidneyDisease';
+import { FATTY_LIVER_DISEASE_ENTRIES } from './fattyLiverDisease';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
 import { FOOD_INDUSTRY_HISTORY_ENTRIES } from './foodIndustryHistory';
@@ -39,7 +41,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808180000';
+export const PURPLE_DIGEST_VERSION = '20260808200000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -76,6 +78,8 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...LUPUS_ENTRIES,
   ...SJOGRENS_ENTRIES,
   ...PCOS_ENTRIES,
+  ...CHRONIC_KIDNEY_DISEASE_ENTRIES,
+  ...FATTY_LIVER_DISEASE_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -219,6 +223,28 @@ export const DIGEST_CATEGORY_META: {
     label: 'PCOS',
     icon: 'infinite-outline',
     description: 'Real evidence for PCOS: insulin resistance as the central mechanism, the well-studied 40:1 inositol ratio, modest weight loss\'s real quantified benefit, a real endometrial cancer risk, and self-advocacy for glucose/lipid screening.',
+  },
+  // 2026-08-08, same day, twelfth condition, and this app's second
+  // genuinely non-autoimmune one: Chronic Kidney Disease. See
+  // chronicKidneyDisease.ts's own header comment -- a real, honest
+  // correction to some of the most commonly repeated CKD dietary advice
+  // (blanket potassium restriction) leads this category.
+  {
+    key: 'chronicKidneyDisease',
+    label: 'Chronic Kidney Disease',
+    icon: 'filter-outline',
+    description: 'Real evidence for CKD: an honest correction on potassium restriction, hidden phosphate additives, plant-forward protein guidance, SGLT2 inhibitors\' real kidney-protective effect, and self-advocacy for eGFR/ACR monitoring.',
+  },
+  // 2026-08-08, same day, thirteenth condition, and this app's third
+  // genuinely non-autoimmune one: Fatty Liver Disease (MASLD). See
+  // fattyLiverDisease.ts's own header comment -- resmetirom, the
+  // first-ever approved MASH drug, works as a thyroid hormone receptor
+  // agonist, a direct, elegant echo of this app's own core focus.
+  {
+    key: 'fattyLiverDisease',
+    label: 'Fatty Liver Disease',
+    icon: 'flame-outline',
+    description: 'Real evidence for MASLD: a graded weight-loss staircase, coffee\'s consistently protective effect, resmetirom\'s thyroid-hormone-receptor mechanism, semaglutide\'s major trial results, and self-advocacy via the FIB-4 screening tool.',
   },
 ];
 

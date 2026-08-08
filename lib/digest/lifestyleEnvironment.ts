@@ -56,7 +56,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-chronic-stress-hpa'],
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'masld-metald-alcohol-threshold'],
   },
   {
     id: 'lifestyle-coffee-milk-antioxidants',

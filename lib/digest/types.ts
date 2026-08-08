@@ -145,6 +145,24 @@ export const DIGEST_CATEGORY_KEYS = [
   // named directly in CLAUDE.md's own Beyond Hashimoto's research as one
   // of the "9 non-autoimmune candidates."
   'pcos',
+  // 2026-08-08, same day, twelfth condition, next in the same priority
+  // order: Chronic Kidney Disease. See chronicKidneyDisease.ts's own
+  // header comment -- this app's second genuinely non-autoimmune
+  // condition, and one whose real dietary management (potassium,
+  // phosphorus, sodium, protein) is more directly food-restrictive than
+  // almost any other condition here, with a real, honest correction to
+  // some of the most commonly repeated CKD dietary advice as its own
+  // leading finding.
+  'chronicKidneyDisease',
+  // 2026-08-08, same day, thirteenth condition, next in the same priority
+  // order: Fatty Liver Disease (MASLD). See fattyLiverDisease.ts's own
+  // header comment -- this app's third genuinely non-autoimmune
+  // condition, built on top of a substantial amount of real, pre-existing
+  // liver research already written for a Hashimoto's reader, with a
+  // genuinely elegant thyroid-hormone-receptor connection (resmetirom, the
+  // first-ever approved MASH drug) tying this category directly back to
+  // this app's own core focus.
+  'fattyLiverDisease',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

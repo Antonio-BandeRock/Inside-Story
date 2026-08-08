@@ -293,7 +293,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         url: 'https://pubmed.ncbi.nlm.nih.gov/18341376/',
       },
     ],
-    relatedIds: ['labs-biotin-interference'],
+    relatedIds: ['labs-biotin-interference', 'masld-coffee-protective'],
     chart: {
       title: 'Levothyroxine Absorption Impact From Coffee Taken at the Same Time',
       unit: '%',

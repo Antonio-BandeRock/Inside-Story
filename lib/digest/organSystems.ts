@@ -65,6 +65,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
+    relatedIds: ['masld-overview', 'masld-resmetirom'],
   },
   {
     id: 'organ-liver-fixing-helps-thyroid',
@@ -146,6 +147,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       ],
       sourceNote: '74,356-adult cross-sectional study, Scientific Reports (PMC5795015)',
     },
+    relatedIds: ['ckd-overview'],
   },
   {
     id: 'organ-reproductive-fertility',
