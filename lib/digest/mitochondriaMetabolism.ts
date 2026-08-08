@@ -171,7 +171,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     title: 'Exercise Intensity Barely Moves Inflammation Markers, Doing It at All Does',
     teaser: 'A systematic review answers "how hard do I need to exercise," and the answer is genuinely surprising.',
     summary:
-      "It's a reasonable, common assumption that harder exercise means a bigger anti-inflammatory benefit. A systematic review found that assumption doesn't hold up. It found exercise intensity itself barely moves most inflammation markers (IL-6, TNF-alpha, IL-10) across the studies pooled. Doing the exercise at all matters far more than how hard it's done. This directly informs the reason to prefer low intensity specifically for an autoimmune condition, covered next, a separate mechanism entirely, not because low intensity reduces inflammation more effectively than higher intensity would.",
+      "It's a reasonable, common assumption that harder exercise means a bigger anti-inflammatory benefit. A systematic review found that assumption doesn't hold up. It found exercise intensity itself barely moves most inflammation markers (IL-6, TNF-alpha, IL-10) across the studies pooled. Doing the exercise at all matters far more than how hard it's done. This directly informs a separate, real reason some people are better off favoring lower-intensity exercise, covered next, a genuinely different mechanism entirely, not because low intensity reduces inflammation more effectively than higher intensity would.",
     citations: [
       {
         source: 'Short-Lived Exercise-Induced Exerkines Modulate Inflammation for Chronic Disease Prevention: A Systematic Review and Meta-Analysis (Biomolecules, 2025)',

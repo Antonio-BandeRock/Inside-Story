@@ -44,6 +44,42 @@ import type { DigestEntry } from './types';
 // "worth" -- see bigPicture.ts's own header comment for the full context.
 // Every fact, number, and citation is unchanged; the terse, dictionary-
 // style format is preserved throughout, per this file's own design above.
+//
+// 2026-08-08, same day, a second pass: "go through the Basic Health area
+// and move everything that is about autoimmune diseases and Hashimoto's
+// references and hypothyroidism and all of the rest of the autoimmune
+// disease references specifically... into the specific to those
+// autoimmune disease's areas." 18 of the 57 terms here were genuinely,
+// substantively ABOUT one specific disease or its own diagnostic/
+// management vocabulary, not universal body-function knowledge a healthy
+// person would need -- their `category` field was reassigned (16 to
+// 'hashimotos': AIP, ALT/AST framed via hypothyroidism, APS-2, the
+// autoimmune-disease definition itself, autophagy/mitophagy framed via
+// Hashimoto's IL-23 research, 6-DFF, euthyroid/hypothyroid states,
+// Healing Stages, IL-6/IL-23/TNF framed via Hashimoto's, levothyroxine,
+// molecular mimicry, MOTS-c, Tg/anti-Tg, Th17, TPO, Wolff-Chaikoff; 1 to
+// 'graves': the Graves' disease definition itself; 1 to
+// 'fattyLiverDisease': NAFLD/MASLD, now its own real tracked condition).
+// They stay physically in this file (one A-Z glossary remains the
+// simplest way to author and browse the full term list), only their
+// `category` changed -- the same "reassign the field, don't move the
+// file" precedent this whole Digest's 2026-08-08 restructure already
+// established for ProblemFoodEntry. A further 15 terms were genuinely
+// universal, cross-cutting biology/immunology/methodology vocabulary
+// (antibody & antigen, cytokine, eGFR, gliadin, insulin resistance, leaky
+// gut, mitochondria, mTOR, ROS, Treg, visceral fat, zonulin, T4, tight
+// junction, TSH) that happened to be worded or cited around a Hashimoto's
+// example -- these were reworded to describe the general, healthy-body
+// concept first and stay in Basic Health, with any Hashimoto's-specific
+// citation either dropped (replaced with `citations: []`, matching this
+// file's own existing precedent for pure definitional terms) or kept only
+// where the citation itself was already general, not Hashimoto's-specific
+// research. Every other term (24 of 57) needed no change at all --
+// already genuinely condition-agnostic, matching what the user's own
+// framing asked Basic Health to actually be: "everything the body does
+// in a basic way... what foods do to help their body... what their body
+// does with it," for someone without any of these 18 conditions, not
+// disease-management vocabulary.
 export const GLOSSARY_ENTRIES: DigestEntry[] = [
   {
     id: 'glossary-4r-protocol',
@@ -58,7 +94,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-aip',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'AIP (Autoimmune Protocol)',
     teaser: 'A structured elimination-then-reintroduction diet, originally built for autoimmune disease broadly, not Hashimoto\'s specifically.',
     summary:
@@ -74,7 +110,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-alt-ast',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'ALT & AST (Liver Enzymes)',
     teaser: 'Two enzymes measured on a standard liver panel, and a direct way hypothyroidism itself can make them look abnormal.',
     summary:
@@ -89,16 +125,15 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-antibody-antigen',
     category: 'basicHealth',
     title: 'Antibody & Antigen',
-    teaser: 'The immune system\'s own recognition system, and in Hashimoto\'s, the same system aimed at the wrong target.',
+    teaser: 'The immune system\'s own recognition system: a threat gets flagged, then a specific defender gets built to match it.',
     summary:
-      'An antigen is anything the immune system can learn to recognize, normally a foreign threat like a virus or bacterium. An antibody is the specific protein the immune system builds to identify and help destroy that exact antigen. In Hashimoto\'s, the immune system mistakenly builds antibodies (most notably against thyroid peroxidase, TPO) that target the body\'s own thyroid tissue as if it were a foreign threat, the defining feature of an autoimmune disease.',
+      'An antigen is anything the immune system can learn to recognize, normally a foreign threat like a virus or bacterium. An antibody is the specific protein the immune system builds to identify and help destroy that exact antigen, part of ordinary, healthy immune defense. This same recognition system occasionally misfires and builds an antibody against one of the body\'s own tissues instead of a real outside threat, the defining feature of an autoimmune disease, covered in real depth throughout this Digest\'s own per-condition research.',
     citations: [],
     overallTier: 'strong',
-    relatedIds: ['history-1956-autoimmune-mechanism'],
   },
   {
     id: 'glossary-aps2',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'APS-2 (Autoimmune Polyglandular Syndrome Type 2)',
     teaser: 'A named clinical combination: Hashimoto\'s plus a second autoimmune attack on the adrenal glands, together.',
     summary:
@@ -111,7 +146,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-autoimmune-disease',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Autoimmune Disease',
     teaser: 'The immune system, built to defend the body, mistakenly attacking a part of the body itself.',
     summary:
@@ -124,7 +159,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-autophagy-mitophagy',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Autophagy & Mitophagy',
     teaser: 'The cell\'s own internal cleanup crew, and a specific target of Hashimoto\'s own inflammation.',
     summary:
@@ -204,16 +239,15 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-cytokine',
     category: 'basicHealth',
     title: 'Cytokine',
-    teaser: 'A chemical messenger the immune system uses to coordinate itself, including several that directly touch thyroid hormone.',
+    teaser: 'A chemical messenger the immune system uses to coordinate itself, whether fighting a real infection or driving chronic inflammation.',
     summary:
-      'A broad category of small signaling proteins immune cells use to communicate with each other and with other tissues. IL-6, IL-23, and TNF-alpha are three specific, named cytokines that show up repeatedly across this app\'s own research, each with a documented effect relevant to Hashimoto\'s: IL-23 suppressing autophagy in thyroid cells, IL-6 directly suppressing the enzymes that activate thyroid hormone.',
+      'A broad category of small signaling proteins immune cells use to communicate with each other and with other tissues, part of ordinary, healthy immune coordination. Some cytokines drive inflammation (IL-6, IL-23, and TNF-alpha are three commonly named ones), others calm it back down, and the real balance between them is a recurring thread across this Digest\'s own per-condition research.',
     citations: [],
     overallTier: 'strong',
-    relatedIds: ['mito-il23-autophagy-suppression', 'lifestyle-il6-deiodinase'],
   },
   {
     id: 'glossary-d1-d6',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: '6-DFF (The 6 Dimensions of Food Friendliness)',
     teaser: 'This app\'s own scoring framework, scoring every food across six separate, research-backed factors.',
     summary:
@@ -275,17 +309,12 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-egfr',
     category: 'basicHealth',
     title: 'eGFR (Estimated Glomerular Filtration Rate)',
-    teaser: 'The standard measure of how well the kidneys are filtering, and a measured way hypothyroidism affects it.',
+    teaser: 'The standard measure of how well the kidneys are filtering, and the real number a person\'s own kidney health gets tracked by.',
     summary:
-      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked. A large study found average eGFR declining in step with worsening thyroid function (88.0 in euthyroid patients, down to 72.2 in overt hypothyroidism), and case reports confirm this is reversible with treatment. See Organs & Body Systems for the full picture.',
-    citations: [
-      {
-        source: 'Subclinical and overt hypothyroidism is associated with reduced glomerular filtration rate and proteinuria: a large cross-sectional population study (Scientific Reports)',
-        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5795015/',
-      },
-    ],
+      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A real, staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this Digest\'s own dedicated Chronic Kidney Disease research for the full staging system and what actually protects it.',
+    citations: [],
     overallTier: 'strong',
-    relatedIds: ['organ-kidney'],
+    relatedIds: ['ckd-overview'],
   },
   {
     id: 'glossary-edc',
@@ -302,7 +331,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-euthyroid-hypothyroid',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Euthyroid, Hypothyroid & Subclinical Hypothyroidism',
     teaser: 'The three distinct states thyroid lab results can describe, and why the middle one only became diagnosable fairly recently.',
     summary:
@@ -343,9 +372,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-gliadin',
     category: 'basicHealth',
     title: 'Gliadin',
-    teaser: 'The specific fragment of gluten with a named mechanism for loosening the gut barrier.',
+    teaser: 'The specific fragment of gluten with a named mechanism for loosening the gut barrier, in anyone who eats it.',
     summary:
-      'A specific protein fragment within gluten (found in wheat, barley, and rye). Gliadin binds a receptor called CXCR3 on intestinal cells, triggering those cells to release zonulin, a specific, reversible mechanism for increased gut permeability, first fully characterized in celiac disease but now documented as relevant across several autoimmune conditions this Digest covers, not just celiac.',
+      'A specific protein fragment within gluten (found in wheat, barley, and rye). Gliadin binds a receptor called CXCR3 on intestinal cells, triggering those cells to release zonulin, a specific, reversible mechanism for increased gut permeability. This is a real, general digestive-physiology effect, not limited to any one diagnosis, though how much it matters for any one person varies, and this Digest\'s own per-condition research covers it in more depth wherever it\'s a documented factor.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
@@ -370,7 +399,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-graves-disease',
-    category: 'basicHealth',
+    category: 'graves',
     title: "Graves' Disease",
     teaser: "Hashimoto's own opposite-direction cousin: another autoimmune thyroid disease, but overactive instead of underactive.",
     summary:
@@ -396,7 +425,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-healing-stages',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Healing Stages 1, 2 & 3',
     teaser: "This app's own practical, food-focused staging: Getting Started, Rebuilding, and Well-Healed.",
     summary:
@@ -407,7 +436,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-il6-il23-tnf',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'IL-6, IL-23 & TNF-α',
     teaser: 'Three specific, named inflammatory messengers, each with a documented effect relevant to Hashimoto\'s.',
     summary:
@@ -420,17 +449,12 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-insulin-resistance',
     category: 'basicHealth',
     title: 'Insulin Resistance',
-    teaser: 'A state where the body\'s cells stop responding normally to insulin, and a documented finding tied to visceral fat in Hashimoto\'s specifically.',
+    teaser: 'A state where the body\'s cells stop responding normally to insulin, a real, shared thread behind several conditions this app tracks.',
     summary:
-      'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells, a precursor to type 2 diabetes. A Hashimoto\'s mouse-model experiment found reinfusing regulatory T cells into visceral fat measurably improved insulin sensitivity, directly connecting this app\'s own gut-immune research to a concrete, checkable metabolic outcome. See Mitochondria & Metabolism.',
-    citations: [
-      {
-        source: "Depletion of Regulatory T Cells in Visceral Adipose Tissues Contributes to Insulin Resistance in Hashimoto's Thyroiditis (Frontiers in Physiology, 2018)",
-        url: 'https://pubmed.ncbi.nlm.nih.gov/29541033/',
-      },
-    ],
-    overallTier: 'moderate',
-    relatedIds: ['mito-visceral-fat-treg-reinfusion'],
+      'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a real, shared underlying mechanism connecting several other conditions this app covers in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its own real, documented link back to this same root cause. See this Digest\'s own dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['type2-metabolic-syndrome-cluster'],
   },
   {
     id: 'glossary-leaky-gut',
@@ -438,7 +462,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Leaky Gut / Intestinal Permeability',
     teaser: 'A measurable phenomenon, and a genuinely contested clinical diagnosis. Both true at once.',
     summary:
-      'Intestinal permeability is a directly measurable phenomenon (via zonulin levels or lactulose-mannitol testing), with documented mechanistic links to several autoimmune conditions. "Leaky gut syndrome" as a standalone clinical diagnosis remains debated in mainstream gastroenterology and endocrinology, not because the biology is fake but because no agreed clinical definition or diagnostic threshold exists yet. See Gut & Microbiome for the full distinction.',
+      'Intestinal permeability is a directly measurable phenomenon (via zonulin levels or lactulose-mannitol testing), a real, physical property of the gut lining relevant to digestive health broadly. "Leaky gut syndrome" as a standalone clinical diagnosis remains debated in mainstream gastroenterology, not because the biology is fake but because no agreed clinical definition or diagnostic threshold exists yet. See this Digest\'s own per-condition research for where this measurable phenomenon does and doesn\'t have a documented link to a specific diagnosis.',
     citations: [
       { source: 'Biomarkers for assessment of intestinal permeability in clinical practice (Scandinavian Journal of Gastroenterology, 2021)', url: 'https://pubmed.ncbi.nlm.nih.gov/34009040/' },
     ],
@@ -447,7 +471,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-levothyroxine',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Levothyroxine',
     teaser: 'The single most-prescribed medication in the US, and, historically, a fairly recent replacement for dried animal thyroid gland.',
     summary:
@@ -484,21 +508,16 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-mitochondria',
     category: 'basicHealth',
     title: 'Mitochondria',
-    teaser: 'The cell\'s own energy-producing structures, and, in Hashimoto\'s research, a direct target of the disease itself.',
+    teaser: 'The cell\'s own energy-producing structures, present in nearly every cell in the body.',
     summary:
-      "Tiny structures inside nearly every cell responsible for producing the cell's own usable energy. Hashimoto's-specific research found circulating MOTS-c, a peptide mitochondria themselves produce, measurably lower in Hashimoto's patients and inversely correlated with antibody levels, evidence the disease reaches down to the cellular energy-production level, not just the thyroid gland itself. See Mitochondria & Metabolism.",
-    citations: [
-      {
-        source: "Reduced Circulating MOTS-c Levels in Hashimoto's Thyroiditis Reflect Integrated Autoimmune and Metabolic Dysregulation: A Cross-Sectional Study",
-        url: 'https://pubmed.ncbi.nlm.nih.gov/42278864/',
-      },
-    ],
-    overallTier: 'moderate',
-    relatedIds: ['mito-mots-c'],
+      "Tiny structures inside nearly every cell responsible for producing the cell's own usable energy, real, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a real, recurring thread across several of this Digest's own condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['glossary-mots-c'],
   },
   {
     id: 'glossary-molecular-mimicry',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Molecular Mimicry',
     teaser: 'The immunology explaining how a gut microbe could plausibly trigger an attack on a completely different organ.',
     summary:
@@ -511,7 +530,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-mots-c',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'MOTS-c',
     teaser: 'A peptide made by mitochondria themselves, and one of the few genuinely Hashimoto\'s-specific findings in this app\'s cellular-biology research.',
     summary:
@@ -529,21 +548,15 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-mtor',
     category: 'basicHealth',
     title: 'mTOR',
-    teaser: 'A central cellular pathway that shows up twice in Hashimoto\'s research: once in the thyroid tissue itself, once in the immune cells attacking it.',
+    teaser: 'A central cellular pathway governing growth, metabolism, and how a cell decides whether to clean house or keep building.',
     summary:
-      'A central cellular signaling pathway that governs growth, metabolism, and (relevant here) autophagy. Hashimoto\'s research found this same pathway suppresses autophagy in thyroid follicular cells and separately reprograms the CD4+ T cells driving the autoimmune attack itself onto a different fuel source, a mechanistic bridge connecting two parts of the disease that would otherwise look unrelated. See Mitochondria & Metabolism.',
-    citations: [
-      {
-        source: "The immune mechanism of the mTOR/ACC1/CPT1A fatty acid oxidation signaling pathway in Hashimoto's thyroiditis",
-        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11950109/',
-      },
-    ],
-    overallTier: 'moderate',
-    relatedIds: ['mito-mtor-cd4-reprogramming', 'mito-il23-autophagy-suppression'],
+      'A central cellular signaling pathway that governs growth, metabolism, and autophagy (the cell\'s own internal cleanup process, see that entry). Real, general cell biology relevant to fasting, exercise, and aging for anyone, and a specific, documented factor in several of this Digest\'s own condition-specific findings, worth a look wherever it shows up as a named mechanism.',
+    citations: [],
+    overallTier: 'strong',
   },
   {
     id: 'glossary-nafld-masld',
-    category: 'basicHealth',
+    category: 'fattyLiverDisease',
     title: 'NAFLD / MASLD (Fatty Liver Disease)',
     teaser: 'Fat accumulating in liver cells, and a measured 68% higher risk of it in people with hypothyroidism.',
     summary:
@@ -618,17 +631,11 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-ros',
     category: 'basicHealth',
     title: 'ROS (Reactive Oxygen Species)',
-    teaser: 'Chemically unstable molecules produced as a byproduct of normal cell activity, and a direct target of Hashimoto\'s own inflammation.',
+    teaser: 'Chemically unstable molecules produced as a byproduct of normal cell activity, harmless in moderation, damaging in excess.',
     summary:
-      'Chemically reactive molecules containing oxygen, produced naturally as a byproduct of normal cellular activity (and mitochondrial energy production specifically). In excess, they cause measurable cellular stress and damage. Hashimoto\'s thyroid-tissue research found elevated IL-23 directly drives ROS accumulation alongside suppressed autophagy, and blocking that same pathway reversed both effects. See Mitochondria & Metabolism.',
-    citations: [
-      {
-        source: "Increased Interleukin-23 in Hashimoto's Thyroiditis Disease Induces Autophagy Suppression and Reactive Oxygen Species Accumulation (Frontiers in Immunology, 2018)",
-        url: 'https://pubmed.ncbi.nlm.nih.gov/29434604/',
-      },
-    ],
+      'Chemically reactive molecules containing oxygen, produced naturally as a byproduct of normal cellular activity (and mitochondrial energy production specifically). The body has its own real, built-in antioxidant systems to keep them in check under ordinary conditions. In excess, unchecked by those systems, they cause measurable cellular stress and damage, a real, recurring factor in several of this Digest\'s own condition-specific findings.',
+    citations: [],
     overallTier: 'strong',
-    relatedIds: ['mito-il23-autophagy-suppression'],
   },
   {
     id: 'glossary-scfa',
@@ -665,7 +672,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'T4 (Thyroxine)',
     teaser: 'The hormone the thyroid gland itself mainly produces, mostly a precursor, not the final active form.',
     summary:
-      'The primary hormone the thyroid gland itself produces and releases. T4 is mostly a precursor. It has to be converted into T3, the active form, by deiodinase enzymes elsewhere in the body (mainly the liver) before it can do most of its work. Levothyroxine, the standard hypothyroidism medication, is synthetic T4.',
+      'The primary hormone the thyroid gland itself produces and releases, in anyone with a functioning thyroid. T4 is mostly a precursor. It has to be converted into T3, the active form, by deiodinase enzymes elsewhere in the body (mainly the liver) before it can do most of its work, real, everyday endocrine physiology behind how the body actually uses thyroid hormone.',
     citations: [
       {
         source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)',
@@ -677,7 +684,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-tg-antitg',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Tg (Thyroglobulin) & Anti-Tg Antibody',
     teaser: 'A protein the thyroid uses to store and build hormone, and, in Hashimoto\'s, one of the two antibody targets tracked on a lab panel.',
     summary:
@@ -690,7 +697,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-th17',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Th17 (T Helper 17 Cell)',
     teaser: 'A specific type of pro-inflammatory immune cell, and one half of the balance this whole app\'s research keeps circling back to.',
     summary:
@@ -710,7 +717,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Tight Junction (Occludin & Claudin/CLDN2)',
     teaser: 'The physical seals between gut lining cells, and specific, named proteins that hold them shut.',
     summary:
-      'Physical protein structures that seal the spaces between individual gut lining cells, controlling what can and can\'t pass through the gut barrier. Occludin and claudin (including CLDN2 specifically) are two of the core proteins that make up these seals. CLDN2 is a direct, confirmed target of the vitamin D receptor, a second, independent mechanism connecting vitamin D to gut-barrier integrity beyond its own thyroid-antibody research. See Gut & Microbiome.',
+      'Physical protein structures that seal the spaces between individual gut lining cells, controlling what can and can\'t pass through the gut barrier, in anyone\'s digestive system. Occludin and claudin (including CLDN2 specifically) are two of the core proteins that make up these seals. CLDN2 is a direct, confirmed target of the vitamin D receptor, a real, specific mechanism connecting vitamin D intake to gut-barrier integrity.',
     citations: [
       { source: 'Zhang et al. 2015, Scientific Reports: tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
     ],
@@ -719,7 +726,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-tpo',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'TPO (Thyroid Peroxidase) & TPO Antibody',
     teaser: 'The actual enzyme Hashimoto\'s antibodies attack, and the lab value this whole app\'s own tracking is built around.',
     summary:
@@ -737,14 +744,13 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-treg',
     category: 'basicHealth',
     title: 'Treg (Regulatory T Cell)',
-    teaser: 'The immune cell type responsible for keeping the immune system from attacking the body itself, and a specific target of gut-repair research.',
+    teaser: 'The immune cell type responsible for keeping the immune system from attacking the body itself.',
     summary:
-      'A specific subtype of T cell whose job is promoting immune tolerance, helping keep the immune system from attacking the body\'s own tissue. SCFAs from dietary fiber directly induce Treg activity in the gut. Separately, Hashimoto\'s research found Tregs specifically depleted in visceral fat, with an experiment showing that reinfusing them measurably improved insulin sensitivity. See Gut & Microbiome and Mitochondria & Metabolism.',
+      'A specific subtype of T cell whose job is promoting immune tolerance, helping keep the immune system from attacking the body\'s own tissue, real, everyday immune housekeeping relevant to anyone\'s baseline immune balance. SCFAs from dietary fiber directly induce Treg activity in the gut, a real, food-controllable lever, and Treg levels show up as a specific, documented factor across several of this Digest\'s own condition-specific findings.',
     citations: [
       { source: 'Furusawa et al. 2013, Nature: commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-scfa-treg', 'mito-visceral-fat-treg-depletion'],
   },
   {
     id: 'glossary-tsh',
@@ -752,7 +758,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'TSH (Thyroid-Stimulating Hormone)',
     teaser: 'The hormone that tells the thyroid how hard to work, and the single most commonly ordered thyroid lab value.',
     summary:
-      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, the standard first lab value checked for hypothyroidism. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time. See Labs & Medication Timing.',
+      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, in anyone\'s own endocrine system. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time, real, general lab-testing practice worth knowing regardless of the reason for the test.',
     citations: [
       { source: 'Circadian and 30 minutes variations in serum TSH and thyroid hormones in normal subjects', url: 'https://pubmed.ncbi.nlm.nih.gov/716774/' },
     ],
@@ -763,21 +769,15 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-visceral-fat',
     category: 'basicHealth',
     title: 'Visceral Fat',
-    teaser: 'Fat stored deep around the internal organs, active tissue rather than passive storage, with a genuinely complicated role in Hashimoto\'s.',
+    teaser: 'Fat stored deep around the internal organs, active tissue rather than passive storage.',
     summary:
-      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Hashimoto\'s research found it specifically depleted of regulatory T cells; a separate 2024 reappraisal suggests some of that same fat\'s own inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. See Mitochondria & Metabolism for the full, genuinely complicated picture.',
-    citations: [
-      {
-        source: "Depletion of Regulatory T Cells in Visceral Adipose Tissues Contributes to Insulin Resistance in Hashimoto's Thyroiditis (Frontiers in Physiology, 2018)",
-        url: 'https://pubmed.ncbi.nlm.nih.gov/29541033/',
-      },
-    ],
+      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Real research finds it does genuinely complicated things: it drives real metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s own inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this Digest\'s own condition-specific findings.',
+    citations: [],
     overallTier: 'moderate',
-    relatedIds: ['mito-visceral-fat-treg-depletion', 'mito-visceral-fat-endotoxin-barrier'],
   },
   {
     id: 'glossary-wolff-chaikoff',
-    category: 'basicHealth',
+    category: 'hashimotos',
     title: 'Wolff-Chaikoff Effect',
     teaser: 'The thyroid\'s own built-in safety brake against too much iodine at once, one that can misfire in Hashimoto\'s specifically.',
     summary:
@@ -797,11 +797,10 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Zonulin',
     teaser: 'The named protein responsible for how "leaky" the gut lining actually is, discovered by the same researcher who coined the term.',
     summary:
-      'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. First fully characterized in celiac disease, zonulin\'s own role is now documented across several autoimmune conditions this app\'s research covers, the physical mechanism behind "leaky gut" throughout this whole Digest.',
+      'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. The physical mechanism behind "leaky gut" throughout this whole Digest, worth understanding as real, general gut-barrier physiology, whatever the reason someone\'s reading about it.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-zonulin-gliadin', 'gut-tying-together'],
   },
 ];
