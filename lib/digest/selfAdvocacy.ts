@@ -132,6 +132,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: "Hu S, Rayman MP 2017: Multiple Nutritional Factors and the Risk of Hashimoto's Thyroiditis", url: 'https://pubmed.ncbi.nlm.nih.gov/28290237/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['iron-deficiency-symptoms-staged', 'iron-tying-together'],
   },
   {
     id: 'advocacy-vitamin-d',

@@ -48,7 +48,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['labs-calcium-iron-absorption'],
+    relatedIds: ['labs-calcium-iron-absorption', 'iron-absorption-mechanism'],
   },
   {
     id: 'interaction-vitaminc-iron',
@@ -61,7 +61,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin C has a key physiological role in facilitating the absorption of non-heme iron from the diet', url: 'https://pubmed.ncbi.nlm.nih.gov/3667346/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['nutrient-zinc-iron-b12'],
+    relatedIds: ['nutrient-zinc-iron-b12', 'iron-absorption-mechanism'],
   },
   {
     id: 'interaction-zinc-copper',
@@ -119,6 +119,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Iron-zinc and calcium-Fe interactions in relation to Zn and Fe absorption', url: 'https://pubmed.ncbi.nlm.nih.gov/8524893/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['iron-absorption-mechanism'],
   },
   {
     id: 'interaction-vitamina-zinc',
@@ -143,7 +144,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Inhibition of non-haem iron absorption in man by polyphenolic-containing beverages', url: 'https://pubmed.ncbi.nlm.nih.gov/10999016/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-coffee-timing'],
+    relatedIds: ['problem-coffee-timing', 'iron-absorption-mechanism'],
     chart: {
       title: 'Reduction in Iron Absorption From a Meal',
       unit: '%',

@@ -471,4 +471,155 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['vitamind-deficiency-symptoms-staged', 'vitamind-2024-guideline-honest-correction', 'vitamind-vital-trial-non-skeletal', 'vitamind-obesity-bioavailability', 'nutrient-vitamin-d'],
   },
+
+  // -- Iron, added 2026-08-08, the third deep-dive in this series, at
+  // direct request: "move to the next one after Magnesium, and continue
+  // through all of the rest of the macro and micronutrients, and acids."
+  // Same discipline as Magnesium/Vitamin D: check this app's own reference
+  // tables first (supplement_forms already had real, cited bisglycinate-
+  // vs-ferrous-sulfate GI-tolerance data from the My Meds work, never
+  // surfaced in a Digest entry until now), then verify every new claim via
+  // WebFetch against StatPearls/PubMed (WebSearch still exhausted this
+  // session). Deliberately does not repeat `advocacy-iron-ferritin`
+  // (hashimotos category, the thyroid-function/TSH correlation and testing
+  // recommendation) -- that stays where it is, cross-linked from here, per
+  // this session's own Basic Health scope correction: universal iron
+  // biology belongs here, a specific disease's own testing guidance
+  // belongs in that disease's own category.
+  {
+    id: 'iron-overview',
+    category: 'basicHealth',
+    title: 'Iron: What It Actually Does, and Why the Body Guards It So Closely',
+    teaser: 'Every red blood cell needs it to carry oxygen at all, yet the body has no way to actively excrete it once absorbed, which shapes almost everything else about how iron works.',
+    summary:
+      "Iron's best-known job is building hemoglobin, the protein inside red blood cells that actually carries oxygen from the lungs to every other tissue, and myoglobin, the same job inside muscle itself. Beyond oxygen transport, iron is a required cofactor for enzymes involved in DNA synthesis, energy production in the mitochondria, and immune cell function, which is why both deficiency and overload show up as such a wide, seemingly unrelated list of symptoms. The single fact that shapes most of the rest of this category: the human body has no active mechanism to excrete excess iron. Iron balance is controlled almost entirely by regulating absorption in the small intestine, not by getting rid of what's already been taken in. That one-way design is efficient for a nutrient the body genuinely cannot do without, and it's also exactly why chronic overload (see the hemochromatosis entry below) is a real, distinct medical problem rather than something the body simply corrects on its own over time.",
+    citations: [
+      { source: 'Iron Deficiency Anemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK448065/' },
+      { source: 'Dietary Iron, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK540969/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'iron-deficiency-prevalence-causes',
+    category: 'basicHealth',
+    title: 'Who Actually Runs Low on Iron, and Why It Skews So Heavily by Age and Sex',
+    teaser: 'Roughly 14% of American adults have iron-deficiency anemia by one measure, and the real risk gap between men and women is far wider than most other nutrient deficiencies.',
+    summary:
+      "Iron deficiency is genuinely uneven across the population, not a flat risk everyone shares equally. In US adults, iron-deficiency anemia affects an estimated 14% by NHANES data, with the exact count depending heavily on which ferritin cutoff is used (5.9 million people at a 15 ng/mL threshold versus 3.3 million at 45 ng/mL). The real skew is by sex and life stage: adolescent girls and women of reproductive age run 9-11% prevalence, driven mainly by regular menstrual blood loss, while men overall sit near 1%, rising only to 2-4% in middle-aged and older men, where the more likely cause is slow GI blood loss rather than diet alone. Toddlers age 1-2 carry a real 9% prevalence too, with Hispanic toddlers roughly twice as likely as white peers to be affected. Pregnancy adds a separate, large demand on top of menstrual loss, since a growing fetus and placenta both draw on the same maternal iron stores. Multiparous women from lower-income backgrounds carry the highest combined risk of any group named in the research. Diet matters too, but mostly as one contributing factor among several: a diet low in heme iron (meat, poultry, seafood) combined with high blood loss from any source is the real, compounding pattern behind most cases, not diet in isolation.",
+    citations: [
+      { source: 'Iron Deficiency Anemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK448065/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'iron-deficiency-symptoms-staged',
+    category: 'basicHealth',
+    title: 'Iron Deficiency Has Real Stages, and Symptoms Can Start Before a Standard Anemia Test Would Catch It',
+    teaser: 'Fatigue and restless legs can show up while iron stores are dropping, well before hemoglobin itself falls low enough to count as anemia on a lab report.',
+    summary:
+      "Iron deficiency progresses through three real, distinct phases rather than appearing all at once. First, the body's own stored iron (measured as serum ferritin) is drawn down as the primary reserve. Second, once storage is exhausted, circulating iron itself starts to decline, which shows up as falling transferrin saturation and rising total iron-binding capacity (TIBC), the blood's own way of signaling it wants more iron than it's getting. Third, only once both of those buffers are used up does the body's ability to actually build new hemoglobin fail, producing the microcytic, hypochromic red blood cells that define iron-deficiency anemia on a standard blood count. The clinically important part: real symptoms, including fatigue, cognitive impairment, and restless leg syndrome, can appear during that second stage, before anemia itself is present at all, meaning a normal hemoglobin result doesn't rule out a real, symptomatic iron problem. Anemia itself is formally defined as hemoglobin under 13 g/dL in men or under 12 g/dL in non-pregnant women, and a serum ferritin under 45 ng/mL is the threshold that gives the best real balance of sensitivity and specificity for catching iron deficiency itself, well above the much lower cutoffs (often 12-15 ng/mL) some labs still use as their own default reference range.",
+    citations: [
+      { source: 'Iron Deficiency Anemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK448065/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-iron-ferritin'],
+  },
+  {
+    id: 'iron-toxicity-acute-overdose',
+    category: 'basicHealth',
+    title: 'Acute Iron Overdose Is a Real Medical Emergency With Its Own Named Five-Stage Course',
+    teaser: 'A single large dose, most often from swallowed supplement pills, can look like it resolved after the first day and then relapse into organ failure days later.',
+    summary:
+      "A single large dose of elemental iron is genuinely toxic, and the danger is dose-dependent in a way that's been mapped out specifically: under 20mg per kilogram of body weight is generally non-toxic, 20-60mg/kg causes moderate symptoms, and above 60mg/kg carries real risk of severe morbidity and death. Iron supplement pills are a real, common source of accidental pediatric poisoning specifically because they're small, often coated, and don't look dangerous. The clinical course runs through five real, named stages, and the second one is the genuinely dangerous trap: Stage 1 (30 minutes to 6 hours) brings abdominal pain, vomiting, and diarrhea, sometimes with visible blood. Stage 2 (6-24 hours) can look like recovery, with GI symptoms temporarily easing, even though iron absorption and cellular damage are still actively occurring underneath. Stage 3 (6-72 hours) brings the real crisis: recurring GI symptoms alongside shock, metabolic acidosis, coagulopathy, liver dysfunction, heart muscle damage, and kidney failure, since free iron directly disrupts cellular energy production and generates damaging free radicals throughout the body. Stage 4 (12-96 hours) can progress to outright liver failure. Stage 5, weeks later, involves scarring and potential bowel obstruction as the GI tract heals from the initial injury. A peak blood iron level above 500 micrograms/dL marks severe systemic toxicity. The practical takeaway: any suspected large iron ingestion, especially in a child, needs real emergency evaluation immediately, not a wait-and-see approach based on how someone feels in the first few hours.",
+    citations: [
+      { source: 'Iron Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK459224/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'iron-hemochromatosis-overload',
+    category: 'basicHealth',
+    title: 'Hereditary Hemochromatosis: When the Body Absorbs Too Much Iron for Decades, Quietly',
+    teaser: "The most common inherited disorder in white populations, genuinely underdiagnosed because early symptoms (fatigue, joint pain) look like almost anything else, and it carries a real, striking hypothyroidism connection.",
+    summary:
+      "Chronic iron overload is a genuinely different problem from an acute overdose: rather than one large dose, it builds slowly over years from a real genetic tendency to over-absorb dietary iron, most often from HFE gene mutations (C282Y homozygosity is the most common single cause in people of Northern European descent). Hereditary hemochromatosis affects a real, meaningful 1 in 300 to 500 people in white populations, making it the most common autosomal recessive disorder in that group, and it affects men roughly 1.8 to 3 times more often than women, since women lose iron regularly through menstruation until menopause, effectively delaying their own presentation by about a decade. Diagnostically, transferrin saturation above 45% (40% in women) combined with serum ferritin above 300 µg/L in men or 200 µg/L in women points toward the condition. Left uncorrected, the accumulated iron itself becomes toxic to multiple organs: cirrhosis develops in a real 10-15% of untreated patients, and among those with cirrhosis, hepatocellular carcinoma risk climbs as high as 30%. About half of untreated patients develop diabetes as iron damages the insulin-producing cells of the pancreas. Iron accumulation in heart tissue can cause dilated cardiomyopathy and arrhythmias. Skin hyperpigmentation (a real early sign, in over 90% of patients) and joint disease from calcium pyrophosphate deposits round out the classic presentation. The most directly relevant finding for this app: hemochromatosis carries a documented 80-fold increased risk of hypothyroidism in affected men, alongside real rates of hypogonadism and osteoporosis. Regular phlebotomy (therapeutic blood removal) is the real, standard, effective treatment, genuinely improving fatigue, skin color, and insulin sensitivity, though it does not reverse cirrhosis, hypogonadism, or joint damage that's already set in, which is the real reason early detection matters as much as it does.",
+    citations: [
+      { source: 'Hemochromatosis, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK430862/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'iron-absorption-mechanism',
+    category: 'basicHealth',
+    title: 'Heme vs. Non-Heme Iron: Two Genuinely Different Absorption Rates, and the Hormone That Controls Both',
+    teaser: 'About 25% of the iron in meat gets absorbed. From plant sources, it can be as low as 5%, which is the real reason a vegetarian diet needs real, deliberate attention to iron.',
+    summary:
+      "Dietary iron comes in two real, chemically different forms with genuinely different absorption rates. Heme iron, found only in meat, poultry, and seafood (bound inside hemoglobin and myoglobin from the animal's own tissue), is absorbed at roughly 25%. Non-heme iron, the form found in plants, grains, and fortified foods, is absorbed at 17% or less, and can run as low as 5% depending on what else is eaten alongside it. Averaged across a real diet, someone eating animal products absorbs an estimated 14-18% of their dietary iron, versus roughly 5-12% for someone eating a fully plant-based diet, which is exactly why vegetarian and vegan diets call for real, deliberate attention to iron intake and food pairing, not just eating 'enough' iron-containing plants. Despite making up only 10-15% of total dietary iron in a typical Western diet, heme iron accounts for a real, disproportionate 40% of all iron actually absorbed, because of that absorption-rate gap. Non-heme absorption can be measurably boosted: vitamin C converts iron to a more absorbable form and meaningfully increases uptake, and eating meat, fish, or poultry alongside a plant-iron source (the real, named 'MFP factor') increases non-heme absorption 2-3 fold on its own. Working against absorption: phytates in whole grains and legumes, polyphenols in tea, coffee, and red wine, and calcium from dairy, all of which bind iron in the gut before it can be taken up. Governing all of this from the inside is hepcidin, a hormone made by the liver that acts as the body's own master iron-regulation switch: when iron stores run high, hepcidin rises and shuts down further absorption; when stores run low, hepcidin drops and absorption increases. This is the real reason iron absorption is genuinely adaptive rather than fixed, and also why iron status itself, not just how much iron someone eats, determines how much of a given meal's iron actually gets taken up.",
+    citations: [
+      { source: 'Dietary Iron, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK540969/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['interaction-vitaminc-iron', 'interaction-tannins-iron', 'interaction-calcium-iron', 'interaction-iron-zinc-manganese'],
+  },
+  {
+    id: 'iron-supplement-forms-compared',
+    category: 'basicHealth',
+    title: 'Ferrous Sulfate vs. Iron Bisglycinate: Comparable Absorption, a Real Difference in How the Gut Tolerates Them',
+    teaser: "The cheapest, most-studied iron supplement is also the one most likely to cause nausea and constipation, at real, quantified rates.",
+    summary:
+      "This app's own reference data (built during earlier work on medication and supplement tracking) already carries real, cited head-to-head comparisons between the two most common iron supplement forms. Ferrous sulfate is the standard, cheapest, and most-studied first-line option, but a meta-analysis of 43 trials and roughly 6,800 adults found it significantly increases GI side effects (nausea, constipation, abdominal pain) versus placebo, at an odds ratio of 2.32, a real, substantial burden that's a major reason people stop taking it. Iron bisglycinate, a chelated form, produces meaningfully fewer of those same GI side effects in multiple head-to-head randomized trials at matched elemental-iron doses, while absorbing roughly comparably to ferrous sulfate when the dose is matched, not clearly superior on absorption despite how it's often marketed, but genuinely gentler. For someone who has tried and stopped ferrous sulfate specifically because of stomach upset, bisglycinate is a real, evidence-backed alternative to ask about rather than assuming iron supplementation itself is simply not tolerable. Taking iron on an empty stomach maximizes absorption, but plenty of people need to take it with a little food to tolerate it at all; either is a reasonable real-world choice depending on which trade-off matters more.",
+    citations: [
+      { source: "Tolkien Z, Stecher L, Mander AP, Pereira DI, Powell JJ 2015: Ferrous Sulfate Supplementation Causes Significant Gastrointestinal Side-Effects in Adults: A Systematic Review and Meta-Analysis, PLoS One, PMID 25700159", url: 'https://pubmed.ncbi.nlm.nih.gov/25700159/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'iron-cast-iron-cookware',
+    category: 'basicHealth',
+    title: 'Cooking in Cast Iron Really Does Add Iron to Food, Just Not as Reliably as the Popular Version of This Claim Suggests',
+    teaser: 'A real systematic review of 13 studies found consistently more iron in the food itself, but a genuinely mixed result for whether it actually raised blood hemoglobin.',
+    summary:
+      "The idea that cooking in a cast iron pan or pot adds meaningful iron to food is a real, tested claim, not just kitchen folklore, and it holds up better on one half than the other. A 2021 systematic review of 13 studies found a real, consistent improvement in both the iron content and iron bioavailability of food cooked in iron pots or with iron ingots added directly to the cooking liquid, a genuinely useful, low-cost finding, especially highlighted by the review's own authors as a real potential strategy for reducing iron-deficiency anemia in settings where supplements or fortified food aren't reliably available. The honest, less flattering half: only 4 of the studies reviewed found a significant resulting increase in actual blood hemoglobin levels, with the rest showing only a minor change, meaning the boost to food iron content doesn't always translate cleanly into a measurable health outcome. Acidic foods (tomato sauce, for instance) tend to pick up more iron from cast iron than a dry sauté, since acid helps leach iron from the metal itself. Worth knowing as one small, real, genuinely low-risk contributor among the larger factors covered elsewhere in this category (heme vs. non-heme intake, vitamin C pairing, hepcidin's own regulation of absorption), not a substitute for any of them.",
+    citations: [
+      { source: 'Sharma S, Khandelwal R, Yadav K, Ramaswamy G, Vohra K 2021: Effect of cooking food in iron-containing cookware on increase in blood hemoglobin level and iron content of the food: A systematic review, Nepal J Epidemiol, PMID 34290890', url: 'https://pubmed.ncbi.nlm.nih.gov/34290890/' },
+    ],
+    overallTier: 'moderate',
+  },
+  {
+    id: 'iron-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Iron Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Liver leads by a wide margin, and the list mixes heme and non-heme sources on purpose, since the two absorb so differently.',
+    summary:
+      "Real iron content pulled directly from this app's own 22,022-food reference database, deliberately mixing heme sources (absorbed at roughly 25%) and non-heme sources (absorbed at 17% or less) rather than ranking them on the same scale, since the raw number alone overstates how much of a plant source's iron actually gets used. Pork liver leads by a real, wide margin at 23.3mg per 100g, with chicken liver close behind around 16mg per 100g, both classic, concentrated heme sources. Dark chocolate carries a real, genuinely surprising 11.5mg per 100g. White beans and lentils, both real, common non-heme sources, carry 10.4mg and 6.5mg per 100g respectively, meaningfully boosted in practice by pairing them with a vitamin C source (see the absorption-mechanism entry above). Oysters, a real heme source often left off shorter lists, carry roughly 9.2mg per 100g. Spinach, popularly assumed to be an iron powerhouse, actually carries a comparatively modest 3.6mg per 100g of the harder-to-absorb non-heme form, a real, worth-knowing correction to its own reputation.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Iron Content of Real Foods (per 100g)',
+      unit: 'mg',
+      data: [
+        { label: 'Pork liver', value: 23.3 },
+        { label: 'Chicken liver', value: 16.3 },
+        { label: 'Dark chocolate', value: 11.5 },
+        { label: 'White beans', value: 10.4 },
+        { label: 'Oysters', value: 9.2 },
+        { label: 'Lentils', value: 6.5 },
+        { label: 'Spinach', value: 3.6 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Canada_CNF-sourced values)",
+    },
+  },
+  {
+    id: 'iron-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Iron, Pulled Together',
+    teaser: 'A nutrient the body can only regulate on the way in, never on the way out, which explains both ends of what can go wrong with it.',
+    summary:
+      "Line up everything in this category and iron reads as a nutrient defined by one real structural fact: the body has no active way to excrete it, so absorption itself, governed by hepcidin, is the only real lever controlling how much accumulates. That single design choice explains both real failure modes covered here. Too little, and the shortfall shows up in real, predictable stages, from depleted stores to measurable fatigue and restless legs to full anemia, skewed heavily toward menstruating women, pregnancy, and young children. Too much, whether from a single large acute dose or decades of a genetic over-absorption tendency like hereditary hemochromatosis, causes real, serious, and sometimes irreversible organ damage, precisely because there's no built-in release valve. In between those two extremes sits a real, practical, everyday layer: heme absorbs roughly twice as well as non-heme, vitamin C and meat both boost non-heme uptake, tea and calcium both blunt it, and even the choice of cookware makes a small, real, measurable difference. This app's own Hashimoto's-specific research goes one step further, covering iron's own direct, measured relationship to TSH and thyroid hormone levels, and a real, standing recommendation for a full iron panel, not ferritin alone.",
+    citations: [
+      { source: 'Iron Deficiency Anemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK448065/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['iron-deficiency-symptoms-staged', 'iron-hemochromatosis-overload', 'iron-absorption-mechanism', 'advocacy-iron-ferritin', 'ckd-anemia-erythropoietin'],
+  },
 ];

@@ -258,6 +258,7 @@ const BASIC_HEALTH_GROUPS: { label: string; prefix: string }[] = [
   { label: 'Why This App Exists', prefix: 'about-' },
   { label: 'Magnesium', prefix: 'magnesium-' },
   { label: 'Vitamin D', prefix: 'vitamind-' },
+  { label: 'Iron', prefix: 'iron-' },
   { label: 'Glossary', prefix: 'glossary-' },
   { label: 'Problem Foods & Swaps', prefix: 'problem-' },
   { label: 'Food Additives', prefix: 'additive-' },

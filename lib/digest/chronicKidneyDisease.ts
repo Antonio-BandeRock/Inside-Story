@@ -112,6 +112,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Anemia of Chronic Kidney Disease -- A Narrative Review of Its Pathophysiology, Diagnosis, and Management', url: 'https://www.mdpi.com/2227-9059/12/6/1191' },
     ],
     overallTier: 'strong',
+    relatedIds: ['iron-absorption-mechanism', 'iron-tying-together'],
   },
   {
     id: 'ckd-egfr-acr-monitoring',
