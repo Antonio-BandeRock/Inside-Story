@@ -371,17 +371,6 @@ export function LensHub<T extends string>({
   // between tabs never produces, so the exact swipe-through friction named
   // above can't recur through this path.
   const [open, setOpen] = useState(false);
-  // Tracks the last autoOpenSignal value this popup has already reacted
-  // to, so it opens once per genuinely NEW signal rather than every
-  // re-render -- undefined at rest (no signal yet), matching a screen
-  // that never received one from a TabHub tap this session.
-  const lastAutoOpenSignal = useRef<string | undefined>(undefined);
-  useEffect(() => {
-    if (autoOpenSignal && autoOpenSignal !== lastAutoOpenSignal.current) {
-      lastAutoOpenSignal.current = autoOpenSignal;
-      setOpen(true);
-    }
-  }, [autoOpenSignal]);
   // Same fix as TabHub's own Modal (components/TabHub.tsx) -- see that
   // file's longer comment for the full reasoning and the real, captured
   // timing data behind it: the card's own layout was already correct on
@@ -389,7 +378,9 @@ export function LensHub<T extends string>({
   // Dialog window was actually up yet when it committed. Keeping the card
   // invisible until onShow, rather than the instant `open` becomes true,
   // means it can only ever become visible once the window is genuinely
-  // ready.
+  // ready. Also reset (alongside its own onPress reset below) by the
+  // autoOpenSignal effect further down -- see that effect's own comment
+  // for why that reset turned out to be load-bearing, not just tidiness.
   const [cardReady, setCardReady] = useState(false);
   const [helpVisible, setHelpVisible] = useState(false);
   // Whether the grid has real content below/above the visible window --
@@ -432,6 +423,46 @@ export function LensHub<T extends string>({
       return current === next ? current : next;
     });
   }
+  // Tracks the last autoOpenSignal value this popup has already reacted
+  // to, so it opens once per genuinely NEW signal rather than every
+  // re-render -- undefined at rest (no signal yet), matching a screen
+  // that never received one from a TabHub tap this session. Declared here,
+  // after cardReady/canScrollDown/canScrollUp/scrollMetrics above (moved
+  // 2026-08-08 -- this effect used to sit right after `open`, before any
+  // of those existed yet in the function body), specifically so the reset
+  // below can reach all four.
+  const lastAutoOpenSignal = useRef<string | undefined>(undefined);
+  useEffect(() => {
+    if (autoOpenSignal && autoOpenSignal !== lastAutoOpenSignal.current) {
+      lastAutoOpenSignal.current = autoOpenSignal;
+      // 2026-08-08, a real, root-caused fix for a real, on-device-confirmed
+      // "popup drops in from above" report -- reproducible specifically via
+      // Purple Digest's own new "Back to Digest" breadcrumb (which drives
+      // this same autoOpenSignal path a second, third, etc. time within one
+      // screen visit), never via a direct corner-button tap. Traced
+      // directly, not guessed: the corner button's own onPress (below)
+      // always resets cardReady/the scroll-hint state before setOpen(true),
+      // so the card always starts invisible and only shows once a fresh
+      // onShow confirms the new native window is actually up -- exactly the
+      // fix cardReady's own comment already documents needing. This effect
+      // never did any of those resets at all -- harmless the FIRST time a
+      // screen's LensHub ever opens (cardReady already starts false, its
+      // own real default), but every open after the first leaves cardReady
+      // sitting at whatever the PREVIOUS open left it as (onShow's own
+      // setCardReady(true), never reset back on close) -- so a second or
+      // later auto-triggered open rendered the card at full opacity
+      // immediately, before the new Dialog window was actually confirmed
+      // up, reproducing the exact glitch the onShow gate exists to prevent.
+      // The scroll-hint reset rides along for the same reason (a stale hint
+      // from a previous open showing for one frame) -- a smaller version of
+      // the identical staleness class, not a separate bug.
+      setCardReady(false);
+      scrollMetrics.current = { containerHeight: 0, contentHeight: 0, scrollY: 0 };
+      setCanScrollDown(false);
+      setCanScrollUp(false);
+      setOpen(true);
+    }
+  }, [autoOpenSignal]);
   const insets = useSafeAreaInsets();
   const { bottom: buttonBottom, left: buttonLeft } = useBottomLeftHubPosition();
   // Falls back to the brand teal/list icon only if a page ever passes a
