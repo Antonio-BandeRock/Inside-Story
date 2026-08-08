@@ -187,4 +187,21 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-menstrual-estrogen-withdrawal'],
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'migraine-vestibular-underrecognized',
+    category: 'migraine',
+    title: 'Vestibular Migraine: A Real, Genuinely Common Cause of Dizziness That Doesn\'t Always Look Like a Headache',
+    teaser: "Up to 73% of people with migraine with aura meet criteria for this real, separate subtype -- and it's dramatically underrecognized specifically because it doesn't require head pain to be present.",
+    summary:
+      "Vestibular migraine is a real, genuinely underrecognized migraine subtype worth knowing about directly, since its own real defining symptom, dizziness or a spinning sensation, doesn't require head pain to be present at the same time, meaning it can easily go unrecognized as migraine at all. Real prevalence estimates vary by population studied: roughly 1% of the general population and 10% of people with migraine overall, but real research finds it far more concentrated in specific groups, up to 60% of people with chronic migraine and a striking 73% of those with migraine with aura (already covered in this app's own stroke-risk research) meet real diagnostic criteria for it. The real, specific underrecognition problem: during ordinary headache-clinic interviews, only about 20% of patients spontaneously mention vestibular symptoms on their own, but that real number roughly doubles when a specific questionnaire is used, and climbs as high as 75% when a clinician asks about it directly. Real research in women aged 20-50 presenting specifically with dizziness found vestibular migraine in 42.86% of cases, a genuinely common, genuinely disabling real condition. Worth knowing directly: real, unexplained dizziness or balance problems, even without a classic headache alongside them, are worth raising directly as a possible migraine variant, not assumed to be an unrelated inner-ear or balance problem by default.",
+    citations: [
+      { source: 'Vestibular migraine: an update, PMID 38619053', url: 'https://pubmed.ncbi.nlm.nih.gov/38619053/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-aura-stroke-real-risk'],
+  },
 ];

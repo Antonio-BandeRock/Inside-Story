@@ -207,4 +207,21 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'ckd-dialysis-diet-reversal',
+    category: 'chronicKidneyDisease',
+    title: 'Starting Dialysis Genuinely Reverses One of CKD\'s Own Core Dietary Rules -- Protein Restriction Becomes Protein Requirement',
+    teaser: 'The real, standard 0.6-0.8g/kg/day protein ceiling this app already covers for pre-dialysis CKD flips once dialysis starts -- the treatment itself now strips real protein out of the blood that has to be replaced.',
+    summary:
+      "This is a real, genuinely important shift worth knowing before it happens, not after: this app's own real, already-established protein-restriction guidance (0.6-0.8g/kg/day, covered elsewhere in this category) applies specifically to PRE-dialysis CKD, protecting whatever kidney function still remains. Once dialysis actually starts, that real logic reverses, since dialysis itself removes real protein directly from the blood during each treatment, with peritoneal dialysis removing measurably more than hemodialysis. Real, current guidance for people on dialysis calls for MORE protein, not less, to replace what treatment itself takes out. Potassium and fluid restriction, by contrast, often intensify rather than reverse: someone on standard three-times-weekly hemodialysis has real, longer stretches between treatments for waste and fluid to build back up, meaning real, strict limits on both often become necessary in a way they weren't pre-dialysis. Worth knowing directly: a real dietary plan that was correct for years of pre-dialysis CKD can become genuinely wrong once dialysis starts, a real, concrete reason this specific transition deserves its own direct conversation with a renal dietitian rather than assuming the old rules still apply.",
+    citations: [
+      { source: 'Healthy Eating for Adults with Chronic Kidney Disease, NIDDK', url: 'https://www.niddk.nih.gov/health-information/kidney-disease/chronic-kidney-disease-ckd/healthy-eating-adults-chronic-kidney-disease' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-protein-restriction-plant-based', 'ckd-potassium-restriction-reconsidered'],
+  },
 ];

@@ -206,4 +206,21 @@ export const IBS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'weak',
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'ibs-sibo-real-connection-caveat',
+    category: 'ibs',
+    title: 'SIBO and IBS Overlap Substantially in Real Studies -- But Which Breath Test Is Used Genuinely Changes the Number',
+    teaser: 'One real study found SIBO in 72% of IBS patients versus 11% of controls -- but a real, more rigorous test cuts that figure roughly in half, and even a positive test doesn\'t reliably predict actual symptoms.',
+    summary:
+      "Small intestinal bacterial overgrowth (SIBO), real bacteria overgrowing in a part of the gut that should have relatively few, shows a real, substantial overlap with IBS, though the exact real number depends heavily on which test is used, worth knowing directly before trusting any single figure. Using the lactulose breath test, real research found SIBO in 72% of IBS patients versus just 11% of controls, a striking real gap. Using the glucose breath test instead, real prevalence drops to a more modest 36.4-46%, still elevated but notably lower. This isn't a minor technical detail: real, current guidance states the lactulose test's own positivity rate runs roughly 10 times higher than the glucose test specifically because lactulose isn't well absorbed in the small bowel, meaning some of what it detects is real colonic fermentation, not true small-intestinal overgrowth, and current guidance has moved away from lactulose testing for this specific reason. A real, honest, and genuinely important caveat found in the same research: test positivity, on EITHER test, did not correlate with actual reported symptoms, real, direct evidence that a positive SIBO test doesn't reliably predict who's actually more symptomatic, worth knowing before assuming a positive result explains everything or that treating it will necessarily resolve real IBS symptoms.",
+    citations: [
+      { source: 'Prevalence of small intestinal bacterial overgrowth in irritable bowel syndrome (IBS): Correlating H2 or CH4 production with severity of IBS, PMC10134763', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10134763/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibs-post-infectious-mechanism'],
+  },
 ];

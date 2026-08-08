@@ -203,4 +203,20 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-pregnancy-glucose-targets'],
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'type2-dawn-phenomenon-somogyi',
+    category: 'type2Diabetes',
+    title: 'High Morning Blood Sugar Has Two Real, Genuinely Different Causes -- And They Call for Opposite Real Fixes',
+    teaser: "The dawn phenomenon is a real, normal hormone surge. The Somogyi effect is a real overnight low blood sugar rebounding high -- treating one like the other can make things worse, not better.",
+    summary:
+      "Waking up with high blood sugar has two real, genuinely different possible explanations, and telling them apart matters directly for what to actually do about it. The dawn phenomenon is a real, normal physiological event: growth hormone, cortisol, and catecholamines rise in the early morning hours as the body prepares to wake, triggering the liver to release stored sugar, and in someone with insulin resistance or T2D, morning insulin action often isn't strong enough to counter that real rise. The Somogyi effect is a real, different mechanism entirely, the body's own rebound response to low blood sugar overnight, blood glucose drops too low, then swings back up by morning. Real, practical guidance for telling them apart: checking blood sugar at bedtime, around 2-3 AM, and at normal wake time for several nights: a real low reading at 2-3 AM points to Somogyi; a normal or already-elevated reading at that same hour points to the dawn phenomenon instead. This matters because the real fixes run in opposite directions, adjusting evening medication or snacking to prevent an overnight low (Somogyi) versus adjusting morning-focused treatment to blunt the hormone surge (dawn phenomenon). Worth knowing directly: real, more recent research using continuous glucose monitoring has found the Somogyi effect genuinely less common than once assumed, with the dawn phenomenon being the more frequent real explanation for high morning readings.",
+    citations: [
+      { source: 'The dawn phenomenon and the Somogyi effect - two phenomena of morning hyperglycaemia, PMID 21717414', url: 'https://pubmed.ncbi.nlm.nih.gov/21717414/' },
+    ],
+    overallTier: 'strong',
+  },
 ];

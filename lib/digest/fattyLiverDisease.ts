@@ -205,4 +205,21 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'masld-pnpla3-genetic-risk',
+    category: 'fattyLiverDisease',
+    title: 'A Single Gene Variant Nearly Triples MASLD Risk -- and Its Real Effect Gets Dramatically Worse With Alcohol, Obesity, or T2D',
+    teaser: "The PNPLA3 gene variant is a real, textbook example of gene-environment interaction: carrying it alone raises real risk, but combining it with alcohol, obesity, or diabetes amplifies that risk dramatically further.",
+    summary:
+      "A specific, real, single-letter change in the PNPLA3 gene (called I148M, swapping one amino acid for another at position 148) is one of the most consistently replicated real genetic risk factors for MASLD found anywhere in the research. Real, pooled data finds carrying two copies of the risk variant associated with a real 2.76-fold higher odds of fatty liver, and a striking 4.44-fold higher odds of MASH specifically (the real, more serious inflammatory form already covered in this app's own fibrosis-staging research), compared to carrying no copies. The real mechanism: the altered enzyme has reduced activity, causing fat to genuinely accumulate in liver cells rather than being processed normally. The real, most important practical fact: this variant is described directly in the literature as a textbook case of gene-environment interaction, its real effect on liver damage is dramatically amplified specifically by alcohol consumption, obesity, and type 2 diabetes, meaning the same genetic risk plays out very differently depending on real, modifiable lifestyle factors layered on top of it. Worth knowing directly for anyone with a family history of fatty liver disease or cirrhosis at a relatively young age: genetic testing for this real variant exists, and a positive result is a real, concrete reason to be more conservative about alcohol and weight specifically, not just general advice.",
+    citations: [
+      { source: 'PNPLA3 gene, MedlinePlus Genetics', url: 'https://medlineplus.gov/genetics/gene/pnpla3/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-metald-alcohol-threshold', 'masld-f0-f4-fibrosis-staging'],
+  },
 ];

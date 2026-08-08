@@ -209,4 +209,21 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'cvd-cantos-inflammation-hypothesis',
+    category: 'cardiovascularDisease',
+    title: 'A Real, Landmark Trial Proved Cardiovascular Risk Can Be Lowered by Fighting Inflammation Alone, With No Cholesterol Change at All',
+    teaser: 'The real CANTOS trial gave a pure anti-inflammatory drug to 10,061 heart attack survivors and found real, significant risk reduction -- with zero effect on cholesterol, directly separating inflammation from lipids as two real, independent levers.',
+    summary:
+      "This is a real, genuinely landmark finding worth understanding directly: the CANTOS trial (10,061 people who had already survived a heart attack, all with elevated hs-CRP, the same real inflammatory marker already covered in this app's own self-advocacy research) tested canakinumab, a drug that blocks a specific inflammatory signaling molecule (IL-1beta) and does essentially nothing to cholesterol. Real results at the effective dose found a significant reduction in major cardiovascular events (hazard ratio 0.85 versus placebo), while hs-CRP and IL-6 both dropped significantly and LDL cholesterol did NOT change at all. This is the first real, phase 3 trial evidence that inflammation itself, independent of cholesterol, is a genuine, directly treatable driver of cardiovascular risk, not just a marker that happens to travel alongside it. Worth knowing the honest, real limits too: the effect size was genuinely modest, there was no significant reduction in overall mortality, and the drug carried a real increased risk of fatal infection, real reasons this specific drug hasn't become standard practice despite the finding's own real scientific significance. The real, lasting takeaway isn't the drug itself, it's the concept it proved: inflammation and cholesterol are two real, separate, independently treatable pathways to cardiovascular risk, not one and the same thing.",
+    citations: [
+      { source: 'Antiinflammatory Therapy with Canakinumab for Atherosclerotic Disease, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1707914' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-lipid-panel-self-advocacy'],
+  },
 ];

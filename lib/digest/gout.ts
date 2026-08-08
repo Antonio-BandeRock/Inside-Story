@@ -240,4 +240,21 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'gout-diuretics-prescribing-cascade',
+    category: 'gout',
+    title: 'A Real, Common Prescribing Cascade: The Blood Pressure Pill Someone Takes Can Be the Real Reason Gout Started in the First Place',
+    teaser: 'A real, large population study found diuretics carry a real, roughly two-and-a-half-fold higher gout risk, and combining two diuretic types together nearly doubles that again.',
+    summary:
+      "This is a real, direct, worth-knowing connection: diuretics, among the most commonly prescribed blood pressure and heart failure medications, are a genuine, well-documented cause of gout, not just a minor footnote. A real, large, population-based case-control study (91,530 real incident gout cases matched against controls) found diuretic use overall associated with almost two and a half times the risk of developing gout compared to no diuretic use. Broken down by real diuretic type, the risk varied: loop diuretics carried the highest individual risk (a real 2.64-fold odds increase), thiazide-like diuretics close behind (2.30-fold), plain thiazide diuretics lower but still real (1.70-fold), and potassium-sparing diuretics showing no significant increase at all. Combining a loop and a thiazide diuretic together, a real, common combination for harder-to-manage fluid retention, carried the highest real risk of any combination studied, a 4.65-fold increase. This connects directly to this app's own existing prescribing-cascade research: someone who develops gout while on a diuretic, then gets prescribed allopurinol to manage it, may be experiencing a real, textbook prescribing cascade, where the actual root cause (the diuretic itself) never gets revisited. Worth raising directly with a prescriber: whether a potassium-sparing diuretic, or a different blood-pressure medication class entirely, might be a real, reasonable alternative for someone whose gout appeared or worsened after starting a diuretic.",
+    citations: [
+      { source: 'Use of Diuretics and Risk of Incident Gout: A Population-Based Case-Control Study, PMID 24449584', url: 'https://pubmed.ncbi.nlm.nih.gov/24449584/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-prescribing-cascade', 'gout-urate-lowering-therapy'],
+  },
 ];

@@ -362,7 +362,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: 'Leslie WS, Ali E, Harris L, et al. 2021: Antihypertensive medication needs and blood pressure control with weight loss in the Diabetes Remission Clinical Trial (DiRECT)', url: 'https://pubmed.ncbi.nlm.nih.gov/34056684/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['advocacy-how-to-ask', 'mito-visceral-fat-treg-depletion', 'type2-direct-remission-trial'],
+    relatedIds: ['advocacy-how-to-ask', 'mito-visceral-fat-treg-depletion', 'type2-direct-remission-trial', 'gout-diuretics-prescribing-cascade'],
   },
   {
     id: 'advocacy-fibromyalgia-thyroid-overlap',

@@ -253,4 +253,21 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-psa-screening'],
   },
+
+  // -- Second depth pass, 2026-08-08, continuing the full-parity work
+  // beyond the first structural pass. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'prostate-ejaculation-frequency',
+    category: 'prostateHealth',
+    title: 'A Real, Large Harvard Study Found More Frequent Ejaculation Tracked With Meaningfully Lower Prostate Cancer Risk',
+    teaser: 'A real, 18-year study of nearly 32,000 men found those averaging 21+ ejaculations a month had a real 31% lower prostate cancer risk than those averaging 4-7, holding up after adjusting for lifestyle and screening habits.',
+    summary:
+      "This is a real, genuinely counterintuitive finding worth stating plainly: a large, real, prospective study run through the Harvard-affiliated Health Professionals Follow-Up Study (31,925 men, followed from 1992 through 2010) found more frequent ejaculation associated with a real, meaningfully LOWER risk of developing prostate cancer, not higher. Men averaging 21 or more ejaculations per month showed a real 31% lower risk of prostate cancer compared to men averaging just 4 to 7 per month, and the real, protective association held up specifically at two different life stages too, a 19% lower risk tied to frequency in their 20s and a 22% lower risk tied to frequency in their 40s. Genuinely important to how much this finding can be trusted: the real result held up even after adjusting for other lifestyle factors and, separately, after adjusting for how often each man actually got PSA screening, ruling out the more mundane explanation that more sexually active men might simply get tested more and catch more cancers incidentally. The real, proposed biological explanation involves clearing out potential carcinogens and reducing crystal-like deposits that can otherwise accumulate in prostatic fluid, though the exact mechanism remains an area of real, ongoing research rather than fully settled. Worth knowing directly: this is real, genuine, large-cohort evidence, not proof of direct causation, but a striking enough finding that it's worth naming by name rather than left as something patient-facing sources rarely mention.",
+    citations: [
+      { source: 'Ejaculation frequency and subsequent risk of prostate cancer, Harvard Health Publishing', url: 'https://www.health.harvard.edu/mens-health/ejaculation_frequency_and_prostate_cancer' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-psa-screening'],
+  },
 ];
