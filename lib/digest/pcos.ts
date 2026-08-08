@@ -32,6 +32,7 @@ export const PCOS_ENTRIES: DigestEntry[] = [
       { source: 'Polycystic Ovary Syndrome, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/polycysticovarysyndrome.html' },
     ],
     overallTier: 'strong',
+    relatedIds: ['migraine-menstrual-estrogen-withdrawal'],
   },
   {
     id: 'pcos-insulin-resistance-mechanism',

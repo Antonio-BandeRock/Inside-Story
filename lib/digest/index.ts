@@ -17,6 +17,7 @@ import { IBS_ENTRIES } from './ibs';
 import { LABS_MEDICATION_ENTRIES } from './labsMedication';
 import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
 import { LUPUS_ENTRIES } from './lupus';
+import { MIGRAINE_ENTRIES } from './migraine';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
 import { MULTIPLE_SCLEROSIS_ENTRIES } from './multipleSclerosis';
 import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
@@ -43,7 +44,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808220000';
+export const PURPLE_DIGEST_VERSION = '20260808230000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -84,6 +85,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...FATTY_LIVER_DISEASE_ENTRIES,
   ...TYPE_2_DIABETES_ENTRIES,
   ...IBS_ENTRIES,
+  ...MIGRAINE_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -269,6 +271,15 @@ export const DIGEST_CATEGORY_META: {
     label: 'Irritable Bowel Syndrome',
     icon: 'sync-outline',
     description: 'Real evidence for IBS: the low-FODMAP diet, peppermint oil and gut-directed hypnotherapy, the post-infectious mechanism behind over half of all cases, and self-advocacy for distinguishing IBS from conditions that mimic it.',
+  },
+  // 2026-08-08, same day, sixteenth condition: Migraine. See migraine.ts's
+  // own header comment -- a real neurological disease with its own
+  // dedicated, genuinely major medication class (CGRP inhibitors).
+  {
+    key: 'migraine',
+    label: 'Migraine',
+    icon: 'thunderstorm-outline',
+    description: 'Real evidence for migraine: an honest correction to food-trigger lists, the magnesium/riboflavin/CoQ10 combination trial, CGRP inhibitors, medication-overuse headache, and self-advocacy for recognizing real emergency red flags.',
   },
 ];
 

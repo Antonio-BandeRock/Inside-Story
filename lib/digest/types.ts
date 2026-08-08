@@ -181,6 +181,13 @@ export const DIGEST_CATEGORY_KEYS = [
   // IBD (already built out in this app, genuinely often confused with IBS
   // by name alone).
   'ibs',
+  // 2026-08-08, same day, sixteenth condition, next in the same priority
+  // order: Migraine. See migraine.ts's own header comment -- this app's
+  // sixth genuinely non-autoimmune condition, a real neurological disease
+  // with its own dedicated, genuinely major medication class (CGRP
+  // inhibitors) and a real, honest correction to oversimplified food
+  // trigger lists.
+  'migraine',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
