@@ -313,4 +313,31 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-statin-evidence', 'type2-prediabetes-real-progression'],
   },
+  {
+    id: 'type2-time-restricted-eating',
+    category: 'type2Diabetes',
+    title: 'A Real Meta-Analysis Found Eating Within a Shorter Window Improves Blood Sugar, Distinct From Low-Carb Eating',
+    teaser: 'Pooling 8 real trials, time-restricted eating significantly lowered fasting glucose and HbA1c and increased real time-in-range, a genuinely different lever from this category\'s own already-covered low-carb evidence.',
+    summary:
+      "This category's own research already covers low-carbohydrate diets as a real, distinct lever for T2D. Time-restricted eating, confining food intake to a shorter daily window without necessarily changing WHAT is eaten, is a real, separate, actively-tested approach worth knowing directly. A real meta-analysis pooling 8 randomized controlled trials (312 participants with type 2 diabetes or impaired fasting glucose) found time-restricted eating significantly reduced both fasting glucose and HbA1c, with a real, consistent increase in time-in-range across the pooled trials. Individual real trials found broadly similar results: a real, 3-month randomized trial found a nightly 12-hour fasting window combined with calorie restriction outperformed calorie restriction alone for both weight loss and HbA1c, and a real, 10-hour time-restricted-eating crossover trial found genuine 24-hour glucose improvement in free-living adults with T2D, though notably without a real, matching improvement in insulin sensitivity itself, an honest, real nuance worth keeping in view rather than assuming every marker improves together. Worth knowing directly: this is a real, food-timing-first lever, distinct from what's eaten, that someone who finds a specific eating window more sustainable day to day than tracking every gram of carbohydrate can raise directly with a doctor or dietitian as a real, evidence-backed alternative or complement to this category's own already-covered low-carb approach.",
+    citations: [
+      { source: 'Time-Restricted Eating Improves Glycemic Control in Patients with Type 2 Diabetes: A Meta-Analysis and Systematic Review, PMC12346854', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12346854/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-low-carb-diet-evidence', 'masld-time-restricted-eating'],
+  },
+  {
+    id: 'type2-sleep-apnea-glycemic-control',
+    category: 'type2Diabetes',
+    title: 'Sleep Apnea and T2D Run Together, but Real Trials on Treating It Give a Genuinely Mixed Answer',
+    teaser: 'Real, individual CPAP trials found real glycemic improvement in some cases, but a real, pooled meta-analysis of 581 patients found no overall HbA1c benefit, an honest, unsettled real evidence picture.',
+    summary:
+      "Obstructive sleep apnea and type 2 diabetes are real, commonly co-occurring conditions, and real research has directly tested whether treating the sleep apnea (with CPAP, continuous positive airway pressure) improves the diabetes itself, with a genuinely mixed, honest answer worth knowing plainly rather than assumed settled either way. One real, controlled trial (50 patients) found CPAP treatment produced a real, statistically significant improvement in glycemic control and insulin resistance compared with standard care. A real, later trial (the Diabetes Sleep Treatment Trial) found real, significant HbA1c improvement at 6 weeks that didn't hold up as a sustained difference by the trial's own primary, intention-to-treat analysis. Worth knowing honestly: a real, pooled meta-analysis of 6 randomized trials and 581 total participants found no significant overall effect on HbA1c at either 12 or 24 weeks, a real, more sobering conclusion once the individual, more encouraging trials are combined. One real, consistent thread across this mixed picture: real research found CPAP adherence itself tracked with greater glycemic improvement, suggesting the real, practical barrier (many people genuinely struggle to use CPAP consistently every night) may be diluting a real effect that's there for people who use it well. Worth knowing directly: treating sleep apnea remains real, worthwhile care in its own right (blood pressure, cardiovascular risk, daytime function), just not, based on real current pooled evidence, a reliably diabetes-improving intervention on its own.",
+    citations: [
+      { source: 'Effect of Continuous Positive Airway Pressure on Glycemic Control in Patients with Obstructive Sleep Apnea and Type 2 Diabetes. A Randomized Clinical Trial, PMID 26910598', url: 'https://pubmed.ncbi.nlm.nih.gov/26910598/' },
+      { source: 'CPAP in patients with obstructive sleep apnea and type 2 diabetes mellitus: Systematic review and meta-analysis, PMID 30073792', url: 'https://pubmed.ncbi.nlm.nih.gov/30073792/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['masld-sleep-apnea-bidirectional'],
+  },
 ];

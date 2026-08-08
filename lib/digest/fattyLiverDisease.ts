@@ -285,7 +285,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Obstructive sleep apnea mediates the association between body mass index and MASLD in patients with obesity, Hepatology International', url: 'https://link.springer.com/article/10.1007/s12072-026-11101-8' },
     ],
     overallTier: 'strong',
-    relatedIds: ['masld-overview'],
+    relatedIds: ['masld-overview', 'type2-sleep-apnea-glycemic-control'],
   },
   {
     id: 'masld-fiber-intake-real-data',
@@ -326,7 +326,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Time-Restricted Fasting Improves Liver Steatosis in Non-Alcoholic Fatty Liver Disease — A Single Blinded Crossover Trial, Nutrients 2023, PMID 38068729', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10708421/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['masld-weight-loss-thresholds'],
+    relatedIds: ['masld-weight-loss-thresholds', 'type2-time-restricted-eating'],
   },
   {
     id: 'masld-colorectal-cancer-risk',
