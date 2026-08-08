@@ -255,11 +255,10 @@ const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 // own front-of-picker placement) lead; Food Industry & History, more a
 // history essay than a lookup tool, trails last.
 const BASIC_HEALTH_GROUPS: { label: string; prefix: string }[] = [
-  // 2026-08-08, placed genuinely first, ahead of even Magnesium/Vitamin D:
-  // real, direct, attributed answers to "why does this app exist" and
-  // "whose voice is behind this content" -- foundational framing, not one
-  // more topic to browse past on the way to something else.
-  { label: 'Why This App Exists', prefix: 'about-' },
+  // Note: a "Why This App Exists" shelf (prefix 'about-') existed here
+  // 2026-08-08 through 2026-08-08, then was removed the same day per
+  // direct instruction -- the whole lib/digest/aboutThisApp.ts file was
+  // deleted outright, not just hidden from this list.
   { label: 'Magnesium', prefix: 'magnesium-' },
   { label: 'Vitamin D', prefix: 'vitamind-' },
   { label: 'Iron', prefix: 'iron-' },
@@ -292,6 +291,7 @@ const BASIC_HEALTH_GROUPS: { label: string; prefix: string }[] = [
   { label: 'Choline', prefix: 'choline-' },
   { label: 'Carbohydrates & Fiber', prefix: 'carbfiber-' },
   { label: 'Water & Hydration', prefix: 'water-' },
+  { label: 'Dietary Fat', prefix: 'dietfat-' },
   { label: 'Hormones', prefix: 'hormone' },
   { label: 'Glossary', prefix: 'glossary-' },
   { label: 'Problem Foods & Swaps', prefix: 'problem-' },

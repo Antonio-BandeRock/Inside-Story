@@ -177,4 +177,57 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-carb-counting-accuracy', 'type1-dka-sick-day-rules', 'type1-celiac-comorbidity', 'type1-autoantibody-panel', 'type1-hba1c-time-in-range'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'type1-jdrf-presymptomatic-staging',
+    category: 'type1Diabetes',
+    title: 'T1D Has a Real, Formal 3-Stage Framework That Starts Years Before Any Symptom Appears',
+    teaser: "Real, present-day research can detect T1D happening before a single symptom shows up -- Stage 1 and Stage 2 both carry close to 100% lifetime risk of reaching Stage 3, the point most people think of as \"diagnosis.\"",
+    summary:
+      "A real, formal staging system, jointly published by JDRF, the Endocrine Society, and the American Diabetes Association, reframes T1D as a real, predictable continuum rather than a sudden-onset disease. Stage 1: two or more islet autoantibodies present (the immune system has already begun attacking insulin-producing beta cells), but blood sugar is still fully normal and there are no symptoms at all. Stage 2: the same autoantibodies, but blood sugar has become measurably abnormal as beta-cell loss progresses, still without symptoms. Stage 3 is what most people think of as \"diagnosis\": significant beta-cell loss has occurred and real, classic symptoms (frequent urination, excessive thirst, weight loss, fatigue) finally appear. The real, striking fact worth knowing directly: once someone reaches Stage 1 or Stage 2, real research finds lifetime risk of progressing to Stage 3 approaches 100%, meaning T1D is genuinely predictable well before a formal diagnosis, not a condition that appears without warning -- real, relevant context for anyone with a close relative already diagnosed with T1D who might consider real antibody screening.",
+    citations: [
+      { source: 'Staging Presymptomatic Type 1 Diabetes: A Scientific Statement of JDRF, the Endocrine Society, and the American Diabetes Association, PMID 26404926', url: 'https://pubmed.ncbi.nlm.nih.gov/26404926/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-autoantibody-panel', 'type1-honeymoon-phase'],
+  },
+  {
+    id: 'type1-long-term-complications-real-data',
+    category: 'type1Diabetes',
+    title: "T1D's Real, Long-Term Complication Burden -- and a Real, Direct Reason This App's Own Screening Guidance Matters",
+    teaser: 'Real research finds retinopathy in roughly 30-51% of patients and nerve-related cardiovascular complications in over 60% -- and having multiple complications together measurably raises overall mortality risk.',
+    summary:
+      "T1D's own real, long-term complication burden is genuinely substantial, the direct reason this app's own self-advocacy research already covers screening intervals for retinopathy and nephropathy. Real cross-sectional research finds diabetic retinopathy affecting roughly 30-51% of people with T1D depending on the specific population studied. Cardiovascular autonomic neuropathy, nerve damage affecting the heart's own rhythm regulation, shows an even higher real prevalence in T1D specifically, 61.8% in one real study, notably higher than the same complication's own rate in Type 2 Diabetes. A real, 10-year follow-up study of 774 T1D patients found 45.1% had at least one measurable microvascular complication (retinopathy, nephropathy, or neuropathy), and the real, more consequential finding: having multiple complications together, not just one, independently raised the risk of a major vascular event and all-cause mortality, worth knowing as a real, direct reason consistent screening (already covered in this app's own self-advocacy content) matters beyond any single complication in isolation.",
+    citations: [
+      { source: 'Microvascular complications burden (nephropathy, retinopathy and peripheral polyneuropathy) affects risk of major vascular events and all-cause mortality in type 1 diabetes, PMC6858978', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6858978/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-complication-screening'],
+  },
+  {
+    id: 'type1-history-milestones',
+    category: 'type1Diabetes',
+    title: "T1D's Own Real History: A Fatal Diagnosis Until One Real Discovery Changed Everything in a Single Summer",
+    teaser: '1921, 1922, 1923 -- three real years that took T1D from a genuine death sentence to a manageable condition, faster than almost any other disease-treatment story in this app.',
+    summary:
+      "Before 1921, a T1D diagnosis was, in real, documented medical practice, effectively a death sentence, with treatment limited to severe dietary restriction that could delay but not prevent death. On July 27, 1921, Frederick Banting and Charles Best, working at the University of Toronto, successfully isolated insulin, inducing diabetes in dogs and then reversing it with the hormone they'd extracted. On January 11, 1922, 14-year-old Leonard Thompson became the first person to receive an insulin injection as treatment; his first dose caused an allergic reaction, but a refined, purified version given days later worked, and his health improved dramatically. By 1923, Eli Lilly had begun mass-producing insulin commercially, and Banting and his supervisor Macleod received the Nobel Prize the same year (Banting, in a real, well-documented act, split his own prize money with Best, who had been excluded from the award itself). This is a genuinely fast turnaround, roughly two years from discovery to a real, transformed, manageable disease, one of the most compressed real medical-history timelines in this whole app.",
+    citations: [
+      { source: 'The discovery of insulin in Toronto: beginning a 100 year journey of research and clinical achievement, Diabetologia', url: 'https://link.springer.com/article/10.1007/s00125-020-05371-6' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'type1-pregnancy-glucose-targets',
+    category: 'type1Diabetes',
+    title: 'T1D Pregnancy Runs on Real, Tighter Glucose Targets Than Everyday Management -- and Real Data Shows Most People Don\'t Fully Reach Them',
+    teaser: 'A real target A1C under 6% during pregnancy, and real, quantified evidence that even a 5% shortfall in time-in-range measurably raises risk to the baby.',
+    summary:
+      "T1D during pregnancy calls for a genuinely tighter real glucose target than ordinary day-to-day management: an A1C under 6%, without excessive hypoglycemia, and a real target range of roughly 3.5-7.8 mmol/L (63-140 mg/dL) throughout. Real data shows this is a genuinely difficult target to consistently hit: pregnant people with T1D spend on average only 50%, 55%, and 60% of time in that target range across the first, second, and third trimesters respectively. The real, quantified stakes of that shortfall: research found a 5% lower time-in-range, paired with 5% more time above range, measurably raised the risk of a large-for-gestational-age infant, neonatal hypoglycemia, and NICU admission. Real, pre-existing T1D itself carries a real, 2-4-fold increased risk of adverse outcomes overall (congenital anomalies, preeclampsia, preterm delivery) compared to the general population, with real, specific elevated risk of congenital heart conditions -- a real, direct reason prenatal folic acid (already reducing malformation risk generally) and early, dedicated preconception planning with an endocrinologist matter more here than in an average pregnancy.",
+    citations: [
+      { source: 'Continuous glucose monitoring targets in type 1 diabetes pregnancy: every 5% time in range matters, PMC6560014', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6560014/' },
+    ],
+    overallTier: 'strong',
+  },
 ];

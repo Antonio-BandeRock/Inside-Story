@@ -55,6 +55,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Primary Prevention of Cardiovascular Disease with a Mediterranean Diet Supplemented with Extra-Virgin Olive Oil or Nuts (corrected and republished), PMID 29897866', url: 'https://pubmed.ncbi.nlm.nih.gov/29897866/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['dietfat-saturated-monounsaturated-honest'],
   },
   {
     id: 'cvd-dash-sodium',

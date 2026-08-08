@@ -1,6 +1,5 @@
 import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
-import { ABOUT_THIS_APP_ENTRIES } from './aboutThisApp';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
 import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
@@ -50,7 +49,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808600000';
+export const PURPLE_DIGEST_VERSION = '20260808700000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -58,7 +57,6 @@ export const PURPLE_DIGEST_VERSION = '20260808600000';
 // isProblemFoodEntry (types.ts) rather than the aggregator needing two
 // parallel lists.
 export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
-  ...ABOUT_THIS_APP_ENTRIES,
   ...GLOSSARY_ENTRIES,
   ...FOOD_ADDITIVES_ENTRIES,
   ...FERMENTED_FOODS_ENTRIES,

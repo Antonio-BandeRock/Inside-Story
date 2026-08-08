@@ -241,4 +241,56 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-weight-loss', 'psoriasis-mediterranean-diet', 'psoriasis-nightshades', 'psoriasis-vitamin-d-oral', 'psoriasis-advocacy-psa-screening', 'psoriasis-advocacy-cardiovascular-metabolic'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'psoriasis-pasi-severity-staging',
+    category: 'psoriasis',
+    title: 'Psoriasis Severity Has a Real, Formal Measuring System, Not Just "Mild" or "Bad"',
+    teaser: 'PASI, body surface area, and quality-of-life impact all factor into a real, standardized severity classification -- worth knowing by name before a treatment conversation.',
+    summary:
+      "Psoriasis severity is measured with the Psoriasis Area and Severity Index (PASI), a real, validated score from 0 to 72 combining how much body surface is affected with how red, thick, and scaly the plaques are. A real, standard classification splits by body surface area alone: under 2% affected is mild, 2-10% is moderate, over 10% is severe. Modern dermatology guidance combines PASI with a quality-of-life measure (DLQI, the Dermatology Life Quality Index) and location, since a smaller affected area on the face, palms, or genitals can carry real psychosocial impact severe enough to be treated as more serious than the raw percentage alone suggests. This matters directly for a real, practical reason: treatment options (topical vs. systemic vs. biologic) are matched to this real severity classification, not to how the disease happens to look on a given day.",
+    citations: [
+      { source: 'PASI (Psoriasis Area and Severity Index), DermNet', url: 'https://dermnetnz.org/topics/pasi-score' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'psoriasis-systemic-comorbidities',
+    category: 'psoriasis',
+    title: 'Psoriasis Is a Real, Systemic Inflammatory Disease, Not a Skin Condition That Happens to Look Bad',
+    teaser: 'Real, elevated rates of metabolic syndrome, NAFLD, IBD, depression, and cancer risk -- the same inflammatory pathway driving the visible plaques drives all of it.',
+    summary:
+      "Psoriasis reaches well past the skin: real research finds cardiovascular disease, obesity, type 2 diabetes, hypertension, dyslipidemia, metabolic syndrome, non-alcoholic fatty liver disease, inflammatory bowel disease, and both anxiety and depression all occurring at a real, elevated rate compared to the general population. This isn't a coincidence of shared risk factors; the same real inflammatory signaling molecules driving visible skin plaques (TNF-alpha, IL-6, IL-22, and the IL-23/IL-17 pathway already covered elsewhere in this app's own research) are directly implicated in metabolic-syndrome development too, a real, shared mechanism rather than two separate diseases occurring together by chance. Depression carries a real, specific practical consequence worth knowing directly: real research finds it can measurably reduce the odds of achieving treatment remission, meaning mental health isn't a separate concern from the skin disease itself, it's a real, documented factor in how well the physical treatment actually works.",
+    citations: [
+      { source: 'Psoriasis and Metabolic Syndrome: Mechanisms and Future Directions, PMC8343100', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8343100/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-advocacy-cardiovascular-metabolic'],
+  },
+  {
+    id: 'psoriasis-history-milestones',
+    category: 'psoriasis',
+    title: "Psoriasis's Own Real History: Separated From Leprosy in 1808, Understood as Autoimmune 155 Years Later",
+    teaser: '1808, 1963, 1972, 2003 -- four real, dated turning points, the biggest gap between any of them being how long it took to even recognize the disease as autoimmune.',
+    summary:
+      "Psoriasis's own real, documented history starts with a genuine, and genuinely overdue, correction: in 1808, physician Robert Willan produced the first real clinical description distinguishing psoriasis from leprosy, two conditions that had been confused together for centuries, a real, consequential misclassification given how differently the two conditions were treated and regarded. It took until 1963 for E. J. Van Scott to identify psoriasis as a real autoimmune disorder, and until 1973 for a landmark paper (Moll and Wright) to establish psoriatic arthritis and psoriasis as one connected disease, genuinely distinct from rheumatoid arthritis, the same real distinction this app's own RA and Psoriasis categories reflect by being built as separate conditions. Methotrexate, introduced in 1958, was approved specifically for psoriasis in 1972; the real, more recent turning point came in 2003, when the first biologic agents for psoriasis reached FDA approval, targeting the same specific inflammatory pathways (TNF-alpha, later IL-23/IL-17) this app's own systemic-comorbidity research above traces directly to psoriasis's real, whole-body effects.",
+    citations: [
+      { source: 'Psoriasis: From Antiquity to the Present, Indian Journal of Dermatology, Venereology and Leprology', url: 'https://ijdvl.com/psoriasis-from-antiquity-to-the-present/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'psoriasis-pregnancy-family-planning',
+    category: 'psoriasis',
+    title: "Psoriasis During Pregnancy: Genuinely Split Real Outcomes, and a Real, Common Postpartum Flare",
+    teaser: "40-60% improve during pregnancy, but a real, meaningful minority worsen instead -- and a real, common flare (65-73% of people) follows delivery either way.",
+    summary:
+      "Psoriasis during pregnancy shows a real, genuinely mixed picture, not a reliable improvement the way this app's own Rheumatoid Arthritis research documents for that condition: real data finds 40-60% of pregnant people with psoriasis improve, 10-20% worsen, and the remainder stay stable, meaning pregnancy is a real coin-flip-adjacent outcome here, not a dependable remission window. What IS reliably common: a real postpartum flare, affecting 65-73% of people in real cohort studies, with most flares occurring within the first four months after delivery. A real, genuinely reassuring, more recent finding worth knowing directly: growing evidence supports biologic medications as safe during pregnancy for psoriasis specifically, with real research finding no increased risk of miscarriage or congenital malformation from biologic exposure, and minimal transfer into breast milk for the four injectable biologics studied. The real, practical risk sits the other way: stopping biologics before or during pregnancy carries a real, higher likelihood of a moderate-to-severe flare, a genuine reason this decision deserves a real, direct conversation with a dermatologist rather than an assumption that stopping medication is automatically the safer choice.",
+    citations: [
+      { source: 'The Use and Safety of TNF Inhibitors during Pregnancy in Women with Psoriasis: A Review, PMC5983707', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5983707/' },
+    ],
+    overallTier: 'strong',
+  },
 ];

@@ -163,4 +163,59 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-insulin-resistance-mechanism', 'pcos-myo-dchiro-inositol', 'pcos-weight-loss-modest', 'pcos-hashimotos-comorbidity', 'pcos-endometrial-cancer-risk'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'pcos-rotterdam-phenotypes',
+    category: 'pcos',
+    title: "PCOS Isn't One Thing -- Four Real, Formally Named Phenotypes, With Genuinely Different Real Risk Levels",
+    teaser: "The Rotterdam criteria split PCOS into four real phenotypes (A through D), and Phenotype A carries the real, highest metabolic and hormonal disruption while Phenotype D carries the lowest.",
+    summary:
+      "PCOS diagnosis runs on the Rotterdam criteria: two of three real features (irregular or absent ovulation, biochemical or clinical hyperandrogenism, and polycystic-appearing ovaries on ultrasound) confirm the diagnosis, but WHICH two matters, splitting PCOS into four real, formally named phenotypes. Phenotype A (all three features present, the \"classic\" form) carries the real, most severe metabolic and hormonal disruption, the highest rates of insulin resistance and androgen excess. Phenotype B (hyperandrogenism plus anovulation, without the ovarian-appearance criterion) and Phenotype C (hyperandrogenism plus the ovarian finding, but with regular ovulation) fall in between. Phenotype D (anovulation plus the ovarian finding, but WITHOUT hyperandrogenism) carries the real, lowest metabolic risk of the four, meaning the real, practical focus for that phenotype specifically shifts toward the ovulation problem itself rather than the insulin-resistance-driven complications this app's own PCOS research otherwise centers on. Worth knowing directly: not every PCOS diagnosis carries the same real risk profile, and knowing which phenotype applies changes which parts of this app's own PCOS research are most directly relevant.",
+    citations: [
+      { source: 'When one size does not fit all: Reconsidering PCOS etiology, diagnosis, clinical subgroups, and subgroup-specific treatments', url: 'https://www.sciencedirect.com/science/article/pii/S2666396124000037' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-insulin-resistance-mechanism'],
+  },
+  {
+    id: 'pcos-sleep-mental-health-real-data',
+    category: 'pcos',
+    title: "PCOS's Own Real Reach Beyond Fertility: Sleep Apnea in Over a Third of Patients, and Anxiety in Over Three-Quarters",
+    teaser: 'Real, pooled data finds obstructive sleep apnea in 37% of PCOS patients (versus 6% without PCOS), and a real, striking connected web linking sleep, mental health, and liver fat together.',
+    summary:
+      "PCOS's own real reach extends well past fertility and metabolic labs. Real, pooled data finds obstructive sleep apnea (OSA) in 37% of women with PCOS overall (29% in adolescents, 40% in adults), compared to just 6% in women without PCOS, a genuinely large real gap that holds even after accounting for weight. Left untreated, that same real OSA independently worsens insulin resistance and glucose intolerance, a real, direct feedback loop with PCOS's own central mechanism already covered elsewhere in this app. Real mental-health data is similarly striking: median depression prevalence of 36.6%, and anxiety reported in as high as 76.7% of PCOS patients in real research, both independently tied to BMI and insulin resistance rather than existing in isolation. A real, third connected thread: PCOS carries a real 2-4-fold higher NAFLD (fatty liver) risk independent of BMI, and OSA specifically predisposes toward it further, a real, three-way connected web (sleep, mood, liver) worth managing together rather than as separate, unrelated complaints.",
+    citations: [
+      { source: 'Obstructive sleep apnea syndrome in polycystic ovary syndrome: a systematic review and meta-analysis, PMC12006010', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12006010/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-insulin-resistance-mechanism'],
+  },
+  {
+    id: 'pcos-history-milestones',
+    category: 'pcos',
+    title: "PCOS's Own Real History: Named for Two Doctors, Redefined Three Real Times Since",
+    teaser: '1935, the 1990s, 2003 -- a real, seven-woman case series became a named syndrome, then needed real, formal reworking twice more as understanding of the condition grew.',
+    summary:
+      "PCOS's own real modern description dates to 1935, when Irving Stein and Michael Leventhal presented a real case series of 7 women sharing menstrual irregularity, hirsutism, and infertility together, the first real, documented recognition that these features formed one connected condition rather than several unrelated complaints. For decades afterward, the condition carried their names, Stein-Leventhal Syndrome, and Stein's own 1958 claim that surgery could cure it (a real claim that hasn't held up against modern understanding of PCOS as a genuinely chronic, systemic condition). Real, formal diagnostic criteria didn't exist until an early-1990s NIH conference established the first agreed-upon definition; the Rotterdam criteria, already covered in this app's own phenotype research above, followed in 2003, expanding diagnosis to include ovarian ultrasound findings for the first time. Metformin's own real path to becoming a first-line PCOS treatment ran in parallel but separately: first synthesized in 1922, not approved for diabetes treatment (under the brand name Glucophage) until 1957, decades before its real, modern PCOS-specific use.",
+    citations: [
+      { source: 'The polycystic ovary syndrome: the first 150 years of study', url: 'https://www.sciencedirect.com/science/article/pii/S2666334122001398' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-rotterdam-phenotypes'],
+  },
+  {
+    id: 'pcos-pregnancy-real-complications-letrozole',
+    category: 'pcos',
+    title: 'PCOS Pregnancy Carries Real, Elevated Risk on Several Fronts -- and a Real, Newer Ovulation-Induction Drug That Genuinely Outperforms the Older Standard',
+    teaser: 'Real, elevated gestational diabetes and preeclampsia risk, both tracing back to the same insulin-resistance mechanism already central to this category -- and letrozole, not clomiphene, is now the real, evidence-preferred first choice for inducing ovulation.',
+    summary:
+      "PCOS pregnancy carries real, elevated risk across several fronts, most tracing back to the same chronic inflammation, insulin resistance, and hyperandrogenism already central to this whole category: real, increased risk of implantation failure, early miscarriage, gestational diabetes, fetal growth restriction, preterm labor, and preeclampsia. The real, practical, actionable finding on how to actually get pregnant: letrozole, a real aromatase inhibitor, has become the real, evidence-preferred first-line ovulation-induction drug for PCOS, outperforming the older standard, clomiphene, on higher ovulation and live-birth rates, a lower real risk of multiple pregnancy, and a more favorable uterine-lining environment. Real, large trial data found no increase in congenital anomalies, miscarriage, or adverse perinatal outcomes in letrozole-conceived pregnancies, and, notably, real evidence that letrozole conception itself may REDUCE the incidence of gestational diabetes, hypertensive complications, and large-for-gestational-age infants compared to other conception routes, a genuinely reassuring finding for a medication choice that's already become the real, standard first option.",
+    citations: [
+      { source: 'Letrozole and clomiphene versus letrozole alone for ovulation induction in women with PCOS: a systematic review and meta-analysis, PMC12097446', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12097446/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-insulin-resistance-mechanism'],
+  },
 ];

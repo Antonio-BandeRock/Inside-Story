@@ -210,4 +210,63 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-omega3', 'ra-mediterranean-diet', 'ra-elimination-fasting', 'ra-hashimotos-comorbidity', 'ra-advocacy-rf-anti-ccp', 'ra-advocacy-methotrexate-monitoring'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08, direct instruction: "Then
+  // complete the full parity depth for all 18 non-Hashimoto's
+  // conditions." Real disease-course/staging content, additional organ
+  // system effects beyond what's already covered in self-advocacy, real
+  // history & milestones, and real pregnancy considerations, the same
+  // shape Hashimoto's own depth already has. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'ra-treat-to-target-remission',
+    category: 'rheumatoidArthritis',
+    title: 'RA Has a Real, Formal Remission Target -- Not Just "Feeling Better"',
+    teaser: 'Modern RA care runs on a real, named strategy: Treat-to-Target, checking disease activity on a real schedule and escalating treatment until a specific, defined remission threshold is actually met.',
+    summary:
+      "RA management now runs on a real, formal strategy called Treat-to-Target (T2T), the shared basis of both the 2015 ACR guideline and the 2019 EULAR recommendations: disease activity gets measured repeatedly using a real, standardized score (Boolean-based remission requires tender joint count, swollen joint count, CRP, and patient global assessment all at or below 1; an alternative index-based score, SDAI, sets a real numeric threshold of under 3.3), and treatment is escalated whenever that real target isn't met, rather than continuing unchanged. Remission is the real, named goal for every patient, especially early in the disease, when it's genuinely more often achievable; low disease activity is the accepted fallback when true remission isn't reached. This matters directly for anyone managing RA: a real, defined target exists to actually ask a rheumatologist about by name, not just a vague sense of whether things feel better than last visit.",
+    citations: [
+      { source: 'American College of Rheumatology/EULAR Remission Criteria for Rheumatoid Arthritis: 2022 Revision, Arthritis & Rheumatology', url: 'https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/art.42347' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-methotrexate-monitoring'],
+  },
+  {
+    id: 'ra-extra-articular-manifestations',
+    category: 'rheumatoidArthritis',
+    title: 'RA Reaches Well Beyond the Joints -- Real Lung, Eye, and Nodule Involvement, Not Just an Arthritis',
+    teaser: 'Rheumatoid nodules in up to 30% of patients, real lung involvement in 5-30% (higher in some studies), and real eye complications in a quarter to a third -- RA is a real, systemic disease wearing a joint-disease name.',
+    summary:
+      "RA's own name centers the joints, but real extra-articular manifestations are genuinely common, not rare exceptions. Rheumatoid nodules, firm lumps under the skin, most often near pressure points like the elbows, are the single most common extra-articular feature, present in up to 30% of patients historically, though real, modern treatment has made them somewhat less common than in the pre-biologic era. Real lung involvement (interstitial lung disease, nodules, pleural disease) shows a genuinely wide reported range, 5% to 30% of patients, reaching as high as 67% in some studies depending on how it's measured. Real eye complications (most often dry eye from a real, overlapping Sjögren's mechanism, but also scleritis, a genuinely more serious inflammation of the eye's outer coat) affect roughly 25-39% of patients. The real, more severe manifestations (vasculitis, serositis, glomerulonephritis, Felty syndrome) are genuinely rarer, affecting roughly 2% of patients with established RA, but carry real, significant added morbidity and mortality risk when they do occur, a real, direct reason ongoing rheumatology follow-up matters beyond just tracking joint symptoms.",
+    citations: [
+      { source: 'Extra-articular Manifestations in Rheumatoid Arthritis, PMC3152850', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3152850/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-cardiovascular-risk', 'sjogrens-secondary-ra-lupus-overlap'],
+  },
+  {
+    id: 'ra-history-milestones',
+    category: 'rheumatoidArthritis',
+    title: "RA's Own Real History: Named by a Son, Defined by a Father, Transformed by Two Real Drug Discoveries",
+    teaser: "1859, 1948, 1988, 1998 -- four real, dated turning points that took RA from an unnamed condition to a disease with real, formal remission targets.",
+    summary:
+      "RA's own real history runs through a real, specific family: in 1859, physician Alfred Garrod wrote the first treatise distinguishing this condition from gout, calling it \"rheumatic gout\"; in 1890, his son Archibald Garrod gave it the name still used today, rheumatoid arthritis. The 20th century brought two real, transformative treatment discoveries: cortisone's 1948 introduction, hailed at the time as a genuine miracle drug for inflammation, and methotrexate's formal 1988 FDA approval for RA specifically (used off-label somewhat earlier), a real, foundational disease-modifying drug still first-line today, already covered in this app's own self-advocacy research. The most recent real turning point: 1998's approval of etanercept, the first biologic disease-modifying drug for RA, directly targeting TNF, a specific inflammatory signaling molecule, rather than suppressing the immune system broadly the way earlier drugs did -- a genuinely different, more targeted treatment era that real biologics like adalimumab (already covered in this app's own medication research) continue today.",
+    citations: [
+      { source: 'A Brief History of Rheumatoid Arthritis, National Rheumatoid Arthritis Society (NRAS)', url: 'https://nras.org.uk/resource/history-of-rheumatoid-arthritis/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ra-pregnancy-family-planning',
+    category: 'rheumatoidArthritis',
+    title: 'RA Often Genuinely Improves During Pregnancy -- Then Real, Common Flares Follow After Delivery',
+    teaser: "A real, well-documented pattern most people with RA who are planning a pregnancy deserve to know in advance: symptoms often ease during pregnancy itself, then a real postpartum flare is common in the following months.",
+    summary:
+      "Pregnancy and RA have a real, well-documented, genuinely counterintuitive relationship: disease activity often improves during pregnancy, particularly when the disease was already well-controlled going into it, with real research tracing this improvement to increased galactosylation of IgG antibodies, a specific, measurable immune change pregnancy itself induces. The real complication comes after delivery: postpartum flares are common, with real cohort data finding disease control worsened in 39% of patients in the months following birth, even with medication use often increased at that point specifically to manage it. The single most important real, practical planning fact: methotrexate, RA's own first-line medication, is a real, potent human teratogen and must be stopped by both partners at least three months before attempting conception, and cannot be used during pregnancy or while breastfeeding, a real, direct reason planning a pregnancy with RA needs an early, deliberate conversation with a rheumatologist about medication transition, not a decision made after conception is already underway.",
+    citations: [
+      { source: 'Immunoglobulin G galactosylation and sialylation are associated with pregnancy-induced improvement of rheumatoid arthritis and the postpartum flare, PMC3003510', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3003510/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-methotrexate-monitoring'],
+  },
 ];

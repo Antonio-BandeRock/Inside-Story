@@ -160,4 +160,58 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-cross-contamination', 'celiac-oats-controversy', 'celiac-gf-diet-nutritional-pitfalls', 'celiac-villi-healing-timeline', 'celiac-diagnostic-panel', 'celiac-bone-density', 'celiac-hashimotos-comorbidity'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'celiac-marsh-staging',
+    category: 'celiac',
+    title: "Celiac Damage Has a Real, Formal Staging Scale, From Normal Tissue to Total Villous Atrophy",
+    teaser: 'The Marsh scale runs 0 to 3c -- a real, biopsy-based measure of exactly how much of the gut lining\'s absorbing surface has actually been lost.',
+    summary:
+      "Celiac disease's own real tissue damage is measured with the Marsh (or Marsh-Oberhuber) classification, a real, biopsy-based staging scale still used today. Marsh 0 is normal, healthy intestinal lining. Marsh 1 shows an increased number of immune cells in the tissue (intraepithelial lymphocytes) with the villi themselves still intact. Marsh 2 adds crypt hyperplasia, the gut's own glands enlarging in response to ongoing damage. Marsh 3, split into 3a (mild), 3b (moderate), and 3c (total villous atrophy), is where the real, absorbing surface of the small intestine actually starts flattening and disappearing, the direct physical mechanism behind celiac's own real malabsorption and nutrient-deficiency risks already covered elsewhere in this category. This real staging scale is exactly what a biopsy result is reporting when it comes back with a Marsh number, worth understanding directly rather than treating an unfamiliar score as just \"positive\" or \"negative.\"",
+    citations: [
+      { source: 'Celiac disease: histology-differential diagnosis-complications. A practical approach, PMC7931573', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7931573/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-villi-healing-timeline'],
+  },
+  {
+    id: 'celiac-systemic-effects-real-data',
+    category: 'celiac',
+    title: "Celiac Disease Reaches Well Past the Gut -- Real, Documented Neurological, Skin, and Reproductive Effects",
+    teaser: "A pathognomonic skin rash, real neurological symptoms including seizures, and effects on fertility in both women and men -- celiac's own real reach extends far beyond digestion.",
+    summary:
+      "Celiac disease's own real, non-digestive effects are genuinely wide-ranging, a direct consequence of the malabsorption Marsh-stage gut damage causes. Dermatitis herpetiformis, an intensely itchy, blistering rash, is real and pathognomonic for celiac, meaning its presence alone can point to the diagnosis even with zero digestive symptoms present. Real, documented neurological effects include numbness, motor weakness, loss of coordination, and, in real, severe cases, seizures. Osteoporosis and osteopenia, already covered in this app's own bone-density self-advocacy entry, trace directly to malabsorbed calcium and vitamin D. Reproductive effects are real and significant in both sexes: delayed menarche, amenorrhea, and infertility in women, and impotence and infertility in men, with impaired vitamin E absorption specifically implicated as one real, contributing mechanism. Real global prevalence data (1.4% by antibody testing, 0.7% biopsy-confirmed) also shows a genuine sex and age skew worth knowing: roughly 0.6% in women versus 0.4% in men, and higher in children (0.9%) than adults (0.5%).",
+    citations: [
+      { source: 'Celiac Disease, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK441900/' },
+      { source: 'Global Prevalence of Celiac Disease: Systematic Review and Meta-analysis, PMID 29551598', url: 'https://pubmed.ncbi.nlm.nih.gov/29551598/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-bone-density'],
+  },
+  {
+    id: 'celiac-history-milestones',
+    category: 'celiac',
+    title: "Celiac's Own Real History: A Wartime Bread Shortage Accidentally Solved a Medical Mystery",
+    teaser: '1888, 1940s, 1952 -- a real, genuinely remarkable discovery story: the actual trigger food was identified because of a real, accidental wartime experiment nobody intended to run.',
+    summary:
+      "Celiac disease's own real modern medical description dates to 1888, when physician Samuel Gee first described the condition and correctly guessed, without proof, that diet held the real cure, even trying real, misguided treatments (including a Dutch mussel-based diet) that never worked because he hadn't yet identified wheat as the actual trigger. The real breakthrough came from an unplanned, genuinely remarkable wartime natural experiment: Dutch pediatrician Willem Dicke noticed that celiac mortality at his own hospital dropped to zero during a real, severe World War II bread shortage in the Netherlands, when wheat simply wasn't available to eat. His 1950 doctoral thesis formally established that removing wheat, rye, and oats produced dramatic real improvement, identifying gluten, a specific protein component, as the actual toxic trigger. A 1952 study from an English medical team independently confirmed the same real finding. This is a genuinely unusual origin story in medical history: the key discovery came from an accidental, real-world dietary experiment nobody designed on purpose, not a planned clinical trial.",
+    citations: [
+      { source: 'History of Coeliac Disease. Dicke and the Origin of the Gluten-Free Diet', url: 'https://link.springer.com/chapter/10.1007/978-94-015-7943-8_1' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'celiac-pregnancy-fertility-real-data',
+    category: 'celiac',
+    title: 'Untreated Celiac Carries a Real, Quantified Miscarriage and Infertility Risk -- and a Real, Reassuring Reversal Once Diagnosed',
+    teaser: 'Real data finds an 8.9-fold higher miscarriage risk with undiagnosed celiac -- and that same elevated risk fully disappears once someone starts a real gluten-free diet.',
+    summary:
+      "This is one of the more real, striking, and ultimately hopeful findings in this whole category. Real research finds women with undiagnosed celiac disease experience 11 more miscarriages and 1.62 more stillbirths per 1,000 pregnancies than the general population, with a real 8.9-fold higher overall miscarriage risk, and up to 50% experiencing at least one miscarriage or a poor pregnancy outcome. Fertility itself is affected too: women become pregnant less often in the years before diagnosis (25 fewer pregnancies per 1,000), and real research on unexplained infertility specifically found a 6-fold higher rate of undiagnosed celiac disease in that population, a genuine, real reason unexplained infertility is worth real celiac screening even without any digestive symptoms present. The real mechanism traces to malabsorbed nutrients and to tissue transglutaminase antibodies directly interfering with embryo implantation. The genuinely reassuring real finding, worth leading with rather than burying: this whole elevated risk pattern disappeared once women started a real gluten-free diet, with diagnosed and treated celiac patients showing no higher rate of pregnancy loss than anyone else.",
+    citations: [
+      { source: 'Fertility in Celiac Disease: The Impact of Gluten on Male and Female Reproductive Health, PMC12073710', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12073710/' },
+    ],
+    overallTier: 'strong',
+  },
 ];

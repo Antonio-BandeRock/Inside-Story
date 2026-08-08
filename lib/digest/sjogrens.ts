@@ -164,4 +164,57 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-dental-caries-risk', 'sjogrens-lymphoma-risk', 'sjogrens-renal-tubular-acidosis', 'sjogrens-secondary-ra-lupus-overlap'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'sjogrens-primary-secondary-real-distinction',
+    category: 'sjogrens',
+    title: 'Primary vs. Secondary Sjögren\'s: A Real, Formal Distinction That Changes What "Managing It" Actually Means',
+    teaser: "Primary Sjögren's occurs alone; secondary occurs alongside another real autoimmune disease, most often lupus or RA -- and real research finds primary cases carry MORE severe gland dysfunction, not less.",
+    summary:
+      "Sjögren's has a real, formal split worth understanding beyond the already-covered RA/lupus overlap: primary Sjögren's occurs on its own, while secondary Sjögren's occurs alongside another real, established connective-tissue disease, most often lupus or rheumatoid arthritis, and less often systemic sclerosis, MS, or autoimmune thyroiditis. A real, formal diagnostic distinction exists too: in someone who already has a confirmed connective-tissue disease, one real symptom plus two of three objective test criteria is enough to classify secondary Sjögren's, a real, lower bar than the ACR/EULAR criteria (a score of 4 or higher across several weighted criteria, including salivary gland biopsy findings) used for a primary diagnosis. A real, genuinely counterintuitive finding worth knowing: primary Sjögren's patients show MORE severe glandular dysfunction (worse dryness) than secondary Sjögren's patients, not less, despite secondary cases involving a real, second autoimmune disease on top.",
+    citations: [
+      { source: "Comparative Analysis of Glandular and Extraglandular Manifestations in Primary and Secondary Sjögren's Syndrome, PMC11545017", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11545017/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-secondary-ra-lupus-overlap'],
+  },
+  {
+    id: 'sjogrens-lung-vasculitis-neuropathy-real-data',
+    category: 'sjogrens',
+    title: "Sjögren's Own Real Reach Beyond Dryness: The Lungs, Blood Vessels, and Peripheral Nerves",
+    teaser: 'Real, interstitial lung disease in roughly 23% of primary Sjögren\'s patients, and real, if genuinely variable-estimate, peripheral nerve involvement most patients never connect back to their own diagnosis.',
+    summary:
+      "Beyond the dryness this app's own Sjögren's research already covers in depth, real, documented systemic effects reach further. Interstitial lung disease (ILD), scarring and inflammation of lung tissue, shows a real, pooled prevalence of 23% in primary Sjögren's patients across real systematic-review data, most commonly a subtype called NSIP. Real vasculitis, inflammation of small blood vessels, affects the skin in roughly 10% of patients and can, less commonly, reach the peripheral nerves or central nervous system too. Peripheral nerve involvement itself shows a genuinely wide, real range of reported prevalence, anywhere from under 2% to over 50% depending on the specific study and how it's measured, most commonly presenting as either distal sensory nerve damage or small-fiber neuropathy (nerve damage too subtle for standard nerve-conduction tests to reliably catch). Worth knowing directly: a real, new symptom in the lungs, skin, or nerves in someone with Sjögren's isn't automatically unrelated just because it isn't dryness.",
+    citations: [
+      { source: "Interstitial Lung Disease and Pulmonary Damage in Primary Sjögren's Syndrome: A Systematic Review and Meta-Analysis, PMC10095380", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10095380/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'sjogrens-history-milestones',
+    category: 'sjogrens',
+    title: "Sjögren's Own Real History: A Swedish Doctor Who Noticed the Same Pattern in 19 Real Patients, All Women",
+    teaser: '1892, 1933, 1943 -- an earlier real description existed decades before Sjögren\'s own thesis, and international recognition only followed once his work was translated into English.',
+    summary:
+      "Sjögren's disease carries the real name of Henrik Sjögren, a Swedish physician who, working in Stockholm clinics in the early 1930s, began noticing a real, recurring pattern: predominantly women presenting with dry eyes, dry mouth, and often arthritis together. On May 8, 1933, Sjögren defended a real doctoral thesis documenting 19 real cases (all women, ages 29-72), using genuinely careful clinical methods for the era, including microscopic lacrimal-gland analysis and Schirmer's test (the same real tear-production test this app's own diagnostic research already covers). A real, earlier description actually predates Sjögren's own work by over 40 years: Jan Mikulicz-Radecki described a similar presentation in a single male patient in 1892, though that case didn't lead to the broader recognition Sjögren's own larger case series eventually did. The real turning point for international recognition came only in 1943, when an English translation of Sjögren's original German-language thesis reached a wider audience, a full decade after his own original defense.",
+    citations: [
+      { source: "Henrik Sjögren (1899-1986): the syndrome and his legacy, Annals of the Rheumatic Diseases", url: 'https://ard.eular.org/article/S0003-4967(24)20473-8/fulltext' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'sjogrens-pregnancy-congenital-heart-block',
+    category: 'sjogrens',
+    title: "The Same Real Anti-Ro/Anti-La Antibody Risk This App's Own Lupus Research Covers, With Sjögren's Own Real, Specific Numbers",
+    teaser: 'A real, quantified baseline risk of 1-2% for congenital heart block, jumping to a real 17-18% after one already-affected pregnancy -- a genuinely large, real, actionable jump in risk.',
+    summary:
+      "Sjögren's carries the exact same real anti-Ro/SS-A and anti-La/SS-B antibody risk already covered in this app's own Lupus pregnancy research, but with Sjögren's own real, specific numbers worth knowing directly. Among anti-Ro-positive pregnancies generally, real research finds the baseline risk of congenital heart block runs 1-2%, real, low but genuinely non-zero. The real, striking, actionable finding: after ONE already-affected pregnancy, that real risk jumps to 17-18% for a subsequent pregnancy, a genuinely large increase worth real, direct preconception counseling about before trying again. The real underlying mechanism: these antibodies cross the placenta and bind directly to the fetal heart's own conduction tissue, triggering inflammation and, over time, real scarring of the AV node; once a real, established third-degree heart block has formed, it's typically irreversible even with treatment, though catching an earlier, incomplete block in time can sometimes still be reversed with corticosteroids. Real, current management includes preconception counseling, hydroxychloroquine (already covered in this app's own medication research) as a real, protective prophylaxis, and serial fetal echocardiograms starting around week 16, the real, practical monitoring plan this specific antibody risk calls for.",
+    citations: [
+      { source: 'Sjögren\'s Antibodies and Neonatal Lupus: A Scoping Review, PMC11253570', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11253570/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-pregnancy-real-flare-neonatal', 'sjogrens-pilocarpine-cevimeline'],
+  },
 ];

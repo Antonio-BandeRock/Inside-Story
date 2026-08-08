@@ -168,4 +168,57 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-alfalfa-canavanine', 'lupus-photosensitivity-vitamin-d-catch22', 'lupus-omega3-fish-oil', 'lupus-hydroxychloroquine-retinopathy', 'lupus-nephritis-monitoring'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'lupus-sledai-disease-activity',
+    category: 'lupus',
+    title: 'Lupus Has a Real, Formal Scoring System That Defines Exactly What "Flare" and "Remission" Actually Mean',
+    teaser: 'SLEDAI turns "feeling worse" into a real, specific number -- and a rise of 4 or more points from the last visit is the real, formal definition of a flare.',
+    summary:
+      "Lupus disease activity is measured with SLEDAI (or its updated version, SLEDAI-2K), a real, formal scoring instrument. Real severity bands: mild disease scores 6 or below, moderate is 7-12, severe is above 12. Real, complete remission means a score of exactly 0 with no glucocorticoid or immunosuppressive medication in use at all; low disease activity allows a score of 3 or below while on hydroxychloroquine, or 4 or below on a low prednisone dose plus a well-tolerated immunosuppressant. A real, formal flare is defined as the score rising by 4 or more points from the previous visit, not just a subjective sense of feeling worse. This real, specific vocabulary matters directly: it's what a rheumatologist is actually tracking visit to visit, and knowing the real numbers behind \"flare\" and \"remission\" makes it possible to ask a more precise, useful question about where things currently stand.",
+    citations: [
+      { source: 'Systemic Lupus Erythematosus: Diagnosis and Treatment, American Family Physician', url: 'https://www.aafp.org/afp/2023/0400/systemic-lupus-erythematosus' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'lupus-skin-blood-neuro-real-data',
+    category: 'lupus',
+    title: "Lupus's Own Real Reach Beyond the Kidneys: The Skin, the Nervous System, and the Blood's Own Clotting Machinery",
+    teaser: 'Real skin involvement in 70-85% of patients, real neurological effects as the second most common organ system affected, and antibodies that directly raise real clotting risk.',
+    summary:
+      "This app's own earlier lupus research already establishes the disease reaches well past any single organ; real data quantifies exactly how far. Skin lesions appear in a real, substantial 70-85% of lupus patients, with the classic malar (\"butterfly\") rash the single most common specific pattern in most real studies, alongside discoid, subacute, and bullous rash types. Neuropsychiatric lupus (NPSLE) is the real, second most common organ system affected after skin, ranging from real cognitive effects (memory loss, difficulty concentrating) to more severe real neurological complications. Real, specific antibodies (antiphospholipid antibodies, covered in more depth in this app's own pregnancy entry below) directly raise real blood-clotting risk, and lupus also commonly affects blood cell counts themselves, real, lower-than-normal red blood cells, platelets, or white blood cells, each carrying its own real, distinct clinical consequence. This is a genuinely wide, real, multi-system reach, worth knowing beyond whichever single symptom happens to be most visible at any given time.",
+    citations: [
+      { source: 'Prevalence and Clinical Assessment of Skin Lesions in Systemic Lupus Erythematosus, PMC11762776', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11762776/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'lupus-history-milestones',
+    category: 'lupus',
+    title: "Lupus's Own Real History: Named for a Rash, Understood as Systemic Only After Three Real, Sequential Discoveries",
+    teaser: '1846, 1872, 1904, 1951 -- the real butterfly rash was described first; recognizing lupus as a genuinely whole-body, life-threatening disease took several more real decades.',
+    summary:
+      "Lupus's own real history moves in real, sequential steps, each building on the last. In 1846, Ferdinand von Hebra first described the disease's now-iconic facial rash as \"butterfly\"-shaped, and separately identified that lupus could stay dormant for real, extended periods, a genuinely early recognition of its own real, variable course. In 1850, Pierre Cazenave coined the term \"lupus erythemateux\" (the real origin of today's \"erythematosus\") and documented hair loss as a real symptom. The real, pivotal turning point came in 1872, when Moriz Kaposi published the first description of lupus as a genuinely systemic, potentially life-threatening disease, specifically noting it disproportionately affected young women, still true in real, modern epidemiology today. Osler independently confirmed this systemic nature in 1904. The real, modern treatment breakthrough came decades later, in 1951, when the antimalarial drug quinacrine was first used for discoid lupus, the real, direct precursor to hydroxychloroquine (already covered in this app's own medication research), which remains one of the single most important lupus medications in use today.",
+    citations: [
+      { source: 'The History of Lupus, Lupus Foundation of America', url: 'https://www.lupus.org/resources/the-history-of-lupus' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-hydroxychloroquine-retinopathy'],
+  },
+  {
+    id: 'lupus-pregnancy-real-flare-neonatal',
+    category: 'lupus',
+    title: "Lupus Pregnancy: A Real, Genuinely Reassuring Finding for Stable Disease, and a Real, Specific Antibody Risk to the Baby Worth Knowing in Advance",
+    teaser: "Real research finds stable, well-controlled lupus carries a low real flare risk during pregnancy -- but two specific antibodies (anti-Ro/anti-La) carry a real, separate risk directly to the baby's own heart.",
+    summary:
+      "Lupus pregnancy outcomes trace closely to disease control going into it, the same real preconception-timing principle already covered in this app's own Rheumatoid Arthritis and IBD research. Real research finds that when lupus is genuinely stable before conception, pregnancy is unlikely to trigger a flare at all; even among a broader real population, severe flares requiring hospitalization or a major medication change occurred in only about 3% during the second and third trimesters. Real, separate risks still deserve direct attention: roughly 2 in 10 pregnant people with lupus develop preeclampsia, with real, higher risk specifically in those with a history of kidney involvement (already covered in this app's own nephritis-monitoring research). The real, most specific and important finding worth knowing directly, in advance: anti-Ro/SS-A and anti-La/SS-B antibodies, real, specific antibodies some lupus patients carry, can cross the placenta and cause neonatal lupus in the baby, including, in real, serious cases, a congenital heart block requiring lifelong monitoring or even a pacemaker. This is a real, direct reason antibody status (not just disease-activity score) belongs in preconception planning, since it changes the entire real monitoring plan for the pregnancy that follows.",
+    citations: [
+      { source: 'Low frequency of flares during pregnancy and post-partum in stable lupus patients, PMC7081564', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7081564/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-nephritis-monitoring', 'sjogrens-pregnancy-congenital-heart-block'],
+  },
 ];

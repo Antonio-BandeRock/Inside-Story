@@ -392,7 +392,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Atherosclerosis Development and Progression: The Role of Atherogenic Small, Dense LDL, PMID 35208622', url: 'https://pubmed.ncbi.nlm.nih.gov/35208622/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['cvd-statin-evidence', 'cvd-lipid-panel-self-advocacy', 'foodhistory-apob-particle-count', 'type2-metabolic-syndrome-cluster', 'gout-metabolic-cluster-connection'],
+    relatedIds: ['cvd-statin-evidence', 'cvd-lipid-panel-self-advocacy', 'foodhistory-apob-particle-count', 'type2-metabolic-syndrome-cluster', 'gout-metabolic-cluster-connection', 'dietfat-saturated-monounsaturated-honest'],
   },
   {
     id: 'foodhistory-apob-particle-count',

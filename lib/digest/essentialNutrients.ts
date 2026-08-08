@@ -1665,6 +1665,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Essential Fatty Acids, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564314/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['dietfat-overview'],
   },
   {
     id: 'omega3-ala-conversion-bottleneck',
@@ -2326,5 +2327,75 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['water-intoxication-hyponatremia'],
+  },
+
+  // -- Dietary Fat, added 2026-08-08 -- the last remaining macronutrient
+  // in this series. Distinct from the existing Omega-3/6 entry (which
+  // covers a specific fat-quality RATIO), this covers fat as its own
+  // macronutrient category: real function, and the real, honestly more
+  // complicated evidence on saturated-vs-unsaturated fat than either the
+  // old "avoid all fat" or the newer "just eat more olive oil" framing
+  // suggests. Every citation independently verified via WebSearch, real
+  // food-fat values pulled directly from this app's own reference
+  // database (fat_total/fat_monounsaturated nutrient codes).
+  {
+    id: 'dietfat-overview',
+    category: 'basicHealth',
+    title: 'Dietary Fat: The Most Energy-Dense Macronutrient, and a Required Carrier for Four Vitamins',
+    teaser: 'More than twice the calories per gram of protein or carbohydrate -- and without it, real doses of vitamins A, D, E, and K genuinely aren\'t absorbed properly.',
+    summary:
+      "Fat provides roughly 9 kcal per gram, more than double protein's or carbohydrate's 4 kcal per gram, making it the body's most energy-dense macronutrient and its primary long-term energy reserve. Beyond energy, fat is a real, structural building block: monounsaturated and polyunsaturated fats are integral components of every cell membrane in the body, directly affecting membrane fluidity and cell signaling. The real, practical fact worth knowing directly: vitamins A, D, E, and K (all four already covered in their own deep-dives in this series) are fat-soluble, meaning real, adequate absorption genuinely requires some dietary fat present in the same meal -- eating a vitamin-A-rich salad with a fat-free dressing measurably undercuts how much of that vitamin actually gets absorbed, a real, concrete reason \"pair it with a source of fat\" is a genuine, evidence-based piece of practical advice, not a vague suggestion.",
+    citations: [
+      { source: 'Dietary Fat, ScienceDirect Topics (Neuroscience)', url: 'https://www.sciencedirect.com/topics/neuroscience/dietary-fat' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamina-overview', 'vitamind-overview', 'vitamine-overview', 'vitamink-overview'],
+  },
+  {
+    id: 'dietfat-saturated-monounsaturated-honest',
+    category: 'basicHealth',
+    title: 'Reducing Saturated Fat Really Does Lower Cardiovascular Risk -- But the Evidence for Replacing It With Olive Oil Specifically Is Genuinely Thinner Than Popular Advice Implies',
+    teaser: 'A real, large meta-analysis found cutting saturated fat reduced cardiovascular events by 21% -- but the same analysis found real, clear evidence for the polyunsaturated-fat and carbohydrate replacements, and genuinely limited data for monounsaturated fat specifically.',
+    summary:
+      "This is a real, honest complication worth sitting with directly, in the same tradition already established elsewhere in this app's own food-industry and cholesterol research. A major meta-analysis of long-term randomized trials (11 trials, 53,300 participants) found reducing saturated fat intake cut combined cardiovascular events by a real 21%. The genuinely more nuanced part: that same analysis found no significant difference in benefit between replacing saturated-fat calories with polyunsaturated fat versus carbohydrate, while data specifically isolating monounsaturated fat as the replacement was too limited to draw a firm conclusion from at all. This doesn't undermine the real, separately well-established Mediterranean-diet and olive-oil evidence already covered elsewhere in this app (PREDIMED and its own real corrected re-analysis) -- those trials tested a whole dietary PATTERN, not monounsaturated fat as an isolated nutrient swapped in for saturated fat one-for-one, a genuinely different, and less directly comparable, kind of evidence. Worth knowing plainly: \"replace saturated fat with monounsaturated fat specifically\" is a weaker, thinner evidence claim than \"eat an overall Mediterranean dietary pattern\" or \"replace saturated fat with polyunsaturated fat,\" even though popular nutrition advice often treats all three as interchangeable.",
+    citations: [
+      { source: 'Saturated Fat Restriction for Cardiovascular Disease Prevention: A Systematic Review and Meta-analysis of Randomized Controlled Trials', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12095860/' },
+      { source: 'The effect of replacing saturated fat with mostly n-6 polyunsaturated fat on coronary heart disease: a meta-analysis of randomised controlled trials', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5437600/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['foodhistory-cholesterol-real-drivers', 'cvd-mediterranean-diet-predimed', 'omega36-overview'],
+  },
+  {
+    id: 'dietfat-food-sources-real-data',
+    category: 'basicHealth',
+    chart: {
+      title: 'Monounsaturated Fat Content of Real Foods (g per 100g)',
+      unit: 'g',
+      data: [
+        { label: 'Olive oil', value: 70.2 },
+        { label: 'Almonds (roasted)', value: 35.1 },
+        { label: 'Avocado', value: 9.8 },
+      ],
+      sourceNote: "This app's own reference database (USDA-sourced values)",
+    },
+    title: 'Monounsaturated Fat Content of Real Foods, Directly From This App\'s Own Reference Database',
+    teaser: 'Olive oil carries the most concentrated monounsaturated fat of any food in this app\'s own database, by a wide margin over even almonds or whole avocado.',
+    summary:
+      "Real, direct data from this app's own 22,022-food reference database confirms the popular reputation: olive oil is the single most concentrated monounsaturated-fat source available, at roughly 70g per 100g, with almonds and whole avocado both real, genuine sources at meaningfully lower concentration. Worth reading directly alongside the honest evidence entry above: a food being a real, concentrated source of monounsaturated fat doesn't automatically mean isolated monounsaturated-fat replacement carries the same strength of trial evidence as reducing saturated fat overall or eating a real, whole Mediterranean dietary pattern.",
+    citations: [],
+    overallTier: 'strong',
+  },
+  {
+    id: 'dietfat-tying-together',
+    category: 'basicHealth',
+    title: 'Dietary Fat, Pulled Together',
+    teaser: 'A required, energy-dense macronutrient with a real, practical role in vitamin absorption -- and a real, honest reminder that "replace saturated fat with X" is a more nuanced claim than any single headline usually allows.',
+    summary:
+      "Fat closes out this series' macronutrients on a genuinely appropriate note: a real, essential, energy-dense nutrient with concrete, practical consequences (fat-soluble vitamin absorption) most people never connect to their own plate composition, and a real, evidence-based case for reducing saturated fat that gets less crisp, not more, the closer the actual trial data is examined for what specifically should replace it. This app's own already-built Omega-3/6 balance research, food-industry history (the real, documented margarine-vs-butter story), and cholesterol research all connect directly to this same macronutrient, worth reading as one connected picture rather than four separate, unrelated fat-related topics.",
+    citations: [
+      { source: 'Dietary Fat, ScienceDirect Topics (Neuroscience)', url: 'https://www.sciencedirect.com/topics/neuroscience/dietary-fat' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['dietfat-saturated-monounsaturated-honest', 'foodhistory-scapegoat-margarine', 'foodhistory-butter-short-chain-fat'],
   },
 ];

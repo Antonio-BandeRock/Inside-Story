@@ -103,7 +103,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'Inflammatory Bowel Disease and Primary Sclerosing Cholangitis: A Review of the Phenotype and Associated Specific Features', url: 'https://www.gutnliver.org/journal/view.html?doi=10.5009%2Fgnl16510' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibd-colonoscopy-surveillance'],
+    relatedIds: ['ibd-colonoscopy-surveillance', 'ibd-extraintestinal-real-prevalence-split'],
   },
   {
     id: 'ibd-thyroid-comorbidity-honest-null',
@@ -170,5 +170,57 @@ export const IBD_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['ibd-smoking-paradox', 'ibd-een-crohns', 'ibd-fiber-flare-myth', 'ibd-calprotectin', 'ibd-azathioprine-tpmt', 'ibd-thyroid-comorbidity-honest-null'],
+  },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'ibd-montreal-classification',
+    category: 'ibd',
+    title: "IBD Has a Real, Formal Classification System That Directly Shapes Treatment Choice",
+    teaser: "The Montreal classification real-world sorts Crohn's by age, location, and behavior, and ulcerative colitis by how far the inflammation actually reaches -- not just \"mild\" or \"severe.\"",
+    summary:
+      "IBD is real, formally classified using the Montreal classification, widely used at initial diagnosis to guide treatment. For Crohn's disease, three real dimensions are recorded: age at diagnosis (under 16, 17-40, or over 40), location (ileal, colonic, ileocolonic, or isolated upper-GI disease), and behavior (non-stricturing/non-penetrating, stricturing, or penetrating, with a separate marker for perianal disease). For ulcerative colitis, the real classification is about how far inflammation extends: E1 (proctitis, limited to the rectum), E2 (left-sided, up to the splenic flexure), or E3 (extensive, reaching beyond it). This isn't just record-keeping: the real, practical value is that a person's own specific classification (a penetrating Crohn's pattern, say, versus a non-stricturing one) directly shapes which treatment (immunomodulators, biologics, or surgery) a gastroenterologist actually recommends, real, useful vocabulary worth understanding rather than treating as an opaque chart note.",
+    citations: [
+      { source: 'Montreal Classification for Inflammatory Bowel Disease (IBD) Calculator, MDCalc', url: 'https://www.mdcalc.com/calc/10237/montreal-classification-inflammatory-bowel-disease-ibd' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ibd-extraintestinal-real-prevalence-split',
+    category: 'ibd',
+    title: "The Real, Quantified Split: Which Extraintestinal Symptoms Are More Common in Crohn's, and Which in Ulcerative Colitis",
+    teaser: "A direct, more granular follow-up to this category's own PSC entry: a real meta-analysis breaks joint, skin, and eye involvement down by exact percentage and by which of the two diseases carries the higher real risk.",
+    summary:
+      "This app's own extraintestinal-manifestations entry above already names the real categories (joints, skin, eyes, and PSC specifically); a real, larger meta-analysis adds the exact numbers behind them. At least one joint, eye, or skin extraintestinal manifestation appears in 24% of IBD patients overall, 27% of ulcerative colitis, and 35% of Crohn's disease specifically, with roughly a quarter of affected patients experiencing more than one at once. Peripheral joint arthritis/arthralgia affects 5-10% of ulcerative colitis patients and 10-20% of Crohn's patients; erythema nodosum, tender red skin nodules, shows up in a real, smaller 1.6-1.9% of patients. The real, consistent pattern across this same body of research: eye involvement, peripheral joint manifestations, and erythema nodosum are all genuinely more common in Crohn's disease than ulcerative colitis, a real, useful, specific piece of context for anyone managing either disease and noticing a new joint or skin symptom that might otherwise seem unrelated.",
+    citations: [
+      { source: 'Prevalence of Extraintestinal Manifestations in Inflammatory Bowel Disease: A Systematic Review and Meta-analysis, PMID 37042969', url: 'https://pubmed.ncbi.nlm.nih.gov/37042969/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-extraintestinal-manifestations'],
+  },
+  {
+    id: 'ibd-history-milestones',
+    category: 'ibd',
+    title: "IBD's Own Real History: Two Real, Separately Discovered Diseases That Took Decades to Be Told Apart",
+    teaser: '1875, 1932, the early 2000s -- ulcerative colitis and Crohn\'s disease were described 57 real years apart, and a real genetic discovery over a century later finally explained part of why.',
+    summary:
+      "IBD's own two real, distinct diseases were discovered decades apart. Ulcerative colitis came first, in 1875, when English physicians Wilks and Moxon distinguished it from infectious diarrheal disease. Crohn's disease wasn't formally described until 1932, when Burrill Crohn, Leon Ginzberg, and Gordon Oppenheimer published a real, landmark 14-case paper describing what they initially called \"regional ileitis,\" a genuine advance over the era's default assumption that any small-intestine disease must be tuberculosis. Real, earlier isolated case observations actually predate the 1932 paper (Morgagni in the 1700s, Berg in 1898, Lesniowski in 1904, Dalziel in 1913), meaning the disease existed in medical records well before it was formally named and understood as its own condition. The real, modern genetic turning point came in the early 2000s: discovery of the NOD2/CARD15 gene mutation gave the first real, molecular explanation for Crohn's own genetic susceptibility, opening the door to the TNF-alpha-targeting biologic therapies (infliximab, adalimumab, both already covered in this app's own medication research) that transformed real treatment in the years that followed.",
+    citations: [
+      { source: "Historical aspects of inflammatory bowel disease, PMID 2980764", url: 'https://pubmed.ncbi.nlm.nih.gov/2980764/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ibd-pregnancy-remission-first',
+    category: 'ibd',
+    title: "The Single Biggest Real Predictor of a Healthy IBD Pregnancy: Remission Before Conception, Not During It",
+    teaser: 'Real research names active disease at the moment of conception as one of the clearest, most consistent risk factors for a flare throughout pregnancy -- worth knowing before, not after, conceiving.',
+    summary:
+      "IBD pregnancy outcomes trace back to a real, specific, and genuinely actionable timing fact: real research consistently names active disease AT CONCEPTION, not just at some point during pregnancy, as one of the clearest risk factors for a flare throughout the pregnancy that follows, alongside having ulcerative colitis specifically (rather than Crohn's) and a real history of active disease during a previous pregnancy. This makes preconception planning genuinely more consequential here than in many other conditions this app covers: real guidance is to achieve disease remission before conception whenever possible, and, worth stating directly since it runs against a common, understandable instinct, to KEEP taking IBD medication through pregnancy rather than stopping it out of caution, since stopping is what actually raises real flare risk. The real, reassuring medication-safety finding: anti-TNF biologics (already covered in this app's own medication research) are considered safe across multiple real registries and observational studies, with continuing them through the third trimester specifically linked to a real, lower flare risk and no increased infant infection risk in the first year of life from in-utero exposure.",
+    citations: [
+      { source: 'Pregnancy and medications for inflammatory bowel disease: An updated narrative review, PMID 36969991', url: 'https://pubmed.ncbi.nlm.nih.gov/36969991/' },
+    ],
+    overallTier: 'strong',
   },
 ];

@@ -156,4 +156,58 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-smoking', 'graves-iodine', 'graves-selenium-orbitopathy', 'graves-trab-tsi-testing', 'graves-bone-density'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'graves-remission-real-rates',
+    category: 'graves',
+    title: "Antithyroid Drug Remission: Real, Quantified Odds by Treatment Length and Real Risk Factors That Lower Them",
+    teaser: 'A standard 12-18 month course puts remission odds around 30-40%. Extending treatment to 24-36 months raises that to roughly 50% -- a real, direct, actionable tradeoff.',
+    summary:
+      "Graves' disease has a real, quantified remission timeline worth knowing directly before starting antithyroid drug treatment. A standard 12-18 month course of methimazole or carbimazole (already covered in this app's own medication research) puts real remission (normal thyroid levels maintained for at least a year after stopping the drug) at roughly 30-40%. Extending treatment to 24-36 months raises real remission odds to roughly 50%, climbing further to 60% in people with smaller goiters. Real, specific risk factors independently lower those odds: smoking, being a young male, and having very high TSH-receptor antibody levels at diagnosis all track with remission rates falling below 20%. For anyone who relapses after a first course, real data shows a second course still carries genuine value, a 54.1% remission rate in one real cohort. Worth raising directly with an endocrinologist: how long a specific treatment course is planned for, and whether any of these real risk factors apply, since they meaningfully change the odds of avoiding radioactive iodine or surgery down the line.",
+    citations: [
+      { source: "Long-term follow-up result of antithyroid drug treatment of Graves' hyperthyroidism in a large cohort, European Thyroid Journal", url: 'https://etj.bioscientifica.com/view/journals/etj/12/2/ETJ-22-0226.xml' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-trab-tsi-testing'],
+  },
+  {
+    id: 'graves-cardiac-thyroid-storm',
+    category: 'graves',
+    title: "Untreated Graves' Carries Real, Serious Cardiac Risk, Up to and Including a Rare but Genuinely Life-Threatening Emergency",
+    teaser: 'Atrial fibrillation in up to 22% of hyperthyroid patients, and thyroid storm, rare but carrying a real 10-20% mortality rate even with hospital treatment.',
+    summary:
+      "Excess thyroid hormone has a real, direct, and serious effect on the heart, worth knowing beyond the general \"racing heart\" symptom most people associate with hyperthyroidism. Real research finds atrial fibrillation, an irregular heart rhythm carrying its own real stroke risk, occurs in 9-22% of hyperthyroid patients overall, and in 5-15% of those over 60 specifically. Left untreated long enough, Graves' can progress to high-output cardiac failure, the heart genuinely unable to keep pace with the metabolic demand excess thyroid hormone creates. The single most serious, rare real complication is thyroid storm, a sudden, massive release of thyroid hormone that is a genuine medical emergency: it affects roughly 1-2% of people hospitalized for thyrotoxicosis, and even with real, aggressive hospital treatment, carries a real 10-20% overall mortality rate, rising to roughly 75% specifically among those who don't survive to full recovery. Real, documented triggers include infection, surgery, and, notably, an actual COVID-19 infection in at least one recent case report. This is the real, direct reason Graves' disease genuinely isn't a condition to leave untreated or undertreated even when symptoms feel manageable day to day.",
+    citations: [
+      { source: "Graves' Disease, StatPearls, NCBI Bookshelf", url: 'https://www.ncbi.nlm.nih.gov/sites/books/NBK448195/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-bone-density'],
+  },
+  {
+    id: 'graves-history-milestones',
+    category: 'graves',
+    title: "Graves' Disease's Own Real History: Named After a Man Who Wasn't Actually First to Describe It",
+    teaser: '1786, 1835, 1941 -- a real, quietly interesting historical footnote (the disease is named for the second person to report it, not the first), and a genuine wartime-era treatment breakthrough.',
+    summary:
+      "Graves' disease carries a real, slightly ironic naming history: Caleb Hillier Parry first documented a real case of hyperthyroidism with goiter in 1786, but his own report wasn't published until 1825, ten years after his death. Robert Graves published his own now-famous description in 1835 (palpitations, goiter, and exophthalmos, the bulging-eye sign, in three women), and the disease carries his name rather than Parry's purely because of real publication timing, not who actually saw it first. Early 20th-century treatment options were genuinely limited to surgery (initially crude: injecting hot water into the thyroid, then artery ligation, then partial removal) since neither antithyroid drugs nor radioactive iodine existed yet. The real, defining treatment breakthrough came in 1941, when Saul Hertz first used radioactive iodine (I-131) to treat Graves' patients, a real, direct outgrowth of nuclear-medicine research becoming available in that same wartime era; by 1946, radioactive iodine treatment was widely available, and remains one of the three real, standard treatment options (alongside antithyroid drugs and surgery) used today.",
+    citations: [
+      { source: "Management of Graves' Hyperthyroidism: More Than a Century of Progression", url: 'https://brieflands.com/journals/ijem/articles/103943' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'graves-pregnancy-fetal-thyrotoxicosis',
+    category: 'graves',
+    title: "A Real, Genuinely Counterintuitive Pregnancy Risk: A Mother's Own TRAb Antibodies Can Cause Fetal Thyrotoxicosis Even After SHE Has Become Hypothyroid",
+    teaser: "TRAb antibodies cross the placenta independent of the mother's own current thyroid hormone level -- meaning a mother made hypothyroid by past radioactive-iodine treatment can still, rarely, cause her own baby's thyroid to run too fast.",
+    summary:
+      "This is a real, genuinely surprising finding worth knowing directly if pregnancy is being planned after any past Graves' treatment: TRAb (TSH-receptor antibody), the same real antibody already covered in this app's own self-advocacy research, crosses the placenta and can stimulate the FETUS's own thyroid independent of what the mother's own current thyroid hormone level actually is. That means even a mother made hypothyroid by earlier radioactive-iodine treatment or surgery can, in real, documented if rare cases, still carry high enough TRAb levels to cause fetal or neonatal thyrotoxicosis. Real research finds this happens in up to 5% of pregnancies in mothers with a Graves' history, with a real, serious 12-20% mortality rate when it occurs, mainly from fetal heart failure. TRAb crossing becomes most consequential in the second half of pregnancy, when placental passage increases and the fetal thyroid has matured enough to actually respond to it. The real, practical takeaway: TRAb levels, not just the mother's own TSH/T4, need real monitoring throughout a pregnancy with any Graves' history, and continued fetal surveillance (heart rate, ultrasound) is recommended regardless of how low a mother's own antibody titer currently reads.",
+    citations: [
+      { source: 'Thyroid-Stimulating Hormone Receptor Antibodies in Pregnancy: Clinical Relevance, PMC5491546', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5491546/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-trab-tsi-testing'],
+  },
 ];

@@ -215,4 +215,56 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ms-ebv-trigger', 'ms-waves-trial', 'ms-biotin-honest-correction', 'ms-vitamin-d-mixed-evidence', 'ms-hashimotos-comorbidity'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'ms-disease-course-types',
+    category: 'multipleSclerosis',
+    title: "MS Has Four Real, Named Disease-Course Types, and Most People's Own Type Genuinely Changes Over Time",
+    teaser: 'Roughly 90% start with relapsing-remitting MS. On average, 10-15 years later, most convert to a real, second, more gradually progressive type.',
+    summary:
+      "MS is classified into four real, internationally recognized disease-course types. Relapsing-remitting MS (RRMS), the real starting course for roughly 90% of patients, is defined by real, distinct symptom flare-ups followed by stability in between. Primary progressive MS (PPMS), affecting 15-20% of patients, involves gradual decline from the very start, with no real, distinct relapses or remissions at all. Secondary progressive MS (SPMS) is the real, common conversion point most RRMS patients eventually reach, on average 10-15 years in, where the disease shifts from a relapsing pattern into slow, steady progression. Progressive-relapsing MS (PRMS), the real, least common pattern, combines gradual decline with real, superimposed relapses layered on top. Worth knowing directly: an MS diagnosis's own real course type isn't fixed for life the way it might sound, most people's own disease genuinely evolves from one real, named category into another over the years, a real reason ongoing neurology follow-up matters even during a period of relative stability.",
+    citations: [
+      { source: 'Multiple Sclerosis, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK499849/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ms-bladder-bowel-cognitive-real-data',
+    category: 'multipleSclerosis',
+    title: "MS's Real, Everyday Burden Often Isn't Mobility -- It's Bladder, Bowel, and Fatigue, at a Genuinely High Rate",
+    teaser: 'Real research finds bladder symptoms in up to 91% of patients and fatigue in up to 97% -- both far more universal than the mobility challenges MS is popularly associated with.',
+    summary:
+      "MS's own popular image centers mobility, but real, everyday burden concentrates elsewhere just as much, if not more. Real Dutch cohort research found 91% of patients reporting bladder symptoms and 73% reporting bowel symptoms, with a separate Australian cohort finding 74.4% with bladder problems, 48.9% with functional constipation, and 31.9% with fecal incontinence. Fatigue is genuinely near-universal in real research, affecting 35-97% of people with MS depending on the specific measure used, and it's real, independently classified as serious enough to affect quality of life, daily function, and workability REGARDLESS of a person's own physical disability level, meaning someone with mild visible mobility symptoms can still carry a genuinely severe, real fatigue burden. Cognitive decline affects a real, substantial 42.1% of patients too. These aren't separate, unrelated symptoms: real research finds bladder and bowel deficits directly correlate with both fatigue severity and cognitive impairment, a real, connected symptom cluster worth managing together rather than as isolated complaints.",
+    citations: [
+      { source: 'The frequency of bowel and bladder problems in multiple sclerosis and its relation to fatigue, PMC6752850', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6752850/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ms-history-milestones',
+    category: 'multipleSclerosis',
+    title: "MS's Own Real History: Named by the Father of Modern Neurology, Treated for the First Time Over a Century Later",
+    teaser: '1868, the 1990s -- a real, striking 130-year gap between MS being formally described and the first real, proven-effective disease-modifying treatment reaching patients.',
+    summary:
+      "MS's own real, formal medical history begins in May 1868, when Jean-Martin Charcot, widely regarded as the father of modern neurology, delivered a real series of lectures establishing MS as a distinct new neurological disease, naming it \"sclerose en plaques disseminee.\" Charcot's own real, direct evidence came from dissecting a deceased patient's brain and finding hardened scar patches scattered through the white matter of the spinal cord, brain stem, and brain, the actual physical lesions this app's own MS research already covers as the disease's real, underlying mechanism. The real, striking gap worth knowing: over a century passed between Charcot's 1868 description and the first proven-effective disease-modifying therapy actually reaching patients, interferon-beta, approved in the 1990s (with the subcutaneous form specifically approved in Europe and Canada in 1998, the U.S. in 2002). That's a genuinely long real wait compared to several other conditions in this app, T1D's own insulin discovery, by contrast, took barely two years from breakthrough to treatment.",
+    citations: [
+      { source: 'One hundred and fifty years ago Charcot reported multiple sclerosis as a new neurological disease, PMC6262215', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6262215/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-history-milestones'],
+  },
+  {
+    id: 'ms-pregnancy-relapse-real-data',
+    category: 'multipleSclerosis',
+    title: 'Pregnancy Cuts Real MS Relapse Risk by 70% in the Third Trimester -- Then Postpartum Risk More Than Doubles',
+    teaser: 'One of the most dramatic real, quantified swings in this whole app: a real 70% relapse reduction late in pregnancy, followed by relapse activity running more than twice as high just 3 months after delivery.',
+    summary:
+      "This is a real, genuinely dramatic, well-documented swing, among the most striking quantified pregnancy findings in this whole app. Real research finds pregnancy associated with a 70% reduction in annualized relapse rate by the third trimester compared to the year before conception, a substantial real protective effect during pregnancy itself. That protection reverses sharply after delivery: real data finds relapse activity running more than twice as high at 3 months postpartum as it ran before or during pregnancy, with most postpartum relapses concentrated specifically in that 2-3 month window. A real, genuinely useful, actionable finding on what actually helps: continuing a disease-modifying therapy through pregnancy itself didn't significantly change postpartum relapse risk in real research, but RESTARTING a disease-modifying therapy promptly after delivery did, real data finding a 5.2% relapse rate in those who restarted versus 10.9% in those who didn't, a real, concrete reason the postpartum restart decision deserves the same real, deliberate planning as the pregnancy itself.",
+    citations: [
+      { source: 'A systematic review of relapse rates during pregnancy and postpartum in patients with relapsing multiple sclerosis, PMC8645312', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8645312/' },
+    ],
+    overallTier: 'strong',
+  },
 ];
