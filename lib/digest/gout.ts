@@ -257,4 +257,50 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['advocacy-prescribing-cascade', 'gout-urate-lowering-therapy', 'ckd-nsaid-kidney-injury-real-data'],
   },
+
+  // -- Volumetric depth pass batch 3, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'gout-pseudogout-cppd-distinction',
+    category: 'gout',
+    title: 'Pseudogout (CPPD): A Real, Commonly Confused Look-Alike Caused by a Completely Different Crystal',
+    teaser: 'Pseudogout looks and feels almost exactly like gout, sudden, painful, swollen joints, but it\'s caused by calcium pyrophosphate crystals, not uric acid, and real research finds it typically strikes a different joint at a different age.',
+    summary:
+      "Calcium pyrophosphate deposition disease (CPPD), commonly called pseudogout, is a real, genuinely distinct condition worth knowing about directly precisely because it can look and feel almost identical to true gout at first glance. Both conditions cause a real, abrupt onset of hot, swollen, intensely painful joints, but the underlying real cause is completely different: gout is driven by uric acid crystals, while pseudogout is driven by calcium pyrophosphate (CPP) crystals, a real, chemically unrelated process. Real, useful distinguishing patterns exist: gout typically strikes just one joint at first, classically the big toe, while CPPD more often involves the knee and can affect one or more joints at once. Real research finds acute CPPD strikes an older population, most cases occurring in people over 65 and rarely presenting under 60, a genuinely different age pattern than gout, which can develop much younger. Real, definitive diagnosis requires the same real approach already covered in this app's own gout research, drawing joint fluid with a needle and examining it under a microscope, but looking specifically for calcium pyrophosphate crystals rather than the needle-shaped uric acid crystals that confirm true gout. Worth knowing directly: real research finds elevated uric acid, elevated CRP, high blood pressure, and being male can help distinguish true gout with good accuracy, but a real, confirmed diagnosis via joint fluid analysis remains the gold standard, especially in an older patient whose \"gout-like\" flare might actually be this real, separate condition requiring a different treatment approach.",
+    citations: [
+      { source: 'How to Differentiate Gout, Calcium Pyrophosphate Deposition Disease, and Osteoarthritis Using Just Four Clinical Parameters, PMC8224021', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8224021/' },
+      { source: 'Calcium Pyrophosphate Deposition Disease, PMC6240444', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6240444/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-flare-vs-septic-arthritis'],
+  },
+  {
+    id: 'gout-weight-loss-uric-acid',
+    category: 'gout',
+    title: 'Weight Loss Genuinely Lowers Uric Acid in Gout, With Real Data Across Diet, Medication, and Bariatric Surgery',
+    teaser: 'Real longitudinal studies find 75% of trials showing real benefit on gout attacks from weight loss, with real, distinct data now available from bariatric surgery, weight-loss medication, and diet changes alike.',
+    summary:
+      "Weight loss carries real, genuine benefit for gout beyond the metabolic-syndrome connection already covered elsewhere in this app's own gout research, worth knowing about with real, specific numbers rather than a vague \"lose weight\" recommendation. A real systematic review of 10 longitudinal studies (mean weight loss ranging from 3kg to 34kg) found six of eight studies (75%) showing real beneficial effects on actual gout attacks, with the real mechanism understood directly: weight loss increases the kidneys' own real ability to excrete urate, and to a lesser extent decreases how much urate the body produces in the first place. Real, specific intervention data now exists across several real paths: bariatric surgery showed a real, significant serum urate reduction, from 0.343 mmol/L at baseline down to 0.296 at 12 months and 0.286 at 24 months; a real 12-week trial of the weight-loss medication orlistat found a real reduction in the proportion of patients experiencing gout flares compared to placebo; and real dietary intervention studies (moderate calorie/carbohydrate restriction with more protein and unsaturated fat) found real benefit on both uric acid and cholesterol levels together. Worth knowing honestly: real research finds the quality of evidence still low-to-moderate overall, and real research finds losing weight too rapidly can temporarily raise uric acid and trigger a flare in the short term, a real, worth-knowing caution before starting an aggressive weight-loss plan. Worth knowing directly: this gives real, multiple, evidence-backed paths (diet, medication, or surgery) that all genuinely help gout specifically, not just cardiovascular risk broadly.",
+    citations: [
+      { source: 'Weight loss for overweight and obese individuals with gout: a systematic review of longitudinal studies, PMID 28866649', url: 'https://pubmed.ncbi.nlm.nih.gov/28866649/' },
+      { source: 'Changes in Serum Urate Levels after Bariatric Surgery in Patients with Obesity, PMC11031430', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11031430/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-metabolic-cluster-connection'],
+  },
+  {
+    id: 'gout-colchicine-narrow-therapeutic-index',
+    category: 'gout',
+    title: 'Colchicine\'s Real, Genuinely Narrow Margin Between an Effective Dose and a Fatal One',
+    teaser: 'Real research finds colchicine deaths reported at doses as low as 3mg, while some people have survived doses over 60mg, a real, genuinely unpredictable margin that makes exact dosing matter enormously.',
+    summary:
+      "Colchicine, already named in this app's own gout medication research, deserves its own real, dedicated safety entry, since real research finds it carries a genuinely narrow therapeutic index, meaning the real gap between an effective dose and a toxic or fatal one is unusually small and unpredictable compared to most medications. Real research finds effective steady-state blood concentrations running 0.5 to 3 micrograms per liter, with toxic effects beginning at roughly that same upper number, real evidence there's no clean, reliable line separating a safe dose from a dangerous one. Genuinely striking: real case data finds colchicine deaths reported at doses as low as 3mg, while other patients have survived doses exceeding 60mg, real, dramatic individual variability that makes this drug genuinely harder to dose safely than most. Real research finds toxicity unfolds in a real, distinct pattern, an early gastrointestinal phase (nausea, vomiting, diarrhea), followed by a deceptively quiet latent period, then a real, dangerous multi-organ phase involving bone marrow suppression, heart rhythm problems, respiratory failure, and kidney injury. Real, elevated risk concentrates specifically in the elderly, anyone with impaired kidney function, and anyone taking a second medication that blocks the same clearance pathway (a P-glycoprotein or CYP3A4 inhibitor, already worth cross-checking against this app's own interaction-checking research). Worth knowing directly: colchicine dosing needs real, careful attention to kidney function and other medications, not casual self-adjustment, and any accidental double-dose or suspected overdose deserves real, immediate medical attention rather than a wait-and-see approach.",
+    citations: [
+      { source: 'Colchicine: the good, the bad, the ugly and how to minimize the risks, PMC10986813', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10986813/' },
+      { source: 'Colchicine, StatPearls / NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK431102/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-urate-lowering-therapy'],
+  },
 ];

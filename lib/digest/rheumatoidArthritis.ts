@@ -288,4 +288,50 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-advocacy-rf-anti-ccp'],
   },
+
+  // -- Volumetric depth pass batch 3, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'ra-interstitial-lung-disease',
+    category: 'rheumatoidArthritis',
+    title: 'RA-Associated Lung Disease Is Real, Common, and Genuinely Underrecognized Until It\'s Advanced',
+    teaser: 'Real research finds interstitial lung disease affecting roughly 20% of RA patients by imaging-based estimates, with up to a third showing subclinical changes on CT scans well before any symptoms appear.',
+    summary:
+      "Rheumatoid arthritis-associated interstitial lung disease (RA-ILD) is a real, genuinely common complication of RA, worth knowing about directly since it's a real, frequent but underrecognized cause of serious illness beyond the joints. Real, pooled prevalence estimates vary by how it's measured, systematic reviews and meta-analyses find real rates around 18.7-21.4% using imaging-based diagnosis, while real-world database studies relying on clinical diagnosis alone find a much lower 4.1%, a real, striking gap suggesting many cases go unrecognized until they become clinically obvious. Genuinely important: real screening research using high-resolution CT scans finds up to a third of RA patients may have real, subclinical lung changes with no symptoms at all. Real research finds RA-ILD directly associated with significant illness and mortality, and some patients go on to develop progressive pulmonary fibrosis, a real, worsening pattern of increasing fibrotic lung damage, declining lung function, and premature death if not caught and managed. Worth knowing directly: this is a real, worth-raising question for anyone with RA experiencing unexplained shortness of breath, a persistent dry cough, or reduced exercise tolerance, symptoms that might otherwise get attributed to general RA fatigue or deconditioning rather than investigated as a real, separate, and treatable lung complication in its own right.",
+    citations: [
+      { source: 'The global prevalence of interstitial lung disease in patients with rheumatoid arthritis: a systematic review and meta-analysis, PMID 39825929', url: 'https://pubmed.ncbi.nlm.nih.gov/39825929/' },
+      { source: 'Identification, Monitoring, and Management of Rheumatoid Arthritis-Associated Interstitial Lung Disease, Arthritis & Rheumatology', url: 'https://acrjournals.onlinelibrary.wiley.com/doi/10.1002/art.42640' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-extra-articular-manifestations'],
+  },
+  {
+    id: 'ra-jak-inhibitors-oral-surveillance',
+    category: 'rheumatoidArthritis',
+    title: 'JAK Inhibitors: A Real, Newer RA Drug Class With a Real, Serious Safety Story Behind Its Own Boxed Warning',
+    teaser: 'A real, dedicated safety trial (ORAL Surveillance) found JAK inhibitors carrying real, increased risk of heart attack, stroke, cancer, blood clots, serious infection, and death compared to TNF inhibitors in an at-risk population.',
+    summary:
+      "JAK inhibitors (tofacitinib, baricitinib, upadacitinib) are a real, newer class of oral RA medication, and they carry a real, serious, FDA-mandated boxed warning worth knowing about directly, distinct from the biologics already covered in this app's own RA research. The real, pivotal ORAL Surveillance trial specifically studied this safety question in roughly 4,300 RA patients aged 50 or older with at least one cardiovascular risk factor, comparing tofacitinib against TNF inhibitors over an average 4-year follow-up. Real results found a genuinely serious, increased risk across multiple outcomes with JAK inhibitor use: heart attack and stroke, cancer, blood clots, serious infections, and death, all compared to the TNF-inhibitor comparison group. Based directly on these real findings, the FDA required a class-wide boxed warning (the strongest warning label the FDA issues) across all JAK inhibitors used for RA and other inflammatory conditions, and similar action followed internationally. Worth knowing honestly: real, ongoing analysis of this trial (\"the theory of relativity\" as one real academic review calls it) has debated how much of this risk applies broadly versus concentrates specifically in the older, cardiovascular-risk-factor-carrying population the trial actually studied. Worth knowing directly: this is a real, worth-naming-by-name safety conversation to have before starting a JAK inhibitor, especially for anyone with existing cardiovascular risk factors already covered elsewhere in this app's own research, JAK inhibitors remain a real, effective RA option, but genuinely not a risk-free alternative to be chosen without this specific conversation.",
+    citations: [
+      { source: 'Risks and Benefits of Janus Kinase Inhibitors in Rheumatoid Arthritis — Past, Present, and Future, New England Journal of Medicine', url: 'https://www.nejm.org/doi/abs/10.1056/NEJMe2117663' },
+      { source: 'Important safety information for Janus kinase (JAK) inhibitors, Therapeutic Goods Administration', url: 'https://www.tga.gov.au/news/safety-updates/important-safety-information-janus-kinase-jak-inhibitors' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-cardiovascular-risk', 'ra-biologics-infection-risk'],
+  },
+  {
+    id: 'ra-depression-anxiety-comorbidity',
+    category: 'rheumatoidArthritis',
+    title: 'Depression and Anxiety Are Real, Common, and Genuinely Underscreened Companions to RA',
+    teaser: 'A real meta-analysis found major depression roughly 2-3 times more common in RA than the general population, with anxiety and depression both tracking directly with how active the disease actually is.',
+    summary:
+      "Depression and anxiety are real, genuinely common companions to rheumatoid arthritis, worth knowing about directly as a real part of managing the disease, not a separate, unrelated concern. Real research finds reported rates genuinely wide-ranging across different studies (2.4% to 85.2% for anxiety, 15% to 73.2% for depression, reflecting real differences in how each was measured), but a real, more precise meta-analysis found current and lifetime anxiety disorder prevalence at 13.5% and 22.2% respectively, and a separate real meta-analysis found major depressive disorder in 16.8% of RA patients, a real 2-3 times higher rate than the general population. Genuinely important: real research finds both anxiety and depression correlate directly and positively with RA disease activity itself, meaning periods of worse joint inflammation track with worse real mental health symptoms, not just a coincidental overlap. Real clinical research explicitly recommends routine screening and ongoing monitoring for both conditions as part of standard RA care, specifically because real research finds this comorbidity genuinely impacts disease prognosis, not just quality of life on its own. Worth knowing directly: this is a real, worth-raising topic in routine RA care, someone experiencing persistent low mood, worry, or emotional exhaustion alongside their joint symptoms has a real, evidence-backed reason to bring it up directly with their rheumatologist, not assume it's simply an expected, unaddressable part of living with a chronic illness.",
+    citations: [
+      { source: 'Beyond rheumatoid arthritis: A meta-analysis of the prevalence of anxiety and depressive disorders in rheumatoid arthritis, PMID 40112611', url: 'https://pubmed.ncbi.nlm.nih.gov/40112611/' },
+      { source: 'The prevalence and correlation of depression and anxiety with disease activity in rheumatoid arthritis, PMC10201383', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10201383/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-treat-to-target-remission'],
+  },
 ];

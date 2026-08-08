@@ -273,4 +273,50 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-overview'],
   },
+
+  // -- Volumetric depth pass batch 3, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'cvd-triglycerides-omega3-real-data',
+    category: 'cardiovascularDisease',
+    title: 'Triglycerides Are a Real, Distinct Cardiovascular Risk Marker, and Omega-3 Genuinely Lowers Them, Though the Full Benefit May Run Deeper',
+    teaser: 'A real, purified EPA formulation cut major cardiovascular events by 25% in a landmark trial, a benefit real research finds too large to be explained by its own triglyceride-lowering effect alone.',
+    summary:
+      "Triglycerides are a real, distinct blood fat marker from the LDL cholesterol already covered in this app's own lipid-panel research, and real, elevated triglycerides carry their own independent cardiovascular risk. Real research finds omega-3 fatty acids genuinely and substantially lower triglycerides, a real daily intake of 3-4g combined EPA+DHA reducing triglyceride levels by 20-50% in people with elevated baseline levels, with one real trial finding a 27% reduction at the higher dose tested. The real, landmark REDUCE-IT trial tested a purified, high-dose EPA formulation (icosapent ethyl) specifically and found a real, striking 25% reduction in major cardiovascular events, distinguishing it directly from the honest, null omega-3 supplement findings already covered elsewhere in this app's own CVD research (which typically tested lower-dose, mixed EPA/DHA formulations). Genuinely important and honestly complicated: real research finds the size of this cardiovascular benefit disproportionately large compared to the triglyceride reduction alone, suggesting omega-3, at least in this specific purified, high-dose form, may work through additional real mechanisms, reduced blood pressure, an antithrombotic (clot-preventing) effect, improved inflammatory status, and better endothelial (blood vessel lining) function. Worth knowing directly: this is a real, meaningful nuance to the existing omega-3-and-heart-disease conversation, dose and formulation genuinely matter, and someone with elevated triglycerides specifically has a real, different evidence picture to discuss with a doctor than the general omega-3 supplement question already covered elsewhere in this app.",
+    citations: [
+      { source: 'Rounding the corner on residual risk: Implications of REDUCE-IT for omega-3 polyunsaturated fatty acids treatment in secondary prevention of atherosclerotic cardiovascular disease, PMC6727875', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6727875/' },
+      { source: 'Dose-response effects of omega-3 fatty acids on triglycerides, inflammation, and endothelial function, PMC3138218', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3138218/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-omega3-honest-null', 'cvd-lipid-panel-self-advocacy'],
+  },
+  {
+    id: 'cvd-resistant-hypertension-adherence',
+    category: 'cardiovascularDisease',
+    title: '"Resistant" High Blood Pressure Is Real, But Real Research Finds Medication Nonadherence Hiding Underneath a Striking Share of Cases',
+    teaser: 'Real, repeated blood-tests-for-drug-levels research finds up to a third of people believed to be taking their blood pressure medication faithfully actually weren\'t, a real, honest complication before assuming a treatment itself has failed.',
+    summary:
+      "Resistant hypertension, blood pressure that stays elevated despite three or more medications, is real and affects a real, substantial 4.3-29.7% of treated hypertension patients depending on the population studied. Genuinely important to know honestly: real research finds medication nonadherence hiding underneath a striking share of these cases, one real study found repeated measurements of actual drug levels in the blood revealed nonadherence in a full third of patients who had previously been judged adherent through less rigorous monitoring (directly observed therapy). Real-world data finds this pattern consistently: one study found only 42% overall adherence among newly treated hypertensive patients, another found 45% of resistant hypertension patients showing poor adherence at baseline, and among patients using three or more blood pressure medications, real research found only 34% adherent and just 13.7% actually reaching their blood pressure target. Worth knowing directly, and genuinely reassuring in one sense: real research finds patients who ARE adherent show real, meaningfully greater blood pressure reductions than nonadherent patients, meaning the medications themselves generally do work when actually taken as prescribed. Worth knowing directly: before assuming truly resistant, treatment-refractory hypertension, it's worth honestly examining real, practical barriers to taking medication consistently (cost, side effects, complicated dosing schedules, simply forgetting), since real research finds this explains a meaningful share of what initially looks like resistant disease, and addressing it directly can be more effective than adding yet another medication.",
+    citations: [
+      { source: 'Nonadherence by Serum Drug Analyses in Resistant Hypertension: 7-Year Follow-Up of Patients Considered Adherent by Directly Observed Therapy, PMC9683683', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9683683/' },
+      { source: 'Medication Adherence and Treatment-Resistant Hypertension in Newly Treated Hypertensive Patients in the UAE, PMC8584664', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8584664/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-dash-sodium'],
+  },
+  {
+    id: 'cvd-women-underdiagnosis-gender-gap',
+    category: 'cardiovascularDisease',
+    title: 'Women Are Real, Systematically More Likely to Have Their Heart Disease Missed, Dismissed, or Undertreated',
+    teaser: 'Real research found women under 55 seven times more likely than men to be sent home from the ER without proper cardiac testing, with women\'s own real, different symptom pattern a genuine part of why.',
+    summary:
+      "Women face a real, well-documented gender gap in how heart disease is recognized and treated, worth knowing directly rather than assumed to be a fully solved problem. Real research published in the Journal of the American Heart Association found women under 55 were seven times more likely than men to be sent home from the emergency room without proper cardiac testing. Real research finds women also less likely to receive diagnostic imaging, artery-opening procedures (percutaneous coronary intervention), and statin therapy, even when presenting with clinically comparable symptoms to men. A real, genuine part of the explanation: women's heart attack symptoms real, often differ from the classic crushing-chest-pain picture most diagnostic training is built around, real research finds women more likely to experience generalized discomfort alongside nausea, fatigue, back pain, palpitations, and shortness of breath, sometimes as real, intermittent symptoms lasting hours, days, or even weeks before a full event. Real research finds these less \"classic\" presentations directly contribute to delayed or compromised diagnosis, and that women's symptoms are more likely to be dismissed or minimized, particularly when described in vague or emotionally-expressed terms. Worth knowing directly: this is real, worth-naming-by-name context for any woman experiencing unusual, hard-to-pin-down symptoms alongside real cardiovascular risk factors, real self-advocacy (already covered elsewhere in this app's own research) matters here specifically because the standard diagnostic pattern wasn't built around women's own real, more varied presentation.",
+    citations: [
+      { source: 'Gender Disparities in Ischemic Heart Disease Management: Underdiagnosis in Women and Differences in Treatment, PMC12425171', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12425171/' },
+      { source: 'Women Acute Myocardial Infarction—Identifying and Understanding the Gender Gap (WAMy-GAP): A Study Protocol, PMC11121322', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11121322/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-heart-attack-red-flags'],
+  },
 ];

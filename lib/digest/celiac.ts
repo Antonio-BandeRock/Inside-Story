@@ -279,4 +279,50 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-gf-diet-nutritional-pitfalls'],
   },
+
+  // -- Volumetric depth pass batch 3, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'celiac-depression-anxiety-mental-health',
+    category: 'celiac',
+    title: 'Celiac Disease Carries a Real, Quantified Mental Health Burden, and a Gluten-Free Diet Only Partly Fixes It',
+    teaser: 'Real research finds anxiety 2.26 times more common and depression 3.36 times more common in celiac disease, with a gluten-free diet genuinely helping anxiety more consistently than it helps depression.',
+    summary:
+      "Celiac disease carries a real, substantially elevated mental health burden worth knowing about directly, not just a byproduct of managing a chronic illness. Real meta-analysis data finds people with celiac disease at a real 2.26 times higher risk of anxiety and a real 3.36 times higher risk of depression compared to the general population. Real, pediatric research finds this burden shows up early and is genuinely underrecognized by caregivers, one real study found 39% of children with celiac disease reporting clinically significant anxiety or depression concerns on their own self-report, while their own caregivers flagged concerns in only 7% (anxiety) and 14% (depression) of the same children, a real, striking gap between what a child experiences and what a parent perceives. Genuinely important and honestly nuanced: real research finds a gluten-free diet associated with lower depression and anxiety overall, but the real effect isn't consistent or complete, anxiety symptoms tend to improve more reliably with dietary treatment, while real research finds depression often continues even once physical, digestive symptoms have resolved. Worth knowing directly: this real, biological connection likely runs deeper than just \"living with a chronic illness is hard,\" real research increasingly points to direct gut-brain mechanisms (already covered in this app's own broader gut-microbiome research). Worth knowing directly: real clinical research explicitly recommends integrating mental healthcare into celiac disease management, not treating it as a separate, unrelated concern, someone with celiac disease experiencing persistent low mood or anxiety, even after successfully going gluten-free, has a real, evidence-backed reason to seek real, dedicated mental health support alongside their dietary treatment.",
+    citations: [
+      { source: 'Anxiety and Depression Among Adults and Children With Celiac Disease: A Meta-Analysis of Different Psychiatry Scales, PMC11633532', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11633532/' },
+      { source: 'Psychiatric and Neurological Manifestations of Celiac Disease in Adults, PMC9984242', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9984242/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-overview'],
+  },
+  {
+    id: 'celiac-iceberg-underdiagnosis',
+    category: 'celiac',
+    title: 'The "Celiac Iceberg": Real, Striking Evidence That Most Celiac Disease Cases Remain Undiagnosed',
+    teaser: 'Real research finds the ratio of diagnosed to undiagnosed celiac disease cases running anywhere from 1:5 to 1:8, meaning the real, visible, symptomatic cases people know about may be a small fraction of the whole.',
+    summary:
+      "The \"celiac iceberg\" is a real, widely used concept in celiac research describing a striking real pattern: the visible, diagnosed cases of celiac disease represent only a small fraction of everyone who actually has it. Real research finds the estimated ratio of diagnosed to undiagnosed cases running anywhere from 1:5 to 1:8, meaning for every person with a confirmed celiac diagnosis, real research suggests 5 to 8 more people may have the disease without knowing it. The real, primary reason: only 10-20% of people with celiac disease show the classic, fully developed digestive symptoms most people associate with the condition, real research finds the majority have atypical symptoms (like the iron-deficiency anemia, osteoporosis, or infertility already covered in this app's own celiac research), only mild symptoms, or genuinely none at all. This connects directly to the concept of \"silent\" celiac disease, real, confirmed cases (positive antibodies, real intestinal damage on biopsy) with no noticeable symptoms at all, often only discovered through screening a family member of someone already diagnosed, since celiac disease's own real, established genetic and familial risk (already covered elsewhere in this app) makes this a real, worthwhile screening trigger. Worth knowing directly: this is real, important context for anyone with a family member diagnosed with celiac disease, or anyone with unexplained, atypical symptoms like persistent fatigue, anemia, or low bone density, real testing (already covered in this app's own diagnostic-panel research) is worth pursuing even without classic digestive symptoms, since the real, visible cases may genuinely be the minority.",
+    citations: [
+      { source: 'Recognizing the Emergent and Submerged Iceberg of the Celiac Disease: ITAMA Project—Global Strategy Protocol, PMC9227897', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9227897/' },
+      { source: 'Prevalence and Morbidity of Undiagnosed Celiac Disease From a Community-Based Study, PMID 27916669', url: 'https://pubmed.ncbi.nlm.nih.gov/27916669/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-hashimotos-comorbidity'],
+  },
+  {
+    id: 'celiac-gluten-challenge-protocol',
+    category: 'celiac',
+    title: 'The Real, Specific Gluten Amount and Timeline Needed for an Accurate Celiac Test',
+    teaser: 'Real medical guidance calls for 3-10 grams of gluten daily, roughly 1.5-2 slices of wheat bread, for 6-8 weeks before blood testing, a real, specific protocol worth knowing before assuming any celiac test result is final.',
+    summary:
+      "Getting an accurate celiac disease test requires a real, specific amount of gluten intake beforehand, worth knowing precisely since going gluten-free too early, even briefly, is the real, single most common reason for a false-negative celiac test result already implied elsewhere in this app's own diagnostic-panel research. Real medical guidance recommends consuming 3 to 10 grams of gluten per day, roughly equivalent to 1.5 to 2 slices of ordinary wheat bread, for a real, specific duration of 6 to 8 weeks before blood antibody testing, giving the body enough real time to reactivate the autoimmune antibody response the test is actually looking for. Real research finds a shorter real gluten challenge, at least 2 weeks, generally sufficient before an endoscopy/biopsy specifically, since that test looks directly at intestinal tissue damage rather than relying on the slower antibody response blood testing depends on. Worth knowing directly, and genuinely important: real guidance finds a gluten challenge is NOT recommended before age 5, during puberty, or during pregnancy, since real research finds gluten intake during these periods can affect nutrient absorption in ways that risk contributing to real growth or pregnancy complications. Worth knowing directly: anyone who has already reduced or eliminated gluten before ever being tested, a real, common and understandable reaction to feeling unwell, needs this real, specific reintroduction protocol before a test result can be trusted either way, working with a doctor to plan the challenge safely rather than either avoiding testing altogether or assuming a test taken after already cutting gluten is accurate.",
+    citations: [
+      { source: 'The Gluten Challenge, Beyond Celiac', url: 'https://www.beyondceliac.org/celiac-disease/the-gluten-challenge/' },
+      { source: 'Gluten Challenge, Celiac Canada', url: 'https://www.celiac.ca/healthcare-professionals/diagnosis/gluten-challenge/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-diagnostic-panel'],
+  },
 ];

@@ -251,4 +251,50 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-episodic-chronic-real-debate', 'migraine-medication-overuse-headache'],
   },
+
+  // -- Volumetric depth pass batch 3, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'migraine-botox-preempt-trials',
+    category: 'migraine',
+    title: 'OnabotulinumtoxinA (Botox) Is a Real, FDA-Approved, Trial-Confirmed Preventive Treatment for Chronic Migraine',
+    teaser: 'The real, landmark PREEMPT 2 trial found Botox injections significantly reduced headache days compared to placebo, real, repeated safety confirmed across multiple treatment cycles.',
+    summary:
+      "OnabotulinumtoxinA, the same botulinum toxin known by the brand name Botox, is a real, FDA-approved, specifically studied preventive treatment for chronic migraine, worth knowing about directly alongside the CGRP inhibitors already covered in this app's own migraine research. The real, landmark PREEMPT clinical trial program tested this specific treatment in two large, randomized, placebo-controlled trials. PREEMPT 2 found onabotulinumtoxinA statistically significantly superior to placebo for its primary outcome, real reduction in headache days per 28-day period (a real 9.0-day reduction versus 6.7 days for placebo), with real, significant improvement on every secondary measure tested too. Worth knowing honestly: PREEMPT 1, the companion trial, did NOT find a significant difference on its own primary endpoint (headache episodes specifically, a different way of counting than headache days), a real, honest inconsistency between the two trials worth naming directly rather than only citing the positive result. The real, pooled analysis combining both trials' full data did confirm onabotulinumtoxinA as an effective preventive treatment overall, and real research found repeated treatment cycles (administered every 12 weeks) safe and well tolerated over time. Worth knowing directly: this is a real, FDA-approved, evidence-backed option specifically for CHRONIC migraine (15 or more headache days a month, already covered in this app's own episodic-vs-chronic research), not typically used for less frequent episodic migraine, worth discussing directly with a neurologist for anyone whose chronic migraine hasn't responded well to oral preventive medications.",
+    citations: [
+      { source: 'OnabotulinumtoxinA for treatment of chronic migraine: Results from the PREEMPT 2 trial, PMID 20647171', url: 'https://pubmed.ncbi.nlm.nih.gov/20647171/' },
+      { source: 'OnabotulinumtoxinA for treatment of chronic migraine: pooled results from the PREEMPT clinical program, PMID 20487038', url: 'https://pubmed.ncbi.nlm.nih.gov/20487038/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-cgrp-inhibitors', 'migraine-episodic-chronic-real-debate'],
+  },
+  {
+    id: 'migraine-trigeminovascular-cgrp-mechanism',
+    category: 'migraine',
+    title: 'The Trigeminovascular System: The Real Biological Machinery Behind a Migraine Attack Itself',
+    teaser: 'A real, specific nerve pathway releases CGRP directly during an attack, measurably elevated in the blood draining from the head, and normalizing again once treatment actually works.',
+    summary:
+      "The trigeminovascular system is the real, specific biological pathway underlying migraine itself, worth understanding directly as the actual mechanism behind the CGRP inhibitor medications already covered elsewhere in this app's own migraine research. Real research finds the trigeminal ganglion, a real cluster of nerve cells connecting the face and head to the brain, contains a large population of neurons that produce and release calcitonin gene-related peptide (CGRP) when activated by physical or chemical triggers. Real research finds this CGRP release sets off a real, specific cascade: increased nitric oxide production, sensitization of the trigeminal nerves themselves, and direct interaction with nearby support cells, all of which work together to drive both the pain signal and the blood-vessel changes characteristic of a migraine attack. Genuinely useful clinical evidence: real research finds CGRP concentrations measurably elevated in blood draining from the head during an actual migraine attack, and real research finds these levels normalize again specifically after successful treatment, direct, measurable confirmation that this pathway is genuinely active during a real attack, not just a laboratory theory. Worth knowing directly: understanding this real mechanism explains why CGRP inhibitors and CGRP-receptor-blocking triptans both work by interrupting this same real pathway at different points, and it's a real, useful piece of context for understanding why migraine is now treated as a genuine neurological-vascular process with a real, identifiable chemical signal, not a poorly understood \"just a bad headache.\"",
+    citations: [
+      { source: 'The big CGRP flood - sources, sinks and signalling sites in the trigeminovascular system, PMC5847494', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5847494/' },
+      { source: 'CGRP and the Trigeminal System in Migraine, PMID 30982963', url: 'https://pubmed.ncbi.nlm.nih.gov/30982963/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-cgrp-inhibitors'],
+  },
+  {
+    id: 'migraine-ketogenic-low-carb-diet',
+    category: 'migraine',
+    title: 'Ketogenic and Low-Carbohydrate Diets Show Real, Growing, Though Still Unsettled Promise for Migraine Prevention',
+    teaser: 'A real randomized trial found a 4-week very-low-energy ketogenic diet significantly more effective than an equally weight-reducing non-ketogenic diet for migraine prevention, real evidence pointing beyond weight loss alone.',
+    summary:
+      "Ketogenic and low-carbohydrate diets represent a real, actively growing area of migraine research, distinct from the food-trigger avoidance already covered in this app's own migraine research, this is about a broader dietary PATTERN rather than avoiding specific trigger foods. Real research covers several real variations, from a strict classic ketogenic diet to a gentler low-glycemic-index diet and the Modified Atkins Diet, all sharing the real, underlying mechanism of shifting the body's fuel source from glucose toward ketone bodies produced from fat. Genuinely notable: a real randomized controlled trial (the EMIKETO trial) found a very-low-calorie ketogenic diet significantly more effective at preventing high-frequency episodic migraine than an equally calorie-reduced, non-ketogenic diet, despite both producing similar real weight loss, real evidence the ketogenic state itself, not just the weight loss, may be doing real, independent work. A real Mediterranean-ketogenic hybrid diet also showed real reductions in both pain frequency and intensity in a pilot study of chronic migraine patients. Worth knowing honestly: real research finds no clear consensus yet on any single \"anti-migraine\" diet, and it isn't clear whether ketogenic eating is broadly effective for migraine prevention or works best for a real, specific subset of patients. Worth knowing directly: this is a real, promising, actively-researched option worth discussing with a doctor or dietitian for someone whose migraine hasn't responded well to standard preventive approaches, not yet a settled, universally-recommended first-line dietary prescription.",
+    citations: [
+      { source: 'Very-low-calorie ketogenic diet vs hypocaloric balanced diet in the prevention of high-frequency episodic migraine: the EMIKETO randomized, controlled trial, PMC10548576', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10548576/' },
+      { source: 'Specifically formulated ketogenic, low carbohydrate, and carnivore diets can prevent migraine: a perspective, PMC11091296', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11091296/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-food-triggers-honest-nuance', 'migraine-obesity-chronification-risk'],
+  },
 ];

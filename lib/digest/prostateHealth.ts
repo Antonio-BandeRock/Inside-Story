@@ -270,4 +270,50 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['prostate-psa-screening'],
   },
+
+  // -- Volumetric depth pass batch 3, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'prostate-active-surveillance',
+    category: 'prostateHealth',
+    title: 'Active Surveillance: A Real, Major Shift Away From Immediately Treating Low-Risk Prostate Cancer',
+    teaser: 'A real, large 21,000-patient study found 98.1% cancer-specific survival at 10 years for men on active surveillance, real, strong evidence that watching carefully, rather than treating immediately, is genuinely safe for the right cases.',
+    summary:
+      "Active surveillance represents a real, major, current shift in how low-risk prostate cancer is managed, worth knowing about directly since it changes the standard expectation that a cancer diagnosis automatically means immediate treatment. Rather than surgery or radiation right away, active surveillance means real, regular monitoring, PSA testing (already covered in this app's own screening research), digital exams, and MRI or biopsy as needed, with treatment held in reserve unless the cancer actually shows signs of progressing. Real, large population data (over 21,000 low-grade prostate cancer patients in a real Canadian study) found genuinely reassuring long-term outcomes: 94.2% metastasis-free survival, 88.7% overall survival, and 98.1% cancer-specific survival at 10 years, meaning the overwhelming majority of men managed this way do not die from their prostate cancer. Real, extended follow-up data (the Göteborg-1 trial, tracking men up to 25 years) and other real research confirm this pattern holds over the long term. Worth knowing honestly: real research also finds a genuine tradeoff, roughly half of men on active surveillance eventually transition to active treatment within 5 years as their disease shows real signs of progression, and a small, real, \"non-negligible\" risk exists of missing the right window for a cure in some cases. Worth knowing directly: this is a real, evidence-backed, worth-raising option for anyone diagnosed with low-risk prostate cancer, since it can genuinely avoid or delay real treatment side effects (already covered in this app's own PSA-screening research) while maintaining strong real long-term survival odds.",
+    citations: [
+      { source: 'Long-term Outcomes Following Active Surveillance of Low-grade Prostate Cancer: A Population-based Study Using a Landmark Approach, PMID 36475730', url: 'https://pubmed.ncbi.nlm.nih.gov/36475730/' },
+      { source: 'Active Surveillance for Screen-detected Low- and Intermediate-risk Prostate Cancer: Extended Follow-up up to 25 Years in the GÖTEBORG-1 Trial', url: 'https://www.sciencedirect.com/science/article/pii/S0302283825003586' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-psa-screening', 'prostate-real-staging-systems'],
+  },
+  {
+    id: 'prostate-prostatitis-distinct-condition',
+    category: 'prostateHealth',
+    title: 'Prostatitis: A Real, Genuinely Common, and Distinct Prostate Condition, Not the Same as BPH or Cancer',
+    teaser: "Prostatitis is real prostate inflammation, most common in men under 50, causing real pain and fever that BPH's own painless urinary symptoms don't, and real research finds it can coexist with either BPH or cancer.",
+    summary:
+      "Prostatitis is a real, genuinely distinct prostate condition worth knowing about separately from the BPH and prostate cancer already covered in real depth in this app's own research, it's inflammation of the prostate gland, and real research finds it's actually the most common urologic diagnosis in men under 50, and the third most common in men over 50 (after BPH and prostate cancer). Real research names four real, distinct types: acute bacterial, chronic bacterial, chronic (nonbacterial) prostatitis/chronic pelvic pain syndrome, and asymptomatic inflammatory prostatitis, though real research finds true acute bacterial prostatitis genuinely rare despite the broader category being common. The real, key distinguishing clue from BPH: prostatitis typically causes real pelvic pain, fever (in acute cases), and painful urination, while BPH causes real, painless urinary flow problems without pain or fever, a genuinely useful, practical way to tell the two apart before any testing. Worth knowing directly: real research finds prostatitis isn't always a stand-alone diagnosis, one real histology study found it coexisting with prostate cancer in 23.3% of cases and with BPH in 58.9% of cases, meaning inflammation is real and common enough to show up alongside either of the other two real prostate conditions rather than always being a separate, competing diagnosis. Worth knowing directly: unexplained pelvic pain or painful urination, especially without the classic slow urinary stream BPH causes, is a real, worth-raising reason to ask specifically about prostatitis rather than assuming any prostate symptom automatically means BPH or cancer.",
+    citations: [
+      { source: 'Acute Bacterial Prostatitis: Practice Essentials, Pathophysiology, Etiology, Medscape', url: 'https://emedicine.medscape.com/article/2002872-overview' },
+      { source: 'The histological prevalence of prostatitis at Potchefstroom Hospital: a cross-sectional study, PMC10870162', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10870162/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-overview', 'prostate-real-staging-systems'],
+  },
+  {
+    id: 'prostate-exercise-cancer-mortality',
+    category: 'prostateHealth',
+    title: 'Real, Quantified Data: Exercise After a Prostate Cancer Diagnosis Genuinely Lowers Real Risk of Dying From It',
+    teaser: 'Real research finds men doing 3+ hours of vigorous activity a week after a prostate cancer diagnosis had a 61% lower risk of dying from the disease specifically, not just a general fitness benefit.',
+    summary:
+      "Exercise after a prostate cancer diagnosis carries real, genuinely striking, quantified survival benefit, worth knowing about directly as something concrete a person can do rather than a vague \"stay active\" suggestion. Real research finds men with at least 7.5 MET-hours per week of physical activity after diagnosis had a real, significantly lower all-cause mortality (hazard ratio 0.69) compared to less active men, and men walking 90 or more minutes a week at a normal-to-brisk pace had a real 46% lower risk of dying from any cause. Genuinely striking, and specific to the cancer itself, not just general health: real research found men doing 3 or more hours of vigorous activity a week had a real 49% lower all-cause mortality risk, and, even more directly relevant, a real 61% lower risk of dying from prostate cancer specifically, compared to men doing under an hour of vigorous activity weekly. A real, broader meta-analysis confirms this pattern holds across multiple studies, finding real, significant reductions in prostate-cancer-specific mortality (hazard ratio 0.77) and in mortality from moderate-to-vigorous activity broadly (hazard ratio 0.62). Worth knowing directly: this is real, disease-specific evidence, not just the general exercise-is-healthy message covered elsewhere in this app's own research, someone managing a prostate cancer diagnosis, whether on active surveillance or after treatment, has a real, concrete, evidence-backed reason to prioritize regular, ideally vigorous, physical activity as a real part of their own cancer management, not just their general wellbeing.",
+    citations: [
+      { source: 'Post-diagnosis physical activity in relation to mortality among prostate cancer survivors: a systematic review and meta-analysis, Cancer Causes & Control', url: 'https://link.springer.com/article/10.1007/s10552-026-02197-2' },
+      { source: 'Recreational Physical Activity in Relation to Prostate Cancer-specific Mortality Among Men with Nonmetastatic Prostate Cancer', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0302283817305377' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-active-surveillance', 'prostate-diet-pattern'],
+  },
 ];
