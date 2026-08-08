@@ -73,7 +73,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Effect of Coffee Consumption on Non-Alcoholic Fatty Liver Disease Incidence, Prevalence and Risk of Significant Liver Fibrosis: Systematic Review with Meta-Analysis of Observational Studies, PMID 34578919', url: 'https://pubmed.ncbi.nlm.nih.gov/34578919/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-coffee-timing'],
+    relatedIds: ['problem-coffee-timing', 'gout-coffee-inverse'],
   },
   {
     id: 'masld-hfcs-fructose',

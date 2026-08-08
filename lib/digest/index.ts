@@ -9,6 +9,7 @@ import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
 import { FOOD_INDUSTRY_HISTORY_ENTRIES } from './foodIndustryHistory';
 import { GLOSSARY_ENTRIES } from './glossary';
+import { GOUT_ENTRIES } from './gout';
 import { GRAVES_ENTRIES } from './graves';
 import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
 import { HEALING_STAGES_ENTRIES } from './healingStages';
@@ -45,7 +46,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808250000';
+export const PURPLE_DIGEST_VERSION = '20260808290000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -88,6 +89,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...IBS_ENTRIES,
   ...MIGRAINE_ENTRIES,
   ...CARDIOVASCULAR_DISEASE_ENTRIES,
+  ...GOUT_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -293,6 +295,16 @@ export const DIGEST_CATEGORY_META: {
     label: 'Cardiovascular Disease',
     icon: 'heart-outline',
     description: 'Real evidence for cardiovascular disease: the Mediterranean diet and DASH, an honest statin evidence review, a real reversal on daily aspirin and omega-3s for prevention, and self-advocacy for lipid testing and heart attack red flags.',
+  },
+  // 2026-08-08, same day, eighteenth condition, and -- per the `conditions`
+  // table's own sort_order -- the last one currently planned: Gout. See
+  // gout.ts's own header comment -- an unusually specific, individually
+  // well-studied list of real dietary triggers and protective foods.
+  {
+    key: 'gout',
+    label: 'Gout',
+    icon: 'footsteps-outline',
+    description: 'Real evidence for gout: the specific foods that raise and lower risk (meat, seafood, dairy, sugar drinks, beer, cherries, vitamin C, coffee), a real medication safety distinction, and self-advocacy for genetic testing and flare red flags.',
   },
 ];
 

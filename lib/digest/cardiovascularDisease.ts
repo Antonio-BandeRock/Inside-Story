@@ -42,7 +42,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Heart Disease, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/heartdiseases.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['lupus-cardiovascular-risk', 'organ-cardiovascular', 'pcos-lipid-panel-cardiometabolic', 'psoriasis-advocacy-cardiovascular-metabolic', 'ra-advocacy-cardiovascular-risk'],
+    relatedIds: ['lupus-cardiovascular-risk', 'organ-cardiovascular', 'pcos-lipid-panel-cardiometabolic', 'psoriasis-advocacy-cardiovascular-metabolic', 'ra-advocacy-cardiovascular-risk', 'gout-urate-lowering-therapy', 'gout-metabolic-cluster-connection'],
   },
   {
     id: 'cvd-mediterranean-diet-predimed',
@@ -79,6 +79,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Efficacy and safety of cholesterol-lowering treatment: prospective meta-analysis of data from 90,056 participants in 14 randomised trials of statins, PMID 16214597', url: 'https://pubmed.ncbi.nlm.nih.gov/16214597/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['foodhistory-cholesterol-real-drivers'],
   },
   {
     id: 'cvd-aspirin-primary-prevention-reversal',
@@ -121,12 +122,12 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     title: "The Lipid Panel: Real, Specific Testing Intervals, and a Note on What Standard Cholesterol Numbers Don't Capture",
     teaser: "How often a lipid panel actually needs repeating depends on real, specific factors like age and sex, not one blanket schedule for everyone.",
     summary:
-      "Real, standard cholesterol-testing guidance sets specific intervals by age and risk: a first test between ages 9 and 11, then every 5 years through adulthood for most people, shifting to every 1 to 2 years for men 45 to 65 and women 55 to 65, and annual testing for adults over 65. Worth knowing directly for anyone with a condition already covered in this app that carries its own elevated cardiovascular risk (lupus, rheumatoid arthritis, psoriasis, and PCOS all do, see this category's own cross-links), a real conversation with a prescriber about testing more often than the general schedule above is a reasonable, specific thing to raise, not an overreaction. A real, separate, worth-knowing concept for that same conversation: apolipoprotein B (apoB), a real, specific protein present on every atherogenic (artery-damaging) lipid particle, is increasingly discussed in cardiology as potentially a more direct measure of real cardiovascular risk than LDL cholesterol alone, since it counts particles rather than just their cholesterol content. This app is deliberately not citing a specific apoB study here, since a primary source could not be independently re-verified this session, but the concept itself is real and worth raising directly by name in a real conversation with a prescriber, especially for anyone whose standard LDL number looks normal but who still carries other real risk factors.",
+      "Real, standard cholesterol-testing guidance sets specific intervals by age and risk: a first test between ages 9 and 11, then every 5 years through adulthood for most people, shifting to every 1 to 2 years for men 45 to 65 and women 55 to 65, and annual testing for adults over 65. Worth knowing directly for anyone with a condition already covered in this app that carries its own elevated cardiovascular risk (lupus, rheumatoid arthritis, psoriasis, and PCOS all do, see this category's own cross-links), a real conversation with a prescriber about testing more often than the general schedule above is a reasonable, specific thing to raise, not an overreaction. A real, separate, worth-knowing concept for that same conversation: apolipoprotein B (apoB), a real, specific protein present on every atherogenic (artery-damaging) lipid particle, is a genuinely well-evidenced, more direct measure of cardiovascular risk than LDL cholesterol alone, since it counts particles rather than just their cholesterol content -- see this app's own dedicated Basic Health entry on why that distinction actually matters, backed by a real, large, 52-country study. Worth raising directly by name in a real conversation with a prescriber, especially for anyone whose standard LDL number looks normal but who still carries other real risk factors.",
     citations: [
       { source: 'Cholesterol Levels: What You Need to Know, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/cholesterollevelswhatyouneedtoknow.html' },
     ],
-    overallTier: 'moderate',
-    relatedIds: ['pcos-lipid-panel-cardiometabolic'],
+    overallTier: 'strong',
+    relatedIds: ['pcos-lipid-panel-cardiometabolic', 'foodhistory-apob-particle-count'],
   },
   {
     id: 'cvd-heart-attack-red-flags',

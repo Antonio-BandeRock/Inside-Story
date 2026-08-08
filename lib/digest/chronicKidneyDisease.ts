@@ -36,7 +36,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Chronic Kidney Disease, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/chronickidneydisease.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['organ-kidney', 'type2-overview', 'type2-metabolic-syndrome-cluster'],
+    relatedIds: ['organ-kidney', 'type2-overview', 'type2-metabolic-syndrome-cluster', 'gout-metabolic-cluster-connection'],
   },
   {
     id: 'ckd-potassium-restriction-reconsidered',

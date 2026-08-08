@@ -134,7 +134,7 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Type 2 Diabetes, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/diabetestype2.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['pcos-insulin-resistance-mechanism', 'masld-overview', 'ckd-overview'],
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'masld-overview', 'ckd-overview', 'gout-metabolic-cluster-connection', 'foodhistory-cholesterol-real-drivers'],
   },
   {
     id: 'type2-tying-together',

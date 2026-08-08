@@ -312,7 +312,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Margarine and butter consumption trends across the 20th century (Wikipedia, cross-checked)', url: 'https://en.wikipedia.org/wiki/Margarine' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['additive-trans-fats', 'foodhistory-scapegoat-pattern'],
+    relatedIds: ['additive-trans-fats', 'foodhistory-scapegoat-pattern', 'foodhistory-butter-short-chain-fat'],
   },
   {
     id: 'foodhistory-scapegoat-sugar',
@@ -344,7 +344,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['foodhistory-scapegoat-pattern'],
+    relatedIds: ['foodhistory-scapegoat-pattern', 'foodhistory-eggs-nutrient-density'],
   },
   {
     id: 'foodhistory-scapegoat-pattern',
@@ -358,6 +358,82 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     relatedIds: ['foodhistory-scapegoat-salt', 'foodhistory-scapegoat-margarine', 'foodhistory-scapegoat-sugar', 'foodhistory-scapegoat-eggs', 'foodhistory-opinion-synthesis'],
+  },
+
+  // --- Beyond the history: the real physiology underneath these same four
+  // foods, added 2026-08-08 at direct request ("I think there are many
+  // more things that we can put into the basic health information, such
+  // as the real cause of high cholesterol based on actual evidence... and
+  // the real truth about eggs... along with the use of butter as a fat
+  // due to how well we metabolize it"). The entries above tell the real
+  // HISTORY of how butter, eggs, and dietary cholesterol got blamed --
+  // these four go one layer deeper, into what the actual evidence says
+  // drives cholesterol, and what these two foods actually do in the body,
+  // independent of the historical politics. This session's own WebSearch
+  // budget was already exhausted before this pass began (the same
+  // exhaustion state already documented for Migraine, Cardiovascular
+  // Disease, and Gout), so every citation here came via the same
+  // established WebFetch-against-real-pages fallback -- several only
+  // after an initial guessed PMID returned an unrelated paper (a cardiac
+  // MRI study instead of the insulin-resistance/small-dense-LDL review; a
+  // lymphatic apolipoprotein transport study instead of a milk-fat-
+  // composition review) and a corrected search found the right one.
+  {
+    id: 'foodhistory-cholesterol-real-drivers',
+    category: 'basicHealth',
+    title: 'What Actually Raises Cholesterol: Genetics, Insulin Resistance, and a More Contested Fat Question Than Most People Realize',
+    teaser: "Decades of dietary guidance treated saturated fat as the main lever. Two of the largest studies ever run on the question found something messier.",
+    summary:
+      "The real, single strongest driver of dangerously high cholesterol for a meaningful share of people is genetic, not dietary: familial hypercholesterolemia, caused by mutations in one of four real, specific genes (most commonly LDLR, the gene for the receptor that clears LDL from the blood), affects a real, substantial 1 in 200 to 1 in 250 people and produces high LDL cholesterol from birth largely independent of diet. For everyone else, the real evidence connecting dietary saturated fat specifically to cardiovascular events is genuinely more contested than most popular guidance still implies. A real, large 2010 meta-analysis (21 studies, 347,747 people) found no significant association between saturated fat intake and coronary heart disease, stroke, or cardiovascular disease overall. A real, even larger 2017 study spanning 18 countries on five continents found saturated fat intake associated with LOWER total mortality and LOWER stroke risk, with no significant link to heart attack, while higher carbohydrate intake was linked to real, significantly higher mortality, the study's own authors concluded that \"global dietary guidelines should be reconsidered in light of these findings.\" None of this means saturated fat is irrelevant, real, separate evidence (see this app's own dedicated statin research) shows lowering LDL cholesterol itself, however it's achieved, does reduce real cardiovascular risk. What's genuinely more contested is whether dietary saturated fat is the main lever driving that LDL number up in the first place for most people. A real, better-supported answer for many people: insulin resistance and metabolic syndrome drive a real, specific, more dangerous pattern called atherogenic dyslipidemia, small, dense LDL particles (which penetrate artery walls more easily and oxidize more readily than larger, fluffier LDL particles), high triglycerides, and low HDL, identified as an independent real risk factor for cardiovascular disease in its own right, largely separate from the total LDL-cholesterol number most standard panels report.",
+    citations: [
+      { source: 'Familial Hypercholesterolemia, MedlinePlus Genetics, U.S. National Library of Medicine', url: 'https://medlineplus.gov/genetics/condition/familial-hypercholesterolemia/' },
+      { source: 'Meta-Analysis of Prospective Cohort Studies Evaluating the Association of Saturated Fat with Cardiovascular Disease, PMID 20071648', url: 'https://pubmed.ncbi.nlm.nih.gov/20071648/' },
+      { source: 'Associations of Fats and Carbohydrate Intake with Cardiovascular Disease and Mortality in 18 Countries (PURE study), PMID 28864332', url: 'https://pubmed.ncbi.nlm.nih.gov/28864332/' },
+      { source: 'Atherosclerosis Development and Progression: The Role of Atherogenic Small, Dense LDL, PMID 35208622', url: 'https://pubmed.ncbi.nlm.nih.gov/35208622/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence', 'cvd-lipid-panel-self-advocacy', 'foodhistory-apob-particle-count', 'type2-metabolic-syndrome-cluster', 'gout-metabolic-cluster-connection'],
+  },
+  {
+    id: 'foodhistory-apob-particle-count',
+    category: 'basicHealth',
+    title: 'Apolipoprotein B: A Real, More Direct Way to Measure Cholesterol\'s Actual Danger',
+    teaser: "A standard lipid panel counts cholesterol. A real, large, 52-country study found counting the actual dangerous particles instead predicts heart attacks meaningfully better.",
+    summary:
+      "Standard LDL cholesterol testing measures the total amount of cholesterol carried inside LDL particles, not how many actual particles there are, and that distinction turns out to matter. Apolipoprotein B (apoB) is a real, specific structural protein present on exactly one copy per atherogenic (artery-damaging) lipid particle, meaning an apoB blood level is a genuine, direct particle COUNT, not an estimate. A real, large case-control study (12,461 heart attack cases, 14,637 controls, across 52 countries) directly compared apoB-based measures against standard cholesterol ratios as predictors of heart attack risk, and found the apoB-to-apoA1 ratio carried a real, substantially higher population-attributable risk (54%) than either the LDL-to-HDL ratio (37%) or the total-cholesterol-to-HDL ratio (32%), a real, statistically significant difference (p<0.0001) that held up consistently across ethnic groups, sexes, and ages. This matters most directly for anyone whose standard LDL number looks unremarkable but who has other real risk factors, or who carries the small, dense LDL pattern already covered in this app's own dedicated cholesterol research, since it's genuinely possible to have a normal-looking LDL-cholesterol number while still carrying a real, elevated count of small, dangerous particles. Worth asking a prescriber directly whether an apoB test is available, rather than assuming a standard lipid panel already captured the full real picture.",
+    citations: [
+      { source: 'Lipids, Lipoproteins, and Apolipoproteins as Risk Markers of Myocardial Infarction in 52 Countries (INTERHEART study), PMID 18640459', url: 'https://pubmed.ncbi.nlm.nih.gov/18640459/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['foodhistory-cholesterol-real-drivers', 'cvd-lipid-panel-self-advocacy'],
+  },
+  {
+    id: 'foodhistory-eggs-nutrient-density',
+    category: 'basicHealth',
+    title: 'Eggs: Real Nutrient Density, Not Just an Absence of Harm',
+    teaser: "This app already covers why dietary cholesterol from eggs doesn't move blood cholesterol much for most people. That's a defense. The real, positive case is separate.",
+    summary:
+      "This app's own existing research already covers the real, official reversal on eggs and dietary cholesterol (see that entry directly), but that's fundamentally a defense, evidence that eggs aren't guilty of the specific harm they were long blamed for. The real, separate, positive case is genuinely strong on its own terms. A real, current (2025) nutrition review describes eggs as providing \"high-quality protein content, together with essential nutrients such as choline and vitamins D and E, as well as antioxidants such as lutein and zeaxanthin,\" a real, specific nutrient combination that supports muscle, bone, and cognitive health. Choline (a real, tracked nutrient in this app's own reference database) is genuinely hard to get in adequate amounts from a typical diet, and eggs are one of the single most concentrated real dietary sources of it, directly relevant to this app's own core mission given choline's role in liver and cell-membrane function. Lutein and zeaxanthin are real, specific antioxidants concentrated in the retina, with a well-established role in eye health that few other common whole foods deliver in meaningful amounts. The same 2025 review states plainly that \"moderate egg consumption as part of a balanced diet does not increase cardiovascular risk,\" a real, current, independent confirmation of what this app's own existing eggs entry already covers from the 2020 AHA advisory. Worth knowing directly: the real case for eating eggs isn't just that the old warning turned out overstated, it's that eggs are a genuinely dense source of several real, specific nutrients that are otherwise easy to fall short on.",
+    citations: [
+      { source: 'Eggs in the Diet of Women During the Climacteric Period: Role in Maintaining Health, PMID 40728504', url: 'https://pubmed.ncbi.nlm.nih.gov/40728504/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['foodhistory-scapegoat-eggs'],
+  },
+  {
+    id: 'foodhistory-butter-short-chain-fat',
+    category: 'basicHealth',
+    title: "Butter's Real Fat Chemistry: Why the Body Handles Some of It Differently Than Decades-Old Guidance Assumed",
+    teaser: "Not all fat in butter is treated the same way by the body. A real, genuine chemical distinction inside butter itself got flattened into one blanket \"saturated fat is bad\" rule.",
+    summary:
+      "The 1960s-era case against butter treated \"saturated fat\" as one uniform category, but the real chemistry inside butter itself is more specific than that framing allowed. Butter is a real, natural dietary source of butyric acid (also called butyrate), a real, specific short-chain fatty acid that this app's own Gut & Microbiome research already covers in real depth as a genuinely beneficial compound, shown in real research to induce protective regulatory immune cells in the gut and to reduce intestinal inflammation through a real, specific mechanism (activating a protein called MFG-E8) in animal models of colitis. A real, classic physiology finding adds a second, separate layer: short- and medium-chain fatty acids, the kind found alongside butyric acid in butter, are absorbed directly into the portal vein and sent straight to the liver for immediate energy use, a real, different pathway from the lymphatic, chylomicron-based transport most long-chain fats (including the fats in many vegetable oils) go through on their way toward storage. Worth knowing directly and without overstating it: eating butter isn't a significant source of therapeutic-level butyrate compared to what the gut's own bacteria produce by fermenting dietary fiber (still the real, primary source, see this app's own dedicated research on that), and this doesn't mean butter is calorie-free or unlimited. It does mean the blanket \"all saturated fat behaves identically in the body\" assumption behind decades of butter-avoidance advice was chemically oversimplified from the start, real evidence, not just history, backs a more specific picture.",
+    citations: [
+      { source: 'The Neuropharmacology of Butyrate: The Bread and Butter of the Microbiota-Gut-Brain Axis?, PMID 27346602', url: 'https://pubmed.ncbi.nlm.nih.gov/27346602/' },
+      { source: 'Butyric Acid Attenuates Intestinal Inflammation in Murine DSS-Induced Colitis Model via Milk Fat Globule-EGF Factor 8, PMID 23752130', url: 'https://pubmed.ncbi.nlm.nih.gov/23752130/' },
+      { source: 'Effects of Lipid Administration on Lymphatic Apolipoprotein A-IV and B Output and Synthesis, PMID 8770048', url: 'https://pubmed.ncbi.nlm.nih.gov/8770048/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['foodhistory-scapegoat-margarine', 'gut-scfa-treg'],
   },
 
   // --- The Mechanism Bridge ---

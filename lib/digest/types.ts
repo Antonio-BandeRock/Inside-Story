@@ -196,6 +196,12 @@ export const DIGEST_CATEGORY_KEYS = [
   // reference elevated cardiovascular risk) before this category itself
   // existed to link back to.
   'cardiovascularDisease',
+  // 2026-08-08, same day, eighteenth condition, and -- per the
+  // `conditions` table's own sort_order -- the last one currently planned:
+  // Gout. See gout.ts's own header comment -- this app's eighth genuinely
+  // non-autoimmune condition, with an unusually specific, individually
+  // well-studied list of real dietary triggers and protective foods.
+  'gout',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
