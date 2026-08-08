@@ -370,4 +370,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-sledai-disease-activity', 'lupus-overview'],
   },
+  {
+    id: 'lupus-global-ethnicity-severity',
+    category: 'lupus',
+    title: "Lupus Doesn't Just Affect Some Groups More Often, It Genuinely Hits Harder, a Real, Quantified Gap",
+    teaser: 'Lupus runs 2 to 3 times more common in African American, Hispanic/Latina, Native American, and Pacific Islander women than in White women, and real data finds it also causes more severe kidney disease in these same groups.',
+    summary:
+      "Lupus shows one of the most consistent and best-documented real disparities across race and ethnicity of any condition in this whole app, in both how often it occurs and how severely it behaves once it does. Real US population data finds lupus 2 to 3 times more prevalent among African American, Hispanic/Latina, Native American, Alaska Native, and Native Hawaiian/Pacific Islander women compared with White women. The severity gap is just as real and just as measurable: lupus nephritis (kidney involvement) occurs at 59.69 per 100,000 in African American individuals and 56.56 per 100,000 in Asian individuals, compared with just 15.83 per 100,000 in White individuals, and the real, adjusted risk of developing lupus nephritis specifically runs 4.3 times higher in Asian/Pacific Islander patients, 2.4 times higher in African American patients, and 2.3 times higher in Hispanic patients, all compared with White patients. Worth knowing directly: this is real, quantified evidence that lupus is not one uniform disease experience worldwide, real ancestry-linked genetic factors combine with real, documented disparities in healthcare access and social support to produce measurably different outcomes by ethnicity, a real reason ancestry and regional healthcare context both belong in how any individual person's own lupus risk and monitoring plan gets thought through.",
+    citations: [
+      { source: 'Lupus Facts and Statistics, Lupus Foundation of America', url: 'https://www.lupus.org/resources/lupus-facts-and-statistics' },
+      { source: 'Racial and Ethnic Differences in the Prevalence and Time to Onset of Manifestations of Systemic Lupus Erythematosus: The California Lupus Surveillance Project, PMID 31115180', url: 'https://pubmed.ncbi.nlm.nih.gov/31115180/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-overview', 'lupus-nephritis-monitoring'],
+  },
 ];

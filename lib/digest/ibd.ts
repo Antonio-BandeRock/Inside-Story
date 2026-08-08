@@ -372,4 +372,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-montreal-classification', 'ibd-overview'],
   },
+  {
+    id: 'ibd-global-westernization-asia-rising',
+    category: 'ibd',
+    title: 'IBD Is Rising Fastest Exactly Where Diets Are Westernizing Fastest, a Real, Tracked Pattern',
+    teaser: "India's own IBD prevalence is projected to quadruple by 2035, part of a real, documented pattern where newly industrializing regions are picking up IBD at the same time their diets shift toward the West's.",
+    summary:
+      "Inflammatory bowel disease has a real, distinct geographic story: it rose first and became common in North America and Northern Europe across the 20th century, and its prevalence there has now largely stabilized at a high level. Meanwhile, real, current projections find IBD accelerating sharply in newly industrializing regions: India's own IBD prevalence is projected to rise fourfold by 2035, West Asia's by 2.3 to 2.5 times, and East and Southeast Asia's by 1.6 to 1.7 times over the same window. This isn't happening randomly. Real research ties the rise directly to the same regions' own real, rapid shift toward a Westernized diet, specifically higher consumption of red meat, processed foods, and refined sugar, alongside urbanization, industrialization, and the broader hygiene and lifestyle changes that come with rapid economic development. Worth knowing directly for anyone in a region where IBD has historically been rare: that historical rarity is a real, documented pattern tied to a traditional diet and lifestyle, not a permanent biological immunity, and IBD risk appears to rise measurably as a population's real, everyday eating pattern shifts toward the same processed, Western-style diet already linked to IBD risk everywhere else in this app's own research.",
+    citations: [
+      { source: 'Evolving Trends and Burden of Inflammatory Bowel Disease in Asia, 1990-2019, Journal of Epidemiology and Global Health', url: 'https://link.springer.com/article/10.1007/s44197-023-00145-w' },
+      { source: 'The epidemiology of inflammatory bowel disease in Asia and Asian immigrants to Western countries, United European Gastroenterology Journal', url: 'https://onlinelibrary.wiley.com/doi/full/10.1002/ueg2.12350' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-overview', 'ibd-hygiene-hypothesis-early-life'],
+  },
 ];

@@ -356,4 +356,18 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ckd-g-a-staging-heat-map', 'ckd-egfr-acr-monitoring'],
   },
+  {
+    id: 'ckd-global-ckdu-central-america-sri-lanka',
+    category: 'chronicKidneyDisease',
+    title: 'A Real, Distinct Kidney Disease Epidemic Strikes Agricultural Workers in Specific Hot Regions, With None of the Usual Causes',
+    teaser: 'CKDu, a real, documented kidney disease striking sugarcane and rice farmworkers in Central America and Sri Lanka, shows up without diabetes, high blood pressure, or any other standard risk factor already covered in this category.',
+    summary:
+      "Nearly everything else in this category ties CKD to a familiar cause, diabetes, high blood pressure, or an autoimmune process. A real, distinct, regionally concentrated form doesn't. Chronic kidney disease of unknown origin (CKDu) is a real, documented epidemic striking agricultural communities specifically in Central America (El Salvador, Nicaragua, Costa Rica, often called Mesoamerican nephropathy when it affects Pacific-coast sugarcane workers) and Sri Lanka, and its defining feature is that it occurs WITHOUT the standard risk factors, no diabetes, no hypertension, no glomerulonephritis, a real, meaningfully different disease pattern from typical CKD. The real, damaged tissue pattern (chronic tubulointerstitial nephritis with scarring) also looks different under the microscope than typical diabetic or hypertensive kidney damage. Real research points to a real, converging set of regional risk factors rather than one single cause: repeated heat stress from physical labor in a hot climate, dehydration, pesticide and other agrochemical exposure, and possibly heavy metals or contaminated drinking water, with poverty itself compounding the real, cumulative exposure. Worth knowing directly: for anyone doing sustained heavy outdoor labor in a hot climate, especially in these specific regions, real, standard CKD risk factors (diet, blood sugar, blood pressure) don't fully capture the picture, and real, adequate hydration and heat protection during work are themselves a genuine, if still-incompletely-understood, protective factor.",
+    citations: [
+      { source: 'Chronic kidney disease of unknown aetiology: A comprehensive review of a global public health problem, Tropical Medicine & International Health, Wiley', url: 'https://onlinelibrary.wiley.com/doi/full/10.1111/tmi.13913' },
+      { source: 'What is CKDu?, International Society of Nephrology', url: 'https://www.theisn.org/initiatives/what-is-ckdu/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-overview'],
+  },
 ];

@@ -382,4 +382,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-autoantibody-panel', 'type1-overview'],
   },
+  {
+    id: 'type1-global-finland-highest-world',
+    category: 'type1Diabetes',
+    title: 'Finland Has the Highest Type 1 Diabetes Rate on Earth, Up to 600 Times Higher Than Parts of Asia',
+    teaser: "Finnish children have carried the world's highest recorded Type 1 diabetes incidence, while neighboring Russian Karelia, sharing the same genetic risk markers, sees a real, sixfold lower rate just across the border.",
+    summary:
+      "Type 1 diabetes incidence varies more dramatically by country than almost any other condition in this app. Finland has recorded the highest childhood Type 1 diabetes incidence in the world, reaching 64.2 per 100,000 children per year in 2005, while Japan's own rate has run around 2.25 to 2.37 per 100,000, and China's has been reported as low as 0.1 per 100,000, a real difference of roughly 25 to over 600 times between Finland and parts of East Asia. The most striking real evidence that this isn't purely genetic: a study directly comparing Finland to neighboring Russian Karelia, just across the border, found a real, nearly sixfold gradient in Type 1 diabetes incidence between the two regions, despite the same genetic risk markers (HLA class II variants) being equally common in both populations, strong, direct evidence that real environmental factors, not genetics alone, drive most of this difference. Proposed real environmental contributors include early childhood infections, dietary protein exposure, vitamin D levels, and Finland's own unusually rapid mid-20th-century shift from a poor rural society to a modern, urban, affluent one. Worth knowing directly: a Type 1 diabetes diagnosis carries a genuinely different real population-level backdrop depending on where in the world someone lives, and that backdrop is a real, active area of research, not yet fully explained by any single cause.",
+    citations: [
+      { source: 'Type 1 diabetes in Finland: past, present, and future, The Lancet Diabetes & Endocrinology 2021, PMID', url: 'https://www.thelancet.com/journals/landia/article/PIIS2213-8587(21)00074-7/abstract' },
+      { source: 'A six-fold gradient in the incidence of type 1 diabetes at the eastern border of Finland, PMID 15902849', url: 'https://pubmed.ncbi.nlm.nih.gov/15902849/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-overview', 'type1-jdrf-presymptomatic-staging'],
+  },
 ];

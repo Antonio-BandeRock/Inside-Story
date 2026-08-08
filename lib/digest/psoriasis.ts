@@ -378,4 +378,18 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-pasi-severity-staging', 'psoriasis-koebner-phenomenon'],
   },
+  {
+    id: 'psoriasis-global-latitude-gradient',
+    category: 'psoriasis',
+    title: 'Psoriasis Is Genuinely a Northern-Latitude Disease, More Than 10 Times More Common in Norway Than East Asia',
+    teaser: "Norway's own psoriasis prevalence, 3.8-4.6% of the population, sits at the very top of a real, documented worldwide gradient; East Asia's prevalence sits at roughly 0.14%, near the very bottom.",
+    summary:
+      "Psoriasis shows one of the starkest real geographic gradients of any condition in this app. Norway carries a real, national prevalence of 3.8 to 4.6%, with northern Norway specifically rising from 4.8% in 1979-1980 to 11.4% by 2007-2008, and Denmark sits close behind at 2.2 to 2.8%. Real global burden data confirms this isn't a Norwegian quirk: Western Europe carries the highest age-standardized prevalence rate worldwide (1,155.9 cases per 100,000), while Eastern Sub-Saharan Africa carries the lowest (150.2 per 100,000), and East Asia's own prevalence, 0.14%, sits at a small fraction of Australasia's 1.99%. Two real, distinct factors are named directly in the research: higher latitude itself (less year-round UV exposure) and Caucasian ancestry specifically both independently track with higher rates. Worth knowing directly for anyone reading this app outside North America or Western Europe: a lower reported psoriasis rate in one's own home region is a real, documented pattern, not a sign the condition is being missed or under-diagnosed there, even as the SAME real environmental and genetic factors behind it (sun exposure, skin-immune biology) remain worth understanding regardless of where someone lives.",
+    citations: [
+      { source: 'Psoriasis in Norway: A Prescription-based Registry Study of Incidence and Prevalence, Acta Dermato-Venereologica, PMC10128149', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10128149/' },
+      { source: 'National, regional, and worldwide epidemiology of psoriasis: systematic analysis and modelling study, British Journal of Dermatology, PMID 32467098', url: 'https://pubmed.ncbi.nlm.nih.gov/32467098/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-overview'],
+  },
 ];

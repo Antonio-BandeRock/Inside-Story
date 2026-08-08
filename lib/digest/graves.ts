@@ -361,4 +361,17 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-block-replace-vs-titration', 'graves-remission-real-rates'],
   },
+  {
+    id: 'graves-global-iodine-iceland-denmark',
+    category: 'graves',
+    title: "A Real Denmark-vs-Iceland Study Directly Showed Iodine's Effect on Where Graves' Actually Shows Up",
+    teaser: "A real, classic comparative study found Graves' disease in young people more than twice as common in iodine-sufficient Iceland as in iodine-deficient Denmark, while overall thyrotoxicosis ran the opposite direction.",
+    summary:
+      "A real, classic comparative study directly tested how iodine intake shapes which specific thyroid condition shows up in a population, comparing East-Jutland, Denmark (low average iodine intake) against Iceland (relatively high iodine intake) over the same period. Graves' disease incidence was measurably higher in iodine-sufficient Iceland (20 per 100,000 per year) than in iodine-deficient Denmark (15 per 100,000 per year), and this difference was most pronounced in younger people, where hyperthyroidism from Graves' disease was more than twice as common in Iceland. The real, opposite pattern showed up for a different cause of an overactive thyroid: multinodular toxic goiter and single toxic nodules, mostly in people over 50, were substantially more common in iodine-deficient Denmark, meaning total thyrotoxicosis of any cause actually ran higher in the low-iodine region even though Graves' disease specifically ran higher in the high-iodine one. Worth knowing directly: this is real, direct evidence that a region's own iodine status shapes not just how common thyroid disease is, but which specific thyroid disease shows up, and it's a real, practical reason population iodine intake shouldn't run meaningfully above what's needed to avoid deficiency.",
+    citations: [
+      { source: "High incidence of multinodular toxic goitre in the elderly population in a low iodine intake area vs. high incidence of Graves' disease in the young in a high iodine intake area, Journal of Internal Medicine, PMID 2040867", url: 'https://pubmed.ncbi.nlm.nih.gov/2040867/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-overview', 'lifestyle-global-iodine-china-regional'],
+  },
 ];

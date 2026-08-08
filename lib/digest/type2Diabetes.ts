@@ -353,4 +353,18 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-remission-ada-consensus-definition', 'type2-individualized-hba1c-targets'],
   },
+  {
+    id: 'type2-global-nauru-pacific-thrifty-gene',
+    category: 'type2Diabetes',
+    title: 'Nauru Has the Highest Type 2 Diabetes Rate on the Planet, and a Real, Named Theory Explains Why So Fast',
+    teaser: "Roughly half of Nauru's adult population has Type 2 diabetes, following a real, documented multi-decade shift from a traditional fish-and-vegetable diet to imported processed food, exactly the kind of change a real genetic theory predicts would hit hardest.",
+    summary:
+      "Nauru, a small Pacific Island nation, carries the real, highest Type 2 diabetes prevalence documented anywhere on the planet, roughly half of its adult population, and several other Pacific Island nations (Cook Islands, Fiji, Marshall Islands, Samoa, Tonga, Tuvalu) all carry real Type 2 diabetes prevalence above 10%. The real, documented cause traces to an unusually fast, unusually recent dietary shift: Nauru's population were traditionally lean, active hunter-gatherer-fishers eating mostly raw or boiled fish, until mid-20th-century mining wealth suddenly made imported, processed, Western-style food widely available. The 'thrifty gene' hypothesis, a real, long-standing theory in this specific research area, proposes that populations who survived repeated historical famine and food scarcity, including many Pacific Islander groups during their own ancestors' original ocean voyages and settlement, were naturally selected for genes that store fat especially efficiently, a real survival advantage during scarcity that becomes a real metabolic liability once food, especially processed, calorie-dense food, becomes constantly available. A real, separate but related pattern: South Asian populations develop measurable Type 2 diabetes risk at genuinely lower BMI levels than white European populations, a real reason clinical BMI cutoffs for 'overweight' and 'obese' have been adjusted lower specifically for South Asian populations in some countries. Worth knowing directly: Type 2 diabetes risk isn't one universal curve against body weight, real, population-specific genetic and historical factors shift where that curve actually sits.",
+    citations: [
+      { source: "The High Prevalence of Diabetes Mellitus in Nauru, A Central Pacific Island, ScienceDirect", url: 'https://www.sciencedirect.com/science/article/pii/B9780120273096500161' },
+      { source: 'Exploring the use of adjusted body mass index thresholds based on equivalent insulin resistance for defining overweight and obesity in UK South Asian children, PMC6451638', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6451638/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-overview', 'masld-global-regional-prevalence-genetics'],
+  },
 ];

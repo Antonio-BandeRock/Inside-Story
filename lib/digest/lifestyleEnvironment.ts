@@ -338,4 +338,18 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['lifestyle-chronic-stress-hpa', 'mito-exercise-cortisol'],
   },
+  {
+    id: 'lifestyle-global-iodine-china-regional',
+    category: 'hashimotos',
+    title: "Hashimoto's Prevalence Tracks With Iodine Intake, and China's Own National Program Proved It Directly",
+    teaser: "A real, three-region Chinese cohort study, tracking a national iodization program over 25 years, found autoimmune thyroiditis rising step by step alongside iodine intake, not just correlating with it in one snapshot.",
+    summary:
+      "This app's own already-cited research names iodine as a real, two-edged nutrient for Hashimoto's, and China's own national salt-iodization program is the clearest real-world demonstration of that edge in action. Before mandatory iodization, large parts of China were genuinely iodine-deficient; the program then moved the population through more than adequate and, for a real 5-year stretch (1996-2001), outright excessive iodine intake before settling at a currently adequate level. A real cohort study tracking three Chinese regions with different iodine intake levels found the prevalence of overt hypothyroidism, subclinical hypothyroidism, and autoimmune thyroiditis all rose together as iodine intake rose, with prevalence estimates as high as 16.1% reported in some Chinese populations, a real, direct dose-response relationship, not a one-off finding. This matters for anyone reading this app outside the US specifically: whether a person's own home country iodizes salt at all, how heavily, and for how long, is a real, population-level factor shaping how common Hashimoto's is where they live, not a fixed, universal disease rate. Worth knowing directly: mild iodine deficiency has separately been linked to a LOWER Hashimoto's prevalence in some populations, the same real two-edged pattern this app's own iodine research already covers, now shown at true national scale rather than in a single trial.",
+    citations: [
+      { source: "Iodine Intake from Universal Salt Iodization Programs and Hashimoto's Thyroiditis: A Systematic Review, Endocrines/MDPI 2025, PMC12191997", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12191997/' },
+      { source: 'Effect of Iodine Intake on Thyroid Diseases in China, New England Journal of Medicine, Teng et al. 2006', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa054022' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['nutrient-iodine', 'graves-global-iodine-iceland-denmark'],
+  },
 ];

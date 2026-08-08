@@ -366,4 +366,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-rotterdam-phenotypes', 'pcos-amh-diagnostic-marker'],
   },
+  {
+    id: 'pcos-global-south-asian-prevalence',
+    category: 'pcos',
+    title: 'PCOS in South Asian Women Runs More Common and More Metabolically Severe, a Real, Documented Pattern',
+    teaser: 'Women of South Asian ancestry (India, Pakistan, Bangladesh) show a real, higher PCOS prevalence, and real data finds insulin resistance and metabolic syndrome showing up at a lower body weight than in other populations.',
+    summary:
+      "PCOS carries a real, well-documented ethnic pattern worth knowing for anyone outside a purely Western context. Women from South Asian countries, India, Pakistan, and Bangladesh, show a real, higher PCOS prevalence than many other ethnic populations studied. The real, more consequential difference is metabolic: South Asian women with PCOS carry an elevated real risk of metabolic syndrome (central obesity, elevated fasting glucose, lower HDL cholesterol), with one real study finding 37.5% metabolic syndrome prevalence in this specific population, and real research finds insulin resistance and Type 2 diabetes risk showing up at genuinely lower body weight and waist circumference than in white European women with PCOS. Researchers describe this as the 'Asian Indian phenotype,' a real, documented pattern of greater visceral (internal, around-the-organs) fat accumulation and lower muscle mass at the same body weight, both of which independently drive higher insulin resistance. Worth knowing directly: this app's own already-covered PCOS/insulin-resistance research (the OGTT screening recommendation, the real cardiometabolic lab panel) applies with real, extra urgency for anyone of South Asian ancestry specifically, since standard BMI-based screening thresholds built around a different reference population can genuinely under-catch real metabolic risk in this group.",
+    citations: [
+      { source: 'Phenotype and metabolic profile of South Asian women with polycystic ovary syndrome (PCOS), Human Reproduction, Oxford Academic', url: 'https://academic.oup.com/humrep/article/26/1/202/708512' },
+      { source: 'Prevalence and Predictors of Metabolic Syndrome in Women with Polycystic Ovarian Syndrome, PMC12784311', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12784311/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-overview', 'pcos-lipid-panel-cardiometabolic', 'pcos-ogtt-screening'],
+  },
 ];

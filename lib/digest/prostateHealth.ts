@@ -355,4 +355,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-psa-screening', 'prostate-medications-psa-monitoring'],
   },
+  {
+    id: 'prostate-global-incidence-migrant-studies',
+    category: 'prostateHealth',
+    title: 'Prostate Cancer Rates Swing 30-Fold by Country, and Migrant Studies Prove Diet Explains Most of It',
+    teaser: 'Japanese men living in the US develop prostate cancer at 4-5 times the rate of men in Japan, and Shanghai-born men who moved to California saw their own risk rise more than 12-fold, real, direct evidence pointing at diet and environment over genetics.',
+    summary:
+      "Prostate cancer shows one of the largest real geographic swings of any cancer studied, and real migrant research has done something few other conditions in this app can claim: it has directly proven the cause is mostly environmental, not genetic. Real global data finds up to a 30-fold difference in prostate cancer incidence and mortality between the highest-rate regions (Northern Europe, Australia, North America) and the lowest (the Far East, the Indian subcontinent). The real, decisive evidence comes from studying men who move between these regions. Japanese men who relocate to the United States develop prostate cancer at 4 to 5 times the rate of men who remain in Japan, and in one particularly striking real dataset, men who emigrated from Shanghai to California saw their own prostate cancer incidence rise more than 12-fold compared with men who stayed in Shanghai. Because these migrants carry the same genetic ancestry as those who stayed behind, a real, large rate change after moving points directly at environmental and dietary factors, not inherited genetics, as the dominant real driver of the underlying regional gap. Worth knowing directly: this app's own already-covered prostate-health research (diet pattern, lycopene, cruciferous vegetables, choline/TMAO) isn't just theoretically relevant, real migrant data is some of the strongest evidence in all of oncology that adopting a new region's diet measurably shifts real, individual prostate cancer risk within one lifetime, not just across generations.",
+    citations: [
+      { source: 'The Epidemiology of Prostate Cancer, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK571326/' },
+      { source: 'Epidemiology of Prostate Cancer, World Journal of Oncology', url: 'https://www.wjon.org/index.php/wjon/article/view/1191/915' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-overview'],
+  },
 ];

@@ -373,4 +373,18 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-smoking-citrullination', 'ra-advocacy-cardiovascular-risk'],
   },
+  {
+    id: 'ra-global-indigenous-prevalence',
+    category: 'rheumatoidArthritis',
+    title: 'RA Rates Vary Enormously by Population, and Genetics Explains a Real, Measurable Share of It',
+    teaser: 'Some Indigenous populations of the Americas carry RA prevalence 5 to 6 times the worldwide average, a real, documented pattern tied to a specific inherited genetic marker, not just healthcare access.',
+    summary:
+      "Rheumatoid arthritis prevalence is often quoted as roughly 0.5 to 1.0% of the general population worldwide, but that single figure hides real, large regional and ethnic variation. Several Indigenous populations of the Americas, the Pima (5.3%) and Chippewa (6.8%) of the central United States, the Cree/Ojibway of Canada, the Tlingit of Alaska, and the Qom of Argentina, show real RA prevalence of 2 to 6.8%, among the highest documented anywhere in the world, and these populations tend to develop RA earlier, with a real, higher rate of joint erosion, rheumatoid nodules, and a specific genetic marker, HLA-DRB1*1402. At the other end, real population studies have found consistently lower RA prevalence in China, Japan, northwest Greece, and rural Africa. Worth knowing directly for anyone outside the US: RA is not one uniform disease risk worldwide, real inherited genetic variation (particularly around the HLA region, the same immune-recognition genes already covered elsewhere in this app) meaningfully shifts real, population-level risk, and where someone's own ancestry traces to matters for understanding their own real starting risk, not just their diet or environment.",
+    citations: [
+      { source: 'Rheumatoid arthritis in American Indians and Alaska Natives: a review of the literature, PMID 15692959', url: 'https://pubmed.ncbi.nlm.nih.gov/15692959/' },
+      { source: 'RA prevalence in Latin American indigenous community among highest worldwide, Healio', url: 'https://www.healio.com/rheumatology/rheumatoid-arthritis/news/online/%7B00e31d66-f713-4d3c-87c8-b96698cf57c8%7D/ra-prevalence-in-latin-american-indigenous-community-among-highest-worldwide' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-overview'],
+  },
 ];

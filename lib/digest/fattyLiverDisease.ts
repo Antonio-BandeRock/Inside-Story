@@ -354,4 +354,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-weight-loss-thresholds', 'masld-pnpla3-genetic-risk'],
   },
+  {
+    id: 'masld-global-regional-prevalence-genetics',
+    category: 'fattyLiverDisease',
+    title: 'Fatty Liver Disease Prevalence Varies Enormously by Region, and a Real Gene Explains Part of Why',
+    teaser: 'Global MASLD prevalence runs 30%, but Latin America (44.4%) and South Asia (up to 60% in some groups) run far higher than Western Europe (25.1%), a real, gene-and-diet combination behind much of the gap.',
+    summary:
+      "Fatty liver disease shows a real, wide, well-documented spread across regions of the world. Global MASLD prevalence sits at roughly 30%, but that hides real regional extremes: Latin America carries the highest real prevalence (44.4%), Western Europe the lowest among major regions studied (25.1%), and South Asian populations show a pooled real prevalence of 34.7%, climbing to 60.0% specifically among people who also have Type 2 diabetes, with a real, striking urban-vs-rural gap (47.1% urban vs. 18.5% rural) pointing directly at diet and lifestyle. A real, specific genetic variant helps explain some of this: the PNPLA3 gene variant (I148M) is unevenly distributed by ancestry, and real US data finds Hispanic populations carrying both a higher frequency of this variant AND the highest real MASLD/MASH rates in the country, while African American populations carry a lower variant frequency and correspondingly lower rates despite similar obesity levels. South Asian populations also show a real, distinct pattern already familiar from this app's own PCOS and Type 2 Diabetes research: metabolic problems, including fatty liver, showing up at a genuinely lower body weight than in other populations. Worth knowing directly: a real combination of inherited genetic variation and regional diet/urbanization patterns, not body weight alone, explains much of why fatty liver disease looks so different by region, a real reason this app's own weight-loss and Mediterranean-diet research applies everywhere, even as the real, underlying risk baseline genuinely differs by where someone's own ancestry and current diet sit.",
+    citations: [
+      { source: 'Epidemiology of Metabolic Dysfunction-Associated Steatotic Liver Disease in South Asian Ethnicities: A Systematic Review and Meta-Analysis, PMC12666614', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12666614/' },
+      { source: 'Frontiers | Ethnic disparities in metabolic dysfunction-associated steatotic liver disease and clinical outcomes', url: 'https://www.frontiersin.org/journals/endocrinology/articles/10.3389/fendo.2025.1739137/full' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-overview', 'type2-global-nauru-pacific-thrifty-gene'],
+  },
 ];

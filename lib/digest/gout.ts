@@ -370,4 +370,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-kidney-cardiovascular-real-data', 'gout-four-stage-natural-history'],
   },
+  {
+    id: 'gout-global-oceania-genetic-urate',
+    category: 'gout',
+    title: 'Gout Hits Pacific Islander and Māori Populations Hardest, and Real Genetics Largely Explains Why',
+    teaser: "The world's highest documented gout prevalence sits in Oceania, among Māori, Pacific Islander, and Taiwanese Aboriginal populations, tied to a real, well-characterized genetic variant that reduces how efficiently the kidneys clear uric acid.",
+    summary:
+      "Gout shows one of the clearest real gene-driven geographic patterns of any condition in this app. The world's highest documented gout prevalence is found in Oceania, specifically among Māori and other Pacific Islander populations, with Taiwan's own Aboriginal population showing a similarly elevated real rate. The real, specific mechanism is well characterized: studies in New Zealand found Māori and Pacific Islander populations carry a real, higher frequency of specific variants in the SLC2A9 gene (which encodes the GLUT9 urate transporter in the kidney), and these variants cause a real, measurable reduction in how efficiently the kidneys clear uric acid from the blood, directly raising baseline serum urate levels independent of diet. Several other real urate-transporter genes (ABCG2, SLC22A11, SLC22A12, SLC17A1) show similar population-specific patterns tied to gout risk. Worth knowing directly: this app's own already-covered dietary gout research (purine-rich meat/seafood, sugar-sweetened drinks, alcohol, coffee's protective effect) still matters for anyone of Māori or Pacific Islander ancestry, but it operates on top of a real, genuinely different, higher genetic baseline risk than in most other populations studied, meaning diet alone can't fully explain a family history of gout in these specific populations the way it might elsewhere.",
+    citations: [
+      { source: 'Hyperuricaemia and gout in the Pacific, Nature Reviews Rheumatology', url: 'https://www.nature.com/articles/s41584-025-01228-7' },
+      { source: 'Association analysis of the SLC22A11 (organic anion transporter 4) and SLC22A12 (urate transporter 1) urate transporter locus with gout in New Zealand case-control sample sets, PMC3978909', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3978909/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-overview', 'gout-hla-b5801-screening'],
+  },
 ];

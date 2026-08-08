@@ -384,4 +384,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-heart-attack-red-flags', 'cvd-women-underdiagnosis-gender-gap'],
   },
+  {
+    id: 'cvd-global-seven-countries-mediterranean',
+    category: 'cardiovascularDisease',
+    title: 'The Seven Countries Study Found Southern Europe at 2-10% Heart Disease Prevalence, Northern Europe at 10-18%',
+    teaser: 'A real, foundational multi-decade study directly comparing seven countries found cardiovascular disease running roughly twice as common in Northern Europe and North America as in Mediterranean southern Europe and Japan.',
+    summary:
+      "This app's own already-cited Mediterranean-diet research traces directly back to a real, foundational piece of international epidemiology: the Seven Countries Study, the first major research effort to directly compare cardiovascular disease rates across different countries and diets. Its real, 25-year follow-up data found cardiovascular disease prevalence running 2-10% in southern European (Mediterranean) countries, compared with 10-18% in northern European countries, a real, roughly two-to-fivefold difference, with Japan showing a similarly low rate to southern Europe. The real, documented explanation centers on diet: cohorts following a Mediterranean-style diet (high in olive oil, legumes, vegetables, and fiber, low in saturated fat) showed measurably lower cardiovascular risk and death rate, while cohorts eating a diet higher in saturated fat and lower in these protective foods showed the reverse. Worth knowing as this app's own explicit international-scope commitment: real, current global burden data shows this picture has genuinely shifted since the original study, cardiovascular disease burden is now rising fastest in low- and middle-income countries as diets and lifestyles shift toward the same Western pattern already linked to higher risk in the original northern-Europe cohorts, meaning the real, historical 'low-risk' regions of this original study aren't a fixed, permanent category, but a real, moving target tied to what people are actually eating today.",
+    citations: [
+      { source: 'How the Seven Countries Study contributed to the definition and development of the Mediterranean diet concept: A 50-year journey, Nutrition, Metabolism and Cardiovascular Diseases', url: 'https://www.nmcd-journal.com/article/S0939-4753(14)00347-0/abstract' },
+      { source: 'Ancel Keys, the Mediterranean Diet, and the Seven Countries Study: A Review, PMC12027923', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12027923/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-overview', 'cvd-mediterranean-diet-predimed'],
+  },
 ];

@@ -364,4 +364,18 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-antibody-testing', 'sjogrens-primary-secondary-real-distinction'],
   },
+  {
+    id: 'sjogrens-global-geographic-ethnic-variation',
+    category: 'sjogrens',
+    title: "Sjögren's Looks Genuinely Different Depending on Where in the World Someone Is Diagnosed",
+    teaser: "Real data finds Sjögren's runs higher in Mediterranean than Northern European countries, and its own male-to-female ratio, symptom pattern, and typical age at diagnosis all shift measurably by ethnicity too.",
+    summary:
+      "Sjögren's syndrome shows real, documented geographic and ethnic variation in more than just how often it occurs. Within Europe alone, real population studies find prevalence measurably higher in Mediterranean countries than in Northern Europe. Ethnicity shapes how the disease actually presents just as much as how common it is: a real, large cross-population study found the female-to-male ratio ranges from 27:1 in Asian patients down to 7:1 in Black/African-American patients, sicca (dryness) symptoms are reported least often in Asian patients despite the disease itself being present, and diagnosis happens a real 7 years earlier on average in Black/African-American patients compared with White patients. Antibody patterns shift by region too: a real, large multinational study found higher rates of ANA (antinuclear antibody) positivity in northern parts of the Americas and in Asia, while northern European countries showed LOWER rates of both ANA and the Ro/La antibodies this app's own diagnostic content already covers. Worth knowing directly: these aren't just statistical curiosities, real, documented differences in symptom presentation and antibody positivity by region and ethnicity mean the SAME underlying disease can look meaningfully different depending on where and to whom it's happening, a real reason this app's own diagnostic content shouldn't be read as one universal symptom checklist.",
+    citations: [
+      { source: 'Influence of geolocation and ethnicity on the phenotypic expression of primary Sjögren’s syndrome at diagnosis in 8310 patients, Seminars in Arthritis and Rheumatism', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0003496724027602' },
+      { source: 'Location & Ethnicity Affect Manifestations of Primary Sjogren’s Syndrome, The Rheumatologist', url: 'https://www.the-rheumatologist.org/article/location-ethnicity-affect-manifestations-primary-sjogrens-syndrome/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-overview', 'sjogrens-antibody-testing'],
+  },
 ];

@@ -364,4 +364,18 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-iceberg-underdiagnosis', 'celiac-diagnostic-panel'],
   },
+  {
+    id: 'celiac-global-hla-dq2-gradient',
+    category: 'celiac',
+    title: "Celiac Disease Follows a Real Genetic Map, From Nearly 6% in One Population to Virtually Absent in Another",
+    teaser: 'A real, specific genetic marker for celiac disease, HLA-DQ2, is common across Western Sahara, Europe, and the Middle East, declines steadily moving east, and is virtually absent in Japan.',
+    summary:
+      "Celiac disease prevalence maps closely onto a real, specific inherited genetic marker, HLA-DQ2, and where that marker is common or rare in a given population's ancestry explains much of why celiac rates differ so widely by region. A real study of 989 Saharawi children (Western Sahara) found a 5.6% celiac prevalence, among the highest ever documented anywhere in the world, tied directly to a very high frequency of the DQ2 gene variant in that population. HLA-DQ2 frequency runs at 20-30% across Western Europe and stays relatively high through Northern Africa, the Middle East, and Central Asia, then declines steadily moving further east, with a real, near-total absence in Japan. Real seroprevalence data confirms the pattern in practice: the Middle East (1.4%) and South Asia (1.2%) both run measurably higher than East Asia (0.06%), and celiac disease is genuinely rare in the Far East and sub-Saharan Africa, where wheat and other gluten grains have also never been dietary staples the way they are further west. Worth knowing directly: celiac disease being reported as rare in a given home region can reflect a real, genuine difference in inherited genetic risk and traditional diet, not necessarily under-diagnosis, though rising wheat consumption in newly-Westernizing diets is a real, separate factor worth watching in any population regardless of its own baseline genetic risk.",
+    citations: [
+      { source: 'Prevalence of celiac disease in low and high risk population in Asia-Pacific region: a systematic review and meta-analysis, PMC7841177', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7841177/' },
+      { source: 'Celiac disease: Prevalence, diagnosis, pathogenesis and treatment, World Journal of Gastroenterology', url: 'https://www.wjgnet.com/1007-9327/full/v18/i42/6036.htm' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-overview'],
+  },
 ];

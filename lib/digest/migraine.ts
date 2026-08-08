@@ -364,4 +364,17 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-red-flags', 'migraine-menstrual-estrogen-withdrawal'],
   },
+  {
+    id: 'migraine-global-burden-regional-variation',
+    category: 'migraine',
+    title: '1.2 Billion People Worldwide Live With Migraine, and Its Real Burden Falls Hardest Where Care Is Scarcest',
+    teaser: 'Real global data finds migraine burden highest in eastern and central sub-Saharan Africa, not because migraine itself is more common there, but because real access to effective treatment is more limited.',
+    summary:
+      "Migraine is a genuinely global condition, real data counting 1.2 billion people living with it worldwide in 2021, with prevalence rising 58% between 1990 and 2021 alone. Its real burden, measured in disability-adjusted life years (a combined measure of how much a condition actually disrupts someone's functioning, not just how often it happens), is distributed unevenly by region in a way that's genuinely informative: the highest age-standardized burden in the world is found in eastern and central sub-Saharan Africa, while Australasia carries the lowest. This isn't primarily because migraine occurs more often in one region than another, real research on migraine treatment access points instead toward genuinely limited access to effective acute and preventive treatment (the triptans, CGRP inhibitors, and other real medications already covered elsewhere in this app) as a major driver of why the same underlying condition produces more real, lasting disability in lower-resource regions. Real regional trends add another layer: East Asia and Latin America have seen the steepest recent increases in migraine burden, likely tracking real lifestyle and diagnostic-awareness changes, while parts of Southeast Asia have seen a real decrease. Worth knowing directly: migraine's own real global burden is shaped as much by access to real, effective treatment as by how often the condition itself occurs, a genuinely different kind of geographic pattern than the latitude- or genetics-driven variation covered elsewhere in this app.",
+    citations: [
+      { source: 'The Global Burden of Migraine: A 30-Year Trend Review and Future Projections by Age, Sex, Country, and Region, Pain and Therapy, PMC11751287', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11751287/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-overview'],
+  },
 ];

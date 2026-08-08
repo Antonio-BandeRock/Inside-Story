@@ -356,4 +356,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-rome-iv-subtypes', 'ibs-cbt-brain-gut-therapy'],
   },
+  {
+    id: 'ibs-global-prevalence-diagnostic-criteria',
+    category: 'ibs',
+    title: "IBS Prevalence Swings From 20% to Under 4% Depending on Where AND How You Ask, an Honest Complication",
+    teaser: 'Western countries report IBS rates up to 20%, South Asia and the Middle East 7-10%, but real research finds much of this gap may reflect which diagnostic criteria and survey method got used, not true biological difference.',
+    summary:
+      "IBS shows real, large reported differences by region, but this category's own honest standard requires naming a real complication most simple prevalence comparisons skip: how much of that difference is real biology versus how much is measurement. A real, large meta-analysis pooling 395,385 people across 38 countries found a pooled IBS prevalence of 9.2% using the older Rome III diagnostic criteria, but pooling a separate set of studies using the newer, stricter Rome IV criteria found prevalence dropping to just 3.8%, a striking demonstration that the diagnostic definition used can swing the reported rate by more than double. Layered on top of that, real regional data still shows a consistent pattern even within one criteria set: many Western countries report rates as high as 20%, while South Asia and the Middle East report 7-10%. The real, honest caveat, stated directly in the research itself: these diagnostic criteria were built and validated mostly in Western populations, so some of the apparent regional gap may reflect the tool not translating cleanly across cultures and languages, not a true difference in how common IBS actually is. Worth knowing directly: a real, lower reported IBS rate in a given country doesn't necessarily mean IBS is genuinely rarer there, it may partly reflect how the condition gets asked about and defined, a real, important caveat for anyone comparing their own regional data against another country's.",
+    citations: [
+      { source: 'Global prevalence of irritable bowel syndrome according to Rome III or IV criteria: a systematic review and meta-analysis, The Lancet Gastroenterology & Hepatology', url: 'https://www.thelancet.com/journals/langas/article/PIIS2468-1253(20)30217-X/abstract' },
+      { source: 'Global prevalence of irritable bowel syndrome: time to consider factors beyond diagnostic criteria?, The Lancet Gastroenterology & Hepatology', url: 'https://www.thelancet.com/journals/langas/article/PIIS2468-1253(20)30211-9/abstract' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibs-overview'],
+  },
 ];

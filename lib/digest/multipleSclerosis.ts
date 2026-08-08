@@ -344,4 +344,17 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ms-disease-course-types', 'ms-mcdonald-criteria'],
   },
+  {
+    id: 'ms-global-latitude-gradient',
+    category: 'multipleSclerosis',
+    title: "MS Prevalence Rises Up to Tenfold the Farther You Get From the Equator, a Real, Named Pattern",
+    teaser: "Multiple sclerosis follows one of the most consistent geographic patterns in all of medicine: prevalence rises with distance from the equator, and where someone lived before age 15 matters more than where they live now.",
+    summary:
+      "Multiple sclerosis shows a real, well-established latitude gradient found consistently across decades of research worldwide: prevalence rises by up to tenfold moving from the equator toward 60 degrees north or south latitude. The leading real explanation ties directly to sunlight: latitude works as a real proxy for ultraviolet radiation exposure and the vitamin D the body makes from it, and at latitudes above roughly 40 degrees north, winter sunlight is too weak to trigger meaningful vitamin D production in skin at all, leaving people in those regions more dependent on dietary vitamin D. Real migration research adds a genuinely striking detail: people who move to a different latitude before age 15 tend to take on the MS risk of their NEW home region, while people who move after 15 keep the risk level of the country they left, meaning early-life sun exposure and vitamin D status, not lifetime residence, appears to set someone's real underlying risk. Worth knowing directly for anyone reading this app in a lower-latitude country: a genuinely lower baseline MS risk in one's own home region is real, documented, and rooted in early-life sun exposure specifically, while the same vitamin D research already covered elsewhere in this app remains relevant to anyone, at any latitude, who spends most of their time indoors or covered from the sun.",
+    citations: [
+      { source: 'The latitude gradient for multiple sclerosis prevalence is established in the early life course, Brain, PMID 33704407', url: 'https://pubmed.ncbi.nlm.nih.gov/33704407/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-overview', 'nutrient-vitamin-d'],
+  },
 ];
