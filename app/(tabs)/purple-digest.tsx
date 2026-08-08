@@ -16,6 +16,7 @@ import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { getUserConditions } from '../../lib/db';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
 import {
@@ -759,13 +760,59 @@ export default function PurpleDigestScreen() {
     lens === 'search' ? 'Search All' : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
   // Plain, original category order -- no reordering. See cardOffsets' own
   // comment above for why (a real correction of an earlier "move the
-  // expanded card to the front of the list" approach).
-  const entries = lens === 'search' ? [] : getEntriesForCategory(lens);
-  // Recomputed on every keystroke -- a plain in-memory scan over a few
-  // hundred entries (see searchDigestEntries's own comment, lib/digest/
-  // index.ts), cheap enough that no debounce is needed for this to feel
-  // instant.
-  const searchResults = useMemo(() => searchDigestEntries(searchQuery), [searchQuery]);
+  // expanded card to the front of the list" approach). A real useMemo, not
+  // a plain expression -- getEntriesForCategory returns a freshly-built
+  // array every call, so leaving this unmemoized would hand
+  // categorySearchGroups below a new array identity on every render
+  // regardless of whether `lens` actually changed, defeating that memo's
+  // own point of skipping recomputation on unrelated re-renders (e.g. a
+  // feedback tap, an unrelated state change elsewhere on screen).
+  const entries = useMemo(() => (lens === 'search' ? [] : getEntriesForCategory(lens)), [lens]);
+  // Debounced, 2026-08-08, a real, reported keyboard-lag fix -- the raw
+  // string-matching cost here really is cheap (see searchDigestEntries's
+  // own comment), but reconciling potentially dozens of real result cards
+  // on every single keystroke is not, and that reconciliation happens
+  // inside THIS component (which also owns the search box's own state),
+  // so a slow render here was dragging down how quickly the custom
+  // AppKeyboard could register the next keypress -- the same class of bug
+  // already root-caused and fixed once for the Food builders (a heavy
+  // owning screen re-rendering in full per keystroke, see AppTextInput.tsx's
+  // own history comment), just triggered by expensive DERIVED rendering
+  // here rather than AppKeyboard's own internal registration. The search
+  // box's own displayed text is untouched by this -- it still binds
+  // directly to the raw, instant searchQuery/categorySearchQuery below, so
+  // typing itself never visibly lags; only the expensive results/shelf
+  // rendering waits until 200ms after typing actually pauses.
+  const debouncedSearchQuery = useDebouncedValue(searchQuery, 200);
+  const debouncedCategorySearchQuery = useDebouncedValue(categorySearchQuery, 200);
+  const searchResults = useMemo(() => searchDigestEntries(debouncedSearchQuery), [debouncedSearchQuery]);
+  // The same filtered, grouped hierarchical view built for category search
+  // (see the JSX below) -- pulled into its own real useMemo here, alongside
+  // searchResults above, rather than left as an inline IIFE recomputed on
+  // every render regardless of whether the debounced query (or the
+  // category itself) actually changed. Always a real array (possibly
+  // empty, e.g. while lens === 'search', where `entries` is already
+  // empty) -- the JSX below decides whether to even look at this based on
+  // the RAW, instant categorySearchQuery, not this debounced one, so the
+  // "you're searching" UI itself switches on immediately even though the
+  // actual result content briefly lags behind by up to 200ms.
+  const categorySearchGroups = useMemo(() => {
+    const matchedIds = new Set(searchEntries(entries, debouncedCategorySearchQuery).map((entry) => entry.id));
+    const baseGroups =
+      lens === 'basicHealth'
+        ? basicHealthAllGroups(entries)
+        : (() => {
+            const { pillars, tyingTogether } = groupConditionEntries(entries);
+            return tyingTogether ? [...pillars, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : pillars;
+          })();
+    return baseGroups
+      .map((group) => ({
+        label: group.label,
+        entries: group.entries.filter((entry) => matchedIds.has(entry.id)),
+      }))
+      .filter((group) => group.entries.length > 0);
+  }, [entries, debouncedCategorySearchQuery, lens]);
+  const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
 
   // Scrolls the ScrollView so the named card's own top edge lands exactly
   // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- on
@@ -933,12 +980,16 @@ export default function PurpleDigestScreen() {
                 top and make it the subheader that stays at the top under
                 the app header," the same treatment already given to the
                 whole-Digest search bar earlier the same day before that
-                bar itself moved back into the LensHub picker. Everything in
-                this block used to live at the very top of the ScrollView
-                below, scrolling away with the rest of the content -- now it
-                sits above the ScrollView entirely, so the back link, this
-                category's own header, and its search box all stay visible
-                the whole time someone scrolls through what's below. */}
+                bar itself moved back into the LensHub picker. Only the
+                back link and the search box stay fixed here -- a real,
+                direct follow-up correction the same day: "the search
+                utility is supposed to be above the generic about this
+                section box and that box should scroll under it just as
+                the rest would. Only the search utility and the breadcrumb
+                navigation remain in the subheader." headerCard (the
+                icon/title/description block) moved below, now the first
+                real item inside the ScrollView -- it scrolls away with
+                everything else, same as every other piece of content. */}
             <View style={styles.fixedHeader}>
               {/* A real, always-available way back to the resting "nothing
                   picked yet" screen -- 2026-08-08, direct correction: "there
@@ -968,26 +1019,6 @@ export default function PurpleDigestScreen() {
                 <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
               </TouchableOpacity>
 
-              {/* Wrapped in an opaque card, not sitting bare on the shared
-                  flower background -- reported as unreadable that way. Every
-                  other tab's own top-of-content text either already sits on a
-                  card (Insights/Schedule) or opts into textShadow when it
-                  truly has to render straight over the photo (Home's
-                  greeting) -- a card is the better fit here, since this
-                  header block is real page-identity content, not a one-line
-                  caption over open sky. */}
-              <View style={styles.headerCard}>
-                <View style={styles.categoryHeaderRow}>
-                  <PurpleRibbonIcon size={22} color={TAB_COLOR} />
-                  <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
-                </View>
-                <Text style={styles.categoryDescription}>
-                  {lens === 'search'
-                    ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
-                    : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
-                </Text>
-              </View>
-
               <AppTextInput
                 style={styles.searchInput}
                 placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${activeLensLabel}...`}
@@ -1005,6 +1036,29 @@ export default function PurpleDigestScreen() {
               }}
               scrollEventThrottle={16}
             >
+              {/* Wrapped in an opaque card, not sitting bare on the shared
+                  flower background -- reported as unreadable that way. Every
+                  other tab's own top-of-content text either already sits on a
+                  card (Insights/Schedule) or opts into textShadow when it
+                  truly has to render straight over the photo (Home's
+                  greeting) -- a card is the better fit here, since this
+                  header block is real page-identity content, not a one-line
+                  caption over open sky. The first real thing inside this
+                  ScrollView, per the correction above -- it scrolls under the
+                  fixed search box exactly like the rest of this category's
+                  own content does. */}
+              <View style={styles.headerCard}>
+                <View style={styles.categoryHeaderRow}>
+                  <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                  <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+                </View>
+                <Text style={styles.categoryDescription}>
+                  {lens === 'search'
+                    ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
+                    : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
+                </Text>
+              </View>
+
               {lens === 'search' ? (
                 searchQuery.trim().length === 0 ? (
                   <Text style={styles.emptyText}>
@@ -1040,44 +1094,27 @@ export default function PurpleDigestScreen() {
                 // dropped entirely -- reusing BasicHealthShelves' own
                 // shelf-row-plus-detail-panel rendering unchanged, the same
                 // real component every category already uses to show its
-                // groups when NOT searching.
-                (() => {
-                  const matchedIds = new Set(searchEntries(entries, categorySearchQuery).map((entry) => entry.id));
-                  const baseGroups =
-                    lens === 'basicHealth'
-                      ? basicHealthAllGroups(entries)
-                      : (() => {
-                          const { pillars, tyingTogether } = groupConditionEntries(entries);
-                          return tyingTogether
-                            ? [...pillars, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }]
-                            : pillars;
-                        })();
-                  const filteredGroups = baseGroups
-                    .map((group) => ({
-                      label: group.label,
-                      entries: group.entries.filter((entry) => matchedIds.has(entry.id)),
-                    }))
-                    .filter((group) => group.entries.length > 0);
-                  const totalMatches = filteredGroups.reduce((sum, group) => sum + group.entries.length, 0);
-                  return totalMatches === 0 ? (
-                    <Text style={styles.emptyText}>
-                      No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {activeLensLabel}.
+                // groups when NOT searching. categorySearchGroups is a real
+                // useMemo above (not an inline IIFE anymore, a real,
+                // reported keyboard-lag fix -- see its own comment).
+                categorySearchTotalMatches === 0 ? (
+                  <Text style={styles.emptyText}>
+                    No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {activeLensLabel}.
+                  </Text>
+                ) : (
+                  <>
+                    <Text style={styles.searchResultCount}>
+                      {categorySearchTotalMatches} match{categorySearchTotalMatches === 1 ? '' : 'es'}
                     </Text>
-                  ) : (
-                    <>
-                      <Text style={styles.searchResultCount}>
-                        {totalMatches} match{totalMatches === 1 ? '' : 'es'}
-                      </Text>
-                      <BasicHealthShelves
-                        groups={filteredGroups}
-                        expandedId={expandedId}
-                        groupRefs={groupRefs}
-                        onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
-                        onJumpToRelated={jumpToRelated}
-                      />
-                    </>
-                  );
-                })()
+                    <BasicHealthShelves
+                      groups={categorySearchGroups}
+                      expandedId={expandedId}
+                      groupRefs={groupRefs}
+                      onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
+                      onJumpToRelated={jumpToRelated}
+                    />
+                  </>
+                )
               ) : lens === 'basicHealth' ? (
                 <BasicHealthTree
                   entries={entries}
