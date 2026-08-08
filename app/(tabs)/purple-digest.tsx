@@ -14,6 +14,7 @@ import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
@@ -1052,16 +1053,29 @@ export default function PurpleDigestScreen() {
                   2026-08-08, same day, real follow-up: "when I hit back to
                   digest breadcrumb from any section, it should close the
                   current section and display the Digest LensHub menu for
-                  the user to select another topic." Now bumps openTrigger
-                  (see its own comment above) the same tap it resets
-                  `revealed`, so the picker itself opens immediately rather
-                  than requiring a second tap on the corner button
-                  afterward. */}
+                  the user to select another topic." Bumps openTrigger (see
+                  its own comment above) after a real, deliberate delay --
+                  NOT the same tap that resets `revealed`, a real fix for a
+                  real, reported regression: bumping both in the exact same
+                  instant reintroduced the app's own known "popup visibly
+                  drops in from above" glitch (see LensHub.tsx's own history
+                  comment on that bug), since this screen's own large
+                  ScrollView content was still mid-unmount from `revealed`
+                  flipping false at the exact same moment the popup's own
+                  opening animation began -- the same class of "two heavy
+                  visual transitions landing on the same instant" problem
+                  LensHub's own choose() already exists to avoid the other
+                  direction (closing this popup before revealing new
+                  content). TAB_REVEAL_DURATION_MS is that same shared
+                  timing constant, reused here rather than a second,
+                  separately-tuned number -- by the time it elapses, the
+                  content this tap just hid has already finished
+                  unmounting, so the popup opens against a settled screen. */}
               <TouchableOpacity
                 style={styles.backToHomeRow}
                 onPress={() => {
                   setRevealed(false);
-                  setOpenTrigger(`back-${Date.now()}`);
+                  setTimeout(() => setOpenTrigger(`back-${Date.now()}`), TAB_REVEAL_DURATION_MS);
                 }}
                 accessibilityRole="button"
                 accessibilityLabel="Back to Digest home, choose another topic"
