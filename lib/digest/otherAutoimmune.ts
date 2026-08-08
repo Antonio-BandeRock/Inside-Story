@@ -97,6 +97,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
       { source: 'Diet, gut microbiome, and type 1 diabetes: from risk to translational opportunity', url: 'https://pubmed.ncbi.nlm.nih.gov/41536244/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['type1-overview', 'type1-celiac-comorbidity'],
   },
   {
     id: 'other-lupus',

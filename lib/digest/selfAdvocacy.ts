@@ -242,7 +242,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       "This app's Other Autoimmune Diseases category already makes the case that autoimmune conditions don't stay neatly siloed. Hashimoto's and type 1 diabetes both co-occur more than chance would predict, sharing enough underlying immune biology that checking one informs watching for the other. Fasting glucose and hemoglobin A1c (a longer-window average of blood sugar over roughly three months rather than a single-moment snapshot) are the standard way that gets tracked, and this app's own Mitochondria & Metabolism research separately ties visceral fat and insulin resistance directly to Hashimoto's-specific findings, not just general population risk. Neither test needs Hashimoto's-specific extra frequency. Following the general diabetes-screening schedule already agreed with a doctor (typically periodic, more often only if a prior result was borderline or genuinely abnormal) is the reasonable approach here, not a reason to add quarterly rechecks with no new symptom or result prompting it.",
     citations: [],
     overallTier: 'moderate',
-    relatedIds: ['mito-visceral-fat-treg-depletion'],
+    relatedIds: ['mito-visceral-fat-treg-depletion', 'type1-hba1c-time-in-range'],
   },
   {
     id: 'advocacy-fasting-insulin',

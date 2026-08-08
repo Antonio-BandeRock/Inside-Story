@@ -143,6 +143,14 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
     heading: "Graves' Disease",
     body: "This app's fourth real condition, covering hyperthyroidism's most common cause on its own terms. In several real ways it's the mirror image of this app's own Hashimoto's research: smoking raises Graves' eye-disease risk sharply while it lowers Hashimoto's risk, and iodine is both a real trigger and a real complication for antithyroid drug efficacy rather than simply something to avoid. Selenium carries strong trial evidence for mild eye disease specifically. Built with real self-advocacy content from day one: TRAb/TSI antibody testing's own quantified remission and relapse odds, specific warning signs for antithyroid drug side effects, and the real, measurable bone-density loss untreated hyperthyroidism causes.",
   },
+  type1Diabetes: {
+    heading: 'Type 1 Diabetes',
+    body: "This app's fifth real condition, and a genuinely different shape from every one built before it: food's own daily relevance here isn't about triggering or avoiding a flare, it's about matching carbohydrate intake to insulin dosing accurately enough to stay safe. Covers carb-counting's own real, measured 21% average error and its direct link to worse blood glucose control, exercise and alcohol's own real (and sometimes delayed) hypoglycemia risks, DKA's real warning signs and a checkable ketone threshold, and the real, well-documented overlap with celiac disease. Built with real self-advocacy content from day one: the full autoantibody panel behind diagnosis, Time in Range as a genuine complement to HbA1c, and the real screening intervals for eye and kidney complications that start years before any symptom would.",
+  },
+  celiac: {
+    heading: 'Celiac Disease',
+    body: "This app's sixth real condition, and the one place here where a strict diet is the entire treatment, not one lever among several. Covers the real 20ppm cross-contamination standard and what actually breaks it in a kitchen, the oats controversy (safe for most, a real minority genuinely reacts to the oat protein itself), real market data on what commercial gluten-free products get nutritionally wrong, and a real, age-dependent healing timeline most people underestimate. Built with real self-advocacy content from day one: why going gluten-free before testing is the single most common diagnostic mistake, and a real, specific recommended age (45) for a bone-density scan. Closes on a real, quantified overlap with Hashimoto's roughly double the general population's own autoimmune thyroid risk.",
+  },
 };
 
 // A deliberate line-break point for each category name that's long enough

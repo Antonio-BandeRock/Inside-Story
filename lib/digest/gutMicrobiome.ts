@@ -67,7 +67,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-gluten-grains'],
+    relatedIds: ['problem-gluten-grains', 'celiac-overview'],
   },
   {
     id: 'gut-blautia-lupus-zonulin',

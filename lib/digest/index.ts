@@ -1,6 +1,7 @@
 import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
+import { CELIAC_ENTRIES } from './celiac';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
 import { FOOD_INDUSTRY_HISTORY_ENTRIES } from './foodIndustryHistory';
@@ -22,6 +23,7 @@ import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
 import { PSORIASIS_ENTRIES } from './psoriasis';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
+import { TYPE_1_DIABETES_ENTRIES } from './type1Diabetes';
 import { isProblemFoodEntry, type AnyDigestEntry, type DigestEntryCategory } from './types';
 
 export * from './types';
@@ -32,7 +34,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808090000';
+export const PURPLE_DIGEST_VERSION = '20260808130000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -62,6 +64,8 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...RHEUMATOID_ARTHRITIS_ENTRIES,
   ...PSORIASIS_ENTRIES,
   ...GRAVES_ENTRIES,
+  ...TYPE_1_DIABETES_ENTRIES,
+  ...CELIAC_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -136,6 +140,25 @@ export const DIGEST_CATEGORY_META: {
     label: "Graves' Disease",
     icon: 'eye-outline',
     description: 'Real food, medication, and self-advocacy guidance for Graves\' disease, including several findings that run in the literal opposite direction from this app\'s own Hashimoto\'s research.',
+  },
+  // 2026-08-08, same day, fifth condition: Type 1 Diabetes. See
+  // type1Diabetes.ts's own header comment -- a genuinely different shape
+  // of condition, where food's real relevance is matching carbohydrate
+  // intake to insulin dosing rather than triggering or avoiding a flare.
+  {
+    key: 'type1Diabetes',
+    label: 'Type 1 Diabetes',
+    icon: 'water-outline',
+    description: 'Real food, medication, and self-advocacy guidance for Type 1 Diabetes: carb-counting accuracy, exercise and alcohol timing, DKA recognition, and the real overlap with celiac disease and Hashimoto\'s.',
+  },
+  // 2026-08-08, same day, sixth condition: Celiac Disease. See celiac.ts's
+  // own header comment -- the one condition in this app where diet is the
+  // entire treatment, not one lever among several.
+  {
+    key: 'celiac',
+    label: 'Celiac Disease',
+    icon: 'nutrition-outline',
+    description: 'Real, practical guidance for celiac disease: cross-contamination thresholds, the oats controversy, gluten-free diet nutritional pitfalls, real healing timelines, and self-advocacy for diagnosis and bone density.',
   },
 ];
 

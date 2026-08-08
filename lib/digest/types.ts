@@ -99,6 +99,17 @@ export const DIGEST_CATEGORY_KEYS = [
   // start, per the lesson from the same-day restructure above, rather than
   // added in a later pass.
   'graves',
+  // 2026-08-08, same day, fifth condition, next in the same priority order:
+  // Type 1 Diabetes. See type1Diabetes.ts's own header comment -- a
+  // genuinely different shape of condition from every one built so far,
+  // where food's own daily relevance is matching carbohydrate intake to
+  // insulin dosing rather than triggering or avoiding a flare.
+  'type1Diabetes',
+  // 2026-08-08, same day, sixth condition, next in the same priority order:
+  // Celiac Disease. See celiac.ts's own header comment -- a genuinely
+  // different shape of condition again, the one place in this app where a
+  // strict diet is the entire treatment, not one lever among several.
+  'celiac',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
