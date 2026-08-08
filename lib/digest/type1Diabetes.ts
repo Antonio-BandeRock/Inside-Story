@@ -342,4 +342,30 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-closed-loop-automated-insulin', 'type1-hba1c-time-in-range'],
   },
+  {
+    id: 'type1-sglt2-euglycemic-dka-risk',
+    category: 'type1Diabetes',
+    title: 'A Real Medication Class Helping Millions With Type 2 Diabetes Carries a Genuinely Serious, Distinct Risk in Type 1',
+    teaser: 'A real trial found SGLT2 inhibitor use in T1D tied to a real 3.0% diabetic ketoacidosis rate versus 0.6% on placebo, a genuinely dangerous form that can develop with completely normal blood sugar readings.',
+    summary:
+      "This app's own already-covered SGLT2-inhibitor research (in CKD, MASLD, and cardiovascular disease) documents a real, genuinely beneficial medication class for those conditions. Type 1 diabetes is a real, important, distinct exception worth naming directly and separately. Real, controlled trial data (the inTandem3 trial) found 3.0% of people with type 1 diabetes taking sotagliflozin (an SGLT2/SGLT1 inhibitor) developed diabetic ketoacidosis (DKA), compared with just 0.6% on placebo, a real, serious, five-fold-higher risk. The real, genuinely dangerous twist: this typically presents as EUGLYCEMIC DKA, meaning real, dangerous ketone buildup and acidosis can develop even with blood glucose readings that look normal or only mildly elevated, a real, documented reason it's frequently missed or diagnosed late, since standard glucose checks alone won't reliably catch it. This real risk is the direct reason the FDA has repeatedly declined to approve SGLT2 inhibitors specifically for type 1 diabetes (rejecting both dapagliflozin and empagliflozin for this use, and denying sotagliflozin again as recently as 2025), even though European regulators have approved a version for T1D specifically alongside real, required structured ketone-monitoring education. Worth knowing directly: someone with type 1 diabetes taking an SGLT2 inhibitor off-label, or considering one, needs real, explicit ketone-testing guidance from their own care team, checking blood or urine ketones directly during illness, reduced carbohydrate intake, or unusual symptoms, not relying on blood glucose numbers alone to rule out a real, developing emergency.",
+    citations: [
+      { source: 'Effects of Sotagliflozin Added to Insulin in Patients with Type 1 Diabetes (inTandem3), New England Journal of Medicine 2017, PMID 28899222', url: 'https://pubmed.ncbi.nlm.nih.gov/28899222/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-dka-sick-day-rules', 'ckd-sglt2-inhibitors'],
+  },
+  {
+    id: 'type1-diabetes-distress-psychological-burden',
+    category: 'type1Diabetes',
+    title: 'Diabetes Distress Is a Real, Named, Genuinely Common Burden of Its Own, Distinct From Clinical Depression',
+    teaser: 'Real research finds 30 to 42% of adults with type 1 diabetes carry a real, elevated level of diabetes-specific distress, a real, separate condition from depression that current guidance recommends screening for directly.',
+    summary:
+      "Managing type 1 diabetes means real, constant, high-stakes decisions, every meal, every insulin dose, every unexpected low or high, and real research has given the genuine psychological weight of that a real, specific name: diabetes distress, distinct from clinical depression, though the two can genuinely overlap. Real studies consistently find elevated diabetes distress affecting a real, substantial share of adults with type 1 diabetes, estimates ranging from 20 to 42% depending on the specific study and measurement tool used, with one real, longitudinal study finding a real 9-month incidence of newly-elevated distress in over half of the studied population. Real, identified predictors include higher HbA1c and the presence of real microvascular complications, and real research finds women reporting elevated distress more often than men. Real research names the actual, specific content of this distress directly: worry about long-term complications and the future, and real, genuine guilt when self-management inevitably falls short of the day-to-day perfection the condition seems to demand. Worth knowing directly: real, current clinical guidance increasingly recommends screening for diabetes distress specifically, using tools like the Problem Areas in Diabetes (PAID) questionnaire, separately from a standard depression screen, since real research finds it responds to different, more diabetes-specific support (peer connection, diabetes-specific counseling) than general depression treatment alone.",
+    citations: [
+      { source: 'Prevalence and predictors of diabetes-related distress in adults with type 1 diabetes, Scientific Reports 2022, PMID 36130979', url: 'https://pubmed.ncbi.nlm.nih.gov/36130979/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-hypoglycemia-unawareness'],
+  },
 ];

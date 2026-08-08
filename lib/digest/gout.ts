@@ -329,4 +329,31 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-diuretics-prescribing-cascade', 'gout-metabolic-cluster-connection'],
   },
+  {
+    id: 'gout-il1-blockade-canakinumab',
+    category: 'gout',
+    title: 'A Real, Newer Medication Class Interrupts a Gout Flare at Its Own Root Inflammatory Trigger',
+    teaser: 'Canakinumab, a real IL-1-blocking biologic, resolved gout flares in a real median of 4.2 days versus 7.8 days for a standard steroid, for people who genuinely can\'t use standard treatments.',
+    summary:
+      "This category's own research already covers standard acute gout treatments (colchicine, NSAIDs, steroids). Interleukin-1 (IL-1) blockade is a real, newer, mechanistically distinct option, working at the actual root trigger of a gout flare rather than dampening inflammation generally. Real research finds monosodium urate crystals directly activate a specific cellular alarm system (the NLRP3 inflammasome), which releases IL-1-beta and drives the flood of neutrophils causing a flare's own real pain and swelling. Canakinumab, a real IL-1-targeting biologic, was tested directly against a standard steroid injection (triamcinolone) in two real, randomized, active-controlled trials, and found a real median time to flare resolution of 4.2 days versus 7.8 days for the steroid, alongside a real, larger reduction in a measured inflammation marker (CRP). A real, pooled analysis of 10 randomized trials confirmed IL-1 blockade (canakinumab, anakinra, and a related drug, rilonacept) genuinely shortens flare duration compared with placebo. Worth knowing directly, and genuinely important: canakinumab reduces flare RISK and severity, but real research confirms it does NOT lower the underlying serum uric acid level itself, so it's a real, targeted flare-management tool, not a substitute for this category's own already-covered urate-lowering therapy. Its real, current, practical role is for people who can't safely use standard options (NSAIDs, colchicine, steroids), due to kidney disease, other real medical contraindications, or a poor prior response.",
+    citations: [
+      { source: 'Canakinumab for acute gouty arthritis in patients with limited treatment options: results from two randomised, multicentre, active-controlled, double-blind trials, PMID 22586173', url: 'https://pubmed.ncbi.nlm.nih.gov/22586173/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-colchicine-narrow-therapeutic-index', 'gout-urate-lowering-therapy'],
+  },
+  {
+    id: 'gout-menopause-estrogen-risk',
+    category: 'gout',
+    title: 'Gout Is Rare in Women Before Menopause, Then Rises Sharply, With a Real, Honest Twist on Hormone Therapy',
+    teaser: 'Estrogen genuinely protects against gout before menopause, but real, large studies on whether replacing it afterward helps or hurts reach genuinely conflicting conclusions.',
+    summary:
+      "Gout is real, well-known to be far more common in men, but that gap narrows sharply after menopause, worth knowing directly for a condition often assumed to be a mostly-male concern. Real research finds premenopausal women genuinely protected by estrogen's own uricosuric effect, meaning estrogen helps the kidneys clear uric acid more efficiently, real research finds this protection measurably fades starting years before menopause itself, with serum urate levels rising sharply through the menopausal transition and staying elevated afterward. Worth knowing honestly, since it isn't a simple 'replace the hormone, fix the risk' story: real evidence on postmenopausal hormone therapy is genuinely conflicting. One real study found postmenopausal hormone use tracked with an 18% LOWER risk of developing gout. A real, separate, much larger study of over 1 million postmenopausal women found the opposite, both hormone replacement therapy and earlier oral contraceptive use tracked with a real, INCREASED gout risk. Worth knowing directly: this genuine, unresolved contradiction in the real evidence means hormone therapy shouldn't be assumed either protective or risky for gout specifically, it's real, worth naming directly in a conversation about hormone therapy for other reasons, without treating gout risk as a settled factor either way.",
+    citations: [
+      { source: 'Menopause, Postmenopausal Hormone Use and Risk of Incident Gout, PMC3142742', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3142742/' },
+      { source: 'Association between female reproductive factors and gout: a nationwide population-based cohort study of 1 million postmenopausal women, Arthritis Research & Therapy 2021, PMC8675498', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8675498/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['gout-four-stage-natural-history'],
+  },
 ];

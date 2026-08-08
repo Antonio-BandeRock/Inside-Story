@@ -338,4 +338,30 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['psoriasis-pasi-severity-staging'],
   },
+  {
+    id: 'psoriasis-psa-progression-real-data',
+    category: 'psoriasis',
+    title: 'Roughly One in Five People With Psoriasis Goes on to Develop Psoriatic Arthritis, With a Real, Narrow Window to Catch It Early',
+    teaser: 'Real research finds close to 20% of psoriasis patients develop psoriatic arthritis, and a real, narrow diagnostic window (joint symptoms caught within 12 months) genuinely changes long-term joint outcomes.',
+    summary:
+      "Skin psoriasis and psoriatic arthritis (PsA) are real, closely related but genuinely distinct conditions, and this category's own already-covered systemic-comorbidities research doesn't spell out the real, specific progression numbers worth knowing directly. Real research finds PsA affects roughly one in five people with psoriasis, with an incidence around 4.3% per year in some studied populations, meaning skin psoriasis genuinely isn't 'just skin' for a real, substantial minority. Real, identified predictors of who's more likely to progress include obesity, nail pitting, joint pain without confirmed arthritis (arthralgia), and eye inflammation (uveitis), a real, checkable list worth naming directly for anyone tracking their own psoriasis. The real, urgent, practical part: real research finds diagnosing PsA within 12 months of the first joint symptom defines a genuine 'early PsA' window with measurably better long-term outcomes, while a real diagnostic delay of just 6 months can already allow permanent joint erosion and physical function loss to begin. Worth knowing directly: any new joint pain, stiffness, or swelling in someone with psoriasis, even mild or intermittent, is real, worth raising specifically and promptly rather than assumed to be ordinary aging or unrelated strain, given how real, narrow this window for the best long-term joint outcome actually is.",
+    citations: [
+      { source: 'Early detection of psoriatic arthritis in patients with psoriasis: construction of a multifactorial prediction model, Frontiers in Immunology 2024, PMC11668630', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11668630/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-systemic-comorbidities'],
+  },
+  {
+    id: 'psoriasis-depression-suicidality-real-data',
+    category: 'psoriasis',
+    title: 'Psoriasis Carries a Real, Roughly Doubled Risk of Suicidal Thinking, Independent of the Joint Disease It Can Cause',
+    teaser: 'A real, pooled meta-analysis found psoriasis patients had roughly double the odds of suicidal ideation compared with people without the condition, a real mental-health burden worth naming directly.',
+    summary:
+      "This category's own already-covered systemic-comorbidities research names psoriasis's real physical reach. Its real mental-health burden deserves its own direct, honest accounting too. A real, pooled meta-analysis found the odds of suicidal ideation among people with psoriasis roughly doubled compared with those without it (a real odds ratio of 2.05), with a smaller but still real, significantly elevated odds of actual suicidal behavior (attempts and completed suicides, a real odds ratio of 1.26). A real, separate large study found depression risk elevated in psoriasis alone (a real 43% higher relative risk) and higher still specifically in people who'd also developed psoriatic arthritis (a real 55% higher relative risk), a real, direct link back to this category's own PsA-progression research. Real research identifies younger age and more severe skin disease as particular real risk factors for suicidality specifically. Worth knowing honestly: real, existing meta-analyses on this exact question don't all agree, with some finding smaller or less consistent effects depending on study design, a real, genuine caveat rather than an overstated crisis claim. Worth knowing directly: this real, elevated mental-health burden is a real, legitimate reason mental health deserves the same direct, routine attention as skin severity itself in psoriasis care, not an afterthought to physical symptom control.",
+    citations: [
+      { source: 'Psoriasis and suicidality: A systematic review and meta-analysis, PMID 28807109', url: 'https://pubmed.ncbi.nlm.nih.gov/28807109/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-systemic-comorbidities', 'psoriasis-psa-progression-real-data'],
+  },
 ];

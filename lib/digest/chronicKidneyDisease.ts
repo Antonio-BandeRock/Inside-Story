@@ -100,7 +100,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'dapagliflozin and prevention of adverse outcomes in chronic kidney disease (DAPA-CKD) trial: baseline characteristics', url: 'https://academic.oup.com/ndt/article/35/10/1700/5899227' },
     ],
     overallTier: 'strong',
-    relatedIds: ['type2-glp1-sglt2-paradigm-shift'],
+    relatedIds: ['type2-glp1-sglt2-paradigm-shift', 'type1-sglt2-euglycemic-dka-risk'],
   },
   {
     id: 'ckd-anemia-erythropoietin',

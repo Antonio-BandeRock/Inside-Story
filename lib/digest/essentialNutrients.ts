@@ -469,7 +469,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin D, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/vitamind.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['vitamind-deficiency-symptoms-staged', 'vitamind-2024-guideline-honest-correction', 'vitamind-vital-trial-non-skeletal', 'vitamind-obesity-bioavailability', 'nutrient-vitamin-d', 'sjogrens-vitamin-d-dry-eye-severity'],
+    relatedIds: ['vitamind-deficiency-symptoms-staged', 'vitamind-2024-guideline-honest-correction', 'vitamind-vital-trial-non-skeletal', 'vitamind-obesity-bioavailability', 'nutrient-vitamin-d', 'sjogrens-vitamin-d-dry-eye-severity', 'pcos-vitamin-d-deficiency-real-data'],
   },
 
   // -- Iron, added 2026-08-08, the third deep-dive in this series, at

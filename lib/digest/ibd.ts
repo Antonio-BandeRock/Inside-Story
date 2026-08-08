@@ -332,4 +332,30 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-een-crohns', 'ibd-fiber-flare-myth'],
   },
+  {
+    id: 'ibd-therapeutic-drug-monitoring',
+    category: 'ibd',
+    title: 'Checking a Biologic\'s Own Real Blood Level Cuts Relapse, Even When Symptoms Don\'t Change',
+    teaser: 'A real, controlled trial found adjusting infliximab dose to a measured target blood level, rather than reacting to symptoms alone, cut relapse rate from 17% to 7%.',
+    summary:
+      "This category's own already-covered biologic research (the SONIC combination trial, anti-TNF loss of response) raises a real, practical follow-up question: once someone's on a biologic like infliximab, how does a doctor actually know if the dose is right? Therapeutic drug monitoring (TDM) answers this by directly measuring the medication's own real blood level (trough concentration) rather than relying on symptoms alone, since a real, meaningful share of apparent treatment failure turns out to be a dosing problem, not a genuine lack of response. The real, landmark TAXIT trial tested a PROACTIVE version of this (a scheduled blood-level check adjusting dose toward a real target range of 3 to 7 micrograms per milliliter, before problems appear) against a REACTIVE approach (checking blood levels only after symptoms return). The real, honest result: no significant difference in remission rates at 1 year between the two approaches, but the proactive group had significantly fewer real relapses during the full follow-up period (7% versus 17%). Worth knowing directly: real, major gastroenterology associations still mostly recommend the simpler, reactive approach as standard, with proactive monitoring considered more useful but genuinely more debated, this is a real, worth-raising question for anyone whose biologic seems to be working less well than expected: has an actual blood level ever been checked, or has the dose only ever been adjusted based on symptoms alone?",
+    citations: [
+      { source: 'Trough Concentrations of Infliximab Guide Dosing for Patients With Inflammatory Bowel Disease (TAXIT), Gastroenterology 2015, PMID 25724455', url: 'https://pubmed.ncbi.nlm.nih.gov/25724455/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-anti-tnf-loss-of-response', 'ibd-sonic-combination-therapy'],
+  },
+  {
+    id: 'ibd-smoking-cessation-real-benefit',
+    category: 'ibd',
+    title: 'Quitting Smoking Brings a Crohn\'s Patient\'s Relapse Risk Down to Match Someone Who Never Smoked',
+    teaser: 'A real, prospective study found quitting smoking cut Crohn\'s relapse risk to the same level as lifelong nonsmokers, a real benefit comparable in size to adding an immunosuppressant medication.',
+    summary:
+      "This category's own already-covered smoking-paradox research establishes that smoking worsens Crohn's disease specifically (the opposite of its real, documented protective effect in ulcerative colitis). What that entry doesn't cover directly is the real, concrete payoff for actually quitting, worth naming plainly rather than left as a general 'smoking is bad' statement. A real, prospective multicenter cohort study of 573 Crohn's patients, followed for a real median of 3.25 years, found smoking an independent predictor of disease relapse, with continuing smokers facing a real 1.6-times-higher relapse risk than nonsmokers, alongside a real, doubled rate of hospitalization and a shorter real time before needing steroid treatment. The genuinely important, real, practical finding: patients who QUIT smoking had a relapse risk that dropped to match lifelong nonsmokers, essentially fully reversing the excess risk, not just partially reducing it. A real, earlier intervention study described this real benefit as comparable in magnitude to starting an immunosuppressant medication. Worth knowing directly: for someone with Crohn's disease who smokes, this app's own already-covered research already names WHY smoking matters here specifically, this is the real, concrete, motivating number for WHAT quitting actually does, a real, achievable, medication-free lever with a real, quantified, disease-modifying payoff.",
+    citations: [
+      { source: "Effects of cigarette smoking on the long-term course of Crohn's disease, Gastroenterology 1996 (Cosnes et al.), PMID 8566589", url: 'https://pubmed.ncbi.nlm.nih.gov/8566589/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-smoking-paradox'],
+  },
 ];

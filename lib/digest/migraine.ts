@@ -324,4 +324,30 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-cgrp-inhibitors', 'migraine-botox-preempt-trials'],
   },
+  {
+    id: 'migraine-iv-magnesium-acute-er',
+    category: 'migraine',
+    title: 'IV Magnesium in the ER Is a Real, Genuinely Distinct Question From the Oral Magnesium Already Covered Here',
+    teaser: 'A real systematic review of 7 trials found intravenous magnesium sulfate improved acute headache pain, but only after 60 to 120 minutes, a real, meaningfully slower effect than most acute migraine treatments.',
+    summary:
+      "This category's own already-covered oral magnesium research (alongside riboflavin and CoQ10) is a real, daily PREVENTIVE strategy. Intravenous magnesium sulfate, given in an emergency department for an attack already underway, is a real, genuinely separate question with its own real, distinct evidence. A real systematic review pooling 7 randomized trials and 545 participants found pain intensity significantly improved with IV magnesium compared with other treatments, but specifically at the 60-to-120-minute mark, not at earlier time points, a real, meaningfully slower onset than most standard acute migraine treatments (triptans, gepants) are built to deliver. Worth knowing honestly: real results for the specific 50%-pain-reduction endpoint were genuinely conflicting across the pooled trials, some found real benefit, others found none, and one earlier trial even found adding magnesium to a standard anti-nausea medication (metoclopramide) may have blunted that medication's own effectiveness rather than adding to it. Worth knowing directly: real, current evidence supports IV magnesium as one real, reasonable option among several for a severe attack in an emergency setting, particularly for migraine with aura, where real research finds a plausible added rationale, rather than a clearly superior first choice over already-established acute treatments.",
+    citations: [
+      { source: 'Intravenous Magnesium Sulfate to Treat Acute Headaches in the Emergency Department: A Systematic Review, Headache 2019, PMID 31566727', url: 'https://pubmed.ncbi.nlm.nih.gov/31566727/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-magnesium-riboflavin-coq10'],
+  },
+  {
+    id: 'migraine-weather-barometric-pressure-mixed',
+    category: 'migraine',
+    title: 'Weather as a Migraine Trigger: a Real Effect for Some People, Genuinely Inconsistent Across Real Studies',
+    teaser: 'A real systematic review of 14 studies found barometric pressure drops linked to more frequent migraine attacks in several studies, but the overall real evidence stayed genuinely inconsistent study to study.',
+    summary:
+      "Weather, and barometric pressure specifically, is one of the most commonly self-reported migraine triggers, and real research finds a genuine, if inconsistent, evidence base behind that common belief. A real, recent systematic review pooling 14 studies and 2,696 participants found several individual studies reporting a significant real association between pressure drops or rapid fluctuations and increased migraine FREQUENCY specifically, fewer studies found any real link to attack SEVERITY, and none found a real link to attack DURATION. Worth knowing honestly: the review's own overall conclusion was that findings were genuinely inconsistent study to study, not a settled, uniform effect, real research estimates weather's overall measurable influence at only around 20% across studied populations, meaning most migraine days in most people likely have little to do with weather at all. Worth knowing directly: this is a real, honest example of a widely believed trigger with real, if inconsistent, supporting evidence and real, meaningful individual variation, some people genuinely are weather-sensitive, most aren't strongly so, and this app's own already-covered personal-pattern-tracking approach (rather than assuming a commonly cited trigger applies universally) is the real, practical way to find out which category a given person actually falls into.",
+    citations: [
+      { source: 'Impact of Barometric Pressure Changes on the Severity, Frequency, and Duration of Migraine Attacks: A Systematic Review of the Literature, Cureus 2025, PMID 41245912', url: 'https://pubmed.ncbi.nlm.nih.gov/41245912/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['migraine-food-triggers-honest-nuance'],
+  },
 ];

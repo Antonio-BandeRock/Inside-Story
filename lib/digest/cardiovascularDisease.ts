@@ -317,7 +317,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Women Acute Myocardial Infarction—Identifying and Understanding the Gender Gap (WAMy-GAP): A Study Protocol, PMC11121322', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11121322/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['cvd-heart-attack-red-flags'],
+    relatedIds: ['cvd-heart-attack-red-flags', 'pcos-long-term-cardiovascular-risk'],
   },
   {
     id: 'cvd-coronary-calcium-score',
@@ -344,5 +344,31 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['cvd-holiday-heart-alcohol-afib', 'cvd-heart-failure-abcd-staging'],
+  },
+  {
+    id: 'cvd-polypill-primary-prevention',
+    category: 'cardiovascularDisease',
+    title: 'A Single Combination Pill Cut Major Cardiovascular Events by a Real, Substantial Margin in Two Large Trials',
+    teaser: 'A real, 5-year trial of over 50,000 people found a fixed-dose combination pill (blood pressure medication, a statin, and aspirin) reduced major cardiovascular events by a real 34% versus standard lifestyle advice alone.',
+    summary:
+      "The 'polypill' idea is genuinely simple: combine several already-proven, low-cost cardiovascular medications (a blood-pressure drug, a statin, and often low-dose aspirin) into one single daily pill, specifically to make consistent, real-world adherence easier than juggling several separate prescriptions. Real, large trials have now tested this directly. The PolyIran trial, a real, pragmatic cluster-randomized study nested within a cohort of over 50,000 people, found a four-component polypill (aspirin, atorvastatin, hydrochlorothiazide, and either enalapril or valsartan) reduced major cardiovascular events by a real 34% over 5 years compared with lifestyle advice alone (5.9% versus 8.8% of participants affected), with no real increase in bleeding-related adverse events. A separate, real trial (TIPS-3) found adding aspirin to a similar polypill combination reduced its own composite cardiovascular endpoint by a real 31%. Worth knowing directly: this is real, large-scale evidence that the SIMPLICITY of taking one pill, not just which specific medications it contains, appears to genuinely improve outcomes, most plausibly by improving how consistently people actually take their medication day to day. This app's own already-covered evidence for each individual component (statins, DASH-style blood pressure management, low-dose aspirin's own real, honest tradeoffs) still applies, the polypill strategy is a real, practical delivery method worth knowing about, not a different set of medications.",
+    citations: [
+      { source: 'Effectiveness of polypill for primary and secondary prevention of cardiovascular diseases (PolyIran): a pragmatic, cluster-randomised trial, The Lancet 2019, PMID 31448738', url: 'https://pubmed.ncbi.nlm.nih.gov/31448738/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence', 'cvd-dash-sodium', 'cvd-aspirin-primary-prevention-reversal'],
+  },
+  {
+    id: 'cvd-air-pollution-pm25-real-data',
+    category: 'cardiovascularDisease',
+    title: 'Fine Particle Air Pollution Carries a Real, Quantified, Independent Heart Attack Risk',
+    teaser: 'A real meta-analysis found short-term spikes in PM2.5 air pollution measurably raised heart attack risk within days, and long-term exposure carried a substantially larger real, cumulative effect.',
+    summary:
+      "Fine particulate air pollution (PM2.5, particles small enough to be inhaled deep into the lungs and cross into the bloodstream) carries real, independently documented cardiovascular risk, distinct from and additive to the diet, medication, and lifestyle factors already covered in this category. A real meta-analysis of 34 studies found each 10 microgram-per-cubic-meter rise in short-term PM2.5 exposure tracked with a real, measurable 2.5% increase in heart attack risk within days, and a separate real meta-analysis found long-term exposure carried a substantially larger cumulative effect, a real 18% increase in heart attack risk per the same 10 microgram increment sustained over time. The real, proposed mechanisms include direct vascular inflammation, oxidative stress, and effects on the autonomic nervous system's own regulation of heart rhythm and blood pressure. Worth knowing honestly and in real, practical proportion: any single day's individual relative risk increase is genuinely modest, but real research finds that because hundreds of millions of people are continuously exposed, short-term PM2.5 spikes alone account for up to a real 5% of all heart attacks worldwide, a real, population-level burden from a widely shared, mostly involuntary exposure. Worth knowing directly: real, practical steps (checking a local air-quality index on high-pollution days, an indoor air filter, reducing outdoor exertion during genuine spikes) are a real, concrete, if modest, addition to this category's own already-covered cardiovascular risk-reduction levers.",
+    citations: [
+      { source: 'Association between PM2.5 and risk of hospitalization for myocardial infarction: a systematic review and a meta-analysis, BMC Public Health 2020, PMID 32164596', url: 'https://pubmed.ncbi.nlm.nih.gov/32164596/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-resistant-hypertension-adherence'],
   },
 ];

@@ -326,4 +326,30 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-rotterdam-phenotypes', 'pcos-ogtt-screening'],
   },
+  {
+    id: 'pcos-long-term-cardiovascular-risk',
+    category: 'pcos',
+    title: 'PCOS Carries a Real, Substantially Elevated Long-Term Heart Attack and Stroke Risk, Not Just a Lipid-Panel Concern',
+    teaser: 'A real, pooled meta-analysis of over 166,000 women found PCOS tracked with a real 2.6-fold higher heart attack risk and nearly double the stroke risk, actual cardiovascular events, not just abnormal lab numbers.',
+    summary:
+      "This category's own already-covered lipid-panel research names the real, measurable cardiometabolic lab abnormalities common in PCOS. A real, separate, larger body of evidence answers the harder, more consequential question directly: does PCOS actually translate into more real heart attacks and strokes over time, not just worse numbers on paper. A real, pooled meta-analysis of 10 cohort studies and 166,682 women found PCOS tracked with a real, pooled 66% higher risk of cardiovascular events overall, a real 2.57-times-higher heart attack risk, a real 2.77-times-higher ischemic heart disease risk, and a real, nearly-doubled stroke risk, compared with women without PCOS. A real, separate UK Biobank cohort study found broadly consistent results (a real 1.77-times-higher overall CVD risk, 2.27-times-higher coronary artery disease risk). Worth knowing honestly: the same real meta-analysis found no significant difference in overall mortality or cardiovascular-specific death, a real, genuine reassurance that this elevated event risk hasn't yet translated into a clearly higher real death rate in the pooled data, though real research elsewhere flags young, nonobese PCOS patients specifically as a group that may warrant real, earlier cardiovascular risk-management attention. Worth knowing directly: this is real, substantial, long-term risk, a real, concrete reason the cardiometabolic monitoring this category's own research already recommends matters well beyond fertility-focused care alone.",
+    citations: [
+      { source: 'Risk of Cardiovascular and Cerebrovascular Events in Polycystic Ovarian Syndrome Women: A Meta-Analysis of Cohort Studies, PMC7690560', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7690560/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-lipid-panel-cardiometabolic', 'cvd-women-underdiagnosis-gender-gap'],
+  },
+  {
+    id: 'pcos-vitamin-d-deficiency-real-data',
+    category: 'pcos',
+    title: 'A Real, Striking Majority of Women With PCOS Run Vitamin D Deficient, Tracking With Worse Insulin Resistance',
+    teaser: 'Real research finds up to 85% of women with PCOS vitamin D deficient, roughly double the rate in the general population, and correlating directly with the insulin resistance already central to this condition.',
+    summary:
+      "Vitamin D deficiency shows up across this app's own research on several conditions, and PCOS carries a real, particularly striking version of it. Real research finds an estimated 67 to 85% of women with PCOS vitamin D deficient, compared with a real 20 to 48% rate in the general adult population, a real, roughly-doubled gap. Real, observational research finds this isn't incidental: women with PCOS who are vitamin D deficient show real, worse markers of insulin resistance (higher fasting glucose, higher HOMA-IR scores) than those with adequate levels, and real research finds an inverse relationship between vitamin D levels and both insulin resistance and BMI. Worth knowing honestly, matching the same pattern already found for vitamin D across several other conditions in this app: a real meta-analysis of supplementation trials found vitamin D supplementation DID measurably reduce HOMA-IR scores compared with placebo, a real, positive intervention result, while a separate meta-analysis found no clear evidence it meaningfully improved PCOS's own broader metabolic and hormonal picture overall. Worth knowing directly: this real, striking deficiency rate makes vitamin D testing a real, worthwhile, low-cost addition to the cardiometabolic lab panel this category's own research already recommends, with real, if still genuinely mixed, evidence for whether correcting it meaningfully improves PCOS itself beyond the deficiency alone.",
+    citations: [
+      { source: 'Prevalence and influencing factors of vitamin D deficiency in women with polycystic ovary syndrome: a systematic review and meta-analysis, Frontiers in Nutrition 2026', url: 'https://www.frontiersin.org/journals/nutrition/articles/10.3389/fnut.2026.1865564/full' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pcos-lipid-panel-cardiometabolic', 'vitamind-tying-together'],
+  },
 ];

@@ -325,4 +325,30 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-dental-caries-risk', 'sjogrens-xylitol-saliva-stimulation'],
   },
+  {
+    id: 'sjogrens-hydroxychloroquine-joquer-trial',
+    category: 'sjogrens',
+    title: 'A Medication That Works for Lupus Genuinely Didn\'t Beat Placebo in Sjögren\'s Own Landmark Trial',
+    teaser: 'Hydroxychloroquine has real, strong evidence in lupus, but the real JOQUER trial found it no better than placebo for Sjögren\'s own core symptoms of dryness, pain, and fatigue.',
+    summary:
+      "Hydroxychloroquine is a real, well-established, effective medication in lupus (see this app's own lupus research), and it's real, commonly prescribed for Sjögren's syndrome too, on the reasonable, real assumption that a medication working for one antibody-driven autoimmune disease should plausibly help a related one. The real, landmark JOQUER trial tested this directly: 120 patients with primary Sjögren's syndrome, randomized to hydroxychloroquine (400mg daily) or placebo for 24 weeks, measuring the condition's own three core symptoms, dryness, pain, and fatigue. The real, honest result: hydroxychloroquine was NOT more effective than placebo at improving any of these three core symptoms, a genuine negative finding for the trial's own real, primary purpose. Worth knowing honestly, since this isn't a simple 'it doesn't work' story either: real, later analysis of the same trial's own biological samples found hydroxychloroquine DID measurably reduce a real, specific immune signal (interferon activation) tied to Sjögren's own disease process, real, genuine biological activity that just didn't translate into the specific, real symptom relief patients were hoping for at 24 weeks. Worth knowing directly: this is a real, useful example of why this app's own research draws a hard line between a medication working for one autoimmune condition and it necessarily working for a related but genuinely distinct one, worth a real, direct conversation about whether hydroxychloroquine is genuinely helping if already prescribed for Sjögren's specifically.",
+    citations: [
+      { source: 'Effects of Hydroxychloroquine on Symptomatic Improvement in Primary Sjögren Syndrome: The JOQUER Randomized Clinical Trial, JAMA 2014', url: 'https://doi.org/10.1001/jama.2014.7682' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-hydroxychloroquine-retinopathy'],
+  },
+  {
+    id: 'sjogrens-fibromyalgia-overlap',
+    category: 'sjogrens',
+    title: 'Fibromyalgia and Sjögren\'s Genuinely Overlap, Each Real Condition Raising the Documented Risk of the Other',
+    teaser: 'A real, nationwide cohort study found fibromyalgia patients twice as likely to later develop Sjögren\'s, and real studies find fibromyalgia itself present in up to 31% of Sjögren\'s patients.',
+    summary:
+      "This category's own already-covered fatigue research names fatigue as Sjögren's own most disabling symptom. Fibromyalgia, a real, separate chronic-pain condition centered on widespread pain and fatigue, genuinely overlaps with Sjögren's often enough to meaningfully complicate that picture. A real, nationwide, population-based cohort study found people with fibromyalgia had a real, doubled risk (hazard ratio 2.00) of later developing Sjögren's syndrome, with an even higher real risk (hazard ratio 3.07) in fibromyalgia patients aged 20 to 49. Looking the other direction, real studies of confirmed Sjögren's patients find fibromyalgia genuinely common alongside it, prevalence estimates ranging from a real 14.6% to 31% depending on the study population, with fibromyalgia's presence tracking with real, worse patient-reported symptom scores and more severe depression. Worth knowing directly, and genuinely practical: since fibromyalgia and Sjögren's own fatigue and pain can look and feel similar day to day, real, active co-occurrence means either condition's own symptoms can mask or be mistaken for the other, complicating both diagnosis and how well a given treatment seems to be working. Worth knowing directly for anyone with either diagnosis whose fatigue or pain hasn't responded as expected: real, direct screening for the other condition is worth raising, rather than assuming every symptom traces back to just the one already-diagnosed disease.",
+    citations: [
+      { source: "Higher Risk for Sjögren's Syndrome in Patients With Fibromyalgia: A Nationwide Population-Based Cohort Study, PMID 33912165", url: 'https://pubmed.ncbi.nlm.nih.gov/33912165/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-fatigue-most-disabling', 'sjogrens-secondary-ra-lupus-overlap'],
+  },
 ];

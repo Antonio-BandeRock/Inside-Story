@@ -130,6 +130,7 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
       { source: 'Hydroxychloroquine and Alcohol/Food Interactions, Drugs.com', url: 'https://www.drugs.com/food-interactions/hydroxychloroquine.html' },
     ],
     overallTier: 'strong',
+    relatedIds: ['sjogrens-hydroxychloroquine-joquer-trial'],
   },
   {
     id: 'lupus-nephritis-monitoring',
@@ -328,5 +329,31 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['lupus-belimumab-biologic'],
+  },
+  {
+    id: 'lupus-mycophenolate-cyclophosphamide-nephritis',
+    category: 'lupus',
+    title: 'A Real, Landmark Trial Found a Better-Tolerated Drug Genuinely Matches an Older, Harsher Standard for Kidney Involvement',
+    teaser: 'The real ALMS trial found mycophenolate mofetil at least as effective as intravenous cyclophosphamide for inducing remission in lupus nephritis, with a real, meaningfully more favorable side-effect profile.',
+    summary:
+      "This category's own already-covered lupus nephritis monitoring research names WHAT to track, real research on treatment itself answers a genuinely important, real, practical question: which medication actually induces remission best. Intravenous cyclophosphamide was the real, long-standing standard treatment, but carries real, serious side effects, including infertility risk and increased infection susceptibility. The real, landmark Aspreva Lupus Management Study (ALMS), a real, international, 370-patient randomized trial, tested mycophenolate mofetil directly against intravenous cyclophosphamide as induction therapy for active lupus nephritis over 24 weeks. The real result: mycophenolate mofetil was at least as effective, and in this trial's own real data, numerically more effective, at inducing remission, with a real, meaningfully more favorable safety profile than cyclophosphamide. Worth knowing directly, and genuinely reassuring: this real trial gave rheumatologists a real, better-tolerated first option for a genuinely serious complication, one this category's own real research already treats as needing prompt, aggressive real treatment. A real, practical detail worth raising directly with a treating doctor: which of these two real options is being used, and why, since real, individual factors (disease severity, kidney function, and personal treatment goals around future fertility) can reasonably shift that real, shared decision either way.",
+    citations: [
+      { source: 'Mycophenolate mofetil versus cyclophosphamide for induction treatment of lupus nephritis, Journal of the American Society of Nephrology 2009 (Appel et al.), PMID 19369404', url: 'https://pubmed.ncbi.nlm.nih.gov/19369404/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-nephritis-monitoring'],
+  },
+  {
+    id: 'lupus-nsaid-aseptic-meningitis',
+    category: 'lupus',
+    title: 'A Real, Specific, Startling Reaction: Some Lupus Patients Develop Meningitis-Like Symptoms From Ordinary Ibuprofen',
+    teaser: 'A real, documented, repeatable reaction links lupus specifically to NSAID-induced aseptic meningitis, real symptoms resembling true meningitis that resolve within days once the drug is stopped.',
+    summary:
+      "NSAIDs (ibuprofen and related pain relievers) carry a real, specific, striking risk in lupus that's easy to miss entirely, since it's genuinely rare and its symptoms mimic a much more alarming, real infection. Real case literature finds lupus the single most common underlying condition behind NSAID-induced aseptic meningitis, a real, drug-triggered inflammatory reaction in the membranes surrounding the brain and spinal cord, producing real symptoms (headache, fever, neck stiffness, confusion) that closely resemble true infectious meningitis. Ibuprofen is the most frequently implicated real trigger, though real case reports also name several other NSAIDs. The real, proposed mechanism involves a hypersensitivity reaction specifically confined to the central nervous system, real research finds affected individuals often experience the reaction again with even a small repeat dose of the same drug, a real, distinctive pattern pointing to real drug sensitivity rather than coincidence. Worth knowing directly, and genuinely reassuring once recognized: real case reports consistently find symptoms resolve within 48 hours simply by stopping the NSAID, with no lasting effects. Worth knowing plainly for anyone with lupus: a real, sudden meningitis-like reaction after starting or restarting an NSAID is real, worth raising directly and immediately, both to stop the specific drug and to avoid an unnecessary, invasive workup for a suspected true infection that isn't actually present.",
+    citations: [
+      { source: 'Aseptic meningo-encephalitis related to dexibuprofen use in a patient with systemic lupus erythematosus: a case report with MR findings, PMID 12195787', url: 'https://pubmed.ncbi.nlm.nih.gov/12195787/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['lupus-drug-induced-reversible'],
   },
 ];

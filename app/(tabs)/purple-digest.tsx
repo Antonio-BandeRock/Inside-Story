@@ -2317,7 +2317,18 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     paddingVertical: 6,
     paddingHorizontal: 12,
-    maxWidth: 220,
+    // 2026-08-08, direct request: "Allow the Related chips... span the
+    // entire horizontal space available to it within the bounds
+    // controlling it." Was a fixed maxWidth: 220 regardless of how much
+    // real room the row actually had, truncating a chip's own title with
+    // numberOfLines={1} even when the card was comfortably wide enough to
+    // show it in full. '100%' still caps a chip at its real container's
+    // own width (relatedRow, itself bounded by the card it sits in) --
+    // one chip alone on its own row can now use the whole row; several
+    // chips sharing a row still wrap normally, each sized to its own
+    // content, none of them artificially truncated below what the layout
+    // actually allows.
+    maxWidth: '100%',
   },
   relatedChipText: { ...typography.captionEmphasis, color: colors.primary },
 });
