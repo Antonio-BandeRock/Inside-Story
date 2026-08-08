@@ -152,4 +152,57 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-weight-loss-thresholds', 'masld-coffee-protective', 'masld-resmetirom', 'masld-semaglutide-essence', 'masld-fib4-fibrosis-screening'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'masld-f0-f4-fibrosis-staging',
+    category: 'fattyLiverDisease',
+    title: "MASLD's Real Fibrosis Staging: F0 Through F4, and a Real, Reassuring Fact About How Much of It Is Reversible",
+    teaser: '94% of MASLD stays in a real, still-reversible stage. The real turning point most people should know about is F2, not F4.',
+    summary:
+      "MASLD's own real liver-scarring progression is staged F0 through F4 using the METAVIR system, already reachable through the FIB-4 screening this app's own self-advocacy content already covers: F0 (no fibrosis), F1 (portal fibrosis, no bridging), F2 (fibrosis with a few connecting septa), F3 (extensive septa, not yet cirrhosis), and F4 (cirrhosis). The real, most useful clinical marker isn't F4, it's F2: real guidance treats F2 as the point clinically significant fibrosis begins, the real threshold where active treatment typically starts. The genuinely reassuring real fact: progression through F0-F3 is considered fully reversible, and real research finds roughly 94% of the MASLD population sits in this still-reversible range; only 5-6% of cases progress all the way to F4 cirrhosis, where the real, clinical goal shifts from reversal to managing complications (portal hypertension, liver cancer surveillance). Real research finds fibrosis itself progresses in 20-30% of MASLD patients over 10-20 years, fastest specifically in those with diabetes, obesity, and already-elevated liver enzymes, a real, direct reason this app's own weight-loss and metabolic research matters as much as it does for this specific condition.",
+    citations: [
+      { source: 'Progression to Decompensation of Severe Fibrosis Compared to Cirrhosis in MASLD: A Systematic Review and Meta-Analysis, PMC12811796', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12811796/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-fib4-fibrosis-screening'],
+  },
+  {
+    id: 'masld-systemic-cvd-ckd-real-data',
+    category: 'fattyLiverDisease',
+    title: "MASLD Reaches Well Past the Liver -- Real, Independent Cardiovascular and Kidney Risk, Not Just a Byproduct of Shared Risk Factors",
+    teaser: 'MASLD is a real, independent cardiovascular risk factor in its own right, and fibrosis stage specifically is the strongest real predictor of that risk, not the liver-fat amount itself.',
+    summary:
+      "MASLD's own real systemic reach is genuinely substantial: real research finds it a global condition affecting over 31% of people worldwide, and a real, independent risk factor for cardiovascular disease, chronic kidney disease, several cancers, and sleep apnea, not merely a downstream effect of the shared metabolic risk factors (obesity, insulin resistance) already covered elsewhere in this app. The real, specific finding worth knowing directly: fibrosis STAGE, not the raw amount of liver fat, is the strongest disease-specific predictor of cardiovascular risk, a real, direct reason the F0-F4 staging above matters beyond the liver itself. Real, documented mechanisms driving this wide reach include systemic inflammation, gut dysbiosis with metabolic endotoxemia (a real, direct link to this app's own Gut & Microbiome research), and atherogenic dyslipidemia, already covered in this app's own cholesterol research. A real, specific connection worth naming: epicardial fat thickness (fat surrounding the heart itself) correlates directly with both sleep-apnea severity and liver damage in MASLD patients, a real, physical link between three seemingly separate systems.",
+    citations: [
+      { source: 'Systemic impacts of metabolic dysfunction-associated steatotic liver disease (MASLD) and metabolic dysfunction-associated steatohepatitis (MASH) on heart, muscle, and kidney related diseases, PMID 39086662', url: 'https://pubmed.ncbi.nlm.nih.gov/39086662/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-metabolic-syndrome-cluster'],
+  },
+  {
+    id: 'masld-history-milestones',
+    category: 'fattyLiverDisease',
+    title: "MASLD's Own Real, Recent History: Named Three Real Times in Under 45 Years",
+    teaser: '1980, 1986, 2023 -- a genuinely fast real naming history compared to most conditions in this app, reflecting how recently the metabolic mechanism itself was actually understood.',
+    summary:
+      "MASLD's own real history is genuinely short and fast-moving compared to most conditions in this app. In 1980, pathologist Jurgen Ludwig and colleagues first described \"non-alcoholic steatohepatitis,\" real liver damage that looked identical to alcohol-related liver disease under a microscope, in patients who denied heavy alcohol use. In 1986, Shaffer and Thaler formally coined \"non-alcoholic fatty liver disease\" (NAFLD) as the real, broader umbrella term. Real understanding of WHY it happens came later: insulin resistance and hyperinsulinemia were first linked to fatty liver in 1998, and metabolic syndrome specifically in 1999, the real scientific foundation this app's own already-established metabolic-syndrome-cluster research builds on. The real, most recent turning point came in June 2023: a supermajority vote among over 200 physicians, public health experts, and patient advocates renamed the condition MASLD (metabolic dysfunction-associated steatotic liver disease), a real, deliberate move away from \"non-alcoholic,\" a name defined by what the condition ISN'T, and toward naming its actual real, metabolic cause directly, while also reducing real stigma tied to the words \"alcohol\" and \"fatty.\"",
+    citations: [
+      { source: 'From NAFLD to MASLD: what does it mean?', url: 'https://www.tandfonline.com/doi/full/10.1080/17474124.2024.2374472' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'masld-pregnancy-real-outcomes',
+    category: 'fattyLiverDisease',
+    title: "MASLD in Pregnancy: Real, Quantified Elevated Risk -- and a Real, Important Distinction From a Genuinely Different, Rare Emergency",
+    teaser: 'Real research finds a 3-fold higher gestational diabetes rate with MASLD -- and a real, direct reassurance worth stating plainly: MASLD does NOT raise the risk of a separate, much rarer condition people sometimes confuse it with.',
+    summary:
+      "MASLD during pregnancy carries real, quantified elevated risk worth knowing directly. Real research finds gestational diabetes occurring in 23% of pregnancies with MASLD versus 7-8% without, alongside real, elevated rates of hypertensive complications (16% vs. 4%), postpartum hemorrhage, and preterm birth, together adding up to real research finding more than 4 times the risk of serious adverse maternal-fetal outcomes overall. Real, additional research finds MASLD during pregnancy is itself a real risk factor for large-for-gestational-age birthweight, and MASLD prevalence in pregnancy has nearly tripled in real, tracked data, from 10.5 to 28.9 per 100,000 pregnancies between 2007 and 2015. The single most important real, direct reassurance worth stating plainly: MASLD does NOT raise the risk of acute fatty liver of pregnancy (AFLP), a real, genuinely different, rare, third-trimester emergency with its own distinct cause, real research finds no established link between the two despite the similar-sounding names, a real, important distinction worth knowing to avoid needless worry about a separate condition that isn't actually connected.",
+    citations: [
+      { source: 'Non-alcoholic fatty liver disease in pregnancy is associated with adverse maternal and perinatal outcomes, PMID 32531415', url: 'https://pubmed.ncbi.nlm.nih.gov/32531415/' },
+    ],
+    overallTier: 'strong',
+  },
 ];

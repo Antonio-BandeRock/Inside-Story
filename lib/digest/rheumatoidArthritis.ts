@@ -255,6 +255,7 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
       { source: 'A Brief History of Rheumatoid Arthritis, National Rheumatoid Arthritis Society (NRAS)', url: 'https://nras.org.uk/resource/history-of-rheumatoid-arthritis/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['gout-history-milestones'],
   },
   {
     id: 'ra-pregnancy-family-planning',

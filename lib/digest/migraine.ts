@@ -133,4 +133,58 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-food-triggers-honest-nuance', 'migraine-magnesium-riboflavin-coq10', 'migraine-cgrp-inhibitors', 'migraine-medication-overuse-headache', 'migraine-red-flags'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'migraine-episodic-chronic-real-debate',
+    category: 'migraine',
+    title: 'Episodic vs. Chronic Migraine: A Real, Formal 15-Day Line -- and a Real, Active Debate About Whether That Line Is Actually Right',
+    teaser: 'The official real cutoff is 15 headache days a month. Real research finds people at 8-14 days genuinely just as disabled, a real, unresolved gap between the formal definition and the real lived burden.',
+    summary:
+      "Migraine's own real, formal classification (ICHD-3) draws a specific line: chronic migraine means 15 or more headache days a month for over 3 months, with at least 8 of those days showing real migraine-specific features; anything below that threshold is classified as episodic. This real, precise-sounding line has a genuine, active controversy behind it worth knowing directly: real research comparing disability levels found people with 8-14 headache days a month, technically still \"episodic\" by the formal definition, showing real disability levels statistically indistinguishable from those meeting the full chronic threshold. This has led real researchers to propose revised criteria recognizing \"high-frequency episodic migraine\" as its own real, meaningfully burdened category, since the current 15-day line may not actually reflect who needs more aggressive treatment. Worth knowing directly if headache frequency sits in that real, disputed 8-14-day range: the formal \"episodic\" label may understate real, lived burden this app's own CGRP-inhibitor and medication-overuse research already covers.",
+    citations: [
+      { source: 'Chronic versus episodic migraine: The 15-day threshold does not adequately reflect substantial differences in disability, PMID 34081791', url: 'https://pubmed.ncbi.nlm.nih.gov/34081791/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-medication-overuse-headache', 'migraine-cgrp-inhibitors'],
+  },
+  {
+    id: 'migraine-aura-stroke-real-risk',
+    category: 'migraine',
+    title: 'Migraine With Aura Carries a Real, Independently Elevated Stroke and Cardiovascular Risk',
+    teaser: 'Real research finds nearly double the ischemic stroke risk in women with active migraine with aura -- and this real risk holds even after accounting for other cardiovascular risk factors.',
+    summary:
+      "Migraine's own reach extends beyond head pain into a real, documented, independent cardiovascular risk, most pronounced specifically for migraine WITH aura (the visual or sensory disturbance some people experience before an attack). Real research in women found active migraine with aura carrying a hazard ratio of 1.93 for major cardiovascular disease, 1.80 for ischemic stroke, and 1.94 for heart attack compared to women without migraine. The real, striking part: this elevated stroke risk persists even after adjusting for other real vascular risk factors, meaning migraine with aura itself, not just the other risk factors that happen to co-occur with it, appears to be an independent marker of real, systemic vascular vulnerability. Real, proposed mechanisms include endothelial dysfunction, platelet aggregation, and systemic inflammation, worth knowing directly since migraine affects a real, enormous global population (roughly 1.16 billion people as of 2021), meaning even a modest per-person real risk increase represents a genuinely large real public-health consideration, and a real, direct reason cardiovascular risk factors (already covered in this app's own dedicated CVD research) deserve real, extra attention specifically in anyone who experiences migraine with aura.",
+    citations: [
+      { source: 'Migraine, vascular risk, and cardiovascular events in women: prospective cohort study, PMC2505092', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2505092/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'migraine-history-milestones',
+    category: 'migraine',
+    title: "Migraine's Own Real History: Described Nearly 2,000 Years Ago, Genuinely Understood Only in the Last 40",
+    teaser: 'A.D. 81, 1938, 1991 -- a real, ancient description sat behind one dominant, real but ultimately incomplete theory for 50 real years before the actual breakthrough treatment arrived.',
+    summary:
+      "Migraine's own real, documented history reaches back further than almost any other condition in this app: Aretaeus of Cappadocia, writing around A.D. 81, is generally credited with the first real detailed description, calling it \"heterocrania\" and distinguishing it from other headache types. For nearly 50 real years starting in 1938, the vascular theory, proposed by Graham and Wolff, dominated real medical understanding: migraine was believed to result simply from dilation of blood vessels outside the skull. The real, actual breakthrough came from a genuinely different direction: sumatriptan, discovered by a team led by Patrick Humphrey and reaching patients in Europe in 1991, was the first drug developed from an experimentally-grounded approach to acute migraine treatment, and its real, unexpected effectiveness helped drive a genuine shift in understanding, from the late 1980s through the early 2000s, toward migraine as fundamentally a nerve-signaling disorder rather than simply a blood-vessel problem, the real, modern understanding this app's own CGRP-inhibitor research is built on.",
+    citations: [
+      { source: 'One Hundred Years of Migraine Research: Major Clinical and Scientific Observations From 1910 to 2010, Headache: The Journal of Head and Face Pain', url: 'https://headachejournal.onlinelibrary.wiley.com/doi/10.1111/j.1526-4610.2011.01892.x' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-cgrp-inhibitors'],
+  },
+  {
+    id: 'migraine-pregnancy-real-improvement',
+    category: 'migraine',
+    title: 'Migraine Genuinely Improves for Most People During Pregnancy -- A Real, Striking 87% by the Third Trimester',
+    teaser: 'Real, prospective data finds migraine improving in 47% of women by the first trimester, climbing to a real, striking 87% by the third -- the same real estrogen-stability mechanism already named in this app\'s own menstrual-migraine research, working in reverse.',
+    summary:
+      "Migraine offers one of the more genuinely reassuring real pregnancy findings in this whole app. A real, prospective diary study found migraine improvement in 47% of women during the first trimester, climbing to 83% by the second, and a real, striking 87% by the third trimester, meaning roughly 9 in 10 pregnant people with migraine experience real improvement by the end of pregnancy. The real, well-understood mechanism connects directly to this app's own already-established menstrual-migraine research: estrogen levels rise to roughly 30-40 times their normal peak menstrual-cycle level by the third trimester, and, critically, STOP cycling entirely, removing the estrogen-withdrawal trigger this app's own research already names as a major real migraine driver. Real research found this improvement most pronounced specifically in people with a pre-existing history of menstrual migraine, the same population most sensitive to estrogen fluctuation in the first place. Worth knowing honestly: not everyone improves, and a real minority report worsening symptoms during pregnancy instead, but the real, dominant pattern across large prospective data is genuine improvement, not the worsening many people might reflexively expect.",
+    citations: [
+      { source: 'Migraine and Pregnancy: How Hormones Affect Head Pain, American Migraine Foundation', url: 'https://americanmigrainefoundation.org/resource-library/migraine-pregnancy-hormones/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-menstrual-estrogen-withdrawal'],
+  },
 ];

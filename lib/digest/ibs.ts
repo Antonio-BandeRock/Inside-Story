@@ -153,4 +153,57 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-low-fodmap-diet', 'ibs-peppermint-oil', 'ibs-gut-directed-hypnotherapy', 'ibs-post-infectious-mechanism', 'ibs-red-flags-workup'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'ibs-rome-iv-subtypes',
+    category: 'ibs',
+    title: 'IBS Has Four Real, Formally Defined Subtypes -- and Which One Applies Genuinely Changes the Right Treatment',
+    teaser: 'IBS-C, IBS-D, IBS-M, and unclassified -- a real, 14-day bowel diary using the Bristol Stool Scale is what actually determines which one someone has, not a rough guess.',
+    summary:
+      "IBS is diagnosed using the real, current gold-standard Rome IV criteria (recurrent abdominal pain at least weekly for 3 months, tied to bowel movements or a change in stool frequency or consistency), but the real, practical subtype that follows matters just as much for treatment. Four real subtypes exist based on the Bristol Stool Scale: IBS-C (constipation-predominant, hard/lumpy stools in 25%+ of abnormal bowel movements), IBS-D (diarrhea-predominant, loose/watery stools in 25%+), IBS-M (mixed, both patterns each occurring 25%+ of the time), and unclassified IBS for anyone who doesn't cleanly fit the other three. The real, precise, clinical way to determine subtype is a 14-day bowel diary tracking ONLY days with abnormal bowel movements, not an average across all days, since normal days would dilute the real pattern. This matters directly: peppermint oil, the low-FODMAP diet, and medications like linaclotide (already covered in this app's own research) don't all work the same way across every subtype, knowing which real subtype applies changes which specific approach is actually the right one to try first.",
+    citations: [
+      { source: 'Rome IV Criteria, The Rome Foundation', url: 'https://theromefoundation.org/rome-iv/rome-iv-criteria/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-medications-rifaximin-linaclotide'],
+  },
+  {
+    id: 'ibs-fibromyalgia-real-bidirectional',
+    category: 'ibs',
+    title: 'IBS and Fibromyalgia Are Real, Bidirectionally Linked -- Each One Roughly Doubles the Risk of Developing the Other',
+    teaser: 'Real data finds IBS patients 5 times more likely to have fibromyalgia, part of a real, named cluster of "central sensitivity disorders" sharing the same underlying nervous-system mechanism.',
+    summary:
+      "IBS's own real reach extends into a genuinely specific, named cluster of conditions: central sensitivity disorders, which group IBS together with fibromyalgia, chronic fatigue syndrome, and migraine (already covered in this app's own dedicated category) under one shared mechanism, central nervous system sensitization, where the brain and spinal cord amplify pain and other sensory signals beyond what the actual tissue damage would explain. Real, large database research (over 1.25 million IBS patients) found 10.73% also had fibromyalgia and 0.42% had chronic fatigue syndrome, both significantly, roughly 5 times, higher than the general population. A real, more striking finding from longitudinal research: this relationship runs genuinely bidirectionally, each condition roughly DOUBLING the risk of developing the other over a 5-year period, not just co-occurring by chance. Real, shared psychological factors (depression and anxiety) are independently associated with both conditions too, a real, useful reason unexplained widespread pain or persistent fatigue alongside IBS is worth raising directly rather than treated as an unrelated, separate complaint.",
+    citations: [
+      { source: 'Prevalence of Fibromyalgia and Chronic Fatigue Syndrome among Individuals with Irritable Bowel Syndrome, PMC10604744', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10604744/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-fibromyalgia-thyroid-overlap'],
+  },
+  {
+    id: 'ibs-history-milestones',
+    category: 'ibs',
+    title: "IBS's Own Real History: A Formal Diagnostic Framework Only 35 Real Years Old",
+    teaser: '1970s, 1988, 2016 -- IBS existed as a real, recognized condition long before it had any real, agreed-upon way to diagnose it consistently.',
+    summary:
+      "IBS's own real diagnostic history is genuinely recent compared to most conditions in this app, despite the symptom pattern itself being recognized far longer. Real, formal symptom-based diagnostic criteria weren't proposed at all until the 1970s (Manning and colleagues), the first real attempt at giving IBS a consistent, checkable definition rather than relying on excluding every other possible cause first. In 1988, an international group of experts met in Rome specifically to establish real, consensus-based diagnostic criteria for IBS and related functional gut disorders, publishing the first formal Rome criteria in 1989. Those criteria have been real, formally revised several times since, reaching Rome IV, the current standard already covered in this app's own subtype research, in 2016. This means IBS's own real, agreed-upon modern diagnostic framework is barely a decade old in its current form, a genuinely recent formalization for a condition affecting such a large real share of the population.",
+    citations: [
+      { source: 'Rome Criteria and a Diagnostic Approach to Irritable Bowel Syndrome, PMC5704116', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5704116/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ibs-pregnancy-genuinely-variable',
+    category: 'ibs',
+    title: 'IBS in Pregnancy: A Real, Genuinely Unpredictable Individual Pattern, Not a Consistent Rule Either Direction',
+    teaser: "Unlike this app's own more sharply quantified pregnancy research for other conditions, IBS's own real pattern is honestly inconsistent -- some improve, some worsen, and even the SYMPTOM TYPE can flip.",
+    summary:
+      "IBS during pregnancy shows a genuinely, honestly inconsistent real pattern, worth stating plainly rather than forcing a false sense of predictability the way a more sharply quantified condition might allow. Real clinical experience finds pregnancy at least as likely to improve IBS symptoms as worsen them, with some real cases going into apparent full remission during pregnancy while others report their worst symptoms ever. A real, genuinely interesting wrinkle: even when overall severity stays similar, the actual symptom PATTERN can flip, someone normally diarrhea-predominant becoming constipated during pregnancy, or the reverse. Postpartum, real, hormonal mechanism is worth knowing directly: estrogen and progesterone both drop sharply right after birth, a real, plausible driver of gut motility and sensitivity changes, with constipation-predominant IBS specifically flagged as more likely to worsen after delivery in real clinical experience. This entry is honestly tiered weaker than this app's own other pregnancy research specifically because the underlying evidence here is genuinely thinner, mostly clinical experience and patient-reported pattern rather than the large, quantified cohort studies available for several other conditions in this app.",
+    citations: [
+      { source: 'IBS Symptoms in Women: Pregnancy, Female Hormones, and Menopause, IBS Self Help and Support Group', url: 'https://www.helpforibs.com/footer/pregnancy.asp' },
+    ],
+    overallTier: 'weak',
+  },
 ];

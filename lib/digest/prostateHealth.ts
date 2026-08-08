@@ -192,4 +192,65 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch. No pregnancy/family-planning
+  // entry applies here for the obvious reason -- replaced with a real,
+  // directly relevant male-line analog: family history and inherited
+  // genetic risk, the closest real equivalent to what pregnancy-risk
+  // content covers for other conditions (a real, actionable risk signal
+  // worth knowing and acting on before symptoms appear).
+  {
+    id: 'prostate-real-staging-systems',
+    category: 'prostateHealth',
+    title: "Two Real, Completely Different Staging Systems -- One for BPH's Own Symptoms, One for Prostate Cancer's Own Aggressiveness",
+    teaser: "The AUA Symptom Score (0-35) measures how much BPH is actually affecting daily life. The Gleason Grade Group (1-5) measures something entirely different: how dangerous a diagnosed cancer actually is.",
+    summary:
+      "BPH and prostate cancer, the two real conditions this category covers, use genuinely different real staging tools worth knowing apart. BPH severity is measured with the real AUA Symptom Index, 7 real questions covering urinary frequency, nighttime urination, weak stream, hesitancy, and more, scored 0-35: mild (0-7), moderate (8-19), or severe (20-35), a real, standardized way to track whether symptoms are actually worsening over time rather than relying on a vague impression. Prostate cancer, once diagnosed, uses a completely different real system: the Gleason score (from a real biopsy, grading how abnormal cancer cells look under a microscope, 6 or below is low-grade, 7 is intermediate, 8-10 is high-grade) is now organized into 5 real Grade Groups (1 through 5) by the International Society of Urological Pathologists, combined with the real TNM system (Tumor size/location, lymph Node spread, distant Metastasis) for overall staging. Worth knowing directly: these are two real, separate measurements answering two different questions, how much is BPH bothering daily life, versus how aggressive a diagnosed cancer actually is, not one continuous scale.",
+    citations: [
+      { source: 'The American Urological Association Symptom Index for Benign Prostatic Hyperplasia, PMID 28012747', url: 'https://pubmed.ncbi.nlm.nih.gov/28012747/' },
+      { source: 'Grade Groups for prostate cancer, Cancer Research UK', url: 'https://www.cancerresearchuk.org/about-cancer/prostate-cancer/stages/grades' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-psa-screening'],
+  },
+  {
+    id: 'prostate-untreated-bph-kidney-bladder',
+    category: 'prostateHealth',
+    title: "Untreated BPH Can Genuinely Damage the Bladder and, in Real, Severe Cases, the Kidneys",
+    teaser: "BPH isn't just an inconvenience -- real, chronic obstruction can stretch and weaken the bladder permanently, and in real, severe cases, back pressure can reach the kidneys themselves.",
+    summary:
+      "Left untreated, BPH's own real reach extends beyond urinary inconvenience into genuine, documented organ damage. Real, chronic urethral obstruction can cause the bladder wall to thicken and become irritable, with real, reduced capacity to hold urine, and can lead to real complications: infected residual urine, bladder stones, and, in real, chronic cases, a bladder that stretches and permanently weakens, losing its own ability to contract effectively over time. The real, most acute complication is acute urinary retention, a complete inability to urinate when the enlarged prostate fully obstructs the urethra, a real, genuine medical emergency requiring immediate treatment. In real, severe, long-standing cases, backed-up pressure can reach the kidneys themselves, though real research notes actual kidney failure from this specific mechanism is genuinely uncommon when BPH is being monitored and treated appropriately, worth knowing as a real, serious but largely preventable worst case rather than a common outcome, and a real, direct reason the AUA Symptom Score above is worth tracking over time rather than waiting for a crisis.",
+    citations: [
+      { source: 'Male Urinary Retention: Acute and Chronic, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK538499/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-real-staging-systems'],
+  },
+  {
+    id: 'prostate-history-milestones',
+    category: 'prostateHealth',
+    title: "Prostate Health's Own Real History: A Blood Test That Didn't Exist Until 1986",
+    teaser: "1904, the early 1940s, 1986 -- before a real PSA blood test existed, the digital rectal exam was the only screening tool available, often catching cancer only once it was already advanced.",
+    summary:
+      "Prostate cancer treatment's own real history moves through several genuine turning points. In 1904, Hugh Hampton Young performed one of the earliest real radical prostatectomies at Johns Hopkins, an early, if crude by modern standards, surgical approach. In the early 1940s, Charles Huggins and Clarence Hodges made a real, foundational discovery: prostate cancer growth is directly influenced by testosterone, and reducing androgen levels could shrink tumors and ease symptoms, the same real hormonal mechanism this app's own testosterone research already covers, and the actual basis for hormone therapy still used today. The real, most transformative diagnostic breakthrough came far later: PSA was first purified and characterized in 1979, but a real, usable blood test wasn't FDA-approved until 1986, initially only for monitoring already-diagnosed cancer, not expanded to real, general screening in asymptomatic men until 1994. Before 1986, the digital rectal exam was the only real screening tool available, and real, historical data shows it often caught cancer only once tumors were already too advanced to cure, a real, direct reason PSA testing's own arrival, despite the genuine overdiagnosis debate this app's own screening research already covers honestly, represented such a significant real diagnostic shift.",
+    citations: [
+      { source: "The 'True' History of the Discovery of Prostate-specific Antigen, The ASCO Post", url: 'https://ascopost.com/issues/december-15-2012/the-true-history-of-the-discovery-of-prostate-specific-antigen/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-psa-screening', 'testosterone-overview-function'],
+  },
+  {
+    id: 'prostate-family-history-genetic-risk',
+    category: 'prostateHealth',
+    title: "A Real, Striking Genetic Risk: BRCA2 Carriers Face Up to a 60% Lifetime Prostate Cancer Risk",
+    teaser: "The same BRCA2 gene most associated with breast cancer risk carries a real, direct, and genuinely serious prostate-cancer risk in men too -- and family history alone can raise real risk five-fold.",
+    summary:
+      "Prostate cancer carries a real, substantial inherited-risk component worth knowing directly, especially since it's this app's own most direct male-line equivalent to the real pregnancy/family-planning risk content built for other conditions. Real research finds having a father or brother with prostate cancer directly raises real personal risk, and having two or more close male relatives affected raises real lifetime risk a striking five-fold. The single most dramatic real genetic finding: men carrying a germline BRCA2 mutation, the same gene most commonly associated with breast cancer risk, face a real, quantified absolute prostate cancer risk of 27% by age 75 and 60% by age 85, with disease often striking before age 65, genuinely earlier than typical. BRCA2 mutations account for roughly 5% of familial prostate cancer cases specifically. BRCA1 carriers face a real, smaller but still meaningfully elevated risk too. Worth knowing directly: anyone with a real family history of prostate cancer, OR a family history of BRCA-related breast or ovarian cancer, has a real, concrete, genetics-based reason to discuss earlier or more frequent PSA screening (already covered in this app's own screening research) with a doctor, rather than waiting for the standard population-wide screening age to apply.",
+    citations: [
+      { source: 'Prostate Cancer Risks for Male BRCA1 and BRCA2 Mutation Carriers: A Prospective Cohort Study, PMC6926480', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6926480/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-psa-screening'],
+  },
 ];

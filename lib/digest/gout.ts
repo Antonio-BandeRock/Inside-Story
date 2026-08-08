@@ -181,4 +181,63 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-purine-foods-and-dairy', 'gout-fructose-sugar-drinks', 'gout-alcohol-beer-vs-wine', 'gout-cherries', 'gout-urate-lowering-therapy', 'gout-hla-b5801-screening', 'gout-flare-vs-septic-arthritis', 'gout-metabolic-cluster-connection'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch. Note on pregnancy: unlike most
+  // other conditions in this app, gout's own real epidemiology makes a
+  // typical pregnancy-risk entry the wrong shape here -- see the entry
+  // below, which covers the real, direct reason pregnancy-related gout
+  // content is genuinely thin, rather than forcing a risk framing the
+  // real data doesn't support.
+  {
+    id: 'gout-four-stage-natural-history',
+    category: 'gout',
+    title: "Gout's Own Real, Four-Stage Natural History -- and Why It Can Feel Completely Gone Between Attacks",
+    teaser: 'Real, silent uric acid buildup can run for years before the first flare -- and the real, quiet stretches between flares aren\'t remission, the disease is still actively progressing underneath.',
+    summary:
+      "Gout follows a real, well-characterized four-stage natural history, worth understanding as one continuous real process rather than a series of unrelated flare-ups. Stage 1, asymptomatic hyperuricemia, involves real, elevated blood uric acid with zero symptoms, though real, silent crystal formation may already be starting in the joints. Stage 2, acute gouty arthritis, is the real, sudden, intensely painful flare most people associate with gout, typically lasting 3-10 days untreated, with real pain peaking within the first 24 hours. Stage 3, intercritical gout, is the real, deceptively quiet period between flares, someone genuinely feels fine, but real research confirms hyperuricemia and ongoing crystal deposition continue silently underneath, not a true remission at all. Stage 4, chronic tophaceous gout, the real, most severe stage, involves ongoing joint pain and visible deformity from accumulated urate crystals, typically developing 10 or more real years after the first acute attack in people whose uric acid was never adequately controlled. Worth knowing directly: feeling fine between flares (Stage 3) is exactly the real, easy-to-misread moment that urate-lowering therapy (already covered in this app's own medication research) matters most, since the real disease process doesn't actually pause just because the pain does.",
+    citations: [
+      { source: 'Gout, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK546606/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-urate-lowering-therapy'],
+  },
+  {
+    id: 'gout-kidney-cardiovascular-real-data',
+    category: 'gout',
+    title: "Gout's Own Real Reach Into the Kidneys and Heart -- 71% of Gout Patients Carry Real, Measurable Kidney Impairment",
+    teaser: 'Real, striking comorbidity data: 74% of gout patients have hypertension, 71% have real chronic kidney disease, and urate crystals themselves deposit directly in kidney tissue, not just joints.',
+    summary:
+      "Gout's own real reach extends directly into the kidneys and cardiovascular system, not just the joints already covered throughout this category. Real research finds uric acid crystals depositing directly in kidney tissue over time (gouty or uric acid nephropathy), with a real, pooled prevalence of chronic kidney disease (stage 3 or higher) at 24% among gout patients, and real uric acid kidney stones developing in a real 20% of gout patients specifically. The relationship runs both directions: real research finds gout prevalence itself climbing from 7.5% in early-stage CKD to 22.8% in advanced CKD, each condition genuinely worsening the other's real risk. Real, broader comorbidity data from the same population is genuinely striking: 74% of gout patients have hypertension, 71% have chronic kidney disease (stage 2 or higher), 26% have diabetes, 14% have a prior heart attack, 11% have heart failure, and 10% have had a stroke, a real, direct reason this category's own metabolic-cluster research treats gout as one connected piece of a larger real, systemic picture rather than an isolated joint problem.",
+    citations: [
+      { source: 'Excess Uric Acid Induces Gouty Nephropathy Through Crystal Formation: A Review of Recent Insights, PMC9329685', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9329685/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-metabolic-cluster-connection', 'ckd-mineral-bone-cardiovascular-real-data'],
+  },
+  {
+    id: 'gout-history-milestones',
+    category: 'gout',
+    title: "Gout's Own Real History: A 4,600-Year-Old Disease, and the Actual Cause Identified Only 176 Years Ago",
+    teaser: '2640 BC, 1820, 1848 -- ancient Egyptians and Hippocrates both recognized the real pattern centuries before anyone knew uric acid was actually the cause.',
+    summary:
+      "Gout carries one of the real, longest documented histories of any condition in this app. Podagra, the real, classic acute big-toe gout attack, was first identified by ancient Egyptians around 2640 BC, and Hippocrates, in the 5th century BC, called it \"the unwalkable disease,\" real, vivid, and accurate long before anyone understood why it happened. Colchicine, gout's own oldest still-used real treatment, traces to the autumn crocus plant, used as a purgative in ancient Greece over 2,000 years ago; its first real, specific documented use for gout came from Byzantine physician Joannes Actuarius in the 4th century. The actual chemistry took far longer to reach: colchicine itself wasn't isolated as a pure compound until 1820 (by French pharmacists Pelletier and Caventou), and the real, actual root cause, uric acid, wasn't formally connected to gout until 1848, when Sir Alfred Garrod (the same real family name already covered in this app's own Rheumatoid Arthritis history research) discovered the direct link between blood/urine uric acid and gout, over 4,400 real years after the disease was first documented.",
+    citations: [
+      { source: 'A concise history of gout and hyperuricemia and their treatment, Arthritis Research & Therapy', url: 'https://link.springer.com/article/10.1186/ar1906' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-history-milestones'],
+  },
+  {
+    id: 'gout-pregnancy-genuine-rarity',
+    category: 'gout',
+    title: "Gout During Pregnancy Is Genuinely, Remarkably Rare -- and Estrogen Itself Is the Real Reason Why",
+    teaser: "This app's own Graves' and RA pregnancy research both name real hormonal shifts changing disease activity -- gout's own real story is that pregnancy hormones essentially prevent it from happening at all.",
+    summary:
+      "Unlike most other conditions in this app, gout doesn't have a real, typical pregnancy-risk story to tell, and that absence is itself a real, direct, worth-knowing finding. Real research finds gout genuinely rare in reproductive-age women, an incidence of just 1.6 cases per 10,000 patient-years in women aged 25-44, dramatically lower than the general population's real 0.6-2.9 per 1,000 person-years. During pregnancy specifically, real cases are exceptionally uncommon, documented mostly as individual case reports rather than any real, large cohort study. The real, well-understood mechanism: estrogen has a genuine, documented uricosuric effect, it directly helps the kidneys excrete uric acid more efficiently, and pregnancy's own real, elevated estrogen levels are believed to actively protect against a flare the same way estrogen protects premenopausal women from gout generally. This real protective effect reverses after menopause, when gout prevalence in women rises substantially, the real, mirror-image finding to the protection seen during the reproductive and pregnant years. Worth knowing directly: gout's own real story here isn't a pregnancy risk to manage, it's a real, hormone-driven reason gout and pregnancy rarely intersect at all.",
+    citations: [
+      { source: 'Gout in Pregnancy: A Rare Phenomenon, PMC7769799', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7769799/' },
+    ],
+    overallTier: 'strong',
+  },
 ];

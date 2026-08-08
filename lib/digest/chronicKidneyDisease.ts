@@ -154,4 +154,57 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-potassium-restriction-reconsidered', 'ckd-phosphate-additives', 'ckd-protein-restriction-plant-based', 'ckd-sglt2-inhibitors', 'ckd-ace-arb-potassium-monitoring'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'ckd-g-a-staging-heat-map',
+    category: 'chronicKidneyDisease',
+    title: "CKD's Real Staging Grid: Two Numbers, Combined, Predict Real Risk Better Than Either Alone",
+    teaser: "The real KDIGO \"heat map\" combines a G-stage (1 through 5) with an A-stage (1 through 3) into a real, color-coded risk zone -- worth knowing both numbers, not just one.",
+    summary:
+      "CKD's own real staging goes further than the eGFR/ACR monitoring already covered in this app's own self-advocacy content: KDIGO's real classification combines a GFR category (G1: eGFR 90+; G2: 60-89; G3a: 45-59; G3b: 30-44; G4: 15-29; G5: under 15 or on dialysis) with an albuminuria category (A1: under 30 mg/g; A2: 30-300; A3: over 300) into a real, formal grid. The genuinely useful part is the KDIGO \"heat map\": rather than either number alone, the COMBINATION lands in a real, color-coded risk zone (green, yellow, orange, or red) that independently predicts all-cause mortality, cardiovascular mortality, kidney failure, and acute kidney injury risk better than eGFR alone. A real, practical example worth knowing: someone with a normal G1 eGFR but high A3 albuminuria already sits in the orange zone, real, elevated risk despite a filtration number that might otherwise look reassuring on its own, a direct reason both numbers matter together, not just the one more commonly discussed.",
+    citations: [
+      { source: 'Chronic Kidney Disease, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK535404/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-egfr-acr-monitoring'],
+  },
+  {
+    id: 'ckd-mineral-bone-cardiovascular-real-data',
+    category: 'chronicKidneyDisease',
+    title: "CKD's Own Real Reach Into Bone and Heart: A 3-Fold Fracture Risk and a 10-Fold Cardiovascular Risk",
+    teaser: 'A real, formally named syndrome (CKD-MBD) connects damaged kidneys to real bone fragility and real vascular calcification through one shared, disrupted hormone system.',
+    summary:
+      "CKD reaches well beyond the kidneys through a real, formally recognized syndrome called CKD-mineral and bone disorder (CKD-MBD), disrupted calcium, phosphate, parathyroid hormone, vitamin D, and FGF23 metabolism, already touched by this app's own phosphate-additives research. Real, quantified consequences are substantial: people with CKD carry a real 3-fold higher bone fracture risk and a real, striking 10-fold higher cardiovascular disease risk than the general population, with cardiovascular complications the real, leading cause of the elevated mortality CKD carries overall. The real, direct mechanism connecting the two: the same mineral dysregulation that weakens bone also drives vascular calcification, calcium deposits hardening blood vessels themselves, a real, physical link between bone fragility and heart disease that most people wouldn't intuitively connect. Real, additional documented symptoms (nausea, pruritus, bone pain, malnutrition) round out CKD-MBD's own genuinely wide systemic reach.",
+    citations: [
+      { source: 'Chronic Kidney Disease-Mineral Bone Disorder (CKD-MBD), StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK560742/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-phosphate-additives'],
+  },
+  {
+    id: 'ckd-history-milestones',
+    category: 'chronicKidneyDisease',
+    title: "CKD's Own Real History: A Machine Built From Sausage Casings and a Washing Machine, During Wartime Scarcity",
+    teaser: "1943, 1960 -- before dialysis existed, a CKD diagnosis was a real, near-certain death sentence; Willem Kolff's own real, improvised wartime invention changed that.",
+    summary:
+      "Before 1943, real, advanced CKD was almost universally fatal, with no real treatment able to do the kidneys' own job once they failed. Dutch physician Willem Kolff, after watching a young patient die slowly of kidney failure, spent the late 1930s developing an artificial kidney, and during real wartime material scarcity, built his working device from genuinely improvised parts: sausage-casing cellophane tubing (20 meters of it), orange juice cans, and a washing-machine mechanism. In March 1943, using this real, improvised device, patient Janny Schroder became one of the first people treated, regaining consciousness from a uremic coma on April 4, 1943, the first documented real recovery via hemodialysis. Kolff's own device still had a real, serious limitation: it required sacrificing a blood vessel for every single treatment, making repeated, ongoing dialysis impractical. That real problem wasn't solved until 1960, when Wayne Quinton and Belding Scribner developed a reusable vascular access method in Seattle, the real, final piece that made CHRONIC (not just emergency) dialysis genuinely possible, opening the door to the ongoing kidney-replacement therapy still used today.",
+    citations: [
+      { source: 'Dr. Willem Kolff: The Father of the Artificial Kidney, PMC11466315', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11466315/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ckd-pregnancy-preeclampsia-bidirectional',
+    category: 'chronicKidneyDisease',
+    title: "CKD and Preeclampsia in Pregnancy: A Real, Genuinely Bidirectional Risk That Runs Both Directions at Once",
+    teaser: 'CKD raises real preeclampsia risk as high as 79% in some real studies -- and preeclampsia itself then measurably accelerates real, long-term kidney decline afterward.',
+    summary:
+      "CKD and preeclampsia have a real, genuinely bidirectional relationship worth understanding as a two-way street, not a single risk running one direction. Real research finds superimposed preeclampsia occurring in 21-79% of pregnancies with pre-existing CKD across different studies, with one real cohort finding 55.8% affected, and risk running real, notably higher specifically in CKD stages 3-5 compared to stages 1-2. The real, less commonly discussed direction runs the other way: real research found CKD patients who developed preeclampsia during pregnancy had a significantly higher rate of real, long-term eGFR decline (over 30%) or progression to end-stage kidney disease afterward, 42.72% versus 19.42% in those without preeclampsia, with EARLY-onset preeclampsia (before 34 weeks) carrying real, particularly elevated risk. This is a genuinely two-way real relationship worth knowing directly before conception: existing CKD raises real pregnancy risk, and a preeclampsia episode during that pregnancy can independently accelerate the underlying kidney disease afterward, a real, direct reason nephrology involvement matters both before and after delivery, not just during.",
+    citations: [
+      { source: 'The effect of preeclampsia on long-term kidney function among pregnant women with chronic kidney disease, PMID 39020253', url: 'https://pubmed.ncbi.nlm.nih.gov/39020253/' },
+    ],
+    overallTier: 'strong',
+  },
 ];

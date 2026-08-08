@@ -149,4 +149,58 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-direct-remission-trial', 'type2-low-carb-diet-evidence', 'type2-individualized-hba1c-targets', 'type2-metabolic-syndrome-cluster', 'type2-glp1-sglt2-paradigm-shift'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'type2-prediabetes-real-progression',
+    category: 'type2Diabetes',
+    title: "Prediabetes Is a Real, Formal, Detectable Stage -- and Up to 60% of People Who Have It Progress to Full T2D Within a Decade",
+    teaser: 'A real, named, official pre-diagnosis category exists, detectable up to 20 real years before symptoms show up, and it\'s the single biggest real window this app\'s own remission-trial evidence is aimed at.',
+    summary:
+      "T2D develops over a genuinely long real timeline (10-20 years), and the ADA formally recognizes a real, distinct pre-diagnosis stage: prediabetes, defined by real lab thresholds (fasting glucose 100-125 mg/dL, a 2-hour post-glucose-challenge reading of 140-199 mg/dL, or an A1C of 5.7-6.4%), none of which yet meets the real threshold for a full T2D diagnosis. This isn't a minor technicality: real research finds prediabetes detectable as early as 20 years before diabetes symptoms actually appear, and up to 60% of people with prediabetes progress to full T2D within 10 years without intervention. This real stage is exactly the window this app's own remission-trial evidence (DiRECT, low-carbohydrate diet research) is most powerfully aimed at, since real, effective interventions genuinely can prevent that progression -- worth knowing directly that \"prediabetes\" isn't a soft, informal label, it's a real, formally screened-for stage with real, documented stakes attached to catching it early.",
+    citations: [
+      { source: 'Diagnosis and Classification of Diabetes: Standards of Care in Diabetes, American Diabetes Association', url: 'https://diabetesjournals.org/care/article/47/Supplement_1/S20/153954/2-Diagnosis-and-Classification-of-Diabetes' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-direct-remission-trial'],
+  },
+  {
+    id: 'type2-cognitive-liver-real-data',
+    category: 'type2Diabetes',
+    title: 'T2D Reaches the Brain and Liver Too -- Real, Substantial Cognitive Decline Risk, Often Genuinely Underdiagnosed',
+    teaser: 'One real study found over half of T2D patients over 60 already showing mild cognitive impairment -- a real, striking figure most people managing blood sugar never hear connected to their own diagnosis.',
+    summary:
+      "T2D's own real reach extends directly into cognition, not just metabolism. Real research finds one study of T2D patients over 60 showing 53.88% with mild cognitive impairment and 16.43% with real dementia, real, substantial figures suggesting cognitive decline in T2D is genuinely underdiagnosed in everyday practice. The real, specific mechanistic link ties directly back to this app's own MASLD research: liver FIBROSIS specifically, not just liver fat accumulation, is associated with mild cognitive impairment and dementia risk in older T2D patients, meaning the FIB-4 fibrosis score already covered in this app's own MASLD research may double as a real, useful, already-available marker for cognitive risk too, not just liver risk. Real, shared mechanisms (insulin resistance, inflammation, oxidative stress, and NAFLD/MASLD itself) connect T2D, fatty liver, and cognitive decline into one real, interconnected picture rather than three separate, unrelated concerns.",
+    citations: [
+      { source: 'Metabolic-Associated Fatty Liver Disease and Cognitive Performance in Type 2 Diabetes, PMC11428552', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11428552/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-f0-f4-fibrosis-staging'],
+  },
+  {
+    id: 'type2-history-milestones',
+    category: 'type2Diabetes',
+    title: "T2D's Own Real Medication History: A Traditional Herbal Remedy, Rediscovered While Searching for a Malaria Drug",
+    teaser: '1918, the 1940s, 1957 -- metformin\'s own real path to becoming T2D\'s first-line drug ran through a completely different disease, twice.',
+    summary:
+      "T2D's own real treatment history is genuinely more winding than most conditions in this app. Metformin's real origin traces to Galega officinalis (goat's rue), a traditional European herbal remedy found in 1918 to contain guanidine, a real, blood-sugar-lowering compound. Real, related guanidine derivatives were tried for diabetes in the 1920s-30s but abandoned due to toxicity once insulin (already covered in this app's own T1D history research) became available instead. Metformin itself was genuinely rediscovered by accident in the 1940s, during a real search for antimalarial drugs, when researchers noticed it happened to lower blood glucose in patients being tested for influenza. French physician Jean Sterne finally studied metformin specifically for diabetes in 1957, filing the first real patent that same year, decades after its underlying chemistry was first identified. This is a genuinely unusual real path (herbal remedy to malaria research to diabetes drug) compared to most other medication-history entries already built in this app.",
+    citations: [
+      { source: 'Metformin: historical overview, PMID 28776081', url: 'https://pubmed.ncbi.nlm.nih.gov/28776081/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'type2-pregnancy-preexisting-real-risk',
+    category: 'type2Diabetes',
+    title: 'Pre-Existing T2D Carries Real, Higher Pregnancy Risk Than Gestational Diabetes -- and A1C Timing Is the One Real Factor That Predicts It',
+    teaser: 'Real research finds pre-existing T2D nearly doubles congenital-anomaly risk compared to gestational diabetes -- and the single real predictor that matters is A1C specifically in the first 14 weeks.',
+    summary:
+      "Pre-existing (pregestational) T2D carries a real, meaningfully different risk profile from gestational diabetes, worth knowing as two genuinely distinct real situations rather than the same condition at different points. Real research found pre-existing T2D nearly doubling congenital-anomaly risk compared to gestational diabetes (OR 1.91), with cardiac and neurological anomalies specifically more common when diabetes was already present before conception rather than developing during pregnancy. The real, single most useful, actionable finding: A1C, measured either anytime during pregnancy or specifically within the first 14 weeks, was the one sustained real predictor of congenital-anomaly risk found across this research, a real, direct reason preconception A1C optimization (the same real target range already covered in this app's own T1D pregnancy research) matters just as much here. Compared to gestational diabetes, pre-existing T2D also carried real, higher risk of a large-for-gestational-age baby, perinatal mortality, and stillbirth, together a real, clear case for early, dedicated preconception planning with an endocrinologist rather than treating a T2D pregnancy the same way a later-diagnosed gestational case would be managed.",
+    citations: [
+      { source: 'Congenital anomalies in pregnancies with overt and pregestational type 2 diabetes: a gray portrayal from a cohort in Brazil, PMC11238503', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11238503/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-pregnancy-glucose-targets'],
+  },
 ];

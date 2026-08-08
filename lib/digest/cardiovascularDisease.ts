@@ -156,4 +156,57 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-mediterranean-diet-predimed', 'cvd-statin-evidence', 'cvd-aspirin-primary-prevention-reversal', 'cvd-omega3-honest-null', 'cvd-lipid-panel-self-advocacy'],
   },
+
+  // -- Full-depth parity additions, 2026-08-08. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'cvd-heart-failure-abcd-staging',
+    category: 'cardiovascularDisease',
+    title: "Heart Failure Has a Real, Formal 4-Stage System -- and Stage A Applies to Real, Common Risk Factors Before Any Heart Damage Has Actually Happened",
+    teaser: 'Stage A means genuinely no heart damage yet, just real risk factors like hypertension or diabetes already present -- the real, formal system moves one direction only, and never back.',
+    summary:
+      "Heart failure runs on a real, formal ACC/AHA 4-stage classification, genuinely different from how most people think of \"stages\" of illness: Stage A (\"at risk\") applies to someone with real, common risk factors, hypertension, diabetes, metabolic syndrome, or a family history of cardiomyopathy, but with NO actual heart damage yet, meaning a real, large share of this app's own audience already sits somewhere in this staging system without a heart failure diagnosis at all. Stage B (\"pre-heart failure\") means real, structural heart changes or elevated cardiac biomarkers are present, but still no actual symptoms. Stage C is real, symptomatic heart failure, current or past. Stage D is real, advanced, refractory heart failure requiring specialized intervention. The real, important structural fact worth knowing: this staging system moves in only one direction, someone can progress from Stage A to B to C, but real, current guidance treats these stages as NOT reversible backward, distinct from the NYHA functional class (a separate real measure of current symptom severity) which genuinely can improve with treatment even as the underlying ACC/AHA stage itself doesn't move back.",
+    citations: [
+      { source: '2022 AHA/ACC/HFSA Guideline for the Management of Heart Failure, Circulation', url: 'https://www.ahajournals.org/doi/10.1161/CIR.0000000000001063' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'cvd-kidney-brain-pad-real-data',
+    category: 'cardiovascularDisease',
+    title: "CVD's Own Real Reach Into the Kidneys, Brain, and Legs -- One Shared Disease Process Showing Up in Three Different Places",
+    teaser: 'Real research finds peripheral artery disease affecting over 200 million people worldwide, and a real, direct link between vascular disease and dementia risk -- all one shared atherosclerotic process, not three separate diseases.',
+    summary:
+      "Cardiovascular disease's own real, underlying process, atherosclerosis, doesn't confine itself to the heart. Peripheral artery disease (PAD), real, obstructive atherosclerosis reaching the legs specifically, affects an estimated 200+ million people worldwide, and real research treats it as a direct marker of the SAME systemic process already elevating heart attack and stroke risk, not a separate, unrelated leg problem. Real, documented brain effects are just as direct: vascular disease in the brain's own arteries is a real, established contributor to vascular dementia, and real research finds atherosclerotic vascular disease independently linked to cognitive impairment, particularly when it shows up as POLYVASCULAR disease (affecting multiple vessel territories at once) or occurs alongside chronic kidney disease specifically, already covered in this app's own CKD research. This three-way overlap (heart, brain, kidney) is a real, direct reason CVD risk factors matter well beyond the heart alone, the same shared vascular process simply showing up wherever a person's own particular vulnerability happens to be greatest.",
+    citations: [
+      { source: 'Cardiovascular Prognosis in Patients with Peripheral Artery Disease and Approach to Therapy, PMC10740501', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10740501/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-mineral-bone-cardiovascular-real-data'],
+  },
+  {
+    id: 'cvd-history-milestones',
+    category: 'cardiovascularDisease',
+    title: "CVD's Own Real History: A Single, Ongoing Town Study That Built Modern Cardiology's Whole Risk-Factor Framework",
+    teaser: '1948, 1987 -- one real, still-running study named the risk factors this app\'s own research is built on, and a real fungal extract became the drug that transformed treating them.',
+    summary:
+      "CVD's own real, modern understanding traces to a single, remarkably influential real project: the Framingham Heart Study, launched in 1948 to follow a large group of initially healthy people over time and identify what actually drove cardiovascular disease, at a moment when real, basic causes were still largely unknown despite CVD deaths having climbed steadily for decades. Real, seminal findings from this same still-running study first established smoking and high cholesterol as real, documented cardiovascular risk factors, the actual scientific foundation this app's own lipid-panel and statin research builds on. The real, transformative treatment breakthrough came decades later: Japanese scientist Akira Endo discovered the first statin compound (compactin) from a real fungal extract in 1976, and on September 1, 1987, lovastatin became the first statin approved by the FDA, a real, genuine revolution in treating high cholesterol that reached over $1 billion in annual sales, with several more statins (simvastatin, pravastatin, atorvastatin, rosuvastatin, all still in use today) following through the 1990s and early 2000s.",
+    citations: [
+      { source: 'History, Framingham Heart Study', url: 'https://www.framinghamheartstudy.org/fhs-about/history/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence'],
+  },
+  {
+    id: 'cvd-pregnancy-mwho-ppcm',
+    category: 'cardiovascularDisease',
+    title: "Heart Disease and Pregnancy: A Real, Formal Risk-Classification System, and a Real, Pregnancy-Specific Heart Failure That Can Strike Someone With No Prior Heart Disease at All",
+    teaser: "The mWHO classification runs from real, no-added-risk conditions to real conditions where pregnancy itself may not be advisable -- and peripartum cardiomyopathy is a genuinely different, real risk that doesn't require any pre-existing heart condition to begin with.",
+    summary:
+      "Pre-existing heart disease and pregnancy carry a real, formal risk-stratification system worth knowing by name: the modified WHO (mWHO) classification, running from Class I (real, no detectable added maternal risk) through Class II (real, small added risk) and Class III (real, significant risk requiring expert counseling and intensive monitoring) to Class IV (real, extremely high risk, where pregnancy itself may not be medically advisable). A real, second tool, CARPREG II, adds further precision, factoring in functional class, prior cardiac events, and specific findings like a mechanical heart valve or reduced ejection fraction. The real, genuinely distinct risk worth knowing separately: peripartum cardiomyopathy (PPCM), real heart failure that develops specifically in the last month of pregnancy through 5 months postpartum, striking people with NO prior heart disease at all, affecting a real, estimated 1 in 1,000 to 1 in 4,000 pregnancies. Real, encouraging recovery data exists too: a measured ejection fraction of 52% or higher, or a specific strain measurement below a real threshold, is associated with low real risk of PPCM recurring in a future pregnancy, worth knowing directly for anyone who has recovered from a first episode and is considering another pregnancy.",
+    citations: [
+      { source: 'Risk stratification and management of women with cardiomyopathy/heart failure planning pregnancy or presenting during/after pregnancy, PMID 33609068', url: 'https://pubmed.ncbi.nlm.nih.gov/33609068/' },
+    ],
+    overallTier: 'strong',
+  },
 ];
