@@ -15,6 +15,7 @@ import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
+import { getUserConditions } from '../../lib/db';
 import {
   ALL_DIGEST_ENTRIES,
   DIGEST_CATEGORY_META,
@@ -341,6 +342,170 @@ function groupBasicHealthEntries(entries: AnyDigestEntry[]): { label: string; en
     .filter((group) => group.entries.length > 0);
 }
 
+// Maps the `conditions` reference table's own real, snake_case codes
+// (confirmed directly against the live database, not guessed) to this
+// screen's own camelCase DigestCategoryKey -- the two naming conventions
+// never lined up automatically (`chronic_kidney_disease` vs.
+// `chronicKidneyDisease`), so this is a real, hand-verified lookup, not a
+// derived transform. Used only to figure out which lens tiles correspond
+// to conditions the person has actually told the app they have (via
+// Profile's own condition picker, `user_conditions`) -- see
+// pinnedDigestKeys below.
+const CONDITION_CODE_TO_DIGEST_KEY: Record<string, DigestCategoryKey> = {
+  hashimotos: 'hashimotos',
+  rheumatoid_arthritis: 'rheumatoidArthritis',
+  psoriasis: 'psoriasis',
+  graves: 'graves',
+  type_1_diabetes: 'type1Diabetes',
+  celiac: 'celiac',
+  ibd: 'ibd',
+  multiple_sclerosis: 'multipleSclerosis',
+  lupus: 'lupus',
+  sjogrens: 'sjogrens',
+  pcos: 'pcos',
+  chronic_kidney_disease: 'chronicKidneyDisease',
+  fatty_liver_disease: 'fattyLiverDisease',
+  type_2_diabetes: 'type2Diabetes',
+  ibs: 'ibs',
+  migraine: 'migraine',
+  cardiovascular_disease: 'cardiovascularDisease',
+  gout: 'gout',
+  prostate_health: 'prostateHealth',
+};
+
+// A real, computed-not-stored grouping applied to every CONDITION category
+// (everything except Basic Health, which already has its own, more
+// granular by-topic shelf grouping above, and the synthetic 'search' lens)
+// -- reusing the exact same shelf UI mechanism rather than inventing a
+// second one. Loosely modeled on a real external UX recommendation (four
+// universal "pillars" per condition: core science, self-advocacy/testing,
+// life stages & history, whole-body effects), adapted to how this app's
+// own condition content actually reads.
+//
+// This is a real, honest v1 heuristic, matching every other grouping
+// mechanism already in this file (Basic Health's own id-prefix matching)
+// and elsewhere in this app (the food-name-grouping work in
+// lib/foodNameGrouping.ts) -- computed from each entry's own id and
+// title/food name at render time, NOT hand-reviewed entry by entry across
+// 800+ entries and 19 conditions, and NOT stored as a new field on
+// DigestEntry (which would have meant touching every existing entry object
+// by hand for a purely presentational concern, the same reasoning
+// BASIC_HEALTH_GROUPS above already gives for its own choice). Worth a
+// real spot-check across a few conditions once seen on-device before
+// trusting the classification fully -- some entries will genuinely land in
+// a less-than-ideal pillar (keyword heuristics always do), the same
+// standing caveat the Basic Health grouping and food-name-grouping features
+// both shipped under.
+type ConditionPillar = 'science' | 'advocacy' | 'body' | 'stages';
+
+const CONDITION_PILLAR_LABELS: Record<ConditionPillar, string> = {
+  science: 'Core Science',
+  advocacy: 'Self-Advocacy & Testing',
+  body: 'Whole-Body Effects',
+  stages: 'History & Life Stages',
+};
+
+// Real, intentional row order -- the deep-dive findings most people open
+// this category to actually read lead; self-advocacy (what to ask a doctor
+// for) and whole-body effects follow; history (interesting, but the least
+// actionable day-to-day) trails last, the same "most useful first" ordering
+// already established for BASIC_HEALTH_GROUPS above.
+const CONDITION_PILLAR_ORDER: ConditionPillar[] = ['science', 'advocacy', 'body', 'stages'];
+
+// Every condition's own real closing synthesis entry (see each condition
+// file's own "-tying-together" id convention, established from the very
+// first structural-parity pass) is pulled out of the pillar shelves
+// entirely and shown as its own standalone card instead -- it's a real
+// summary ACROSS everything else in the category, not a fit for any one
+// pillar.
+function isTyingTogetherEntry(entry: AnyDigestEntry): boolean {
+  return entry.id.includes('tying-together');
+}
+
+// Checked in a real, deliberate priority order, validated by running this
+// exact logic against all 840 real entries across the whole Digest before
+// shipping (a plain Node script over the real content files, the same
+// "throwaway script, inspect real groups" discipline already used to
+// refine the food-name-grouping feature and Basic Health's own grouping) --
+// two real misclassifications that first pass surfaced are why the order
+// is what it is now, not the order first guessed at:
+//
+// 1. Every condition's own "-overview" entry is forced to Core Science
+//    outright, before any other check -- its own title often names body
+//    systems directly (MS's own overview literally says "brain and spinal
+//    cord"), which would otherwise trip the Whole-Body Effects check below
+//    and land the one entry meant to LEAD a category's reading order in
+//    the wrong shelf entirely.
+// 2. The id-based "-stages" check (pregnancy, history, staging) runs
+//    BEFORE the more title-text-driven "-advocacy" check, not after --
+//    this app's own "-pregnancy-..." id suffix is a deliberate, reliable
+//    per-condition naming convention already established since the very
+//    first structural-parity pass, and it should win over a much weaker
+//    signal like the word "diagnosed" merely appearing somewhere inside a
+//    pregnancy entry's own title (exactly what happened to
+//    celiac-pregnancy-fertility-real-data before this reorder: its own
+//    title mentions "Once Diagnosed," which the advocacy check's `diagnos`
+//    term matched first under the original order, before the id's own,
+//    much more intentional "pregnan" signal ever got a chance).
+//
+// Title/food-name text is still checked as a real fallback beyond id alone
+// -- not every self-advocacy entry has "advocacy" in its own id (e.g.
+// `celiac-diagnostic-panel`, `type1-autoantibody-panel`), so id-only
+// matching would miss real cases a title-text check catches.
+function classifyConditionPillar(entry: AnyDigestEntry): ConditionPillar {
+  const id = entry.id.toLowerCase();
+  if (id.endsWith('overview')) return 'science';
+  const title = (isProblemFoodEntry(entry) ? entry.foodName : entry.title).toLowerCase();
+  const haystack = `${id} ${title}`;
+  if (/pregnan|\bhistory\b|milestone|\bstaging\b|classification/.test(haystack)) {
+    return 'stages';
+  }
+  if (/advocacy|screening|\bscreen\b|monitoring|\btest|antibody|\bpanel\b|biopsy|diagnos|\blab\b/.test(haystack)) {
+    return 'advocacy';
+  }
+  if (
+    /organ|systemic|comorbid|extra-articular|-systems|kidney|liver|cardiac|\bbone\b|lung|\beye\b|\bskin\b|neuro|\bbrain\b|cognitive|bladder/.test(
+      haystack,
+    )
+  ) {
+    return 'body';
+  }
+  return 'science';
+}
+
+// Buckets a condition's own entry list into the 4 real pillars above, with
+// the "tying together" synthesis entry (if the condition has one) pulled
+// out separately rather than folded into any of them -- mirrors
+// groupBasicHealthEntries's own shape (`{label, entries}[]`) exactly, so
+// the same BasicHealthShelves component below can render either grouping
+// with zero changes to that component itself.
+function groupConditionEntries(entries: AnyDigestEntry[]): {
+  pillars: { label: string; entries: AnyDigestEntry[] }[];
+  tyingTogether: AnyDigestEntry | null;
+} {
+  const tyingTogether = entries.find(isTyingTogetherEntry) ?? null;
+  const rest = entries.filter((entry) => !isTyingTogetherEntry(entry));
+  const buckets = new Map<ConditionPillar, AnyDigestEntry[]>();
+  for (const entry of rest) {
+    const pillar = classifyConditionPillar(entry);
+    if (!buckets.has(pillar)) buckets.set(pillar, []);
+    buckets.get(pillar)!.push(entry);
+  }
+  const pillars = CONDITION_PILLAR_ORDER.map((pillar) => ({
+    label: CONDITION_PILLAR_LABELS[pillar],
+    entries: buckets.get(pillar) ?? [],
+  })).filter((group) => group.entries.length > 0);
+  return { pillars, tyingTogether };
+}
+
+// A fixed, internal-only ref key for a condition's own standalone "tying
+// together" card, shared across every condition -- safe despite being the
+// same literal string everywhere, since groupRefs itself is reset to `{}`
+// on every lens switch (see the LensHub onSelect/jumpToRelated below), so a
+// previous condition's own stale ref under this same key can never survive
+// long enough to be scrolled to by mistake.
+const TYING_TOGETHER_GROUP_KEY = '__tying-together__';
+
 // How far above a scrolled-to card's own top edge to stop -- 2026-08-07,
 // set to the exact figure given directly: "The header of the one I
 // tapped should be at the top of the screen under the app's own header
@@ -379,6 +544,28 @@ export default function PurpleDigestScreen() {
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 
   const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
+  // The person's own selected conditions (Profile's own picker,
+  // `user_conditions`), refetched every time this tab regains focus so a
+  // condition added or removed on Profile shows up here without needing an
+  // app restart. Used only to reorder/highlight the LensHub picker below --
+  // never gates anything, every category stays fully reachable regardless.
+  const [userConditionCodes, setUserConditionCodes] = useState<string[]>([]);
+  useFocusEffect(
+    useCallback(() => {
+      let cancelled = false;
+      getUserConditions()
+        .then((codes) => {
+          if (!cancelled) setUserConditionCodes(codes);
+        })
+        .catch(() => {
+          // Best-effort only -- a failure here just means the picker falls
+          // back to its own original, unpinned order, never a broken screen.
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, []),
+  );
   // The Search All lens's own live query text -- reset whenever the tab
   // loses/regains focus below, same as `revealed`, so returning to Purple
   // Digest never resumes a stale search.
@@ -415,41 +602,52 @@ export default function PurpleDigestScreen() {
   // same "tap again to collapse" accordion shape as Insights' own SixDsView.
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const scrollRef = useRef<ScrollView>(null);
-  // A real ref to each rendered card, keyed by entry id -- 2026-08-07,
-  // replacing the earlier onLayout-tracked "cached offset" approach
-  // entirely, per direct, explicit correction: "You seem to be trying to
-  // judge their approximate location and approximate destination at the
-  // time instead of just assigning something to be the mechanism... place
-  // the header of this box 10 pixels from the bottom of the header of the
-  // app." That's exactly right, and it's what this now does: rather than
-  // trusting a Y offset computed and cached at some earlier moment (which
-  // onLayout only updates asynchronously, after the fact, and which three
-  // separate real bugs turned out to trace back to), scrollEntryIntoView
-  // below asks each card's own real, current position directly, at the
-  // exact instant it's needed -- the same thing a web page's own anchor-
-  // link navigation does under the hood (query the element's real
-  // position, then scroll there), not a pre-computed guess.
-  const cardRefs = useRef<Record<string, Measurable | null>>({});
-  // A real ref to each Basic Health GROUP's own outer container (keyed by
-  // group label, not entry id) -- 2026-08-08, added alongside the shelf
-  // row's own new expand-in-place redesign (see BasicHealthShelves below).
-  // Scrolling now targets the whole group section, not the individual
-  // tapped card, so the group's own heading and its full tab strip land
-  // together near the top of the screen when a row is opened, per direct
-  // correction: "The entire row that is being looked at should have each
-  // of their headers at the top of the row... so I don't get lost." A
-  // plain RN View already exposes the same real .measure() a card ref
-  // does, so this reuses the identical scroll mechanism below, just keyed
-  // differently.
+  // A real ref to each rendered shelf GROUP's own outer container (keyed by
+  // group label -- Basic Health's own by-topic label, or a condition's own
+  // pillar label / TYING_TOGETHER_GROUP_KEY) -- 2026-08-08, replacing an
+  // earlier per-CARD ref approach entirely, once every real category
+  // (conditions included, not just Basic Health) moved to the same
+  // shelf-row-plus-detail-panel shape. Scrolling targets the whole group
+  // section, not the individual tapped card, so the group's own heading and
+  // its full tab strip land together near the top of the screen when a row
+  // is opened, per direct correction: "The entire row that is being looked
+  // at should have each of their headers at the top of the row... so I
+  // don't get lost." A plain RN View already exposes the same real
+  // .measure() a card ref did, so this reuses the identical scroll
+  // mechanism below, just keyed differently -- see scrollGroupIntoView.
   const groupRefs = useRef<Record<string, Measurable | null>>({});
   // The ScrollView's own current, live scroll position -- kept live via
   // onScroll, needed for two real reasons: converting the viewport-
   // relative measurement below into an absolute scroll target, and
   // stopping any in-flight scroll momentum before issuing a new
-  // programmatic scroll (see scrollEntryIntoView's own comment). Plain
+  // programmatic scroll (see scrollGroupIntoView's own comment). Plain
   // ref, not state, so onScroll firing repeatedly during a manual drag
   // doesn't itself force a re-render.
   const currentScrollY = useRef(0);
+
+  // Which real DigestCategoryKeys correspond to a condition the person has
+  // actually told the app they have -- see CONDITION_CODE_TO_DIGEST_KEY's
+  // own comment for why this needs a real lookup rather than a derived
+  // transform.
+  const pinnedDigestKeys = new Set(
+    userConditionCodes
+      .map((code) => CONDITION_CODE_TO_DIGEST_KEY[code])
+      .filter((key): key is DigestCategoryKey => Boolean(key)),
+  );
+
+  // Basic Health always leads (matches Free-tier visibility and its own
+  // established front-of-picker precedent), then every condition the
+  // person actually has, in their own already-established build order, then
+  // every remaining condition -- real, fewer taps to reach a condition
+  // someone actually tracks, without hiding or removing anything else.
+  const basicHealthMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'basicHealth')!;
+  const pinnedConditionMetas = DIGEST_CATEGORY_META.filter(
+    (meta) => meta.key !== 'basicHealth' && pinnedDigestKeys.has(meta.key),
+  );
+  const otherConditionMetas = DIGEST_CATEGORY_META.filter(
+    (meta) => meta.key !== 'basicHealth' && !pinnedDigestKeys.has(meta.key),
+  );
+  const orderedCategoryMetas = [basicHealthMeta, ...pinnedConditionMetas, ...otherConditionMetas];
 
   const LENSES: LensOption<PurpleDigestLens>[] = [
     // Placed first, same reasoning Glossary's own front placement already
@@ -463,9 +661,17 @@ export default function PurpleDigestScreen() {
       icon: 'search-outline',
       help: DIGEST_SEARCH_HELP,
     },
-    ...DIGEST_CATEGORY_META.map((meta) => ({
+    ...orderedCategoryMetas.map((meta) => ({
       key: meta.key,
-      label: meta.label,
+      // A leading star marks a condition the person has actually told the
+      // app they have -- a real, visible reason it's sorted to the top,
+      // not just an unexplained reorder. Applied to the grid tile's own
+      // label only (via LensOption.label, what the tile falls back to
+      // rendering when gridLabel is unset) -- every other place this
+      // name appears (the page header, the Info sheet heading,
+      // activeLensLabel) reads straight from DIGEST_CATEGORY_META itself,
+      // untouched by this screen-local reorder.
+      label: pinnedDigestKeys.has(meta.key) && meta.key !== 'basicHealth' ? `★ ${meta.label}` : meta.label,
       gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
       icon: meta.icon,
       help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
@@ -559,66 +765,103 @@ export default function PurpleDigestScreen() {
     });
   }
 
-  function scrollEntryIntoView(id: string) {
-    scrollNodeIntoView(() => cardRefs.current[id]);
-  }
-
-  // Scrolls so a whole Basic Health group's own container (heading + its
-  // full horizontal tab strip) lands near the top of the screen, rather
-  // than just the one tapped card -- see groupRefs' own comment above for
-  // why.
+  // Scrolls so a whole shelf group's own container (heading + its full
+  // horizontal tab strip) lands near the top of the screen, rather than
+  // just one card inside it -- see groupRefs' own comment above for why.
   function scrollGroupIntoView(label: string) {
     scrollNodeIntoView(() => groupRefs.current[label]);
   }
 
-  // Expanding/collapsing a single entry, wherever it's shown -- the flat,
-  // one-category-at-a-time list every non-Basic-Health category still
-  // uses, or a Basic Health shelf row's own tab strip (see
-  // BasicHealthShelves below, which calls this same function). `category`
-  // decides which of the two real scroll targets above applies: Basic
-  // Health scrolls to the whole group section it belongs to; every other
-  // category scrolls to the card itself, unchanged from before.
+  // Resolves which shelf group a given entry's own card should scroll to --
+  // Basic Health uses its own by-topic grouping; every real condition uses
+  // the pillar grouping above, with its own "tying together" entry (if it
+  // has one) routed to the fixed key that card renders under instead.
+  // 'search' never reaches this (a search-result tap always resolves to a
+  // real underlying category via jumpToRelated before this is called).
+  function shelfGroupKeyForEntry(id: string, category: DigestCategoryKey): string {
+    if (category === 'basicHealth') return basicHealthGroupLabel(id);
+    const entry = findDigestEntryById(id);
+    if (entry && isTyingTogetherEntry(entry)) return TYING_TOGETHER_GROUP_KEY;
+    if (entry) return CONDITION_PILLAR_LABELS[classifyConditionPillar(entry)];
+    return TYING_TOGETHER_GROUP_KEY;
+  }
+
+  // Expanding/collapsing a single entry, wherever it's shown -- every real
+  // category (Basic Health's own by-topic shelves, or a condition's own
+  // pillar shelves) now uses the same shelf-row-plus-detail-panel shape, so
+  // every tap scrolls to that entry's own GROUP section, not the individual
+  // card, matching BasicHealthShelves' own established behavior.
   function toggleEntry(id: string, category: DigestCategoryKey) {
     const wasExpanded = expandedId === id;
     setExpandedId(wasExpanded ? null : id);
     if (wasExpanded) return;
-    if (category === 'basicHealth') {
-      scrollGroupIntoView(basicHealthGroupLabel(id));
-    } else {
-      scrollEntryIntoView(id);
-    }
+    scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
   }
 
   // Jumping to a related entry: switch category (if it's a different one),
   // expand that entry, and collapse whatever was open before -- a related
-  // chip always lands you looking at exactly that entry, scrolled into
-  // view, at wherever it actually sits in its own category's real
-  // (unreordered) list, or, for Basic Health specifically, at wherever its
-  // own group section sits. The same real function a Basic Health shelf
-  // card's own tap, a Related chip, and a search result (both Search All's
-  // and Basic Health's own scoped search) all use.
+  // chip always lands you looking at exactly that entry's own group
+  // section, wherever it actually sits. The same real function a shelf
+  // card's own tap, a Related chip, and a search result (Search All or
+  // Basic Health's own scoped search) all use.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     const category = target.category as DigestCategoryKey;
     setLens(category);
-    // Jumping into Basic Health always lands on the grouped shelf view --
-    // there's no separate "list mode" to switch into anymore -- and a
-    // search-in-progress (either Search All or Basic Health's own scoped
-    // search) is cleared, since the person just told us exactly what they
-    // wanted by tapping a real result.
+    // A previous category's own shelf refs (Basic Health topic labels, or a
+    // condition's own pillar labels -- both real, plain strings that can
+    // legitimately repeat across different categories, e.g. every
+    // condition has its own "Core Science" shelf) are cleared here rather
+    // than left to go stale -- otherwise a leftover ref from whichever
+    // category was open before could transiently point scrollGroupIntoView
+    // at the WRONG category's own already-unmounted section for the one
+    // frame before the new category's real shelf finishes mounting and
+    // overwrites it.
+    groupRefs.current = {};
+    // Jumping always lands on the grouped shelf view -- there's no separate
+    // "list mode" to switch into anymore -- and a search-in-progress
+    // (either Search All or Basic Health's own scoped search) is cleared,
+    // since the person just told us exactly what they wanted by tapping a
+    // real result.
     setSearchQuery('');
     setBasicHealthSearchQuery('');
     setExpandedId(id);
-    if (category === 'basicHealth') {
-      scrollGroupIntoView(basicHealthGroupLabel(id));
-    } else {
-      scrollEntryIntoView(id);
-    }
+    scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
   }
 
   return (
     <View style={styles.screen}>
+      {/* A real, persistent search bar, always on screen regardless of
+          `revealed` or which lens is picked -- 2026-08-08, closing the
+          single biggest gap against "reach anything in three taps or
+          less": the only way to search used to be opening LensHub and
+          picking the "Search All" tile first. A sibling of
+          SwipeableTabScreen (not inside GatedTabContent's own children, which
+          render nothing at all until `revealed`) so it's reachable before
+          any lens has ever been picked. Typing switches straight into the
+          existing 'search' lens and reveals the screen if it hasn't been
+          already -- reuses `searchQuery`/searchResults exactly as the
+          'search' lens's own content below already does, so this is a
+          second way to populate the same state, not a second search
+          mechanism. Clearing the text does NOT revert to whatever lens was
+          open before -- the search lens's own resting "type to search"
+          prompt shows instead, the same behavior already established for
+          tapping "Search All" from the picker directly. */}
+      <View style={styles.persistentSearchBar}>
+        <AppTextInput
+          style={styles.searchInput}
+          placeholder="Search the whole Digest..."
+          value={searchQuery}
+          onChangeText={(text) => {
+            setSearchQuery(text);
+            if (text.trim().length > 0) {
+              if (lens !== 'search') setLens('search');
+              if (!revealed) setRevealed(true);
+            }
+          }}
+        />
+      </View>
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Purple Digest" variant="field" revealed={revealed}>
           <ScrollView
@@ -652,12 +895,11 @@ export default function PurpleDigestScreen() {
 
             {lens === 'search' ? (
               <>
-                <AppTextInput
-                  style={styles.searchInput}
-                  placeholder="Search titles, findings, mechanisms, sources..."
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
+                {/* The persistent search bar above (always on screen, not
+                    just here) is now the only search input for this lens --
+                    it already writes into the same `searchQuery` state this
+                    branch reads, so a second, in-content input here would
+                    just be a redundant, disconnected-looking duplicate. */}
                 {searchQuery.trim().length === 0 ? (
                   <Text style={styles.emptyText}>
                     Type a word or phrase to search every category at once -- a mechanism, a food, an
@@ -715,33 +957,47 @@ export default function PurpleDigestScreen() {
             ) : entries.length === 0 ? (
               <Text style={styles.emptyText}>Nothing here yet.</Text>
             ) : (
-              entries.map((entry) => (
-                <Animated.View
-                  key={entry.id}
-                  // Explicit duration, not Reanimated's own implicit
-                  // default -- CARD_LAYOUT_TRANSITION_MS above (see
-                  // scrollEntryIntoView's own comment) has to wait out this
-                  // exact real number, not a guess at what the default
-                  // might be.
-                  layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}
-                  // A real ref to this card, not a cached measurement --
-                  // scrollEntryIntoView calls .measure() on it directly, at
-                  // the moment it's needed, rather than trusting a value
-                  // recorded earlier. Reanimated's Animated.View forwards
-                  // refs to the underlying native view, so this exposes the
-                  // same real .measure() every plain View has.
-                  ref={(r) => {
-                    cardRefs.current[entry.id] = r as unknown as Measurable | null;
-                  }}
-                >
-                  <DigestCard
-                    entry={entry}
-                    expanded={expandedId === entry.id}
-                    onToggle={() => toggleEntry(entry.id, entry.category as DigestCategoryKey)}
-                    onJumpToRelated={jumpToRelated}
-                  />
-                </Animated.View>
-              ))
+              // Every real condition category -- 2026-08-08, replacing the
+              // old flat, one-long-accordion-list rendering with the same
+              // real shelf-row-plus-detail-panel shape Basic Health already
+              // uses, grouped into 4 real pillars (see groupConditionEntries'
+              // own comment above) instead of by topic. The category's own
+              // closing "tying together" synthesis, if it has one, is pulled
+              // out of the shelves and shown as its own standalone card
+              // below them, always visible, never nested inside a pillar it
+              // doesn't really belong to.
+              (() => {
+                const { pillars, tyingTogether } = groupConditionEntries(entries);
+                return (
+                  <>
+                    <BasicHealthShelves
+                      groups={pillars}
+                      expandedId={expandedId}
+                      groupRefs={groupRefs}
+                      onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
+                      onJumpToRelated={jumpToRelated}
+                    />
+                    {tyingTogether ? (
+                      <View
+                        style={styles.shelfSection}
+                        ref={(r) => {
+                          groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
+                        }}
+                      >
+                        <Text style={styles.shelfHeading}>Putting It Together</Text>
+                        <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
+                          <DigestCard
+                            entry={tyingTogether}
+                            expanded={expandedId === tyingTogether.id}
+                            onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
+                            onJumpToRelated={jumpToRelated}
+                          />
+                        </Animated.View>
+                      </View>
+                    ) : null}
+                  </>
+                );
+              })()
             )}
           </ScrollView>
         </GatedTabContent>
@@ -794,6 +1050,12 @@ export default function PurpleDigestScreen() {
         renderIcon={(size) => <PurpleRibbonIcon size={size} color={TAB_COLOR} />}
         autoOpenSignal={autoOpenLensHub}
         onSelect={(key) => {
+          // Same reasoning as jumpToRelated's own reset -- a fresh lens
+          // means a fresh set of shelf groups, and a previous category's
+          // own stale refs (real, plain labels like "Core Science" that
+          // legitimately repeat across every condition) should never
+          // linger long enough to be scrolled to by mistake.
+          groupRefs.current = {};
           setLens(key);
           setExpandedId(null);
           setBasicHealthSearchQuery('');
@@ -806,6 +1068,40 @@ export default function PurpleDigestScreen() {
 
 function categoryLabelForEntry(entry: AnyDigestEntry): string {
   return DIGEST_CATEGORY_META.find((meta) => meta.key === entry.category)?.label ?? entry.category;
+}
+
+// A rough, honest estimate -- word count over a real, standard average
+// silent-reading pace (~200 words/minute), never rounding down to 0 even
+// for a genuinely short entry. Computed from the same real body text
+// already shown when expanded, not a separate field to author per entry.
+function estimateReadingMinutes(entry: AnyDigestEntry): number {
+  const text = isProblemFoodEntry(entry)
+    ? `${entry.problem} ${entry.mechanism} ${entry.swaps.join(' ')}`
+    : entry.summary;
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words / 200));
+}
+
+// Which OTHER categories this entry's own Related chips reach into --
+// real, already-known data (every relatedId's own category is already
+// resolvable via findDigestEntryById), just not previously surfaced as its
+// own visible signal. Deliberately distinct categories only, deduplicated
+// by label, and never includes this entry's own category (that's not
+// "cross" anything). Real, low-cost readback of data this app already has,
+// not a new per-entry tag to author across 800+ entries.
+function crossConditionCategories(entry: AnyDigestEntry): { id: string; label: string }[] {
+  if (!entry.relatedIds || entry.relatedIds.length === 0) return [];
+  const seen = new Set<string>();
+  const results: { id: string; label: string }[] = [];
+  for (const relatedId of entry.relatedIds) {
+    const target = findDigestEntryById(relatedId);
+    if (!target || target.category === entry.category) continue;
+    const label = categoryLabelForEntry(target);
+    if (seen.has(label)) continue;
+    seen.add(label);
+    results.push({ id: relatedId, label });
+  }
+  return results;
 }
 
 // A compact, unexpandable result row for the Search All lens -- tapping it
@@ -1007,6 +1303,33 @@ function CitationsBlock({ citations }: { citations: { source: string; url: strin
   );
 }
 
+// A small, real metadata row shown right at the top of an entry's own
+// expanded detail -- 2026-08-08. A reading-time estimate (a plain,
+// computed number, not an authored field) plus, when this entry's own
+// Related list reaches into a different condition, a plain, non-tappable
+// pill naming that condition -- real, already-known data (every relatedId's
+// own category was already resolvable), just not previously surfaced as
+// its own visible signal at the top of a card. Deliberately NOT tappable --
+// RelatedChips below already IS the real, existing tap-to-jump mechanism,
+// labeled by the specific related entry's own title; a second, category-
+// labeled tap target here would just be a confusing, redundant way to reach
+// the same destination.
+function EntryMetaRow({ entry }: { entry: AnyDigestEntry }) {
+  const crossCategories = crossConditionCategories(entry);
+  return (
+    <View style={styles.metaRow}>
+      <Text style={styles.readingTimeText}>{estimateReadingMinutes(entry)} min read</Text>
+      {crossCategories.map((category) => (
+        <View key={category.id} style={styles.crossConditionPill}>
+          <Text style={styles.crossConditionPillText} numberOfLines={1}>
+            {category.label}
+          </Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function DigestCard({
   entry,
   expanded,
@@ -1027,6 +1350,7 @@ function DigestCard({
         <Text style={styles.cardTeaser}>{entry.teaser}</Text>
         {expanded ? (
           <View style={styles.cardDetail}>
+            <EntryMetaRow entry={entry} />
             <Text style={styles.detailLabel}>The problem</Text>
             <Text style={styles.detailText}>{entry.problem}</Text>
             <Text style={styles.detailLabel}>The mechanism</Text>
@@ -1059,6 +1383,7 @@ function DigestCard({
           <Text style={[styles.tierLabelText, { color: tierColor(entry.overallTier) }]}>
             {tierLabel(entry.overallTier)}
           </Text>
+          <EntryMetaRow entry={entry} />
           <Text style={styles.detailText}>{entry.summary}</Text>
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
@@ -1072,6 +1397,15 @@ function DigestCard({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  // A real, fixed-height header strip sitting above everything else on
+  // this screen (including the resting, not-yet-revealed state) -- see the
+  // persistent search bar's own JSX comment for why it has to live outside
+  // GatedTabContent's own children.
+  persistentSearchBar: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    backgroundColor: colors.background,
+  },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
   // An opaque card, same surface every DigestCard below already sits on --
@@ -1148,6 +1482,19 @@ const styles = StyleSheet.create({
   cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17 },
   cardDetail: { marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
   tierLabelText: { ...typography.eyebrow, marginBottom: 6 },
+  // EntryMetaRow's own reading-time text plus, when relevant, the plain,
+  // non-tappable cross-condition pills sitting right beside it.
+  metaRow: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
+  readingTimeText: { ...typography.caption, color: colors.textMuted },
+  crossConditionPill: {
+    borderWidth: 1,
+    borderColor: TAB_COLOR,
+    borderRadius: 10,
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    maxWidth: 160,
+  },
+  crossConditionPillText: { ...typography.caption, color: TAB_COLOR, fontSize: 11 },
   detailLabel: { ...typography.eyebrow, color: TAB_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
