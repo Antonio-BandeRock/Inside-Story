@@ -71,7 +71,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
       { source: 'Short-chain fatty acid levels in stools of patients with inflammatory bowel disease are lower than those in healthy subjects', url: 'https://pubmed.ncbi.nlm.nih.gov/38829943/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-aip-ibd-rct', 'gut-scfa-treg'],
+    relatedIds: ['gut-aip-ibd-rct', 'gut-scfa-treg', 'ibd-overview', 'ibd-fiber-flare-myth'],
   },
   {
     id: 'other-multiple-sclerosis',

@@ -151,6 +151,10 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
     heading: 'Celiac Disease',
     body: "This app's sixth real condition, and the one place here where a strict diet is the entire treatment, not one lever among several. Covers the real 20ppm cross-contamination standard and what actually breaks it in a kitchen, the oats controversy (safe for most, a real minority genuinely reacts to the oat protein itself), real market data on what commercial gluten-free products get nutritionally wrong, and a real, age-dependent healing timeline most people underestimate. Built with real self-advocacy content from day one: why going gluten-free before testing is the single most common diagnostic mistake, and a real, specific recommended age (45) for a bone-density scan. Closes on a real, quantified overlap with Hashimoto's roughly double the general population's own autoimmune thyroid risk.",
   },
+  ibd: {
+    heading: 'Inflammatory Bowel Disease',
+    body: "This app's seventh real condition, covering two genuinely distinct diseases, Crohn's disease and ulcerative colitis, under one umbrella. Several findings here run in opposite directions depending on which one someone actually has, most sharply smoking, which worsens Crohn's while genuinely protecting against ulcerative colitis. Covers exclusive enteral nutrition's real, strong remission rates in pediatric Crohn's, the low-fiber-during-a-flare advice's own surprisingly thin evidence, and a real, honest null result on Hashimoto's comorbidity overall (with one real exception in older patients). Built with real self-advocacy content from day one: fecal calprotectin as a non-invasive way to check real gut inflammation, the colorectal cancer surveillance schedule (and why it moves up sharply with a specific complication), and azathioprine's own FDA-recommended genetic test before the first dose.",
+  },
 };
 
 // A deliberate line-break point for each category name that's long enough

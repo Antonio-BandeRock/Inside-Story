@@ -110,6 +110,13 @@ export const DIGEST_CATEGORY_KEYS = [
   // different shape of condition again, the one place in this app where a
   // strict diet is the entire treatment, not one lever among several.
   'celiac',
+  // 2026-08-08, same day, seventh condition, next in the same priority
+  // order: Inflammatory Bowel Disease. See ibd.ts's own header comment --
+  // genuinely two diseases (Crohn's and ulcerative colitis) under one
+  // umbrella, where several real findings (most sharply the smoking
+  // paradox) run in opposite directions depending on which one someone
+  // actually has.
+  'ibd',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

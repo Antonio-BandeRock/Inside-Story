@@ -10,6 +10,7 @@ import { GRAVES_ENTRIES } from './graves';
 import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
 import { HEALING_STAGES_ENTRIES } from './healingStages';
 import { HISTORY_ENTRIES } from './history';
+import { IBD_ENTRIES } from './ibd';
 import { LABS_MEDICATION_ENTRIES } from './labsMedication';
 import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
@@ -34,7 +35,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808130000';
+export const PURPLE_DIGEST_VERSION = '20260808140000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -66,6 +67,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...GRAVES_ENTRIES,
   ...TYPE_1_DIABETES_ENTRIES,
   ...CELIAC_ENTRIES,
+  ...IBD_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -159,6 +161,16 @@ export const DIGEST_CATEGORY_META: {
     label: 'Celiac Disease',
     icon: 'nutrition-outline',
     description: 'Real, practical guidance for celiac disease: cross-contamination thresholds, the oats controversy, gluten-free diet nutritional pitfalls, real healing timelines, and self-advocacy for diagnosis and bone density.',
+  },
+  // 2026-08-08, same day, seventh condition: Inflammatory Bowel Disease.
+  // See ibd.ts's own header comment -- two real, distinct diseases under
+  // one name, several findings running in genuinely opposite directions
+  // depending on which one someone has.
+  {
+    key: 'ibd',
+    label: 'Inflammatory Bowel Disease',
+    icon: 'body-outline',
+    description: "Real food, medication, and self-advocacy guidance for Crohn's disease and ulcerative colitis, including the smoking paradox, the low-fiber-during-a-flare myth, and an honestly reported null result on Hashimoto's comorbidity.",
   },
 ];
 

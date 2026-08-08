@@ -232,6 +232,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Konijeti et al. 2017, Inflammatory Bowel Diseases: efficacy of the Autoimmune Protocol diet', url: 'https://pubmed.ncbi.nlm.nih.gov/28858071/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['ibd-overview', 'ibd-een-crohns'],
   },
   {
     id: 'gut-probiotic-yogurt-lupus-rct',
