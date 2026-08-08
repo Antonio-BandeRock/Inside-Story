@@ -42,7 +42,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Heart Disease, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/heartdiseases.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['lupus-cardiovascular-risk', 'organ-cardiovascular', 'pcos-lipid-panel-cardiometabolic', 'psoriasis-advocacy-cardiovascular-metabolic', 'ra-advocacy-cardiovascular-risk', 'gout-urate-lowering-therapy', 'gout-metabolic-cluster-connection'],
+    relatedIds: ['lupus-cardiovascular-risk', 'organ-cardiovascular', 'pcos-lipid-panel-cardiometabolic', 'psoriasis-advocacy-cardiovascular-metabolic', 'ra-advocacy-cardiovascular-risk', 'gout-urate-lowering-therapy', 'gout-metabolic-cluster-connection', 'vitamind-vital-trial-non-skeletal'],
   },
   {
     id: 'cvd-mediterranean-diet-predimed',

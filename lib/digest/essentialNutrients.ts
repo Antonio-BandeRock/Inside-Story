@@ -44,6 +44,25 @@ import type { DigestEntry } from './types';
 // app's own 22,022-food reference database rather than an external
 // source, since that's both more authoritative for this app specifically
 // and a real, direct demonstration of "improving on" the original sheet.
+//
+// Vitamin D added 2026-08-08, same day, direct follow-up: "go ahead and
+// build vitamin D next the same way." Same research discipline as
+// Magnesium above -- see that section's own entries for the full
+// reasoning -- but a genuinely different situation going in: vitamin D
+// already had substantially more existing Digest coverage than magnesium
+// did (a real Hashimoto's/RA/MS correlation-vs-unreliable-RCT entry, a
+// gut-barrier/CLDN2 mechanism entry, disease-specific catch-22s in lupus
+// and psoriasis), all real, all disease-specific, all left untouched and
+// cross-linked to rather than repeated. This section instead covers the
+// universal, condition-agnostic physiology those entries already assume.
+// The single most notable find this pass: a real, current (2024)
+// Endocrine Society clinical practice guideline recommending against
+// routine population-wide testing and against supplementing most healthy
+// adults under 75 above the standard target, a genuinely more
+// conservative real, current, expert-panel position than the
+// "everyone should test and take vitamin D" reflex most popular advice
+// repeats -- paired directly with the real, large, rigorous VITAL trial's
+// own honest null result for cancer and cardiovascular prevention.
 export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
   {
     id: 'magnesium-overview',
@@ -266,5 +285,190 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['magnesium-deficiency-symptoms-staged', 'magnesium-supplement-forms-compared', 'magnesium-levothyroxine-timing', 'magnesium-muscle-cramps-honest-correction', 'advocacy-magnesium', 'migraine-magnesium-riboflavin-coq10'],
+  },
+
+  // --- Vitamin D, added 2026-08-08, same day, direct follow-up: "go ahead
+  // and build vitamin D next the same way." The second entry in this
+  // file's own ongoing nutrient-deep-dive series, same real research
+  // discipline as Magnesium above (check this app's own reference tables
+  // first, verify every new claim independently via the same WebFetch
+  // fallback, real charts only from defensible single-source numbers,
+  // cross-link rather than duplicate). Vitamin D already had substantially
+  // more existing Digest coverage than magnesium did before this pass --
+  // a real, dedicated Hashimoto's/RA/MS correlation-vs-unreliable-RCT
+  // entry (`nutrient-vitamin-d`), a gut-barrier/CLDN2 mechanism entry, a
+  // lupus-specific sun-exposure catch-22, and psoriasis' own topical-vs-
+  // oral distinction -- all real, all disease-specific, all left
+  // untouched and cross-linked to rather than repeated. These entries
+  // instead cover the universal, condition-agnostic physiology those
+  // disease-specific entries already assume: what vitamin D actually is,
+  // real deficiency/toxicity thresholds, real absorption mechanics, and a
+  // real, current (2024) Endocrine Society guideline most people have
+  // never actually seen, which turns out to say something genuinely more
+  // conservative than the "everyone should take vitamin D" reflex most
+  // popular advice repeats.
+  {
+    id: 'vitamind-overview',
+    category: 'basicHealth',
+    title: "Vitamin D: Technically a Hormone, Not Just a Vitamin",
+    teaser: "Almost every other vitamin has to come from food. Vitamin D is different: the body can make its own, using nothing but sunlight and cholesterol.",
+    summary:
+      "Vitamin D is a genuine outlier among vitamins: rather than being a nutrient the body can only get from food, it's a real, functional hormone precursor the skin can manufacture on its own from sunlight, using a cholesterol-derived compound as the starting material, then activating in two further real, specific steps, first in the liver, then in the kidneys, before it becomes the active hormone (calcitriol) that actually does the work. That work reaches further than most people expect: vitamin D helps the body absorb calcium for bone health, supports muscle function, allows nerve signals to pass between the brain and the rest of the body, and helps the immune system respond to infection. This category covers what's genuinely universal about vitamin D, real deficiency and toxicity thresholds, how the three real sources (skin, food, supplement) actually compare, and a real, current (2024) clinical guideline that recommends something more conservative than most popular advice suggests. Disease-specific vitamin D research (Hashimoto's, lupus, psoriasis, and more) already lives in this app's own per-condition areas, cross-linked directly from this category rather than repeated here.",
+    citations: [
+      { source: 'Vitamin D, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/vitamind.html' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['nutrient-vitamin-d', 'gut-vitamin-d-cldn2'],
+  },
+  {
+    id: 'vitamind-deficiency-prevalence',
+    category: 'basicHealth',
+    title: "A Real, Large Global Shortfall, With Real, Specific Numbers Behind It",
+    teaser: "A real, pooled analysis of nearly 8 million people found roughly three-quarters of them below what's considered a fully sufficient level.",
+    summary:
+      "A real, current (2023) pooled analysis of population-based studies from 2000 to 2022, spanning nearly 8 million participants worldwide, found a real, staged shortfall: 15.7% had severe deficiency (below 30 nmol/L), 47.9% had deficiency (below 50 nmol/L), and 76.6% fell short of full sufficiency (below 75 nmol/L), with the Eastern Mediterranean region and lower-income countries showing real, measurably higher rates, and winter-spring readings running roughly 1.7 times higher in deficiency than summer-autumn ones, a real, seasonal pattern tied directly to the skin-synthesis mechanism covered elsewhere in this category. A separate, real US-specific study (2001-2010 data) found 28.9% of American adults deficient and 41.4% insufficient, with real, specific predictor groups identified: people who are Black, less physically active, rare milk consumers, current smokers, and people with obesity (a real, separate mechanism covered in this category's own dedicated entry) all showed measurably higher real rates. Worth knowing directly: a real, global-scale nutritional gap, not a rare or fringe concern, though as this category's own dedicated entry on current clinical guidance covers, a low number on a lab test doesn't automatically mean supplementation is the right next step for everyone.",
+    citations: [
+      { source: 'Global and Regional Prevalence of Vitamin D Deficiency in Population-Based Studies From 2000 to 2022: A Pooled Analysis of 7.9 Million Participants, PMID 37006940', url: 'https://pubmed.ncbi.nlm.nih.gov/37006940/' },
+      { source: 'Vitamin D Deficiency and Insufficiency Among US Adults: Prevalence, Predictors and Clinical Implications, PMID 29644951', url: 'https://pubmed.ncbi.nlm.nih.gov/29644951/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamind-obesity-bioavailability', 'vitamind-2024-guideline-honest-correction'],
+  },
+  {
+    id: 'vitamind-deficiency-symptoms-staged',
+    category: 'basicHealth',
+    title: "Most Deficiency Has No Symptoms at All, Until It Does",
+    teaser: "The real, honest first fact about vitamin D deficiency: most people who have it feel completely normal. The real symptoms only show up once it's already severe.",
+    summary:
+      "Real, current clinical guidance states plainly that most people with vitamin D deficiency are asymptomatic, no real, noticeable warning sign at all, even though real, silent damage (increased fracture and fall risk in older adults) can already be underway. When real symptoms do appear, they're tied to a specific, secondary mechanism: prolonged, severe deficiency triggers secondary hyperparathyroidism, producing bone pain, joint aches, muscle aches, fatigue, muscle twitching, and weakness. In children, real, severe deficiency can cause irritability, lethargy, developmental delay, and bone changes, progressing to rickets, a real, historically well-known bone-softening disease. In adults, the equivalent real, severe endpoint is osteomalacia, adult bone softening from the same underlying mechanism. Worth knowing directly: the real absence of symptoms is exactly why deficiency is easy to miss without real testing, not a sign it's safe to ignore.",
+    citations: [
+      { source: "Vitamin D Deficiency, StatPearls, National Library of Medicine", url: 'https://www.ncbi.nlm.nih.gov/books/NBK532266/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamind-deficiency-prevalence'],
+  },
+  {
+    id: 'vitamind-toxicity-hypervitaminosis',
+    category: 'basicHealth',
+    title: "Toxicity Is Real, Genuinely Rare, and Essentially Never Comes From Sun or Food",
+    teaser: "The body has a real, built-in safety limit on how much vitamin D sunlight alone can make. Toxicity almost always traces back to one specific source instead.",
+    summary:
+      "Vitamin D toxicity (hypervitaminosis D) is real but genuinely rare, and real, current clinical guidance is direct about where it actually comes from: sun exposure cannot cause it, the skin's own synthesis process has a real, built-in ceiling, and dietary sources rarely provide enough to reach toxic levels either. Toxicity is essentially always the result of excessive supplemental intake, not sunlight or food. The real, measured thresholds: hypervitaminosis is defined starting around 88 ng/mL blood level, with toxicity considered definite above 150 ng/mL, both well beyond what real, standard supplementation produces. Acute toxicity works through secondary hypercalcemia (excess blood calcium), producing confusion, loss of appetite, vomiting, excessive urination and thirst, and muscle weakness; real, chronic excess can cause calcium deposits in the kidneys and bone pain. Worth knowing directly: this is a real, genuine reason not to self-prescribe very high-dose vitamin D supplements without real medical guidance, but not a reason to fear ordinary sun exposure or food sources at all.",
+    citations: [
+      { source: "Vitamin D Deficiency, StatPearls, National Library of Medicine", url: 'https://www.ncbi.nlm.nih.gov/books/NBK532266/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamind-skin-synthesis-and-sources',
+    category: 'basicHealth',
+    title: "Three Real, Genuinely Different Sources, Not One Interchangeable Pool",
+    teaser: "Sunlight, food, and a supplement pill all end up making the same molecule, but the real path to get there, and how reliable each one is, genuinely differs.",
+    summary:
+      "Vitamin D reaches the body through three real, distinct routes. Skin synthesis, triggered by UVB sunlight converting a cholesterol-derived compound in the skin, is real and historically the dominant source for most people, but genuinely unreliable as a sole strategy: it varies by latitude, season, time of day, skin tone (more melanin measurably reduces synthesis), age (older skin synthesizes less efficiently), and sunscreen use, and carries a real, separate skin-cancer and skin-aging tradeoff that pushes many people toward covering up or limiting exposure regardless. Dietary sources are real but genuinely limited to a short, specific list, fatty fish, egg yolks, and UV-exposed mushrooms among the few whole foods that naturally carry meaningful amounts (see this category's own dedicated food-sources entry), which is exactly why fortified foods (milk, some plant-milk alternatives, some cereals and orange juice) became a real, deliberate public-health strategy in many countries rather than an accident of nature. Supplementation is the one source unaffected by season, skin tone, or sun exposure, a real reason it's often the most practical choice for reliably correcting a confirmed low level, though this category's own dedicated entry on current clinical guidance covers real, honest limits on who actually needs to.",
+    citations: [
+      { source: 'Vitamin D, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/vitamind.html' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamind-food-sources-real-data'],
+  },
+  {
+    id: 'vitamind-d2-vs-d3-forms',
+    category: 'basicHealth',
+    title: "D2 vs. D3: A Real, Measured Difference, Most Pronounced at Higher, Less-Frequent Doses",
+    teaser: "Both forms raise vitamin D levels. A real, direct comparison found one does it measurably better, especially when taken less often but in larger amounts.",
+    summary:
+      "Vitamin D supplements come in two real, chemically distinct forms: D3 (cholecalciferol, the same form the skin makes naturally, sourced from animal or lichen-derived material) and D2 (ergocalciferol, plant- and fungal-derived). A real, direct systematic review and meta-analysis comparing the two found D3 more effective than D2 at raising and maintaining blood 25-hydroxyvitamin D levels overall, with the real, specific gap widest under bolus dosing (large, infrequent doses) rather than daily dosing, where the two forms performed more comparably. D3 is generally the preferred supplemental choice as a result, with D2 remaining the real, relevant option specifically for someone avoiding animal-derived products (strict vegans), alongside a real, separate lichen-derived D3 alternative that also exists for that same purpose. Worth knowing directly for anyone comparing supplement labels: the two forms aren't simply interchangeable at equal doses, particularly for anyone taking a large, infrequent dose rather than a small daily one.",
+    citations: [
+      { source: 'Tripkovic L et al.: Comparison of Vitamin D2 and Vitamin D3 Supplementation in Raising Serum 25-Hydroxyvitamin D Status, Am J Clin Nutr 2012', url: 'https://pubmed.ncbi.nlm.nih.gov/22552031/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamind-obesity-bioavailability',
+    category: 'basicHealth',
+    title: "A Real, Specific Reason Obesity Tracks With Lower Vitamin D",
+    teaser: "It isn't a matter of eating or sunbathing less. Vitamin D genuinely gets trapped somewhere it can't do its job.",
+    summary:
+      "Real, population-level data already covered in this category's own deficiency-prevalence research found obesity associated with a real, roughly threefold higher rate of vitamin D deficiency. The real, proposed mechanism behind that gap: vitamin D is fat-soluble, and real research (so far demonstrated directly in animal models, with human population data consistent with the same effect) found it genuinely gets sequestered inside fat tissue itself, reducing how much stays available in the bloodstream to actually do its job, a real case of the nutrient being present in the body but functionally unavailable, not simply absent. This has a real, practical, already-recognized clinical consequence: bariatric-surgery guidelines from major real medical societies recommend meaningfully higher vitamin D doses, up to several times a standard dose, specifically for patients with obesity, acknowledging that standard dosing genuinely under-corrects in this population. Worth knowing directly for anyone with obesity whose vitamin D level doesn't seem to respond to an ordinary supplemental dose the way it does for other people.",
+    citations: [
+      { source: 'Effects of High Fat Diet-Induced Obesity on Vitamin D Metabolism and Tissue Distribution, PMID 32549901', url: 'https://pubmed.ncbi.nlm.nih.gov/32549901/' },
+      { source: 'Guidelines on Vitamin D Replacement in Bariatric Surgery: Identification and Systematic Appraisal, PMID 26833101', url: 'https://pubmed.ncbi.nlm.nih.gov/26833101/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['vitamind-deficiency-prevalence'],
+  },
+  {
+    id: 'vitamind-2024-guideline-honest-correction',
+    category: 'basicHealth',
+    title: "A Real, Current (2024) Guideline Says Something More Conservative Than Most Popular Advice",
+    teaser: "A real, 18-expert clinical guideline recommends against routine testing for most people, and against supplementing above the standard target for most healthy adults under 75.",
+    summary:
+      "A real, current (2024) Endocrine Society clinical practice guideline, built by an 18-member multidisciplinary expert panel, reaches a real, genuinely more conservative conclusion than the reflexive \"everyone should test and take vitamin D\" advice many people have absorbed. It suggests against routine 25-hydroxyvitamin D testing across the general population, including people with obesity or darker skin, citing a real lack of evidence supporting population-wide screening, and suggests against empiric supplementation above the standard intake target to lower disease risk in healthy adults younger than 75. It does name real, specific groups where empiric supplementation genuinely is recommended: children and adolescents (to prevent rickets and reduce respiratory infections), adults 75 and older (a real, documented mortality benefit), pregnant people (to reduce preeclampsia, fetal loss, preterm birth, and neonatal mortality risk), and people with high-risk prediabetes (to reduce progression to diabetes). For the real subset who do need supplementation past age 50, the same guideline prefers daily dosing over large, infrequent doses. Worth knowing directly: this isn't an anti-vitamin-D position, it's a real, current, evidence-based case for targeting supplementation at the specific groups who actually benefit rather than testing and supplementing everyone by default.",
+    citations: [
+      { source: 'Vitamin D for the Prevention of Disease: An Endocrine Society Clinical Practice Guideline, PMID 38828931', url: 'https://pubmed.ncbi.nlm.nih.gov/38828931/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamind-vital-trial-non-skeletal'],
+  },
+  {
+    id: 'vitamind-vital-trial-non-skeletal',
+    category: 'basicHealth',
+    title: "A Real, Large, Rigorous Trial Found Vitamin D Didn't Prevent Cancer or Heart Disease",
+    teaser: "Over 25,000 people, a real randomized trial, and a real, honest null result for two of the biggest disease categories vitamin D is popularly credited with preventing.",
+    summary:
+      "The VITAL trial, a real, large (25,871 participants), rigorously designed randomized controlled trial, tested a real, standard 2,000 IU daily dose of vitamin D3 specifically to answer whether supplementation reduces cancer or cardiovascular disease risk in people without a prior diagnosis of either. The real, honest result: it didn't, at least not to a statistically or clinically meaningful degree for either primary outcome, a genuine, well-powered null finding rather than a small or ambiguous trial easy to dismiss. This is worth reporting exactly as directly as a positive finding would be, the same discipline this whole Digest holds to throughout, and it's a real, direct, evidence-based reason behind this category's own dedicated entry on the 2024 Endocrine Society guideline's own conservative stance on supplementing healthy adults broadly. Worth knowing plainly: vitamin D's real, well-established roles are in bone health and the specific, named groups covered elsewhere in this category, not a broad, general-purpose disease-prevention supplement for cancer or cardiovascular disease in an otherwise healthy adult.",
+    citations: [
+      { source: 'Vitamin D Supplements and Prevention of Cancer and Cardiovascular Disease (VITAL Trial), PMID 30415629', url: 'https://pubmed.ncbi.nlm.nih.gov/30415629/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-overview'],
+  },
+  {
+    id: 'vitamind-drug-interactions',
+    category: 'basicHealth',
+    title: "Two Real, Named Anti-Seizure Medications Directly Interfere With Vitamin D Activation",
+    teaser: "One drug blocks the first activation step. A different drug speeds up how fast the active form gets broken down. Both real, both specific, both well-documented.",
+    summary:
+      "Certain anticonvulsant (anti-seizure) medications carry a real, specific, mechanistically documented effect on vitamin D, not just a vague, general interaction warning. Phenobarbital, a real, older anti-seizure medication, was found to directly suppress the liver enzyme (25-hydroxylase) responsible for the first real activation step vitamin D needs, a real, specific, named mechanism behind drug-induced bone softening. Valproic acid, a separate, real, commonly used anti-seizure and mood-stabilizing medication, works through a genuinely different real mechanism, increasing the activity of a different enzyme (CYP24) that accelerates how quickly the body breaks the active form back down. Both are worth knowing by name for anyone on either medication long-term, a real, direct reason vitamin D status is worth monitoring specifically in that situation rather than assumed fine by default. This app's own existing research on prednisone and other corticosteroids, already covered for their own real, separate bone-density effects in several condition-specific areas, is worth reading alongside this for anyone managing both.",
+    citations: [
+      { source: 'Phenobarbital Suppresses Vitamin D3 25-Hydroxylase Expression: A Potential New Mechanism for Drug-Induced Osteomalacia, PMID 17445763', url: 'https://pubmed.ncbi.nlm.nih.gov/17445763/' },
+      { source: 'Valproic Acid Augments Vitamin D Receptor-Mediated Induction of CYP24 by Vitamin D3, PMID 21115105', url: 'https://pubmed.ncbi.nlm.nih.gov/21115105/' },
+    ],
+    overallTier: 'moderate',
+  },
+  {
+    id: 'vitamind-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Food Sources, Pulled Directly From This App's Own Database",
+    teaser: "A genuinely short real list, and mushrooms belong on it right alongside fatty fish, but only the specific kind actually treated with UV light.",
+    summary:
+      "Vitamin D's own real dietary sources are genuinely few compared to most other nutrients, pulled directly here from this app's own 22,022-food reference database rather than a generic external list. Cod liver oil leads by a wide, real margin at 250mcg per 100g, a real, historic reason it was once given directly to children before fortified foods became common. UV-treated (\"vitamin D enhanced\") mushrooms are a real, genuinely useful and often-overlooked source at roughly 24mcg per 100g, a specific, real distinction worth knowing directly: ordinary, non-UV-treated mushrooms carry only trace amounts, so the label matters here more than for almost any other food on this list. Canned salmon and cooked trout both carry a real, meaningful roughly 19-22mcg per 100g. Worth knowing plainly alongside this real, short whole-food list: fortified foods (milk, many plant-milk alternatives, some breakfast cereals and orange juice) are a real, deliberate public-health addition specifically because so few whole foods naturally carry meaningful vitamin D on their own, not a lesser or artificial source.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Vitamin D Content of Real Foods (per 100g)',
+      unit: 'mcg',
+      data: [
+        { label: 'Cod liver oil', value: 250 },
+        { label: 'Vitamin D-enhanced mushrooms', value: 24 },
+        { label: 'Canned salmon', value: 21.5 },
+        { label: 'Cooked trout', value: 19 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Australia_AFCD-sourced values)",
+    },
+  },
+  {
+    id: 'vitamind-tying-together',
+    category: 'basicHealth',
+    title: "What Actually Holds Up for Vitamin D, Pulled Together",
+    teaser: "A real hormone the body can make on its own, a genuinely global deficiency gap, and a real, current guideline that's more conservative than most popular advice.",
+    summary:
+      "Line up everything in this category and vitamin D reads as a genuinely two-sided story worth holding both halves of at once. The real, well-established side: a global deficiency gap affecting a real majority of people by some measure, real, specific deficiency and toxicity thresholds worth knowing by number, a real, measured difference between D2 and D3 supplemental forms, and a real, specific reason (fat-tissue sequestration) obesity tracks with lower levels. The real, more honest correction: a large, rigorous 2019 trial found vitamin D didn't prevent cancer or cardiovascular disease, and a real, current 2024 clinical guideline recommends against routine testing and against supplementing most healthy adults under 75 above the standard target, reserving real, targeted supplementation for specific, named groups instead. This app's own disease-specific vitamin D research, Hashimoto's own honestly-mixed correlation-vs-RCT picture, the gut-barrier mechanism, lupus's own sun-exposure catch-22, and more, builds directly on top of this same universal foundation rather than repeating it. Worth treating vitamin D the way this whole category treats every real nutrient: genuinely important in specific, well-evidenced ways, not a single flat recommendation that applies the same way to everyone.",
+    citations: [
+      { source: 'Vitamin D, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/vitamind.html' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamind-deficiency-symptoms-staged', 'vitamind-2024-guideline-honest-correction', 'vitamind-vital-trial-non-skeletal', 'vitamind-obesity-bioavailability', 'nutrient-vitamin-d'],
   },
 ];

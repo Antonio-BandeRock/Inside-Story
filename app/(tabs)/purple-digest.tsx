@@ -125,7 +125,7 @@ const DIGEST_SEARCH_HELP: HelpSection[] = [
 const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   basicHealth: {
     heading: 'Basic Health',
-    body: "How the body itself works, independent of any diagnosis: food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, refined oils, commercial products), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what absorption), a food-industry history, general lifestyle and environmental exposures with no disease-specific claim, general exercise/autophagy biology, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. Deliberately excludes autoimmune-disease mechanisms and anything condition-specific, even when studied in a disease other than Hashimoto's -- that content lives in each condition's own area instead. This is what the Free tier shows in full.",
+    body: "How the body itself works, independent of any diagnosis: a growing \"Essential Nutrients\" deep-dive series (Magnesium and Vitamin D so far), food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, refined oils, commercial products), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what absorption), a food-industry history, general lifestyle and environmental exposures with no disease-specific claim, general exercise/autophagy biology, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. Deliberately excludes autoimmune-disease mechanisms and anything condition-specific, even when studied in a disease other than Hashimoto's -- that content lives in each condition's own area instead. This is what the Free tier shows in full. Organized here as real, related groups, each its own horizontally-scrolling row -- scroll a row sideways to browse its own cards, or scroll the screen down to move to the next group. Tap any card to read its full entry; a \"back to grouped view\" link at the top returns you to browsing.",
   },
   hashimotos: {
     heading: "Hashimoto's",
@@ -222,6 +222,75 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
 // may need it again.
 const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 
+// Basic Health groups related entries into horizontally-scrollable rows,
+// 2026-08-08, direct request: "The Basic Health information isn't very
+// well organized. Please make it more organized by grouping like or
+// related kinds of information in a group on one row and the next group
+// on the next row and then the next row, and all of the rows move when
+// being scrolled vertically but each row scrolls horizantally." Scoped to
+// Basic Health specifically, matching the request -- every other
+// category's own entry count (9-18) already reads fine as one flat list;
+// Basic Health alone has grown past 120 entries spanning genuinely
+// different topics (a glossary, food additives, food-industry history,
+// fermented-food strains, nutrient interactions, lifestyle/environment,
+// mitochondria/metabolism, self-advocacy, problem foods, and now a real,
+// growing "Essential Nutrients" deep-dive series).
+//
+// Groups are derived from each entry's own id prefix, the same real,
+// already-established one-prefix-per-source-file convention every
+// lib/digest/*.ts file already follows (glossary-, additive-, etc.) --
+// not a new field added to every entry, which would have meant touching
+// hundreds of existing entry objects by hand for a purely presentational
+// concern. A new prefix (a future nutrient added to essentialNutrients.ts,
+// say) needs one new line added here, the same "explicit, hand-maintained
+// mapping" precedent this app already uses for DIGEST_CATEGORY_META and
+// CATEGORY_DISPLAY_LABELS. Order here is the real, intentional row order
+// on screen, not alphabetical -- Essential Nutrients (the newest, deepest
+// content) and Glossary (reached for constantly, same reasoning as its
+// own front-of-picker placement) lead; Food Industry & History, more a
+// history essay than a lookup tool, trails last.
+const BASIC_HEALTH_GROUPS: { label: string; prefix: string }[] = [
+  { label: 'Magnesium', prefix: 'magnesium-' },
+  { label: 'Vitamin D', prefix: 'vitamind-' },
+  { label: 'Glossary', prefix: 'glossary-' },
+  { label: 'Problem Foods & Swaps', prefix: 'problem-' },
+  { label: 'Food Additives', prefix: 'additive-' },
+  { label: 'Nutrient Interactions', prefix: 'interaction-' },
+  { label: 'Fermented Foods', prefix: 'fermented-' },
+  { label: 'Lifestyle & Environment', prefix: 'lifestyle-' },
+  { label: 'Mitochondria & Metabolism', prefix: 'mito-' },
+  { label: 'Self Advocacy', prefix: 'advocacy-' },
+  { label: 'Food Industry & History', prefix: 'foodhistory-' },
+];
+
+function basicHealthGroupLabel(id: string): string {
+  const match = BASIC_HEALTH_GROUPS.find((group) => id.startsWith(group.prefix));
+  return match?.label ?? 'More';
+}
+
+// Buckets a category's own already-ordered entry list into real groups,
+// preserving each group's own internal order exactly as it already comes
+// out of getEntriesForCategory (which itself follows ALL_DIGEST_ENTRIES'
+// own file-by-file spread order in lib/digest/index.ts) -- no re-sorting
+// needed, since each source file's entries are already contiguous there.
+// 'More', the unmatched catch-all, only appears if a real entry's id
+// doesn't match any known prefix above -- a safety net, not an expected
+// real bucket, so it's appended after every named group rather than
+// reserved a fixed position.
+function groupBasicHealthEntries(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
+  const order = BASIC_HEALTH_GROUPS.map((group) => group.label);
+  const buckets = new Map<string, AnyDigestEntry[]>();
+  for (const entry of entries) {
+    const label = basicHealthGroupLabel(entry.id);
+    if (!buckets.has(label)) buckets.set(label, []);
+    buckets.get(label)!.push(entry);
+  }
+  const orderedLabels = [...order, ...[...buckets.keys()].filter((label) => !order.includes(label))];
+  return orderedLabels
+    .map((label) => ({ label, entries: buckets.get(label) ?? [] }))
+    .filter((group) => group.entries.length > 0);
+}
+
 function tierColor(tier: EvidenceTier): string {
   if (tier === 'strong') return colors.accent;
   if (tier === 'moderate') return colors.primary;
@@ -248,13 +317,30 @@ export default function PurpleDigestScreen() {
   // or re-arriving at this tab always shows the resting "pick a category"
   // prompt first, never an instant resume of whatever was last open.
   const [revealed, setRevealed] = useState(false);
+  // Basic Health only: 'shelves' is the new, real grouped-row browsing view
+  // (see BASIC_HEALTH_GROUPS above); 'list' is the original flat,
+  // one-at-a-time expandable list, now reused specifically as the real
+  // "reading" view once a shelf card, a Related chip, or a search result
+  // has been tapped -- rather than rebuilding expand/collapse-in-place
+  // logic a second time inside a horizontally-scrolling row (genuinely
+  // awkward: a card growing taller mid-row has nowhere good to push its
+  // neighbors), tapping into any entry from Basic Health switches to this
+  // same already-built, already-scroll-tested list view with that entry
+  // pre-expanded, with a plain "back to grouped view" link to return.
+  // Irrelevant for every other category, which never had a shelves view
+  // to begin with. Reset to 'shelves' on every fresh tab visit and every
+  // fresh lens selection below, so Basic Health always opens back at the
+  // real, organized overview, never mid-read from a previous visit.
+  const [basicHealthViewMode, setBasicHealthViewMode] = useState<'shelves' | 'list'>('shelves');
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
       setSearchQuery('');
+      setBasicHealthViewMode('shelves');
       return () => {
         setRevealed(false);
         setSearchQuery('');
+        setBasicHealthViewMode('shelves');
       };
     }, []),
   );
@@ -417,11 +503,18 @@ export default function PurpleDigestScreen() {
   // expand that entry, and collapse whatever was open before -- a related
   // chip always lands you looking at exactly that entry, scrolled to the
   // top of the screen, at wherever it actually sits in its own category's
-  // real (unreordered) list.
+  // real (unreordered) list. Also the same real function a Basic Health
+  // shelf card's own tap uses (see BasicHealthShelves below) -- switching
+  // into 'list' mode here unconditionally is a no-op for every other
+  // category (which never reads that state), and is exactly the real
+  // "jump straight to reading this one" behavior Basic Health itself needs
+  // too, whether the jump started from a shelf card, a Related chip, or a
+  // search result.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     setLens(target.category as DigestCategoryKey);
+    setBasicHealthViewMode('list');
     setExpandedId(id);
     scrollEntryIntoView(id);
   }
@@ -485,36 +578,51 @@ export default function PurpleDigestScreen() {
                   </>
                 )}
               </>
+            ) : lens === 'basicHealth' && basicHealthViewMode === 'shelves' ? (
+              <BasicHealthShelves groups={groupBasicHealthEntries(entries)} onSelectEntry={jumpToRelated} />
             ) : entries.length === 0 ? (
               <Text style={styles.emptyText}>Nothing here yet.</Text>
             ) : (
-              entries.map((entry) => (
-                <Animated.View
-                  key={entry.id}
-                  // Explicit duration, not Reanimated's own implicit
-                  // default -- CARD_LAYOUT_TRANSITION_MS above (see
-                  // scrollEntryIntoView's own comment) has to wait out this
-                  // exact real number, not a guess at what the default
-                  // might be.
-                  layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}
-                  // A real ref to this card, not a cached measurement --
-                  // scrollEntryIntoView calls .measure() on it directly, at
-                  // the moment it's needed, rather than trusting a value
-                  // recorded earlier. Reanimated's Animated.View forwards
-                  // refs to the underlying native view, so this exposes the
-                  // same real .measure() every plain View has.
-                  ref={(r) => {
-                    cardRefs.current[entry.id] = r as unknown as Measurable | null;
-                  }}
-                >
-                  <DigestCard
-                    entry={entry}
-                    expanded={expandedId === entry.id}
-                    onToggle={() => toggleEntry(entry.id)}
-                    onJumpToRelated={jumpToRelated}
-                  />
-                </Animated.View>
-              ))
+              <>
+                {lens === 'basicHealth' ? (
+                  <TouchableOpacity
+                    style={styles.backToShelvesRow}
+                    onPress={() => {
+                      setBasicHealthViewMode('shelves');
+                      setExpandedId(null);
+                    }}
+                  >
+                    <Text style={styles.backToShelvesText}>{'‹'} Back to grouped view</Text>
+                  </TouchableOpacity>
+                ) : null}
+                {entries.map((entry) => (
+                  <Animated.View
+                    key={entry.id}
+                    // Explicit duration, not Reanimated's own implicit
+                    // default -- CARD_LAYOUT_TRANSITION_MS above (see
+                    // scrollEntryIntoView's own comment) has to wait out this
+                    // exact real number, not a guess at what the default
+                    // might be.
+                    layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}
+                    // A real ref to this card, not a cached measurement --
+                    // scrollEntryIntoView calls .measure() on it directly, at
+                    // the moment it's needed, rather than trusting a value
+                    // recorded earlier. Reanimated's Animated.View forwards
+                    // refs to the underlying native view, so this exposes the
+                    // same real .measure() every plain View has.
+                    ref={(r) => {
+                      cardRefs.current[entry.id] = r as unknown as Measurable | null;
+                    }}
+                  >
+                    <DigestCard
+                      entry={entry}
+                      expanded={expandedId === entry.id}
+                      onToggle={() => toggleEntry(entry.id)}
+                      onJumpToRelated={jumpToRelated}
+                    />
+                  </Animated.View>
+                ))}
+              </>
             )}
           </ScrollView>
         </GatedTabContent>
@@ -569,6 +677,7 @@ export default function PurpleDigestScreen() {
         onSelect={(key) => {
           setLens(key);
           setExpandedId(null);
+          setBasicHealthViewMode('shelves');
           setRevealed(true);
         }}
       />
@@ -597,6 +706,64 @@ function SearchResultCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: 
       </View>
       <Text style={styles.searchResultCategory}>{categoryLabelForEntry(entry)}</Text>
       <Text style={styles.cardTeaser}>{entry.teaser}</Text>
+    </TouchableOpacity>
+  );
+}
+
+// Basic Health's own real, grouped browsing view -- see BASIC_HEALTH_GROUPS'
+// own comment above for the full reasoning. Each group is a plain heading
+// plus a horizontally-scrolling row of compact preview cards; the whole
+// stack of rows sits inside this screen's own existing outer, vertically-
+// scrolling ScrollView unchanged, so scrolling down moves between rows
+// while scrolling within any one row moves sideways through that row's own
+// cards -- exactly the "each row scrolls horizontally, all the rows move
+// vertically" shape requested. Cards themselves are deliberately NOT
+// expandable in place (a card growing taller mid-row has nowhere good to
+// push its horizontal neighbors) -- tapping one hands off to the existing,
+// already-scroll-tested list view instead, via the same onSelectEntry
+// (really jumpToRelated) every Related chip and search result already use.
+function BasicHealthShelves({
+  groups,
+  onSelectEntry,
+}: {
+  groups: { label: string; entries: AnyDigestEntry[] }[];
+  onSelectEntry: (id: string) => void;
+}) {
+  return (
+    <>
+      {groups.map((group) => (
+        <View key={group.label} style={styles.shelfSection}>
+          <Text style={styles.shelfHeading}>{group.label}</Text>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.shelfRow}
+          >
+            {group.entries.map((entry) => (
+              <ShelfCard key={entry.id} entry={entry} onPress={() => onSelectEntry(entry.id)} />
+            ))}
+          </ScrollView>
+        </View>
+      ))}
+    </>
+  );
+}
+
+function ShelfCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: () => void }) {
+  const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
+  return (
+    <TouchableOpacity style={styles.shelfCard} onPress={onPress} activeOpacity={0.85}>
+      <View style={styles.cardHeaderRow}>
+        {!isProblemFoodEntry(entry) ? (
+          <View style={[styles.tierDot, { backgroundColor: tierColor(entry.overallTier) }]} />
+        ) : null}
+        <Text style={styles.shelfCardTitle} numberOfLines={3}>
+          {title}
+        </Text>
+      </View>
+      <Text style={styles.shelfCardTeaser} numberOfLines={4}>
+        {entry.teaser}
+      </Text>
     </TouchableOpacity>
   );
 }
@@ -746,6 +913,26 @@ const styles = StyleSheet.create({
   },
   searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
   searchResultCategory: { ...typography.caption, color: TAB_COLOR, marginBottom: 4 },
+  backToShelvesRow: { marginBottom: 12 },
+  backToShelvesText: { ...typography.captionEmphasis, color: TAB_COLOR },
+  shelfSection: { marginBottom: 18 },
+  shelfHeading: { ...typography.label, color: TAB_COLOR, marginBottom: 8 },
+  // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
+  // gap between cards and a little trailing padding so the last card in a
+  // row doesn't sit flush against the screen edge once scrolled all the
+  // way over.
+  shelfRow: { flexDirection: 'row', gap: 10, paddingRight: 16 },
+  shelfCard: {
+    width: 200,
+    minHeight: 128,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 12,
+    backgroundColor: colors.surface,
+    padding: 12,
+  },
+  shelfCardTitle: { ...typography.label, color: TAB_COLOR, flex: 1, fontSize: 14 },
+  shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
   card: {
     borderWidth: 2,
     borderColor: TAB_COLOR,

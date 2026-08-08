@@ -83,7 +83,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-vitamin-d-cldn2'],
+    relatedIds: ['gut-vitamin-d-cldn2', 'vitamind-tying-together'],
   },
   {
     id: 'nutrient-zinc-iron-b12',

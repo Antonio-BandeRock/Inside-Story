@@ -111,7 +111,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Zhang et al. 2015, Scientific Reports: tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-vitamin-d'],
+    relatedIds: ['nutrient-vitamin-d', 'vitamind-tying-together'],
   },
   {
     id: 'gut-zinc-carnosine',
