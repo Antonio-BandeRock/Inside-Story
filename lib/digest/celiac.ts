@@ -38,7 +38,7 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
       { source: 'Celiac Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)', url: 'https://www.niddk.nih.gov/health-information/digestive-diseases/celiac-disease' },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-zonulin-gliadin', 'b12-absorption-mechanism'],
+    relatedIds: ['gut-zonulin-gliadin', 'b12-absorption-mechanism', 'vitamine-deficiency-real-causes'],
   },
   {
     id: 'celiac-diagnostic-panel',

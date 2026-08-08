@@ -86,6 +86,7 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
       { source: "A Randomised Double-Blind Placebo-Controlled Clinical Trial of Fish Oil (Omega-3) in Sjögren's Syndrome Patients in Erbil-Iraq", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12183441/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['omega36-tying-together'],
   },
   {
     id: 'sjogrens-lymphoma-risk',

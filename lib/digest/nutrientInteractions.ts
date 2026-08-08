@@ -90,7 +90,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Calcium, vitamin D, vitamin K2, and magnesium supplementation and skeletal health', url: 'https://pubmed.ncbi.nlm.nih.gov/32972636/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-vitamin-d', 'magnesium-synergies-antagonists', 'calcium-absorption-mechanism'],
+    relatedIds: ['nutrient-vitamin-d', 'magnesium-synergies-antagonists', 'calcium-absorption-mechanism', 'vitamink-overview', 'vitamink-tying-together'],
   },
   {
     id: 'interaction-selenium-iodine',

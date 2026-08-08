@@ -75,6 +75,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Plant-Based versus Animal-Based Low Protein Diets in the Management of Chronic Kidney Disease', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8621419/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['protein-toxicity-rabbit-starvation', 'protein-tying-together'],
   },
   {
     id: 'ckd-metabolic-acidosis-bicarbonate',

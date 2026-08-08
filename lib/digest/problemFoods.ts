@@ -236,6 +236,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         url: 'https://doi.org/10.1016/S0753-3322(02)00253-6',
       },
     ],
+    relatedIds: ['omega63-ratio-mechanism', 'omega36-tying-together'],
   },
   {
     id: 'problem-commercial-premade',

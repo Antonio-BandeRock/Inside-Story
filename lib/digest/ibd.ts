@@ -37,7 +37,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'Crohn\'s Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)', url: 'https://www.niddk.nih.gov/health-information/digestive-diseases/crohns-disease' },
     ],
     overallTier: 'strong',
-    relatedIds: ['other-ibd', 'ibs-vs-ibd-distinction'],
+    relatedIds: ['other-ibd', 'ibs-vs-ibd-distinction', 'vitamine-deficiency-real-causes'],
   },
   {
     id: 'ibd-smoking-paradox',

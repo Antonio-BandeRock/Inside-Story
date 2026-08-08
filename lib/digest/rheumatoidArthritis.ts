@@ -57,7 +57,7 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
       { source: 'Omega-3 polyunsaturated fatty acids and the treatment of rheumatoid arthritis: a meta-analysis', url: 'https://pubmed.ncbi.nlm.nih.gov/22835600/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ra-mediterranean-diet'],
+    relatedIds: ['ra-mediterranean-diet', 'omega36-tying-together', 'omega3-ala-conversion-bottleneck'],
   },
   {
     id: 'ra-mediterranean-diet',

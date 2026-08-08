@@ -106,7 +106,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Effects of n-3 Fatty Acid Supplements in Diabetes Mellitus (ASCEND), PMID 30146932', url: 'https://pubmed.ncbi.nlm.nih.gov/30146932/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['cvd-aspirin-primary-prevention-reversal'],
+    relatedIds: ['cvd-aspirin-primary-prevention-reversal', 'omega36-tying-together'],
     chart: {
       title: 'ASCEND Trial: Serious Vascular Events Over 7.4 Years',
       unit: '%',

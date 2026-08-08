@@ -138,7 +138,7 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
       { source: 'Effects of fish oil supplement on psoriasis: a meta-analysis of randomized controlled trials', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6896351/' },
     ],
     overallTier: 'weak',
-    relatedIds: ['ra-omega3'],
+    relatedIds: ['ra-omega3', 'omega36-tying-together'],
   },
   {
     id: 'psoriasis-cyclosporine-grapefruit',

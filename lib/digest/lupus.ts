@@ -90,6 +90,7 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
       { source: 'Genetically Predicted Circulating Omega-3 Fatty Acids Levels Are Causally Associated With Increased Risk for Systemic Lupus Erythematosus', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8864316/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['omega36-tying-together'],
   },
   {
     id: 'lupus-immune-stimulating-herbs',

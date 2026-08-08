@@ -1459,4 +1459,367 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['vitamina-deficiency-xerophthalmia', 'vitamina-toxicity-teratogenicity', 'interaction-vitamina-zinc'],
   },
+
+  // -- Vitamin E, added 2026-08-08, the twelfth deep-dive in this series,
+  // direct continuation: "Continue with vitamin E next, and the rest
+  // automatically afterwards." No `supplement_forms` data existed for
+  // vitamin E -- every citation here came fresh via the established
+  // WebFetch/StatPearls/PubMed fallback. A real, worth-remembering find:
+  // this app's own bundled reference database already carries a real
+  // vitamin K2/warfarin interaction rule (`vitamin_k2_warfarin_consistency`
+  // in the `interaction_rules` table) -- vitamin E's own real bleeding-risk
+  // mechanism works through the SAME warfarin/vitamin-K pathway, from the
+  // opposite direction, a real, direct connection worth naming here and
+  // revisiting once Vitamin K gets its own deep-dive.
+  {
+    id: 'vitamine-overview',
+    category: 'basicHealth',
+    title: "Vitamin E: the Body's Own Lipid-Membrane Bodyguard",
+    teaser: 'A real, fat-soluble antioxidant whose whole job is protecting the fatty membrane around every cell from oxidative damage, obtained exclusively from diet.',
+    summary:
+      "Vitamin E is a real, major lipid-soluble antioxidant, obtained exclusively from the diet, meaning the body has no way to synthesize it on its own the same way it can't synthesize vitamin C either. Its real, core job is protecting cell membranes, which are built largely from fat, from oxidative damage caused by free radicals, the same real oxidation-risk mechanism already covered elsewhere in this app's own food-scoring research. Vitamin E actually exists as eight real, chemically related compounds (four tocopherols, four tocotrienols), with alpha-tocopherol being the specific form the body preferentially retains and the one measured on a standard blood test. Because it's fat-soluble, real absorption depends on dietary fat being present and on the same basic fat-digestion machinery (bile, pancreatic enzymes) already covered in this app's own vitamin A and vitamin K research, which is exactly why real vitamin E deficiency, covered below, traces almost entirely to fat-malabsorption problems rather than simply not eating enough of it.",
+    citations: [
+      { source: 'Vitamin E Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564373/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamine-deficiency-real-causes',
+    category: 'basicHealth',
+    title: 'Vitamin E Deficiency Is Genuinely Rare From Diet Alone -- Real Malabsorption Is Almost Always the Actual Cause',
+    teaser: 'Ataxia is the single most common real exam finding, a genuine, staged neurological progression, not just a vague sense of low energy.',
+    summary:
+      "In developed countries, real vitamin E deficiency from diet alone is genuinely rare. The real, actual causes almost always trace to a fat-malabsorption problem, since vitamin E can't be absorbed without functioning fat digestion. Real, specific causes: cystic fibrosis (a failure to secrete the pancreatic enzymes needed to absorb vitamins A, D, E, and K together), cholestatic liver disease (reduced bile flow), Crohn's disease and pancreatic insufficiency (both already covered elsewhere in this app's own condition-specific research), abetalipoproteinemia (a real, inherited disorder of lipoprotein production and transport, where serum vitamin E can be entirely undetectable), short-bowel syndrome, and real mutations in the tocopherol transfer protein gene, which directly impair how the body handles the vitamin once absorbed. Real symptoms progress in a genuine, staged neurological sequence: early, hyporeflexia (reduced reflexes), decreased night vision, and reduced vibratory sense, with cognition still intact; moderate, real limb and truncal ataxia (the single most common exam finding across every stage), muscle weakness, and limited upward gaze; late, real cardiac arrhythmias, blindness, and reduced cognition. Diagnostically, adult alpha-tocopherol below 5 mcg/mL indicates deficiency, though in someone with hyperlipidemia, a real, more accurate ratio (alpha-tocopherol to total blood lipids, below 0.8 mg/g) is used instead, since high blood lipids can otherwise mask a real deficiency on the raw number alone.",
+    citations: [
+      { source: 'Vitamin E Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK519051/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-overview', 'ibd-overview'],
+  },
+  {
+    id: 'vitamine-toxicity-bleeding-risk',
+    category: 'basicHealth',
+    title: "Vitamin E's Own Real Toxicity Story: a Genuine, Documented Bleeding Risk, Through Three Separate Real Mechanisms",
+    teaser: 'Real drug interactions have been reported at doses as low as 300mg/day, well below the roughly 1,000mg/day threshold where symptoms typically start on their own.',
+    summary:
+      "Vitamin E's own real toxicity picture is genuinely different from the other fat-soluble vitamins covered in this category: the real, central risk isn't organ damage, it's bleeding. The standard adult RDA is 15mg/day, and real symptoms of toxicity generally don't appear until daily intake exceeds roughly 1,000mg, a substantial real margin. The more clinically important real number: documented drug-drug interactions have been reported at doses above just 300mg/day, well below the symptom threshold, meaning a real risk can exist long before anyone would notice anything wrong on their own. The real mechanism runs through three separate, documented pathways: vitamin E competes with vitamin K for the same enzymes needed to activate real vitamin-K-dependent clotting factors (II, VII, IX, and X), directly reducing their circulation; it also reduces glutamate production, itself needed for clotting factor IX; and separately, vitamin E supplementation has been found to measurably decrease platelet aggregation, possibly through inhibiting protein kinase C. The real, practical consequence: in anyone taking warfarin, vitamin E's own vitamin-K antagonism compounds directly with warfarin's own mechanism, genuinely increasing bleeding risk, and real vitamin K supplementation is a real, direct treatment consideration for anyone on vitamin E who develops active bleeding. Worth knowing alongside this app's own separate vitamin K2/warfarin research: two different vitamins, interacting with the exact same medication through two genuinely different, real mechanisms.",
+    citations: [
+      { source: 'Vitamin E Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564373/' },
+      { source: 'Pastori D, et al. 2013: Vitamin E serum levels and bleeding risk in patients receiving oral anticoagulant therapy, PMID 23364620', url: 'https://pubmed.ncbi.nlm.nih.gov/23364620/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamine-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Vitamin E Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Almonds and sunflower seeds both lead real, everyday food lists, the same nuts-and-seeds family already covered for magnesium, zinc, and several other nutrients in this category.',
+    summary:
+      "Real vitamin E content pulled directly from this app's own 22,022-food reference database. Almonds carry a real, substantial 30.3mg per 100g (a toasted, unblanched preparation runs even higher, around 50mg per 100g). Sunflower seeds carry a real, similarly high 36-41mg per 100g depending on preparation. Almond oil carries roughly 39mg per 100g, a real, concentrated source worth knowing for anyone cooking with it regularly. Spinach carries a real, more modest but still meaningful 3.5-4.8mg per 100g. Worth noting directly: nuts and seeds show up as a real, recurring top source across several nutrients already covered in this category (magnesium, zinc, and now vitamin E), a real, practical reason a small daily handful covers real ground across more than one nutrient at once.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Vitamin E Content of Real Foods (per 100g)',
+      unit: 'mg',
+      data: [
+        { label: 'Almonds (toasted)', value: 50.3 },
+        { label: 'Sunflower seeds', value: 38 },
+        { label: 'Almond oil', value: 39 },
+        { label: 'Almonds (plain)', value: 30.3 },
+        { label: 'Spinach', value: 4.4 },
+      ],
+      sourceNote: "This app's own reference database (USDA-sourced values)",
+    },
+  },
+  {
+    id: 'vitamine-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Vitamin E, Pulled Together',
+    teaser: "A real, exclusively-dietary antioxidant whose deficiency almost always means a real absorption problem, not a diet problem, and whose real toxicity risk is bleeding, not organ damage.",
+    summary:
+      "Line up everything in this category and vitamin E reads as a nutrient whose real story runs almost entirely through fat absorption, on both ends. Deficiency is genuinely rare from diet alone in the developed world; when it does happen, it's almost always a real, identifiable malabsorption condition (cystic fibrosis, cholestatic liver disease, Crohn's, abetalipoproteinemia, short-bowel syndrome) rather than simple dietary insufficiency, producing a real, staged neurological progression worth recognizing by its own specific signs (ataxia as the single most common finding). Toxicity, on the real other end, is genuinely different in kind from most other nutrients covered in this category: not organ damage, but a real, three-mechanism bleeding risk that compounds directly and dangerously with warfarin, at real drug-interaction doses (300mg+) well below where symptoms would otherwise appear on their own (roughly 1,000mg+). This app's own vitamin K2 research covers a genuinely parallel real warfarin interaction from the opposite direction, worth reading together as two separate, real reasons anyone on blood thinners needs real medical guidance before starting either supplement, not an assumption that a fat-soluble vitamin is automatically safe just because it's 'natural.'",
+    citations: [
+      { source: 'Vitamin E Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564373/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamine-deficiency-real-causes', 'vitamine-toxicity-bleeding-risk'],
+  },
+
+  // -- Vitamin K, added 2026-08-08, the thirteenth deep-dive in this
+  // series. `supplement_forms`/`nutrient_timing` already carried real,
+  // rich, already-cited data from the My Meds work (K1 vs. MK-4 vs. MK-7,
+  // the real Japanese osteoporosis-trial dose, the dose-consistency-not-
+  // timing-separation warfarin framing already backing a real interaction
+  // rule in the reference database). This entry set is scoped around the
+  // real remaining gap: the K1/K2 functional split, real newborn VKDB risk
+  // (the actual reason the standard newborn vitamin K shot exists), and a
+  // real food-sources chart.
+  {
+    id: 'vitamink-overview',
+    category: 'basicHealth',
+    title: "Vitamin K: One Name, Two Real Forms With Two Genuinely Different Jobs",
+    teaser: "K1 (from leafy greens) does most of the real work in the liver, making clotting factors. K2 (from fermented and animal foods) does most of the real work everywhere else, directing calcium to bone rather than soft tissue.",
+    summary:
+      "Vitamin K's real, central biochemical job is activating a specific set of proteins through a process called carboxylation, converting them into their functional, calcium-binding form. The real, practical split worth understanding: vitamin K1 (phylloquinone, the plant form) is used almost entirely by the liver to activate real clotting factors (II, VII, IX, X), while vitamin K2 (menaquinone, the form in fermented foods and animal products) reaches tissues throughout the rest of the body and activates a different set of real, calcium-directing proteins, most notably osteocalcin (bone) and matrix Gla protein (soft tissue, including blood vessel walls). That real, functional split is exactly why this app's own Nutrient Interactions research already covers vitamin D, K2, and magnesium as a real, interdependent trio for bone health specifically, not vitamin K in general: it's genuinely the K2 form doing that particular real job, distinct from K1's own liver-focused clotting role.",
+    citations: [
+      { source: 'Vitamin K Deficiency in Neonates and Adults, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/30725668/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['interaction-vitamind-k2-magnesium'],
+  },
+  {
+    id: 'vitamink-deficiency-newborn-risk',
+    category: 'basicHealth',
+    title: "The Real Reason Newborns Routinely Get a Vitamin K Shot, and a Real, Rising Risk Worth Knowing",
+    teaser: 'Newborns start life with genuinely low vitamin K stores and get almost none from breast milk alone, a real, well-understood, staged risk, not an overcautious hospital routine.',
+    summary:
+      "Newborns face a real, genuine, physiological vitamin K risk, not an acquired deficiency the way most adult cases are: they're born with real, low vitamin K stores, and early intake (particularly from breast milk alone) is genuinely limited. This real risk is staged into three named, timed presentations of vitamin K deficiency bleeding (VKDB): early VKDB, within 24 hours of birth; classic VKDB, during the first week of life; and late VKDB, between 1 week and 6 months, with a real peak incidence at 2-8 weeks. Real consequences range from subtle lab abnormalities to genuinely life-threatening hemorrhage, which is the real, direct reason a single prophylactic vitamin K injection is standard newborn care in most of the developed world. A real, worth-knowing, current finding: VKDB incidence has been rising, attributed directly to real parental refusal of the prophylactic shot and to oral vitamin K alternatives being genuinely less effective than the injectable form. In adults, real deficiency causes are different in kind: inadequate dietary intake, fat malabsorption, liver disease, and medications that interfere with vitamin K metabolism, most notably warfarin itself, which works specifically by blocking vitamin K's own recycling pathway. Real standard adult intake targets: 120mcg/day for men, 90mcg/day for women.",
+    citations: [
+      { source: 'Vitamin K Deficiency in Neonates and Adults, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/30725668/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamink-toxicity-honest',
+    category: 'basicHealth',
+    title: 'Vitamin K Toxicity: Another Real, Honest Non-Issue for Natural Forms, With One Real, Important Exception',
+    teaser: "Unlike vitamin A, D, or E, natural vitamin K carries no established upper intake limit, but the one real exception, warfarin, is worth taking every bit as seriously as it sounds.",
+    summary:
+      "Natural vitamin K (both K1 and K2, from food or standard supplements) has no real, established tolerable upper intake level, and no documented toxicity syndrome the way vitamin A, D, or E each carry their own real, specific one covered elsewhere in this category. The real, important exception isn't a dose-toxicity relationship at all, it's a real, direct medication interaction: warfarin and other vitamin-K-dependent anticoagulants work specifically by blocking the vitamin K recycling pathway, so vitamin K intake and warfarin dosing are directly, mechanically linked. This app's own reference data frames the real, practical fix precisely: it's not a timing-separation issue the way calcium/iron and levothyroxine are, it's a dose-CONSISTENCY issue, since the real danger is a sudden CHANGE in vitamin K intake (starting, stopping, or changing a supplement), not steady daily use at a known amount a warfarin dose has already been calibrated against. Worth reading directly alongside this app's own vitamin E research: two real, different vitamins, interacting with the exact same medication, through genuinely opposite mechanisms (vitamin E antagonizes clotting, vitamin K supports it), both real, serious reasons anyone on warfarin needs their prescriber directly involved before changing either one.",
+    citations: [
+      { source: 'Schurgers LJ, et al. 2007: Vitamin K-containing dietary supplements: comparison of synthetic vitamin K1 and natto-derived menaquinone-7, Blood, PMID 17158229', url: 'https://pubmed.ncbi.nlm.nih.gov/17158229/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamine-toxicity-bleeding-risk'],
+  },
+  {
+    id: 'vitamink-supplement-forms-compared',
+    category: 'basicHealth',
+    title: 'K1 vs. MK-4 vs. MK-7: Three Real Forms, Three Genuinely Different Half-Lives',
+    teaser: "MK-7's own real, much longer half-life is exactly why it's the form most bone/cardiovascular-focused K2 supplements actually use, even though MK-4 has its own separate, real, high-dose trial evidence.",
+    summary:
+      "This app's own reference data (built during earlier medication and supplement-tracking work) already carries a real, specific comparison across vitamin K's three most relevant forms. Vitamin K1 (phylloquinone), the primary dietary form from leafy greens, has the shortest real half-life of the three, clearing from blood fastest, and is the standard form used in most large population studies of vitamin K intake. Vitamin K2 as MK-4 is structurally closer to K1, with a real, much shorter half-life than MK-7, meaning it needs more frequent dosing to maintain stable levels, though it carries its own real, established bone-health evidence, typically studied at real, much higher doses (often 45mg/day in Japanese osteoporosis trials) than MK-7 ever uses. Vitamin K2 as MK-7 has a real, substantially longer half-life than either, producing much more stable blood levels and 7-8x higher accumulation over sustained daily use, real, practical reasons it's the form most K2 supplements actually marketed for bone and cardiovascular health contain today. All three are generally well tolerated, and all three need real dietary fat present in the same meal to absorb well, the identical fat-solubility requirement already covered in this app's own vitamin A, D, and E research.",
+    citations: [
+      { source: 'Schurgers LJ, et al. 2007: Vitamin K-containing dietary supplements: comparison of synthetic vitamin K1 and natto-derived menaquinone-7, Blood, PMID 17158229', url: 'https://pubmed.ncbi.nlm.nih.gov/17158229/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamink-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Vitamin K Food Sources, Pulled Directly From This App's Own Database",
+    teaser: "Kale and parsley both dominate the real K1 side of this list. Natto, a real, specifically fermented soybean product, is the outlier that actually delivers the K2 form instead.",
+    summary:
+      "Real vitamin K content pulled directly from this app's own 22,022-food reference database, split by real form since K1 and K2 come from genuinely different food categories. Kale carries a real, substantial 1,174-1,890mcg per 100g (K1), and parsley carries a real, similarly high 1,360-1,640mcg per 100g (K1), both classic real leafy-green sources. Spinach carries a real 540-716mcg per 100g (K1). Natto, a real, specifically fermented soybean product (the same fermentation family already covered in this app's own Fermented Foods research), stands apart as a genuine K2 source, carrying up to a real 930mcg per 100g of the menaquinone form specifically, the real, practical reason it's so often named as the single best whole-food K2 source in real nutrition research, distinct from every other food on this list.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Vitamin K Content of Real Foods (per 100g)',
+      unit: 'mcg',
+      data: [
+        { label: 'Kale', value: 1500 },
+        { label: 'Parsley', value: 1500 },
+        { label: 'Natto (K2 form)', value: 930 },
+        { label: 'Spinach', value: 600 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Japan_MEXT/Germany_BLS-sourced values)",
+    },
+  },
+  {
+    id: 'vitamink-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Vitamin K, Pulled Together',
+    teaser: "A real, genuine physiological risk at the very start of life, a real functional split between its own two forms most people never realize exists, and a real, honest non-issue for everyone else except one specific, serious medication interaction.",
+    summary:
+      "Line up everything in this category and vitamin K reads as a nutrient defined by a real, genuine split most people never learn: K1 mostly runs the liver's own clotting-factor system, K2 mostly runs a separate, real calcium-placement system throughout the rest of the body, and confusing the two (or assuming a leafy-green-heavy diet automatically covers K2 too) misses a real, practical distinction. Deficiency is a real, genuine, physiological risk specifically at the very start of life, the actual reason the standard newborn vitamin K shot exists, with a real, current, worth-knowing rise in risk tied to parents declining it. For essentially everyone else, natural vitamin K carries a real, honest non-issue toxicity profile, no established upper limit, no documented toxicity syndrome, with the one real, serious exception being warfarin and other vitamin-K-dependent anticoagulants, where consistency, not restriction, is the real, practical goal. This app's own vitamin D/K2/magnesium research and vitamin E's own bleeding-risk research both build directly on the same real biochemistry covered here, worth reading together rather than as three separate, unrelated nutrients.",
+    citations: [
+      { source: 'Vitamin K Deficiency in Neonates and Adults, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/30725668/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamink-deficiency-newborn-risk', 'vitamink-toxicity-honest', 'interaction-vitamind-k2-magnesium', 'vitamine-tying-together'],
+  },
+
+  // -- Omega-3 & Omega-6 Fatty Acids, added 2026-08-08, the fourteenth
+  // deep-dive in this series. A genuinely different research situation
+  // from every prior nutrient: this app's own reference database tracks
+  // only aggregate fat categories (saturated/monounsaturated/polyunsaturated
+  // /total), not EPA/DHA/ALA/omega-6 specifically, so no real, DB-verified
+  // food-sources chart is possible here -- deliberately not built rather
+  // than faked, consistent with this whole Digest's own standing rule
+  // against inventing chart data. Also a genuinely different CROSS-LINK
+  // situation: 5 real, already-built condition-specific omega-3 entries
+  // exist (RA strong, Sjögren's positive, Psoriasis/Lupus mixed, CVD
+  // honest null) plus a real food-swap entry on the omega-6:omega-3 ratio
+  // (`problem-refined-vegetable-oils`) -- this pass fills the universal
+  // biochemistry underneath all of them, cross-linking rather than
+  // repeating any of it.
+  {
+    id: 'omega36-overview',
+    category: 'basicHealth',
+    title: "Omega-3 and Omega-6: Two Real Families of Fat the Body Genuinely Cannot Make on Its Own",
+    teaser: "Both are real, essential fats, the same 'the body cannot synthesize this' status already covered for vitamin C and vitamin E, just applied to fat instead of a vitamin.",
+    summary:
+      "Omega-3 and omega-6 fatty acids are both real, essential polyunsaturated fats: the body genuinely lacks the enzymes needed to build either one from scratch, meaning both must come from diet, the identical real 'cannot synthesize it' status already covered for vitamin C. Each family includes several real, distinct fats worth knowing apart, not treated as one interchangeable category. Omega-3 includes ALA (alpha-linolenic acid, the plant form, found in flaxseed and walnuts), EPA, and DHA (the two longer-chain, more biologically active forms, found preformed in fatty fish). Omega-6 includes linoleic acid, the dominant form in most common vegetable and seed oils. Both families get converted, once eaten, into real, biologically active signaling molecules that regulate inflammation, though in genuinely opposite directions, covered in the ratio entry below.",
+    citations: [
+      { source: 'Essential Fatty Acids, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564314/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'omega3-ala-conversion-bottleneck',
+    category: 'basicHealth',
+    title: "ALA-to-DHA Conversion Is Real, and Genuinely Inefficient: Under 5% in the Whole Body",
+    teaser: "A real, classic, widely-cited review found whole-body conversion of ALA to DHA runs below 5% in humans, the direct, practical reason plant-only omega-3 sources don't reliably substitute for fish.",
+    summary:
+      "Plant-based ALA (flaxseed, walnuts, chia) can genuinely be converted inside the body into EPA and DHA, the two longer-chain omega-3 forms most directly tied to real, measured health effects elsewhere in this app's own research. The real, practical problem: that conversion is genuinely inefficient. A real, classic, widely-cited review found whole-body conversion of ALA to DHA runs below 5% in humans, and the same research notes real, wide individual variability in this conversion capacity, partly influenced by how much omega-6 and other long-chain fat is already in someone's own diet. This is the real, direct, practical reason someone relying entirely on flaxseed or walnuts for omega-3, rather than also eating fatty fish or taking a real EPA/DHA-specific supplement, may genuinely fall short of the levels the more positive research elsewhere in this app (Rheumatoid Arthritis, Sjögren's) actually tested, even while eating what looks like a real, generous amount of plant-based omega-3 on paper.",
+    citations: [
+      { source: 'Brenna JT 2002: Efficiency of conversion of alpha-linolenic acid to long chain n-3 fatty acids in man, PMID 11844977', url: 'https://pubmed.ncbi.nlm.nih.gov/11844977/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'omega63-ratio-mechanism',
+    category: 'basicHealth',
+    title: "The Omega-6:Omega-3 Ratio Is Real Biochemistry, Not a Wellness-Industry Talking Point",
+    teaser: "Omega-6 fats are the real, literal raw material for the body's own pro-inflammatory signaling molecules. Omega-3s are the raw material for the anti-inflammatory ones. It's genuinely the balance between the two that the research tracks, not omega-6 treated as simply 'bad.'",
+    summary:
+      "This app's own Problem Foods research already covers the real, practical, food-swap side of this ratio directly (refined vegetable and seed oils, and the real historical drift from roughly an even 1:1 omega-6-to-omega-3 ratio to often 15:1 or higher in a modern diet). This entry covers the real biochemical mechanism underneath that food-level advice: omega-6 fatty acids are the literal biochemical raw material the body uses to build its own pro-inflammatory signaling molecules (a real class called eicosanoids), while omega-3s are the raw material for a real, separate set of anti-inflammatory and inflammation-resolving compounds. Because both families are processed by overlapping conversion machinery inside the body, real research on this topic consistently tracks the RATIO between the two, not omega-6 intake in isolation, the same real point this app's own food-swap entry already makes about not treating omega-6 as simply 'bad.' A genuinely lower-omega-6, higher-omega-3 real dietary pattern is the practical target this mechanism points toward, not omega-6 elimination.",
+    citations: [
+      { source: 'Simopoulos AP 2002: The importance of the ratio of omega-6/omega-3 essential fatty acids, Biomedicine & Pharmacotherapy', url: 'https://doi.org/10.1016/S0753-3322(02)00253-6' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['problem-refined-vegetable-oils'],
+  },
+  {
+    id: 'omega3-toxicity-bleeding',
+    category: 'basicHealth',
+    title: 'Omega-3 at High Doses: a Real, Honestly Mild Version of the Same Bleeding-Risk Story as Vitamin E and K',
+    teaser: 'Real clinical trials found high-dose omega-3 does measurably prolong bleeding time, but the same real trials found it did not exceed normal limits or cause clinically significant bleeding.',
+    summary:
+      "Omega-3 fatty acids carry a real, genuinely milder version of the same bleeding-risk theme already covered in this app's own vitamin E and vitamin K research. The FDA's own real guidance sets a combined EPA+DHA upper limit of 3g per day, with no more than 2g of that coming from supplements specifically. Real clinical trials with omega-3 supplementation did find measurably prolonged bleeding time, the real, physiological reason this caution exists at all, but the same trials found that prolongation did not exceed normal limits or produce clinically significant bleeding episodes, a genuinely more reassuring real finding than the headline 'omega-3 thins blood' claim usually implies on its own. Real, standard clinical guidance still recommends periodic monitoring for anyone combining high-dose omega-3 with an actual anticoagulant or antiplatelet medication, the same real, sensible caution already covered for vitamin E and warfarin, just a milder, less mechanistically direct version of it here. Very high intake has also been separately associated with real, theoretical immune-function changes from shifting the body's own inflammatory balance too far, though this app's own condition-specific research (RA, Sjögren's) found real, measured benefit at the doses those actual trials used, well within this same safe range.",
+    citations: [
+      { source: 'Essential Fatty Acids, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564314/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamine-toxicity-bleeding-risk', 'vitamink-toxicity-honest'],
+  },
+  {
+    id: 'omega3-food-sources-real',
+    category: 'basicHealth',
+    title: 'Real Omega-3 Food Sources: Fatty Fish for EPA/DHA Directly, Plants for ALA',
+    teaser: "This app's own reference database tracks total/saturated/monounsaturated/polyunsaturated fat, not omega-3 specifically, so this entry stays qualitative rather than force a number the data doesn't actually support.",
+    summary:
+      "Unlike every other nutrient covered in this category, this app's own 22,022-food reference database doesn't track omega-3 or omega-6 as their own separate values, only aggregate fat categories, so this entry deliberately doesn't include a numeric chart the way the rest of this series does, rather than presenting an invented or borrowed number as if it came from this app's own verified data. The real, well-established food categories worth knowing: fatty, cold-water fish (salmon, sardines, mackerel, herring) are the real, direct source of preformed EPA and DHA, the two forms most directly tied to the measured benefits covered in this app's own condition-specific research. Walnuts, flaxseed, and chia seeds are real, genuine ALA sources, useful and worth eating, but subject to the real, inefficient conversion bottleneck covered in the entry above, meaning they're a real complement to, not a full substitute for, direct EPA/DHA intake for anyone specifically trying to reach the levels this app's own RA or Sjögren's research covers.",
+    citations: [],
+    overallTier: 'strong',
+  },
+  {
+    id: 'omega36-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Omega-3 & Omega-6, Pulled Together',
+    teaser: "The clearest real example in this whole Digest of the same nutrient landing in genuinely different evidence tiers depending on the condition, already built out across five separate real entries.",
+    summary:
+      "Line up everything in this category and omega-3/omega-6 read as a real, essential, universally-needed fat family whose actual real-world evidence genuinely depends on which condition and which real outcome someone is asking about, more than almost any other nutrient in this whole Digest. This app's own condition-specific research already demonstrates that directly: Rheumatoid Arthritis's own omega-3 evidence is real and strong (a real, quantified reduction in NSAID use at a real, specific dosing threshold), Sjögren's own research found a real, positive, double-blind trial improving both dry eye AND dry mouth in the same study, while Psoriasis and Lupus both carry real, honestly mixed evidence, and Cardiovascular Disease's own research covers a real, large, rigorous trial finding an honest null result for primary prevention. That's not a contradiction. It's this whole Digest's own standing discipline (report a finding exactly as directly whether it's positive or null) applied consistently to the same nutrient across five genuinely different real conditions, worth reading as one deliberate set rather than five separate, unrelated facts. Underneath all five sits the same real, universal biochemistry covered here: a genuinely inefficient plant-to-fish conversion pathway, a real ratio-based inflammatory mechanism, and a real, honestly mild bleeding-risk profile shared in kind, if not in degree, with vitamin E and vitamin K.",
+    citations: [
+      { source: 'Essential Fatty Acids, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK564314/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-omega3', 'sjogrens-omega3-dry-eye-mouth', 'psoriasis-omega3-mixed', 'lupus-omega3-fish-oil', 'cvd-omega3-honest-null', 'omega63-ratio-mechanism', 'omega3-ala-conversion-bottleneck'],
+  },
+
+  // -- Protein & Essential Amino Acids, added 2026-08-08, the fifteenth
+  // and final deep-dive of this particular pass, closing out all four
+  // nutrients originally named ("vitamin E next, and the rest
+  // automatically afterwards"). This app's own reference database tracks
+  // total protein only (no per-amino-acid breakdown), the same real
+  // limitation already hit for omega-3/6 -- real food-source data still
+  // possible here (protein itself IS tracked), unlike the omega entry.
+  // Deliberately did not duplicate `ckd-protein-restriction-plant-based`
+  // -- cross-linked instead, since CKD is the one real condition in this
+  // whole app where LOWER protein is the actual target, a genuine, worth-
+  // naming contrast to almost everything else in this entry.
+  {
+    id: 'protein-overview',
+    category: 'basicHealth',
+    title: "Protein: 9 Real Amino Acids the Body Cannot Build, Out of 20 Total",
+    teaser: 'Histidine, isoleucine, leucine, lysine, methionine, phenylalanine, threonine, tryptophan, and valine -- the real, named list, and the actual reason "complete protein" is a real, meaningful distinction, not marketing language.',
+    summary:
+      "Protein is built from 20 real amino acids, and the body can synthesize 11 of them on its own. The other 9, histidine, isoleucine, leucine, lysine, methionine, phenylalanine, threonine, tryptophan, and valine, are real essential amino acids the body genuinely cannot make, meaning diet is the only source, the same real 'cannot synthesize it' status already covered for vitamin C, vitamin E, and the omega-3/6 fatty acids elsewhere in this category. That's exactly what makes 'complete protein' a real, meaningful, checkable distinction rather than marketing language: animal-based foods (eggs, dairy, meat, seafood) and, among plants, soy specifically, provide all 9 essential amino acids in adequate amounts on their own. Most other individual plant foods are real, genuinely incomplete on their own, each missing or running low on one or more essential aminos, though real, classic food pairings (rice and beans, hummus and pita) combine two incomplete sources into a real, complete amino-acid profile across the whole meal, not requiring both at the exact same bite the way older nutrition advice sometimes implied.",
+    citations: [
+      { source: 'Biochemistry, Essential Amino Acids, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK557845/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'protein-deficiency-kwashiorkor-marasmus',
+    category: 'basicHealth',
+    title: 'Marasmus vs. Kwashiorkor: Two Real, Genuinely Different Diseases, Not Two Names for the Same Thing',
+    teaser: "Kwashiorkor's real, defining sign is body-wide swelling with little visible wasting, the opposite of what most people picture when they think of severe malnutrition.",
+    summary:
+      "Severe protein-energy malnutrition splits into two real, genuinely distinct conditions, still affecting millions of children worldwide, not a single generic 'malnutrition' picture. Marasmus results from an overall real calorie deficiency (not protein specifically), producing the real, classic severe wasting most people actually picture: visible loss of fat and muscle mass, diagnosed by a real, specific threshold (weight-for-height more than 3 standard deviations below the mean, or a mid-upper arm circumference of 115mm or less in children 6-59 months). Kwashiorkor is a real, genuinely different condition, caused specifically by severe dietary protein deficiency despite adequate or near-adequate total calorie intake, and its own defining real sign is the opposite of what marasmus produces: bilateral body-wide edema (swelling), often with minimal or no visible wasting at all, a real, counterintuitive presentation that can look less severe than it actually is. A real, mixed form (marasmic-kwashiorkor) combines features of both. Both real conditions involve concurrent deficiencies in iron, zinc, vitamin A, and iodine, all already covered elsewhere in this category, compounding real growth impairment, cognitive impact, and infection risk well beyond the protein/calorie shortfall alone.",
+    citations: [
+      { source: 'Severe Acute Malnutrition: Recognition and Management of Marasmus and Kwashiorkor, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/32644650/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'protein-toxicity-rabbit-starvation',
+    category: 'basicHealth',
+    title: "'Rabbit Starvation': a Real, Named, Potentially Fatal Syndrome From Too Much Protein and Too Little Else",
+    teaser: 'A real, historically documented condition among explorers eating only lean meat, and a real, specific, quantified threshold: protein above 35% of total energy intake.',
+    summary:
+      "Too much protein is a genuinely real risk, not a theoretical one, and it has a real, historically documented name: rabbit starvation, first recorded among explorers and travelers eating a diet of only very lean meat (rabbit being notoriously low in fat), a real, potentially fatal syndrome from protein excess combined with too little fat or carbohydrate. The real, underlying mechanism runs through two genuine physiological bottlenecks: the gastrointestinal tract can only absorb amino acids at a real, limited rate (roughly 1.3-10g per hour), and the liver's own capacity to deaminate excess protein and convert the resulting nitrogen into urea for excretion is itself genuinely finite. A real, specific research-based threshold: protein constituting more than 35% of total energy intake is where documented adverse effects (hyperaminoacidemia, hyperammonemia, hyperinsulinemia, GI symptoms, and in severe cases the rabbit-starvation syndrome itself) start showing up. Real, proposed safe-maximum guidance sits at roughly 2-2.5g of protein per kilogram of body weight per day (about 176g daily for an 80kg/176lb person), genuinely well below the real theoretical maximum the body's own digestive/hepatic capacity could handle (285-365g daily for that same person), a real, substantial safety margin most people never need to think about, but a real, worth-knowing ceiling for anyone following a genuinely extreme high-protein diet.",
+    citations: [
+      { source: 'Bilsborough S, Mann N 2006: A review of issues of dietary protein intake in humans, PMID 16779921', url: 'https://pubmed.ncbi.nlm.nih.gov/16779921/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-protein-restriction-plant-based'],
+  },
+  {
+    id: 'protein-requirements-rda-vs-real-need',
+    category: 'basicHealth',
+    title: "The Standard Protein RDA (0.8g/kg/day) Genuinely May Be Too Low for Older Adults Specifically",
+    teaser: 'A real, growing body of research proposes 1.2g/kg/day or more for aging adults, roughly 50% above the standard baseline, to actually preserve muscle.',
+    summary:
+      "The standard adult protein RDA is a real, specific 0.8g per kilogram of body weight per day for anyone over 19, a genuine baseline meant to prevent deficiency, not necessarily to optimize function. A real, growing body of more recent research argues this baseline genuinely may be too low for a specific, real population: older adults, where real metabolic and epidemiological research suggests the standard RDA may not be adequate to maintain physical function and prevent age-related muscle loss (sarcopenia). A real, specific alternative proposed in the literature: at least 1.2g per kilogram per day for older individuals, roughly 50% above the standard baseline. The same real research emphasizes two further, practical details: leucine specifically (one of the 9 essential amino acids covered in the overview entry above) plays an outsized real role in triggering muscle protein synthesis, and distributing protein evenly across meals throughout the day works better than concentrating it in one large dinner, the real, common pattern the standard RDA's own math otherwise tends to produce.",
+    citations: [
+      { source: 'Phillips SM 2017: Current Concepts and Unresolved Questions in Dietary Protein Requirements and Supplements in Adults, PMID 28534027', url: 'https://pubmed.ncbi.nlm.nih.gov/28534027/' },
+      { source: 'Traylor DA, Gorissen SHM, Phillips SM 2018: Perspective: Protein Requirements and Optimal Intakes in Aging, PMID 29635313', url: 'https://pubmed.ncbi.nlm.nih.gov/29635313/' },
+    ],
+    overallTier: 'moderate',
+  },
+  {
+    id: 'protein-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Protein Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Salmon and chicken breast both carry real, substantial protein per 100g, lentils carry a real, meaningful amount even after cooking dilutes the concentration.',
+    summary:
+      "Real protein content pulled directly from this app's own 22,022-food reference database. Chicken breast carries a real, substantial 30-32g per 100g, a real, standard reference point most other protein sources get compared against. Salmon carries a similarly real 25-31g per 100g depending on preparation. Whole chicken egg carries roughly 15g per 100g, and lentils, a real, complete-when-paired plant source (see the overview entry above), carry roughly 9g per 100g once cooked, the water absorbed during cooking genuinely diluting the more concentrated dry-weight figure often quoted elsewhere. Worth remembering directly, given the requirements entry above: a real 100g serving of chicken breast alone covers a meaningful share of even the higher, 1.2g/kg/day older-adult target for most adult body weights.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Protein Content of Real Foods (per 100g)',
+      unit: 'g',
+      data: [
+        { label: 'Chicken breast', value: 31 },
+        { label: 'Salmon', value: 28 },
+        { label: 'Chicken egg', value: 15 },
+        { label: 'Lentils (cooked)', value: 9 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Germany_BLS-sourced values)",
+    },
+  },
+  {
+    id: 'protein-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Protein, Pulled Together',
+    teaser: "A real nutrient where 'more is better' genuinely holds for most people up to a real, specific, quantified point, with one real, direct exception already covered elsewhere in this app.",
+    summary:
+      "Line up everything in this category and protein reads as a real, structurally essential nutrient (9 specific amino acids the body cannot make on its own) where both real extremes matter, but the shape is genuinely lopsided compared to most other nutrients covered here: real deficiency (marasmus, kwashiorkor) is severe and still globally significant, but overwhelmingly a resource/food-security problem rather than a risk facing someone with reliable access to food, while real excess (rabbit starvation, a genuine, named, historically documented syndrome) requires a genuinely extreme intake, above 35% of total energy, to actually cause harm, a real, wide safety margin most people never approach. A real, growing research base suggests the standard RDA undershoots what older adults specifically need to preserve muscle, a genuinely different problem (insufficient targeting, not insufficient safety margin) from either extreme. The one real, direct exception to this whole 'more protein is generally fine' picture already lives elsewhere in this app: Chronic Kidney Disease, where a real, established 0.6-0.8g/kg/day ceiling, not a higher target, is the actual goal, since damaged kidneys genuinely can't clear the nitrogen waste higher protein intake produces the same way this entry's own healthy-kidney safety margin assumes.",
+    citations: [
+      { source: 'Bilsborough S, Mann N 2006: A review of issues of dietary protein intake in humans, PMID 16779921', url: 'https://pubmed.ncbi.nlm.nih.gov/16779921/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['protein-deficiency-kwashiorkor-marasmus', 'protein-toxicity-rabbit-starvation', 'protein-requirements-rda-vs-real-need', 'ckd-protein-restriction-plant-based'],
+  },
 ];
