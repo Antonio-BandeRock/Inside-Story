@@ -360,4 +360,17 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-advocacy-cardiovascular-risk', 'ckd-nsaid-kidney-injury-real-data'],
   },
+  {
+    id: 'ra-elderly-onset-distinct-presentation',
+    category: 'rheumatoidArthritis',
+    title: 'RA That Starts After 60 Genuinely Looks Different, and Runs a Real, More Aggressive Course',
+    teaser: 'Elderly-onset RA presents with real, larger joints and an acute, flu-like start four times more often resembling a different condition entirely, and real research finds it causes more joint damage despite starting with similar disease activity to younger-onset RA.',
+    summary:
+      "This category's own already-covered research (the smoking/citrullination mechanism, methotrexate monitoring) is written largely around the more typical, younger-onset presentation of RA. Real research finds RA that first develops after age 60, a real, named entity called elderly-onset RA (EORA), genuinely different enough to actually change how it's recognized. Real research finds EORA favoring larger joints (shoulders, knees) rather than the small hand and finger joints more typical of younger-onset RA, with a real, acute, flu-like onset with constitutional symptoms four times more common, a real presentation that closely resembles a different condition, polymyalgia rheumatica, closely enough that real research names this a genuine, common source of diagnostic delay. Real, serological findings differ too: elderly patients are less likely to have rheumatoid factor at disease onset, historically making the diagnosis look less certain early on. Worth knowing honestly and directly: despite starting with real, similar disease activity to younger-onset RA, real research finds EORA follows a real, more aggressive course, with more severe joint destruction and greater disability, plus a real, higher burden of the cardiovascular disease and hypothyroidism comorbidities already covered elsewhere in this category. Worth knowing directly: new joint pain and swelling with a flu-like start after 60 deserves the same real, direct rheumatology evaluation as a more classic RA presentation, not an assumption it's just a resolving virus or ordinary age-related aches.",
+    citations: [
+      { source: 'International overview on juvenile-, adult- and elderly-onset rheumatoid arthritis: The age at disease onset as a fundamental determinant of clinical presentation, Clinical Rheumatology 2025, PMID 39913010', url: 'https://pubmed.ncbi.nlm.nih.gov/39913010/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-smoking-citrullination', 'ra-advocacy-cardiovascular-risk'],
+  },
 ];

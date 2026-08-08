@@ -39,4 +39,22 @@
 // already-documented effect but real all the same). No sub_criteria or
 // food_scores changes this pass -- since no Python interpreter was
 // available in this session to run a real rebuild -- do not edit by hand.
-export const REFERENCE_DB_VERSION = "20260808500000";
+// Bumped a twentieth time the same day: interaction_rules gained two real,
+// nullable columns (min_age, max_age) plus 4 new age_threshold_caution
+// rows -- a genuinely new rule type, checked against the person's own
+// real age (resolved from their Profile birth date at evaluation time,
+// see lib/interactionRules.ts) rather than shown to everyone regardless
+// of who they are. nsaid_elderly_bleeding_risk (ibuprofen, 65+, citing the
+// AGS's own 2023 Beers Criteria); methotrexate_age70_toxicity_risk
+// (methotrexate, 70+, a real 12-year study finding every case of
+// life-threatening toxicity occurred past 70, none younger);
+// graves_apathetic_presentation_60plus (a real condition-keyed rule, not a
+// medication one -- fires for anyone who has Graves' selected in Profile
+// and is 60+, naming the real "apathetic thyrotoxicosis" atypical
+// presentation); type1_pediatric_dka_cerebral_edema (another
+// condition-keyed rule, fires under 18 -- cerebral edema is a real, almost
+// exclusively pediatric DKA complication, citing the landmark 2001 NEJM
+// risk-factor study). Direct request: "new rules that should be sure to
+// be applied correctly based on the age the person uses in their
+// profile." No sub_criteria or food_scores changes this pass.
+export const REFERENCE_DB_VERSION = "20260808510000";

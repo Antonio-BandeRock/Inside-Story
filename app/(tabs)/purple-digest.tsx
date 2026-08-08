@@ -1989,23 +1989,6 @@ function renderRichText(text: string, boldStyle: TextStyle) {
   );
 }
 
-// A real "TL;DR" callout, reusing the entry's own already-existing teaser
-// text -- 2026-08-08, the other real, contained win named in the same
-// discussion. Deliberately no new content authored for this: the plain
-// one-line teaser already shown above every collapsed card is exactly the
-// short, scannable "key takeaway" a TL;DR box is meant to be, it just
-// wasn't visually distinguished as one once a card opened. Sits at the top
-// of the expanded detail, above the full write-up, styled as a real,
-// tinted callout rather than plain body text.
-function TldrBox({ teaser, color }: { teaser: string; color: string }) {
-  return (
-    <View style={[styles.tldrBox, { borderColor: color }]}>
-      <Text style={[styles.tldrLabel, { color }]}>TL;DR</Text>
-      <Text style={styles.tldrText}>{teaser}</Text>
-    </View>
-  );
-}
-
 // A real, local-only thumbs-up/down control -- 2026-08-08, self-contained
 // (loads and saves its own one entry's value directly, see lib/
 // digestFeedback.ts's own comment for why) rather than threaded as props
@@ -2086,7 +2069,6 @@ function DigestCard({
         <Text style={styles.cardTeaser}>{entry.teaser}</Text>
         {expanded ? (
           <View style={styles.cardDetail}>
-            <TldrBox teaser={entry.teaser} color={colors.accent} />
             <EntryMetaRow entry={entry} />
             <Text style={styles.detailLabel}>The problem</Text>
             <Text style={styles.detailText}>{renderRichText(entry.problem, styles.detailTextBold)}</Text>
@@ -2118,7 +2100,6 @@ function DigestCard({
       <Text style={styles.cardTeaser}>{entry.teaser}</Text>
       {expanded ? (
         <View style={styles.cardDetail}>
-          <TldrBox teaser={entry.teaser} color={tierColor(entry.overallTier)} />
           <Text style={[styles.tierLabelText, { color: tierColor(entry.overallTier) }]}>
             {tierLabel(entry.overallTier)}
           </Text>
@@ -2277,18 +2258,6 @@ const styles = StyleSheet.create({
   detailTextBold: { fontWeight: '700' },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
   stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8 },
-  // The TL;DR callout -- a real, tinted box (not just a differently-colored
-  // Text) so it reads as a distinct "key takeaway" rather than one more
-  // paragraph in the same plain flow as everything below it.
-  tldrBox: {
-    borderWidth: 1.5,
-    borderRadius: 10,
-    padding: 10,
-    marginBottom: 4,
-    backgroundColor: colors.surfaceMuted,
-  },
-  tldrLabel: { ...typography.eyebrow, marginBottom: 2 },
-  tldrText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, fontWeight: '600' },
   feedbackRow: {
     flexDirection: 'row',
     alignItems: 'center',

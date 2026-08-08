@@ -1856,9 +1856,6 @@ function MyMedsView({
             <View key={`${warning.ruleId}_${index}`} style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
               <Text style={[styles.rankFoodName, { color: tabColor }]}>{warning.title}</Text>
               <Text style={styles.myMedsMessage}>{warning.message}</Text>
-              {warning.confidence === 'unverified' ? (
-                <Text style={styles.myMedsMeta}>Not checked precisely -- add dose times to verify.</Text>
-              ) : null}
               <Text style={styles.myMedsCitation}>{warning.citation}</Text>
             </View>
           ))}
@@ -2346,7 +2343,6 @@ const styles = StyleSheet.create({
   labDateRow: { flexDirection: 'row', gap: 10, marginTop: 4 },
   // My Meds & Interactions lens, 2026-08-08.
   myMedsMessage: { ...typography.body, color: colors.textPrimary, marginTop: 6 },
-  myMedsMeta: { ...typography.caption, color: colors.textSecondary, marginTop: 6, fontStyle: 'italic' },
   myMedsCitation: { ...typography.caption, color: colors.textMuted, marginTop: 6 },
   // Today's Advisories lens, 2026-08-08.
   advisoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },

@@ -343,4 +343,17 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-gut-derived-uremic-toxins', 'gut-scfa-treg'],
   },
+  {
+    id: 'ckd-age-adapted-egfr-debate',
+    category: 'chronicKidneyDisease',
+    title: "A Real, Genuinely Unsettled Debate: Should 'Normal' Kidney Function Be Judged Differently by Age?",
+    teaser: 'Real, large-cohort data finds a substantial share of otherwise healthy people over 65 already score below the standard CKD threshold, a real reason some nephrologists argue CKD is being overdiagnosed in older adults.',
+    summary:
+      "This category's own already-covered G-A staging system uses one fixed eGFR threshold (60) to define CKD, regardless of age. Real, large-scale data finds a genuine problem with that: kidney filtration rate declines as a normal, expected part of aging, even with no real kidney disease present, and a real analysis of over 1.5 million healthy Europeans found a substantial share of people over 65 already score below that same standard threshold, real evidence the 90th percentile of eGFR at age 65 sits at only 90, meaning most healthy 65-year-olds are already well below what a younger adult would consider normal, let alone the CKD cutoff itself. Real, some nephrologists argue this leads to genuine overdiagnosis in older adults, with a real, separate large study finding people over 65 with a mildly reduced eGFR (45-59) and little to no protein in their urine had a real risk of death similar to, and higher than, their real risk of ever actually reaching kidney failure, suggesting the label itself may carry more alarm than the actual biological reality warrants for many older adults. Worth knowing honestly: this is a real, still-unsettled debate, not a case with one clearly right answer, some real proposals call for age-adjusted eGFR percentiles instead of one fixed number. Worth knowing directly: an older adult told they have 'CKD' based on eGFR alone, with no real protein in the urine and no other red flag, has real, legitimate standing to ask whether that finding reflects real disease or the normal, expected kidney aging this same real research describes.",
+    citations: [
+      { source: 'Age-adapted versus age-independent eGFR thresholds to diagnose CKD: integrating the debate and charting a balanced path forward, Clinical Kidney Journal 2025', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12612672/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ckd-g-a-staging-heat-map', 'ckd-egfr-acr-monitoring'],
+  },
 ];

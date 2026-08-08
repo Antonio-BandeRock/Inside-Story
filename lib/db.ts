@@ -8713,8 +8713,20 @@ export async function listTrackedNutrients(): Promise<TrackedNutrient[]> {
 // track, not on prescription tracking).
 export type InteractionRuleRecord = {
   id: string;
-  ruleType: 'timing_separation' | 'dietary_cofactor' | 'appointment_caution' | 'reference_only' | 'dose_consistency_caution' | 'concurrent_use_caution';
+  ruleType:
+    | 'timing_separation'
+    | 'dietary_cofactor'
+    | 'appointment_caution'
+    | 'reference_only'
+    | 'dose_consistency_caution'
+    | 'concurrent_use_caution'
+    | 'age_threshold_caution';
   checkable: boolean;
+  // For rule_type='age_threshold_caution', subjectAKind may also be
+  // 'condition' -- matched against the person's own selected conditions
+  // (user_conditions/getUserConditions) by the conditions table's own
+  // snake_case code, rather than an active treatment. Every other rule
+  // type still only ever uses 'nutrient'/'prescription' here.
   subjectAKind: string;
   subjectA: string;
   subjectBKind: string | null;
@@ -8724,6 +8736,16 @@ export type InteractionRuleRecord = {
   // look for a matching upcoming appointment (see subjectB, an
   // appointment_type value like 'lab_draw') before this rule fires.
   lookaheadDays: number | null;
+  // Added 2026-08-08 for real, age-personalized rules -- only set for
+  // rule_type='age_threshold_caution'. At least one of minAge/maxAge is
+  // set; both may be, to express a real bounded band (e.g. pediatric-only
+  // is maxAge with no minAge, elderly-only is minAge with no maxAge). The
+  // person's own real age is resolved from their Profile birth date at
+  // evaluation time (see lib/interactionRules.ts) -- this table never
+  // stores anyone's actual age, only the real, cited threshold a finding
+  // applies at.
+  minAge: number | null;
+  maxAge: number | null;
   severity: 'caution' | 'note';
   title: string;
   guidance: string;
@@ -8742,6 +8764,8 @@ export async function listInteractionRules(): Promise<InteractionRuleRecord[]> {
     subject_b: string | null;
     min_separation_hours: number | null;
     lookahead_days: number | null;
+    min_age: number | null;
+    max_age: number | null;
     severity: string;
     title: string;
     guidance: string;
@@ -8758,6 +8782,8 @@ export async function listInteractionRules(): Promise<InteractionRuleRecord[]> {
     subjectB: row.subject_b,
     minSeparationHours: row.min_separation_hours,
     lookaheadDays: row.lookahead_days,
+    minAge: row.min_age,
+    maxAge: row.max_age,
     severity: row.severity as InteractionRuleRecord['severity'],
     title: row.title,
     guidance: row.guidance,

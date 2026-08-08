@@ -340,4 +340,17 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['masld-sleep-apnea-bidirectional'],
   },
+  {
+    id: 'type2-youth-onset-more-aggressive',
+    category: 'type2Diabetes',
+    title: "Type 2 Diabetes Diagnosed in Youth Runs a Real, Genuinely Faster, Harsher Course Than the Same Disease in Adults",
+    teaser: 'A real, landmark long-term study found 60% of people diagnosed with T2D as children or teens already had a real diabetes complication within 15 years, most still in their 20s, a real, faster course than adult-onset T2D typically shows.',
+    summary:
+      "This category's own already-covered research (remission, GLP-1/SGLT2 medications, individualized HbA1c targets) draws mostly on adult-onset T2D, the far more common presentation. Real, long-term data finds youth-onset T2D a genuinely different, more aggressive disease, not simply the same condition starting earlier. The real, landmark TODAY study and its long-term TODAY2 follow-up found insulin-producing beta-cell function declining faster in youth than in adults, and metformin alone, this category's own often-first medication, provided durable glycemic control in only about half of young participants. Real, 15-year follow-up data found 60% of participants had developed at least one real diabetes-related complication, and nearly a third had two or more, at a real average age of just 26, high blood pressure in 67%, kidney disease in nearly 55%, eye disease in 51%, and nerve disease in 32%. Real research found the rate of real heart, vascular, and stroke-related events three times higher than in a comparison study of older adults with a longer real disease duration, a real, striking reversal of the usual assumption that more years with diabetes means more complications. Worth knowing directly: a young person diagnosed with T2D deserves real, more assertive, more closely-monitored treatment from the start, not a wait-and-see approach based on how the disease usually behaves in adults, since real evidence finds it usually doesn't behave the same way at all.",
+    citations: [
+      { source: 'Long-Term Complications in Youth-Onset Type 2 Diabetes, New England Journal of Medicine 2021, PMID 34320286', url: 'https://pubmed.ncbi.nlm.nih.gov/34320286/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-remission-ada-consensus-definition', 'type2-individualized-hba1c-targets'],
+  },
 ];

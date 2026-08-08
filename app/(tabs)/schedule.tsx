@@ -2264,9 +2264,6 @@ function MyMedsLens() {
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
-                  {warning.confidence === 'unverified' ? (
-                    <Text style={styles.interactionMeta}>Not checked precisely -- add dose times to verify.</Text>
-                  ) : null}
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
                 </View>
               ))}
@@ -2662,9 +2659,6 @@ function SupplementsLens() {
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
-                  {warning.confidence === 'unverified' ? (
-                    <Text style={styles.interactionMeta}>Not checked precisely -- add dose times to verify.</Text>
-                  ) : null}
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
                 </View>
               ))}
@@ -3107,9 +3101,6 @@ function PrescriptionsLens() {
                 <View key={`${warning.ruleId}_${index}`} style={styles.interactionCard}>
                   <Text style={styles.interactionTitle}>{warning.title}</Text>
                   <Text style={styles.interactionMessage}>{warning.message}</Text>
-                  {warning.confidence === 'unverified' ? (
-                    <Text style={styles.interactionMeta}>Not checked precisely -- add dose times to verify.</Text>
-                  ) : null}
                   <Text style={styles.interactionCitation}>{warning.citation}</Text>
                 </View>
               ))}
@@ -4077,7 +4068,6 @@ const styles = StyleSheet.create({
   interactionCardReference: { backgroundColor: colors.surfaceMuted },
   interactionTitle: { ...typography.bodyEmphasis, color: TAB_COLOR },
   interactionMessage: { ...typography.body, color: TAB_COLOR, marginTop: 4 },
-  interactionMeta: { ...typography.caption, color: TAB_COLOR, marginTop: 4, fontStyle: 'italic' },
   interactionCitation: { ...typography.caption, color: TAB_COLOR, marginTop: 6 },
   actionText: { ...typography.captionEmphasis, color: TAB_COLOR },
   actionTextPrimary: { ...typography.captionEmphasis, color: colors.primary },

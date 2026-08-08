@@ -341,4 +341,17 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-systemic-cvd-ckd-real-data'],
   },
+  {
+    id: 'masld-pediatric-prevalence-real-data',
+    category: 'fattyLiverDisease',
+    title: 'MASLD Is Now the Most Common Chronic Liver Disease in Children, Not Just Adults',
+    teaser: 'Real research finds MASLD in a real 7.4% of the general pediatric population, rising to over half (52.5%) of children with obesity specifically, a real, rapidly growing problem this category\'s own research hasn\'t named directly yet.',
+    summary:
+      "This category's own already-covered research (weight loss, diet, medications) is written the way most MASLD research still is, centered on adults. Real, current data finds this is genuinely no longer just an adult condition: MASLD is now the most common chronic liver disease in children and adolescents, tracking directly alongside real, rising childhood obesity rates. Real, pooled meta-analysis data finds MASLD present in a real 7.4% of the general pediatric population, rising sharply to 52.5% specifically among children with obesity, over half. Worth knowing honestly: real research finds this same condition genuinely underscreened and underdiagnosed in the pediatric obesity population, meaning a real, substantial share of affected children likely go unrecognized. The real, underlying biology (insulin resistance, visceral fat, the same genetic risk variants like PNPLA3 already covered in this category's own research) works the same way in children as in adults, but real, pediatric-specific management differs in real, practical ways, most weight-loss medications and the one FDA-approved MASH drug (resmetirom) covered elsewhere in this category aren't approved for children, making the real, already-covered lifestyle and dietary levers (weight loss thresholds, the Mediterranean-pattern research) even more central for this age group specifically. Worth knowing directly: a child or adolescent with obesity has real, legitimate standing for a liver-health conversation, not just a weight conversation, given how common this condition turns out to actually be at that age.",
+    citations: [
+      { source: 'The evolving landscape of pediatric obesity and metabolic dysfunction-associated steatotic liver disease, Frontiers in Pediatrics 2025, PMID 41230444', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12602495/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-weight-loss-thresholds', 'masld-pnpla3-genetic-risk'],
+  },
 ];

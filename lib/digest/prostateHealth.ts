@@ -342,4 +342,17 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-insulin-resistance-mechanism', 'type2-metabolic-syndrome-cluster'],
   },
+  {
+    id: 'prostate-age-specific-psa-ranges',
+    category: 'prostateHealth',
+    title: 'A "Normal" PSA Number Genuinely Isn\'t the Same at Every Age',
+    teaser: 'A real, foundational study established that the upper limit of a normal PSA reading climbs decade by decade, from as low as 2.5 in someone\'s 40s to as high as 6.5 in their 70s, real evidence a single universal cutoff misreads real risk in either direction.',
+    summary:
+      "This category's own already-covered PSA-screening research names the real benefit-versus-harm tradeoff of screening at all. A real, separate, practical detail matters just as directly: what counts as a normal PSA result genuinely isn't one fixed number. A real, foundational study established age-specific PSA reference ranges, since the prostate naturally grows larger with age (the same real process behind BPH, already covered elsewhere in this category), producing more PSA even with no cancer present. Real, commonly cited ranges run roughly 0 to 2.5 for ages 40 to 49, 0 to 3.5 for 50 to 59, 0 to 4.5 for 60 to 69, and 0 to 6.5 for 70 to 79, a real, meaningful shift from the older, single universal cutoff of 4.0 still used by some clinicians. Real, practical consequence in both directions: a younger man with a PSA of 3.8 could be flagged as elevated under the universal cutoff but is actually within his own real, normal age-specific range, while an older man with the same 3.8 reading sits comfortably normal for his own decade, but that same number might have been a real, missed early warning sign in someone younger. Worth knowing directly: age-specific ranges were built specifically to catch more real, early cancers in younger men while reducing false alarms in older men, worth asking directly whether a PSA result was interpreted against the real, correct range for the actual age on file, not a flat, one-size-fits-all number.",
+    citations: [
+      { source: 'Age-specific reference ranges for serum prostate-specific antigen, Urology 1995, PMID 7541586', url: 'https://pubmed.ncbi.nlm.nih.gov/7541586/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-psa-screening', 'prostate-medications-psa-monitoring'],
+  },
 ];

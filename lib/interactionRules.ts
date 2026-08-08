@@ -1,6 +1,8 @@
 import {
   getDailyNutrientBreakdown,
   getTreatmentNutrients,
+  getUserConditions,
+  getUserProfile,
   listInteractionRules,
   listOtcTreatments,
   listPrescriptionTreatments,
@@ -11,6 +13,7 @@ import {
   type ScheduleItemRecord,
   type TreatmentRecord,
 } from './db';
+import { ageFromBirthDate } from './profile';
 
 const APPOINTMENT_LOOKAHEAD_WINDOW_DAYS = 60;
 
@@ -107,17 +110,34 @@ function activeTreatmentsForSubject(
 // timing_separation pair) ever produce a warning -- consistent with the
 // rest of the app not nagging about hypothetical, inapplicable situations.
 export async function evaluateInteractionRules(date: string): Promise<InteractionEvaluation> {
-  const [rules, activeSupplements, activePrescriptions, activeOtc, scheduledSupplementDoses, scheduledPrescriptionDoses, breakdown, upcomingAppointments] =
-    await Promise.all([
-      listInteractionRules(),
-      listSupplementTreatments(true),
-      listPrescriptionTreatments(true),
-      listOtcTreatments(true),
-      listScheduledSupplementsForDate(date),
-      listScheduledPrescriptionsForDate(date),
-      getDailyNutrientBreakdown(date),
-      listUpcomingAppointments(date, addDaysToDateString(date, APPOINTMENT_LOOKAHEAD_WINDOW_DAYS)),
-    ]);
+  const [
+    rules,
+    activeSupplements,
+    activePrescriptions,
+    activeOtc,
+    scheduledSupplementDoses,
+    scheduledPrescriptionDoses,
+    breakdown,
+    upcomingAppointments,
+    profile,
+    conditionCodes,
+  ] = await Promise.all([
+    listInteractionRules(),
+    listSupplementTreatments(true),
+    listPrescriptionTreatments(true),
+    listOtcTreatments(true),
+    listScheduledSupplementsForDate(date),
+    listScheduledPrescriptionsForDate(date),
+    getDailyNutrientBreakdown(date),
+    listUpcomingAppointments(date, addDaysToDateString(date, APPOINTMENT_LOOKAHEAD_WINDOW_DAYS)),
+    getUserProfile(),
+    getUserConditions(),
+  ]);
+  // Resolved once per evaluation, not per rule -- the same real age
+  // ('age_threshold_caution' rules below check against this) every time a
+  // birth date is on file, null when it isn't (Profile's own birth-date
+  // fields are all optional).
+  const ageYears = profile.birthDate ? ageFromBirthDate(profile.birthDate) : null;
 
   const ingredientsByTreatment: Record<string, { nutrientCode: string }[]> = {};
   await Promise.all(
@@ -279,6 +299,55 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
         citation: rule.citation,
         confidence: 'confirmed',
       });
+      continue;
+    }
+
+    // Added 2026-08-08 -- a real, personalized rule keyed on the person's
+    // own age, resolved from their real Profile birth date, not a
+    // hypothetical "this applies to older adults" note shown to everyone
+    // regardless of who they actually are. subjectAKind is either
+    // 'nutrient'/'prescription' (an active treatment, matched the same way
+    // every other rule type already does) or the new 'condition' kind
+    // (matched against the person's own selected conditions from Profile).
+    // At least one of minAge/maxAge is set on a real row of this type; a
+    // rule fires when the resolved subject is real AND the person's real
+    // age falls inside whatever band is set.
+    if (rule.ruleType === 'age_threshold_caution' && (rule.minAge != null || rule.maxAge != null)) {
+      const subjectApplies =
+        rule.subjectAKind === 'condition'
+          ? conditionCodes.includes(rule.subjectA)
+          : activeTreatmentsForSubject(rule.subjectAKind, rule.subjectA, subjectContext).length > 0;
+      if (!subjectApplies) {
+        continue;
+      }
+      if (ageYears == null) {
+        // A real, honest "can't personalize this yet" state -- distinct
+        // from every other rule's own 'unverified' case (a missing dose
+        // TIME), this one is a missing birth date. Surfaced rather than
+        // silently skipped, since the subject genuinely does apply; the
+        // only thing missing is the one real input needed to check it.
+        warnings.push({
+          ruleId: rule.id,
+          severity: rule.severity,
+          title: rule.title,
+          message: `${rule.guidance} Add your birth date in Profile to see whether this specifically applies to you.`,
+          citation: rule.citation,
+          confidence: 'unverified',
+        });
+        continue;
+      }
+      const withinBand = (rule.minAge == null || ageYears >= rule.minAge) && (rule.maxAge == null || ageYears <= rule.maxAge);
+      if (withinBand) {
+        warnings.push({
+          ruleId: rule.id,
+          severity: rule.severity,
+          title: rule.title,
+          message: `${rule.guidance} Based on the age in your profile (${ageYears}).`,
+          citation: rule.citation,
+          confidence: 'confirmed',
+        });
+      }
+      continue;
     }
   }
 

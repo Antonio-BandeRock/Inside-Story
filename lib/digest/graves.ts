@@ -348,4 +348,17 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['graves-bone-density'],
   },
+  {
+    id: 'graves-pediatric-lower-remission-real-data',
+    category: 'graves',
+    title: 'Antithyroid Drugs Work the Same Way in Children, but Remission Genuinely Takes Longer',
+    teaser: 'A real, pooled meta-analysis found remission rates in pediatric Graves\' disease climbing from a real 15.5% under 2 years of treatment to 33.0% past 5 years, real, direct evidence that children need real patience with this treatment that adults often don\'t.',
+    summary:
+      "This category's own already-covered antithyroid-drug-monitoring and block-and-replace-versus-titration research is written largely around adult dosing and safety. Real, pooled evidence finds one real, important difference specific to children and adolescents worth knowing directly: remission takes genuinely longer to reach. A real, pooled meta-analysis found remission rates of 15.5% for treatment courses under 2 years, rising to 24.1% for 2 to 5 years, and 33.0% for courses longer than 5 years, with each additional year of treatment adding a real, measurable 3.8% increase in the relative likelihood of remission. This is a real, meaningfully different pattern from adult Graves' treatment, where this category's own real, general remission research already treats a much shorter initial course as standard. Worth knowing directly: a real, well-documented practical implication follows directly from this data, extending antithyroid drug treatment well past the point an adult might stop is a real, evidence-backed strategy specifically in pediatric Graves', not simply a slower version of the same adult protocol. This is real, useful context for a parent or a pediatric endocrinology team weighing how long to continue medication before considering radioactive iodine or surgery, both already covered in this category's own treatment-comparison research.",
+    citations: [
+      { source: "Effect of Antithyroid Drugs Treatment Duration on The Remission Rates of Graves' Disease in Children and Adolescents: A Single-Arm Meta-Analysis and Systematic Review, Clinical Endocrinology 2024, PMID 39501471", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11694547/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-block-replace-vs-titration', 'graves-remission-real-rates'],
+  },
 ];

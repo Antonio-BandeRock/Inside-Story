@@ -351,4 +351,17 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['celiac-cross-contamination'],
   },
+  {
+    id: 'celiac-pediatric-vs-adult-presentation',
+    category: 'celiac',
+    title: 'Celiac Disease Looks, and Gets Diagnosed, Genuinely Differently in Children Than in Adults',
+    teaser: 'A real, direct comparison found classic gut symptoms in 79% of children with celiac disease, but only 14% of adults, real evidence for why the same disease is missed far more often once someone is grown.',
+    summary:
+      "This category's own already-covered iceberg-underdiagnosis research names how common a missed celiac diagnosis is. A real, direct age comparison explains a meaningful part of why: classic, textbook celiac symptoms (chronic diarrhea, growth failure, malabsorption) were the presenting picture in a real 79% of children, but only 14% of adults, with adults instead presenting far more often with real, nonspecific symptoms (anemia in 42% of adults versus 19% of children, plus vague abdominal pain and chronic fatigue). Real lab and biopsy findings track the same pattern: tissue transglutaminase antibodies were positive in a real 88% of children versus 31% of adults, and visible villous atrophy on biopsy in 95% of children versus 33% of adults, meaning even the objective test results themselves look genuinely different by age, not just the symptoms. Real research also finds coexisting autoimmune disease (type 1 diabetes, Sjögren's, dermatitis herpetiformis) far more common in adults with celiac (42%) than in children (5%), and a real, longer average diagnostic delay in adolescents and adults (4.9 years) than in children (3.5 years). Worth knowing directly: an adult with genuinely nonspecific symptoms, anemia, fatigue, or vague digestive discomfort, has real, legitimate standing to ask about celiac testing specifically, even without the more classic picture a doctor might expect from having seen it more often in children.",
+    citations: [
+      { source: 'The Spectrum of Differences between Childhood and Adulthood Celiac Disease, Nutrients 2015, PMID 26506381', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4632446/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-iceberg-underdiagnosis', 'celiac-diagnostic-panel'],
+  },
 ];

@@ -343,4 +343,17 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-gut-serotonin-mechanism', 'ibs-cbt-brain-gut-therapy'],
   },
+  {
+    id: 'ibs-pediatric-functional-gi-disorders',
+    category: 'ibs',
+    title: 'IBS Has Its Own Real, Distinct Diagnostic Category for Children, Genuinely Common at That Age Too',
+    teaser: 'A real, pooled systematic review found functional gut disorders affecting roughly 22% of children, with IBS one of four real, named subtypes under the same Rome IV framework this app\'s own adult IBS research already uses.',
+    summary:
+      "This category's own already-covered Rome IV subtypes research is written around adult diagnosis. Real, pediatric-specific Rome IV criteria exist too, and real, pooled data finds this genuinely common in childhood, not just adulthood: a real systematic review found functional abdominal-pain disorders affecting roughly 22% of children (22.2% under age 4, 21.8% from age 4 to 18), organized into four real, named subtypes, irritable bowel syndrome, functional dyspepsia, functional abdominal pain, and abdominal migraine, a real, distinct fourth category with no direct adult equivalent in this same framework. Real, pediatric Rome IV criteria were specifically updated to better fit how these conditions actually present in children, and real, current diagnostic guidance treats this the same way this category's own adult red-flags research already does: a real, symptom-based diagnosis that doesn't require extensive testing once genuine red-flag symptoms have been ruled out. Worth knowing directly: a child with recurring, unexplained abdominal pain has a real, legitimate, already-established diagnostic pathway, not a condition that only starts being real once someone reaches adulthood, and the same real, brain-gut-axis-based approaches already covered in this category (CBT, gut-directed therapy) have real, growing pediatric-specific evidence behind them too.",
+    citations: [
+      { source: 'Systematic Review of Pediatric Functional Gastrointestinal Disorders (Rome IV Criteria), Journal of Clinical Medicine 2021, PMID 34768604', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8585107/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-rome-iv-subtypes', 'ibs-cbt-brain-gut-therapy'],
+  },
 ];
