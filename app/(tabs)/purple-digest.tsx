@@ -594,6 +594,27 @@ export default function PurpleDigestScreen() {
   useRegisterScreenHelp('Purple Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const autoOpenLensHub = useAutoOpenLensHubSignal();
+  // The real value actually handed to LensHub's own autoOpenSignal prop --
+  // 2026-08-08, widened from just autoOpenLensHub (a TabHub-navigation-only
+  // signal, see useAutoOpenLensHubSignal's own comment) to also react to a
+  // real, deliberate in-screen tap: "when I hit back to digest breadcrumb
+  // from any section, it should close the current section and display the
+  // Digest LensHub menu." Unlike the two earlier, reverted "always
+  // auto-open on arrival" attempts LensHub.tsx's own history already
+  // documents, this isn't gated on arriving at the screen at all -- it only
+  // fires from an explicit tap on the "‹ Back to Digest" link itself, so a
+  // horizontal swipe between tabs (which never touches this state) still
+  // can't trigger it, the same real distinction that made autoOpenLensHub
+  // itself safe to reintroduce. Kept as its own state (not just passing
+  // autoOpenLensHub straight through) so either source -- a real TabHub
+  // navigation, or this screen's own back-link tap -- can independently
+  // bump it to a fresh value at its own time, with LensHub's own
+  // already-existing "is this genuinely a NEW value" dedup below deciding
+  // whether to actually open.
+  const [openTrigger, setOpenTrigger] = useState<string | undefined>(undefined);
+  useEffect(() => {
+    if (autoOpenLensHub) setOpenTrigger(autoOpenLensHub);
+  }, [autoOpenLensHub]);
 
   const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
   // The person's own selected conditions (Profile's own picker,
@@ -969,6 +990,31 @@ export default function PurpleDigestScreen() {
   // the same pairing.
   const activeSearchValue = lens === 'search' ? searchQuery : categorySearchQuery;
   const setActiveSearchValue = lens === 'search' ? setSearchQuery : setCategorySearchQuery;
+  // Whether a real search is actively narrowing what's on screen right
+  // now -- the RAW, instant query (not the debounced copy driving the
+  // expensive results themselves), since the goal here is UI that reacts
+  // the moment someone starts typing, not once results catch up.
+  const isSearchActive = activeSearchValue.trim().length > 0;
+  // Two real fixes, 2026-08-08, direct request: "when I start to search in
+  // any section... the search results should automatically be displayed
+  // right below the subheader... either moving the section specific
+  // starting box up out of the way or some other method that displays the
+  // search results without having to scroll to find them." headerCard
+  // (below) is hidden outright the instant a real search starts, so
+  // results become the very first thing in the ScrollView rather than
+  // sitting below it -- and this effect guards against a stale scroll
+  // position from before searching started (already scrolled deep into a
+  // shelf or the tree when typing begins) by snapping back to the top the
+  // moment a search actually goes from inactive to active, so results
+  // land right under the fixed subheader with nothing to scroll past
+  // either way.
+  const wasSearchActive = useRef(false);
+  useEffect(() => {
+    if (isSearchActive && !wasSearchActive.current) {
+      scrollRef.current?.scrollTo({ y: 0, animated: true });
+    }
+    wasSearchActive.current = isSearchActive;
+  }, [isSearchActive]);
 
   return (
     <View style={styles.screen}>
@@ -1002,19 +1048,23 @@ export default function PurpleDigestScreen() {
                   between tree levels -- this is a second, separate escape
                   hatch that always works in one tap, from any lens, at any
                   depth (a condition's pillar shelves, Search's own results,
-                  or any level of Basic Health's tree). It doesn't reopen
-                  LensHub itself -- it returns to the exact same resting state
-                  (revealed=false, the corner button and PageIdentityLabel's
-                  own prompt visible) every other tab in this app already uses
-                  as its own "nothing picked yet" screen, so tapping the
-                  corner button to choose a new lens from there is the same,
-                  already-familiar motion as opening this tab for the first
-                  time. */}
+                  or any level of Basic Health's tree).
+                  2026-08-08, same day, real follow-up: "when I hit back to
+                  digest breadcrumb from any section, it should close the
+                  current section and display the Digest LensHub menu for
+                  the user to select another topic." Now bumps openTrigger
+                  (see its own comment above) the same tap it resets
+                  `revealed`, so the picker itself opens immediately rather
+                  than requiring a second tap on the corner button
+                  afterward. */}
               <TouchableOpacity
                 style={styles.backToHomeRow}
-                onPress={() => setRevealed(false)}
+                onPress={() => {
+                  setRevealed(false);
+                  setOpenTrigger(`back-${Date.now()}`);
+                }}
                 accessibilityRole="button"
-                accessibilityLabel="Back to Digest home"
+                accessibilityLabel="Back to Digest home, choose another topic"
               >
                 <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
               </TouchableOpacity>
@@ -1046,18 +1096,25 @@ export default function PurpleDigestScreen() {
                   caption over open sky. The first real thing inside this
                   ScrollView, per the correction above -- it scrolls under the
                   fixed search box exactly like the rest of this category's
-                  own content does. */}
-              <View style={styles.headerCard}>
-                <View style={styles.categoryHeaderRow}>
-                  <PurpleRibbonIcon size={22} color={TAB_COLOR} />
-                  <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+                  own content does.
+                  Hidden outright the instant a real search is active (see
+                  isSearchActive's own comment) -- "moving the section
+                  specific starting box up out of the way," the option this
+                  request named first, rather than leaving it sitting above
+                  the results as something to scroll past. */}
+              {isSearchActive ? null : (
+                <View style={styles.headerCard}>
+                  <View style={styles.categoryHeaderRow}>
+                    <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                    <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+                  </View>
+                  <Text style={styles.categoryDescription}>
+                    {lens === 'search'
+                      ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
+                      : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
+                  </Text>
                 </View>
-                <Text style={styles.categoryDescription}>
-                  {lens === 'search'
-                    ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
-                    : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
-                </Text>
-              </View>
+              )}
 
               {lens === 'search' ? (
                 searchQuery.trim().length === 0 ? (
@@ -1220,7 +1277,7 @@ export default function PurpleDigestScreen() {
         // per-route special-casing of its own, so it needs this override
         // explicitly.
         renderIcon={(size) => <PurpleRibbonIcon size={size} color={TAB_COLOR} />}
-        autoOpenSignal={autoOpenLensHub}
+        autoOpenSignal={openTrigger}
         onSelect={(key) => {
           // Same reasoning as jumpToRelated's own reset -- a fresh lens
           // means a fresh set of shelf groups, and a previous category's
