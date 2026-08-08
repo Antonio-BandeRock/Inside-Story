@@ -86,7 +86,7 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
       { source: "A Randomised Double-Blind Placebo-Controlled Clinical Trial of Fish Oil (Omega-3) in Sjögren's Syndrome Patients in Erbil-Iraq", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12183441/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['omega36-tying-together'],
+    relatedIds: ['omega36-tying-together', 'sjogrens-vitamin-d-dry-eye-severity'],
   },
   {
     id: 'sjogrens-lymphoma-risk',
@@ -282,5 +282,21 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['sjogrens-secondary-ra-lupus-overlap', 'sjogrens-overview'],
+  },
+  {
+    id: 'sjogrens-vitamin-d-dry-eye-severity',
+    category: 'sjogrens',
+    title: "Vitamin D Status Tracks With How Severe Dry Eye Actually Feels in Sjögren's",
+    teaser: 'An 18-study review found people with lower vitamin D had measurably worse tear production and eye-surface irritation, not just lower blood levels on paper.',
+    summary:
+      "Sjögren's own hallmark symptom, dry eyes, has a measurable relationship with vitamin D status that goes beyond a simple shared-deficiency coincidence. A systematic review and meta-analysis pooling 18 studies found that people with vitamin D deficiency had a shorter tear breakup time (how long the eye's own tear film stays intact before it starts to dry out), lower Schirmer's test scores (a direct measure of how much tear fluid the eye actually produces), and a higher ocular surface disease index score (a validated measure of dry-eye discomfort and its effect on daily vision). The same review confirmed serum vitamin D runs lower in people with primary Sjögren's than in matched people without it, consistent with vitamin D deficiency's own broader, well-documented pattern across autoimmune disease. This doesn't establish that correcting a deficiency reverses dry-eye symptoms outright; the review itself was built from observational studies, not a supplementation trial. But it does mean vitamin D status is a concrete, testable piece of the picture worth raising directly, especially for anyone whose dry-eye symptoms feel disproportionately severe or aren't responding as expected to standard treatment.",
+    citations: [
+      {
+        source: "Vitamin D Deficiency Is Associated with Severity of Dry Eye Symptoms and Primary Sjögren's Syndrome: A Systematic Review and Meta-Analysis, Journal of Nutritional Science and Vitaminology 2020",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/32863314/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['sjogrens-omega3-dry-eye-mouth', 'vitamind-tying-together'],
   },
 ];

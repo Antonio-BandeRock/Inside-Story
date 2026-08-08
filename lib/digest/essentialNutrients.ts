@@ -284,7 +284,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: "Magnesium, StatPearls, National Library of Medicine", url: 'https://www.ncbi.nlm.nih.gov/books/NBK519036/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['magnesium-deficiency-symptoms-staged', 'magnesium-supplement-forms-compared', 'magnesium-levothyroxine-timing', 'magnesium-muscle-cramps-honest-correction', 'advocacy-magnesium', 'migraine-magnesium-riboflavin-coq10'],
+    relatedIds: ['magnesium-deficiency-symptoms-staged', 'magnesium-supplement-forms-compared', 'magnesium-levothyroxine-timing', 'magnesium-muscle-cramps-honest-correction', 'advocacy-magnesium', 'migraine-magnesium-riboflavin-coq10', 'type1-magnesium-glycemic-control'],
   },
 
   // --- Vitamin D, added 2026-08-08, same day, direct follow-up: "go ahead
@@ -469,7 +469,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin D, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/vitamind.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['vitamind-deficiency-symptoms-staged', 'vitamind-2024-guideline-honest-correction', 'vitamind-vital-trial-non-skeletal', 'vitamind-obesity-bioavailability', 'nutrient-vitamin-d'],
+    relatedIds: ['vitamind-deficiency-symptoms-staged', 'vitamind-2024-guideline-honest-correction', 'vitamind-vital-trial-non-skeletal', 'vitamind-obesity-bioavailability', 'nutrient-vitamin-d', 'sjogrens-vitamin-d-dry-eye-severity'],
   },
 
   // -- Iron, added 2026-08-08, the third deep-dive in this series, at
@@ -522,7 +522,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Iron Deficiency Anemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK448065/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['advocacy-iron-ferritin'],
+    relatedIds: ['advocacy-iron-ferritin', 'ibd-iron-deficiency-anemia'],
   },
   {
     id: 'iron-toxicity-acute-overdose',

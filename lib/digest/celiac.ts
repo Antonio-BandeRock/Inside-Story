@@ -131,7 +131,7 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
       { source: 'The Dietary and Non-Dietary Management of Osteoporosis in Adult-Onset Celiac Disease: Current Status and Practical Guidance', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9654202/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['celiac-gf-diet-nutritional-pitfalls', 'ra-advocacy-bone-density'],
+    relatedIds: ['celiac-gf-diet-nutritional-pitfalls', 'ra-advocacy-bone-density', 'lupus-glucocorticoid-osteoporosis'],
   },
   {
     id: 'celiac-hashimotos-comorbidity',

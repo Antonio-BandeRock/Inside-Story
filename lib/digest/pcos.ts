@@ -45,7 +45,7 @@ export const PCOS_ENTRIES: DigestEntry[] = [
       { source: 'A case-control observational study of insulin resistance and metabolic syndrome among the four phenotypes of polycystic ovary syndrome based on Rotterdam criteria', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4417246/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['pcos-myo-dchiro-inositol', 'pcos-weight-loss-modest', 'type2-overview', 'type2-metabolic-syndrome-cluster'],
+    relatedIds: ['pcos-myo-dchiro-inositol', 'pcos-weight-loss-modest', 'type2-overview', 'type2-metabolic-syndrome-cluster', 'pcos-dairy-igf1-hyperandrogenism'],
   },
   {
     id: 'pcos-myo-dchiro-inositol',
@@ -283,5 +283,21 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['pcos-pregnancy-real-complications-letrozole'],
+  },
+  {
+    id: 'pcos-dairy-igf1-hyperandrogenism',
+    category: 'pcos',
+    title: 'Why Dairy Specifically Gets Singled Out in PCOS: a Hormonal Pathway, Not Just a Diet Trend',
+    teaser: "Milk raises insulin and IGF-1 in a way that's chemically similar to eating straight sugar, and IGF-1 directly drives the same androgen excess PCOS is built on.",
+    summary:
+      "PCOS already centers on insulin resistance as its own dominant driver (see this category's own overview), and dairy earns its specific reputation through that exact same pathway. Drinking milk produces a measurable rise in insulin and insulin-like growth factor 1 (IGF-1), comparable in size to the response from a high-glycemic meal. IGF-1 isn't a passive bystander here: it stimulates the enzyme that converts testosterone into its more potent form, activates androgen production in both the ovaries and adrenal glands, and amplifies how strongly cells respond to the androgens already circulating. That's the same hormonal cascade behind PCOS's own acne, excess hair growth, and hair thinning. Not every dairy product behaves identically. Skim and whole milk both trigger a substantially stronger insulin/glycemic response than cheese does, likely because the liquid, rapidly-absorbed whey and casein proteins in milk itself are doing the work, rather than dairy fat or calcium generally. This doesn't mean dairy has to be eliminated outright. It means someone with PCOS whose skin or hair symptoms haven't responded to other changes has a genuine, mechanistic reason to specifically test whether milk itself, more than dairy as a whole, is a meaningful contributor.",
+    citations: [
+      {
+        source: 'Role of insulin, insulin-like growth factor-1, hyperglycaemic food and milk consumption in the pathogenesis of acne vulgaris, Experimental Dermatology 2009 (Melnik & Schmitz)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/19709092/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'pcos-spearmint-tea'],
   },
 ];

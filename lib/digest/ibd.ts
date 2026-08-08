@@ -289,4 +289,21 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-azathioprine-tpmt'],
   },
+  {
+    id: 'ibd-iron-deficiency-anemia',
+    category: 'ibd',
+    title: 'Iron Deficiency Anemia: the Most Common Complication of IBD, and a Treatable One',
+    teaser: "Roughly a fifth of IBD patients develop anemia, and when they do, it's genuinely iron deficiency the large majority of the time.",
+    summary:
+      "A cross-sectional study of 99 IBD patients found anemia in 20.5% of those with Crohn's disease and 23.6% of those with ulcerative colitis. Among the patients who had anemia, iron deficiency specifically accounted for 69.6% of cases in Crohn's and 76.7% in ulcerative colitis, making it the dominant cause by a wide margin rather than one possibility among several. The primary driver is chronic, often invisible blood loss from inflamed intestinal tissue, not simply eating too little iron. A second mechanism compounds it: inflammatory cytokines (IL-1, TNF, interferon-gamma) suppress the body's own production of erythropoietin, the hormone that signals bone marrow to make red blood cells, while a related pathway (hepcidin) actively traps iron inside intestinal immune cells where it can't be used. Iron malabsorption from diet alone only becomes a major factor when a large portion of the upper digestive tract is affected. This layered mechanism explains why anemia in IBD often doesn't respond to diet changes by themselves. Someone whose fatigue or breathlessness has been chalked up to just the disease has a testable, usually correctable explanation worth raising directly.",
+    citations: [
+      {
+        source:
+          "Anemia in inflammatory bowel disease: prevalence, differential diagnosis and association with clinical and laboratory variables, São Paulo Medical Journal 2014",
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10852089/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-anemia-erythropoietin', 'iron-deficiency-symptoms-staged'],
+  },
 ];

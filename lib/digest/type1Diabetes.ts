@@ -296,4 +296,24 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-complication-screening', 'type1-long-term-complications-real-data'],
   },
+  {
+    id: 'type1-magnesium-glycemic-control',
+    category: 'type1Diabetes',
+    title: "Magnesium Runs Low in Type 1 Diabetes, and the Timing Suggests It's More Than a Diet Gap",
+    teaser: 'People with harder-to-control blood sugar also tend to run lower on magnesium, a real, if not yet fully proven, two-way relationship worth knowing about.',
+    summary:
+      "Type 1 diabetes is one of the metabolic conditions most consistently linked to magnesium deficiency, with prevalence estimates running 25% to 39% depending on the population studied. A systematic review pooling nine studies found that in five of the seven that specifically measured it, lower magnesium tracked with worse glycemic control, a finding the review's own meta-analysis confirmed statistically. The same review found low magnesium associated with a worse lipid profile too: higher triglycerides, higher total and LDL cholesterol, and lower HDL, in both studies that measured it. Findings on whether magnesium deficiency predicts diabetic kidney disease or retinopathy specifically were inconsistent across studies, an honest gap rather than a settled answer either way. The review's own authors were careful to note the evidence base is still small, mostly cross-sectional (meaning it can't establish which direction the cause runs), and in genuine need of larger, better-designed trials. A separate, smaller trial in children with type 1 diabetes and confirmed low magnesium found that supplementing it alongside standard treatment improved both glycemic control and lipid markers, a preliminary but real signal that this relationship might be more than coincidental.",
+    citations: [
+      {
+        source: 'Association between reduced serum levels of magnesium and the presence of poor glycemic control and complications in type 1 diabetes mellitus: A systematic review and meta-analysis, Diabetes & Metabolic Syndrome 2020',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/32088645/',
+      },
+      {
+        source: 'Oral magnesium supplementation improves glycemic control and lipid profile in children with type 1 diabetes and hypomagnesaemia, 2017',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/28296769/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['magnesium-tying-together', 'type1-hba1c-time-in-range'],
+  },
 ];

@@ -287,4 +287,20 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-overview'],
   },
+  {
+    id: 'lupus-glucocorticoid-osteoporosis',
+    category: 'lupus',
+    title: "Long-Term Steroid Treatment Carries Its Own Bone-Health Cost, and a Normal Scan Doesn't Rule It Out",
+    teaser: 'Glucocorticoids remain the backbone of lupus treatment, but they measurably weaken bone, sometimes enough to fracture even when a bone-density scan still looks normal.',
+    summary:
+      "Glucocorticoids (prednisone and related steroids) are the single most consistently used medication in lupus treatment, and they carry a genuine, dose-dependent bone cost: they suppress the cells that build new bone while doing nothing to slow the cells that break it down. Reported osteoporosis rates in lupus patients vary widely by population, from 10.3% in one British cohort to 21.7% in a Chinese cohort, with osteopenia (the milder, earlier stage of bone loss) affecting closer to half of patients in most studies. A more striking finding: fracture risk in lupus runs about 22% higher than in the general population, roughly doubling after ten or more years of disease, and fractures happen even in patients whose bone-density scan looks normal. In one cohort, fewer than a third of patients who actually fractured had a bone-density score low enough to be formally called osteoporotic. That gap matters, since standard fracture-risk calculators were built around bone density alone and can underestimate risk in someone on long-term glucocorticoids. Rheumatology guidance calls for daily calcium and vitamin D alongside ongoing steroid treatment, with one lupus-specific analysis recommending at least 1,000mg of calcium and 600 IU of vitamin D a day, and bisphosphonate medication added for anyone on a higher steroid dose. This is a plannable part of long-term lupus management, not an unavoidable side effect to simply accept.",
+    citations: [
+      {
+        source: 'Glucocorticoid-induced osteoporosis in systemic lupus erythematosus, Rheumatology Practice and Research 2018 (Phang, Cho, Lee, Mak)',
+        url: 'https://journals.sagepub.com/doi/10.1177/2059902118802510',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-bone-density', 'celiac-bone-density'],
+  },
 ];

@@ -195,7 +195,7 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['ra-advocacy-cardiovascular-risk'],
+    relatedIds: ['ra-advocacy-cardiovascular-risk', 'celiac-bone-density', 'lupus-glucocorticoid-osteoporosis'],
   },
   {
     id: 'ra-tying-together',
