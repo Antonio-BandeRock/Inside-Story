@@ -285,4 +285,50 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ms-fasting-mimicking-diet'],
   },
+
+  // -- Volumetric depth pass batch 4, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'ms-uhthoffs-phenomenon-heat',
+    category: 'multipleSclerosis',
+    title: 'Uhthoff\'s Phenomenon: The Real, Well-Known Reason Heat Temporarily Worsens MS Symptoms',
+    teaser: 'Up to 60-80% of people with MS report real, temporary symptom worsening when their body temperature rises, from hot weather, exercise, fever, or even a hot meal, fully reversing once they cool back down.',
+    summary:
+      "Uhthoff's phenomenon is a real, well-documented, and genuinely common experience in MS worth knowing about directly by its own name: a real, temporary worsening of neurological symptoms triggered by a rise in core body temperature, lasting less than 24 hours and fully resolving once the body cools back down. Real research finds up to 60-80% of people with MS report this real heat sensitivity, triggered by real, everyday sources including hot weather, exercise, fever, saunas, hot tubs, hot baths or showers, and even hot food and drink. The real, most widely accepted mechanism involves a heat-related block in nerve-signal conduction, particularly in areas where the protective myelin coating (already covered in this app's own MS research) has already been damaged, with increased temperature either blocking or slowing nerve impulses passing through that damaged section. Real research finds several additional real, contributing factors under study, including ion-channel changes, circulation shifts, calcium's own role in nerve signaling, and heat shock proteins, though real research states the exact mechanism still isn't fully settled. Worth knowing directly: this is real, temporary symptom worsening, not new or permanent disease damage, understanding it by name means someone experiencing sudden vision blurring, weakness, or other MS symptoms specifically during hot weather or after exercise can recognize it as a real, known, reversible pattern rather than a frightening, unexplained flare, and can use real, practical cooling strategies (cooling vests, timing activity for cooler parts of the day, cold drinks) to manage it directly.",
+    citations: [
+      { source: 'Uhthoff Phenomenon, StatPearls / NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK470244/' },
+      { source: 'Heat sensitivity and MS - Uhthoff\'s phenomenon, MS Trust', url: 'https://mstrust.org.uk/a-z/uhthoffs-phenomenon' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-overview'],
+  },
+  {
+    id: 'ms-b12-deficiency-mimic',
+    category: 'multipleSclerosis',
+    title: 'Vitamin B12 Deficiency Can Genuinely Mimic MS, a Real, Important Differential Diagnosis Worth Ruling Out First',
+    teaser: 'B12 deficiency attacks the same myelin coating MS does, can produce real, similar-looking MRI findings, and is far easier to confirm with a simple blood test, real reasons it\'s often checked before confirming an MS diagnosis.',
+    summary:
+      "Vitamin B12 deficiency is a real, well-recognized MS mimic worth knowing about directly, since real case reports and clinical research find it can genuinely reproduce MS-like symptoms and even MS-like MRI findings closely enough to cause real diagnostic confusion. The real, underlying reason: both conditions attack the same target, real research finds B12 deficiency and MS both affect myelin, the fatty insulating layer surrounding nerve cells, adequate B12 helps maintain this coating, and deficiency can lead to real demyelination, most often in the spinal cord. Real research finds the diagnostic challenge genuinely real, not just theoretical, MRI findings in B12 deficiency can closely resemble MS, and the two conditions can even coexist in the same person, real B12 deficiency showing up alongside a real, separate MS diagnosis. Worth knowing directly, and genuinely practical: real research finds B12 deficiency considerably easier to diagnose than MS itself, confirmed with a simple blood test (clinical deficiency defined as levels below 200 pg/mL), which is exactly why it's often one of the first things checked when someone is being evaluated for possible MS. Real research finds a real, clarifying diagnostic signal too: symptoms that genuinely improve with B12 supplementation point toward B12 deficiency as the real, correctable cause rather than MS. Worth knowing directly: anyone newly evaluated for possible MS deserves a real, straightforward B12 blood test as part of that workup, ruling out this real, correctable mimic before proceeding further, since B12 deficiency is genuinely and fully treatable once identified.",
+    citations: [
+      { source: 'Vitamin B12 deficiency can mimic multiple sclerosis - report of two cases', url: 'https://amjcaserep.com/abstract/index/idArt/449522' },
+      { source: 'Vitamin B12 and its impact on Multiple Sclerosis Type and Severity, Neurology', url: 'https://www.neurology.org/doi/10.1212/WNL.90.15_supplement.P2.349' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-mcdonald-criteria', 'b12-overview'],
+  },
+  {
+    id: 'ms-clinically-isolated-syndrome',
+    category: 'multipleSclerosis',
+    title: 'Clinically Isolated Syndrome: The Real, Named Stage Before an Official MS Diagnosis',
+    teaser: 'Real research finds roughly 80% of people with a first, MS-like neurological episode go on to develop confirmed MS within two decades, a real, quantified statistic worth knowing at this earliest, most uncertain stage.',
+    summary:
+      "Clinically isolated syndrome (CIS) is a real, formally named diagnostic stage worth knowing about directly, distinct from the McDonald diagnostic criteria already covered elsewhere in this app's own MS research: it describes a real, first clinical episode of neurological symptoms suggestive of MS, lasting at least 24 hours and caused by real demyelination (myelin loss) in the central nervous system, but without yet meeting the full formal criteria for an actual MS diagnosis. Real research distinguishes a monofocal episode (one symptom from a single affected area) from a multifocal episode (multiple symptoms from more than one affected area). Real, long-term natural-history research finds roughly 80% of people with CIS go on to develop clinically definite MS within two decades, with one real study finding 84% experiencing a second demyelinating event and receiving a formal MS diagnosis within that same 20-year window. Worth knowing directly and genuinely hopeful: real research finds modern MS treatments may meaningfully reduce these real progression percentages compared to the historical, pre-treatment data those numbers are drawn from, and real research confirms that while most people with CIS do eventually progress to MS, some genuinely never do. Worth knowing directly: a CIS diagnosis is a real, formally recognized \"not yet MS, but a real, meaningful risk\" category, not an ambiguous non-answer, and it's worth understanding as its own real stage with its own real, quantified odds, rather than either dismissed as insignificant or assumed to be a certain MS diagnosis already.",
+    citations: [
+      { source: 'Natural Course of Clinically Isolated Syndrome: A Longitudinal Analysis Using a Markov Model, PMC6052069', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6052069/' },
+      { source: 'Factors Related to the Progression of Clinically Isolated Syndrome to Multiple Sclerosis, PMC9500688', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9500688/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-mcdonald-criteria', 'ms-disease-course-types'],
+  },
 ];

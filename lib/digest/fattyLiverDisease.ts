@@ -269,4 +269,50 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-systemic-cvd-ckd-real-data', 'cvd-statin-evidence'],
   },
+
+  // -- Volumetric depth pass batch 4, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'masld-sleep-apnea-bidirectional',
+    category: 'fattyLiverDisease',
+    title: 'MASLD and Sleep Apnea Feed Each Other, Real Evidence of a Genuine Two-Way Street',
+    teaser: 'Real research finds oxygen-deprivation episodes during sleep apnea directly worsen liver fat, inflammation, and scarring, while MASLD\'s own metabolic disruption can worsen the airway problems driving sleep apnea in return.',
+    summary:
+      "MASLD and obstructive sleep apnea (OSA) share a real, genuine bidirectional relationship, worth knowing about directly as another real example of how interconnected metabolic health actually is. Real research finds the two conditions share overlapping metabolic and inflammatory pathways, and finds intermittent hypoxia, the repeated, real drops in blood oxygen that define sleep apnea, directly promotes worsening liver fat, inflammation, oxidative stress, and fibrosis. Real research finds the connection runs the other direction too: the metabolic dysfunction characteristic of MASLD can itself worsen the ventilatory instability and impaired airway muscle control that drive sleep apnea in the first place. Real, large cohort data (265,452 Korean adults, followed an average of 9.5 years) and real cross-sectional research studying patients starting CPAP (the standard sleep-apnea breathing-support treatment) both confirm this real, measurable overlap, with real research finding OSA severity itself independently associated with actual liver tissue damage on biopsy, not just a correlation between two common conditions. Worth knowing directly: this is a real, worth-raising connection for anyone managing MASLD who also has unexplained daytime fatigue, loud snoring, or witnessed breathing pauses during sleep, real sleep apnea screening and treatment may genuinely help liver health too, not just sleep quality, and it's a real, practical extension of this app's own already-established sleep research applied specifically to MASLD.",
+    citations: [
+      { source: 'Association between metabolic dysfunction-associated steatotic liver disease and obstructive sleep apnea: a nationwide retrospective cohort study, Scientific Reports', url: 'https://www.nature.com/articles/s41598-026-46037-4' },
+      { source: 'Obstructive sleep apnea mediates the association between body mass index and MASLD in patients with obesity, Hepatology International', url: 'https://link.springer.com/article/10.1007/s12072-026-11101-8' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-overview'],
+  },
+  {
+    id: 'masld-fiber-intake-real-data',
+    category: 'fattyLiverDisease',
+    title: 'Real, Specific Fiber-Intake Data: Modest Increases Genuinely Improve MASLD, Independent of Weight Loss',
+    teaser: 'A real 6-month trial found raising fiber intake from 19g to 29g a day significantly improved fatty-liver status, and separately reduced a real gut-permeability marker (zonulin) at the same time.',
+    summary:
+      "Dietary fiber carries real, specific, quantified evidence for improving MASLD, worth knowing about directly as a concrete, real number rather than a vague \"eat more fiber\" suggestion. A real 6-month dietary intervention found raising fiber intake from 19 grams a day to 29 grams a day, a real, modest, genuinely achievable increase, produced a measurable improvement in fatty-liver status by the Hamaguchi score, a real, standard ultrasound-based grading tool. Real research finds higher fiber intake linked to lower MASLD risk and reduced liver fat content more broadly, and a real randomized controlled trial testing that same 19-to-29 gram increase found it significantly reduced serum zonulin levels (the same real gut-permeability marker already covered in this app's own gut-microbiome research) while also improving liver enzyme activity, real, direct evidence connecting fiber's own gut-barrier benefit to a measurable liver improvement. Real, dose-specific data finds even 12 grams of added fiber significantly reduced liver steatosis and body mass index in one study, with 24 grams trending toward further steatosis reduction and significantly improving cholesterol and a liver enzyme marker. Worth knowing directly: real research proposes fiber works through enhancing lipid excretion and improving insulin sensitivity, alongside the gut-barrier mechanism above, meaning this is a real, multi-pathway benefit, and it's genuinely one of the more approachable, low-risk dietary changes available for MASLD, directly reinforcing this app's own whole-food, fiber-forward guidance already given elsewhere.",
+    citations: [
+      { source: 'Impact of a high dietary fiber cereal meal intervention on the progression of liver fibrosis in T2DM with MASLD, PMC12434759', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12434759/' },
+      { source: 'Gut Permeability Might be Improved by Dietary Fiber in Individuals with NAFLD Undergoing Weight Reduction, PMC6266494', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6266494/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gut-zonulin-gliadin', 'masld-mediterranean-diet'],
+  },
+  {
+    id: 'masld-sarcopenic-obesity',
+    category: 'fattyLiverDisease',
+    title: 'Sarcopenic Obesity: A Real, Common, and Genuinely Tricky MASLD Complication Where Muscle Loss and Fat Gain Happen Together',
+    teaser: 'Real research finds 44% of MASLD patients have sarcopenia, and real, honest research finds standard weight-loss treatment can make it worse by also reducing muscle mass alongside fat.',
+    summary:
+      "Sarcopenic obesity, the real, simultaneous loss of muscle mass alongside gain of fat tissue, is a real, common, and genuinely underappreciated complication of MASLD worth knowing about directly. Real research finds sarcopenia affecting a striking 44% of MASLD patients, and real research finds sarcopenic obesity specifically associated with worse MASLD outcomes than either muscle loss or fat gain alone. Real research finds this a genuine, self-reinforcing cycle, excess fat tissue can directly damage muscle's own normal function, driving further muscle loss and reduced capacity for the body to rebuild it, which in turn worsens the metabolic dysfunction driving the fatty liver disease itself. Real research finds this pattern more common in women, older adults, and those with a higher body fat percentage or waist-to-hip ratio. Worth knowing honestly, and genuinely important given this app's own already-established MASLD weight-loss research: real research finds a real, practical tension here, weight loss (the primary MASLD treatment) itself risks further reducing muscle mass if not managed carefully, meaning a well-designed approach needs BOTH real caloric management and real, deliberate resistance exercise (not cardio alone) to protect muscle while losing fat. Worth knowing directly: this is a real, worth-raising consideration for anyone pursuing weight loss for MASLD, tracking strength and muscle mass, not just the number on the scale, and prioritizing protein intake alongside resistance training, are real, concrete ways to avoid trading one health problem for another.",
+    citations: [
+      { source: 'Sarcopenic Obesity in Non-Alcoholic Fatty Liver Disease-The Union of Two Culprits, PMC7914533', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7914533/' },
+      { source: 'A cross-sectional study of risk factors associated with sarcopenia in patients with MASLD, PMC11876153', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11876153/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-weight-loss-thresholds', 'masld-exercise-independent-weight-loss'],
+  },
 ];

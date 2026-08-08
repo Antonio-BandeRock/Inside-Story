@@ -267,4 +267,50 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-closed-loop-automated-insulin', 'type1-hba1c-time-in-range'],
   },
+
+  // -- Volumetric depth pass batch 4, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'type2-periodontal-disease-bidirectional',
+    category: 'type2Diabetes',
+    title: 'Gum Disease and Type 2 Diabetes Genuinely Worsen Each Other, a Real, Bidirectional, Often-Overlooked Connection',
+    teaser: 'Real, genetics-based research confirms a real causal relationship running both directions between periodontal disease and T2D, with current guidelines now recommending each condition be screened for when the other is found.',
+    summary:
+      "Periodontal (gum) disease and type 2 diabetes carry a real, genuinely bidirectional relationship, each worsening the other, worth knowing about directly since dental health rarely gets connected to diabetes management despite real, substantial evidence linking them. Real research finds this real, two-way relationship confirmed not just through observational studies but through Mendelian randomization (the same genetics-based causal-inference method already covered elsewhere in this app's own research as methodologically stronger than plain observation), directly clarifying a real, bidirectional causal association between periodontitis and type 2 diabetes rather than just a coincidental overlap. Real, mechanistic research finds a genuine biological interplay between the oral microbiome and viral factors shared between the two conditions. A real, direct cross-sectional study found metabolic control in T2D and periodontal inflammation tracking together, worse blood sugar control associated with a real, higher periodontal inflammation burden, and better periodontal health associated with better glycemic control in return. Worth knowing directly, and genuinely actionable: real, current clinical guidelines explicitly recommend that people with periodontitis be screened for diabetes, and that people with diabetes be informed of their real, elevated risk of developing periodontal disease. Worth knowing directly: regular dental care and gum-health monitoring deserve a real, concrete place in T2D management, not treated as a separate, unrelated health domain, and unexplained bleeding gums or gum disease that won't resolve is worth mentioning directly to a diabetes care team, not just a dentist.",
+    citations: [
+      { source: 'Causal Association Between Periodontitis and Type 2 Diabetes: A Bidirectional Two-Sample Mendelian Randomization Analysis, PMC8784400', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8784400/' },
+      { source: 'Bidirectional association between periodontal disease and diabetes mellitus: a systematic review and meta-analysis of cohort studies, Scientific Reports', url: 'https://www.nature.com/articles/s41598-021-93062-6' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-overview'],
+  },
+  {
+    id: 'type2-remission-ada-consensus-definition',
+    category: 'type2Diabetes',
+    title: 'What "Remission" Actually Means: The Real, Specific ADA Consensus Definition',
+    teaser: 'Real, current international consensus defines remission as HbA1c under 6.5% for at least 3 months with zero glucose-lowering medication, a real, specific, testable definition worth knowing exactly, not a vague sense of "doing better."',
+    summary:
+      "Type 2 diabetes remission, already covered through real trial data elsewhere in this app's own research (the DiRECT lifestyle trial, bariatric surgery outcomes), has a real, specific, formal definition worth knowing precisely, since \"remission\" means something exact, not a general feeling of improvement. Real, current international consensus (a 2021 ADA-convened expert group) defines remission as an HbA1c under 6.5% (48 mmol/mol), measured at least 3 months after stopping all glucose-lowering medication. Real, alternative criteria exist for when HbA1c itself isn't a reliable marker: fasting plasma glucose under 126 mg/dL, or an estimated HbA1c calculated from continuous glucose monitor data, both real, valid substitutes. Real guidance specifies exact testing timing too, the confirming test should happen no sooner than 3 months after stopping medication, with real, yearly retesting recommended afterward to confirm the remission is actually holding. Worth knowing directly, and useful historical context: an earlier, real 2009 framework used three tiers, \"partial\" remission (sub-diabetic glucose levels for at least 1 year off medication), \"complete\" remission (fully normal glucose for 1 year off medication), and \"prolonged\" remission (complete remission sustained 5 or more years). Worth knowing directly: this real, specific, testable definition matters because it sets a genuine, objective bar, someone who's simply on fewer medications, or whose HbA1c has improved while still on medication, hasn't technically achieved remission by this real, formal standard, worth understanding clearly before assuming a personal treatment goal has already been met.",
+    citations: [
+      { source: 'Consensus Report: Definition and Interpretation of Remission in Type 2 Diabetes, Diabetes Care (American Diabetes Association)', url: 'https://diabetesjournals.org/care/article/44/10/2438/138556/Consensus-Report-Definition-and-Interpretation-of' },
+      { source: 'International Experts Outline Diabetes Remission Diagnosis Criteria, American Diabetes Association', url: 'https://diabetes.org/newsroom/international-experts-outline-diabetes-remission-diagnosis-criteria' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-direct-remission-trial'],
+  },
+  {
+    id: 'type2-statins-diabetogenic-effect',
+    category: 'type2Diabetes',
+    title: 'A Real, Honest Complication: Statins Themselves Carry a Modest, Real Diabetes Risk, Even While Preventing Heart Disease',
+    teaser: 'Real research finds statin use tied to a real, measurable increased risk of developing type 2 diabetes, roughly one extra case per 100-200 people treated over 5 years, a real tradeoff worth understanding honestly, not a reason to avoid them.',
+    summary:
+      "Statins, already covered elsewhere in this app's own cardiovascular research for their real, strong mortality benefit, carry a real, honest complication worth knowing directly: they modestly raise the risk of developing type 2 diabetes. Real research finds moderate-intensity statins increasing diabetes risk by roughly 11%, with a further real 12% increase at high-intensity dosing, and one real, major cohort study found a 46% increased relative risk with statin treatment specifically. Real, proposed mechanisms include statins pushing someone already close to the diabetes threshold over it slightly earlier than they otherwise would have crossed it, along with real, direct effects on insulin sensitivity and insulin secretion, and a real, speculative link to statin-induced mitochondrial dysfunction in skeletal muscle contributing to insulin resistance. Worth knowing honestly and in real, practical proportion: real research translates this into roughly one additional diabetes case per 100 to 200 people treated with statins over 5 years, a real, genuinely small absolute number set against roughly ten times greater real benefit on major cardiovascular outcomes (heart attacks, strokes, and deaths prevented) over that same period. Worth knowing directly: this is real, honest context, not a reason to avoid a genuinely beneficial medication, someone already at elevated diabetes risk starting a statin has a real, evidence-backed reason for slightly closer blood-sugar monitoring going forward, not a reason to skip a medication with real, much larger cardiovascular benefit.",
+    citations: [
+      { source: 'Statins and risk of type 2 diabetes: mechanism and clinical implications, PMC10546337', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10546337/' },
+      { source: 'Increased risk of diabetes with statin treatment is associated with impaired insulin sensitivity and insulin secretion, Diabetologia', url: 'https://link.springer.com/article/10.1007/s00125-015-3528-5' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence', 'type2-prediabetes-real-progression'],
+  },
 ];

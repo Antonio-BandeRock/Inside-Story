@@ -271,4 +271,50 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-mineral-bone-cardiovascular-real-data', 'ckd-protein-restriction-plant-based'],
   },
+
+  // -- Volumetric depth pass batch 4, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'ckd-contrast-induced-nephropathy',
+    category: 'chronicKidneyDisease',
+    title: 'Contrast Dye Used in CT Scans Carries a Real, Manageable Kidney-Injury Risk for Anyone With CKD',
+    teaser: 'Real research finds contrast-induced kidney injury genuinely uncommon overall, developing in 3.7% of one large CKD cohort, but risk rises sharply below a real, specific eGFR threshold, worth flagging before any contrast scan.',
+    summary:
+      "Contrast dye, used to sharpen the images in a CT scan, carries a real, worth-knowing kidney injury risk specifically for anyone with existing chronic kidney disease, defined as a real, measurable worsening of kidney function within 24 to 48 hours of the procedure. Worth stating honestly first: real research finds the overall risk of this happening is genuinely minimal for most people undergoing routine CT imaging, one real study of 1,666 subjects found contrast-induced nephropathy developing in just 3.7% of cases, even among a CKD population. Real research finds the risk concentrates specifically as kidney function drops further, rising noticeably once eGFR (already covered in this app's own self-advocacy research) falls below roughly 36.8 mL/min/1.73m², with diabetes and low blood albumin identified as real, additional risk factors. Real, practical reassurance: a genuine prophylaxis program (proper hydration protocols before and after the scan) run over 8 real years found contrast-induced nephropathy manageable in stable CKD patients when this real prevention step was followed. Worth knowing honestly: real research finds contrast-induced nephropathy itself didn't increase mortality, but patients who did develop it were significantly more likely to need dialysis within the following 6 months. Worth knowing directly: this is a real, worth-raising conversation before any contrast-enhanced CT scan for someone with CKD, real hydration protocols and, in some cases, choosing a non-contrast alternative imaging method are real, established ways to manage this risk rather than avoid necessary imaging altogether.",
+    citations: [
+      { source: 'Contrast-Induced Nephropathy After Computed Tomography in Stable CKD Patients With Proper Prophylaxis: 8-Year Experience, PMC4863791', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4863791/' },
+      { source: 'Contrast-Induced Acute Kidney Injury Among Patients With CKD Undergoing Imaging Studies: A Meta-Analysis, AJR', url: 'https://ajronline.org/doi/10.2214/AJR.19.21309' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-egfr-acr-monitoring'],
+  },
+  {
+    id: 'ckd-cognitive-decline-dementia-risk',
+    category: 'chronicKidneyDisease',
+    title: 'CKD Is a Real, Strong, Independent Risk Factor for Cognitive Decline, Worse as Kidney Function Falls Further',
+    teaser: 'A real study found cognitive-impairment risk more than doubled at the lowest kidney-function level tested, and a faster rate of eGFR decline carried over five times higher risk of developing vascular dementia.',
+    summary:
+      "Chronic kidney disease carries a real, independently documented risk for cognitive decline and dementia, worth knowing about directly beyond the more familiar cardiovascular and mineral-bone complications already covered elsewhere in this app's own CKD research. Real research finds CKD one of the strongest risk factors for mild cognitive impairment and dementia in large, population-based studies, with its impact exceeded only by stroke and chronic anti-anxiety medication use in one real 6-year study. Real, dose-response data makes the pattern concrete: a study of 3,679 community-dwelling adults found new cognitive impairment rates of 5.8%, 9.9%, and 21.5% across three declining kidney-function groups, with the lowest-function group carrying a real 2.14 times higher risk than the highest. Genuinely striking: real research found people whose eGFR declined by 4 mL/min/1.73m² or more per year had a real 5.35 times higher risk of developing vascular dementia over 7 years compared to those with a slower decline. Real, proposed mechanisms include uremia-driven chronic inflammation, oxidative stress, vitamin D deficiency, anemia (already covered in this app's own CKD research), and impaired clearance of amyloid-beta, the same protein implicated in Alzheimer's disease. Worth knowing directly: this real connection persists even after accounting for other real, established dementia risk factors like smoking, hypertension, and diabetes, meaning CKD itself deserves real, direct attention as a modifiable piece of long-term cognitive health, not just kidney health on its own.",
+    citations: [
+      { source: 'Kidney disease as a determinant of cognitive decline and dementia, PMC4360943', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4360943/' },
+      { source: 'Kidney Function, Kidney Function Decline, and the Risk of Dementia in Older Adults, Neurology', url: 'https://www.neurology.org/doi/10.1212/WNL.0000000000012113' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-mineral-bone-cardiovascular-real-data'],
+  },
+  {
+    id: 'ckd-depression-underrecognized',
+    category: 'chronicKidneyDisease',
+    title: 'Depression Affects Roughly a Quarter of People With CKD, and Real Research Finds It Genuinely Undertreated',
+    teaser: 'Real research finds depression tied directly to worse CKD progression, more hospitalizations, and higher mortality, yet real clinical practice still gives it far less attention than the disease\'s own physical management.',
+    summary:
+      "Depression is a real, common, and genuinely underrecognized companion to chronic kidney disease, worth knowing about directly since it carries real, measurable consequences for the disease itself, not just quality of life. Real research finds depression prevalence ranging from roughly a quarter to half of CKD patients depending on the study, with major depressive disorder specifically affecting about 20% of people with CKD or kidney failure. Real research finds this burden rises with disease severity, one study found depression in 29.9% of people on chronic hemodialysis versus 18.5% in earlier, pre-dialysis stages. Genuinely important: real research finds depressive symptoms an underrecognized but potentially modifiable risk factor independently associated with faster CKD progression, kidney transplant failure, more hospitalizations, more cardiovascular events, and higher mortality, a real, direct link between mental health and physical disease outcome, not a separate, parallel concern. Real research finds a plausible, concrete mechanism behind part of this: depression can genuinely undermine a person's ability to stick with the real dietary, fluid, and medication requirements CKD management demands. Worth knowing directly: real clinical guidance explicitly calls depression a priority that current CKD management still doesn't give adequate attention to, someone with CKD experiencing persistent low mood, hopelessness, or loss of motivation for their own self-care has a real, evidence-backed reason to raise it directly with their nephrology team, not treat it as a separate issue for a different doctor.",
+    citations: [
+      { source: 'Global prevalence of depression in chronic kidney disease: a systematic review and meta-analysis, PMID 38954184', url: 'https://pubmed.ncbi.nlm.nih.gov/38954184/' },
+      { source: 'A Practical Primer on How to Detect and Treat Depression in CKD, American Journal of Kidney Diseases', url: 'https://www.ajkd.org/article/S0272-6386(25)01158-8/fulltext' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-overview'],
+  },
 ];

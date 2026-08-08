@@ -275,4 +275,50 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-antithyroid-drug-monitoring'],
   },
+
+  // -- Volumetric depth pass batch 4, 2026-08-08, continuing toward
+  // genuine volumetric parity with Hashimoto's own depth. Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'graves-subclinical-hyperthyroidism',
+    category: 'graves',
+    title: 'Subclinical Hyperthyroidism: Real, Meaningful Risk Even Before Symptoms Show Up',
+    teaser: 'A real, low but not "zero" TSH with normal T4/T3 still carries a genuine, documented risk of atrial fibrillation, heart failure, higher mortality, and lower bone density, worth taking seriously even without overt Graves\' symptoms.',
+    summary:
+      "Subclinical hyperthyroidism, a real, low TSH with T4 and T3 levels still testing within the normal range, is worth knowing about directly as a real, distinct risk category, not something to dismiss just because it hasn't progressed to the overt disease already covered in depth elsewhere in this app's own Graves' research. Real, pooled research finds subclinical hyperthyroidism genuinely associated with coronary heart disease, total mortality, and CHD-specific mortality. Real research finds this risk particularly pronounced at a real, specific threshold, a TSH at or below 0.1 mU/L carries the strongest documented association with atrial fibrillation, and real research finds subclinical hyperthyroidism independently tied to increased risk of atrial fibrillation and heart failure in older adults specifically. Real research finds a real bone-health cost too, decreased bone mineral density, with a documented history of hyperthyroidism (even subclinical) an independent risk factor for hip and vertebral fracture (a real 1.8-fold relative risk). Worth knowing honestly: real research finds genuine, emerging evidence supporting treatment specifically for TSH under 0.1 mIU/L, particularly in older adults and those at high cardiovascular or bone-fracture risk, though real research also finds no long-term, definitive trial yet proving treatment itself reduces these real downstream risks. Worth knowing directly: this is a real, worth-raising conversation for anyone whose lab work shows a low TSH with otherwise \"normal\" thyroid hormone levels, real, ongoing monitoring and a real risk-benefit conversation about treatment matter here, not just watching and waiting indefinitely.",
+    citations: [
+      { source: 'Subclinical Hyperthyroidism and Cardiovascular Disease, Thyroid (2024)', url: 'https://journals.sagepub.com/doi/10.1089/thy.2024.0291' },
+      { source: 'Relationship between Subclinical Thyroid Dysfunction and the Risk of Cardiovascular Outcomes, PMC5610794', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5610794/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-bone-density', 'graves-cardiac-thyroid-storm'],
+  },
+  {
+    id: 'graves-biotin-antibody-interference',
+    category: 'graves',
+    title: 'High-Dose Biotin Can Fake a Positive Graves\' Antibody Test Result, a Real, Documented Diagnostic Trap',
+    teaser: 'Real research finds biotin supplements can interfere with the exact TRAb/TSI antibody tests already covered in this app\'s own Graves\' self-advocacy research, producing a real, misleading lab pattern identical to Graves\' disease itself.',
+    summary:
+      "High-dose biotin supplements carry a real, well-documented, and genuinely important risk of distorting the TRAb/TSI antibody testing already covered in this app's own Graves' self-advocacy research, worth knowing about directly since it can lead to a real, misdiagnosed case of Graves' disease that isn't actually there. Real research finds biotin specifically interferes with the detection of anti-thyrotropin (TSH-receptor) antibodies, and real case reports document this producing a laboratory pattern that looks identical to genuine Graves' disease. The real, underlying mechanism ties to how most commercial thyroid assays work: they rely on a biotin-streptavidin binding system, and excess biotin in the blood can either falsely lower or falsely raise a given test's result depending on the specific assay design, competitive assays (like T3/T4) tend to read falsely HIGH with excess biotin, while sandwich assays (like TSH itself) tend to read falsely LOW. Worth knowing directly: real, current American Thyroid Association guidance recommends stopping biotin supplementation for at least 2 days before any thyroid lab test, this app's own Labs & Medication Timing category already covers this same real interference for Hashimoto's; it applies with equal, direct relevance here for anyone on biotin considering testing for Graves' antibodies specifically. Worth knowing directly: a surprising or unexpected positive TRAb/TSI result in someone taking high-dose biotin (common in hair/skin/nail supplements) is a real, worth-raising reason to retest after stopping the supplement before accepting the result as a genuine Graves' diagnosis.",
+    citations: [
+      { source: 'Biotin induced biochemical hyperthyroidism: a case report and review of the literature, PMC10304644', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10304644/' },
+      { source: 'Significant Interference of Biotin in Thyroid Function Tests Using Beckman Analyzer', url: 'https://www.annclinlabsci.org/content/53/1/130.full' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-trab-tsi-testing', 'labs-biotin-interference'],
+  },
+  {
+    id: 'graves-treatment-comparison-real-outcomes',
+    category: 'graves',
+    title: 'Real, Long-Term Outcomes Compared: Surgery, Radioactive Iodine, and Antithyroid Drugs Aren\'t Interchangeable',
+    teaser: 'A real, long-term study found patients treated with thyroidectomy as their first treatment had lower rates of death, heart disease, and diabetes over time than those treated with radioactive iodine or antithyroid drugs alone.',
+    summary:
+      "Graves' disease has three real, distinct first-line treatment paths, already covered individually across this app's own research (antithyroid drugs, radioactive iodine, and thyroidectomy), and real, direct, long-term comparative research finds genuine differences in outcomes between them worth knowing about together. A real, large comparative study found patients treated with surgery as their initial treatment had a real, lower long-term risk of all-cause mortality, cardiovascular disease, atrial fibrillation, psychological disease, diabetes, and hypertension compared to those treated first with antithyroid drugs or radioactive iodine. Real, separate cost-effectiveness research found total thyroidectomy more cost-effective than radioactive iodine specifically for patients who can't tolerate or don't respond to antithyroid drugs, real quality-adjusted-life-year data favoring surgery (23.6 vs. 20.9 QALYs). Worth knowing honestly: real research finds radioactive iodine's own overall success rate genuinely variable, 60.7% in one real study of young adults, with larger thyroid size and longer disease duration both real, identified risk factors for treatment failure requiring a second round. Real research also finds long-term, continuous antithyroid drug treatment (rather than the standard fixed-course approach) achieving substantially higher sustained remission, a real, worth-knowing alternative to the usual time-limited course. Worth knowing directly: this is real, comparative evidence worth bringing directly into a treatment-choice conversation with an endocrinologist, no single option is universally best, and the real tradeoffs (surgical risk and recovery vs. radioactive iodine's own variable success rate vs. antithyroid drugs' own real relapse risk) deserve a real, individualized weighing rather than defaulting to whichever option is most commonly offered first.",
+    citations: [
+      { source: 'Outcomes of Graves\' Disease Patients Following Antithyroid Drugs, Radioactive Iodine, or Thyroidectomy as the First-line Treatment, PMID 33914484', url: 'https://pubmed.ncbi.nlm.nih.gov/33914484/' },
+      { source: 'Total thyroidectomy is more cost-effective than radioactive iodine as an alternative to antithyroid medication for Graves\' disease', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0039606022006742' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-radioactive-iodine-timing', 'graves-remission-real-rates'],
+  },
 ];
