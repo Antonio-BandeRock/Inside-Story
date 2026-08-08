@@ -13,7 +13,9 @@ import { HISTORY_ENTRIES } from './history';
 import { IBD_ENTRIES } from './ibd';
 import { LABS_MEDICATION_ENTRIES } from './labsMedication';
 import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
+import { LUPUS_ENTRIES } from './lupus';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
+import { MULTIPLE_SCLEROSIS_ENTRIES } from './multipleSclerosis';
 import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
 import { NUTRIENTS_ENTRIES } from './nutrients';
 import { COMPLEMENTARY_THERAPIES_ENTRIES } from './complementaryTherapies';
@@ -35,7 +37,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808140000';
+export const PURPLE_DIGEST_VERSION = '20260808160000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -68,6 +70,8 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...TYPE_1_DIABETES_ENTRIES,
   ...CELIAC_ENTRIES,
   ...IBD_ENTRIES,
+  ...MULTIPLE_SCLEROSIS_ENTRIES,
+  ...LUPUS_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -171,6 +175,26 @@ export const DIGEST_CATEGORY_META: {
     label: 'Inflammatory Bowel Disease',
     icon: 'body-outline',
     description: "Real food, medication, and self-advocacy guidance for Crohn's disease and ulcerative colitis, including the smoking paradox, the low-fiber-during-a-flare myth, and an honestly reported null result on Hashimoto's comorbidity.",
+  },
+  // 2026-08-08, same day, eighth condition: Multiple Sclerosis. See
+  // multipleSclerosis.ts's own header comment -- a disease of the central
+  // nervous system directly, where the single strongest finding is a
+  // virus (EBV), not a food.
+  {
+    key: 'multipleSclerosis',
+    label: 'Multiple Sclerosis',
+    icon: 'flash-outline',
+    description: "Real evidence for MS: the EBV trigger and its exact mechanism, the Swank/Wahls diet trial, honest corrections on high-dose biotin and vitamin D, and self-advocacy for JC virus monitoring and diagnosis.",
+  },
+  // 2026-08-08, same day, ninth condition: Lupus (SLE). See lupus.ts's own
+  // header comment -- a genuinely wide-ranging condition reaching nearly
+  // any organ system, with a real, specific food trigger and self-advocacy
+  // spanning eyes, kidneys, and the immune system directly.
+  {
+    key: 'lupus',
+    label: 'Lupus (SLE)',
+    icon: 'shield-half-outline',
+    description: 'Real evidence for lupus: the alfalfa sprout food trigger, the photosensitivity/vitamin D catch-22, omega-3\'s genuinely mixed evidence, and self-advocacy for retinopathy screening, kidney monitoring, and biologic treatment.',
   },
 ];
 

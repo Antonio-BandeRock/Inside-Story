@@ -84,7 +84,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
       { source: 'Effect of Vitamin D Supplements on Relapse Rate and EDSS in Multiple Sclerosis: A Systematic Review and Meta-Analysis', url: 'https://pubmed.ncbi.nlm.nih.gov/34211673/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-vitamin-d', 'other-rheumatoid-arthritis'],
+    relatedIds: ['nutrient-vitamin-d', 'other-rheumatoid-arthritis', 'ms-vitamin-d-mixed-evidence', 'ms-overview'],
   },
   {
     id: 'other-type1-diabetes',
@@ -117,7 +117,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-blautia-lupus-zonulin', 'gut-probiotic-yogurt-lupus-rct'],
+    relatedIds: ['gut-blautia-lupus-zonulin', 'gut-probiotic-yogurt-lupus-rct', 'lupus-overview', 'lupus-alfalfa-canavanine'],
   },
   {
     id: 'other-sjogrens',

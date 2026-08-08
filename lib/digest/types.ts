@@ -117,6 +117,21 @@ export const DIGEST_CATEGORY_KEYS = [
   // paradox) run in opposite directions depending on which one someone
   // actually has.
   'ibd',
+  // 2026-08-08, same day, eighth condition, next in the same priority
+  // order: Multiple Sclerosis. See multipleSclerosis.ts's own header
+  // comment -- a genuinely different shape of condition again, a disease
+  // of the central nervous system directly rather than the gut, joints,
+  // skin, or thyroid, where the single strongest finding isn't a food at
+  // all but a virus (EBV).
+  'multipleSclerosis',
+  // 2026-08-08, same day, ninth condition, next in the same priority
+  // order: Lupus (SLE). See lupus.ts's own header comment -- a genuinely
+  // wide-ranging condition that can affect nearly any organ system, giving
+  // this category its own shape: a real, specific individual food trigger
+  // (alfalfa sprouts), a real photosensitivity/vitamin D catch-22 unique
+  // to this disease, and self-advocacy spanning eyes, kidneys, and the
+  // immune system directly.
+  'lupus',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

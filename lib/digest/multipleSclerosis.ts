@@ -1,0 +1,218 @@
+import type { DigestEntry } from './types';
+
+// Multiple Sclerosis -- 15 entries, added 2026-08-08 as this app's eighth
+// real condition, next in the same priority order every condition before
+// it followed. Built with real self-advocacy content included from the
+// start, the same lesson already applied to every condition since Graves'.
+//
+// MS is a genuinely different shape of condition from most of what this
+// app has built so far -- it's a disease of the central nervous system
+// (the brain and spinal cord), not the gut, joints, skin, or thyroid, so
+// several of the strongest findings here are historical (the Swank diet's
+// real 34-50 year follow-up), viral (a landmark, near-causal trigger
+// finding), or medication-safety-specific (JC virus antibody monitoring)
+// rather than the more typical "this food helps, this food hurts" shape.
+//
+// Distinct from otherAutoimmune.ts's own 'other-multiple-sclerosis' entry,
+// which stays exactly as it was: a vitamin D relapse/EDSS meta-analysis,
+// studied as corroborating evidence for Hashimoto's own vitamin D
+// research, written for a Hashimoto's reader. This category goes deeper
+// on vitamin D specifically for MS (including a real, large, more recent
+// negative trial that entry doesn't cover) and covers everything else
+// specific to actually living with and managing MS.
+//
+// Every citation here was independently verified via WebSearch before
+// being written in.
+export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
+  {
+    id: 'ms-overview',
+    category: 'multipleSclerosis',
+    title: 'Multiple Sclerosis: When the Immune System Attacks the Brain and Spinal Cord Directly',
+    teaser: "A disease of the central nervous system itself, not a joint, a gland, or the gut. Several of the strongest findings in this category reflect that difference.",
+    summary:
+      "Multiple sclerosis is an autoimmune disease in which the immune system attacks myelin, the protective sheath surrounding nerve fibers in the brain and spinal cord. The damage disrupts how nerve signals travel, producing symptoms as varied as vision problems, numbness, fatigue, and mobility difficulty depending on exactly where the damage occurs. Most people are first diagnosed with relapsing-remitting MS (RRMS), where distinct relapses are followed by periods of partial or full recovery, typically in their twenties or thirties. A meaningful share eventually transitions to secondary progressive MS (SPMS), a gradual decline with or without further relapses, while a smaller group has primary progressive MS (PPMS) from the start, with no relapse-remission pattern at all. This category covers what's specific to actually living with and managing MS on its own terms -- a genuinely different shape of condition from most of what this app has built out so far, since it's a disease of the central nervous system directly, not the gut, joints, skin, or thyroid.",
+    citations: [
+      { source: 'Multiple Sclerosis, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/multiplesclerosis.html' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['other-multiple-sclerosis'],
+  },
+  {
+    id: 'ms-ebv-trigger',
+    category: 'multipleSclerosis',
+    title: 'A Virus Nearly Everyone Has Had, Tied to MS With a 32-Fold Risk Increase',
+    teaser: 'A 20-year study of over 10 million people found almost every MS case traces back to one common infection first.',
+    summary:
+      "One of the most striking findings in autoimmune disease research in recent years: a 20-year prospective study following more than 10 million young adults in active U.S. military service found the risk of developing MS increased 32-fold after infection with Epstein-Barr virus (EBV), the common virus behind mononucleosis, but was not increased after infection with other viruses transmitted the same way, including cytomegalovirus. A biomarker of nerve damage in the blood rose specifically after EBV infection, not before it, ruling out the possibility that the virus was simply more likely to infect people already developing MS. The researchers' own conclusion is direct: the size of this effect, a 32-fold increase, is comparable to the link between smoking and lung cancer, and the study's own design specifically tested and ruled out reverse causation and confounding as explanations. Since nearly everyone is infected with EBV by adulthood but only a small fraction develop MS, EBV infection appears to be a necessary trigger, not a sufficient one -- something else, genetic susceptibility, other environmental factors, or both, still has to be present too.",
+    citations: [
+      { source: 'Bjornevik K, et al., Science, 2022, "Longitudinal analysis reveals high prevalence of Epstein-Barr virus associated with multiple sclerosis," PMID 35025605', url: 'https://pubmed.ncbi.nlm.nih.gov/35025605/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-ebna1-glialcam-mimicry'],
+  },
+  {
+    id: 'ms-ebna1-glialcam-mimicry',
+    category: 'multipleSclerosis',
+    title: 'The Real Mechanism Behind the EBV-MS Link: One Viral Protein Looks Enough Like Myelin to Fool the Immune System',
+    teaser: 'A real, specific case of molecular mimicry, the same broad mechanism this app already covers for gluten and joint tissue, now traced to a virus and a piece of the nerve sheath itself.',
+    summary:
+      "Finding that EBV infection precedes most MS cases only answers part of the question. A separate, real discovery explains how: a specific piece of an EBV protein called EBNA1 (amino acids 365 to 425) structurally resembles a protein in the myelin sheath called GlialCAM, closely enough that antibodies made to fight the virus cross-react with the body's own nerve coating. About 25% of MS patients carry antibodies to this exact piece of EBNA1, and those same antibodies bind to GlialCAM in laboratory testing. The effect is strongest, and increases MS risk the most, in people who also carry a specific genetic risk variant (HLA-DRB1*15:01) -- the antibody response and the genetic risk factor combine rather than acting independently. In an animal model of MS, immunizing mice against EBNA1 measurably worsened their disease. This is a real, mechanistic explanation for the population-level finding, not just a correlation stacked on a correlation, and it's the same broad principle, a piece of a foreign invader resembling the body's own tissue closely enough to trigger an attack, that this app's own research already documents for gluten and joint tissue in other conditions.",
+    citations: [
+      { source: 'Lanz TV, et al., Nature, 2022, "Clonally expanded B cells in multiple sclerosis bind EBV EBNA1 and GlialCAM," PMID 35073561', url: 'https://pubmed.ncbi.nlm.nih.gov/35073561/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ms-smoking-risk',
+    category: 'multipleSclerosis',
+    title: 'Smoking and MS: A Real, Well-Established Risk for Getting the Disease, a Genuinely Less Clear One for How It Progresses',
+    teaser: 'Unlike this app\'s own Hashimoto\'s research, there is no paradox here. Smoking raises real risk, consistently, at every stage this has been tested.',
+    summary:
+      "This app's own Hashimoto's research covers a real, documented paradox: smoking is associated with a lower risk of developing Hashimoto's specifically. MS shows no such paradox. A meta-analysis pooling over 20,000 cases from case-control and cohort studies found smoking associated with a real, meaningfully increased risk of developing MS in the first place (risk ratio around 1.5, meaning roughly 50% higher risk). What's genuinely less settled is whether smoking also worsens the disease's course once someone already has it. Different meta-analyses have found mixed results on progression to secondary progressive MS specifically, some falling just short of statistical significance, others finding a real, significant association -- real research still working out exactly how strong that second effect is, even though the first (susceptibility) is well established. Worth knowing plainly: unlike the Hashimoto's finding, there is no protective angle to smoking here at all.",
+    citations: [
+      { source: 'The risk of smoking on multiple sclerosis: a meta-analysis based on 20,626 cases from case-control and cohort studies', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4806598/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lifestyle-smoking-paradox'],
+  },
+  {
+    id: 'ms-swank-diet-history',
+    category: 'multipleSclerosis',
+    title: 'The Swank Diet: A Real, Decades-Long Natural Experiment in Saturated Fat and MS',
+    teaser: 'One doctor followed the same patients for up to 50 years. The ones who genuinely stuck to a low-saturated-fat diet fared strikingly differently from the ones who didn\'t.',
+    summary:
+      "Dr. Roy Swank began recommending a low-saturated-fat diet (roughly 20 grams of saturated fat a day or less) to MS patients in the 1950s and kept following the same cohort for decades, publishing a real 34-year follow-up and later tracking a small remaining group into their 70s and 80s at the 50-year mark. The real, striking finding: patients identified early in their disease, while only mildly disabled, who genuinely restricted saturated fat intake, showed no further disability in 95% of cases at 34 years. Eating just 8 grams more saturated fat a day than the diet's own target was associated with a real, sharp increase in disability and a nearly tripled death rate in Swank's own data, and patients who relaxed the diet even years into treatment could see their disease reactivate. This is real, long-running observational data from one dedicated clinician and his own patient cohort, not a randomized trial, so it can't rule out that patients who stuck with a demanding diet for decades differed from those who didn't in other ways too, exactly the kind of adherence-driven pattern medicine's own newer, controlled research (see the real head-to-head trial below) has since worked to test directly.",
+    citations: [
+      { source: 'Swank RL, Goodwin J, Nutrition, 2003, "Review of MS patient survival on a Swank low saturated fat diet," PMID 12591551', url: 'https://pubmed.ncbi.nlm.nih.gov/12591551/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ms-waves-trial'],
+  },
+  {
+    id: 'ms-waves-trial',
+    category: 'multipleSclerosis',
+    title: 'The Real Head-to-Head Trial: Swank vs. Wahls, Both Genuinely Helped',
+    teaser: 'A real randomized trial finally tested two competing MS diets against each other directly, and neither one lost.',
+    summary:
+      "The WAVES trial randomized 77 people with relapsing-remitting MS to either the Swank diet (low saturated fat) or the Wahls Elimination diet (a modified Paleolithic approach emphasizing vegetables and eliminating grains, legumes, and dairy), tracking real fatigue and quality-of-life outcomes over 36 weeks. Both diets produced real, clinically meaningful reductions in fatigue: the Swank group's fatigue scores dropped by about 1 point by 24 weeks, the Wahls group by about 1.3 points, with both groups also showing real, meaningful improvements in quality of life. Neither diet was a clear, decisive winner over the other, though the Wahls group showed somewhat larger improvements in physical quality-of-life scores specifically. Both diets share a real, common thread worth noting directly: both emphasize a high intake of fruits and vegetables and unsaturated fats, and both limit highly processed foods, the same whole-food pattern this app's own research already finds helpful across several other conditions. This is real, randomized, controlled evidence, a genuinely stronger design than Swank's own decades-long observational cohort, even at this trial's modest size and 36-week length.",
+    citations: [
+      { source: 'Wahls TL, et al., Multiple Sclerosis Journal - Experimental, Translational and Clinical, 2021, "Impact of the Swank and Wahls elimination dietary interventions on fatigue and quality of life in relapsing-remitting multiple sclerosis: The WAVES randomized parallel-arm clinical trial"', url: 'https://journals.sagepub.com/doi/10.1177/20552173211035399' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ms-biotin-honest-correction',
+    category: 'multipleSclerosis',
+    title: 'High-Dose Biotin: A Small Trial Looked Genuinely Promising. A Larger One Didn\'t Confirm It.',
+    teaser: 'A real, honest case study in why one small positive trial isn\'t the same as proof, and why the larger follow-up trial mattered.',
+    summary:
+      "High-dose pharmaceutical-grade biotin (MD1003, roughly 300mg a day, far above ordinary dietary or supplement amounts) was tested specifically in progressive MS, a form of the disease with few treatment options. The first real trial (MS-SPI, 154 patients) found a genuinely striking result: 12.6% of patients on MD1003 achieved a real, meaningful disability reversal at 9 months (confirmed at 12), versus none of the patients on placebo. That result did not hold up in the larger, later phase 3 trial (SPI2, 642 patients): 12% improved on MD1003 versus 9% on placebo, a difference that did not reach statistical significance, and the drug's manufacturer reported the trial failed both its primary and secondary endpoints. This is included as a real, honest example of exactly the discipline this whole app's research holds to: a small, promising early trial is real evidence, but not the same as proof, and a larger, better-powered follow-up trial is what actually settles the question. There's a real, separate, practical reason to know about high-dose biotin specifically if considering it anyway: this app's own Labs & Medication Timing research already covers a well-documented, unrelated problem, biotin at this kind of dose can cause inaccurate thyroid lab results by interfering with the biotinylated-antibody technology many lab assays use, a real risk worth telling a lab about directly regardless of whether the MS benefit itself pans out.",
+    citations: [
+      { source: 'Tourbah A, et al., Multiple Sclerosis Journal, 2016, "MD1003 (high-dose biotin) for the treatment of progressive multiple sclerosis: A randomised, double-blind, placebo-controlled study"', url: 'https://journals.sagepub.com/doi/10.1177/1352458516667568' },
+      { source: 'Cree BAC, et al., The Lancet Neurology, 2020, "Safety and efficacy of MD1003 (high-dose biotin) in patients with progressive multiple sclerosis (SPI2): a randomised, double-blind, placebo-controlled, phase 3 trial"', url: 'https://www.thelancet.com/journals/laneur/article/PIIS1474-4422(20)30347-1/abstract' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['labs-biotin-interference'],
+  },
+  {
+    id: 'ms-vitamin-d-mixed-evidence',
+    category: 'multipleSclerosis',
+    title: 'Vitamin D and MS: A Real, Large, Negative Trial Worth Knowing About Directly',
+    teaser: "This app's own corroborating-evidence research already flags this question as unresolved. A large, recent, dedicated MS trial adds real weight to the uncertain side.",
+    summary:
+      "This app's own Other Autoimmune Diseases research already covers a real meta-analysis on vitamin D and MS relapse rates, framed as one of three unresolved vitamin D questions across different autoimmune diseases. A large, more recent, dedicated trial adds real, specific weight to the uncertain side of that question. The PREVANZ trial randomized 204 people with a clinically isolated syndrome (an early, single episode suggestive of MS, before a full diagnosis) to placebo or one of three vitamin D doses (1,000, 5,000, or 10,000 IU daily) and tracked whether they went on to develop full MS over 48 weeks. The result was a real, clear null: 58% of participants converted to MS regardless of group, and none of the three vitamin D doses showed a statistically significant reduction in that risk compared to placebo. This doesn't erase the real, separately-cited evidence pointing toward a benefit, some meta-analyses pooling many smaller trials do find a real relapse-rate reduction at high, sustained doses, but it's a genuine, recent, well-designed trial finding no effect at exactly the point (early disease, before full diagnosis) where a preventive effect would matter most. Vitamin D was safe and well tolerated at every dose tested, which is worth knowing on its own regardless of how the efficacy question eventually resolves.",
+    citations: [
+      { source: 'Lucas RM, et al., Brain, 2024, "Vitamin D did not reduce multiple sclerosis disease activity after a clinically isolated syndrome," PMID 38085047', url: 'https://pubmed.ncbi.nlm.nih.gov/38085047/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['other-multiple-sclerosis', 'nutrient-vitamin-d'],
+  },
+  {
+    id: 'ms-sodium-th17-contested',
+    category: 'multipleSclerosis',
+    title: 'High Sodium Intake and MS: A Real Mechanism, a Genuinely Contested Human Finding',
+    teaser: 'A real, specific immune mechanism in the lab. A real early human study finding a striking effect. Larger, later studies finding none at all.',
+    summary:
+      "Excess dietary sodium has a real, documented effect on Th17 cells, the same inflammatory immune cell type central to this app's own research on several autoimmune conditions -- high salt exposure pushes these cells toward a more aggressively inflammatory state in laboratory and animal studies, and in an animal model of MS, a high-salt diet worsened disease onset and severity alongside real, measurable breakdown of the blood-brain barrier. The real human evidence is genuinely more contested than the lab mechanism alone would suggest. An early human study found a striking dose-dependent relationship: participants with medium sodium intake (2 to 4.8 grams a day) had a real, 2.75-fold higher disease exacerbation rate, and those with high intake (over 4.8 grams a day) a 9.95-fold higher rate, compared with low-intake participants. Later research in larger cohorts, though, found no correlation between sodium intake and MS disease activity at all, a real, direct contradiction of the earlier finding, not just a smaller or noisier version of it. A real, honest, unresolved question, included with both sides stated plainly rather than only the more dramatic early finding, which several patient-facing sources still repeat as if it were settled.",
+    citations: [
+      { source: 'Farez MF, et al., Journal of Neurology, Neurosurgery & Psychiatry, 2015, "Sodium intake is associated with increased disease activity in multiple sclerosis," PMID 25168393', url: 'https://pubmed.ncbi.nlm.nih.gov/25168393/' },
+      { source: 'A Systematic Review of the Impact of Dietary Sodium on Autoimmunity and Inflammation Related to Multiple Sclerosis', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6743836/' },
+    ],
+    overallTier: 'weak',
+  },
+  {
+    id: 'ms-fasting-mimicking-diet',
+    category: 'multipleSclerosis',
+    title: 'Fasting-Mimicking Cycles: A Real, Specific Mechanism in Mice, a Real Safety Trial in People, Not Yet a Proven Human Treatment',
+    teaser: 'The animal data is genuinely striking: destroyed autoimmune cells, regrown myelin. The human evidence is still an early, safety-focused first step.',
+    summary:
+      "A fasting-mimicking diet (a real, structured low-calorie eating pattern designed to trigger some of fasting's biological effects while still providing some food) showed a real, specific effect in mouse models of MS: cycles of the diet reduced inflammatory signaling molecules, increased immune cells linked to healthy immune regulation, protected the cells that produce myelin, and actively encouraged remyelination, regrowth of the protective nerve coating MS damages. That's a genuinely striking mechanism in an animal model, and it directly connects to autophagy and mitochondrial-repair research this app already covers elsewhere. The human evidence so far is real but much earlier-stage: a 6-month study of 60 people with relapsing-remitting MS, primarily designed to test safety rather than prove effectiveness, found people who did one fasting-mimicking diet cycle followed by a Mediterranean diet, and a separate group on a ketogenic diet, both reported real improvements in quality of life. The fasting-mimicking diet was only given once in this trial, and the study's own authors are explicit that larger, randomized, multi-cycle trials are still needed before this can be called a proven treatment rather than a promising, safety-tested early signal.",
+    citations: [
+      { source: 'Choi IY, et al., Cell Reports, 2016, "A Diet Mimicking Fasting Promotes Regeneration and Reduces Autoimmunity and Multiple Sclerosis Symptoms"', url: 'https://www.cell.com/cell-reports/fulltext/S2211-1247(16)30576-9' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['mito-fasting-autophagy-tension'],
+  },
+  {
+    id: 'ms-hashimotos-comorbidity',
+    category: 'multipleSclerosis',
+    title: "MS and Hashimoto's: A Real, Striking, Quantified Overlap",
+    teaser: 'Roughly a quarter of untreated MS patients also carry autoimmune thyroid disease. This is one of the strongest real comorbidity numbers in this whole app.',
+    summary:
+      "Real research finds autoimmune thyroiditis or subclinical hypothyroidism present in 20% to 25% of people with MS before they start immunomodulatory treatment, a genuinely striking figure, meaning roughly one in four to five untreated MS patients also carries real, measurable thyroid autoimmunity. Hashimoto's thyroiditis specifically shows up as the single most common comorbid thyroid condition in MS cohort studies. The real, reassuring finding alongside this: thyroid autoimmunity appears to have a neutral effect on the actual course of MS itself, it doesn't seem to make MS worse, it's simply genuinely more likely to co-occur. Worth knowing directly for two real, practical reasons: first, MS's own core immune-cell biology (Th17/Treg imbalance, the same mechanism this app's own Gut & Microbiome research already covers) is a real, shared thread connecting these two diseases, not a coincidence; second, this app's own regular thyroid-panel self-advocacy guidance is arguably even more relevant for someone managing MS than for the general population, given how common this real overlap actually is.",
+    citations: [
+      { source: 'The Relationship Between Autoimmune Disorders and Multiple Sclerosis: Clinical Insights and Therapeutic Approaches', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12191017/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-core-thyroid-panel'],
+  },
+  {
+    id: 'ms-jc-virus-testing',
+    category: 'multipleSclerosis',
+    title: 'JC Virus Antibody Testing: A Real, Necessary Safety Check for One of the Most Effective MS Medications',
+    teaser: 'A highly effective drug carries a real, rare, serious brain-infection risk. One blood test, repeated regularly, is how that risk actually gets tracked.',
+    summary:
+      "Natalizumab is a real, highly effective medication for relapsing MS, but it carries a real, serious risk: progressive multifocal leukoencephalopathy (PML), a rare but potentially fatal brain infection caused by reactivation of the JC virus, a common virus most people carry without ever knowing it. The anti-JC virus antibody index is the real, established tool for tracking this risk over time -- current guidance recommends testing every six months to catch anyone whose status shifts from negative to positive early. Real, quantified risk figures: overall PML risk is about 1 in 1,667 during the first 24 months of treatment, rising to about 1 in 192 for 25 to 48 months of treatment, with risk climbing further with a higher antibody index specifically. This test's own real limitation is worth knowing plainly: it's genuinely useful for stratifying risk but isn't perfect, some people with a high antibody index never develop PML, and PML has occurred in a small number of people who tested antibody-negative. Worth asking directly whether this testing schedule is being followed if natalizumab is part of a treatment plan, rather than assuming it happens automatically.",
+    citations: [
+      { source: 'Plavina T, et al., Neurology, 2014, "Anti-JC virus antibody levels in serum or plasma further define risk of natalizumab-associated progressive multifocal leukoencephalopathy," PMID 25273271', url: 'https://pubmed.ncbi.nlm.nih.gov/25273271/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ms-mcdonald-criteria',
+    category: 'multipleSclerosis',
+    title: 'How MS Is Actually Diagnosed: The McDonald Criteria, and Why "Dissemination in Space and Time" Matters',
+    teaser: 'MS diagnosis requires showing damage in more than one place and at more than one point in time. Knowing the real framework helps make sense of what an MRI report is actually establishing.',
+    summary:
+      "MS diagnosis relies on the McDonald criteria, a real, internationally agreed framework requiring evidence of \"dissemination in space\" (nerve damage in more than one distinct area of the central nervous system) and \"dissemination in time\" (evidence that damage occurred at more than one point in time, not all from a single event). The most recent major revision, in 2017, made a real, specific change worth knowing about directly: cerebrospinal fluid oligoclonal bands (a marker found via a real, if invasive, lumbar puncture test) can now substitute for dissemination in time, meaning someone can potentially receive an MS diagnosis at their very first clinical event rather than waiting for a second one to occur, if their spinal fluid shows this real marker. Real research since the 2017 revision confirms this genuinely allows earlier diagnosis, though it's also a real, active area of ongoing refinement, cortical lesions were added as valid evidence too, and researchers continue debating whether earlier diagnosis under the newer criteria comes with any tradeoff in how precisely certain the diagnosis actually is. Worth understanding directly what an MRI or spinal fluid report is actually establishing under this framework, rather than treating either test as a simple yes-or-no answer on its own.",
+    citations: [
+      { source: 'Thompson AJ, et al., The Lancet Neurology, 2018, "Diagnosis of multiple sclerosis: 2017 revisions of the McDonald criteria"', url: 'https://www.sciencedirect.com/science/article/abs/pii/S1474442217304702' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ms-dmf-flushing-management',
+    category: 'multipleSclerosis',
+    title: 'Dimethyl Fumarate\'s Flushing Side Effect: A Real, Same Mechanism as Niacin, With Real, Practical Fixes',
+    teaser: 'A common MS medication causes flushing through the identical receptor niacin does. Two real, practical steps genuinely reduce it.',
+    summary:
+      "Dimethyl fumarate (Tecfidera and similar), a common oral MS medication, causes a real, well-documented flushing side effect through the same mechanism as niacin flushing, activation of a receptor in the skin called HCA2/NIACR1, the identical pathway that makes high-dose niacin supplements cause the same sensation. Two real, practical steps genuinely help: taking the medication with food, particularly a higher-fat meal, reduces flushing incidence by roughly 25% compared to taking it on an empty stomach; and taking a real, standard dose of non-enteric-coated aspirin (up to 325mg) about 30 minutes beforehand can further reduce both how often and how severely flushing occurs. Real, practical dosing guidance also recommends a gradual dose increase over the first 4 weeks of treatment specifically to help the body adjust, and a temporary dose reduction if side effects are significant during that period. Worth raising directly with a prescriber if flushing is a real barrier to staying on this medication, since these are genuine, evidence-backed management options, not something to just tolerate or stop the medication over without first trying them.",
+    citations: [
+      { source: 'TECFIDERA (dimethyl fumarate) prescribing information, DailyMed, U.S. National Library of Medicine', url: 'https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=665d7e74-036c-5f68-5b67-ab84b9b49151' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'ms-tying-together',
+    category: 'multipleSclerosis',
+    title: 'What Actually Holds Up for MS, Pulled Together',
+    teaser: 'A near-causal viral trigger, a real diet trial with no losing side, and an honest reckoning with which supplement claims survived a bigger trial and which didn\'t.',
+    summary:
+      "Line up everything in this category and MS reads as a condition where the single strongest finding isn't a food at all, it's a virus: EBV infection very likely precedes almost every real case, with a specific, now-understood mechanism (EBNA1 mimicking a real myelin protein) explaining how. Smoking carries real, consistent risk here, with none of the paradox this app's own Hashimoto's research documents. On diet, the real head-to-head WAVES trial found both the historic Swank approach and the newer Wahls approach genuinely helped, sharing a real, common whole-food thread rather than one being proven right and the other wrong. And two real supplement questions, high-dose biotin and vitamin D, both show exactly the discipline this app's own research holds to throughout: an early, promising result that a larger, better-designed trial did not confirm. The real, striking Hashimoto's comorbidity number (20-25% of untreated patients) and the practical, medication-specific self-advocacy entries, JC virus monitoring, the actual diagnostic framework, a real fix for a common side effect, round out what someone managing MS specifically needs beyond the disease's own general overview.",
+    citations: [
+      { source: 'Multiple Sclerosis, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/multiplesclerosis.html' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-ebv-trigger', 'ms-waves-trial', 'ms-biotin-honest-correction', 'ms-vitamin-d-mixed-evidence', 'ms-hashimotos-comorbidity'],
+  },
+];

@@ -83,7 +83,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['other-lupus'],
+    relatedIds: ['other-lupus', 'lupus-overview', 'lupus-alfalfa-canavanine'],
   },
   {
     id: 'gut-glutamine-null-result',
@@ -248,7 +248,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-blautia-lupus-zonulin'],
+    relatedIds: ['gut-blautia-lupus-zonulin', 'lupus-overview'],
   },
   {
     id: 'gut-th17-treg-imbalance',
