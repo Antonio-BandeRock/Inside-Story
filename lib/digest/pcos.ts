@@ -218,4 +218,22 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-insulin-resistance-mechanism'],
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'pcos-gut-microbiome-hyperandrogenism',
+    category: 'pcos',
+    title: 'Real Research Now Directly Links Reduced Gut Microbial Diversity to Higher Testosterone Levels in PCOS',
+    teaser: 'A real study of 73 PCOS patients found lower gut microbial diversity correlating directly with higher testosterone and hirsutism, and mouse studies show transplanting a PCOS gut microbiome alone can cause the same core disease features.',
+    summary:
+      "PCOS is genuinely tied to real, measurable gut microbiome changes that go beyond the already-covered insulin-resistance mechanism in this app's own PCOS research. Real research finds PCOS patients show a consistent pattern of gut dysbiosis, reduced overall microbial diversity, an altered ratio between two major bacterial groups (Firmicutes and Bacteroidetes), and abnormal metabolic byproducts. A real study of 73 PCOS patients and 48 healthy controls found reduced gut microbial diversity correlating directly and negatively with hyperandrogenemia, total testosterone levels, and hirsutism (excess hair growth), a real, specific, quantified link between the gut and PCOS's own hallmark hormonal symptoms. The real, proposed mechanisms include disrupted energy metabolism, altered lipid and bile acid processing, and chronic low-grade inflammation, mirroring the same gut-driven inflammatory pathway already covered elsewhere in this app for other autoimmune and metabolic conditions. Genuinely striking: real animal research found that transplanting fecal microbiota from PCOS patients into healthy mice actually reproduced core PCOS features, including anovulation and metabolic dysfunction, real evidence the gut microbiome isn't just a bystander marker but potentially a real, causal contributor. Worth knowing directly: this connects PCOS's own already-covered insulin-resistance mechanism to a second, real, gut-centered pathway, reinforcing why the whole-food, fiber-supportive dietary pattern already recommended elsewhere in this app's own PCOS and gut-microbiome research applies here too.",
+    citations: [
+      { source: 'Gut Microbial Diversity in Women With Polycystic Ovary Syndrome Correlates With Hyperandrogenism, PMID 29370410', url: 'https://pubmed.ncbi.nlm.nih.gov/29370410/' },
+      { source: 'Unraveling the gut microbiota\'s role in PCOS: a new frontier in metabolic health, PMC11958223', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11958223/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pcos-insulin-resistance-mechanism'],
+  },
 ];

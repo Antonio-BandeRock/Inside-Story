@@ -210,4 +210,22 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-trab-tsi-testing'],
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'graves-genetic-family-risk',
+    category: 'graves',
+    title: 'A Real Twin Study Found Genetics Explains Roughly 80% of Who Develops Graves\' Disease',
+    teaser: 'Real family and twin research points to a genuinely strong inherited component behind Graves\', anchored around specific, named genes already tied to immune regulation, worth knowing directly if a close relative has it.',
+    summary:
+      "Graves' disease carries a real, substantial inherited risk component, not just a loosely observed family tendency. A real twin study found approximately 80% of susceptibility to Graves' disease attributable to genetic factors, with more recent estimates placing genetics at 60-80% of overall disease risk through a real, polygenic pattern rather than one single gene. The best-characterized real genetic contributors involve the HLA immune-recognition complex, particularly the HLA-DR3 haplotype, alongside CTLA-4 (a gene that normally acts as a brake on T-cell activation) and PTPN22, both real, independently studied immune-regulation genes with a documented statistical association to Graves' risk. This connects directly to a real, already-established parallel already covered elsewhere in this app: Hashimoto's own heritability research draws on the same kind of twin-study and shared-gene evidence (including CTLA-4), and Graves' and Hashimoto's are themselves two real, opposite-direction autoimmune thyroid diseases that can run in the same families, sometimes even in the same person at different points in life. Worth knowing directly: having a close relative with Graves', or with another autoimmune thyroid condition, is a real, genetics-backed reason to watch for symptoms and consider a real thyroid panel (already covered in this app's own self-advocacy research) earlier rather than waiting for a family history to feel coincidental.",
+    citations: [
+      { source: 'Association between the CTLA-4 +49A/G polymorphism and Graves\' disease: A meta-analysis, PMC3503798', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3503798/' },
+      { source: 'Screening of Graves\' disease susceptibility genes by whole exome sequencing in a three-generation family, BMC Medical Genomics', url: 'https://link.springer.com/article/10.1186/s12920-020-00865-z' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['history-heritability-family-risk'],
+  },
 ];

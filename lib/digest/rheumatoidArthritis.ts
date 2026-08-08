@@ -270,4 +270,22 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-advocacy-methotrexate-monitoring'],
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'ra-smoking-citrullination',
+    category: 'rheumatoidArthritis',
+    title: 'Smoking Is the Single Biggest Known Environmental Trigger for RA, and Real Research Now Explains Exactly Why',
+    teaser: 'Cigarette smoke triggers a real, specific chemical change in lung proteins that the immune system can then mistake for a permanent threat, a real, well-mapped mechanism connecting smoking directly to RA in a way few other risk factors are.',
+    summary:
+      "Smoking is the real, most consistently identified environmental risk factor for developing rheumatoid arthritis, and the mechanism behind it is now genuinely well understood rather than just statistically observed. Real research shows cigarette smoke triggers citrullination, a chemical alteration of certain proteins, inside the lungs of a real, susceptible person. In someone carrying specific genetic variants, most notably the HLA-DRB1 \"shared epitope\" and PADI4 gene variants, the immune system can start treating these altered proteins as foreign, producing anti-citrullinated protein antibodies (ACPA, also called anti-CCP) years before joint symptoms ever appear. Real research finds this isn't just an additive risk, it's a genuine gene-environment interaction: smoking's own effect on ACPA-positive RA risk is significantly amplified specifically in people who already carry these genetic variants, and a real, large study found smoking most strongly associated with the presence of all three major RA-related antibodies together (rheumatoid factor, ACPA, and anti-carbamylated protein antibodies) rather than any one alone. Worth knowing directly, this connects straight back to this app's own already-built RF/anti-CCP self-advocacy research: someone who smokes and tests positive for these antibodies is looking at a real, mechanistically explained elevated risk, not just a correlation, and quitting remains one of the few real, modifiable levers over that risk profile.",
+    citations: [
+      { source: 'The Impact of Cigarette Smoking on Risk of Rheumatoid Arthritis: A Narrative Review, PMC7072747', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7072747/' },
+      { source: 'DNA methylation mediates genotype and smoking interaction in the development of anti-citrullinated peptide antibody-positive rheumatoid arthritis, PMC5372280', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5372280/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-rf-anti-ccp'],
+  },
 ];

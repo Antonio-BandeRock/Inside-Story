@@ -214,4 +214,22 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'celiac-dermatitis-herpetiformis',
+    category: 'celiac',
+    title: 'Dermatitis Herpetiformis: The Real, Intensely Itchy Skin Rash That Is Actually Celiac Disease',
+    teaser: 'A real, distinct, itchy blistering rash affects 15-25% of celiac patients, driven by the exact same gluten-triggered antibody response as the gut, and some people have it with no digestive symptoms at all.',
+    summary:
+      "Dermatitis herpetiformis is a real, genuinely distinct manifestation of celiac disease, not a separate skin condition that happens to occur alongside it. It's caused by the same underlying gluten-triggered immune process, but the real, specific IgA antibodies involved deposit in the skin rather than (or in addition to) the gut: epidermal transglutaminase (TG3) is the real skin-specific target antigen, distinct from the tissue transglutaminase (TG2) already covered in this app's own celiac diagnostic-panel research as the standard gut-focused test. The result is a real, intensely itchy, blistering rash, most classically on the elbows, knees, and buttocks. Real research finds more than 90% of people with dermatitis herpetiformis also have real, confirmable gluten-sensitive enteropathy on biopsy, even when they have no digestive symptoms at all, and conversely, a real 15-25% of people with celiac disease develop this same skin manifestation at some point. Worth knowing directly: dermatitis herpetiformis responds to the exact same gluten-free diet already covered in this app's own celiac research, with real, excellent long-term prognosis once gluten is removed, and it's worth raising directly with a doctor as a possible celiac clue for anyone with an unexplained, persistently itchy, blistering rash, since it can be the very first, or only, visible sign of the disease.",
+    citations: [
+      { source: 'Dermatitis herpetiformis: pathognomonic transglutaminase IgA deposits in the skin and excellent prognosis on a gluten-free diet, PMID 26059085', url: 'https://pubmed.ncbi.nlm.nih.gov/26059085/' },
+      { source: 'Dermatitis Herpetiformis, Celiac Disease Foundation', url: 'https://celiac.org/about-celiac-disease/related-conditions/dermatitis-herpetiformis/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-diagnostic-panel'],
+  },
 ];

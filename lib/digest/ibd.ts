@@ -223,4 +223,22 @@ export const IBD_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'ibd-fecal-microbiota-transplant',
+    category: 'ibd',
+    title: 'Fecal Microbiota Transplantation Shows Real, if Still Developing, Promise for Ulcerative Colitis',
+    teaser: 'Already an established, FDA-recognized treatment for recurrent C. diff infection, real capsule-based FMT trials in ulcerative colitis found remission in over half of patients at 12 weeks, though results still vary meaningfully between studies.',
+    summary:
+      "Fecal microbiota transplantation, transferring processed stool from a screened, healthy donor into someone's own gut, is already a real, well-established treatment for recurrent Clostridioides difficile infection, and that established track record is what's driving real, serious research into whether it can do something similar for ulcerative colitis, a condition already tied directly to gut dysbiosis in this app's own existing research. A real study using capsulized (swallowable) FMT found clinical remission in 57.1% of patients and a clinical response in 76.2% after 12 weeks, with real mechanistic work showing the benefit tracks with actual gut microbial colonization and metabolite changes, not just a placebo effect. Worth stating honestly rather than oversold: results genuinely vary across different trial centers, with steroid-free remission reported at 32% in one trial and 44% in another, and a real 2025 systematic review and meta-analysis of randomized controlled trials found the evidence base still developing, calling for more standardized, robust trials before this becomes a routine option. The real, proposed mechanisms line up directly with this app's own already-established gut-health research: correcting microbiota dysbiosis, reducing intestinal permeability, and increasing short-chain fatty acid production, the same real, gut-barrier-protective pathway already covered for autoimmune disease broadly. Worth knowing directly: this is real, promising, mechanistically grounded evidence, not yet a settled, universally effective therapy, and anyone considering it should treat it as still-emerging alongside a real gastroenterologist's guidance, not a proven first-line option.",
+    citations: [
+      { source: 'Fecal microbiota transplantation for patients with ulcerative colitis: a systematic review and meta-analysis of randomized control trials, PMC12006273', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12006273/' },
+      { source: 'Capsulized Fecal Microbiota Transplantation Induces Remission in Patients with Ulcerative Colitis by Gut Microbial Colonization and Metabolite Regulation, PMC10269780', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10269780/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibd-fiber-flare-myth'],
+  },
 ];

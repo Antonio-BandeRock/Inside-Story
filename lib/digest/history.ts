@@ -154,7 +154,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'Skov J, Eriksson D, Kuja-Halkola R, et al. 2020: Co-aggregation and heritability of organ-specific autoimmunity: a population-based twin study (110,814 twins)', url: 'https://pubmed.ncbi.nlm.nih.gov/32229696/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['history-genetic-era'],
+    relatedIds: ['history-genetic-era', 'graves-genetic-family-risk'],
   },
   {
     id: 'history-tying-together',

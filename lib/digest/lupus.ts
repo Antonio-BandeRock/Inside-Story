@@ -221,4 +221,22 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-nephritis-monitoring', 'sjogrens-pregnancy-congenital-heart-block'],
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'lupus-drug-induced-reversible',
+    category: 'lupus',
+    title: 'Drug-Induced Lupus Is a Real, Distinct, Usually Fully Reversible Condition, Not the Same Disease Under a Different Name',
+    teaser: 'Certain medications, most notably hydralazine and procainamide, can trigger a lupus-like illness in a genuinely predictable, dose-dependent way that typically resolves completely once the drug is stopped.',
+    summary:
+      "Drug-induced lupus is a real, distinct, medication-triggered illness that mimics systemic lupus erythematosus but behaves in a genuinely different, more reassuring way, it's usually fully reversible. Real historical estimates put the risk as high as 20-30% for long-term procainamide use and 5-10% for hydralazine, with drug-induced cases accounting for a real 6-12% of all lupus diagnoses and an estimated 15,000 to 30,000 new cases a year in the United States. The real mechanism centers on how a person metabolizes these drugs: people who are genetically \"slow acetylators\" clear procainamide and hydralazine more slowly, letting the parent compound accumulate and trigger immune dysregulation, with hydralazine's own risk additionally tied to higher daily doses (above 200mg/day) and greater cumulative exposure over time. Real, documented host risk factors include being female, being a slow acetylator, and carrying specific genetic markers (HLA-DR4, complement C4 null alleles). Worth knowing directly, and genuinely reassuring: real research finds drug-induced lupus generally resolves once the triggering medication is stopped, a real, meaningful contrast to this app's own already-covered chronic, ongoing lupus management research. This is a real, practical, worth-raising question for anyone newly diagnosed with lupus-like symptoms while on a long-term medication, since identifying and stopping the actual trigger can mean the difference between a temporary illness and a lifelong one.",
+    citations: [
+      { source: 'Drug-Induced Lupus Erythematosus, StatPearls / NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK441889/' },
+      { source: 'Drug-induced lupus erythematosus: incidence, management and prevention, PMID 21513360', url: 'https://pubmed.ncbi.nlm.nih.gov/21513360/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-overview'],
+  },
 ];

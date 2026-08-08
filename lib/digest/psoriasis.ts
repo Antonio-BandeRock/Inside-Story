@@ -293,4 +293,23 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'psoriasis-smoking-dose-dependent',
+    category: 'psoriasis',
+    title: 'Smoking Worsens Psoriasis in a Real, Measurable Dose-Dependent Way, Both Before and During Treatment',
+    teaser: 'A real meta-analysis found light smokers nearly twice as likely to have psoriasis as non-smokers, heavy smokers twice as likely to have severe disease, and smoking also measurably blunts how well biologic treatment actually works.',
+    summary:
+      "Smoking has a real, well-documented, dose-dependent relationship with psoriasis, meaning the effect scales directly with how much and how long someone smokes rather than being a simple yes-or-no risk. A real meta-analysis of 25 case-control studies found people smoking just 1 to 14 cigarettes a day were almost twice as likely to have psoriasis as non-smokers, and people smoking 20 or more cigarettes a day had roughly twice the risk of the more severe form of the disease. The real, proposed mechanism involves polycyclic aromatic hydrocarbons and other compounds in tobacco smoke interfering with a real, specific signaling pathway (the aryl hydrocarbon receptor) already known to help regulate the skin's own barrier function, oxidative stress response, and inflammation. Genuinely important beyond just onset risk: a real, prospective study following patients through biologic treatment found non-smokers had close to three times higher odds of reaching a strong treatment response (PASI 75) at 48 weeks compared to smokers, with earlier smoking start, longer duration, and higher intensity all independently tracking with a worse treatment outcome. A separate, real Mendelian randomization study did find smoking an independent, but not clearly causal, risk factor for moderate-to-severe psoriasis specifically, an honest nuance worth keeping in view rather than overstating. Worth knowing directly: this app's own already-built alcohol and Mediterranean-diet research for psoriasis both point toward lifestyle as a real, meaningful lever here, and smoking cessation is a real, concrete addition to that same lever, with a documented effect on treatment response itself, not just disease onset.",
+    citations: [
+      { source: 'Prevalence of Tobacco Smoking and Its Association With Disease Severity Among Patients With Psoriasis in China: A Cross-Sectional Study, PMC9133951', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9133951/' },
+      { source: 'Tobacco smoking negatively influences the achievement of greater than three-quarters reduction in PASI after eight weeks of treatment, PMC11007762', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11007762/' },
+      { source: 'Smoking is an independent but not a causal risk factor for moderate to severe psoriasis: A Mendelian randomization study, PMC9992829', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9992829/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-alcohol', 'psoriasis-advocacy-systemic-med-monitoring'],
+  },
 ];

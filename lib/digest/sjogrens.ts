@@ -217,4 +217,22 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-pregnancy-real-flare-neonatal', 'sjogrens-pilocarpine-cevimeline'],
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'sjogrens-dryness-beyond-mouth-eyes',
+    category: 'sjogrens',
+    title: 'Sjögren\'s Dryness Genuinely Reaches Beyond the Mouth and Eyes, Including Skin and Vaginal Dryness Often Left Unmentioned',
+    teaser: 'Real research finds Sjögren\'s attacks exocrine glands throughout the body, not just the salivary and tear glands, with vaginal and skin dryness both real, common, and often quietly under-discussed symptoms.',
+    summary:
+      "Sjögren's syndrome is defined by real, chronic inflammation of the body's exocrine (moisture-producing) glands, and while dry eyes and dry mouth are its best-known signs, real research confirms the same underlying process genuinely extends further: to the skin, the tracheobronchial tree, and the vagina, together forming what's collectively called sicca symptoms. Vaginal dryness specifically is a real, common but often quietly overlooked symptom, with real research finding a significantly higher prevalence in Sjögren's patients than in the general population, and a real histopathological case-control study directly confirming glandular changes in vaginal tissue consistent with the same disease process affecting the salivary and lacrimal glands. Skin dryness follows the identical real mechanism, reduced exocrine gland function affecting the skin's own moisture-producing glands, not just a coincidental symptom of aging or climate. Real research finds extra-glandular, systemic involvement in as many as 50% of Sjögren's patients overall, underscoring that this is a genuinely whole-body condition, not one confined to the two most commonly discussed sites. Worth knowing directly, and worth raising openly with a doctor even though it can feel like an uncomfortable topic: vaginal dryness in Sjögren's is real, treatable, and directly explained by the same disease process already driving the eye and mouth symptoms this app's own research already covers, not a separate, unrelated issue.",
+    citations: [
+      { source: 'Vaginal dryness in primary Sjögren\'s syndrome: a histopathological case-control study, Rheumatology (Oxford Academic)', url: 'https://academic.oup.com/rheumatology/article/59/10/2806/5733936' },
+      { source: 'Sjogren Disease, StatPearls / NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK431049/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-overview', 'sjogrens-lung-vasculitis-neuropathy-real-data'],
+  },
 ];

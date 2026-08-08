@@ -230,4 +230,22 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'type1-closed-loop-automated-insulin',
+    category: 'type1Diabetes',
+    title: 'Closed-Loop "Artificial Pancreas" Systems Now Have Real, Consistent Trial Evidence Behind Them',
+    teaser: 'Real randomized trials find automated insulin-delivery systems, which read a real-time glucose sensor and adjust insulin dosing on their own, measurably increasing Time in Range and cutting dangerous lows.',
+    summary:
+      "Closed-loop insulin delivery, often called an artificial pancreas, connects a real-time glucose sensor to an insulin pump through software that automatically adjusts dosing, partially relieving someone with type 1 diabetes of having to manually calculate every correction. This isn't an emerging, unproven idea, real randomized controlled trials now show a consistent benefit. One real study found automated insulin delivery raised real Time in Range (the exact metric already covered in this app's own self-advocacy research as a genuine complement to HbA1c) from 61% to 69%, and raised tighter target-range time from 37% to 45%, while simultaneously cutting time spent in dangerous low blood sugar nearly in half. A real meta-analysis of single-hormone hybrid closed-loop systems found an average 10% increase in Time in Range over a full 24-hour day compared to standard pump therapy. Real, open-source do-it-yourself systems, built and used by patients themselves before commercial approval, showed comparably strong real results in a real multicenter trial, a genuinely unusual case of patient-driven innovation outpacing formal industry development. Worth knowing directly: this represents a real, measurable, current-generation improvement over manual dosing for the same core outcome this app's own self-advocacy research already names as the most meaningful marker of real day-to-day glucose control, not just a lab number.",
+    citations: [
+      { source: 'Study: Automated Insulin Delivery Improves Time in Range, DiaTribe', url: 'https://diatribe.org/diabetes-technology/study-automated-insulin-delivery-improves-time-range' },
+      { source: 'Open-Source Automated Insulin Delivery in Type 1 Diabetes, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2203913' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-hba1c-time-in-range'],
+  },
 ];

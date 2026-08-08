@@ -267,4 +267,22 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+
+  // -- Second depth pass, 2026-08-08, extending full-parity work to the
+  // first 10 non-Hashimoto's conditions. Every citation independently
+  // verified via WebSearch.
+  {
+    id: 'ms-gut-dysbiosis-scfa',
+    category: 'multipleSclerosis',
+    title: 'A Real, Specific Gut Bacterium Was Shown to Calm Neuroinflammation Directly in an MS Mouse Model',
+    teaser: 'Multiple studies find MS patients carry real, measurable gut dysbiosis and reduced short-chain fatty acids, and one specific bacterium, Bacteroides fragilis, was shown to actually improve disease severity when reintroduced.',
+    summary:
+      "Multiple sclerosis is increasingly tied to real, measurable gut microbiome changes, not just symptoms that happen to occur far from the digestive system. Real research across several independent cohorts finds a consistent pattern of gut dysbiosis in MS patients compared to healthy controls, alongside a real, repeated finding of reduced short-chain fatty acids (SCFAs, the same real fermentation byproducts already covered in this app's own gut-microbiome research), with butyrate and propionate specifically showing pronounced anti-inflammatory effects that appear diminished in MS. The single most striking real finding involves one specific organism: Bacteroides fragilis produces a molecule called polysaccharide A that induces regulatory T cells (Tregs) and suppresses neuroinflammation, and when germ-free MS model mice were deliberately colonized with this bacterium, their real, measured disease score improved by stimulating Tregs and suppressing the same Th17 inflammatory pathway already covered in this app's own broader autoimmune gut-health research. A separate, real depletion of Faecalibacterium prausnitzii, another known butyrate producer, has also been linked to impaired gut barrier function and systemic inflammation across several autoimmune conditions, not just MS specifically. Worth knowing directly: this is real, still-developing mechanistic evidence, mostly from animal models and observational human cohorts rather than a completed human intervention trial, but it's a genuine, specific, named example of the gut-immune connection this app's own research already treats as central, now demonstrated concretely inside MS itself.",
+    citations: [
+      { source: 'Changes in Gut Microbiota and Multiple Sclerosis: A Systematic Review, PMC10001679', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10001679/' },
+      { source: 'The Role of Gut-derived Short-Chain Fatty Acids in Multiple Sclerosis, PMID 38630350', url: 'https://pubmed.ncbi.nlm.nih.gov/38630350/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ms-fasting-mimicking-diet'],
+  },
 ];
