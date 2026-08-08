@@ -179,7 +179,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Systemic impacts of metabolic dysfunction-associated steatotic liver disease (MASLD) and metabolic dysfunction-associated steatohepatitis (MASH) on heart, muscle, and kidney related diseases, PMID 39086662', url: 'https://pubmed.ncbi.nlm.nih.gov/39086662/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['type2-metabolic-syndrome-cluster'],
+    relatedIds: ['type2-metabolic-syndrome-cluster', 'masld-statin-safety-myth'],
   },
   {
     id: 'masld-history-milestones',
@@ -221,5 +221,52 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['masld-metald-alcohol-threshold', 'masld-f0-f4-fibrosis-staging'],
+  },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing full-parity work
+  // beyond the second structural depth pass, working toward Hashimoto's
+  // own real 176-entry depth. Every citation independently verified via
+  // WebSearch.
+  {
+    id: 'masld-exercise-independent-weight-loss',
+    category: 'fattyLiverDisease',
+    title: 'Exercise Alone, With No Weight Loss at All, Real Measurably Reduces Liver Fat',
+    teaser: 'A real randomized trial found exercise cut liver fat by over 10% with zero change in body weight, and a real meta-analysis found exercise 3.5 times more likely to meaningfully reduce liver fat than standard care, independent of weight lost.',
+    summary:
+      "This is a real, genuinely encouraging finding worth knowing directly, alongside this app's own already-established, real weight-loss-threshold research for MASLD: exercise itself reduces liver fat through a real mechanism separate from weight loss. A real randomized trial found a structured exercise program reduced intrahepatic (liver) triglyceride content by 10.3% while causing NO significant change in total body weight or body fat percentage, real, direct evidence that exercise moves the needle on its own. A real, broader meta-analysis found exercise training 3.5 times more likely to achieve a clinically meaningful liver-fat reduction (30% or more) compared to standard clinical care, independent of weight loss, with a real minimum exercise dose (roughly 750 metabolic-equivalent minutes per week, comparable to about 150 minutes of moderate activity) appearing necessary for this effect. Real research finds both aerobic and resistance exercise contribute, with aerobic exercise showing a somewhat stronger effect in the current evidence base. Worth knowing directly: this is real, practical, hopeful information for anyone who finds sustained weight loss genuinely difficult, exercise itself is a real, independent lever on liver fat, not just a supporting tool for weight loss, and it's worth pursuing on its own merits even before or alongside any real change on the scale.",
+    citations: [
+      { source: 'Exercise Training Is Associated With Treatment Response in Liver Fat Content Independent of Clinically Significant Body Weight Loss, PMID 36705333', url: 'https://pubmed.ncbi.nlm.nih.gov/36705333/' },
+      { source: 'Positive Effects of Exercise Intervention without Weight Loss and Dietary Changes in NAFLD-Related Clinical Parameters, PMC8466505', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8466505/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-weight-loss-thresholds', 'mito-exercise-intensity-inflammation'],
+  },
+  {
+    id: 'masld-vitamin-e-pivens-trial',
+    category: 'fattyLiverDisease',
+    title: 'A Real, Landmark Trial Found High-Dose Vitamin E Genuinely Improved Liver Damage in Non-Diabetic NASH',
+    teaser: 'The real PIVENS trial found vitamin E at 800 IU/day resolved active liver inflammation in 42% of patients versus 18% on placebo, real, meaningful evidence for a specific, non-diabetic subgroup already covered elsewhere in this app\'s own medication research.',
+    summary:
+      "The PIVENS trial is a real, landmark, randomized, placebo-controlled study (247 adults with confirmed NASH, no diabetes) directly testing whether vitamin E supplementation could improve actual liver tissue damage, not just lab values. Real results found vitamin E at 800 IU daily meeting the trial's own pre-defined histological improvement endpoint in 43% of patients, compared to 19% on placebo, with real resolution of NASH itself (active inflammation) achieved in 42% of the vitamin E group versus just 18% on placebo. This connects directly to the vitamin_e_nash medication already tracked elsewhere in this app's own research, giving it a real, specific, quantified trial behind the recommendation rather than just a name on a list. Worth knowing directly and honestly: the PIVENS trial specifically excluded people with diabetes, so this real evidence applies most directly to non-diabetic NASH, and a separate trial did find real benefit in diabetic NASH patients too, but the strength of evidence in that specific subgroup is generally considered less robust than the original PIVENS population. High-dose vitamin E supplementation also carries its own real, separate safety considerations worth discussing with a doctor rather than starting on one's own, since sustained high-dose antioxidant supplementation isn't automatically risk-free. This is a real, meaningful, trial-backed option worth knowing about directly for anyone managing biopsy-confirmed NASH, not just a general \"antioxidants might help\" suggestion.",
+    citations: [
+      { source: 'Pioglitazone, Vitamin E, or Placebo for Nonalcoholic Steatohepatitis, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa0907929' },
+      { source: 'Role of Vitamin E for Nonalcoholic Steatohepatitis in Patients With Type 2 Diabetes: A Randomized Controlled Trial, Diabetes Care', url: 'https://diabetesjournals.org/care/article/42/8/1481/36160/Role-of-Vitamin-E-for-Nonalcoholic-Steatohepatitis' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-resmetirom'],
+  },
+  {
+    id: 'masld-statin-safety-myth',
+    category: 'fattyLiverDisease',
+    title: 'Statins Are Real, Genuinely Safe in Fatty Liver Disease, Despite a Common Myth That Keeps Nearly Half of Eligible Patients Untreated',
+    teaser: 'Real research finds serious statin-related liver injury is rare regardless of underlying liver disease, and statins may even directly lower liver enzyme levels in MASLD, yet 40-50% of patients who should be on one still aren\'t.',
+    summary:
+      "A real, persistent, and genuinely costly myth surrounds statin use in fatty liver disease: many patients and even some clinicians believe statins are unsafe or should be avoided in anyone with liver disease, but real research finds the opposite. Real studies find people with MASLD and elevated cholesterol are NOT at increased risk of statin-related liver injury compared to anyone else, clinically significant drug-induced liver injury from statins is genuinely rare, and elevated liver enzymes above three times the normal upper limit occur in under 1% of treated patients at standard doses. Genuinely striking: real research finds MASLD patients prescribed a statin showed real REDUCTIONS in baseline ALT, AST, and GGT (all real, standard liver-enzyme measures), not the worsening the myth would predict, alongside statins' own already-well-established cardiovascular benefit covered elsewhere in this app's own statin-evidence research. The real, practical cost of this myth is substantial: current research finds 40-50% of MASLD patients who meet standard criteria for statin therapy are not receiving it, despite MASLD itself carrying a real, elevated cardiovascular risk (already covered in this app's own systemic-CVD-CKD research for this condition). Worth knowing directly: a mild, stable elevation in liver enzymes is not, on its own, a real reason to withhold a statin from someone with MASLD who otherwise needs one for cardiovascular protection, and this is worth raising directly if a statin has ever been withheld or discontinued specifically because of a fatty liver diagnosis.",
+    citations: [
+      { source: 'Statin liver safety in non-alcoholic fatty liver disease: A systematic review and metanalysis, British Journal of Clinical Pharmacology', url: 'https://bpspubs.onlinelibrary.wiley.com/doi/10.1111/bcp.14943' },
+      { source: 'An Evidence-Based Review of Statin Use in Patients With Nonalcoholic Fatty Liver Disease', url: 'https://journals.sagepub.com/doi/10.1177/1179552218787502' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-systemic-cvd-ckd-real-data', 'cvd-statin-evidence'],
   },
 ];

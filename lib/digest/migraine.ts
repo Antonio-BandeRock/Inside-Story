@@ -204,4 +204,51 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-aura-stroke-real-risk'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing full-parity work
+  // beyond the second structural depth pass, working toward Hashimoto's
+  // own real 176-entry depth. Every citation independently verified via
+  // WebSearch.
+  {
+    id: 'migraine-aura-hormonal-contraceptives',
+    category: 'migraine',
+    title: 'Migraine With Aura Changes a Real, Important Birth Control Decision',
+    teaser: 'Migraine with aura roughly doubles ischemic stroke risk on its own, and combined hormonal contraceptives are a real, named contraindication on top of that, though the evidence behind exactly how much they add is genuinely lower-quality than the guideline itself suggests.',
+    summary:
+      "Migraine with aura already carries a real, roughly two-fold increased risk of ischemic stroke on its own, already covered in this app's own migraine-and-stroke research, and combined hormonal contraceptives (the pill, patch, or ring containing both estrogen and progestin) are a real, formally named contraindication specifically for anyone with this type of migraine. Real consensus guidance from the European Headache Federation and European Society of Contraception states plainly that combined hormonal contraception poses an unacceptable health risk in this specific group. Worth stating honestly rather than overstated: the actual quality of evidence behind exactly how much added risk combined contraceptives contribute is real but genuinely low, and much of the historical data behind this guidance comes from the 1960s and 1970s, when oral contraceptives contained far higher estrogen doses than today's ultra-low-dose formulations. Real research on modern, ultra-low-dose pills (20mcg or less of ethinyl estradiol) suggests they may not meaningfully raise stroke risk in healthy nonsmokers, though this hasn't fully displaced the standing guideline. Progestin-only contraception is the real, standard, safer alternative recommended for this group, since it isn't tied to the same stroke-risk mechanism. Worth knowing directly: this is a real, worth-naming-by-name conversation to have with a prescriber for anyone who experiences migraine with aura and is considering or already using a combined hormonal contraceptive, especially alongside any other real stroke risk factor like smoking.",
+    citations: [
+      { source: 'Hormonal contraceptives and risk of ischemic stroke in women with migraine: a consensus statement, PMC5662520', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5662520/' },
+      { source: 'Combined Hormonal Contraceptives and Migraine: An Update on the Evidence, Cleveland Clinic Journal of Medicine', url: 'https://www.ccjm.org/content/84/8/631' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-aura-stroke-real-risk'],
+  },
+  {
+    id: 'migraine-sleep-bidirectional',
+    category: 'migraine',
+    title: 'Migraine and Poor Sleep Feed Each Other in a Real, Two-Way Cycle, and Fixing the Sleep Side Has Real, Measured Benefit',
+    teaser: 'Sleep disturbance is a real, common migraine trigger, and migraine pain itself real disrupts sleep in return, but real trial data finds treating the insomnia directly, not just the migraine, can genuinely reduce headache days.',
+    summary:
+      "Migraine and sleep disturbance run in a real, well-documented bidirectional relationship: disrupted sleep is a real, common trigger for a migraine attack, while the pain of a migraine attack itself real, directly worsens sleep quality, creating a self-reinforcing cycle rather than one thing simply causing the other. Real Mendelian randomization research (a genetics-based method for testing causal direction, already covered elsewhere in this app as a methodologically stronger evidence category) confirms a genuine bidirectional causal relationship between migraine and insomnia specifically, not just a coincidental overlap. The real, proposed shared mechanisms involve overlapping brain regions (including the hypothalamus) and shared signaling molecules like serotonin and melatonin, both already tied to migraine biology elsewhere in this app's own research. Genuinely useful and actionable: a real systematic review found that treating the sleep problem directly, specifically digital Cognitive-Behavioral Therapy for Insomnia (CBT-I), significantly reduced actual headache days and improved sleep measures, not just sleep satisfaction. Worth knowing directly: this is a real, worth-raising treatment angle for anyone whose migraine and sleep both feel stuck, since addressing the insomnia specifically, not just the migraine medication, has real, trial-backed evidence of helping both problems at once.",
+    citations: [
+      { source: 'Interventions for Migraine and Sleep: A Systematic Review Exploring Their Bidirectional Association, PMC13093645', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC13093645/' },
+      { source: 'Exploring the Causal Relationship Between Migraine and Insomnia Through Bidirectional Mendelian Randomization, PMC11268570', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11268570/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-episodic-chronic-real-debate'],
+  },
+  {
+    id: 'migraine-obesity-chronification-risk',
+    category: 'migraine',
+    title: 'Obesity Is a Real, Quantified Risk Factor for Episodic Migraine Turning Chronic',
+    teaser: 'Real research finds people with migraine who are overweight face roughly three times the risk of their headaches becoming chronic, and people with obesity face roughly five times the risk, compared to someone at a healthy weight.',
+    summary:
+      "Obesity carries a real, dose-response relationship with whether episodic migraine (fewer than 15 headache days a month) progresses into chronic migraine (15 or more), already a real, named subject of its own dedicated debate elsewhere in this app's own migraine research. Real research finds someone with migraine at a healthy weight has roughly a 3% chance of developing chronic migraine within a year, while someone who is overweight faces about three times that risk, and someone with obesity faces about five times that risk. Real, proposed contributing factors include obstructive sleep apnea (a common complication of obesity, already tied to migraine risk elsewhere in this app's own sleep-apnea research) and the amount of body fat itself appearing to relate directly to migraine's own clinical characteristics, not just act as an incidental bystander. Genuinely useful context: obesity is one of several real, named risk factors for chronic transformation identified in the same body of research, alongside sleep disorders, depression, anxiety, high baseline headache frequency, and medication overuse (already covered in this app's own medication-overuse-headache research), meaning weight is a real, modifiable piece of a larger picture rather than the whole story on its own. Worth knowing directly: this gives someone managing frequent migraine attacks a real, concrete, evidence-backed reason to treat weight management as part of migraine prevention strategy, not a separate, unrelated health goal.",
+    citations: [
+      { source: 'Association Between Obesity and the Risk of Migraine, Neurology (American Academy of Neurology)', url: 'https://www.neurology.org/doi/10.1212/WNL.0000000000214252' },
+      { source: 'Predictors of episodic migraine transformation to chronic migraine: A systematic review and meta-analysis', url: 'https://journals.sagepub.com/doi/full/10.1177/0333102419883355' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-episodic-chronic-real-debate', 'migraine-medication-overuse-headache'],
+  },
 ];

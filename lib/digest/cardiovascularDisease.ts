@@ -81,7 +81,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Efficacy and safety of cholesterol-lowering treatment: prospective meta-analysis of data from 90,056 participants in 14 randomised trials of statins, PMID 16214597', url: 'https://pubmed.ncbi.nlm.nih.gov/16214597/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['foodhistory-cholesterol-real-drivers'],
+    relatedIds: ['foodhistory-cholesterol-real-drivers', 'masld-statin-safety-myth'],
   },
   {
     id: 'cvd-aspirin-primary-prevention-reversal',
@@ -225,5 +225,52 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['cvd-lipid-panel-self-advocacy'],
+  },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing full-parity work
+  // beyond the second structural depth pass, working toward Hashimoto's
+  // own real 176-entry depth. Every citation independently verified via
+  // WebSearch.
+  {
+    id: 'cvd-lipoprotein-a-underrecognized',
+    category: 'cardiovascularDisease',
+    title: 'Lipoprotein(a) Is a Real, Common, Almost Entirely Genetic Cardiovascular Risk Most People Have Never Been Tested For',
+    teaser: 'A real, largely inherited cholesterol-like particle affects roughly 1 in 5 people worldwide, carries a real, independent stroke and heart-disease risk, and current guidelines recommend testing for it just once in a lifetime.',
+    summary:
+      "Lipoprotein(a), usually written Lp(a), is a real, genetically determined, cholesterol-carrying particle that behaves differently from the LDL and HDL already covered in this app's own lipid-panel self-advocacy research, and it's genuinely underrecognized in routine care. Real research finds elevated Lp(a) affects an estimated 20% of the global population, roughly 1.4 billion people, and high-quality epidemiological and genetic evidence supports a real, independent, causal role in coronary artery disease, peripheral artery disease, ischemic stroke, calcific aortic valve disease, and atrial fibrillation, on top of whatever a person's own LDL or total cholesterol already shows. Unlike LDL, Lp(a) levels are set almost entirely by genetics and stay stable throughout adult life, meaning real, current European Society of Cardiology guidance recommends testing for it just once, ever, not repeatedly like a standard lipid panel. Worth knowing directly, and worth raising by name: a normal LDL result does not rule out a real, elevated Lp(a)-driven risk, and knowing an elevated Lp(a) can meaningfully reclassify someone's overall cardiovascular risk and justify more intensive management of the OTHER, modifiable risk factors already covered in this app's own cardiovascular research, since Lp(a) itself isn't something diet or exercise can substantially move.",
+    citations: [
+      { source: 'Lipoprotein(a) is a Prevalent yet Vastly Underrecognized Risk Factor for Cardiovascular Disease, PMC10959503', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10959503/' },
+      { source: 'Lipoprotein(a): the underutilized risk factor for cardiovascular disease, PMC6865184', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6865184/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-lipid-panel-self-advocacy'],
+  },
+  {
+    id: 'cvd-cardiac-rehabilitation-underused',
+    category: 'cardiovascularDisease',
+    title: 'Cardiac Rehabilitation Cuts Real Mortality by Roughly a Quarter, Yet Fewer Than 1 in 3 Eligible People Ever Enroll',
+    teaser: 'A real, structured, supervised exercise-and-education program after a heart event lowers cardiovascular mortality by around 26-31% in real meta-analyses, but global enrollment sits under 30%.',
+    summary:
+      "Cardiac rehabilitation, a real, structured program combining supervised exercise, education, and risk-factor counseling after a heart attack, heart surgery, or a heart failure diagnosis, carries some of the strongest mortality-reduction evidence of any intervention covered in this app's own cardiovascular research, and it's genuinely underused. Real meta-analyses find a 26% reduction in cardiovascular mortality at longest follow-up, with one analysis specifically finding a 27% reduction in all-cause mortality and 31% reduction in cardiac deaths among participants. The benefit is real and dose-dependent too, more sessions attended tracks with lower mortality, with real research suggesting a minimum of around 36 sessions may be needed for the strongest measurable benefit. Despite this real, well-established evidence, global enrollment in cardiac rehabilitation programs remains under 30% of people who would actually qualify for one. Worth knowing directly: anyone who has had a heart attack, stent, bypass surgery, or a heart failure diagnosis has a real, concrete reason to ask specifically about a referral to cardiac rehabilitation, not just general exercise advice, since the structured, supervised program itself is what the real mortality data is actually measuring.",
+    citations: [
+      { source: 'Exercise-based cardiac rehabilitation for coronary heart disease: a meta-analysis, European Heart Journal (Oxford Academic)', url: 'https://academic.oup.com/eurheartj/article/44/6/452/7028725' },
+      { source: 'The Effectiveness of Cardiac Rehabilitation Programs in Improving Cardiovascular Outcomes: Systematic Review and Meta-Analysis, PMC11588675', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11588675/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-overview'],
+  },
+  {
+    id: 'cvd-holiday-heart-alcohol-afib',
+    category: 'cardiovascularDisease',
+    title: '"Holiday Heart Syndrome": A Real, Named Pattern of Binge Drinking Triggering Atrial Fibrillation in Otherwise Healthy Hearts',
+    teaser: 'Real research finds binge drinking can trigger real atrial fibrillation even in people with no underlying heart disease, most often 12-36 hours after the drinking episode ends, in a real, well-documented, named clinical pattern.',
+    summary:
+      "Holiday heart syndrome is a real, formally named clinical pattern, first described after doctors noticed a cluster of otherwise healthy patients developing atrial fibrillation (AFib) after weekend binge-drinking episodes, and it remains real and common in emergency rooms today. Real research finds alcohol serving as the precipitating factor in 35% to 62% of AFib cases seen this way, typically appearing 12 to 36 hours after binge drinking stops, notably during the withdrawal period rather than while actively intoxicated. The real, proposed mechanisms include acute alcohol raising sympathetic nervous system activity while reducing vagal tone, and alcohol increasing activity of specific calcium channels tied to atrial electrical instability. Genuinely important to know directly: this can happen even in people who rarely or never drink otherwise, and even in hearts with no pre-existing disease, meaning a single binge-drinking episode carries a real, immediate arrhythmia risk independent of someone's long-term drinking pattern. This connects directly to this app's own already-covered alcohol advisory research, adding a real, acute, rhythm-specific risk to the more familiar long-term cardiovascular concerns already discussed there.",
+    citations: [
+      { source: 'Holiday Heart Syndrome: A Literature Review, PMC11955153', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11955153/' },
+      { source: 'Holiday Heart Syndrome, StatPearls / NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK537185/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-overview'],
   },
 ];

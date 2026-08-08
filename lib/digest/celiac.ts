@@ -232,4 +232,51 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-diagnostic-panel'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing full-parity work
+  // beyond the second structural depth pass, working toward Hashimoto's
+  // own real 176-entry depth. Every citation independently verified via
+  // WebSearch.
+  {
+    id: 'celiac-non-celiac-gluten-sensitivity',
+    category: 'celiac',
+    title: 'Non-Celiac Gluten Sensitivity Is a Real, Genuinely Contested Diagnosis, Distinct From Celiac Disease Itself',
+    teaser: 'Roughly 10% of people self-report gluten sensitivity, but real controlled challenge studies find only 16-30% of them actually react to gluten specifically when tested blind, a real, honest gap between what people believe and what testing confirms.',
+    summary:
+      "Non-celiac gluten sensitivity (NCGS) is a real, distinct condition from celiac disease, someone with real symptoms after eating gluten but without the celiac-specific antibodies or intestinal damage already covered in this app's own diagnostic-panel and Marsh-staging research, and it remains a genuinely contested clinical entity rather than a settled diagnosis. Real research finds a striking gap between self-report and confirmed cases: approximately 10% of the global population self-reports gluten or wheat sensitivity, but real, controlled double-blind challenge studies (where neither the patient nor the tester knows whether gluten or a placebo was actually given) find only 16-30% of self-reporting individuals actually react specifically to gluten when properly tested, with real research pointing to high nocebo and placebo effects as a major confounding factor. A real, genuinely important nuance: emerging evidence suggests gluten may not even be the sole trigger in NCGS, with other wheat components, amylase-trypsin inhibitors, wheat germ agglutinin, and fructans among them, potentially contributing to symptoms independent of gluten itself. Worth knowing directly: NCGS lacks validated diagnostic criteria or a reliable biomarker, unlike celiac disease's own real, testable antibody and biopsy panel, meaning anyone suspecting gluten sensitivity should still be tested for real celiac disease FIRST, and while still eating gluten, since a self-directed gluten-free trial before proper testing (the same real trap already covered in this app's own diagnostic-panel research) can make a true celiac diagnosis much harder to confirm later.",
+    citations: [
+      { source: 'Non-celiac Gluten Sensitivity: A New Clinical Entity or Growing Controversy?, PMC12932325', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12932325/' },
+      { source: 'Non-celiac gluten/wheat sensitivity (NCGS), position statement of the German Society of Allergology and Clinical Immunology, PMC6153714', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6153714/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['celiac-diagnostic-panel'],
+  },
+  {
+    id: 'celiac-dental-enamel-defects',
+    category: 'celiac',
+    title: 'Dental Enamel Defects Are a Real, Often-Overlooked Clue to Undiagnosed Celiac Disease in Children',
+    teaser: 'Real studies find dental enamel defects in 48-94% of children with celiac disease versus a much lower rate in healthy children, real enough that dentists are now encouraged to screen for celiac disease when they see the pattern.',
+    summary:
+      "Dental enamel defects are a real, genuinely distinctive, and often-overlooked sign of celiac disease in children, worth knowing about since they can appear before a child ever shows the more familiar digestive symptoms already covered in this app's own celiac research. Real studies find these defects in a striking real range, 48% to as high as 94.1% of children with celiac disease, compared to a much lower rate in healthy children in the same studies (one pilot study found 83.3% in celiac children versus 53.3% in controls; another found 61.54% versus 21.15%). Real research finds these defects most commonly appear on deciduous (baby) molars and incisors, often in a real, symmetric pattern across the mouth, and are most consistently seen in children who developed celiac symptoms before age 7, tied to how tooth enamel actually forms during that same developmental window. Genuinely useful and actionable: real clinical research now recommends that dentists specifically screen for celiac disease when they observe this pattern of enamel defects, since the connection is well-documented enough to serve as a real, early diagnostic clue rather than just a coincidental dental finding. Worth knowing directly: this is a real, concrete reason for parents of a child with unexplained, symmetric enamel defects, especially alongside any other real celiac risk factor like a family history or the Hashimoto's comorbidity already covered in this app's own research, to bring it up directly with a doctor rather than treat it as a purely dental issue.",
+    citations: [
+      { source: 'Celiac Disease-Related Enamel Defects: A Systematic Review, MDPI Journal of Clinical Medicine', url: 'https://www.mdpi.com/2077-0383/13/5/1382' },
+      { source: 'Screening for Celiac Disease in Children with Dental Enamel Defects, PMC3376764', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3376764/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-hashimotos-comorbidity'],
+  },
+  {
+    id: 'celiac-gf-product-fortification-gap',
+    category: 'celiac',
+    title: 'A Real, Legal Gap: Regular Wheat Flour Is Required by Law to Be Fortified, Gluten-Free Flour Almost Never Is',
+    teaser: 'Federal law requires folic acid and iron fortification in ordinary wheat products, but that same requirement doesn\'t extend to gluten-free substitutes, and real testing found only 9% of US gluten-free breads fortified with B vitamins at all.',
+    summary:
+      "This is a real, worth-knowing legal gap directly relevant to the gluten-free-diet nutritional pitfalls already covered in this app's own celiac research: federal law in the United States requires manufacturers to add folic acid to wheat-based breads, cereals, flours, and pastas, and the UK legally requires wheat flour to be fortified with calcium, iron, niacin, and thiamin, but neither requirement extends to the gluten-free products that replace them. Real product testing found only 9% of US gluten-free bread products fortified with thiamin, riboflavin, and niacin, iron fortification present in just 23% of gluten-free breads and in NO tested gluten-free pasta products at all. Calcium showed the same real gap: gluten-free white loaves averaged 99mg of calcium per 100g compared to 177mg in wheat-based loaves, with only 27% of gluten-free loaves fortified at all versus 100% of standard wheat loaves. Worth knowing directly: someone eating gluten-free isn't just avoiding one ingredient, they're very likely also losing a real, legally-mandated layer of fortification most people eating regular wheat products get automatically and never think about. This directly reinforces this app's own already-established Nutrients & Micronutrients research on B12, folate, and iron: someone managing celiac disease has a real, concrete, food-industry-driven reason to pay closer attention to these specific nutrients than someone eating a standard wheat-containing diet would.",
+    citations: [
+      { source: 'Not All Grains Are Created Equal: Gluten-Free Products Not Included in Mandatory Folate Fortification, Current Developments in Nutrition', url: 'https://cdn.nutrition.org/article/s2475-2991(22)13018-0/fulltext' },
+      { source: 'Calcium and Iron Content of Cereal-Based Gluten-Free Products, PMC9321653', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9321653/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-gf-diet-nutritional-pitfalls'],
+  },
 ];

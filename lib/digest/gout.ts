@@ -255,6 +255,6 @@ export const GOUT_ENTRIES: DigestEntry[] = [
       { source: 'Use of Diuretics and Risk of Incident Gout: A Population-Based Case-Control Study, PMID 24449584', url: 'https://pubmed.ncbi.nlm.nih.gov/24449584/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['advocacy-prescribing-cascade', 'gout-urate-lowering-therapy'],
+    relatedIds: ['advocacy-prescribing-cascade', 'gout-urate-lowering-therapy', 'ckd-nsaid-kidney-injury-real-data'],
   },
 ];

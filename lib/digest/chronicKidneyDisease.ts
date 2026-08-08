@@ -139,7 +139,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'ACE inhibitors and ARBs: Managing potassium and renal function, Cleveland Clinic Journal of Medicine', url: 'https://www.ccjm.org/content/86/9/601' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ckd-potassium-restriction-reconsidered', 'potassium-toxicity-hyperkalemia'],
+    relatedIds: ['ckd-potassium-restriction-reconsidered', 'potassium-toxicity-hyperkalemia', 'ckd-nsaid-kidney-injury-real-data'],
   },
   {
     id: 'ckd-tying-together',
@@ -181,7 +181,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Chronic Kidney Disease-Mineral Bone Disorder (CKD-MBD), StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK560742/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ckd-phosphate-additives'],
+    relatedIds: ['ckd-phosphate-additives', 'ckd-gut-derived-uremic-toxins'],
   },
   {
     id: 'ckd-history-milestones',
@@ -223,5 +223,52 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['ckd-protein-restriction-plant-based', 'ckd-potassium-restriction-reconsidered'],
+  },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing full-parity work
+  // beyond the second structural depth pass, working toward Hashimoto's
+  // own real 176-entry depth. Every citation independently verified via
+  // WebSearch.
+  {
+    id: 'ckd-aristolochic-acid-herbal-nephrotoxin',
+    category: 'chronicKidneyDisease',
+    title: 'A Real, Well-Documented Herbal Compound Can Cause Aggressive, Often Irreversible Kidney Failure',
+    teaser: 'Aristolochic acid, found in some traditional Chinese herbal remedies and, historically, in a contaminated weight-loss supplement, causes a real, named kidney disease that can progress to failure and even urinary tract cancer, sometimes years after exposure stops.',
+    summary:
+      "Aristolochic acid nephropathy is a real, aggressive, and genuinely serious kidney disease caused by exposure to aristolochic acid, a compound found in some Aristolochia species used in certain traditional herbal remedies, and historically found as a contaminant in one infamous weight-loss supplement mix. Real research finds it can cause both real acute kidney injury (from a single high dose) and slower, progressive chronic kidney disease with interstitial fibrosis (from repeated lower-dose exposure), and close to 50% of documented cases required renal replacement therapy (dialysis or transplant). Genuinely alarming, and worth knowing directly: real research finds kidney injury can continue progressing even AFTER the aristolochic acid source has been identified and removed, and the compound is also linked to a real, elevated risk of urothelial (urinary tract) cancer, not just kidney failure alone. Aristolochic acid is banned in most countries, but real, ongoing exposure still occurs through unregulated traditional medicine, unlicensed supplements, and, rarely, contaminated food. Worth knowing directly: this is a real, concrete reason for anyone with existing kidney disease, or anyone at all, to be genuinely cautious about unregulated herbal supplements specifically marketed for weight loss, joint pain, or \"detox,\" and to ask a doctor or pharmacist before starting any herbal product whose full ingredient sourcing isn't clearly verified.",
+    citations: [
+      { source: 'Chinese Herbs Containing Aristolochic Acid Associated with Renal Failure and Urothelial Carcinoma, PMC4241283', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4241283/' },
+      { source: 'Experimental Aristolochic Acid Nephropathy: A Relevant Model to Study AKI-to-CKD Transition, PMC9115860', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9115860/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-overview'],
+  },
+  {
+    id: 'ckd-nsaid-kidney-injury-real-data',
+    category: 'chronicKidneyDisease',
+    title: 'NSAIDs Carry a Real, Quantified Acute Kidney Injury Risk, Higher Still in Anyone Who Already Has CKD',
+    teaser: 'A real systematic review found current NSAID use raising acute kidney injury risk by about 73% in the general population and 63% in people who already have chronic kidney disease, a real, everyday-medication risk worth knowing by the numbers.',
+    summary:
+      "NSAIDs (ibuprofen, naproxen, and similar over-the-counter pain relievers) carry a real, quantified acute kidney injury (AKI) risk, not just a vague caution. A real systematic review and meta-analysis found the pooled odds of AKI with current NSAID use in the general population at 1.73 (a 73% relative increase), rising to 2.51 in older adults specifically. In people who already have chronic kidney disease, the real, pooled risk was 1.63 (a 63% relative increase), with individual studies ranging as high as 5.25 depending on the population studied. Real research finds NSAID-induced AKI itself is a strong, independent risk factor for the actual development and progression of chronic kidney disease, not just a temporary, reversible blip, meaning a single episode of NSAID-related kidney injury can have real, lasting consequences. The real, underlying mechanism involves NSAIDs blocking prostaglandins the kidneys depend on to maintain healthy blood flow, causing real vasoconstriction and, in some cases, direct interstitial inflammation. Worth knowing directly: this connects straight to this app's own already-covered diuretic/prescribing-cascade research for a different condition, since NSAIDs combined with diuretics or blood-pressure medications that affect the same kidney blood-flow pathway carry a real, additional, compounding risk, worth naming directly with a doctor or pharmacist for anyone managing CKD who reaches for an NSAID regularly.",
+    citations: [
+      { source: 'Non-steroidal anti-inflammatory drug induced acute kidney injury in the community dwelling general population and people with CKD: systematic review and meta-analysis, PMC5540416', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5540416/' },
+      { source: 'NSAID-Induced acute kidney injury risk in patients on renin-angiotensin system inhibitors and diuretics: nationwide cohort study, PMC12359997', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12359997/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-ace-arb-potassium-monitoring', 'gout-diuretics-prescribing-cascade'],
+  },
+  {
+    id: 'ckd-gut-derived-uremic-toxins',
+    category: 'chronicKidneyDisease',
+    title: 'Gut Bacteria Directly Manufacture Two Real Toxins That Build Up as Kidney Function Declines',
+    teaser: 'Indoxyl sulfate and p-cresyl sulfate, both made by gut bacteria breaking down protein, accumulate as kidneys lose the ability to clear them, driving real oxidative stress, inflammation, and cardiovascular damage.',
+    summary:
+      "Chronic kidney disease has a real, direct gut-microbiome connection worth knowing about beyond diet alone: two specific compounds, indoxyl sulfate and p-cresyl sulfate, are real, gut-bacteria-manufactured uremic toxins, produced when certain gut bacteria (from families like Enterobacteriaceae and Clostridiaceae) ferment protein, and they accumulate in the blood as declining kidney function loses the ability to clear them. Real research finds their accumulation directly promotes oxidative stress, systemic inflammation, and endothelial dysfunction, contributing to real vascular damage and elevated cardiovascular risk in CKD, connecting directly to this app's own already-covered CKD-cardiovascular-real-data research. A real, related finding worth knowing: CKD patients also show reduced levels of beneficial bacteria families, including Lactobacillaceae and Bifidobacteriaceae, the same real bacterial families already covered favorably elsewhere in this app's own gut-microbiome and fermented-foods research, alongside the rise in toxin-producing bacteria. Real, emerging interventions being studied to modulate this gut-kidney axis include dietary changes, prebiotics, probiotics, and fecal microbiota transplantation, though none are yet standard clinical practice. Worth knowing directly: this gives a real, mechanistic explanation for why the plant-forward, fiber-supportive dietary pattern already recommended elsewhere in this app's own CKD protein-restriction research does double duty, supporting the same beneficial gut bacteria that compete against the toxin-producing ones, not just managing protein intake on its own.",
+    citations: [
+      { source: 'Gut-derived uremic toxins and cardiovascular health in chronic kidney disease, PMC12306874', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12306874/' },
+      { source: 'The Gut-Kidney Axis in Chronic Kidney Diseases, PMC11719742', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11719742/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-mineral-bone-cardiovascular-real-data', 'ckd-protein-restriction-plant-based'],
   },
 ];

@@ -228,4 +228,51 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['history-heritability-family-risk'],
   },
+
+  // -- Volumetric depth pass, 2026-08-08, continuing full-parity work
+  // beyond the second structural depth pass, working toward Hashimoto's
+  // own real 176-entry depth. Every citation independently verified via
+  // WebSearch.
+  {
+    id: 'graves-stress-trigger',
+    category: 'graves',
+    title: 'A Real Meta-Analysis Confirms Stressful Life Events Genuinely Trigger Graves\' Disease Onset in Susceptible People',
+    teaser: 'A real, 13-study meta-analysis of nearly 2,900 people found stressful life events tied to Graves\' onset, strongest in younger patients and in women, and one small real study even found stress-relief training leading to disease remission.',
+    summary:
+      "Major life stress is a real, independently studied, and increasingly well-supported environmental trigger for Graves' disease onset, not just a folk belief. A real, current systematic review and meta-analysis (13 studies, 2,892 subjects across nine countries) found stressful life events genuinely associated with Graves' disease onset specifically in people already carrying the genetic susceptibility already covered in this app's own genetic/family-risk research, real evidence this is a gene-environment interaction rather than stress acting alone. The real association was found stronger in samples with more female patients and in younger patients, matching Graves' disease's own real, well-documented demographic pattern. A real, separate, smaller study found newly diagnosed Graves' patients reported significantly more stressful life events in the 12 months before diagnosis than matched controls. Genuinely striking, and worth knowing directly: a real, small study (11 participants) whose Graves' disease developed after acute emotional distress found stress-relief training itself leading to disease remission in that group, a real, if preliminary, hint that addressing the stress response directly might have therapeutic value alongside standard antithyroid treatment, not proof of a stand-alone cure. Worth knowing directly: this connects straight to this app's own already-covered HPA-axis/cortisol research built for other conditions, real, additional evidence that chronic stress management belongs in a real Graves' management plan, not just symptom control through medication alone.",
+    citations: [
+      { source: 'What is the impact of stress on the onset and anti-thyroid drug therapy in patients with Graves\' disease: a systematic review and meta-analysis, PMC10496195', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10496195/' },
+      { source: 'Relationship between the number and impact of stressful life events and the onset of Graves\' disease and toxic nodular goitre, PMID 11453947', url: 'https://pubmed.ncbi.nlm.nih.gov/11453947/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['graves-genetic-family-risk'],
+  },
+  {
+    id: 'graves-teprotumumab-thyroid-eye-disease',
+    category: 'graves',
+    title: 'Teprotumumab: A Real, Targeted Biologic That Genuinely Reverses Thyroid Eye Disease, Not Just Manages It',
+    teaser: 'A real, landmark trial found teprotumumab produced a real treatment response in 69% of patients versus 20% on placebo, with measured eye bulging (proptosis) shrinking by an average of 2.46mm, a real structural reversal most prior treatments couldn\'t achieve.',
+    summary:
+      "Teprotumumab (brand name Tepezza) represents a real, genuinely different kind of treatment for thyroid eye disease (the same active Graves' orbitopathy already covered in this app's own selenium-orbitopathy research) than anything available before it. Rather than just managing symptoms, real, landmark trial data found teprotumumab produced a real treatment response, measured improvement in eye protrusion plus at least one other real clinical marker, in 69% of patients at 24 weeks, compared to just 20% on placebo. The real, structural change was substantial: proptosis (the actual forward bulging of the eye) decreased by an average of 2.46mm in the treated group versus just 0.15mm on placebo, a real, measurable physical reversal rather than symptom masking. Real, longer-term follow-up across multiple trials confirmed the benefit held up over time, including in patients re-treated after their disease returned. Worth knowing honestly: this is a real, genuinely newer and more effective option, but it isn't risk-free, real research finds a higher rate of adverse events with teprotumumab than placebo, including gastrointestinal reactions, muscle spasms, and documented cases of hearing changes, worth discussing directly and thoroughly with an ophthalmologist and endocrinologist together before starting. Worth knowing directly: anyone with active, moderate-to-severe thyroid eye disease not adequately controlled by the selenium and standard measures already covered elsewhere in this app's own Graves' research has a real, evidence-backed reason to ask specifically about teprotumumab by name.",
+    citations: [
+      { source: 'Teprotumumab for the Treatment of Active Thyroid Eye Disease, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1910434' },
+      { source: 'The Efficacy and Safety of Teprotumumab in Thyroid Eye Disease: Evidence from Randomized Controlled Trials, PMC10427239', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10427239/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-selenium-orbitopathy'],
+  },
+  {
+    id: 'graves-block-replace-vs-titration',
+    category: 'graves',
+    title: 'Block-and-Replace vs. Titration: Two Real, Roughly Equally Effective Ways to Dose Antithyroid Medication',
+    teaser: 'Real research finds combining a fixed high-dose antithyroid drug with levothyroxine (block-and-replace) works about as well as the more common titrating-dose approach, with the real, practical benefit of fewer clinic visits and blood draws.',
+    summary:
+      "Antithyroid drug treatment for Graves' disease has two real, established dosing strategies, and real comparative research finds them roughly equally effective at achieving a euthyroid (normal thyroid function) state, a genuinely useful thing to know when discussing treatment options with an endocrinologist. The titration regime, the more commonly used approach, involves gradually adjusting antithyroid drug dose alone based on frequent blood testing. The block-and-replace regime instead uses a fixed, higher dose of antithyroid drug combined with levothyroxine (already covered in this app's own Hashimoto's medication research, used here for a different purpose) to prevent the person from becoming hypothyroid from the higher antithyroid dose. Real research finds no statistically significant difference between the two in achieving euthyroid status, and no significant difference in the incidence of overt hypothyroidism or in rare serious side effects like agranulocytosis or liver toxicity. The real, practical, everyday-life difference: block-and-replace requires real, measurably fewer thyroid function tests and clinic visits per year than the titration regime, a genuine convenience advantage for someone who finds frequent blood draws and appointments burdensome. Worth knowing directly: neither approach is definitively better, both are real, legitimate options, and this is a real, worth-raising conversation with a prescriber about which regimen better fits someone's own real-life logistics and testing tolerance, not just which one is more commonly defaulted to.",
+    citations: [
+      { source: 'Block-and-replace vs. titration antithyroid drug regimen for Graves\' hyperthyroidism: two is not always better than one, PMID 33000387', url: 'https://pubmed.ncbi.nlm.nih.gov/33000387/' },
+      { source: 'Block & replace regime versus titration regime of antithyroid drugs for the treatment of Graves\' disease: a retrospective observational study, Clinical Endocrinology', url: 'https://onlinelibrary.wiley.com/doi/10.1111/cen.12478' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-antithyroid-drug-monitoring'],
+  },
 ];

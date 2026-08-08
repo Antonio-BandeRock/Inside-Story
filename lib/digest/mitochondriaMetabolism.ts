@@ -179,7 +179,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mito-exercise-cortisol'],
+    relatedIds: ['mito-exercise-cortisol', 'masld-exercise-independent-weight-loss'],
   },
   {
     id: 'mito-exercise-cortisol',
