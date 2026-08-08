@@ -1,6 +1,7 @@
-import { useCallback, useMemo, useRef, useState, type MutableRefObject } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -16,6 +17,7 @@ import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getUserConditions } from '../../lib/db';
+import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
 import {
   ALL_DIGEST_ENTRIES,
   DIGEST_CATEGORY_META,
@@ -1553,6 +1555,107 @@ function EntryMetaRow({ entry }: { entry: AnyDigestEntry }) {
   );
 }
 
+// Minimal, opt-in bold-text support -- 2026-08-08, one of the real,
+// contained wins named in the original knowledge-base-design discussion
+// ("bold key takeaways" inline in an article's own prose). Deliberately
+// NOT a retrofit of all 840 existing entries (none of them use this
+// syntax today, confirmed directly before building this -- a real,
+// zero-risk no-op for every entry that already exists) -- this is
+// infrastructure a FUTURE entry can opt into by wrapping a phrase in
+// `**like this**`, the same familiar markdown convention, without any
+// further rendering-layer work needed later. Deliberately minimal: no
+// italics, no links, no nested formatting -- just the one, most-requested
+// emphasis a plain evidence write-up actually benefits from.
+function renderRichText(text: string, boldStyle: TextStyle) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g).filter((part) => part.length > 0);
+  return parts.map((part, index) =>
+    part.startsWith('**') && part.endsWith('**') && part.length > 4 ? (
+      <Text key={index} style={boldStyle}>
+        {part.slice(2, -2)}
+      </Text>
+    ) : (
+      part
+    ),
+  );
+}
+
+// A real "TL;DR" callout, reusing the entry's own already-existing teaser
+// text -- 2026-08-08, the other real, contained win named in the same
+// discussion. Deliberately no new content authored for this: the plain
+// one-line teaser already shown above every collapsed card is exactly the
+// short, scannable "key takeaway" a TL;DR box is meant to be, it just
+// wasn't visually distinguished as one once a card opened. Sits at the top
+// of the expanded detail, above the full write-up, styled as a real,
+// tinted callout rather than plain body text.
+function TldrBox({ teaser, color }: { teaser: string; color: string }) {
+  return (
+    <View style={[styles.tldrBox, { borderColor: color }]}>
+      <Text style={[styles.tldrLabel, { color }]}>TL;DR</Text>
+      <Text style={styles.tldrText}>{teaser}</Text>
+    </View>
+  );
+}
+
+// A real, local-only thumbs-up/down control -- 2026-08-08, self-contained
+// (loads and saves its own one entry's value directly, see lib/
+// digestFeedback.ts's own comment for why) rather than threaded as props
+// through BasicHealthTree/BasicHealthShelves, both already several props
+// deep. Tapping the already-active choice again clears it back to no
+// opinion, the same toggle shape this app's own PopoverSelect-adjacent
+// controls already use elsewhere.
+function FeedbackRow({ entryId }: { entryId: string }) {
+  const [value, setValue] = useState<DigestFeedbackValue | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    getDigestFeedbackFor(entryId).then((loaded) => {
+      if (!cancelled) setValue(loaded);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [entryId]);
+
+  const handlePress = (next: DigestFeedbackValue) => {
+    const resolved = value === next ? null : next;
+    setValue(resolved);
+    setDigestFeedback(entryId, resolved).catch(() => {
+      // A failed local write isn't worth surfacing to the person over --
+      // worst case, this one tap's own preference doesn't persist; the UI
+      // itself already reflects the tap either way.
+    });
+  };
+
+  return (
+    <View style={styles.feedbackRow}>
+      <Text style={styles.feedbackPrompt}>Was this helpful?</Text>
+      <TouchableOpacity
+        onPress={() => handlePress('up')}
+        accessibilityRole="button"
+        accessibilityLabel="Mark this entry helpful"
+        hitSlop={8}
+      >
+        <Ionicons
+          name={value === 'up' ? 'thumbs-up' : 'thumbs-up-outline'}
+          size={18}
+          color={value === 'up' ? colors.accent : colors.textMuted}
+        />
+      </TouchableOpacity>
+      <TouchableOpacity
+        onPress={() => handlePress('down')}
+        accessibilityRole="button"
+        accessibilityLabel="Mark this entry not helpful"
+        hitSlop={8}
+      >
+        <Ionicons
+          name={value === 'down' ? 'thumbs-down' : 'thumbs-down-outline'}
+          size={18}
+          color={value === 'down' ? colors.danger : colors.textMuted}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
 function DigestCard({
   entry,
   expanded,
@@ -1573,11 +1676,12 @@ function DigestCard({
         <Text style={styles.cardTeaser}>{entry.teaser}</Text>
         {expanded ? (
           <View style={styles.cardDetail}>
+            <TldrBox teaser={entry.teaser} color={colors.accent} />
             <EntryMetaRow entry={entry} />
             <Text style={styles.detailLabel}>The problem</Text>
-            <Text style={styles.detailText}>{entry.problem}</Text>
+            <Text style={styles.detailText}>{renderRichText(entry.problem, styles.detailTextBold)}</Text>
             <Text style={styles.detailLabel}>The mechanism</Text>
-            <Text style={styles.detailText}>{entry.mechanism}</Text>
+            <Text style={styles.detailText}>{renderRichText(entry.mechanism, styles.detailTextBold)}</Text>
             <Text style={styles.detailLabel}>Real swaps</Text>
             {entry.swaps.map((swap, index) => (
               <Text key={index} style={styles.swapText}>
@@ -1588,6 +1692,7 @@ function DigestCard({
             {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
             <CitationsBlock citations={entry.citations} />
             {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
+            <FeedbackRow entryId={entry.id} />
           </View>
         ) : null}
       </TouchableOpacity>
@@ -1603,15 +1708,17 @@ function DigestCard({
       <Text style={styles.cardTeaser}>{entry.teaser}</Text>
       {expanded ? (
         <View style={styles.cardDetail}>
+          <TldrBox teaser={entry.teaser} color={tierColor(entry.overallTier)} />
           <Text style={[styles.tierLabelText, { color: tierColor(entry.overallTier) }]}>
             {tierLabel(entry.overallTier)}
           </Text>
           <EntryMetaRow entry={entry} />
-          <Text style={styles.detailText}>{entry.summary}</Text>
+          <Text style={styles.detailText}>{renderRichText(entry.summary, styles.detailTextBold)}</Text>
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
           <CitationsBlock citations={entry.citations} />
           {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
+          <FeedbackRow entryId={entry.id} />
         </View>
       ) : null}
     </TouchableOpacity>
@@ -1735,8 +1842,31 @@ const styles = StyleSheet.create({
   crossConditionPillText: { ...typography.caption, color: TAB_COLOR, fontSize: 11 },
   detailLabel: { ...typography.eyebrow, color: TAB_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
+  detailTextBold: { fontWeight: '700' },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
   stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8 },
+  // The TL;DR callout -- a real, tinted box (not just a differently-colored
+  // Text) so it reads as a distinct "key takeaway" rather than one more
+  // paragraph in the same plain flow as everything below it.
+  tldrBox: {
+    borderWidth: 1.5,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 4,
+    backgroundColor: colors.surfaceMuted,
+  },
+  tldrLabel: { ...typography.eyebrow, marginBottom: 2 },
+  tldrText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, fontWeight: '600' },
+  feedbackRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+    marginTop: 14,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  feedbackPrompt: { ...typography.caption, color: colors.textMuted, marginRight: 2 },
   citationsBlock: { marginTop: 10 },
   citationsLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 2 },
   citationLink: {
