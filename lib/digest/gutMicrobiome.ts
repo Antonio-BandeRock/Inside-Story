@@ -54,7 +54,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Furusawa et al. 2013, Nature: commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-fiber-hashimotos-microbiota', 'foodhistory-butter-short-chain-fat'],
+    relatedIds: ['gut-fiber-hashimotos-microbiota', 'foodhistory-butter-short-chain-fat', 'about-gut-first-line-of-defense'],
   },
   {
     id: 'gut-zonulin-gliadin',
@@ -67,7 +67,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['problem-gluten-grains', 'celiac-overview'],
+    relatedIds: ['problem-gluten-grains', 'celiac-overview', 'about-gut-first-line-of-defense'],
   },
   {
     id: 'gut-blautia-lupus-zonulin',
@@ -276,6 +276,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Molecular mimicry and autoimmune thyroid disease (Current Opinion in Endocrinology, Diabetes and Obesity, 2016)', url: 'https://pubmed.ncbi.nlm.nih.gov/27307072/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['about-gut-first-line-of-defense'],
   },
   {
     id: 'gut-leaky-gut-contested',

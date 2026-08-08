@@ -1,5 +1,6 @@
 import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
+import { ABOUT_THIS_APP_ENTRIES } from './aboutThisApp';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
 import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
@@ -47,7 +48,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808340000';
+export const PURPLE_DIGEST_VERSION = '20260808360000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -55,6 +56,7 @@ export const PURPLE_DIGEST_VERSION = '20260808340000';
 // isProblemFoodEntry (types.ts) rather than the aggregator needing two
 // parallel lists.
 export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
+  ...ABOUT_THIS_APP_ENTRIES,
   ...GLOSSARY_ENTRIES,
   ...FOOD_ADDITIVES_ENTRIES,
   ...FERMENTED_FOODS_ENTRIES,
@@ -352,7 +354,14 @@ function digestSearchHaystack(entry: AnyDigestEntry): string {
   return [entry.title, entry.teaser, entry.summary, citationText].join(' ').toLowerCase();
 }
 
-export function searchDigestEntries(query: string, limit = 60): AnyDigestEntry[] {
+// 2026-08-08, extracted from searchDigestEntries's own original body (below)
+// so a real, scoped search over an arbitrary subset of entries -- Basic
+// Health's own new category-scoped search utility, see purple-digest.tsx --
+// can reuse the exact same real matching logic rather than a second,
+// separately-maintained copy of it. searchDigestEntries itself is now just
+// this function called with the full ALL_DIGEST_ENTRIES pool, unchanged in
+// behavior for every existing caller.
+export function searchEntries(pool: AnyDigestEntry[], query: string, limit = 60): AnyDigestEntry[] {
   const terms = query
     .trim()
     .toLowerCase()
@@ -361,7 +370,7 @@ export function searchDigestEntries(query: string, limit = 60): AnyDigestEntry[]
   if (terms.length === 0) return [];
 
   const matches: AnyDigestEntry[] = [];
-  for (const entry of ALL_DIGEST_ENTRIES) {
+  for (const entry of pool) {
     const haystack = digestSearchHaystack(entry);
     if (terms.every((term) => haystack.includes(term))) {
       matches.push(entry);
@@ -369,4 +378,8 @@ export function searchDigestEntries(query: string, limit = 60): AnyDigestEntry[]
     }
   }
   return matches;
+}
+
+export function searchDigestEntries(query: string, limit = 60): AnyDigestEntry[] {
+  return searchEntries(ALL_DIGEST_ENTRIES, query, limit);
 }

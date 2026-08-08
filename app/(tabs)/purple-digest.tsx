@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
@@ -22,6 +22,7 @@ import {
   getEntriesForCategory,
   isProblemFoodEntry,
   searchDigestEntries,
+  searchEntries,
   type AnyDigestEntry,
   type DigestCategoryKey,
   type EvidenceTier,
@@ -125,7 +126,7 @@ const DIGEST_SEARCH_HELP: HelpSection[] = [
 const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   basicHealth: {
     heading: 'Basic Health',
-    body: "How the body itself works, independent of any diagnosis: a growing \"Essential Nutrients\" deep-dive series (Magnesium and Vitamin D so far), food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, refined oils, commercial products), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what absorption), a food-industry history, general lifestyle and environmental exposures with no disease-specific claim, general exercise/autophagy biology, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. Deliberately excludes autoimmune-disease mechanisms and anything condition-specific, even when studied in a disease other than Hashimoto's -- that content lives in each condition's own area instead. This is what the Free tier shows in full. Organized here as real, related groups, each its own horizontally-scrolling row -- scroll a row sideways to browse its own cards, or scroll the screen down to move to the next group. Tap any card to read its full entry; a \"back to grouped view\" link at the top returns you to browsing.",
+    body: "How the body itself works, independent of any diagnosis: a real, direct \"Why This App Exists\" section (the app creator's own story and thesis, clearly attributed to him, not blended with this app's own researched content), a growing \"Essential Nutrients\" deep-dive series (Magnesium and Vitamin D so far), food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, refined oils, commercial products), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what absorption), a food-industry history, general lifestyle and environmental exposures with no disease-specific claim, general exercise/autophagy biology, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. Deliberately excludes autoimmune-disease mechanisms and anything condition-specific, even when studied in a disease other than Hashimoto's -- that content lives in each condition's own area instead. This is what the Free tier shows in full. Organized as real, related groups, each its own horizontally-scrolling row -- scroll a row sideways to browse its own tabs, or scroll the screen down to move to the next group. Tap a tab to open its full entry directly below that same row; tap a different tab in the same row to switch, without leaving the group. A search bar above the groups searches only within Basic Health.",
   },
   hashimotos: {
     heading: "Hashimoto's",
@@ -250,6 +251,11 @@ const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 // own front-of-picker placement) lead; Food Industry & History, more a
 // history essay than a lookup tool, trails last.
 const BASIC_HEALTH_GROUPS: { label: string; prefix: string }[] = [
+  // 2026-08-08, placed genuinely first, ahead of even Magnesium/Vitamin D:
+  // real, direct, attributed answers to "why does this app exist" and
+  // "whose voice is behind this content" -- foundational framing, not one
+  // more topic to browse past on the way to something else.
+  { label: 'Why This App Exists', prefix: 'about-' },
   { label: 'Magnesium', prefix: 'magnesium-' },
   { label: 'Vitamin D', prefix: 'vitamind-' },
   { label: 'Glossary', prefix: 'glossary-' },
@@ -291,6 +297,26 @@ function groupBasicHealthEntries(entries: AnyDigestEntry[]): { label: string; en
     .filter((group) => group.entries.length > 0);
 }
 
+// How far above a scrolled-to card's own top edge to stop -- 2026-08-07,
+// set to the exact figure given directly: "The header of the one I
+// tapped should be at the top of the screen under the app's own header
+// section by about 10 pixels." Hoisted to module scope 2026-08-08 so
+// BasicHealthShelves' own detail panel (a separate, module-level
+// component) can reference it too, not just PurpleDigestScreen itself.
+const ENTRY_SCROLL_TOP_MARGIN = 10;
+
+// How long the card list's own LinearTransition (on each card's own
+// Animated.View) takes to finish sliding every card into its real, final
+// position after an expand/collapse -- pinned to an explicit number here
+// (LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)) rather than left
+// at Reanimated's own implicit default, specifically so scrollEntryIntoView
+// has a real, known number to wait out instead of guessing at one.
+const CARD_LAYOUT_TRANSITION_MS = 300;
+// A little slack on top of the animation's own real duration -- covers
+// ordinary JS-thread/bridge scheduling delay, not because the animation
+// itself is expected to run long.
+const CARD_LAYOUT_SETTLE_BUFFER_MS = 60;
+
 function tierColor(tier: EvidenceTier): string {
   if (tier === 'strong') return colors.accent;
   if (tier === 'moderate') return colors.primary;
@@ -317,30 +343,25 @@ export default function PurpleDigestScreen() {
   // or re-arriving at this tab always shows the resting "pick a category"
   // prompt first, never an instant resume of whatever was last open.
   const [revealed, setRevealed] = useState(false);
-  // Basic Health only: 'shelves' is the new, real grouped-row browsing view
-  // (see BASIC_HEALTH_GROUPS above); 'list' is the original flat,
-  // one-at-a-time expandable list, now reused specifically as the real
-  // "reading" view once a shelf card, a Related chip, or a search result
-  // has been tapped -- rather than rebuilding expand/collapse-in-place
-  // logic a second time inside a horizontally-scrolling row (genuinely
-  // awkward: a card growing taller mid-row has nowhere good to push its
-  // neighbors), tapping into any entry from Basic Health switches to this
-  // same already-built, already-scroll-tested list view with that entry
-  // pre-expanded, with a plain "back to grouped view" link to return.
-  // Irrelevant for every other category, which never had a shelves view
-  // to begin with. Reset to 'shelves' on every fresh tab visit and every
-  // fresh lens selection below, so Basic Health always opens back at the
-  // real, organized overview, never mid-read from a previous visit.
-  const [basicHealthViewMode, setBasicHealthViewMode] = useState<'shelves' | 'list'>('shelves');
+  // Basic Health's own real, category-scoped search -- 2026-08-08, direct
+  // request: "build a search utility for the Basic Health category before
+  // moving on to the next one." Deliberately a separate query string from
+  // Search All's own `searchQuery` above (not the same state reused) --
+  // the two searches have genuinely different scope (this app's whole
+  // Digest vs. just this one category) and can't share a single "what's
+  // the user typing" value without one clobbering the other on a lens
+  // switch. Reset alongside everything else on a fresh tab visit and a
+  // fresh lens selection, same as searchQuery.
+  const [basicHealthSearchQuery, setBasicHealthSearchQuery] = useState('');
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
       setSearchQuery('');
-      setBasicHealthViewMode('shelves');
+      setBasicHealthSearchQuery('');
       return () => {
         setRevealed(false);
         setSearchQuery('');
-        setBasicHealthViewMode('shelves');
+        setBasicHealthSearchQuery('');
       };
     }, []),
   );
@@ -365,6 +386,18 @@ export default function PurpleDigestScreen() {
   // link navigation does under the hood (query the element's real
   // position, then scroll there), not a pre-computed guess.
   const cardRefs = useRef<Record<string, Measurable | null>>({});
+  // A real ref to each Basic Health GROUP's own outer container (keyed by
+  // group label, not entry id) -- 2026-08-08, added alongside the shelf
+  // row's own new expand-in-place redesign (see BasicHealthShelves below).
+  // Scrolling now targets the whole group section, not the individual
+  // tapped card, so the group's own heading and its full tab strip land
+  // together near the top of the screen when a row is opened, per direct
+  // correction: "The entire row that is being looked at should have each
+  // of their headers at the top of the row... so I don't get lost." A
+  // plain RN View already exposes the same real .measure() a card ref
+  // does, so this reuses the identical scroll mechanism below, just keyed
+  // differently.
+  const groupRefs = useRef<Record<string, Measurable | null>>({});
   // The ScrollView's own current, live scroll position -- kept live via
   // onScroll, needed for two real reasons: converting the viewport-
   // relative measurement below into an absolute scroll target, and
@@ -406,26 +439,6 @@ export default function PurpleDigestScreen() {
   // index.ts), cheap enough that no debounce is needed for this to feel
   // instant.
   const searchResults = useMemo(() => searchDigestEntries(searchQuery), [searchQuery]);
-
-  // How far above a scrolled-to card's own top edge to stop -- 2026-08-07,
-  // set to the exact figure given directly: "The header of the one I
-  // tapped should be at the top of the screen under the app's own header
-  // section by about 10 pixels." (Previously 12, and briefly gated behind
-  // a skip-if-already-close threshold -- both reverted; see below.)
-  const ENTRY_SCROLL_TOP_MARGIN = 10;
-
-  // How long the card list's own LinearTransition (below, on each card's
-  // Animated.View) takes to finish sliding every card into its real, final
-  // position after an expand/collapse -- pinned to an explicit number here
-  // (LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS) below) rather
-  // than left at Reanimated's own implicit default, specifically so
-  // scrollEntryIntoView has a real, known number to wait out instead of
-  // guessing at one.
-  const CARD_LAYOUT_TRANSITION_MS = 300;
-  // A little slack on top of the animation's own real duration -- covers
-  // ordinary JS-thread/bridge scheduling delay, not because the animation
-  // itself is expected to run long.
-  const CARD_LAYOUT_SETTLE_BUFFER_MS = 60;
 
   // Scrolls the ScrollView so the named card's own top edge lands exactly
   // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- on
@@ -473,16 +486,25 @@ export default function PurpleDigestScreen() {
   // programmatic scroll with any still-running fling from a recent manual
   // drag, producing an inconsistent final position even when the target
   // itself was computed correctly.
-  function scrollEntryIntoView(id: string, attemptsLeft = 5) {
+  // The shared real mechanism both scrollEntryIntoView and
+  // scrollGroupIntoView below now call -- 2026-08-08, extracted so the new
+  // Basic Health group-level scroll target (a group's own outer container,
+  // not any one card inside it) can reuse the exact same real, already-
+  // hard-won .measure()-based logic rather than a second, parallel copy of
+  // it. `getNode` is a real, live lookup (not a value captured once), the
+  // same "always ask for the current position, never trust anything cached
+  // earlier" discipline this whole mechanism has been rebuilt around
+  // before.
+  function scrollNodeIntoView(getNode: () => Measurable | null | undefined, attemptsLeft = 5) {
     requestAnimationFrame(() => {
-      const cardNode = cardRefs.current[id];
+      const targetNode = getNode();
       const scrollNode = scrollRef.current;
-      if (!cardNode || !scrollNode) {
-        if (attemptsLeft > 0) scrollEntryIntoView(id, attemptsLeft - 1);
+      if (!targetNode || !scrollNode) {
+        if (attemptsLeft > 0) scrollNodeIntoView(getNode, attemptsLeft - 1);
         return;
       }
       setTimeout(() => {
-        cardNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
+        targetNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
           (scrollNode as unknown as Measurable).measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
             const target = currentScrollY.current + (cardPageY - scrollPageY) - ENTRY_SCROLL_TOP_MARGIN;
             scrollNode.scrollTo({ y: currentScrollY.current, animated: false });
@@ -493,30 +515,62 @@ export default function PurpleDigestScreen() {
     });
   }
 
-  function toggleEntry(id: string) {
+  function scrollEntryIntoView(id: string) {
+    scrollNodeIntoView(() => cardRefs.current[id]);
+  }
+
+  // Scrolls so a whole Basic Health group's own container (heading + its
+  // full horizontal tab strip) lands near the top of the screen, rather
+  // than just the one tapped card -- see groupRefs' own comment above for
+  // why.
+  function scrollGroupIntoView(label: string) {
+    scrollNodeIntoView(() => groupRefs.current[label]);
+  }
+
+  // Expanding/collapsing a single entry, wherever it's shown -- the flat,
+  // one-category-at-a-time list every non-Basic-Health category still
+  // uses, or a Basic Health shelf row's own tab strip (see
+  // BasicHealthShelves below, which calls this same function). `category`
+  // decides which of the two real scroll targets above applies: Basic
+  // Health scrolls to the whole group section it belongs to; every other
+  // category scrolls to the card itself, unchanged from before.
+  function toggleEntry(id: string, category: DigestCategoryKey) {
     const wasExpanded = expandedId === id;
     setExpandedId(wasExpanded ? null : id);
-    if (!wasExpanded) scrollEntryIntoView(id);
+    if (wasExpanded) return;
+    if (category === 'basicHealth') {
+      scrollGroupIntoView(basicHealthGroupLabel(id));
+    } else {
+      scrollEntryIntoView(id);
+    }
   }
 
   // Jumping to a related entry: switch category (if it's a different one),
   // expand that entry, and collapse whatever was open before -- a related
-  // chip always lands you looking at exactly that entry, scrolled to the
-  // top of the screen, at wherever it actually sits in its own category's
-  // real (unreordered) list. Also the same real function a Basic Health
-  // shelf card's own tap uses (see BasicHealthShelves below) -- switching
-  // into 'list' mode here unconditionally is a no-op for every other
-  // category (which never reads that state), and is exactly the real
-  // "jump straight to reading this one" behavior Basic Health itself needs
-  // too, whether the jump started from a shelf card, a Related chip, or a
-  // search result.
+  // chip always lands you looking at exactly that entry, scrolled into
+  // view, at wherever it actually sits in its own category's real
+  // (unreordered) list, or, for Basic Health specifically, at wherever its
+  // own group section sits. The same real function a Basic Health shelf
+  // card's own tap, a Related chip, and a search result (both Search All's
+  // and Basic Health's own scoped search) all use.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
-    setLens(target.category as DigestCategoryKey);
-    setBasicHealthViewMode('list');
+    const category = target.category as DigestCategoryKey;
+    setLens(category);
+    // Jumping into Basic Health always lands on the grouped shelf view --
+    // there's no separate "list mode" to switch into anymore -- and a
+    // search-in-progress (either Search All or Basic Health's own scoped
+    // search) is cleared, since the person just told us exactly what they
+    // wanted by tapping a real result.
+    setSearchQuery('');
+    setBasicHealthSearchQuery('');
     setExpandedId(id);
-    scrollEntryIntoView(id);
+    if (category === 'basicHealth') {
+      scrollGroupIntoView(basicHealthGroupLabel(id));
+    } else {
+      scrollEntryIntoView(id);
+    }
   }
 
   return (
@@ -578,51 +632,72 @@ export default function PurpleDigestScreen() {
                   </>
                 )}
               </>
-            ) : lens === 'basicHealth' && basicHealthViewMode === 'shelves' ? (
-              <BasicHealthShelves groups={groupBasicHealthEntries(entries)} onSelectEntry={jumpToRelated} />
+            ) : lens === 'basicHealth' ? (
+              <>
+                <AppTextInput
+                  style={styles.searchInput}
+                  placeholder="Search within Basic Health..."
+                  value={basicHealthSearchQuery}
+                  onChangeText={setBasicHealthSearchQuery}
+                />
+                {basicHealthSearchQuery.trim().length > 0 ? (
+                  (() => {
+                    const basicHealthResults = searchEntries(entries, basicHealthSearchQuery);
+                    return basicHealthResults.length === 0 ? (
+                      <Text style={styles.emptyText}>
+                        No matches for &ldquo;{basicHealthSearchQuery.trim()}&rdquo; in Basic Health.
+                      </Text>
+                    ) : (
+                      <>
+                        <Text style={styles.searchResultCount}>
+                          {basicHealthResults.length} match{basicHealthResults.length === 1 ? '' : 'es'}
+                        </Text>
+                        {basicHealthResults.map((entry) => (
+                          <SearchResultCard key={entry.id} entry={entry} onPress={() => jumpToRelated(entry.id)} />
+                        ))}
+                      </>
+                    );
+                  })()
+                ) : (
+                  <BasicHealthShelves
+                    groups={groupBasicHealthEntries(entries)}
+                    expandedId={expandedId}
+                    groupRefs={groupRefs}
+                    onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
+                    onJumpToRelated={jumpToRelated}
+                  />
+                )}
+              </>
             ) : entries.length === 0 ? (
               <Text style={styles.emptyText}>Nothing here yet.</Text>
             ) : (
-              <>
-                {lens === 'basicHealth' ? (
-                  <TouchableOpacity
-                    style={styles.backToShelvesRow}
-                    onPress={() => {
-                      setBasicHealthViewMode('shelves');
-                      setExpandedId(null);
-                    }}
-                  >
-                    <Text style={styles.backToShelvesText}>{'‹'} Back to grouped view</Text>
-                  </TouchableOpacity>
-                ) : null}
-                {entries.map((entry) => (
-                  <Animated.View
-                    key={entry.id}
-                    // Explicit duration, not Reanimated's own implicit
-                    // default -- CARD_LAYOUT_TRANSITION_MS above (see
-                    // scrollEntryIntoView's own comment) has to wait out this
-                    // exact real number, not a guess at what the default
-                    // might be.
-                    layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}
-                    // A real ref to this card, not a cached measurement --
-                    // scrollEntryIntoView calls .measure() on it directly, at
-                    // the moment it's needed, rather than trusting a value
-                    // recorded earlier. Reanimated's Animated.View forwards
-                    // refs to the underlying native view, so this exposes the
-                    // same real .measure() every plain View has.
-                    ref={(r) => {
-                      cardRefs.current[entry.id] = r as unknown as Measurable | null;
-                    }}
-                  >
-                    <DigestCard
-                      entry={entry}
-                      expanded={expandedId === entry.id}
-                      onToggle={() => toggleEntry(entry.id)}
-                      onJumpToRelated={jumpToRelated}
-                    />
-                  </Animated.View>
-                ))}
-              </>
+              entries.map((entry) => (
+                <Animated.View
+                  key={entry.id}
+                  // Explicit duration, not Reanimated's own implicit
+                  // default -- CARD_LAYOUT_TRANSITION_MS above (see
+                  // scrollEntryIntoView's own comment) has to wait out this
+                  // exact real number, not a guess at what the default
+                  // might be.
+                  layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}
+                  // A real ref to this card, not a cached measurement --
+                  // scrollEntryIntoView calls .measure() on it directly, at
+                  // the moment it's needed, rather than trusting a value
+                  // recorded earlier. Reanimated's Animated.View forwards
+                  // refs to the underlying native view, so this exposes the
+                  // same real .measure() every plain View has.
+                  ref={(r) => {
+                    cardRefs.current[entry.id] = r as unknown as Measurable | null;
+                  }}
+                >
+                  <DigestCard
+                    entry={entry}
+                    expanded={expandedId === entry.id}
+                    onToggle={() => toggleEntry(entry.id, entry.category as DigestCategoryKey)}
+                    onJumpToRelated={jumpToRelated}
+                  />
+                </Animated.View>
+              ))
             )}
           </ScrollView>
         </GatedTabContent>
@@ -677,7 +752,7 @@ export default function PurpleDigestScreen() {
         onSelect={(key) => {
           setLens(key);
           setExpandedId(null);
-          setBasicHealthViewMode('shelves');
+          setBasicHealthSearchQuery('');
           setRevealed(true);
         }}
       />
@@ -711,48 +786,118 @@ function SearchResultCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: 
 }
 
 // Basic Health's own real, grouped browsing view -- see BASIC_HEALTH_GROUPS'
-// own comment above for the full reasoning. Each group is a plain heading
-// plus a horizontally-scrolling row of compact preview cards; the whole
-// stack of rows sits inside this screen's own existing outer, vertically-
-// scrolling ScrollView unchanged, so scrolling down moves between rows
-// while scrolling within any one row moves sideways through that row's own
-// cards -- exactly the "each row scrolls horizontally, all the rows move
-// vertically" shape requested. Cards themselves are deliberately NOT
-// expandable in place (a card growing taller mid-row has nowhere good to
-// push its horizontal neighbors) -- tapping one hands off to the existing,
-// already-scroll-tested list view instead, via the same onSelectEntry
-// (really jumpToRelated) every Related chip and search result already use.
+// own comment above for the original grouping reasoning. The per-row
+// interaction itself was rebuilt 2026-08-08, direct correction after the
+// first version (tapping a card jumped clean out of the shelf view into a
+// completely different, much longer flat list) read as genuinely
+// disorienting: "I kind of got lost looking at a few of the magnesium
+// cards because it jumped around." The real fix, per direct, exact
+// instruction: "The entire row that is being looked at should have each
+// of their headers at the top of the row and as I scroll left or right, if
+// I tap on one of them the whole row drops down for the one selected
+// allowing me to scroll left or right to look at other info that is about
+// that topic (Magnesium) so I don't get lost."
+//
+// So each group is now a self-contained mini-experience, not a launchpad
+// into somewhere else: a heading, a horizontal strip of compact "tab"
+// cards (their own real header + tier dot + short teaser, always visible,
+// always scrollable, staying put regardless of what's expanded), and,
+// directly below that same strip, a real detail panel -- the exact same
+// DigestCard component every other category already uses, in its own
+// expanded state -- that appears the instant one of the row's own tabs is
+// tapped. Tapping a DIFFERENT tab in the same strip swaps which entry's
+// detail shows below, without the tab strip itself moving or the person
+// ever leaving this group's own section. `expandedId` is the same single,
+// screen-wide "which one entry is open" state every other category's own
+// flat list already uses (see toggleEntry) -- only one group's own panel
+// can be genuinely open at once, matching the single-open-accordion
+// convention this whole screen already follows everywhere else.
 function BasicHealthShelves({
   groups,
-  onSelectEntry,
+  expandedId,
+  groupRefs,
+  onToggleEntry,
+  onJumpToRelated,
 }: {
   groups: { label: string; entries: AnyDigestEntry[] }[];
-  onSelectEntry: (id: string) => void;
+  expandedId: string | null;
+  groupRefs: MutableRefObject<Record<string, Measurable | null>>;
+  onToggleEntry: (id: string) => void;
+  onJumpToRelated: (id: string) => void;
 }) {
   return (
     <>
-      {groups.map((group) => (
-        <View key={group.label} style={styles.shelfSection}>
-          <Text style={styles.shelfHeading}>{group.label}</Text>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.shelfRow}
+      {groups.map((group) => {
+        const expandedEntry = group.entries.find((entry) => entry.id === expandedId);
+        return (
+          <View
+            key={group.label}
+            style={styles.shelfSection}
+            // A plain RN View already exposes the same real .measure()
+            // scrollGroupIntoView needs -- no Animated.View wrapper
+            // required here the way the flat list's own per-card refs
+            // need one, since this container's own height changing
+            // (the detail panel appearing/disappearing below) doesn't
+            // need its own layout-transition animation the way a card
+            // growing in place did in the old design.
+            ref={(r) => {
+              groupRefs.current[group.label] = r as unknown as Measurable | null;
+            }}
           >
-            {group.entries.map((entry) => (
-              <ShelfCard key={entry.id} entry={entry} onPress={() => onSelectEntry(entry.id)} />
-            ))}
-          </ScrollView>
-        </View>
-      ))}
+            <Text style={styles.shelfHeading}>{group.label}</Text>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.shelfRow}
+            >
+              {group.entries.map((entry) => (
+                <ShelfTabCard
+                  key={entry.id}
+                  entry={entry}
+                  selected={expandedId === entry.id}
+                  onPress={() => onToggleEntry(entry.id)}
+                />
+              ))}
+            </ScrollView>
+            {expandedEntry ? (
+              <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)} style={styles.shelfDetailPanel}>
+                <DigestCard
+                  entry={expandedEntry}
+                  expanded
+                  onToggle={() => onToggleEntry(expandedEntry.id)}
+                  onJumpToRelated={onJumpToRelated}
+                />
+              </Animated.View>
+            ) : null}
+          </View>
+        );
+      })}
     </>
   );
 }
 
-function ShelfCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: () => void }) {
+// The row's own compact, always-visible "tab" -- title, tier dot, and a
+// short teaser, never itself expandable (the real detail lives in the
+// shared panel below the row instead, see BasicHealthShelves above).
+// `selected` highlights whichever tab's own entry the panel below
+// currently belongs to, so scrolling left/right through the row never
+// loses track of which one is actually open.
+function ShelfTabCard({
+  entry,
+  selected,
+  onPress,
+}: {
+  entry: AnyDigestEntry;
+  selected: boolean;
+  onPress: () => void;
+}) {
   const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
   return (
-    <TouchableOpacity style={styles.shelfCard} onPress={onPress} activeOpacity={0.85}>
+    <TouchableOpacity
+      style={[styles.shelfCard, selected ? styles.shelfCardSelected : null]}
+      onPress={onPress}
+      activeOpacity={0.85}
+    >
       <View style={styles.cardHeaderRow}>
         {!isProblemFoodEntry(entry) ? (
           <View style={[styles.tierDot, { backgroundColor: tierColor(entry.overallTier) }]} />
@@ -913,8 +1058,6 @@ const styles = StyleSheet.create({
   },
   searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
   searchResultCategory: { ...typography.caption, color: TAB_COLOR, marginBottom: 4 },
-  backToShelvesRow: { marginBottom: 12 },
-  backToShelvesText: { ...typography.captionEmphasis, color: TAB_COLOR },
   shelfSection: { marginBottom: 18 },
   shelfHeading: { ...typography.label, color: TAB_COLOR, marginBottom: 8 },
   // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
@@ -931,8 +1074,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: 12,
   },
+  // The one tab in a row whose own entry the detail panel below is
+  // currently showing -- a visibly thicker, filled highlight so scrolling
+  // left/right through the row never loses track of which one is open.
+  shelfCardSelected: {
+    borderColor: colors.accent,
+    borderWidth: 3,
+    backgroundColor: `${TAB_COLOR}22`,
+  },
   shelfCardTitle: { ...typography.label, color: TAB_COLOR, flex: 1, fontSize: 14 },
   shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
+  // The real detail panel appearing directly below a row's own tab strip
+  // once one of its tabs is tapped -- "the whole row drops down for the
+  // one selected," per direct request. A small top margin separates it
+  // from the tab strip above; DigestCard itself already supplies its own
+  // card border/background, so no extra chrome is added here.
+  shelfDetailPanel: { marginTop: 10 },
   card: {
     borderWidth: 2,
     borderColor: TAB_COLOR,
