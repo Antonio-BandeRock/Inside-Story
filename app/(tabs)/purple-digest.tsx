@@ -360,6 +360,39 @@ function basicHealthEntriesForPath(entries: AnyDigestEntry[], path: string[]): A
   return topic.prefixes ? basicHealthEntriesForPrefixes(entries, topic.prefixes) : [];
 }
 
+// Every real Basic Health leaf group at once (every standalone topic, and
+// every Essential Nutrients subtopic individually), flattened into the
+// same {label, entries} shape BasicHealthShelves already renders --
+// 2026-08-08, built for the new sticky-search filtered view below: "all
+// things below in the knowledgebase hierarchical set of the area are
+// displayed below and filtered." Rather than drilling through the tree one
+// level at a time, a search shows every real leaf topic at once, filtered
+// down to just the ones with a match. `label` is deliberately the same
+// '::'-joined path string shelfGroupKeyForEntry already computes for a
+// Basic Health entry (not a prettier "Topic › Subtopic" string) -- see
+// BasicHealthShelves' own comment for why the ref/scroll-key and the
+// display text have to stay the same underlying value.
+function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
+  const groups: { label: string; entries: AnyDigestEntry[] }[] = [];
+  for (const topic of BASIC_HEALTH_TOPICS) {
+    if (topic.subtopics) {
+      for (const sub of topic.subtopics) {
+        groups.push({
+          label: [topic.label, sub.label].join('::'),
+          entries: basicHealthEntriesForPrefixes(entries, sub.prefixes),
+        });
+      }
+    } else {
+      groups.push({ label: topic.label, entries: basicHealthEntriesForPrefixes(entries, topic.prefixes ?? []) });
+    }
+  }
+  const unmatched = entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0);
+  if (unmatched.length > 0) {
+    groups.push({ label: BASIC_HEALTH_MORE_TOPIC_LABEL, entries: unmatched });
+  }
+  return groups;
+}
+
 // Maps the `conditions` reference table's own real, snake_case codes
 // (confirmed directly against the live database, not guessed) to this
 // screen's own camelCase DigestCategoryKey -- the two naming conventions
@@ -882,76 +915,98 @@ export default function PurpleDigestScreen() {
     scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
   }
 
+  // The search box actually driving whichever content shows below it --
+  // Search All's own whole-Digest `searchQuery`, or every other lens's
+  // shared, category-scoped `categorySearchQuery` -- factored out once,
+  // since both the fixed header below and the filtered-results branch need
+  // the same pairing.
+  const activeSearchValue = lens === 'search' ? searchQuery : categorySearchQuery;
+  const setActiveSearchValue = lens === 'search' ? setSearchQuery : setCategorySearchQuery;
+
   return (
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Purple Digest" variant="field" revealed={revealed}>
-          <ScrollView
-            ref={scrollRef}
-            style={styles.body}
-            contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
-            onScroll={(event) => {
-              currentScrollY.current = event.nativeEvent.contentOffset.y;
-            }}
-            scrollEventThrottle={16}
-          >
-            {/* A real, always-available way back to the resting "nothing
-                picked yet" screen -- 2026-08-08, direct correction: "there
-                is no way to back out of an area to go back to the level
-                before, all the way to the Digest home screen with the
-                LensHub menu showing so the user can choose another lens if
-                they want to." Basic Health's own tree already has a
-                one-level-at-a-time "back" link (BasicHealthTree's own
-                onBack), and that stays exactly as it is for stepping
-                between tree levels -- this is a second, separate escape
-                hatch that always works in one tap, from any lens, at any
-                depth (a condition's pillar shelves, Search's own results,
-                or any level of Basic Health's tree). It doesn't reopen
-                LensHub itself -- it returns to the exact same resting state
-                (revealed=false, the corner button and PageIdentityLabel's
-                own prompt visible) every other tab in this app already uses
-                as its own "nothing picked yet" screen, so tapping the
-                corner button to choose a new lens from there is the same,
-                already-familiar motion as opening this tab for the first
-                time. */}
-            <TouchableOpacity
-              style={styles.backToHomeRow}
-              onPress={() => setRevealed(false)}
-              accessibilityRole="button"
-              accessibilityLabel="Back to Digest home"
-            >
-              <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
-            </TouchableOpacity>
+          <View style={styles.screenColumn}>
+            {/* A real, fixed (non-scrolling) header strip -- 2026-08-08,
+                direct request: "move the internal search utility to the
+                top and make it the subheader that stays at the top under
+                the app header," the same treatment already given to the
+                whole-Digest search bar earlier the same day before that
+                bar itself moved back into the LensHub picker. Everything in
+                this block used to live at the very top of the ScrollView
+                below, scrolling away with the rest of the content -- now it
+                sits above the ScrollView entirely, so the back link, this
+                category's own header, and its search box all stay visible
+                the whole time someone scrolls through what's below. */}
+            <View style={styles.fixedHeader}>
+              {/* A real, always-available way back to the resting "nothing
+                  picked yet" screen -- 2026-08-08, direct correction: "there
+                  is no way to back out of an area to go back to the level
+                  before, all the way to the Digest home screen with the
+                  LensHub menu showing so the user can choose another lens if
+                  they want to." Basic Health's own tree already has a
+                  one-level-at-a-time "back" link (BasicHealthTree's own
+                  onBack), and that stays exactly as it is for stepping
+                  between tree levels -- this is a second, separate escape
+                  hatch that always works in one tap, from any lens, at any
+                  depth (a condition's pillar shelves, Search's own results,
+                  or any level of Basic Health's tree). It doesn't reopen
+                  LensHub itself -- it returns to the exact same resting state
+                  (revealed=false, the corner button and PageIdentityLabel's
+                  own prompt visible) every other tab in this app already uses
+                  as its own "nothing picked yet" screen, so tapping the
+                  corner button to choose a new lens from there is the same,
+                  already-familiar motion as opening this tab for the first
+                  time. */}
+              <TouchableOpacity
+                style={styles.backToHomeRow}
+                onPress={() => setRevealed(false)}
+                accessibilityRole="button"
+                accessibilityLabel="Back to Digest home"
+              >
+                <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
+              </TouchableOpacity>
 
-            {/* Wrapped in an opaque card, not sitting bare on the shared
-                flower background -- reported as unreadable that way. Every
-                other tab's own top-of-content text either already sits on a
-                card (Insights/Schedule) or opts into textShadow when it
-                truly has to render straight over the photo (Home's
-                greeting) -- a card is the better fit here, since this
-                header block is real page-identity content, not a one-line
-                caption over open sky. */}
-            <View style={styles.headerCard}>
-              <View style={styles.categoryHeaderRow}>
-                <PurpleRibbonIcon size={22} color={TAB_COLOR} />
-                <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+              {/* Wrapped in an opaque card, not sitting bare on the shared
+                  flower background -- reported as unreadable that way. Every
+                  other tab's own top-of-content text either already sits on a
+                  card (Insights/Schedule) or opts into textShadow when it
+                  truly has to render straight over the photo (Home's
+                  greeting) -- a card is the better fit here, since this
+                  header block is real page-identity content, not a one-line
+                  caption over open sky. */}
+              <View style={styles.headerCard}>
+                <View style={styles.categoryHeaderRow}>
+                  <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                  <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+                </View>
+                <Text style={styles.categoryDescription}>
+                  {lens === 'search'
+                    ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
+                    : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
+                </Text>
               </View>
-              <Text style={styles.categoryDescription}>
-                {lens === 'search'
-                  ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
-                  : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
-              </Text>
+
+              <AppTextInput
+                style={styles.searchInput}
+                placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${activeLensLabel}...`}
+                value={activeSearchValue}
+                onChangeText={setActiveSearchValue}
+              />
             </View>
 
-            {lens === 'search' ? (
-              <>
-                <AppTextInput
-                  style={styles.searchInput}
-                  placeholder="Search the whole Digest..."
-                  value={searchQuery}
-                  onChangeText={setSearchQuery}
-                />
-                {searchQuery.trim().length === 0 ? (
+            <ScrollView
+              ref={scrollRef}
+              style={styles.body}
+              contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
+              onScroll={(event) => {
+                currentScrollY.current = event.nativeEvent.contentOffset.y;
+              }}
+              scrollEventThrottle={16}
+            >
+              {lens === 'search' ? (
+                searchQuery.trim().length === 0 ? (
                   <Text style={styles.emptyText}>
                     Type a word or phrase to search every category at once -- a mechanism, a food, an
                     author&apos;s name, anything this Digest actually says somewhere.
@@ -967,100 +1022,119 @@ export default function PurpleDigestScreen() {
                       <SearchResultCard key={entry.id} entry={entry} onPress={() => jumpToRelated(entry.id)} />
                     ))}
                   </>
-                )}
-              </>
-            ) : (
-              // Every real category -- Basic Health included -- gets its
-              // own, separate, scoped search box now: "Basic Health needs
-              // its own search utility, just as all of the other areas of
-              // the Digest do." One shared `categorySearchQuery` state
-              // (only one such box is ever on screen at a time, so nothing
-              // clobbers anything else), searched against just THIS
-              // category's own `entries`, entirely independent of the
-              // persistent, whole-Digest search bar above.
-              <>
-                <AppTextInput
-                  style={styles.searchInput}
-                  placeholder={`Search within ${activeLensLabel}...`}
-                  value={categorySearchQuery}
-                  onChangeText={setCategorySearchQuery}
-                />
-                {categorySearchQuery.trim().length > 0 ? (
-                  (() => {
-                    const categoryResults = searchEntries(entries, categorySearchQuery);
-                    return categoryResults.length === 0 ? (
-                      <Text style={styles.emptyText}>
-                        No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {activeLensLabel}.
+                )
+              ) : categorySearchQuery.trim().length > 0 ? (
+                // Every real category -- Basic Health included -- filters
+                // its OWN real hierarchical structure now, rather than
+                // swapping to a flat, undifferentiated results list --
+                // 2026-08-08, direct request: "all things below in the
+                // knowledgebase hierarchical set of the area are displayed
+                // below and filtered to display the specific topics of
+                // interest that are related to what they searched for."
+                // Basic Health's own real topic/subtopic groups (every leaf
+                // at once, not drilled into one at a time -- see
+                // basicHealthAllGroups' own comment) or a condition's own
+                // real pillar groups (plus its closing synthesis entry, if
+                // it has one) are each filtered down to just the entries
+                // that actually match, with any group that ends up empty
+                // dropped entirely -- reusing BasicHealthShelves' own
+                // shelf-row-plus-detail-panel rendering unchanged, the same
+                // real component every category already uses to show its
+                // groups when NOT searching.
+                (() => {
+                  const matchedIds = new Set(searchEntries(entries, categorySearchQuery).map((entry) => entry.id));
+                  const baseGroups =
+                    lens === 'basicHealth'
+                      ? basicHealthAllGroups(entries)
+                      : (() => {
+                          const { pillars, tyingTogether } = groupConditionEntries(entries);
+                          return tyingTogether
+                            ? [...pillars, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }]
+                            : pillars;
+                        })();
+                  const filteredGroups = baseGroups
+                    .map((group) => ({
+                      label: group.label,
+                      entries: group.entries.filter((entry) => matchedIds.has(entry.id)),
+                    }))
+                    .filter((group) => group.entries.length > 0);
+                  const totalMatches = filteredGroups.reduce((sum, group) => sum + group.entries.length, 0);
+                  return totalMatches === 0 ? (
+                    <Text style={styles.emptyText}>
+                      No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {activeLensLabel}.
+                    </Text>
+                  ) : (
+                    <>
+                      <Text style={styles.searchResultCount}>
+                        {totalMatches} match{totalMatches === 1 ? '' : 'es'}
                       </Text>
-                    ) : (
-                      <>
-                        <Text style={styles.searchResultCount}>
-                          {categoryResults.length} match{categoryResults.length === 1 ? '' : 'es'}
-                        </Text>
-                        {categoryResults.map((entry) => (
-                          <SearchResultCard key={entry.id} entry={entry} onPress={() => jumpToRelated(entry.id)} />
-                        ))}
-                      </>
-                    );
-                  })()
-                ) : lens === 'basicHealth' ? (
-                  <BasicHealthTree
-                    entries={entries}
-                    path={basicHealthTopicPath}
-                    onDrillIn={(label) => setBasicHealthTopicPath((prev) => [...prev, label])}
-                    onBack={() => setBasicHealthTopicPath((prev) => prev.slice(0, -1))}
-                    expandedId={expandedId}
-                    groupRefs={groupRefs}
-                    onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
-                    onJumpToRelated={jumpToRelated}
-                  />
-                ) : entries.length === 0 ? (
-                  <Text style={styles.emptyText}>Nothing here yet.</Text>
-                ) : (
-                  // Every real condition category -- 2026-08-08, the same
-                  // shelf-row-plus-detail-panel shape Basic Health's own
-                  // leaf level uses, grouped into 4 real pillars (see
-                  // groupConditionEntries' own comment above). The
-                  // category's own closing "tying together" synthesis, if
-                  // it has one, is pulled out of the shelves and shown as
-                  // its own standalone card below them, always visible,
-                  // never nested inside a pillar it doesn't really belong to.
-                  (() => {
-                    const { pillars, tyingTogether } = groupConditionEntries(entries);
-                    return (
-                      <>
-                        <BasicHealthShelves
-                          groups={pillars}
-                          expandedId={expandedId}
-                          groupRefs={groupRefs}
-                          onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
-                          onJumpToRelated={jumpToRelated}
-                        />
-                        {tyingTogether ? (
-                          <View
-                            style={styles.shelfSection}
-                            ref={(r) => {
-                              groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
-                            }}
-                          >
-                            <Text style={styles.shelfHeading}>Putting It Together</Text>
-                            <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
-                              <DigestCard
-                                entry={tyingTogether}
-                                expanded={expandedId === tyingTogether.id}
-                                onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
-                                onJumpToRelated={jumpToRelated}
-                              />
-                            </Animated.View>
-                          </View>
-                        ) : null}
-                      </>
-                    );
-                  })()
-                )}
-              </>
-            )}
-          </ScrollView>
+                      <BasicHealthShelves
+                        groups={filteredGroups}
+                        expandedId={expandedId}
+                        groupRefs={groupRefs}
+                        onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
+                        onJumpToRelated={jumpToRelated}
+                      />
+                    </>
+                  );
+                })()
+              ) : lens === 'basicHealth' ? (
+                <BasicHealthTree
+                  entries={entries}
+                  path={basicHealthTopicPath}
+                  onDrillIn={(label) => setBasicHealthTopicPath((prev) => [...prev, label])}
+                  onBack={() => setBasicHealthTopicPath((prev) => prev.slice(0, -1))}
+                  expandedId={expandedId}
+                  groupRefs={groupRefs}
+                  onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
+                  onJumpToRelated={jumpToRelated}
+                />
+              ) : entries.length === 0 ? (
+                <Text style={styles.emptyText}>Nothing here yet.</Text>
+              ) : (
+                // Every real condition category -- 2026-08-08, the same
+                // shelf-row-plus-detail-panel shape Basic Health's own
+                // leaf level uses, grouped into 4 real pillars (see
+                // groupConditionEntries' own comment above). The
+                // category's own closing "tying together" synthesis, if
+                // it has one, is pulled out of the shelves and shown as
+                // its own standalone card below them, always visible,
+                // never nested inside a pillar it doesn't really belong to.
+                (() => {
+                  const { pillars, tyingTogether } = groupConditionEntries(entries);
+                  return (
+                    <>
+                      <BasicHealthShelves
+                        groups={pillars}
+                        expandedId={expandedId}
+                        groupRefs={groupRefs}
+                        onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
+                        onJumpToRelated={jumpToRelated}
+                      />
+                      {tyingTogether ? (
+                        <View
+                          style={styles.shelfSection}
+                          ref={(r) => {
+                            groupRefs.current[TYING_TOGETHER_GROUP_KEY] = r as unknown as Measurable | null;
+                          }}
+                        >
+                          <Text style={styles.shelfHeading}>Putting It Together</Text>
+                          <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
+                            <DigestCard
+                              entry={tyingTogether}
+                              expanded={expandedId === tyingTogether.id}
+                              onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
+                              onJumpToRelated={jumpToRelated}
+                            />
+                          </Animated.View>
+                        </View>
+                      ) : null}
+                    </>
+                  );
+                })()
+              )}
+            </ScrollView>
+          </View>
         </GatedTabContent>
       </SwipeableTabScreen>
 
@@ -1377,6 +1451,18 @@ function TopicCard({
 // flat list already uses (see toggleEntry) -- only one group's own panel
 // can be genuinely open at once, matching the single-open-accordion
 // convention this whole screen already follows everywhere else.
+// Converts a group's real ref/scroll key (see BasicHealthShelves' own
+// comment above) into what a person should actually see as the group's
+// heading -- 2026-08-08, split out once a second special key
+// (TYING_TOGETHER_GROUP_KEY) needed the same "real key, different display
+// text" treatment the '::'-joined Basic Health path already had. A no-op
+// for a plain condition pillar label (Core Science, etc.), which is
+// neither of these two special shapes.
+function shelfGroupDisplayLabel(label: string): string {
+  if (label === TYING_TOGETHER_GROUP_KEY) return 'Putting It Together';
+  return label.split('::').join(' › ');
+}
+
 function BasicHealthShelves({
   groups,
   expandedId,
@@ -1409,7 +1495,16 @@ function BasicHealthShelves({
               groupRefs.current[group.label] = r as unknown as Measurable | null;
             }}
           >
-            <Text style={styles.shelfHeading}>{group.label}</Text>
+            {/* group.label doubles as the real ref/scroll-target key
+                (shelfGroupKeyForEntry computes the exact same value for a
+                given entry -- a Basic Health entry's own '::'-joined tree
+                path, or TYING_TOGETHER_GROUP_KEY for a closing synthesis
+                entry -- so tapping a shelf tab scrolls correctly whether
+                this group came from the plain pillar/tree view or the new
+                filtered-search view below), so it's converted to a plain,
+                readable display string only here, at render time. See
+                shelfGroupDisplayLabel's own comment. */}
+            <Text style={styles.shelfHeading}>{shelfGroupDisplayLabel(group.label)}</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -1727,6 +1822,28 @@ function DigestCard({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  // The real flex-column wrapper inside GatedTabContent -- fixedHeader
+  // (auto height, non-scrolling) stacked above the ScrollView (flex: 1,
+  // everything else). See fixedHeader's own comment for why this split
+  // exists.
+  screenColumn: { flex: 1 },
+  // A real, non-scrolling header strip -- 2026-08-08, direct request:
+  // "move the internal search utility to the top and make it the subheader
+  // that stays at the top under the app header." Used to be the first
+  // three things inside the ScrollView below (scrolling away with
+  // everything else); now a real sibling above it, so the back link, this
+  // category's own header, and its search box stay visible the whole time
+  // someone scrolls the hierarchical content underneath. Same horizontal
+  // padding as bodyContent below so both areas line up, plus a real
+  // bottom border marking where the fixed strip ends and the scrollable
+  // area begins.
+  fixedHeader: {
+    paddingHorizontal: 16,
+    paddingTop: 12,
+    paddingBottom: 4,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
   // The "‹ Back to Digest" escape hatch -- see its own JSX comment above
   // headerCard for what it does. Plain text, not another bordered card, so
   // it reads as a lightweight navigation control rather than competing
