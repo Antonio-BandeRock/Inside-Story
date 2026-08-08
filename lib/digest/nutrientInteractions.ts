@@ -48,7 +48,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['labs-calcium-iron-absorption', 'iron-absorption-mechanism'],
+    relatedIds: ['labs-calcium-iron-absorption', 'iron-absorption-mechanism', 'calcium-absorption-mechanism'],
   },
   {
     id: 'interaction-vitaminc-iron',
@@ -61,7 +61,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin C has a key physiological role in facilitating the absorption of non-heme iron from the diet', url: 'https://pubmed.ncbi.nlm.nih.gov/3667346/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['nutrient-zinc-iron-b12', 'iron-absorption-mechanism'],
+    relatedIds: ['nutrient-zinc-iron-b12', 'iron-absorption-mechanism', 'vitaminc-tying-together'],
   },
   {
     id: 'interaction-zinc-copper',
@@ -77,7 +77,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-zinc-carnosine'],
+    relatedIds: ['gut-zinc-carnosine', 'zinc-toxicity-acute-chronic'],
   },
   {
     id: 'interaction-vitamind-k2-magnesium',
@@ -90,7 +90,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Calcium, vitamin D, vitamin K2, and magnesium supplementation and skeletal health', url: 'https://pubmed.ncbi.nlm.nih.gov/32972636/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-vitamin-d', 'magnesium-synergies-antagonists'],
+    relatedIds: ['nutrient-vitamin-d', 'magnesium-synergies-antagonists', 'calcium-absorption-mechanism'],
   },
   {
     id: 'interaction-selenium-iodine',
@@ -119,7 +119,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Iron-zinc and calcium-Fe interactions in relation to Zn and Fe absorption', url: 'https://pubmed.ncbi.nlm.nih.gov/8524893/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['iron-absorption-mechanism'],
+    relatedIds: ['iron-absorption-mechanism', 'zinc-absorption-mechanism'],
   },
   {
     id: 'interaction-vitamina-zinc',
@@ -132,6 +132,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       { source: 'Interactions between zinc and vitamin A: an update (American Journal of Clinical Nutrition)', url: 'https://pubmed.ncbi.nlm.nih.gov/6786155/' },
     ],
     overallTier: 'weak',
+    relatedIds: ['zinc-overview', 'vitamina-tying-together'],
   },
   {
     id: 'interaction-tannins-iron',
@@ -170,7 +171,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['fermented-sauerkraut-succession'],
+    relatedIds: ['fermented-sauerkraut-succession', 'zinc-absorption-mechanism', 'iron-absorption-mechanism'],
     chart: {
       title: 'Prep-Method Reduction in Mineral Blockers',
       unit: '%',

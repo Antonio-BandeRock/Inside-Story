@@ -159,6 +159,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: 'Ness-Abramof R, et al. 2006: Prevalence and evaluation of B12 deficiency in patients with autoimmune thyroid disease (American Journal of the Medical Sciences)', url: 'https://pubmed.ncbi.nlm.nih.gov/16969140/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['b12-deficiency-prevalence-causes', 'b12-absorption-mechanism', 'b12-tying-together'],
   },
   {
     id: 'advocacy-magnesium',
@@ -185,7 +186,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: 'Magham K, Han J, Eilbert W, Bunney EB 2023: Severe copper deficiency anemia caused by zinc supplement use', url: 'https://pubmed.ncbi.nlm.nih.gov/37640593/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['interaction-zinc-copper'],
+    relatedIds: ['interaction-zinc-copper', 'zinc-toxicity-acute-chronic'],
   },
   {
     id: 'advocacy-selenium-testing',

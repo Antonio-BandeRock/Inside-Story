@@ -147,6 +147,7 @@ export const PCOS_ENTRIES: DigestEntry[] = [
       { source: "Spironolactone's Role In Treating PCOS", url: 'https://healthmatch.io/pcos/spironolactone-for-pcos' },
     ],
     overallTier: 'strong',
+    relatedIds: ['potassium-toxicity-hyperkalemia'],
   },
   {
     id: 'pcos-tying-together',

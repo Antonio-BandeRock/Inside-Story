@@ -28,7 +28,7 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
       { source: "Graves' Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)", url: 'https://www.niddk.nih.gov/health-information/endocrine-diseases/graves-disease' },
     ],
     overallTier: 'strong',
-    relatedIds: ['graves-smoking'],
+    relatedIds: ['graves-smoking', 'calcium-toxicity-hypercalcemia', 'calcium-deficiency-hypocalcemia'],
   },
   {
     id: 'graves-iodine',
@@ -42,7 +42,7 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
       { source: "Effect of iodine nutritional status on the recurrence of hyperthyroidism and antithyroid drug efficacy in adult patients with Graves' disease: a systemic review", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10600371/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['graves-radioactive-iodine-timing'],
+    relatedIds: ['graves-radioactive-iodine-timing', 'iodine-toxicity-acute-chronic', 'iodine-tying-together'],
   },
   {
     id: 'graves-selenium-orbitopathy',

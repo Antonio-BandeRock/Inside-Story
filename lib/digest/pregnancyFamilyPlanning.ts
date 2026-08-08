@@ -73,7 +73,7 @@ export const PREGNANCY_FAMILY_PLANNING_ENTRIES: DigestEntry[] = [
       { source: 'Taylor PN, Prentice M, Bath S, et al. 2026: What Endocrinologists Should Know About Iodine: Population Deficiency, Individual Excess and Misinformation in the United Kingdom', url: 'https://pubmed.ncbi.nlm.nih.gov/42144726/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['nutrient-iodine', 'problem-excess-iodine-kelp'],
+    relatedIds: ['nutrient-iodine', 'problem-excess-iodine-kelp', 'iodine-deficiency-global-real-data'],
   },
   {
     id: 'pregnancy-tying-together',
@@ -84,6 +84,6 @@ export const PREGNANCY_FAMILY_PLANNING_ENTRIES: DigestEntry[] = [
       "Every entry in this small category lands on a version of the same point. Pregnancy doesn't put Hashimoto's management on hold. It temporarily changes several of its rules at once, and the biggest risk is treating it like nothing has changed. The TSH target drops (below 2.5 mIU/L rather than the standard non-pregnant range). A common condition, postpartum thyroiditis, can newly appear in the year after childbirth even in someone with no prior thyroid history. Iodine needs rise in a way that raises the stakes of both too little and too much. Breastfeeding is a non-issue for levothyroxine specifically, not a reason to hesitate on treatment. The thread connecting all four: this is a time-limited window where the standard \"check every 6-12 months\" cadence this app's own Self Advocacy category recommends the rest of the time is deliberately too infrequent. Planning ahead, testing proactively, and treating any new postpartum symptom as worth a TSH check are what actually make this window go well.",
     citations: [],
     overallTier: 'moderate',
-    relatedIds: ['pregnancy-tsh-target', 'advocacy-tying-together'],
+    relatedIds: ['pregnancy-tsh-target', 'advocacy-tying-together', 'folate-neural-tube-defects', 'vitamina-toxicity-teratogenicity'],
   },
 ];

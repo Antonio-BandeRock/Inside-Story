@@ -49,7 +49,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Re-Thinking Hyperkalaemia Management in Chronic Kidney Disease -- Beyond Food Tables and Nutrition Myths: An Evidence-Based Practice Review', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10780359/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['ckd-ace-arb-potassium-monitoring'],
+    relatedIds: ['ckd-ace-arb-potassium-monitoring', 'potassium-deficiency-hypokalemia', 'potassium-toxicity-hyperkalemia'],
   },
   {
     id: 'ckd-phosphate-additives',
@@ -138,7 +138,7 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'ACE inhibitors and ARBs: Managing potassium and renal function, Cleveland Clinic Journal of Medicine', url: 'https://www.ccjm.org/content/86/9/601' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ckd-potassium-restriction-reconsidered'],
+    relatedIds: ['ckd-potassium-restriction-reconsidered', 'potassium-toxicity-hyperkalemia'],
   },
   {
     id: 'ckd-tying-together',

@@ -97,7 +97,7 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
       { source: 'Whittle SL, Hughes RA, Food-drug interactions in rheumatoid arthritis, Rheumatology (Oxford), 2004', url: 'https://pubmed.ncbi.nlm.nih.gov/15292527/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ra-biologics-infection-risk'],
+    relatedIds: ['ra-biologics-infection-risk', 'folate-deficiency-prevalence-causes', 'folate-tying-together'],
   },
   {
     id: 'ra-biologics-infection-risk',

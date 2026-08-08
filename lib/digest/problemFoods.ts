@@ -331,7 +331,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         url: 'https://pubmed.ncbi.nlm.nih.gov/581113/',
       },
     ],
-    relatedIds: ['nutrient-iodine'],
+    relatedIds: ['nutrient-iodine', 'iodine-toxicity-acute-chronic'],
   },
   {
     id: 'problem-charred-grilled-meat',

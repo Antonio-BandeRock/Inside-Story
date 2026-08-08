@@ -66,7 +66,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['additive-nitrates-nitrites', 'problem-excess-iodine-kelp'],
+    relatedIds: ['additive-nitrates-nitrites', 'problem-excess-iodine-kelp', 'iodine-thyroid-synthesis-mechanism', 'iodine-tying-together'],
   },
   {
     id: 'nutrient-vitamin-d',
@@ -100,7 +100,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-zinc-carnosine'],
+    relatedIds: ['gut-zinc-carnosine', 'zinc-deficiency-symptoms-staged', 'zinc-tying-together', 'iron-deficiency-symptoms-staged', 'b12-deficiency-symptoms-staged', 'b12-tying-together'],
   },
   {
     id: 'nutrient-folate-antioxidants',
@@ -117,6 +117,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'weak',
+    relatedIds: ['folate-tying-together', 'folate-b12-masking-danger'],
   },
   {
     id: 'nutrient-nigella-sativa',
@@ -164,7 +165,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-iodine', 'problem-excess-iodine-kelp'],
+    relatedIds: ['nutrient-iodine', 'problem-excess-iodine-kelp', 'iodine-toxicity-acute-chronic'],
   },
   {
     id: 'nutrient-tying-together',

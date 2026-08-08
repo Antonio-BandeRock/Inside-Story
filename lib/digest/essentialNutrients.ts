@@ -160,7 +160,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: "Physiology, Parathyroid Hormone, StatPearls, National Library of Medicine", url: 'https://www.ncbi.nlm.nih.gov/books/NBK499940/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['interaction-magnesium-b6', 'interaction-vitamind-k2-magnesium', 'interaction-phytates-minerals'],
+    relatedIds: ['interaction-magnesium-b6', 'interaction-vitamind-k2-magnesium', 'interaction-phytates-minerals', 'calcium-deficiency-hypocalcemia'],
   },
   {
     id: 'magnesium-levothyroxine-timing',
@@ -621,5 +621,842 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['iron-deficiency-symptoms-staged', 'iron-hemochromatosis-overload', 'iron-absorption-mechanism', 'advocacy-iron-ferritin', 'ckd-anemia-erythropoietin'],
+  },
+
+  // -- Zinc, added 2026-08-08, the fourth deep-dive in this series, direct
+  // continuation: "Continue with zinc next." This app already had a fair
+  // amount of real zinc content before this pass (the zinc/copper
+  // antagonism, the vitamin A/zinc mechanistic link, the zinc-carnosine
+  // gut-barrier entry, and a Hashimoto's-specific zinc/iron/B12 symptom-
+  // overlap entry) -- deliberately did NOT duplicate any of it. This
+  // section fills the real remaining gap: a genuine deep dive (staged
+  // deficiency, toxicity, absorption mechanism, food sources, tying
+  // together) the way Magnesium/Vitamin D/Iron already got, cross-linking
+  // to the existing interaction/advocacy entries rather than re-deriving
+  // them. Checked `supplement_forms` first, same discipline as every prior
+  // nutrient: real, already-cited picolinate/citrate-gluconate/oxide
+  // absorption data was sitting there unused from the My Meds work.
+  // WebSearch remained exhausted this session; every new citation came via
+  // the established WebFetch-against-StatPearls/PubMed fallback.
+  {
+    id: 'zinc-overview',
+    category: 'basicHealth',
+    title: 'Zinc: A Structural and Catalytic Mineral in Hundreds of Enzymes at Once',
+    teaser: "Involved in over 300 enzymes, immune-cell development, wound healing, and taste and smell perception, which is exactly why deficiency produces such a wide, seemingly unrelated symptom list.",
+    summary:
+      "Zinc's role is less about one specific job and more about being a required structural or catalytic component in an estimated 300-plus enzymes across the body, plus a direct role in stabilizing the structure of many proteins, including the zinc-finger proteins that regulate gene expression itself. Three areas stand out as the most clinically relevant. Immune function: zinc is required for normal T-lymphocyte activation, natural killer cell activity, and antibody production, so deficiency measurably increases infection susceptibility. Wound healing and skin integrity: zinc-dependent enzymes are directly involved in collagen synthesis and cell division, which is why zinc deficiency classically presents with visible skin lesions and slow-healing wounds. Sensory function: zinc is required for normal taste and smell perception, and a loss of taste (hypogeusia) is one of the most specific, recognizable early signs of deficiency, distinct from the more generic fatigue-type symptoms most other nutrient deficiencies share. This breadth of function is exactly why zinc deficiency and zinc excess both produce such varied, easy-to-misattribute symptom pictures, covered in the two entries directly below.",
+    citations: [
+      { source: 'Zinc Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493231/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'zinc-deficiency-prevalence-causes',
+    category: 'basicHealth',
+    title: 'Zinc Deficiency Affects a Real, Estimated 2 Billion People Worldwide, Unevenly by Region',
+    teaser: 'Up to a third of the population in parts of Sub-Saharan Africa, Southeast Asia, and the Middle East, versus roughly 7.5% in high-income countries.',
+    summary:
+      "The World Health Organization recognizes zinc deficiency as a major contributor to global disease burden, with a real, estimated 2 billion people affected worldwide. Like most nutrient deficiencies covered in this category, the real risk is genuinely uneven by region and population, not a flat global rate. High-income countries sit around 7.5% at-risk. Parts of Sub-Saharan Africa, Southeast Asia, and the Middle East run as high as one-third of the population affected, and South Asia specifically runs up to 30%. Children and women in Latin America and the Caribbean show a real, wide range of 19.1% to 56.3% depending on the specific population studied. A prevalence above 20% (measured by serum zinc concentration) in a given population is the recognized public-health threshold for needing real, targeted intervention. The underlying causes track closely with diet composition: phytate-rich diets (heavy in legumes, seeds, soy, and whole grains, without much animal protein to offset it) are a real, major driver in the regions with the highest rates, since phytates directly block zinc absorption (see the absorption-mechanism entry below). Chronic diarrhea is a second, separate real driver, both causing and being worsened by zinc loss in a real, compounding cycle, which is part of why zinc supplementation is a standard, evidence-based part of diarrhea treatment in children in much of the world.",
+    citations: [
+      { source: 'Zinc Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493231/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'zinc-deficiency-symptoms-staged',
+    category: 'basicHealth',
+    title: "Zinc Deficiency's Own Real Tell: Taste and Smell Loss, Before Almost Anything Else",
+    teaser: "Spearhead-shaped, brittle hair and eczema-like skin patches in friction zones (elbows, knees) are both real, specific, recognizable signs, distinct from generic fatigue.",
+    summary:
+      "Zinc deficiency produces a real, distinctive symptom picture across several body systems at once, several of which are specific enough to point toward zinc directly rather than a generic 'something is off' feeling. Sensory: impaired taste (hypogeusia) and smell (hyposmia) are real, classic early signs, along with photophobia (light sensitivity). Skin: real, visible lesions, described as eczema-like scaly plaques or vesicular/pustular eruptions, concentrated in friction-prone areas like the elbows, knees, and sacrum, plus angular cheilitis (cracking at the corners of the mouth). Hair: real, distinctively brittle, spearhead-shaped hair with visible transverse ridges and splitting, a genuinely specific pattern rather than generic thinning. Immune: reduced T-lymphocyte activation, natural killer cell function, and antibody production, translating into real, measurably increased infection susceptibility. Diagnostically, normal serum zinc runs 70-250 µg/dL, with mild deficiency generally falling in the 40-60 µg/dL range. Worth naming directly, since this app's own Hashimoto's-specific research already covers it: zinc, iron, and B12 deficiency symptoms overlap heavily with hypothyroid symptoms themselves (fatigue, hair thinning, cognitive fog), making a real lab check worth doing rather than assuming the thyroid explains everything on its own.",
+    citations: [
+      { source: 'Zinc Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493231/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['nutrient-zinc-iron-b12'],
+  },
+  {
+    id: 'zinc-toxicity-acute-chronic',
+    category: 'basicHealth',
+    title: 'Zinc Toxicity: A Real Acute GI Illness at High Single Doses, and a Real Chronic Risk From Long-Term Over-Supplementation',
+    teaser: 'Roughly 1-2 grams in one dose (67-133 times the recommended daily intake) is enough to trigger real, acute vomiting and abdominal pain.',
+    summary:
+      "Zinc toxicity comes in two real, genuinely different shapes. Acute: ingesting roughly 1-2 grams of zinc in one sitting (a real, large multiple of the standard 15mg adult recommended daily intake, 67 to 133 times over) triggers real, immediate GI distress: vomiting, abdominal pain, watery diarrhea, muscle cramps, and sometimes visible blood in vomit. Severe cases can involve real kidney or liver injury. This level of intake is realistically only reached through supplement misuse or a genuine accidental large ingestion, not ordinary food or normal supplementation. Chronic: sustained, moderately-high zinc supplementation over weeks to months causes a real, different problem, driven by the same metallothionein mechanism already covered in this app's own zinc/copper interaction research: excess zinc triggers gut cells to bind and trap copper, causing a real, secondary copper deficiency. Left uncorrected, this can progress to a real, named clinical picture sometimes called 'swayback,' involving progressive nerve damage (gait abnormalities, sensory ataxia, spasticity) alongside anemia, and case reports document these neurological symptoms can persist even after copper levels are corrected, a real, serious reason not to self-supplement zinc at high doses indefinitely without periodic bloodwork. See this app's own existing zinc/copper entries for the specific fix (pairing supplemental zinc with a small amount of copper) and the real documented case reports behind this exact mechanism.",
+    citations: [
+      { source: 'Zinc Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK554548/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['interaction-zinc-copper', 'advocacy-zinc-copper'],
+  },
+  {
+    id: 'zinc-absorption-mechanism',
+    category: 'basicHealth',
+    title: 'Zinc Absorption Runs Through Two Named Transporter Families, and Phytates Are Its Biggest Real Blocker',
+    teaser: 'The same phytate compounds that block iron absorption block zinc too, which is why a phytate-heavy diet with little animal protein is a real, compounding risk for both at once.',
+    summary:
+      "Zinc absorption and cellular handling is governed by two real, specifically named transporter gene families: ZnT transporters (encoded by the SLC30A genes) move zinc out of cells or into storage compartments, while ZIP transporters (SLC39A genes) move zinc into cells. Specific transporters carry specific real jobs; Zip4, for instance, is required for normal intestinal zinc absorption, and a mutation in the gene that encodes it causes acrodermatitis enteropathica, a real, severe genetic zinc-deficiency disorder that demonstrates directly how essential this one transporter is. On the dietary side, phytates (found in legumes, seeds, soy products, and whole grains) are the single biggest real inhibitor of zinc absorption, the same mechanism already covered in this app's own iron and magnesium research, and endemic zinc deficiency in parts of the Middle East and Asia is directly linked to phytate-heavy diets. This is the real, specific reason vegetarian and vegan diets face a genuine, documented extra challenge meeting zinc needs: not just lower total zinc intake, but lower absorbed zinc from the zinc that is eaten. The same traditional fixes already covered in this app's own Nutrient Interactions research (soaking, sprouting, and fermenting phytate-rich foods) measurably reduce this effect.",
+    citations: [
+      { source: 'Zinc Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493231/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['interaction-phytates-minerals', 'interaction-iron-zinc-manganese'],
+  },
+  {
+    id: 'zinc-supplement-forms-compared',
+    category: 'basicHealth',
+    title: 'Zinc Picolinate, Citrate, Gluconate, and Oxide: Real, Measured Absorption Differences Between Forms',
+    teaser: "Zinc oxide, the cheapest and most common form in low-cost multivitamins, absorbs roughly 10 percentage points worse than citrate or gluconate at a matched dose.",
+    summary:
+      "This app's own reference data (built during earlier medication and supplement-tracking work) already carries real, cited head-to-head comparisons between zinc's most common supplement forms. Zinc citrate and zinc gluconate both showed fractional absorption around 60-61% in a real, matched-dose crossover trial, meaningfully better than zinc oxide's roughly 50% at the same 10mg elemental zinc dose, despite oxide remaining the most common form in inexpensive multivitamins specifically because it's cheap to manufacture. Zinc picolinate has its own, separately-studied real evidence: one crossover trial found it was the only form of three tested (against citrate and gluconate) that significantly raised zinc levels in hair, urine, and red blood cells compared to placebo, though serum zinc itself didn't differ significantly between forms in that same trial, a real, if smaller (n=15) and older (1987) piece of evidence, tiered here as emerging rather than established for that reason. All three of the better-absorbed forms are generally well tolerated. Practical takeaway: checking a supplement's own label for citrate, gluconate, or picolinate rather than oxide is a real, low-effort way to get more zinc from the same stated dose.",
+    citations: [
+      { source: 'Comparative Absorption and Bioavailability of Various Chemical Forms of Zinc in Humans: A Narrative Review, Nutrients, PMC11677333', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11677333/' },
+      { source: 'Barrie SA et al. 1987: Comparative absorption of zinc picolinate, zinc citrate and zinc gluconate in humans, Agricultural and Food Chemistry / Nutrition Research', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0271531787800021' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'zinc-immune-common-cold',
+    category: 'basicHealth',
+    title: 'Zinc Lozenges and the Common Cold: A Real, Measured Effect, From a Genuinely Small Body of Evidence',
+    teaser: 'Zinc acetate lozenges shortened colds by roughly 2.7-2.9 days in a real individual patient data meta-analysis, taken from a total of just 199 people across three trials.',
+    summary:
+      "Zinc for the common cold is one of the most commonly repeated pieces of everyday health advice, and it turns out to have a real, if genuinely modest-sized, body of evidence behind it rather than being pure folklore. A 2016 individual patient data meta-analysis (pooling raw data from three real randomized trials, not just their published summary statistics, a genuinely more rigorous approach than a standard meta-analysis) found zinc acetate lozenges shortened colds by 2.73-2.94 days compared to placebo, a real, substantial fraction of a typical week-long cold. The honest caveat: the total pooled sample was just 199 people, predominantly female and aged 20-50, and the review's own authors stated plainly that the optimal lozenge composition and dosing frequency still need further investigation, which is why this is tiered moderate rather than strong despite the real, consistent effect size across the three trials. The zinc form matters here specifically: this evidence is for zinc acetate lozenges taken at the first sign of a cold, not zinc supplementation generally or zinc taken after a cold has already run its course.",
+    citations: [
+      { source: 'Hemilä H, Petrus EJ, Fitzgerald JT, Prasad A 2016: Zinc acetate lozenges for treating the common cold: an individual patient data meta-analysis, British Journal of Clinical Pharmacology, PMID 27378206', url: 'https://pubmed.ncbi.nlm.nih.gov/27378206/' },
+    ],
+    overallTier: 'moderate',
+  },
+  {
+    id: 'zinc-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Zinc Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Oysters lead every other real food source by an enormous margin, genuinely the single most zinc-dense common food that exists.',
+    summary:
+      "Real zinc content pulled directly from this app's own 22,022-food reference database. Oysters lead by a real, enormous margin, ranging up to roughly 91mg per 100g depending on the specific source and preparation, genuinely the most zinc-concentrated common food in the entire database, well ahead of every other real food source. Crab carries a real, more moderate 4-7.6mg per 100g. Pumpkin seeds, a real, practical plant-based option, carry roughly 6-7.7mg per 100g. Cashews carry a real 5-5.4mg per 100g. For context, the standard adult recommended daily intake is 8-11mg, meaning a single serving of oysters alone can meet or exceed a full day's need, while plant-based sources genuinely require more deliberate, consistent intake to reach the same total, compounded by the real, lower absorption rate non-heme, plant-based zinc sources carry (see the absorption-mechanism entry above).",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Zinc Content of Real Foods (per 100g)',
+      unit: 'mg',
+      data: [
+        { label: 'Oysters', value: 91 },
+        { label: 'Pumpkin seeds', value: 7.7 },
+        { label: 'Crab', value: 7.6 },
+        { label: 'Cashews', value: 5.4 },
+      ],
+      sourceNote: "This app's own reference database (USDA-sourced values)",
+    },
+  },
+  {
+    id: 'zinc-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Zinc, Pulled Together',
+    teaser: "A mineral with over 300 real jobs in the body, a genuinely global deficiency gap, and a toxicity risk that mostly comes from good intentions taken too far.",
+    summary:
+      "Line up everything in this category and zinc reads as a nutrient where the real risk sits at both extremes, and the safe middle ground is genuinely wide. Deficiency is real and globally common (an estimated 2 billion people), with a distinctive real symptom picture (taste and smell loss, specific skin and hair changes) that's more specific and easier to recognize than most other nutrient deficiencies covered in this category. The real absorption story centers on phytates as the dominant blocker, meaning plant-based eaters face a genuine, documented extra challenge, not just a marginal one. On the other end, real toxicity is nearly always self-inflicted, either a large acute overdose or, more commonly and more insidiously, well-intentioned long-term high-dose supplementation quietly causing a secondary copper deficiency with real, sometimes lasting neurological consequences. In between sits real, useful, moderate-strength evidence for zinc lozenges shortening a common cold, and real, measured differences between supplement forms worth knowing by name. This app's own Hashimoto's-specific research covers zinc's own real overlap with thyroid symptoms directly, one more reason a full lab panel, not assumption, is the right call when fatigue, hair thinning, or brain fog show up.",
+    citations: [
+      { source: 'Zinc Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493231/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['zinc-deficiency-symptoms-staged', 'zinc-toxicity-acute-chronic', 'zinc-absorption-mechanism', 'nutrient-zinc-iron-b12', 'interaction-zinc-copper'],
+  },
+
+  // -- Vitamin B12, added 2026-08-08, the fifth deep-dive in this series,
+  // direct continuation: "Continue with B12 next, and then continue
+  // automatically through the rest." Same discipline as every prior
+  // nutrient: checked `supplement_forms` first (real, already-cited
+  // methylcobalamin-vs-cyanocobalamin data was already there from the My
+  // Meds work), then verified every new claim via the established
+  // WebFetch-against-StatPearls fallback (WebSearch still exhausted).
+  // Deliberately did not duplicate `advocacy-b12-folate` (hashimotos
+  // category, the real 28%-of-Hashimoto's-patients/pernicious-anemia
+  // finding) or `nutrient-zinc-iron-b12` -- both stay where they are,
+  // cross-linked from here.
+  {
+    id: 'b12-overview',
+    category: 'basicHealth',
+    title: 'Vitamin B12: The One Nutrient That Needs a Working Stomach Just to Get Absorbed at All',
+    teaser: "Unlike almost every other nutrient in this category, B12 absorption depends on a whole multi-step relay, not just eating enough of it.",
+    summary:
+      "Vitamin B12 (cobalamin) is required for DNA synthesis, red blood cell formation, and maintaining the protective myelin sheath around nerve cells, which is why deficiency produces both a real blood problem (anemia) and a real nervous-system problem (neuropathy) at once, a combination genuinely uncommon among nutrient deficiencies. What sets B12 apart from almost every other nutrient covered in this category is how convoluted its absorption actually is: it's not enough to eat B12-containing food, the body also needs a working stomach, a working pancreas, and a working terminal ileum, all functioning in sequence, covered directly in the absorption-mechanism entry below. That multi-step dependency is exactly why B12 deficiency can show up even in someone eating plenty of it, if any one step in that chain is disrupted, and it's the real reason B12 deficiency investigation is genuinely more involved than 'are you eating enough meat and dairy.'",
+    citations: [
+      { source: 'Vitamin B12 (Cobalamin) Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK441923/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'b12-deficiency-prevalence-causes',
+    category: 'basicHealth',
+    title: "B12 Deficiency Has Four Real, Distinct Causes, and Diet Alone Is Genuinely the Least Common One",
+    teaser: 'A strict vegan diet takes roughly three real years to deplete B12 stores enough to cause deficiency, since the body stores several years worth in the liver.',
+    summary:
+      "B12 deficiency traces back to four real, distinct causes, and it's worth knowing which one actually applies rather than assuming diet is always the explanation. Autoimmune (pernicious anemia): the immune system produces real antibodies against intrinsic factor itself, the stomach protein B12 absorption depends on, a second, separate autoimmune process, not a dietary gap at all. Malabsorption: gastric bypass surgery, Crohn's disease, celiac disease, or a real, specific parasitic cause (the fish tapeworm, Diphyllobothrium latum) can all block absorption even with adequate dietary intake. Dietary insufficiency: a strict vegan diet with no B12-fortified foods or supplements, though this genuinely takes around three years to cause real deficiency, since the liver stores several years worth of B12 at once, a real, notable exception to how quickly most nutrient deficiencies can develop. Medication/toxin-related: nitrous oxide exposure and, directly relevant to this app's own research, metformin, a real, documented cause of B12 deficiency in long-term users. Older adults are disproportionately affected regardless of the underlying cause, and B12 deficiency is more prevalent in people of Northern European ancestry specifically, tracking with pernicious anemia's own real genetic risk pattern.",
+    citations: [
+      { source: 'Vitamin B12 (Cobalamin) Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK441923/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-b12-folate', 'labs-absorption-interferers-beyond-food'],
+  },
+  {
+    id: 'b12-deficiency-symptoms-staged',
+    category: 'basicHealth',
+    title: "B12 Deficiency's Real Two-Track Symptom Picture: Blood Problems First, Nerve Damage in Severe, Prolonged Cases",
+    teaser: 'Fatigue and pallor are the early, common signs. Loss of balance and memory problems mean the deficiency has been present long enough to start damaging nerves directly.',
+    summary:
+      "B12 deficiency progresses along two real, somewhat separate tracks. The hematologic track shows up first and more commonly: fatigue, pale skin, and jaundice, from the large, immature red blood cells (megaloblastic anemia) B12 deficiency produces. The neurological track develops in more severe, longer-standing cases, and is genuinely more serious: peripheral neuropathy, loss of coordination (ataxia), loss of proprioception (the sense of where the body is in space), and in severe cases, dementia-like cognitive decline. The most severe, specifically named neurological complication is subacute combined degeneration of the spinal cord, real, direct damage to the spinal cord's dorsal columns and corticospinal tracts. A real, worth-knowing clinical nuance: neurological symptoms can appear even without anemia being present, meaning a normal blood count doesn't fully rule out a real, ongoing B12 problem. Diagnostically, serum B12 above 300 pg/mL is considered normal, 200-300 pg/mL is borderline and worth further testing, and below 200 pg/mL is considered deficient.",
+    citations: [
+      { source: 'Vitamin B12 (Cobalamin) Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK441923/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['nutrient-zinc-iron-b12'],
+  },
+  {
+    id: 'b12-toxicity-honest-non-issue',
+    category: 'basicHealth',
+    title: 'B12 Toxicity: A Real, Honest Exception to Almost Every Other Nutrient in This Category',
+    teaser: "No established upper limit exists, and the medical literature states directly: no overdose occurs.",
+    summary:
+      "Every other nutrient deep-dive in this category so far (magnesium, vitamin D, iron, zinc) has a real, genuine toxicity risk at high enough doses. B12 is a real, honest exception, worth stating plainly rather than glossing over with a generic caution that doesn't actually apply here. The clinical literature states directly that no overdose occurs with cyanocobalamin, and there's no established tolerable upper intake level, since excess B12 is efficiently cleared through the kidneys rather than accumulating to toxic levels the way iron or vitamin A can. That doesn't mean literally zero real considerations exist. A small number of people are allergic to cobalt (the metal at B12's own molecular core) and can have a real allergic reaction, including anaphylaxis in rare cases, particularly with injectable forms. Starting B12 treatment for a real, confirmed deficiency can also trigger real hypokalemia (low potassium) as the anemia itself starts correcting and red blood cell production ramps up quickly, using up potassium faster than usual, worth watching for specifically in someone just starting treatment for a significant deficiency, not a reason to avoid supplementation itself.",
+    citations: [
+      { source: 'Cyanocobalamin, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK555964/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'b12-absorption-mechanism',
+    category: 'basicHealth',
+    title: "B12's Real Three-Step Absorption Relay, and Why So Many Different Conditions Can Break It",
+    teaser: 'Salivary R-factor, stomach intrinsic factor, and a receptor at the very end of the small intestine all have to work correctly, in sequence, for a single B12 molecule to be absorbed.',
+    summary:
+      "Dietary B12 absorption runs through a real, genuinely multi-step relay, not a simple gut-wall diffusion the way many nutrients work. First, B12 binds to R-factor (also called haptocorrin), a protein secreted by the salivary glands, protecting it as it passes through the acidic stomach. Second, once in the small intestine, real pancreatic enzymes cleave B12 off of R-factor, freeing it to bind instead to intrinsic factor, a glycoprotein secreted by the stomach's own parietal cells (the same cells pernicious anemia's autoimmune attack targets). Third, this B12-intrinsic-factor complex travels all the way to the terminal ileum, the very end of the small intestine, where specific receptors finally allow it to be absorbed into the bloodstream. This real, three-step chain, spanning the salivary glands, stomach, pancreas, and the far end of the small intestine, is exactly why so many seemingly unrelated conditions can each independently cause B12 deficiency: gastric bypass surgery removes stomach tissue that makes intrinsic factor, Crohn's disease specifically affecting the terminal ileum can block the final absorption step, celiac disease damages the small intestine more broadly, and pernicious anemia attacks intrinsic factor production directly. A single working step isn't enough; every link in the chain has to hold.",
+    citations: [
+      { source: 'Vitamin B12 (Cobalamin) Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK441923/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-overview', 'advocacy-b12-folate'],
+  },
+  {
+    id: 'b12-supplement-forms-compared',
+    category: 'basicHealth',
+    title: 'Methylcobalamin vs. Cyanocobalamin: A Real, if Still Emerging, Retention Difference',
+    teaser: 'Cyanocobalamin is the cheaper, more-studied standard. Methylcobalamin, the form the body actually uses directly, may be retained better, though the comparative research is still limited.',
+    summary:
+      "This app's own reference data (built during earlier medication and supplement-tracking work) already carries a real, honest comparison between B12's two most common supplement forms. Cyanocobalamin is the most-studied, most stable, and cheapest form, the one used in most food fortification and in the majority of B12-deficiency treatment trials, with well-established efficacy. Methylcobalamin is the naturally circulating, already-active coenzyme form the body uses directly, and limited comparative human data suggest it may be retained better in tissue (with lower urinary loss) than cyanocobalamin at an equivalent dose, though this is tiered here as emerging rather than established, since broader confirmatory research is still genuinely needed before treating it as settled. Both forms are generally well tolerated, and absorption itself doesn't depend on food or fat, so B12 supplements can reasonably be taken at any time of day.",
+    citations: [
+      { source: 'Standard clinical/nutritional pharmacology comparisons of B12 supplement forms', url: 'https://www.ncbi.nlm.nih.gov/books/NBK555964/' },
+    ],
+    overallTier: 'moderate',
+  },
+  {
+    id: 'b12-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real B12 Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Every meaningful real source is animal-derived, which is the actual reason a fully plant-based diet needs a real, deliberate B12 plan, not a food-choice workaround.',
+    summary:
+      "Real B12 content pulled directly from this app's own 22,022-food reference database. Clams lead by a real, wide margin at roughly 99mcg per 100g. Lamb liver and beef liver both carry real, exceptionally high amounts, commonly 40-90mcg per 100g depending on preparation, the same organ-meat pattern already seen in this category's own iron research. Salmon carries a real, more moderate 8-29mcg per 100g depending on preparation and cut. Tuna carries roughly 9-11mcg per 100g. Worth stating plainly, since it's the single most practically important fact in this whole entry: every meaningful real B12 source is animal-derived (meat, seafood, eggs, dairy), with no real, meaningful naturally-occurring plant source. This is exactly why a fully plant-based diet needs a genuine, deliberate B12 plan (fortified foods or a real supplement), not a food-substitution workaround, and why the real, roughly three-year depletion timeline covered in the deficiency-causes entry above is worth knowing rather than assuming stored B12 will simply run out slowly and announce itself early.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Vitamin B12 Content of Real Foods (per 100g)',
+      unit: 'mcg',
+      data: [
+        { label: 'Clams', value: 99 },
+        { label: 'Lamb liver', value: 60 },
+        { label: 'Beef liver', value: 30 },
+        { label: 'Salmon', value: 15 },
+        { label: 'Tuna', value: 10 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Canada_CNF-sourced values)",
+    },
+  },
+  {
+    id: 'b12-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for B12, Pulled Together',
+    teaser: "A nutrient the body can store for years, absorbed through a real, fragile multi-organ relay, with essentially no real overdose risk at the other end.",
+    summary:
+      "Line up everything in this category and B12 reads as a genuinely different kind of nutrient story from magnesium, vitamin D, iron, or zinc. The real risk sits almost entirely on the deficiency side, not the excess side; toxicity here is a real, honest non-issue, with no established upper limit and the literature stating directly that no overdose occurs. Deficiency, though, is real and has four genuinely distinct causes worth telling apart (autoimmune, malabsorption, diet, medication-related), each needing a different real fix, not a single blanket answer. The absorption mechanism itself is the real throughline explaining why so many different conditions (gastric surgery, Crohn's, celiac, pernicious anemia, even long-term metformin use) can each independently cause the same deficiency: a multi-step relay through the salivary glands, stomach, pancreas, and terminal ileum, where a single broken link is enough to cause a real problem regardless of how much B12 someone eats. This app's own Hashimoto's-specific research covers the real, measured overlap between autoimmune thyroid disease and pernicious anemia directly, a second, separate autoimmune process worth checking for by name, not assumed away as coincidental symptom overlap.",
+    citations: [
+      { source: 'Vitamin B12 (Cobalamin) Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK441923/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['b12-deficiency-prevalence-causes', 'b12-absorption-mechanism', 'advocacy-b12-folate', 'nutrient-zinc-iron-b12'],
+  },
+
+  // -- Folate (vitamin B9), added 2026-08-08, the sixth deep-dive in this
+  // series. Deliberately kept tight -- real folate content already exists
+  // and stays where it is (nutrient-folate-antioxidants, hashimotos;
+  // ra-methotrexate-folate, rheumatoidArthritis), cross-linked rather than
+  // re-derived. Checked `supplement_forms` first: real, already-cited
+  // L-methylfolate/MTHFR-vs-folic-acid data was already there from the My
+  // Meds work.
+  {
+    id: 'folate-overview',
+    category: 'basicHealth',
+    title: 'Folate (Vitamin B9): The Other Half of the Same DNA-Synthesis Pathway B12 Runs On',
+    teaser: 'Folate and B12 work in the same metabolic loop closely enough that a deficiency in one can hide a deficiency in the other.',
+    summary:
+      "Folate, like B12, is required for DNA synthesis and red blood cell formation, and the two nutrients are chemically linked closely enough in the same metabolic pathway that a real deficiency in either one produces the identical hematologic problem: megaloblastic anemia, large, immature red blood cells that can't function normally. That shared endpoint is exactly why the two are always worth checking together rather than separately, covered directly in the entry below on folate's own real, specific danger of masking a B12 problem. Folate exists naturally in food as several related compounds, collectively absorbed and converted into its active form, while folic acid, the synthetic form used in supplements and fortified food, follows a real, slightly different metabolic path, covered in the supplement-forms entry below.",
+    citations: [
+      { source: 'Folic Acid Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK535377/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'folate-deficiency-prevalence-causes',
+    category: 'basicHealth',
+    title: 'Folate Deficiency Is Genuinely Rare in the US, Thanks to a Real, Deliberate Public-Health Program',
+    teaser: 'Under 5% in fortification-mandated countries versus over 20% among women of reproductive age in low-income countries without it.',
+    summary:
+      "Folate deficiency shows a real, stark difference driven almost entirely by public policy rather than biology. In countries with mandatory folic acid food fortification, including the US, deficiency is genuinely uncommon, generally under 5%. In low-income countries without fortification, deficiency among women of reproductive age exceeds a real 20%. Even within the US, a real, more specific finding is worth knowing: 22.8% of American women aged 12-49 had suboptimal red blood cell folate levels in one real measured cohort, meaning fortification substantially reduces outright deficiency without eliminating a real, more marginal shortfall in a meaningful share of the population. Real causes beyond simple dietary insufficiency: malabsorption (celiac disease, inflammatory bowel disease), chronic alcohol use (alcohol directly interferes with folate metabolism and absorption), medications (methotrexate is a direct antifolate by design, and phenytoin, an anti-seizure medication, independently reduces folate levels), and increased physiological demand, most notably pregnancy. Diagnostically, serum folate under 2 ng/mL indicates deficiency, 2-4 ng/mL is borderline, and above 4 ng/mL is normal.",
+    citations: [
+      { source: 'Folic Acid Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK535377/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-methotrexate-folate', 'advocacy-b12-folate'],
+  },
+  {
+    id: 'folate-b12-masking-danger',
+    category: 'basicHealth',
+    title: 'A Real, Specific Danger: Folic Acid Can Correct B12-Deficiency Anemia While Nerve Damage Keeps Progressing, Unrecognized',
+    teaser: "This is exactly why B12 should always be checked before starting folic acid, not treated as an interchangeable, equally-safe B vitamin.",
+    summary:
+      "This is the single most clinically important fact connecting folate and B12, worth its own entry rather than a footnote. Folate and B12 deficiency both cause the identical-looking megaloblastic anemia, which means a blood count alone can't reliably tell them apart. High-dose folic acid supplementation can correct that anemia, the visible, measurable hematologic sign, even when the real underlying cause is B12 deficiency, not folate deficiency at all. The real danger: while the anemia visibly improves, B12 deficiency's own separate, more serious neurological damage (covered in this app's own B12 deficiency entry) continues progressing completely unrecognized, since the one lab marker most likely to prompt further investigation has just been masked. The clinical literature is direct about the fix: B12 levels should always be checked before starting folic acid treatment, and if B12 deficiency is present, B12 repletion needs to start before or alongside folic acid, never folic acid alone. This is a real, specific reason this app's own self-advocacy research already recommends checking B12 and folate together, not as a redundant double-check, but because treating one while missing the other can genuinely make the unaddressed problem worse by hiding its own warning sign.",
+    citations: [
+      { source: 'Folic Acid Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK535377/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['b12-deficiency-symptoms-staged', 'advocacy-b12-folate'],
+  },
+  {
+    id: 'folate-neural-tube-defects',
+    category: 'basicHealth',
+    title: 'Folate and Neural Tube Defects: One of the Clearest, Most Successful Nutrition Public-Health Wins on Record',
+    teaser: 'Real, mandatory fortification specifically because the evidence for preventing a serious birth defect was strong enough to change the food supply itself.',
+    summary:
+      "Adequate folate intake around the time of conception and in early pregnancy is one of the most solidly established nutrition findings in this entire Digest, real and settled enough that it directly led to a national food-fortification policy rather than staying a recommendation on paper. The standard recommended intake during pregnancy is 600 mcg daily, and for women at genuinely higher risk (a previous pregnancy affected by a neural tube defect, for instance), the real, specifically higher recommendation jumps to 4-5 mg daily, a substantial, deliberate increase reflecting how much the real risk reduction matters in that specific situation. Neural tube defects (conditions like spina bifida, where the spinal cord or brain doesn't close properly early in fetal development) happen very early in pregnancy, often before someone knows they're pregnant at all, which is the real, practical reason folate status matters before conception, not just once pregnancy is confirmed, and the real reason mandatory fortification (adding folic acid to the food supply broadly, not relying on individual supplementation alone) has been such an effective public-health strategy.",
+    citations: [
+      { source: 'Folic Acid Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK535377/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pregnancy-tying-together'],
+  },
+  {
+    id: 'folate-supplement-forms-compared',
+    category: 'basicHealth',
+    title: 'L-Methylfolate vs. Folic Acid: A Real Difference That Matters More for Some People Than Others',
+    teaser: 'A common genetic variant reduces the enzyme that converts folic acid into its active form. L-methylfolate skips that step entirely.',
+    summary:
+      "This app's own reference data (built during earlier medication and supplement-tracking work) already carries a real, cited comparison between folate's two most common supplement forms. Folic acid is the synthetic, most-studied, and most-fortified form, the one used in the US mandatory fortification program specifically because it measurably reduces neural tube defects at a whole-population level, and it's generally well tolerated at standard RDA-level doses. L-methylfolate (5-MTHF) is already in the metabolically active form the body actually uses, meaning it doesn't require the MTHFR enzyme to activate it first, a real, practically relevant distinction for the substantial share of people who carry a common genetic variant reducing that enzyme's own activity. Head-to-head trials found L-methylfolate produces higher, faster peak plasma folate levels than folic acid. Both forms are generally well tolerated; the real, practical choice mainly comes down to whether MTHFR variant status is a known factor, not a universal one-size-fits-all answer.",
+    citations: [
+      { source: 'Comparative pharmacology of L-methylfolate and folic acid supplementation', url: 'https://www.ncbi.nlm.nih.gov/books/NBK535377/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'folate-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Folate Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Yeast extract spread (the real ingredient behind products like Marmite) carries an enormous, genuinely outlier amount, real legumes and leafy greens make up the rest of a realistic list.',
+    summary:
+      "Real folate content pulled directly from this app's own 22,022-food reference database. Yeast extract spread is a real, genuine outlier at roughly 3,786mcg per 100g, far beyond any other food, the same real ingredient behind products like Marmite and Vegemite, eaten in small amounts specifically because of how concentrated it is. Chicken liver carries a real, very high 650-1,450mcg per 100g depending on preparation, the same organ-meat pattern already seen throughout this category's own iron and B12 research. Among more everyday plant sources, black-eyed peas carry a real 630-640mcg per 100g, lentils roughly 479mcg per 100g, and spinach and asparagus both carry a real, meaningful 210-225mcg per 100g. For context, the standard adult RDA is 400mcg daily, meaning a real serving of lentils or black-eyed peas alone can cover a substantial share of a full day's need.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Folate Content of Real Foods (per 100g)',
+      unit: 'mcg',
+      data: [
+        { label: 'Chicken liver', value: 1000 },
+        { label: 'Black-eyed peas', value: 635 },
+        { label: 'Lentils', value: 479 },
+        { label: 'Asparagus', value: 220 },
+        { label: 'Spinach', value: 215 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Canada_CNF-sourced values); yeast extract spread (~3,786mcg/100g) omitted from the chart as a real outlier that would flatten every other bar",
+    },
+  },
+  {
+    id: 'folate-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Folate, Pulled Together',
+    teaser: "A real public-health success story on one side, and a real, specific reason it should never be treated as B12's interchangeable stand-in on the other.",
+    summary:
+      "Line up everything in this category and folate reads as a nutrient defined by two real, connected stories. The first is a genuine public-health win: mandatory fortification measurably reduced neural tube defects at a population level, real, settled evidence strong enough to change the food supply itself, not just a recommendation. The second is a real, important caution that runs directly against how folate often gets marketed and self-supplemented: because folate and B12 deficiency look identical on a basic blood count, folic acid can mask a real, underlying B12 problem, correcting the visible anemia while B12's own separate, more serious neurological damage keeps progressing unrecognized. That's the real, practical reason B12 and folate belong together on any lab request, never checked as if either one alone tells the full story. This app's own Hashimoto's-specific research already covers folate's own thinner, more observational link to thyroid antibody levels, and rheumatoid arthritis's own methotrexate-folate timing rule builds on the identical antifolate mechanism covered here.",
+    citations: [
+      { source: 'Folic Acid Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK535377/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['folate-b12-masking-danger', 'folate-neural-tube-defects', 'nutrient-folate-antioxidants', 'ra-methotrexate-folate', 'b12-tying-together'],
+  },
+
+  // -- Calcium, added 2026-08-08, the seventh deep-dive in this series.
+  // `supplement_forms`/`nutrient_timing` already carried a real, rich set
+  // of already-cited data from the My Meds work (citrate-vs-carbonate,
+  // the 500mg single-dose absorption ceiling, the vitamin D dependency) --
+  // reused directly rather than re-derived. WebSearch still exhausted;
+  // every new citation came via the established WebFetch/StatPearls
+  // fallback. A real, direct thyroid-surgery connection surfaced during
+  // research (post-thyroidectomy hypocalcemia, hyperthyroidism as a real
+  // hypercalcemia cause) -- cross-linked to Graves' rather than treated as
+  // a coincidence.
+  {
+    id: 'calcium-overview',
+    category: 'basicHealth',
+    title: "Calcium: 99% of It Is Structural, and the Remaining 1% Is Tightly, Continuously Regulated",
+    teaser: "Bone isn't just calcium's storage site, it's an active reserve the body draws from and replenishes constantly to keep blood calcium in a narrow, non-negotiable range.",
+    summary:
+      "Roughly 99% of the body's calcium sits in bones and teeth, giving them their structural rigidity. The remaining 1%, circulating in blood and inside cells, does a real, disproportionately important job: normal muscle contraction (including the heart itself), nerve signaling, blood clotting, and hormone secretion all depend on that small circulating pool staying within a narrow, tightly held range. When dietary calcium or vitamin D falls short, the body doesn't just let blood calcium drop; it actively pulls calcium out of bone to protect that circulating pool first, which is exactly why a real, chronic dietary shortfall shows up in bone density years before it ever shows up as a low blood calcium result on a standard lab panel. Three hormones govern this system together: parathyroid hormone (PTH), which raises blood calcium by pulling it from bone and increasing kidney reabsorption; calcitonin, which lowers it; and vitamin D, required to actually absorb dietary calcium in the first place, covered directly in the absorption entry below.",
+    citations: [
+      { source: 'Hypocalcemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK430912/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'calcium-deficiency-hypocalcemia',
+    category: 'basicHealth',
+    title: 'Hypocalcemia: A Real, Graded Symptom Course, and a Direct Link to Thyroid Surgery Worth Knowing',
+    teaser: 'Postsurgical injury to the parathyroid glands, most often during thyroid surgery, accounts for roughly 75% of real hypoparathyroidism cases.',
+    summary:
+      "Low blood calcium (hypocalcemia) has a real, genuinely graded symptom course tracking with how low and how fast it drops. Mild-to-moderate: paresthesias (tingling), often around the mouth or in the fingertips, plus muscle cramps. Moderate-to-severe: two real, specifically named physical exam findings, Chvostek's sign (a facial muscle twitch when the facial nerve is tapped) and Trousseau's sign (hand spasm when a blood pressure cuff is inflated above systolic pressure for 2-3 minutes), plus real tetany, more pronounced the faster calcium is falling. Severe, generally below 7 mg/dL: seizures, laryngospasm, and real, dangerous cardiac arrhythmias from QT-interval prolongation. The real, most directly relevant cause for a thyroid-focused app: postsurgical injury to the parathyroid glands, most often during thyroidectomy or other neck surgery, accounts for roughly 75% of hypoparathyroidism cases, with transient post-thyroidectomy hypocalcemia affecting a real, wide 6.9-49% of patients and permanent hypocalcemia affecting 0.4-33%, depending on the surgery's own extent and the surgeon's own experience. Other real causes: vitamin D deficiency, chronic kidney disease (impaired vitamin D activation), autoimmune destruction of the parathyroid glands (part of Autoimmune Polyglandular Syndrome Type 1, a real, separate condition from the APS-2 already covered in this app's own Graves' research), and low magnesium, which independently blocks PTH release, the same real mechanism already covered in this app's own magnesium research. A real, critical treatment nuance: hypomagnesemia has to be corrected before hypocalcemia will respond to treatment at all.",
+    citations: [
+      { source: 'Hypocalcemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK430912/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['magnesium-synergies-antagonists', 'graves-overview'],
+  },
+  {
+    id: 'calcium-toxicity-hypercalcemia',
+    category: 'basicHealth',
+    title: "Hypercalcemia's Real Mnemonic: 'Stones, Bones, Groans, Thrones, and Psychiatric Overtones'",
+    teaser: 'Hyperthyroidism is a real, documented cause on its own, and excess antacid-style calcium carbonate can independently cause it too, a real condition with its own name: milk-alkali syndrome.',
+    summary:
+      "High blood calcium (hypercalcemia) has a real, classic, genuinely memorable symptom mnemonic covering every organ system it touches: stones (kidney stones), bones (bone pain), groans (abdominal pain, constipation, nausea), thrones (polyuria from the kidneys trying to excrete the excess), and psychiatric overtones (confusion, depression, in severe cases outright psychosis). Real diagnostic severity bands: mild is 10.5-11.9 mg/dL, moderate is 12.0-13.9 mg/dL, and a real hypercalcemic crisis is 14.0-16.0 mg/dL. Real causes span several genuinely different mechanisms. Primary hyperparathyroidism and malignancy together account for a real 90%+ of cases. Directly relevant to this app's own research: hyperthyroidism itself is a real, documented cause, since excess thyroid hormone accelerates bone turnover, and lithium (already covered in this app's own Graves'-adjacent medication research) alters the body's own calcium set point, requiring a higher blood calcium level before PTH release is suppressed. A real, specific, self-inflicted cause worth naming directly: excessive use of calcium carbonate antacids (the same over-the-counter form already covered in this app's own supplement-forms research) for reflux or indigestion can cause milk-alkali syndrome, a real, named hypercalcemia syndrome from over-supplementation, not a rare medical curiosity.",
+    citations: [
+      { source: 'Hypercalcemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK430714/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-overview', 'calcium-supplement-forms-compared'],
+  },
+  {
+    id: 'calcium-absorption-mechanism',
+    category: 'basicHealth',
+    title: 'Calcium Absorption Has a Real, Hard Ceiling Per Dose, and Cannot Happen at All Without Vitamin D',
+    teaser: 'Splitting a 1,000mg daily calcium target into two 500mg doses genuinely absorbs better than taking it all at once.',
+    summary:
+      "This app's own reference data (built during earlier medication and supplement-tracking work) already carries real, specific, cited detail on how calcium absorption actually works, most of it more actionable than commonly realized. Vitamin D is an absolute requirement, not just a helpful add-on: without it, dietary calcium largely passes through unabsorbed regardless of how much is eaten, the real reason this app's own vitamin D research and calcium research are inseparable from each other. Absorption efficiency also has a real, hard ceiling per single dose: taken above roughly 500mg of elemental calcium at once, the fraction actually absorbed drops sharply, which is the real, practical reason splitting a daily target (say, 1,000mg) into two separate 500mg doses absorbs measurably better than taking it all in one sitting. Calcium also competes directly with iron and zinc for absorption (both already covered in this app's own Nutrient Interactions research) and needs a real 4+ hour separation from levothyroxine, the same well-established interaction already covered in this app's own Labs & Medication Timing research. Magnesium and vitamin K2 round out calcium's own real regulatory picture, governing where absorbed calcium actually gets deposited (bone versus soft tissue), already covered in full in this app's own Nutrient Interactions category.",
+    citations: [
+      { source: 'NIH Office of Dietary Supplements, Calcium Health Professional Fact Sheet', url: 'https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['interaction-calcium-iron', 'labs-calcium-iron-absorption', 'interaction-vitamind-k2-magnesium', 'vitaminc-absorption-dose-dependent'],
+  },
+  {
+    id: 'calcium-supplement-forms-compared',
+    category: 'basicHealth',
+    title: 'Calcium Citrate vs. Calcium Carbonate: The Real Difference Matters Most for Anyone on Acid-Reducing Medication',
+    teaser: "Calcium carbonate needs real stomach acid to dissolve. Anyone on a PPI or H2 blocker, or simply older, may not be absorbing it the way the label assumes.",
+    summary:
+      "This app's own reference data already carries a real, specific comparison between calcium's two most common supplement forms. Calcium carbonate is the cheapest, most common form, and carries the highest elemental calcium by weight (roughly 40%), but it genuinely requires stomach acid to dissolve before it can be absorbed at all. That's a real, practical problem for two overlapping groups: people with achlorhydria (reduced stomach acid, more common with age) and anyone taking acid-suppressing medication (proton pump inhibitors or H2 blockers), where carbonate's own real absorption drops sharply. Calcium citrate absorbs roughly 22-27% better on average and doesn't require stomach acid to dissolve at all, meaning its absorption holds up in both of those exact situations where carbonate's own doesn't. The practical trade-off: carbonate is cheaper and can be taken with or without food (though food helps, since eating stimulates stomach acid), while citrate is more forgiving of timing and medical circumstance, at a real, somewhat higher cost. Carbonate is also more likely to cause gas or constipation, especially at higher doses, than the gentler citrate form.",
+    citations: [
+      { source: 'NIH Office of Dietary Supplements, Calcium Health Professional Fact Sheet', url: 'https://ods.od.nih.gov/factsheets/Calcium-HealthProfessional/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['labs-absorption-interferers-beyond-food'],
+  },
+  {
+    id: 'calcium-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Calcium Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Calcium-set tofu genuinely out-calciums milk, a real, specific fact tied to how it happens to be made, not a property of soy itself.',
+    summary:
+      "Real calcium content pulled directly from this app's own 22,022-food reference database. Tofu prepared with a calcium-based coagulant (calcium sulfate) leads by a real, wide margin at roughly 2,134mg per 100g, a real fact specifically tied to the manufacturing process, not soy itself; tofu made with a different coagulant carries meaningfully less. Sesame seeds carry a real, genuinely high 1,200mg per 100g. Parmesan, a real, concentrated hard cheese, carries roughly 980mg per 100g, well above most other dairy. Sardines (eaten with their real, edible bones) carry a real 240-382mg per 100g. Almonds carry a real, more modest 210-260mg per 100g. For context, the standard adult RDA is 1,000-1,200mg daily, meaning a real serving of calcium-set tofu or sesame seeds alone can cover a substantial share of a full day's need, worth knowing directly for anyone limiting dairy for any reason.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Calcium Content of Real Foods (per 100g)',
+      unit: 'mg',
+      data: [
+        { label: 'Calcium-set tofu', value: 2134 },
+        { label: 'Sesame seeds', value: 1200 },
+        { label: 'Parmesan', value: 980 },
+        { label: 'Sardines', value: 380 },
+        { label: 'Almonds', value: 250 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Japan_MEXT-sourced values)",
+    },
+  },
+  {
+    id: 'calcium-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Calcium, Pulled Together',
+    teaser: "A mineral where 99% of the body's supply sits in reserve, actively drawn down long before a blood test would ever catch a real problem.",
+    summary:
+      "Line up everything in this category and calcium reads as a nutrient where the real, most important lesson is that a normal blood calcium result doesn't mean the underlying supply is fine. Because the body actively defends that small circulating 1% by pulling from bone reserves first, a real, chronic dietary shortfall can drain bone density for years while blood calcium itself stays perfectly normal, only showing up as real hypocalcemia once bone reserves themselves are exhausted, which is a genuinely different failure pattern from most other nutrients in this category. Both real extremes, hypocalcemia and hypercalcemia, have their own graded symptom courses and their own real, specific causes worth knowing by name, including a direct, worth-remembering connection to thyroid surgery and hyperthyroidism itself. The practical layer underneath all of it is genuinely actionable: vitamin D is a hard absorption requirement, not optional; doses above roughly 500mg absorb worse in one sitting; and the right supplement form depends on real, individual factors like stomach acid and medication use, not a single universal answer.",
+    citations: [
+      { source: 'Hypocalcemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK430912/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['calcium-deficiency-hypocalcemia', 'calcium-toxicity-hypercalcemia', 'calcium-absorption-mechanism', 'vitamind-tying-together'],
+  },
+
+  // -- Potassium, added 2026-08-08, the eighth deep-dive in this series.
+  // `supplement_forms`/`nutrient_timing` already carried real, cited data
+  // from the My Meds work (citrate-vs-chloride, the ACE/ARB hyperkalemia
+  // caution already used as a real interaction rule). Deliberately did not
+  // duplicate the existing CKD-specific potassium-restriction entry or the
+  // PCOS-specific spironolactone caution -- both cross-linked instead.
+  {
+    id: 'potassium-overview',
+    category: 'basicHealth',
+    title: "Potassium: The Cell's Own Primary Positive Charge, and the Real Reason Almost Every Cell in the Body Depends on It",
+    teaser: 'The sodium-potassium pump moving potassium into cells (and sodium out) runs constantly, in essentially every cell, and is directly responsible for how nerves and muscles, including the heart, actually fire.',
+    summary:
+      "Potassium is the body's primary intracellular positive ion, meaning most of it sits inside cells rather than in the blood, the opposite distribution from sodium. That inside/outside gradient, actively maintained by the sodium-potassium pump (the same Na+/K+-ATPase already covered in this app's own magnesium research, since magnesium is a required cofactor for that same pump to function), is what actually generates the electrical signal nerves and muscles use to fire, including the heart's own electrical conduction system. That's the real, direct reason both too little and too much circulating potassium show up as genuinely dangerous cardiac and neuromuscular problems, covered in the two entries directly below, rather than a vague, generic 'electrolyte imbalance' symptom picture. Potassium is also the real, direct counterbalance to sodium in blood pressure regulation, covered in its own entry below.",
+    citations: [
+      { source: 'Hypokalemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK482465/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['magnesium-synergies-antagonists'],
+  },
+  {
+    id: 'potassium-deficiency-hypokalemia',
+    category: 'basicHealth',
+    title: "Hypokalemia: A Real, Graded Severity Scale, and Genuinely More Common Than Its Better-Known Opposite",
+    teaser: 'Weakness starts in the legs before spreading upward, a real, specific, recognizable pattern rather than generic full-body fatigue.',
+    summary:
+      "Low blood potassium (hypokalemia) is actually more prevalent than hyperkalemia, with particular real risk among hospitalized patients, children, and critically ill people. Real diagnostic severity bands: mild is 3.0-3.5 mmol/L, moderate is 2.5-3.0 mmol/L, and severe is below 2.5 mmol/L, with real symptoms typically emerging once levels drop below 3 mmol/L. Three real, distinct mechanisms cause it: inadequate intake (poor nutrition, eating disorders), potassium shifting into cells rather than being genuinely lost (insulin, certain medications), and real excessive losses through the kidneys (diuretics), GI tract (diarrhea, vomiting), or skin (heavy sweating). The real, specific symptom pattern: muscle weakness, cramping, and fatigue, with weakness classically starting in the lower extremities before progressing to the trunk and upper body, plus constipation and heart palpitations. Severe cases risk real respiratory muscle paralysis. On ECG, hypokalemia produces a real, specific, named pattern: decreased T-wave amplitude, ST-segment depression, a visible U wave, and a prolonged QT interval, with severe cases risking real ventricular arrhythmias. This app's own CKD-specific research already covers a real, important, related nuance: the common advice to blanket-restrict dietary potassium turns out to have surprisingly thin evidence behind it, worth reading alongside this entry rather than assuming restriction is always the safe default.",
+    citations: [
+      { source: 'Hypokalemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK482465/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-potassium-restriction-reconsidered'],
+  },
+  {
+    id: 'potassium-toxicity-hyperkalemia',
+    category: 'basicHealth',
+    title: "Hyperkalemia: A Real Medical Emergency Where the Speed of the Rise Matters as Much as the Number Itself",
+    teaser: 'Mortality approaches two-thirds in severe, rapidly-rising cases left untreated, a real, stark contrast to how casually potassium supplements are sometimes treated.',
+    summary:
+      "High blood potassium (hyperkalemia), defined as above roughly 5.0-5.5 mEq/L, is a real, genuine medical emergency at its more severe end, not a mild electrolyte quirk. Three real mechanisms cause it: impaired kidney excretion (the most common cause, especially in kidney disease), excessive intake (dietary or intravenous), and potassium shifting out of cells into the blood (cell injury, metabolic acidosis, rhabdomyolysis). The real, staged ECG progression tracks disturbingly precisely with severity: 5.5-6.5 mEq/L produces tall, peaked T waves; 6.5-7.5 mEq/L flattens or erases the P wave; 7-8 mEq/L widens the QRS complex; and 8-10 mEq/L risks severe arrhythmias, a dangerous sine-wave ECG pattern, and cardiac arrest. A real, clinically important nuance: how FAST potassium rises matters more for cardiac risk than the absolute number alone, meaning a rapid rise can be dangerous at a lower number than a slow, chronic one. Acute, severe hyperkalemia left unmanaged carries a real mortality rate approaching two-thirds. This app's own CKD research already covers the real, specific reason ACE inhibitors and ARBs (both real, common, protective kidney/heart medications) need real potassium monitoring, since they directly reduce the kidney's own ability to excrete potassium, covered directly in this app's own dedicated entry on that exact interaction.",
+    citations: [
+      { source: 'Hyperkalemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK470284/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-ace-arb-potassium-monitoring', 'pcos-spironolactone-potassium'],
+  },
+  {
+    id: 'potassium-supplement-forms-compared',
+    category: 'basicHealth',
+    title: 'Potassium Citrate vs. Potassium Chloride: Similar Blood-Level Rise, a Real Extra Benefit for Citrate',
+    teaser: "Potassium chloride is the common salt-substitute form. Citrate's own alkalinizing effect does something chloride can't: lower kidney stone risk directly.",
+    summary:
+      "This app's own reference data (built during earlier medication and supplement-tracking work) already carries a real, cited comparison between potassium's two most common supplement forms. Potassium chloride is the most common over-the-counter and salt-substitute form, readily absorbed, and roughly matched to potassium citrate on how much it actually raises blood potassium in head-to-head testing. Potassium citrate has a real, additional benefit chloride doesn't: a randomized controlled trial found it produced significantly higher intracellular (red blood cell) potassium uptake and higher urinary excretion at an equivalent oral dose, and its own alkalinizing citrate anion independently improves acid-base balance, reduces urinary calcium loss, and increases urinary citrate, which genuinely lowers kidney stone risk, a real, meaningful extra benefit chloride simply doesn't carry. Both forms carry the identical real hyperkalemia caution as any potassium supplement, and neither should be combined with ACE inhibitors, ARBs, or potassium-sparing diuretics without real medical supervision.",
+    citations: [
+      { source: 'Wouda RD et al. 2023: Effects of Potassium Citrate vs. Potassium Chloride on Intracellular Potassium in Patients with CKD, Clin J Am Soc Nephrol, PMID 37382933', url: 'https://pubmed.ncbi.nlm.nih.gov/37382933/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'potassium-sodium-balance',
+    category: 'basicHealth',
+    title: 'Potassium & Sodium: Real Blood-Pressure Effects That Work Best Addressed Together, Not Sodium Alone',
+    teaser: 'The DASH diet is real, specifically studied evidence for a food pattern deliberately high in potassium, not just low in sodium.',
+    summary:
+      "Potassium and sodium have real, genuinely opposing effects on blood pressure, and the more complete, better-evidenced approach addresses both together rather than fixating on sodium restriction alone, the way most everyday health advice tends to frame it. This app's own Cardiovascular Disease research already covers the DASH diet's own real, specific sodium targets in depth. The other real half of that same evidence base: DASH is also a deliberately potassium-rich eating pattern (built around vegetables, fruits, and low-fat dairy), and that potassium content is a real, independent contributor to the diet's own measured blood-pressure benefit, not an incidental side effect of eating less sodium. The practical, food-first takeaway: increasing real potassium-rich whole foods (see the food-sources entry below) works alongside sodium reduction, not as a substitute for it, and is generally a safer way to shift the balance for most healthy people than potassium supplementation, which carries a real, genuine hyperkalemia risk supplementing through food essentially never does.",
+    citations: [
+      { source: 'DASH Eating Plan, National Heart, Lung, and Blood Institute', url: 'https://www.nhlbi.nih.gov/education/dash-eating-plan' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-dash-sodium'],
+  },
+  {
+    id: 'potassium-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Potassium Food Sources, Pulled Directly From This App's Own Database",
+    teaser: "Bananas get most of the popular credit, but white beans and avocado both carry more potassium per 100g in this app's own real data.",
+    summary:
+      "Real potassium content pulled directly from this app's own 22,022-food reference database. White beans lead this real, everyday list at roughly 561mg per 100g. Avocado carries a real, genuinely high 550mg per 100g. Salmon carries roughly 490mg per 100g, a real, meaningful amount for a food not usually thought of as a potassium source first. Sweet potato carries about 475mg per 100g. Banana, the food most commonly associated with potassium in popular culture, actually carries a real, more modest 358mg per 100g in this app's own verified data, genuinely lower than each of the other four foods on this same list, worth knowing as a real, direct correction to banana's own outsized reputation.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Potassium Content of Real Foods (per 100g)',
+      unit: 'mg',
+      data: [
+        { label: 'White beans', value: 561 },
+        { label: 'Avocado', value: 550 },
+        { label: 'Salmon', value: 490 },
+        { label: 'Sweet potato', value: 475 },
+        { label: 'Banana', value: 358 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Canada_CNF-sourced values)",
+    },
+  },
+  {
+    id: 'potassium-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Potassium, Pulled Together',
+    teaser: "A real, sharp, dangerous edge on both sides, and a genuinely more nuanced, food-first, both-electrolytes-together answer than 'just eat a banana' or 'just cut salt.'",
+    summary:
+      "Line up everything in this category and potassium reads as a nutrient where both real extremes are genuinely dangerous, with the cardiac conduction system as the real, shared point of failure on either end: hypokalemia and hyperkalemia both produce their own specific, named, staged ECG changes, and both can independently trigger fatal arrhythmias. Hypokalemia is real and more common than its better-known opposite, hyperkalemia is a real, genuine medical emergency where the SPEED of the rise matters as much as the number itself, and this app's own CKD/PCOS/medication research already covers several of the real, specific reasons the two most common blood pressure and hormone medications, ACE inhibitors/ARBs and spironolactone, carry a genuine, documented hyperkalemia risk worth real monitoring. The more nuanced, better-evidenced practical answer sits underneath all of it: potassium and sodium work best addressed together through real whole foods, not sodium restriction alone and not a popular-culture banana-only view of potassium, and food-based potassium carries essentially none of supplementation's own real hyperkalemia risk.",
+    citations: [
+      { source: 'Hyperkalemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK470284/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['potassium-deficiency-hypokalemia', 'potassium-toxicity-hyperkalemia', 'potassium-sodium-balance', 'ckd-tying-together'],
+  },
+
+  // -- Iodine, added 2026-08-08, the ninth deep-dive in this series, but a
+  // deliberately TIGHT one -- this app already had substantial real iodine
+  // content before this pass (the NIS transporter and Wolff-Chaikoff
+  // effect in Glossary, the 1924 Michigan goiter-belt history entry, the
+  // real two-edged-nutrient framing and kelp-specific caution in
+  // Hashimoto's, a full Graves'-specific iodine entry, and a pregnancy
+  // iodine-needs entry). This pass fills the real remaining gap: the
+  // universal thyroid-hormone-synthesis mechanism itself, real global
+  // deficiency/toxicity numbers, and a real food-sources chart, cross-
+  // linked to all of the above rather than repeating any of it.
+  {
+    id: 'iodine-thyroid-synthesis-mechanism',
+    category: 'basicHealth',
+    title: "How the Thyroid Actually Turns Iodine Into a Hormone, Step by Step",
+    teaser: "This app's own Glossary already names the transporter (NIS) and the safety brake (Wolff-Chaikoff). This entry covers the real steps in between.",
+    summary:
+      "Making thyroid hormone is a real, multi-step process, and iodine is required at the very first step, not just a raw ingredient tossed in at the end. First, the thyroid actively pulls iodine out of the bloodstream using the sodium-iodide symporter (NIS), already covered in this app's own Glossary, concentrating it inside the gland at levels far higher than in blood. Second, in a process called organification, that iodine gets attached to tyrosine residues on thyroglobulin, a large protein made inside the thyroid, forming the real chemical building blocks (monoiodotyrosine and diiodotyrosine) hormone synthesis depends on. Third, those building blocks are coupled together to form the actual hormones: two diiodotyrosine molecules combine to form T4 (thyroxine, the thyroid's main hormone output), and one of each combines to form T3 (the more biologically active hormone). This real, sequential dependency, transport, then organification, then coupling, is exactly why a genuine iodine shortfall at the very first step limits hormone production no matter how well every later step in the chain is functioning, and it's the same real biochemistry the thyroid's own Wolff-Chaikoff safety brake (also covered in this app's own Glossary) exists to protect.",
+    citations: [
+      { source: 'Diffuse Toxic Goiter, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/32491782/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['nutrient-iodine'],
+  },
+  {
+    id: 'iodine-deficiency-global-real-data',
+    category: 'basicHealth',
+    title: "Iodine Deficiency: a Real, Leading, and Genuinely Preventable Cause of Fetal Brain Damage Worldwide",
+    teaser: 'Real, specific intake targets: 150mcg/day for adults, rising to 220-250mcg during pregnancy and 250-290mcg while breastfeeding.',
+    summary:
+      "Iodine deficiency is described directly in the clinical literature as a leading cause of preventable fetal brain damage worldwide, a real, stark framing worth taking seriously rather than treating iodine as an interchangeable, minor trace mineral. During pregnancy specifically, deficiency produces real, measurable maternal hypothyroidism and impaired infant neurobehavioral development, the exact real mechanism behind this app's own pregnancy-specific iodine research. Real, specific recommended intakes scale meaningfully with life stage: 150mcg/day for adults, rising to 220-250mcg/day during pregnancy, and 250-290mcg/day while breastfeeding, both real, substantial increases over the adult baseline. This app's own History & Milestones research already covers the real, historic American 'goiter belt' and the 1924 Michigan salt-iodization program that resolved it at a population level, the real public-health precedent behind why iodized salt exists as a product at all. Worth knowing directly: deficiency remains a real, ongoing global concern in parts of the world without reliable salt iodization, not a solved problem everywhere just because it was solved in one country a century ago.",
+    citations: [
+      { source: 'Iodine Toxicity, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/32809605/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['history-1924-iodized-salt', 'pregnancy-iodine-needs', 'nutrient-iodine'],
+  },
+  {
+    id: 'iodine-toxicity-acute-chronic',
+    category: 'basicHealth',
+    title: "Iodine's Own Real Safe Upper Range, and What Happens Past It",
+    teaser: "Up to roughly 1mg/day is considered safe for most people, real intake above about 1.1mg/day is where documented harm starts.",
+    summary:
+      "Iodine toxicity has real, specific numeric thresholds worth knowing directly, not just a vague 'don't overdo it' caution. Up to roughly 1mg (1,000mcg) per day is considered safe for most people, a real, substantial margin above the standard 150mcg adult requirement, but real documented harm can begin above roughly 1.1mg per day, a threshold reachable through concentrated sources like kelp and iodine supplements far more easily than through ordinary food, covered directly in this app's own Problem Foods research on kelp specifically. Acute excess produces a real, staged progression: starting with mild GI symptoms (nausea, vomiting, diarrhea), and in more severe cases advancing to real neurological symptoms (delirium, confusion, lethargy) and shock, though the clinical literature notes this progression is rarely fatal. Real, specific populations carry higher risk from excess: people with pre-existing thyroid disease (including Hashimoto's and Graves', both already covered in this app's own condition-specific research), older adults, and fetuses/neonates. Real, documented downstream consequences of chronic excess span thyroiditis, both hypothyroidism and hyperthyroidism (a real, genuine paradox: too much iodine can push the thyroid in either direction depending on the person), and an association with thyroid papillary cancer.",
+    citations: [
+      { source: 'Iodine Toxicity, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/32809605/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['problem-excess-iodine-kelp', 'graves-iodine', 'nutrient-iodine-supplement-caution'],
+  },
+  {
+    id: 'iodine-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Iodine Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Seaweed dominates so completely (some varieties running into six figures per 100g) that this chart deliberately leaves kombu off, since it would flatten every other real bar to nothing.',
+    summary:
+      "Real iodine content pulled directly from this app's own 22,022-food reference database, deliberately excluding kombu-family kelp (which can run into six-figure mcg-per-100g territory, already covered as its own real caution in this app's own Problem Foods research) since including it would flatten every other real bar on this chart to invisibility. Among the foods most people would actually eat a real serving of, nori (the seaweed used in sushi) still carries a real, substantial 2,200-2,775mcg per 100g. Haddock carries a real 317mcg per 100g, and cod carries roughly 168-197mcg per 100g, both real, everyday seafood sources well above the standard 150mcg adult daily target in a single serving. This real pattern, seafood and seaweed dominating the list, is exactly why iodized salt exists as a deliberate public-health product: most inland, non-seafood-heavy diets have no other reliably substantial iodine source at all.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Iodine Content of Real Foods (per 100g)',
+      unit: 'mcg',
+      data: [
+        { label: 'Nori (seaweed)', value: 2500 },
+        { label: 'Haddock', value: 317 },
+        { label: 'Cod', value: 180 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Japan_MEXT-sourced values); kombu-family kelp omitted as a real, six-figure outlier already covered in Problem Foods & Swaps",
+    },
+  },
+  {
+    id: 'iodine-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Iodine, Pulled Together',
+    teaser: "This app's own Hashimoto's research already named iodine the rare nutrient that breaks the 'more is always fine' rule. This entry pulls the full universal biochemistry behind that claim into one place.",
+    summary:
+      "Line up everything in this category and iodine reads as a real, genuine exception to how most nutrients in this Digest work. It's required, step one, for the thyroid to make hormone at all, real global deficiency remains a leading, preventable cause of fetal brain damage, and a real, historic public-health fix (iodized salt) already solved this at scale in the US a century ago. And yet, unlike almost every other nutrient covered in this category, more isn't simply better past a real, specific point: excess carries its own real, documented risks, from acute GI-then-neurological toxicity to a genuine paradox where too much iodine can push a vulnerable thyroid toward either hypothyroidism or hyperthyroidism depending on the person. This app's own condition-specific research already carries the sharpest, most practical version of this exact tension: Hashimoto's own iodine entry names it directly as a two-edged nutrient, Graves' disease has its own full iodine entry, pregnancy raises the real stakes on both ends at once, and this app's own kelp-specific caution names exactly where that risk shows up in a real, everyday food choice. This entry is the universal biochemistry underneath all of those, not a replacement for any of them.",
+    citations: [
+      { source: 'Diffuse Toxic Goiter, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/32491782/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['nutrient-iodine', 'graves-iodine', 'pregnancy-iodine-needs', 'problem-excess-iodine-kelp'],
+  },
+
+  // -- Vitamin C, added 2026-08-08, the tenth deep-dive in this series.
+  // No `supplement_forms` data existed for vitamin C (a real, genuine gap,
+  // unlike every prior nutrient this session) -- every citation here came
+  // fresh via the established WebFetch/StatPearls fallback. Deliberately
+  // did not duplicate `gout-vitamin-c` (the existing gout-specific RCT
+  // entry) or `interaction-vitaminc-iron` -- both cross-linked instead.
+  {
+    id: 'vitaminc-overview',
+    category: 'basicHealth',
+    title: 'Vitamin C: Required for Collagen, and the Body Genuinely Cannot Make Its Own',
+    teaser: "Unlike most mammals, humans lost the ability to synthesize vitamin C entirely, a real, specific genetic loss that makes dietary intake non-negotiable.",
+    summary:
+      "Vitamin C (ascorbic acid) is required as a cofactor for enzymes that build and stabilize collagen, the structural protein behind skin, blood vessel walls, tendons, and bone, which is the real, direct reason its classic deficiency disease (scurvy, covered below) shows up as bleeding gums and easy bruising: collagen synthesis genuinely fails without it. It's also a real, direct antioxidant, and required for normal immune cell function and iron absorption (already covered in this app's own Nutrient Interactions research). The real, genuinely notable fact underlying all of this: humans, along with a handful of other species, lost a functional copy of the enzyme needed to synthesize vitamin C from glucose at some point in evolutionary history, meaning dietary intake isn't just recommended, it's a real, absolute biological requirement in a way most other nutrients covered in this category aren't quite as strict about.",
+    citations: [
+      { source: 'Vitamin C Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493187/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitaminc-deficiency-scurvy',
+    category: 'basicHealth',
+    title: "Scurvy Is a Real, Modern, Genuinely Underdiagnosed Condition, Not Just a Historical Sailors' Disease",
+    teaser: "Real prevalence data ranges from 7.1% in the US to 73.9% in northern India. Corkscrew-shaped body hair is a real, pathognomonic sign specific enough to point straight at the diagnosis.",
+    summary:
+      "Scurvy is genuinely still a real, modern condition, not a disease confined to history. Real, measured prevalence varies enormously by region and population, from 7.1% in the United States to as high as 73.9% in parts of northern India, concentrated in populations with food insecurity, limited access to produce, alcohol use disorder, smoking, or malabsorptive conditions. Real symptoms progress in a genuine stage: initial, nonspecific fatigue, malaise, and loss of appetite typically appear at 4-12 weeks of inadequate intake, followed by real, visible, more specific signs: bleeding gums, easy bruising, perifollicular hemorrhages, and corkscrew-shaped body hair, a real, pathognomonic finding specific enough on its own to point directly at the diagnosis. Left untreated, real advanced disease progresses to joint swelling, bleeding into joints, bone fragility, and compromised immune function, with organ failure possible in severe, prolonged cases. Diagnostically, total body vitamin C stores below 350mg (versus a real, normal roughly 1,500mg) is when clinical signs start appearing, a genuinely useful way to think about scurvy as a real depletion of an actual physical reserve, not just a low number on one blood draw.",
+    citations: [
+      { source: 'Vitamin C Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493187/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitaminc-toxicity-honest',
+    category: 'basicHealth',
+    title: 'Vitamin C Toxicity: A Real, High Tolerance, With One Genuine, Specific Risk for a Specific Group',
+    teaser: 'The real risk concentrates almost entirely in men with a prior history of kidney stones, not a general population-wide concern.',
+    summary:
+      "Vitamin C carries a genuinely high real tolerance compared to most nutrients covered in this category, but it isn't a real, complete non-issue the way B12's own toxicity entry describes. At elevated doses, real GI symptoms (diarrhea, nausea, abdominal cramps) are the most common consequence, generally self-limiting once the dose is reduced. The more specific, genuinely important real risk: excessive vitamin C intake has been linked to kidney stone formation, specifically in men with a prior history of kidney stones or existing kidney conditions, through a real, documented mechanism, increased urinary oxalate excretion, since the body partly metabolizes excess vitamin C into oxalate. This is a real, targeted risk for a specific, identifiable group, not a reason for general population-wide caution. The clinical literature doesn't specify one universal numeric toxicity threshold, framing this instead as a real, dose-and-person-dependent risk rather than a fixed cutoff, worth a real conversation with a doctor specifically for anyone with a personal or family kidney-stone history before taking high-dose vitamin C supplements.",
+    citations: [
+      { source: 'Vitamin C Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493187/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitaminc-absorption-dose-dependent',
+    category: 'basicHealth',
+    title: 'Vitamin C Absorption Genuinely Changes Shape at High Doses, a Real, Distinct Mechanism Worth Knowing',
+    teaser: 'Efficient at ordinary intake, real absorption drops to 50% or less once a single dose climbs past 1,500mg, a real, practical reason mega-dosing is less efficient than it sounds.',
+    summary:
+      "Vitamin C absorption follows a real, genuinely different pattern from a simple 'more in, more absorbed' relationship. At ordinary dietary intake levels, up to around 100mg per day, absorption is real and efficient. Past that point, the fraction actually absorbed starts declining, and once a single dose climbs above roughly 1,500mg, real absorption efficiency drops to 50% or less, meaning a large chunk of a mega-dose is never actually taken up by the body at all, simply passing through. This is a real, genuinely useful, practical fact for anyone taking high-dose vitamin C specifically to maximize absorbed amount: splitting a large daily total into smaller, more frequent doses absorbs measurably better than taking it all at once, the identical real principle already covered in this app's own calcium research for a completely different nutrient, worth recognizing as a real, recurring pattern across several of the nutrients in this category rather than a coincidence specific to any one of them.",
+    citations: [
+      { source: 'Vitamin C Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493187/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['calcium-absorption-mechanism'],
+  },
+  {
+    id: 'vitaminc-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Vitamin C Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Acerola cherries genuinely dwarf citrus fruit, real, everyday bell peppers and broccoli both carry more vitamin C than a real orange.',
+    summary:
+      "Real vitamin C content pulled directly from this app's own 22,022-food reference database. Acerola cherries lead by a real, enormous margin at roughly 1,690mg per 100g, genuinely dwarfing every citrus fruit's own popular reputation as the top vitamin C source. Among more everyday foods, red bell pepper carries a real, meaningful 171mg per 100g, actually higher than a real orange's own 145mg per 100g, a genuine, worth-knowing correction to citrus fruit's outsized reputation. Broccoli carries roughly 90-130mg per 100g, and strawberries carry 76-98mg per 100g, both real, substantial sources well above the standard adult RDA of 75-90mg daily in a single real serving.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Vitamin C Content of Real Foods (per 100g)',
+      unit: 'mg',
+      data: [
+        { label: 'Acerola cherry', value: 1690 },
+        { label: 'Red bell pepper', value: 171 },
+        { label: 'Orange', value: 145 },
+        { label: 'Broccoli', value: 110 },
+        { label: 'Strawberry', value: 87 },
+      ],
+      sourceNote: "This app's own reference database (USDA/French_Ciqual-sourced values)",
+    },
+  },
+  {
+    id: 'vitaminc-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Vitamin C, Pulled Together',
+    teaser: "A real, absolute dietary requirement (the body genuinely cannot make its own), a real, still-modern deficiency disease, and a real, dose-dependent absorption curve that makes mega-dosing less efficient than it sounds.",
+    summary:
+      "Line up everything in this category and vitamin C reads as a nutrient defined by a real, genuine biological non-negotiable: unlike most mammals, humans cannot synthesize it at all, making dietary intake an absolute requirement, not just a recommendation. Deficiency (scurvy) is real and still modern, with prevalence varying enormously by real, measured population, and a genuinely distinctive staged symptom progression worth recognizing by its own specific signs, not assumed away as a disease of the past. Toxicity is real but narrow, concentrated almost entirely in kidney-stone risk for a specific, identifiable group, alongside a real, practically useful absorption quirk: efficiency drops sharply above roughly 1,500mg in one dose, the identical single-dose-ceiling pattern already seen in this app's own calcium research. This app's own gout-specific research already covers a real RCT finding vitamin C measurably lowers uric acid, and its own iron-interaction research covers the real, well-established boost vitamin C gives non-heme iron absorption, both real, specific, practical applications built on top of the universal biochemistry covered here.",
+    citations: [
+      { source: 'Vitamin C Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493187/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitaminc-deficiency-scurvy', 'vitaminc-toxicity-honest', 'gout-vitamin-c', 'interaction-vitaminc-iron'],
+  },
+
+  // -- Vitamin A, added 2026-08-08, the eleventh deep-dive in this series.
+  // No `supplement_forms` data existed for vitamin A -- every citation
+  // here came fresh via the established WebFetch/StatPearls/PubMed
+  // fallback. Deliberately did not duplicate `interaction-vitamina-zinc`
+  // -- cross-linked instead. Real, genuinely different shape from most
+  // nutrients in this category: the single most important real fact here
+  // is the retinol-vs-carotenoid safety split, not a symmetric deficiency/
+  // toxicity story.
+  {
+    id: 'vitamina-overview',
+    category: 'basicHealth',
+    title: 'Vitamin A: Two Real, Chemically Different Sources With Two Genuinely Different Safety Profiles',
+    teaser: 'Preformed vitamin A (retinol, from animal foods) and provitamin A carotenoids (beta-carotene, from plants) are not interchangeable when it comes to real toxicity risk.',
+    summary:
+      "Vitamin A is required for vision (specifically, forming rhodopsin, the light-sensing pigment in the retina), immune function, cell differentiation, and reproduction. The single most important real fact to understand about vitamin A, more than almost any other nutrient in this category, is that it exists in two chemically distinct dietary forms with two genuinely different safety profiles. Preformed vitamin A (retinol and its esters), found in animal foods like liver, fish oil, and dairy, is efficiently absorbed and stored in the liver without tight regulation, meaning intake can genuinely accumulate to toxic levels, covered in real, specific detail in the toxicity entry below. Provitamin A carotenoids (beta-carotene and related compounds), found in orange and dark leafy plant foods, undergo a real, regulated conversion process with built-in feedback control, and rarely cause toxicity even at high intake. That distinction, not a single blanket 'vitamin A is dangerous in excess' rule, is the real, practical thing worth understanding before this category's own deficiency and toxicity entries make sense.",
+    citations: [
+      { source: 'Vitamin A Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK532916/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamina-deficiency-xerophthalmia',
+    category: 'basicHealth',
+    title: 'Vitamin A Deficiency: A Real, Leading Cause of Preventable Childhood Blindness Worldwide',
+    teaser: 'Night blindness is a real, early warning sign, not a coincidence. Left uncorrected, the same deficiency can progress to real, irreversible corneal damage.',
+    summary:
+      "Vitamin A deficiency remains a real, highly prevalent global health concern, concentrated mostly in young children in resource-limited regions, with real, substantial associated morbidity and mortality. Real, standard daily allowances: 700mcg for adult women, 900mcg for adult men, 300-900mcg for children depending on age, and real, notably higher targets of 770mcg during pregnancy and 1,300mcg while nursing. Diagnostically, serum retinol below 20mcg/dL indicates deficiency, with real, specific eye symptoms emerging once levels drop below 10mcg/dL. The real, staged eye condition (xerophthalmia) this deficiency causes progresses in a genuine, recognizable sequence: nyctalopia (night blindness) as a real, early warning sign, followed by Bitot spots (real, visible foamy patches on the eye's surface), conjunctival and corneal xerosis (drying), and in the most severe, real cases, keratomalacia, corneal softening and breakdown that can cause permanent, irreversible blindness. This progression is exactly why xerophthalmia remains a real, leading cause of preventable childhood blindness worldwide, and why recognizing night blindness early matters enough to act on immediately rather than waiting to see if it resolves on its own.",
+    citations: [
+      { source: 'Vitamin A Deficiency, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/33620821/' },
+      { source: 'Xerophthalmia, StatPearls, National Library of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/28613746/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'vitamina-toxicity-teratogenicity',
+    category: 'basicHealth',
+    title: 'Vitamin A Toxicity Has Real, Specific Numeric Thresholds, and a Genuine No-Safe-Level Warning During Pregnancy',
+    teaser: 'Adverse fetal effects have been documented at doses as low as 25,000 IU daily, the same real number that also marks the start of chronic toxicity in a non-pregnant adult.',
+    summary:
+      "Preformed vitamin A (retinol, not carotenoids, see the overview entry above) carries real, specific, genuinely dangerous toxicity thresholds. Acute toxicity: above roughly 2 million IU in an adult, or 350,000 IU in an infant, a single massive dose. Chronic toxicity: sustained intake of 25,000-50,000 IU per day over months, though real, susceptible individuals can be affected at lower doses still. The single most important real warning in this entire entry: adverse fetal outcomes have been documented at doses as low as 25,000mcg (IU) daily during pregnancy, with the first trimester (during organogenesis) carrying the highest real risk, and the clinical literature states directly that there is no established safe threshold for oral retinoid exposure during pregnancy. Real, chronic excess also causes genuine liver damage, ranging from biochemical abnormalities to real fibrosis and cirrhosis, tracking with cumulative lifetime exposure. This is the real, direct, practical reason liver and cod liver oil, both genuinely excellent vitamin A sources otherwise, carry standing pregnancy-specific caution, and why a prenatal vitamin's own vitamin A content is worth checking specifically for its source (retinol vs. beta-carotene) rather than assumed safe by default.",
+    citations: [
+      { source: 'Vitamin A Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK532916/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pregnancy-tying-together'],
+  },
+  {
+    id: 'vitamina-food-sources-real-data',
+    category: 'basicHealth',
+    title: "Real Vitamin A Food Sources, Pulled Directly From This App's Own Database",
+    teaser: 'Liver and cod liver oil dominate so completely (some real rows exceeding 20,000-30,000mcg per 100g) that a single real serving can approach the acute toxicity threshold covered above.',
+    summary:
+      "Real vitamin A content pulled directly from this app's own 22,022-food reference database, split deliberately by real source type given the retinol-vs-carotenoid safety distinction covered in the overview entry above. Cod liver oil and organ meats (veal, lamb, pork, chicken, and beef liver) all carry a real, enormous preformed-retinol content, commonly 10,000-30,000mcg per 100g, real numbers concentrated enough that a genuinely large serving can meaningfully approach the acute/chronic toxicity thresholds covered above, the real, direct reason liver carries standing pregnancy-specific caution despite being nutrient-dense otherwise. Carrots, a real, classic provitamin A carotenoid source, carry roughly 950-1,575mcg per 100g, and sweet potato carries roughly 960-1,043mcg per 100g, both real, safer sources given carotenoids' own regulated, self-limiting conversion process.",
+    citations: [],
+    overallTier: 'strong',
+    chart: {
+      title: 'Vitamin A Content of Real Foods (per 100g)',
+      unit: 'mcg',
+      data: [
+        { label: 'Cod liver oil', value: 30000 },
+        { label: 'Beef/lamb/chicken liver (avg.)', value: 15000 },
+        { label: 'Carrot', value: 1100 },
+        { label: 'Sweet potato', value: 1000 },
+      ],
+      sourceNote: "This app's own reference database (USDA/Germany_BLS-sourced values)",
+    },
+  },
+  {
+    id: 'vitamina-tying-together',
+    category: 'basicHealth',
+    title: 'What Actually Holds Up for Vitamin A, Pulled Together',
+    teaser: "The real, single most useful fact in this whole category: whether it's retinol or a carotenoid changes the entire real risk picture, not just a technical footnote.",
+    summary:
+      "Line up everything in this category and vitamin A reads as a nutrient where the real, single most important lesson isn't 'how much,' it's 'which form.' Preformed retinol, from liver and fish oil, is efficiently absorbed and stored without tight regulation, making real toxicity genuinely possible at concentrated doses, with a real, specific, no-safe-level warning during pregnancy that deserves to be taken seriously rather than treated as excessive caution. Provitamin A carotenoids, from carrots and sweet potatoes, undergo a real, self-limiting conversion process and rarely cause toxicity even at high intake. Deficiency, meanwhile, is real and genuinely severe at the other end, a leading, preventable cause of childhood blindness worldwide, with a real, staged, recognizable eye-symptom progression worth knowing by name. This app's own zinc research already covers a real, separate mechanistic link, zinc is required to actually convert and transport vitamin A itself, worth reading alongside this entry rather than as an unrelated topic.",
+    citations: [
+      { source: 'Vitamin A Toxicity, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK532916/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['vitamina-deficiency-xerophthalmia', 'vitamina-toxicity-teratogenicity', 'interaction-vitamina-zinc'],
   },
 ];

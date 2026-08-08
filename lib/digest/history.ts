@@ -49,7 +49,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
       { source: 'A Grain of Salt (Milbank Quarterly, 2014): the history of American salt iodization', url: 'https://www.milbank.org/quarterly/articles/a-grain-of-salt/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['nutrient-iodine', 'problem-excess-iodine-kelp'],
+    relatedIds: ['nutrient-iodine', 'problem-excess-iodine-kelp', 'iodine-deficiency-global-real-data'],
   },
   {
     id: 'history-1956-autoimmune-mechanism',

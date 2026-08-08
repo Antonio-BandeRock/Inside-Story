@@ -127,7 +127,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-zinc-iron-b12', 'lifestyle-nsaids-gut'],
+    relatedIds: ['nutrient-zinc-iron-b12', 'lifestyle-nsaids-gut', 'zinc-overview'],
   },
   {
     id: 'gut-strain-specific-mechanisms',

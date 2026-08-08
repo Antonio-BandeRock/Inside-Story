@@ -103,6 +103,7 @@ export const GOUT_ENTRIES: DigestEntry[] = [
       { source: 'The Effects of Vitamin C Supplementation on Serum Concentrations of Uric Acid: Results of a Randomized Controlled Trial, PMID 15934094', url: 'https://pubmed.ncbi.nlm.nih.gov/15934094/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['vitaminc-tying-together'],
   },
   {
     id: 'gout-coffee-inverse',
