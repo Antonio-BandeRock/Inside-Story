@@ -196,12 +196,19 @@ export const DIGEST_CATEGORY_KEYS = [
   // reference elevated cardiovascular risk) before this category itself
   // existed to link back to.
   'cardiovascularDisease',
-  // 2026-08-08, same day, eighteenth condition, and -- per the
-  // `conditions` table's own sort_order -- the last one currently planned:
-  // Gout. See gout.ts's own header comment -- this app's eighth genuinely
-  // non-autoimmune condition, with an unusually specific, individually
-  // well-studied list of real dietary triggers and protective foods.
+  // 2026-08-08, same day, eighteenth condition: Gout. See gout.ts's own
+  // header comment -- this app's eighth genuinely non-autoimmune
+  // condition, with an unusually specific, individually well-studied list
+  // of real dietary triggers and protective foods.
   'gout',
+  // 2026-08-08, same day, nineteenth condition, added directly in response
+  // to "Is there any solid reason for prostate health to be included."
+  // See prostateHealth.ts's own header comment -- this app's ninth
+  // genuinely non-autoimmune condition, and the first one whose real,
+  // core evidence includes gut bacteria directly manufacturing the
+  // hormones and metabolites (androgens from Ruminococcus, TMAO from
+  // choline) that measurably affect the condition itself.
+  'prostateHealth',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need

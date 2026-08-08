@@ -1,0 +1,195 @@
+import type { DigestEntry } from './types';
+
+// Prostate Health (BPH & Prostate Cancer Risk) -- 12 entries, added
+// 2026-08-08 as this app's nineteenth real condition, and its ninth
+// genuinely non-autoimmune one. Added after a direct question: "Is there
+// any solid reason for prostate health to be included related to food
+// health and gut microbiome and whole foods?" Real research says yes,
+// clearly: benign prostatic hyperplasia (BPH) affects roughly 45% of men
+// over 45 and up to 80-90% of men over 70-80, and prostate cancer is the
+// most commonly diagnosed cancer in American men -- a genuinely enormous
+// real population this app had no dedicated coverage for. The gut
+// microbiome connection is real and specific too, not a stretch: gut
+// bacteria directly metabolize dietary compounds into androgens and TMAO
+// (both with documented prostate effects), gut dysbiosis is linked to BPH
+// via reduced SCFA production and increased systemic inflammation (the
+// same SCFA/Treg mechanism this app's own Gut & Microbiome research
+// already covers for other conditions), and diet quality measurably shifts
+// gut microbial diversity in ways connected to both conditions.
+//
+// Built with real self-advocacy content from the start, the same standard
+// every condition since Graves' has followed. Every citation independently
+// verified via WebSearch before being written in.
+export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
+  {
+    id: 'prostate-overview',
+    category: 'prostateHealth',
+    title: 'Prostate Health: Two Real, Extremely Common Conditions With a Genuine Diet Connection',
+    teaser: 'Benign prostatic hyperplasia affects roughly half of men by their 50s and most men by their 70s. Prostate cancer is the most commonly diagnosed cancer in American men. Both have real, documented dietary and gut-microbiome links.',
+    summary:
+      "Two real, separate conditions live under this category. Benign prostatic hyperplasia (BPH) is a non-cancerous enlargement of the prostate gland that squeezes the urethra, causing urinary symptoms (frequency, urgency, a weak stream, nighttime waking to urinate); it's genuinely age-dependent, real data showing 29% prevalence in men in their 50s, climbing to 44.7% in their 60s, 58.1% in their 70s, and 69.2% at 80 and older. Prostate cancer is a real, separate disease, the most commonly diagnosed cancer among American men, accounting for roughly 27% of new male cancer diagnoses in a recent year. Both conditions share real, overlapping risk factors and, notably for this app, both have genuine, independently documented connections to diet and the gut microbiome: specific gut bacteria convert dietary compounds into androgens that directly affect prostate tissue, gut dysbiosis is linked to BPH through reduced anti-inflammatory short-chain fatty acid production, and specific whole foods (tomatoes, cruciferous vegetables) carry real, quantified risk-reduction evidence. Diet won't cure either condition, and nothing here replaces a urologist's own evaluation and treatment plan. What follows is what the actual research supports, kept honest about how strong each finding really is.",
+    citations: [
+      { source: 'Benign Prostatic Hyperplasia, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK558920/' },
+      { source: 'The prevalence of benign prostatic hyperplasia in mainland China: evidence from epidemiological surveys', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4549711/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-psa-screening'],
+  },
+  {
+    id: 'prostate-gut-microbiome-bph',
+    category: 'prostateHealth',
+    title: 'Gut Dysbiosis Is Directly Linked to BPH, Through the Same SCFA Mechanism This App Already Covers Elsewhere',
+    teaser: 'A real systematic review found specific bacterial shifts and reduced microbial diversity in men with BPH, with a mechanism connecting straight back to short-chain fatty acids.',
+    summary:
+      "A real, direct gut-prostate connection, not a speculative one. A systematic review of gut microbial dysbiosis in BPH found real, measured differences in men with the condition compared to men without it: a significantly increased Firmicutes-to-Bacteroidetes ratio (a recognized marker of dysbiosis), and real shifts in the abundance of specific genera, including Prevotella, Ruminococcus, and Lactobacillus. The proposed mechanism is genuinely specific: gut dysbiosis reduces the population of short-chain-fatty-acid-producing bacteria, weakening SCFAs' own real anti-inflammatory effect, while simultaneously increasing bacteria linked to systemic inflammation. Inflammatory mediators from the gut are then thought to reach the prostate gland through the bloodstream, contributing to the localized inflammation that drives BPH progression. This is the same SCFA-to-inflammation pathway this app's own Gut & Microbiome research already documents as central to autoimmune disease broadly, now showing up in a real, separate, non-autoimmune condition through a genuinely similar mechanism. A real, separate rat-model study found Western-style diets (high fat, high refined sugar, low fiber) reduce gut microbial diversity in exactly this same direction.",
+    citations: [
+      { source: 'The gut-prostate axis in benign prostatic hyperplasia: systematic review of microbial dysbiosis and pathogenic mechanisms', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12866195/' },
+      { source: 'The role of gut microbiota in prostate inflammation and benign prostatic hyperplasia and its therapeutic implications', url: 'https://www.sciencedirect.com/science/article/pii/S2405844024143332' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['gut-scfa-treg', 'prostate-diet-pattern'],
+  },
+  {
+    id: 'prostate-gut-microbiome-cancer-androgens',
+    category: 'prostateHealth',
+    title: 'Some Gut Bacteria Can Directly Manufacture Androgens, With a Real, Documented Prostate Cancer Connection',
+    teaser: 'A specific gut bacterium found in some prostate cancer patients can convert a hormone precursor into testosterone itself, inside the gut, before it ever reaches the prostate.',
+    summary:
+      "This is a genuinely striking, specific finding, not a general 'gut bacteria matter' statement: certain strains of Ruminococcus, a real, common gut genus, can convert pregnenolone and hydroxypregnenolone (hormone precursor molecules) into downstream androgens, including testosterone itself, directly inside the gut. In men with castrate-resistant prostate cancer, a real, more advanced stage where standard hormone-blocking treatment has stopped working, increased Ruminococcus abundance is associated with a measurably worse prognosis. Separately, gut microbiota composition also affects estrogen metabolism through what's called the estrobolome, bacterial enzymes that free up estrogen for reabsorption into the body, a mechanism with its own real, documented cancer relevance. Real research also finds gut microbial diversity itself (a measure of how many different bacterial species are present) is significantly lower in prostate cancer patients than in healthy controls, a real, measurable difference, though not yet proof of which direction causation runs. This is a genuinely active, real research area, not a settled one, but the mechanism (specific gut bacteria directly manufacturing the hormones that drive prostate tissue growth) is real and documented, not speculative.",
+    citations: [
+      { source: 'Potential role of gut microbiota in prostate cancer: immunity, metabolites, pathways of action?', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10231684/' },
+      { source: 'Gut microbiota in patients with prostate cancer: a systematic review and meta-analysis', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10893726/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-choline-tmao'],
+  },
+  {
+    id: 'prostate-diet-pattern',
+    category: 'prostateHealth',
+    title: 'A Plant-Forward, High-Fiber Diet Pattern Carries Real, Consistent Evidence for Both Conditions',
+    teaser: "The same real dietary pattern that supports a healthy gut microbiome elsewhere in this app shows up again here, with its own direct prostate evidence.",
+    summary:
+      "Diets rich in plant foods, fiber, and prebiotics are real, documented to promote gut microbial profiles linked to anti-inflammatory and anti-carcinogenic activity, while a Western dietary pattern, high in saturated fat and processed food, is real, documented to promote the dysbiosis linked to both BPH and worse prostate cancer outcomes. This isn't a single supplement or a single food; it's the same broad, whole-food pattern this app's own research already finds carrying real evidence across several other conditions, showing up here through its own real, prostate-specific mechanism. Short-term dietary changes are real, documented to measurably shift gut microbiota composition, and microbiota composition genuinely differs between prostate cancer patients and healthy individuals, a real, if not yet fully causal, connection worth taking seriously as a genuine lever rather than dismissed as unrelated to a gland-specific disease.",
+    citations: [
+      { source: 'The impact of diet and gut microbiota on development, treatment, and prognosis in prostate cancer', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12747913/' },
+      { source: 'Microbiome and Prostate Cancer: Emerging Diagnostic and Therapeutic Opportunities', url: 'https://www.mdpi.com/1424-8247/17/1/112' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-gut-microbiome-bph'],
+  },
+  {
+    id: 'prostate-lycopene-tomatoes',
+    category: 'prostateHealth',
+    title: 'Lycopene, Concentrated in Tomatoes, Carries a Real, Dose-Response Risk Reduction',
+    teaser: 'A systematic review and meta-analysis found a real, linear relationship: the more lycopene in the diet or the bloodstream, the lower the measured prostate cancer risk.',
+    summary:
+      "Lycopene is the real, specific carotenoid pigment that gives tomatoes their red color, and it carries some of the best-established single-nutrient evidence for prostate cancer risk reduction in this whole research area. A systematic review and meta-analysis found a real, linear inverse association between dietary lycopene intake and prostate cancer risk, and separately found high blood levels of lycopene associated with an 11% reduction in overall cancer risk, a real, dose-response relationship rather than an all-or-nothing effect. The World Cancer Research Fund's own evidence review states there is sufficient evidence that high intake of tomatoes, tomato products, or lycopene supplementation can decrease prostate cancer risk. Cooking and processing tomatoes (into sauce, paste, or juice) actually increases lycopene's bioavailability compared to raw tomatoes, a real, practical, useful detail worth knowing rather than assuming raw is always better.",
+    citations: [
+      { source: 'Increased dietary and circulating lycopene are associated with reduced prostate cancer risk: a systematic review and meta-analysis, Prostate Cancer and Prostatic Diseases', url: 'https://www.nature.com/articles/pcan201725' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'prostate-cruciferous-sulforaphane',
+    category: 'prostateHealth',
+    title: 'Cruciferous Vegetables Carry Real Epidemiological and Mechanistic Evidence Against Prostate Cancer',
+    teaser: 'Broccoli, cauliflower, and cabbage all contain a real compound that this app already covers for its Hashimoto\'s-relevant goitrogenic effect -- here, the same compound family shows a genuinely protective side.',
+    summary:
+      "Real epidemiological evidence links cruciferous vegetable intake (broccoli, cauliflower, cabbage, Brussels sprouts, kale) to reduced prostate cancer risk, with real research specifically finding diets rich in broccoli associated with a reduction in aggressive prostate cancer risk. The protective mechanism traces to real, specific metabolic products of glucosinolates, the same sulfur-containing compound family this app's own Hashimoto's research already covers for its real goitrogenic effect on the thyroid when eaten raw in large quantities. Here, the relevant metabolites, sulforaphane (from glucoraphanin) and indole-3-carbinol, show real, documented anti-cancer activity in laboratory research: arresting cell-cycle progression and modulating gene expression markers linked to cancer cell proliferation. This is a genuinely useful, real-world example of the same food family carrying a real risk in one context (raw, high-quantity, thyroid-specific) and a real benefit in another (cooked, moderate, prostate-specific) -- context and preparation matter, not a blanket rule either way.",
+    citations: [
+      { source: 'Phytochemicals from cruciferous vegetables, epigenetics, and prostate cancer prevention', url: 'https://pubmed.ncbi.nlm.nih.gov/23800833/' },
+    ],
+    overallTier: 'moderate',
+  },
+  {
+    id: 'prostate-choline-tmao',
+    category: 'prostateHealth',
+    title: 'High Choline Intake Is Linked to a Real, Quantified Increase in Lethal Prostate Cancer, Via a Gut-Bacteria-Made Compound',
+    teaser: 'A real, large, 22-year study found men with the highest choline intake had a 70% higher risk of dying from prostate cancer, with gut bacteria doing the actual chemistry.',
+    summary:
+      "This is a real, direct, and genuinely cautionary gut-microbiome finding. A large prospective study (47,896 men, 22 years of follow-up) found men in the highest quintile of choline intake had a real, statistically significant 70% higher risk of developing lethal prostate cancer compared to men in the lowest quintile. The proposed mechanism is specific and gut-bacteria-mediated: dietary choline is converted by gut bacteria into trimethylamine, which the liver then converts into trimethylamine N-oxide (TMAO); real laboratory research finds TMAO directly enhances prostate cancer cell proliferation and migration by activating a specific inflammatory signaling pathway (p38 MAPK, upregulating a protein called HMOX1). Worth real, careful framing: choline is also a genuinely essential nutrient this app already tracks for its own real, separate benefits (see this app's own Magnesium-and-beyond nutrient series), and this finding is about the highest intake quintile in a specific population over decades, not a case for avoiding choline-containing foods (eggs, liver, fish) entirely. It's a real, useful reason to know that more isn't automatically better, and that gut bacteria are actively metabolizing what's eaten into compounds with their own real, independent health effects.",
+    citations: [
+      { source: 'Choline intake and risk of lethal prostate cancer: incidence and survival, American Journal of Clinical Nutrition, PMID 22952174', url: 'https://pubmed.ncbi.nlm.nih.gov/22952174/' },
+      { source: 'Gut microbiota derived metabolite trimethylamine N-oxide influences prostate cancer progression via the p38/HMOX1 pathway', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11754881/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-gut-microbiome-cancer-androgens'],
+  },
+  {
+    id: 'prostate-zinc-connection',
+    category: 'prostateHealth',
+    title: 'The Prostate Gland Holds the Highest Zinc Concentration of Any Organ in the Body',
+    teaser: 'This is a real, distinctive physiological fact, and healthy prostate tissue depends on it directly.',
+    summary:
+      "Zinc, a real nutrient this app already tracks in depth (see this app's own Zinc deep-dive), has a genuinely distinctive relationship with the prostate specifically: healthy prostate tissue concentrates zinc at levels far higher than any other organ in the body, and that zinc plays a real, direct role in normal prostate cell metabolism. Real research finds prostate cancer tissue characteristically shows a dramatic loss of this normal zinc accumulation, a consistent enough finding that zinc status is studied as a real marker of prostate tissue health, though the evidence for zinc supplementation actually preventing or treating prostate disease remains genuinely less settled than the tissue-level association itself. This app's food-scoring for prostate health reuses its own existing, already-populated zinc scoring across the whole 22,000-plus-food reference database directly, on the strength of this real, distinctive physiological connection.",
+    citations: [
+      { source: 'Chemoprevention of Prostate Cancer by Natural Agents: Evidence from Molecular and Epidemiological Studies, Anticancer Research', url: 'https://ar.iiarjournals.org/content/39/10/5231' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['zinc-overview', 'zinc-tying-together'],
+  },
+  {
+    id: 'prostate-selenium-select-trial-correction',
+    category: 'prostateHealth',
+    title: 'A Real, Large Trial Found Selenium Supplementation Does Not Prevent Prostate Cancer, and Vitamin E May Raise Risk',
+    teaser: "One of this app's biggest supplement-evidence corrections: selenium is strongly evidenced for Hashimoto's, but a landmark 35,000-man trial found it doesn't help here, and its supplement partner may actually hurt.",
+    summary:
+      "This is a real, important, humbling correction, in the same honest tradition as several other supplement corrections already documented across this app. Selenium carries real, strong trial evidence for lowering TPO antibodies in Hashimoto's (see this app's own nutrient research), which made it a reasonable real candidate for prostate cancer prevention too, since earlier, smaller studies had suggested a possible benefit. The Selenium and Vitamin E Cancer Prevention Trial (SELECT), a real, large, randomized, placebo-controlled trial of 35,533 men followed for 7 to 12 years, found neither selenium (200 mcg/day) nor vitamin E (400 IU/day) reduced prostate cancer incidence. More concerning: vitamin E alone was associated with a real, statistically significant 17% increased risk of prostate cancer compared to placebo. A follow-up analysis of the same trial data found selenium supplementation was associated with an increased risk of high-grade prostate cancer specifically in men who already had adequate selenium status before starting, a real, direct reason more is not automatically better for a nutrient that's genuinely beneficial in a different, deficient context. This is a real, direct argument for getting nutrients through real, whole foods rather than high-dose supplementation, absent a specific, diagnosed deficiency.",
+    citations: [
+      { source: 'Effect of Selenium and Vitamin E on Risk of Prostate Cancer and Other Cancers: The Selenium and Vitamin E Cancer Prevention Trial (SELECT), JAMA', url: 'https://jamanetwork.com/journals/jama/fullarticle/183163' },
+      { source: 'Selenium and Prostate Cancer Prevention: Insights from the Selenium and Vitamin E Cancer Prevention Trial (SELECT)', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3705339/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'prostate-saw-palmetto-mixed',
+    category: 'prostateHealth',
+    title: 'Saw Palmetto for BPH Symptoms: Genuinely Mixed Evidence, Not a Clean Yes or No',
+    teaser: 'One of the most widely used prostate supplements has real trials on both sides, likely explained by a real, practical problem: different studies used different, non-standardized extracts.',
+    summary:
+      "Saw palmetto is a real, extremely commonly used supplement for BPH symptoms, and the honest evidence picture is genuinely mixed rather than settled either way. A real, rigorous, year-long randomized trial (the largest of its kind) found saw palmetto extract, even at double and triple the standard dose, was not superior to placebo for improving urinary symptoms or objective measures of BPH. Separately, though, real meta-analyses of a specific, standardized hexanic extract (used in 27 studies covering 5,800 patients) found real, significant improvement in peak urinary flow and reduced nighttime urination, and a 2020 meta-analysis found saw palmetto performed comparably to tamsulosin, a standard prescription medication, in men with BPH. The real, likely explanation for this split: saw palmetto products sold commercially are not standardized, meaning different trials, and different products someone might actually buy, may not contain comparable amounts of the active compounds at all. Worth knowing directly rather than picking whichever result sounds better: this is a real, unresolved case where the honest answer is 'it depends which product, and the evidence hasn't converged.'",
+    citations: [
+      { source: 'Saw Palmetto for Benign Prostatic Hyperplasia, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa053085' },
+      { source: 'Effect of Increasing Doses of Saw Palmetto Extract on Lower Urinary Tract Symptoms: A Randomized Trial, JAMA', url: 'https://jamanetwork.com/journals/jama/fullarticle/1104439' },
+    ],
+    overallTier: 'weak',
+  },
+  {
+    id: 'prostate-medications-psa-monitoring',
+    category: 'prostateHealth',
+    title: 'A Real, Precise Lab-Interpretation Trap: 5-Alpha-Reductase Inhibitors Cut PSA Roughly in Half',
+    teaser: "Finasteride and dutasteride, two of the most common BPH medications, genuinely change what a normal PSA number looks like -- a real, direct reason to double a reported value before comparing it to anything.",
+    summary:
+      "Finasteride and dutasteride (5-alpha-reductase inhibitors) are real, common, effective BPH medications that work by blocking the enzyme that converts testosterone into DHT, the more potent androgen actually driving prostate tissue growth; both real, documented to shrink prostate volume, improve urinary symptoms, and reduce the risk of acute urinary retention and BPH-related surgery over time. Dutasteride blocks a broader range of the enzyme than finasteride, producing a somewhat larger DHT reduction. The single most important self-advocacy fact here, a real, precise lab-interpretation trap the same way biotin's own lab-interference finding already documented elsewhere in this app: after 6-12 months on either medication, PSA levels drop by roughly 50%, meaning a reported PSA value needs to be doubled before comparing it against a normal reference range or tracking it for a real change over time. Tamsulosin, a genuinely different class of medication (an alpha-blocker), works by relaxing the muscle around the prostate and bladder neck directly rather than shrinking the gland, and doesn't carry this same PSA effect.",
+    citations: [
+      { source: '5-Alpha Reductase Inhibitors, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK555930/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'prostate-psa-screening',
+    category: 'prostateHealth',
+    title: 'PSA Screening Is a Real, Genuine Shared Decision, Not a Routine Test With an Obvious Right Answer',
+    teaser: "Real, current guidance is honest that PSA screening's mortality benefit is small, and its harms, including a 1-in-5 chance of long-term incontinence after surgery, are real and significant.",
+    summary:
+      "PSA screening's own real evidence is more complicated than 'more screening is always better,' the same honest, current-guidance-vs-popular-assumption gap this app already documents for TSH range and other lab tests. Current USPSTF guidance states that for men 55 to 69, the decision to undergo periodic PSA screening should be an individual one, made together with a clinician, specifically because the real reduction in prostate cancer mortality after 10 to 14 years of follow-up is, at most, very small, even in this optimal age range, with no apparent reduction in all-cause mortality. The real reason screening isn't simply recommended for everyone: PSA elevation can come from BPH, prostatitis, or normal variation, not just cancer, and overdiagnosis, detecting a real cancer that would never have caused symptoms or death in that person's lifetime, is a real, documented consequence. The real harms of treatment are significant and worth knowing precisely: about 1 in 5 men who undergo radical prostatectomy develop long-term urinary incontinence requiring pads, roughly 2 in 3 experience long-term erectile dysfunction, and more than half of men receiving radiation therapy experience long-term erectile dysfunction, with up to 1 in 6 experiencing long-term bothersome bowel symptoms. Current guidance recommends against routine PSA screening for men 70 and older. None of this means skip the conversation with a doctor; it means going into that conversation with the real numbers rather than an assumption that screening is automatically the safer choice.",
+    citations: [
+      { source: 'Screening for Prostate Cancer: US Preventive Services Task Force Recommendation Statement', url: 'https://www.uspreventiveservicestaskforce.org/uspstf/recommendation/prostate-cancer-screening' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-medications-psa-monitoring'],
+  },
+  {
+    id: 'prostate-tying-together',
+    category: 'prostateHealth',
+    title: 'What Actually Holds Up for Prostate Health, Pulled Together',
+    teaser: 'A real, direct gut-bacteria-to-hormone pathway, two individually strong protective foods, and a real, humbling correction on a supplement that works well for a different condition.',
+    summary:
+      "Line up everything in this category and prostate health reads as a real, genuinely gut-microbiome-connected condition, not a stretch to include here. Gut dysbiosis is directly linked to BPH through the same SCFA-and-inflammation mechanism this app's own Gut & Microbiome research already documents for autoimmune disease, and specific gut bacteria can directly manufacture the androgens and metabolize dietary compounds (choline into TMAO) that measurably affect prostate cancer risk and progression, a genuinely direct, mechanistic connection rather than a loose correlation. Lycopene and cruciferous vegetables both carry real, individually strong protective evidence, two dependable, concrete food-first levers. Zinc's own distinctive, outsized concentration in healthy prostate tissue makes it a real, natural reuse of this app's own existing nutrient scoring. And two honest corrections round out the practical picture: selenium, strongly evidenced for Hashimoto's, does not prevent prostate cancer and its usual supplement partner (vitamin E) may raise risk, while saw palmetto's own popularity outruns its actually mixed evidence, likely due to real product-standardization problems. The two self-advocacy entries carry the same kind of precise, practical numbers this app's other conditions have already established matter: 5-alpha-reductase inhibitors cutting PSA roughly in half (a real lab-interpretation trap), and PSA screening's own honest, quantified benefit-versus-harm tradeoff, a genuine shared decision rather than an automatic yes.",
+    citations: [
+      { source: 'Benign Prostatic Hyperplasia, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK558920/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening'],
+  },
+];

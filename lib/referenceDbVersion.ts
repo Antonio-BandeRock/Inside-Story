@@ -39,4 +39,4 @@
 // already-documented effect but real all the same). No sub_criteria or
 // food_scores changes this pass -- since no Python interpreter was
 // available in this session to run a real rebuild -- do not edit by hand.
-export const REFERENCE_DB_VERSION = "20260808320000";
+export const REFERENCE_DB_VERSION = "20260808500000";

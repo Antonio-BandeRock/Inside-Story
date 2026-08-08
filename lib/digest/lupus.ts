@@ -30,7 +30,7 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     id: 'lupus-overview',
     category: 'lupus',
     title: 'Systemic Lupus Erythematosus: An Autoimmune Disease That Can Reach Almost Any Organ',
-    teaser: "Not a single-organ disease the way Hashimoto's targets the thyroid or celiac targets the gut -- lupus can genuinely affect the skin, joints, kidneys, blood, and nervous system all at once.",
+    teaser: "Not a single-organ disease -- lupus can genuinely affect the skin, joints, kidneys, blood, and nervous system all at once, unlike more localized autoimmune conditions.",
     summary:
       "Systemic lupus erythematosus (SLE, usually just called lupus) is an autoimmune disease in which the immune system attacks the body's own healthy tissue across multiple organ systems at once -- skin (the classic butterfly-shaped facial rash), joints, kidneys, blood cells, and, in more serious cases, the heart, lungs, or nervous system. This genuinely wide reach is what gives lupus its own reputation as a difficult, sometimes years-long diagnostic process, since early symptoms (fatigue, joint pain, unexplained fever) overlap with many other conditions. Lupus overwhelmingly affects women, especially women of childbearing age, and disproportionately affects Black, Hispanic, and Asian women compared to white women. This category covers what's specific to actually living with and managing lupus on its own terms -- a genuinely wide-ranging shape, reflecting how many different organ systems the disease itself can touch, rather than one dominant theme.",
     citations: [

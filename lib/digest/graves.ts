@@ -8,22 +8,26 @@ import type { DigestEntry } from './types';
 // content directly (TRAb/TSI antibody testing, antithyroid-drug monitoring,
 // bone density) instead of leaving it for a later pass.
 //
-// Graves' disease is the most direct possible contrast to Hashimoto's
-// covered anywhere in this app: both are autoimmune thyroid disease, both
-// attack the same gland, and several findings here run in the OPPOSITE
-// direction from Hashimoto's own research -- smoking raises Graves' risk
-// while it lowers Hashimoto's risk, and iodine's own two-edged nature cuts
-// differently here since Graves' is hyperthyroid, not hypothyroid. Every
-// citation was independently verified via WebSearch before being written
-// in, the same discipline the rest of this Digest already holds to.
+// Graves' disease is autoimmune thyroid disease aimed the opposite
+// direction from a gland-destroying attack -- the same organ, a different
+// antibody, a different real physiology. 2026-08-08: reworded to stand on
+// its own rather than lean on Hashimoto's as the reference point throughout
+// (a real, standing correction -- every condition in this app now gets
+// full, independent depth, not depth measured relative to whichever
+// condition happened to be built first). Real cross-condition facts that
+// genuinely matter for someone managing thyroid autoimmunity generally
+// (smoking's opposite risk direction, iodine's differing role) stay, stated
+// as real findings in their own right. Every citation was independently
+// verified via WebSearch before being written in, the same discipline the
+// rest of this Digest already holds to.
 export const GRAVES_ENTRIES: DigestEntry[] = [
   {
     id: 'graves-overview',
     category: 'graves',
-    title: "Graves' Disease: The Same Gland, the Opposite Direction",
-    teaser: 'The most common cause of an overactive thyroid, and in several real ways, the mirror image of Hashimoto\'s.',
+    title: "Graves' Disease: An Overactive Thyroid Driven by a Stimulating, Not Destructive, Antibody",
+    teaser: 'The most common cause of an overactive thyroid, and a real, distinct disease with its own food and lifestyle evidence base.',
     summary:
-      "Graves' disease is the most common cause of hyperthyroidism, an overactive thyroid, and it's autoimmune the same way Hashimoto's is, just aimed the opposite direction. Instead of antibodies attacking and gradually destroying thyroid tissue the way Hashimoto's TPO antibodies do, Graves' antibodies (called TSI or TRAb, covered in full below) bind to and stimulate the same receptor TSH normally uses, driving the thyroid to overproduce hormone rather than underproduce it. That single mechanistic difference explains why several findings in this category run in the literal opposite direction from this app's own Hashimoto's research: smoking, iodine, and even some of the same nutrients land differently here. Diet won't cure Graves' disease, and nothing here replaces an endocrinologist's own treatment plan. What follows is what the actual research supports, kept honest about how strong each finding really is.",
+      "Graves' disease is the most common cause of hyperthyroidism, an overactive thyroid, and it's autoimmune: the body's own immune system makes an antibody (called TSI or TRAb, covered in full below) that binds to and stimulates the same receptor TSH normally uses, driving the thyroid to overproduce hormone. That's a real, structurally different mechanism from an antibody that attacks and gradually destroys thyroid tissue, and it means several real findings here, smoking's effect, iodine's role, even some of the same nutrients, land differently for Graves' than they do for other thyroid conditions this app also covers. Diet won't cure Graves' disease, and nothing here replaces an endocrinologist's own treatment plan. What follows is what the actual research supports, kept honest about how strong each finding really is.",
     citations: [
       { source: "Graves' Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)", url: 'https://www.niddk.nih.gov/health-information/endocrine-diseases/graves-disease' },
     ],
@@ -36,7 +40,7 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     title: "Iodine and Graves': A Real Trigger, and a Real Complication for Treatment Too",
     teaser: 'Excess iodine can trigger Graves\' in the first place, and separately can work against the very drugs used to treat it, two different reasons it matters here.',
     summary:
-      "Iodine's two-edged reputation, already covered for Hashimoto's elsewhere in this app, cuts differently for Graves'. Excess iodine intake is a documented trigger for Graves' disease itself, and people previously treated with antithyroid drugs, or with a prior iodine deficiency, are especially prone to developing iodine-induced hyperthyroidism when iodine intake rises. Separately, and worth knowing directly if antithyroid drug treatment is already underway: excess iodine in someone actively being treated for Graves' can reduce how well those drugs actually work. The real nuance worth holding onto: this isn't a case for iodine avoidance at any cost. Research also finds adequate (not excessive, not deficient) iodine intake tracks with better remission rates and better long-term control than either too little or too much, making this a genuine Goldilocks nutrient here, not a simple \"avoid it\" rule.",
+      "Iodine has a real, two-edged reputation for thyroid health generally, and it cuts its own specific way for Graves'. Excess iodine intake is a documented trigger for Graves' disease itself, and people previously treated with antithyroid drugs, or with a prior iodine deficiency, are especially prone to developing iodine-induced hyperthyroidism when iodine intake rises. Separately, and worth knowing directly if antithyroid drug treatment is already underway: excess iodine in someone actively being treated for Graves' can reduce how well those drugs actually work. The real nuance worth holding onto: this isn't a case for iodine avoidance at any cost. Research also finds adequate (not excessive, not deficient) iodine intake tracks with better remission rates and better long-term control than either too little or too much, making this a genuine Goldilocks nutrient here, not a simple \"avoid it\" rule.",
     citations: [
       { source: 'Excess iodine intake: sources, assessment, and effects on thyroid function', url: 'https://pubmed.ncbi.nlm.nih.gov/30891786/' },
       { source: "Effect of iodine nutritional status on the recurrence of hyperthyroidism and antithyroid drug efficacy in adult patients with Graves' disease: a systemic review", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10600371/' },
@@ -60,10 +64,10 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
   {
     id: 'graves-smoking',
     category: 'graves',
-    title: "Smoking: The Exact Reverse of Hashimoto's Own Finding",
-    teaser: "This app's own Hashimoto's research names smoking as protective against Hashimoto's specifically. For Graves' eye disease, it's one of the strongest risk factors in this whole app.",
+    title: 'Smoking Is One of the Strongest Documented Risk Factors for Graves\' Eye Disease',
+    teaser: "A meta-analysis of 56 studies found smoking significantly raises the risk of thyroid eye disease, with the risk rising further for every additional cigarette.",
     summary:
-      "This app's own Lifestyle & Environment research, built for Hashimoto's, names a genuinely counterintuitive finding: smoking is associated with LOWER risk of developing Hashimoto's thyroiditis specifically, even though it's well-established as harmful in nearly every other way. Graves' disease is the direct mirror image of that finding, not a repeat of it. A meta-analysis covering 56 studies found smoking (current or past) significantly raises the risk of thyroid eye disease specifically, and an earlier, large meta-analysis found the association even sharper for Graves' ophthalmopathy than for Graves' disease alone. The risk is dose-dependent too, rising with each additional cigarette smoked per day, and even partial smoking reduction appears to lower risk somewhat. This is one of the clearest, most direct reasons in this whole app that smoking-cessation counseling belongs as a real, named part of Graves' treatment, not just general health advice repeated out of habit.",
+      "Smoking is well-established as harmful in nearly every way, and for Graves' disease specifically it carries a real, well-documented, dose-dependent risk. A meta-analysis covering 56 studies found smoking (current or past) significantly raises the risk of thyroid eye disease, and an earlier, large meta-analysis found the association even sharper for Graves' ophthalmopathy than for Graves' disease alone. The risk rises with each additional cigarette smoked per day, and even partial smoking reduction appears to lower risk somewhat. Worth naming directly, since it lands differently for different thyroid conditions: this app's own Hashimoto's research documents a real, separate, genuinely counterintuitive finding that smoking tracks with LOWER risk of developing Hashimoto's thyroiditis specifically. The two findings aren't in tension with each other; they're two different diseases with two different real relationships to the same habit. This is one of the clearest, most direct reasons in this whole app that smoking-cessation counseling belongs as a real, named part of Graves' treatment, not just general health advice repeated out of habit.",
     citations: [
       { source: 'Risk Factors of Thyroid Eye Disease, Endocrine Practice', url: 'https://pubmed.ncbi.nlm.nih.gov/33655885/' },
       { source: 'Smoking and thyroid disorders: a meta-analysis, Clinical Endocrinology', url: 'https://pubmed.ncbi.nlm.nih.gov/11834423/' },
@@ -143,9 +147,9 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     id: 'graves-tying-together',
     category: 'graves',
     title: "What Actually Holds Up for Graves', Pulled Together",
-    teaser: 'A real mirror image of Hashimoto\'s in more than one place, plus three real self-advocacy numbers worth knowing precisely.',
+    teaser: 'A strong, dose-dependent smoking risk, a genuine Goldilocks nutrient, and three real self-advocacy numbers worth knowing precisely.',
     summary:
-      "Line up everything in this category and the throughline is Graves' own real, direct contrast with Hashimoto's, covered elsewhere in this app. Smoking runs the exact opposite direction (protective for Hashimoto's, a strong, dose-dependent risk factor for Graves' eye disease specifically). Iodine still matters in both, but the real complication in Graves' cuts differently: it's a genuine trigger, and separately can undermine antithyroid drug efficacy, with adequate (not excess, not deficient) intake genuinely giving the best real-world outcomes. Selenium carries strong trial evidence for mild eye disease, a real, usable finding, though not yet settled for more severe cases. The three self-advocacy entries in this category carry unusually precise, quantified numbers worth remembering directly: TRAb/TSI testing gives real percentage odds for both remission and relapse, antithyroid drugs need specific, named warning signs watched for rather than a vague sense of caution, and untreated hyperthyroidism's real, measured bone loss is worth a DEXA scan, not assumed to fully resolve just because thyroid levels normalize.",
+      "Line up everything in this category and Graves' reads as a real, distinct disease with its own directly useful evidence. Smoking is a strong, dose-dependent risk factor for Graves' eye disease specifically, one of the clearest reasons anywhere in this app that cessation counseling belongs as real, named part of treatment. Iodine is a genuine trigger, and separately can undermine antithyroid drug efficacy, with adequate (not excess, not deficient) intake genuinely giving the best real-world outcomes, a true Goldilocks nutrient here. Selenium carries strong trial evidence for mild eye disease, a real, usable finding, though not yet settled for more severe cases. The three self-advocacy entries in this category carry unusually precise, quantified numbers worth remembering directly: TRAb/TSI testing gives real percentage odds for both remission and relapse, antithyroid drugs need specific, named warning signs watched for rather than a vague sense of caution, and untreated hyperthyroidism's real, measured bone loss is worth a DEXA scan, not assumed to fully resolve just because thyroid levels normalize.",
     citations: [
       { source: "Graves' Disease, National Institute of Diabetes and Digestive and Kidney Diseases (NIDDK)", url: 'https://www.niddk.nih.gov/health-information/endocrine-diseases/graves-disease' },
     ],

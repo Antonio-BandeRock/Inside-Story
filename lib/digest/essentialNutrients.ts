@@ -649,6 +649,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Zinc Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493231/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['prostate-zinc-connection'],
   },
   {
     id: 'zinc-deficiency-prevalence-causes',
@@ -758,7 +759,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Zinc Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493231/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['zinc-deficiency-symptoms-staged', 'zinc-toxicity-acute-chronic', 'zinc-absorption-mechanism', 'nutrient-zinc-iron-b12', 'interaction-zinc-copper'],
+    relatedIds: ['zinc-deficiency-symptoms-staged', 'zinc-toxicity-acute-chronic', 'zinc-absorption-mechanism', 'nutrient-zinc-iron-b12', 'interaction-zinc-copper', 'prostate-zinc-connection'],
   },
 
   // -- Vitamin B12, added 2026-08-08, the fifth deep-dive in this series,

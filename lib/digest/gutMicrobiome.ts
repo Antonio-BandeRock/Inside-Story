@@ -54,7 +54,7 @@ export const GUT_MICROBIOME_ENTRIES: DigestEntry[] = [
       { source: 'Furusawa et al. 2013, Nature: commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['gut-fiber-hashimotos-microbiota', 'foodhistory-butter-short-chain-fat', 'about-gut-first-line-of-defense'],
+    relatedIds: ['gut-fiber-hashimotos-microbiota', 'foodhistory-butter-short-chain-fat', 'about-gut-first-line-of-defense', 'prostate-gut-microbiome-bph'],
   },
   {
     id: 'gut-zonulin-gliadin',

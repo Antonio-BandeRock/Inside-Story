@@ -32,6 +32,7 @@ import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PCOS_ENTRIES } from './pcos';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
+import { PROSTATE_HEALTH_ENTRIES } from './prostateHealth';
 import { PSORIASIS_ENTRIES } from './psoriasis';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
@@ -48,7 +49,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808400000';
+export const PURPLE_DIGEST_VERSION = '20260808500000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -94,6 +95,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...MIGRAINE_ENTRIES,
   ...CARDIOVASCULAR_DISEASE_ENTRIES,
   ...GOUT_ENTRIES,
+  ...PROSTATE_HEALTH_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -309,6 +311,12 @@ export const DIGEST_CATEGORY_META: {
     label: 'Gout',
     icon: 'footsteps-outline',
     description: 'Real evidence for gout: the specific foods that raise and lower risk (meat, seafood, dairy, sugar drinks, beer, cherries, vitamin C, coffee), a real medication safety distinction, and self-advocacy for genetic testing and flare red flags.',
+  },
+  {
+    key: 'prostateHealth',
+    label: 'Prostate Health',
+    icon: 'male-outline',
+    description: 'Real evidence for BPH and prostate cancer risk: a genuine gut-microbiome connection (dysbiosis linked to BPH, gut bacteria directly making androgens and TMAO), lycopene and cruciferous vegetables, a real supplement correction, and self-advocacy on PSA testing and monitoring.',
   },
 ];
 
