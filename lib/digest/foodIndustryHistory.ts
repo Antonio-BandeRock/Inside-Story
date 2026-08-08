@@ -79,7 +79,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['additive-trans-fats'],
+    relatedIds: ['additive-trans-fats', 'thiamine-tying-together'],
   },
   {
     id: 'foodhistory-timeline-chemical-convenience',

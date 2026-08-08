@@ -15,6 +15,7 @@ import { GOUT_ENTRIES } from './gout';
 import { GRAVES_ENTRIES } from './graves';
 import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
 import { HEALING_STAGES_ENTRIES } from './healingStages';
+import { HORMONES_ENTRIES } from './hormones';
 import { HISTORY_ENTRIES } from './history';
 import { IBD_ENTRIES } from './ibd';
 import { IBS_ENTRIES } from './ibs';
@@ -49,7 +50,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260808500000';
+export const PURPLE_DIGEST_VERSION = '20260808600000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -96,6 +97,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...CARDIOVASCULAR_DISEASE_ENTRIES,
   ...GOUT_ENTRIES,
   ...PROSTATE_HEALTH_ENTRIES,
+  ...HORMONES_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08

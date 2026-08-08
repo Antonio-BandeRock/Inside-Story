@@ -275,6 +275,24 @@ const BASIC_HEALTH_GROUPS: { label: string; prefix: string }[] = [
   { label: 'Vitamin K', prefix: 'vitamink-' },
   { label: 'Omega-3 & Omega-6', prefix: 'omega' },
   { label: 'Protein & Amino Acids', prefix: 'protein-' },
+  // 2026-08-08, direct request: "Finish the rest of the macronutrients,
+  // micronutrients, acids, and hormones" -- the B-vitamin family, four
+  // remaining trace minerals/choline, the two remaining macronutrients,
+  // and the new Hormones topic, completing the Essential Nutrients series
+  // this app named as its own real "next" list two sessions earlier.
+  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'thiamine-' },
+  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'riboflavin-' },
+  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'niacin-' },
+  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'biotin-' },
+  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'pantothenate-' },
+  { label: 'B-Vitamins (B1, B2, B3, B5, B6, B7)', prefix: 'b6-' },
+  { label: 'Chromium, Manganese & Copper', prefix: 'chromium-' },
+  { label: 'Chromium, Manganese & Copper', prefix: 'manganese-' },
+  { label: 'Chromium, Manganese & Copper', prefix: 'copper-' },
+  { label: 'Choline', prefix: 'choline-' },
+  { label: 'Carbohydrates & Fiber', prefix: 'carbfiber-' },
+  { label: 'Water & Hydration', prefix: 'water-' },
+  { label: 'Hormones', prefix: 'hormone' },
   { label: 'Glossary', prefix: 'glossary-' },
   { label: 'Problem Foods & Swaps', prefix: 'problem-' },
   { label: 'Food Additives', prefix: 'additive-' },
@@ -300,8 +318,17 @@ function basicHealthGroupLabel(id: string): string {
 // doesn't match any known prefix above -- a safety net, not an expected
 // real bucket, so it's appended after every named group rather than
 // reserved a fixed position.
+//
+// 2026-08-08: BASIC_HEALTH_GROUPS itself can now list several DIFFERENT
+// prefixes under the SAME label (e.g. 'thiamine-'/'riboflavin-'/'niacin-'
+// all sharing "B-Vitamins"), since basicHealthGroupLabel's own .find()
+// only ever returns one label per prefix match, not a merge -- so `order`
+// must be de-duplicated before use, or a shared label would otherwise
+// produce one identical, fully-duplicated shelf row per prefix that maps
+// to it (six B-Vitamins rows, not one) rather than the single real,
+// merged shelf this is actually meant to render.
+const order = [...new Set(BASIC_HEALTH_GROUPS.map((group) => group.label))];
 function groupBasicHealthEntries(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
-  const order = BASIC_HEALTH_GROUPS.map((group) => group.label);
   const buckets = new Map<string, AnyDigestEntry[]>();
   for (const entry of entries) {
     const label = basicHealthGroupLabel(entry.id);

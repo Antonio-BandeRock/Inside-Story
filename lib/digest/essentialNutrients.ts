@@ -1823,4 +1823,508 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['protein-deficiency-kwashiorkor-marasmus', 'protein-toxicity-rabbit-starvation', 'protein-requirements-rda-vs-real-need', 'ckd-protein-restriction-plant-based'],
   },
+
+  // -- The B-Vitamin Family (Thiamine/B1, Riboflavin/B2, Niacin/B3,
+  // Pantothenic Acid/B5, Biotin/B7), added 2026-08-08, continuing the
+  // Essential Nutrients series -- B12 and Folate already had their own
+  // full deep-dives; these five round out the water-soluble B-complex.
+  // Every citation independently verified via WebSearch. Vitamin B6
+  // follows as its own, larger deep-dive right after, since it carries a
+  // real, genuinely different two-sided deficiency/toxicity story the
+  // others in this family don't share.
+  {
+    id: 'thiamine-overview',
+    category: 'basicHealth',
+    title: 'Thiamine (B1): The Vitamin Whose Deficiency Named a Disease That Reshaped Food Policy',
+    teaser: 'A required cofactor for turning carbohydrates into usable energy, and the real reason white rice became a public-health problem a century ago.',
+    summary:
+      "Thiamine is a required cofactor for several enzymes central to carbohydrate metabolism and nerve-cell energy production, meaning tissues with the highest energy demand, the heart and the nervous system, are also the first to show real trouble when it runs short. The body stores very little thiamine at any given time (roughly an 18-day supply), so deficiency can develop faster than most other water-soluble vitamin shortfalls once intake actually stops. Real, modern risk factors concentrate in a specific, identifiable group: chronic alcohol use disorder, severe malnutrition, bariatric surgery, chronic diuretic use, and any condition raising metabolic demand suddenly (severe illness, hyperemesis in pregnancy). This isn't a historical curiosity confined to old naval logs; StatPearls describes it directly as a common, underrecognized cause of real multisystem illness today.",
+    citations: [
+      { source: 'Vitamin B1 (Thiamine) Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK537204/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'thiamine-deficiency-beriberi-wernicke',
+    category: 'basicHealth',
+    title: 'Beriberi and Wernicke-Korsakoff Syndrome: Two Real, Distinct Faces of the Same Deficiency',
+    teaser: 'One form floods the heart with fluid. The other, left untreated, causes permanent brain damage. Both trace to the identical missing nutrient.',
+    summary:
+      "Real thiamine deficiency shows up in genuinely different ways depending on which system runs out of reserve first. \"Wet\" beriberi presents as high-output heart failure; \"dry\" beriberi presents as a symmetrical peripheral neuropathy affecting the legs first. A third, more urgent presentation, Wernicke encephalopathy, is a real medical emergency: confusion, abnormal eye movements, and loss of coordination that progresses to coma and death if thiamine isn't given immediately. Left untreated, Wernicke encephalopathy can progress into Korsakoff psychosis, a real, often permanent memory disorder marked by confabulation (confidently stating false memories without any intent to deceive). The genuinely good news, stated directly in the clinical literature: giving thiamine promptly can prevent Wernicke-Korsakoff from developing at all, and most people who catch it early recover completely, a real, sharp contrast to how much of this whole deficiency is permanent once Korsakoff's memory damage has already set in.",
+    citations: [
+      { source: 'Vitamin B1 (Thiamine) Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK537204/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'thiamine-tying-together',
+    category: 'basicHealth',
+    title: 'Thiamine, Pulled Together: The Same Deficiency That Once Reshaped an Entire Food-Milling Industry',
+    teaser: 'This app\'s own food-industry history already covers why refined white rice became a real public-health crisis. Thiamine is the exact nutrient that crisis was about.',
+    summary:
+      "Thiamine's own real history connects directly to a topic already covered elsewhere in this app: industrial rice- and grain-milling, which strips away the outer bran layer where thiamine is concentrated, was the actual mechanism behind widespread beriberi epidemics once polished white rice became the dominant staple in parts of Asia in the late 1800s and early 1900s, a real, documented case of a food-processing change causing a nutrient-deficiency disease at population scale. Today's real risk factors have shifted (alcohol use disorder and bariatric surgery, not polished rice, are the dominant modern causes in food-secure countries), but the underlying biology is unchanged: too little thiamine reaching high-energy-demand tissue, with real, severe, and in Korsakoff's case sometimes permanent consequences. This app's own Hashimoto's-specific research separately covers a case-report-level finding on high-dose thiamine and thyroid-related fatigue, honestly tiered weak since it's three patients, not a trial; that's a genuinely different, narrower claim from the well-established deficiency disease covered here.",
+    citations: [
+      { source: 'Vitamin B1 (Thiamine) Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK537204/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['thiamine-deficiency-beriberi-wernicke', 'foodhistory-timeline-baseline-milling'],
+  },
+  {
+    id: 'riboflavin-overview',
+    category: 'basicHealth',
+    title: 'Riboflavin (B2): A Genuinely Low-Risk Vitamin With One Real, Well-Evidenced Clinical Use',
+    teaser: "Deficiency is rare and mild in most food-secure populations, and there's no established upper limit since it isn't known to be toxic even at high doses.",
+    summary:
+      "Riboflavin is a required cofactor in the electron-transport chain, the cellular pathway that actually generates usable energy, and in the metabolism of several other B vitamins besides. Real deficiency (ariboflavinosis) causes cracking at the corners of the mouth, a sore, magenta-colored tongue, and skin changes, genuinely uncomfortable but rarely dangerous on its own, and uncommon in populations with reliable access to dairy, eggs, and fortified grain. The real, distinctive fact worth knowing: there's no established upper intake limit for riboflavin, since it doesn't appear to be toxic for most people even at doses far above the standard 1.1-1.3mg/day requirement, a genuinely wide safety margin most nutrients in this series don't share.",
+    citations: [
+      { source: 'Supplementation with Riboflavin (Vitamin B2) for Migraine Prophylaxis in Adults and Children: A Review, PMID 26780280', url: 'https://pubmed.ncbi.nlm.nih.gov/26780280/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'riboflavin-migraine-prevention',
+    category: 'basicHealth',
+    title: 'A Landmark Trial Found High-Dose Riboflavin Cut Migraine Frequency in Half',
+    teaser: 'A real, cited RCT found 400mg daily reduced migraine attacks by 50%, with a 59% responder rate versus 15% on placebo -- strong enough that two major neurology bodies now formally endorse it.',
+    summary:
+      "This is riboflavin's single best-evidenced real use, and it's already named in this app's own Migraine category, worth understanding here in full as the wider nutrient story it actually is. A landmark randomized controlled trial found 400mg of riboflavin daily reduced migraine attack frequency by roughly 50% compared to placebo, with a real 59% responder rate against 15% for placebo, a genuinely strong effect size for a single, cheap, well-tolerated nutrient. The proposed mechanism ties to riboflavin's own core function: migraine is increasingly understood to involve real mitochondrial energy-production deficits in susceptible people, and riboflavin's central role in the electron-transport chain gives it a real, plausible route to helping. Both the American Academy of Neurology and the American Headache Society now list riboflavin as an evidence-supported complementary migraine therapy, real, formal recognition from two major professional bodies, not just a popular supplement claim.",
+    citations: [
+      { source: 'Supplementation with Riboflavin (Vitamin B2) for Migraine Prophylaxis in Adults and Children: A Review, PMID 26780280', url: 'https://pubmed.ncbi.nlm.nih.gov/26780280/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-magnesium-riboflavin-coq10'],
+  },
+  {
+    id: 'riboflavin-tying-together',
+    category: 'basicHealth',
+    title: 'Riboflavin, Pulled Together',
+    teaser: 'A genuinely low-risk nutrient at both ends, with one real, strong, specific clinical use that outperforms most other supplements in this whole series.',
+    summary:
+      "Riboflavin reads as one of the more reassuring entries in this series: real deficiency is mild and uncommon with reliable food access, real toxicity essentially doesn't happen even at high supplemental doses, and its one well-evidenced clinical use, migraine prevention at 400mg/day, carries genuinely strong trial evidence and formal professional endorsement rather than the more commonly mixed picture this series has documented for several other single-nutrient supplement claims.",
+    citations: [
+      { source: 'Supplementation with Riboflavin (Vitamin B2) for Migraine Prophylaxis in Adults and Children: A Review, PMID 26780280', url: 'https://pubmed.ncbi.nlm.nih.gov/26780280/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['riboflavin-migraine-prevention'],
+  },
+  {
+    id: 'niacin-overview',
+    category: 'basicHealth',
+    title: 'Niacin (B3): A Real Two-Sided Nutrient, With a Deficiency Disease That Reshaped a Diet and a Supplement Form That Comes With Real Risk',
+    teaser: 'The vitamin behind pellagra\'s historic "three Ds," and, at high supplemental doses, a real, documented liver-toxicity risk of its own.',
+    summary:
+      "Niacin (available in the body as nicotinic acid or nicotinamide) is required for over 400 enzymatic reactions, most centrally in energy metabolism, making it one of the more broadly essential B vitamins in this whole family. It's genuinely two-sided in a way riboflavin and biotin aren't: real, severe deficiency disease exists (pellagra), and real, dose-dependent toxicity exists too, entirely from supplemental intake rather than food. Corn-based diets lacking niacin in a bioavailable form were the real, historic driver of mass pellagra outbreaks in the early 1900s American South, a genuine nutritional-deficiency epidemic tied directly to a specific, dominant dietary staple, the same class of food-and-disease connection covered elsewhere in this app's own food-industry history.",
+    citations: [
+      { source: 'Niacin Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK557728/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'niacin-deficiency-pellagra',
+    category: 'basicHealth',
+    title: "Pellagra: The Real \"Three D's\" of Severe Niacin Deficiency",
+    teaser: 'Dermatitis, dementia, and diarrhea -- a real, historically documented triad, and untreated pellagra can be fatal.',
+    summary:
+      "Pellagra, severe niacin deficiency, produces a real, classically taught clinical triad: dermatitis (a symmetric, sun-exposed skin rash), dementia (confusion and cognitive decline), and diarrhea, with a fourth D, death, a genuine real outcome if it goes untreated. It's far less common today than in its early-1900s historical peak, but real, current case reports still document it in specific, at-risk populations: bariatric surgery patients, people with chronic alcohol use disorder, and anyone with severe, sustained malnutrition. The historic epidemic traced directly to corn as a dominant dietary staple without the traditional preparation step (nixtamalization, treating corn with an alkaline solution) that actually releases its niacin into a bioavailable form, a real, specific example of how a food's own preparation method, not just its raw nutrient content, determines what the body can actually use.",
+    citations: [
+      { source: 'Niacin Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK557728/' },
+      { source: 'Pellagra in Complex Clinical Settings: A Case Involving Bariatric Surgery, Whipple Procedure, and Alcohol Use Disorder', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12376560/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'niacin-toxicity-flushing-liver',
+    category: 'basicHealth',
+    title: 'Niacin Flushing Has a Real, Specific Mechanism, and High-Dose Supplementation Carries a Real Liver Risk',
+    teaser: 'That hot, red flushing feeling isn\'t an allergic reaction -- it\'s a real, specific receptor being directly activated. Sustained high doses are a real, different, more serious story.',
+    summary:
+      "Niacin flushing, a hot, reddening sensation in the face, arms, and chest, has a real, well-understood mechanism: niacin activates a specific receptor (GPR109A) on skin cells, triggering prostaglandin release and direct vasodilation, typically starting within 30 minutes and fading within about an hour. It's uncomfortable, not dangerous, and genuinely distinct from a true allergic reaction. The real, more serious risk sits at sustained high supplemental doses: niacin, especially at levels prescribed for cholesterol management (around 3,000mg/day historically), can cause real hepatotoxicity ranging from mild liver-enzyme elevation to acute liver failure, alongside jaundice and visual disturbance at that range. This is a real, dose-dependent risk from supplementation specifically, not from niacin obtained through ordinary food.",
+    citations: [
+      { source: 'Niacin Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/sites/books/NBK559137/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'niacin-tying-together',
+    category: 'basicHealth',
+    title: 'Niacin, Pulled Together',
+    teaser: 'A real, severe deficiency disease with its own documented food-preparation cause, and a real, dose-dependent toxicity risk confined almost entirely to supplementation.',
+    summary:
+      "Niacin reads as a genuinely two-sided nutrient in this series, closer in shape to vitamin B6 or vitamin D than to riboflavin's much wider safety margin. Real deficiency (pellagra) traces to a specific, documented historical food-preparation gap, not just low intake in the abstract. Real toxicity (flushing, and at sustained high supplemental doses, genuine liver damage) is dose-dependent and essentially confined to supplement-level intake, never ordinary food. Both extremes are real, well-characterized, and each traces to an identifiable, specific cause rather than a vague or contested mechanism.",
+    citations: [
+      { source: 'Niacin Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK557728/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['niacin-deficiency-pellagra', 'niacin-toxicity-flushing-liver'],
+  },
+  {
+    id: 'biotin-overview',
+    category: 'basicHealth',
+    title: 'Biotin (B7): A Genuinely Rare Real Deficiency, and a Real, Different Story Already Covered Elsewhere in This App',
+    teaser: "Biotin's own real deficiency is rare enough that most people will never encounter it -- but a completely separate biotin issue, lab-test interference, is genuinely common and already covered in this app's Labs & Medication Timing category.",
+    summary:
+      "Biotin is a required cofactor for several carboxylase enzymes central to fatty-acid, amino-acid, and glucose metabolism. Real, clinically significant deficiency is genuinely uncommon in the general population, occurring mainly with prolonged antibiotic use, certain anticonvulsant medications, or total parenteral nutrition (IV feeding bypassing the gut entirely), with symptoms including hair loss, a scaly rash, and, in severe cases, real neurological symptoms. Worth stating plainly since it's a genuinely common point of confusion: biotin's real, well-documented, and much more commonly relevant issue today isn't dietary deficiency at all -- it's high-dose biotin supplementation interfering with certain thyroid and other lab-test assays, already covered in full in this app's own Labs & Medication Timing category, a real, separate story from the classic nutrient-deficiency picture covered here.",
+    citations: [
+      { source: 'Biotin Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK547751/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['labs-biotin-interference'],
+  },
+  {
+    id: 'biotin-deficiency-avidin-mechanism',
+    category: 'basicHealth',
+    title: 'Raw Egg Whites Contain a Real, Specific Protein That Blocks Biotin Absorption Entirely',
+    teaser: 'Avidin binds biotin so tightly the pair passes straight through the body unused -- and cooking is all it takes to fully deactivate it.',
+    summary:
+      "This is a real, specific, and genuinely elegant mechanism, not folk advice: raw egg whites contain avidin, a protein that binds biotin essentially irreversibly, meaning the biotin-avidin complex simply passes through the digestive tract and is lost in stool rather than absorbed. Eating enough raw egg whites regularly (historically documented in cases of habitual raw-egg consumption) can produce a real, avidin-driven biotin deficiency purely from this binding effect, independent of how much biotin the diet otherwise contains. The real, practical fix is simple and well-established: cooking denatures avidin's protein structure, permanently disabling its ability to bind biotin, which is exactly why cooked eggs (a genuinely good biotin source in their own right) pose no such risk at all.",
+    citations: [
+      { source: 'Biotin Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK547751/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'biotin-tying-together',
+    category: 'basicHealth',
+    title: 'Biotin, Pulled Together',
+    teaser: 'A genuinely rare real deficiency with one elegant, specific dietary mechanism -- and a much more commonly relevant story about high-dose supplements and lab tests, covered in full elsewhere in this app.',
+    summary:
+      "Biotin's own real deficiency picture is narrow and specific: genuinely rare outside a handful of identifiable causes, with raw-egg-white avidin binding as its one distinctive, well-understood dietary mechanism. The far more practically relevant biotin story for most people today isn't a deficiency at all, it's supplementation, and this app's own Labs & Medication Timing category already covers that side in depth (high-dose biotin supplements skewing certain thyroid and cardiac lab assays) -- worth remembering biotin has two genuinely separate real stories, not one, and most people are far more likely to encounter the second.",
+    citations: [
+      { source: 'Biotin Deficiency, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK547751/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['biotin-deficiency-avidin-mechanism', 'labs-biotin-interference'],
+  },
+  {
+    id: 'pantothenate-overview-and-rarity',
+    category: 'basicHealth',
+    title: "Pantothenic Acid (B5): Named for the Greek Word Meaning \"From Everywhere,\" and Genuinely Hard to Become Deficient In",
+    teaser: 'A required cofactor for Coenzyme A, present widely enough across ordinary food that a real, isolated deficiency has essentially never been documented outside severe, total malnutrition.',
+    summary:
+      "Pantothenic acid's own name comes directly from the Greek word for \"from everywhere,\" a real reflection of how widely it's distributed across ordinary food (meat, whole grains, vegetables, dairy) -- it's a required component of Coenzyme A, central to fatty-acid metabolism and energy production. Precisely because of that wide distribution, a genuinely isolated pantothenic-acid deficiency has essentially never been documented in a real, otherwise-adequately-fed person; the few real cases on record occurred only under conditions of severe total-calorie malnutrition alongside multiple other simultaneous nutrient deficiencies, not pantothenic acid alone. No established toxicity from excess intake exists either. Of every nutrient in this whole Essential Nutrients series, pantothenic acid carries the widest real margin of safety at both ends, worth naming honestly rather than manufacturing a deficiency-and-toxicity narrative this nutrient simply doesn't have.",
+    citations: [
+      { source: 'Pantothenic Acid, Health Professional Fact Sheet, NIH Office of Dietary Supplements', url: 'https://ods.od.nih.gov/factsheets/PantothenicAcid-HealthProfessional/' },
+    ],
+    overallTier: 'strong',
+  },
+
+  // -- Vitamin B6 (Pyridoxine), added 2026-08-08 -- given its own, larger
+  // deep-dive since, unlike the five B-vitamins above, it carries a real,
+  // genuinely two-sided deficiency-AND-toxicity story with two distinct
+  // real mechanisms, matching the depth this series already gives
+  // Magnesium, Vitamin D, Iron, and Zinc.
+  {
+    id: 'b6-overview',
+    category: 'basicHealth',
+    title: 'Vitamin B6 (Pyridoxine): Over 100 Real Enzyme Reactions, and a Genuine Two-Sided Neurological Story',
+    teaser: 'Central to neurotransmitter production, amino-acid metabolism, and hemoglobin synthesis -- and, unusually among B vitamins, both too little and too much can independently cause nerve damage.',
+    summary:
+      "Vitamin B6 participates in well over 100 real enzymatic reactions across the body, most centrally neurotransmitter synthesis (serotonin, dopamine, GABA), amino-acid metabolism, glucose metabolism, and hemoglobin production. What sets B6 apart from most other water-soluble vitamins covered in this series is a real, genuinely two-sided neurological story: both deficiency and excess can independently cause peripheral neuropathy, through two real, different mechanisms, covered in the two entries below. Real, isolated dietary B6 deficiency is uncommon; it shows up more often as a side effect of specific medications (isoniazid, used for tuberculosis, and certain other anticonvulsants) that directly interfere with B6 metabolism, or alongside chronic alcohol use disorder.",
+    citations: [
+      { source: 'The Role of Vitamin B6 in Peripheral Neuropathy: A Systematic Review', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10343656/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'b6-toxicity-neuropathy',
+    category: 'basicHealth',
+    title: 'High-Dose B6 Supplementation Can Cause a Real, Distinct Sensory Neuropathy',
+    teaser: 'Deficiency damages both motor and sensory nerve fibers; too much B6 damages sensory fibers alone, through a genuinely different mechanism -- and it happens at real, identifiable doses.',
+    summary:
+      "This is a real, well-documented, and genuinely counterintuitive fact: pyridoxine deficiency and pyridoxine excess both cause peripheral neuropathy, but through different mechanisms producing a different clinical picture. Deficiency injures both motor and sensory axons; overdose produces a pure sensory neuropathy (numbness, tingling, unsteady balance from impaired position sense) without motor involvement. Real toxicity essentially never comes from food, only from supraphysiologic supplement dosing: sensory neuropathy typically develops above 1,000mg/day in adults, though real, documented cases have occurred at doses under 500mg/day when taken chronically over several months. There's no specific antidote; treatment is simply stopping the supplement, after which most people improve, though recovery can be slow and, in some documented cases, isn't fully complete.",
+    citations: [
+      { source: 'Vitamin B6 Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK554500/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'b6-tying-together',
+    category: 'basicHealth',
+    title: 'Vitamin B6, Pulled Together',
+    teaser: 'A genuinely rare dietary deficiency mostly caused by specific medications, and a real, well-documented supplement-dose toxicity most people never approach through food alone.',
+    summary:
+      "B6 reads as a real, two-sided nutrient closer in shape to niacin or vitamin D than to biotin or pantothenic acid's much wider safety margins. Real deficiency is uncommon outside specific medication interactions (isoniazid especially) or chronic alcohol use; real toxicity requires supplement doses (typically 1,000mg/day and up, occasionally lower with chronic use) that ordinary food could never approach. Both extremes damage nerves, through two genuinely different, well-characterized mechanisms, worth knowing as two distinct real risks rather than one vague \"too much or too little is bad\" rule.",
+    citations: [
+      { source: 'Vitamin B6 Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK554500/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['b6-toxicity-neuropathy'],
+  },
+
+  // -- Chromium, Manganese, Copper, and Choline, added 2026-08-08,
+  // continuing the Essential Nutrients series -- the four remaining
+  // trace-mineral/nutrient candidates named at the end of the original
+  // 15-topic build ("real candidates worth continuing"). Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'chromium-overview-essentiality-debate',
+    category: 'basicHealth',
+    title: "Chromium: A Trace Mineral Whose Real Role in Blood-Sugar Regulation Is Genuinely Less Settled Than Its Supplement Marketing Suggests",
+    teaser: 'Widely sold as a blood-sugar supplement, chromium\'s own real evidence base is honestly mixed, not the clean, settled story the supplement aisle implies.',
+    summary:
+      "Chromium is a trace mineral long theorized to enhance insulin's own action at the cellular level, the basis for its wide popularity as a blood-sugar and weight-management supplement, most commonly sold as chromium picolinate. Real, published research states this directly: controversy exists as to whether chromium supplementation should be routinely recommended in people without a documented, confirmed deficiency, and results across well-designed clinical trials genuinely point in different directions depending on the specific population studied (lean vs. obese, insulin-sensitive vs. insulin-resistant). This is a real, honest starting point worth holding onto through the more specific finding in the next entry: chromium's own supplement reputation runs ahead of how settled the underlying science actually is.",
+    citations: [
+      { source: 'Current concepts about chromium supplementation in type 2 diabetes and insulin resistance, PMID 20425574', url: 'https://pubmed.ncbi.nlm.nih.gov/20425574/' },
+    ],
+    overallTier: 'moderate',
+  },
+  {
+    id: 'chromium-insulin-sensitivity-honest',
+    category: 'basicHealth',
+    title: 'Chromium Supplementation: A Real, Modest Effect on Insulin-Resistance Markers, of Uncertain Real-World Significance',
+    teaser: 'A meta-analysis of 28 studies found chromium significantly lowered fasting blood sugar and HOMA-IR -- but had no significant effect on HbA1c, the marker that actually reflects longer-term control.',
+    summary:
+      "A meta-analysis pooling 28 studies found chromium supplementation produced a real, statistically significant reduction in fasting plasma glucose, insulin levels, and HOMA-IR (a standard insulin-resistance index) in people with type 2 diabetes. Worth stating plainly, in the same honest tradition already established elsewhere in this series: the same body of research found no significant effect on HbA1c, the lab marker that actually reflects blood-sugar control over the preceding several months, meaning the real, measured effect on shorter-term markers hasn't been shown to translate into the outcome that matters most clinically. A separate, more recent meta-analysis in overweight and obese, non-diabetic adults found a real but genuinely small effect (HOMA-IR reduction, weighted mean difference of only -0.26). The honest, consistent read across both bodies of evidence: a real, measurable, but modest effect exists in some populations, with uncertain real-world clinical significance, closer to a supporting player than a primary blood-sugar intervention.",
+    citations: [
+      { source: 'Effects of chromium supplementation on glycemic control in patients with type 2 diabetes: a systematic review and meta-analysis of randomized controlled trials', url: 'https://www.sciencedirect.com/science/article/abs/pii/S1043661820314067' },
+      { source: 'The effect of chromium supplementation on cardio-metabolic risk factors in overweight and obese patients: a systematic review and meta-analysis', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0946672X25000586' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['type2-metabolic-syndrome-cluster', 'pcos-myo-dchiro-inositol'],
+  },
+  {
+    id: 'chromium-tying-together',
+    category: 'basicHealth',
+    title: 'Chromium, Pulled Together',
+    teaser: 'A real, modest supplement effect on some blood-sugar markers, with genuinely uncertain clinical significance -- an honest, moderate-tier entry in this series, not a strong or a weak one.',
+    summary:
+      "Chromium sits in a genuinely different place from most of this series' other entries: not a nutrient with a real, severe, well-characterized deficiency disease (magnesium, iron, zinc), and not one with a clean null result either (the SELECT trial's honest correction on selenium and prostate cancer). Instead, chromium's own real evidence shows a modest, statistically real effect on some insulin-resistance markers without translating into the longer-term marker (HbA1c) that matters most, and without a clear, settled answer on who actually benefits. Worth treating as a real, minor, second-tier lever, alongside myo-inositol and Nigella sativa in this app's own PCOS and Hashimoto's research, rather than either dismissed or oversold.",
+    citations: [
+      { source: 'Current concepts about chromium supplementation in type 2 diabetes and insulin resistance, PMID 20425574', url: 'https://pubmed.ncbi.nlm.nih.gov/20425574/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chromium-insulin-sensitivity-honest'],
+  },
+  {
+    id: 'manganese-overview',
+    category: 'basicHealth',
+    title: 'Manganese: A Required Antioxidant Cofactor, and a Genuinely Unusual Nutrient Whose Real Risk Runs Almost Entirely on the Toxicity Side',
+    teaser: 'A trace mineral needed for bone formation and the body\'s own primary mitochondrial antioxidant enzyme -- but real deficiency is so rare it\'s barely been documented in humans at all.',
+    summary:
+      "Manganese is a required cofactor for several enzymes, most notably manganese superoxide dismutase (MnSOD), the primary antioxidant enzyme protecting mitochondria specifically from oxidative damage, and for enzymes involved in bone formation and connective-tissue development. This is a genuinely lopsided nutrient compared to most others in this series: real, documented manganese deficiency in humans is rare enough that it's barely been characterized at all outside controlled research settings, while real, well-documented toxicity is a genuine, serious concern, covered in the entry below. Ordinary dietary intake (whole grains, nuts, leafy greens, tea) essentially never causes a problem in either direction; the real risk sits almost entirely with a specific, identifiable exposure route.",
+    citations: [
+      { source: 'Manganese Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK560903/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'manganese-toxicity-manganism',
+    category: 'basicHealth',
+    title: 'Manganism: A Real, Distinctive Neurotoxic Syndrome That Looks Like Parkinson\'s Disease',
+    teaser: 'Chronic overexposure produces a real, progressive movement disorder, primarily from inhaled dust in specific occupational settings, not from ordinary eating.',
+    summary:
+      "Manganese toxicity produces a real, distinctive clinical picture: early psychiatric symptoms progressing to a movement disorder genuinely resembling Parkinson's disease, caused by manganese depositing directly in the basal ganglia (a brain region central to movement control). This is called manganism, and it's overwhelmingly an occupational exposure risk (inhaled manganese-containing dust in welding, mining, and certain manufacturing settings), not a risk from eating manganese-containing food. A real, specific, and genuinely useful interaction worth knowing: iron deficiency independently increases how much manganese the body absorbs and deposits in tissue, including the brain, meaning someone with unaddressed iron deficiency carries a real, elevated manganese-toxicity risk at the same environmental exposure level someone with normal iron status would tolerate -- iron supplementation has real, documented value in treating manganese overload specifically for this reason. Infants and children carry real, elevated risk too, from a combination of less-developed excretion mechanisms and a more permeable blood-brain barrier.",
+    citations: [
+      { source: 'Manganese Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK560903/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['iron-absorption-mechanism'],
+  },
+  {
+    id: 'manganese-tying-together',
+    category: 'basicHealth',
+    title: 'Manganese, Pulled Together',
+    teaser: 'A genuinely lopsided nutrient: real deficiency is barely documented in humans, while real toxicity is a serious, well-characterized occupational-exposure risk with a real, specific link to iron status.',
+    summary:
+      "Manganese reads as one of the more one-sided nutrients in this whole series. Ordinary dietary intake essentially never causes a real problem in either direction. The genuine risk sits almost entirely at chronic, high-level occupational exposure (inhaled dust), producing manganism, a real, distinctive neurotoxic movement disorder -- and the real, specific tie to iron status (iron deficiency increasing manganese uptake and deposition) is a genuinely useful, actionable connection to this series' own Iron deep-dive, not a coincidence.",
+    citations: [
+      { source: 'Manganese Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK560903/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['manganese-toxicity-manganism', 'iron-overview'],
+  },
+  {
+    id: 'copper-overview',
+    category: 'basicHealth',
+    title: 'Copper: A Required Partner to Iron Metabolism, With Two Real, Opposite, Genetic Diseases Bearing Its Name',
+    teaser: 'Needed for connective tissue, nerve function, and iron transport -- and two real, rare genetic diseases (one deficiency, one toxicity) show exactly what happens at each extreme.',
+    summary:
+      "Copper is a required cofactor for several enzymes, including ones central to connective-tissue formation, nerve-cell energy production, and, notably, mobilizing iron out of storage and into the bloodstream, a real, direct link between these two trace minerals covered separately elsewhere in this series. Copper's own real deficiency-and-toxicity story is unusually well illustrated by two real, named, opposite genetic diseases: Menkes disease (a real, X-linked, fatal copper-deficiency disorder in infants, from a mutation preventing copper absorption) and Wilson disease (a real, autosomal-recessive copper-toxicity disorder from a mutation preventing copper excretion, causing dangerous accumulation in the liver and brain). Both are rare, genetic, and extreme, but they cleanly demonstrate copper's own real biology at both ends, the same two-extremes shape most nutrients in this series share, just genetically rather than dietarily driven in these specific named cases.",
+    citations: [
+      { source: 'Inherited Copper Transport Disorders: Biochemical Mechanisms, Diagnosis, and Treatment', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3290776/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'copper-deficiency-anemia-neutropenia',
+    category: 'basicHealth',
+    title: 'Acquired Copper Deficiency Is a Real, Under-Recognized Cause of Anemia Often Mistaken for a Bone-Marrow Disease',
+    teaser: 'Copper deficiency causes real anemia and low white-blood-cell counts that can look enough like myelodysplastic syndrome to be misdiagnosed as one -- and copper replacement reverses it.',
+    summary:
+      "Beyond the rare genetic cases, real acquired copper deficiency happens too, most commonly from bariatric surgery, malabsorption, or, notably, sustained high-dose zinc supplementation (see this app's own zinc-copper antagonism research). It produces a genuinely distinctive real blood picture: anemia alongside neutropenia (low neutrophil white blood cells), sometimes with bone-marrow changes resembling myelodysplastic syndrome (MDS) closely enough that real, documented cases have been misdiagnosed as MDS before copper deficiency was identified as the actual cause. The real, reassuring part: copper replacement promptly reverses the blood-related effects, though any neurological symptoms that developed alongside it can take longer to resolve, and don't always fully do so.",
+    citations: [
+      { source: 'Update on anemia and neutropenia in copper deficiency, PMID 22080848', url: 'https://pubmed.ncbi.nlm.nih.gov/22080848/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['interaction-zinc-copper'],
+  },
+  {
+    id: 'copper-tying-together',
+    category: 'basicHealth',
+    title: 'Copper, Pulled Together',
+    teaser: 'A real, direct partner to iron metabolism, with a genuinely common, well-documented supplement-driven deficiency pathway already covered in this app\'s own zinc-copper research.',
+    summary:
+      "Copper's own two named genetic extremes (Menkes, Wilson disease) are rare, but the far more practically relevant real risk for most people is the acquired, supplement-driven deficiency already covered in this app's own zinc-copper antagonism entry: sustained high-dose zinc supplementation, often taken with good intentions for immune support or cold prevention, can quietly cause a real copper deficiency with genuine hematologic and neurological consequences. Worth reading alongside this app's own zinc deep-dive directly, since this is the single most likely way an ordinary person actually encounters a real copper problem.",
+    citations: [
+      { source: 'Inherited Copper Transport Disorders: Biochemical Mechanisms, Diagnosis, and Treatment', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3290776/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['copper-deficiency-anemia-neutropenia', 'interaction-zinc-copper', 'zinc-toxicity-acute-chronic'],
+  },
+  {
+    id: 'choline-overview',
+    category: 'basicHealth',
+    title: 'Choline: A Nutrient the Body Can Partly Make Itself, But Not Nearly Enough of',
+    teaser: "The body's own liver produces some choline on its own -- just not enough to meet real daily needs, which is exactly why it's still classified as an essential nutrient.",
+    summary:
+      "Choline is a genuinely unusual nutrient: the liver can synthesize a small amount on its own, but not nearly enough to meet the body's real daily requirement, which is why it's still formally classified as essential and carries its own real Adequate Intake value (550mg/day for men, 425mg/day for women). It serves several real, distinct functions: the body converts it into acetylcholine, a neurotransmitter involved in muscle contraction, pain signaling, and memory; the majority gets converted into phosphatidylcholine, the predominant structural lipid in cell membranes and a required component for packaging and exporting fat out of the liver; and it acts as a methyl donor after conversion to betaine, a real, direct link to the same folate-driven methylation chemistry already covered elsewhere in this series.",
+    citations: [
+      { source: 'Choline, Health Professional Fact Sheet, NIH Office of Dietary Supplements', url: 'https://ods.od.nih.gov/factsheets/Choline-HealthProfessional/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'choline-deficiency-liver',
+    category: 'basicHealth',
+    title: "Choline Deficiency Directly Causes the Liver to Store Excess Fat, a Real, Direct Mechanistic Link to Fatty Liver Disease",
+    teaser: "Phosphatidylcholine, made from choline, is what actually packages fat for export out of the liver -- without enough choline, fat backs up inside liver cells instead.",
+    summary:
+      "This is a real, direct, mechanistic connection worth understanding plainly, not just a loose association: phosphatidylcholine (made from choline) is a required structural component for packaging fat into the lipoprotein particles the liver uses to export it into the bloodstream. Without adequate choline, that export pathway is genuinely impaired, and fat accumulates inside liver cells instead, a real, documented, causal route to fatty liver, distinct from the more commonly discussed insulin-resistance-driven pathway already covered in this app's own Fatty Liver Disease category. Deficiency-driven liver fat accumulation has been directly demonstrated in controlled human feeding studies specifically restricting choline intake, real experimental confirmation, not just observational correlation.",
+    citations: [
+      { source: 'Choline, Health Professional Fact Sheet, NIH Office of Dietary Supplements', url: 'https://ods.od.nih.gov/factsheets/Choline-HealthProfessional/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-overview'],
+  },
+  {
+    id: 'choline-food-sources-real-data',
+    category: 'basicHealth',
+    chart: {
+      title: 'Choline Content of Real Foods (mg per 100g)',
+      unit: 'mg',
+      data: [
+        { label: 'Beef liver', value: 418 },
+        { label: 'Egg (whole)', value: 294 },
+        { label: 'Salmon', value: 90 },
+        { label: 'Chicken breast', value: 72 },
+      ],
+      sourceNote: "This app's own reference database (USDA-sourced values)",
+    },
+    title: 'Choline Content of Real Foods, Directly From This App\'s Own Reference Database',
+    teaser: 'Egg yolk and liver both carry genuinely high, concentrated choline -- worth knowing directly, given the real "how much is too much" question this app\'s own prostate research already covers.',
+    summary:
+      "Choline concentrates heavily in a small number of real foods: organ meat (beef liver) and egg yolk both carry genuinely high amounts per serving, with leaner meat and fish contributing meaningfully but less densely. This is worth reading directly alongside this app's own prostate-health research, which independently found the highest quintile of dietary choline intake associated with a real, quantified 70% higher risk of lethal prostate cancer over 22 years of follow-up in one large study, mediated by gut bacteria converting excess choline into TMAO. Neither finding cancels the other out: choline is a real, essential nutrient with a genuine deficiency risk (impaired liver-fat export, covered above) at one end, and a real, dose-dependent concern at sustained high intake at the other, the same two-extremes shape this whole series keeps finding, not a reason to avoid choline-rich food entirely.",
+    citations: [
+      { source: 'Choline intake and risk of lethal prostate cancer: incidence and survival, PMID 22952174', url: 'https://pubmed.ncbi.nlm.nih.gov/22952174/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-choline-tmao'],
+  },
+  {
+    id: 'choline-tying-together',
+    category: 'basicHealth',
+    title: 'Choline, Pulled Together',
+    teaser: 'A genuinely two-sided nutrient with real evidence at both extremes: too little measurably backs up fat in the liver, and too much, sustained over decades, carries a real, quantified cancer-risk finding already covered elsewhere in this app.',
+    summary:
+      "Choline is a real, structurally interesting nutrient in this series: partly self-made by the liver, but not enough to avoid needing real dietary intake, with a genuine, well-demonstrated deficiency mechanism (impaired fat export from the liver) and a genuine, well-quantified high-intake risk (the prostate-cancer/TMAO finding already covered in this app's own Prostate Health research) sitting at opposite ends of the same nutrient. Worth reading both entries together as one complete picture rather than either alone.",
+    citations: [
+      { source: 'Choline, Health Professional Fact Sheet, NIH Office of Dietary Supplements', url: 'https://ods.od.nih.gov/factsheets/Choline-HealthProfessional/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['choline-deficiency-liver', 'choline-food-sources-real-data', 'prostate-choline-tmao'],
+  },
+
+  // -- Carbohydrates & Fiber, and Water & Hydration, added 2026-08-08 --
+  // the two remaining macronutrients in this series (Protein and
+  // Omega-3/6 Fatty Acids were already built). Every citation
+  // independently verified via WebSearch.
+  {
+    id: 'carbfiber-overview',
+    category: 'basicHealth',
+    title: 'Carbohydrates & Fiber: The Same Macronutrient Category, Two Genuinely Different Real Jobs',
+    teaser: 'Soluble fiber dissolves into a real gel that lowers cholesterol and slows glucose absorption. Insoluble fiber stays intact and does the opposite kind of job entirely.',
+    summary:
+      "Carbohydrates are the body's primary, most readily available energy source, but fiber, the carbohydrate the body can't actually digest, does a genuinely different real job depending on its type. Soluble fiber (found in oats, barley, legumes, and many fruits) dissolves in water to form a real gel that slows gastric emptying, increases satiety, and binds bile acids in the gut, directly lowering LDL cholesterol as a documented result. Insoluble fiber (found in whole grains, bran, nuts, and vegetable skins) stays structurally intact through digestion, adding real bulk and speeding intestinal transit, the mechanism behind its own real role in digestive regularity. Soluble fiber is also the more readily fermentable of the two, meaning it's the real, primary substrate for the short-chain-fatty-acid production this app's own Gut & Microbiome research already covers as one of the most directly food-controllable levers in this whole app.",
+    citations: [
+      { source: 'The Role of Dietary Fiber in Health Promotion and Disease Prevention: A Practical Guide for Clinicians, StatPearls', url: 'https://www.ncbi.nlm.nih.gov/books/NBK559033/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gut-scfa-treg'],
+  },
+  {
+    id: 'carbfiber-real-benefits',
+    category: 'basicHealth',
+    title: 'Fiber\'s Own Real, Quantified Benefits: Lower LDL, Better Blood Sugar, and Reduced Risk Across Several Major Diseases',
+    teaser: 'Inadequate fiber intake is real, documented to track with higher risk of cardiovascular disease, several cancers, and type 2 diabetes -- not a vague wellness claim.',
+    summary:
+      "Fiber's own real evidence base is genuinely broad and consistent, not confined to one narrow benefit. Soluble fiber specifically is documented to significantly reduce LDL cholesterol, an established, direct cardiovascular-risk-reduction mechanism through bile-acid binding. Real research also finds inadequate fiber intake closely associated with a higher risk of cardiovascular disease, several cancers (colon cancer most prominently), gastrointestinal disorders, and type 2 diabetes, across large, real population studies, not a single small trial. Fiber's own real effect on satiety and appetite regulation (slowed gastric emptying, a genuine feeling of fullness) also carries real systematic-review support for aiding weight management, a real, food-first lever rather than a supplement-dependent one.",
+    citations: [
+      { source: 'The Role of Dietary Fiber in Health Promotion and Disease Prevention: A Practical Guide for Clinicians, StatPearls', url: 'https://www.ncbi.nlm.nih.gov/books/NBK559033/' },
+      { source: 'Dietary fiber influence on overall health, with an emphasis on CVD, diabetes, obesity, colon cancer, and inflammation', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11671356/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'carbfiber-intake-gap',
+    category: 'basicHealth',
+    title: 'A Real, Striking Gap: Roughly 94% of Americans Don\'t Meet the Recommended Fiber Intake',
+    teaser: 'The real RDA is 25-38 grams a day depending on sex and age. Almost nobody is actually getting there.',
+    summary:
+      "The real, established RDA for total fiber intake is 38 grams/day for men and 25 grams/day for women aged 19-50 (both figures step down somewhat with age). The genuinely striking real finding: approximately 94% of American children and adults fail to meet this target, one of the largest, most consistent nutrient-intake gaps documented in the general population, far exceeding the shortfall documented for most single micronutrients covered elsewhere in this series. There's no real, established guidance on splitting intake specifically between soluble and insoluble fiber; the practical, evidence-backed goal is simply reaching real total intake, which whole foods (fruits, vegetables, legumes, whole grains) reliably deliver in a way most refined, processed alternatives don't.",
+    citations: [
+      { source: 'The Role of Dietary Fiber in Health Promotion and Disease Prevention: A Practical Guide for Clinicians, StatPearls', url: 'https://www.ncbi.nlm.nih.gov/books/NBK559033/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'carbfiber-tying-together',
+    category: 'basicHealth',
+    title: 'Carbohydrates & Fiber, Pulled Together',
+    teaser: 'One of the largest, most consistent real intake gaps this whole series documents, backed by real, broad, food-first evidence, and already reused as a real food-scoring dimension for two conditions elsewhere in this app.',
+    summary:
+      "Fiber reads as one of the more clear-cut, actionable entries in this whole series: real, broad, well-established benefit (cardiovascular, metabolic, digestive), a genuinely enormous real gap between recommended and actual intake (94% of Americans falling short), and no real toxicity concern at ordinary dietary intake levels. This app's own reuse-first food-scoring architecture already reflects fiber's real relevance directly: the \"Carbohydrate Density Relative to Fiber\" sub-criterion, built for Type 1 Diabetes and reused for PCOS and Type 2 Diabetes, scores every food in this app's own reference database by exactly this real fiber-to-carbohydrate relationship.",
+    citations: [
+      { source: 'The Role of Dietary Fiber in Health Promotion and Disease Prevention: A Practical Guide for Clinicians, StatPearls', url: 'https://www.ncbi.nlm.nih.gov/books/NBK559033/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['carbfiber-real-benefits', 'carbfiber-intake-gap', 'type1-carb-counting-accuracy'],
+  },
+  {
+    id: 'water-overview',
+    category: 'basicHealth',
+    title: 'Water: The One Nutrient With No Official Government Recommendation at All',
+    teaser: 'Every other nutrient in this series has a real, published DRI. Water genuinely doesn\'t -- a real, deliberate gap this app fills with its own DRI figure instead.',
+    summary:
+      "Water is required for essentially every real physiological process (temperature regulation, nutrient transport, waste removal, joint lubrication, and simply making up roughly 50-60% of adult body weight), yet it's a genuinely unusual entry in this series: the CDC states directly that no official U.S. government guideline exists for exactly how much water a person needs daily. This app's own real DRI figure (2.7L/day for women, 3.7L/day for men, from all sources including food, not just drinks, sourced from the 2005 NASEM report already cited elsewhere in this app) fills that real gap, and this app's own Hydration lens already tracks total daily intake, food and drink combined, against it directly. The real, practical takeaway from water's own missing official guideline: thirst itself is a real, generally reliable regulatory signal in a healthy person under ordinary conditions, not something that needs to be overridden by a fixed daily target.",
+    citations: [
+      { source: 'Water Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK537231/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'water-intoxication-hyponatremia',
+    category: 'basicHealth',
+    title: 'Water Intoxication Is Real, But Genuinely Rare Outside Two Specific, Identifiable Situations',
+    teaser: 'The kidneys can only clear about 0.8-1.0 liters of water per hour -- drinking meaningfully faster than that, sustained, is what actually causes real, dangerous hyponatremia.',
+    summary:
+      "Water intoxication (acute hyponatremia, dangerously diluted blood sodium from excess water intake) is a real, documented, potentially life-threatening condition, not a myth, but it's genuinely rare in ordinary daily life. The real mechanism: the kidneys can only clear roughly 0.8-1.0 liters of water per hour, and sustained intake meaningfully faster than that overwhelms the body's own sodium balance. Real documented cases concentrate almost entirely in two specific, identifiable situations: deliberate water-drinking contests/competitions, and prolonged endurance exercise (marathons, ultra-distance events) where excessive fluid replacement outpaces real sodium loss. A genuinely useful, real, practical finding from endurance-sport research: recommending athletes drink according to thirst, rather than a fixed volume schedule, nearly eliminated hyponatremia cases in real competition settings without causing dangerous dehydration either. For ordinary daily hydration outside intense endurance exercise, real water intoxication essentially doesn't happen by accident.",
+    citations: [
+      { source: 'Water Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK537231/' },
+      { source: 'Exercise-Induced Hyponatremia: An Assessment of the International Hydration Recommendations', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8898836/' },
+    ],
+    overallTier: 'strong',
+  },
+  {
+    id: 'water-tying-together',
+    category: 'basicHealth',
+    title: 'Water & Hydration, Pulled Together',
+    teaser: 'The one nutrient in this whole series with no official government target at all -- and, outside two specific, identifiable situations, one of the lowest real risks of getting wrong.',
+    summary:
+      "Water is a genuinely unusual entry to close this series on: essential for nearly every real bodily process, yet carrying no formal government-set daily target, with thirst itself serving as a real, generally reliable regulatory signal for most people under ordinary conditions. Real danger at the high end (water intoxication) concentrates almost entirely in water-drinking contests and prolonged endurance exercise outpacing real sodium loss, not ordinary daily drinking. This app's own Hydration lens already puts this real, combined-source DRI target (2.7L women / 3.7L men) into practice directly, tracking food and drink together rather than treating \"how many glasses of water\" as the whole picture the way most hydration advice does.",
+    citations: [
+      { source: 'Water Toxicity, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK537231/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['water-intoxication-hyponatremia'],
+  },
 ];

@@ -55,7 +55,7 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Effectiveness of advanced carbohydrate counting in type 1 diabetes mellitus: a systematic review and meta-analysis', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5107938/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['type2-low-carb-diet-evidence'],
+    relatedIds: ['type2-low-carb-diet-evidence', 'carbfiber-tying-together'],
   },
   {
     id: 'type1-exercise-glucose',

@@ -35,6 +35,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
       { source: 'Biotin induced biochemical hyperthyroidism: a case report and review of the literature', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10304644/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['biotin-tying-together'],
   },
   {
     id: 'labs-calcium-iron-absorption',

@@ -58,6 +58,7 @@ export const PCOS_ENTRIES: DigestEntry[] = [
       { source: 'The 40:1 myo-inositol/D-chiro-inositol plasma ratio is able to restore ovulation in PCOS patients: comparison with other ratios, PMID 31298405', url: 'https://pubmed.ncbi.nlm.nih.gov/31298405/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['chromium-insulin-sensitivity-honest'],
   },
   {
     id: 'pcos-spearmint-tea',
