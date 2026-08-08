@@ -83,7 +83,11 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Search the whole Digest, or just one category',
-    body: 'The search bar always visible at the top of this screen searches every entry in this Digest at once, regardless of which category is currently open. Every category also has its own, separate search box, further down, scoped to just that one category\'s own entries.',
+    body: '"Search All" is its own selection in the menu below, right alongside Basic Health and every condition -- pick it to search every entry in this Digest at once. Every other category also has its own, separate search box, scoped to just that one category\'s own entries, once it\'s open.',
+  },
+  {
+    heading: 'A quick way back',
+    body: 'A "‹ Back to Digest" link sits at the top of every category\'s own content -- tap it to return straight to this tab\'s own resting screen, from any depth, so you can open the menu and pick something else.',
   },
   {
     heading: 'Problem Foods & Swaps is different on purpose',
@@ -104,12 +108,23 @@ const DIGEST_READING_HELP: HelpSection = {
   body: 'Tap any card in this category to expand it to its full write-up and citations. Tap it again, or tap a different card, to collapse it and jump to the new one. The colored dot on each card is its own evidence tier, same discipline as the rest of this app. Where a finding connects to another entry, a Related chip jumps straight there.',
 };
 
-// Formerly the 'search' lens's own dedicated Info-sheet content -- removed
-// entirely 2026-08-08 alongside 'search' itself no longer being a pickable
-// LensHub tile (see LENSES' own comment for why). Its real content lives
-// on in DIGEST_HELP_SECTIONS' own new "Search the whole Digest, or just
-// one category" section above instead, reachable from this screen's own
-// regular Info affordance rather than a per-lens one that no longer exists.
+// The 'search' lens's own dedicated Info-sheet content -- restored
+// 2026-08-08 alongside 'search' itself becoming a real LensHub tile again
+// (see LENSES' own comment for the fuller back-and-forth). DIGEST_READING_
+// HELP is deliberately NOT appended here the way it is for every other
+// lens's own `help` -- its own "tap a card to expand" instructions don't
+// apply the same way to a results list built from search matches across
+// every category at once.
+const DIGEST_SEARCH_HELP: HelpSection[] = [
+  {
+    heading: 'Search All',
+    body: 'Type a word or phrase to search every entry in this whole Digest at once, across every category, regardless of which one you searched last. Tap any result to jump straight to it, already expanded, in its own real category.',
+  },
+  {
+    heading: 'A different way to look, not the only way',
+    body: 'Every other category also has its own, separate search box, scoped to just that one category\'s own entries, once you\'ve opened it -- useful when you already know roughly where something lives and just want to narrow it down.',
+  },
+];
 
 // One real, bespoke explanation per lens for the LensHub Info tile --
 // 2026-08-07, explicitly requested: "Write the information about each
@@ -663,18 +678,31 @@ export default function PurpleDigestScreen() {
   );
   const orderedCategoryMetas = [basicHealthMeta, ...pinnedConditionMetas, ...otherConditionMetas];
 
-  // 'search' is deliberately NOT one of these tiles -- 2026-08-08, direct
-  // correction: "Search the whole digest should be on the outside of Basic
-  // Health, not inside of it." Search All used to sit as a co-equal grid
-  // tile right alongside Basic Health and every condition, which read as
-  // "one of the topics" rather than the real, structurally separate,
-  // always-available capability it's meant to be. The persistent search
-  // bar rendered at the very top of this whole screen (see the JSX below)
-  // is now the one real way to search everything -- `lens` can still be
-  // set to `'search'` internally (typing in that bar does exactly that,
-  // reusing the same results-rendering branch this file already had), it
-  // just never appears as a pickable card in this list anymore.
+  // 'search' IS one of these tiles, leading the list -- 2026-08-08, a real
+  // correction of an in-between attempt this same day. The first pass had
+  // Search All as a co-equal grid tile right alongside Basic Health and
+  // every condition; a direct correction ("Search the whole digest should
+  // be on the outside of Basic Health, not inside of it") was read, at the
+  // time, as needing that structural sibling-ness removed entirely, so
+  // Search became a persistent bar pinned above the whole screen instead.
+  // The real, actual ask turned out narrower and different: "move the
+  // 'Search the whole digest' search utility out of the Basic Health area
+  // and into the Digest LensHub menu as a selection" -- a real, tappable
+  // choice from the same menu every other lens already lives in, not a
+  // second, parallel input mechanism outside that menu altogether. Since
+  // LensHub's own grid already renders Basic Health and every condition as
+  // plain, equal siblings, giving Search its own tile in that same list
+  // already satisfies "outside of Basic Health" on its own -- it's a
+  // sibling selection, not a child of Basic Health's own tree. The
+  // persistent bar is gone; typing now only happens inside the 'search'
+  // lens's own content, the same as any other lens.
   const LENSES: LensOption<PurpleDigestLens>[] = [
+    {
+      key: 'search',
+      label: 'Search All',
+      icon: 'search-outline',
+      help: DIGEST_SEARCH_HELP,
+    },
     ...orderedCategoryMetas.map((meta) => ({
       key: meta.key,
       // A leading star marks a condition the person has actually told the
@@ -854,36 +882,6 @@ export default function PurpleDigestScreen() {
 
   return (
     <View style={styles.screen}>
-      {/* A real, persistent search bar, always on screen regardless of
-          `revealed` or which lens is picked -- 2026-08-08, closing the
-          single biggest gap against "reach anything in three taps or
-          less": the only way to search used to be opening LensHub and
-          picking the "Search All" tile first. A sibling of
-          SwipeableTabScreen (not inside GatedTabContent's own children, which
-          render nothing at all until `revealed`) so it's reachable before
-          any lens has ever been picked. Typing switches straight into the
-          existing 'search' lens and reveals the screen if it hasn't been
-          already -- reuses `searchQuery`/searchResults exactly as the
-          'search' lens's own content below already does, so this is a
-          second way to populate the same state, not a second search
-          mechanism. Clearing the text does NOT revert to whatever lens was
-          open before -- the search lens's own resting "type to search"
-          prompt shows instead, the same behavior already established for
-          tapping "Search All" from the picker directly. */}
-      <View style={styles.persistentSearchBar}>
-        <AppTextInput
-          style={styles.searchInput}
-          placeholder="Search the whole Digest..."
-          value={searchQuery}
-          onChangeText={(text) => {
-            setSearchQuery(text);
-            if (text.trim().length > 0) {
-              if (lens !== 'search') setLens('search');
-              if (!revealed) setRevealed(true);
-            }
-          }}
-        />
-      </View>
       <SwipeableTabScreen enabled={!revealed}>
         <GatedTabContent pageTitle="Purple Digest" variant="field" revealed={revealed}>
           <ScrollView
@@ -895,6 +893,34 @@ export default function PurpleDigestScreen() {
             }}
             scrollEventThrottle={16}
           >
+            {/* A real, always-available way back to the resting "nothing
+                picked yet" screen -- 2026-08-08, direct correction: "there
+                is no way to back out of an area to go back to the level
+                before, all the way to the Digest home screen with the
+                LensHub menu showing so the user can choose another lens if
+                they want to." Basic Health's own tree already has a
+                one-level-at-a-time "back" link (BasicHealthTree's own
+                onBack), and that stays exactly as it is for stepping
+                between tree levels -- this is a second, separate escape
+                hatch that always works in one tap, from any lens, at any
+                depth (a condition's pillar shelves, Search's own results,
+                or any level of Basic Health's tree). It doesn't reopen
+                LensHub itself -- it returns to the exact same resting state
+                (revealed=false, the corner button and PageIdentityLabel's
+                own prompt visible) every other tab in this app already uses
+                as its own "nothing picked yet" screen, so tapping the
+                corner button to choose a new lens from there is the same,
+                already-familiar motion as opening this tab for the first
+                time. */}
+            <TouchableOpacity
+              style={styles.backToHomeRow}
+              onPress={() => setRevealed(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Back to Digest home"
+            >
+              <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
+            </TouchableOpacity>
+
             {/* Wrapped in an opaque card, not sitting bare on the shared
                 flower background -- reported as unreadable that way. Every
                 other tab's own top-of-content text either already sits on a
@@ -917,11 +943,12 @@ export default function PurpleDigestScreen() {
 
             {lens === 'search' ? (
               <>
-                {/* The persistent search bar above (always on screen, not
-                    just here) is now the only search input for this lens --
-                    it already writes into the same `searchQuery` state this
-                    branch reads, so a second, in-content input here would
-                    just be a redundant, disconnected-looking duplicate. */}
+                <AppTextInput
+                  style={styles.searchInput}
+                  placeholder="Search the whole Digest..."
+                  value={searchQuery}
+                  onChangeText={setSearchQuery}
+                />
                 {searchQuery.trim().length === 0 ? (
                   <Text style={styles.emptyText}>
                     Type a word or phrase to search every category at once -- a mechanism, a food, an
@@ -1593,15 +1620,12 @@ function DigestCard({
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  // A real, fixed-height header strip sitting above everything else on
-  // this screen (including the resting, not-yet-revealed state) -- see the
-  // persistent search bar's own JSX comment for why it has to live outside
-  // GatedTabContent's own children.
-  persistentSearchBar: {
-    paddingHorizontal: 16,
-    paddingTop: 12,
-    backgroundColor: colors.background,
-  },
+  // The "‹ Back to Digest" escape hatch -- see its own JSX comment above
+  // headerCard for what it does. Plain text, not another bordered card, so
+  // it reads as a lightweight navigation control rather than competing
+  // with headerCard's own real page-identity content directly below it.
+  backToHomeRow: { marginBottom: 10 },
+  backToHomeText: { ...typography.body, color: TAB_COLOR, fontWeight: '600' },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
   // An opaque card, same surface every DigestCard below already sits on --
