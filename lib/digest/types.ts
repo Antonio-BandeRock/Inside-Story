@@ -42,90 +42,63 @@ export type DigestCitation = {
   url: string;
 };
 
+// RESTRUCTURED 2026-08-08, same day as Psoriasis shipped, direct request:
+// "all of the Hashimoto's specific Digest information should be within a
+// Hashimoto's area of the Digest, just as the Rheumatoid arthritis has...
+// basic health and knowledge everyone should be aware of about their own
+// selves and food and vitamins and minerals and interactions should be
+// listed in a Basic Health category like the free version will have. Each
+// specific autoimmune disease and other than autoimmune disease... need
+// each their own areas as well. Self advocacy should also be specific to
+// each disease." This collapses what had grown into 20 topic-named
+// categories (gutMicrobiome, nutrients, foodAdditives, fermentedFoods,
+// labsMedication, lifestyleEnvironment, mitochondriaMetabolism,
+// otherAutoimmune, healingStages, organSystems, history,
+// nutrientInteractions, foodIndustryHistory, bigPicture, glossary,
+// selfAdvocacy, pregnancyFamilyPlanning, complementaryTherapies, plus
+// problemFoods as its own type) down to four real areas, matching the
+// pattern RA and Psoriasis already established: one area per condition,
+// plus one shared Basic Health area for genuinely condition-agnostic
+// content. Every one of those 20 old topic files still exists on disk
+// (kept for authoring/history clarity, one topic per file remains a
+// reasonable way to organize the *source*), but every entry's own
+// `category` field was individually reassigned into one of the four keys
+// below rather than reused as-is -- see each file's own header comment for
+// its specific reassignment reasoning. ProblemFoodEntry's own `category`
+// (previously hardcoded to the literal 'problemFoods') was widened to this
+// same union so its entries could be sorted the same way; `isProblemFoodEntry`
+// switched to a structural check (see below) since `category` no longer
+// serves as that type's discriminant.
 export const DIGEST_CATEGORY_KEYS = [
-  'gutMicrobiome',
-  'nutrients',
-  'foodAdditives',
-  'fermentedFoods',
-  'labsMedication',
-  'lifestyleEnvironment',
-  'mitochondriaMetabolism',
-  'otherAutoimmune',
-  // 2026-08-07: four categories added in direct response to "this area MUST
-  // include everything at all worth knowing" -- explicitly not exhaustive
-  // even after this addition (nothing in a growing medical literature ever
-  // truly is), but a real, substantial expansion rather than a token one.
-  'healingStages',
-  'organSystems',
-  'history',
-  'nutrientInteractions',
-  // 2026-08-07, same day: a fifth addition, folding in the standalone
-  // "What Happened to Food" research Artifact as its own category rather
-  // than leaving it external -- see foodIndustryHistory.ts's own header
-  // comment for the full story, including two real corrections made during
-  // re-verification (a untraceable autoimmune-rise statistic replaced with
-  // a real, more nuanced 2023 Lancet finding; an unverifiable margarine
-  // consumption figure replaced with a verified one).
-  'foodIndustryHistory',
-  // 2026-08-07, same day, sixth addition: "we need some what to Tie it all
-  // together of all of the digest lenses. Sort of a short story." Every
-  // other category's own new "Tying it all together" entry (see each
-  // category file's own closing entry) synthesizes WITHIN that one
-  // category -- this one is different in kind, not degree: a short,
-  // continuous narrative that crosses all 14 other categories in a single
-  // read, grounding the research in one illustrative day rather than
-  // reviewing it category by category. See bigPicture.ts's own header
-  // comment for the full reasoning.
-  'bigPicture',
-  // 2026-08-07, same day, seventh addition: "Provide a glossary of words
-  // and phrases and acronyms and definitions of all of them... Make it
-  // another lens on the Digest." A genuinely different kind of category
-  // from the other 14 -- see glossary.ts's own header comment for why it's
-  // deliberately short-entry/lookup-shaped rather than narrative, and
-  // index.ts's own DIGEST_CATEGORY_META comment for why, unlike every
-  // category before it, this one was placed FIRST rather than appended
-  // last (a direct, explicit request: "the first one at the top left").
-  'glossary',
-  // 2026-08-07, eighth addition: Self Advocacy -- prompted by a real
-  // Google-search summary the person's wife found, asking how to advocate
-  // for a genuinely fuller lab panel (thyroid, nutrient, hormone,
-  // metabolic, inflammatory markers) and how often each is actually worth
-  // retesting. See selfAdvocacy.ts's own header comment for the full
-  // reasoning, including where that summary's own framing needed real
-  // correction (reverse T3, sex-hormone testing for perimenopause).
-  // Appended normally -- unlike Glossary, no explicit request to reorder.
-  'selfAdvocacy',
-  // 2026-08-07, ninth addition, part of a real, requested gap-filling pass
-  // ("I agree with all of what you determined and I want you to begin on
-  // all of it") -- Pregnancy & Family Planning. See
-  // pregnancyFamilyPlanning.ts's own header comment for the full reasoning.
-  'pregnancyFamilyPlanning',
-  // 2026-08-07, same day, tenth addition -- Complementary & Manual
-  // Therapies: chiropractic, acupuncture/acupressure, massage, heat/cold
-  // therapy, researched directly per request but deliberately bounded (the
-  // person's own stated concern: "this sounds like maybe it could go down
-  // a rabbit hole quickly"). See complementaryTherapies.ts's own header
-  // comment for the full reasoning, including a real, flat null
-  // (chiropractic) reported honestly rather than smoothed over.
-  'complementaryTherapies',
-  // 2026-08-08, eleventh addition: Rheumatoid Arthritis -- this app's
-  // second real condition, following the priority order from the Beyond
-  // Hashimoto's research. A genuinely different kind of category from
-  // every one before it: the other ten are all still Hashimoto's-specific
-  // (even Other Autoimmune Diseases is corroborating evidence FOR
-  // Hashimoto's), while this one is written as RA's own primary content,
-  // for someone who has RA rather than Hashimoto's, or both. See
-  // rheumatoidArthritis.ts's own header comment for the full reasoning,
-  // including how it deliberately doesn't duplicate the existing
-  // 'other-rheumatoid-arthritis' entry in otherAutoimmune.ts.
+  // Condition-agnostic: food additives, food-industry history, nutrient
+  // interactions, complementary therapies, the glossary, and every entry
+  // from the topic files above whose real underlying science applies
+  // regardless of which condition someone has (general gut-barrier
+  // biology, general inflammation causes, general fermented-food
+  // microbiology, etc.) -- exactly what the Free tier shows under "Food
+  // Basics" per this app's own monetization tiers (see CLAUDE.md's
+  // "Monetization -- tiers" section), now built as a real structural
+  // category rather than a deferred per-entry tag.
+  'basicHealth',
+  // Hashimoto's: this app's original, deepest-built condition. Every entry
+  // whose real content is specific to thyroid physiology, TPO/Tg
+  // antibodies, levothyroxine, or Hashimoto's own disease course lives
+  // here now -- nutrients, labs & medication timing, healing stages, organ
+  // systems (framed around hypothyroidism's own effects), history &
+  // milestones, pregnancy & family planning, Other Autoimmune Diseases
+  // (corroborating evidence curated FOR a Hashimoto's reader), Big Picture
+  // (its own narrative device is a Hashimoto's dosing day), and the
+  // Hashimoto's-specific self-advocacy entries split out of the old,
+  // single shared Self Advocacy category.
+  'hashimotos',
   'rheumatoidArthritis',
-  // 2026-08-08, twelfth addition, same day: Psoriasis / Psoriatic Arthritis
-  // -- this app's third real condition, next in the same priority order.
-  // Same reuse-first pattern as RA: see psoriasis.ts's own header comment,
-  // including two entries (oral vitamin D, omega-3) that honestly report
-  // mixed or null evidence rather than smoothing a popular claim into false
-  // confidence.
   'psoriasis',
+  // 2026-08-08, same day, fourth condition, next in the same priority
+  // order: Graves' Disease. See graves.ts's own header comment -- the
+  // first condition built with its own real self-advocacy content from the
+  // start, per the lesson from the same-day restructure above, rather than
+  // added in a later pass.
+  'graves',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
@@ -160,10 +133,6 @@ export type DigestChart = {
   sourceNote: string;
 };
 
-// 'problemFoods' is deliberately its own type (ProblemFoodEntry, below),
-// never mixed into DigestEntry's own category union -- the two are shaped
-// too differently (a citation-review vs. a food-and-its-swaps) to pretend
-// they're one schema with optional fields standing in for the difference.
 export type DigestEntryCategory = (typeof DIGEST_CATEGORY_KEYS)[number];
 
 export type DigestEntry = {
@@ -203,7 +172,14 @@ export type DigestEntry = {
 
 export type ProblemFoodEntry = {
   id: string;
-  category: 'problemFoods';
+  // Widened 2026-08-08 from the old hardcoded literal 'problemFoods' to the
+  // same DigestEntryCategory union DigestEntry uses -- a problem-food entry
+  // (raw goitrogenic cruciferous vegetables, say) is just as much
+  // Hashimoto's-specific-or-not as a citation-review entry is, and needs
+  // sorting into the same basicHealth/hashimotos/per-disease areas. See
+  // isProblemFoodEntry below for how the two shapes are now told apart,
+  // since `category` can no longer serve as the discriminant.
+  category: DigestEntryCategory;
   foodName: string;
   // The one-line reason this food shows up here at all.
   teaser: string;
@@ -230,6 +206,10 @@ export type ProblemFoodEntry = {
 
 export type AnyDigestEntry = DigestEntry | ProblemFoodEntry;
 
+// A structural check, not a `category` comparison -- see ProblemFoodEntry's
+// own `category` comment for why that field stopped being usable as this
+// type's discriminant 2026-08-08. `foodName` is required on ProblemFoodEntry
+// and doesn't exist on DigestEntry at all, so this is exact either way.
 export function isProblemFoodEntry(entry: AnyDigestEntry): entry is ProblemFoodEntry {
-  return entry.category === 'problemFoods';
+  return 'foodName' in entry;
 }

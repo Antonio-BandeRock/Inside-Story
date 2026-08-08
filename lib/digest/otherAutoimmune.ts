@@ -32,7 +32,7 @@ import type { DigestEntry } from './types';
 export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   {
     id: 'other-why-cross-disease-evidence',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: 'Why This Category Exists At All',
     teaser: "Seven diagnoses with almost nothing in common on paper, until you look at what's actually happening in the gut of each one.",
     summary:
@@ -48,7 +48,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-rheumatoid-arthritis',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: 'Rheumatoid Arthritis: The Same Vitamin D Puzzle, One More Time',
     teaser: 'A disease of the joints, nowhere near the thyroid, and the same open question about vitamin D shows up here too.',
     summary:
@@ -61,7 +61,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-ibd',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: "Inflammatory Bowel Disease: The One Disease Where You Can Actually Watch the Gut Heal",
     teaser: "Every other entry in this category has to infer what's happening in the gut. This one can watch it, on camera, in real time.",
     summary:
@@ -75,7 +75,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-multiple-sclerosis',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: 'Multiple Sclerosis: The Same Vitamin D Question, a Third Time',
     teaser: 'Three different diseases, three different research communities, the same unresolved question about one vitamin.',
     summary:
@@ -88,7 +88,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-type1-diabetes',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: "Type 1 Diabetes: What Happens Before Anyone's Old Enough to Choose Their Own Diet",
     teaser: 'This disease pushes the whole gut-autoimmunity story back to infancy, long before a first solid meal.',
     summary:
@@ -100,7 +100,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-lupus',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: 'Lupus: The Strongest Gut-Autoimmunity Evidence in This Whole Category',
     teaser: 'A named bacterium, caught in the act, plus a human clinical trial, two of the hardest kinds of evidence to get, both in one disease.',
     summary:
@@ -120,7 +120,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-sjogrens',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: "Sjögren's Syndrome: A Disease Known for Dryness, With a Surprising Gut Connection Anyway",
     teaser: 'Dry eyes and a dry mouth seem like the least gut-related symptoms imaginable. The data disagrees.',
     summary:
@@ -135,7 +135,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-psoriasis',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: 'Psoriasis & Psoriatic Arthritis: A Skin Disease With an Identifiable Gluten-Sensitive Minority',
     teaser: 'Not a universal gluten story. A specific subgroup where cutting it out actually, measurably helps.',
     summary:
@@ -148,7 +148,7 @@ export const OTHER_AUTOIMMUNE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'other-tying-together',
-    category: 'otherAutoimmune',
+    category: 'hashimotos',
     title: 'Tying It All Together: The Same Few Mechanisms, Seven Different Diseases',
     teaser: "Seven diagnoses that don't share a single symptom, and three biological threads that connect every one of them anyway.",
     summary:

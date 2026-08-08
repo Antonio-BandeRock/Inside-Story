@@ -35,7 +35,7 @@ import type { DigestEntry } from './types';
 export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   {
     id: 'healing-stage-map',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Three Practical Stages, Mapped Onto the Five Already Named',
     teaser: 'The organizing idea behind everything else in this category.',
     summary:
@@ -50,7 +50,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage1-eat',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Stage 1: What to Eat, and Why Each Food Earns Its Place',
     teaser: 'A short, deliberately narrow list. The goal is a stable, low-noise baseline, not variety yet.',
     summary:
@@ -70,7 +70,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage1-bone-broth',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Bone Broth: A Reasonable Inclusion With a Caveat',
     teaser: 'A real mechanism exists, but it\'s one reasonable food among several, not a singular "magic" gut-healer.',
     summary:
@@ -84,7 +84,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage1-avoid',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: "Stage 1: What's Eliminated, and the Specific Reason for Each",
     teaser: 'Every exclusion has its own stated reason. Nothing here is a generic "eat clean" gesture.',
     summary:
@@ -100,7 +100,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage1-fermented-exclusion',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: "Stage 1: Why Most Fermented Foods Wait, Even Though This App's Own Research Backs Them",
     teaser: 'A genuinely counterintuitive exclusion, named directly rather than smoothed over.',
     summary:
@@ -113,7 +113,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage1-milestones',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Stage 1: Real Milestones to Graduate, Not Guesswork',
     teaser: 'Concrete, checkable markers, not "when it feels right."',
     summary:
@@ -128,7 +128,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage2-reintroduction',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Stage 2: The Reintroduction Order, and Why',
     teaser: 'Not "just start eating everything again." A deliberate, one-variable-at-a-time method with a reasoned order.',
     summary:
@@ -144,7 +144,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage2-fermented-entry',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: "Stage 2: Where Fermented Foods Actually Enter, Deliberately, Not By Default",
     teaser: "The direct resolution to Stage 1's own histamine tension.",
     summary:
@@ -157,7 +157,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage2-fiber-expansion',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Stage 2: Fiber Expansion, Texture First',
     teaser: 'A specific, evidence-backed progression, not "just eat more fiber."',
     summary:
@@ -169,7 +169,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage2-milestones',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Stage 2: Real Milestones to Graduate',
     teaser: 'A real, physiological time window, not just "feeling better generally."',
     summary:
@@ -185,7 +185,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage3-what-it-looks-like',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Stage 3: What "Well-Healed" Actually Means, in Checkable Terms',
     teaser: "Not \"cured\": Hashimoto's has no cure, and this framework doesn't imply one.",
     summary:
@@ -201,7 +201,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-stage3-practical-shifts',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Stage 3: What Actually Changes Day-to-Day',
     teaser: 'Tracking shifts from a daily necessity to a spot-check tool, a deliberate change, not neglect.',
     summary:
@@ -217,7 +217,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-tension-detox-myth',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: '"Detox" Is Not a Real, Separate Physiological Phase',
     teaser: "Worth stating directly, since it's a common claim in this exact space.",
     summary:
@@ -232,7 +232,7 @@ export const HEALING_STAGES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'healing-tying-together',
-    category: 'healingStages',
+    category: 'hashimotos',
     title: 'Tying It All Together: A Journey With Real Checkpoints, Not a Fixed Timeline',
     teaser: 'Three stages, real milestones at each, and the honest point is that this moves at the pace your own data shows, not a calendar.',
     summary:

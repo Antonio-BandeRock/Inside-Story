@@ -25,10 +25,27 @@ import type { ProblemFoodEntry } from './types';
 // "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged; the
 // friendly, plain-language voice from the 2026-08-06 pass is preserved.
+//
+// 2026-08-08, same day, third change: `category` reassigned per entry as
+// part of the Digest-wide Hashimoto's/Basic Health restructure (see
+// types.ts's own header comment). ProblemFoodEntry's own `category` field
+// was widened from the old hardcoded literal 'problemFoods' to the same
+// union DigestEntry uses -- see types.ts for how the two shapes are told
+// apart now that `category` can't serve as the discriminant. 7 of 16
+// entries route through a specific thyroid mechanism (gluten's zonulin
+// pathway framed for Hashimoto's specifically, raw goitrogenic crucifers'
+// iodine-uptake interference, sugar's cortisol-to-T4/T3-conversion route,
+// soy's TPO-enzyme interference, coffee's own levothyroxine-absorption
+// timing, kelp/iodine's Wolff-Chaikoff mechanism, and the gluten-free-
+// without-celiac antibody finding) and now carry `category: 'hashimotos'`.
+// The other 9, genuinely condition-agnostic (garlic/onion FODMAPs, dairy's
+// lactose/casein mechanisms, nightshades, high-histamine foods, refined
+// oils, commercial/pre-made products, pesticide residue, charred/grilled
+// meat, and the closing synthesis) carry `category: 'basicHealth'`.
 export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   {
     id: 'problem-garlic-onion',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Garlic & Onion',
     teaser: 'The single most common "why does this always upset me" pair, and it has nothing to do with allergy.',
     problem:
@@ -49,7 +66,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-gluten-grains',
-    category: 'problemFoods',
+    category: 'hashimotos',
     foodName: 'Gluten-Containing Grains',
     teaser: "The single most-cited elimination in Hashimoto's food advice, and the link to autoimmunity behind it is real.",
     problem:
@@ -71,7 +88,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-conventional-dairy',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Conventional Dairy',
     teaser: "Not every dairy reaction is lactose intolerance, and the fix isn't always \"just avoid dairy.\"",
     problem:
@@ -92,7 +109,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-raw-cruciferous',
-    category: 'problemFoods',
+    category: 'hashimotos',
     foodName: 'Raw Cruciferous Vegetables',
     teaser: "The most misunderstood item on any Hashimoto's \"avoid list.\" The fix is cooking, not avoiding.",
     problem:
@@ -113,7 +130,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-nightshades',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Nightshades',
     teaser: 'The most genuinely contested item on this whole list, and the honest answer really is "test it yourself."',
     problem:
@@ -134,7 +151,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-high-histamine',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'High-Histamine Foods (aged cheese, cured meat, most ferments, leftovers)',
     teaser: "A real, honest tension with this app's own fermented-food research, worth naming plainly.",
     problem:
@@ -156,7 +173,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-sugar-sweetened-beverages',
-    category: 'problemFoods',
+    category: 'hashimotos',
     foodName: 'Sugar-Sweetened Beverages',
     teaser: 'Not "sugar" broadly. The real problem is drinking it, not eating it.',
     problem:
@@ -177,7 +194,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-soy',
-    category: 'problemFoods',
+    category: 'hashimotos',
     foodName: 'Soy (Conditional, Not Universal)',
     teaser: 'The real risk lands on a specific subgroup, not on everyone who eats tofu.',
     problem:
@@ -198,7 +215,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-refined-vegetable-oils',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Refined Vegetable & Seed Oils (esp. Fried Foods)',
     teaser: 'The real issue is a balance problem, not that any one oil is "toxic."',
     problem:
@@ -219,7 +236,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-commercial-premade',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Commercial / Pre-Made Products',
     teaser: "This app's own design philosophy, said out loud: build it yourself when you can.",
     problem:
@@ -239,7 +256,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-conventional-high-pesticide-produce',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Conventional Produce, High-Residue Items Specifically',
     teaser: 'The real, checkable version of "wash your produce." Not every fruit or vegetable carries the same exposure.',
     problem:
@@ -257,7 +274,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-coffee-timing',
-    category: 'problemFoods',
+    category: 'hashimotos',
     foodName: 'Coffee Taken Too Close to Levothyroxine',
     teaser: "The single most useful, most fixable food-medication timing tip on this app's own list.",
     problem:
@@ -289,7 +306,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-excess-iodine-kelp',
-    category: 'problemFoods',
+    category: 'hashimotos',
     foodName: 'Kelp, Dulse & Iodine-Heavy Sea Vegetables',
     teaser: '"More iodine is always better for your thyroid" is exactly backwards for a lot of people with Hashimoto\'s.',
     problem:
@@ -315,7 +332,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-charred-grilled-meat',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Charred, Grilled & Deep-Fried Meat',
     teaser: "It's not the meat. It's how hot and how dry it got cooked.",
     problem:
@@ -336,7 +353,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-gluten-free-without-celiac',
-    category: 'problemFoods',
+    category: 'hashimotos',
     foodName: 'Going Gluten-Free Without Celiac Disease, a Real, Honestly Mixed Answer',
     teaser: "Probably the single most common Hashimoto's diet question, with an answer more surprising and less settled than most advice admits.",
     problem:
@@ -358,7 +375,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
   },
   {
     id: 'problem-tying-together',
-    category: 'problemFoods',
+    category: 'basicHealth',
     foodName: 'Tying It All Together: The Patterns Across This Whole List',
     teaser: 'Fourteen very different foods, four repeating mechanisms underneath most of them.',
     problem:

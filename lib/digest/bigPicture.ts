@@ -29,7 +29,7 @@ import type { DigestEntry } from './types';
 export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   {
     id: 'bigpicture-the-morning-dose',
-    category: 'bigPicture',
+    category: 'hashimotos',
     title: 'The Morning Decision: A Pill, a Cup of Coffee, and Forty Years of Research',
     teaser: 'The first choice of the day is already informed by a century of history that predates this app entirely.',
     summary:
@@ -42,7 +42,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'bigpicture-breakfast-plate',
-    category: 'bigPicture',
+    category: 'hashimotos',
     title: "Breakfast: A Plate That's Already Been Figured Out",
     teaser: 'Cooked spinach, eggs, a squeeze of lemon: small choices, each already backed by a checkable reason.',
     summary:
@@ -53,7 +53,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'bigpicture-what-the-gut-is-doing',
-    category: 'bigPicture',
+    category: 'hashimotos',
     title: "Midday: What the Gut Is Actually Doing, Whether Anyone's Watching or Not",
     teaser: 'A spoonful of homemade yogurt at lunch is doing specific, named biological work.',
     summary:
@@ -64,7 +64,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'bigpicture-the-body-beyond-thyroid',
-    category: 'bigPicture',
+    category: 'hashimotos',
     title: 'Afternoon: The Body Beyond the Thyroid',
     teaser: 'An energy crash that looks like "just the thyroid" is sometimes the liver, the adrenal glands, or three overlapping deficiencies at once.',
     summary:
@@ -75,7 +75,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'bigpicture-the-glass-of-wine',
-    category: 'bigPicture',
+    category: 'hashimotos',
     title: 'Evening: A Glass of Wine, a Two-Sided Question',
     teaser: "The research doesn't always land where intuition expects it to, and this app says so, even when the answer is complicated.",
     summary:
@@ -86,7 +86,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'bigpicture-the-longer-arc',
-    category: 'bigPicture',
+    category: 'hashimotos',
     title: 'The Longer Arc: A Person, a Century, and a Choice',
     teaser: "Zoom out far enough, and one day's worth of small decisions connects to 150 years of food history.",
     summary:
@@ -97,7 +97,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'bigpicture-the-actual-point',
-    category: 'bigPicture',
+    category: 'hashimotos',
     title: 'What All of This Is Actually For',
     teaser: 'The worrying already happened. Eating does not have to be a research project.',
     summary:

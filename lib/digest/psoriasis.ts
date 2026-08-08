@@ -19,6 +19,18 @@ import type { DigestEntry } from './types';
 // null evidence rather than smoothed into a false positive -- worth reading
 // alongside RA's own strong omega-3 finding as a real example of the same
 // nutrient carrying different evidence weight for a different disease.
+//
+// 2026-08-08, same day, grew to 15 entries: 4 real, disease-specific self-
+// advocacy entries added directly here (annual PEST screening for psoriatic
+// arthritis, cardiovascular/metabolic risk assessment with its own real
+// 1.5x scoring adjustment, systemic-medication monitoring including a real,
+// documented gap between dermatology and rheumatology methotrexate
+// guidelines for the identical drug, and a topical-vitamin-D calcium
+// caveat) as part of the same request that dissolved the old, single shared
+// Self Advocacy category into per-condition content (see types.ts's own
+// header comment) -- "Self advocacy should also be specific to each
+// disease." Psoriasis's own self-advocacy content lives here, in its own
+// category, rather than in a separate shared file.
 export const PSORIASIS_ENTRIES: DigestEntry[] = [
   {
     id: 'psoriasis-overview',
@@ -155,16 +167,78 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     relatedIds: ['psoriasis-cyclosporine-grapefruit'],
   },
   {
+    id: 'psoriasis-advocacy-psa-screening',
+    category: 'psoriasis',
+    title: 'Ask for a PEST Screening Every Year, Even Without Joint Symptoms Yet',
+    teaser: 'A five-question checklist catches psoriatic arthritis early enough to matter, and most people with psoriasis never get handed it.',
+    summary:
+      "Up to about a third of people with psoriasis go on to develop psoriatic arthritis, and catching it early genuinely changes how much joint damage accumulates before treatment starts. The Psoriasis Epidemiology Screening Tool (PEST) is a real, validated five-question yes/no checklist built specifically to catch it, with strong measured accuracy: roughly 92% sensitivity and 78% specificity in its original validation, later confirmed across multiple other populations. The UK's National Institute for Health and Care Excellence recommends anyone with psoriasis who doesn't already have a psoriatic arthritis diagnosis complete a PEST screening once a year. It's a real, checkable, five-minute action, not a vague \"mention it if your joints start hurting\" default, worth asking for directly at a routine dermatology visit even with zero current joint symptoms.",
+    citations: [
+      {
+        source: 'Evaluation of an existing screening tool for psoriatic arthritis in people with psoriasis and the development of a new instrument: the Psoriasis Epidemiology Screening Tool (PEST) questionnaire',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/19604440/',
+      },
+      {
+        source: 'Psoriasis epidemiology screening tool (PEST) is useful for the detection of psoriatic arthritis in the Japanese population',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8352892/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-overview'],
+  },
+  {
+    id: 'psoriasis-advocacy-cardiovascular-metabolic',
+    category: 'psoriasis',
+    title: 'Psoriasis Is Its Own Independent Cardiovascular Risk Factor, Not Just a Skin Condition',
+    teaser: 'Real guidelines treat psoriasis itself as raising heart-disease risk, on top of whatever a standard risk calculator already accounts for.',
+    summary:
+      "Psoriasis carries a documented, independent link to atherosclerosis that holds up even after accounting for the usual risk factors, smoking, obesity, and cholesterol. Joint American Academy of Dermatology and National Psoriasis Foundation guidelines recommend a real baseline cardiovascular risk assessment at diagnosis, especially for moderate-to-severe disease, plus routine screening for high blood pressure, diabetes, and cholesterol as a standard part of psoriasis care, not an optional add-on. One specific, concrete detail worth knowing: guidance recommends applying a 1.5x multiplier to a standard cardiovascular risk-calculator score for anyone with severe psoriasis (10% or more of body surface affected) or anyone being treated with systemic medication or phototherapy, since standard risk calculators built for the general population understate the real risk for this specific group. Worth asking directly whether that adjustment is being applied, not just whether a risk score was calculated at all.",
+    citations: [
+      { source: 'Using Guidelines of Care to Lower Cardiovascular Risk in Patients with Psoriasis', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11128720/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-weight-loss'],
+  },
+  {
+    id: 'psoriasis-advocacy-systemic-med-monitoring',
+    category: 'psoriasis',
+    title: 'Systemic Psoriasis Medications Need Real Bloodwork, and the Monitoring Guidelines Aren\'t Even Consistent',
+    teaser: 'The same drug, methotrexate, gets monitored more loosely under dermatology guidelines than under rheumatology ones, a real, documented gap worth knowing about.',
+    summary:
+      "Methotrexate, cyclosporine, and acitretin all show up in this category's own medication-interaction entries, and each one needs real, scheduled bloodwork beyond just watching for symptoms. A genuinely useful, if uncomfortable, finding worth knowing directly: a real comparative study found that dermatology-specific methotrexate monitoring guidelines are looser than rheumatology guidelines for the identical drug, and that the looser dermatology protocol tracked with worse real-world drug-survival outcomes. That's not a reason to distrust a dermatologist. It's a concrete, specific thing worth asking about directly: whether liver enzymes are being checked on the same real interval (roughly every 8-12 weeks) this app's own Rheumatoid Arthritis category already covers for the same drug. Cyclosporine adds its own separate monitoring need, regular blood pressure and kidney-function checks, given its own documented risk to both.",
+    citations: [
+      {
+        source: 'Dermatological guidelines for monitoring methotrexate treatment reduce drug-survival compared to rheumatological guidelines',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5865732/',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ra-advocacy-methotrexate-monitoring', 'psoriasis-cyclosporine-grapefruit'],
+  },
+  {
+    id: 'psoriasis-advocacy-topical-vitamin-d-calcium',
+    category: 'psoriasis',
+    title: 'Using a Lot of Topical Vitamin D Cream? A Real Calcium Check Is a Reasonable Ask',
+    teaser: 'Calcipotriene is applied to skin, not swallowed, but real overuse still has a documented path to raising blood calcium.',
+    summary:
+      "Calcipotriene and similar topical vitamin D analogs are genuinely one of the most common first-line psoriasis treatments, and this category's own medication list already notes it doesn't meaningfully affect blood vitamin D levels at normal, labeled use. The real exception worth knowing directly: using it over a very large body-surface area, or in amounts well beyond the labeled maximum, carries a documented, if uncommon, risk of real hypercalcemia. This isn't a reason for alarm at ordinary use. It's a specific, concrete reason to mention actual usage amount and body coverage honestly at a follow-up visit, especially if a large percentage of skin is being treated, so a doctor can decide whether a calcium check is actually warranted, rather than assuming a topical product carries zero systemic risk just because it isn't swallowed.",
+    citations: [
+      { source: 'FDA prescribing information (Dovonex/Sorilux)', url: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2006/020273s009lbl.pdf' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['psoriasis-vitamin-d-oral'],
+  },
+  {
     id: 'psoriasis-tying-together',
     category: 'psoriasis',
     title: 'What Actually Holds Up for Psoriasis, Pulled Together',
     teaser: 'Two strong, actionable food levers, two honestly weak ones, and two medication interactions serious enough to know exactly, not just generally.',
     summary:
-      "Line up everything in this category and the real, usable pattern is different in shape from RA's own. Weight loss and a Mediterranean-style eating pattern both carry strong, repeated trial evidence and a real, measurable effect on disease severity, the two most dependable levers here. Alcohol shows a real, if not perfectly consistent, link to worse disease and a striking, well-documented mortality risk regardless of how the severity question ultimately resolves. Gluten avoidance helps a specific, testable, antibody-positive minority with real skin biology behind it, not a universal recommendation. Nightshade avoidance and oral vitamin D supplementation both remain genuinely unproven for psoriasis specifically, worth naming honestly rather than smoothing into false confidence just because they're popular advice. And two medication interactions, cyclosporine with grapefruit and acitretin with alcohol, are serious and specific enough that vague caution isn't good enough; both come with a real number attached and a real reason that number matters.",
+      "Line up everything in this category and the real, usable pattern is different in shape from RA's own. Weight loss and a Mediterranean-style eating pattern both carry strong, repeated trial evidence and a real, measurable effect on disease severity, the two most dependable levers here. Alcohol shows a real, if not perfectly consistent, link to worse disease and a striking, well-documented mortality risk regardless of how the severity question ultimately resolves. Gluten avoidance helps a specific, testable, antibody-positive minority with real skin biology behind it, not a universal recommendation. Nightshade avoidance and oral vitamin D supplementation both remain genuinely unproven for psoriasis specifically, worth naming honestly rather than smoothing into false confidence just because they're popular advice. Two medication interactions, cyclosporine with grapefruit and acitretin with alcohol, are serious and specific enough that vague caution isn't good enough; both come with a real number attached and a real reason that number matters. The self-advocacy entries above round out the picture with what to actually ask for: an annual PEST screening even without joint symptoms yet, a real cardiovascular risk assessment with the correct multiplier applied, consistent bloodwork on any systemic medication, and a calcium check if topical vitamin D coverage is extensive.",
     citations: [
       { source: 'Psoriasis, National Institute of Arthritis and Musculoskeletal and Skin Diseases (NIAMS)', url: 'https://www.niams.nih.gov/health-topics/psoriasis' },
     ],
     overallTier: 'strong',
-    relatedIds: ['psoriasis-weight-loss', 'psoriasis-mediterranean-diet', 'psoriasis-nightshades', 'psoriasis-vitamin-d-oral'],
+    relatedIds: ['psoriasis-weight-loss', 'psoriasis-mediterranean-diet', 'psoriasis-nightshades', 'psoriasis-vitamin-d-oral', 'psoriasis-advocacy-psa-screening', 'psoriasis-advocacy-cardiovascular-metabolic'],
   },
 ];

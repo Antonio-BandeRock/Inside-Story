@@ -18,10 +18,21 @@ import type { DigestEntry } from './types';
 // it's Y" contrast, and overused words like "real"/"genuinely"/
 // "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged.
+//
+// 2026-08-08, same day, third change: `category` reassigned per entry as
+// part of the Digest-wide Hashimoto's/Basic Health restructure (see
+// types.ts's own header comment). This category is overwhelmingly
+// Hashimoto's-specific by its own original design (see the top comment
+// above) -- 10 of 13 entries carry `category: 'hashimotos'`. Three are
+// general enough biology/exercise-science, not specific to Hashimoto's in
+// their own content, to carry `category: 'basicHealth'` instead: the
+// visceral-fat-as-endotoxin-barrier reappraisal, exercise intensity's own
+// null effect on inflammation markers, and exercise's independent
+// autophagy/mitophagy mechanism.
 export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   {
     id: 'mito-mots-c',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: "MOTS-c: A Hashimoto's-Specific Mitochondrial Finding",
     teaser: "A tiny peptide made by mitochondria themselves, measured lower in Hashimoto's patients directly, not borrowed from another disease.",
     summary:
@@ -36,7 +47,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-il23-autophagy-suppression',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: 'IL-23 Directly Suppresses Autophagy in Thyroid Cells',
     teaser: 'A causal experiment, not just correlation: blocking three different points in one pathway each independently reversed the damage.',
     summary:
@@ -51,7 +62,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-mtor-cd4-reprogramming',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: 'The Same mTOR Pathway, a Second Time: T Cell Fuel Reprogramming',
     teaser: 'The identical pathway shows up reprogramming the immune cells driving the attack itself, a mechanistic bridge, not two separate topics.',
     summary:
@@ -67,7 +78,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-fasting-autophagy-tension',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: 'Fasting: A Deliberately Two-Sided Finding',
     teaser: 'The most potent known autophagy trigger, and a documented way to suppress active thyroid hormone at the same time.',
     summary:
@@ -81,7 +92,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-ramadan-fasting-study',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: 'A Fasting Study in Existing Hypothyroid Patients',
     teaser: 'Ramadan observance provided a naturally-occurring human fasting study in people already on thyroid medication.',
     summary:
@@ -97,7 +108,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-visceral-fat-treg-depletion',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: "Visceral Fat: Depleted of Regulatory T Cells in Hashimoto's",
     teaser: "The same Treg cells this app's Gut & Microbiome research keeps returning to, specifically depleted in one tissue.",
     summary:
@@ -113,7 +124,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-visceral-fat-treg-reinfusion',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: 'A Causal Experiment: Reinfusing Tregs Into Visceral Fat',
     teaser: 'Not just correlation: putting the missing cells back measurably improved insulin sensitivity, in a real experiment.',
     summary:
@@ -129,7 +140,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-levothyroxine-body-fat-null',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: "A Humbling Counter-Finding: Levothyroxine Alone Doesn't Fix Body Fat",
     teaser: "The well-established Hashimoto's/weight-gain link doesn't resolve just by treating the hormone.",
     summary:
@@ -141,7 +152,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-visceral-fat-endotoxin-barrier',
-    category: 'mitochondriaMetabolism',
+    category: 'basicHealth',
     title: 'A Complication: Visceral Fat as a Gut-Endotoxin Barrier',
     teaser: '"Bad" visceral fat inflammation may partly be the body actually defending itself against a leaky gut.',
     summary:
@@ -154,7 +165,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-exercise-intensity-inflammation',
-    category: 'mitochondriaMetabolism',
+    category: 'basicHealth',
     title: 'Exercise Intensity Barely Moves Inflammation Markers, Doing It at All Does',
     teaser: 'A systematic review answers "how hard do I need to exercise," and the answer is genuinely surprising.',
     summary:
@@ -170,7 +181,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-exercise-cortisol',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: 'Why Low Intensity, Specifically: The Cortisol/Overtraining Mechanism',
     teaser: 'The reason to prefer gentle exercise for an autoimmune condition, reached by a completely different route than the previous entry.',
     summary:
@@ -186,7 +197,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-exercise-autophagy-pgc1a',
-    category: 'mitochondriaMetabolism',
+    category: 'basicHealth',
     title: 'Exercise Independently Triggers Autophagy Too',
     teaser: "A genuinely positive closing note: exercise, not just fasting, activates the same cellular repair process, with none of fasting's own tradeoff.",
     summary:
@@ -199,7 +210,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'mito-tying-together',
-    category: 'mitochondriaMetabolism',
+    category: 'hashimotos',
     title: 'Tying It All Together: Two Real Tensions, Not a Clean Story',
     teaser: 'Twelve entries in cellular biology, and the honest takeaway is two genuine tradeoffs, not a simple "do more of this" answer.',
     summary:

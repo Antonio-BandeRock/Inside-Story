@@ -33,10 +33,35 @@ import type { DigestEntry } from './types';
 // contrast, and overused words like "real"/"genuinely"/"honest(ly)"/
 // "worth" -- see bigPicture.ts's own header comment for the full context.
 // Every fact, number, and citation is unchanged.
+//
+// 2026-08-08, same day, second change: this file's own single, shared
+// Self Advocacy category was dissolved -- direct request, part of the same
+// restructure that gave every entry in this whole Digest a real `category`
+// of either 'hashimotos' or 'basicHealth' (see types.ts's own header
+// comment for the full reasoning): "Self advocacy should also be specific
+// to each disease." The 16 entries here that are genuinely Hashimoto's-
+// specific (TSH/FT4/FT3, TPO/Tg antibodies, reverse T3, ferritin, vitamin D,
+// B12/folate, selenium, CMP's liver/kidney-thyroid framing, the lipid-panel/
+// thyroid link, A1c's Hashimoto's-T1D comorbidity framing, cortisol/APS-2,
+// the elimination-protocol exception, the TSH-range debate, seronegative
+// Hashimoto's, and the fibromyalgia overlap) kept their real content
+// unchanged and simply carry `category: 'hashimotos'` now. The 9 that are
+// genuinely condition-agnostic (why activation matters at all, magnesium's
+// own testing limitation, zinc/copper, CBC, fasting insulin, hs-CRP,
+// sex-hormone/perimenopause testing, how to actually ask, and the
+// prescribing-cascade concept) carry `category: 'basicHealth'` instead.
+// This file still holds every one of those entries -- only the `category`
+// field on each changed, not which file authors it, matching this whole
+// restructure's own standing practice of keeping one-topic-per-file for
+// authoring while letting `category` do the real grouping. RA and Psoriasis
+// each got their own new, small, genuinely disease-specific self-advocacy
+// entries added directly to rheumatoidArthritis.ts/psoriasis.ts instead of
+// living here -- this file no longer tries to be every condition's shared
+// self-advocacy home.
 export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   {
     id: 'advocacy-why-it-matters',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'Why This Category Exists: Most Doctors Order Less Than a Full Picture, Not Because They\'re Wrong to',
     teaser: 'A standard visit runs 15 minutes and one lab requisition. Getting a fuller picture of Hashimoto\'s takes more, and it\'s a learnable skill.',
     summary:
@@ -50,7 +75,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-core-thyroid-panel',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'TSH, Free T4 & Free T3: Ask for All Three, Not Just the One Most Labs Default To',
     teaser: 'A "normal thyroid" result is often just one number out of three that actually matter.',
     summary:
@@ -63,7 +88,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-thyroid-antibodies',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'TPO & Thyroglobulin Antibodies: The Test That Confirms It\'s Really Hashimoto\'s',
     teaser: 'TSH tells you the thyroid is underperforming. Antibodies tell you why, and that changes what else is worth watching.',
     summary:
@@ -76,7 +101,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-reverse-t3',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Reverse T3: A Test With an Unsettled Answer, Worth Knowing Before Asking For It',
     teaser: 'Some practitioners order it as a routine part of a "full thyroid panel." Mainstream endocrinology doesn\'t agree it belongs there.',
     summary:
@@ -88,7 +113,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-iron-ferritin',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Ferritin & a Full Iron Panel: Low Iron Can Mimic, and Worsen, Hypothyroid Symptoms Directly',
     teaser: 'Fatigue, brain fog, hair thinning: the same short list shows up whether the cause is thyroid, iron, or both at once.',
     summary:
@@ -102,7 +127,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-vitamin-d',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Vitamin D: Commonly Low With Hashimoto\'s, Worth Rechecking',
     teaser: 'Not a supplement to guess at, but a checkable number, and one Hashimoto\'s patients are disproportionately likely to be low on.',
     summary:
@@ -116,7 +141,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-b12-folate',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'B12 & Folate: Two Autoimmune Diseases That Travel Together More Than People Realize',
     teaser: 'The same immune system that can attack the thyroid can separately attack the stomach lining that absorbs B12, a measured overlap, not a coincidence.',
     summary:
@@ -128,7 +153,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-magnesium',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'Magnesium: Worth Ordering, With One Honest Limitation Worth Knowing First',
     teaser: 'The blood test for magnesium checks less than 1% of where the body actually keeps it, worth asking for anyway, just not over-trusting on its own.',
     summary:
@@ -140,7 +165,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-zinc-copper',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'Zinc & Copper: Ask for Them as a Pair, Especially If Already Supplementing Zinc',
     teaser: 'Documented cases exist of zinc supplements causing anemia and nerve damage, from the copper deficiency the zinc itself caused.',
     summary:
@@ -154,7 +179,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-selenium-testing',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Selenium: The Best-Evidenced Supplement in This App, and the Hardest One to Get Tested',
     teaser: 'This Digest\'s own strongest-evidenced finding has one practical catch: most standard labs simply don\'t run this test.',
     summary:
@@ -167,7 +192,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-cbc',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'Complete Blood Count (CBC): The General-Purpose Test That Catches What a Thyroid Panel Alone Misses',
     teaser: 'Anemia from low iron, anemia from low B12, a hidden infection, a blood-cell abnormality: one test flags all of them at once.',
     summary:
@@ -178,7 +203,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-cmp',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Comprehensive Metabolic Panel (CMP): Checking the Organs Doing the Thyroid\'s Own Hidden Work',
     teaser: 'The liver and kidneys are doing measurable thyroid-related work of their own. A CMP is how that work actually gets checked.',
     summary:
@@ -189,7 +214,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-lipid-panel',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Lipid Panel: Cholesterol That Rises and Falls With the Thyroid Itself, Not Just Diet',
     teaser: 'A direct hormonal effect, not a moral failing about diet, and one a 6-month trial showed genuinely reverses with treatment.',
     summary:
@@ -202,7 +227,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-a1c-glucose',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Hemoglobin A1c & Fasting Glucose: Autoimmune Diseases Have a Habit of Traveling Together',
     teaser: "Hashimoto's and type 1 diabetes share enough biology that checking blood sugar isn't an unrelated add-on. It's a genuinely adjacent risk.",
     summary:
@@ -213,7 +238,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-fasting-insulin',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'Fasting Insulin: An Earlier Warning Sign, but Debated as a Standalone Test',
     teaser: 'Some practitioners treat it as an early-warning test years ahead of a real A1c change. The research on how well it actually predicts that is more mixed than the pitch suggests.',
     summary:
@@ -225,7 +250,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-hscrp',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'hs-CRP: A Checkable Inflammation Number, Not One to Chase Every Month',
     teaser: 'This app\'s own research keeps landing on inflammation as the thread connecting food choices to thyroid hormone. hs-CRP is how that thread actually gets measured.',
     summary:
@@ -238,7 +263,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-sex-hormones-menopause',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'Estradiol, Progesterone, Testosterone, DHEA-S & SHBG: Useful, but Often Not Required to Diagnose Perimenopause Itself',
     teaser: 'A counterintuitive finding: the full hormone panel isn\'t usually what actually confirms perimenopause is happening.',
     summary:
@@ -250,7 +275,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-cortisol-testing',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Cortisol Testing: A Legitimate Test, and a Named Wellness-Industry Overreach to Recognize',
     teaser: '"Adrenal fatigue" isn\'t a recognized medical diagnosis. A distinct condition it gets confused with is.',
     summary:
@@ -263,7 +288,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-elimination-protocol-exception',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'The One Exception to "Don\'t Over-Test": Starting an Elimination Protocol',
     teaser: 'Every rule above about not testing too often has one deliberate exception, and this is it.',
     summary:
@@ -274,7 +299,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-how-to-ask',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'How to Actually Ask: A Written List Beats a Verbal Request Every Time',
     teaser: 'The single most effective thing anyone can bring to this conversation isn\'t confidence. It\'s a piece of paper.',
     summary:
@@ -287,7 +312,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-tsh-optimal-range-debate',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: '"Your TSH Is Normal" Doesn\'t Always Mean the Same Number to Every Doctor',
     teaser: 'A named, ongoing disagreement within endocrinology itself about how wide "normal" should actually be.',
     summary:
@@ -301,7 +326,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-seronegative-hashimotos',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'A Meaningful Minority of Hashimoto\'s Never Tests Antibody-Positive at All',
     teaser: 'This whole app\'s own antibody tracking assumes a positive result. A documented minority of genuine Hashimoto\'s cases never gets one.',
     summary:
@@ -315,7 +340,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-prescribing-cascade',
-    category: 'selfAdvocacy',
+    category: 'basicHealth',
     title: 'The Prescribing Cascade: A Named Pattern, and Evidence It Can Run the Other Way Too',
     teaser: 'One medication\'s side effect, mistaken for a new problem, treated with a second medication, which causes its own side effect: a phenomenon with a real name in the medical literature.',
     summary:
@@ -330,7 +355,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-fibromyalgia-thyroid-overlap',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'Fibromyalgia & Hashimoto\'s: A Documented Overlap Worth Knowing Before Accepting Either Label Alone',
     teaser: 'Research keeps finding these two conditions sitting closer together than their separate names suggest, including a striking number worth a direct conversation.',
     summary:
@@ -345,7 +370,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'advocacy-tying-together',
-    category: 'selfAdvocacy',
+    category: 'hashimotos',
     title: 'A Reasonable Testing Calendar, Pulled Together From Every Entry Above',
     teaser: 'Not "test everything constantly" and not "wait for symptoms," but a middle ground, with a clear reason behind every interval.',
     summary:

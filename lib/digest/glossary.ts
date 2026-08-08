@@ -47,7 +47,7 @@ import type { DigestEntry } from './types';
 export const GLOSSARY_ENTRIES: DigestEntry[] = [
   {
     id: 'glossary-4r-protocol',
-    category: 'glossary',
+    category: 'basicHealth',
     title: '4R Protocol',
     teaser: 'A widely-used functional-medicine framework for gut repair: Remove, Replace, Reinoculate, Repair.',
     summary:
@@ -58,7 +58,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-aip',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'AIP (Autoimmune Protocol)',
     teaser: 'A structured elimination-then-reintroduction diet, originally built for autoimmune disease broadly, not Hashimoto\'s specifically.',
     summary:
@@ -74,7 +74,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-alt-ast',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'ALT & AST (Liver Enzymes)',
     teaser: 'Two enzymes measured on a standard liver panel, and a direct way hypothyroidism itself can make them look abnormal.',
     summary:
@@ -87,7 +87,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-antibody-antigen',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Antibody & Antigen',
     teaser: 'The immune system\'s own recognition system, and in Hashimoto\'s, the same system aimed at the wrong target.',
     summary:
@@ -98,7 +98,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-aps2',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'APS-2 (Autoimmune Polyglandular Syndrome Type 2)',
     teaser: 'A named clinical combination: Hashimoto\'s plus a second autoimmune attack on the adrenal glands, together.',
     summary:
@@ -111,7 +111,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-autoimmune-disease',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Autoimmune Disease',
     teaser: 'The immune system, built to defend the body, mistakenly attacking a part of the body itself.',
     summary:
@@ -124,7 +124,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-autophagy-mitophagy',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Autophagy & Mitophagy',
     teaser: 'The cell\'s own internal cleanup crew, and a specific target of Hashimoto\'s own inflammation.',
     summary:
@@ -140,7 +140,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-bpa-phthalates',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'BPA & Phthalates',
     teaser: 'Two common plastic-related chemicals with documented, direct effects on hormone systems.',
     summary:
@@ -153,7 +153,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-cfu',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'CFU (Colony-Forming Units)',
     teaser: 'The number on a probiotic label, and an honest explanation of what it does and doesn\'t actually tell you.',
     summary:
@@ -169,7 +169,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-cohort-case-control',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Cohort Study & Case-Control Study',
     teaser: 'Two different ways researchers study a disease when they can\'t ethically run a controlled experiment on it.',
     summary:
@@ -179,7 +179,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-cortisol',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Cortisol',
     teaser: 'The body\'s own primary stress hormone, and a direct, repeated route to lower active thyroid hormone.',
     summary:
@@ -192,7 +192,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-crp',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'CRP (C-Reactive Protein)',
     teaser: 'One of the most common checkable blood markers of general inflammation, used throughout this app\'s own Mitochondria & Metabolism research.',
     summary:
@@ -202,7 +202,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-cytokine',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Cytokine',
     teaser: 'A chemical messenger the immune system uses to coordinate itself, including several that directly touch thyroid hormone.',
     summary:
@@ -213,7 +213,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-d1-d6',
-    category: 'glossary',
+    category: 'basicHealth',
     title: '6-DFF (The 6 Dimensions of Food Friendliness)',
     teaser: 'This app\'s own scoring framework, scoring every food across six separate, research-backed factors.',
     summary:
@@ -223,7 +223,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-dao-histamine',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'DAO (Diamine Oxidase) & Histamine Intolerance',
     teaser: 'The enzyme that clears dietary histamine, and a reason gut inflammation can leave someone with less of it on hand.',
     summary:
@@ -236,7 +236,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-deiodinase',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Deiodinase (D1, D2, D3)',
     teaser: 'The family of enzymes that actually converts thyroid hormone into its active form, mostly outside the thyroid gland itself.',
     summary:
@@ -252,7 +252,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-dri-family',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'DRI, RDA, AI & UL (Dietary Reference Intakes)',
     teaser: 'The official family of nutrient targets this app\'s own Insights tab measures every meal against.',
     summary:
@@ -262,7 +262,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-dysbiosis',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Dysbiosis',
     teaser: 'The term for a gut microbiome that\'s out of balance: too few of the helpful species, too many of the unhelpful ones.',
     summary:
@@ -273,7 +273,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-egfr',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'eGFR (Estimated Glomerular Filtration Rate)',
     teaser: 'The standard measure of how well the kidneys are filtering, and a measured way hypothyroidism affects it.',
     summary:
@@ -289,7 +289,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-edc',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'EDC (Endocrine Disruptor)',
     teaser: 'Chemicals specifically named for what they\'re documented to do: interfere directly with the body\'s own hormone systems.',
     summary:
@@ -302,7 +302,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-euthyroid-hypothyroid',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Euthyroid, Hypothyroid & Subclinical Hypothyroidism',
     teaser: 'The three distinct states thyroid lab results can describe, and why the middle one only became diagnosable fairly recently.',
     summary:
@@ -315,7 +315,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-evidence-tiers',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Evidence Tiers (Strong / Moderate / Weak)',
     teaser: 'The rating system behind every colored dot in this Digest.',
     summary:
@@ -325,7 +325,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-fodmap',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'FODMAP',
     teaser: 'A category of carbohydrates a lot of people digest poorly, the single highest-confidence exclusion in this app\'s own Healing Stages guide.',
     summary:
@@ -341,7 +341,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-gliadin',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Gliadin',
     teaser: 'The specific fragment of gluten with a named mechanism for loosening the gut barrier.',
     summary:
@@ -354,7 +354,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-goitrogen-goiter',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Goitrogen & Goiter',
     teaser: 'A category of compounds that can interfere with thyroid iodine uptake, and the visible thyroid swelling that iodine deficiency can cause.',
     summary:
@@ -370,7 +370,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-graves-disease',
-    category: 'glossary',
+    category: 'basicHealth',
     title: "Graves' Disease",
     teaser: "Hashimoto's own opposite-direction cousin: another autoimmune thyroid disease, but overactive instead of underactive.",
     summary:
@@ -383,7 +383,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-hpa-axis',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'HPA Axis',
     teaser: "The body's own central stress-response control system, and a direct route from chronic stress to lower active thyroid hormone.",
     summary:
@@ -396,7 +396,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-healing-stages',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Healing Stages 1, 2 & 3',
     teaser: "This app's own practical, food-focused staging: Getting Started, Rebuilding, and Well-Healed.",
     summary:
@@ -407,7 +407,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-il6-il23-tnf',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'IL-6, IL-23 & TNF-α',
     teaser: 'Three specific, named inflammatory messengers, each with a documented effect relevant to Hashimoto\'s.',
     summary:
@@ -418,7 +418,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-insulin-resistance',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Insulin Resistance',
     teaser: 'A state where the body\'s cells stop responding normally to insulin, and a documented finding tied to visceral fat in Hashimoto\'s specifically.',
     summary:
@@ -434,7 +434,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-leaky-gut',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Leaky Gut / Intestinal Permeability',
     teaser: 'A measurable phenomenon, and a genuinely contested clinical diagnosis. Both true at once.',
     summary:
@@ -447,7 +447,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-levothyroxine',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Levothyroxine',
     teaser: 'The single most-prescribed medication in the US, and, historically, a fairly recent replacement for dried animal thyroid gland.',
     summary:
@@ -460,7 +460,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-meta-analysis',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Meta-Analysis & Systematic Review',
     teaser: 'Research that combines many smaller studies into one, usually the strongest single kind of evidence a claim can carry.',
     summary:
@@ -471,7 +471,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-microbiome',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Microbiome',
     teaser: 'The trillions of bacteria, yeast, and other microbes living in and on the body, overwhelmingly concentrated in the gut.',
     summary:
@@ -482,7 +482,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-mitochondria',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Mitochondria',
     teaser: 'The cell\'s own energy-producing structures, and, in Hashimoto\'s research, a direct target of the disease itself.',
     summary:
@@ -498,7 +498,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-molecular-mimicry',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Molecular Mimicry',
     teaser: 'The immunology explaining how a gut microbe could plausibly trigger an attack on a completely different organ.',
     summary:
@@ -511,7 +511,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-mots-c',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'MOTS-c',
     teaser: 'A peptide made by mitochondria themselves, and one of the few genuinely Hashimoto\'s-specific findings in this app\'s cellular-biology research.',
     summary:
@@ -527,7 +527,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-mtor',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'mTOR',
     teaser: 'A central cellular pathway that shows up twice in Hashimoto\'s research: once in the thyroid tissue itself, once in the immune cells attacking it.',
     summary:
@@ -543,7 +543,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-nafld-masld',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'NAFLD / MASLD (Fatty Liver Disease)',
     teaser: 'Fat accumulating in liver cells, and a measured 68% higher risk of it in people with hypothyroidism.',
     summary:
@@ -559,7 +559,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-nis',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'NIS (Sodium-Iodide Symporter)',
     teaser: 'The specific transporter the thyroid uses to pull iodine out of the blood, and a shared target of several unrelated compounds.',
     summary:
@@ -572,7 +572,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-pmid',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'PMID',
     teaser: 'The unique ID number behind nearly every citation in this Digest, a direct way to verify any claim yourself.',
     summary:
@@ -582,7 +582,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-probiotic-prebiotic',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Probiotic & Prebiotic',
     teaser: 'Two different things that often get confused: live organisms versus the food that feeds them.',
     summary:
@@ -593,7 +593,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-rct',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'RCT (Randomized Controlled Trial)',
     teaser: 'The research design that can most directly show cause and effect: randomly assigning people to a treatment or a comparison.',
     summary:
@@ -603,7 +603,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-reverse-t3',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Reverse T3 (rT3)',
     teaser: 'An inactive mirror image of T3, and a measurable sign the body is favoring conservation over active thyroid hormone.',
     summary:
@@ -616,7 +616,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-ros',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'ROS (Reactive Oxygen Species)',
     teaser: 'Chemically unstable molecules produced as a byproduct of normal cell activity, and a direct target of Hashimoto\'s own inflammation.',
     summary:
@@ -632,7 +632,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-scfa',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'SCFA (Short-Chain Fatty Acids)',
     teaser: 'The chemical signal gut bacteria produce from fiber, described throughout this app as the single most food-controllable lever available.',
     summary:
@@ -645,7 +645,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-t3',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'T3 (Triiodothyronine)',
     teaser: 'The active form of thyroid hormone, the one that actually does the work inside the body\'s own cells.',
     summary:
@@ -661,7 +661,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-t4',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'T4 (Thyroxine)',
     teaser: 'The hormone the thyroid gland itself mainly produces, mostly a precursor, not the final active form.',
     summary:
@@ -677,7 +677,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-tg-antitg',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Tg (Thyroglobulin) & Anti-Tg Antibody',
     teaser: 'A protein the thyroid uses to store and build hormone, and, in Hashimoto\'s, one of the two antibody targets tracked on a lab panel.',
     summary:
@@ -690,7 +690,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-th17',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Th17 (T Helper 17 Cell)',
     teaser: 'A specific type of pro-inflammatory immune cell, and one half of the balance this whole app\'s research keeps circling back to.',
     summary:
@@ -706,7 +706,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-tight-junction',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Tight Junction (Occludin & Claudin/CLDN2)',
     teaser: 'The physical seals between gut lining cells, and specific, named proteins that hold them shut.',
     summary:
@@ -719,7 +719,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-tpo',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'TPO (Thyroid Peroxidase) & TPO Antibody',
     teaser: 'The actual enzyme Hashimoto\'s antibodies attack, and the lab value this whole app\'s own tracking is built around.',
     summary:
@@ -735,7 +735,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-treg',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Treg (Regulatory T Cell)',
     teaser: 'The immune cell type responsible for keeping the immune system from attacking the body itself, and a specific target of gut-repair research.',
     summary:
@@ -748,7 +748,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-tsh',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'TSH (Thyroid-Stimulating Hormone)',
     teaser: 'The hormone that tells the thyroid how hard to work, and the single most commonly ordered thyroid lab value.',
     summary:
@@ -761,7 +761,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-visceral-fat',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Visceral Fat',
     teaser: 'Fat stored deep around the internal organs, active tissue rather than passive storage, with a genuinely complicated role in Hashimoto\'s.',
     summary:
@@ -777,7 +777,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-wolff-chaikoff',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Wolff-Chaikoff Effect',
     teaser: 'The thyroid\'s own built-in safety brake against too much iodine at once, one that can misfire in Hashimoto\'s specifically.',
     summary:
@@ -793,7 +793,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'glossary-zonulin',
-    category: 'glossary',
+    category: 'basicHealth',
     title: 'Zonulin',
     teaser: 'The named protein responsible for how "leaky" the gut lining actually is, discovered by the same researcher who coined the term.',
     summary:

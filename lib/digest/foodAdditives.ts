@@ -20,7 +20,7 @@ import type { DigestEntry } from './types';
 export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-nitrates-nitrites',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Nitrates & Nitrites: The One Additive on This List With a Direct, Well-Established Thyroid Mechanism',
     teaser: 'A cured-meat preservative that does double duty: one cancer classification, and one specific thyroid mechanism most people never hear about.',
     summary:
@@ -40,7 +40,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-potassium-bromate',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Potassium Bromate: A Dough Conditioner Banned Across Most of the World, Still Legal in the U.S.',
     teaser: 'Banned in the EU, UK, Canada, and Brazil. Still legal in American bread, and its animal data points directly at the thyroid.',
     summary:
@@ -56,7 +56,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-synthetic-dyes',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Synthetic Food Dyes: Red Dye 3 Was Banned From U.S. Food in January 2025, Because of Rat Thyroid Tumors',
     teaser: 'A dye banned from cosmetics decades ago stayed legal in food until a thyroid-tumor finding finally caught up with it.',
     summary:
@@ -75,7 +75,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-emulsifiers-cmc-polysorbate80',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Emulsifiers: Carboxymethylcellulose & Polysorbate 80, Now Shown to Alter the Human Gut Microbiome in a Real Trial',
     teaser: 'Common in packaged bread, ice cream, and sauces, and a 2015 mouse study, now confirmed in human volunteers, found they change the gut itself.',
     summary:
@@ -92,7 +92,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-carrageenan',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Carrageenan: A Seaweed-Derived Thickener With a Contested Split Between Two Chemically Different Forms',
     teaser: 'One form is in your almond milk. A chemically related form is a documented gut irritant not approved for food use, and whether the first turns into the second is genuinely unresolved.',
     summary:
@@ -111,7 +111,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-msg',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'MSG: The Most Over-Blamed Additive on This List, Controlled Trials Mostly Clear It',
     teaser: '"Chinese restaurant syndrome" became a real cultural phenomenon. Double-blind trials mostly couldn\'t reproduce it.',
     summary:
@@ -126,7 +126,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-aspartame',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: "Aspartame: Classified 'Possibly Carcinogenic' in 2023, But Its Own Safety Limit Didn't Move",
     teaser: 'Two global health bodies reviewed the identical evidence the same week and reached genuinely different verdicts.',
     summary:
@@ -145,7 +145,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-sucralose',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Sucralose: A 2023 Lab Finding Reopened a Question Regulators Had Considered Closed',
     teaser: "A breakdown product, formed inside the gut itself, just gave sucralose's own settled safety story a genuine new wrinkle.",
     summary:
@@ -160,7 +160,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-trans-fats',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Trans Fats: The One Additive on This List With the Strongest Evidence of All, Which Is Exactly Why It Was Banned',
     teaser: "Decades of strong evidence, a full FDA ban, and a real reason it still matters for someone managing Hashimoto's specifically.",
     summary:
@@ -176,7 +176,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-sulfites',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Sulfites: A Well-Documented Sensitivity in a Defined Subset of People',
     teaser: 'Dried fruit, wine, and some processed potatoes carry a well-characterized additive that a specific minority of people react to directly.',
     summary:
@@ -195,7 +195,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-hfcs',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: "High-Fructose Corn Syrup: Not Just 'More Sugar,' Fructose Is Metabolized Differently, and That Difference Routes Through the Liver",
     teaser: "The same sugar molecule count, handled by a completely different metabolic pathway, one that runs straight through the same organ doing most of the body's T4-to-T3 conversion.",
     summary:
@@ -211,7 +211,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-azodicarbonamide',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Azodicarbonamide: Nicknamed "the Yoga Mat Chemical," and a Real Regulatory Gap, Not an Urban Legend',
     teaser: 'The nickname sounds like exaggeration. The actual overlap between bread dough and yoga mats is real.',
     summary:
@@ -223,7 +223,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-phosphates',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Phosphate Additives: The Same Mineral the Body Needs, But the Additive Form Absorbs Almost Twice as Efficiently',
     teaser: 'Phosphorus is essential. The engineered, additive form of it behaves differently in the body than the same mineral occurring naturally in whole food.',
     summary:
@@ -239,7 +239,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-bha-bht',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'BHA & BHT: One Is Flagged by U.S. Federal Toxicology as a Likely Carcinogen; the Other Has Thyroid-Hormone Animal Data',
     teaser: 'Two closely related preservatives, two genuinely different concerns attached to each one.',
     summary:
@@ -258,7 +258,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-xanthan-guar-gum',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Xanthan Gum & Guar Gum: Included Deliberately, Two Very Common Thickeners With Genuinely Little Evidence of Harm',
     teaser: 'Not every entry on this list is a warning. This one exists specifically to prove that.',
     summary:
@@ -270,7 +270,7 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'additive-tying-together',
-    category: 'foodAdditives',
+    category: 'basicHealth',
     title: 'Tying It All Together: One Pattern Across These 16',
     teaser: 'Read individually these look like 16 separate dangers. Read together, one pattern explains most of them.',
     summary:

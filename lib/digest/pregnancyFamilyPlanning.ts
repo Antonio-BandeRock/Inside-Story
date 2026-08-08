@@ -24,7 +24,7 @@ import type { DigestEntry } from './types';
 export const PREGNANCY_FAMILY_PLANNING_ENTRIES: DigestEntry[] = [
   {
     id: 'pregnancy-tsh-target',
-    category: 'pregnancyFamilyPlanning',
+    category: 'hashimotos',
     title: 'The TSH Target Changes Once Pregnancy Enters the Picture',
     teaser: "The same TSH number that's perfectly fine outside pregnancy can be too high once it starts.",
     summary:
@@ -38,7 +38,7 @@ export const PREGNANCY_FAMILY_PLANNING_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'pregnancy-postpartum-thyroiditis',
-    category: 'pregnancyFamilyPlanning',
+    category: 'hashimotos',
     title: "Postpartum Thyroiditis: A Distinct Condition Often Mistaken for New-Onset Hashimoto's",
     teaser: "A separate diagnosis that can look exactly like Hashimoto's starting up, and in over half of cases becomes it.",
     summary:
@@ -51,7 +51,7 @@ export const PREGNANCY_FAMILY_PLANNING_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'pregnancy-breastfeeding-safety',
-    category: 'pregnancyFamilyPlanning',
+    category: 'hashimotos',
     title: 'Breastfeeding & Levothyroxine: A Reassuring Answer, Not a Reason to Pause Treatment',
     teaser: 'One worry worth putting to rest directly, since stopping thyroid treatment while nursing would be the wrong move.',
     summary:
@@ -63,7 +63,7 @@ export const PREGNANCY_FAMILY_PLANNING_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'pregnancy-iodine-needs',
-    category: 'pregnancyFamilyPlanning',
+    category: 'hashimotos',
     title: 'Iodine During Pregnancy: The Same Two-Edged Nutrient, With Higher Stakes',
     teaser: "This app's own Nutrients category already treats iodine as two-edged. Pregnancy raises both edges at once.",
     summary:
@@ -77,7 +77,7 @@ export const PREGNANCY_FAMILY_PLANNING_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'pregnancy-tying-together',
-    category: 'pregnancyFamilyPlanning',
+    category: 'hashimotos',
     title: "Tying It All Together: Pregnancy Isn't a Pause on Hashimoto's Management, It's a Temporary Change of Rules",
     teaser: 'Four separate facts in this category all point to the same practical habit.',
     summary:

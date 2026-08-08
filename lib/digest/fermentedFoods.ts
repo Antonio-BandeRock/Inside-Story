@@ -17,10 +17,17 @@ import type { DigestEntry } from './types';
 // it's Y" contrast, and overused words like "real"/"genuinely"/
 // "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged.
+//
+// 2026-08-08, same day, third change: every entry now carries `category:
+// 'basicHealth'` as part of the Digest-wide Hashimoto's/Basic Health
+// restructure (see types.ts's own header comment). Every strain and ferment
+// here is real, condition-agnostic microbiology -- nothing in this category
+// requires Hashimoto's specifically to matter, so unlike most of this
+// Digest's other mixed categories, this one didn't need any per-entry split.
 export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   {
     id: 'fermented-lactobacillus-acidophilus',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Lactobacillus acidophilus: The Most Recognized Yogurt Culture, and One of the Better-Studied Single Strains Overall',
     teaser: 'The name on nearly every yogurt label, and one of the more genuinely well-researched strains on this whole list.',
     summary:
@@ -36,7 +43,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-lactobacillus-plantarum',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Lactobacillus plantarum: Found in Sauerkraut, Kimchi, and Fermented Olives, With the Most Completed Human Trial Data on This List',
     teaser: 'A hardy strain built for vegetables, not dairy, and the specific sub-strain with the strongest completed human trial data here.',
     summary:
@@ -51,7 +58,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-bifidobacterium',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Bifidobacterium Species: Dominant in a Healthy Infant Gut, and Shown to Rebuild a Specific Tight-Junction Protein',
     teaser: "The genus that dominates a healthy newborn's gut, and the specific one shown to rebuild occludin, a real structural piece of the gut barrier.",
     summary:
@@ -66,7 +73,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-streptococcus-thermophilus',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Streptococcus thermophilus: A Yogurt Starter Culture, Genuinely Unrelated to the Pathogenic Streptococcus Species',
     teaser: 'The name alone makes people nervous. The actual organism has nothing to do with strep throat.',
     summary:
@@ -81,7 +88,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-leuconostoc-mesenteroides',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: "Leuconostoc mesenteroides: Sauerkraut's Actual First Colonizer, and Almost Nobody's Heard Its Name",
     teaser: "Ask most people what turns cabbage into sauerkraut and they'll say \"Lactobacillus.\" That skips the organism that actually starts the whole process.",
     summary:
@@ -97,7 +104,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-saccharomyces-boulardii',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Saccharomyces boulardii: Not a Bacterium At All, a Probiotic Yeast With Strong Clinical Trial Support',
     teaser: 'Every other entry on this list is a bacterium. This one is a yeast, isolated from tropical fruit, with some of the strongest trial evidence here.',
     summary:
@@ -112,7 +119,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-sauerkraut-succession',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Sauerkraut: A Real Microbial Succession, Not One Strain',
     teaser: 'Sauerkraut isn\'t "cabbage plus Lactobacillus." It\'s a scripted three-act handoff between different species, each one preparing the ground for the next.',
     summary:
@@ -128,7 +135,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-kombucha',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Kombucha (SCOBY): A Real Symbiotic Culture of Bacteria AND Yeast, Plus a Trace-Alcohol Content Worth Knowing',
     teaser: 'Not one organism, and not entirely alcohol-free either: two facts about kombucha that rarely make it onto the label.',
     summary:
@@ -144,7 +151,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-water-kefir',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Water Kefir: A Dairy-Free Alternative to Milk Kefir, With the Same Trace-Alcohol Caveat as Kombucha',
     teaser: 'Same name as milk kefir, genuinely different starter, and not interchangeable, despite what the shared name suggests.',
     summary:
@@ -159,7 +166,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-milk-kefir',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Milk Kefir: The Single Most Microbially Diverse Fermented Food on This List',
     teaser: 'One batch, genuinely 30 or more distinct species living together, far beyond what a typical store-bought yogurt ever offers.',
     summary:
@@ -174,7 +181,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-beet-kvass',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Beet Kvass: A Traditional Eastern European Brine Ferment With Real Folk Standing and Genuinely Thin Formal Research',
     teaser: 'A centuries-old folk remedy, and real, if early, lab evidence starting to explain why.',
     summary:
@@ -189,7 +196,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-fruit-brine',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Fermented Fruit in Brine: Less Common Than Vegetable Ferments, But the Same Chemistry Applies',
     teaser: 'Most home fermentation defaults to vegetables for a specific chemical reason. Fruit can be done too, with extra care.',
     summary:
@@ -204,7 +211,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-cfu-dosing',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'CFU Dosing: What the Numbers Actually Mean',
     teaser: "A bigger number on the label isn't automatically a better probiotic. Here's the science behind dosing that the label doesn't explain.",
     summary:
@@ -219,7 +226,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-sourcing-starters',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Sourcing Real, Verified Starter Cultures',
     teaser: 'A grocery-store "probiotic" yogurt and a lab-verified single-strain starter are not the same tool, even though they sit in the same aisle.',
     summary:
@@ -238,7 +245,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'fermented-tying-together',
-    category: 'fermentedFoods',
+    category: 'basicHealth',
     title: 'Tying It All Together: Diversity Over Any Single "Best" Strain',
     teaser: 'Fourteen strains and ferments, and the recurring lesson is variety, not a single magic bullet.',
     summary:

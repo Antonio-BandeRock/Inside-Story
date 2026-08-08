@@ -25,7 +25,7 @@ import type { DigestEntry } from './types';
 export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   {
     id: 'organ-liver-t4t3-conversion',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: "The Liver Isn't Just Affected By Thyroid Disease, It Runs Much of It",
     teaser: "Roughly 80% of the body's active thyroid hormone is made outside the thyroid gland itself, and the liver does the largest share of that work.",
     summary:
@@ -41,7 +41,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-liver-hashimotos-damage',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'How Hypothyroidism Actually Damages the Liver, Mechanism By Mechanism',
     teaser: 'Up to 55% of untreated hypothyroid patients show measurable liver enzyme abnormalities, through two distinct mechanisms.',
     summary:
@@ -53,7 +53,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-liver-nafld-link',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: "Hashimoto's and Fatty Liver Disease: A Measured Link",
     teaser: 'A large biobank study found a 68% higher risk of fatty liver disease in people with hypothyroidism.',
     summary:
@@ -68,7 +68,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-liver-fixing-helps-thyroid',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'A Two-Way Street: Improving Liver Health Can Improve Thyroid Markers Too',
     teaser: 'The liver-thyroid relationship runs both directions. Treating one measurably helps the other.',
     summary:
@@ -85,7 +85,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-liver-autoimmune-overlap',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'When the Same Autoimmune Process Attacks the Liver Directly',
     teaser: 'An uncommon but real direct autoimmune attack on the liver itself, not just a downstream metabolic effect.',
     summary:
@@ -97,7 +97,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-cardiovascular',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'The Heart: Real Coronary Risk, and a Treatable Reason Why',
     teaser: "A nationwide cohort study found genuinely higher coronary heart disease risk in Hashimoto's, and treatment measurably lowers it.",
     summary:
@@ -112,7 +112,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-brain-cognitive',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: '"Brain Fog": A Documented Symptom, Even Though the Exact Mechanism Isn\'t Fully Mapped Yet',
     teaser: 'A specific memory-retrieval deficit, not a vague, unfalsifiable complaint.',
     summary:
@@ -124,7 +124,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-kidney',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'The Kidneys: Measurable, and Largely Reversible',
     teaser: 'A large population study found kidney filtration rate dropping in step with worsening thyroid function.',
     summary:
@@ -149,7 +149,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-reproductive-fertility',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'Fertility & Pregnancy: A Well-Documented Risk, With a Genuinely Complicated Treatment Picture',
     teaser: 'A 2-4x higher miscarriage risk, and a surprising complication in how well treatment actually helps.',
     summary:
@@ -164,7 +164,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-adrenal-aps2',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'When the Same Autoimmune Attack Also Targets the Adrenal Glands',
     teaser: "A named, historically-documented combination: Hashimoto's plus Addison's disease, together.",
     summary:
@@ -177,7 +177,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-musculoskeletal',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'Muscles and Joints: An Under-Recognized Hypothyroid Effect',
     teaser: 'Real muscle weakness and pain, sometimes severe enough to be mistaken for a completely different disease.',
     summary:
@@ -189,7 +189,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-skin-hair',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'Skin and Hair: A Direct Effect on Hair Follicle Metabolism',
     teaser: "Thyroid hormone doesn't just affect how you feel. It directly powers your hair follicles' own energy metabolism.",
     summary:
@@ -201,7 +201,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-overtreatment-bone-heart-risk',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'The Risk on the Other Side: What Happens When a Dose Runs Too High, Not Too Low',
     teaser: 'Nearly everything in this whole app is about the risk of too little thyroid hormone. There is an opposite risk too, and it deserves equal attention.',
     summary:
@@ -215,7 +215,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-primary-thyroid-lymphoma',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'A Rare Complication Worth Knowing the One Warning Sign For',
     teaser: 'Genuinely rare. Worth knowing about anyway, because the one warning sign is easy to notice and easy to act on.',
     summary:
@@ -229,7 +229,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'organ-tying-together',
-    category: 'organSystems',
+    category: 'hashimotos',
     title: 'Tying It All Together: Why So Many Organs, and Why So Much of It Reverses',
     teaser: 'Ten organ systems in this category, and the same reason connects nearly all of them.',
     summary:

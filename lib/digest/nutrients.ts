@@ -18,7 +18,7 @@ import type { DigestEntry } from './types';
 export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   {
     id: 'nutrient-selenium',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: "Selenium: The Single Strongest-Evidenced Supplement in This App's Entire Research Base",
     teaser: 'Out of everything this app has researched, one supplement stands clearly above the rest in trial-level evidence, with one caveat worth knowing.',
     summary:
@@ -38,7 +38,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-myo-inositol',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: 'Myo-Inositol: An Updated Finding, Pairing It With Selenium Beats Selenium Alone',
     teaser: "The strongest supplement in this app's research just got an evidence-backed upgrade.",
     summary:
@@ -54,7 +54,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-iodine',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: 'Iodine: A Two-Edged Nutrient, Rare for a Single Nutrient to Work This Way',
     teaser: 'Most nutrients follow a simple rule: more is better, up to a point. Iodine breaks that rule in both directions at once.',
     summary:
@@ -70,7 +70,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-vitamin-d',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: "Vitamin D: A Mixed Picture, Not the Clean Win It's Often Presented As",
     teaser: 'Vitamin D gets recommended almost reflexively for autoimmune disease. The evidence is more honest, and more interesting, than that reflex suggests.',
     summary:
@@ -87,7 +87,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-zinc-iron-b12',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: "Zinc, Iron & B12: Three Common Deficiencies That Overlap With Hashimoto's Symptoms, and With Each Other",
     teaser: 'Fatigue, hair thinning, brain fog: no easy way to tell, from symptoms alone, whether the thyroid or one of three separate deficiencies is actually responsible.',
     summary:
@@ -104,7 +104,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-folate-antioxidants',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: "Folate & Antioxidant Vitamins: A Less-Discussed Link, Straight From This App's Own Literature Scan",
     teaser: "Not every finding in this research base gets the attention selenium or vitamin D does. These two get far less, despite being real.",
     summary:
@@ -120,7 +120,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-nigella-sativa',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: "Nigella Sativa (Black Seed): A Candidate Sitting Entirely Outside This App's Existing Scoring",
     teaser: "Two independent randomized trials, specific numbers on TSH and antibodies, and this app hasn't even built a place to score it yet.",
     summary:
@@ -139,7 +139,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-ashwagandha',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: "Ashwagandha: The Most Commonly Asked-About Herb in Hashimoto's Communities",
     teaser: "Nigella sativa already got its own entry here for trial evidence. Ashwagandha, the herb Hashimoto's patients actually ask about most, hadn't, until now.",
     summary:
@@ -152,7 +152,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-iodine-supplement-caution',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: 'Iodine Pills Carry a Different Risk Than Iodine-Rich Food',
     teaser: 'The same warning this app already gives about kelp applies just as much to a bottle of "thyroid support" iodine tablets, arguably more.',
     summary:
@@ -168,7 +168,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'nutrient-tying-together',
-    category: 'nutrients',
+    category: 'hashimotos',
     title: 'Tying It All Together: Which of These Actually Has the Strongest Evidence',
     teaser: 'Nine nutrient entries, ranked honestly, not by how often each one gets talked about, but by how strong its own actual evidence really is.',
     summary:

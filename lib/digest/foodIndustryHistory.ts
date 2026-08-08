@@ -48,7 +48,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- The Timeline ---
   {
     id: 'foodhistory-timeline-baseline-milling',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'The Long Baseline, and the First Break (~10,000 BCE – 1911)',
     teaser: 'For nearly all of agricultural history, flour still carried its own fiber and B vitamins, until the steel roller mill changed that in a single generation.',
     summary:
@@ -68,7 +68,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-timeline-chemical-convenience',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'The Chemical Turn and Convenience Takes Over (1945 – 1976)',
     teaser: "DDT, the Green Revolution, and margarine's rise all landed in the same three decades IBD first became a recognized disease of industrializing nations.",
     summary:
@@ -91,7 +91,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-timeline-glyphosate-hfcs',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Glyphosate and High-Fructose Corn Syrup Enter the Food Supply (1970s – 1980s)',
     teaser: 'Two new chemistries, one in the field, one in the syrup line, both arrived within the same decade.',
     summary:
@@ -111,7 +111,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-timeline-modern-surge',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'The Measured Modern Surge (1988 – Today)',
     teaser: 'Antinuclear antibodies nearly doubled, ultra-processed food became the majority of the American diet, and one large cohort found the picture is more complicated than "everything is rising."',
     summary:
@@ -150,7 +150,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- Soil & Nutrient Decline ---
   {
     id: 'foodhistory-soil-landmark-studies',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Two Landmark Studies: Has Produce Itself Changed?',
     teaser: 'A US and a UK study, decades apart from each other, both found declines in the same handful of nutrients.',
     summary:
@@ -170,7 +170,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-soil-dilution-vs-depletion',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'The Complication: Is It Really the Soil?',
     teaser: 'A methodological critique challenges "depleted soil" as the mechanism, and points at breeding-for-yield instead.',
     summary:
@@ -191,7 +191,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-soil-real-depletion',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Where Soil Depletion IS Well-Documented',
     teaser: 'A controlled, same-field, 75-year trial found trace-mineral loss under intensive tillage, a stronger design than the historical table comparisons above.',
     summary:
@@ -219,7 +219,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- Pesticides & Carcinogens ---
   {
     id: 'foodhistory-pesticides-ddt',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'DDT: The First Resolved Case',
     teaser: 'A widely used, government-approved pesticide that took 27 years to be recognized and banned, a real precedent, not a hypothetical one.',
     summary:
@@ -235,7 +235,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-pesticides-glyphosate-dispute',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Glyphosate: The Current Dispute',
     teaser: 'IARC calls it probably carcinogenic. The EU and WHO/FAO disagree. A 2025 animal study just reopened the question at "safe" doses.',
     summary:
@@ -252,7 +252,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-pesticides-glyphosate-gut',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'What Glyphosate Does to the Gut, Specifically',
     teaser: 'The weakest-evidenced claim in this whole document, stated precisely rather than overstated.',
     summary:
@@ -269,7 +269,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- Whole Foods Wrongly Blamed ---
   {
     id: 'foodhistory-scapegoat-salt',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Salt: Eaten for Millennia, Blamed for a Modern Problem',
     teaser: 'Real blood-pressure evidence exists, but roughly 70% of dietary sodium never came from a home salt shaker to begin with.',
     summary:
@@ -286,7 +286,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-scapegoat-margarine',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Butter → Margarine: An Engineered "Healthier" Substitute That Made Things Worse',
     teaser: "A documented public-health failure, told accurately, without leaning on a claim that doesn't actually check out.",
     summary:
@@ -301,7 +301,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-scapegoat-sugar',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: "Sugar's Own Documented Cover Story",
     teaser: 'About as close as nutrition history gets to a smoking gun: real internal industry documents, directly analyzed.',
     summary:
@@ -317,7 +317,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-scapegoat-eggs',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Eggs: Rehabilitated, After Decades of Blame',
     teaser: "A real, official reversal: most people's blood cholesterol barely moves with dietary cholesterol at all.",
     summary:
@@ -333,7 +333,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-scapegoat-pattern',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'The Pattern Across All Four Cases',
     teaser: 'The same shape repeats every time: a whole food takes the blame, while its manufactured replacement gets the pass.',
     summary:
@@ -348,7 +348,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- The Mechanism Bridge ---
   {
     id: 'foodhistory-mechanism-gut-barrier',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'The Gut Barrier Is the Physical Connection Point',
     teaser: 'Two already-verified mechanisms in this app\'s own research explain how "the food changed" could plausibly reach "the immune system noticed."',
     summary:
@@ -362,7 +362,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-mechanism-disappearing-microbiota',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'The Disappearing-Microbiota Half of the Story',
     teaser: "A separate hypothesis: it isn't just what industrial food does directly. It's what antibiotics, C-sections, and formula feeding have quietly removed.",
     summary:
@@ -378,7 +378,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-mechanism-soil-nutrients-bridge',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Where Soil and Pesticides Plug Back Into Thyroid-Specific Nutrients',
     teaser: 'Selenium and iodine are exactly the soil-dependent trace minerals the depletion research above documents declining.',
     summary:
@@ -396,7 +396,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- The Opinion ---
   {
     id: 'foodhistory-opinion-synthesis',
-    category: 'foodIndustryHistory',
+    category: 'basicHealth',
     title: 'Where I Actually Land on All This',
     teaser: 'Explicitly a personal read, not a citation, written to be argued with, not just accepted.',
     summary:

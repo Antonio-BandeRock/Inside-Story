@@ -20,10 +20,25 @@ import type { DigestEntry } from './types';
 // it's Y" contrast, and overused words like "real"/"genuinely"/
 // "honest(ly)"/"worth" -- see bigPicture.ts's own header comment for the
 // full context. Every fact, number, and citation is unchanged.
+//
+// 2026-08-08, same day, third change: `category` reassigned per entry as
+// part of the Digest-wide Hashimoto's/Basic Health restructure (see
+// types.ts's own header comment). 11 of 21 entries route through a real,
+// specific thyroid mechanism (cortisol/HPA-axis-to-deiodinase suppression,
+// IL-6-to-deiodinase suppression, TSH's own diurnal rhythm, the Hashimoto's-
+// vs-Graves' smoking split, EBV found inside Hashimoto's thyroid tissue
+// specifically, COVID-19 as a documented thyroid trigger, sleep apnea's own
+// thyroid-disorder association, perchlorate's NIS-inhibition mechanism, and
+// the alcohol/BPA-thyroid-receptor entries) and now carry `category:
+// 'hashimotos'`. The other 11, genuinely condition-agnostic (coffee brewing
+// and caffeine facts, juice, ultra-processed food, the personal-care-
+// product EDC exposure route, air pollution, NSAIDs and gut permeability,
+// antibiotic disruption, plastic food storage, sedentary behavior) carry
+// `category: 'basicHealth'`.
 export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   {
     id: 'lifestyle-alcohol-advisory',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'Alcohol: A Genuinely Two-Sided Case',
     teaser: 'Not simply "worse for Hashimoto\'s." Two population studies found the opposite at moderate intake.',
     summary:
@@ -43,7 +58,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-coffee-milk-antioxidants',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: "Coffee + Milk: A Genuinely Mixed Finding, Not the One-Sided Claim It's Often Presented As",
     teaser: 'The "milk cuts coffee\'s antioxidants by 50%" claim didn\'t hold up under a closer look.',
     summary:
@@ -55,7 +70,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-coffee-filtered-cholesterol',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Filtered vs. Unfiltered Coffee & Cholesterol: A Real, Well-Established Difference Most People Never Think to Ask About',
     teaser: 'Two cups of coffee, same beans, wildly different cholesterol effect, depending entirely on how it was brewed.',
     summary:
@@ -67,7 +82,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-coffee-arabica-robusta',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Arabica vs. Robusta: A Real Caffeine Difference',
     teaser: 'Two coffee species with a genuinely different caffeine content, confirmed, not folklore, and not about roast level at all.',
     summary:
@@ -79,7 +94,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-juice-advisory',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Straight Fruit Juice: A Real, Carefully-Qualified Chain of Concerns',
     teaser: 'Population-level risk is real. The "guaranteed acute blood sugar spike" version of this claim is not.',
     summary:
@@ -96,7 +111,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-edc-bpa-phthalates',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'Endocrine Disruptors: BPA & Phthalates',
     teaser: 'Chemicals specifically named for disrupting hormone systems, with real, if still-developing, thyroid-specific data.',
     summary:
@@ -107,7 +122,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-edc-personal-care',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'A Practical EDC Exposure Path: Personal Care Products',
     teaser: "Endocrine disruptors aren't only a food question. Daily lotion and fragrance are an everyday exposure route too.",
     summary:
@@ -122,7 +137,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-ultra-processed-food',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Ultra-Processed Food: The Category-Level Concern Behind Many Single-Ingredient Ones',
     teaser: 'Several individual entries in Food Additives are really one symptom of this broader, category-level pattern.',
     summary:
@@ -138,7 +153,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-sleep-circadian',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'Sleep & Circadian Disruption',
     teaser: "TSH's own real diurnal rhythm is one small piece of a much bigger picture most Hashimoto's food/diet content skips entirely.",
     summary:
@@ -150,7 +165,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-chronic-stress-hpa',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'Chronic Stress & HPA-Axis Dysregulation',
     teaser: 'The same cortisol pathway named across alcohol, juice, and sleep, worth understanding once, on its own, rather than four separate times.',
     summary:
@@ -163,7 +178,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-il6-deiodinase',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'A Second Real Pathway From Inflammation to Low Thyroid Hormone, Not Just Cortisol',
     teaser: 'Cortisol isn\'t the only route from "inflamed" to "low active thyroid hormone." A specific immune messenger does the same thing, a completely different way.',
     summary:
@@ -179,7 +194,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-smoking-paradox',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: "Smoking: A Real, Counterintuitive Split Between Hashimoto's and Graves'",
     teaser: "One of the genuinely surprising findings in thyroid research: smoking's effect actually runs the opposite direction for Hashimoto's.",
     summary:
@@ -188,10 +203,11 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       { source: 'Wiersinga: Smoking and thyroid disorders: a meta-analysis (Clinical Endocrinology)', url: 'https://pubmed.ncbi.nlm.nih.gov/11834423/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['graves-smoking'],
   },
   {
     id: 'lifestyle-environmental-goitrogens-water',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'Perchlorate & Other Water-Borne Goitrogens',
     teaser: 'The same NIS-blocking mechanism as dietary nitrate, arriving through drinking water instead of food.',
     summary:
@@ -207,7 +223,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-air-pollution',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Air Pollution & Autoimmune Risk',
     teaser: "An emerging research area, genuinely less mature than most of this app's other environmental findings, and honestly labeled as such.",
     summary:
@@ -219,7 +235,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-nsaids-gut',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'NSAIDs & Gut Permeability',
     teaser: 'A common over-the-counter medication with a documented gut-barrier effect, not just a food or lifestyle factor.',
     summary:
@@ -232,7 +248,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-antibiotic-overuse',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Antibiotic Use & Long-Term Microbiome Disruption',
     teaser: 'A single course can measurably shift gut microbiota composition for months, sometimes longer than most people would expect.',
     summary:
@@ -245,7 +261,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-plastic-food-storage',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Heating Food in Plastic',
     teaser: 'A specific, everyday habit that measurably increases the exact exposure named earlier in this category.',
     summary:
@@ -258,7 +274,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-sedentary-behavior',
-    category: 'lifestyleEnvironment',
+    category: 'basicHealth',
     title: 'Sedentary Behavior & Baseline Inflammation',
     teaser: 'Included honestly as a real but comparatively modest finding. Not every entry needs to be alarming to be worth knowing.',
     summary:
@@ -270,7 +286,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-ebv-viral-trigger',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: "Epstein-Barr Virus: A Real, Detected Presence Inside Hashimoto's Thyroid Tissue Itself",
     teaser: 'Not a correlation from a questionnaire. A virus actually found sitting inside the diseased tissue, in a majority of cases studied.',
     summary:
@@ -283,7 +299,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-covid19-thyroid-trigger',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'COVID-19 and the Thyroid: A Real, Documented Trigger, and a Real Reason to Get Levels Checked After a Serious Infection',
     teaser: 'A systematic review found actual new-onset and reactivated thyroid autoimmunity following COVID-19 infection. Most cases resolved. Two, tragically, did not.',
     summary:
@@ -296,7 +312,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-sleep-apnea',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: "Sleep Apnea and the Thyroid: A Real, Documented Association, With an Honest Admission the Mechanism Isn't Settled",
     teaser: "A connection shows up in the data. What's actually causing it is, honestly, still an open question.",
     summary:
@@ -309,7 +325,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'lifestyle-tying-together',
-    category: 'lifestyleEnvironment',
+    category: 'hashimotos',
     title: 'Tying It All Together: One Hormone Keeps Showing Up',
     teaser: 'Twenty-one entries spanning alcohol to air pollution, and cortisol runs through more of them than any other single factor.',
     summary:

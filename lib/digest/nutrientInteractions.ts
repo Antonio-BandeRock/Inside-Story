@@ -25,7 +25,7 @@ import type { DigestEntry } from './types';
 export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   {
     id: 'interaction-calcium-iron',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Calcium & Iron: An Antagonism More Dose-Dependent Than the Old Advice Suggests',
     teaser: 'The classic "never take calcium and iron together" rule only really kicks in at higher doses than most people assume.',
     summary:
@@ -41,7 +41,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-vitaminc-iron',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Vitamin C & Iron: A Well-Established Synergy, With One Caveat',
     teaser: 'One of the more genuinely useful food pairings for anyone managing iron levels: real chemistry, not folk wisdom.',
     summary:
@@ -54,7 +54,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-zinc-copper',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Zinc & Copper: An Antagonism That Mostly Shows Up From Supplements, Not Food',
     teaser: 'A documented way well-intentioned zinc supplementation can quietly cause a second deficiency.',
     summary:
@@ -70,7 +70,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-vitamind-k2-magnesium',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Vitamin D, K2 & Magnesium: A Three-Way Team, Not Three Separate Supplements',
     teaser: 'Taking vitamin D alone, without its teammates, may not do what most people expect it to do.',
     summary:
@@ -83,7 +83,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-selenium-iodine',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Selenium & Iodine: Both a Synergy and an Antagonism, Depending on the Order',
     teaser: 'The single most directly thyroid-relevant nutrient interaction in this whole app, and it cuts both ways.',
     summary:
@@ -99,7 +99,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-iron-zinc-manganese',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Iron, Zinc & Manganese: Three Minerals Competing for the Same Door',
     teaser: 'Why "just take all your minerals together" isn\'t actually the most efficient approach.',
     summary:
@@ -111,7 +111,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-vitamina-zinc',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Vitamin A & Zinc: A Mechanistic Link, With Mixed Human Evidence',
     teaser: 'A genuine biochemical dependency at the cellular level that doesn\'t always translate cleanly into a measurable human effect.',
     summary:
@@ -123,7 +123,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-tannins-iron',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Tea, Coffee & Cocoa: A Large Antagonistic Effect on Iron, Fully Fixable By Timing Alone',
     teaser: 'A cup of tea with a meal can cut iron absorption from that same meal by up to 94%.',
     summary:
@@ -146,7 +146,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-phytates-minerals',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Phytates in Grains & Legumes: A Mineral Blocker With Real, Traditional Food Fixes',
     teaser: "Soaking, sprouting, and fermenting aren't just old kitchen habits. They measurably work.",
     summary:
@@ -172,7 +172,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-curcumin-piperine',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Turmeric & Black Pepper: A Dramatic, Kitchen-Level Synergy',
     teaser: 'One of the largest bioavailability boosts from any everyday food pairing ever measured: a 2000% increase in humans.',
     summary:
@@ -184,7 +184,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-fatsoluble-vitamins-fat',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Vitamins A, D, E & K Need Fat Present to Absorb at All',
     teaser: 'Taking a fat-soluble vitamin on a truly fat-free stomach is a common way to waste much of the dose.',
     summary:
@@ -196,7 +196,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-magnesium-b6',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Magnesium & Vitamin B6: A Bidirectional Team',
     teaser: 'Each nutrient helps the body actually use the other one, confirmed in both directions, not just assumed.',
     summary:
@@ -211,7 +211,7 @@ export const NUTRIENT_INTERACTIONS_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'interaction-tying-together',
-    category: 'nutrientInteractions',
+    category: 'basicHealth',
     title: 'Tying It All Together: Absorption Is a System, Not a Nutrient List',
     teaser: 'Twelve interactions, and the repeating lesson is that WHEN and WITH WHAT you eat something often matters more than the nutrient itself.',
     summary:

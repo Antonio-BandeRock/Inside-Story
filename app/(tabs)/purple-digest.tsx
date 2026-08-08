@@ -123,81 +123,13 @@ const DIGEST_SEARCH_HELP: HelpSection[] = [
 // still used for the on-screen subtitle -- this is genuinely additional
 // content, not a replacement for it.
 const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
-  glossary: {
-    heading: 'Glossary',
-    body: "Every acronym and term this Digest actually uses (TSH, zonulin, deiodinase, Treg, SCFA, and dozens more) defined plainly in three parts: what it is, what it does in the body, and how it connects to Hashimoto's specifically. Built to be looked something up in, not read start to finish. Each entry stays short on purpose, and a Related chip jumps straight to the deeper, full-length entry elsewhere in this Digest where that term actually does its work.",
+  basicHealth: {
+    heading: 'Basic Health',
+    body: "Everything in this Digest that applies regardless of which condition someone has, or none at all: food additive dose-and-mechanism detail, food-and-swap entries for common everyday reactions (garlic, dairy, nightshades, sugar-sweetened drinks), gut-barrier and microbiome science (SCFAs, zonulin, what actually repairs a leaky gut), verified fermented-food bacterial strains, nutrient interactions (what helps or competes with what), a food-industry history, general lifestyle and environmental exposures, general exercise/autophagy biology, complementary therapies, a full glossary, and general patient-advocacy skills like how to ask a doctor for a fuller lab panel. This is what the Free tier shows in full.",
   },
-  foodAdditives: {
-    heading: 'Food Additives',
-    body: "Dose-and-mechanism detail on the additives people actually ask about: carboxymethylcellulose and polysorbate 80's own gut-mucus research, sodium nitrite's thyroid-transport mechanism, potassium bromate's tumor data, the 2025 Red Dye 3 ban. Most entries here are genuine concerns, but one (xanthan and guar gum) is included specifically because the evidence says it's fine, so this list doesn't read as uniformly alarmist.",
-  },
-  problemFoods: {
-    heading: 'Problem Foods & Swaps',
-    body: "The one category built differently from the rest: instead of reviewing a body of research, each entry starts from a food (garlic, raw cruciferous vegetables, kelp, charred meat), names the actual mechanism behind why it can be a problem, and gives concrete swaps rather than just \"eat less of it.\"",
-  },
-  gutMicrobiome: {
-    heading: 'Gut & Microbiome',
-    body: "The mechanisms this app's own gut-healing mission keeps coming back to: short-chain fatty acids and regulatory-T-cell induction, the gliadin-to-zonulin permeability pathway, and what trials have actually shown does or doesn't repair a leaky gut. Includes a correction of L-glutamine, probably the most commonly recommended \"leaky gut\" supplement: a systematic review of 10 trials found it doesn't move the needle.",
-  },
-  fermentedFoods: {
-    heading: 'Fermented Foods',
-    body: "Independently verified bacterial strains, the ones already in this app's own two home-yogurt recipes, plus kvass, kefir, and sauerkraut's own strain research, with dosing science (roughly how many CFU a home ferment can reach) and where to source a verified single-strain starter, not just a general \"fermented food is good for you.\"",
-  },
-  nutrients: {
-    heading: 'Nutrients & Micronutrients',
-    body: "Selenium, iodine, vitamin D, zinc, and a few newer candidates like Nigella sativa (black seed), each tiered honestly by its own trial evidence, including places where that evidence is more mixed than it's usually presented, like selenium's own Cochrane-review caveat and vitamin D's inconsistent placebo-controlled results.",
-  },
-  labsMedication: {
-    heading: 'Labs & Medication Timing',
-    body: "What actually interferes with a thyroid lab result or a levothyroxine dose: biotin's lab-assay interference, the classic calcium-and-iron absorption block, TSH's own daily rhythm and how a fasting-versus-fed blood draw can change the number. Each entry ends on the practical fix, usually just spacing something by an hour, not a lifelong restriction.",
-  },
-  lifestyleEnvironment: {
-    heading: 'Lifestyle & Environment',
-    body: "Everything that affects the thyroid beyond what's on the plate: the same alcohol, coffee, and juice advisories already surfaced in this app's own Food builders, plus sleep, chronic stress, smoking's own counterintuitive Hashimoto's-versus-Graves' split, and environmental exposures like air pollution and endocrine-disrupting plastics.",
-  },
-  mitochondriaMetabolism: {
-    heading: 'Mitochondria & Metabolism',
-    body: "Cellular-level mechanisms: autophagy, visceral fat as an active inflammatory organ rather than just stored energy, exercise's own effect on inflammation. Includes two tensions stated plainly rather than resolved: fasting is the most potent known autophagy trigger but also suppresses active thyroid hormone, and visceral fat may partly be the body's own defense against a leaky gut rather than simply harmful.",
-  },
-  otherAutoimmune: {
-    heading: 'Other Autoimmune Diseases',
-    body: "Corroborating research from rheumatoid arthritis, inflammatory bowel disease, multiple sclerosis, type 1 diabetes, lupus, Sjogren's, and psoriasis, every entry labeled with exactly which disease it actually studied, since none of it is Hashimoto's-specific data. Included because the same gut-barrier and immune mechanisms keep showing up across all of them: corroborating weight for a hypothesis, not proof of one.",
-  },
-  healingStages: {
-    heading: 'Healing Stages',
-    body: "What to actually eat at each stage of a Hashimoto's healing journey: a reasoned first-foods list for day one, a reintroduction order and timeline, and milestones to look for before moving on, cross-mapping the five-stage clinical framework onto three practical tiers: Getting Started, Rebuilding, and Well-Healed. Every specific week-or-month figure here traces back to a cited study.",
-  },
-  organSystems: {
-    heading: 'Organs & Body Systems',
-    body: "How Hashimoto's reaches past the thyroid itself. The liver gets sustained coverage here: it does the largest share of T4-to-T3 conversion, and can show reversible enzyme changes from hypothyroidism alone, alongside the heart, brain, kidneys, adrenal glands, joints, and skin, each covered in both directions: how the disease affects that system, and how treating that system can help the thyroid picture back.",
-  },
-  history: {
-    heading: 'History & Milestones',
-    body: "From Hashimoto's own 1912 discovery, through the 1924 iodized-salt program and 1956's finding that this is an autoimmune disease at all, to 1985's identification of TPO (the antigen this app's own tracking is built around) and today's still-early genetic research: the dated turning points behind almost everything else in this app.",
-  },
-  nutrientInteractions: {
-    heading: 'Nutrient Interactions',
-    body: "Which nutrients help each other absorb, like vitamin C and iron, turmeric and black pepper, and which ones compete, like calcium and iron, zinc and copper, and selenium and iodine's own more complicated relationship. Each entry ends on a practical food-level move, like soaking or fermenting to cut the phytates that block mineral absorption in the first place.",
-  },
-  foodIndustryHistory: {
-    heading: 'Food Industry & History',
-    body: "A correlational history of food itself over roughly 150 years, laid out era by era against autoimmune and digestive-disease trends over the same span, plus soil-nutrient decline, the pesticide dispute, and four cases of a whole food (salt, butter, sugar's own reputation, eggs) taking public blame while an industrial substitute got the pass. Closes with a clearly labeled personal opinion, written to be argued with, not just accepted.",
-  },
-  bigPicture: {
-    heading: 'The Big Picture',
-    body: "A short, continuous narrative, one illustrative day, following the same imagined person from her morning dose through dinner, that touches all 14 other categories in a single read, rather than reviewing each one in isolation. Every fact woven into the story is cited or linked back to its own full entry elsewhere in this Digest; only the day itself is a storytelling device, not a real logged person's data. A good place to see how this whole research base actually connects, at any point, not just after everything else.",
-  },
-  selfAdvocacy: {
-    heading: 'Self Advocacy',
-    body: "Which lab tests are actually worth asking for with Hashimoto's: the full thyroid panel (not just TSH), antibodies, ferritin, vitamin D, B12, magnesium, zinc and copper together, a CBC and CMP, lipids, and situational tests like sex hormones and cortisol, each with the reason it matters and a non-excessive sense of how often retesting it actually adds new information. Includes two corrections to how these tests often get pitched (reverse T3's unsettled evidence, and perimenopause usually being a clinical rather than lab diagnosis), plus a practical closing entry on how to actually ask a doctor for any of this.",
-  },
-  pregnancyFamilyPlanning: {
-    heading: 'Pregnancy & Family Planning',
-    body: "What actually changes about managing Hashimoto's around pregnancy, beyond the miscarriage-risk research already covered in Organs & Body Systems: a lower TSH target once pregnancy starts or is being planned, postpartum thyroiditis as its own distinct condition (data showing over half of cases still have persistent hypothyroidism a year later, not the temporary blip it's often assumed to be), a reassuring answer on breastfeeding and levothyroxine safety, and why iodine's already-established two-edged nature carries higher stakes during pregnancy specifically.",
-  },
-  complementaryTherapies: {
-    heading: 'Complementary & Manual Therapies',
-    body: "Chiropractic, acupuncture, acupressure, massage, and heat/cold therapy, each checked directly against the evidence rather than assumed to help. Reported honestly regardless of what turned up: a flat null for chiropractic (zero studies exist connecting it to thyroid or autoimmune disease at all), a contested claim for massage and cortisol, and more limited but positive evidence for the rest, including sauna/heat therapy's striking cardiovascular data. Closes with a direct answer to how this compares to exercise's own already-covered evidence in Mitochondria & Metabolism.",
+  hashimotos: {
+    heading: "Hashimoto's",
+    body: "Every Hashimoto's-specific finding in this Digest, gathered into one real area, the same way each other condition already has its own: thyroid-specific nutrients (selenium, iodine, and newer candidates), labs and medication timing (levothyroxine, biotin interference, TSH's own diurnal rhythm), what to eat at each healing stage, how the disease reaches past the thyroid into other organs, the dated history behind Hashimoto's own diagnosis and treatment, pregnancy-specific guidance, corroborating cross-disease evidence, a Hashimoto's-specific problem-foods list, and Hashimoto's own self-advocacy section: which lab tests to ask for, why, and how often.",
   },
   rheumatoidArthritis: {
     heading: 'Rheumatoid Arthritis',
@@ -206,6 +138,10 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   psoriasis: {
     heading: 'Psoriasis',
     body: "This app's third real condition, covering psoriasis and psoriatic arthritis on their own terms. Weight loss and a Mediterranean eating pattern both carry strong trial evidence with real, measured PASI-score improvement; alcohol tracks with worse disease (most clearly in men) and a striking mortality finding regardless of sex; a specific antibody-positive minority sees real, biopsy-confirmed skin improvement from cutting gluten. Also covers two findings honestly reported as unproven rather than smoothed into false confidence -- nightshade avoidance and oral vitamin D supplementation -- plus two serious, specific medication-food interactions (cyclosporine with grapefruit, acitretin with alcohol) worth knowing exactly, not just generally.",
+  },
+  graves: {
+    heading: "Graves' Disease",
+    body: "This app's fourth real condition, covering hyperthyroidism's most common cause on its own terms. In several real ways it's the mirror image of this app's own Hashimoto's research: smoking raises Graves' eye-disease risk sharply while it lowers Hashimoto's risk, and iodine is both a real trigger and a real complication for antithyroid drug efficacy rather than simply something to avoid. Selenium carries strong trial evidence for mild eye disease specifically. Built with real self-advocacy content from day one: TRAb/TSI antibody testing's own quantified remission and relapse odds, specific warning signs for antithyroid drug side effects, and the real, measurable bone-density loss untreated hyperthyroidism causes.",
   },
 };
 
@@ -223,20 +159,12 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
 // Only affects the grid tile's own label (LensOption.gridLabel) -- the
 // plain, unbroken `label` is still what's used everywhere else this name
 // appears (the Info sheet's own heading, activeLensLabel, etc.).
-const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {
-  problemFoods: 'Problem Foods\n& Swaps',
-  nutrients: 'Nutrients &\nMicronutrients',
-  labsMedication: 'Labs &\nMedication Timing',
-  lifestyleEnvironment: 'Lifestyle &\nEnvironment',
-  mitochondriaMetabolism: 'Mitochondria &\nMetabolism',
-  otherAutoimmune: 'Other Autoimmune\nDiseases',
-  organSystems: 'Organs &\nBody Systems',
-  history: 'History &\nMilestones',
-  nutrientInteractions: 'Nutrient\nInteractions',
-  foodIndustryHistory: 'Food Industry &\nHistory',
-  pregnancyFamilyPlanning: 'Pregnancy &\nFamily Planning',
-  complementaryTherapies: 'Complementary &\nManual Therapies',
-};
+// Empty as of the 2026-08-08 restructure -- all 4 real category labels
+// (Basic Health, Hashimoto's, Rheumatoid Arthritis, Psoriasis) are short
+// enough to fit on one line without a forced break. Kept as a real,
+// live mechanism (not deleted) since a future condition with a longer name
+// may need it again.
+const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 
 function tierColor(tier: EvidenceTier): string {
   if (tier === 'strong') return colors.accent;
@@ -255,7 +183,7 @@ export default function PurpleDigestScreen() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const autoOpenLensHub = useAutoOpenLensHubSignal();
 
-  const [lens, setLens] = useState<PurpleDigestLens>('foodAdditives');
+  const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
   // The Search All lens's own live query text -- reset whenever the tab
   // loses/regains focus below, same as `revealed`, so returning to Purple
   // Digest never resumes a stale search.

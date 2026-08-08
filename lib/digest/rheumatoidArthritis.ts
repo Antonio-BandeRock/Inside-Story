@@ -22,6 +22,15 @@ import type { DigestEntry } from './types';
 // safety threshold), written in following this file's own established
 // house style: no em dashes as punctuation, no "not X, it's Y"
 // contrast, and no overused "real/genuinely/honest(ly)/worth" filler.
+//
+// 2026-08-08, same day, grew to 13 entries: 4 real, disease-specific self-
+// advocacy entries added directly here (RF/anti-CCP antibodies, methotrexate
+// monitoring intervals, cardiovascular risk assessment, glucocorticoid-
+// linked bone density) as part of the same request that dissolved the old,
+// single shared Self Advocacy category into per-condition content (see
+// types.ts's own header comment) -- "Self advocacy should also be specific
+// to each disease." RA's own self-advocacy content lives here, in its own
+// category, rather than in a separate shared file.
 export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
   {
     id: 'ra-overview',
@@ -131,16 +140,74 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     relatedIds: ['ra-overview', 'other-rheumatoid-arthritis'],
   },
   {
+    id: 'ra-advocacy-rf-anti-ccp',
+    category: 'rheumatoidArthritis',
+    title: 'RF & Anti-CCP: Two Antibody Tests, Not Interchangeable',
+    teaser: 'One test is older and more familiar. The other is newer and more precise. Asking for both, not just whichever a lab defaults to, gives a fuller picture.',
+    summary:
+      "Rheumatoid factor is the older, more widely recognized RA antibody test, but it isn't the most precise one available. Anti-CCP (anti-cyclic citrullinated peptide) antibodies show sensitivity comparable to RF, around 80%, but with meaningfully higher specificity, around 98%, meaning a positive anti-CCP result is less likely to be a false alarm from an unrelated condition. The two tests aren't redundant. Roughly 82% of RA patients test positive for anti-CCP and roughly 75% for RF, overlapping but not identical groups, and higher anti-CCP concentrations track with lower odds of reaching remission and a higher cumulative disease-activity score over time, real prognostic information RF alone doesn't carry the same way. Worth asking for both by name at diagnosis, rather than assuming a negative RF alone rules out RA or that one test tells the whole story.",
+    citations: [
+      {
+        source: 'Diagnostic performance and predictive value of rheumatoid factor, anti-cyclic-citrullinated peptide antibodies and HLA-DRB1 locus genes in rheumatoid arthritis',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2577639/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-overview'],
+  },
+  {
+    id: 'ra-advocacy-methotrexate-monitoring',
+    category: 'rheumatoidArthritis',
+    title: 'Methotrexate Needs Real, Scheduled Bloodwork, Not Just a Yearly Checkup',
+    teaser: 'A specific, guideline-set interval exists for catching liver and blood-count problems before they become serious. Worth knowing the actual number.',
+    summary:
+      "Methotrexate's own real liver-toxicity and bone-marrow-suppression risk, already covered elsewhere in this category, isn't monitored on a vague \"come back if something feels wrong\" basis. American College of Rheumatology guidance recommends checking liver enzymes at 8-to-12-week intervals for the duration of methotrexate treatment, with closer monitoring, weekly for the first month, then at least every other month, during the early weeks after starting or increasing a dose, when bone-marrow suppression risk is highest. A complete blood count and kidney-function check typically ride alongside the same liver-enzyme draw, not as a separate, extra visit. One real, practical detail worth knowing directly: testing within a day or two of the actual weekly methotrexate dose can show a transient liver-enzyme bump that isn't the same as real, sustained toxicity, so timing the draw a few days clear of the most recent dose gives a truer reading.",
+    citations: [
+      { source: 'Guidelines for Blood Test Monitoring of Methotrexate Therapy, Journal of Rheumatology', url: 'https://www.jrheum.org/content/jrheum/31/12/2501.full.pdf' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-methotrexate-folate'],
+  },
+  {
+    id: 'ra-advocacy-cardiovascular-risk',
+    category: 'rheumatoidArthritis',
+    title: 'RA Roughly Doubles Cardiovascular Risk. Ask for It to Be Assessed as Its Own Item.',
+    teaser: 'Not an assumed side effect of getting older. A real, elevated risk tied to the disease itself, worth its own direct conversation.',
+    summary:
+      "Cardiovascular disease shows up more than twice as often in RA as in the general population, driven by chronic inflammation itself accelerating arterial stiffness, plus a documented dose-and-time-dependent contribution from glucocorticoid use specifically, not just the usual suspects of age, weight, or smoking. European rheumatology guidance recommends routine cardiovascular risk assessment as a standard part of RA care, though real-world adherence to that recommendation is inconsistent, meaning it's genuinely worth asking for directly rather than assuming it's already being tracked. This isn't a separate, unrelated health topic layered on top of RA. It's a documented consequence of the disease process itself, worth raising by name at a regular visit, alongside the usual blood pressure and cholesterol checks most people already expect.",
+    citations: [
+      { source: 'Cardiovascular Risk in Rheumatoid Arthritis: Considerations on Assessment and Management', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11500121/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-bone-density'],
+  },
+  {
+    id: 'ra-advocacy-bone-density',
+    category: 'rheumatoidArthritis',
+    title: 'Long-Term Glucocorticoid Use Calls for a Real Bone-Density Check, Not a Guess',
+    teaser: 'Prednisone controls flares effectively. It also carries a well-documented cost to bone that a DEXA scan actually catches.',
+    summary:
+      "Glucocorticoids like prednisone are genuinely effective at controlling RA flares, and they carry a real, well-documented cost: they're the most common cause of secondary osteoporosis, driving rapid bone-density loss, especially in trabecular bone, and a measurably higher fracture risk. The real risk threshold to know: more than three months of glucocorticoid use is the point where this becomes a serious concern rather than a minor one, alongside disease severity itself and physical inactivity as compounding factors. A DEXA (bone density) scan is the direct, standard way this actually gets checked, and it's worth asking for specifically if glucocorticoid use has run past that three-month mark, rather than waiting for a fracture to be the first sign something changed. The same EULAR guidance already covered under the cardiovascular entry above also recommends using the lowest effective glucocorticoid dose for the shortest workable period, precisely because of this same bone (and cardiovascular) cost.",
+    citations: [
+      {
+        source: 'The impact of low-dose glucocorticoids on disease activity, bone mineral density, fragility fractures, and 10-year probability of fractures in patients with rheumatoid arthritis',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6073913/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-cardiovascular-risk'],
+  },
+  {
     id: 'ra-tying-together',
     category: 'rheumatoidArthritis',
     title: 'What Actually Holds Up for RA, Pulled Together',
     teaser: 'Two food levers with strong trial evidence, one landmark finding that only applies to part of the population, and two medication interactions worth knowing precisely, not just generally.',
     summary:
-      "Line up everything in this category and a real, usable picture forms. Omega-3s and a Mediterranean-style eating pattern both carry strong, repeated trial evidence, the two most dependable food levers available for RA specifically. Fasting followed by a vegetarian diet showed a genuinely significant effect in a landmark trial, but only reliably for the subset of people who respond to it, making it a real hypothesis worth personally testing rather than a rule to assume applies. The two medication interactions that matter most, methotrexate's relationship with folate and with alcohol, both turned out more precise and more manageable than the blanket warnings patients often hear: folate needs consistency, not elimination, and alcohol's real risk threshold sits well above zero drinks. Underneath all of it sits the most practically important fact of all, the real, common overlap between RA and Hashimoto's, which is exactly why this category exists as its own real destination now instead of a single corroborating entry borrowed for someone else's disease.",
+      "Line up everything in this category and a real, usable picture forms. Omega-3s and a Mediterranean-style eating pattern both carry strong, repeated trial evidence, the two most dependable food levers available for RA specifically. Fasting followed by a vegetarian diet showed a genuinely significant effect in a landmark trial, but only reliably for the subset of people who respond to it, making it a real hypothesis worth personally testing rather than a rule to assume applies. The two medication interactions that matter most, methotrexate's relationship with folate and with alcohol, both turned out more precise and more manageable than the blanket warnings patients often hear: folate needs consistency, not elimination, and alcohol's real risk threshold sits well above zero drinks. The self-advocacy entries above round out the practical picture: which antibody tests to ask for, how often methotrexate bloodwork actually needs to happen, and two real, elevated risks (cardiovascular, bone density) worth raising directly rather than assuming someone else is already tracking them. Underneath all of it sits the most practically important fact of all, the real, common overlap between RA and Hashimoto's, which is exactly why this category exists as its own real destination now instead of a single corroborating entry borrowed for someone else's disease.",
     citations: [
       { source: 'Estimation of prevalence of autoimmune diseases in the United States using electronic health record data, JCI, 2024', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11827834/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ra-omega3', 'ra-mediterranean-diet', 'ra-elimination-fasting', 'ra-hashimotos-comorbidity'],
+    relatedIds: ['ra-omega3', 'ra-mediterranean-diet', 'ra-elimination-fasting', 'ra-hashimotos-comorbidity', 'ra-advocacy-rf-anti-ccp', 'ra-advocacy-methotrexate-monitoring'],
   },
 ];

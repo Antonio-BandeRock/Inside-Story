@@ -26,7 +26,7 @@ import type { DigestEntry } from './types';
 export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   {
     id: 'labs-biotin-interference',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'Biotin: How a Common Supplement Can Fake an Abnormal Thyroid Lab Result',
     teaser: 'A hair-skin-nails supplement, sitting quietly in a medicine cabinet, can make a perfectly normal thyroid look diseased on paper.',
     summary:
@@ -38,7 +38,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-calcium-iron-absorption',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'Calcium & Iron: The Best-Established Food-Medication Interaction in Thyroid Care, Still One of the Most Common Mistakes',
     teaser: 'The single most well-documented timing rule in thyroid medicine, and people still take their morning vitamin with their morning pill anyway.',
     summary:
@@ -50,7 +50,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-grapefruit-juice',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'Grapefruit Juice & Levothyroxine: The Best Controlled Data on Any Juice Interaction, and a Smaller Effect Than Its Reputation',
     teaser: 'Grapefruit juice has a well-earned reputation for messing with medications. Its actual, measured effect on levothyroxine turns out to be surprisingly modest.',
     summary:
@@ -62,7 +62,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-tsh-diurnal-timing',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'TSH Has a Real Daily Rhythm, Which Is Why "Morning, Fasting" Is Not an Arbitrary Rule',
     teaser: "The same person's blood, drawn at two different times of day, can genuinely tell two different stories.",
     summary:
@@ -74,7 +74,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-bedtime-dosing',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: "Bedtime Levothyroxine Dosing: A Studied Alternative for Anyone Mornings Don't Work For",
     teaser: "The standard morning routine isn't the only evidence-backed option, just the most commonly prescribed one.",
     summary:
@@ -86,7 +86,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-breakfast-higher-dose',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'A 2026 Trial: Levothyroxine WITH Breakfast, at a Higher Dose',
     teaser: 'Not fasting, not bedtime: a brand-new randomized trial found a third option works just as well.',
     summary:
@@ -102,7 +102,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-combination-t3-ndt',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: "When Levothyroxine Alone Doesn't Feel Like Enough: What the Trials on Combination T4/T3 and NDT Actually Found",
     teaser: 'A huge question in every Hashimoto\'s community: "my labs are normal but I still feel awful, should I ask for T3 or natural desiccated thyroid?" The answer is more nuanced than either side of that argument usually admits.',
     summary:
@@ -130,7 +130,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-drug-induced-thyroid-dysfunction',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'Two Common Medications That Can Trigger or Worsen Thyroid Dysfunction on Their Own',
     teaser: 'Not every thyroid problem starts with the thyroid. Sometimes it starts with a prescription written for something else entirely.',
     summary:
@@ -158,7 +158,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-checkpoint-inhibitor-thyroiditis',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: "Cancer Immunotherapy and the Thyroid: A Risk That's Genuinely Higher for Anyone Already Antibody-Positive",
     teaser: 'A newer class of cancer drug, saving lives, with a documented side effect this Digest\'s own core audience should specifically know about.',
     summary:
@@ -178,7 +178,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-absorption-interferers-beyond-food',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'Beyond Calcium, Iron & Coffee: Medications That Also Block Levothyroxine Absorption',
     teaser: 'A common heartburn medication, a cholesterol-lowering drug, an antibiotic: all documented additions to the same absorption-blocking list as calcium and iron.',
     summary:
@@ -194,7 +194,7 @@ export const LABS_MEDICATION_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'labs-timing-master-rule',
-    category: 'labsMedication',
+    category: 'hashimotos',
     title: 'The Practical Timing Rule, Pulled Together',
     teaser: 'Five separate interactions, five different mechanisms, and nearly all of them resolve with the exact same one habit.',
     summary:

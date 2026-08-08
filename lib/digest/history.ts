@@ -25,7 +25,7 @@ import type { DigestEntry } from './types';
 export const HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'history-1912-first-description',
-    category: 'history',
+    category: 'hashimotos',
     title: '1912: The Original Discovery, By a Surgeon Studying Four Patients',
     teaser: 'A disease now affecting millions was first noticed by one surgeon, looking closely at tissue from just four people.',
     summary:
@@ -40,7 +40,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-1924-iodized-salt',
-    category: 'history',
+    category: 'hashimotos',
     title: 'The "Goiter Belt," and a Voluntary Public-Health Experiment That Actually Worked',
     teaser: 'One American region once had close to 100% goiter rates in schoolchildren, fixed voluntarily, with no law ever requiring it.',
     summary:
@@ -53,7 +53,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-1956-autoimmune-mechanism',
-    category: 'history',
+    category: 'hashimotos',
     title: '1956: Proof This Was an Autoimmune Disease at All, a Turning Point for All of Medicine',
     teaser: 'Before this year, the idea that the body could attack itself was considered close to medically impossible.',
     summary:
@@ -66,7 +66,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-1960s-tsh-testing',
-    category: 'history',
+    category: 'hashimotos',
     title: 'The 1960s Onward: How Thyroid Testing Actually Became Possible',
     teaser: 'Before this era, there was no reliable blood test that could tell anyone their own thyroid status.',
     summary:
@@ -78,7 +78,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-1985-tpo-identified',
-    category: 'history',
+    category: 'hashimotos',
     title: '1985: The Antibody This App Actually Tracks Gets Identified',
     teaser: 'The "TPO antibody" this whole app treats as central data wasn\'t even known by that name until 1985.',
     summary:
@@ -94,7 +94,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-desiccated-to-levothyroxine',
-    category: 'history',
+    category: 'hashimotos',
     title: 'From Ground-Up Pig Thyroid to a Precisely-Dosed Pill: How Treatment Itself Evolved',
     teaser: 'As recently as 1965, four out of five American thyroid prescriptions were still literally dried animal thyroid gland.',
     summary:
@@ -106,7 +106,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-genetic-era',
-    category: 'history',
+    category: 'hashimotos',
     title: 'The Genetic Era: Real Susceptibility Genes, Real Limits to What They Explain',
     teaser: "The first genome-wide search for Hashimoto's-specific genes only happened in 2018, more recently than most people would guess.",
     summary:
@@ -118,7 +118,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-desiccated-thyroid-standardization',
-    category: 'history',
+    category: 'hashimotos',
     title: 'A Milestone Often Left Out: When Desiccated Thyroid Finally Got Properly Standardized',
     teaser: 'The potency problem that helped push doctors toward synthetic thyroxine had a fix. It just arrived too late to matter.',
     summary:
@@ -131,7 +131,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-whickham-progression-rate',
-    category: 'history',
+    category: 'hashimotos',
     title: 'The Study Behind "How Fast Does This Actually Progress"',
     teaser: 'A 20-year follow-up on thousands of people: the actual data behind a question almost everyone with early antibody-positive results eventually asks.',
     summary:
@@ -144,7 +144,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-heritability-family-risk',
-    category: 'history',
+    category: 'hashimotos',
     title: 'How Much of This Is Really Genetic? A Different Kind of Evidence From the GWAS Story Above',
     teaser: 'The genome-wide search for specific genes is one kind of evidence. Comparing identical twins tells a striking part of the same story.',
     summary:
@@ -158,7 +158,7 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'history-tying-together',
-    category: 'history',
+    category: 'hashimotos',
     title: 'Tying It All Together: What This History Actually Teaches',
     teaser: 'From "the body cannot attack itself" to a genome-wide search for the genes that let it, a real arc, not just a list of dates.',
     summary:
