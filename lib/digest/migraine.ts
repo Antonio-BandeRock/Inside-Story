@@ -297,4 +297,31 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['migraine-food-triggers-honest-nuance', 'migraine-obesity-chronification-risk'],
   },
+  {
+    id: 'migraine-gepants-acute-treatment',
+    category: 'migraine',
+    title: 'Gepants: a Real, Newer Medication Class Built to Treat an Attack Already in Progress',
+    teaser: 'A real trial of ubrogepant found 21.8% of patients pain-free at 2 hours versus 14.3% on placebo, a genuinely different medication working through the same CGRP pathway this category\'s own preventive treatments target.',
+    summary:
+      "This category's own research already covers CGRP inhibitors as monthly PREVENTIVE treatment. Gepants are a real, related but genuinely distinct medication class, oral pills taken to treat an attack that's already started, working through the same real CGRP signaling pathway rather than a separate mechanism. Ubrogepant and rimegepant were both FDA-approved starting in 2019 and 2020, and a real, large randomized trial of ubrogepant (ACHIEVE II, 1,465 patients) found 21.8% of patients on the higher tested dose were completely pain-free at 2 hours, compared with 14.3% on placebo, a real, meaningful difference for a single-attack, as-needed medication. Rimegepant's own trial data showed a broadly similar real effect, with benefit that held up through 24 hours in some measures. A genuinely important, practical distinction from older acute migraine medications (triptans, and even overused simple painkillers): real research and current guidance treat gepants as carrying a much lower risk of causing medication-overuse headache with frequent use, a real, direct answer to a real problem this category's own medication-overuse-headache research already covers in depth. Worth knowing directly: gepants are a real, newer option specifically worth raising for anyone whose current acute treatment either doesn't work well enough or triggers rebound headaches with regular use.",
+    citations: [
+      { source: 'Effect of Ubrogepant vs Placebo on Pain and the Most Bothersome Associated Symptom in the Acute Treatment of Migraine: The ACHIEVE II Randomized Clinical Trial, JAMA 2019, PMID 31742631', url: 'https://pubmed.ncbi.nlm.nih.gov/31742631/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-cgrp-inhibitors', 'migraine-medication-overuse-headache', 'migraine-trigeminovascular-cgrp-mechanism'],
+  },
+  {
+    id: 'migraine-neuromodulation-devices',
+    category: 'migraine',
+    title: 'Real, FDA-Cleared Devices Can Treat Migraine Without a Single Medication',
+    teaser: 'A sham-controlled trial of a wearable nerve-stimulation device found 21% of users pain-free at 60 minutes versus 10% on the sham device, real evidence for a genuinely drug-free option.',
+    summary:
+      "Neuromodulation devices are a real, genuinely different approach to migraine treatment, using mild electrical or magnetic stimulation of specific nerves rather than any medication at all, and several are FDA-cleared based on real, sham-controlled trials, the same rigorous placebo-style design used to test drugs. Cefaly, a headband-style device stimulating the trigeminal nerve, has real trial evidence on both sides of the treatment picture: a real, randomized prevention trial (PREMICE) found daily use over 3 months significantly reduced migraine days compared with sham stimulation. GammaCore, a handheld device stimulating the vagus nerve in the neck, has real acute-treatment trial evidence too, a real, sham-controlled trial of 243 patients (PRESTO) found it produced pain freedom in 21.0% of patients at 60 minutes, compared with 10.0% on the sham device. Real research finds these devices carry a genuinely favorable safety profile, with side effects generally infrequent, mild, and temporary, a real, meaningful difference from medication-based approaches for anyone specifically wanting to avoid drug interactions or side effects, including someone managing multiple conditions and medications already. Worth knowing directly: these devices work best as one real, additional tool, not necessarily a full replacement for medication in more severe or frequent migraine, and are worth a direct conversation with a headache specialist about whether one might fit into an existing treatment plan.",
+    citations: [
+      { source: 'Noninvasive vagus nerve stimulation as acute therapy for migraine (PRESTO), Neurology 2018, PMID 29907608', url: 'https://pubmed.ncbi.nlm.nih.gov/29907608/' },
+      { source: 'Migraine prevention with a supraorbital transcutaneous stimulator (PREMICE), Neurology 2013, PMID 23390177', url: 'https://pubmed.ncbi.nlm.nih.gov/23390177/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-cgrp-inhibitors', 'migraine-botox-preempt-trials'],
+  },
 ];

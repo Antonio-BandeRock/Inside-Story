@@ -319,4 +319,30 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-heart-attack-red-flags'],
   },
+  {
+    id: 'cvd-coronary-calcium-score',
+    category: 'cardiovascularDisease',
+    title: 'A Coronary Calcium Score of Zero Is Real, Useful Information, but It Has an Expiration Date',
+    teaser: 'A coronary calcium scan can spot plaque before any symptom shows up, and a score of zero genuinely lowers risk, but a large MESA analysis found it isn\'t a lifetime guarantee.',
+    summary:
+      "A coronary artery calcium (CAC) scan is a low-radiation CT scan that directly counts calcium deposits in the heart's own arteries, a real, physical measure of plaque rather than an estimate built from risk-factor questionnaires alone. Large cohort studies, most notably the Multi-Ethnic Study of Atherosclerosis (MESA), have repeatedly found CAC adds real, independent predictive value on top of standard risk calculators like the pooled cohort equations, and a score of zero is genuinely useful: it identifies people at very low near-term risk and can reasonably de-escalate a decision about starting a statin. The honest nuance worth knowing: a real MESA analysis following 3,116 people with a baseline score of zero found that score doesn't hold indefinitely. About 19% of the 10-year coronary events in that whole cohort happened to people who still scored zero the last time they were checked, and once a repeat scan found any new calcium at all, it came before 55% of the future events and marked a real, roughly three-fold higher risk group. The estimated 'warranty period' for a zero score ran 3 to 7 years depending on sex, race and ethnicity, and was shorter specifically for anyone with diabetes. Worth knowing directly for someone whose family history or other risk factors leave real uncertainty about their own cardiovascular risk: a CAC scan is a real, concrete test to ask about, and a favorable score today is genuinely reassuring without being a permanent answer.",
+    citations: [
+      { source: "Warranty Period of a Calcium Score of Zero: Comprehensive Analysis From MESA, JACC: Cardiovascular Imaging 2021, PMID 33129734", url: 'https://pubmed.ncbi.nlm.nih.gov/33129734/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-lipid-panel-self-advocacy', 'cvd-lipoprotein-a-underrecognized'],
+  },
+  {
+    id: 'cvd-atrial-fibrillation-anticoagulation',
+    category: 'cardiovascularDisease',
+    title: 'Atrial Fibrillation Raises Stroke Risk Fivefold, and a Real, Well-Studied Treatment Cuts Most of It Back',
+    teaser: 'A real, large pooled analysis of 29 trials found blood thinners cut stroke risk in atrial fibrillation by roughly 60%, one of the more decisive treatment effects in all of cardiovascular medicine.',
+    summary:
+      "Atrial fibrillation (AFib), an irregular, often rapid heart rhythm originating in the heart's upper chambers, raises stroke risk on its own, since blood can pool and clot inside a heart that isn't beating in its normal, coordinated rhythm. A real, large meta-analysis pooling 29 randomized trials and over 28,000 participants found adjusted-dose warfarin reduced stroke by roughly 60% compared with no treatment, one of the largest, most consistent treatment effects found anywhere in cardiovascular medicine, with newer direct oral anticoagulants (the 'NOAC' or 'DOAC' class) showing comparably strong protection in later trials and generally easier day-to-day management than warfarin's own diet-and-monitoring requirements. Real, current clinical practice uses a specific, points-based tool, CHA2DS2-VASc, to decide who genuinely needs this protection, counting age, sex, and a specific list of real medical conditions (heart failure, high blood pressure, diabetes, prior stroke or clot, vascular disease) toward an actual treatment threshold rather than a vague 'high risk' judgment call. Worth knowing directly: real-world data has repeatedly found a genuine gap between this clear guidance and actual practice, with a meaningful share of people who score high enough to clearly benefit from anticoagulation not receiving it, often out of an understandable but not always well-calibrated worry about bleeding risk. Anyone diagnosed with AFib has real, concrete standing to ask directly where their own CHA2DS2-VASc score lands and what it means for their own treatment plan.",
+    citations: [
+      { source: 'Meta-analysis: antithrombotic therapy to prevent stroke in patients who have nonvalvular atrial fibrillation, Annals of Internal Medicine 2007 (Hart, Pearce, Aguilar), PMID 17577005', url: 'https://pubmed.ncbi.nlm.nih.gov/17577005/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-holiday-heart-alcohol-afib', 'cvd-heart-failure-abcd-staging'],
+  },
 ];

@@ -316,4 +316,30 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['magnesium-tying-together', 'type1-hba1c-time-in-range'],
   },
+  {
+    id: 'type1-autoimmune-thyroid-comorbidity',
+    category: 'type1Diabetes',
+    title: 'Autoimmune Thyroid Disease Is the Single Most Common Condition Riding Alongside Type 1 Diabetes',
+    teaser: 'Real research finds TPO antibodies in roughly a fifth of type 1 diabetes patients, and current screening guidance recommends checking thyroid antibodies at diagnosis rather than waiting for a symptom.',
+    summary:
+      "Type 1 diabetes is itself an autoimmune disease, an immune attack on the pancreas's own insulin-producing cells, and real research finds it genuinely clusters with other autoimmune conditions more often than chance alone would predict, most commonly autoimmune thyroid disease. A real study screening pediatric type 1 diabetes patients found 21.3% positive for TPO antibodies, and among that group, 38.4% already had confirmed autoimmune thyroiditis, roughly 8% of the whole screened population. Broader reviews find the real range runs even wider across different populations, with autoimmune thyroiditis prevalence estimates spanning 5.5% to over 40% depending on age, sex, and how thoroughly a given study screened for it, real research consistently finds female sex and older age tracking with higher risk. This real overlap reflects a genuine, shared underlying tendency toward autoimmune disease, not one condition causing the other. Current, real screening guidance reflects how common this overlap actually is: checking TPO antibodies and TSH at the time of type 1 diabetes diagnosis, then rechecking TSH annually in anyone who tests antibody-positive, rather than waiting for a symptom to prompt testing. Worth knowing directly for anyone managing type 1 diabetes: undiagnosed thyroid dysfunction can genuinely complicate blood sugar management on its own, making a real thyroid panel worth confirming as part of standard, ongoing diabetes care rather than an optional extra.",
+    citations: [
+      { source: 'Prevalence of Organ-Specific Autoimmunity in Patients With Type 1 Diabetes Mellitus, Cureus 2023, PMID 37303388', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10256565/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-celiac-comorbidity', 'type1-autoantibody-panel'],
+  },
+  {
+    id: 'type1-cgm-alone-real-outcomes',
+    category: 'type1Diabetes',
+    title: 'A Continuous Glucose Monitor by Itself, Without a Full Automated Insulin System, Already Moves Real Numbers',
+    teaser: 'A real, randomized trial found adults using a continuous glucose monitor alone (no automated insulin delivery) spent 77 more minutes a day in target range and cut hypoglycemic events by 30%.',
+    summary:
+      "This category's own research already covers closed-loop, automated insulin-delivery systems, which pair a continuous glucose monitor (CGM) with an insulin pump that adjusts dosing on its own. A real, separate, more foundational question is how much a CGM alone, worn alongside ordinary manual insulin injections with no automated pump involved, actually changes outcomes. A real, randomized clinical trial (DIAMOND) directly tested this in adults with type 1 diabetes managing their diabetes with multiple daily injections, comparing real-time CGM against standard fingerstick blood glucose testing. The CGM group achieved a real 0.6 percentage point greater reduction in HbA1c and spent a real, additional 77 minutes per day with blood glucose in the target range, a meaningful, measurable difference from a device change alone, no pump or algorithm involved. Real hypoglycemia outcomes improved too: the CGM group's median hypoglycemic event rate fell by 30%, while the comparison group's rate stayed essentially unchanged. Worth knowing directly: this is real, controlled trial evidence that a CGM by itself, the simplest, most accessible version of this technology, produces a real, measurable clinical benefit on its own, a meaningful floor of benefit for anyone not yet using or not currently able to access a full automated insulin-delivery system.",
+    citations: [
+      { source: 'Effect of Continuous Glucose Monitoring on Glycemic Control in Adults With Type 1 Diabetes Using Insulin Injections: The DIAMOND Randomized Clinical Trial, JAMA 2017 (Beck et al.), PMID 28118453', url: 'https://jamanetwork.com/journals/jama/fullarticle/2598770' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-closed-loop-automated-insulin', 'type1-hba1c-time-in-range'],
+  },
 ];

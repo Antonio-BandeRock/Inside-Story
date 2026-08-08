@@ -300,4 +300,30 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['pcos-insulin-resistance-mechanism', 'pcos-spearmint-tea'],
   },
+  {
+    id: 'pcos-glp1-agonists-emerging',
+    category: 'pcos',
+    title: 'GLP-1 Medications Are Moving Into PCOS Treatment, Working Through the Same Insulin Pathway This Condition Is Built On',
+    teaser: "A real randomized trial found combining semaglutide with metformin restored regular periods in 86.87% of women with PCOS, well above metformin alone.",
+    summary:
+      "GLP-1 receptor agonists (semaglutide, liraglutide, the same medication class already covered in this app's own Type 2 Diabetes and MASLD research) are increasingly being studied directly in PCOS, and the fit makes sense given this category's own overview: PCOS runs largely on insulin resistance, and GLP-1 medications work by improving exactly that. A real, randomized trial of 64 women with PCOS and overweight or obesity compared metformin alone against metformin plus semaglutide over 12 weeks, and found the combination significantly reduced body weight, improved insulin resistance, lowered inflammatory markers, and restored regular menstrual cycles in 86.87% of participants, alongside a real, higher natural pregnancy rate. An earlier, smaller trial comparing liraglutide directly against metformin found liraglutide produced greater weight loss and a more favorable reduction in visceral fat specifically. Worth knowing honestly: this is real, still-emerging evidence, mostly from smaller trials rather than the very large studies already available for GLP-1 use in general obesity or type 2 diabetes, and these medications aren't yet a standard, guideline-recommended first-line PCOS treatment the way combined oral contraceptives or metformin already are (see this category's own research on both). It's real, worth-knowing context for a conversation with a doctor, especially for someone whose PCOS symptoms haven't responded well to standard first-line options.",
+    citations: [
+      { source: 'Effects of combined metformin and semaglutide therapy on body weight, metabolic parameters, and reproductive outcomes in overweight/obese women with polycystic ovary syndrome, 2025', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12297736/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pcos-weight-loss-modest', 'pcos-combined-oral-contraceptives-first-line', 'type2-glp1-sglt2-paradigm-shift'],
+  },
+  {
+    id: 'pcos-amh-diagnostic-marker',
+    category: 'pcos',
+    title: 'A Real Blood Test Is Becoming Part of How PCOS Gets Diagnosed, Alongside the Existing Ultrasound',
+    teaser: "Anti-Müllerian hormone (AMH) can't diagnose PCOS on its own, but a real, pooled analysis found it correctly identifies the condition about as often as the ultrasound-based test it's starting to supplement.",
+    summary:
+      "This category's own research already covers the Rotterdam criteria, the real, standard diagnostic framework requiring two of three features: irregular ovulation, clinical or lab evidence of excess androgens, and polycystic ovarian morphology on ultrasound. Anti-Müllerian hormone (AMH), a real hormone produced by small ovarian follicles, is increasingly used as either a substitute or a real, added data point for that ultrasound criterion. A real, large, pooled meta-analysis (68 studies) found AMH had a real sensitivity of 79% and specificity of 87% for diagnosing PCOS in adults, broadly comparable to how well the ultrasound-based criterion itself performs, with the real, practical advantage that a blood draw is more standardized and less operator-dependent than an ultrasound reading. The 2023 international evidence-based PCOS guideline now formally recommends AMH as an acceptable way to define polycystic ovarian morphology in adults. Worth knowing honestly, and directly stated in the guideline itself: AMH alone still isn't adequate to diagnose PCOS on its own, and real research finds it performs meaningfully less reliably in adolescents specifically, since normal, hormonally-active teenage ovaries can look similar to PCOS on this marker too. This is real, useful context for anyone navigating a PCOS diagnosis, worth understanding as one real piece of the diagnostic picture rather than either a magic single test or a marker with no real value.",
+    citations: [
+      { source: 'Anti-müllerian hormone as a diagnostic biomarker for polycystic ovary syndrome and polycystic ovarian morphology: a systematic review and meta-analysis, Fertility and Sterility 2024, PMID 38944177', url: 'https://pubmed.ncbi.nlm.nih.gov/38944177/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-rotterdam-phenotypes', 'pcos-ogtt-screening'],
+  },
 ];

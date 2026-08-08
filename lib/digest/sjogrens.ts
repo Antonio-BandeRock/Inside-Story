@@ -299,4 +299,30 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['sjogrens-omega3-dry-eye-mouth', 'vitamind-tying-together'],
   },
+  {
+    id: 'sjogrens-rituximab-biologic-mixed-evidence',
+    category: 'sjogrens',
+    title: 'A Real, Well-Studied Biologic (Rituximab) Genuinely Didn\'t Meet Its Own Trial\'s Main Goal',
+    teaser: 'A real, French, 120-patient randomized trial (TEARS) found rituximab didn\'t significantly beat placebo on its own primary measure, a real, honest example of a plausible treatment not panning out as hoped.',
+    summary:
+      "Rituximab, a real, well-established biologic that depletes a specific type of immune cell (B cells), has real biological plausibility for Sjögren's, since B-cell overactivity is a genuine, documented part of the disease. A real, randomized, placebo-controlled French trial (TEARS), following 120 patients after a single course of rituximab, tested this directly against a real, specific bar: at least a meaningful improvement in two of four core symptom measures (dryness, pain, fatigue, and overall disease-activity assessment) at 24 weeks. Rituximab didn't reach that bar. An early real improvement in fatigue at 6 weeks didn't hold up by 24 weeks, and the trial's own authors noted the chosen outcome measure was genuinely demanding and subjective, which may have made a real, smaller benefit harder to detect. A second, separate UK trial (TRACTISS) reached a similarly negative primary result. Worth knowing honestly: this doesn't mean rituximab has zero effect, real secondary measures in these same trials did show some improvement in objective salivary flow and lab markers, but it's a real, honest example of promising biological reasoning not translating cleanly into the specific, real-world symptom improvement a randomized trial is built to detect. This app names it directly rather than only covering medications with a clean positive result, since knowing what DIDN'T clearly work, and why, is real, useful context too.",
+    citations: [
+      { source: 'Treatment of Primary Sjögren Syndrome With Rituximab: A Randomized Trial, Annals of Internal Medicine 2014 (Devauchelle-Pensec et al.), PMID 24727841', url: 'https://pubmed.ncbi.nlm.nih.gov/24727841/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['sjogrens-pilocarpine-cevimeline'],
+  },
+  {
+    id: 'sjogrens-oral-candidiasis-risk',
+    category: 'sjogrens',
+    title: 'Dry Mouth Doesn\'t Just Feel Uncomfortable, It Genuinely Opens the Door to Oral Yeast Infections',
+    teaser: 'Real research finds Candida yeast colonizing the mouths of the large majority of Sjögren\'s patients, with reduced saliva flow itself the single strongest, most direct predictor.',
+    summary:
+      "This category's own research already covers saliva's real, active protective role, buffering acid, clearing food and bacteria, and fighting infection directly, and its own dental-caries entry covers one real consequence of losing that protection. A second, real, distinct consequence is oral candidiasis, a yeast infection caused by Candida overgrowing in a mouth that no longer has enough saliva to keep it in check. Real research finds Candida colonizing the mouths of a large majority of Sjögren's patients (over 80% by sensitive culture methods in one study), with a more recent study finding visible clinical signs of active candidiasis, redness, white patches, or a burning sensation, in 13.1% of primary Sjögren's patients specifically. Real research consistently identifies reduced, unstimulated saliva flow as an independent, direct risk factor, not just a coincidental shared symptom, the same underlying mechanism (compromised lubrication, buffering, and antimicrobial protection) driving both this and the dental-caries risk already covered elsewhere in this category. Worth knowing directly: a persistent burning sensation, altered taste, or visible white patches in the mouth are real, treatable signs worth raising specifically, since oral candidiasis responds to real, targeted antifungal treatment, distinct from the general dryness-relief strategies (xylitol, saliva substitutes) already covered in this category's own research.",
+    citations: [
+      { source: "Multiple oral Candida infections in patients with Sjögren's syndrome: prevalence and clinical and drug susceptibility profiles, Journal of Rheumatology 2011, PMID 21844143", url: 'https://pubmed.ncbi.nlm.nih.gov/21844143/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-dental-caries-risk', 'sjogrens-xylitol-saliva-stimulation'],
+  },
 ];

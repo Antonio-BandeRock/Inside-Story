@@ -306,4 +306,30 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-anemia-erythropoietin', 'iron-deficiency-symptoms-staged'],
   },
+  {
+    id: 'ibd-sonic-combination-therapy',
+    category: 'ibd',
+    title: 'A Landmark Trial Found Two Medications Together Beat Either One Alone, by a Real, Wide Margin',
+    teaser: 'The SONIC trial found combining a biologic with an immunomodulator put 57% of patients into steroid-free remission, against 44% on the biologic alone and 30% on the immunomodulator alone.',
+    summary:
+      "For a real, meaningful stretch of time, doctors treating moderate-to-severe Crohn's disease faced a genuine, unresolved question: does adding an older immunomodulator drug (azathioprine) to a newer biologic (infliximab) actually help, or does it just add side-effect risk without real added benefit? The SONIC trial gave a real, decisive answer. It randomized 508 adults who had never used either drug type before into three groups: infliximab alone, azathioprine alone, or both together. At 26 weeks, 56.8% of the combination group reached steroid-free clinical remission, compared with 44.4% on infliximab alone and 30.0% on azathioprine alone. Real, direct evidence of actual gut healing (mucosal healing, confirmed by endoscopy) followed the same pattern: 43.9% in the combination group versus 30.1% on infliximab alone and 16.5% on azathioprine alone. This is real, specific evidence that a combination approach can outperform either medication used by itself, not just theoretical reasoning about mechanism, and it remains a real, standard reference point in how Crohn's treatment decisions get made today. Worth knowing directly: which specific medications, and whether combination therapy makes sense for a given person, stays a real, individual medical decision (real added infection risk comes with real added immune suppression), not something to read off this one trial alone, but it's real, worth-having context for that conversation.",
+    citations: [
+      { source: "Infliximab, Azathioprine, or Combination Therapy for Crohn's Disease, New England Journal of Medicine 2010 (Colombel et al.), PMID 20393175", url: 'https://pubmed.ncbi.nlm.nih.gov/20393175/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-anti-tnf-loss-of-response', 'ibd-azathioprine-tpmt'],
+  },
+  {
+    id: 'ibd-crohns-disease-exclusion-diet',
+    category: 'ibd',
+    title: 'A Real, Structured Whole-Food Diet Now Has Genuine Trial Evidence Alongside Exclusive Enteral Nutrition',
+    teaser: "A randomized trial found the Crohn's Disease Exclusion Diet, paired with partial formula, worked about as well as a formula-only diet for inducing remission in children, and was genuinely easier to stick with.",
+    summary:
+      "This app's own already-built research covers exclusive enteral nutrition (EEN), a real, liquid-formula-only diet with strong evidence for inducing Crohn's remission, alongside its own real, honest limitation: many people find it genuinely hard to sustain, since it means giving up ordinary food entirely for weeks. The Crohn's Disease Exclusion Diet (CDED) is a real, more recent, structured alternative built to address exactly that gap, a genuine whole-food diet, not a liquid formula, designed to specifically limit foods with real, documented links to gut inflammation, animal fat, certain emulsifiers and additives, gluten, and dairy, while still allowing real, ordinary meals. A real, randomized controlled trial in 78 children directly compared CDED (paired with a smaller amount of supplemental formula) against standard EEN. At 6 weeks, both approaches induced remission in a comparable share of children (roughly 75 to 80%), and CDED was genuinely better tolerated, with meaningfully higher rates of people actually completing the full course of treatment. At 12 weeks, a real majority of children who reached remission were still in remission on CDED. Worth knowing directly: this is real, genuine progress toward an inflammatory-bowel-disease treatment someone can actually sustain day to day, not just a theoretically effective one, and it's a real, concrete example of dietary structure itself doing real therapeutic work, not simply avoiding a short list of trigger foods.",
+    citations: [
+      { source: "Crohn's Disease Exclusion Diet Plus Partial Enteral Nutrition Induces Sustained Remission in a Randomized Controlled Trial, Gastroenterology 2019 (Levine et al.), PMID 31170412", url: 'https://pubmed.ncbi.nlm.nih.gov/31170412/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-een-crohns', 'ibd-fiber-flare-myth'],
+  },
 ];

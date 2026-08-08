@@ -303,4 +303,30 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-urate-lowering-therapy'],
   },
+  {
+    id: 'gout-dash-diet-quality',
+    category: 'gout',
+    title: 'The Whole Pattern of a Diet, Not Just Individual Foods, Predicts Gout Risk Too',
+    teaser: 'A 26-year study of over 44,000 men found the DASH diet pattern tracked with roughly a third lower gout risk, while a Western diet pattern tracked with 42% higher risk, in the same real cohort.',
+    summary:
+      "This category's own research already covers specific individual foods and drinks with real, documented gout risk (purines, fructose, beer, dairy, cherries). A separate, real question is whether the overall SHAPE of someone's diet matters on its own, beyond any single food. A real, large prospective cohort study followed 44,444 men with no history of gout for 26 years, documenting 1,731 new gout cases, and scored each participant's diet against two real, established dietary patterns: DASH (vegetables, fruit, whole grains, low-fat dairy, reduced sodium and saturated fat) and a Western pattern (red and processed meat, refined grains, sweets). People in the highest fifth of DASH-pattern adherence had a real 32% lower risk of developing gout than those in the lowest fifth, while people in the highest fifth of Western-pattern adherence had a real 42% higher risk. A separate, real 28-year cohort of women found a similar DASH-pattern protective effect. Worth knowing directly: this is real, independent evidence for eating a genuinely different overall pattern, not just swapping out one or two trigger foods, and it lines up with the same DASH pattern already carrying real, independent blood-pressure evidence in this app's own cardiovascular research, a real, practical overlap for anyone managing both conditions at once.",
+    citations: [
+      { source: 'The Dietary Approaches to Stop Hypertension (DASH) diet, Western diet, and risk of gout in men: prospective cohort study, BMJ 2017 (Rai et al.), PMID 28487277', url: 'https://pubmed.ncbi.nlm.nih.gov/28487277/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-purine-foods-and-dairy', 'cvd-dash-sodium'],
+  },
+  {
+    id: 'gout-losartan-uricosuric-effect',
+    category: 'gout',
+    title: 'One Blood Pressure Medication Genuinely Lowers Uric Acid, While the Rest of Its Own Drug Class Doesn\'t',
+    teaser: 'Losartan is the one angiotensin receptor blocker that measurably lowers uric acid through a real, specific kidney mechanism, while other drugs in the exact same class tend to raise it instead.',
+    summary:
+      "Blood pressure medications aren't all neutral when it comes to uric acid, and one specific drug stands out from its own class in a real, well-documented way. Losartan, an angiotensin II receptor blocker (ARB), genuinely lowers serum uric acid, by a real, measured 0.5 to 1 mg/dL in clinical data, through a specific mechanism: it blocks a kidney transporter called URAT1 that would otherwise pull uric acid back into the bloodstream, letting more of it pass out in urine instead. A real, controlled comparison found this effect specific to losartan itself, not a general property of ARBs. Other drugs in the exact same medication class, including valsartan, telmisartan, candesartan, and olmesartan, showed no such effect, and some measurably raised uric acid levels instead. This isn't framed here as a reason to switch blood pressure medications without medical guidance, real individual factors (kidney function, other health conditions, how well blood pressure itself is controlled) all matter to that decision. It's real, concrete, worth-knowing context for a real conversation: anyone managing both high blood pressure and gout has a genuine, evidence-backed reason to ask specifically whether losartan might serve both goals at once, rather than treating the choice of blood pressure medication as unrelated to gout management.",
+    citations: [
+      { source: 'Uricosuric action of losartan via the inhibition of urate transporter 1 (URAT1) in hypertensive patients, American Journal of Hypertension 2008, PMID 18670416', url: 'https://pubmed.ncbi.nlm.nih.gov/18670416/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-diuretics-prescribing-cascade', 'gout-metabolic-cluster-connection'],
+  },
 ];

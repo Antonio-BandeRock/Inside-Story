@@ -303,4 +303,30 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-advocacy-bone-density', 'celiac-bone-density'],
   },
+  {
+    id: 'lupus-neuropsychiatric-real-data',
+    category: 'lupus',
+    title: 'Neuropsychiatric Lupus Is Real, Common, and Genuinely Underrecognized Alongside the More Familiar Symptoms',
+    teaser: 'Real research finds neuropsychiatric symptoms in roughly 30-40% of lupus patients, with cognitive dysfunction alone affecting close to 38%, often mistaken for something else entirely.',
+    summary:
+      "Lupus's own reputation centers on joints, skin, and kidneys, but the disease can genuinely reach the brain and nervous system directly, a real category called neuropsychiatric lupus (NPSLE). Real research finds it affects roughly 30 to 40% of lupus patients overall, spanning a real, wide range from common, milder symptoms to rare, severe ones. Cognitive dysfunction (real, measurable trouble with memory, attention, and processing speed) is the single most common form, with a pooled prevalence near 38%, and headaches, anxiety, and mood disorders round out the most frequent presentations. Real, more severe manifestations, seizures and psychosis, are each genuinely less common, affecting roughly 4 to 6% of patients, but real and serious when they occur. Worth knowing directly: this real range of symptoms is genuinely easy to misattribute, cognitive fog and mood changes especially can get chalked up to stress, depression, or simple fatigue rather than recognized as a real, direct manifestation of the disease itself. Anyone with lupus experiencing new or worsening cognitive, mood, or neurological symptoms has real, genuine standing to raise the specific possibility of neuropsychiatric involvement directly, rather than assuming it's unrelated to their underlying condition.",
+    citations: [
+      { source: 'Neuropsychiatric Systemic Lupus Erythematosus: A Systematic Review, PMC11227614', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11227614/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-sledai-disease-activity', 'lupus-antiphospholipid-syndrome'],
+  },
+  {
+    id: 'lupus-anifrolumab-new-biologic',
+    category: 'lupus',
+    title: 'A Genuinely New Kind of Lupus Medication, Targeting a Different Part of the Immune System Than Belimumab',
+    teaser: 'Anifrolumab blocks a real, distinct immune signal (type I interferon), and its own landmark trial found 47.8% of patients responded, against 31.5% on placebo.',
+    summary:
+      "This category's own research already covers belimumab, the first lupus-specific biologic in over 50 years, targeting a real B-cell survival signal. Anifrolumab is a real, genuinely different, more recently approved biologic, targeting a separate part of the immune system entirely: the type I interferon receptor, blocking a real signaling pathway that's specifically overactive in a large share of lupus patients. Its own landmark trial (TULIP-2), a real, randomized, placebo-controlled study of 362 patients, found 47.8% of the anifrolumab group reached a real, validated composite measure of improvement (BICLA response) at 52 weeks, compared with 31.5% on placebo, a real, statistically significant difference. Anifrolumab was FDA-approved in 2021 based on this and a companion trial, and more recently gained approval as a real, more convenient once-weekly self-administered injection rather than only an infusion. Worth knowing directly: having two real, mechanistically different biologic options (belimumab targeting B cells, anifrolumab targeting interferon signaling) genuinely matters, since lupus itself varies person to person in which immune pathway is driving the most disease activity, and a real doctor can help match a specific medication to a specific person's own disease pattern rather than treating every biologic option as functionally interchangeable.",
+    citations: [
+      { source: 'Trial of Anifrolumab in Active Systemic Lupus Erythematosus, New England Journal of Medicine 2020, PMID 31851795', url: 'https://pubmed.ncbi.nlm.nih.gov/31851795/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-belimumab-biologic'],
+  },
 ];

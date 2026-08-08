@@ -91,7 +91,7 @@ const DIGEST_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'A quick way back',
-    body: 'A "‹ Back to Digest" link sits at the top of every category\'s own content -- tap it to return straight to this tab\'s own resting screen, from any depth, so you can open the menu and pick something else.',
+    body: 'A "‹ Back to Digest" link sits at the top of every category\'s own resting content -- tap it to return straight to this tab\'s own resting screen, from any depth, so you can open the menu and pick something else. The moment you start searching within a category, that link becomes "‹ Clear search" instead -- it clears the search and returns you to that same category\'s own main page, not out to the picker.',
   },
   {
     heading: 'Problem Foods & Swaps is different on purpose',
@@ -1047,6 +1047,26 @@ export default function PurpleDigestScreen() {
     }
   }, []);
 
+  // Clears whichever search is currently active (Search All's own
+  // searchQuery, or a category's own categorySearchQuery) and returns to
+  // that same lens's own resting main page -- 2026-08-08, the real
+  // companion to the breadcrumb's own new conditional behavior below.
+  // Direct correction: "The Back to the digest breadcrumb should only be
+  // available at the top of each of the initial lens opening areas...
+  // If they are in one of the sections of the Digest already and they
+  // search that section, [backing out] should take them back to the main
+  // page for that section, not the digest lenshub menu." Deliberately does
+  // NOT touch `lens`, `revealed`, or `openTrigger` -- unlike the "‹ Back to
+  // Digest" link (which exits to the LensHub picker), this stays on the
+  // exact same lens and just drops the search, the same real distinction
+  // driving which of the two links renders in the fixedHeader below.
+  function clearSearch() {
+    setSearchQuery('');
+    setCategorySearchQuery('');
+    setIsSearchActive(false);
+    setSearchResetKey((key) => key + 1);
+  }
+
   return (
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed}>
@@ -1101,17 +1121,39 @@ export default function PurpleDigestScreen() {
                   separately-tuned number -- by the time it elapses, the
                   content this tap just hid has already finished
                   unmounting, so the popup opens against a settled screen. */}
-              <TouchableOpacity
-                style={styles.backToHomeRow}
-                onPress={() => {
-                  setRevealed(false);
-                  setTimeout(() => setOpenTrigger(`back-${Date.now()}`), TAB_REVEAL_DURATION_MS);
-                }}
-                accessibilityRole="button"
-                accessibilityLabel="Back to Digest home, choose another topic"
-              >
-                <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
-              </TouchableOpacity>
+              {/* 2026-08-08, direct correction: this link should only ever
+                  open the LensHub picker (the "initial lens opening area"
+                  for the tab as a whole) while sitting on a category's own
+                  resting main page -- once a search (Search All's own, or
+                  any category's own scoped search) is active, this becomes
+                  a "‹ Clear search" link instead, which drops the search and
+                  returns to that SAME lens's own main page rather than
+                  exiting to the picker. Tapping an actual search result
+                  already lands you on the right category's own main page too
+                  (see jumpToRelated) -- this is the equivalent for backing
+                  out without picking a result. */}
+              {isSearchActive ? (
+                <TouchableOpacity
+                  style={styles.backToHomeRow}
+                  onPress={clearSearch}
+                  accessibilityRole="button"
+                  accessibilityLabel={`Clear search, back to ${activeLensLabel}`}
+                >
+                  <Text style={styles.backToHomeText}>‹ Clear search</Text>
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.backToHomeRow}
+                  onPress={() => {
+                    setRevealed(false);
+                    setTimeout(() => setOpenTrigger(`back-${Date.now()}`), TAB_REVEAL_DURATION_MS);
+                  }}
+                  accessibilityRole="button"
+                  accessibilityLabel="Back to Digest home, choose another topic"
+                >
+                  <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
+                </TouchableOpacity>
+              )}
 
               <DigestSearchInput
                 key={searchResetKey}

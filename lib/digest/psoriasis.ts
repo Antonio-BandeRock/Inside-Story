@@ -312,4 +312,30 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-alcohol', 'psoriasis-advocacy-systemic-med-monitoring'],
   },
+  {
+    id: 'psoriasis-il23-inhibitors-efficacy',
+    category: 'psoriasis',
+    title: 'IL-23 Inhibitors Represent a Real, Newer, More Targeted Class of Psoriasis Medication',
+    teaser: 'A real, large trial found 73.3% of patients on guselkumab reached PASI 90 (90% skin clearance) at 16 weeks, against just 2.9% on placebo, and it kept significantly outperforming an older biologic through a full year.',
+    summary:
+      "IL-23 inhibitors (guselkumab, risankizumab, and related medications) are a real, newer class of biologic treatment, targeting a real, specific inflammatory signal (interleukin-23) sitting further upstream in psoriasis's own inflammatory cascade than older biologic classes. A real, large phase III trial (VOYAGE 1, over 800 patients) found 73.3% of patients on guselkumab reached PASI 90, meaning 90% clearance of visible psoriasis, at 16 weeks, compared with just 2.9% on placebo and 49.7% on adalimumab, an older, still widely used biologic. Guselkumab's real advantage over adalimumab held up and even widened through the full first year of continuous treatment (80.2% versus 53% at week 24). A separate trial (VOYAGE 2) found broadly similar real results, and also found that stopping treatment led response to fade over time, while restarting it after a break brought real clearance rates back up within weeks. Worth knowing directly: real, complete or near-complete skin clearance (PASI 90 or higher) is now a genuinely realistic treatment goal for many people with moderate-to-severe psoriasis, not the more modest PASI 75 target that used to define a strong response, and this newer medication class is a real, concrete reason that goal has shifted upward.",
+    citations: [
+      { source: 'Efficacy and safety of guselkumab, an anti-interleukin-23 monoclonal antibody, compared with adalimumab for the continuous treatment of patients with moderate to severe psoriasis (VOYAGE 1), Journal of the American Academy of Dermatology 2017', url: 'https://www.jaad.org/article/S0190-9622(16)31157-4/fulltext' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-advocacy-systemic-med-monitoring'],
+  },
+  {
+    id: 'psoriasis-koebner-phenomenon',
+    category: 'psoriasis',
+    title: 'Skin Trauma Itself Can Trigger a Genuinely New Psoriasis Patch, a Real, Named Phenomenon',
+    teaser: 'A cut, tattoo, sunburn, or even a scratch can trigger a real, new psoriasis lesion in otherwise unaffected skin, a documented pattern with its own name: the Koebner phenomenon.',
+    summary:
+      "Psoriasis carries a real, distinctive, worth-knowing trait: physical trauma to otherwise-unaffected skin can trigger a genuinely new patch of psoriasis at the exact site of the injury, appearing clinically and even under a microscope identical to the person's own existing disease. This is a real, named, well-documented pattern called the Koebner phenomenon, and real research has documented it following a wide range of real triggers: tattoos, surgical incisions, sunburn, skin infections, and even simple scratches or friction. The real mechanism isn't fully mapped, but real research points to a genuine cascade of local inflammatory signals released at the site of injury (including some of the same immune messengers already covered in this app's own psoriasis research, IL-17 and related cytokines), alongside changes in local growth factors and skin-barrier proteins. Worth knowing directly, and genuinely practical: this real phenomenon is a documented, honest reason someone with psoriasis might reasonably want to be more cautious about elective skin trauma, a new tattoo or piercing in particular, during a period of active or poorly controlled disease, since the same injury that would heal cleanly in someone without psoriasis carries a real, above-average chance of becoming a new, permanent patch instead.",
+    citations: [
+      { source: 'Koebner phenomenon leading to the formation of new psoriatic lesions: evidences and mechanisms, Bioscience Reports 2019, PMC6893164', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6893164/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['psoriasis-pasi-severity-staging'],
+  },
 ];
