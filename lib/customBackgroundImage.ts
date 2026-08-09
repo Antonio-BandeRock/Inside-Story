@@ -12,6 +12,29 @@
 // description -- so this needs a genuine native rebuild (`npx expo run:
 // android`) before it works on-device, not just a Metro/JS reload.
 //
+// **A real, on-device crash was caught the same day these were added**:
+// "Cannot find native module 'ExpoImageManipulator'... on launch. App
+// opens behind it." -- the original version of this file used plain, top-
+// level `import ... from 'expo-image-manipulator'` (etc.) statements, and
+// each of these packages' own JS wrapper calls `requireNativeModule()`
+// once at module-load time, not per function call. Since this file is
+// reachable from app/profile.tsx (a real screen in the route tree), the
+// bundle's own module graph required all three packages -- and therefore
+// ran their native-module lookups -- the instant the app's JS bundle was
+// evaluated, well before anyone ever tapped "Custom image," and long
+// before a real native rebuild had a chance to actually link the modules
+// in. Fixed by switching every one of these three imports to a real,
+// dynamic `await import(...)` INSIDE each exported function instead --
+// Metro still bundles the code (so it's ready the moment a real rebuild
+// links the native side in), but the actual top-level `requireNativeModule`
+// call inside each package doesn't run until that dynamic import is
+// actually awaited, i.e. only once someone genuinely taps "Custom image."
+// This means the rest of the app -- including Profile itself -- works
+// completely normally on the CURRENT, not-yet-rebuilt dev-client binary;
+// only tapping the Custom image button itself will still fail (a real,
+// contained, one-button failure, not a whole-app launch crash) until the
+// real rebuild happens.
+//
 // Real, enforced compliance rather than a "please pick something smaller"
 // rejection: any picked image gets automatically downscaled (if larger
 // than CUSTOM_BACKGROUND_MAX_DIMENSION on its longer edge) and
@@ -36,10 +59,14 @@
 // current API surface -- confirmed directly against the installed
 // package's own .d.ts before writing this, not assumed from an older SDK's
 // docs), not the older promise-based getInfoAsync/copyAsync-style API.
+//
+// Every real value-level API call from these three packages is type-only
+// referenced at module scope (import type -- fully erased at compile time,
+// so it can never trigger a runtime native-module lookup on its own) and
+// only actually touched at runtime inside the dynamic-import blocks below.
 
-import { Directory, File, Paths } from 'expo-file-system';
-import * as ImageManipulator from 'expo-image-manipulator';
-import * as ImagePicker from 'expo-image-picker';
+import type { File as FileType } from 'expo-file-system';
+import type { Action, ImageResult } from 'expo-image-manipulator';
 
 // Longer edge, after any auto-resize -- generous for a phone screen
 // (several times a typical device's own longer dimension), while still
@@ -58,15 +85,6 @@ export const CUSTOM_BACKGROUND_MIN_DIMENSION = 480;
 // MB nutrition reference database and dozens of illustrated backgrounds.
 export const CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES = 3 * 1024 * 1024; // 3 MB
 
-function customBackgroundDir(): Directory {
-  const dir = new Directory(Paths.document, 'custom-backgrounds');
-  // idempotent: true -- safe to call every time regardless of whether the
-  // directory already exists from a previous save, no separate `.exists`
-  // check needed first.
-  dir.create({ intermediates: true, idempotent: true });
-  return dir;
-}
-
 // scopeKey is 'shared', or a real TAB_ROUTES path (e.g. '/insights') --
 // sanitized to a safe filename fragment (a path carries a leading '/').
 function safeScopeFilename(scopeKey: string): string {
@@ -77,9 +95,9 @@ function safeScopeFilename(scopeKey: string): string {
 // file and for a scope's own previous saved image. Never throws: a
 // cleanup failure (the file already gone, a permissions quirk) should
 // never undo or fail the real, already-successful save that triggered it.
-function safeDelete(uri: string): void {
+function safeDelete(FileCtor: typeof FileType, uri: string): void {
   try {
-    const file = new File(uri);
+    const file = new FileCtor(uri);
     if (file.exists) {
       file.delete();
     }
@@ -106,6 +124,15 @@ export async function pickAndSaveCustomBackgroundImage(
   previousUri?: string,
 ): Promise<PickCustomBackgroundResult> {
   try {
+    // Dynamic imports, deliberately -- see this file's own header comment
+    // for why: a plain top-level `import` here previously crashed the
+    // whole app on launch, well before this function was ever called.
+    const [{ Directory, File, Paths }, ImageManipulator, ImagePicker] = await Promise.all([
+      import('expo-file-system'),
+      import('expo-image-manipulator'),
+      import('expo-image-picker'),
+    ]);
+
     const permission = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (!permission.granted) {
       return { status: 'permission-denied' };
@@ -132,7 +159,7 @@ export async function pickAndSaveCustomBackgroundImage(
     }
 
     const needsResize = Math.max(originalWidth, originalHeight) > CUSTOM_BACKGROUND_MAX_DIMENSION;
-    const resizeActions: ImageManipulator.Action[] = needsResize
+    const resizeActions: Action[] = needsResize
       ? [
           {
             resize:
@@ -148,7 +175,7 @@ export async function pickAndSaveCustomBackgroundImage(
     // this on the very first attempt (0.85); the lower steps only matter
     // for genuinely dense/high-detail images.
     const qualitySteps = [0.85, 0.7, 0.55, 0.4];
-    let manipulated: ImageManipulator.ImageResult | null = null;
+    let manipulated: ImageResult | null = null;
     let manipulatedSize = 0;
 
     for (const quality of qualitySteps) {
@@ -160,7 +187,7 @@ export async function pickAndSaveCustomBackgroundImage(
       // A prior, worse-quality attempt's temp file is no longer needed
       // once a new attempt has been produced.
       if (manipulated && manipulated.uri !== attempt.uri) {
-        safeDelete(manipulated.uri);
+        safeDelete(File, manipulated.uri);
       }
       manipulated = attempt;
       manipulatedSize = size;
@@ -170,15 +197,19 @@ export async function pickAndSaveCustomBackgroundImage(
     }
 
     if (!manipulated || manipulatedSize > CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES) {
-      if (manipulated) safeDelete(manipulated.uri);
+      if (manipulated) safeDelete(File, manipulated.uri);
       return { status: 'too-large-after-compression' };
     }
 
-    const destFile = new File(customBackgroundDir(), `${safeScopeFilename(scopeKey)}-${Date.now()}.jpg`);
+    const dir = new Directory(Paths.document, 'custom-backgrounds');
+    // idempotent: true -- safe to call every time regardless of whether the
+    // directory already exists from a previous save.
+    dir.create({ intermediates: true, idempotent: true });
+    const destFile = new File(dir, `${safeScopeFilename(scopeKey)}-${Date.now()}.jpg`);
     new File(manipulated.uri).copy(destFile);
-    safeDelete(manipulated.uri);
+    safeDelete(File, manipulated.uri);
     if (previousUri) {
-      safeDelete(previousUri);
+      safeDelete(File, previousUri);
     }
 
     return {
@@ -195,7 +226,10 @@ export async function pickAndSaveCustomBackgroundImage(
 
 // Reverts a scope back to no custom image -- deletes the real file from
 // disk (not just clearing the visualPreferences reference), so removing a
-// custom background doesn't silently leak storage.
-export function deleteCustomBackgroundImage(uri: string): void {
-  safeDelete(uri);
+// custom background doesn't silently leak storage. Async now (was sync)
+// specifically because of the dynamic-import fix above -- see this file's
+// own header comment.
+export async function deleteCustomBackgroundImage(uri: string): Promise<void> {
+  const { File } = await import('expo-file-system');
+  safeDelete(File, uri);
 }

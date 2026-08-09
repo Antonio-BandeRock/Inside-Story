@@ -619,7 +619,7 @@ export default function ProfileScreen() {
 
   async function handleRemoveCustomBackground(scopeKey: string, isShared: boolean) {
     const uri = visualPrefs.customBackgroundImages[scopeKey];
-    if (uri) deleteCustomBackgroundImage(uri);
+    if (uri) await deleteCustomBackgroundImage(uri);
     await setVisualPreferences({
       ...(isShared ? { homeBackgroundStyle: 'photo' as const } : { tabBackgroundStyle: { [scopeKey]: 'photo' as const } }),
       customBackgroundImages: { [scopeKey]: undefined },
