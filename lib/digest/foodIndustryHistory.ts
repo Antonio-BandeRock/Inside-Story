@@ -1379,6 +1379,101 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'The deliberate closing entry of this sub-cluster -- ties pollinator recovery directly back to the same practices this whole category has already documented, rather than treating it as a separate problem needing a separate solution.',
     relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified'],
   },
+  // 2026-08-11, same day, a seventh continuation: "Keep going with more
+  // research on this topic." Every citation below independently
+  // re-verified via WebSearch/WebFetch. This pass extends the pollinator
+  // sub-cluster in four genuinely new directions: a real, parallel
+  // non-bee pollinator crisis (bats), the broader "it's not just managed
+  // pollinators" empirical evidence (a landmark insect-biomass study, with
+  // its own honest, current no-recovery follow-up), the real, current
+  // market mechanism already translating colony losses into higher
+  // prices, and a real, underlying structural vulnerability factor (narrow
+  // genetic diversity in managed honeybee breeding stock) that helps
+  // explain why the crisis hits as hard as it does.
+  {
+    id: 'foodhistory-regen-bat-pollinators-white-nose',
+    category: 'basicHealth',
+    title: "Bats Pollinate Tequila, Mangoes, and Bananas -- and They're Facing Their Own Colony-Collapse-Scale Crisis",
+    teaser: 'Over 6 million North American bats have died since 2006 from a single fungal disease, with mortality rates of 90-100% in affected colonies -- a real, parallel crisis most pollinator coverage never mentions.',
+    summary:
+      "Bees dominate pollinator-crisis coverage, but a real, comparably severe crisis has been unfolding in parallel among an entirely different pollinator group: bats. Real, significant global agriculture depends on them -- roughly 300 fruit species worldwide rely on bats for most or all of their pollination, including mangoes, bananas, and avocados, and specifically in North America, three co-evolved bat species (two of them, the Mexican long-nosed bat and the lesser long-nosed bat, already listed as endangered) are the primary pollinators of agave, the plant tequila is distilled from. Since being first detected in 2006, white-nose syndrome, a fungal disease that thrives in the cold, humid conditions of winter hibernation caves and disrupts bats' hibernation cycle until they burn through their fat reserves and starve, has killed over 6 million North American bats, with a real, documented 90-100% mortality rate in many affected hibernation sites and confirmed cases now spanning 37 US states and 7 Canadian provinces. Three specific species (northern long-eared, little brown, and tri-colored bats) have each declined more than 90% in fewer than ten years, with the northern long-eared bat down 99% or more in several eastern states. A real, self-reinforcing complication specific to agave: rising tequila demand has pushed some growers toward cloned, genetically uniform agave plantations, increasing the crop's own disease vulnerability and reliance on insecticides that are directly toxic to the same bats the plant depends on to reproduce naturally.",
+    citations: [
+      {
+        source: 'Bat Conservation International: White-Nose Syndrome Killed Over 90% of Three North American Bat Species',
+        url: 'https://www.batcon.org/press/white-nose-syndrome-killed-over-90-of-three-north-american-bat-species/',
+      },
+      {
+        source: 'The Nature Conservancy (Cool Green Science): Recovery -- Bats with Your Tequila (agave pollination, endangered bat species)',
+        url: 'https://blog.nature.org/2017/02/20/recovery-bats-with-your-tequila/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, well-documented, dated crisis parallel to the honeybee colony losses covered elsewhere in this sub-cluster -- included specifically because bat pollination is real, agriculturally significant, and almost never mentioned alongside bee-focused pollinator coverage.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-dependent-crops'],
+  },
+  {
+    id: 'foodhistory-regen-insect-apocalypse-hallmann',
+    category: 'basicHealth',
+    title: "It's Not Just Managed Pollinators -- A Landmark Study Found Flying Insects Down 76% Even Inside Protected Nature Reserves",
+    teaser: 'A 27-year German study found flying insect biomass fell over 75% inside nature reserves specifically -- meaning something beyond direct habitat destruction is driving the decline. A 2024 follow-up found no recovery since.',
+    summary:
+      "Every entry in this sub-cluster so far has focused on a specific pollinator group (honeybees, wild bees, bats). A real, landmark 2017 study in PLOS ONE, led by Caspar Hallmann at Radboud University, measured something broader and arguably more alarming: total flying insect biomass, regardless of species, using standardized traps deployed continuously across 63 German nature reserves over 27 years. The real, striking finding: average flying insect biomass fell more than 76%, up to 82% in midsummer, and this decline held regardless of habitat type and could not be explained by weather, land-use, or habitat changes WITHIN the reserves themselves, since these are protected areas specifically meant to shield wildlife from exactly that kind of direct disturbance -- pointing toward some larger-scale factor (agricultural chemical drift from surrounding farmland is the leading suspected driver, though the original study itself stopped short of proving a single cause) reaching even into land set aside for conservation. A real, honest, current update rather than leaving this as an unconfirmed decade-old finding: a 2024 follow-up study returned to German nature reserves and found flying insect biomass had NOT recovered, remaining at the same low level first documented between 2007 and 2016, with the study's own authors concluding that protected habitats, while genuinely essential, are \"unlikely to be sufficient to sustain insect biodiversity\" on their own.",
+    citations: [
+      {
+        source: 'Hallmann CA, et al. 2017, PLOS ONE: "More than 75 percent decline over 27 years in total flying insect biomass in protected areas"',
+        url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0185809',
+      },
+      {
+        source: 'Ecology and Evolution 2024 / PMC: "No recovery in the biomass of flying insects over the last decade in German nature protected areas"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10961242/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, landmark, peer-reviewed study with a real, honest 2024 follow-up confirming no recovery -- not a one-time finding left unconfirmed.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-wild-bees-buzz-pollination'],
+  },
+  {
+    id: 'foodhistory-regen-almond-pollination-rental-economics',
+    category: 'basicHealth',
+    title: 'A Real, Current Price Signal: Almond Bee-Rental Costs Are Already Rising',
+    teaser: 'The average cost to rent a colony for almond pollination rose 15% in one year, from $181 in 2024 to $209 in 2025 -- a real, current market already pricing in the colony-loss crisis.',
+    summary:
+      "The colony-loss crisis covered elsewhere in this sub-cluster is not a purely future or abstract risk -- it is already showing up as a real, measured price signal in the one market most directly exposed to it. Official USDA cost-of-pollination survey data found the average price California almond growers paid to rent a single honeybee colony for the February bloom rose 15% in a single year, from $181 in 2024 to $209 in 2025, with some individual reports putting 2025 rental prices as high as $225-250 per hive. This tracks directly with the real 62% national colony-loss figure covered in this sub-cluster's own dedicated entry: beekeepers and almond growers both directly reported real concern heading into the 2025 bloom that there might not be enough healthy colonies to cover every almond acre at full pollination strength, forcing some growers to contract bees from farther away at real added cost. This is a concrete, current, dollar-denominated illustration of what an economic entry elsewhere in this cluster already states more abstractly: pollinator decline is not a distant hypothetical cost, it is already raising the price of food production in real time.",
+    citations: [
+      {
+        source: 'West Coast Nut: Economic Outlook and Other Considerations for the 2025 Almond Pollination Season (USDA cost-of-pollination data, $181 to $209)',
+        url: 'https://wcngg.com/2025/02/02/economic-outlook-and-other-considerations-for-the-2025-almond-pollination-season/',
+      },
+      {
+        source: 'Capital Press: Beekeepers face downward trends for pollination services (2025 shortage concerns, 62% loss figure)',
+        url: 'https://capitalpress.com/2025/01/06/beekeepers-face-downward-trends-for-pollination-services/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, official USDA market data -- a live economic indicator, not a projection or modeled estimate.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-dependent-crops'],
+  },
+  {
+    id: 'foodhistory-regen-honeybee-genetic-bottleneck',
+    category: 'basicHealth',
+    title: "A Real, Underlying Reason Managed Honeybees Are So Vulnerable in the First Place",
+    teaser: "Fewer than 600 queen mothers produce over a million commercial queen bees in the US every year -- a real genetic bottleneck comparable to the crop-monoculture risk already covered elsewhere in this cluster.",
+    summary:
+      'A real, underlying structural vulnerability helps explain why the managed honeybee population can lose 62% of its colonies in a single reporting period (see this sub-cluster\'s own dedicated entry), rather than absorbing disease and pesticide pressure the way a more genetically diverse population might: US commercial queen producers rely on fewer than 600 queen mothers annually to breed over a million commercial queen bees, a real, quantified genetic bottleneck. Offspring from this narrow breeding base show real, measured high relatedness and reduced genetic diversity both within and between colonies, and genome-wide sequencing research found strong genetic similarity across most major US commercial honeybee stocks, since a relatively small number of queen-breeding operations concentrated mainly in Hawaii, California, and the southeastern US supply the large majority of the country\'s managed colonies. This is structurally the same real risk already documented for monoculture agave (this sub-cluster\'s own bat entry) and, more broadly, for any single-variety-dependent food crop covered elsewhere in this whole cluster: a genetically narrow population is a population where one disease, one parasite, or one pesticide sensitivity can spread further and hit harder than it would across a genuinely diverse one, and real breeding efforts specifically selecting for Varroa-mite resistance in a few stocks (a real, worthwhile goal on its own) illustrate the same underlying tradeoff between optimizing for one trait and preserving overall genetic diversity.',
+    citations: [
+      {
+        source: 'PMC: Genome-wide patterns of differentiation within and among U.S. commercial honey bee stocks (queen-mother breeding-base figures, genetic similarity findings)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7545854/',
+      },
+      {
+        source: 'Conservation Letters: Genetic Bottlenecks in Modern Beekeeping -- Implications for Conservation and Sustainable Pollination',
+        url: 'https://conbio.onlinelibrary.wiley.com/doi/10.1111/conl.13156',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, quantified, structural vulnerability factor -- explains part of WHY the crisis hits as hard as it does, distinct from the direct causes (mites, pesticides, habitat loss) already covered in this sub-cluster\'s own crisis entry.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-bat-pollinators-white-nose'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
