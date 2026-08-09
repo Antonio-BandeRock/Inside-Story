@@ -424,4 +424,17 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['graves-trab-tsi-testing', 'graves-antithyroid-drug-monitoring'],
   },
+  {
+    id: 'horizon-graves-k170',
+    category: 'graves',
+    title: 'A Real, Genuinely Different Approach: Blocking the Exact Receptor the Antibody Attacks, Not the Antibody Itself',
+    teaser: "This category's own already-covered rituximab research tries to stop the antibody from being made. A real, newer drug, K1-70, works the opposite way: it physically occupies the TSH receptor first, so the antibody has nothing left to attack.",
+    summary:
+      "This category's own already-covered TRAb/TSI research names the real, specific antibody driving Graves' disease, one that mimics TSH and overstimulates the thyroid. K1-70, a real, human monoclonal antibody now in early clinical testing, represents a genuinely different strategy from this category's own already-covered rituximab research: rather than stopping the body from making that antibody, K1-70 binds the TSH receptor itself first, physically blocking both real TSH and the harmful autoantibody from reaching it at all. A real Phase 1 trial tested ascending doses in 18 Graves' patients already stable on antithyroid drugs, and found it well tolerated at every dose with no serious side effects and no significant immune reaction to the drug itself. At the higher real doses tested, patients showed real, measurable symptom improvement, reduced tremor, better sleep, improved mental focus, and for patients with Graves' eye disease specifically, real, measured reductions in eye bulging and light sensitivity. Worth knowing directly and honestly: this remains real, early Phase 1 safety data in a small number of patients, the drug's real effect pushed thyroid hormone levels toward hypothyroid ranges at higher doses, meaning real, careful dosing will matter directly if this advances toward real patient use.",
+    citations: [
+      { source: "TSH receptor specific monoclonal autoantibody K1-70 targeting of the TSH receptor in subjects with Graves' disease and Graves' orbitopathy, Clinical Endocrinology", url: 'https://onlinelibrary.wiley.com/doi/10.1111/cen.14681' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['graves-trab-tsi-testing', 'horizon-graves'],
+  },
 ];

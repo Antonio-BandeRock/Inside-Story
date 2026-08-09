@@ -438,4 +438,17 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ra-biologics-infection-risk', 'ra-jak-inhibitors-oral-surveillance'],
   },
+  {
+    id: 'horizon-ra-tolerogenic',
+    category: 'rheumatoidArthritis',
+    title: 'A Real, Genuinely Different Goal: Teaching the Immune System to Stop Attacking Joints, Not Just Suppressing It',
+    teaser: "Every current RA treatment already covered in this category, including this category's own CAR-T research, works by suppressing or resetting the immune system broadly. A real, distinct research direction is trying something narrower: retraining it to specifically tolerate the one target driving RA.",
+    summary:
+      "This category's own already-covered CAR-T and biologic research all works by broadly suppressing or resetting immune activity. A real, more targeted research direction, antigen-specific tolerizing immunotherapy, is trying something narrower: teaching the immune system to specifically stop attacking one real target (citrullinated proteins, the same real antigen already covered in this category's own smoking-citrullination research) while leaving the rest of the immune system untouched. A real, randomized Phase 1 trial tested peptide/calcitriol liposomes (DEN-181) in people with antibody-positive RA already on methotrexate, and found the treatment well tolerated, with a real, measurable drop in the specific immune cells that react to citrullinated proteins. A real, separate Phase 1/2 trial (TOLERANT) is testing a related approach using the patient's own dendritic cells, engineered to promote tolerance rather than attack. Worth knowing directly and honestly: this whole research direction remains real, early-stage, Phase 1 safety and immune-marker data, not yet real evidence of joint-damage prevention or symptom reversal, but it represents a genuinely different real goal than every other treatment already covered in this category, tolerance instead of suppression.",
+    citations: [
+      { source: 'Randomized phase I trial of antigen-specific tolerizing immunotherapy with peptide/calcitriol liposomes in ACPA+ rheumatoid arthritis', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9714780/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['ra-smoking-citrullination', 'horizon-ra'],
+  },
 ];

@@ -433,4 +433,17 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-jdrf-presymptomatic-staging', 'type1-islet-pancreas-transplantation'],
   },
+  {
+    id: 'horizon-type1-verapamil',
+    category: 'type1Diabetes',
+    title: 'A Real, Already-Available Blood Pressure Drug Is Measurably Preserving Beta-Cell Function in New T1D Diagnoses',
+    teaser: "This category's own already-covered honeymoon-phase research names a real, temporary window where some natural insulin production remains. A real, repurposed, decades-old drug, verapamil, is measurably extending that window in real, randomized trials.",
+    summary:
+      "This category's own already-covered honeymoon-phase entry names a real, temporary window right after diagnosis where some natural insulin production often remains. Verapamil, a real, already-approved blood-pressure medication used for decades for a completely different purpose, is showing genuine, repeated real trial evidence of extending that same window. A real, randomized trial in 88 children and teenagers with newly diagnosed T1D found those taking verapamil had a real 30% higher C-peptide level (a direct, measured marker of the body's own remaining insulin production) after 52 weeks compared with placebo, and a real 95% of the verapamil group maintained a meaningful insulin-production threshold versus 71% on placebo. A separate, real adult trial found the same real pattern, verapamil measurably preserving natural insulin production and lowering how much injected insulin patients needed. The real, proposed mechanism ties to this category's own already-covered biology: verapamil appears to protect a real signaling pathway (IGF-1) that supports beta-cell survival. Worth knowing directly and honestly: real research still needs to confirm how long this benefit actually lasts and how long treatment should continue, this is real, repeated, positive trial evidence for a real, already-available, low-cost drug, not yet a formally approved T1D indication.",
+    citations: [
+      { source: 'Verapamil Prevents Decline of IGF-I in Subjects With Type 1 Diabetes and Promotes beta-Cell IGF-I Signaling, Diabetes, American Diabetes Association', url: 'https://diabetesjournals.org/diabetes/article/72/10/1460/153437/Verapamil-Prevents-Decline-of-IGF-I-in-Subjects' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-honeymoon-phase', 'horizon-type1'],
+  },
 ];

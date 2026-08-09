@@ -404,4 +404,17 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-cgrp-inhibitors', 'migraine-gepants-acute-treatment'],
   },
+  {
+    id: 'horizon-migraine-pacap',
+    category: 'migraine',
+    title: "A Real, New Target Could Finally Help the Real 40-70% of Patients CGRP Drugs Don't Work For",
+    teaser: "This category's own already-covered CGRP-inhibitor research helps many patients, but real data finds a large real share get no benefit. A real, newer target, a molecule called PACAP, appears to trigger migraine through a genuinely separate pathway CGRP drugs don't reach.",
+    summary:
+      "This category's own already-covered CGRP inhibitor research (gepants, monoclonal antibodies) represents real, genuine progress, but real, honest data finds 40 to 70% of migraine patients don't get sufficient benefit from CGRP-targeted treatment. PACAP, a real, separate neuropeptide already known to be involved in pain signaling and inflammation, appears to be the reason why: real research confirms PACAP can trigger real migraine attacks through a pathway that doesn't depend on CGRP at all, a genuinely separate mechanism, not just a backup pathway for the same one. A real, proof-of-concept trial tested an antibody (Lu AG09222) that blocks PACAP directly, specifically in 237 patients who had already failed two to four prior preventive treatments, exactly the real population this category's own CGRP research doesn't fully serve. Worth knowing directly and honestly: this remains real, early-stage proof-of-concept data, not yet a confirmed, approved treatment, but it represents a real, genuinely important direction specifically for people whose migraines don't respond to CGRP-targeted drugs already covered elsewhere in this category, rather than another drug working through the same already-covered pathway.",
+    citations: [
+      { source: 'A Monoclonal Antibody to PACAP for Migraine Prevention, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2314577' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-cgrp-inhibitors', 'horizon-migraine'],
+  },
 ];

@@ -421,4 +421,17 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-active-surveillance', 'prostate-real-staging-systems'],
   },
+  {
+    id: 'horizon-prostate-parp',
+    category: 'prostateHealth',
+    title: "A Real Genetic Test Result Can Now Unlock a Genuinely Different Drug Class for the Right Patient",
+    teaser: "This category's own already-covered family-history research already names BRCA mutations as a real risk factor. Real, approved PARP inhibitors now let a positive genetic test actively guide treatment, not just risk awareness.",
+    summary:
+      "This category's own already-covered family-history and genetic-risk research already names BRCA1/BRCA2 mutations as a real, elevated prostate cancer risk factor. PARP inhibitors turn that same genetic information into an actual treatment decision: cancer cells with a BRCA mutation already have a damaged DNA-repair system, and PARP inhibitors block a second, backup repair pathway those same cells still rely on, a real, precision approach that works specifically because of the mutation, not despite it. A real, pivotal Phase 3 trial (PROfound) tested olaparib specifically in men with metastatic, treatment-resistant prostate cancer carrying BRCA1, BRCA2, or a related gene mutation, and found real, meaningful clinical benefit, with a separate real trial finding over 1 in 5 evaluable patients showing a real, greater-than-50% drop in PSA, most of them specifically the ones with a confirmed DNA-repair-gene mutation. Worth knowing directly and honestly: this treatment only works for men who actually carry one of these specific mutations, real, confirmed genetic testing is required first, and real, known side effects include fatigue, gastrointestinal symptoms, and in some cases meaningful drops in blood cell counts, a genuine tradeoff worth weighing directly with a real oncologist.",
+    citations: [
+      { source: 'Olaparib for Metastatic Castration-Resistant Prostate Cancer, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1911440' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-family-history-genetic-risk', 'horizon-prostate'],
+  },
 ];

@@ -428,4 +428,17 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-il23-inhibitors-efficacy'],
   },
+  {
+    id: 'horizon-psoriasis-il36',
+    category: 'psoriasis',
+    title: "A Real, First-of-Its-Kind Drug Now Exists for Psoriasis's Own Rarest, Most Dangerous Form",
+    teaser: 'Spesolimab, blocking a real, distinct inflammatory signal (IL-36), became the first-ever approved treatment specifically for generalized pustular psoriasis flares, clearing pustules in a real 86% of trial patients within one week.',
+    summary:
+      "This category's own already-covered IL-23 and TYK2 research targets the mechanism behind ordinary plaque psoriasis; generalized pustular psoriasis (GPP), a real, rare, and genuinely dangerous flare pattern involving widespread pus-filled skin lesions, runs through a real, different inflammatory signal, IL-36, and had no dedicated approved treatment at all until recently. Spesolimab, a real, first-in-class antibody blocking the IL-36 receptor directly, changed that: its real, pivotal trial found a single dose clearing visible pustules entirely in a real 85.7% of patients within one week, with 73.2% reaching completely clear skin, a real, dramatic result for a flare pattern that can otherwise require hospitalization. It received real FDA approval in September 2022 specifically for GPP flares, since expanded to more countries worldwide. Worth knowing directly: real trial data also found spesolimab associated with a real, higher rate of infections and systemic drug reactions than placebo, an honest tradeoff worth naming alongside the real, dramatic efficacy, and the drug is specifically indicated for treating an active flare, not for everyday plaque psoriasis already covered by this category's own more established treatment research.",
+    citations: [
+      { source: 'Trial of Spesolimab for Generalized Pustular Psoriasis, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2111563' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-psoriasis'],
+  },
 ];

@@ -416,4 +416,17 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['pcos-combined-oral-contraceptives-first-line', 'pcos-insulin-resistance-mechanism'],
   },
+  {
+    id: 'horizon-pcos-fezolinetant',
+    category: 'pcos',
+    title: 'A Real Drug Cut PCOS-Driving Testosterone by 35% in 12 Weeks by Targeting the Brain, Not the Ovary',
+    teaser: "This category's own already-covered insulin-resistance mechanism explains most of PCOS's own metabolic side. Fezolinetant instead targets a real, overactive brain signal directly, and a real trial found it cutting testosterone, LH, and FSH all at once.",
+    summary:
+      "This category's own already-covered precision-medicine research names neuroendocrine modulators as one real, emerging PCOS drug category, and fezolinetant is the real, most directly tested example. PCOS involves a real, overactive brain signal (an elevated GnRH pulse frequency) that drives excess luteinizing hormone and, downstream, excess androgen production, a genuinely different real starting point from the insulin-resistance mechanism already covered elsewhere in this category. Fezolinetant blocks a specific brain receptor (NK3R) that normally drives that overactive pulse. A real Phase 2a trial found 12 weeks of fezolinetant reducing testosterone by roughly 35%, luteinizing hormone by about 60%, and follicle-stimulating hormone by about 18%, with the ratio between the two hormones (a real, useful PCOS marker) dropping by nearly 60% as well, real, substantial hormonal change from a drug that never touches the ovary directly. The same real drug is already approved for a completely different use (menopausal hot flashes), meaning real, existing safety data already exists outside PCOS specifically. Worth knowing directly: this represents a real, genuinely different treatment strategy, correcting the brain signal driving excess androgen production, rather than either directly blocking androgen's effects or improving insulin sensitivity the way this category's own other already-covered treatments do.",
+    citations: [
+      { source: 'Randomized Controlled Trial of Neurokinin 3 Receptor Antagonist Fezolinetant for Treatment of Polycystic Ovary Syndrome, Journal of Clinical Endocrinology & Metabolism', url: 'https://academic.oup.com/jcem/article/106/9/e3519/6277155' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-pcos'],
+  },
 ];

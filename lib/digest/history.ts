@@ -183,4 +183,18 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['gut-scfa-treg'],
   },
+  {
+    id: 'horizon-hashimotos-fmt',
+    category: 'hashimotos',
+    title: "Real, Active Trials Are Now Directly Testing Whether Transplanting Gut Bacteria Can Treat Hashimoto's Itself",
+    teaser: 'Fecal microbiota transplantation (FMT) has moved from a real, observed correlation in this Digest\'s own gut-microbiome research into an actual, real clinical trial testing the transplant itself as treatment.',
+    summary:
+      "This app's own already-covered gut-microbiome research finds real, specific bacterial differences in Hashimoto's patients, including a real, documented enrichment of Bacteroides fragilis. The genuinely new, current step: an active real clinical trial (part of a real, broader research effort including a study named IMITHOT) is directly testing fecal microbiota transplantation, transferring a healthy donor's own gut bacteria into a Hashimoto's patient, to see whether reshaping the gut microbiome itself can measurably improve immune function and metabolic control. One real, currently active trial is studying this specifically in adults who have both Type 2 diabetes and Hashimoto's thyroiditis together, testing FMT's effect on both conditions at once. The real, proposed mechanism runs through pathways this app's own research has already covered elsewhere: improving microbial diversity, shifting microbial metabolite production, and calming the same real intestinal-barrier dysfunction and low-grade inflammation already tied to autoimmune thyroid disease. Worth knowing directly and honestly: real research in this specific area is still described by the field itself as preclinical or early-clinical, this is a genuinely active, real research direction testing a real hypothesis, not yet a validated treatment.",
+    citations: [
+      { source: "Fecal Microbiota Transplantation for Type 2 Diabetes Mellitus and Hashimoto's Thyroiditis, ClinicalTrials.gov NCT07733232", url: 'https://clinicaltrials.gov/study/NCT07733232' },
+      { source: 'Bacteroides fragilis and Microbacterium as Microbial Signatures in Hashimoto\'s Thyroiditis', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12429219/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['horizon-hashimotos'],
+  },
 ];

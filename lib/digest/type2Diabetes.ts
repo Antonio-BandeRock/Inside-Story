@@ -426,4 +426,17 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-glp1-sglt2-paradigm-shift'],
   },
+  {
+    id: 'horizon-type2-orforglipron',
+    category: 'type2Diabetes',
+    title: 'A Real, Pill-Form GLP-1 Just Outperformed the Only Other Oral GLP-1 Already on the Market',
+    teaser: "This category's own already-covered GLP-1 research relies mostly on injections. Orforglipron, a genuinely new oral small-molecule GLP-1, beat oral semaglutide head-to-head in a real Phase 3 trial on both blood sugar control and weight loss.",
+    summary:
+      "This category's own already-covered GLP-1 research (part of the real paradigm shift already named in this category) has mostly meant injectable medication, with oral semaglutide the one real existing pill-form option. Orforglipron represents a real, genuinely different kind of oral GLP-1, a small molecule rather than a peptide, which real research finds easier and cheaper to manufacture and administer without semaglutide's own real, strict food-and-water timing requirements. In a real, direct head-to-head Phase 3 trial (ACHIEVE-3, published in The Lancet) against oral semaglutide in adults already on metformin, orforglipron delivered real, significantly greater improvements in both blood sugar control and weight loss across every primary and key secondary measure. Two further real Phase 3 trials (ACHIEVE-2 and ACHIEVE-5) found it also meeting every endpoint against a real, established SGLT2 inhibitor and against placebo, including real cardiovascular risk-marker improvement. Worth knowing directly: real trial data across this whole drug found the same real gastrointestinal side effects (nausea, vomiting, diarrhea) already common to this whole drug class, described as generally mild, temporary, and concentrated during the real initial dose-adjustment period, not a new or different safety concern from what this category's own existing GLP-1 research already names.",
+    citations: [
+      { source: "Lilly's oral GLP-1, orforglipron, delivered superior blood sugar control and weight loss compared to oral semaglutide, The Lancet", url: 'https://lilly.gcs-web.com/news-releases/news-release-details/lillys-oral-glp-1-orforglipron-delivered-superior-blood-sugar' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-glp1-sglt2-paradigm-shift', 'horizon-type2'],
+  },
 ];

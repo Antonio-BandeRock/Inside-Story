@@ -435,4 +435,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-lipoprotein-a-underrecognized'],
   },
+  {
+    id: 'horizon-cvd-colchicine',
+    category: 'cardiovascularDisease',
+    title: "A Real, Cheap, Century-Old Gout Drug Just Became the First FDA-Approved Anti-Inflammatory Heart Drug",
+    teaser: "This category's own already-covered CANTOS trial first proved inflammation itself independently drives heart attacks. A real, low-dose, already-cheap drug just became the first medication ever approved specifically to act on that finding directly.",
+    summary:
+      "This category's own already-covered CANTOS trial was the first real proof that treating inflammation itself, independent of cholesterol, reduces cardiovascular events. Low-dose colchicine, a real, already well-known, inexpensive drug most commonly used for gout (already covered in this Digest's own Gout research), turned out to be the real, practical drug that finally translated that finding into an approved treatment. A real, large trial (LoDoCo2), randomizing 5,522 people with existing cardiovascular disease to 0.5mg colchicine daily or placebo, found a real 31% reduction in major cardiovascular events, heart attack, stroke, and the need for an artery-opening procedure, over a real, median follow-up of 28.6 months. It received real FDA approval in June 2023, becoming the first-ever anti-inflammatory drug specifically approved to reduce cardiovascular risk, distinct from every cholesterol-lowering drug already covered in this category. Worth knowing directly and honestly: colchicine's own real anti-inflammatory effect (measurably lowering CRP, already covered elsewhere in this app) is well established, but the field itself states plainly that the exact mechanism connecting that effect to fewer heart attacks isn't yet fully understood, real, working evidence ahead of a complete real explanation for why it works.",
+    citations: [
+      { source: 'U.S. FDA Approves First Anti-Inflammatory Drug for Cardiovascular Disease', url: 'https://www.dicardiology.com/content/us-fda-approves-first-anti-inflammatory-drug-cardiovascular-disease' },
+      { source: 'Potential Impact of Colchicine on Atherosclerotic Cardiovascular Disease in the United States, PMC11872516', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11872516/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-cantos-inflammation-hypothesis', 'horizon-cvd'],
+  },
 ];

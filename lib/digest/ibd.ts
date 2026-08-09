@@ -413,4 +413,17 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ibd-therapeutic-drug-monitoring', 'ibd-anti-tnf-loss-of-response'],
   },
+  {
+    id: 'horizon-ibd-darvadstrocel',
+    category: 'ibd',
+    title: "A Real, Already-Approved Stem Cell Therapy Is Healing One of Crohn's Most Stubborn Complications",
+    teaser: "Complex perianal fistulas, a real, especially hard-to-treat Crohn's complication, are now treated with darvadstrocel, an injected stem cell therapy achieving real, sustained healing in over three-quarters of patients in real-world use.",
+    summary:
+      "Complex perianal fistulas, abnormal tunnels connecting the bowel to the skin near the anus, are a real, especially stubborn Crohn's complication that often resists this category's own already-covered biologic treatments. Darvadstrocel, made from real, expanded mesenchymal stem cells derived from donor fat tissue, is injected directly into the fistula tract itself to promote real, local healing. It's genuinely already approved, not experimental, across the European Union, UK, Japan, and several other countries (though not yet in the US), and a real, recent meta-analysis pooling real-world data found 68.1% of patients in clinical remission (real fistula healing) at 6 months, rising to 77.2% in more recent data. Current European treatment guidelines now describe it directly as having a real, strong level of evidence and a favorable safety profile. Worth knowing directly: this is a real, genuinely different treatment category from anything else already covered in this category, a localized, injected cell therapy rather than a systemic drug, aimed specifically at healing damaged tissue directly rather than suppressing inflammation throughout the body, and it's already a real, available option in much of the world for this specific, hard-to-treat complication.",
+    citations: [
+      { source: "Darvadstrocel for complex perianal fistulas in Crohn's disease: A systematic review and meta-analysis, United European Gastroenterology Journal", url: 'https://onlinelibrary.wiley.com/doi/full/10.1002/ueg2.12673' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-ibd'],
+  },
 ];

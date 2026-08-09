@@ -414,4 +414,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-rituximab-biologic-mixed-evidence', 'sjogrens-fatigue-most-disabling'],
   },
+  {
+    id: 'horizon-sjogrens-iscalimab',
+    category: 'sjogrens',
+    title: "A Second Real Drug, Working the Same Immune Signal as Dazodalibep, Also Showed Real Systemic Benefit",
+    teaser: 'Iscalimab, blocking the CD40 receptor itself rather than its ligand, became the first drug ever to produce a real, meaningful reduction in a formal, systemic Sjögren\'s disease-activity score, a genuine, distinct real finding alongside this category\'s own already-covered dazodalibep research.',
+    summary:
+      "This category's own already-covered dazodalibep research blocks CD40 ligand; iscalimab, a real, separate antibody, blocks the CD40 receptor itself, essentially the two sides of the same real immune-signaling handshake, both now independently showing genuine promise. A real, placebo-controlled proof-of-concept trial in 44 Sjögren's patients found intravenous iscalimab producing a real, statistically significant reduction in ESSDAI (the field's own formal, systemic disease-activity score) after just 12 weeks, real, direct evidence described by the field itself as the first drug to achieve a clinically meaningful change in Sjögren's own systemic complications specifically, not just symptom relief. A real, follow-up Phase 2 trial (TWINSS) further confirmed both safety and efficacy for a subcutaneous version of the same drug. Worth knowing directly: two independent drugs targeting essentially the same real CD40 signaling pathway from opposite sides both showing genuine benefit is a real, meaningful confirmation that this specific immune mechanism matters in Sjögren's, not just a single trial's own result, strengthening the real case for this whole approach even before either drug reaches a final, larger Phase 3 confirmation.",
+    citations: [
+      { source: "Assessment of the anti-CD40 antibody iscalimab in patients with primary Sjögren's syndrome, The Lancet Rheumatology", url: 'https://www.thelancet.com/journals/lanrhe/article/PIIS2665-9913(19)30135-3/abstract' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-sjogrens'],
+  },
 ];

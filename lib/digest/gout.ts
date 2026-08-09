@@ -420,4 +420,17 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['gout-urate-lowering-therapy'],
   },
+  {
+    id: 'horizon-gout-pegloticase',
+    category: 'gout',
+    title: "Gout's Own Strongest Real Drug Has a Real Weakness the Field Is Actively Trying to Fix",
+    teaser: 'Pegloticase, the most powerful uric-acid-clearing drug this category covers, loses effectiveness in a real 41% of patients because the immune system attacks the drug itself, and real, active trials are testing two different fixes.',
+    summary:
+      "For gout that hasn't responded to this category's own already-covered allopurinol or febuxostat, pegloticase offers a real, genuinely more powerful option, an enzyme that breaks down uric acid directly. It carries a real, well-documented weakness: real research found 41% of patients developed high levels of antibodies against the drug itself, and a further 40% developed antibodies against the PEG coating used to help the drug last longer in the body, both real immune reactions that reduce how well the drug keeps working and raise the risk of infusion reactions. Two real, distinct fixes are being actively tested. A real Phase 2 trial (RECIPE) is testing whether a short course of a separate immune-suppressing drug, taken alongside pegloticase, can reduce this immune reaction and let the drug keep working longer. Separately, a real, newer uricase sourced from plants rather than the original bacterial/mammalian source (PRX-115) is now in real Phase 1 safety testing, designed specifically to be less likely to trigger this same immune response in the first place. Worth knowing directly: this is a real, active, two-pronged effort to fix a genuine, already-known limitation of one of this category's own most powerful existing treatments, not a search for something entirely new.",
+    citations: [
+      { source: 'Reducing Immunogenicity of Pegloticase With Concomitant Use of Mycophenolate Mofetil in Patients With Refractory Gout, PMC8324571', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8324571/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['gout-urate-lowering-therapy', 'horizon-gout'],
+  },
 ];

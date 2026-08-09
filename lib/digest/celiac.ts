@@ -439,4 +439,17 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['celiac-enzyme-therapy-emerging'],
   },
+  {
+    id: 'horizon-celiac-latiglutenase',
+    category: 'celiac',
+    title: 'A Third Real Drug Candidate Broke Down 95% of Gluten in the Stomach Before It Could Reach the Gut',
+    teaser: "This category's own already-covered ZED1227 and TAK-101 research works after gluten has already reached the intestine. Latiglutenase, a real two-enzyme combination, degrades gluten in the stomach first, and a real trial found real, striking protection against gut damage.",
+    summary:
+      "This category's own already-covered ZED1227 and TAK-101 research both intervene after gluten has already reached the small intestine. Latiglutenase takes a genuinely earlier real approach: two enzymes working together to break down gluten proteins directly in the stomach, before they can reach and damage the intestinal lining at all. A real, Mayo Clinic-led Phase 2b trial, funded by the NIH, tested it directly against a real 6-week gluten challenge, and found real, substantial protection: 88% less damage to the small intestine's own lining, 60% fewer of the specific immune cells (intraepithelial lymphocytes) that signal active gut injury, and real urine testing confirmed 95% of the gluten itself was broken down in the stomach before it could act. Real symptom relief followed the same pattern, 53 to 99% less symptom severity than placebo during the same gluten exposure. Worth knowing directly: like ZED1227 and TAK-101 already covered in this category, latiglutenase is being developed as a real safety buffer against accidental gluten exposure, meant to work alongside the gluten-free diet, not replace this category's own real, primary treatment.",
+    citations: [
+      { source: 'Latiglutenase Protects the Mucosa and Attenuates Symptom Severity in Patients With Celiac Disease Exposed to a Gluten Challenge, Gastroenterology', url: 'https://www.gastrojournal.org/article/S0016-5085(22)00901-5/fulltext' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-celiac'],
+  },
 ];

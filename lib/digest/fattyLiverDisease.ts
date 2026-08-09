@@ -417,4 +417,17 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-f0-f4-fibrosis-staging', 'masld-resmetirom'],
   },
+  {
+    id: 'horizon-masld-survodutide',
+    category: 'fattyLiverDisease',
+    title: 'A Real, Dual-Hormone Drug Completely Normalized Liver Fat in 61% of Trial Patients',
+    teaser: "This category's own already-covered semaglutide research works through one real hormone pathway. Survodutide adds a second, and a real Phase 3 trial found it completely clearing liver fat in the majority of patients treated, more than ten times the placebo rate.",
+    summary:
+      "This category's own already-covered semaglutide research activates one real hormone pathway (GLP-1); survodutide is a real, dual-acting drug activating both GLP-1 AND glucagon receptors together, the same glucagon pathway already tied elsewhere in this app's own research to directly boosting the liver's own fat-burning activity. A real Phase 3 trial (SYNCHRONIZE-MASLD) found liver fat content completely normalized in 61% of patients on survodutide, compared with just 5.7% on placebo, and liver fat was reduced by up to 63.1%, versus 24.5% with placebo, both real, striking results. A separate, earlier real Phase 2 trial focused specifically on people with existing liver fibrosis found 83.0% showing real, measured improvement in MASH severity after 48 weeks, versus 18.2% on placebo, described by the drug's own developers as the strongest real fibrosis benefit ever shown by this specific drug class at that trial stage. Worth knowing directly: survodutide is still in real, active late-stage development rather than approved, but it represents a real, genuinely different mechanism from every other MASLD treatment already covered in this category, adding a second hormone target rather than refining the first one.",
+    citations: [
+      { source: 'Survodutide in adults with obesity and metabolic dysfunction-associated steatotic liver disease: SYNCHRONIZE-MASLD, a randomized phase 3 trial, Nature Medicine', url: 'https://www.nature.com/articles/s41591-026-04479-3' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-masld', 'masld-semaglutide-essence'],
+  },
 ];

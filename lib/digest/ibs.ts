@@ -411,4 +411,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['ibs-visceral-hypersensitivity-mechanism', 'ibs-probiotic-strain-specificity'],
   },
+  {
+    id: 'horizon-ibs-penfs',
+    category: 'ibs',
+    title: 'A Real, Small Wearable Device Stimulates the Vagus Nerve Directly to Calm IBS Symptoms',
+    teaser: "This category's own already-covered brain-gut research explains IBS through the vagus nerve's own role in gut-brain signaling. A real, small, ear-worn device now stimulates that same nerve directly, and a real 4-week trial found significant improvement in pain, symptom severity, and disability.",
+    summary:
+      "This category's own already-covered visceral-hypersensitivity and brain-gut-axis research names the vagus nerve as a real, central pathway carrying gut signals to the brain. Percutaneous electrical nerve field stimulation (PENFS, most often delivered through a small, real device worn behind the ear) works by directly stimulating that same nerve pathway from outside the body, a genuinely different, non-drug approach from anything else covered in this category. A real study testing PENFS in adolescent girls with IBS found real, statistically significant improvement after just 4 weeks across three separate measures: symptom severity (IBS-SSS), pain sensitivity, and functional disability, all with real, strong statistical significance. A real, separate microbiome analysis from the same research found no major shift in overall gut bacteria diversity from the treatment, but did find patients who responded best carried a real, higher relative abundance of one specific bacterial genus (Blautia) beforehand, a real, early clue toward eventually predicting who benefits most. Worth knowing directly: current real research has concentrated mostly on adolescents, and this represents a real, genuinely different, drug-free treatment avenue worth knowing about specifically for anyone whose IBS hasn't responded well to the dietary and medication options already covered elsewhere in this category.",
+    citations: [
+      { source: 'Percutaneous electrical nerve field stimulation for adolescents with irritable bowel syndrome, Journal of Pediatric Gastroenterology and Nutrition, PMID 38284690', url: 'https://pubmed.ncbi.nlm.nih.gov/38284690/' },
+      { source: 'PENFS vagal neuromodulation and gut microbiome effects in adolescent IBS, PMID 37448237', url: 'https://pubmed.ncbi.nlm.nih.gov/37448237/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['horizon-ibs'],
+  },
 ];

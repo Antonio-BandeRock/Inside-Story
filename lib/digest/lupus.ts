@@ -412,4 +412,17 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['lupus-belimumab-biologic', 'lupus-mycophenolate-cyclophosphamide-nephritis'],
   },
+  {
+    id: 'horizon-lupus-litifilimab',
+    category: 'lupus',
+    title: "A Real, New Drug Could Become the First Genuine Advance for Lupus's Own Skin Symptoms in 70 Years",
+    teaser: 'Litifilimab targets a specific cell type driving lupus skin disease, and two separate, real Phase 2 trials both found it significantly reducing disease activity, real evidence supporting an FDA Breakthrough Therapy designation.',
+    summary:
+      "This category's own already-covered belimumab and anifrolumab research targets B cells and a broad interferon pathway; litifilimab works through a real, more specific real target, blood dendritic cell antigen 2 (BDCA2), found on the exact immune cells most directly implicated in lupus's own skin disease. Two separate, real Phase 2 trials, LILAC (published in the New England Journal of Medicine) and the more recent AMETHYST, both found litifilimab meeting its primary endpoint, a real, significant reduction in skin disease activity, with more patients on the drug reaching clear or almost-clear skin than on placebo. It's real, direct significance is stated plainly by the field itself: if confirmed in larger trials, it could become the first genuinely new, innovative therapy specifically approved for cutaneous lupus erythematosus in 70 years, real evidence strong enough that it has already earned FDA Breakthrough Therapy designation, a real, formal signal the FDA reserves for drugs showing substantial improvement over existing treatment in early testing. Worth knowing directly: this is real, twice-replicated Phase 2 evidence, genuinely stronger than most single-trial results covered elsewhere in this Digest's own Research Horizon entries, though real Phase 3 confirmation is still the next required step before approval.",
+    citations: [
+      { source: 'Trial of Anti-BDCA2 Antibody Litifilimab for Cutaneous Lupus Erythematosus, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2118024' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-lupus'],
+  },
 ];

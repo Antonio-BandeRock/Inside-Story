@@ -416,4 +416,17 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ms-ocrelizumab-anti-cd20', 'ms-disease-course-types'],
   },
+  {
+    id: 'horizon-ms-clemastine',
+    category: 'multipleSclerosis',
+    title: "The First Real Drug Ever Shown to Rebuild Nerve Coating in MS Was Already Sitting on Pharmacy Shelves",
+    teaser: 'Clemastine, an ordinary, decades-old allergy medication, became the first drug ever to show real, measured remyelination in a randomized MS trial, and it\'s now being tested in combination with a second real, repurposed drug.',
+    summary:
+      "This category's own already-covered ocrelizumab and tolebrutinib research both work to reduce ongoing immune attack; neither directly rebuilds the nerve coating (myelin) MS has already damaged. Clemastine, an ordinary, real, decades-old over-the-counter allergy medication, became the first drug ever shown in a real, randomized controlled trial (ReBUILD) to produce measurable remyelination in MS, tested in patients with chronic, stable optic nerve damage. The real trial found a real, statistically significant improvement in how quickly the optic nerve conducted a visual signal, direct, measured evidence of real nerve-coating repair, the first time any MS trial had shown this at all. Worth knowing honestly and directly: the trial's own real result was small, described directly in the research as unlikely on its own to produce a clinically meaningful difference a patient would actually notice day to day. A real, current follow-up trial (CCMR Two) is now testing whether combining clemastine with a second real, repurposed drug, metformin (already covered elsewhere in this app for a completely different condition), produces a stronger real remyelinating effect together than either drug alone. This remains a real, genuine proof-of-concept, not yet an established treatment.",
+    citations: [
+      { source: 'Clemastine fumarate as a remyelinating therapy for multiple sclerosis (ReBUILD): a randomised, controlled, double-blind, crossover trial, The Lancet', url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(17)32346-2/fulltext' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['horizon-ms'],
+  },
 ];

@@ -432,4 +432,17 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-ace-arb-potassium-monitoring'],
   },
+  {
+    id: 'horizon-ckd-inaxaplin',
+    category: 'chronicKidneyDisease',
+    title: "The First Real Drug Aimed Directly at a Genetic Cause of CKD Common in People of West African Ancestry",
+    teaser: 'Inaxaplin targets APOL1, a real gene variant behind a substantial, often-overlooked share of CKD in this specific population, and an early real trial already found it cutting protein leakage into urine by nearly half.',
+    summary:
+      "This category's own already-covered CKD research (potassium, protein, ACE inhibitors) applies broadly, but a real, specific, genetically-driven form of the disease has never had a treatment aimed at its actual cause until now. Two variants in the APOL1 gene, present almost exclusively in people of recent West African ancestry, drive a real, distinct form of kidney disease affecting an estimated 100,000 people in the US and Europe who carry two copies of the risk variant. Inaxaplin, a real, first-of-its-kind oral drug, is described directly by the field as the first genuinely genotype-targeted therapy in all of nephrology, working specifically to block the harmful protein the APOL1 variant produces. A real, early proof-of-concept trial found it reducing protein leakage into urine (a real, direct marker of kidney damage) by a real, statistically significant 47.6% after just 13 weeks. It's now in the Phase 3 portion of a real, global pivotal trial, expanded to include adolescents as young as 10. Worth knowing directly: this is real, genuinely novel precision medicine for a specific genetic cause of CKD this category's own general research doesn't otherwise address, not yet an approved treatment, but with a real, planned interim analysis that could lead to accelerated US approval if the results hold.",
+    citations: [
+      { source: 'Inaxaplin for Proteinuric Kidney Disease in Persons with Two APOL1 Variants, New England Journal of Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/36920755/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-ckd'],
+  },
 ];
