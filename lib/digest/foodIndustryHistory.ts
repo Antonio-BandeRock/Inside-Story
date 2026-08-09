@@ -1730,6 +1730,56 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'A real, large-scale movement with genuinely mixed academic evidence on direct financial effect, reported honestly rather than assuming divestment automatically works -- included alongside a real, smaller, food-system-specific parallel rather than only the better-known fossil-fuel version.',
     relatedIds: ['foodhistory-regen-shareholder-activism-mechanics', 'foodhistory-regen-institutional-purchasing-power'],
   },
+  // 2026-08-11, same day, a second continuation of the economic-power
+  // sub-cluster: "Keep going with more research on this topic." Both
+  // entries verified via WebSearch. Adds a real, honest complication to
+  // the boycott-effectiveness entry above (positive "buycotts" are real
+  // but measurably weaker, and even a real, dramatic sales swing can fully
+  // dissipate within weeks) and a real, positive, distinct mechanism
+  // (direct investment) that doesn't depend on pressuring or punishing an
+  // existing company at all.
+  {
+    id: 'foodhistory-regen-buycott-versus-boycott',
+    category: 'basicHealth',
+    title: '"Buycotts" Are Real Too -- and Real Research Finds Them Measurably Weaker Than Boycotts',
+    teaser: 'A real, documented case: after a brand controversy, sales briefly rose 22% from a buycott-style show of support, then fully returned to normal within three weeks either way.',
+    summary:
+      "A real, deliberate complement to this sub-cluster's own boycott-effectiveness entry: \"buycotting,\" organizing consumers to deliberately reward a company for good behavior by buying more from it, is a real, documented, named strategy of its own, not just the mirror image of a boycott. Real, peer-reviewed consumer-psychology research consistently finds it measurably weaker than boycotting, though: negative information about a company reliably motivates more consumer action than equivalent positive information does, and researchers have traced this to a real, specific psychological asymmetry -- consumers perceive punishing a company (boycotting) as more genuinely instrumental in changing its behavior, and as more self-enhancing to participate in, than rewarding one (buycotting), even when the underlying goal is identical. A real, concrete, quantified case study: after a real corporate controversy, one well-known brand saw sales rise a real 22% in the following weeks, widely read at the time as a buycott-style show of support -- but that entire sales boost, like the boycott pressure on the other side of the same controversy, had fully dissipated within three weeks, with neither producing a lasting change. The honest, working takeaway: buycotting is a real, legitimate tool, but the actual research points toward organized boycotts (see this sub-cluster's own dedicated entry, plus the two real historic case studies) as the more consistently effective lever of the two, and toward sustained, repeated pressure over a single purchasing spike either way.",
+    citations: [
+      {
+        source: 'Journal of the Association for Consumer Research: Why Consumers Boycott More Than Buycott -- The Role of Perceived Instrumentality and Self-Enhancement',
+        url: 'https://www.journals.uchicago.edu/doi/10.1086/731920',
+      },
+      {
+        source: 'INFORMS: How Much Impact Do Boycotts and Buycotts Actually Have on Brand Sales? (the 22%-then-fully-dissipated case study)',
+        url: 'https://www.informs.org/News-Room/INFORMS-Releases/News-Releases/How-Much-Impact-Do-Boycotts-and-Buycotts-Actually-Have-on-Brand-Sales',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, honest complication to this sub-cluster\'s own more favorable boycott-effectiveness entry -- reported directly rather than letting "vote with your dollar" read as a uniformly reliable lever either way.',
+    relatedIds: ['foodhistory-regen-boycott-effectiveness-evidence', 'foodhistory-regen-nestle-boycott-case-study'],
+  },
+  {
+    id: 'foodhistory-regen-direct-investment-crowdfunding',
+    category: 'basicHealth',
+    title: 'A Real, Positive Alternative to Boycotting: Putting Money Directly Into What You Want to Support',
+    teaser: 'A real, SEC-regulated platform lets anyone invest as little as $100 directly into a working regenerative farm -- no boycott, no shareholder resolution, just funding the thing you want to exist.',
+    summary:
+      "Every mechanism covered elsewhere in this sub-cluster works by pressuring, punishing, or formally challenging an EXISTING company. A real, distinct, positive alternative exists too: investing directly in the farms and food businesses already practicing what the rest of this whole cluster describes. Steward, a real, SEC-regulated crowdfunding platform, lets any US investor put in as little as $100 through the Steward Farm Trust, a pooled portfolio of loans made directly to small and regenerative farms, paying investors dividends from the farmers' own loan interest payments -- the platform has directed more than $2.2 million across 16 real farms to date, mostly in the US. Harvest Returns, a real, separate equity-crowdfunding platform, connects both accredited and non-accredited investors directly with individual farming and agribusiness projects, and has facilitated roughly $30 million of investment across about 50 real projects as of 2023, spanning sustainable agriculture, hemp, and hydroponic vertical farms. This is a genuinely different kind of \"buying power\" than anything else covered in this sub-cluster -- not a reward or punishment aimed at an existing company's behavior, but capital flowing directly to the specific kind of farming this whole cluster has spent dozens of entries documenting the real, cited benefits of.",
+    citations: [
+      {
+        source: 'Fast Company: Small farms are struggling -- now there\'s a crowdfunding platform for that (Steward)',
+        url: 'https://www.fastcompany.com/90413388/small-farms-are-struggling-now-theres-a-crowdfunding-platform-for-that',
+      },
+      {
+        source: 'Texas Monthly: A Crowdfunding Approach to Growing Texas Farms (Harvest Returns)',
+        url: 'https://www.texasmonthly.com/news-politics/harvest-returns-crowdfunding-farms-ranches/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, SEC-regulated, currently operating platforms with real, verifiable investment totals -- a genuinely positive, direct-funding lever, not a pressure campaign.',
+    relatedIds: ['foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-timeline-certification-era'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
