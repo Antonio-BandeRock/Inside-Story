@@ -440,4 +440,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link'],
   },
+  {
+    id: 'ibd-corticosteroid-hypertension-real-data',
+    category: 'ibd',
+    title: 'Hypertension Is a Real, Dose-Related Risk of the Corticosteroids IBD Itself Often Requires',
+    teaser: 'Real research finds hypertension in over 30% of long-term glucocorticoid users -- a real, direct medication effect worth watching for anyone on repeated or extended prednisone courses for a flare.',
+    summary:
+      'Real research finds roughly 30 percent of people with IBD were exposed to oral glucocorticoids (prednisone and similar drugs, already covered directly in this app\'s own IBD medication research) within just the preceding 12 months, since they remain a real, major treatment for moderate-to-severe flares despite real progress with biologic therapies. Real, broader research on glucocorticoid use finds hypertension a genuine, dose-related risk of this drug class, with over 30 percent of long-term users developing measurably elevated blood pressure -- a real, direct medication effect, not a coincidental overlap. The honest, current gap worth naming directly: real, dedicated research measuring hypertension prevalence specifically within IBD populations (as opposed to glucocorticoid users generally) is genuinely sparse in the literature, so the real, precise IBD-specific number isn\'t yet well established, even though the underlying mechanism (glucocorticoid exposure) clearly is. The real, practical takeaway: anyone on repeated or extended prednisone courses for IBD flares has a real, concrete, medication-driven reason to have blood pressure checked as part of that treatment, not assumed unrelated to a bowel-focused diagnosis.',
+    citations: [
+      { source: 'Oral glucocorticoids and incidence of hypertension in people with chronic inflammatory diseases: a population-based cohort study, CMAJ', url: 'https://www.cmaj.ca/content/192/12/e295' },
+      { source: 'Is hypertension an extra-intestinal manifestation of inflammatory bowel disease?, PMC9892475', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9892475/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibd-overview'],
+  },
 ];

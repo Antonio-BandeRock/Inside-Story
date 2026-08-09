@@ -429,4 +429,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-pcos'],
   },
+  {
+    id: 'pcos-hypertension-real-data',
+    category: 'pcos',
+    title: 'PCOS Carries a Real, Quantified Hypertension Risk, Even in Young Women',
+    teaser: 'A real, nationwide cohort study found young women with PCOS facing 62% higher hypertension risk than matched peers -- and the risk shows up even in adolescent girls, well before midlife.',
+    summary:
+      'A real, large, nationwide population-based cohort study found young women with PCOS developing hypertension at a real, significantly higher rate than matched controls (7.85 versus 4.23 cases per 1,000 person-years, an adjusted hazard ratio of 1.62). A real, separate systematic review and meta-analysis found the same pattern across reproductive-age women broadly, a 1.70-fold increased relative risk. Real, cross-sectional data adds a useful, specific number: 17.6 percent of women with PCOS have measurable hypertension, rising to 18.9 percent specifically in the "classic" PCOS phenotype (the form combining irregular periods, elevated androgens, and polycystic ovaries all at once) versus 12.9 percent in other phenotypes. This isn\'t just a midlife concern either -- real research in adolescent girls found hypertension-range blood pressure in 18.6 percent of those with PCOS versus 6.9 percent without, a real, meaningful gap showing up well before the age most people associate with blood-pressure risk. The real, identified drivers (type 2 diabetes, obesity, family history, age 30 and up) are the same real, already-covered metabolic-syndrome cluster this app\'s own PCOS research already centers on -- a real, direct reason the insulin-resistance-focused management this category already recommends does double duty for blood pressure too, not a separate concern layered on top.',
+    citations: [
+      { source: 'Hypertension Risk in Young Women With Polycystic Ovary Syndrome: A Nationwide Population-Based Cohort Study, PMC7538684', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7538684/' },
+      { source: 'Risk of hypertension in women with polycystic ovary syndrome: a systematic review, meta-analysis and meta-regression, PMC7076940', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7076940/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-overview', 'cvd-overview'],
+  },
 ];

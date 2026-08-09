@@ -446,4 +446,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-honeymoon-phase', 'horizon-type1'],
   },
+  {
+    id: 'type1-hypertension-nephropathy-real-data',
+    category: 'type1Diabetes',
+    title: 'Hypertension in Type 1 Diabetes Is Real, Common, and Usually a Direct Signal of Kidney Involvement',
+    teaser: 'Real research finds hypertension in roughly 30% of people with Type 1 Diabetes, rising to nearly 90% once kidney disease reaches its most advanced stage -- and the two often develop in a real, specific order worth knowing.',
+    summary:
+      'Real research estimates hypertension affects roughly 30 percent of people with Type 1 Diabetes, and unlike hypertension in the general population, it usually reflects a real, specific, underlying process: the real, well-documented development of diabetic nephropathy, kidney damage from sustained high blood sugar. The real, mechanistic relationship runs both ways and compounds itself -- hypertension is a real, modifiable risk factor that more than triples the risk of nephropathy progressing, while nephropathy\'s own progression in turn drives blood pressure higher, with real research finding hypertension prevalence climbing toward 90 percent in Type 1 Diabetes patients who\'ve reached end-stage kidney disease. A real, genuinely useful, order-of-events finding: longitudinal research finds microalbuminuria (the real, earliest detectable sign of kidney damage, already a real self-advocacy topic in this app\'s own Type 1 Diabetes research) often shows up BEFORE hypertension does in people without pre-existing high blood pressure, meaning a normal blood pressure reading doesn\'t rule out early kidney involvement already underway. The real, practical takeaway: blood pressure and kidney-function monitoring genuinely belong together in Type 1 Diabetes, not as two separate checks, since each one is often the real, earliest clue something is changing with the other.',
+    citations: [
+      { source: 'Hypertension Prevalence, Awareness, Treatment, and Control in an Adult Type 1 Diabetes Population, Diabetes Care, American Diabetes Association', url: 'https://diabetesjournals.org/care/article/28/2/301/24105/Hypertension-Prevalence-Awareness-Treatment-and' },
+      { source: 'The contribution of hypertension to diabetic nephropathy and retinopathy: the role of inflammation and oxidative stress, Hypertension Research', url: 'https://www.nature.com/articles/hr2010263' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-overview', 'ckd-overview'],
+  },
 ];

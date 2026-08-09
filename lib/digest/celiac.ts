@@ -452,4 +452,18 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-celiac'],
   },
+  {
+    id: 'celiac-hypertension-paradox-real-data',
+    category: 'celiac',
+    title: 'A Real, Genuinely Counterintuitive Finding: Celiac Disease Tracks With LOWER Hypertension, Not Higher',
+    teaser: 'Real research finds hypertension rates lower in celiac patients than in matched controls, even though the same patients face a real, measurably higher risk of heart attack and ischemic heart disease.',
+    summary:
+      'Real, published research finds a genuinely counterintuitive pattern worth reporting exactly as it is, not smoothed into the more expected story: celiac disease patients show LOWER real rates of hypertension than matched controls (15.2 percent versus 26.7 percent in one real study), and real research more broadly finds celiac patients carry a lower prevalence of several traditional cardiac risk factors at once, hypertension, high cholesterol, smoking, and obesity all included. This makes the real, separate finding sitting right alongside it genuinely surprising: despite this favorable traditional-risk-factor profile, real, large studies still find celiac disease associated with a real, measurably higher risk of overall cardiovascular disease, including a real 1.5-fold higher hazard of ischemic heart disease and 1.59-fold higher risk of heart attack specifically. The real, proposed explanation is a genuinely different mechanism than the usual hypertension/cholesterol story: real research points to a gut-to-cardiovascular inflammatory pathway, involving immune cell activity and a specific inflammatory signaling molecule (IL-17A) tied directly to active, untreated celiac disease -- and real research finds this same cardiovascular risk measurably reversible with a genuine gluten-free diet, a real, direct, food-first reason strict dietary adherence matters for the heart, not just the gut.',
+    citations: [
+      { source: 'Celiac Disease and the Risk of Cardiovascular Diseases, PMC10298430', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10298430/' },
+      { source: 'Celiac Disease and Cardiovascular Risk: A Retrospective Case-Control Study', url: 'https://www.mdpi.com/2077-0383/12/6/2087' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['celiac-overview'],
+  },
 ];
