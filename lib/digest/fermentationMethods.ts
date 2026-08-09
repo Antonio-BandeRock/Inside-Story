@@ -134,6 +134,6 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['fermentmethod-overview', 'fermented-tying-together', 'fermented-sourcing-starters'],
+    relatedIds: ['fermentmethod-overview', 'fermented-tying-together', 'fermented-sourcing-starters', 'garden-preserving-the-harvest'],
   },
 ];

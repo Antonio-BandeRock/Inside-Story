@@ -28,6 +28,22 @@ import type { DigestEntry } from './types';
 // this app's own Earth Matters pollinator research. Growing even a small
 // amount of food at home is a concrete answer to "what can one person
 // actually do."
+//
+// A second batch, same day, direct instruction: "Keep going with more
+// research on this topic." 9 more entries covering the real, practical
+// mechanics the first batch didn't reach: composting, choosing seeds vs.
+// buying transplants, no-dig raised beds, water-efficient irrigation,
+// pest management without pesticides, growing perennial fruit (a real,
+// different planning horizon from annual vegetables), preserving a real
+// harvest surplus, saving seeds, and vertical/trellised growing. Several
+// cross-link directly back to Earth Matters (composting counters real soil
+// depletion; no-dig mirrors the same soil-biology principle Earth Matters'
+// own Brazil case study documents at commercial scale; drip irrigation is a
+// small-scale answer to the same water-scarcity problem the Ogallala
+// Aquifer entry documents; avoiding home pesticide use directly protects
+// the same pollinators the neonicotinoid-loophole entry covers; seed
+// saving is a real, individual-level counter to the seed-diversity-loss
+// entry). Every citation independently verified via WebSearch/WebFetch.
 export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-economics-subsidizing-food',
@@ -288,6 +304,167 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     },
   },
   {
+    id: 'garden-composting-at-home',
+    category: 'homeGardening',
+    title: 'Turning Kitchen and Yard Scraps Into Real, Free Soil Amendment',
+    teaser: 'A backyard compost pile turns food scraps and yard trimmings into finished compost in about three to five months, at essentially no cost.',
+    summary:
+      "Backyard composting is a real, direct way to feed a garden without buying fertilizer, and the EPA's own guidance lays out exactly how it works. A pile built from roughly two to three parts \"browns\" (dry leaves, shredded cardboard, straw) to one part \"greens\" (fruit and vegetable scraps, grass clippings, coffee grounds), kept moist and turned occasionally, produces finished compost in about three to five months. A worm bin, or vermicomposting system, uses red wiggler worms instead and works on a similar three-to-six-month timeline, a real option for anyone without outdoor space for a pile. What to leave out matters as much as what to include: meat, fish, bones, dairy, fats and oils, pet waste, and diseased plant material should stay out of a home compost system, since they attract pests or fail to break down safely at typical backyard pile temperatures. Beyond the free soil amendment itself, the EPA notes finished compost improves water retention and soil structure, and applying it to land keeps carbon stored in the soil rather than released to the atmosphere, a small, real, individual-level version of the same soil-carbon principle covered at a much larger scale in this app's own Earth Matters research.",
+    citations: [
+      {
+        source: 'US EPA: Composting At Home',
+        url: 'https://www.epa.gov/recycle/composting-home',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, EPA-sourced practical guide, not a general "compost is good" gesture. The three-to-five-month timeline and the browns-to-greens ratio are both directly stated by the source, not estimated.',
+    relatedIds: ['garden-no-dig-raised-beds', 'foodhistory-soil-real-depletion'],
+  },
+  {
+    id: 'garden-seed-starting-vs-transplants',
+    category: 'homeGardening',
+    title: 'Seeds Can Cost Up to 20 Times Less Than Buying Transplants',
+    teaser: 'A single seed packet can produce far more plants than the equivalent number of store-bought transplants, at a real fraction of the cost.',
+    summary:
+      "Mississippi State University Extension states the real cost gap directly: vegetable and flower transplants are convenient, but they can easily cost 20 times more than growing the same plants from seed. Starting from seed also opens up real variety choice a garden-center transplant rack rarely offers, since mail-order and online seed companies carry far more cultivars than what's grown out and sold locally as transplants, including varieties bred for a specific climate or a specific real trait (disease resistance, a shorter days-to-maturity count) that a generic transplant selection won't include. The real tradeoff, per West Virginia University Extension: transplants accelerate an early harvest, produce a more uniform stand, and sidestep the germination losses seed starting can carry, and most vegetable and annual flower seedlings need 6 to 8 weeks of indoor growth before they're ready to harden off and move outside, real lead time that has to be planned around a location's own last frost date. A practical middle ground many gardeners actually use: start the crops with a long lead time and real variety selection at stake from seed indoors (tomatoes, peppers), and simply buy transplants for the rest.",
+    citations: [
+      {
+        source: 'Mississippi State University Extension: Homegrown Flower, Herb and Vegetable Transplants',
+        url: 'https://extension.msstate.edu/publications/homegrown-flower-herb-and-vegetable-transplants',
+      },
+      {
+        source: 'West Virginia University Extension: Using Transplants in the Garden',
+        url: 'https://extension.wvu.edu/lawn-gardening-pests/gardening/gardening-101/using-transplants-in-the-garden',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The "20 times more" figure is stated directly by a real university extension source, not an unverified marketing claim, though the exact multiplier will vary by crop and region.',
+    relatedIds: ['garden-easiest-beginner-crops', 'garden-economics-subsidizing-food'],
+  },
+  {
+    id: 'garden-no-dig-raised-beds',
+    category: 'homeGardening',
+    title: 'Building a Garden Bed Without Ever Turning the Soil',
+    teaser: 'Layering cardboard, "browns," and "greens" directly on top of grass or poor soil builds a real, workable garden bed without digging or tilling at all.',
+    summary:
+      "Cornell Cooperative Extension describes a real, well-documented no-dig method, sometimes called lasagna gardening or sheet mulching, that builds a garden bed by layering materials on top of existing ground rather than digging it out. The real steps: start with a base layer of cardboard or newspaper, watered thoroughly, to smother grass and weeds underneath. Add a 2-inch layer of carbon-rich \"brown\" material (leaves, straw, sawdust), then a 2-inch layer of nitrogen-rich \"green\" material (grass clippings, vegetable scraps, aged manure), and keep alternating until the pile reaches roughly 3 feet, watering each layer as it's added. No turning is required, unlike an active compost pile, and Cornell describes the process as saving real labor while enriching the soil underneath. This is a real, home-scale version of the same soil-biology principle Earth Matters' own regenerative-farming research documents at commercial scale: undisturbed soil keeps its own microbial life intact rather than having it disrupted by tilling, the identical real mechanism behind Brazil's own large-scale no-till movement. A no-dig bed also has a real, practical advantage for anyone gardening on poor or contaminated urban soil, since it builds a genuinely new growing layer on top of the ground rather than working directly in it.",
+    citations: [
+      {
+        source: 'Cornell Cooperative Extension (Warren County): Lasagna Gardening',
+        url: 'https://warren.cce.cornell.edu/gardening-landscape/warren-county-master-gardener-articles/lasagna-gardening',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, step-by-step method directly sourced from a university extension program, and a genuine home-scale parallel to Earth Matters\' own no-till research, not just a loosely related idea.',
+    relatedIds: ['garden-composting-at-home', 'garden-soil-safety-lead', 'foodhistory-regen-brazil-case-study'],
+  },
+  {
+    id: 'garden-watering-efficiency',
+    category: 'homeGardening',
+    title: 'Watering a Garden Efficiently, Not Just Often',
+    teaser: 'Drip irrigation uses 30 to 50 percent less water than a sprinkler or hose, while also keeping foliage dry enough to cut down on disease.',
+    summary:
+      "Iowa State University Extension states directly that drip irrigation systems use 30 to 50 percent less water than sprinklers or other overhead watering methods, since water moves through tubing straight to the soil at the base of each plant rather than being sprayed over a wider area where much of it evaporates or runs off before reaching a root zone. Beyond the real water savings, keeping a plant's own leaves dry has a genuine disease benefit: many common vegetable diseases spread through water splashing onto foliage and fruit, and a drip system that never wets the leaves at all measurably reduces that risk. Hand watering, by contrast, is genuinely harder to get right consistently, with a real tendency toward over- or under-watering depending on how much attention a gardener actually has to give it day to day. A basic drip system can be built cheaply from tubing and simple emitters and run on an inexpensive timer, turning what would otherwise be daily hands-on watering into a real, mostly automated task. This is a small, individual-level version of the same water-use-efficiency question this app's own Earth Matters research covers at a much larger scale in its Ogallala Aquifer entry.",
+    citations: [
+      {
+        source: 'Iowa State University Extension: Using Drip Irrigation in the Garden',
+        url: 'https://yardandgarden.extension.iastate.edu/how-to/using-drip-irrigation-garden',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, quantified water-savings figure directly from a university extension source, not a manufacturer\'s own marketing claim.',
+    relatedIds: ['foodhistory-regen-ogallala-water-depletion', 'garden-understanding-your-zone'],
+  },
+  {
+    id: 'garden-natural-pest-management',
+    category: 'homeGardening',
+    title: 'Managing Real Garden Pests Without Reaching for a Pesticide',
+    teaser: 'In one real study, only 7% of pest insects laid eggs on plants surrounded by companion plants, versus 36% on the identical plant grown alone in bare soil.',
+    summary:
+      "University of Florida IFAS Extension documents real, specific companion-planting strategies that measurably reduce pest damage without pesticide use, built around what researchers call the landings theory: a pest insect typically needs several successful landings on the correct host plant before it lays eggs, and a plant surrounded by other species disrupts that pattern. In one cited study, 36% of pest insects laid eggs on a host plant grown alone in bare soil, versus only 7% on the same plant surrounded by companion plants, a real, substantial difference from mixed planting alone. Specific, documented pairings: blue Hubbard squash planted around a garden's perimeter as a trap crop draws squash vine borers and squash bugs away from the main squash crop; radishes interplanted among eggplant trap flea beetles that would otherwise target the eggplant directly; and flowering plants like dill, fennel, milkweed, and cosmos attract ladybugs and other beneficial insects that prey on real garden pests. This approach has a real, direct benefit beyond pest control: avoiding pesticide use in a home garden entirely is one of the most concrete, individual-level things a gardener can do for the same pollinators this app's own Earth Matters research documents as being harmed by pesticide exposure at a much larger, industrial scale.",
+    citations: [
+      {
+        source: 'UF/IFAS Extension (Duval County): Companion Planting Can Help Reduce Or Eliminate Insecticide Use In The Garden',
+        url: 'https://blogs.ifas.ufl.edu/duvalco/2026/03/02/companion-planting-can-help-reduce-or-eliminate-insecticide-use-in-the-garden/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The specific 36%-versus-7% figure comes from one cited study referenced by the extension source, not a broad meta-analysis, though the underlying companion-planting pairings are well-established extension guidance.',
+    relatedIds: ['garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-neonicotinoid-regulation-loophole'],
+  },
+  {
+    id: 'garden-growing-fruit-perennials',
+    category: 'homeGardening',
+    title: 'Perennial Fruit: A Real, Longer Planning Horizon Than Vegetables',
+    teaser: 'A newly planted apple tree typically takes 4 to 5 years to bear fruit; a raspberry cane can produce a harvest in its second year.',
+    summary:
+      "Perennial fruit is a genuinely different planning problem from the annual vegetables covered elsewhere in this category, since the payoff arrives on a real, multi-year timeline rather than within a single season. Iowa State University Extension gives real, specific figures: apple trees typically begin bearing fruit 4 to 5 years after planting, sour or tart cherries and plums in 3 to 5 years, and pears in 4 to 6 years, with trees grown on dwarf or semi-dwarf rootstock coming into bearing sooner than a standard-size tree of the same variety. Berries reach a first harvest much faster: raspberry canes typically bear fruit in their second year (some fall-bearing varieties even in their first), and strawberries planted in fall can produce a first harvest the following spring. Blueberries sit in between and carry a real, distinctive requirement most vegetable gardeners never think about: Clemson Cooperative Extension states blueberries need genuinely acidic soil, with a pH above 6.0 ruling out a planting site entirely, and a bush typically produces only about half a pound of fruit in its third year, reaching 1 to 2 pounds by the fourth. Once established, both fruit trees and blueberry bushes are a real, long-term investment: a dwarf fruit tree can bear for 15 to 20 years, and a well-sited blueberry bush for 25 years or more.",
+    citations: [
+      {
+        source: 'Iowa State University Extension: How soon will a newly planted fruit tree begin to bear fruit?',
+        url: 'https://yardandgarden.extension.iastate.edu/faq/how-soon-will-newly-planted-fruit-tree-begin-bear-fruit',
+      },
+      {
+        source: 'Clemson Cooperative Extension, Home & Garden Information Center: Blueberry',
+        url: 'https://hgic.clemson.edu/factsheet/blueberry/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, specific extension-sourced timelines, not a general "fruit takes years" statement -- worth planning around directly since perennial fruit is a genuinely longer commitment than any annual vegetable in this category.',
+    relatedIds: ['garden-highest-value-crops', 'garden-understanding-your-zone'],
+  },
+  {
+    id: 'garden-preserving-the-harvest',
+    category: 'homeGardening',
+    title: 'Making a Real Harvest Surplus Last Past the Growing Season',
+    teaser: 'Vegetables and meat genuinely require pressure canning, not a plain water bath, since only a pressure canner reaches the real temperature needed to destroy botulism spores.',
+    summary:
+      "A productive garden regularly produces more of something at once than a household can eat fresh, and real, safe preservation is what turns that surplus into food that lasts months rather than days. The National Center for Home Food Preservation, the same real, authoritative source this app's own Fermentation Methods research already points to for food-safety guidance, states the one genuinely non-negotiable safety rule in home canning directly: pressure canning is the only recommended method for canning vegetables, meat, poultry, and seafood, since the bacterium that causes botulism is only reliably destroyed at the correct time and pressure inside a real pressure canner. A plain boiling-water bath never reaches a high enough temperature to destroy botulism spores in these genuinely low-acid foods, which is why a water bath is safe only for high-acid foods like most fruits, jams, and properly acidified pickles. Freezing is a real, simpler alternative for many garden vegetables, avoiding the acidity question entirely, though most vegetables benefit from a quick blanch (a brief boil followed by an ice-water bath) first, since blanching stops the enzyme activity that would otherwise degrade color, texture, and nutrients in the freezer over time. Preserving a real surplus extends the same grocery-cost savings this category's own economics entry already covers well past the growing season itself, rather than losing extra produce to spoilage.",
+    citations: [
+      {
+        source: 'National Center for Home Food Preservation (University of Georgia): Canning',
+        url: 'https://nchfp.uga.edu/how/can/general-information/for-safetys-sake/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The pressure-canning-only rule for low-acid foods is a real, settled food-safety standard from the authoritative US source on this exact question, not a general caution.',
+    relatedIds: ['garden-economics-subsidizing-food', 'fermentmethod-reputable-sources'],
+  },
+  {
+    id: 'garden-seed-saving',
+    category: 'homeGardening',
+    title: 'Saving Real Seed From This Year\'s Harvest for Next Year\'s Garden',
+    teaser: 'Beans, peas, tomatoes, and lettuce are the easiest crops to save real seed from, since they self-pollinate and rarely cross with anything else nearby.',
+    summary:
+      "Seed saving only works reliably with open-pollinated or heirloom varieties, not hybrids: a hybrid's own seed produces one of its original parent plants rather than a repeat of the plant it came from, so seed saved from a hybrid tomato or pepper won't grow true the following year. Penn State Extension recommends starting with self-pollinating crops specifically, beans, peas, tomatoes, and lettuce, since they're far less likely to cross-pollinate with a neighboring variety than a crop that depends on insects moving pollen between different plants. A real, worth-knowing exception: several common vegetables share the same botanical species and can cross with each other even though they look nothing alike, most notably broccoli, Brussels sprouts, collards, kale, and mustard greens, all of which belong to Brassica oleracea, meaning only one variety of that species should flower in the same garden in a given year if the seed is meant to stay true. Once seed is harvested, it needs to dry fully before storage, a real, simple test being whether a seed can be snapped by hand or shattered rather than dented by a fingernail, then kept in a labeled, sealed container somewhere cool, dry, and dark, since most seed stays viable for only a few years. Saving real seed at home is a genuine, individual-level counterpart to the seed-diversity loss this app's own Earth Matters research documents happening at a much larger, commercial scale.",
+    citations: [
+      {
+        source: 'Penn State Extension: Seed Saving Basics',
+        url: 'https://extension.psu.edu/seed-saving-basics',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, practical, extension-sourced how-to, directly tied to the seed-diversity concern already documented at commercial scale in this app\'s own Earth Matters research.',
+    relatedIds: ['foodhistory-regen-seed-diversity-loss', 'garden-easiest-beginner-crops'],
+  },
+  {
+    id: 'garden-vertical-trellising',
+    category: 'homeGardening',
+    title: 'Growing Up Instead of Out',
+    teaser: 'Pole beans, cucumbers, and peas naturally climb, and growing them vertically on a simple trellis genuinely increases yield per square foot over letting the same crop sprawl on the ground.',
+    summary:
+      "University of Wisconsin Extension states directly that trellising, staking, and caging vine-type vegetables increases yield and income per square foot of growing space, a real, practical answer for anyone working with a small garden rather than an open field. Real crops that grow well on a support: pole beans and peas (both natural climbers), tomatoes, cucumbers, and smaller squash and melon varieties, all of which can be trained up simple wooden stakes, twine, garden netting, or a cattle-panel trellis rather than left to sprawl across the ground. Beyond the real space savings, vertical growing improves air movement through a plant's own stems and leaves, which genuinely reduces disease pressure compared to the same crop grown flat on damp soil, and makes fruit like cucumbers, which can hide under dense foliage when grown on the ground, much easier to actually find and harvest. Most vining crops grow strong enough to support their own fruit once trained upward, though larger melons sometimes benefit from a mesh sling for extra support as they get heavy. This pairs directly with the container and small-space guidance already covered in this category: a trellised crop in a large container can produce real, meaningful yield in a footprint too small for the same crop grown sprawling.",
+    citations: [
+      {
+        source: 'University of Wisconsin Extension: Trellising, Staking and Caging -- Vertical Gardening Techniques for Vine-Type Vegetables',
+        url: 'https://hort.extension.wisc.edu/articles/trellising-staking-and-caging-vertical-gardening-techniques-vine-type-vegetables/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, direct extension source confirms the yield-per-square-foot and disease-reduction benefits; the source does not give a specific numeric multiplier, so none is stated here.',
+    relatedIds: ['garden-container-small-space', 'garden-highest-value-crops'],
+  },
+  {
     id: 'garden-pollinator-friendly-earth-matters-link',
     category: 'homeGardening',
     title: 'A Real, Direct Answer to This App\'s Own Pollinator Research',
@@ -315,10 +492,10 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     title: 'Putting It Together: A Real, Practical First Garden',
     teaser: 'The whole case for a first garden fits in one sentence: pick crops that actually suit the climate and the available space, and the real savings, freshness, and pollinator benefits follow on their own.',
     summary:
-      "Every entry in this category points toward the same practical sequence. Start with a real growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that genuinely suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a real harvest, especially of herbs, leafy greens, and compact tomato varieties. Favor crops that return the most real grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of genuinely easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting. None of this requires expensive equipment or prior experience, and the payoff extends past the real grocery savings covered first in this category: fresher food with measurably more of its own nutrients intact, and, when even a few flowering plants are worked in alongside the vegetables, a genuine, individual-level answer to the pollinator crisis this app's own Earth Matters research documents at a much larger scale.",
+      "Every entry in this category points toward the same practical sequence. Start with a real growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that genuinely suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a real harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. Favor crops that return the most real grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of genuinely easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely. Watering efficiently and managing pests through companion planting rather than a spray bottle both save real money and protect the same pollinators the rest of this category depends on, and preserving a genuine surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the real grocery savings covered first in this category: fresher food with measurably more of its own nutrients intact, and, when even a few flowering plants are worked in alongside the vegetables, a genuine, individual-level answer to the pollinator crisis this app's own Earth Matters research documents at a much larger scale.",
     citations: [],
     overallTier: 'strong',
     stageNote: 'A closing synthesis drawing on every citation already given individually above, not a new claim of its own.',
-    relatedIds: ['garden-economics-subsidizing-food', 'garden-understanding-your-zone', 'garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-how-to-get-involved'],
+    relatedIds: ['garden-economics-subsidizing-food', 'garden-understanding-your-zone', 'garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-how-to-get-involved', 'garden-no-dig-raised-beds', 'garden-preserving-the-harvest'],
   },
 ];

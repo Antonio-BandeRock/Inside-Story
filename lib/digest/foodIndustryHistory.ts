@@ -245,7 +245,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Directly relevant to selenium and iodine, both soil-dependent nutrients this app already tracks as protective against thyroid autoimmunity specifically.',
-    relatedIds: ['foodhistory-mechanism-soil-nutrients-bridge', 'nutrient-selenium', 'nutrient-iodine', 'magnesium-deficiency-prevalence-causes'],
+    relatedIds: ['foodhistory-mechanism-soil-nutrients-bridge', 'nutrient-selenium', 'nutrient-iodine', 'magnesium-deficiency-prevalence-causes', 'garden-composting-at-home'],
     chart: {
       title: 'Trace Mineral Loss After 75 Years of Continuous Tillage',
       unit: '%',
@@ -669,7 +669,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['foodhistory-regen-timeline-origins', 'foodhistory-regen-no-till-greenwashing-critique'],
+    relatedIds: ['foodhistory-regen-timeline-origins', 'foodhistory-regen-no-till-greenwashing-critique', 'garden-no-dig-raised-beds'],
     chart: {
       title: "Brazil's No-Till Farmland",
       unit: 'million hectares',
@@ -1361,7 +1361,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'The underlying pesticide-pollinator science here is comparatively well-settled, unlike glyphosate\'s own genuinely disputed cancer classification covered elsewhere in this cluster -- the real complication in this entry is regulatory enforcement, not scientific uncertainty.',
-    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-pesticide-liability-shields'],
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-pesticide-liability-shields', 'garden-natural-pest-management'],
   },
   {
     id: 'foodhistory-regen-wild-bees-buzz-pollination',
@@ -1833,7 +1833,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, current, well-documented crisis with a direct, cited policy mechanism -- the same structural-disincentive pattern already established in this cluster\'s own crop-insurance entry, now shown to apply to water too.',
-    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved'],
+    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved', 'garden-watering-efficiency'],
   },
   {
     id: 'foodhistory-regen-antibiotic-resistance-livestock',
@@ -1888,7 +1888,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A real, deliberate correction of a popular but imprecise statistic, the same discipline already applied elsewhere in this cluster to the Savory claim, the FAO hectare figure, and the no-till/greenwashing entry.',
-    relatedIds: ['foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-svalbard-seed-vault'],
+    relatedIds: ['foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-svalbard-seed-vault', 'garden-seed-saving'],
   },
   {
     id: 'foodhistory-regen-seed-industry-consolidation',
