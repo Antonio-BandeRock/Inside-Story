@@ -1150,6 +1150,95 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'Real, currently-open civic channels, not a general or evergreen suggestion -- worth confirming committee markup status and comment-period deadlines directly, since a live legislative process moves and this entry\'s own "right now" framing will age.',
     relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry'],
   },
+  // 2026-08-10/11, same day, fifth follow-up: "Keep going with more research
+  // on this topic." Every citation below independently re-verified via
+  // WebSearch/WebFetch the same way as the prior four batches. This pass
+  // covers a real, documented market-mechanism failure mode (soil carbon
+  // credits), a real non-US structural parallel to this cluster's own US
+  // crop-insurance critique (EU CAP), the actual, honestly-mixed nutrient-
+  // density evidence this whole cluster's food-health premise ultimately
+  // rests on, and a real, official US federal policy extending the
+  // Indigenous-knowledge thread already touched via Niger and terra preta.
+  {
+    id: 'foodhistory-regen-carbon-credit-integrity-problems',
+    category: 'basicHealth',
+    title: "Soil Carbon Credits: A Real Financing Idea With Real, Documented Integrity Problems",
+    teaser: '40-60% of enrolled farmers were already doing the practice, or planning to, before the payment showed up -- a real, quantified additionality problem, not a hypothetical one.',
+    summary:
+      'A real, growing financing mechanism intended to reward farmers directly for soil-carbon-building practices (see this cluster\'s own "4 per 1000" entry for the underlying science) has real, documented, structural integrity problems of its own, distinct from the greenwashing already covered elsewhere in this cluster. There is no universal, mandatory verification standard across the voluntary soil-carbon-credit market, and different registries use genuinely different measurement and accounting methods, making credits hard to compare or trust as equivalent. The single biggest documented problem is additionality: research has found 40-60% of farmers enrolled in carbon programs were already implementing the qualifying practices, or already planning to, regardless of the carbon payment, meaning a real share of sold credits may not represent any actual, additional emissions reduction at all. Permanence is a second real problem: soil carbon can reverse if a farmer stops the practice, and studies of long-term conservation programs found 15-25% reversal within ten years of a program ending. A co-founder of Nori, one of the earlier soil-carbon-credit companies, has said directly that he doesn\'t think soil carbon makes sense as an offset mechanism at all, specifically because of this longevity problem -- a real, credible insider critique, not only an outside one.',
+    citations: [
+      {
+        source: 'Earth.Org: Soil Carbon Credits -- Promises and Problems (verification standards, permanence/reversal data)',
+        url: 'https://earth.org/soil-carbon-credits-the-promises-and-uncertainties-of-a-new-climate-market/',
+      },
+      {
+        source: 'Environmental Defense Fund: The importance of additionality and accurate baselines for carbon credit integrity',
+        url: 'https://blogs.edf.org/growingreturns/2023/03/03/carbon-credit-integrity/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Included deliberately alongside the other real, honest counter-examples in this cluster (Savory, the no-till/greenwashing entry) -- a real financing tool with real, documented, unresolved integrity problems, not a settled solution.',
+    relatedIds: ['foodhistory-regen-4-per-1000-initiative', 'foodhistory-regen-no-till-greenwashing-critique'],
+  },
+  {
+    id: 'foodhistory-regen-eu-cap-structural-disincentive',
+    category: 'basicHealth',
+    title: "Europe Has Its Own Version of the Same Structural Problem",
+    teaser: "The EU's Common Agricultural Policy pays largely per hectare, not per outcome -- 2.2% of EU farms collect 28.2% of all payments, and reform attempts have shown limited real environmental effect.",
+    summary:
+      "This cluster's own US Federal Crop Insurance entry names a real, structural US-specific disincentive to soil-regenerating practices; the European Union has a genuinely different but comparably structural version of the same underlying problem, worth naming so this cluster doesn't read as a US-only critique. The EU's Common Agricultural Policy (CAP), the bloc's largest and oldest common policy, has historically paid direct farm subsidies largely per hectare of land farmed, not tied to environmental outcome, a real structural bias toward large-scale, land-intensive operations: 3% of EU farms classified \"large\" or \"very large\" own over 52% of all EU farmland, and as of 2018, just 2.2% of EU farms (each receiving over EUR50,000) collected a real 28.2% share of all CAP payments. A 2014 reform attempted a real fix, tying 30% of direct payments to specific environmental practices like crop diversification and maintaining permanent grassland, but independent researchers have found the measured environmental impact of that \"greening\" requirement genuinely limited, with some directly questioning whether it functions as real policy or mostly as political justification. The most recent reform round narrows per-hectare support into a real floor (EUR130/ha) and ceiling (EUR240/ha), a direct, if partial, structural correction still working its way through.",
+    citations: [
+      {
+        source: 'ScienceDirect: The EU\'s Common Agricultural Policy Could Be Spent Much More Efficiently to Address Challenges for Farmers, Climate, and Biodiversity',
+        url: 'https://www.sciencedirect.com/science/article/pii/S2590332220303675',
+      },
+      {
+        source: 'Springer Nature, Agricultural and Food Economics: The CAP coherence between redistributive and environmental goals (payment concentration figures, greening effectiveness)',
+        url: 'https://link.springer.com/article/10.1186/s40100-025-00356-8',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, structural parallel to this cluster\'s own US crop-insurance entry, included specifically so the "why isn\'t this mandated" question doesn\'t read as a uniquely American problem.',
+    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-global-implementation-synthesis'],
+  },
+  {
+    id: 'foodhistory-regen-nutrient-density-honest-evidence',
+    category: 'basicHealth',
+    title: 'Does Any of This Actually Make Food More Nutritious? A Real, Honestly Mixed Answer',
+    teaser: 'A real, 367-study systematic review found zinc rose in 94% of rice studies using organic inputs -- but in only 48% of wheat studies. The effect is real in places, and genuinely inconsistent in others.',
+    summary:
+      "This is the question this whole cluster's own connection to a food-and-health app ultimately rests on, and the honest answer is more nuanced than either \"regenerative food is definitively more nutritious\" or \"there's no real effect.\" A 2023 systematic scoping review screened 4,463 papers down to 367 field studies across seven major crop categories specifically asking whether regenerative-aligned practices raise micronutrient concentration in the edible part of a crop. The real, per-crop-per-nutrient findings varied sharply: rice grown with organic inputs showed higher zinc in 94% of studies and higher iron in 80%, and maize showed increased iron and zinc in all four studies reviewed, both genuinely strong, consistent signals -- but wheat grown with organic inputs showed higher zinc in only 48% of studies and higher iron in just 22%, a real, much weaker and less consistent effect for the same practice in a different crop. The review's own authors were direct about why: most studies were statistically underpowered to detect a real but modest effect size, results were genuinely dependent on local growing conditions, and no formal meta-analysis existed to quantify a single overall effect size across the whole body of evidence. The honest, working synthesis: real evidence supports a genuine nutrient-density effect for some crop-and-practice combinations, not yet a confirmed, general rule that regenerative or organic farming reliably makes all food more nutritious.",
+    citations: [
+      {
+        source: 'PMC 2023: "Do agronomic approaches aligned to regenerative agriculture improve the micronutrient concentrations of edible portions of crops? A scoping review of evidence" (367 studies, per-crop findings)',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10371419/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, large, systematic review with an honestly mixed result reported directly -- the strongest, most rigorous evidence tier this cluster has for the specific nutrient-density question, and it does not support a uniform claim in either direction.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-fao-baseline-stakes'],
+  },
+  {
+    id: 'foodhistory-regen-tribal-co-stewardship-policy',
+    category: 'basicHealth',
+    title: 'A Real, Current US Federal Policy Recognizing Indigenous Land Knowledge Directly',
+    teaser: 'A real 2021 joint federal order, and over 400 real co-stewardship agreements signed since -- the policy expression of the same Indigenous-knowledge thread already touched via Niger and terra preta.',
+    summary:
+      "This cluster's own Niger farmer-managed-natural-regeneration and terra preta entries both describe real, ancient or grassroots land-management knowledge outperforming purely modern approaches. A real, current, official US federal policy now formally builds on the same underlying recognition: on November 15, 2021, the Secretaries of the Interior and Agriculture jointly issued Secretarial Order 3403, formally committing both departments to \"co-stewardship\" of federal lands and waters with American Indian and Alaska Native Tribes, explicitly incorporating Indigenous traditional ecological knowledge into how those lands are actually managed, not just consulted on. Real, measured follow-through, not just a policy announcement: the US Forest Service and Department of the Interior signed more than 20 new co-stewardship agreements with Tribes in 2022 alone, with 60 more under review at the time, and by a later count the Department of the Interior reported over 400 total co-stewardship agreements in place. The Department of Commerce formally joined the same order in November 2022. This is a real, concrete example of the same underlying idea running through this whole cluster (that a technique working for generations is worth taking seriously regardless of whether it originated in a modern research lab) reaching actual federal policy, not just advocacy.",
+    citations: [
+      {
+        source: 'US Department of the Interior: Secretary Haaland Applauds 400 Co-Stewardship Agreements Under the Biden-Harris Administration',
+        url: 'https://www.doi.gov/pressreleases/secretary-haaland-applauds-400-co-stewardship-agreements-under-biden-harris',
+      },
+      {
+        source: 'USDA: Agriculture and Interior Departments Take Action to Strengthen Tribal Co-Stewardship of Public Lands and Waters (Secretarial Order 3403, Nov 15 2021)',
+        url: 'https://www.usda.gov/media/press-releases/2021/11/15/agriculture-and-interior-departments-take-action-strengthen-tribal',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, official, dated federal policy with real, measured follow-through (agreement counts), not just a symbolic announcement.',
+    relatedIds: ['foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-terra-preta-ancient-biochar', 'foodhistory-regen-how-to-get-involved'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
