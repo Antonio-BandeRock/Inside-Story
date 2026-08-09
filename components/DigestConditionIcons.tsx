@@ -208,25 +208,96 @@ export function LupusButterflyIcon({ size, color }: IconProps) {
 // butterfly-transparent.png hero asset (~3MB), so no real bundle-size
 // concern here.
 //
-// The same honest sizing caveat as before still applies, restated rather
-// than dropped: this is real, detailed illustration art, rendered here at
-// LensHub's own small 20px grid tile (GRID_ITEM_ICON_SIZE) -- the overall
-// silhouette should read fine that small, but fine detail likely won't
-// resolve, and there's no way to confirm that from inside this
-// environment.
+// 2026-08-09, all 19 conditions moved to real artwork cropped from one
+// consolidated reference sheet the person supplied ("All New Icons.png"),
+// not just Hashimoto's/Graves' -- the sheet's own real icon boundaries
+// were found programmatically (a connected-component flood fill over the
+// sheet's real alpha channel, not a guessed grid), each region individually
+// cropped with real padding, and every output file alpha-verified before
+// being copied into this project as assets/branding/digest-icons/*.png.
+// The same honest sizing caveat still applies to every one of them: this
+// is real, detailed illustration art, rendered here at LensHub's own small
+// 20px grid tile (GRID_ITEM_ICON_SIZE) -- the overall silhouette should
+// read fine that small, but fine detail likely won't resolve, and there's
+// no way to confirm that from inside this environment.
+//
+// A worth-flagging discrepancy found while cropping, not silently
+// resolved either way: the sheet's own actual content order for the last
+// five icons (foot+starburst, then syringe+vial/droplet/uterus/prostate
+// gland together as one final row of four) doesn't match the order the
+// person typed for that same span (Type 1 Diabetes, Type 2 Diabetes,
+// PCOS, Gout, Prostate health) -- the real, visually-verified content
+// order was trusted over the literal typed order (Gout at position 15,
+// not Type 1 Diabetes), and this is called out here for a real check
+// against the actual on-device result rather than assumed correct.
+function ArtworkIcon({ size, source }: { size: number; source: number }) {
+  return <Image source={source} style={{ width: size, height: size }} resizeMode="contain" />;
+}
 export function HashimotosThyroidIcon({ size }: IconProps) {
-  return <Image source={require('../assets/branding/hashimotos-butterfly.png')} style={{ width: size, height: size }} resizeMode="contain" />;
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/hashimotos.png')} />;
 }
 export function GravesThyroidIcon({ size }: IconProps) {
-  return <Image source={require('../assets/branding/graves-butterfly.png')} style={{ width: size, height: size }} resizeMode="contain" />;
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/graves.png')} />;
+}
+export function CardiovascularDiseaseArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/cardiovascular-disease.png')} />;
+}
+export function FattyLiverDiseaseArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/fatty-liver-disease.png')} />;
+}
+export function ChronicKidneyDiseaseArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/chronic-kidney-disease.png')} />;
+}
+export function LupusArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/lupus.png')} />;
+}
+export function SjogrensArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/sjogrens.png')} />;
+}
+export function IbsArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/ibs.png')} />;
+}
+export function MultipleSclerosisArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/multiple-sclerosis.png')} />;
+}
+export function PsoriasisArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/psoriasis.png')} />;
+}
+export function CeliacArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/celiac.png')} />;
+}
+export function MigraineArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/migraine.png')} />;
+}
+export function RheumatoidArthritisArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/rheumatoid-arthritis.png')} />;
+}
+export function IbdArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/ibd.png')} />;
+}
+export function GoutArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/gout.png')} />;
+}
+export function Type1DiabetesArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/type1diabetes.png')} />;
+}
+export function Type2DiabetesArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/type2diabetes.png')} />;
+}
+export function PcosArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/pcos.png')} />;
+}
+export function ProstateHealthArtworkIcon({ size }: IconProps) {
+  return <ArtworkIcon size={size} source={require('../assets/branding/digest-icons/prostate-health.png')} />;
 }
 
-// The two hand-drawn SVG versions below (HashimotosButterflyIcon,
-// GravesButterflyIcon) are no longer used by DIGEST_CONDITION_ICONS as of
-// the real artwork-based icons directly above -- kept defined, not
-// deleted, as a real fallback if the artwork-based approach doesn't work
-// out on-device, and because deleting working code that might still be
-// wanted carries real risk for zero benefit at this stage.
+// Every hand-drawn SVG icon below (LupusButterflyIcon, HashimotosButterflyIcon,
+// GravesButterflyIcon, and the rest of this file's own original 19) is no
+// longer used by DIGEST_CONDITION_ICONS as of the real artwork-based icons
+// directly above -- kept defined, not deleted, as a real fallback if the
+// artwork-based approach doesn't work out on-device, and because deleting
+// working code that might still be wanted carries real risk for zero
+// benefit at this stage.
 //
 // Hashimoto's -- "A Butterfly with the Shield core emblem." The body is
 // widened (from BODY_PLAIN's own proportions) specifically so a shield
@@ -703,22 +774,22 @@ export function CardiovascularDiseaseHeartIcon({ size, color }: IconProps) {
 // rather than getting a bespoke icon here.
 export const DIGEST_CONDITION_ICONS: Partial<Record<DigestCategoryKey, (props: IconProps) => ReactElement>> = {
   hashimotos: HashimotosThyroidIcon,
-  rheumatoidArthritis: RheumatoidArthritisHandIcon,
-  psoriasis: PsoriasisButterflyIcon,
+  rheumatoidArthritis: RheumatoidArthritisArtworkIcon,
+  psoriasis: PsoriasisArtworkIcon,
   graves: GravesThyroidIcon,
-  type1Diabetes: Type1DiabetesSyringeIcon,
-  celiac: CeliacWheatIcon,
-  ibd: IbdIntestineIcon,
-  multipleSclerosis: MultipleSclerosisButterflyIcon,
-  lupus: LupusButterflyIcon,
-  sjogrens: SjogrensButterflyIcon,
-  pcos: PcosUterusIcon,
-  chronicKidneyDisease: ChronicKidneyDiseaseIcon,
-  fattyLiverDisease: FattyLiverDiseaseIcon,
-  type2Diabetes: Type2DiabetesDropletIcon,
-  ibs: IbsButterflyIcon,
-  migraine: MigraineLightningIcon,
-  cardiovascularDisease: CardiovascularDiseaseHeartIcon,
-  gout: GoutFootIcon,
-  prostateHealth: ProstateGlandIcon,
+  type1Diabetes: Type1DiabetesArtworkIcon,
+  celiac: CeliacArtworkIcon,
+  ibd: IbdArtworkIcon,
+  multipleSclerosis: MultipleSclerosisArtworkIcon,
+  lupus: LupusArtworkIcon,
+  sjogrens: SjogrensArtworkIcon,
+  pcos: PcosArtworkIcon,
+  chronicKidneyDisease: ChronicKidneyDiseaseArtworkIcon,
+  fattyLiverDisease: FattyLiverDiseaseArtworkIcon,
+  type2Diabetes: Type2DiabetesArtworkIcon,
+  ibs: IbsArtworkIcon,
+  migraine: MigraineArtworkIcon,
+  cardiovascularDisease: CardiovascularDiseaseArtworkIcon,
+  gout: GoutArtworkIcon,
+  prostateHealth: ProstateHealthArtworkIcon,
 };
