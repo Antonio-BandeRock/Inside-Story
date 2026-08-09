@@ -60,6 +60,12 @@
         {
           "calendarPermission": "Inside Story uses your calendar to show upcoming appointments here and to add appointments you schedule in Inside Story to your calendar."
         }
+      ],
+      [
+        "expo-image-picker",
+        {
+          "photosPermission": "Inside Story uses your photos to let you choose a custom background image."
+        }
       ]
     ],
     "experiments": {

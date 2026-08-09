@@ -25,7 +25,18 @@
 import type { DigestCategoryKey } from './digest';
 import { getDatabase } from './db';
 
-export type BackgroundStyle = 'photo' | 'generic' | 'off';
+// 2026-08-09: gained 'custom' -- a real, user-uploaded image, added
+// explicitly alongside the existing three. See customBackgroundImages
+// below for where the actual picked image's own URI lives; this value on
+// its own only says "use whatever's stored there for this scope."
+export type BackgroundStyle = 'photo' | 'generic' | 'off' | 'custom';
+
+// The key customBackgroundImages/tabBackgroundStyle use for the shared/
+// resting layer (as opposed to a real TAB_ROUTES path for an individual
+// tab) -- exported so Profile's own picker and ScreenBackground.tsx's own
+// reader agree on the exact same string rather than each hardcoding it
+// separately.
+export const SHARED_BACKGROUND_SCOPE_KEY = 'shared';
 
 // The main floating TabHub button's own icon, 2026-08-09, explicitly
 // requested: "make it so each icon is available in the user profile to
@@ -77,6 +88,17 @@ export type VisualPreferences = {
   // "selectively turn off the tab backgrounds instead of an all-or-nothing
   // rule" half of the request.
   tabBackgroundStyle: Partial<Record<string, BackgroundStyle>>;
+  // 2026-08-09: the real, persistent local file URI for each scope's own
+  // uploaded custom image (see lib/customBackgroundImage.ts, which does
+  // the actual picking/validating/saving) -- keyed the same way as
+  // tabBackgroundStyle above, using SHARED_BACKGROUND_SCOPE_KEY for the
+  // shared/resting layer and a real TAB_ROUTES path for an individual tab.
+  // Kept even if a scope's own style is later switched away from
+  // 'custom' (to Photo/Generic/Off), so switching back to Custom doesn't
+  // require re-picking an image -- only removing it explicitly (Profile's
+  // own "Remove image" action) actually deletes both the reference here
+  // and the real file on disk.
+  customBackgroundImages: Partial<Record<string, string>>;
   // One shared palette choice, used wherever a 'generic' style is currently
   // selected (the shared layer and/or any individual tab) -- a single pick
   // rather than a separate palette per tab, since the point is one calm,
@@ -94,6 +116,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   skyAnimationsEnabled: true,
   homeBackgroundStyle: 'photo',
   tabBackgroundStyle: {},
+  customBackgroundImages: {},
   genericPalette: 'lavender',
   tabHubIcon: 'default',
 };
@@ -138,6 +161,7 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           ...DEFAULT_VISUAL_PREFERENCES,
           ...parsed,
           tabBackgroundStyle: { ...(parsed.tabBackgroundStyle ?? {}) },
+          customBackgroundImages: { ...(parsed.customBackgroundImages ?? {}) },
         };
       } catch {
         // A corrupted/unparseable blob falls back to defaults rather than
@@ -165,6 +189,11 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
     tabBackgroundStyle: update.tabBackgroundStyle
       ? { ...current.tabBackgroundStyle, ...update.tabBackgroundStyle }
       : current.tabBackgroundStyle,
+    // Same reasoning -- saving/removing one scope's own custom image
+    // shouldn't erase another scope's already-uploaded one.
+    customBackgroundImages: update.customBackgroundImages
+      ? { ...current.customBackgroundImages, ...update.customBackgroundImages }
+      : current.customBackgroundImages,
   };
 
   cached = merged;

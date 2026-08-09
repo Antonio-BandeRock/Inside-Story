@@ -7,6 +7,7 @@ import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../constan
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { SHARED_BACKGROUND_SCOPE_KEY } from '../lib/visualPreferences';
 import { AnimatedLinearGradient } from './AnimatedLinearGradient';
 import { AnimatedSky } from './AnimatedSky';
 import { GenericBackground } from './GenericBackground';
@@ -118,9 +119,16 @@ export function ScreenBackground({
   const effectiveStyle = routeKey
     ? (visualPrefs.tabBackgroundStyle[routeKey] ?? 'photo')
     : visualPrefs.homeBackgroundStyle;
-  // Sky only ever pairs with the real photo -- there's no open-sky band to
-  // animate a sun/moon/starfield over a generic gradient or a flat off
-  // state, so this is forced off the instant the photo itself is.
+  // 2026-08-09: the real, uploaded image for this exact scope (see
+  // lib/customBackgroundImage.ts) -- undefined if 'custom' was somehow
+  // selected with no image actually stored (a real edge case handled
+  // below, not assumed away).
+  const customImageUri = visualPrefs.customBackgroundImages[routeKey ?? SHARED_BACKGROUND_SCOPE_KEY];
+  // Sky only ever pairs with the real bundled photo -- there's no matching
+  // open-sky band to animate a sun/moon/starfield over a generic gradient,
+  // a flat off state, or a person's own uploaded image (whose geometry
+  // this component has no way to know), so this is forced off the instant
+  // the bundled photo itself is.
   const effectiveSky = sky && effectiveStyle === 'photo' && visualPrefs.skyAnimationsEnabled;
 
   return (
@@ -130,6 +138,19 @@ export function ScreenBackground({
           source={background.source}
           style={[styles.backgroundImage, { bottom: bottomInset }]}
           contentFit={background.contentFit}
+          contentPosition="center"
+          onLayout={handleImageLayout}
+        />
+      ) : null}
+      {effectiveStyle === 'custom' ? (
+        <Image
+          // A real, edge-case fallback: 'custom' selected but no image
+          // actually on file (e.g. it was somehow removed outside this
+          // app) renders the ordinary bundled photo instead of leaving
+          // the screen visually blank.
+          source={customImageUri ? { uri: customImageUri } : background.source}
+          style={[styles.backgroundImage, { bottom: bottomInset }]}
+          contentFit={customImageUri ? 'cover' : background.contentFit}
           contentPosition="center"
           onLayout={handleImageLayout}
         />

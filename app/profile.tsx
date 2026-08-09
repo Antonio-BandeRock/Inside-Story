@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
@@ -14,6 +14,13 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
+import {
+  CUSTOM_BACKGROUND_MAX_DIMENSION,
+  CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES,
+  CUSTOM_BACKGROUND_MIN_DIMENSION,
+  deleteCustomBackgroundImage,
+  pickAndSaveCustomBackgroundImage,
+} from '../lib/customBackgroundImage';
 import {
   addFoodAllergy,
   type ConditionReference,
@@ -46,6 +53,7 @@ import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../
 import {
   GENERIC_PALETTE_LABELS,
   setVisualPreferences,
+  SHARED_BACKGROUND_SCOPE_KEY,
   type BackgroundStyle,
   type GenericPalette,
   type TabHubIconChoice,
@@ -136,7 +144,11 @@ const WEIGHT_LB_OPTIONS = Array.from({ length: 485 }, (_, i) => String(66 + i));
 // Labels Digest content already covers, including sesame's real 2023
 // addition as the 9th) as quick-toggle suggestions; anything else is a
 // real, free-text add via allergyInput, not limited to this list.
-const COMMON_ALLERGENS = ['Milk', 'Eggs', 'Fish', 'Shellfish', 'Tree Nuts', 'Peanuts', 'Wheat', 'Soybeans', 'Sesame'];
+// Alphabetical, 2026-08-09 -- explicitly requested for every pill row on
+// this screen. Was originally in FDA major-allergen disclosure order;
+// re-sorted here since display order, not the underlying list, is what was
+// actually asked for.
+const COMMON_ALLERGENS = ['Eggs', 'Fish', 'Milk', 'Peanuts', 'Sesame', 'Shellfish', 'Soybeans', 'Tree Nuts', 'Wheat'];
 
 // Meal/eating-window times: hour stays plain ("1".."12", matching
 // buildTime24's own expected shape); minute is zero-padded ("00".."59") to
@@ -309,6 +321,15 @@ export default function ProfileScreen() {
   // "add a new one" field; foodAllergies is the loaded/committed list.
   const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
   const [allergyInput, setAllergyInput] = useState('');
+
+  // Custom background image upload, 2026-08-09 -- which scope (see
+  // SHARED_BACKGROUND_SCOPE_KEY / lib/customBackgroundImage.ts) currently
+  // has a picker in flight, null when none. Disables that one scope's own
+  // pills while busy and shows a small spinner in place of its "Custom
+  // image" label -- deliberately scoped to one scope at a time rather than
+  // a single flat boolean, so picking for one tab doesn't visually disable
+  // every other tab's row too.
+  const [pickingImageForScope, setPickingImageForScope] = useState<string | null>(null);
 
   const [mealTimeBuffers, setMealTimeBuffers] = useState<Record<DayPart, TimeOfDayInput>>({
     breakfast: BLANK_TIME,
@@ -552,6 +573,112 @@ export default function ProfileScreen() {
     setFoodAllergies((current) => current.filter((allergy) => allergy !== name));
   }
 
+  // Custom background image, 2026-08-09 -- explicitly requested: "Add the
+  // ability to upload an image to be the background for the shared
+  // background, and for each of the individual tabs." isShared picks
+  // which half of VisualPreferences actually needs updating on success
+  // (homeBackgroundStyle, a plain scalar, vs. tabBackgroundStyle, a
+  // per-path record) -- both scopes otherwise go through the exact same
+  // pick/validate/save pipeline (lib/customBackgroundImage.ts).
+  async function handlePickCustomBackground(scopeKey: string, isShared: boolean) {
+    if (pickingImageForScope) return; // one picker in flight at a time
+    setPickingImageForScope(scopeKey);
+    try {
+      const previousUri = visualPrefs.customBackgroundImages[scopeKey];
+      const result = await pickAndSaveCustomBackgroundImage(scopeKey, previousUri);
+      if (result.status === 'success') {
+        await setVisualPreferences({
+          ...(isShared
+            ? { homeBackgroundStyle: 'custom' as const }
+            : { tabBackgroundStyle: { [scopeKey]: 'custom' as const } }),
+          customBackgroundImages: { [scopeKey]: result.uri },
+        });
+      } else if (result.status === 'permission-denied') {
+        Alert.alert(
+          'Photo access needed',
+          "Inside Story needs permission to your photos to set a custom background. You can grant this in your device's app settings.",
+        );
+      } else if (result.status === 'too-small') {
+        Alert.alert(
+          'Image too small',
+          `That image is ${result.width}×${result.height} -- at least ${CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side is needed so it doesn't look blurry stretched to fill the screen. Try a larger photo.`,
+        );
+      } else if (result.status === 'too-large-after-compression') {
+        Alert.alert(
+          'Image too large',
+          `That image is still too large even after resizing and compressing it to fit under ${Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB. Try a different photo.`,
+        );
+      } else if (result.status === 'error') {
+        Alert.alert('Something went wrong', result.message);
+      }
+      // 'canceled' -- no message, no change.
+    } finally {
+      setPickingImageForScope(null);
+    }
+  }
+
+  async function handleRemoveCustomBackground(scopeKey: string, isShared: boolean) {
+    const uri = visualPrefs.customBackgroundImages[scopeKey];
+    if (uri) deleteCustomBackgroundImage(uri);
+    await setVisualPreferences({
+      ...(isShared ? { homeBackgroundStyle: 'photo' as const } : { tabBackgroundStyle: { [scopeKey]: 'photo' as const } }),
+      customBackgroundImages: { [scopeKey]: undefined },
+    });
+  }
+
+  // Shared by both the "Shared background" row and each row inside
+  // "Individual tab backgrounds" -- one real implementation of the
+  // Photo/Generic/Off/Custom picker rather than two copies that could
+  // quietly drift apart. Custom's own pill deliberately doesn't use the
+  // same instant-toggle onPress as the other three (it opens a real async
+  // picker instead), and only Custom shows the "Remove custom image" link.
+  function renderBackgroundOptionsRow(scopeKey: string, isShared: boolean, current: BackgroundStyle) {
+    const busy = pickingImageForScope === scopeKey;
+    return (
+      <>
+        <View style={styles.pillRow}>
+          {BACKGROUND_STYLE_OPTIONS.map((option) => {
+            const active = option.value === current;
+            return (
+              <TouchableOpacity
+                key={option.value}
+                style={[styles.pillSmall, active && styles.pillActive]}
+                onPress={() =>
+                  isShared
+                    ? setVisualPreferences({ homeBackgroundStyle: option.value })
+                    : setVisualPreferences({ tabBackgroundStyle: { [scopeKey]: option.value } })
+                }
+              >
+                <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+          <TouchableOpacity
+            style={[styles.pillSmall, current === 'custom' && styles.pillActive]}
+            onPress={() => handlePickCustomBackground(scopeKey, isShared)}
+            disabled={busy}
+          >
+            {busy ? (
+              <ActivityIndicator
+                size="small"
+                color={current === 'custom' ? colors.textOnPrimary : colors.textSecondary}
+              />
+            ) : (
+              <Text style={[styles.pillTextSmall, current === 'custom' && styles.pillTextActive]}>
+                {current === 'custom' ? 'Custom (tap to change)' : 'Custom image'}
+              </Text>
+            )}
+          </TouchableOpacity>
+        </View>
+        {current === 'custom' ? (
+          <TouchableOpacity onPress={() => handleRemoveCustomBackground(scopeKey, isShared)} style={styles.clearButton}>
+            <Text style={styles.clearButtonText}>Remove custom image</Text>
+          </TouchableOpacity>
+        ) : null}
+      </>
+    );
+  }
+
   // overrides lets a caller commit a value it just set via setMealTimeBuffers
   // in the same event handler -- React state updates aren't applied
   // synchronously, so reading mealTimeBuffers[dayPart] right after calling
@@ -667,16 +794,23 @@ export default function ProfileScreen() {
   // real, defensive guard, not just belt-and-suspenders: it's what keeps a
   // future condition added to the `conditions` table but without its own
   // icon yet from silently showing a broken/blank option here.
+  // 2026-08-09: default always leads (not part of the alphabetical sort),
+  // then every real condition option sorted alphabetically by its own
+  // label -- explicitly requested. "Thyreomorpha Gemmata" is the real
+  // species name behind this app's own commissioned butterfly artwork.
   const tabHubIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'default', label: 'Default (Butterfly)' },
+    { key: 'default', label: 'Default\n(Thyreomorpha Gemmata)' },
   ];
+  const conditionIconOptions: { key: TabHubIconChoice; label: string }[] = [];
   for (const condition of allConditions) {
     if (condition.status === 'planned') continue;
     const digestKey = CONDITION_CODE_TO_DIGEST_KEY[condition.code];
     if (digestKey && TAB_HUB_ICON_SOURCES[digestKey]) {
-      tabHubIconOptions.push({ key: digestKey, label: condition.name });
+      conditionIconOptions.push({ key: digestKey, label: condition.name });
     }
   }
+  conditionIconOptions.sort((a, b) => a.label.localeCompare(b.label));
+  tabHubIconOptions.push(...conditionIconOptions);
 
   if (loading) {
     return (
@@ -1150,6 +1284,8 @@ export default function ProfileScreen() {
             <View style={styles.pillRow}>
               {allConditions
                 .filter((condition) => condition.status !== 'planned')
+                .slice()
+                .sort((a, b) => a.name.localeCompare(b.name))
                 .map((condition) => {
                   const active = selectedConditions.includes(condition.code);
                   return (
@@ -1171,6 +1307,7 @@ export default function ProfileScreen() {
                 Coming soon: {allConditions
                   .filter((condition) => condition.status === 'planned')
                   .map((condition) => condition.name)
+                  .sort((a, b) => a.localeCompare(b))
                   .join(', ')}
               </Text>
             ) : null}
@@ -1214,6 +1351,8 @@ export default function ProfileScreen() {
               <View style={[styles.pillRow, { marginTop: 8 }]}>
                 {foodAllergies
                   .filter((name) => !COMMON_ALLERGENS.includes(name))
+                  .slice()
+                  .sort((a, b) => a.localeCompare(b))
                   .map((name) => (
                     <TouchableOpacity
                       key={name}
@@ -1299,22 +1438,14 @@ export default function ProfileScreen() {
             <Text style={styles.helpText}>
               The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps it
               for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it entirely,
-              leaving the same flat background color as the header and footer.
+              leaving the same flat background color as the header and footer. &ldquo;Custom image&rdquo; lets you
+              upload your own photo -- it&apos;s automatically resized and compressed to comply with a reasonable
+              size (up to {CUSTOM_BACKGROUND_MAX_DIMENSION}px, under{' '}
+              {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a genuinely too-small
+              photo (under {CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side) is rejected rather than
+              stretched blurry.
             </Text>
-            <View style={styles.pillRow}>
-              {BACKGROUND_STYLE_OPTIONS.map((option) => {
-                const active = option.value === visualPrefs.homeBackgroundStyle;
-                return (
-                  <TouchableOpacity
-                    key={option.value}
-                    style={[styles.pillSmall, active && styles.pillActive]}
-                    onPress={() => setVisualPreferences({ homeBackgroundStyle: option.value })}
-                  >
-                    <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            {renderBackgroundOptionsRow(SHARED_BACKGROUND_SCOPE_KEY, true, visualPrefs.homeBackgroundStyle)}
 
             <Text style={styles.subLabel}>Animated sky (sun, moon, stars, day/night)</Text>
             <Text style={styles.helpText}>
@@ -1352,25 +1483,11 @@ export default function ProfileScreen() {
             {BACKGROUND_TAB_ROUTES.map((route) => (
               <View key={route.path as string} style={styles.mealTimeRow}>
                 <Text style={styles.mealTimeLabel}>{route.title}</Text>
-                <View style={styles.pillRow}>
-                  {BACKGROUND_STYLE_OPTIONS.map((option) => {
-                    const current = visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo';
-                    const active = option.value === current;
-                    return (
-                      <TouchableOpacity
-                        key={option.value}
-                        style={[styles.pillSmall, active && styles.pillActive]}
-                        onPress={() =>
-                          setVisualPreferences({
-                            tabBackgroundStyle: { [route.path as string]: option.value },
-                          })
-                        }
-                      >
-                        <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
+                {renderBackgroundOptionsRow(
+                  route.path as string,
+                  false,
+                  visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo',
+                )}
               </View>
             ))}
 
