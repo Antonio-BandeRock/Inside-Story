@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -715,6 +715,33 @@ function tierLabel(tier: EvidenceTier): string {
 export default function PurpleDigestScreen() {
   useRegisterScreenHelp('Purple Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
+  // 2026-08-09, real, direct report, reproduced with exact steps: "scroll
+  // farther down below the one I had opened and open another a few down
+  // below it, it scrolls way up the screen and then back down again with
+  // the newly opened item just off the screen below the app footer."
+  // scrollBottomPadding above is deliberately small -- sized only to clear
+  // the floating TabHub/LensHub button (see its own comment), not to let
+  // an arbitrary group scroll all the way up to sit just below the fixed
+  // header. For a group sitting anywhere within roughly one screen height
+  // of the real end of a category's content (exactly what "scroll farther
+  // down, then tap something further down" reaches), scrollNodeIntoView's
+  // own computed target legitimately exceeds the ScrollView's own real
+  // maximum scroll extent -- the native scrollTo call simply clamps to
+  // that real maximum, landing well short of the intended 10px-below-
+  // header position, with the newly-expanded detail panel (which just
+  // added real height right at the tail end of the content) ending up
+  // partly or fully below the visible screen with no further room to
+  // scroll it into view. A real, structural cause, not a timing race --
+  // this is why the two earlier timing-focused fixes made no visible
+  // difference. Fixed by adding real, extra bottom padding, sized to a
+  // full screen height (not a hardcoded guess -- useWindowDimensions is
+  // the same real, device-accurate source useFloatingButtonScrollPadding's
+  // own comment already prefers over a fixed number), but ONLY while an
+  // entry is actually expanded -- applying it unconditionally would leave
+  // a large, empty, confusing gap at the bottom of ordinary scrolling with
+  // nothing open, which is a real, different problem this fix doesn't need
+  // to introduce to solve the one that was actually reported.
+  const { height: windowHeight } = useWindowDimensions();
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   // The real value actually handed to LensHub's own autoOpenSignal prop --
   // 2026-08-08, widened from just autoOpenLensHub (a TabHub-navigation-only
@@ -887,6 +914,14 @@ export default function PurpleDigestScreen() {
   // ref, not state, so onScroll firing repeatedly during a manual drag
   // doesn't itself force a re-render.
   const currentScrollY = useRef(0);
+  // The real fix for the scroll-clamping bug described above `windowHeight`
+  // -- a full extra screen height of bottom padding, but ONLY while a card
+  // is actually expanded (expandedId !== null). Scrolling with nothing
+  // open never needs this (there's no tall detail panel that could ever
+  // need to reach the top of the screen), so the padding stays at its
+  // normal, small, floating-button-clearing size the rest of the time --
+  // no new empty-space-at-the-bottom complaint traded in for the fix.
+  const scrollExtraBottomPadding = expandedId !== null ? scrollBottomPadding + windowHeight : scrollBottomPadding;
 
   // Which real DigestCategoryKeys correspond to a condition the person has
   // actually told the app they have -- see CONDITION_CODE_TO_DIGEST_KEY's
@@ -1402,8 +1437,22 @@ export default function PurpleDigestScreen() {
             <ScrollView
               ref={scrollRef}
               style={styles.body}
-              contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
+              contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollExtraBottomPadding }]}
               onScroll={(event) => {
+                currentScrollY.current = event.nativeEvent.contentOffset.y;
+              }}
+              // Two real, additional update points alongside onScroll itself
+              // -- onScroll is throttled (scrollEventThrottle={16} below),
+              // so a manual scroll/fling that lands right as this screen's
+              // own scrollGroupIntoView needs a fresh currentScrollY value
+              // could read a value that's a frame or two stale. Both of
+              // these fire once, unthrottled, exactly when a real scroll
+              // gesture genuinely finishes -- the same real pattern
+              // LensHub.tsx already uses for its own scroll-hint tracking.
+              onMomentumScrollEnd={(event) => {
+                currentScrollY.current = event.nativeEvent.contentOffset.y;
+              }}
+              onScrollEndDrag={(event) => {
                 currentScrollY.current = event.nativeEvent.contentOffset.y;
               }}
               scrollEventThrottle={16}
