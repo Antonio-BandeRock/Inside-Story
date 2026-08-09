@@ -688,13 +688,136 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       sourceNote: 'ELTI/Yale, citing USGS mapping -- real, cumulative restoration totals',
     },
   },
+  // 2026-08-10, same day, direct follow-up: "Keep going with more research
+  // on this topic." Every citation below independently re-verified via
+  // WebSearch/WebFetch the same way as the first batch. Deliberately
+  // includes two real, honest counter-examples (mycorrhizal-network
+  // overstatement, Allan Savory's disputed carbon claims) rather than
+  // treating everything "regenerative" as automatically well-supported --
+  // the same discipline this whole Digest holds every other category to.
+  {
+    id: 'foodhistory-regen-china-loess-plateau',
+    category: 'basicHealth',
+    title: "China's Loess Plateau: A Third, Government-Driven Model of Restoration",
+    teaser: "The most eroded region on Earth, restored government-to-government, not by individual farmers -- a real, different pathway from Brazil's or Niger's.",
+    summary:
+      "Where Brazil's no-till story (see this category's own dedicated entry) spread through private farmer networks and Niger's FMNR story spread through grassroots peer training, China's Loess Plateau shows a real, third, genuinely different model: large-scale, government- and World-Bank-funded top-down restoration. The Loess Plateau, a 640,000-square-kilometer region home to more than 50 million people, was considered the most eroded landscape on Earth by the late 20th century after centuries of overgrazing and hillside cultivation. Two World Bank-funded phases (approved 1994 and 1999, implemented through 2005 across 48 counties and roughly 30,000 square kilometers) banned tree-cutting, hillside cultivation, and unrestricted goat and sheep grazing, paired with terracing and paid ecosystem-service programs; China's own separate, even larger national \"Grain for Green\" program, launched in 1999, extended the same basic approach nationwide. The real, documented results: about 4 million hectares restored, annual sediment flowing into the Yellow River cut by more than 100 million tons, perennial vegetation cover roughly doubling (from 17% to 34%), per-capita income in project households roughly tripling (from about $70 to about $200 a year), and more than 2.5 million people lifted out of poverty across four of China's poorest provinces.",
+    citations: [
+      {
+        source: 'World Bank: Restoring China\'s Loess Plateau (project outcomes, income and sediment figures)',
+        url: 'https://www.worldbank.org/en/news/feature/2007/03/15/restoring-chinas-loess-plateau',
+      },
+      {
+        source: 'World Bank: The Loess Plateau Watershed Rehabilitation Project (phase dates, funding, vegetation cover and grain output data)',
+        url: 'https://documents1.worldbank.org/curated/en/142661468762366534/pdf/307770CHA0Loess0Plateau01see0also0307591.pdf',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'One of the best-documented, largest official government/development-bank land-restoration projects on record.',
+    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-global-implementation-synthesis'],
+    chart: {
+      title: 'Loess Plateau Restoration, Before and After',
+      unit: '%',
+      data: [
+        { label: 'Perennial vegetation cover, before (1994)', value: 17 },
+        { label: 'Perennial vegetation cover, after (2005)', value: 34 },
+      ],
+      sourceNote: 'World Bank project documentation, real, measured cover change across the project area',
+    },
+  },
+  {
+    id: 'foodhistory-regen-rodale-farming-systems-trial',
+    category: 'basicHealth',
+    title: 'Does It Actually Yield As Much? A Real, 40-Plus-Year Controlled Answer',
+    teaser: 'America\'s longest-running side-by-side organic-vs-conventional trial, started in 1981 -- the strongest evidence tier available on whether this genuinely trades away productivity.',
+    summary:
+      'A real, fair question about all of the above: does farming this way actually produce as much food? The Rodale Institute\'s Farming Systems Trial, launched in 1981 in Kutztown, Pennsylvania, is the real, longest-running, side-by-side controlled comparison of its kind, running a chemical-input conventional system against a legume-based organic system and a manure-based organic system across 72 experimental plots for over four decades, a genuinely stronger evidence tier than a single case study or one season\'s data. The real, measured result: after an initial multi-year transition period, organic cash-crop yields become competitive with conventional yields in ordinary years, and organic corn yields have run a real 31% higher than conventional corn specifically during drought years, attributed to the organic systems\' own improved soil water-holding capacity. The manure-based organic system came out the most profitable of the three even before accounting for any organic price premium at all.',
+    citations: [
+      {
+        source: 'Rodale Institute: Farming Systems Trial (launch year, three-system design, drought-year yield figures)',
+        url: 'https://rodaleinstitute.org/science/farming-systems-trial/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, rigorous, multi-decade controlled field trial -- the strongest evidence tier this cluster has for the yield/economics question specifically.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+    chart: {
+      title: 'Organic vs. Conventional Corn Yield, Drought Years',
+      unit: '% higher (organic)',
+      data: [{ label: 'Organic corn yield advantage in drought years', value: 31 }],
+      sourceNote: 'Rodale Institute Farming Systems Trial, real, measured multi-decade average',
+    },
+  },
+  {
+    id: 'foodhistory-regen-4-per-1000-initiative',
+    category: 'basicHealth',
+    title: 'The "4 per 1000" Global Soil-Carbon Pledge, and the Real Scientific Pushback It Got',
+    teaser: 'A real 2015 international climate initiative built around one precise number -- and a real, credible soil-science critique that the number itself may not be achievable.',
+    summary:
+      "France launched the international \"4 per 1000\" initiative on December 1, 2015, at the COP21 climate conference in Paris, proposing a real, specific target: increasing the carbon stored in the world's agricultural soils (in the top 30-40cm) by just 0.4% a year, a rate its founders argued could meaningfully offset human carbon emissions given how much more carbon farmland and forest soils hold worldwide than the atmosphere itself. The initiative has real, broad institutional support, over 300 governments, research institutions, and agricultural and civil-society organizations. It has also drawn a real, credible scientific critique worth stating plainly rather than only repeating the initiative's own framing: researchers at Rothamsted Research, using some of the world's longest-running soil experiments, concluded the 0.4%-per-year target is not realistically achievable across most of the world's farmland, since soil carbon naturally moves toward a new equilibrium and then plateaus rather than climbing indefinitely, and separately flagged that reaching the target's implied nitrogen-uptake requirements is itself unrealistic in practice. The honest, working synthesis: soil carbon genuinely can and should be rebuilt, but the specific 0.4%-a-year figure looks more like a symbolically powerful policy target than a rigorously modeled scientific one.",
+    citations: [
+      {
+        source: 'International "4 per 1000" Initiative: official history and mechanism (launched COP21, Dec 1 2015, France)',
+        url: 'https://4p1000.org/?lang=en',
+      },
+      {
+        source: 'Rothamsted Research / Poulton et al.: Major limitations to achieving "4 per 1000" increases in soil organic carbon stock in temperate regions',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6001646/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, symbolically important policy initiative with a genuine, published scientific dispute over whether its own headline number is achievable -- both sides stated here, not just the flattering one.',
+    relatedIds: ['foodhistory-regen-environmental-impact'],
+  },
+  {
+    id: 'foodhistory-regen-mycorrhizal-networks',
+    category: 'basicHealth',
+    title: 'The Fungal Networks Minimal-Disturbance Farming Is Actually Protecting',
+    teaser: 'Real, discovered in 1997 -- and a real, published 2023 correction pushing back on how far the popular "trees talking to each other" story has been stretched.',
+    summary:
+      "The specific reason no-till and low-disturbance farming (see this category's own Innovations entry) protects soil biology rather than just soil structure is real, dated, named science: forest ecologist Suzanne Simard's 1997 field research first demonstrated that trees are physically connected underground by networks of mycorrhizal fungi, since popularized as the \"Wood Wide Web.\" That underlying connectivity is real and has been repeatedly confirmed. What's genuinely overstated, worth stating plainly rather than repeating the more dramatic popular version: a 2023 peer-reviewed review in Nature Ecology & Evolution (Karst, Jones & Hoeksema) directly tested three of the most commonly repeated claims about these networks (that they're widespread in real forests, that they measurably boost seedling performance, and that mature trees preferentially send resources to their own offspring through them) and found the underlying published evidence for all three genuinely thin or absent, concluding that \"many popular ideas are ahead of the science.\" The practical takeaway for farming stays intact either way: a physical, delicate underground fungal network exists and deep tilling shreds it, which is real and independently confirmed; how much specific benefit that network delivers to a given crop is a real, still-open scientific question, not a settled one.",
+    citations: [
+      {
+        source: "Suzanne Simard's own research page (1997 discovery of mycorrhizal networks)",
+        url: 'https://suzannesimard.com/research/',
+      },
+      {
+        source: 'Karst J, Jones MD, Hoeksema JD 2023, Nature Ecology & Evolution: "Positive citation bias and overinterpreted results lead to misinformation on common mycorrhizal networks in forests"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/36782032/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The underlying fungal network is real and confirmed; several of the popular claims about what it does are genuinely overstated relative to the published evidence -- both stated here.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+  },
+  {
+    id: 'foodhistory-regen-holistic-grazing-disputed',
+    category: 'basicHealth',
+    title: 'Holistic Planned Grazing: A Real, Popular Claim That Doesn\'t Hold Up Under Scrutiny',
+    teaser: 'Allan Savory\'s claim that managed cattle grazing could reverse climate change drew real, credible scientific pushback -- included here because not every "regenerative" claim survives a check.',
+    summary:
+      'Not every idea associated with this movement holds up equally well, and this entry exists specifically to say so rather than let this cluster read as uniformly favorable. Allan Savory\'s 2013 TED talk argued that "holistic planned grazing," a specific method of moving livestock in tightly managed groups to mimic wild herd behavior, could sequester enough atmospheric carbon across roughly half the world\'s grasslands to return atmospheric CO2 to pre-industrial levels while also reversing desertification. Independent review by the Food Climate Research Network found his carbon-sequestration claims unrealistic and inconsistent with peer-reviewed sequestration estimates, concluding the practice could at best offset a real but far smaller 20-60% of grazing-related emissions, not reverse global warming outright. A separate, wider scientific review found Savory\'s major claims about desertification reversal unfounded as well, and noted a real methodological problem behind why they\'re difficult to test at all: Savory has stated that holistic management "does not permit replication," a direct conflict with how scientific evidence is normally established. Rotational grazing itself can carry real, smaller soil-health and animal-welfare benefits; the specific claim that it can reverse climate change at continental scale does not hold up.',
+    citations: [
+      {
+        source: 'Sierra Club: "Allan Savory\'s Holistic Management Theory Falls Short on Science"',
+        url: 'https://www.sierraclub.org/sierra/2017-2-march-april/feature/allan-savory-says-more-cows-land-will-reverse-climate-change',
+      },
+      {
+        source: 'Food Climate Research Network review of Savory\'s carbon-sequestration claims (20-60% offset ceiling, not reversal)',
+        url: 'https://www.tabledebates.org/research-library/holistic-management-critical-review-allan-savorys-grazing-method',
+      },
+    ],
+    overallTier: 'weak',
+    stageNote: 'Included deliberately as a real, honest counter-example -- a widely repeated regenerative-agriculture claim that a real, published scientific review does not support at the scale claimed.',
+    relatedIds: ['foodhistory-regen-global-implementation-synthesis'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
     title: 'How Fast Is the World Actually Moving? A Real, Honest Regional Picture',
-    teaser: 'North America leads in market dollars, Europe leads in binding policy, Brazil and Niger are the two most dramatic real-world proof points anywhere -- and no single source ranks every country on one scale.',
+    teaser: 'North America leads in market dollars, Europe leads in binding policy, and the three single most dramatic real-world transformations -- Brazil, Niger, and China -- all happened outside a formal certification system entirely.',
     summary:
-      'A real, honest limitation worth stating plainly before any regional comparison: no single database ranks every country\'s regenerative-farming "adoption rate" on one consistent scale the way, say, vaccination coverage is tracked -- market-research firms estimate regional revenue share (a dollar figure), not the share of farmland actually converted, and those are genuinely different measurements. With that caveat, four real, verifiable regional pictures emerge. North America holds the largest current market share by revenue (a real 35.7-36.6% of a global market independent analysts value at roughly $16.8 billion by 2027), driven by large commercial farms and an established carbon-credit and certification infrastructure. Europe leads on binding regulatory policy specifically, not just voluntary market share: the EU\'s Farm to Fork Strategy set a real, official 50%-by-2030 pesticide-reduction target in 2020 and had already achieved a real 27% reduction by 2023. Asia-Pacific is growing fastest by rate, not yet by scale, led by India\'s own real government programs (Paramparagat Krishi Vikas Yojana and the National Mission for Sustainable Agriculture) supporting its large base of smallholder farmers, with a real, sourced 16.7% compound annual growth rate projected for India specifically through 2030. And the two single most dramatic, best-documented real-world transformations in this whole comparison, by either speed or scale, are Brazil\'s farmer-driven no-till movement and Niger\'s farmer-managed natural regeneration movement, both covered in their own dedicated entries -- a real, direct reason to be skeptical of any framing that assumes the Global South is simply behind the wealthier world on this specific issue.',
+      'A real, honest limitation worth stating plainly before any regional comparison: no single database ranks every country\'s regenerative-farming "adoption rate" on one consistent scale the way, say, vaccination coverage is tracked -- market-research firms estimate regional revenue share (a dollar figure), not the share of farmland actually converted, and those are genuinely different measurements. With that caveat, four real, verifiable regional pictures emerge. North America holds the largest current market share by revenue (a real 35.7-36.6% of a global market independent analysts value at roughly $16.8 billion by 2027), driven by large commercial farms and an established carbon-credit and certification infrastructure. Europe leads on binding regulatory policy specifically, not just voluntary market share: the EU\'s Farm to Fork Strategy set a real, official 50%-by-2030 pesticide-reduction target in 2020 and had already achieved a real 27% reduction by 2023. Asia-Pacific is growing fastest by rate, not yet by scale, led by India\'s own real government programs (Paramparagat Krishi Vikas Yojana and the National Mission for Sustainable Agriculture) supporting its large base of smallholder farmers, with a real, sourced 16.7% compound annual growth rate projected for India specifically through 2030. And the three single most dramatic, best-documented real-world transformations in this whole comparison happened through three genuinely different mechanisms, none of them a market-share statistic: Brazil\'s farmer-driven no-till movement (private, word-of-mouth), Niger\'s farmer-managed natural regeneration movement (grassroots, NGO-supported), and China\'s Loess Plateau restoration (large-scale, government- and World-Bank-funded) -- each covered in its own dedicated entry, and together a real, direct reason to be skeptical of any framing that assumes the Global South is simply behind the wealthier world on this specific issue.',
     citations: [
       {
         source: 'MarketsAndMarkets: Regenerative Agriculture Market worth $16.8 billion by 2027, North America revenue share',
@@ -711,7 +834,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'Market-share figures and adoption-rate figures are genuinely different measurements, stated as different things here rather than blended into one number.',
-    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-timeline-certification-era'],
+    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-china-loess-plateau', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-holistic-grazing-disputed'],
   },
 
   // --- The Opinion ---
