@@ -44,6 +44,23 @@ import type { DigestEntry } from './types';
 // the same pollinators the neonicotinoid-loophole entry covers; seed
 // saving is a real, individual-level counter to the seed-diversity-loss
 // entry). Every citation independently verified via WebSearch/WebFetch.
+//
+// A third batch, same day, direct instruction to keep going. 7 more
+// entries: indoor/windowsill herb growing, microgreens and sprouts (the
+// fastest, smallest-footprint real food option this category covers, with
+// an honest, separate food-safety caution for raw sprouts specifically),
+// mulching, crop rotation, cover crops for a home garden (a direct,
+// individual-level counterpart to Earth Matters' own finding that cover
+// cropping remains rare even at commercial scale), the real but honestly
+// mixed-quality evidence on gardening's mental-health benefit, and
+// community gardens for anyone with no private growing space at all,
+// closing with a real randomized controlled trial's quantified vegetable-
+// intake result. This session's own WebSearch budget was exhausted
+// partway through this batch (confirmed via a direct tool-system message)
+// -- every citation from that point on was found via the established
+// WebFetch-against-real-pages fallback (a DuckDuckGo HTML search-result
+// page fetched and read directly, then the real source page itself
+// fetched and verified), never fabricated.
 export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-economics-subsidizing-food',
@@ -465,6 +482,133 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     relatedIds: ['garden-container-small-space', 'garden-highest-value-crops'],
   },
   {
+    id: 'garden-herbs-indoor-windowsill',
+    category: 'homeGardening',
+    title: 'Herbs Are the Real Starting Point for Anyone With Only a Windowsill',
+    teaser: 'Thyme, sage, oregano, basil, parsley, and chives are all named as excellent candidates for a bright windowsill, no yard, patio, or even balcony required.',
+    summary:
+      "The Chicago Botanic Garden's own guidance on growing herbs indoors names thyme, lemon thyme, sage, oregano, basil, parsley, and chives as excellent candidates for a windowsill herb garden, with chamomile, lavender, lemon balm, and mint as real, worthwhile additions once the basics are working. Most herbs need four to six hours of real direct sun, or roughly 14 hours of supplemental grow-light exposure, with a south- or southwest-facing window generally working best. Basil, parsley, and cilantro do best started from seed indoors, while sage, oregano, lemon balm, mint, and thyme can instead be started from cuttings or divisions of an outdoor plant, a real, practical option for bringing a favorite outdoor herb inside before the first fall frost rather than losing it for the winter. A genuinely useful, real distinction most people never think about: thyme, chives, oregano, and rosemary tolerate being on the dry side and actually prefer it, while basil is the real exception among common herbs, wanting warmer, more humid conditions than the rest of a typical windowsill herb collection. Regular pinching keeps plants compact and productive rather than leggy, and pots need real, working drainage, since herbs kept too wet indoors are prone to root rot.",
+    citations: [
+      {
+        source: 'Chicago Botanic Garden: Growing Herbs on Your Windowsill',
+        url: 'https://www.chicagobotanic.org/plantinfo/growing_herbs_your_windowsill',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, direct guide from a real horticultural institution, not a generic gardening blog -- the driest/wettest distinction between herb species is a genuinely practical detail most general advice skips.',
+    relatedIds: ['garden-container-small-space', 'garden-highest-value-crops'],
+  },
+  {
+    id: 'garden-microgreens-sprouts',
+    category: 'homeGardening',
+    title: 'Microgreens and Sprouts: Real Food in Days, Not Months',
+    teaser: 'A real 2012 USDA-funded study found microgreens carry genuinely higher concentrations of vitamin C, carotenoids, and vitamin K than the same plant\'s mature leaves.',
+    summary:
+      "Microgreens and sprouts are the fastest, smallest-footprint real food this whole category covers, both grow from seed indoors in days, not weeks, with no yard, container garden, or real outdoor space required at all. The two are genuinely different, not two names for the same thing: sprouts are grown in water and eaten whole, root and all, typically ready in 3 to 7 days, while microgreens grow in a real growing medium under light and are harvested at the stem once true leaves appear, typically 7 to 14 days after sowing. That distinction matters nutritionally, not just practically: a real, USDA-funded 2012 study published in the Journal of Agricultural and Food Chemistry directly measured 25 commercially available microgreens and found genuinely higher nutrient concentrations than the same plant's mature leaves as recorded in the USDA National Nutrient Database, with real, specific standouts by nutrient: red cabbage microgreens for vitamin C, cilantro for carotenoids, garnet amaranth for vitamin K, and green daikon radish for vitamin E. Fast, easy options for a first attempt include radish, broccoli, mustard, arugula, and beet-green microgreens, most ready within 7 to 14 days. A real, honest safety caution belongs alongside the enthusiasm: raw sprouts specifically carry a genuinely elevated foodborne-illness risk, since the warm, humid conditions needed to sprout a seed are the same conditions bacteria need to multiply, and a single surviving bacterium in a batch of seed, per the FDA, can be enough to contaminate the whole crop. A real 2011 outbreak traced to contaminated fenugreek sprouts sickened 3,785 people and killed 45 across Europe, a genuine, documented reason to treat raw sprouts, unlike microgreens grown in soil or a medium, with real caution.",
+    citations: [
+      {
+        source: 'PubMed: Assessment of vitamin and carotenoid concentrations of emerging food products -- edible microgreens (Xiao et al. 2012)',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/22812633/',
+      },
+      {
+        source: 'Wikipedia: Sprouting (real documented foodborne-illness outbreak history and FDA/Health Canada safety guidance)',
+        url: 'https://en.wikipedia.org/wiki/Sprouting',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The nutrient-density finding comes from a real, direct laboratory measurement against the USDA\'s own reference database, and the sprout-safety caution cites a real, large, documented outbreak rather than a general warning.',
+    relatedIds: ['garden-container-small-space', 'garden-easiest-beginner-crops'],
+  },
+  {
+    id: 'garden-mulching',
+    category: 'homeGardening',
+    title: 'A Layer of Mulch Can Cut Watering Needs by Around Half',
+    teaser: 'Colorado State University Extension states directly that mulch reduces irrigation need by around 50%, alongside real weed suppression and soil-temperature benefits.',
+    summary:
+      "Mulch, any material spread over bare soil around plants, does real, measurable work beyond just looking tidy. Colorado State University Extension states directly that mulching minimizes evaporation from the soil surface, reducing irrigation need by around 50%, while also stabilizing soil moisture, reducing compaction, and suppressing weeds. Real, recommended organic options include grass clippings (applied thin, no more than about a quarter inch at a time, to avoid matting), certified weed-free straw, and compost or leaf mold at 1 to 2 inches deep directly around growing plants. A real, worth-knowing exception: wood or bark chips should stay in the walkways between garden beds, not the growing beds themselves, since they take genuinely years to break down and interfere with future soil preparation once they're worked in. Black plastic mulch is a real, different tool specifically for warm-season fruiting crops like tomatoes, peppers, and melons, warming the soil enough to produce a real two to three weeks earlier harvest, though it has to go down early enough that plant growth shades the plastic before summer heat arrives, or the trapped heat can damage the crop instead of helping it.",
+    citations: [
+      {
+        source: 'Colorado State University Extension: Mulches for the Vegetable Garden',
+        url: 'https://extension.colostate.edu/resource/mulches-for-the-vegetable-garden/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The 50% irrigation-reduction figure and the 2-to-3-week earlier-harvest figure for black plastic mulch are both stated directly by a real university extension source, not estimated.',
+    relatedIds: ['garden-watering-efficiency', 'garden-no-dig-raised-beds'],
+  },
+  {
+    id: 'garden-crop-rotation',
+    category: 'homeGardening',
+    title: 'Why the Same Vegetable Shouldn\'t Go in the Same Spot Every Year',
+    teaser: 'Iowa State University Extension recommends waiting 3 to 4 years, 5 or more if possible, before planting the same plant family in the same spot again.',
+    summary:
+      "Growing the same crop, or a close relative, in the same spot year after year builds up two real, separate problems: soil-borne disease organisms that can persist in soil for several years once established, and lopsided nutrient depletion, since different plant families draw down different specific nutrients at different rates. Iowa State University Extension recommends not planting vegetables from the same plant family in the same location for 3 to 4 years, 5 or more if space allows, and names the five real, practical groupings worth tracking: nightshades (tomato, pepper, potato), gourds (cucumber, squash, melon), the pea and bean family, mustards (broccoli, cabbage, kale), and the onion/garlic family. One real, useful asymmetry worth planning around directly: gourds are real heavy nitrogen feeders, while beans and peas are nitrogen fixers that add it back to the soil rather than depleting it, meaning a bean or pea planting is a genuinely good real choice for the spot a heavy feeder just vacated. Even an imperfect rotation in a small garden with limited real space still helps, per the same extension guidance, keeping a simple written or photographed record of what grew where each year is the real, practical tool that makes rotation possible at all once a garden has more than a season or two of real history behind it.",
+    citations: [
+      {
+        source: 'Iowa State University Extension: Crop Rotation in the Vegetable Garden',
+        url: 'https://yardandgarden.extension.iastate.edu/how-to/crop-rotation-vegetable-garden',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, specific rotation window and plant-family grouping, directly sourced, not a general "mix it up" suggestion.',
+    relatedIds: ['garden-no-dig-raised-beds', 'garden-cover-crops-home'],
+  },
+  {
+    id: 'garden-cover-crops-home',
+    category: 'homeGardening',
+    title: 'Cover Crops Aren\'t Just a Commercial-Farm Practice',
+    teaser: 'Earth Matters documents cover cropping as still rare even on commercial farms. A home gardener faces essentially none of the real barriers keeping that number low.',
+    summary:
+      "This app's own Earth Matters research already documents a real, honest finding: cover cropping, planting a non-food crop specifically to protect and feed the soil between real growing seasons, is one of the cheapest, best-understood regenerative practices there is, yet real, official USDA data still found it on under 5% of total US cropland as of 2022. A home gardener faces essentially none of the real economic and logistical barriers (specialized equipment, a crop-insurance system that doesn't reward it, a farm's own tight seasonal labor calendar) that help explain that low commercial adoption rate, making a home garden bed a genuinely easy place to actually do this. Penn State Extension's own real, specific guidance: legume cover crops like clover add nitrogen to the soil directly, fast-growing brassicas like tillage radish outcompete winter weeds, and winter rye can be sown as late as November and still germinate at soil temperatures as low as 35 degrees Fahrenheit, useful for a real, late-season planting window most vegetables have already missed. The real, practical mechanics: broadcast seed over smoothed soil, rake it in lightly, water gently, then turn the cover crop under 2 to 3 weeks before spring planting, terminating it before it flowers so it doesn't reseed itself into next year's vegetable bed.",
+    citations: [
+      {
+        source: 'Penn State Extension: Tips for Planting Cover Crops in Home Gardens',
+        url: 'https://extension.psu.edu/tips-for-planting-cover-crops-in-home-gardens',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, direct individual-level counterpart to a finding already documented at commercial scale in this app\'s own Earth Matters research, not a loosely related idea.',
+    relatedIds: ['garden-no-dig-raised-beds', 'garden-crop-rotation', 'foodhistory-regen-cover-crop-reality-check'],
+  },
+  {
+    id: 'garden-mental-health-benefits',
+    category: 'homeGardening',
+    title: 'The Real, but Honestly Still Developing, Evidence on Gardening and Mental Health',
+    teaser: 'A real 2024 umbrella review found a genuine, positive effect of gardening on well-being -- while directly stating that most of the underlying studies were rated critically low quality.',
+    summary:
+      "A real 2024 umbrella review and meta-analysis, published in a peer-reviewed systematic-reviews journal, pooled the available evidence on gardening and well-being and found a genuine, statistically significant positive effect (an effect size of 0.55) across measures of well-being, depression, and anxiety. The honest complication, stated directly by the review's own authors rather than glossed over: of the underlying reviews synthesized, 71% were rated critically low quality using a standard quality-assessment tool, heterogeneity across the included studies was severe, and the authors explicitly conclude the evidence does not currently support strong recommendations, calling for real, methodologically robust randomized controlled trials to actually establish whether gardening causes the improvement or simply correlates with it, since people already inclined toward better well-being or fitness may simply be more likely to garden in the first place. Separately, and with less rigorous backing, Virginia Tech Extension cites research finding short gardening sessions, as little as 10 to 30 minutes, linked to feeling calmer, and points to being around plants as a real, plausible way to lower cortisol, the body's own stress hormone. Presented honestly rather than oversold: gardening plausibly helps mental well-being, and a real, current review found a genuine positive signal, but the underlying evidence base is not yet strong enough to call this a settled, well-established finding.",
+    citations: [
+      {
+        source: 'PMC: The impact of gardening on well-being, mental health, and quality of life -- an umbrella review and meta-analysis',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10823662/',
+      },
+      {
+        source: 'Virginia Tech Extension, Master Gardener Program: Gardening for Mental Health -- Evidence-Based Benefits for Well-Being',
+        url: 'https://mastergardener.ext.vt.edu/2026/01/30/gardening-for-mental-health-evidence-based-benefits-for-well-being/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, current meta-analysis found a genuine positive effect, but its own authors rate most of the underlying evidence critically low quality and explicitly withhold a strong recommendation -- reported here exactly as honestly as the review itself states it.',
+    relatedIds: ['mentalhealth-overview', 'garden-community-gardens'],
+  },
+  {
+    id: 'garden-community-gardens',
+    category: 'homeGardening',
+    title: 'No Private Space at All? A Real Randomized Trial Found Community Gardens Still Move the Needle',
+    teaser: 'In a real randomized controlled trial, people given a community garden plot increased their vegetable intake by 0.63 servings a day by harvest time, a real, statistically significant result.',
+    summary:
+      "Every entry in this category so far has assumed at least some real private space, a yard, a balcony, a windowsill. A community garden is the real answer for anyone without even that, a shared plot of land, usually organized by a city, nonprofit, or neighborhood group, divided into individual growing spaces. The real, strongest evidence for whether this actually changes what people eat comes from a genuine randomized controlled trial: 243 Denver, Colorado residents were randomized to either a community-garden intervention (a real plot, plants, seeds, and a gardening class) or a waitlist control group, and by harvest time, gardeners had significantly increased their total vegetable intake by 0.63 servings a day and their intake of vegetables they'd actually grown themselves by 0.67 servings a day, both real, statistically significant results. A real, honest limitation worth keeping rather than hiding: a winter follow-up measurement found the gap between the two groups had closed, meaning the benefit tracked with the real, active growing season rather than persisting as a lasting habit change on its own. This is a real, direct, individual-level answer to the food-access gap this app's own Earth Matters research already documents, growing food doesn't require owning land, just access to a real plot somewhere.",
+    citations: [
+      {
+        source: 'PubMed: Community gardening increases vegetable intake and seasonal eating from baseline to harvest -- results from a mixed methods randomized controlled trial',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37215644/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real randomized controlled trial, not an observational study -- genuinely strong evidence, with its own honest, stated limitation (the effect faded once the growing season ended) included rather than left out.',
+    relatedIds: ['foodhistory-regen-food-desert-access-inequality', 'garden-mental-health-benefits'],
+  },
+  {
     id: 'garden-pollinator-friendly-earth-matters-link',
     category: 'homeGardening',
     title: 'A Real, Direct Answer to This App\'s Own Pollinator Research',
@@ -492,10 +636,10 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     title: 'Putting It Together: A Real, Practical First Garden',
     teaser: 'The whole case for a first garden fits in one sentence: pick crops that actually suit the climate and the available space, and the real savings, freshness, and pollinator benefits follow on their own.',
     summary:
-      "Every entry in this category points toward the same practical sequence. Start with a real growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that genuinely suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a real harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. Favor crops that return the most real grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of genuinely easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely. Watering efficiently and managing pests through companion planting rather than a spray bottle both save real money and protect the same pollinators the rest of this category depends on, and preserving a genuine surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the real grocery savings covered first in this category: fresher food with measurably more of its own nutrients intact, and, when even a few flowering plants are worked in alongside the vegetables, a genuine, individual-level answer to the pollinator crisis this app's own Earth Matters research documents at a much larger scale.",
+      "Every entry in this category points toward the same practical sequence. Start with a real growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that genuinely suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a real harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. Favor crops that return the most real grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of genuinely easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely. Watering efficiently and managing pests through companion planting rather than a spray bottle both save real money and protect the same pollinators the rest of this category depends on, and preserving a genuine surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the real grocery savings covered first in this category: fresher food with measurably more of its own nutrients intact, and, when even a few flowering plants are worked in alongside the vegetables, a genuine, individual-level answer to the pollinator crisis this app's own Earth Matters research documents at a much larger scale. Even genuinely zero yard or balcony space isn't a full stop: a windowsill herb collection, a tray of microgreens, or a real community garden plot each still produce real, measurable food, and a real randomized trial found the last of those genuinely changes what people actually eat, not just what they intend to.",
     citations: [],
     overallTier: 'strong',
     stageNote: 'A closing synthesis drawing on every citation already given individually above, not a new claim of its own.',
-    relatedIds: ['garden-economics-subsidizing-food', 'garden-understanding-your-zone', 'garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-how-to-get-involved', 'garden-no-dig-raised-beds', 'garden-preserving-the-harvest'],
+    relatedIds: ['garden-economics-subsidizing-food', 'garden-understanding-your-zone', 'garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-how-to-get-involved', 'garden-no-dig-raised-beds', 'garden-preserving-the-harvest', 'garden-community-gardens', 'garden-crop-rotation'],
   },
 ];

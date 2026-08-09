@@ -438,7 +438,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'The bidirectional risk of inflammatory bowel disease and anxiety or depression: A systematic review and meta-analysis', url: 'https://www.sciencedirect.com/science/article/pii/S0163834323000774' },
     ],
     overallTier: 'strong',
-    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link'],
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'sleep-autoimmune-disease-real-data'],
   },
   {
     id: 'ibd-corticosteroid-hypertension-real-data',

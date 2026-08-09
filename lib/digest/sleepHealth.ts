@@ -75,7 +75,45 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['sleep-immune-vaccine-response', 'lifestyle-chronic-stress-hpa'],
+    relatedIds: ['sleep-immune-vaccine-response', 'lifestyle-chronic-stress-hpa', 'sleep-inflammation-cytokine-mechanism'],
+  },
+  {
+    id: 'sleep-inflammation-cytokine-mechanism',
+    category: 'basicHealth',
+    title: 'The Reverse Direction: How Inflammation Itself Disrupts Sleep',
+    teaser: 'Interleukin-1 and TNF-alpha are a normal part of how sleep works at ordinary levels, but chronically elevated inflammation shifts their timing and fragments sleep instead of supporting it.',
+    summary:
+      "Most of this app's own sleep research covers one direction of a real, bidirectional relationship: poor sleep raising inflammation. The reverse direction is just as real and, for anyone living with a chronic inflammatory or autoimmune condition, arguably more directly relevant day to day. Interleukin-1β and TNF-alpha are genuinely part of the body's own normal sleep-regulation system at physiological concentrations, both cytokines help promote deep, non-REM sleep under ordinary conditions. The problem is dose and duration: at the higher, sustained levels seen in chronic inflammatory disease, the same cytokines stop supporting sleep and start fragmenting it, real research finds elevated proinflammatory cytokines linked to more nighttime awakenings, lower sleep efficiency, and less deep sleep. A specific, real circadian finding makes this concrete rather than abstract: in people with chronic insomnia, IL-6 shifts its normal night-time peak to the evening instead, and TNF-alpha loses its usual overnight rhythm entirely, settling into an unusual, flattened daytime pattern instead. That's a real, measurable disruption to the biological clock these molecules are normally supposed to help run, not just a vague feeling of being wired at the wrong time. The two directions feed each other: disrupted sleep further raises inflammatory markers, which further disrupts sleep, a real feedback loop rather than a one-time event.",
+    citations: [
+      {
+        source: 'PubMed: Sleep and Cytokines -- A Bidirectional Dialogue Involving Rest and Immunity',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/42073113/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, direct mechanistic complement to the sleep-loss-raises-inflammation direction already covered elsewhere in this topic -- both directions are real and current research treats them as one connected feedback loop, not two separate findings.',
+    relatedIds: ['sleep-autoimmune-risk', 'sleep-autoimmune-disease-real-data', 'lifestyle-il6-deiodinase'],
+  },
+  {
+    id: 'sleep-autoimmune-disease-real-data',
+    category: 'basicHealth',
+    title: 'Real, Quantified Sleep Disruption Inside Two Conditions Already Built Out in This App',
+    teaser: 'Insomnia affects roughly 45% of rheumatoid arthritis patients, nearly 8 times the general population\'s rate, and correlates directly with disease-activity scores, not just with pain.',
+    summary:
+      "Two conditions already covered in depth elsewhere in this app give the inflammation-disrupts-sleep mechanism real, measured numbers rather than a general principle alone. In rheumatoid arthritis, a real meta-analysis found insomnia prevalence around 45%, against roughly 5.6% in the general population, and a review found RA patients about four times more likely to develop insomnia at all. Sleep disturbance in RA correlates directly with DAS28 disease-activity scores and with elevated CRP and ESR, not just with joint pain on its own, and each one-point rise on a standard sleep-quality scale (the PSQI) tracked with a real 2.4-point drop in quality-of-life scores. A real, honest caveat worth keeping: disease-modifying RA treatment appears to improve sleep mainly by reducing inflammation and pain rather than through any direct effect on sleep itself, and the review covering this states plainly that solid, controlled evidence for a direct effect from biologic drugs remains limited. In inflammatory bowel disease, a real study of 131 patients found elevated CRP independently linked to poor sleep quality even in patients with no nighttime GI symptoms at all, 70% of patients with high CRP reported poor sleep versus 39% of those with normal CRP, and the statistical link held (odds ratio 4.89) after accounting for nighttime symptoms directly, real evidence that inflammation itself, not simply being woken up by cramping or diarrhea, is driving the sleep disruption.",
+    citations: [
+      {
+        source: 'PMC: The Impact of Insomnia on the Clinical Course and Treatment Outcomes of Rheumatoid Arthritis',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12561026/',
+      },
+      {
+        source: 'PubMed: High C-Reactive Protein Is Associated with Poor Sleep Quality Independent of Nocturnal Symptoms in Patients with Inflammatory Bowel Disease',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/25701321/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Both figures come from real, cited studies with a stated sample size and a real statistical result (an odds ratio, a correlation with a named disease-activity score), not a general association.',
+    relatedIds: ['sleep-inflammation-cytokine-mechanism', 'ra-depression-anxiety-comorbidity', 'ibd-depression-anxiety-bidirectional-real-data'],
   },
   {
     id: 'sleep-cbti-first-line',
@@ -123,6 +161,6 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-overview', 'lifestyle-sleep-circadian', 'lifestyle-chronic-stress-hpa', 'migraine-sleep-bidirectional', 'masld-sleep-apnea-bidirectional', 'type2-sleep-apnea-glycemic-control', 'pcos-sleep-mental-health-real-data'],
+    relatedIds: ['sleep-overview', 'lifestyle-sleep-circadian', 'lifestyle-chronic-stress-hpa', 'migraine-sleep-bidirectional', 'masld-sleep-apnea-bidirectional', 'type2-sleep-apnea-glycemic-control', 'pcos-sleep-mental-health-real-data', 'sleep-inflammation-cytokine-mechanism', 'sleep-autoimmune-disease-real-data'],
   },
 ];

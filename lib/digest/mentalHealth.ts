@@ -25,7 +25,7 @@ export const MENTAL_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['mentalhealth-tying-together', 'mentalhealth-when-to-seek-help'],
+    relatedIds: ['mentalhealth-tying-together', 'mentalhealth-when-to-seek-help', 'garden-mental-health-benefits'],
   },
   {
     id: 'mentalhealth-inflammation-link',

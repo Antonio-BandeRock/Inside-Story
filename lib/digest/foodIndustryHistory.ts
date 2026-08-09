@@ -1026,7 +1026,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Official USDA Census data -- a real, grounding corrective to the faster-moving market and certification figures elsewhere in this cluster.',
-    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-tying-together'],
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-tying-together', 'garden-cover-crops-home'],
     chart: {
       title: 'US Cropland Using Cover Crops (2022)',
       unit: '%',
@@ -1997,7 +1997,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, honest complication to a popular, intuitive policy assumption (build a grocery store, diets improve) -- the real research found it genuinely more complicated than that.',
-    relatedIds: ['foodhistory-regen-smallholder-pollinator-vulnerability', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-whole-foods-organic-industry', 'garden-economics-subsidizing-food', 'garden-container-small-space'],
+    relatedIds: ['foodhistory-regen-smallholder-pollinator-vulnerability', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-whole-foods-organic-industry', 'garden-economics-subsidizing-food', 'garden-container-small-space', 'garden-community-gardens'],
   },
   {
     id: 'foodhistory-regen-right-to-repair-farm-equipment',

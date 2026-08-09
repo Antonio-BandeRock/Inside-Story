@@ -332,7 +332,7 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
       { source: 'The prevalence and correlation of depression and anxiety with disease activity in rheumatoid arthritis, PMC10201383', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10201383/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ra-treat-to-target-remission'],
+    relatedIds: ['ra-treat-to-target-remission', 'sleep-autoimmune-disease-real-data'],
   },
   {
     id: 'ra-periodontal-disease-pgingivalis',
