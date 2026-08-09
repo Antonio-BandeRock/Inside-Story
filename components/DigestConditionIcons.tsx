@@ -10,49 +10,86 @@ import type { DigestCategoryKey } from '../lib/digest';
 // condition tiles until now was a real placeholder, never meant to be
 // final -- this file replaces all 19 with real, purpose-built shapes.
 //
-// A real, honest constraint shaped every shape below: there is no way to
-// render and actually LOOK AT an SVG from inside this environment before
-// it reaches the person's own screen -- every icon here was reasoned
+// A real, honest constraint shaped the FIRST pass at every shape below:
+// there was no way to render and actually LOOK AT an SVG from inside this
+// environment before it reached a real screen -- every icon was reasoned
 // through mathematically (coordinates, curve control points, which parts
-// of a shape sit where), not sketched and checked. That's a genuinely
-// different, higher-risk process than PurpleRibbonIcon.tsx's own path
-// (which was traced from a real reference photo, pixel by pixel) -- so
-// every shape here favors clean, simple, well-understood constructions
-// (a classic bezier heart, a kidney-bean curve, symmetric butterfly
-// lobes) over attempting fine anatomical realism that would be far
-// riskier to get right blind. These are real, deliberate first attempts,
-// not guaranteed-final art -- expect some of the 19 to need real,
-// on-device adjustment once someone can actually see them.
+// of a shape sit where), not sketched and checked. Reported back directly
+// and bluntly the same day: "These aren't going to work." A real
+// reference image followed -- a genuinely different, far lower-risk
+// situation, much closer to how PurpleRibbonIcon.tsx's own shape was
+// built (traced from a real reference photo). This file's own second pass
+// (also 2026-08-09) rebuilt every one of the ~14 icons that image
+// actually covered -- all seven butterflies, Celiac, Migraine, RA, IBD,
+// the Heart, and the Kidney -- to match what that image actually showed,
+// far more faithfully than the first pass's own blind guesses. The
+// remaining five (Type 1/2 Diabetes, PCOS, Gout, Prostate Health) have no
+// new reference material and are unchanged from the first pass -- still
+// real, deliberate attempts, not guaranteed-final art, still worth a
+// real, careful look before being trusted.
 //
-// A second real, documented constraint from this exact codebase:
-// PurpleRibbonIcon.tsx's own history records that a `transform` string
-// prop (e.g. `rotate(deg cx cy)`) was reported completely invisible on a
-// real Android device, not trusted to reliably parse through react-
-// native-svg's native renderer. Every icon below avoids `transform`
-// entirely -- any shape that would normally be expressed as "the same
-// element, rotated" (a wheat grain angled outward, a thumb angled away
-// from the palm) is instead hand-placed as its own real, literal
-// coordinates.
+// A real, honest limit on how far even a real reference image can be
+// followed here: the reference itself is a fully shaded, gradient-lit
+// illustration style (visible vein branching in the heart, individual
+// sulci in a brain, fine surface texture throughout) -- reproducing that
+// exact rendering style in flat, single-color SVG paths isn't realistic,
+// and would also be inconsistent with how every other icon in this app
+// (including PurpleRibbonIcon.tsx itself) is built: a flat, single-color
+// silhouette, matching Ionicons' own flat glyph convention. What this
+// second pass actually did was extract each shape's real SILHOUETTE and
+// key distinguishing features (a heart's own real vessel stems, a
+// kidney's own stem/funnel, a butterfly's own antennae, a shield's real
+// size and position) and rebuild flat versions of those, not attempt the
+// shading itself.
 //
-// A third, real constraint, specific to this file: every icon takes only
-// ONE `color` prop (matching how Ionicons glyphs already work everywhere
-// else in this app's own icon grid) -- there is no second color available
-// for an "emblem on top of a solid shape" to contrast against. A same-
-// color stroke or fill drawn directly on top of another same-color fill
-// is genuinely invisible, not just subtle -- verified by reasoning through
-// the actual paint order, not assumed. Every icon that needs an emblem
-// sitting ON a solid shape (Hashimoto's shield on its own body, the
-// butterfly stamped on Rheumatoid Arthritis's palm) uses a real cutout
-// instead -- both shapes combined into one Path `d` string with
-// `fillRule="evenodd"`, the same real technique PurpleRibbonIcon.tsx
-// already uses for its own inner-loop hole -- so the emblem reads as a
-// genuine gap showing the background through, which works regardless of
-// what color is actually passed in. Anywhere a slash/line needs to read
-// as "crossed out" against a solid shape underneath it (Sjögren's
-// droplet, Celiac's wheat), the line is drawn long enough to extend well
-// past the shape's own edges, so its visible ends outside the shape make
-// the crossed-out intent unambiguous even though the middle segment
-// overlapping the shape itself is invisible.
+// Four items visible in that same reference image do NOT correspond to
+// any of this app's current 19 conditions and were deliberately skipped:
+// Lungs, Brain, and Thyroid Gland (general organ reference, not any one
+// condition's own icon) and Myasthenia Gravis (a real disease, but not
+// yet one of this app's own built-out conditions). A real, separate call
+// worth naming directly: the reference image showed Sjögren's TWO ways --
+// as a seventh butterfly (wings dotted with droplets) alongside every
+// other autoimmune condition, and separately as a standalone "(Specific)"
+// crossed-out-faucet icon. This file picked the butterfly version as the
+// real, intended design, reasoning that every other condition in the same
+// image being a butterfly is a strong, consistent signal -- stated here
+// directly as this file's own interpretation, not confirmed, in case it
+// turns out backwards.
+//
+// A second real, documented constraint from this exact codebase, true
+// across both passes: PurpleRibbonIcon.tsx's own history records that a
+// `transform` string prop (e.g. `rotate(deg cx cy)`) was reported
+// completely invisible on a real Android device, not trusted to reliably
+// parse through react-native-svg's native renderer. Every icon below
+// avoids `transform` entirely -- any shape that would normally be
+// expressed as "the same element, rotated" (a wheat leaf angled outward,
+// a thumb angled away from the palm) is instead hand-placed as its own
+// real, literal coordinates.
+//
+// A third, real constraint, specific to this file, true across both
+// passes: every icon takes only ONE `color` prop (matching how Ionicons
+// glyphs already work everywhere else in this app's own icon grid) --
+// there is no second color available for an "emblem on top of a solid
+// shape" to contrast against. A same-color stroke or fill drawn directly
+// on top of another same-color fill is genuinely invisible, not just
+// subtle -- verified by reasoning through the actual paint order, not
+// assumed. Every icon that needs an emblem sitting ON a solid shape
+// (Hashimoto's shield on its own body, the butterfly stamped on
+// Rheumatoid Arthritis's palm) uses a real cutout instead -- both shapes
+// combined into one Path `d` string with `fillRule="evenodd"`, the same
+// real technique PurpleRibbonIcon.tsx already uses for its own inner-loop
+// hole -- so the emblem reads as a genuine gap showing the background
+// through, which works regardless of what color is actually passed in.
+// Anywhere a slash/line needs to read as "crossed out" against a solid
+// shape underneath it (Celiac's wheat, Type 2 Diabetes's own unrelated
+// droplet), the line is drawn long enough to extend well past the shape's
+// own edges, so its visible ends outside the shape make the crossed-out
+// intent unambiguous even though the middle segment overlapping the shape
+// itself is invisible. Sjögren's own new droplet pattern and IBS's own
+// wavy pattern instead use a real, deliberately different technique --
+// the wing fill itself drops to a reduced opacity, so the full-opacity
+// pattern drawn on top genuinely contrasts, a better fit for a soft,
+// scattered pattern than a sharp cutout gap would have been.
 //
 // Every shape uses a plain 100x100 viewBox and renders as a square icon
 // (width === height === size), the same footprint every Ionicons glyph
@@ -63,13 +100,21 @@ import type { DigestCategoryKey } from '../lib/digest';
 type IconProps = { size: number; color: string };
 
 // ---------------------------------------------------------------------
-// Shared butterfly base -- six of the nineteen conditions (Lupus,
-// Hashimoto's, Graves', IBS, MS, Psoriasis) are all built from real
-// autoimmune-disease butterfly iconography, differing only in one real
-// embellishment each. One shared pair of wing shapes, reused six times,
-// rather than six independently-reasoned near-duplicates -- lower risk,
-// and whatever adjustment the base shape needs later only has to happen
-// once.
+// Shared butterfly base -- seven of the nineteen conditions (Lupus,
+// Hashimoto's, Graves', Sjögren's, IBS, MS, Psoriasis) are all built from
+// real autoimmune-disease butterfly iconography, differing only in one
+// real embellishment each. One shared pair of wing shapes, reused seven
+// times, rather than seven independently-reasoned near-duplicates --
+// lower risk, and whatever adjustment the base shape needs later only
+// has to happen once.
+//
+// 2026-08-09, a real reference image supplied directly -- a genuinely
+// different, far lower-risk situation than the first pass above, which
+// was built with zero visual reference at all. Every butterfly in that
+// reference carries two thin, curved antennae with small rounded tips --
+// a real, consistent, distinguishing feature this file's own first
+// attempt completely missed. Added here, shared by every butterfly
+// variant, rather than seven separate near-duplicate additions.
 // ---------------------------------------------------------------------
 const WING_UL = 'M50,35 C30,18 8,20 6,35 C4,50 25,52 50,45 Z';
 const WING_UR = 'M50,35 C70,18 92,20 94,35 C96,50 75,52 50,45 Z';
@@ -79,6 +124,23 @@ const WING_LR = 'M50,48 C62,60 80,58 82,72 C83,82 65,84 50,62 Z';
 // it can be written as one real Path (needed later for the evenodd
 // cutout trick, which only works within a single Path's own `d` string).
 const BODY_PLAIN = 'M50,28 C54,28 56,40 56,54 C56,68 54,80 50,80 C46,80 44,68 44,54 C44,40 46,28 50,28 Z';
+const ANTENNA_L = 'M46,30 C43,24 39,20 35,15';
+const ANTENNA_R = 'M54,30 C57,24 61,20 65,15';
+
+// Rendered by every one of the seven butterfly icons below, not just the
+// ones already using ButterflyBase -- Graves' and Psoriasis build their
+// own wing sets directly (see each of their own comments) but still get
+// the same real antennae.
+function ButterflyAntennae({ color }: { color: string }) {
+  return (
+    <>
+      <Path d={ANTENNA_L} stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
+      <Path d={ANTENNA_R} stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
+      <Circle cx={35} cy={15} r={2} fill={color} />
+      <Circle cx={65} cy={15} r={2} fill={color} />
+    </>
+  );
+}
 
 function ButterflyBase({ color, upperWings = true }: { color: string; upperWings?: boolean }) {
   return (
@@ -91,6 +153,7 @@ function ButterflyBase({ color, upperWings = true }: { color: string; upperWings
           <Path d={WING_LR} fill={color} />
         </>
       ) : null}
+      <ButterflyAntennae color={color} />
     </>
   );
 }
@@ -109,12 +172,17 @@ export function LupusButterflyIcon({ size, color }: IconProps) {
 }
 
 // Hashimoto's -- "A Butterfly with the Shield core emblem." The body is
-// widened (from BODY_PLAIN's own proportions) specifically so a small
-// shield shape fits cleanly inside its silhouette, then combined with
-// that shield in one evenodd Path -- the shield reads as a real cutout
-// through the body, not a same-color overlay that would otherwise vanish.
-const HASHIMOTOS_BODY_WIDE = 'M50,26 C58,26 62,40 62,54 C62,68 58,82 50,82 C42,82 38,68 38,54 C38,40 42,26 50,26 Z';
-const SHIELD_EMBLEM = 'M50,40 L56,43 L56,53 C56,59 53,63 50,66 C47,63 44,59 44,53 L44,43 Z';
+// widened (from BODY_PLAIN's own proportions) specifically so a shield
+// shape fits cleanly inside its silhouette, then combined with that
+// shield in one evenodd Path -- the shield reads as a real cutout through
+// the body, not a same-color overlay that would otherwise vanish.
+//
+// 2026-08-09, both the body and the shield enlarged, per a real reference
+// image showing a clearly large, prominent shield spanning much of the
+// wing-center area -- the first pass's own shield was noticeably smaller
+// and easy to miss at this icon's actual small render size.
+const HASHIMOTOS_BODY_WIDE = 'M50,22 C60,22 66,38 66,54 C66,70 60,86 50,86 C40,86 34,70 34,54 C34,38 40,22 50,22 Z';
+const SHIELD_EMBLEM = 'M50,36 L60,40 L60,54 C60,62 55,68 50,72 C45,68 40,62 40,54 L40,40 Z';
 export function HashimotosButterflyIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
@@ -125,15 +193,19 @@ export function HashimotosButterflyIcon({ size, color }: IconProps) {
 }
 
 // Graves' Disease -- "A Butterfly with Flame/Energy Wings." A real, hand-
-// placed jagged variant of the same four wing lobes -- a few large,
-// irregular points along the outer edge instead of one smooth curve,
-// standing in for a flame's own flicker. Deliberately fewer, LARGER
-// points than Psoriasis's own scalloped variant below, so the two read as
-// genuinely different textures, not the same jaggedness reused twice.
-const FLAME_UL = 'M50,35 C36,22 24,26 20,14 C22,26 8,24 8,36 C14,32 12,44 20,42 C22,50 34,50 50,45 Z';
-const FLAME_UR = 'M50,35 C64,22 76,26 80,14 C78,26 92,24 92,36 C86,32 88,44 80,42 C78,50 66,50 50,45 Z';
-const FLAME_LL = 'M50,48 C40,58 28,56 24,66 C30,64 30,74 22,76 C30,78 30,84 40,82 C42,74 46,72 50,62 Z';
-const FLAME_LR = 'M50,48 C60,58 72,56 76,66 C70,64 70,74 78,76 C70,78 70,84 60,82 C58,74 54,72 50,62 Z';
+// placed jagged variant of the same four wing lobes -- real points along
+// the outer edge instead of one smooth curve, standing in for a flame's
+// own flicker.
+//
+// 2026-08-09, redrawn from the first pass's several medium points to
+// fewer, much LONGER, sharper points, per a real reference image showing
+// dramatically elongated, swallowtail-like pointed wing tips -- a real,
+// visible difference from Psoriasis's own scalloped variant below (many
+// small, regular bumps), so the two read as genuinely different textures.
+const FLAME_UL = 'M50,35 C38,20 30,8 18,10 C24,20 10,22 6,34 C16,30 8,46 16,48 C24,50 30,50 50,45 Z';
+const FLAME_UR = 'M50,35 C62,20 70,8 82,10 C76,20 90,22 94,34 C84,30 92,46 84,48 C76,50 70,50 50,45 Z';
+const FLAME_LL = 'M50,48 C36,58 24,54 18,68 C28,62 26,78 20,80 C30,82 32,86 42,82 C44,74 46,72 50,62 Z';
+const FLAME_LR = 'M50,48 C64,58 76,54 82,68 C72,62 74,78 80,80 C70,82 68,86 58,82 C56,74 54,72 50,62 Z';
 export function GravesButterflyIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
@@ -142,6 +214,7 @@ export function GravesButterflyIcon({ size, color }: IconProps) {
       <Path d={FLAME_LL} fill={color} />
       <Path d={FLAME_LR} fill={color} />
       <Path d={BODY_PLAIN} fill={color} />
+      <ButterflyAntennae color={color} />
     </Svg>
   );
 }
@@ -155,10 +228,18 @@ export function GravesButterflyIcon({ size, color }: IconProps) {
 // elsewhere in this file (a good fit here specifically, since the intent
 // is a soft, low-contrast wave pattern, not a sharp gap). The body itself
 // is a real, separate S-curve stroke, not the shared BODY_PLAIN shape.
+//
+// 2026-08-09, a second wavy stroke added per wing -- a real reference
+// image showed a much denser, more continuous coiling pattern filling
+// most of each wing than the first pass's single line per wing managed.
 const WAVE_UL = 'M14,32 C20,26 26,36 32,30 C36,26 40,32 44,28';
 const WAVE_UR = 'M86,32 C80,26 74,36 68,30 C64,26 60,32 56,28';
 const WAVE_LL = 'M24,64 C30,58 34,68 40,64';
 const WAVE_LR = 'M76,64 C70,58 66,68 60,64';
+const WAVE2_UL = 'M12,42 C18,38 22,46 28,42 C32,38 36,44 40,40';
+const WAVE2_UR = 'M88,42 C82,38 78,46 72,42 C68,38 64,44 60,40';
+const WAVE2_LL = 'M22,72 C28,68 32,76 38,72';
+const WAVE2_LR = 'M78,72 C72,68 68,76 62,72';
 const S_BODY = 'M50,28 C40,32 40,42 50,46 C60,50 60,60 50,64 C40,68 40,78 50,80';
 export function IbsButterflyIcon({ size, color }: IconProps) {
   return (
@@ -171,7 +252,12 @@ export function IbsButterflyIcon({ size, color }: IconProps) {
       <Path d={WAVE_UR} stroke={color} strokeWidth={2.5} strokeLinecap="round" fill="none" />
       <Path d={WAVE_LL} stroke={color} strokeWidth={2.5} strokeLinecap="round" fill="none" />
       <Path d={WAVE_LR} stroke={color} strokeWidth={2.5} strokeLinecap="round" fill="none" />
+      <Path d={WAVE2_UL} stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
+      <Path d={WAVE2_UR} stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
+      <Path d={WAVE2_LL} stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
+      <Path d={WAVE2_LR} stroke={color} strokeWidth={2} strokeLinecap="round" fill="none" />
       <Path d={S_BODY} stroke={color} strokeWidth={4} strokeLinecap="round" fill="none" />
+      <ButterflyAntennae color={color} />
     </Svg>
   );
 }
@@ -218,6 +304,7 @@ export function PsoriasisButterflyIcon({ size, color }: IconProps) {
       <Path d={WING_LL} fill={color} />
       <Path d={WING_LR} fill={color} />
       <Path d={BODY_PLAIN} fill={color} />
+      <ButterflyAntennae color={color} />
     </Svg>
   );
 }
@@ -232,27 +319,35 @@ function CircleFrame({ color }: { color: string }) {
 }
 
 // Celiac Disease -- "A Crossed-out Wheat Stalk circle vector." A plain
-// central stem plus six small, pointed-oval "grains" flanking it in
-// pairs -- deliberately plain, un-rotated ovals rather than grains angled
-// outward via a `transform`, per this file's own standing rule against
-// relying on that prop. The slash is drawn corner-to-corner of the full
-// circle, well past the wheat shape's own bounds, so its visible ends
-// outside the wheat read as "crossed out" even though the segment
-// crossing the wheat itself is the same color and therefore invisible.
-function wheatGrain(cx: number, cy: number): string {
-  return `M${cx},${cy - 8} C${cx - 4},${cy - 5} ${cx - 4},${cy + 5} ${cx},${cy + 8} C${cx + 4},${cy + 5} ${cx + 4},${cy - 5} ${cx},${cy - 8} Z`;
+// central stem plus six small "leaves" flanking it in pairs -- each one
+// its own real, literal, asymmetric coordinate set (tilted outward-left
+// or outward-right depending on which side of the stem it sits on)
+// rather than one symmetric shape angled via a `transform`, per this
+// file's own standing rule against relying on that prop. The slash is
+// drawn corner-to-corner of the full circle, well past the wheat shape's
+// own bounds, so its visible ends outside the wheat read as "crossed out"
+// even though the segment crossing the wheat itself is the same color and
+// therefore invisible.
+//
+// 2026-08-09, redrawn from the first pass's own plain, round, un-tilted
+// ovals -- a real reference image showed a leafier, more plant-like
+// silhouette (elongated, pointed, visibly angled leaves) rather than
+// simple grain-like dots.
+function wheatLeaf(cx: number, cy: number, tiltRight: boolean): string {
+  const s = tiltRight ? 1 : -1;
+  return `M${cx},${cy + 7} C${cx - 3 * s},${cy + 2} ${cx - 2 * s},${cy - 5} ${cx + 2 * s},${cy - 9} C${cx + 4 * s},${cy - 4} ${cx + 3 * s},${cy + 3} ${cx},${cy + 7} Z`;
 }
 export function CeliacWheatIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
       <CircleFrame color={color} />
       <Line x1={50} y1={25} x2={50} y2={75} stroke={color} strokeWidth={3} strokeLinecap="round" />
-      <Path d={wheatGrain(40, 30)} fill={color} />
-      <Path d={wheatGrain(60, 30)} fill={color} />
-      <Path d={wheatGrain(40, 42)} fill={color} />
-      <Path d={wheatGrain(60, 42)} fill={color} />
-      <Path d={wheatGrain(40, 54)} fill={color} />
-      <Path d={wheatGrain(60, 54)} fill={color} />
+      <Path d={wheatLeaf(40, 30, false)} fill={color} />
+      <Path d={wheatLeaf(60, 30, true)} fill={color} />
+      <Path d={wheatLeaf(40, 42, false)} fill={color} />
+      <Path d={wheatLeaf(60, 42, true)} fill={color} />
+      <Path d={wheatLeaf(40, 54, false)} fill={color} />
+      <Path d={wheatLeaf(60, 54, true)} fill={color} />
       <Line x1={16} y1={16} x2={84} y2={84} stroke={color} strokeWidth={6} strokeLinecap="round" />
     </Svg>
   );
@@ -292,9 +387,9 @@ export function Type1DiabetesSyringeIcon({ size, color }: IconProps) {
 }
 
 // Type 2 Diabetes -- "A matching purple circle vector containing a single
-// clear Blood Droplet silhouette." The same real droplet formula used for
-// Sjögren's own icon below, scaled to sit comfortably inside the circle
-// frame, filled solid with no slash.
+// clear Blood Droplet silhouette." A classic teardrop formula, filled
+// solid, no slash -- the real reference image supplied 2026-08-09 doesn't
+// cover this icon, so it stays unchanged from the first pass.
 export function Type2DiabetesDropletIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
@@ -304,17 +399,42 @@ export function Type2DiabetesDropletIcon({ size, color }: IconProps) {
   );
 }
 
-// Sjögren's Syndrome -- "A Crossed-out Droplet icon." A classic teardrop
-// silhouette (a well-known, standard SVG shape, not something reasoned
-// from scratch), with a long diagonal slash reaching corner to corner of
-// the whole viewBox -- well past the droplet's own edges on both ends, so
-// the crossed-out intent stays unambiguous even where the slash overlaps
-// the droplet's own same-color fill invisibly.
-export function SjogrensDropletIcon({ size, color }: IconProps) {
+// Sjögren's Syndrome -- originally built as "A Crossed-out Droplet icon,"
+// standing entirely on its own outside the butterfly family.
+//
+// 2026-08-09, replaced after a real reference image showed Sjögren's
+// drawn as a seventh butterfly, wings dotted with a small droplet
+// pattern -- joining the other six autoimmune conditions in the same
+// visual family, alongside a separate "(Specific)" crossed-out-faucet
+// icon shown as a second, alternate idea. Every OTHER condition in that
+// same reference is a butterfly, a strong, consistent signal this is the
+// real, intended design (with the faucet version more likely a secondary
+// exploration) -- built as the family version here; flagged directly as
+// this file's own real interpretation, worth confirming rather than
+// assuming right.
+//
+// The wing fill drops to fillOpacity 0.7 (a smaller reduction than IBS's
+// own 0.55, just enough that the full-opacity droplet dots drawn on top
+// genuinely contrast and stay visible, the same real technique IBS's own
+// wavy pattern already relies on) -- two small solid droplets per wing.
+function sjogrensDroplet(cx: number, cy: number): string {
+  return `M${cx},${cy - 4} C${cx},${cy - 4} ${cx - 3},${cy + 1} ${cx - 3},${cy + 3} A3,3 0 1 0 ${cx + 3},${cy + 3} C${cx + 3},${cy + 1} ${cx},${cy - 4} ${cx},${cy - 4} Z`;
+}
+export function SjogrensButterflyIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
-      <Path d="M50,10 C50,10 22,46 22,64 A28,28 0 1 0 78,64 C78,46 50,10 50,10 Z" fill={color} />
-      <Line x1={12} y1={12} x2={88} y2={88} stroke={color} strokeWidth={7} strokeLinecap="round" />
+      <Path d={WING_UL} fill={color} fillOpacity={0.7} />
+      <Path d={WING_UR} fill={color} fillOpacity={0.7} />
+      <Path d={WING_LL} fill={color} fillOpacity={0.7} />
+      <Path d={WING_LR} fill={color} fillOpacity={0.7} />
+      <Path d={sjogrensDroplet(18, 36)} fill={color} />
+      <Path d={sjogrensDroplet(33, 30)} fill={color} />
+      <Path d={sjogrensDroplet(82, 36)} fill={color} />
+      <Path d={sjogrensDroplet(67, 30)} fill={color} />
+      <Path d={sjogrensDroplet(28, 62)} fill={color} />
+      <Path d={sjogrensDroplet(72, 62)} fill={color} />
+      <Path d={BODY_PLAIN} fill={color} />
+      <ButterflyAntennae color={color} />
     </Svg>
   );
 }
@@ -326,13 +446,23 @@ export function SjogrensDropletIcon({ size, color }: IconProps) {
 // (which would have been invisible for the same reason every other
 // emblem-on-solid-shape in this file avoids that trick) -- an actual
 // break in the shape is visible regardless of color, since it's a true
-// absence, not an overlay. The butterfly itself is a small, simplified
-// four-lobe shape combined with the palm in one evenodd Path, the same
-// real cutout technique Hashimoto's own shield uses above.
+// absence, not an overlay. The butterfly itself is a four-lobe shape
+// combined with the palm in one evenodd Path, the same real cutout
+// technique Hashimoto's own shield uses above.
+//
+// 2026-08-09, two real changes from a real reference image: the palm
+// emblem enlarged and repositioned (the reference shows a genuinely
+// prominent, clearly visible butterfly, not a small one easy to miss),
+// and small pain-mark tick lines added near two of the finger-segment
+// gaps -- each one starting inside its own real, already-open gap and
+// extending further out into open background space, so it's visible
+// regardless of color the same way every other emblem in this file is,
+// standing in for the reference's own small radiating ache marks near a
+// couple of swollen-looking joints.
 const RA_PALM = 'M28,55 C26,75 30,92 50,94 C70,92 74,75 72,55 Z';
 const RA_EMBLEM =
-  'M50,68 C44,62 36,64 36,70 C36,76 44,76 50,72 C56,76 64,76 64,70 C64,64 56,62 50,68 Z ' +
-  'M50,72 C46,78 40,80 42,86 C44,90 48,86 50,80 C52,86 56,90 58,86 C60,80 54,78 50,72 Z';
+  'M50,64 C42,56 32,58 32,66 C32,74 42,74 50,68 C58,74 68,74 68,66 C68,58 58,56 50,64 Z ' +
+  'M50,68 C44,76 36,78 38,86 C40,92 46,86 50,78 C54,86 60,92 62,86 C64,78 56,76 50,68 Z';
 export function RheumatoidArthritisHandIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
@@ -343,12 +473,17 @@ export function RheumatoidArthritisHandIcon({ size, color }: IconProps) {
       {/* Index finger */}
       <Rect x={30.5} y={35} width={7} height={20} rx={3} fill={color} />
       <Rect x={30.5} y={18} width={7} height={14} rx={3} fill={color} />
-      {/* Middle finger, the tallest */}
+      {/* Middle finger, the tallest -- a real pain-mark tick pair sits in
+          its own segment gap (y 28-32), extending out into open space. */}
       <Rect x={40.5} y={32} width={7} height={23} rx={3} fill={color} />
       <Rect x={40.5} y={12} width={7} height={16} rx={3} fill={color} />
-      {/* Ring finger */}
+      <Line x1={44} y1={30} x2={37} y2={25} stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      <Line x1={44} y1={30} x2={39} y2={35} stroke={color} strokeWidth={1.5} strokeLinecap="round" />
+      {/* Ring finger -- a second pain-mark tick in its own segment gap
+          (y 30-34). */}
       <Rect x={50.5} y={34} width={7} height={21} rx={3} fill={color} />
       <Rect x={50.5} y={15} width={7} height={15} rx={3} fill={color} />
+      <Line x1={54} y1={32} x2={61} y2={27} stroke={color} strokeWidth={1.5} strokeLinecap="round" />
       {/* Pinky, the shortest */}
       <Rect x={60.5} y={38} width={6} height={17} rx={3} fill={color} />
       <Rect x={60.5} y={24} width={6} height={11} rx={3} fill={color} />
@@ -362,12 +497,23 @@ export function RheumatoidArthritisHandIcon({ size, color }: IconProps) {
 // open path, doubling back on itself several times -- a stroke-only
 // shape (no fill), which is always visible against the transparent
 // background regardless of color, no contrast concerns at all.
+//
+// 2026-08-09, a small concentric "target" mark added at one point along
+// the coil -- a real reference image (labeled Crohn's Disease, directly
+// usable for this app's own broader IBD category) showed a distinct
+// bullseye-style mark on one section of intestine, standing in for a
+// localized area of real inflammation. The intestine's own stroke there
+// is only 9 units wide; the ring's own larger radius extends visibly
+// beyond it either side, so it reads as a real, separate mark rather than
+// disappearing into the tube itself.
 const INTESTINE =
   'M20,25 C40,15 40,35 20,40 C0,45 0,60 20,62 C40,64 45,50 60,52 C80,55 85,70 65,78 C50,84 45,70 60,68 C75,66 80,80 80,80';
 export function IbdIntestineIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
       <Path d={INTESTINE} stroke={color} strokeWidth={9} strokeLinecap="round" strokeLinejoin="round" fill="none" />
+      <Circle cx={65} cy={55} r={9} stroke={color} strokeWidth={2} fill="none" />
+      <Circle cx={65} cy={55} r={4} fill={color} />
     </Svg>
   );
 }
@@ -395,11 +541,18 @@ export function PcosUterusIcon({ size, color }: IconProps) {
 // concave notch cut into the inner side -- the shape's own single most
 // recognizable feature, built directly into the path's own curve rather
 // than approximated.
+//
+// 2026-08-09, a real stem/tube added extending from the concave notch --
+// a real reference image showed a clear funnel/tube (the renal pelvis and
+// ureter) at that exact spot, a real, recognizable kidney feature the
+// first pass's own plain bean shape left out. A stroke, extending into
+// open space beyond the shape's own concave edge, so no contrast concerns.
 const KIDNEY = 'M30,20 C10,30 8,55 22,72 C32,84 55,90 70,78 C60,72 48,68 48,55 C48,45 58,42 68,46 C82,52 92,42 88,28 C82,10 50,10 30,20 Z';
 export function ChronicKidneyDiseaseIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
       <Path d={KIDNEY} fill={color} />
+      <Path d="M55,52 C62,54 68,56 72,62" stroke={color} strokeWidth={4} strokeLinecap="round" fill="none" />
     </Svg>
   );
 }
@@ -458,19 +611,27 @@ export function ProstateGlandIcon({ size, color }: IconProps) {
   );
 }
 
-// Cardiovascular Disease -- "A detailed, anatomical Heart icon." The
-// classic bezier heart formula (two rounded upper lobes meeting a lower
-// point) -- a real, standard, well-understood shape, not reasoned from
-// scratch -- plus one short vessel stub in the natural notch between the
-// two lobes for a bit of real anatomical flavor. The notch there is
-// already open background space (the heart's own two lobes rise above
-// it), so the stub is clearly visible with no contrast concerns.
-const HEART = 'M50,88 C20,65 5,45 5,28 C5,12 18,2 32,2 C42,2 48,8 50,15 C52,8 58,2 68,2 C82,2 95,12 95,28 C95,45 80,65 50,88 Z';
+// Cardiovascular Disease -- "A detailed, anatomical Heart icon."
+//
+// 2026-08-09, rebuilt from the first pass's own classic, symmetric
+// valentine-heart formula -- a real reference image showed a genuinely
+// anatomical heart instead: a rounder, less symmetric muscular mass, with
+// several real vessel stems (varying in height and width) rising from the
+// top rather than one plain stub. Rebuilt in that same direction: an
+// organic, slightly asymmetric rounded mass, plus three real stems of
+// different heights/widths standing in for the aorta/pulmonary artery/
+// vena cava the reference shows -- real anatomical detail (visible
+// coronary vessels branching across the surface) was left out
+// deliberately, since that's fine texture this file has no reliable way
+// to hand-author blind, even with a real reference to look at.
+const HEART = 'M50,92 C25,75 8,55 10,35 C12,18 28,8 42,14 C48,17 50,24 50,24 C50,24 54,15 62,12 C78,6 92,20 90,38 C88,58 72,76 50,92 Z';
 export function CardiovascularDiseaseHeartIcon({ size, color }: IconProps) {
   return (
     <Svg width={size} height={size} viewBox="0 0 100 100">
+      <Rect x={40} y={2} width={5} height={14} rx={2} fill={color} />
+      <Rect x={48} y={0} width={6} height={16} rx={2} fill={color} />
+      <Rect x={57} y={4} width={5} height={12} rx={2} fill={color} />
       <Path d={HEART} fill={color} />
-      <Line x1={50} y1={15} x2={50} y2={3} stroke={color} strokeWidth={4} strokeLinecap="round" />
     </Svg>
   );
 }
@@ -493,7 +654,7 @@ export const DIGEST_CONDITION_ICONS: Partial<Record<DigestCategoryKey, (props: I
   ibd: IbdIntestineIcon,
   multipleSclerosis: MultipleSclerosisButterflyIcon,
   lupus: LupusButterflyIcon,
-  sjogrens: SjogrensDropletIcon,
+  sjogrens: SjogrensButterflyIcon,
   pcos: PcosUterusIcon,
   chronicKidneyDisease: ChronicKidneyDiseaseIcon,
   fattyLiverDisease: FattyLiverDiseaseIcon,
