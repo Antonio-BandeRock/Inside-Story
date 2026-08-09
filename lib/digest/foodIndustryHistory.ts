@@ -1239,6 +1239,146 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'A real, official, dated federal policy with real, measured follow-through (agreement counts), not just a symbolic announcement.',
     relatedIds: ['foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-terra-preta-ancient-biochar', 'foodhistory-regen-how-to-get-involved'],
   },
+  // 2026-08-11, same day, direct request: "We need some information about
+  // our polinators, how they are declining and what that means to our food
+  // supply, and which crops would we lose without our polinators?" plus a
+  // sixth "keep going" continuation of the same broader research thread.
+  // Every citation below independently re-verified via WebSearch/WebFetch
+  // the same way as every prior batch. This sub-cluster closes with the
+  // same "connect it back to what this whole cluster is actually about"
+  // discipline the rest of this research has held to throughout --
+  // regenerative practices are a real, documented part of pollinator
+  // recovery, not a separate topic.
+  {
+    id: 'foodhistory-regen-pollinator-decline-crisis',
+    category: 'basicHealth',
+    title: 'The Current Pollinator Crisis, In Real, Current Numbers',
+    teaser: 'US commercial beekeepers lost 62% of their colonies between June 2024 and February 2025 -- the largest loss ever recorded since national tracking began in 2010.',
+    summary:
+      "A real, current, ongoing crisis, not a slow historical trend alone. A national survey by Project Apis m., a real bee-research nonprofit, gathering data from 842 beekeepers managing roughly 1.956 million colonies (about 72% of all US commercial bees), found commercial beekeepers lost an average of 62% of their colonies between June 2024 and February 2025, over 1.1 million colonies total, the largest loss ever recorded since this kind of national survey tracking began in 2010, eclipsing the prior year's already-severe 55% loss rate. USDA estimated the resulting loss in agricultural revenue at roughly $600 million. This sits on top of a real, longer-running decline: US honeybee hives are down 59% from 60 years ago, with self-reported annual colony loss rates averaging around 40% over the past decade even before this most recent spike. Real, documented, multiple causes compound each other rather than any single one explaining it: amitraz-resistant Varroa destructor mites, high viral loads, pesticide exposure, habitat and forage loss, and climate stress, per USDA-linked research into the most recent, worst losses.",
+    citations: [
+      {
+        source: 'Project Apis m.: 2025 Colony Loss Information (survey methodology, 62% loss figure)',
+        url: 'https://www.projectapism.org/colony-loss-information',
+      },
+      {
+        source: 'Honey Bee Health Coalition: Survey Reveals Over 1.1 Million Honey Bee Colonies Lost, Raising Alarm for Pollination and Agriculture',
+        url: 'https://honeybeehealthcoalition.org/survey-reveals-over-1-1-million-honey-bee-colonies-lost-raising-alarm-for-pollination-and-agriculture/',
+      },
+      {
+        source: 'USAFacts: How much have US bee populations fallen, and why? (60-year decline context)',
+        url: 'https://usafacts.org/articles/what-is-the-loss-of-bees-costing-the-us/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, current, survey-based national data -- this is an active, still-unfolding crisis as of this being written, not a settled historical event.',
+    relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-neonicotinoid-regulation-loophole'],
+  },
+  {
+    id: 'foodhistory-regen-pollinator-dependent-crops',
+    category: 'basicHealth',
+    title: 'Which Crops Would We Actually Lose? A Real, Ranked Answer',
+    teaser: 'Brazil nuts, kiwi, melons, and cocoa are essentially 100% dependent. Almonds are the most extreme single case: pollinating them requires an estimated 99% of every honeybee colony in the entire US, at once, every February.',
+    summary:
+      "A real, widely used scientific framework (Klein et al. 2007) ranks 87 major global food crops by how much yield they'd lose without animal pollinators, from \"little\" (a real 5% yield loss) through \"modest\" (25%), \"great\" (65%), up to \"essential\" (95% loss, functionally a crop failure). Brazil nuts, kiwi, melons, and cocoa beans sit in the essential category -- a real, direct, literal basis for the claim that a world without pollinators is a world without chocolate. Overall, roughly 35% of global food production BY VOLUME depends on animal pollination to some real degree, and 75% of distinct crop TYPES depend on it at least partially, even though the world's staple calorie crops (wheat, rice, maize, and root crops like cassava) are wind-pollinated or self-pollinating and would be largely unaffected -- a real, important nuance, since it means overall global calorie production would fall a real but comparatively modest 5-10%, while fruit, vegetable, and nut diversity and nutrition would be hit far harder. The single most extreme real-world case is almonds, grown almost entirely in California and 100% dependent on bee pollination for any nut production at all: for the 2024 bloom, pollinating roughly 1.4 million acres of bearing almond orchards required an estimated 2.7 million honey bee colonies, meaning the industry's own February pollination demand consumed an estimated 99% of every commercially managed honeybee colony in the entire United States at once.",
+    citations: [
+      {
+        source: 'Our World in Data: How much of the world\'s food production is dependent on pollinators? (Klein et al. 2007 dependence framework, 35%/75% figures)',
+        url: 'https://ourworldindata.org/pollinator-dependence',
+      },
+      {
+        source: 'USDA Economic Research Service: Thousands of commercial honey bee colonies are transported long distances to pollinate California almonds (99% of US colonies)',
+        url: 'http://www.ers.usda.gov/data-products/charts-of-note/chart-detail?chartId=107088',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, peer-reviewed classification framework plus real, official USDA agricultural-economics data -- not an estimate or a single anecdote.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-nutrition-stakes', 'foodhistory-regen-fao-baseline-stakes'],
+  },
+  {
+    id: 'foodhistory-regen-pollinator-nutrition-stakes',
+    category: 'basicHealth',
+    title: 'The Real Nutritional Stakes, Not Just the Economic Ones',
+    teaser: 'Over 90% of the vitamin C in the human food supply, and nearly all of its vitamin A and lycopene, comes from crops that need an animal pollinator.',
+    summary:
+      "This is the single most directly health-relevant real finding in this whole pollinator sub-cluster, and the honest reason it belongs in a health app's own research at all, not just an agricultural-economics one. A landmark, peer-reviewed 2011 PLOS ONE study found that crops fully or partially dependent on animal pollinators supply more than 90% of the world's vitamin C, essentially the entire supply of lycopene and the antioxidants beta-cryptoxanthin and beta-tocopherol, and the majority of the world's dietary lipids, vitamin A and related carotenoids, calcium, and fluoride, plus a large share of folic acid. A more recent, India-specific follow-up study estimated that pollinator loss specifically could produce a real, approximately 19% deficit in dietary vitamin C. Staple calorie crops (wheat, rice, corn) are pollinator-independent, so a pollinator collapse would not directly threaten total caloric intake -- but it would disproportionately hit the exact food categories (fruits, vegetables) that supply the specific micronutrients a calorie-sufficient but nutrient-poor diet already tends to lack, with the real, documented risk concentrated more heavily in lower-income countries with less dietary redundancy to fall back on.",
+    citations: [
+      {
+        source: 'PLOS ONE 2011: "Contribution of Pollinator-Mediated Crops to Nutrients in the Human Food Supply" (Eilers et al.)',
+        url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0021363',
+      },
+      {
+        source: 'Entomological Research 2024: Role of pollinators in contributing to vitamin and mineral supply through crop production in India (Ghosh et al., 19% vitamin C deficit estimate)',
+        url: 'https://onlinelibrary.wiley.com/doi/full/10.1111/1748-5967.12726',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, peer-reviewed, landmark finding directly connecting pollinator health to human nutrient intake -- the clearest health-relevant citation in this whole cluster.',
+    relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-fao-baseline-stakes'],
+  },
+  {
+    id: 'foodhistory-regen-neonicotinoid-regulation-loophole',
+    category: 'basicHealth',
+    title: 'A Real Pesticide the Science Is Actually Settled On -- And a Real Loophole Keeping It in Use',
+    teaser: "The EU's own safety agency found \"no safe use could be identified\" for two of Bayer's own neonicotinoid pesticides. The ban that followed has since been legally circumvented at least 67 times.",
+    summary:
+      'Unlike glyphosate\'s own genuinely still-disputed cancer classification (see this cluster\'s own dedicated entries), the pesticide-pollinator link for neonicotinoid insecticides is comparatively well-settled science, not a live scientific dispute. A joint 2019 FAO/WHO report described a "rapidly growing body of evidence" that existing environmental levels of neonicotinoid contamination cause large-scale adverse effects on bees and other beneficial insects, and the European Food Safety Authority\'s own February 2018 risk assessment concluded that for two specific neonicotinoids, Bayer\'s own imidacloprid and clothianidin, "no safe use could be identified" at all. On that basis, the EU banned all outdoor use of three major neonicotinoids in 2018. The real complication, worth stating directly: that ban has a legal "emergency authorization" exception meant for genuine, no-other-option crop emergencies, and it has been used repeatedly rather than rarely -- at least 67 separate emergency authorizations were issued across 16 EU countries between April 2018 and mid-2020 alone, led by Belgium (14) and Romania (10), overwhelmingly for sugar beet but also maize, oilseed rape, and several vegetable crops, with one researcher directly describing the exemptions as \"rarely justified and often repeated\" rather than the genuine emergencies the exception was designed for.',
+    citations: [
+      {
+        source: 'Nature: Scientists hail European ban on bee-harming pesticides (EFSA 2018 assessment, "no safe use" finding)',
+        url: 'https://www.nature.com/articles/d41586-018-04987-4',
+      },
+      {
+        source: 'Greenpeace Unearthed: Loophole keeps bee-killing pesticides in widespread use, two years after EU ban (67 emergency authorizations, 16 countries)',
+        url: 'https://unearthed.greenpeace.org/2020/07/08/bees-neonicotinoids-bayer-syngenta-eu-ban-loophole/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The underlying pesticide-pollinator science here is comparatively well-settled, unlike glyphosate\'s own genuinely disputed cancer classification covered elsewhere in this cluster -- the real complication in this entry is regulatory enforcement, not scientific uncertainty.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-pesticide-liability-shields'],
+  },
+  {
+    id: 'foodhistory-regen-wild-bees-buzz-pollination',
+    category: 'basicHealth',
+    title: "Honeybees Aren't the Whole Story -- Some Crops Need a Bee They Physically Can't Be",
+    teaser: "Honeybees are biologically incapable of buzz pollination. Tomatoes, peppers, and blueberries genuinely need a wild bumblebee or a native bee species instead, not just more honeybee hives.",
+    summary:
+      "Most pollinator-decline coverage, including most of this cluster's own coverage above, centers on managed honeybee colonies specifically, since they're the easiest population to survey and the ones commercial agriculture directly rents and transports. That framing genuinely understates the real, separate risk: honeybees are biologically incapable of buzz pollination, a technique where a bee grips a flower and vibrates its flight muscles without moving its wings to shake pollen loose, a real, distinct mechanism only bumblebees, large carpenter bees, and several other native bee groups can perform. Tomatoes, peppers, eggplant, and blueberries all pollinate measurably better with buzz pollination available: for blueberries specifically, a single bumblebee-queen visit deposits as much pollen as four separate honeybee visits, and one California study found native, wild pollinators nearly tripled cherry tomato production compared to relying on honeybees alone. This means simply restoring managed honeybee colony numbers, even if achieved, would not fully substitute for a genuine decline in wild, native bee populations, which are tracked far less systematically than commercial honeybee colonies and whose own decline trend remains, honestly, less precisely measured.",
+    citations: [
+      {
+        source: 'PMC 2021: Buzz-Pollinated Crops -- A Global Review and Meta-analysis of the Effects of Supplemental Bee Pollination in Tomato',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8042731/',
+      },
+      {
+        source: 'UC Berkeley: Native bees often better pollinators than honey bee',
+        url: 'https://vcresearch.berkeley.edu/news/native-bees-often-better-pollinators-honey-bee',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, honest complication to the honeybee-centric framing most pollinator coverage defaults to -- included specifically so this sub-cluster doesn\'t leave the impression that managed honeybee recovery alone would fully solve the problem.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-habitat-regenerative-link'],
+  },
+  {
+    id: 'foodhistory-regen-pollinator-habitat-regenerative-link',
+    category: 'basicHealth',
+    title: 'Where This Sub-Cluster Connects Back to Everything Else in This Category',
+    teaser: 'Hedgerows, flower strips, and cover crops -- already covered in this cluster for entirely separate reasons -- are also real, measured pollinator-recovery tools, not a separate initiative.',
+    summary:
+      "Real research closes the loop directly back to the regenerative practices already covered throughout the rest of this cluster, rather than treating pollinator recovery as a separate initiative needing its own distinct set of techniques. Flowering cover crops (see this cluster's own Innovations and cover-crop-reality-check entries) provide real forage for both managed and wild bees during otherwise bare-field periods, while hedgerows planted along field margins measurably increase wild bee richness and persistence, providing both floral resources and real nesting habitat lost to modern, edge-to-edge monoculture. Direct, controlled comparisons found wild bee abundance and species richness highest in dedicated flower strips, followed by improved hedgerows, both clearly outperforming plain grass margins or natural regrowth left alone. Agroforestry (this cluster's own dedicated entry) delivers the identical dual benefit already documented there for biodiversity and yield. This is a real, concrete, already-actionable example of exactly the practical promise the rest of this cluster makes in the abstract: a farm genuinely rebuilding its own soil biology, via cover crops, hedgerows, and reduced tillage, is very often simultaneously rebuilding the wild pollinator habitat its own crops, and the broader food system's own nutrient supply covered above, depend on.",
+    citations: [
+      {
+        source: 'Xerces Society: Supporting Pollinators on Farmland',
+        url: 'https://xerces.org/pollinator-conservation/farmland',
+      },
+      {
+        source: 'Center for Regenerative Agriculture and Resilient Systems (Chico State): Hedgerows and Pollinator Habitat',
+        url: 'https://www.csuchico.edu/regenerativeagriculture/ra101-section/hedgerows.shtml',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The deliberate closing entry of this sub-cluster -- ties pollinator recovery directly back to the same practices this whole category has already documented, rather than treating it as a separate problem needing a separate solution.',
+    relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
