@@ -26,11 +26,12 @@ import {
   findDigestEntryById,
   getEntriesForCategory,
   isProblemFoodEntry,
-  searchDigestEntries,
-  searchEntries,
+  searchDigestEntriesScored,
+  searchEntriesScored,
   type AnyDigestEntry,
   type DigestCategoryKey,
   type EvidenceTier,
+  type SearchMatchInfo,
 } from '../../lib/digest';
 
 // A synthetic lens key, alongside every real category -- 2026-08-08,
@@ -127,6 +128,10 @@ const DIGEST_SEARCH_HELP: HelpSection[] = [
   {
     heading: 'A different way to look, not the only way',
     body: 'Every other category also has its own, separate search box, scoped to just that one category\'s own entries, once you\'ve opened it -- useful when you already know roughly where something lives and just want to narrow it down.',
+  },
+  {
+    heading: 'Reading a result\'s own match info',
+    body: 'Typing more than one word searches for each of them independently, not the exact phrase -- a result can match one, some, or all of them. The "X of Y search terms matched" line and the small pills below it show exactly which ones did: a filled pill means that word appeared in the entry\'s own title (the strongest kind of match), an outlined pill means it only showed up in the body or a citation, and a dim pill means that particular word never appeared in this entry at all.',
   },
 ];
 
@@ -987,14 +992,32 @@ export default function PurpleDigestScreen() {
   // per real pause in typing, not once per character, because it's simply
   // never told about a keystroke until the debounce inside that child
   // component has already settled.
-  const searchResults = useMemo(() => searchDigestEntries(searchQuery), [searchQuery]);
+  // 2026-08-09, real per-term match info added -- direct request: "the
+  // search results should tell me if one or the other or both items
+  // appeared in the result and how much weight this entry has." Scored
+  // now, not just a plain ranked list -- each result carries its own real
+  // SearchMatchInfo (which of the typed terms actually matched, and
+  // whether each hit the title or only the body), rendered directly on
+  // SearchResultCard below rather than left as an invisible internal
+  // ranking number the way this screen's own sort order already was.
+  const searchResults = useMemo(() => searchDigestEntriesScored(searchQuery), [searchQuery]);
   // The same filtered, grouped hierarchical view built for category search
   // (see the JSX below) -- pulled into its own real useMemo here, alongside
   // searchResults above, rather than left as an inline IIFE recomputed on
   // every render regardless of whether the query (or the category itself)
   // actually changed.
+  // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
+  // Set -- the same "which terms actually matched, title or just body"
+  // detail Search All's own results already carry, threaded through to
+  // ShelfTabCard below so a category's own scoped search shows the same
+  // real relevance signal, not just a filtered list with no visible reason
+  // why each card is there.
+  const categorySearchMatchInfo = useMemo(() => {
+    const map = new Map<string, SearchMatchInfo>();
+    for (const result of searchEntriesScored(entries, categorySearchQuery)) map.set(result.entry.id, result.match);
+    return map;
+  }, [entries, categorySearchQuery]);
   const categorySearchGroups = useMemo(() => {
-    const matchedIds = new Set(searchEntries(entries, categorySearchQuery).map((entry) => entry.id));
     const baseGroups =
       lens === 'basicHealth'
         ? basicHealthAllGroups(entries)
@@ -1005,10 +1028,10 @@ export default function PurpleDigestScreen() {
     return baseGroups
       .map((group) => ({
         label: group.label,
-        entries: group.entries.filter((entry) => matchedIds.has(entry.id)),
+        entries: group.entries.filter((entry) => categorySearchMatchInfo.has(entry.id)),
       }))
       .filter((group) => group.entries.length > 0);
-  }, [entries, categorySearchQuery, lens]);
+  }, [entries, categorySearchMatchInfo, lens]);
   const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
 
   // Scrolls the ScrollView so the named card's own top edge lands exactly
@@ -1376,8 +1399,8 @@ export default function PurpleDigestScreen() {
                     <Text style={styles.searchResultCount}>
                       {searchResults.length} match{searchResults.length === 1 ? '' : 'es'}
                     </Text>
-                    {searchResults.map((entry) => (
-                      <SearchResultCard key={entry.id} entry={entry} onPress={() => jumpToRelated(entry.id)} />
+                    {searchResults.map(({ entry, match }) => (
+                      <SearchResultCard key={entry.id} entry={entry} match={match} onPress={() => jumpToRelated(entry.id)} />
                     ))}
                   </>
                 )
@@ -1419,6 +1442,7 @@ export default function PurpleDigestScreen() {
                       groupRefs={groupRefs}
                       onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
                       onJumpToRelated={jumpToRelated}
+                      matchInfoById={categorySearchMatchInfo}
                     />
                   </>
                 )
@@ -1677,7 +1701,66 @@ function DigestSearchInput({
 // so it lands you at the real card, in its real category, expanded and
 // scrolled into view, rather than trying to render the full entry a second
 // time inside the search results themselves.
-function SearchResultCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: () => void }) {
+// 2026-08-09, real per-term match display added directly to this card --
+// direct request: "if I search for Sleep and Inflammation, or in reverse
+// order, the search results should tell me if one or the other or both
+// items appeared in the result and how much weight this entry has based
+// on the search criteria." A plain summary line ("2 of 2 terms matched")
+// answers the "how much weight" half on its own; the row of per-term pills
+// below it answers the "one or the other or both" half directly and
+// specifically -- each real typed term gets its own pill, filled solid
+// when it hit this entry's own title (the same real, stronger 3x match
+// this app's own ranking has always used internally), outlined when it
+// only matched somewhere in the body or a citation, and shown dim/crossed
+// out when it didn't match this particular entry at all -- so a two-word
+// search instantly shows which entries are about BOTH words and which are
+// only about one of them, rather than leaving that entirely to guesswork
+// based on ranking order alone.
+function MatchSummaryRow({ match }: { match: SearchMatchInfo }) {
+  return (
+    <View style={styles.matchBlock}>
+      <Text style={styles.matchSummaryText}>
+        {match.matchedTermCount} of {match.totalTermCount} search term{match.totalTermCount === 1 ? '' : 's'} matched
+      </Text>
+      <View style={styles.matchTermRow}>
+        {match.terms.map((termMatch) => (
+          <View
+            key={termMatch.term}
+            style={[
+              styles.matchTermPill,
+              termMatch.matchedInTitle
+                ? styles.matchTermPillTitle
+                : termMatch.matchedAnywhere
+                  ? styles.matchTermPillBody
+                  : styles.matchTermPillMiss,
+            ]}
+          >
+            <Text
+              style={[
+                styles.matchTermPillText,
+                termMatch.matchedInTitle ? styles.matchTermPillTextTitle : null,
+                !termMatch.matchedAnywhere ? styles.matchTermPillTextMiss : null,
+              ]}
+            >
+              {termMatch.term}
+              {termMatch.matchedInTitle ? ' · title' : termMatch.matchedAnywhere ? '' : ' · not found'}
+            </Text>
+          </View>
+        ))}
+      </View>
+    </View>
+  );
+}
+
+function SearchResultCard({
+  entry,
+  match,
+  onPress,
+}: {
+  entry: AnyDigestEntry;
+  match: SearchMatchInfo;
+  onPress: () => void;
+}) {
   const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
   return (
     <TouchableOpacity style={styles.card} onPress={onPress} activeOpacity={0.85}>
@@ -1689,6 +1772,7 @@ function SearchResultCard({ entry, onPress }: { entry: AnyDigestEntry; onPress: 
       </View>
       <Text style={styles.searchResultCategory}>{categoryLabelForEntry(entry)}</Text>
       <Text style={styles.cardTeaser}>{entry.teaser}</Text>
+      <MatchSummaryRow match={match} />
     </TouchableOpacity>
   );
 }
@@ -1896,12 +1980,18 @@ function BasicHealthShelves({
   groupRefs,
   onToggleEntry,
   onJumpToRelated,
+  matchInfoById,
 }: {
   groups: { label: string; entries: AnyDigestEntry[] }[];
   expandedId: string | null;
   groupRefs: MutableRefObject<Record<string, Measurable | null>>;
   onToggleEntry: (id: string) => void;
   onJumpToRelated: (id: string) => void;
+  // 2026-08-09, real per-term match detail for a category's own scoped
+  // search -- undefined for every ordinary (non-search) call site, which
+  // is exactly what ShelfTabCard needs to know not to render a match
+  // indicator at all outside of search.
+  matchInfoById?: Map<string, SearchMatchInfo>;
 }) {
   return (
     <>
@@ -1943,6 +2033,7 @@ function BasicHealthShelves({
                   entry={entry}
                   selected={expandedId === entry.id}
                   onPress={() => onToggleEntry(entry.id)}
+                  match={matchInfoById?.get(entry.id)}
                 />
               ))}
             </ScrollView>
@@ -1969,14 +2060,25 @@ function BasicHealthShelves({
 // `selected` highlights whichever tab's own entry the panel below
 // currently belongs to, so scrolling left/right through the row never
 // loses track of which one is actually open.
+//
+// 2026-08-09, an optional `match` added -- present only when this card is
+// being shown as part of a category's own scoped search (see
+// BasicHealthShelves' own matchInfoById), undefined the rest of the time.
+// Rendered as a compact row of small dots rather than SearchResultCard's
+// own full text pills -- this card is already tight on space (title, tier
+// dot, and teaser all in a fixed-width tab), so one small, filled/outline/
+// dim dot per real search term gives the same "one, the other, or both,
+// and how strongly" signal without needing room for the term text itself.
 function ShelfTabCard({
   entry,
   selected,
   onPress,
+  match,
 }: {
   entry: AnyDigestEntry;
   selected: boolean;
   onPress: () => void;
+  match?: SearchMatchInfo;
 }) {
   const title = isProblemFoodEntry(entry) ? entry.foodName : entry.title;
   return (
@@ -1996,6 +2098,23 @@ function ShelfTabCard({
       <Text style={styles.shelfCardTeaser} numberOfLines={4}>
         {entry.teaser}
       </Text>
+      {match ? (
+        <View style={styles.matchDotRow}>
+          {match.terms.map((termMatch) => (
+            <View
+              key={termMatch.term}
+              style={[
+                styles.matchDot,
+                termMatch.matchedInTitle
+                  ? styles.matchDotTitle
+                  : termMatch.matchedAnywhere
+                    ? styles.matchDotBody
+                    : styles.matchDotMiss,
+              ]}
+            />
+          ))}
+        </View>
+      ) : null}
     </TouchableOpacity>
   );
 }
@@ -2332,6 +2451,15 @@ const styles = StyleSheet.create({
   },
   shelfCardTitle: { ...typography.label, color: TAB_COLOR, flex: 1, fontSize: 14 },
   shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
+  // 2026-08-09, ShelfTabCard's own compact per-term match indicator, shown
+  // only while this card is part of a category's own scoped search
+  // results -- see ShelfTabCard's own comment for why this is a row of
+  // small dots rather than SearchResultCard's own full text pills.
+  matchDotRow: { flexDirection: 'row', gap: 5, marginTop: 6 },
+  matchDot: { width: 8, height: 8, borderRadius: 4 },
+  matchDotTitle: { backgroundColor: TAB_COLOR },
+  matchDotBody: { backgroundColor: 'transparent', borderWidth: 1.5, borderColor: TAB_COLOR },
+  matchDotMiss: { backgroundColor: colors.border },
   // The real detail panel appearing directly below a row's own tab strip
   // once one of its tabs is tapped -- "the whole row drops down for the
   // one selected," per direct request. A small top margin separates it
@@ -2350,6 +2478,28 @@ const styles = StyleSheet.create({
   tierDot: { width: 10, height: 10, borderRadius: 5 },
   cardTitle: { ...typography.label, color: TAB_COLOR, flex: 1 },
   cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17 },
+  // 2026-08-09, SearchResultCard's own real per-term match display -- see
+  // MatchSummaryRow's own comment for the full reasoning. matchBlock sits
+  // directly under the teaser, matchSummaryText states the plain "X of Y
+  // matched" count, and matchTermRow holds one pill per real search term:
+  // filled (matchTermPillTitle) when that term hit this entry's own title,
+  // outlined (matchTermPillBody) when it only matched the body/citations,
+  // and dim (matchTermPillMiss) when it didn't match this entry at all.
+  matchBlock: { marginTop: 8 },
+  matchSummaryText: { ...typography.caption, color: colors.textMuted, marginBottom: 6 },
+  matchTermRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  matchTermPill: {
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+  },
+  matchTermPillTitle: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
+  matchTermPillBody: { backgroundColor: 'transparent', borderColor: TAB_COLOR },
+  matchTermPillMiss: { backgroundColor: 'transparent', borderColor: colors.border },
+  matchTermPillText: { ...typography.caption, color: TAB_COLOR, fontSize: 11 },
+  matchTermPillTextTitle: { color: colors.background, fontWeight: '700' },
+  matchTermPillTextMiss: { color: colors.textMuted },
   cardDetail: { marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
   tierLabelText: { ...typography.eyebrow, marginBottom: 6 },
   // EntryMetaRow's own reading-time text plus, when relevant, the plain,

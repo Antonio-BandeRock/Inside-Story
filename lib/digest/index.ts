@@ -586,27 +586,90 @@ function termMatches(haystack: string, term: string): boolean {
 // can reuse the exact same real matching/ranking logic rather than a
 // second, separately-maintained copy of it. searchDigestEntries itself is
 // now just this function called with the full ALL_DIGEST_ENTRIES pool.
-export function searchEntries(pool: AnyDigestEntry[], query: string, limit = 60): AnyDigestEntry[] {
+//
+// 2026-08-09, real per-term match detail added, direct request: "if I
+// search for Sleep and Inflammation... the search results should tell me
+// if one or the other or both items appeared in the result and how much
+// weight this entry has based on the search criteria." The plain score
+// this function already computed internally was never surfaced anywhere
+// -- a result card had no way to show WHICH terms actually matched or
+// where. searchEntriesScored below is the real, richer version (one
+// SearchTermMatch per real query term, plus the same score), and this
+// function is now just a thin wrapper around it that keeps returning
+// exactly what it always has -- every existing call site (the category-
+// scoped search's own matchedIds Set, built purely to filter which
+// entries belong in a group) needs nothing more than the plain entry list
+// and stays completely unchanged.
+export type SearchTermMatch = {
+  // The real, extracted query term this describes (lowercased, stopwords
+  // and punctuation already stripped -- see extractSearchTerms).
+  term: string;
+  // True when this term matched the entry's own title/food name directly
+  // -- the real, stronger 3x-weighted match this function's own scoring
+  // has always used internally, now exposed rather than hidden inside a
+  // single opaque number.
+  matchedInTitle: boolean;
+  // True when this term matched anywhere at all (title, summary, or a
+  // citation's own source text) -- always true when matchedInTitle is,
+  // since the title is itself part of the full haystack; false only when
+  // this specific term never appeared anywhere in this specific entry.
+  matchedAnywhere: boolean;
+};
+
+export type SearchMatchInfo = {
+  // One entry per real term the query broke down into, in the same order
+  // the query itself listed them -- searching "sleep inflammation" and
+  // "inflammation sleep" produces the same two SearchTermMatch objects,
+  // just in the order the person actually typed them, so a result card can
+  // genuinely answer "did the FIRST thing I typed match, and the second."
+  terms: SearchTermMatch[];
+  matchedTermCount: number;
+  totalTermCount: number;
+  // The same real, internal relevance score this function has always
+  // computed (a title match counts 3x an ordinary body match) -- now a
+  // real, visible part of this type instead of being thrown away the
+  // instant sorting finished.
+  score: number;
+};
+
+export type ScoredDigestEntry = { entry: AnyDigestEntry; match: SearchMatchInfo };
+
+export function searchEntriesScored(pool: AnyDigestEntry[], query: string, limit = 60): ScoredDigestEntry[] {
   const terms = extractSearchTerms(query);
   if (terms.length === 0) return [];
 
-  const scored: { entry: AnyDigestEntry; score: number }[] = [];
+  const scored: ScoredDigestEntry[] = [];
   for (const entry of pool) {
     const haystack = digestSearchHaystack(entry);
     const title = digestSearchTitle(entry);
     let score = 0;
-    for (const term of terms) {
-      if (termMatches(title, term)) score += 3;
-      else if (termMatches(haystack, term)) score += 1;
+    let matchedTermCount = 0;
+    const termMatchList: SearchTermMatch[] = terms.map((term) => {
+      const matchedInTitle = termMatches(title, term);
+      const matchedAnywhere = matchedInTitle || termMatches(haystack, term);
+      if (matchedInTitle) score += 3;
+      else if (matchedAnywhere) score += 1;
+      if (matchedAnywhere) matchedTermCount += 1;
+      return { term, matchedInTitle, matchedAnywhere };
+    });
+    if (score > 0) {
+      scored.push({ entry, match: { terms: termMatchList, matchedTermCount, totalTermCount: terms.length, score } });
     }
-    if (score > 0) scored.push({ entry, score });
   }
   // Highest relevance first; a stable sort keeps equally-relevant entries
   // in their own original pool order rather than shuffling them.
-  scored.sort((a, b) => b.score - a.score);
-  return scored.slice(0, limit).map((item) => item.entry);
+  scored.sort((a, b) => b.match.score - a.match.score);
+  return scored.slice(0, limit);
+}
+
+export function searchEntries(pool: AnyDigestEntry[], query: string, limit = 60): AnyDigestEntry[] {
+  return searchEntriesScored(pool, query, limit).map((result) => result.entry);
 }
 
 export function searchDigestEntries(query: string, limit = 60): AnyDigestEntry[] {
   return searchEntries(ALL_DIGEST_ENTRIES, query, limit);
+}
+
+export function searchDigestEntriesScored(query: string, limit = 60): ScoredDigestEntry[] {
+  return searchEntriesScored(ALL_DIGEST_ENTRIES, query, limit);
 }
