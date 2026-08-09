@@ -59,6 +59,32 @@ import type { DigestEntry } from './types';
 // pesticide sections, all four scapegoat cases, the disappearing-
 // microbiota mechanism entry, and the closing opinion -- make no disease-
 // specific claim and stayed `'basicHealth'`.
+//
+// 2026-08-09, a fourth change, direct request: "if it doesn't actually have
+// anything specific to do with Basic Health, such as the information about
+// the planet, pollinators, chemical producers, etc., it also needs to be
+// outside of the Basic Health in an area labeled for it. For the Planet
+// stuff and our environment, put it all into a new section called Earth
+// Matters." The entire foodhistory-regen- cluster (62 entries: soil, water,
+// pollinators, seed diversity, regenerative-farming case studies, lobbying
+// and policy, food deserts, right-to-repair -- everything built across this
+// session's many "keep going with more research" batches) plus the six
+// original soil-depletion and pesticide entries (foodhistory-soil-*,
+// foodhistory-pesticides-*) -- 68 entries total -- were reassigned from
+// `category: 'basicHealth'` to `category: 'earthMatters'`, a new category
+// key (see types.ts). This is genuinely planet/agriculture-system content,
+// not body/health science, matching the same "does this describe how the
+// body works, or something else" test this file's own third change above
+// already applied. The 14 remaining basicHealth-tagged entries (the food-
+// industry timeline's other three eras, all four scapegoat cases, the
+// cholesterol/apoB/eggs/butter deep dives, the disappearing-microbiota
+// mechanism entry, and the closing opinion) genuinely are body/health
+// science or food-industry narrative, not planet content, and stayed put.
+// The old closing entry `foodhistory-regen-global-implementation-synthesis`
+// was renamed to `foodhistory-regen-tying-together` (all 8 references
+// within this one file updated together) so it becomes Earth Matters' own
+// real, pulled-out closing synthesis card, the same `-tying-together`
+// convention every other category already uses.
 export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- The Timeline ---
   {
@@ -165,7 +191,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- Soil & Nutrient Decline ---
   {
     id: 'foodhistory-soil-landmark-studies',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Two Landmark Studies: Has Produce Itself Changed?',
     teaser: 'A US and a UK study, decades apart from each other, both found declines in the same handful of nutrients.',
     summary:
@@ -185,7 +211,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-soil-dilution-vs-depletion',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Complication: Is It Really the Soil?',
     teaser: 'A methodological critique challenges "depleted soil" as the mechanism, and points at breeding-for-yield instead.',
     summary:
@@ -206,7 +232,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-soil-real-depletion',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Where Soil Depletion IS Well-Documented',
     teaser: 'A controlled, same-field, 75-year trial found trace-mineral loss under intensive tillage, a stronger design than the historical table comparisons above.',
     summary:
@@ -234,7 +260,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // --- Pesticides & Carcinogens ---
   {
     id: 'foodhistory-pesticides-ddt',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'DDT: The First Resolved Case',
     teaser: 'A widely used, government-approved pesticide that took 27 years to be recognized and banned, a real precedent, not a hypothetical one.',
     summary:
@@ -250,7 +276,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-pesticides-glyphosate-dispute',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Glyphosate: The Current Dispute',
     teaser: 'IARC calls it probably carcinogenic. The EU and WHO/FAO disagree. A 2025 animal study just reopened the question at "safe" doses.',
     summary:
@@ -267,7 +293,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-pesticides-glyphosate-gut',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'What Glyphosate Does to the Gut, Specifically',
     teaser: 'The weakest-evidenced claim in this whole document, stated precisely rather than overstated.',
     summary:
@@ -511,7 +537,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // original vague framing gave it credit for.
   {
     id: 'foodhistory-regen-timeline-origins',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Counter-Movement Begins (1972 – 1980s)',
     teaser: 'Within the same synthetic-chemical era this category already covers, three real, independent, low-cost responses to soil degradation took root on three different continents.',
     summary:
@@ -536,7 +562,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-timeline-certification-era',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'From Farmer Practice to Formal Certification (2017 – Today)',
     teaser: 'A real standard, a real founding coalition, and a real, striking acreage jump from 1.15 million to over 22 million in about three years.',
     summary:
@@ -569,7 +595,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-innovations-soil-biology',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'What "Rebuilding the Microbiome" Actually Looks Like on a Farm Today',
     teaser: 'Custom microbial blends, biochar as a real bacterial apartment complex, DNA soil censuses, and simply disturbing the ground less.',
     summary:
@@ -586,7 +612,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-whole-foods-organic-industry',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'How This Reshapes the Whole Foods / Premium-Organic Retail Industry',
     teaser: 'Fewer chemical crop failures, a real certification seal retailers can market against, and a brand-new, real fund launched literally days before this was written.',
     summary:
@@ -607,7 +633,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-environmental-impact',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Real Environmental Case for Fewer Chemical Inputs',
     teaser: 'Cleaner water tables, real carbon drawdown as the single largest segment of this whole market, and a real, official EU reduction target already partway met.',
     summary:
@@ -627,7 +653,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-brazil-case-study',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Brazil: The World\'s Clearest No-Till Success Story',
     teaser: 'Started by one farmer importing a seeding machine in 1972. Today, over 80% of Brazil\'s soy farms use it, with a real, documented 97% cut in soil erosion.',
     summary:
@@ -656,7 +682,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-niger-fmnr-case-study',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Niger: 24 Million Hectares Restored, Starting From One Roadside Tree Stump',
     teaser: 'A flat tire in 1983 led to the single largest low-cost land-restoration movement documented anywhere in the world.',
     summary:
@@ -677,7 +703,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'One of the best-documented, largest-scale, lowest-cost land-restoration successes recorded anywhere -- a real, direct counter-example to assuming African adoption lags the rest of the world.',
-    relatedIds: ['foodhistory-regen-timeline-origins', 'foodhistory-regen-global-implementation-synthesis'],
+    relatedIds: ['foodhistory-regen-timeline-origins', 'foodhistory-regen-tying-together'],
     chart: {
       title: 'Farmer-Managed Natural Regeneration, Land Restored',
       unit: 'million hectares',
@@ -697,7 +723,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // the same discipline this whole Digest holds every other category to.
   {
     id: 'foodhistory-regen-china-loess-plateau',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "China's Loess Plateau: A Third, Government-Driven Model of Restoration",
     teaser: "The most eroded region on Earth, restored government-to-government, not by individual farmers -- a real, different pathway from Brazil's or Niger's.",
     summary:
@@ -714,7 +740,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'One of the best-documented, largest official government/development-bank land-restoration projects on record.',
-    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-global-implementation-synthesis'],
+    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-tying-together'],
     chart: {
       title: 'Loess Plateau Restoration, Before and After',
       unit: '%',
@@ -727,7 +753,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-rodale-farming-systems-trial',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Does It Actually Yield As Much? A Real, 40-Plus-Year Controlled Answer',
     teaser: 'America\'s longest-running side-by-side organic-vs-conventional trial, started in 1981 -- the strongest evidence tier available on whether this genuinely trades away productivity.',
     summary:
@@ -750,7 +776,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-4-per-1000-initiative',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The "4 per 1000" Global Soil-Carbon Pledge, and the Real Scientific Pushback It Got',
     teaser: 'A real 2015 international climate initiative built around one precise number -- and a real, credible soil-science critique that the number itself may not be achievable.',
     summary:
@@ -771,7 +797,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-mycorrhizal-networks',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Fungal Networks Minimal-Disturbance Farming Is Actually Protecting',
     teaser: 'Real, discovered in 1997 -- and a real, published 2023 correction pushing back on how far the popular "trees talking to each other" story has been stretched.',
     summary:
@@ -792,7 +818,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-holistic-grazing-disputed',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Holistic Planned Grazing: A Real, Popular Claim That Doesn\'t Hold Up Under Scrutiny',
     teaser: 'Allan Savory\'s claim that managed cattle grazing could reverse climate change drew real, credible scientific pushback -- included here because not every "regenerative" claim survives a check.',
     summary:
@@ -809,7 +835,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'weak',
     stageNote: 'Included deliberately as a real, honest counter-example -- a widely repeated regenerative-agriculture claim that a real, published scientific review does not support at the scale claimed.',
-    relatedIds: ['foodhistory-regen-global-implementation-synthesis'],
+    relatedIds: ['foodhistory-regen-tying-together'],
   },
   // 2026-08-10, same day, second follow-up: "Keep going with more research
   // on this topic." Every citation below independently re-verified via
@@ -826,7 +852,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // branding around exactly that combination.
   {
     id: 'foodhistory-regen-fao-baseline-stakes',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Real Baseline: Why Any of This Is Urgent At All',
     teaser: "The UN's own food and agriculture agency: a real third of the world's soil is already degraded, and over 90% could be by 2050.",
     summary:
@@ -856,7 +882,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-darwin-earthworms-vermicompost',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "Darwin's Last Book Wasn't About Evolution. It Was About Earthworms.",
     teaser: 'A real, dated 1881 bestseller on soil-building worms, and the modern, peer-reviewed vermicompost science that grew directly out of it.',
     summary:
@@ -877,7 +903,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-agroforestry-quantified',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Agroforestry: A Real, Large, Quantified Meta-Analysis of What Planting Trees Among Crops Actually Does',
     teaser: 'A real 532-study, 3,075-comparison global analysis, not a single showcase farm -- and it includes an honest downside, not just wins.',
     summary:
@@ -894,7 +920,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-no-till-greenwashing-critique',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: '"Regenerative" Has No Official Definition, and That Real Gap Gets Exploited',
     teaser: 'A real, honest complication to Brazil\'s own no-till success story: industrial no-till very often means MORE herbicide, not less, and major agrochemical companies are branding around exactly that.',
     summary:
@@ -926,7 +952,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // policy and the farmer protests it triggered).
   {
     id: 'foodhistory-regen-terra-preta-ancient-biochar',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Biochar Is Not a New Idea. Amazonian Farmers Were Doing It Thousands of Years Ago.',
     teaser: 'Terra preta, human-made fertile soil in the Amazon, still measurably richer than the surrounding ground centuries to millennia after it was built.',
     summary:
@@ -956,7 +982,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-engineered-nitrogen-fixing-microbes',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Engineering Corn to Do What Only Legumes Could Do Before',
     teaser: 'Gene-edited soil bacteria that fix nitrogen directly at a corn plant\'s roots -- a real, current, peer-reviewed alternative to synthetic fertilizer, not a lab curiosity.',
     summary:
@@ -983,7 +1009,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-cover-crop-reality-check',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real Reality Check: Even the Simplest Regenerative Practice Is Still Rare',
     teaser: 'Cover crops have been promoted for decades and are one of the cheapest, best-understood regenerative practices there is. In 2022, they were still on under 5% of US cropland.',
     summary:
@@ -1000,7 +1026,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Official USDA Census data -- a real, grounding corrective to the faster-moving market and certification figures elsewhere in this cluster.',
-    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-global-implementation-synthesis'],
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-tying-together'],
     chart: {
       title: 'US Cropland Using Cover Crops (2022)',
       unit: '%',
@@ -1013,7 +1039,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-netherlands-nitrogen-conflict',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Netherlands: A Real Case Study in How Contentious This Transition Can Get',
     teaser: 'A court ruling, a plan to cut livestock nitrogen by half, and one of the largest farmer protest movements in modern European history -- a real, honest counterweight to every case study above.',
     summary:
@@ -1030,7 +1056,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, current, well-documented political case study -- included deliberately as a counterweight, so this cluster does not read as though every country adopts these changes smoothly or without real economic cost to farmers.',
-    relatedIds: ['foodhistory-regen-global-implementation-synthesis', 'foodhistory-regen-environmental-impact'],
+    relatedIds: ['foodhistory-regen-tying-together', 'foodhistory-regen-environmental-impact'],
   },
   // 2026-08-10, same day, direct question: "What are the reasons why our
   // governments aren't forcing the soil regeneration... Who are those that
@@ -1047,7 +1073,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // honestly rather than picking the more dramatic single explanation.
   {
     id: 'foodhistory-regen-why-not-mandated',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "Why Isn't This Just Mandated? Three Real, Structural Reasons",
     teaser: "The single biggest one isn't a conspiracy -- it's how crop insurance prices risk. A farmer converting to regenerative practices eats the real transition-year risk with no discount for the benefit that's coming.",
     summary:
@@ -1068,7 +1094,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-lobbying-imbalance',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Real, Public, Quantified Lobbying Numbers Behind the Question',
     teaser: 'Agribusiness spends more on federal lobbying than oil and gas, or defense. On the Farm Bill specifically, industry outspent reform advocates roughly 4 to 1 between 2019 and 2023.',
     summary:
@@ -1089,7 +1115,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-pesticide-liability-shields',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real, Live, Current Example: State-by-State Pesticide Liability Shield Bills',
     teaser: 'A real, Bayer-founded front group is funding billboards, ads, and flyers in a dozen state legislatures this year, aiming to make it legally impossible to sue over glyphosate cancer claims.',
     summary:
@@ -1110,7 +1136,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-reform-coalition-orgs',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Who Is Organizing on the Other Side, By Name',
     teaser: '100+ organizations, 34 specific proposed bills, and a dedicated task force built specifically to redesign crop insurance around soil health.',
     summary:
@@ -1131,7 +1157,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-how-to-get-involved',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'How an Everyday Person Can Actually Get Involved, Right Now',
     teaser: "Two real, live channels, not vague civic-mindedness: the next US Farm Bill is in active committee markup this year, and USDA rulemaking has real, open public-comment windows.",
     summary:
@@ -1148,7 +1174,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, currently-open civic channels, not a general or evergreen suggestion -- worth confirming committee markup status and comment-period deadlines directly, since a live legislative process moves and this entry\'s own "right now" framing will age.',
-    relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-right-to-repair-farm-equipment'],
+    relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-right-to-repair-farm-equipment', 'garden-economics-subsidizing-food'],
   },
   // 2026-08-10/11, same day, fifth follow-up: "Keep going with more research
   // on this topic." Every citation below independently re-verified via
@@ -1161,7 +1187,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // Indigenous-knowledge thread already touched via Niger and terra preta.
   {
     id: 'foodhistory-regen-carbon-credit-integrity-problems',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "Soil Carbon Credits: A Real Financing Idea With Real, Documented Integrity Problems",
     teaser: '40-60% of enrolled farmers were already doing the practice, or planning to, before the payment showed up -- a real, quantified additionality problem, not a hypothetical one.',
     summary:
@@ -1182,7 +1208,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-eu-cap-structural-disincentive',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "Europe Has Its Own Version of the Same Structural Problem",
     teaser: "The EU's Common Agricultural Policy pays largely per hectare, not per outcome -- 2.2% of EU farms collect 28.2% of all payments, and reform attempts have shown limited real environmental effect.",
     summary:
@@ -1199,11 +1225,11 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, structural parallel to this cluster\'s own US crop-insurance entry, included specifically so the "why isn\'t this mandated" question doesn\'t read as a uniquely American problem.',
-    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-global-implementation-synthesis'],
+    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-tying-together'],
   },
   {
     id: 'foodhistory-regen-nutrient-density-honest-evidence',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Does Any of This Actually Make Food More Nutritious? A Real, Honestly Mixed Answer',
     teaser: 'A real, 367-study systematic review found zinc rose in 94% of rice studies using organic inputs -- but in only 48% of wheat studies. The effect is real in places, and genuinely inconsistent in others.',
     summary:
@@ -1220,7 +1246,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-tribal-co-stewardship-policy',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real, Current US Federal Policy Recognizing Indigenous Land Knowledge Directly',
     teaser: 'A real 2021 joint federal order, and over 400 real co-stewardship agreements signed since -- the policy expression of the same Indigenous-knowledge thread already touched via Niger and terra preta.',
     summary:
@@ -1251,7 +1277,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // recovery, not a separate topic.
   {
     id: 'foodhistory-regen-pollinator-decline-crisis',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Current Pollinator Crisis, In Real, Current Numbers',
     teaser: 'US commercial beekeepers lost 62% of their colonies between June 2024 and February 2025 -- the largest loss ever recorded since national tracking began in 2010.',
     summary:
@@ -1272,11 +1298,11 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, current, survey-based national data -- this is an active, still-unfolding crisis as of this being written, not a settled historical event.',
-    relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-neonicotinoid-regulation-loophole', 'foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-how-to-get-involved'],
+    relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-neonicotinoid-regulation-loophole', 'foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-how-to-get-involved', 'garden-pollinator-friendly-earth-matters-link'],
   },
   {
     id: 'foodhistory-regen-pollinator-dependent-crops',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Which Crops Would We Actually Lose? A Real, Ranked Answer',
     teaser: 'Brazil nuts, kiwi, melons, and cocoa are essentially 100% dependent. Almonds are the most extreme single case: pollinating them requires an estimated 99% of every honeybee colony in the entire US, at once, every February.',
     summary:
@@ -1293,11 +1319,11 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, peer-reviewed classification framework plus real, official USDA agricultural-economics data -- not an estimate or a single anecdote.',
-    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-nutrition-stakes', 'foodhistory-regen-fao-baseline-stakes'],
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-nutrition-stakes', 'foodhistory-regen-fao-baseline-stakes', 'garden-pollinator-friendly-earth-matters-link'],
   },
   {
     id: 'foodhistory-regen-pollinator-nutrition-stakes',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Real Nutritional Stakes, Not Just the Economic Ones',
     teaser: 'Over 90% of the vitamin C in the human food supply, and nearly all of its vitamin A and lycopene, comes from crops that need an animal pollinator.',
     summary:
@@ -1318,7 +1344,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-neonicotinoid-regulation-loophole',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real Pesticide the Science Is Actually Settled On -- And a Real Loophole Keeping It in Use',
     teaser: "The EU's own safety agency found \"no safe use could be identified\" for two of Bayer's own neonicotinoid pesticides. The ban that followed has since been legally circumvented at least 67 times.",
     summary:
@@ -1339,7 +1365,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-wild-bees-buzz-pollination',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "Honeybees Aren't the Whole Story -- Some Crops Need a Bee They Physically Can't Be",
     teaser: "Honeybees are biologically incapable of buzz pollination. Tomatoes, peppers, and blueberries genuinely need a wild bumblebee or a native bee species instead, not just more honeybee hives.",
     summary:
@@ -1360,7 +1386,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-pollinator-habitat-regenerative-link',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Where This Sub-Cluster Connects Back to Everything Else in This Category',
     teaser: 'Hedgerows, flower strips, and cover crops -- already covered in this cluster for entirely separate reasons -- are also real, measured pollinator-recovery tools, not a separate initiative.',
     summary:
@@ -1377,7 +1403,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'The deliberate closing entry of this sub-cluster -- ties pollinator recovery directly back to the same practices this whole category has already documented, rather than treating it as a separate problem needing a separate solution.',
-    relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-decline-crisis'],
+    relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-decline-crisis', 'garden-pollinator-friendly-earth-matters-link'],
   },
   // 2026-08-11, same day, a seventh continuation: "Keep going with more
   // research on this topic." Every citation below independently
@@ -1392,7 +1418,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // explain why the crisis hits as hard as it does.
   {
     id: 'foodhistory-regen-bat-pollinators-white-nose',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "Bats Pollinate Tequila, Mangoes, and Bananas -- and They're Facing Their Own Colony-Collapse-Scale Crisis",
     teaser: 'Over 6 million North American bats have died since 2006 from a single fungal disease, with mortality rates of 90-100% in affected colonies -- a real, parallel crisis most pollinator coverage never mentions.',
     summary:
@@ -1413,7 +1439,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-insect-apocalypse-hallmann',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "It's Not Just Managed Pollinators -- A Landmark Study Found Flying Insects Down 76% Even Inside Protected Nature Reserves",
     teaser: 'A 27-year German study found flying insect biomass fell over 75% inside nature reserves specifically -- meaning something beyond direct habitat destruction is driving the decline. A 2024 follow-up found no recovery since.',
     summary:
@@ -1434,7 +1460,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-almond-pollination-rental-economics',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real, Current Price Signal: Almond Bee-Rental Costs Are Already Rising',
     teaser: 'The average cost to rent a colony for almond pollination rose 15% in one year, from $181 in 2024 to $209 in 2025 -- a real, current market already pricing in the colony-loss crisis.',
     summary:
@@ -1455,7 +1481,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-honeybee-genetic-bottleneck',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "A Real, Underlying Reason Managed Honeybees Are So Vulnerable in the First Place",
     teaser: "Fewer than 600 queen mothers produce over a million commercial queen bees in the US every year -- a real genetic bottleneck comparable to the crop-monoculture risk already covered elsewhere in this cluster.",
     summary:
@@ -1487,7 +1513,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // honest look at the leading technological stopgap being developed.
   {
     id: 'foodhistory-regen-organic-farming-pollinator-abundance',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "Does Organic Farming Actually Help Pollinators? A Real, Current Meta-Analysis Says Yes, With Real Conditions",
     teaser: 'A 2025 review of 42 studies across four continents found real, measurably higher pollinator abundance and diversity on organic farms -- strongest for bumblebees, and strongest in otherwise simple, low-diversity landscapes.',
     summary:
@@ -1504,7 +1530,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-phenological-mismatch',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "A Real, Different Kind of Threat: Climate Change Is Shifting Flowers and Bees Out of Sync",
     teaser: 'British wild bees are emerging 6.5 days earlier for every 1°C of warming -- but flowers are shifting at a different rate, a real, measured timing mismatch distinct from every other cause covered in this cluster.',
     summary:
@@ -1525,7 +1551,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-smallholder-pollinator-vulnerability',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real, Different, More Precarious Kind of Exposure: Smallholder Farmers in the Global South',
     teaser: "Roughly 2-2.5 billion people worldwide depend on small farms for their livelihood -- and unlike California almond growers, they can't simply pay to truck in replacement colonies when wild pollinators decline.",
     summary:
@@ -1546,11 +1572,11 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Extends this whole cluster\'s own established international framing to pollinator vulnerability specifically -- a real, structurally different, more precarious exposure than commercial US/EU agriculture has, not the same risk at a smaller scale.',
-    relatedIds: ['foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-global-implementation-synthesis', 'foodhistory-regen-food-desert-access-inequality'],
+    relatedIds: ['foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-tying-together', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
     id: 'foodhistory-regen-robotic-drone-pollination',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Real Technological Stopgap Being Built -- and Why It Isn\'t a Near-Term Answer',
     teaser: 'AI-guided pollination robots and drones are real and actively researched, but current systems mostly only work inside greenhouses, at high cost, and can\'t yet handle open-field agriculture or complex flower structures.',
     summary:
@@ -1585,7 +1611,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // separate, market-based channel.
   {
     id: 'foodhistory-regen-boycott-effectiveness-evidence',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Do Boycotts Actually Work? A Real, Quantified Answer',
     teaser: 'A real academic stock-price study found targeted companies lose an average of over $120 million in market value within two months of a boycott announcement. Sales can fall 3-8% in affected markets.',
     summary:
@@ -1606,7 +1632,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-nestle-boycott-case-study',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real, 6.5-Year Boycott That Changed International Policy',
     teaser: 'Grassroots groups boycotted Nestle from 1977 to 1984 over its infant-formula marketing in developing countries. It produced a real, formal World Health Organization code, adopted by 118 countries.',
     summary:
@@ -1627,7 +1653,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-ufw-grape-boycott-labor',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Other Real Historic Case: Farmworker Labor Rights, Not Just Environmental Practice',
     teaser: 'A 5-year strike and grape boycott led by Cesar Chavez produced real, signed contracts with 140 growers -- a reminder that "buying power" in food also means the people who actually pick it.',
     summary:
@@ -1648,7 +1674,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-shareholder-activism-mechanics',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'How an Individual Investor Can Actually File a Real Shareholder Resolution',
     teaser: 'Real SEC rules let anyone holding just $2,000 in a company\'s stock for three years co-file a resolution on its pesticide use, deforestation exposure, or labor practices -- a real, underused lever most people don\'t know exists.',
     summary:
@@ -1669,7 +1695,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-institutional-purchasing-power',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "The Lever Most People Never Think About: What Your School, Hospital, or University Buys",
     teaser: 'US institutions -- schools, hospitals, universities, prisons -- spend over $130 billion a year on food. A single local school-board procurement vote can move real money that no individual grocery run ever could.',
     summary:
@@ -1690,7 +1716,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-bcorp-certification-accountability',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'B Corp Certification: A Real Accountability Model, With Real, Documented Weak Spots',
     teaser: "Over 4,000 companies now carry the B Corp seal, built on a real legal requirement to consider workers, community, and environment, not just shareholders. It has also been directly accused of greenwashing, and just overhauled its own standard because of it.",
     summary:
@@ -1711,7 +1737,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-divestment-food-system',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Divestment: Moving Where the Money Sits, Not Just What You Buy',
     teaser: 'Over $40 trillion in institutional assets have some fossil-fuel divestment commitment attached. A real, smaller, food-specific version of the same movement now targets factory-farm financing directly.',
     summary:
@@ -1740,7 +1766,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // existing company at all.
   {
     id: 'foodhistory-regen-buycott-versus-boycott',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: '"Buycotts" Are Real Too -- and Real Research Finds Them Measurably Weaker Than Boycotts',
     teaser: 'A real, documented case: after a brand controversy, sales briefly rose 22% from a buycott-style show of support, then fully returned to normal within three weeks either way.',
     summary:
@@ -1761,7 +1787,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-direct-investment-crowdfunding',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real, Positive Alternative to Boycotting: Putting Money Directly Into What You Want to Support',
     teaser: 'A real, SEC-regulated platform lets anyone invest as little as $100 directly into a working regenerative farm -- no boycott, no shareholder resolution, just funding the thing you want to exist.',
     summary:
@@ -1790,7 +1816,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // verified via WebSearch/WebFetch the same way as every other batch.
   {
     id: 'foodhistory-regen-ogallala-water-depletion',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Missing Resource Underneath Every Entry in This Cluster: Water',
     teaser: 'The same almond industry already covered in this cluster (99% of US bee colonies, $209/colony rentals) sits on top of a real aquifer that could be 70% depleted within 50 years -- and federal policy is directly named as part of why.',
     summary:
@@ -1811,7 +1837,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-antibiotic-resistance-livestock',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "The Strongest Direct Health Tie in This Whole Cluster: Antibiotic Resistance",
     teaser: 'About 70% of medically important antibiotics sold in the US go to livestock, not people. CDC directly names food animals as a real source of the resistant bacteria that kill 35,000 Americans a year.',
     summary:
@@ -1845,7 +1871,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // against the primary source, not an aggregated summary) exists.
   {
     id: 'foodhistory-regen-seed-diversity-loss',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'How Much Crop Diversity Has Actually Been Lost? A Real, Corrected Number',
     teaser: 'The widely repeated "75% of crop diversity lost since 1900" figure traces to broad estimates, not a hard count -- and a real, later study found the original math behind an even more alarming version of the claim was simply wrong.',
     summary:
@@ -1866,7 +1892,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-seed-industry-consolidation',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'Four Companies Now Control More Than Half the World\'s Commercial Seed Supply',
     teaser: 'In the 1980s, the ten biggest seed companies controlled under 15% of the market. Today four companies alone control 56% -- the same companies already covered in this cluster\'s own pesticide and lobbying research.',
     summary:
@@ -1887,7 +1913,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-svalbard-seed-vault',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Real Institutional Answer to Seed Loss -- and a Real, Ironic Threat It Already Survived',
     teaser: 'Over 1.3 million seed samples sit frozen 120 meters into an Arctic mountain, built to survive war and disaster. In 2017 it flooded from the one thing it wasn\'t designed to survive: the climate itself changing.',
     summary:
@@ -1908,7 +1934,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-co2-nutrient-decline',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Real, Different Threat to Food\'s Nutrient Content: Rising CO2 Itself, Not Farming Practice',
     teaser: 'A rigorous 7-site, 40-cultivar field study found real, single-digit declines in zinc, iron, and protein under the CO2 levels expected by mid-century -- modest per crop, but reaching 2.3 billion people who get most of their dietary zinc and iron from exactly these staples.',
     summary:
@@ -1925,7 +1951,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   },
   {
     id: 'foodhistory-regen-food-waste-scale',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'The Direct Multiplier on Every Urgency Figure in This Cluster: Food Waste',
     teaser: 'Roughly a third of all food produced is never eaten -- and that classic figure may itself understate the real problem, since it leaves out crops lost before ever reaching a store.',
     summary:
@@ -1954,7 +1980,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   // later fix.
   {
     id: 'foodhistory-regen-food-desert-access-inequality',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: 'A Different Vulnerability Story: Food Access Inequality Inside Wealthy Nations',
     teaser: 'About 39 million Americans live in low-income, low-food-access areas -- and a real, careful study found that simply opening a new supermarket in one of these neighborhoods barely moved actual diet quality at all.',
     summary:
@@ -1971,11 +1997,11 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, honest complication to a popular, intuitive policy assumption (build a grocery store, diets improve) -- the real research found it genuinely more complicated than that.',
-    relatedIds: ['foodhistory-regen-smallholder-pollinator-vulnerability', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-whole-foods-organic-industry'],
+    relatedIds: ['foodhistory-regen-smallholder-pollinator-vulnerability', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-whole-foods-organic-industry', 'garden-economics-subsidizing-food', 'garden-container-small-space'],
   },
   {
     id: 'foodhistory-regen-right-to-repair-farm-equipment',
-    category: 'basicHealth',
+    category: 'earthMatters',
     title: "A Live, Current Fight Over Who Actually Controls a Farmer's Own Tractor",
     teaser: 'A 2023 US PIRG survey found roughly 1 in 3 surveyed farmers feared losing their farm over a repair they couldn\'t get done in time. In 2026, John Deere paid $99 million to settle exactly that fight.',
     summary:
@@ -1995,8 +2021,8 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     relatedIds: ['foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-how-to-get-involved'],
   },
   {
-    id: 'foodhistory-regen-global-implementation-synthesis',
-    category: 'basicHealth',
+    id: 'foodhistory-regen-tying-together',
+    category: 'earthMatters',
     title: 'How Fast Is the World Actually Moving? A Real, Honest Regional Picture',
     teaser: 'North America leads in market dollars, Europe leads in binding policy, and the three single most dramatic real-world transformations -- Brazil, Niger, and China -- all happened outside a formal certification system entirely.',
     summary:

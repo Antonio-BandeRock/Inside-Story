@@ -17,6 +17,7 @@ import { GOUT_ENTRIES } from './gout';
 import { GRAVES_ENTRIES } from './graves';
 import { GUT_MICROBIOME_ENTRIES } from './gutMicrobiome';
 import { HEALING_STAGES_ENTRIES } from './healingStages';
+import { HOME_GARDENING_ENTRIES } from './homeGardening';
 import { HORMONES_ENTRIES } from './hormones';
 import { HISTORY_ENTRIES } from './history';
 import { IBD_ENTRIES } from './ibd';
@@ -61,7 +62,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260812070000';
+export const PURPLE_DIGEST_VERSION = '20260812080000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -120,6 +121,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...PEDIATRIC_NUTRITION_ENTRIES,
   ...SLEEP_HEALTH_ENTRIES,
   ...MENTAL_HEALTH_ENTRIES,
+  ...HOME_GARDENING_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -341,6 +343,27 @@ export const DIGEST_CATEGORY_META: {
     label: 'Prostate Health',
     icon: 'male-outline',
     description: 'Real evidence for BPH and prostate cancer risk: a genuine gut-microbiome connection (dysbiosis linked to BPH, gut bacteria directly making androgens and TMAO), lycopene and cruciferous vegetables, a real supplement correction, and self-advocacy on PSA testing and monitoring.',
+  },
+  // 2026-08-09, direct request: everything in this app's regenerative-
+  // agriculture/pollinator/economic-power research cluster (previously
+  // tagged basicHealth) is genuinely about the planet and food system, not
+  // the human body -- it now has its own real area. See
+  // foodIndustryHistory.ts's own header comment for the reassignment.
+  {
+    key: 'earthMatters',
+    label: 'Earth Matters',
+    icon: 'earth-outline',
+    description: 'The planet the food system actually runs on: soil, water, pollinators, seed diversity, regenerative-farming case studies, the economics and politics of who controls food production, and real, concrete ways to push for change with your own money and voice.',
+  },
+  // 2026-08-09, same day, a genuinely new topic, direct request: real
+  // guidance on growing your own fresh fruits and vegetables at home as a
+  // real, practical way to subsidize food cost. See homeGardening.ts's own
+  // header comment.
+  {
+    key: 'homeGardening',
+    label: 'Home Gardening',
+    icon: 'leaf-outline',
+    description: "Growing even a modest amount of your own food is a real, documented way to cut a grocery bill and eat fresher produce -- what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
   },
 ];
 

@@ -209,6 +209,29 @@ export const DIGEST_CATEGORY_KEYS = [
   // hormones and metabolites (androgens from Ruminococcus, TMAO from
   // choline) that measurably affect the condition itself.
   'prostateHealth',
+  // 2026-08-09, added directly alongside 'homeGardening' below, per direct
+  // request: "if it doesn't actually have anything specific to do with
+  // Basic Health, such as the information about the planet, pollinators,
+  // chemical producers, etc., it also needs to be outside of the Basic
+  // Health in an area labeled for it. For the Planet stuff and our
+  // environment, put it all into a new section called Earth Matters." The
+  // entire foodhistory-regen- research cluster (soil, water, pollinators,
+  // seed diversity, regenerative-farming case studies, lobbying/policy,
+  // food deserts, right-to-repair) plus the original soil-depletion and
+  // pesticide entries -- 68 entries in total, all reassigned out of
+  // 'basicHealth' the same day -- now live here instead. See
+  // foodIndustryHistory.ts's own header comment for the exact reassignment.
+  'earthMatters',
+  // 2026-08-09, same day, same request, a genuinely new topic rather than a
+  // reassignment: "Let's provide information in the Digest... about
+  // subsidizing their own food by grown fresh fruits and vegetables at
+  // home... include what to grow in the area where they live." See
+  // homeGardening.ts's own header comment -- real, cited economic-savings
+  // data, and real crop guidance organized by climate zone (US Plant
+  // Hardiness Zones plus international equivalents) rather than a
+  // personalized feature, since Profile carries no location/zone field to
+  // build one against.
+  'homeGardening',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
