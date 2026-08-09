@@ -136,6 +136,19 @@ const CORNER_ICON_SHADOW = {
 // its grid doesn't jump around as the active item changes.
 const GRID_ITEM_PILL_SIZE = 34;
 const GRID_ITEM_ICON_SIZE = 20;
+// 2026-08-09, custom option.renderIcon icons (Purple Digest's own 19 real
+// condition-artwork icons, the only current caller) get a real, bigger
+// render size than the plain Ionicons glyphs every other page's grid uses
+// -- reported directly as reading too small. Deliberately NOT a change to
+// GRID_ITEM_ICON_SIZE itself, which every other page's own glyphs (and
+// this popup's Info icon) still use unchanged -- a real, custom image
+// icon reads differently at a given pixel size than a vector glyph does,
+// and this was asked for specifically after the artwork icons shipped,
+// not as a general "make every grid icon bigger" request. Still safely
+// inside GRID_ITEM_PILL_SIZE's own 34px circle (leaving 3px margin per
+// side), so this doesn't touch GRID_ROW_HEIGHT or any other layout math
+// below, which is driven only by the pill's own footprint, not the icon's.
+const GRID_ITEM_CUSTOM_ICON_SIZE = 28;
 const GRID_ITEM_GAP = 2;
 const GRID_ITEM_PADDING_VERTICAL = 6;
 const GRID_ITEM_LABEL_LINE_HEIGHT = 14; // itemLabel's own fontSize (11) * ~1.3
@@ -718,7 +731,7 @@ export function LensHub<T extends string>({
                     {active ? (
                       <IridescentRingCircle size={GRID_ITEM_PILL_SIZE}>
                         {option.renderIcon ? (
-                          option.renderIcon(GRID_ITEM_ICON_SIZE, tabColor)
+                          option.renderIcon(GRID_ITEM_CUSTOM_ICON_SIZE, tabColor)
                         ) : (
                           <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
                         )}
@@ -726,7 +739,7 @@ export function LensHub<T extends string>({
                     ) : (
                       <View style={styles.itemIconPillPlain}>
                         {option.renderIcon ? (
-                          option.renderIcon(GRID_ITEM_ICON_SIZE, tabColor)
+                          option.renderIcon(GRID_ITEM_CUSTOM_ICON_SIZE, tabColor)
                         ) : (
                           <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
                         )}
