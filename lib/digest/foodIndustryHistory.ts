@@ -1287,8 +1287,8 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
         url: 'https://ourworldindata.org/pollinator-dependence',
       },
       {
-        source: 'USDA Economic Research Service: Thousands of commercial honey bee colonies are transported long distances to pollinate California almonds (99% of US colonies)',
-        url: 'http://www.ers.usda.gov/data-products/charts-of-note/chart-detail?chartId=107088',
+        source: 'farmdoc daily (University of Illinois): Where Have All the Honey Bees Gone? To California Almond Orchards (2.7 million colonies for the 2024 bloom against 2.83 million total US colonies -- the real basis for the 99% figure)',
+        url: 'https://farmdocdaily.illinois.edu/2025/02/where-have-all-the-honey-bees-gone-to-california-almond-orchards.html',
       },
     ],
     overallTier: 'strong',

@@ -196,7 +196,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     summary:
       "Selenium supplementation has strong, meta-analysis-level trial support for reducing TPO antibodies in Hashimoto's, covered in full under Nutrients & Micronutrients, this app's single most confidently-evidenced finding. The practical complication for self-advocacy specifically: plasma/serum selenium testing isn't part of a standard lab menu the way vitamin D or B12 is, and a doctor unfamiliar with running it may not have an easy, routine way to order it, unlike nearly everything else in this category. That's worth knowing walking in, so a \"we don't typically test that\" response reads as a logistical limit rather than dismissal. A reasonable path when direct testing isn't practical: ask specifically for it if a lab does offer it (some larger reference labs do), and otherwise lean on the already-cited dietary and supplementation research (2-3 Brazil nuts a day is a commonly cited food source) rather than treating the absence of a lab number as a reason not to address it at all.",
     citations: [
-      { source: 'Selenium supplementation in patients with Hashimoto thyroiditis: a systematic review and meta-analysis of 21 studies (1,610 subjects)', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10194801/' },
+      { source: 'Selenium supplementation in patients with Hashimoto thyroiditis: a systematic review and meta-analysis of 21 studies (1,610 subjects)', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12401265/' },
     ],
     overallTier: 'moderate',
     relatedIds: ['nutrient-selenium', 'interaction-selenium-iodine'],
@@ -207,8 +207,11 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     title: 'Complete Blood Count (CBC): The General-Purpose Test That Catches What a Condition-Specific Panel Misses',
     teaser: 'Anemia from low iron, anemia from low B12, a hidden infection, a blood-cell abnormality: one test flags all of them at once.',
     summary:
-      "A CBC isn't specific to any one condition, and that's exactly its value here. It's the general-purpose net that catches related problems (iron-deficiency anemia, B12-deficiency anemia, and more) without needing to separately diagnose each one from scratch. Red blood cell size and shape on a CBC can point toward which specific deficiency to chase down first, before ever ordering a more specific iron or B12 panel, an efficient first step rather than a redundant one. It's also simply part of a complete picture of overall health, catching things entirely unrelated to any particular diagnosis that are still worth knowing about. As part of an annual physical or a periodic full-panel check, a CBC is reasonable to include every time. There's little value asking for it more often outside of actively investigating a new, specific symptom (unusual bruising, persistent unexplained fatigue, signs of infection) that would justify a sooner recheck on its own.",
-    citations: [],
+      "A CBC isn't specific to any one condition, and that's exactly its value here. It's the general-purpose net that catches related problems (iron-deficiency anemia, B12-deficiency anemia, and more) without needing to separately diagnose each one from scratch. Red blood cell size and shape on a CBC can point toward which specific deficiency to chase down first, before ever ordering a more specific iron or B12 panel, an efficient first step rather than a redundant one. It's also simply part of a complete picture of overall health, catching things entirely unrelated to any particular diagnosis that are still worth knowing about. As part of an annual physical or a periodic full-panel check, a CBC is reasonable to include every time. There's little value asking for it more often outside of actively investigating a new, specific symptom (unusual bruising, persistent unexplained fatigue, signs of infection) that would justify a sooner recheck on its own. The iron- and B12-deficiency link specifically is real and cited in this app's own dedicated entries on each.",
+    citations: [
+      { source: 'Garofalo V, et al. 2023: Relationship between Iron Deficiency and Thyroid Function: A Systematic Review and Meta-Analysis', url: 'https://pubmed.ncbi.nlm.nih.gov/38004184/' },
+      { source: 'Ness-Abramof R, et al. 2006: Prevalence and evaluation of B12 deficiency in patients with autoimmune thyroid disease (American Journal of the Medical Sciences)', url: 'https://pubmed.ncbi.nlm.nih.gov/16969140/' },
+    ],
     overallTier: 'moderate',
     relatedIds: ['advocacy-iron-ferritin', 'advocacy-b12-folate'],
   },
@@ -219,7 +222,10 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     teaser: 'The liver and kidneys are doing measurable thyroid-related work of their own. A CMP is how that work actually gets checked.',
     summary:
       "This app's Organs & Body Systems category makes the case that Hashimoto's reaches well past the thyroid gland itself: the liver does the largest share of converting inactive T4 into active T3, and research has found measurably reduced kidney filtration (eGFR) tracking with worsening thyroid function, both reversible with treatment. A CMP is the standard, single test that actually checks both of those organs directly (liver enzymes, kidney function via creatinine/eGFR) alongside blood glucose and electrolyte balance. It's not a redundant add-on to a thyroid panel, but a direct way to see whether those two connected organ systems are keeping up. It's worth asking for as part of any full annual panel rather than assuming \"my thyroid labs were fine\" already covers it, since neither the liver nor kidney findings above would ever show up on a TSH/free T4/free T3 panel alone. Once a stable, unremarkable CMP is established, annual is a reasonable cadence; there's little reason to check more often without a specific new symptom or medication change prompting it.",
-    citations: [],
+    citations: [
+      { source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10160546/' },
+      { source: 'Subclinical and overt hypothyroidism is associated with reduced glomerular filtration rate and proteinuria: a large cross-sectional population study (Scientific Reports)', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5795015/' },
+    ],
     overallTier: 'moderate',
     relatedIds: ['organ-liver-t4t3-conversion', 'organ-kidney'],
   },
@@ -243,9 +249,12 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
     teaser: "Hashimoto's and type 1 diabetes share enough biology that checking blood sugar isn't an unrelated add-on. It's a genuinely adjacent risk.",
     summary:
       "This app's Other Autoimmune Diseases category already makes the case that autoimmune conditions don't stay neatly siloed. Hashimoto's and type 1 diabetes both co-occur more than chance would predict, sharing enough underlying immune biology that checking one informs watching for the other. Fasting glucose and hemoglobin A1c (a longer-window average of blood sugar over roughly three months rather than a single-moment snapshot) are the standard way that gets tracked, and this app's own Mitochondria & Metabolism research separately ties visceral fat and insulin resistance directly to Hashimoto's-specific findings, not just general population risk. Neither test needs Hashimoto's-specific extra frequency. Following the general diabetes-screening schedule already agreed with a doctor (typically periodic, more often only if a prior result was borderline or genuinely abnormal) is the reasonable approach here, not a reason to add quarterly rechecks with no new symptom or result prompting it.",
-    citations: [],
+    citations: [
+      { source: 'Prevalence of Organ-Specific Autoimmunity in Patients With Type 1 Diabetes Mellitus, Cureus 2023, PMID 37303388', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10256565/' },
+      { source: "Depletion of Regulatory T Cells in Visceral Adipose Tissues Contributes to Insulin Resistance in Hashimoto's Thyroiditis (Frontiers in Physiology, 2018)", url: 'https://pubmed.ncbi.nlm.nih.gov/29541033/' },
+    ],
     overallTier: 'moderate',
-    relatedIds: ['mito-visceral-fat-treg-depletion', 'type1-hba1c-time-in-range'],
+    relatedIds: ['mito-visceral-fat-treg-depletion', 'type1-autoimmune-thyroid-comorbidity'],
   },
   {
     id: 'advocacy-fasting-insulin',

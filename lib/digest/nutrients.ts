@@ -26,7 +26,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
     citations: [
       {
         source: 'Selenium supplementation in patients with Hashimoto thyroiditis: a systematic review and meta-analysis of 21 studies (1,610 subjects)',
-        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10194801/',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12401265/',
       },
       {
         source: "Selenium Supplementation for Hashimoto's Thyroiditis: Summary of a Cochrane Systematic Review (European Thyroid Journal, 2014)",
@@ -177,7 +177,7 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
     citations: [
       {
         source: 'Selenium supplementation in patients with Hashimoto thyroiditis: a systematic review and meta-analysis of 21 studies (1,610 subjects)',
-        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10194801/',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12401265/',
       },
     ],
     overallTier: 'moderate',
