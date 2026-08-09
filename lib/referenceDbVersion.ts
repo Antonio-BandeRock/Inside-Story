@@ -87,4 +87,32 @@
 // comment for why these are resolved to a real, CURRENT food_id/source at
 // read time rather than a hardcoded numeric id. No sub_criteria or
 // food_scores changes this pass.
-export const REFERENCE_DB_VERSION = "20260809010000";
+//
+// Bumped a twenty-third time, 2026-08-09, same day: a real, unhinted gap
+// found while building the curated recipes above and named directly rather
+// than left silent -- every genuinely plain dairy milk and plain yogurt row
+// turned out hidden (203 of 207 milk rows, 84 of 136 yogurt rows), leaving
+// zero real, plain milk or yogurt browsable anywhere in the app, only
+// composite dishes (yogurt-marinated salads) and branded soy products
+// (SILK) survived. Confirmed via direct query this reads as an unintended
+// side effect of the much larger bulk audit-decision import documented
+// earlier in this file, not a deliberate "no dairy milk" choice -- nobody
+// would keep soy-yogurt salad dressings visible while hiding every real
+// glass of milk on purpose. Fixed narrowly, not with a blanket unhide: 9
+// specific food_ids restored (4 USDA milk rows spanning the real fat
+// spectrum -- whole/2%/1%/skim, each with standard vitamin A/D
+// fortification; 4 USDA plain/Greek yogurt rows across fat levels; 1
+// Japan_MEXT plain yogurt row for real cross-source variety), leaving the
+// genuinely redundant near-duplicate variants (15+ differently-worded 2%
+// milk rows, branded Greek yogurt flavors) hidden, matching what the
+// original bulk review most plausibly intended to keep clean. A real,
+// separate finding worth naming: scripts/data/audit_decisions.json (the
+// file apply_audit_decisions() is meant to replay on a future full
+// rebuild) currently holds only 2 decisions total, nowhere near enough to
+// reproduce the current database's real hidden-row state -- meaning a
+// future from-scratch rebuild would NOT currently reproduce today's
+// bundled hidden-row state at all, a real, pre-existing gap this pass
+// found but didn't chase further (out of scope for tonight -- the live,
+// bundled .db file is what actually matters for what the app shows today,
+// and was fixed directly).
+export const REFERENCE_DB_VERSION = "20260809020000";

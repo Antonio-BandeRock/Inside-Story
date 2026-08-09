@@ -319,6 +319,17 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // products... so they aren't fooled and purchase the wrong things." See
   // lib/digest/choosingQualityProducts.ts's own header comment.
   { label: 'Choosing the Real Thing', prefixes: ['quality-'] },
+  // 2026-08-09, same day, direct continuation of the same request: a real,
+  // deliberate companion to "Choosing the Real Thing" -- that one covers
+  // whether a product IS what it claims; this covers how to actually read
+  // the label once you're holding a genuine one. See
+  // lib/digest/readingLabels.ts's own header comment.
+  { label: 'Reading Labels & Ingredient Lists', prefixes: ['label-'] },
+  // 2026-08-09, same day: a real, systematized companion to this app's own
+  // per-condition medication research -- which common medication CLASSES
+  // measurably lower which nutrients over sustained use, regardless of
+  // condition. See lib/digest/medicationDepletion.ts's own header comment.
+  { label: 'Medications & Nutrient Depletion', prefixes: ['depletion-'] },
   { label: 'Prevention & Lifestyle by Condition', prefixes: ['prevention-', 'apphelps-'] },
   // 2026-08-09, direct request: "an honest medical science evidence based
   // perspective on the popular types of diets out there." A real, distinct

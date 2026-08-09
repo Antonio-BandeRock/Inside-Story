@@ -251,7 +251,7 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin B12 Deficiency in Patients Taking Metformin: Pathogenesis and Recommendations, PMC11374140', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11374140/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['b12-overview', 'advocacy-b12-folate'],
+    relatedIds: ['b12-overview', 'advocacy-b12-folate', 'depletion-tying-together'],
   },
   {
     id: 'type2-cgm-non-insulin-benefit',

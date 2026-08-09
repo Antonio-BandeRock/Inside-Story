@@ -24,6 +24,7 @@ import { IBS_ENTRIES } from './ibs';
 import { LABS_MEDICATION_ENTRIES } from './labsMedication';
 import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
 import { LUPUS_ENTRIES } from './lupus';
+import { MEDICATION_DEPLETION_ENTRIES } from './medicationDepletion';
 import { MIGRAINE_ENTRIES } from './migraine';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
 import { MULTIPLE_SCLEROSIS_ENTRIES } from './multipleSclerosis';
@@ -41,6 +42,7 @@ import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
 import { PRODUCE_PROFILES_ENTRIES } from './produceProfiles';
 import { PROSTATE_HEALTH_ENTRIES } from './prostateHealth';
 import { PSORIASIS_ENTRIES } from './psoriasis';
+import { READING_LABELS_ENTRIES } from './readingLabels';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import { SJOGRENS_ENTRIES } from './sjogrens';
@@ -56,7 +58,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260809120000';
+export const PURPLE_DIGEST_VERSION = '20260809200000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -110,6 +112,8 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...CHOOSING_QUALITY_PRODUCTS_ENTRIES,
   ...FERMENTATION_METHODS_ENTRIES,
   ...PRODUCE_PROFILES_ENTRIES,
+  ...READING_LABELS_ENTRIES,
+  ...MEDICATION_DEPLETION_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
