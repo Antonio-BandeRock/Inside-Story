@@ -1089,7 +1089,64 @@ export default function PurpleDigestScreen() {
   // same "always ask for the current position, never trust anything cached
   // earlier" discipline this whole mechanism has been rebuilt around
   // before.
-  function scrollNodeIntoView(getNode: () => Measurable | null | undefined, attemptsLeft = 5) {
+  //
+  // 2026-08-09, a real, direct, confirmed regression report (checked
+  // against a genuinely fresh Metro reload first, per this app's own
+  // standing discipline -- this wasn't staleness): "if I tap a topic... it
+  // scrolls way up and then all the way down" or "just opens and doesn't
+  // scroll up at all... This is exactly the problem you fixed before...
+  // then we did structural changes to how the Digest area works, and ever
+  // since it has been this way." The real, structural change that matches:
+  // every condition's own entries used to sit in one flat list; the
+  // pillar-shelf restructure (and, more recently, two much larger new
+  // categories -- Earth Matters at 68 entries, Home Gardening -- built on
+  // the exact same mechanism) means a normal tap can now need to run TWO
+  // real, simultaneous LinearTransition animations at once, not one: the
+  // PREVIOUSLY-open entry's own panel collapsing in one pillar, and the
+  // newly-tapped entry's own panel expanding in a DIFFERENT one. The single
+  // fixed wait below was tuned and proven against the simpler, one-
+  // animation case (this file's own 2026-08-07 history); nothing
+  // guarantees two independent, real UI-thread animations both finish
+  // inside that exact same fixed window every time, especially with more
+  // real content on screen for the JS/UI thread to lay out than existed
+  // when that number was first tuned -- a genuine, real explanation for
+  // "sometimes it's fine, sometimes it overshoots, sometimes it doesn't
+  // move at all," not a guess made blind. Two real, low-risk changes,
+  // rather than a bigger fixed-number guess that just moves where the same
+  // class of timing bug can still happen:
+  // 1. attemptsLeft raised from 5 to 15 (roughly 240ms of real retries at
+  //    one frame apart, up from roughly 80ms) -- more room for a group's
+  //    own ref to actually finish registering under real load before this
+  //    gives up and silently does nothing at all.
+  // 2. A real, second corrective pass, scheduled the same real wait length
+  //    again AFTER the first one already fired. It re-asks for the node
+  //    (getNode(), not a value captured once) and re-measures fresh --
+  //    live, current numbers, the same discipline as the first pass, never
+  //    anything cached. If the first pass already landed correctly, this
+  //    second pass's own freshly-measured target is nearly identical to
+  //    where the screen already sits, so the visible correction is
+  //    negligible; if either of the two real animations was still
+  //    genuinely settling when the first pass fired, this catches and
+  //    fixes the resulting wrong position instead of leaving it wrong.
+  function measureAndScrollTo(targetNode: Measurable, scrollNode: Measurable, haltMomentumFirst: boolean) {
+    targetNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
+      scrollNode.measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
+        const target = Math.max(currentScrollY.current + (cardPageY - scrollPageY) - ENTRY_SCROLL_TOP_MARGIN, 0);
+        if (haltMomentumFirst) {
+          (scrollNode as unknown as { scrollTo: (opts: { y: number; animated: boolean }) => void }).scrollTo({
+            y: currentScrollY.current,
+            animated: false,
+          });
+        }
+        (scrollNode as unknown as { scrollTo: (opts: { y: number; animated: boolean }) => void }).scrollTo({
+          y: target,
+          animated: true,
+        });
+      });
+    });
+  }
+
+  function scrollNodeIntoView(getNode: () => Measurable | null | undefined, attemptsLeft = 15) {
     requestAnimationFrame(() => {
       const targetNode = getNode();
       const scrollNode = scrollRef.current;
@@ -1098,13 +1155,14 @@ export default function PurpleDigestScreen() {
         return;
       }
       setTimeout(() => {
-        targetNode.measure((_cx, _cy, _cw, _ch, _cardPageX, cardPageY) => {
-          (scrollNode as unknown as Measurable).measure((_sx, _sy, _sw, _sh, _scrollPageX, scrollPageY) => {
-            const target = currentScrollY.current + (cardPageY - scrollPageY) - ENTRY_SCROLL_TOP_MARGIN;
-            scrollNode.scrollTo({ y: currentScrollY.current, animated: false });
-            scrollNode.scrollTo({ y: Math.max(target, 0), animated: true });
-          });
-        });
+        measureAndScrollTo(targetNode, scrollNode as unknown as Measurable, true);
+        setTimeout(() => {
+          const stillTargetNode = getNode();
+          const stillScrollNode = scrollRef.current;
+          if (stillTargetNode && stillScrollNode) {
+            measureAndScrollTo(stillTargetNode, stillScrollNode as unknown as Measurable, false);
+          }
+        }, CARD_LAYOUT_TRANSITION_MS + CARD_LAYOUT_SETTLE_BUFFER_MS);
       }, CARD_LAYOUT_TRANSITION_MS + CARD_LAYOUT_SETTLE_BUFFER_MS);
     });
   }
