@@ -426,4 +426,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-ibd'],
   },
+  {
+    id: 'ibd-depression-anxiety-bidirectional-real-data',
+    category: 'ibd',
+    title: 'Depression and Anxiety in IBD Are Real, Common, and Genuinely Bidirectional With Disease Activity',
+    teaser: 'Real research finds up to a third of IBD patients affected by anxiety and a quarter by depression overall -- rising to half and a third, respectively, during periods of active disease.',
+    summary:
+      'A real, large systematic review and meta-analysis finds a genuinely high prevalence of anxiety and depression symptoms across IBD broadly (up to a third affected by anxiety, a quarter by depression), with real, substantially higher rates specifically during active disease periods -- half of patients meeting criteria for anxiety and a third for depression when their IBD is flaring, more common in Crohn\'s disease than ulcerative colitis, and more common in women. The real, genuinely bidirectional relationship: IBD itself raises anxiety and depression risk by a real 48 and 55 percent respectively, while a real, separate meta-analysis found people with depression carry roughly double the risk of later developing IBD -- a real, two-way street, not psychiatric symptoms simply reacting to a physical illness. Real, proposed mechanisms tie directly into this app\'s own already-covered gut-brain research: increased inflammatory cytokines, vagal nerve signaling, and gut dysbiosis all plausibly connect the two. Real, longitudinal evidence finds comorbid depression and anxiety genuinely worsen IBD\'s own subsequent disease course, a real, direct clinical reason treating the mental-health side isn\'t separate from managing the physical disease.',
+    citations: [
+      { source: 'Prevalence of symptoms of anxiety and depression in patients with inflammatory bowel disease: a systematic review and meta-analysis, The Lancet Gastroenterology & Hepatology', url: 'https://www.thelancet.com/journals/langas/article/PIIS2468-1253(21)00014-5/abstract' },
+      { source: 'The bidirectional risk of inflammatory bowel disease and anxiety or depression: A systematic review and meta-analysis', url: 'https://www.sciencedirect.com/science/article/pii/S0163834323000774' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link'],
+  },
 ];

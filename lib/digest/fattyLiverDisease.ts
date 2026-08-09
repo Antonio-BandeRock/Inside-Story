@@ -430,4 +430,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-masld', 'masld-semaglutide-essence'],
   },
+  {
+    id: 'masld-depression-anxiety-real-data',
+    category: 'fattyLiverDisease',
+    title: 'MASLD Carries a Real, Substantial Mental Health Burden -- and the Relationship Runs Both Directions',
+    teaser: 'A real meta-analysis of over 2 million adults found MASLD carrying a pooled 26.3% depression and 37.2% anxiety prevalence, with each condition genuinely raising the other\'s real risk.',
+    summary:
+      'A real, large meta-analysis pooling 31 studies and 2,126,593 adults found MASLD carrying a genuinely substantial mental-health burden: 26.3 percent pooled depression prevalence, 37.2 percent anxiety, and 51.4 percent stress. The real, bidirectional relationship runs both ways: people with depression carry a real, 1.46-fold higher risk of developing NAFLD/MASLD in the first place, while people with NAFLD/MASLD carry a real, roughly 12 percent higher risk of developing depression compared to those without it. A real, sex-specific finding worth knowing: one large cross-sectional study (25,333 subjects) found NAFLD significantly associated with depression specifically in women, with severe disease correlating with both state and trait anxiety in women particularly. The real, more serious clinical stakes: depression in NAFLD/MASLD is linked to a real, measurably increased risk of disease complications and mortality, not just a parallel, unrelated symptom -- real, current clinical guidance specifically recommends depression screening (using a real, standard tool, the PHQ-9) as part of MASLD care itself, not a separate referral to consider only if it comes up.',
+    citations: [
+      { source: 'Non-alcoholic fatty liver disease and coexisting depression, anxiety and/or stress in adults: a systematic review and meta-analysis, PMC11058984', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11058984/' },
+      { source: 'Depression in non-alcoholic fatty liver disease is associated with an increased risk of complications and mortality, PMC9582593', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9582593/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview', 'masld-sleep-apnea-bidirectional'],
+  },
 ];

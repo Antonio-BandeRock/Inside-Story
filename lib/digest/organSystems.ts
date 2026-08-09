@@ -246,4 +246,18 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['organ-liver-t4t3-conversion', 'organ-liver-fixing-helps-thyroid'],
   },
+  {
+    id: 'organ-brain-depression-anxiety-euthyroid',
+    category: 'hashimotos',
+    title: 'Depression and Anxiety Show Up More Even Once TSH Is Treated to Normal',
+    teaser: 'A real meta-analysis found higher depression and anxiety rates in Hashimoto\'s patients whose thyroid levels are already normal on treatment, not just in people who are actively hypothyroid.',
+    summary:
+      'A real systematic review and meta-analysis (694 Hashimoto\'s patients vs. 671 controls, 11 pooled studies) found euthyroid Hashimoto\'s patients, people whose TSH and thyroid hormone levels are already normal on treatment, still showed a real, higher rate of anxiety and depression symptoms than matched healthy controls. Some real research finds this risk tracks specifically with higher anti-TPO antibody levels, suggesting the real, underlying autoimmune process itself, not just hormone levels, may be doing some of this work, with neuroinflammation proposed as one real, plausible mechanism (a real mouse study found genuine neuroinflammation and emotional changes in euthyroid Hashimoto\'s mice specifically). The honest, current evidence is genuinely mixed, not settled: a real, separate, large study of 2,897 euthyroid adults found no significant depression-score difference by antibody status at all. The real, practical takeaway either way: a normal TSH result doesn\'t automatically rule out a real, connected mood symptom worth raising directly, even when the labs themselves look fully controlled.',
+    citations: [
+      { source: "Association between depression and anxiety disorders with euthyroid Hashimoto's thyroiditis: A systematic review and meta-analysis, PMC11665666", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11665666/' },
+      { source: "Hashimoto's thyroiditis induces neuroinflammation and emotional alterations in euthyroid mice, Journal of Neuroinflammation", url: 'https://link.springer.com/article/10.1186/s12974-018-1341-z' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['organ-brain-cognitive', 'mentalhealth-overview'],
+  },
 ];

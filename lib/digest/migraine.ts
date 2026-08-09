@@ -238,6 +238,20 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     relatedIds: ['migraine-episodic-chronic-real-debate'],
   },
   {
+    id: 'migraine-anxiety-depression-bidirectional-real-data',
+    category: 'migraine',
+    title: 'Anxiety Is the Single Most Common Psychiatric Comorbidity in Migraine, and It Runs Both Directions',
+    teaser: 'Real research finds anxiety in over half of migraine patients in some studies, with each condition roughly doubling the other\'s real future risk -- and headaches hit harder when both are present together.',
+    summary:
+      'Real, population-based research consistently finds anxiety as the single most common psychiatric comorbidity in migraine, with real prevalence estimates ranging from 25.5 to 57.6 percent depending on the population studied, and a real, consistent average odds ratio of 2.33 across prevalence and cross-sectional studies. The real overlap between anxiety and depression specifically in migraine patients is genuinely striking: 42.1 to 84.6 percent of migraine patients with depression also have anxiety, and 66.1 to 85.7 percent of those with anxiety also have depression, real evidence these three conditions cluster together far more than chance would predict. The relationship is real and bidirectional, not just co-occurring: real, longitudinal follow-up research finds baseline anxiety and depression nearly doubling the future risk of developing migraine (risk ratios of 1.8 to 2.2), while a real, existing headache disorder similarly raises the future risk of developing anxiety or depression (risk ratios of 1.3 to 1.6). A real, direct, clinically meaningful consequence: real research finds headache frequency and overall impact measurably worse in migraine patients who also have a comorbid psychiatric condition, a real, practical reason treating the anxiety or depression alongside the migraine itself, not instead of it, genuinely matters for how the headaches themselves behave.',
+    citations: [
+      { source: 'The Migraine-Anxiety Comorbidity Among Migraineurs: A Systematic Review, PMC7848023', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7848023/' },
+      { source: 'The bidirectional temporal relationship between headache and affective disorders: longitudinal data from the HUNT studies, PMC8903630', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8903630/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-sleep-bidirectional', 'mentalhealth-overview'],
+  },
+  {
     id: 'migraine-obesity-chronification-risk',
     category: 'migraine',
     title: 'Obesity Is a Real, Quantified Risk Factor for Episodic Migraine Turning Chronic',

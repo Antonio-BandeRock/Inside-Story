@@ -429,4 +429,18 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['horizon-ms'],
   },
+  {
+    id: 'ms-depression-suicide-real-data',
+    category: 'multipleSclerosis',
+    title: 'Depression Affects Nearly Half of People With MS, and Carries a Real, Serious Suicide Risk Worth Naming Directly',
+    teaser: 'Real research finds up to 37% major depressive disorder prevalence in early-phase MS, roughly three times the general population rate, alongside a real, pooled 22.6% suicidal-ideation prevalence.',
+    summary:
+      'Real, pooled research finds a genuinely high depression burden specifically in MS: 37 percent major depressive disorder prevalence in early-phase MS, and roughly 25 percent prevalence of any depression overall, with real estimates finding nearly half of MS patients experience clinically significant depression at some point, about three times the general population\'s own rate. This is real, serious enough to carry a direct, measurable suicide risk: a real, pooled systematic review and meta-analysis finds 22.6 percent prevalence of suicidal ideation, 3.4 percent for suicide attempts, and 0.5 percent for suicide mortality specifically in MS populations. Depression and anxiety are the real, most consistently identified risk factors for suicidal ideation across this research, ahead of other real, contributing factors like older age or lower self-efficacy. This is real, direct, actionable information: depression in MS isn\'t a separate, coincidental burden layered on top of the disease, it\'s a real, common, and serious part of it, worth genuine, direct screening and treatment alongside the disease-modifying therapies this app\'s own MS research already covers.',
+    citations: [
+      { source: 'Suicide Ideation, Attempts, and Mortality in Multiple Sclerosis: A Systematic Review and Meta-Analysis', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12417961/' },
+      { source: 'Prevalence and risk factors for depression in women with multiple sclerosis', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4580126/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-when-to-seek-help'],
+  },
 ];

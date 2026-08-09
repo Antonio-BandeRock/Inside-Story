@@ -449,4 +449,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-cantos-inflammation-hypothesis', 'horizon-cvd'],
   },
+  {
+    id: 'cvd-post-mi-depression-mortality',
+    category: 'cardiovascularDisease',
+    title: 'Depression After a Heart Attack Is Real, Common, and Carries a Real Mortality Risk -- One That Treatment Genuinely Improves',
+    teaser: 'Roughly two-thirds of heart attack patients report real depressive symptoms -- and a real, striking finding: untreated depression carries up to 90% higher one-year mortality than treated depression or no depression at all.',
+    summary:
+      'Real research finds a genuinely high depression burden right after a heart attack: roughly 65 percent of acute myocardial infarction patients report real depressive symptoms, with major depression present in 15 to 22 percent. Real, pooled data finds post-MI depression associated with a real, roughly doubled risk of all-cause mortality (odds ratio 2.25), and someone who is both depressed and already has cardiovascular disease carries a real 3.5-fold higher death risk than someone with cardiovascular disease alone. The real, most actionable finding in this whole entry: patients with untreated depression showed a real 70 to 90 percent higher one-year mortality risk after their heart attack than patients who were either not depressed or whose depression was actually treated -- a real, direct, hopeful reason to treat post-MI depression seriously, not dismiss it as an understandable but ultimately separate reaction to a frightening diagnosis. A real, honest caveat worth including: some methodologically robust studies have failed to find depression independently raising cardiac death risk after MI, and the real relationship appears genuinely complex, possibly concentrated specifically in the period immediately following the event rather than a fixed, permanent risk factor.',
+    citations: [
+      { source: 'Depression Is a Risk Factor for Mortality After Myocardial Infarction: Fact or Artifact?, Journal of the American College of Cardiology', url: 'https://www.jacc.org/doi/10.1016/j.jacc.2007.01.075' },
+      { source: 'Depression Treatment and 1-Year Mortality After Acute Myocardial Infarction, Circulation', url: 'https://www.ahajournals.org/doi/10.1161/circulationaha.116.025140' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-when-to-seek-help'],
+  },
 ];

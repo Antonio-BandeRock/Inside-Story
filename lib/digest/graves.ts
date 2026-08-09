@@ -437,4 +437,18 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['graves-trab-tsi-testing', 'horizon-graves'],
   },
+  {
+    id: 'graves-psychiatric-disorders-nationwide',
+    category: 'graves',
+    title: 'A Real, Large Nationwide Study Found Depression and Anxiety Risk Rising With a New Graves\' Diagnosis',
+    teaser: 'A Korean national database study of over 20,000 Graves\' patients found real, significantly higher rates of depression, bipolar disorder, anxiety, and sleep disorder, persisting even two years after diagnosis.',
+    summary:
+      'A real, large, population-based study using Korea\'s National Health Insurance database (20,851 newly diagnosed Graves\' patients against 46,008 matched controls) found a real, significant association between Graves\' disease and increased risk of depression, bipolar disorder, anxiety disorder, and sleep disorder, with the elevated risk persisting even two years after the initial diagnosis. A real, separate Swedish national registry study offers a genuinely useful, more specific angle: it found no increased PRE-EXISTING psychiatric diagnosis history in Graves\' patients before their diagnosis, but real, significant increases in mental fatigue, depression, and anxiety specifically during the active hyperthyroid phase, with real, significant improvement by 15 months once treatment had brought hormone levels under control. Taken together, the honest, most likely read is that Graves\' own psychiatric symptom burden is substantially state-dependent, tied to the active disease itself rather than a fixed, pre-existing vulnerability, real reassurance that these symptoms are a genuine, expected part of the disease process worth naming directly to a doctor, not evidence of an unrelated or permanent mental health condition.',
+    citations: [
+      { source: "Risk of psychiatric disorders in patients with graves' disease: A nationwide population-based analysis, PMID 40350088", url: 'https://pubmed.ncbi.nlm.nih.gov/40350088/' },
+      { source: "Psychiatric complications in Graves' disease, European Thyroid Journal", url: 'https://etj.bioscientifica.com/view/journals/etj/13/1/ETJ-23-0247.xml' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview'],
+  },
 ];

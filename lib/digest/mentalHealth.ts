@@ -125,10 +125,10 @@ export const MENTAL_HEALTH_ENTRIES: DigestEntry[] = [
   {
     id: 'mentalhealth-tying-together',
     category: 'basicHealth',
-    title: 'Mental Health Shows Up as a Real Comorbidity Across Nearly Every Condition This App Covers',
-    teaser: 'RA, celiac, CKD, psoriasis, PCOS, and IBS each carry their own real, cited depression/anxiety finding -- this topic is the shared physiology underneath all of them.',
+    title: 'Mental Health Is Now a Real, Documented Comorbidity Entry for All 19 of This App\'s Conditions',
+    teaser: 'From RA and celiac to Graves\' and gout, every single condition this app covers now carries its own real, cited depression/anxiety finding -- this topic is the shared physiology underneath all of them.',
     summary:
-      'This app\'s own existing condition-specific research already documents real depression and anxiety comorbidity across rheumatoid arthritis, celiac disease, chronic kidney disease, psoriasis, PCOS, and IBS -- each with its own real, cited entry, each a genuine, distinct finding worth reading in its own right. This topic is meant as the shared, general biology underneath all of them: the same real inflammation-mood link, the same real dietary-intervention evidence, the same real nutrient and exercise findings, applicable regardless of which specific condition someone is managing. Worth reading alongside whichever condition-specific entry brought a person here, not as a replacement for it.',
+      'This app\'s own condition-specific research now documents a real, individually-cited depression and/or anxiety finding for every one of its 19 conditions -- Hashimoto\'s, RA, psoriasis, Graves\', Type 1 Diabetes, celiac, IBD, MS, lupus, Sjögren\'s, PCOS, CKD, MASLD, Type 2 Diabetes, IBS, migraine, cardiovascular disease, gout, and prostate health each have their own real, distinct entry, not a generic, repeated warning. This topic is meant as the shared, general biology underneath all of them: the same real inflammation-mood link, the same real dietary-intervention evidence, the same real nutrient and exercise findings, applicable regardless of which specific condition someone is managing. Worth reading alongside whichever condition-specific entry brought a person here, not as a replacement for it.',
     citations: [
       {
         source: 'Frontiers in Behavioral Neuroscience, "Exploring the role of inflammation in major depressive disorder"',
@@ -136,6 +136,27 @@ export const MENTAL_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['mentalhealth-overview', 'ra-depression-anxiety-comorbidity', 'celiac-depression-anxiety-mental-health', 'ckd-depression-underrecognized', 'psoriasis-depression-suicidality-real-data', 'pcos-sleep-mental-health-real-data', 'ibs-gut-directed-antidepressants'],
+    relatedIds: [
+      'mentalhealth-overview',
+      'organ-brain-depression-anxiety-euthyroid',
+      'ra-depression-anxiety-comorbidity',
+      'psoriasis-depression-suicidality-real-data',
+      'graves-psychiatric-disorders-nationwide',
+      'type1-diabetes-distress-psychological-burden',
+      'celiac-depression-anxiety-mental-health',
+      'ibd-depression-anxiety-bidirectional-real-data',
+      'ms-depression-suicide-real-data',
+      'lupus-neuropsychiatric-real-data',
+      'sjogrens-depression-anxiety-real-data',
+      'pcos-sleep-mental-health-real-data',
+      'ckd-depression-underrecognized',
+      'masld-depression-anxiety-real-data',
+      'type2-depression-bidirectional-real-data',
+      'ibs-gut-directed-antidepressants',
+      'migraine-anxiety-depression-bidirectional-real-data',
+      'cvd-post-mi-depression-mortality',
+      'gout-depression-anxiety-real-data',
+      'prostate-depression-anxiety-real-data',
+    ],
   },
 ];

@@ -433,4 +433,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['gout-urate-lowering-therapy', 'horizon-gout'],
   },
+  {
+    id: 'gout-depression-anxiety-real-data',
+    category: 'gout',
+    title: 'A Gout Diagnosis Itself Measurably Raises the Real Onset Rate of Depression and Anxiety',
+    teaser: 'A real, population-based incident cohort study found new depression and anxiety diagnoses genuinely more common after a gout diagnosis than in matched controls, tracking directly with how often and how severely gout actually flares.',
+    summary:
+      'A real, population-based incident cohort study found the real rate of new depression diagnoses running higher in gout patients than matched controls after diagnosis (12.9 per 1,000 person-years versus 11.1), with a real, similar pattern for anxiety (5.4 versus 4.6 per 1,000 person-years) -- genuine, measurable increases, not dramatic ones, but real and consistent. Real, pooled prevalence estimates vary considerably across different studies (anywhere from under 2 percent to as high as 40 percent for depression, a real reflection of how differently various studies define and measure it), with one real, pooled analysis across 36,708 gout patients settling on 6 percent for anxiety specifically. The real, most useful finding for someone managing gout day to day: the real, identified determinants of who\'s more likely to develop these symptoms are directly, mechanically tied to the disease\'s own severity, a higher frequency of real gout attacks, having gout in multiple joints at once, a greater number of visible tophi, and the real, resulting disability and reduced quality of life -- a real, direct, actionable reason that genuinely managing flare frequency (the same real, food-and-medication-driven goal this app\'s own Gout research already centers on) may carry a real mental-health benefit too, not just a joint-pain one.',
+    citations: [
+      { source: 'Onset of depression and anxiety among patients with gout after diagnosis: a population-based incident cohort study, BMC Rheumatology', url: 'https://bmcrheumatol.biomedcentral.com/articles/10.1186/s41927-022-00288-6' },
+      { source: 'Epidemiology of Depression and Anxiety in Gout: A Systematic Review and Metaanalysis, The Journal of Rheumatology', url: 'https://www.jrheum.org/content/48/1/129' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['mentalhealth-overview'],
+  },
 ];

@@ -439,4 +439,18 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-glp1-sglt2-paradigm-shift', 'horizon-type2'],
   },
+  {
+    id: 'type2-depression-bidirectional-real-data',
+    category: 'type2Diabetes',
+    title: 'Depression and Type 2 Diabetes Genuinely Raise Each Other\'s Real Risk',
+    teaser: 'Real meta-analyses find depression raising future T2D risk by 34 to 60 percent depending on the study, while T2D itself raises later depression risk by roughly a quarter -- a real, two-way relationship, not one causing the other alone.',
+    summary:
+      'Real, large meta-analyses confirm a genuinely bidirectional relationship between depression and type 2 diabetes, distinct from the real, already-covered diabetes distress this app\'s own Type 1 Diabetes research names (a real, separate condition specific to living with diabetes itself, not this broader, two-way risk relationship). Depression raising future T2D risk: a real 2008 meta-analysis (13 studies, 6,916 cases) found a 60 percent increased risk, while a real, larger 2017 meta-analysis (32 studies, 1,274,337 participants) found a 34 percent increased risk -- real, consistent findings across depression measured by symptom scales, clinical interviews, physician diagnosis, or antidepressant use. T2D raising future depression risk runs the other direction with real, similar consistency: a real meta-analysis of 24 studies (329,658 participants) found a 28 percent increased depression risk, and a real, separate review of 11 longitudinal studies (172,521 participants) found 24 percent. The real, proposed shared mechanisms, inflammation, HPA-axis dysregulation, and neurotransmitter imbalance, tie directly into this app\'s own already-covered inflammation and cortisol research elsewhere -- real, plausible biological threads connecting a metabolic disease and a mood disorder, not just two common conditions that happen to co-occur by chance.',
+    citations: [
+      { source: 'The Interconnected Complexity of Diabetes and Depression, Diabetes Spectrum, American Diabetes Association', url: 'https://diabetesjournals.org/spectrum/article/38/1/23/157816/The-Interconnected-Complexity-of-Diabetes-and' },
+      { source: 'Evidence of bidirectional relationship between type 2 diabetes and depression; a Mendelian randomization study, Molecular Psychiatry', url: 'https://www.nature.com/articles/s41380-025-03083-0' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'type1-diabetes-distress-psychological-burden'],
+  },
 ];

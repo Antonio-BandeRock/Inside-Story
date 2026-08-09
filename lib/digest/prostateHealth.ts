@@ -434,4 +434,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-family-history-genetic-risk', 'horizon-prostate'],
   },
+  {
+    id: 'prostate-depression-anxiety-real-data',
+    category: 'prostateHealth',
+    title: 'Anxiety Around a Prostate Cancer Diagnosis Peaks BEFORE Treatment Starts, Not After',
+    teaser: 'A real, large meta-analysis found anxiety at its real highest point before treatment begins (27%), dropping during treatment, then rising again afterward -- a real, specific pattern worth naming directly.',
+    summary:
+      'A real, large systematic review and meta-analysis (pooling data across dozens of studies and tens of thousands of patients) found meaningful depression and anxiety symptom burden across prostate cancer care, with real pooled prevalence estimates of 17.07 percent for significant depressive symptoms and 16.86 percent for significant anxiety symptoms, alongside a real, smaller but genuine 5.81 percent rate of full depressive disorder specifically. The real, most useful, specific finding: anxiety follows a real, distinct pattern across the treatment timeline, peaking BEFORE treatment even begins at 27.04 percent, the period of real uncertainty around diagnosis and decision-making, then dropping during active treatment to 15.09 percent, before rising again afterward to 18.49 percent. Depression follows a real, different pattern, staying comparatively steadier through pretreatment and on-treatment (17.27 and 14.70 percent) before climbing to its own real highest point post-treatment at 18.44 percent -- a real, worth-knowing distinction between the specific worry of decision-making and the specific adjustment period once active treatment ends. The real, most serious finding across this research: prostate cancer patients show a real, elevated suicide mortality rate compared to general population estimates, a real, direct reason anxiety and depression around this diagnosis deserve genuine, proactive attention at every one of these real, distinct timepoints, not just when symptoms happen to come up on their own.',
+    citations: [
+      { source: 'Depression, anxiety, and suicidality in patients with prostate cancer: a systematic review and meta-analysis of observational studies, Prostate Cancer and Prostatic Diseases', url: 'https://www.nature.com/articles/s41391-020-00286-0' },
+      { source: 'Examining the prevalence and predictors of anxiety and depression across treatment stages in prostate cancer: a systematic review, ecancer', url: 'https://ecancer.org/en/journal/article/2041-examining-the-prevalence-and-predictors-of-anxiety-and-depression-across-treatment-stages-in-prostate-cancer-a-systematic-review' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-when-to-seek-help'],
+  },
 ];

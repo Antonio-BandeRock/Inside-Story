@@ -427,4 +427,18 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-sjogrens'],
   },
+  {
+    id: 'sjogrens-depression-anxiety-real-data',
+    category: 'sjogrens',
+    title: 'Depression and Anxiety Affect Roughly a Third of Sjögren\'s Patients, With Oral Dryness Itself a Real, Direct Predictor',
+    teaser: 'Real research finds depression in up to 46% and anxiety in roughly a third of Sjögren\'s patients -- and, genuinely specific to this disease, oral health and swallowing problems are the strongest real predictor of anxiety specifically.',
+    summary:
+      'Real, cross-sectional research finds a genuinely substantial mental-health burden in primary Sjögren\'s syndrome: depression prevalence estimates as high as 32 to 46 percent, and one real study finding 36.9 percent depression and 33.8 percent anxiety, both significantly higher than matched controls. Real research finds the two symptoms carry real, partly distinct risk factors: anxiety tracks most closely with younger age, pain, and fatigue (this app\'s own already-covered, most disabling Sjögren\'s symptom), while depression tracks most closely with xeroderma (dry skin), pain, and fatigue. A real, genuinely specific-to-this-disease finding worth knowing directly: real research identifies oral health and swallowing disorders as the single most important predictor of anxiety specifically in Sjögren\'s patients -- a real, direct, mechanistic link to the disease\'s own already-covered dental-caries and dry-mouth research, not a generic chronic-illness anxiety finding. Worth reading alongside this app\'s own existing fatigue entry, which already names depression as one of fatigue\'s own real predictors -- the two are genuinely intertwined, not separate concerns competing for attention.',
+    citations: [
+      { source: "Anxiety and depression in primary Sjögren's syndrome: a cross-sectional study, PMID 29769121", url: 'https://pubmed.ncbi.nlm.nih.gov/29769121/' },
+      { source: "Beyond Dryness: Mapping the Psychological and Cognitive Burden in Sjögren's Disease -- A Narrative Review", url: 'https://www.mdpi.com/2077-0383/15/8/2857' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-fatigue-most-disabling', 'mentalhealth-overview'],
+  },
 ];
