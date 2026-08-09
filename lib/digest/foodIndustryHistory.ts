@@ -1474,6 +1474,101 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'A real, quantified, structural vulnerability factor -- explains part of WHY the crisis hits as hard as it does, distinct from the direct causes (mites, pesticides, habitat loss) already covered in this sub-cluster\'s own crisis entry.',
     relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-bat-pollinators-white-nose'],
   },
+  // 2026-08-11, same day, an eighth continuation: "Keep going with more
+  // research on this topic." Every citation below independently
+  // re-verified via WebSearch/WebFetch. This pass closes the pollinator
+  // sub-cluster's own loop back to the main cluster (organic farming's
+  // real, measured effect on pollinator abundance), adds a genuinely new
+  // causal mechanism distinct from every cause already covered (climate-
+  // driven timing mismatch, not toxicity or habitat loss), extends this
+  // whole cluster's own international framing to pollinator vulnerability
+  // specifically (2+ billion smallholder farmers, a real, different kind
+  // of exposure than commercial US/EU agriculture has), and gives an
+  // honest look at the leading technological stopgap being developed.
+  {
+    id: 'foodhistory-regen-organic-farming-pollinator-abundance',
+    category: 'basicHealth',
+    title: "Does Organic Farming Actually Help Pollinators? A Real, Current Meta-Analysis Says Yes, With Real Conditions",
+    teaser: 'A 2025 review of 42 studies across four continents found real, measurably higher pollinator abundance and diversity on organic farms -- strongest for bumblebees, and strongest in otherwise simple, low-diversity landscapes.',
+    summary:
+      "This closes the loop directly back to the rest of this cluster: does the organic/regenerative farming already covered throughout this whole category actually measurably help pollinators, or is the connection mostly assumed? A real, current (2025) meta-analysis in the Journal of Applied Ecology compiled 42 individual studies from four continents, covering 76 separate species-richness comparisons and 57 abundance comparisons between organic and conventional farms, and found a real, positive effect: pollinator species richness and abundance were both measurably higher on organic farms, with bumblebee diversity benefiting the most of any pollinator group, while moths and hoverflies showed a positive but statistically weaker signal. The real, honest complication, consistent with this whole cluster's own standing discipline of naming context rather than claiming a universal effect: the benefit was genuinely context-dependent, strongest in simple, already low-diversity agricultural landscapes (where organic practices add the most relative habitat value) and weakest in organic pasture systems specifically, with landscape context, crop type, and even sampling method all measurably affecting the size of the real, underlying effect.",
+    citations: [
+      {
+        source: 'Walker et al. 2025, Journal of Applied Ecology: "The context-dependent benefits of organic farming on pollinator biodiversity: A meta-analysis"',
+        url: 'https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2664.14826',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, current, large-scale meta-analysis -- the strongest evidence tier this pollinator sub-cluster has for the direct organic-farming-to-pollinator-abundance question, reported with its own real, honest context-dependence rather than a blanket claim.',
+    relatedIds: ['foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-agroforestry-quantified'],
+  },
+  {
+    id: 'foodhistory-regen-phenological-mismatch',
+    category: 'basicHealth',
+    title: "A Real, Different Kind of Threat: Climate Change Is Shifting Flowers and Bees Out of Sync",
+    teaser: 'British wild bees are emerging 6.5 days earlier for every 1°C of warming -- but flowers are shifting at a different rate, a real, measured timing mismatch distinct from every other cause covered in this cluster.',
+    summary:
+      "Every pollinator threat covered elsewhere in this sub-cluster works through direct toxicity, disease, or physical habitat loss. Climate change threatens pollinators through a real, genuinely different mechanism: phenological mismatch, where warming shifts the timing of flowering and the timing of pollinator emergence at different rates, so a plant may bloom before or after its own pollinator is actually active to visit it. Real, measured UK research found wild bee emergence dates have advanced by an average 0.40 days per year since 1980, or about 6.5 days earlier for every 1°C of regional warming -- and separate research found bee nesting/emergence timing is more sensitive to seasonal temperature than flowering time is, meaning the two are drifting apart rather than shifting together in lockstep. The real, measured consequence: when this mismatch widens, plant seed production falls due to reduced successful pollination, and bee reproductive success and population growth both measurably decline too, with the effect strongest for specialist bee species tied to one particular flower's own timing (a generalist bee that visits many different flowers across a season has more room to adapt) and worst at higher, northern latitudes, where a 2025 PNAS study found climate change increasing real secondary extinction risk for plants specifically through this mechanism.",
+    citations: [
+      {
+        source: 'PMC 2023: Climate-driven phenological shifts in emergence dates of British bees (0.40 days/year, 6.5 days per 1°C)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10329875/',
+      },
+      {
+        source: 'PNAS 2025: Climate change intensifies plant-pollinator mismatch and increases secondary extinction risk for plants in northern latitudes',
+        url: 'https://www.pnas.org/doi/10.1073/pnas.2506265122',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, distinct causal mechanism from every other pollinator threat already covered in this sub-cluster -- timing disruption, not direct toxicity or habitat destruction.',
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-insect-apocalypse-hallmann'],
+  },
+  {
+    id: 'foodhistory-regen-smallholder-pollinator-vulnerability',
+    category: 'basicHealth',
+    title: 'A Real, Different, More Precarious Kind of Exposure: Smallholder Farmers in the Global South',
+    teaser: "Roughly 2-2.5 billion people worldwide depend on small farms for their livelihood -- and unlike California almond growers, they can't simply pay to truck in replacement colonies when wild pollinators decline.",
+    summary:
+      "Nearly every entry in this pollinator sub-cluster so far describes commercial US or European agriculture, which has a real, if increasingly strained, fallback: paying to rent and truck in managed honeybee colonies (see this cluster's own almond-pollination-economics entry). A real, estimated 500-600 million smallholder farming households worldwide, supporting somewhere between 2 and 2.5 billion people total depending on the exact source and definition used, generally have no equivalent option, relying almost entirely on free, unmanaged wild pollinators they cannot pay to replace when those populations decline. A real, direct case study from Burkina Faso found household income could fall by as much as 83% depending on how pollinator-dependent that household's specific crops were, and research across sub-Saharan Africa found pollinator-dependent crops already contribute significantly to household dietary diversity and measurably reduce nutrient deficiencies where they're grown, meaning their loss threatens nutrition directly, not just income. A related, real, compounding trend: as smallholder farming systems specialize into fewer, more commercially valuable pollinator-dependent crops (coffee, watermelon, beans), a real, documented pattern, that specialization itself increases vulnerability to any single pollination-service disruption, the same underlying \"less diversity, more fragility\" pattern already documented elsewhere in this cluster for crop monocultures and managed-honeybee genetics alike.",
+    citations: [
+      {
+        source: 'Sustainability 2018 (MDPI): Income Vulnerability of West African Farming Households to Losses in Pollination Services -- A Case Study from Ouagadougou, Burkina Faso',
+        url: 'https://www.mdpi.com/2071-1050/10/11/4253',
+      },
+      {
+        source: 'Scientific Reports 2023 (Nature): Pollinator-dependent crops significantly contribute to diets and reduce household nutrient deficiencies in sub-Saharan Africa',
+        url: 'https://www.nature.com/articles/s41598-023-41217-y',
+      },
+      {
+        source: 'Journal of Applied Ecology 2024: Agricultural specialisation increases the vulnerability of pollination services for smallholder farmers',
+        url: 'https://besjournals.onlinelibrary.wiley.com/doi/10.1111/1365-2664.14732',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Extends this whole cluster\'s own established international framing to pollinator vulnerability specifically -- a real, structurally different, more precarious exposure than commercial US/EU agriculture has, not the same risk at a smaller scale.',
+    relatedIds: ['foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-global-implementation-synthesis'],
+  },
+  {
+    id: 'foodhistory-regen-robotic-drone-pollination',
+    category: 'basicHealth',
+    title: 'The Real Technological Stopgap Being Built -- and Why It Isn\'t a Near-Term Answer',
+    teaser: 'AI-guided pollination robots and drones are real and actively researched, but current systems mostly only work inside greenhouses, at high cost, and can\'t yet handle open-field agriculture or complex flower structures.',
+    summary:
+      "A real, active area of current research is developing robotic and drone-based artificial pollination as a direct technological response to the decline documented throughout this whole sub-cluster, worth covering honestly rather than presenting as a settled solution. Real, published 2024-2025 research includes AI-guided pollination robots for greenhouse tomato cultivation and autonomous drone systems using machine-learning flower classifiers, building on decades of more limited hand-pollination-assist tools. The real, honest limitation, stated directly rather than only celebrating the innovation: current systems work well mainly in controlled, indoor greenhouse settings on a narrow range of crops, remain technically complex and expensive to deploy at any real agricultural scale, and face real, unresolved engineering problems in open-field conditions specifically -- wind disturbance affecting flight stability, image blur from drone motion during flower detection, limited flight duration, and difficulty handling the more complex flower structures many real crops (as opposed to simplified greenhouse tomato flowers) actually have. The honest, working synthesis: this is a real, genuinely promising complement for specific high-value, controlled-environment crops, not a near-term replacement for the roughly 2 million honeybee colonies almond pollination alone already requires (see this cluster's own dedicated entry), let alone for the far larger, harder-to-replicate role wild and native pollinators play across open-field and Global South agriculture.",
+    citations: [
+      {
+        source: 'International Journal of Agricultural and Biological Engineering: Research progress in mechanized and intelligentized pollination technologies for fruit and vegetable crops',
+        url: 'https://ijabe.org/index.php/ijabe/article/view/9403',
+      },
+      {
+        source: 'Artificial Intelligence Review (Springer Nature): A comprehensive review of current robot-based pollinators for crop pollination',
+        url: 'https://link.springer.com/article/10.1007/s10462-025-11409-1',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, honest look at an actively-researched technology -- included specifically so this sub-cluster doesn\'t leave the impression that a technological fix is already close to solving the underlying decline documented throughout it.',
+    relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-smallholder-pollinator-vulnerability'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
