@@ -414,4 +414,18 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-global-latitude-gradient', 'psoriasis-systemic-comorbidities'],
   },
+  {
+    id: 'horizon-psoriasis',
+    category: 'psoriasis',
+    title: "Psoriasis Just Got Its First Oral Drug That Targets Inflammation Precisely, Not Broadly",
+    teaser: 'Deucravacitinib, a genuinely new drug class approved in 2022 and expanded to psoriatic arthritis in 2026, selectively blocks one specific inflammatory signaling enzyme rather than the broader immune suppression older oral drugs required.',
+    summary:
+      "This category's own already-covered IL-23 inhibitor research (guselkumab and similar biologics) requires an injection; the real, current frontier is bringing that same precision into a pill. Deucravacitinib, first FDA-approved in 2022 for moderate-to-severe plaque psoriasis and expanded in 2026 to psoriatic arthritis, is a genuinely new drug class: a selective TYK2 inhibitor. Unlike older JAK inhibitors that broadly dampen multiple immune signaling pathways at once (carrying this category's own already-covered ORAL Surveillance safety concerns), TYK2 inhibition targets specifically the signaling behind IL-23, IL-12, and type I interferons, the same real inflammatory drivers already covered in this category's own IL-23 research, while leaving other immune pathways largely untouched. The real, practical advantage: an oral pill without the injection burden or the extensive lab monitoring biologics require. Worth knowing directly where the field is heading: this represents a real, genuine shift in psoriasis drug design toward more precisely targeted oral small molecules rather than either broad immunosuppression or injectable biologics, and real, similar next-generation TYK2 and JAK-selective compounds are already moving through later-stage trials behind it.",
+    citations: [
+      { source: 'Deucravacitinib: The First FDA-Approved Oral TYK2 Inhibitor for Moderate to Severe Plaque Psoriasis', url: 'https://pubmed.ncbi.nlm.nih.gov/37341177/' },
+      { source: 'FDA Approves Deucravacitinib as First TYK2 Inhibitor for Psoriatic Arthritis', url: 'https://www.dermatologytimes.com/view/fda-approves-deucravacitinib-as-first-tyk2-inhibitor-for-psoriatic-arthritis' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-il23-inhibitors-efficacy'],
+  },
 ];

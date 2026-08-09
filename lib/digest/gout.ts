@@ -406,4 +406,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-global-oceania-genetic-urate', 'gout-purine-foods-and-dairy'],
   },
+  {
+    id: 'horizon-gout',
+    category: 'gout',
+    title: 'Real, Early Research Is Testing Whether Specific Gut Bacteria Can Be Recruited to Lower Uric Acid Directly',
+    teaser: "This category's own already-covered gut-microbiome connection to hyperuricemia is now being tested as an actual treatment: a real synbiotic combination measurably lowered uric acid and inflammation in patients already on allopurinol.",
+    summary:
+      "Real research finds gut bacteria play a genuine, direct role in how the body processes and clears uric acid, through several real mechanisms: breaking down dietary purines, helping excrete urate, and maintaining the gut's own protective barrier. The real, current research direction is testing whether that connection can become an actual add-on treatment, not just an explanation. In one real study, gout patients already taking allopurinol (this category's own already-covered urate-lowering therapy) who also received a synbiotic (a specific probiotic strain, Lactobacillus, paired with a prebiotic fiber) showed real, measurable reductions in both blood uric acid and CRP (a real inflammation marker), alongside a real, favorable shift in their own gut bacteria composition toward species that break down purines more effectively. A real, EU-funded research project (Bugs4Urate) is now working to develop a purpose-built probiotic specifically for uric acid, informed directly by a person's own individual diet, gut bacteria, and genetics, with real early laboratory work aiming toward human trials by 2026. Worth knowing honestly: real research in this area is still mostly observational, exactly which gut bacteria genuinely drive urate levels remains inconsistent across studies, and this is a real, promising early direction meant to complement existing gout medications, not replace them.",
+    citations: [
+      { source: 'Strategies to reduce uric acid through gut microbiota intervention', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12426027/' },
+      { source: 'On the trail of microbes: Using bugs to tame urate and advance gout prevention', url: 'https://www.innovationnewsnetwork.com/on-the-trail-of-microbes-using-bugs-to-tame-urate-and-advance-gout-prevention/62873/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['gout-urate-lowering-therapy'],
+  },
 ];

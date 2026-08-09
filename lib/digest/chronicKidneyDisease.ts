@@ -418,4 +418,18 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-transplant-survival-benefit', 'ckd-egfr-acr-monitoring'],
   },
+  {
+    id: 'horizon-ckd',
+    category: 'chronicKidneyDisease',
+    title: 'A Real, New Drug Class Blocks a Second Blood-Vessel Pathway This Category\'s Own ACE/ARB Research Doesn\'t Reach',
+    teaser: 'Sparsentan, blocking both the endothelin and angiotensin pathways at once, reduced proteinuria a real 40% more than a standard ACE/ARB-family drug alone in a real Phase 3 trial, and finerenone is now being tested beyond its original diabetic-CKD approval.',
+    summary:
+      "This category's own already-covered ACE inhibitor and ARB research targets one real blood-vessel pathway (angiotensin) already well-established in slowing CKD progression. Sparsentan represents a real, newer approach: a single drug blocking BOTH that same angiotensin pathway AND a second, separate one (endothelin), which real research finds independently contributes to kidney damage. In a real Phase 3 trial (PROTECT) in IgA nephropathy, sparsentan reduced protein leakage into urine by a real 40% more than irbesartan, an ARB-family drug, alone, and a separate real Phase 2b trial (DUET) found it produced remission in 28% of a genetically-driven kidney disease (FSGS) versus 9% on irbesartan alone. A real, second, already-more-established drug, finerenone, works through yet another distinct pathway (blocking a hormone receptor tied to inflammation and scarring) and is already FDA-approved specifically for CKD in people who also have Type 2 diabetes, based on two real, large trials; it's now being tested in real trials for non-diabetic CKD too, where it isn't yet approved. Worth knowing directly: both drugs represent this category's own real, active direction, combining or diversifying beyond the single angiotensin pathway most current CKD treatment still relies on.",
+    citations: [
+      { source: 'Endothelin receptor antagonists in chronic kidney disease, Nature Reviews Nephrology', url: 'https://www.nature.com/articles/s41581-024-00908-z' },
+      { source: 'A comprehensive review of finerenone -- a third-generation non-steroidal mineralocorticoid receptor antagonist', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11456546/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-ace-arb-potassium-monitoring'],
+  },
 ];

@@ -310,6 +310,7 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     ],
   },
   { label: 'Glossary', prefixes: ['glossary-'] },
+  { label: 'Prevention & Lifestyle by Condition', prefixes: ['prevention-'] },
   { label: 'Problem Foods & Swaps', prefixes: ['problem-'] },
   { label: 'Food Additives', prefixes: ['additive-'] },
   { label: 'Nutrient Interactions', prefixes: ['interaction-'] },

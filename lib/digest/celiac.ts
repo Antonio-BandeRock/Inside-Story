@@ -425,4 +425,18 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-iceberg-underdiagnosis', 'celiac-firstdegree-relative-screening'],
   },
+  {
+    id: 'horizon-celiac',
+    category: 'celiac',
+    title: 'Two Real Drug Candidates Are Trying to Do What This Category\'s Own Enzyme Therapy Entry Says Isn\'t Here Yet',
+    teaser: 'ZED1227, a real transglutaminase-2-blocking drug, measurably reduced gluten-induced gut damage in a real randomized trial, and a second candidate, TAK-101, cut the immune system\'s own gluten-triggered response by a real 88% in early testing.',
+    summary:
+      "This category's own already-covered enzyme-therapy research names a real adjunct to the gluten-free diet, not a replacement for it, and two further, more advanced real drug candidates are actively working to change that. ZED1227, described in real research as the leading candidate in its drug class, blocks the specific enzyme (transglutaminase 2) that gluten triggers to cause intestinal damage in celiac disease, and a real randomized trial found it measurably reduced gluten-induced gut injury at every dose tested. It's now moving through larger real Phase 2b/3 trials expected to report through 2026-2027. A second, different real candidate, TAK-101, works through a different real mechanism (training the immune system toward tolerance rather than blocking an enzyme) and showed a real, striking 88% reduction in the gluten-triggered immune signal that drives symptoms in early testing, though its own most recent Phase 2 trial found the difference in actual intestinal healing didn't reach statistical significance, an honest, real result worth stating plainly rather than only citing the more flattering number. Worth knowing directly: neither drug is intended to replace this category's own real, primary treatment (strict gluten avoidance), both are being developed as a real safety buffer against accidental exposure, not permission to eat gluten again.",
+    citations: [
+      { source: 'A Randomized Trial of a Transglutaminase 2 Inhibitor for Celiac Disease, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2032441' },
+      { source: 'New therapies in celiac disease: 2026 pipeline', url: 'https://novapharmanews.com/us/news/celiac-disease-new-era-therapeutic-innovation' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['celiac-enzyme-therapy-emerging'],
+  },
 ];

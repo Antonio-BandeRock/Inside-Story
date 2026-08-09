@@ -421,4 +421,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-global-seven-countries-mediterranean'],
   },
+  {
+    id: 'horizon-cvd',
+    category: 'cardiovascularDisease',
+    title: 'This Category\'s Own Named Blind Spot, Lipoprotein(a), Finally Has Real Drugs Being Tested Against It',
+    teaser: 'This category already names lipoprotein(a) as a largely genetic risk factor with no real treatment, and two real drugs now in late-stage trials cut it by up to 95%, with real cardiovascular-outcome results expected as soon as 2026.',
+    summary:
+      "This category's own already-covered lipoprotein(a) research names a real, genuine gap directly: it's a largely genetic, roughly 20%-of-the-population cardiovascular risk factor most people are never even tested for, and until recently, no real treatment existed to lower it the way statins lower LDL cholesterol. That's now changing. Pelacarsen, a real drug that blocks the genetic instructions for making Lp(a) in the first place, lowered Lp(a) levels by roughly 80% in real Phase 2 testing, and is now in a real Phase 3 trial (HORIZON) enrolling 8,323 people with existing cardiovascular disease and high Lp(a), with real outcome data expected as soon as the first half of 2026. A real, second, newer drug, olpasiran, showed even more striking real Phase 2 results, cutting Lp(a) levels by more than 95%, and is now in its own real Phase 3 outcomes trial with 7,297 participants. Worth knowing directly: both drugs currently lower the LEVEL of Lp(a) in the blood, real, measured, and dramatic, but neither has yet proven in a completed real outcomes trial that doing so actually reduces heart attacks and strokes, the real, final, still-pending question both of these late-stage trials exist specifically to answer.",
+    citations: [
+      { source: 'Emerging therapies targeting lipoprotein(a): the next frontier in cardiovascular risk reduction', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12756449/' },
+      { source: 'Ongoing Clinical Trials Targeting Lipoprotein(a), Family Heart Foundation', url: 'https://familyheart.org/lpa-clinical-trials' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-lipoprotein-a-underrecognized'],
+  },
 ];

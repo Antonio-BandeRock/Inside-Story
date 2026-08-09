@@ -424,4 +424,18 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-biologics-infection-risk', 'ra-global-indigenous-prevalence'],
   },
+  {
+    id: 'horizon-ra',
+    category: 'rheumatoidArthritis',
+    title: 'A One-Time Real, Experimental Cell Therapy Is Being Tested in RA Patients Every Other Drug Has Failed',
+    teaser: 'CAR-T cell therapy, originally built for blood cancers, is now in real, early human trials for treatment-resistant RA, with one real trial finding significant joint-count improvement in patients who had already failed multiple biologics.',
+    summary:
+      "For RA patients who've already worked through this category's own already-covered biologic and JAK-inhibitor options without lasting relief, a genuinely new real treatment class is now in early human testing: CAR-T cell therapy, engineering a patient's own immune cells to specifically target and reset the immune process driving their disease. Real, current trials are showing genuine promise: KYV-101, tested in a real Phase 1/2 trial in patients who had already failed multiple prior therapies, showed a real, rapid decline in key disease biomarkers, supporting the trial's move into a larger, randomized Phase 2 stage now underway. A real, separate fourth-generation CAR-T study published in 2025 found significant improvement in tender and swollen joint counts in treatment-resistant RA patients, and a real, distinct CAR-Treg (regulatory T-cell) approach has completed its first human safety trial. Worth knowing directly, and honestly: real data across this whole approach for autoimmune rheumatic disease remains overwhelmingly early-stage, roughly 64% of trials are still Phase 1, only about 7% have reached Phase 2, and most current real trial activity concentrates on lupus rather than RA specifically. This is a real, genuinely promising direction for the hardest-to-treat cases, not yet an available option.",
+    citations: [
+      { source: 'Kyverna Therapeutics Highlights Potential of KYV-101 in Rheumatoid Arthritis with Phase 1 Data', url: 'https://ir.kyvernatx.com/news-releases/news-release-details/kyverna-therapeutics-highlights-potential-kyv-101-rheumatoid' },
+      { source: 'Fourth-generation chimeric antigen receptor T-cell therapy is tolerable and efficacious in treatment-resistant rheumatoid arthritis, Cell Research', url: 'https://www.nature.com/articles/s41422-024-01068-2' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ra-biologics-infection-risk', 'ra-jak-inhibitors-oral-surveillance'],
+  },
 ];

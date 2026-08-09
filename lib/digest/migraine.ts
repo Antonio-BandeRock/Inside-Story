@@ -390,4 +390,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-global-burden-regional-variation'],
   },
+  {
+    id: 'horizon-migraine',
+    category: 'migraine',
+    title: 'Migraine Treatment Is Splitting Into Two Real, Parallel Directions: Faster Drugs and No Drugs at All',
+    teaser: 'A real nasal-spray gepant now works within 15 minutes, and a genuinely separate real class of wearable neuromodulation devices offers drug-free prevention and treatment for people who can\'t take standard migraine medication at all.',
+    summary:
+      "This category's own already-covered gepant research (CGRP-blocking drugs) continues advancing on two real, distinct fronts. On the drug side, zavegepant, delivered as a real nasal spray rather than a pill, now provides relief in as little as 15 minutes, real, meaningfully faster onset than oral options, while atogepant and rimegepant now offer real dual-purpose use for both day-to-day prevention and in-the-moment relief with a single drug class. On a genuinely separate, real, non-drug front, wearable neuromodulation devices (real, current examples include Nerivio and Relivion MG, plus a real subcutaneous nerve-stimulation system, PRIMUS, being tested directly in the ongoing RECLAIM trial for people with resistant migraine) offer real, drug-free treatment specifically valuable for people who are pregnant, are children, or have real medical contraindications to standard migraine medications. Worth knowing directly where the field sees itself heading: real, current research explicitly frames this as a move toward personalized migraine care, matching a specific person's own real triggers, contraindications, and treatment response to the right combination of drug and device options, rather than assuming one universal first-line treatment fits everyone.",
+    citations: [
+      { source: 'Gepants: targeting the CGRP pathway for migraine relief', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12678924/' },
+      { source: 'NeurologyLive Year in Review 2025: Top trending Migraine Trials', url: 'https://www.neurologylive.com/view/neurologylive-year-in-review-2025-top-trending-migraine-trials' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-cgrp-inhibitors', 'migraine-gepants-acute-treatment'],
+  },
 ];

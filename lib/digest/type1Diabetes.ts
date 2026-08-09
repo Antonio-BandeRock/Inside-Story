@@ -419,4 +419,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-global-finland-highest-world'],
   },
+  {
+    id: 'horizon-type1',
+    category: 'type1Diabetes',
+    title: "T1D Now Has Its First-Ever Disease-Modifying Drug, and a Real, Working Path Toward Insulin Independence",
+    teaser: "Teplizumab, already FDA-approved, delays T1D onset by a real, median 2 years in at-risk people, and a separate stem-cell-derived islet therapy already has 11 of 12 trial patients off or reducing insulin.",
+    summary:
+      "This category's own already-covered staging research (the JDRF presymptomatic framework) makes T1D genuinely detectable years before diagnosis, and for the first time, real medicine now has something to actually do with that early warning. Teplizumab (Tzield) became the first-ever disease-modifying drug approved for autoimmune Type 1 diabetes, first in 2022 and expanded since, and its real pivotal trial found a single 14-day course delayed median onset of clinical diabetes from 24.4 months to 48.4 months compared with placebo in people already at high risk, a real, meaningful buying of time before insulin dependence begins. For people who already have T1D, this category's own already-covered islet transplantation research now has a real, more scalable successor: Vertex's stem-cell-derived islet therapy (VX-880/zimislecel), now in Phase 3 trials, found all 12 full-dose trial participants showing real glucose-responsive insulin production by day 90, with 11 of 12 reducing or fully eliminating their need for injected insulin. Worth knowing honestly: this specific therapy still requires ongoing immune-suppressing medication to protect the transplanted cells, a real tradeoff, not yet a complete cure, but a real, working proof that lab-grown insulin-producing cells can function inside a real person's body.",
+    citations: [
+      { source: 'FDA Approves New Indication for Tzield (teplizumab)', url: 'https://www.fda.gov/news-events/press-announcements/fda-approves-new-indication-tzield-teplizumab-certain-pediatric-patients-recently-diagnosed-stage-3' },
+      { source: 'Expanded FORWARD Trial Demonstrates Continued Potential for Stem Cell-Derived Islet Cell Therapy, American Diabetes Association', url: 'https://diabetes.org/newsroom/press-releases/expanded-forward-trial-demonstrates-continued-potential-stem-cell-derived' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-jdrf-presymptomatic-staging', 'type1-islet-pancreas-transplantation'],
+  },
 ];

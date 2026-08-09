@@ -403,4 +403,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-pnpla3-genetic-risk', 'masld-tm6sf2-second-gene'],
   },
+  {
+    id: 'horizon-masld',
+    category: 'fattyLiverDisease',
+    title: 'A Real, New Drug Nearly Reversed Advanced Liver Scarring Entirely in Three of Ten Trial Patients',
+    teaser: 'Efruxifermin, a lab-made version of a real hormone the liver itself produces, found near-complete disease reversal in 30% of high-dose patients after 96 weeks in a real Phase 2b trial, and is now in three separate Phase 3 trials.',
+    summary:
+      "This category's own already-covered resmetirom and semaglutide research represents real, already-approved MASLD treatment; efruxifermin is the real, next major candidate working through a genuinely different mechanism. It's a lab-made, longer-lasting version of FGF21, a real hormone the liver itself naturally produces to help regulate fat metabolism. A real, 96-week Phase 2b trial (HARMONY) found efruxifermin produced real improvements in both liver fibrosis and MASH severity measured directly from biopsy, with near-complete disease reversal in 30% of the patients on the highest dose tested, a real, striking result for a disease this category's own already-covered fibrosis-staging research treats as usually only slowly reversible. It's now being tested in three separate real Phase 3 trials covering earlier-stage fibrosis, more advanced cirrhosis, and real-world use, and a real, separate trial is testing it in combination with a GLP-1 drug (the same drug class as this category's own already-covered semaglutide research), exploring whether combining two different real mechanisms works better than either alone. Worth knowing directly: efruxifermin is one of several real FGF21-based drugs (alongside pegozafermin and others) in active development, representing a genuinely new hormone-based direction for liver-disease treatment, not yet approved but advancing quickly through real, late-stage trials.",
+    citations: [
+      { source: 'Safety and efficacy of once-weekly efruxifermin versus placebo in metabolic dysfunction-associated steatohepatitis (HARMONY), 96-week results', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0140673625010736' },
+      { source: 'Efruxifermin: one step closer to disease-modifying therapy in fibrotic MASH, The Lancet', url: 'https://www.thelancet.com/journals/lancet/article/PIIS0140-6736(25)01147-X/abstract' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-f0-f4-fibrosis-staging', 'masld-resmetirom'],
+  },
 ];

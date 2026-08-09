@@ -407,4 +407,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-global-incidence-migrant-studies', 'prostate-psa-screening'],
   },
+  {
+    id: 'horizon-prostate',
+    category: 'prostateHealth',
+    title: "A Real, Genuinely New Kind of Treatment Delivers Radiation Directly to Prostate Cancer Cells, Nowhere Else",
+    teaser: 'PSMA-targeted radioligand therapy binds specifically to prostate cancer cells before releasing its radiation dose, real, already-approved treatment expanded in 2026 to earlier-stage disease with a real, statistically significant trial result behind it.',
+    summary:
+      "Traditional radiation therapy aims a beam from outside the body; PSMA-targeted radioligand therapy, real, already FDA-approved treatment (Pluvicto/lutetium-177), works in a genuinely different way. It's delivered as an injection carrying a molecule that binds specifically to PSMA, a real protein prostate cancer cells express far more than healthy tissue does, then releases its radiation dose directly at that exact binding site, real, targeted cell-level radiation rather than a broad external beam. First approved in 2022 for advanced, previously-treated metastatic prostate cancer, it was expanded in 2026 to cover earlier-stage metastatic disease, based on a real, statistically significant clinical trial finding it measurably slowed cancer progression compared with standard hormone therapy alone. This category's own already-covered active-surveillance and treatment-comparison research is aimed at avoiding overtreatment for low-risk, slow-growing cancer; PSMA-targeted therapy sits at the real opposite end, a genuinely more precise real option specifically for cancer that has already spread. Worth knowing directly where the field is heading: real, active research is now exploring PSMA-targeting even earlier in the disease course, and the same PSMA-binding approach is separately already used as a real, more sensitive imaging tool for detecting exactly where prostate cancer has spread before deciding on treatment at all.",
+    citations: [
+      { source: 'FDA approves lutetium Lu 177 vipivotide tetraxetan with androgen receptor pathway inhibitor therapy', url: 'https://www.fda.gov/drugs/resources-information-approved-drugs/fda-approves-lutetium-lu-177-vipivotide-tetraxetan-androgen-receptor-pathway-inhibitor-therapy' },
+      { source: '[177Lu]Lu-PSMA-617 (Pluvicto): The First FDA-Approved Radiotherapeutical for Treatment of Prostate Cancer', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9608311/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-active-surveillance', 'prostate-real-staging-systems'],
+  },
 ];

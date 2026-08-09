@@ -401,4 +401,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-global-geographic-ethnic-variation', 'sjogrens-labial-salivary-gland-biopsy'],
   },
+  {
+    id: 'horizon-sjogrens',
+    category: 'sjogrens',
+    title: 'A Real, New Drug Just Succeeded Where This Category\'s Own Rituximab Research Already Failed',
+    teaser: "Dazodalibep, targeting a genuinely different immune signal than rituximab, measurably improved dryness, fatigue, and pain in a real Phase 2 trial and is now in Phase 3, a real, direct answer to this category's own already-covered JOQUER trial's honest negative result.",
+    summary:
+      "This category's own already-covered JOQUER trial found rituximab, despite real, measurable biological activity, failed to improve Sjögren's own core dryness and fatigue symptoms, an honest, real disappointment already covered directly in this Digest. Dazodalibep represents a real, genuinely different approach that appears to be succeeding where that one didn't. Rather than depleting B cells the way rituximab does, dazodalibep blocks a different signal (CD40 ligand) involved in activating the immune response in the first place. A real Phase 2 trial, tested across two separate real patient groups (moderate-to-severe systemic disease activity, and severe symptoms with limited organ involvement), found patients receiving dazodalibep showing significantly greater real improvement in dryness, fatigue, and pain than those on placebo, the exact core symptoms this category's own rituximab research found unmoved. The drug was well tolerated in this same real trial. It has since progressed to real Phase 3 trials, expected to conclude in December 2026. Worth knowing directly: this is real, genuine progress specifically because it succeeded on the real symptoms that matter most day to day, not just on a lab-measured biological marker, though Phase 3 confirmation is still needed before it becomes an available treatment.",
+    citations: [
+      { source: "CD40 ligand antagonist dazodalibep in Sjögren's disease: a randomized, double-blinded, placebo-controlled, phase 2 trial, Nature Medicine", url: 'https://www.nature.com/articles/s41591-024-03009-3' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-rituximab-biologic-mixed-evidence', 'sjogrens-fatigue-most-disabling'],
+  },
 ];

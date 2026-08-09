@@ -398,4 +398,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-global-ethnicity-severity'],
   },
+  {
+    id: 'horizon-lupus',
+    category: 'lupus',
+    title: 'Real, Striking Early Data: a One-Time Cell Therapy Put Severe Lupus Into Real, Lasting Remission',
+    teaser: 'CAR-T cell therapy is producing some of the most dramatic real trial results anywhere in this Digest for lupus, with real disease-activity scores dropping from 10.6 to 2.7 in three months and some patients reaching real, medication-free remission out to 46 months.',
+    summary:
+      "Of every real, experimental treatment covered anywhere across this Digest's own research-horizon entries, lupus's own CAR-T cell data is genuinely among the most striking. This category's own already-covered belimumab and mycophenolate research targets specific pieces of the immune response; CAR-T cell therapy resets it more completely, engineering a patient's own immune cells to hunt down and eliminate the B cells producing the harmful autoantibodies driving lupus. Real trial results: mean SLE Disease Activity Index scores fell from 10.6 at baseline to 2.7 at 3 months in one real trial, kidney function significantly improved in lupus nephritis patients within 90 days, and some patients reached real, complete symptom- and medication-free remission with follow-up extending as far as 46 months out. A real, newer allogeneic version (using donor cells rather than the patient's own) showed the same real efficacy with no graft-versus-host disease, cytokine release syndrome, or neurotoxicity observed, real safety signals that matter directly given how serious CAR-T's own known risks can be in other diseases. Worth knowing honestly: this remains real, early-phase, small-trial data, not yet a broadly available treatment, but it represents genuinely the most advanced real CAR-T application of any autoimmune condition in this whole Digest.",
+    citations: [
+      { source: 'Allogeneic CD19-targeted CAR-T therapy in refractory systemic lupus erythematosus achieved durable remission', url: 'https://pubmed.ncbi.nlm.nih.gov/40446794/' },
+      { source: 'Anti-CD19 CAR T cell therapy for refractory systemic lupus erythematosus, Nature Medicine', url: 'https://www.nature.com/articles/s41591-022-02017-5' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['lupus-belimumab-biologic', 'lupus-mycophenolate-cyclophosphamide-nephritis'],
+  },
 ];

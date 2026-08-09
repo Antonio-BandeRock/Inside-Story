@@ -411,4 +411,17 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-block-replace-vs-titration', 'graves-treatment-comparison-real-outcomes'],
   },
+  {
+    id: 'horizon-graves',
+    category: 'graves',
+    title: "Real, Early Trials Are Testing Whether Depleting the Cells That Make Graves' Antibodies Actually Works",
+    teaser: "Rituximab, a real B-cell-depleting drug already used elsewhere in this app's own research, is being tested specifically for Graves' disease itself, targeting the exact cells that produce the antibody driving the condition.",
+    summary:
+      "This category's own already-covered TRAb/TSI antibody research names exactly what drives Graves' disease: an antibody produced by B cells that mimics TSH and overstimulates the thyroid. The real, logical next step being actively tested: depleting those B cells directly with rituximab, a real, already-established drug used for other autoimmune conditions covered elsewhere in this app. A real Phase 2 trial in young people (ages 12 to 20) with Graves' hyperthyroidism found the treatment well tolerated over 12 months alongside standard antithyroid drugs, with no serious side effects linked to the treatment itself. Real, if still limited, evidence from a handful of smaller studies suggests rituximab may extend remission duration beyond what antithyroid drugs alone achieve, at least in mild Graves' disease. Worth knowing directly and honestly: the field's own researchers describe this specifically as experimental, reserved for patients who haven't responded to standard treatment while larger, real randomized trials are still awaited, and name it directly as likely just the first in a real, coming series of more precisely immune-targeted Graves' treatments, rather than a settled, ready-to-use option today.",
+    citations: [
+      { source: "Adjuvant Rituximab-Exploratory Trial in Young People With Graves Disease, Journal of Clinical Endocrinology & Metabolism", url: 'https://academic.oup.com/jcem/article/107/3/743/6409242' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['graves-trab-tsi-testing', 'graves-antithyroid-drug-monitoring'],
+  },
 ];

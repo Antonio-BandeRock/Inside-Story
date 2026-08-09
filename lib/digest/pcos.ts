@@ -403,4 +403,17 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-global-south-asian-prevalence'],
   },
+  {
+    id: 'horizon-pcos',
+    category: 'pcos',
+    title: 'PCOS Treatment Is Moving Away From One-Size-Fits-All, Toward Drugs Aimed at Each Person\'s Own Real Driver',
+    teaser: "This category's own already-covered metformin and birth-control-pill research offers real but general relief. Real, emerging drugs now target PCOS's own specific, individual root causes directly, from a brain-signaling pathway to a plant-derived compound that blocks androgen production at its source.",
+    summary:
+      "This category's own already-covered treatment research (combined oral contraceptives, metformin) offers real, broad symptom relief, but real, current research names it directly as failing to address PCOS's own specific underlying drivers, which genuinely differ from person to person. The field is now actively developing real, mechanism-targeted alternatives across three real categories: metabolic regulators (including this category's own already-covered GLP-1 agonists, alongside newer real approaches targeting a person's own brown-fat activity), neuroendocrine modulators (NK3R antagonists, which directly calm the overactive brain signal, the GnRH pulse generator, driving excess androgen production in the first place), and androgen-synthesis inhibitors (including real Artemisinin-derived compounds shown to block androgen production directly at its source). The real, stated direction: using each person's own genetic and hormonal profile to match them with the specific mechanism most likely to help, rather than the current real practice of starting broad and adjusting from there. Worth knowing honestly: most of this remains real, early-stage research, not yet available treatment, but it represents a real, genuine shift in how the field is thinking about PCOS, as several distinct conditions sharing a name, not one uniform disease with one uniform treatment.",
+    citations: [
+      { source: 'Precision Targeted Therapy for PCOS: Emerging Drugs, Translational Challenges, and Future Opportunities', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12839070/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pcos-combined-oral-contraceptives-first-line', 'pcos-insulin-resistance-mechanism'],
+  },
 ];

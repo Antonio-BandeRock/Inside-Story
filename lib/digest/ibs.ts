@@ -398,4 +398,17 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ibs-rome-iv-subtypes', 'ibs-global-prevalence-diagnostic-criteria'],
   },
+  {
+    id: 'horizon-ibs',
+    category: 'ibs',
+    title: "Real Research Is Now Testing Whether Specific Gut Bacteria Strains Can Directly Treat the Brain-Gut Side of IBS",
+    teaser: "This category's own already-covered visceral-hypersensitivity mechanism runs through the brain-gut axis directly, and real, early research into \"psychobiotics,\" specific bacterial strains with a genuine, documented effect on that same axis, is testing whether they can treat it from the gut side.",
+    summary:
+      "This category's own already-covered visceral-hypersensitivity research explains IBS as, in real part, a problem of how the brain-gut axis processes ordinary gut signals. Psychobiotics, a real, specific class of probiotic bacteria strains with a documented, direct effect on that same brain-gut signaling, represent the field's real, current attempt to treat that mechanism from the gut side rather than only through the nervous system, extending this category's own already-covered general probiotic-strain-specificity research into a more precisely targeted direction. Real, specific Lactobacillus and Bifidobacterium strains have shown genuine ability in laboratory and early human research to reduce neuroinflammation signals, support neurotrophic factors, and help rebalance neurotransmitter activity, all real, documented mechanisms connecting gut bacteria directly to brain-linked symptoms. Worth knowing directly and honestly, exactly as the real, current research itself states: human trial evidence remains genuinely limited, with real effects generally small to moderate and more consistently useful alongside other treatment than as a stand-alone option, and current evidence specifically for IBS is described directly in the research as too limited to support a strong recommendation either way. This is a real, active, promising research direction, not yet a proven treatment.",
+    citations: [
+      { source: 'Psychobiotics and the microbiota-gut-brain axis: Emerging paradigms in mental health modulation, Experimental Physiology', url: 'https://physoc.onlinelibrary.wiley.com/doi/full/10.1113/EP093301' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['ibs-visceral-hypersensitivity-mechanism', 'ibs-probiotic-strain-specificity'],
+  },
 ];

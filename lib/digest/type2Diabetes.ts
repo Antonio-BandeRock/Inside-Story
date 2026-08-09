@@ -413,4 +413,17 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-global-nauru-pacific-thrifty-gene'],
   },
+  {
+    id: 'horizon-type2',
+    category: 'type2Diabetes',
+    title: "A Real, Triple-Acting Drug Just Cleared Its First Phase 3 Trial, Working Through Three Hormones at Once",
+    teaser: "This category's own already-covered GLP-1/SGLT2 paradigm shift is already moving toward a third real hormone target, a single drug now activating GIP, GLP-1, AND glucagon receptors together, with a real 22,000-plus-participant trial program underway.",
+    summary:
+      "This category's own already-covered real paradigm shift toward GLP-1 and SGLT2 medications is already advancing toward a real, further step. Retatrutide is a real, investigational drug activating three separate hormone receptors at once (GIP, GLP-1, and glucagon), rather than the one or two most current medications target. Its real, first Phase 3 trial (TRANSCEND-T2D-1) met both its primary and key secondary endpoints, delivering real, superior blood-sugar reduction and weight loss compared with placebo at 40 weeks, part of a real, large program spanning 14 trials and more than 22,000 participants. Separately, and still much earlier-stage, real research continues investigating whether the body's own insulin-producing beta cells can be coaxed into genuine regeneration, through cell proliferation, converting other pancreatic cell types into functional beta cells, or reprogramming precursor cells directly, real, active laboratory research rather than anything close to real patient use yet. Worth knowing directly: the field's own real, current direction is less about finding one single new drug and more about combining an increasing number of distinct real hormone-signaling pathways into single medications, extending the same core strategy already proven with existing GLP-1 and SGLT2 treatments.",
+    citations: [
+      { source: "Lilly's triple agonist, retatrutide, demonstrated significant reductions in A1C and weight in first Phase 3 trial", url: 'https://investor.lilly.com/news-releases/news-release-details/lillys-triple-agonist-retatrutide-demonstrated-significant' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-glp1-sglt2-paradigm-shift'],
+  },
 ];

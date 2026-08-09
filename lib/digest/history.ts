@@ -169,4 +169,18 @@ export const HISTORY_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['history-1985-tpo-identified', 'history-genetic-era'],
   },
+  {
+    id: 'horizon-hashimotos',
+    category: 'hashimotos',
+    title: "What's Next for Hashimoto's: Real, Early Research Into Actually Calming the Immune Attack, Not Just Replacing Hormone",
+    teaser: 'Every current Hashimoto\'s treatment replaces lost thyroid hormone rather than addressing the immune attack itself. Real, early-phase research into stem-cell therapy is trying to change that, though it remains genuinely experimental.',
+    summary:
+      "Every real, current Hashimoto's treatment, levothyroxine included, replaces the hormone the damaged thyroid can no longer make; none of them address the underlying autoimmune attack itself. Where the field is actively looking for something more: mesenchymal stem cell (MSC) therapy, a real, early-stage research direction using cells with real, documented anti-inflammatory and immune-modulating properties. Preclinical studies (animal models and human cells in the lab, not yet real patients) have found MSCs reducing thyroid inflammation and, in real mechanistic work, calming a specific inflammatory signaling pathway (STING) already tied to oxidative stress in Hashimoto's thyroid tissue. Early-phase human clinical trials are genuinely underway, but this remains real, early-stage research, not an available treatment, and the field itself names real, unresolved challenges directly: immune rejection risk, real regulatory hurdles, and cost. Worth knowing plainly where medicine currently stands: no approved therapy yet targets the autoimmune process in Hashimoto's directly, current care manages the consequence (low thyroid hormone) rather than the cause, and stem-cell research is one of the more active, if still distant, real attempts to change that.",
+    citations: [
+      { source: 'Stem Cell Therapy for Hashimoto\'s Disease - a Promising Treatment Method?, Quality in Sport', url: 'https://apcz.umk.pl/QS/article/view/53856' },
+      { source: 'Mesenchymal stem cells alleviate autoimmune thyroiditis by modulating macrophage phenotypes and through influencing the STING pathway', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0040816624002970' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['gut-scfa-treg'],
+  },
 ];

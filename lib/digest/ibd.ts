@@ -400,4 +400,17 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-global-westernization-asia-rising'],
   },
+  {
+    id: 'horizon-ibd',
+    category: 'ibd',
+    title: 'IBD Care Is Shifting Toward Choosing the Right Drug for the Right Person Before Trying One at Random',
+    teaser: 'Real, emerging blood and stool biomarkers are moving IBD treatment toward matching each drug to the person most likely to actually respond, replacing the current real trial-and-error approach this category\'s own therapeutic-drug-monitoring research already works around.',
+    summary:
+      "This category's own already-covered therapeutic-drug-monitoring and biologic-loss-of-response research exists partly because current IBD treatment still works largely by real trial and error, trying one biologic, then switching if it doesn't work well enough. The real, active direction the whole field is moving toward: precision medicine, matching a specific drug to a specific person's own disease biology from the start. Several real biomarkers are now close to real clinical use: an antibody test (αvβ6) and a blood marker (oncostatin M) are both described directly in current research as potentially near-ready for real clinical practice, alongside real microRNA panels and stool-based markers still in development. This builds on real, already-approved newer treatments (etrasimod, upadacitinib, mirikizumab, risankizumab) that already offer more mechanism-specific options than IBD care had even a few years ago. Worth knowing honestly: comprehensive, clinically validated biomarkers remain a real, acknowledged gap in the field today, this is a real, active direction rather than a solved problem, with AI-assisted prediction of treatment response also named directly as part of where the field expects this to head next.",
+    citations: [
+      { source: 'Paradigm Shift in Inflammatory Bowel Disease Management: Precision Medicine, Artificial Intelligence, and Emerging Therapies', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11899940/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibd-therapeutic-drug-monitoring', 'ibd-anti-tnf-loss-of-response'],
+  },
 ];

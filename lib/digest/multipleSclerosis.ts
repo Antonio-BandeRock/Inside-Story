@@ -402,4 +402,18 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ms-global-latitude-gradient', 'type1-global-sardinia-second-hotspot'],
   },
+  {
+    id: 'horizon-ms',
+    category: 'multipleSclerosis',
+    title: 'A Real, Brain-Penetrating Drug Class Is Trying to Reach the Kind of MS Damage Current Treatments Can\'t Touch',
+    teaser: "Tolebrutinib crosses into the brain itself, unlike most existing MS drugs, and real early trial data found it reducing new brain lesions in a dose-dependent way, with a real, proposed mechanism for actually promoting remyelination.",
+    summary:
+      "This category's own already-covered ocrelizumab research targets B cells in the bloodstream; a real, genuinely different drug class is now specifically trying to reach the immune activity already happening INSIDE the brain and spinal cord, where most current MS drugs can't fully follow. Tolebrutinib is a real, brain-penetrant BTK inhibitor, blocking an enzyme active in both B cells and microglia (the brain's own resident immune cells, real, direct drivers of the chronic inflammation behind progressive MS). A real Phase 2b trial found tolebrutinib produced a dose-dependent reduction in new brain lesions, and real, preliminary mechanistic research proposes it may do more than just reduce inflammation, potentially promoting actual remyelination (rebuilding the protective nerve coating MS damages) by affecting the cells responsible for producing it. This matters directly for progressive MS specifically, this category's own already-covered ocrelizumab entry is the only real approved primary-progressive treatment, and few other options exist. Worth knowing honestly: real mechanistic promise for remyelination remains preliminary, based on laboratory and early trial data rather than confirmed long-term outcomes, and tolebrutinib's own real Phase 3 trials are what will determine whether this translates into a genuinely new treatment option.",
+    citations: [
+      { source: 'Safety and efficacy of tolebrutinib, an oral brain-penetrant BTK inhibitor, in relapsing multiple sclerosis: a phase 2b trial', url: 'https://pubmed.ncbi.nlm.nih.gov/34418400/' },
+      { source: 'A review of Bruton\'s tyrosine kinase inhibitors in multiple sclerosis', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11025433/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ms-ocrelizumab-anti-cd20', 'ms-disease-course-types'],
+  },
 ];
