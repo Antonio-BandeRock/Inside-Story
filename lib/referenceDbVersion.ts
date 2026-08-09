@@ -115,4 +115,23 @@
 // found but didn't chase further (out of scope for tonight -- the live,
 // bundled .db file is what actually matters for what the app shows today,
 // and was fixed directly).
-export const REFERENCE_DB_VERSION = "20260809020000";
+//
+// Bumped a twenty-fourth time, same day: 8 new `common_medications` rows
+// (71 total) -- one real, named gap picked per condition rather than
+// exhaustive coverage across all 19, per direct request to broaden
+// medication coverage: Desiccated Thyroid Extract/NDT (Hashimoto's),
+// Tofacitinib (RA, the real 2021 ORAL Surveillance boxed-warning finding),
+// Topical Corticosteroid (Psoriasis, a real representative-of-a-class
+// entry across the real 7 US potency grades -- the actual most common
+// first-line psoriasis treatment, previously entirely absent), Amitriptyline
+// low-dose (IBS, the medication behind this app's own already-cited
+// ATLANTIS trial), Rimegepant (Migraine, the representative gepant),
+// Infliximab (IBD, a major TNF-inhibitor biologic distinct from
+// adalimumab), Radioactive Iodine/I-131 (Graves'), and Ocrelizumab (MS,
+// already discussed in this app's own MS research but never trackable in
+// My Meds until now). One new `interaction_rules` row,
+// radioactive_iodine_low_iodine_diet_prep -- a real, checkable,
+// food-relevant preparation step (limiting iodine-rich foods for 1-2 weeks
+// before treatment measurably improves how well the radioactive iodine is
+// taken up). No sub_criteria or food_scores changes this pass.
+export const REFERENCE_DB_VERSION = "20260809030000";

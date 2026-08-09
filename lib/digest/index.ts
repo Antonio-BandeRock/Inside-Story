@@ -25,6 +25,7 @@ import { LABS_MEDICATION_ENTRIES } from './labsMedication';
 import { LIFESTYLE_ENVIRONMENT_ENTRIES } from './lifestyleEnvironment';
 import { LUPUS_ENTRIES } from './lupus';
 import { MEDICATION_DEPLETION_ENTRIES } from './medicationDepletion';
+import { MENTAL_HEALTH_ENTRIES } from './mentalHealth';
 import { MIGRAINE_ENTRIES } from './migraine';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
 import { MULTIPLE_SCLEROSIS_ENTRIES } from './multipleSclerosis';
@@ -34,6 +35,7 @@ import { COMPLEMENTARY_THERAPIES_ENTRIES } from './complementaryTherapies';
 import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PCOS_ENTRIES } from './pcos';
+import { PEDIATRIC_NUTRITION_ENTRIES } from './pediatricNutrition';
 import { POPULAR_DIETS_ENTRIES } from './popularDiets';
 import { PORTIONS_AND_RDAS_ENTRIES } from './portionsAndRDAs';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
@@ -46,6 +48,7 @@ import { READING_LABELS_ENTRIES } from './readingLabels';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import { SJOGRENS_ENTRIES } from './sjogrens';
+import { SLEEP_HEALTH_ENTRIES } from './sleepHealth';
 import { TYPE_1_DIABETES_ENTRIES } from './type1Diabetes';
 import { TYPE_2_DIABETES_ENTRIES } from './type2Diabetes';
 import { isProblemFoodEntry, type AnyDigestEntry, type DigestEntryCategory } from './types';
@@ -58,7 +61,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260809200000';
+export const PURPLE_DIGEST_VERSION = '20260809300000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -114,6 +117,9 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...PRODUCE_PROFILES_ENTRIES,
   ...READING_LABELS_ENTRIES,
   ...MEDICATION_DEPLETION_ENTRIES,
+  ...PEDIATRIC_NUTRITION_ENTRIES,
+  ...SLEEP_HEALTH_ENTRIES,
+  ...MENTAL_HEALTH_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08

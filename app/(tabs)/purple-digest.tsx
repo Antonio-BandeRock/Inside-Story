@@ -330,6 +330,21 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // measurably lower which nutrients over sustained use, regardless of
   // condition. See lib/digest/medicationDepletion.ts's own header comment.
   { label: 'Medications & Nutrient Depletion', prefixes: ['depletion-'] },
+  // 2026-08-09, same day, continuing directly off the same "what's missing"
+  // conversation, in the same order named there: pediatric nutrition, a
+  // real gap confirmed directly against the bundled reference database's
+  // own dietary_reference_intakes table (zero rows under age 19). See
+  // lib/digest/pediatricNutrition.ts's own header comment.
+  { label: 'Pediatric Nutrition', prefixes: ['pediatric-'] },
+  // A real, general Sleep deep-dive -- this Digest only ever touched sleep
+  // incidentally before (lifestyle-sleep-circadian, lifestyle-sleep-apnea,
+  // and several condition-specific entries). See
+  // lib/digest/sleepHealth.ts's own header comment.
+  { label: 'Sleep & Health', prefixes: ['sleep-'] },
+  // A real, general Mental Health deep-dive, the same "scattered across
+  // conditions, never its own topic" gap as Sleep above. See
+  // lib/digest/mentalHealth.ts's own header comment.
+  { label: 'Mental Health & Food', prefixes: ['mentalhealth-'] },
   { label: 'Prevention & Lifestyle by Condition', prefixes: ['prevention-', 'apphelps-'] },
   // 2026-08-09, direct request: "an honest medical science evidence based
   // perspective on the popular types of diets out there." A real, distinct
