@@ -76,4 +76,15 @@
 // RA, Type 1 Diabetes, Type 2 Diabetes, and general OTC/prescription use
 // regardless of condition. No sub_criteria or food_scores changes this
 // pass.
-export const REFERENCE_DB_VERSION = "20260808530000";
+//
+// Bumped a twenty-second time, 2026-08-09: two brand-new tables,
+// curated_recipes/curated_recipe_ingredients -- 12 real, app-authored
+// starter recipes (6 salad, 6 smoothie), direct request: "sort of how the
+// NutriBullet Rx provides with their unit... selected already built."
+// Every one of the 70 real ingredient rows' (category, base_name) pair was
+// individually confirmed to resolve to a visible reference-database row
+// before being written in -- see lib/db.ts's own getCuratedRecipe()
+// comment for why these are resolved to a real, CURRENT food_id/source at
+// read time rather than a hardcoded numeric id. No sub_criteria or
+// food_scores changes this pass.
+export const REFERENCE_DB_VERSION = "20260809010000";

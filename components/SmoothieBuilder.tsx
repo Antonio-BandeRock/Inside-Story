@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
@@ -10,14 +10,17 @@ import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/fl
 import { typography } from '../constants/typography';
 import {
   getBuilderFavorite,
+  getCuratedRecipe,
   getFoodIdentity,
   getFoodScores,
   getSmoothie,
   getSmoothieIngredients,
   getStoredMeasurementSystem,
+  listCuratedRecipes,
   saveBuilderFavorite,
   saveSmoothie,
   updateSmoothie,
+  type CuratedRecipeSummary,
   type FoodScore,
   type SmoothieIngredientInput,
 } from '../lib/db';
@@ -684,6 +687,62 @@ export function SmoothieBuilder({
       isCurrent = false;
     };
   }, [fromFavoriteId]);
+
+  // Curated starter recipes (2026-08-09) -- see SaladBuilder.tsx's own
+  // identical comment; this is the exact same pattern, just for smoothies.
+  const [curatedRecipes, setCuratedRecipes] = useState<CuratedRecipeSummary[]>([]);
+  useEffect(() => {
+    let isCurrent = true;
+    listCuratedRecipes('smoothie').then((recipes) => {
+      if (isCurrent) setCuratedRecipes(recipes);
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  const [loadingCuratedRecipeId, setLoadingCuratedRecipeId] = useState<string | null>(null);
+
+  async function handlePickCuratedRecipe(id: string) {
+    setLoadingCuratedRecipeId(id);
+    try {
+      const recipe = await getCuratedRecipe(id);
+      if (!recipe) return;
+
+      const loaded: SmoothieIngredient[] = [];
+      for (const detail of recipe.ingredients) {
+        const [identity, scores] = await Promise.all([
+          getFoodIdentity(detail.foodId, detail.source),
+          getFoodScores(detail.foodId, detail.source),
+        ]);
+        loaded.push({
+          resolved: {
+            category: detail.category ?? identity?.category ?? '',
+            subcategory: identity?.subcategory ?? null,
+            baseName: identity?.baseName ?? detail.foodName,
+            prepMethod: identity?.prepMethod ?? null,
+            foodId: detail.foodId,
+            source: detail.source,
+          },
+          quantity: formatAmountForPicker(detail.quantity, AMOUNT_PICKER_VALUES),
+          unit: detail.unit,
+          cookingMethod: detail.cookingMethod,
+          cutPrep: detail.cutPrep,
+          prepNote: detail.prepNote ?? '',
+          scores,
+        });
+      }
+
+      setSmoothieName(recipe.name);
+      setServings(formatAmountForPicker(recipe.servings, SERVINGS_PICKER_VALUES));
+      setServingSizeAmount(formatAmountForPicker(recipe.servingSizeAmount, AMOUNT_PICKER_VALUES));
+      setServingSizeUnit(recipe.servingSizeUnit);
+      setServingsConfirmed(true);
+      setIngredients(loaded);
+    } finally {
+      setLoadingCuratedRecipeId(null);
+    }
+  }
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);
@@ -1381,6 +1440,36 @@ export function SmoothieBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
+          {/* Curated Starter Recipes, 2026-08-09 -- see SaladBuilder.tsx's
+              own identical comment. */}
+          {curatedRecipes.length > 0 && !editSmoothieId && !fromFavoriteId ? (
+            <View style={styles.curatedRecipesSection}>
+              <Text style={[styles.formLabel, { color: tabColor }]}>Or Start From a Recipe</Text>
+              {curatedRecipes.map((recipe) => (
+                <TouchableOpacity
+                  key={recipe.id}
+                  style={[styles.curatedRecipeCard, { borderColor: tabColor }]}
+                  onPress={() => handlePickCuratedRecipe(recipe.id)}
+                  disabled={loadingCuratedRecipeId !== null}
+                >
+                  <Text style={[styles.curatedRecipeName, { color: tabColor }]}>{recipe.name}</Text>
+                  <Text style={styles.curatedRecipeFlavor} numberOfLines={2}>
+                    {recipe.flavorProfile}
+                  </Text>
+                  <Text style={styles.curatedRecipeBenefit} numberOfLines={3}>
+                    {recipe.healthBenefit}
+                  </Text>
+                  {loadingCuratedRecipeId === recipe.id ? (
+                    <ActivityIndicator size="small" color={tabColor} style={styles.curatedRecipeSpinner} />
+                  ) : (
+                    <Text style={[styles.curatedRecipeCta, { color: tabColor }]}>Use This Recipe →</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+              <View style={[styles.curatedRecipesDivider, { borderColor: tabColor }]} />
+            </View>
+          ) : null}
+
           {/* Smoothie Name, 2026-07-28 -- its own full-width field above
               Servings/Size, since it's not part of either's own row/
               column pairing and applies to the smoothie as a whole. */}
@@ -1686,6 +1775,42 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: colors.surface,
     padding: 16,
+  },
+  curatedRecipesSection: {
+    marginBottom: 16,
+  },
+  curatedRecipeCard: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 8,
+  },
+  curatedRecipeName: {
+    ...typography.bodyEmphasis,
+  },
+  curatedRecipeFlavor: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: 2,
+    fontStyle: 'italic',
+  },
+  curatedRecipeBenefit: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  curatedRecipeCta: {
+    ...typography.captionEmphasis,
+    marginTop: 6,
+  },
+  curatedRecipeSpinner: {
+    marginTop: 6,
+    alignSelf: 'flex-start',
+  },
+  curatedRecipesDivider: {
+    borderBottomWidth: 1,
+    marginTop: 12,
+    opacity: 0.3,
   },
   formLabel: {
     ...typography.eyebrow,

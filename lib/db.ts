@@ -1133,6 +1133,146 @@ export async function resolveFoodChoice(category: string, subcategory: string | 
   return row ? toFoodOption(row) : null;
 }
 
+// --- Curated starter recipes (2026-08-09) ----------------------------------
+//
+// A real, app-authored library of pre-built recipes selectable inside Salad
+// and Smoothie Builder, rather than only building from scratch -- direct
+// request: "sort of how the NutriBullet Rx provides with their unit...
+// These special recipes can exist already into the app to select so they
+// don't actually have to be built." Bundled reference-database content
+// (curated_recipes/curated_recipe_ingredients, seeded the same way
+// common_medications/supplement_forms were), NOT the user's own local
+// `favorites` table -- these are app content, not something a person
+// created, and shouldn't get mixed into or deletable from their own real
+// favorites list.
+//
+// Each ingredient row stores a plain (category, base_name) pair, not a
+// hardcoded foodId/source -- a future reference-database rebuild can
+// renumber food_id values, and a recipe built on a stored numeric id could
+// silently start pointing at the wrong row (or none at all) after that. A
+// name-based lookup, resolved fresh every time a recipe is actually opened,
+// is the same "base_name is the stable identity, food_id can shift"
+// discipline this whole reference database is already built on.
+export type CuratedRecipeSummary = {
+  id: string;
+  name: string;
+  flavorProfile: string;
+  healthBenefit: string;
+};
+
+export async function listCuratedRecipes(builderType: 'salad' | 'smoothie'): Promise<CuratedRecipeSummary[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<{ id: string; name: string; flavor_profile: string; health_benefit: string }>(
+    'SELECT id, name, flavor_profile, health_benefit FROM curated_recipes WHERE builder_type = ? ORDER BY sort_order',
+    builderType,
+  );
+  return rows.map((row) => ({
+    id: row.id,
+    name: row.name,
+    flavorProfile: row.flavor_profile,
+    healthBenefit: row.health_benefit,
+  }));
+}
+
+// Resolves one curated-recipe ingredient's (category, base_name) to a real,
+// currently-visible food_id/source -- tries 'Raw' first (the common case
+// for whole produce), falls back to the untagged 'Standard' row (most
+// pantry items -- olive oil, honey, ground spices -- have exactly one row
+// with no prep_method tag at all), then broadens past USDA-only scoping for
+// either attempt in case a category defaults to USDA-only but the specific
+// ingredient only exists under a different real source. Returns null (the
+// ingredient is silently skipped by getCuratedRecipe below, not a crash) if
+// every one of those genuinely finds nothing -- shouldn't happen given every
+// real ingredient here was individually verified against the live database
+// before being written in, but a future hide of one specific row shouldn't
+// break the whole recipe for the other ingredients still fine.
+async function resolveCuratedRecipeIngredient(category: string, baseName: string) {
+  const viaKnownPrep =
+    (await resolveFoodChoice(category, null, baseName, 'Raw', true)) ??
+    (await resolveFoodChoice(category, null, baseName, null, true)) ??
+    (await resolveFoodChoice(category, null, baseName, 'Raw', false)) ??
+    (await resolveFoodChoice(category, null, baseName, null, false));
+  if (viaKnownPrep) return viaKnownPrep;
+
+  // A real, found-not-guessed gap: several whole-food ingredients (Quinoa,
+  // Chickpea, Oregano, confirmed via direct query before this fallback was
+  // added) don't carry either a 'Raw' or an untagged prep_method row at
+  // all in this database -- their only real row is tagged something else
+  // entirely ('Cooked', 'Dried'). Rather than hand-enumerate every real
+  // prep_method value per ingredient, this final step picks any visible
+  // row for the (category, base_name) pair, regardless of prep tag --
+  // every real ingredient across every curated recipe was already
+  // confirmed to have at least one visible row before being written in
+  // (see curated_recipes.sql's own header comment), so this only ever
+  // matters for the "not Raw, not untagged" case, never a genuine miss.
+  const db = await getReferenceDatabase();
+  const row = await db.getFirstAsync<{ food_id: number; source: string; name: string; short_name: string | null; category: string }>(
+    'SELECT food_id, source, name, short_name, category FROM foods WHERE category = ? AND base_name = ? AND hidden = 0 ORDER BY food_id LIMIT 1',
+    category,
+    baseName,
+  );
+  return row ? toFoodOption(row) : null;
+}
+
+export async function getCuratedRecipe(
+  id: string,
+): Promise<(BuilderFavoritePayload & { id: string; flavorProfile: string; healthBenefit: string }) | null> {
+  const db = await getReferenceDatabase();
+  const recipe = await db.getFirstAsync<{
+    name: string;
+    flavor_profile: string;
+    health_benefit: string;
+    servings: number;
+    serving_size_amount: number;
+    serving_size_unit: string;
+  }>(
+    'SELECT name, flavor_profile, health_benefit, servings, serving_size_amount, serving_size_unit FROM curated_recipes WHERE id = ?',
+    id,
+  );
+  if (!recipe) return null;
+
+  const ingredientRows = await db.getAllAsync<{
+    category: string;
+    base_name: string;
+    quantity: number;
+    unit: string;
+    cut_prep: string | null;
+    cooking_method: string | null;
+    prep_note: string | null;
+  }>(
+    'SELECT category, base_name, quantity, unit, cut_prep, cooking_method, prep_note FROM curated_recipe_ingredients WHERE recipe_id = ? ORDER BY sort_order',
+    id,
+  );
+
+  const ingredients: BuilderFavoriteIngredient[] = [];
+  for (const row of ingredientRows) {
+    const resolved = await resolveCuratedRecipeIngredient(row.category, row.base_name);
+    if (!resolved) continue;
+    ingredients.push({
+      foodId: resolved.foodId,
+      source: resolved.source,
+      foodName: resolved.shortName ?? row.base_name,
+      category: resolved.category,
+      quantity: row.quantity,
+      unit: row.unit,
+      cutPrep: row.cut_prep ?? 'N/A',
+      cookingMethod: row.cooking_method ?? 'N/A',
+      prepNote: row.prep_note ?? undefined,
+    });
+  }
+
+  return {
+    id,
+    name: recipe.name,
+    flavorProfile: recipe.flavor_profile,
+    healthBenefit: recipe.health_benefit,
+    servings: recipe.servings,
+    servingSizeAmount: recipe.serving_size_amount,
+    servingSizeUnit: recipe.serving_size_unit,
+    ingredients,
+  };
+}
+
 // Used by getDailyNutrientAnalysis to resolve a volume unit (e.g. "cup")
 // to a density class via lib/unitConversion.ts's category table -- category
 // isn't stored redundantly on meal_items, it's re-derived from the food's
