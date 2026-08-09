@@ -107,10 +107,49 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
     focusField({
       id,
       getValue: () => valueRef.current,
-      onChangeText: onChangeText ?? (() => {}),
+      // Wrapped, not the raw onChangeText prop directly -- 2026-08-09, a
+      // real, latent race finally exposed once a screen's own render cost
+      // per keystroke got fast enough for it to matter (see this app's own
+      // Purple Digest search-box history for exactly how that played out).
+      // valueRef above is only ever refreshed by the render-body assignment
+      // a few lines up, which needs a REAL re-render of this component to
+      // run -- React batches the state update AppKeyboard.tsx's insertText/
+      // backspace triggers via this same onChangeText call, so that
+      // re-render doesn't happen synchronously, it happens on React's own
+      // next commit. If a second key gets tapped before that commit lands
+      // (easy once typing itself is fast, since RN's own touch dispatch is
+      // no longer being throttled by a slow re-render), insertText's own
+      // activeField.getValue() call reads the STILL-STALE valueRef and
+      // computes its insertion against text that's missing the previous
+      // keystroke -- exactly the reported "letters end up in front of the
+      // cursor" (wrong insertion index) and "a lot of the letters... do not
+      // get displayed" (one keystroke's own insertion gets silently
+      // clobbered by the next one's stale-based computation) symptoms.
+      // Writing valueRef.current here, synchronously, the instant
+      // onChangeText actually fires -- before waiting on the real prop
+      // round-trip -- closes that race: even several taps landing in the
+      // same JS tick each see the correct, just-computed text. The render-
+      // body assignment above still runs too once the real re-render
+      // eventually lands; harmless since it's writing the same, by-then-
+      // committed value (or, for a field whose own onChangeText validates/
+      // transforms the text before actually committing it, self-corrects to
+      // the real final value on that next render regardless).
+      onChangeText: (text: string) => {
+        valueRef.current = text;
+        onChangeText?.(text);
+      },
       keyboardType: resolvedKeyboardType,
       getSelection: () => selectionRef.current,
-      onSelectionChange: setSelection,
+      // Same real reasoning as onChangeText above, for the cursor position
+      // insertText/backspace also read at press-time (activeField.
+      // getSelection()) -- setSelection alone is the same kind of batched,
+      // next-render-only update selectionRef's own render-body assignment
+      // depends on; writing selectionRef.current synchronously here closes
+      // the identical race for rapid consecutive keystrokes.
+      onSelectionChange: (nextSelection: { start: number; end: number }) => {
+        selectionRef.current = nextSelection;
+        setSelection(nextSelection);
+      },
       blur: () => innerRef.current?.blur(),
       infoPress: onInfoPress,
       infoColor,
