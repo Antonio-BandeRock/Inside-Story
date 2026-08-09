@@ -61,6 +61,28 @@ const GENERIC_PALETTE_OPTIONS: GenericPalette[] = ['lavender', 'seafoam', 'sand'
 // tight in-app grids.
 const ICON_GRID_PILL_SIZE = 52;
 
+// One real key per collapsible card section on this screen -- see
+// collapsedSections'/renderCardHeader's own comment above for the full
+// feature. Order here doesn't matter (it's a Set, not a display order);
+// what matters is that every one of the 12 real `<View style={styles.card}>`
+// blocks below has exactly one matching key, used at both its own header
+// and its own body-visibility check.
+const ALL_CARD_SECTION_KEYS = [
+  'your-name',
+  'units',
+  'sex',
+  'birth-date',
+  'height',
+  'meal-times',
+  'eating-window',
+  'your-conditions',
+  'tabhub-icon',
+  'where-youre-at',
+  'shared-background',
+  'individual-tab-backgrounds',
+] as const;
+type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
+
 type DayPart = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const DAY_PARTS: DayPart[] = ['breakfast', 'lunch', 'dinner', 'snack'];
 const BLANK_TIME: TimeOfDayInput = { hour: '', minute: '', ampm: '' };
@@ -185,6 +207,42 @@ export default function ProfileScreen() {
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   const [savedFlash, setSavedFlash] = useState(false);
   const [lastAssessment, setLastAssessment] = useState<SymptomAssessmentRecord | null>(null);
+  // 2026-08-09, explicitly requested: "allow it to be collapsable so it is
+  // quicker to find and set whatever I need to in there. Leave just the
+  // header to see of each." Every one of this screen's 12 real card
+  // sections now starts collapsed (this Set holds every real key -- see
+  // ALL_CARD_SECTION_KEYS -- membership means "collapsed," matching
+  // `collapsedSections.has(key)` at each card's own header/body split
+  // below), showing only its own header until tapped open. Plain local
+  // component state, not persisted -- reopening Profile always starts
+  // fresh with everything collapsed again, the same "just headers first"
+  // state the request asked for, not a remembered per-visit layout.
+  const [collapsedSections, setCollapsedSections] = useState<Set<CardSectionKey>>(
+    () => new Set(ALL_CARD_SECTION_KEYS),
+  );
+  function toggleSection(key: CardSectionKey) {
+    setCollapsedSections((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+  // Shared by every card below -- a tappable header (title + chevron)
+  // replacing the old plain `<Text style={styles.label}>` line, so the
+  // whole header row (not just the text) is the real tap target. Every
+  // card's own body (help text, fields) is then wrapped in a matching
+  // `{!collapsedSections.has(key) ? (...) : null}` right where the header
+  // used to sit alone.
+  function renderCardHeader(key: CardSectionKey, title: string) {
+    const collapsed = collapsedSections.has(key);
+    return (
+      <TouchableOpacity style={styles.cardHeaderRow} onPress={() => toggleSection(key)} activeOpacity={0.7}>
+        <Text style={styles.label}>{title}</Text>
+        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.menuIconMuted} />
+      </TouchableOpacity>
+    );
+  }
   // Multi-condition model, 2026-08-08 -- replaces the old single
   // Hashimoto's-only pill row. allConditions is the full reference roster
   // (built/in_progress/planned); selectedConditions is this person's own
@@ -542,418 +600,450 @@ export default function ProfileScreen() {
       {savedFlash ? <Text style={styles.savedFlash}>Saved</Text> : null}
 
       <View style={styles.card}>
-        <Text style={styles.label}>Your name</Text>
-        <Text style={styles.helpText}>
-          Purely for personalizing the app -- your first name shows in the header (e.g. "Tony's Inside Story").
-          Nothing else in the app uses either field.
-        </Text>
-        <View style={styles.dateRow}>
-          <AppTextInput
-            style={[styles.input, styles.nameInput]}
-            placeholder="First name"
-            value={firstNameInput}
-            onChangeText={setFirstNameInput}
-            onBlur={commitFirstName}
-          />
-          <AppTextInput
-            style={[styles.input, styles.nameInput]}
-            placeholder="Last name"
-            value={lastNameInput}
-            onChangeText={setLastNameInput}
-            onBlur={commitLastName}
-          />
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Units</Text>
-        <Text style={styles.helpText}>
-          Used across the app for quantities and measurements -- meal ingredient amounts, height, and body
-          measurements.
-        </Text>
-        <View style={styles.pillRow}>
-          {([
-            { value: 'metric' as const, label: 'Metric (cm, ml, g)' },
-            { value: 'imperial' as const, label: 'Imperial (ft/in, oz, cup)' },
-          ]).map((option) => {
-            const active = option.value === measurementSystem;
-            return (
-              <TouchableOpacity
-                key={option.value}
-                style={[styles.pillSmall, active && styles.pillActive]}
-                onPress={() => handleMeasurementSystemChange(option.value)}
-              >
-                <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Sex</Text>
-        <Text style={styles.helpText}>
-          Used only to show sex-specific nutrient targets (RDAs) where they genuinely differ. This app is
-          otherwise gender-neutral by design.
-        </Text>
-        <View style={styles.pillRow}>
-          {([
-            { value: null, label: 'Not set' },
-            { value: 'female' as const, label: 'Female' },
-            { value: 'male' as const, label: 'Male' },
-          ]).map((option) => {
-            const active = option.value === profile.sex;
-            return (
-              <TouchableOpacity
-                key={option.label}
-                style={[styles.pill, active && styles.pillActive]}
-                onPress={() => handleSexSelect(option.value)}
-              >
-                <Text style={[styles.pillText, active && styles.pillTextActive]}>{option.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Birth date</Text>
-        <Text style={styles.helpText}>
-          Used to show age-appropriate nutrient targets (some, like iron and calcium, change meaningfully with
-          age). Stored as a date rather than a fixed age so it stays accurate over time.
-        </Text>
-        <View style={styles.dateRow}>
-          <PickerField label="Year">
-            <PopoverSelect
-              options={BIRTH_YEAR_OPTIONS}
-              selected={birthYear || null}
-              minWidth={72}
-              tabColor={colors.menuIconMuted}
-              tintedSurface
-              onSelect={(value) => {
-                setBirthYear(value);
-                commitBirthDate({ year: value });
-              }}
-            />
-          </PickerField>
-          <PickerField label="Month">
-            <PopoverSelect
-              options={BIRTH_MONTH_OPTIONS}
-              selected={birthMonth || null}
-              minWidth={52}
-              tabColor={colors.menuIconMuted}
-              tintedSurface
-              onSelect={(value) => {
-                setBirthMonth(value);
-                commitBirthDate({ month: value });
-              }}
-            />
-          </PickerField>
-          <PickerField label="Day">
-            <PopoverSelect
-              options={BIRTH_DAY_OPTIONS}
-              selected={birthDay || null}
-              minWidth={52}
-              tabColor={colors.menuIconMuted}
-              tintedSurface
-              onSelect={(value) => {
-                setBirthDay(value);
-                commitBirthDate({ day: value });
-              }}
-            />
-          </PickerField>
-          <TouchableOpacity onPress={clearBirthDate} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>Clear</Text>
-          </TouchableOpacity>
-        </View>
-        {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
-        {currentAge != null ? <Text style={styles.derivedText}>Current age: {currentAge}</Text> : null}
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Height</Text>
-        <Text style={styles.helpText}>
-          Used only for the step-counter's distance estimate (it needs a stride-length estimate, which comes
-          from height). Follows your Units setting above.
-        </Text>
-        <View style={styles.dateRow}>
-          {measurementSystem === 'imperial' ? (
-            <>
-              <PickerField label="Feet">
-                <PopoverSelect
-                  options={HEIGHT_FEET_OPTIONS}
-                  selected={heightFeetInput || null}
-                  minWidth={52}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setHeightFeetInput(value);
-                    commitHeight({ feet: value });
-                  }}
-                />
-              </PickerField>
-              <PickerField label="Inches">
-                <PopoverSelect
-                  options={HEIGHT_INCHES_OPTIONS}
-                  selected={heightInchesInput || null}
-                  minWidth={52}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setHeightInchesInput(value);
-                    commitHeight({ inches: value });
-                  }}
-                />
-              </PickerField>
-            </>
-          ) : (
-            <PickerField label="Centimeters">
-              <PopoverSelect
-                options={HEIGHT_CM_OPTIONS}
-                selected={heightCmInput || null}
-                minWidth={72}
-                tabColor={colors.menuIconMuted}
-                tintedSurface
-                onSelect={(value) => {
-                  setHeightCmInput(value);
-                  commitHeight({ cm: value });
-                }}
-              />
-            </PickerField>
-          )}
-          <TouchableOpacity onPress={clearHeight} style={styles.clearButton}>
-            <Text style={styles.clearButtonText}>Clear</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Usual meal times</Text>
-        <Text style={styles.helpText}>
-          About what time you normally eat each one. Used to pre-fill the time when you schedule that meal type
-          on the Schedule tab -- you can always change it there.
-        </Text>
-        {DAY_PARTS.map((dayPart) => (
-          <View key={dayPart} style={styles.mealTimeRow}>
-            <Text style={styles.mealTimeLabel}>{dayPart[0].toUpperCase() + dayPart.slice(1)}</Text>
+        {renderCardHeader('your-name', 'Your name')}
+        {!collapsedSections.has('your-name') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Purely for personalizing the app -- your first name shows in the header (e.g. "Tony's Inside Story").
+              Nothing else in the app uses either field.
+            </Text>
             <View style={styles.dateRow}>
-              <PickerField label="Hour">
-                <PopoverSelect
-                  options={HOUR_OPTIONS}
-                  selected={mealTimeBuffers[dayPart].hour || null}
-                  minWidth={48}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
-                    commitMealTime(dayPart, { hour: value });
-                  }}
-                />
-              </PickerField>
-              <PickerField label="Minute">
-                <PopoverSelect
-                  options={MINUTE_OPTIONS}
-                  selected={mealTimeBuffers[dayPart].minute || null}
-                  minWidth={52}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
-                    commitMealTime(dayPart, { minute: value });
-                  }}
-                />
-              </PickerField>
-              <View style={styles.pillRow}>
-                {(['AM', 'PM'] as const).map((option) => {
-                  const active = mealTimeBuffers[dayPart].ampm === option;
-                  return (
-                    <TouchableOpacity
-                      key={option}
-                      style={[styles.pillSmall, active && styles.pillActive]}
-                      onPress={() => {
-                        setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], ampm: option } }));
-                        commitMealTime(dayPart, { ampm: option });
-                      }}
-                    >
-                      <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-              <TouchableOpacity onPress={() => clearMealTime(dayPart)} style={styles.clearButton}>
-                <Text style={styles.clearButtonText}>Clear</Text>
-              </TouchableOpacity>
+              <AppTextInput
+                style={[styles.input, styles.nameInput]}
+                placeholder="First name"
+                value={firstNameInput}
+                onChangeText={setFirstNameInput}
+                onBlur={commitFirstName}
+              />
+              <AppTextInput
+                style={[styles.input, styles.nameInput]}
+                placeholder="Last name"
+                value={lastNameInput}
+                onChangeText={setLastNameInput}
+                onBlur={commitLastName}
+              />
             </View>
           </View>
-        ))}
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Fasting / eating window</Text>
-        <Text style={styles.helpText}>
-          If you do intermittent fasting, set the window you actually eat within. Once both times are set here,
-          the Schedule tab won't let you schedule a meal outside that window.
-        </Text>
-        <View style={styles.pillRow}>
-          {([
-            { value: false, label: "I'm not fasting" },
-            { value: true, label: "I'm doing intermittent fasting" },
-          ]).map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[styles.pill, profile.fastingEnabled === option.value && styles.pillActive]}
-              onPress={() => handleFastingToggle(option.value)}
-            >
-              <Text style={[styles.pillText, profile.fastingEnabled === option.value && styles.pillTextActive]}>
-                {option.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        {profile.fastingEnabled ? (
-          <>
-            <Text style={styles.subLabel}>Eating window starts</Text>
-            <View style={styles.dateRow}>
-              <PickerField label="Hour">
-                <PopoverSelect
-                  options={HOUR_OPTIONS}
-                  selected={eatingWindowStartBuffer.hour || null}
-                  minWidth={48}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
-                    commitEatingWindow({ start: { hour: value } });
-                  }}
-                />
-              </PickerField>
-              <PickerField label="Minute">
-                <PopoverSelect
-                  options={MINUTE_OPTIONS}
-                  selected={eatingWindowStartBuffer.minute || null}
-                  minWidth={52}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
-                    commitEatingWindow({ start: { minute: value } });
-                  }}
-                />
-              </PickerField>
-              <View style={styles.pillRow}>
-                {(['AM', 'PM'] as const).map((option) => {
-                  const active = eatingWindowStartBuffer.ampm === option;
-                  return (
-                    <TouchableOpacity
-                      key={option}
-                      style={[styles.pillSmall, active && styles.pillActive]}
-                      onPress={() => {
-                        setEatingWindowStartBuffer((current) => ({ ...current, ampm: option }));
-                        commitEatingWindow({ start: { ampm: option } });
-                      }}
-                    >
-                      <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-            </View>
-
-            <Text style={styles.subLabel}>Eating window ends</Text>
-            <View style={styles.dateRow}>
-              <PickerField label="Hour">
-                <PopoverSelect
-                  options={HOUR_OPTIONS}
-                  selected={eatingWindowEndBuffer.hour || null}
-                  minWidth={48}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
-                    commitEatingWindow({ end: { hour: value } });
-                  }}
-                />
-              </PickerField>
-              <PickerField label="Minute">
-                <PopoverSelect
-                  options={MINUTE_OPTIONS}
-                  selected={eatingWindowEndBuffer.minute || null}
-                  minWidth={52}
-                  tabColor={colors.menuIconMuted}
-                  tintedSurface
-                  onSelect={(value) => {
-                    setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
-                    commitEatingWindow({ end: { minute: value } });
-                  }}
-                />
-              </PickerField>
-              <View style={styles.pillRow}>
-                {(['AM', 'PM'] as const).map((option) => {
-                  const active = eatingWindowEndBuffer.ampm === option;
-                  return (
-                    <TouchableOpacity
-                      key={option}
-                      style={[styles.pillSmall, active && styles.pillActive]}
-                      onPress={() => {
-                        setEatingWindowEndBuffer((current) => ({ ...current, ampm: option }));
-                        commitEatingWindow({ end: { ampm: option } });
-                      }}
-                    >
-                      <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-              <TouchableOpacity onPress={clearEatingWindow} style={styles.clearButton}>
-                <Text style={styles.clearButtonText}>Clear</Text>
-              </TouchableOpacity>
-            </View>
-
-            {profile.eatingWindowStart && profile.eatingWindowEnd ? (
-              <Text style={styles.derivedText}>
-                Enforced window: {formatTime12(profile.eatingWindowStart)} - {formatTime12(profile.eatingWindowEnd)}
-              </Text>
-            ) : (
-              <Text style={styles.derivedText}>Set both times above to start enforcing this window.</Text>
-            )}
-          </>
         ) : null}
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.label}>Your conditions</Text>
-        <Text style={styles.helpText}>
-          Select every condition that applies to you -- this tells the app which condition-specific notes,
-          scoring, and medications are relevant to you personally. Multiple selections are fully supported;
-          having more than one is common.
-        </Text>
-        <View style={styles.pillRow}>
-          {allConditions
-            .filter((condition) => condition.status !== 'planned')
-            .map((condition) => {
-              const active = selectedConditions.includes(condition.code);
-              return (
+        {renderCardHeader('units', 'Units')}
+        {!collapsedSections.has('units') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Used across the app for quantities and measurements -- meal ingredient amounts, height, and body
+              measurements.
+            </Text>
+            <View style={styles.pillRow}>
+              {([
+                { value: 'metric' as const, label: 'Metric (cm, ml, g)' },
+                { value: 'imperial' as const, label: 'Imperial (ft/in, oz, cup)' },
+              ]).map((option) => {
+                const active = option.value === measurementSystem;
+                return (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[styles.pillSmall, active && styles.pillActive]}
+                    onPress={() => handleMeasurementSystemChange(option.value)}
+                  >
+                    <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        {renderCardHeader('sex', 'Sex')}
+        {!collapsedSections.has('sex') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Used only to show sex-specific nutrient targets (RDAs) where they genuinely differ. This app is
+              otherwise gender-neutral by design.
+            </Text>
+            <View style={styles.pillRow}>
+              {([
+                { value: null, label: 'Not set' },
+                { value: 'female' as const, label: 'Female' },
+                { value: 'male' as const, label: 'Male' },
+              ]).map((option) => {
+                const active = option.value === profile.sex;
+                return (
+                  <TouchableOpacity
+                    key={option.label}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => handleSexSelect(option.value)}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{option.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        {renderCardHeader('birth-date', 'Birth date')}
+        {!collapsedSections.has('birth-date') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Used to show age-appropriate nutrient targets (some, like iron and calcium, change meaningfully with
+              age). Stored as a date rather than a fixed age so it stays accurate over time.
+            </Text>
+            <View style={styles.dateRow}>
+              <PickerField label="Year">
+                <PopoverSelect
+                  options={BIRTH_YEAR_OPTIONS}
+                  selected={birthYear || null}
+                  minWidth={72}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setBirthYear(value);
+                    commitBirthDate({ year: value });
+                  }}
+                />
+              </PickerField>
+              <PickerField label="Month">
+                <PopoverSelect
+                  options={BIRTH_MONTH_OPTIONS}
+                  selected={birthMonth || null}
+                  minWidth={52}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setBirthMonth(value);
+                    commitBirthDate({ month: value });
+                  }}
+                />
+              </PickerField>
+              <PickerField label="Day">
+                <PopoverSelect
+                  options={BIRTH_DAY_OPTIONS}
+                  selected={birthDay || null}
+                  minWidth={52}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setBirthDay(value);
+                    commitBirthDate({ day: value });
+                  }}
+                />
+              </PickerField>
+              <TouchableOpacity onPress={clearBirthDate} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>Clear</Text>
+              </TouchableOpacity>
+            </View>
+            {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
+            {currentAge != null ? <Text style={styles.derivedText}>Current age: {currentAge}</Text> : null}
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        {renderCardHeader('height', 'Height')}
+        {!collapsedSections.has('height') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Used only for the step-counter's distance estimate (it needs a stride-length estimate, which comes
+              from height). Follows your Units setting above.
+            </Text>
+            <View style={styles.dateRow}>
+              {measurementSystem === 'imperial' ? (
+                <>
+                  <PickerField label="Feet">
+                    <PopoverSelect
+                      options={HEIGHT_FEET_OPTIONS}
+                      selected={heightFeetInput || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setHeightFeetInput(value);
+                        commitHeight({ feet: value });
+                      }}
+                    />
+                  </PickerField>
+                  <PickerField label="Inches">
+                    <PopoverSelect
+                      options={HEIGHT_INCHES_OPTIONS}
+                      selected={heightInchesInput || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setHeightInchesInput(value);
+                        commitHeight({ inches: value });
+                      }}
+                    />
+                  </PickerField>
+                </>
+              ) : (
+                <PickerField label="Centimeters">
+                  <PopoverSelect
+                    options={HEIGHT_CM_OPTIONS}
+                    selected={heightCmInput || null}
+                    minWidth={72}
+                    tabColor={colors.menuIconMuted}
+                    tintedSurface
+                    onSelect={(value) => {
+                      setHeightCmInput(value);
+                      commitHeight({ cm: value });
+                    }}
+                  />
+                </PickerField>
+              )}
+              <TouchableOpacity onPress={clearHeight} style={styles.clearButton}>
+                <Text style={styles.clearButtonText}>Clear</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        {renderCardHeader('meal-times', 'Usual meal times')}
+        {!collapsedSections.has('meal-times') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              About what time you normally eat each one. Used to pre-fill the time when you schedule that meal type
+              on the Schedule tab -- you can always change it there.
+            </Text>
+            {DAY_PARTS.map((dayPart) => (
+              <View key={dayPart} style={styles.mealTimeRow}>
+                <Text style={styles.mealTimeLabel}>{dayPart[0].toUpperCase() + dayPart.slice(1)}</Text>
+                <View style={styles.dateRow}>
+                  <PickerField label="Hour">
+                    <PopoverSelect
+                      options={HOUR_OPTIONS}
+                      selected={mealTimeBuffers[dayPart].hour || null}
+                      minWidth={48}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], hour: value } }));
+                        commitMealTime(dayPart, { hour: value });
+                      }}
+                    />
+                  </PickerField>
+                  <PickerField label="Minute">
+                    <PopoverSelect
+                      options={MINUTE_OPTIONS}
+                      selected={mealTimeBuffers[dayPart].minute || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], minute: value } }));
+                        commitMealTime(dayPart, { minute: value });
+                      }}
+                    />
+                  </PickerField>
+                  <View style={styles.pillRow}>
+                    {(['AM', 'PM'] as const).map((option) => {
+                      const active = mealTimeBuffers[dayPart].ampm === option;
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[styles.pillSmall, active && styles.pillActive]}
+                          onPress={() => {
+                            setMealTimeBuffers((current) => ({ ...current, [dayPart]: { ...current[dayPart], ampm: option } }));
+                            commitMealTime(dayPart, { ampm: option });
+                          }}
+                        >
+                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <TouchableOpacity onPress={() => clearMealTime(dayPart)} style={styles.clearButton}>
+                    <Text style={styles.clearButtonText}>Clear</Text>
+                  </TouchableOpacity>
+                </View>
+              </View>
+            ))}
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        {renderCardHeader('eating-window', 'Fasting / eating window')}
+        {!collapsedSections.has('eating-window') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              If you do intermittent fasting, set the window you actually eat within. Once both times are set here,
+              the Schedule tab won't let you schedule a meal outside that window.
+            </Text>
+            <View style={styles.pillRow}>
+              {([
+                { value: false, label: "I'm not fasting" },
+                { value: true, label: "I'm doing intermittent fasting" },
+              ]).map((option) => (
                 <TouchableOpacity
-                  key={condition.code}
-                  style={[styles.pill, active && styles.pillActive]}
-                  onPress={() => toggleCondition(condition.code)}
+                  key={option.label}
+                  style={[styles.pill, profile.fastingEnabled === option.value && styles.pillActive]}
+                  onPress={() => handleFastingToggle(option.value)}
                 >
-                  <Text style={[styles.pillText, active && styles.pillTextActive]}>
-                    {condition.name}
-                    {condition.status === 'in_progress' ? ' (early access)' : ''}
+                  <Text style={[styles.pillText, profile.fastingEnabled === option.value && styles.pillTextActive]}>
+                    {option.label}
                   </Text>
                 </TouchableOpacity>
-              );
-            })}
-        </View>
-        {allConditions.some((condition) => condition.status === 'planned') ? (
-          <Text style={[styles.helpText, { marginTop: 10 }]}>
-            Coming soon: {allConditions
-              .filter((condition) => condition.status === 'planned')
-              .map((condition) => condition.name)
-              .join(', ')}
-          </Text>
+              ))}
+            </View>
+
+            {profile.fastingEnabled ? (
+              <>
+                <Text style={styles.subLabel}>Eating window starts</Text>
+                <View style={styles.dateRow}>
+                  <PickerField label="Hour">
+                    <PopoverSelect
+                      options={HOUR_OPTIONS}
+                      selected={eatingWindowStartBuffer.hour || null}
+                      minWidth={48}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setEatingWindowStartBuffer((current) => ({ ...current, hour: value }));
+                        commitEatingWindow({ start: { hour: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <PickerField label="Minute">
+                    <PopoverSelect
+                      options={MINUTE_OPTIONS}
+                      selected={eatingWindowStartBuffer.minute || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setEatingWindowStartBuffer((current) => ({ ...current, minute: value }));
+                        commitEatingWindow({ start: { minute: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <View style={styles.pillRow}>
+                    {(['AM', 'PM'] as const).map((option) => {
+                      const active = eatingWindowStartBuffer.ampm === option;
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[styles.pillSmall, active && styles.pillActive]}
+                          onPress={() => {
+                            setEatingWindowStartBuffer((current) => ({ ...current, ampm: option }));
+                            commitEatingWindow({ start: { ampm: option } });
+                          }}
+                        >
+                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+
+                <Text style={styles.subLabel}>Eating window ends</Text>
+                <View style={styles.dateRow}>
+                  <PickerField label="Hour">
+                    <PopoverSelect
+                      options={HOUR_OPTIONS}
+                      selected={eatingWindowEndBuffer.hour || null}
+                      minWidth={48}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setEatingWindowEndBuffer((current) => ({ ...current, hour: value }));
+                        commitEatingWindow({ end: { hour: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <PickerField label="Minute">
+                    <PopoverSelect
+                      options={MINUTE_OPTIONS}
+                      selected={eatingWindowEndBuffer.minute || null}
+                      minWidth={52}
+                      tabColor={colors.menuIconMuted}
+                      tintedSurface
+                      onSelect={(value) => {
+                        setEatingWindowEndBuffer((current) => ({ ...current, minute: value }));
+                        commitEatingWindow({ end: { minute: value } });
+                      }}
+                    />
+                  </PickerField>
+                  <View style={styles.pillRow}>
+                    {(['AM', 'PM'] as const).map((option) => {
+                      const active = eatingWindowEndBuffer.ampm === option;
+                      return (
+                        <TouchableOpacity
+                          key={option}
+                          style={[styles.pillSmall, active && styles.pillActive]}
+                          onPress={() => {
+                            setEatingWindowEndBuffer((current) => ({ ...current, ampm: option }));
+                            commitEatingWindow({ end: { ampm: option } });
+                          }}
+                        >
+                          <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option}</Text>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                  <TouchableOpacity onPress={clearEatingWindow} style={styles.clearButton}>
+                    <Text style={styles.clearButtonText}>Clear</Text>
+                  </TouchableOpacity>
+                </View>
+
+                {profile.eatingWindowStart && profile.eatingWindowEnd ? (
+                  <Text style={styles.derivedText}>
+                    Enforced window: {formatTime12(profile.eatingWindowStart)} - {formatTime12(profile.eatingWindowEnd)}
+                  </Text>
+                ) : (
+                  <Text style={styles.derivedText}>Set both times above to start enforcing this window.</Text>
+                )}
+              </>
+            ) : null}
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        {renderCardHeader('your-conditions', 'Your conditions')}
+        {!collapsedSections.has('your-conditions') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Select every condition that applies to you -- this tells the app which condition-specific notes,
+              scoring, and medications are relevant to you personally. Multiple selections are fully supported;
+              having more than one is common.
+            </Text>
+            <View style={styles.pillRow}>
+              {allConditions
+                .filter((condition) => condition.status !== 'planned')
+                .map((condition) => {
+                  const active = selectedConditions.includes(condition.code);
+                  return (
+                    <TouchableOpacity
+                      key={condition.code}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() => toggleCondition(condition.code)}
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>
+                        {condition.name}
+                        {condition.status === 'in_progress' ? ' (early access)' : ''}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+            </View>
+            {allConditions.some((condition) => condition.status === 'planned') ? (
+              <Text style={[styles.helpText, { marginTop: 10 }]}>
+                Coming soon: {allConditions
+                  .filter((condition) => condition.status === 'planned')
+                  .map((condition) => condition.name)
+                  .join(', ')}
+              </Text>
+            ) : null}
+          </View>
         ) : null}
       </View>
 
@@ -968,60 +1058,68 @@ export default function ProfileScreen() {
           colors.primary active state the pill rows above already use for
           this same kind of single-choice-among-many control. */}
       <View style={styles.card}>
-        <Text style={styles.label}>TabHub Icon</Text>
-        <Text style={styles.helpText}>
-          The main floating button used to open the app&apos;s navigation menu. Choose the default butterfly, or
-          any tracked condition&apos;s own real icon to personalize it -- generically representing either
-          Hashimoto&apos;s or Graves&apos; if you leave it as the default. Only one can be active at a time.
-        </Text>
-        <View style={styles.iconGridRow}>
-          {tabHubIconOptions.map((option) => {
-            const active = visualPrefs.tabHubIcon === option.key;
-            const source = TAB_HUB_ICON_SOURCES[option.key];
-            if (!source) return null;
-            return (
-              <TouchableOpacity
-                key={option.key}
-                style={styles.iconGridItem}
-                onPress={() => setVisualPreferences({ tabHubIcon: option.key })}
-                activeOpacity={0.7}
-              >
-                {active ? (
-                  <IridescentRingCircle size={ICON_GRID_PILL_SIZE}>
-                    <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
-                  </IridescentRingCircle>
-                ) : (
-                  <View style={styles.iconGridPillPlain}>
-                    <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
-                  </View>
-                )}
-                <Text style={[styles.iconGridLabel, active && styles.iconGridLabelActive]} numberOfLines={2}>
-                  {option.label}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {renderCardHeader('tabhub-icon', 'TabHub Icon')}
+        {!collapsedSections.has('tabhub-icon') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              The main floating button used to open the app&apos;s navigation menu. Choose the default butterfly, or
+              any tracked condition&apos;s own real icon to personalize it -- generically representing either
+              Hashimoto&apos;s or Graves&apos; if you leave it as the default. Only one can be active at a time.
+            </Text>
+            <View style={styles.iconGridRow}>
+              {tabHubIconOptions.map((option) => {
+                const active = visualPrefs.tabHubIcon === option.key;
+                const source = TAB_HUB_ICON_SOURCES[option.key];
+                if (!source) return null;
+                return (
+                  <TouchableOpacity
+                    key={option.key}
+                    style={styles.iconGridItem}
+                    onPress={() => setVisualPreferences({ tabHubIcon: option.key })}
+                    activeOpacity={0.7}
+                  >
+                    {active ? (
+                      <IridescentRingCircle size={ICON_GRID_PILL_SIZE}>
+                        <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
+                      </IridescentRingCircle>
+                    ) : (
+                      <View style={styles.iconGridPillPlain}>
+                        <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
+                      </View>
+                    )}
+                    <Text style={[styles.iconGridLabel, active && styles.iconGridLabelActive]} numberOfLines={2}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
       </View>
 
       {selectedConditions.includes('hashimotos') ? (
         <View style={styles.card}>
-          <Text style={styles.label}>Where you're at</Text>
-          <Text style={styles.helpText}>
-            A short check-in covering hypothyroid symptoms, digestive/IBS symptoms, and overall wellbeing.
-            Early on, day-to-day change can feel invisible because everything is happening at once -- this is
-            what turns that into an actual, visible trend over time.
-          </Text>
-          {lastAssessment ? (
-            <Text style={styles.derivedText}>Last taken {daysAgoLabel(lastAssessment.completedAt)}.</Text>
-          ) : (
-            <Text style={styles.derivedText}>You haven't taken this yet -- your first one becomes your baseline.</Text>
-          )}
-          <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/assessment')}>
-            <Text style={styles.checkinButtonText}>
-              {lastAssessment ? 'Retake check-in' : 'Take your first check-in'}
-            </Text>
-          </TouchableOpacity>
+          {renderCardHeader('where-youre-at', "Where you're at")}
+          {!collapsedSections.has('where-youre-at') ? (
+            <View style={styles.cardBody}>
+              <Text style={styles.helpText}>
+                A short check-in covering hypothyroid symptoms, digestive/IBS symptoms, and overall wellbeing.
+                Early on, day-to-day change can feel invisible because everything is happening at once -- this is
+                what turns that into an actual, visible trend over time.
+              </Text>
+              {lastAssessment ? (
+                <Text style={styles.derivedText}>Last taken {daysAgoLabel(lastAssessment.completedAt)}.</Text>
+              ) : (
+                <Text style={styles.derivedText}>You haven't taken this yet -- your first one becomes your baseline.</Text>
+              )}
+              <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/assessment')}>
+                <Text style={styles.checkinButtonText}>
+                  {lastAssessment ? 'Retake check-in' : 'Take your first check-in'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       ) : null}
 
@@ -1033,108 +1131,116 @@ export default function ProfileScreen() {
           untouched by any setting here -- this only ever affects the
           background layer itself. */}
       <View style={styles.card}>
-        <Text style={styles.label}>Shared background</Text>
-        <Text style={styles.helpText}>
-          The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps it
-          for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it entirely,
-          leaving the same flat background color as the header and footer.
-        </Text>
-        <View style={styles.pillRow}>
-          {BACKGROUND_STYLE_OPTIONS.map((option) => {
-            const active = option.value === visualPrefs.homeBackgroundStyle;
-            return (
-              <TouchableOpacity
-                key={option.value}
-                style={[styles.pillSmall, active && styles.pillActive]}
-                onPress={() => setVisualPreferences({ homeBackgroundStyle: option.value })}
-              >
-                <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-
-        <Text style={styles.subLabel}>Animated sky (sun, moon, stars, day/night)</Text>
-        <Text style={styles.helpText}>
-          Only shows while the shared background above is set to &ldquo;Photo.&rdquo; Turning it off stops the
-          continuously-running animation, which is the real thing to disable if battery use matters more
-          than the visual.
-        </Text>
-        <View style={styles.pillRow}>
-          {([
-            { value: true, label: 'Animated' },
-            { value: false, label: 'Off' },
-          ]).map((option) => (
-            <TouchableOpacity
-              key={option.label}
-              style={[styles.pillSmall, visualPrefs.skyAnimationsEnabled === option.value && styles.pillActive]}
-              onPress={() => setVisualPreferences({ skyAnimationsEnabled: option.value })}
-            >
-              <Text
-                style={[
-                  styles.pillTextSmall,
-                  visualPrefs.skyAnimationsEnabled === option.value && styles.pillTextActive,
-                ]}
-              >
-                {option.label}
-              </Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      </View>
-
-      <View style={styles.card}>
-        <Text style={styles.label}>Individual tab backgrounds</Text>
-        <Text style={styles.helpText}>
-          Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
-          rather than all at once -- turn off just the ones you don&apos;t want, and leave the rest as they are.
-        </Text>
-        {BACKGROUND_TAB_ROUTES.map((route) => (
-          <View key={route.path as string} style={styles.mealTimeRow}>
-            <Text style={styles.mealTimeLabel}>{route.title}</Text>
+        {renderCardHeader('shared-background', 'Shared background')}
+        {!collapsedSections.has('shared-background') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps it
+              for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it entirely,
+              leaving the same flat background color as the header and footer.
+            </Text>
             <View style={styles.pillRow}>
               {BACKGROUND_STYLE_OPTIONS.map((option) => {
-                const current = visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo';
-                const active = option.value === current;
+                const active = option.value === visualPrefs.homeBackgroundStyle;
                 return (
                   <TouchableOpacity
                     key={option.value}
                     style={[styles.pillSmall, active && styles.pillActive]}
-                    onPress={() =>
-                      setVisualPreferences({
-                        tabBackgroundStyle: { [route.path as string]: option.value },
-                      })
-                    }
+                    onPress={() => setVisualPreferences({ homeBackgroundStyle: option.value })}
                   >
                     <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
                   </TouchableOpacity>
                 );
               })}
             </View>
-          </View>
-        ))}
 
-        <Text style={styles.subLabel}>Generic color combination</Text>
-        <Text style={styles.helpText}>
-          Used anywhere above (or the shared background) set to &ldquo;Generic.&rdquo; One shared choice, not a
-          separate pick per tab.
-        </Text>
-        <View style={styles.pillRow}>
-          {GENERIC_PALETTE_OPTIONS.map((palette) => {
-            const active = palette === visualPrefs.genericPalette;
-            return (
-              <TouchableOpacity
-                key={palette}
-                style={[styles.pillSmall, active && styles.pillActive]}
-                onPress={() => setVisualPreferences({ genericPalette: palette })}
-              >
-                <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
-                  {GENERIC_PALETTE_LABELS[palette]}
-                </Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+            <Text style={styles.subLabel}>Animated sky (sun, moon, stars, day/night)</Text>
+            <Text style={styles.helpText}>
+              Only shows while the shared background above is set to &ldquo;Photo.&rdquo; Turning it off stops the
+              continuously-running animation, which is the real thing to disable if battery use matters more
+              than the visual.
+            </Text>
+            <View style={styles.pillRow}>
+              {([
+                { value: true, label: 'Animated' },
+                { value: false, label: 'Off' },
+              ]).map((option) => (
+                <TouchableOpacity
+                  key={option.label}
+                  style={[styles.pillSmall, visualPrefs.skyAnimationsEnabled === option.value && styles.pillActive]}
+                  onPress={() => setVisualPreferences({ skyAnimationsEnabled: option.value })}
+                >
+                  <Text
+                    style={[
+                      styles.pillTextSmall,
+                      visualPrefs.skyAnimationsEnabled === option.value && styles.pillTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      <View style={styles.card}>
+        {renderCardHeader('individual-tab-backgrounds', 'Individual tab backgrounds')}
+        {!collapsedSections.has('individual-tab-backgrounds') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
+              rather than all at once -- turn off just the ones you don&apos;t want, and leave the rest as they are.
+            </Text>
+            {BACKGROUND_TAB_ROUTES.map((route) => (
+              <View key={route.path as string} style={styles.mealTimeRow}>
+                <Text style={styles.mealTimeLabel}>{route.title}</Text>
+                <View style={styles.pillRow}>
+                  {BACKGROUND_STYLE_OPTIONS.map((option) => {
+                    const current = visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo';
+                    const active = option.value === current;
+                    return (
+                      <TouchableOpacity
+                        key={option.value}
+                        style={[styles.pillSmall, active && styles.pillActive]}
+                        onPress={() =>
+                          setVisualPreferences({
+                            tabBackgroundStyle: { [route.path as string]: option.value },
+                          })
+                        }
+                      >
+                        <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>{option.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            ))}
+
+            <Text style={styles.subLabel}>Generic color combination</Text>
+            <Text style={styles.helpText}>
+              Used anywhere above (or the shared background) set to &ldquo;Generic.&rdquo; One shared choice, not a
+              separate pick per tab.
+            </Text>
+            <View style={styles.pillRow}>
+              {GENERIC_PALETTE_OPTIONS.map((palette) => {
+                const active = palette === visualPrefs.genericPalette;
+                return (
+                  <TouchableOpacity
+                    key={palette}
+                    style={[styles.pillSmall, active && styles.pillActive]}
+                    onPress={() => setVisualPreferences({ genericPalette: palette })}
+                  >
+                    <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
+                      {GENERIC_PALETTE_LABELS[palette]}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
       </View>
     </ScrollView>
     {closeButton}
@@ -1238,6 +1344,21 @@ const styles = StyleSheet.create({
     // constants/colors.ts).
     color: colors.menuLabelMuted,
     marginBottom: 4,
+  },
+  // Collapsible-card header row (icon 2026-08-09) -- the same `label` Text
+  // above now sits alongside a chevron, both inside one real tap target
+  // (renderCardHeader), rather than the plain standalone Text every card
+  // used to open with. `label`'s own marginBottom (4) still applies to the
+  // Text itself; cardBody's own marginTop below is what actually spaces
+  // the header row from the real content underneath it, only while a
+  // section is expanded (a collapsed card has no body to space against).
+  cardHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  cardBody: {
+    marginTop: 8,
   },
   helpText: {
     ...typography.body,
