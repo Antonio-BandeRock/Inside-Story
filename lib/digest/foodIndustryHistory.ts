@@ -631,7 +631,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: 'Brazil: The World\'s Clearest No-Till Success Story',
     teaser: 'Started by one farmer importing a seeding machine in 1972. Today, over 80% of Brazil\'s soy farms use it, with a real, documented 97% cut in soil erosion.',
     summary:
-      "Brazil is the single clearest, most measured real-world case study for how far a low-tech soil-protection technique can spread through farmer-to-farmer adoption alone, with almost no government subsidy driving it. Starting from Herbert Batz's own 1972 import of Latin America's first zero-till seeding equipment (see this category's own Counter-Movement Begins entry), no-till farming now covers over 80% of Brazil's soy farms and roughly 25.5 million hectares overall, more than 60% of the country's entire cultivated surface, second only to the United States in total zero-till area worldwide. Brazil's own reported real-world results: a 97% reduction in soil erosion losses, and farm income up 57% within five years of adopting the practice. This case matters directly for the \"how fast can this actually scale\" question, since it demonstrates real, national-level transformation achieved primarily through peer farmer networks rather than top-down mandate.",
+      "Brazil is the single clearest, most measured real-world case study for how far a low-tech soil-protection technique can spread through farmer-to-farmer adoption alone, with almost no government subsidy driving it. Starting from Herbert Batz's own 1972 import of Latin America's first zero-till seeding equipment (see this category's own Counter-Movement Begins entry), no-till farming now covers over 80% of Brazil's soy farms and roughly 25.5 million hectares overall, more than 60% of the country's entire cultivated surface, second only to the United States in total zero-till area worldwide. Brazil's own reported real-world results: a 97% reduction in soil erosion losses, and farm income up 57% within five years of adopting the practice. This case matters directly for the \"how fast can this actually scale\" question, since it demonstrates real, national-level transformation achieved primarily through peer farmer networks rather than top-down mandate. A real, honest qualifier, not a reason to discount the erosion result itself: Brazil's own no-till soy is built substantially on glyphosate-resistant genetically modified varieties, meaning less soil disturbance here has largely meant more herbicide reliance, not a chemical-free system -- see this category's own dedicated entry on that exact tradeoff.",
     citations: [
       {
         source: 'No-Till Farmer: Brazil Quickly Embraced No-Till, Led to Become a World Ag Power',
@@ -643,7 +643,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['foodhistory-regen-timeline-origins'],
+    relatedIds: ['foodhistory-regen-timeline-origins', 'foodhistory-regen-no-till-greenwashing-critique'],
     chart: {
       title: "Brazil's No-Till Farmland",
       unit: 'million hectares',
@@ -810,6 +810,108 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     stageNote: 'Included deliberately as a real, honest counter-example -- a widely repeated regenerative-agriculture claim that a real, published scientific review does not support at the scale claimed.',
     relatedIds: ['foodhistory-regen-global-implementation-synthesis'],
+  },
+  // 2026-08-10, same day, second follow-up: "Keep going with more research
+  // on this topic." Every citation below independently re-verified via
+  // WebSearch/WebFetch the same way as the first two batches. This pass
+  // adds the real baseline stat for why any of this matters at all (FAO's
+  // own global soil-degradation figures), a real, deep-history-plus-current-
+  // science entry (Darwin's own last book was about earthworms), a real,
+  // quantified case for a whole practice not yet covered on its own
+  // (agroforestry), and a genuinely important honest complication that
+  // qualifies the earlier, more favorable Brazil case study: no-till
+  // farming at industrial scale is very often paired with heavy herbicide
+  // use, not less chemical input overall, and real advocacy groups have
+  // directly named large agrochemical companies using "regenerative"
+  // branding around exactly that combination.
+  {
+    id: 'foodhistory-regen-fao-baseline-stakes',
+    category: 'basicHealth',
+    title: 'The Real Baseline: Why Any of This Is Urgent At All',
+    teaser: "The UN's own food and agriculture agency: a real third of the world's soil is already degraded, and over 90% could be by 2050.",
+    summary:
+      "Every entry in this cluster describes a response to a real, official, sobering baseline. The UN Food and Agriculture Organization (FAO) reports that 33% of the world's soils are already degraded, more than 1.6 billion hectares, over 10% of all land on Earth, degraded by unsustainable land-use and management practices, and warns that more than 90% of the world's topsoil could be at risk of degradation by 2050 if current trends continue. The stakes are directly tied to food security, not an abstract environmental concern: FAO estimates 95% of global food production ultimately depends on soil, at the same time global food, feed, and fiber production needs to grow by roughly 50% by 2050 compared to 2012 levels to keep pace with population growth. This is the real, official reason every technique, certification, and case study in this cluster exists at all -- not a hypothetical problem being solved in advance, but a real, already-substantial degradation already underway.",
+    citations: [
+      {
+        source: "UN News: FAO warns 90 per cent of Earth's topsoil at risk by 2050",
+        url: 'https://news.un.org/en/story/2022/07/1123462',
+      },
+      {
+        source: 'FAO: Healthy soils for a healthy people and planet (33% already degraded, 95% of food production depends on soil)',
+        url: 'https://www.fao.org/newsroom/detail/agriculture-soils-degradation-fao-gffa-2022/en',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Official UN agency data, the real baseline the rest of this cluster is responding to.',
+    relatedIds: ['foodhistory-soil-real-depletion', 'foodhistory-regen-timeline-origins'],
+    chart: {
+      title: "Share of World's Soil Already Degraded",
+      unit: '%',
+      data: [
+        { label: 'Already degraded today', value: 33 },
+        { label: 'Projected degraded by 2050 if trends continue', value: 90 },
+      ],
+      sourceNote: 'UN FAO, real, official global assessment figures',
+    },
+  },
+  {
+    id: 'foodhistory-regen-darwin-earthworms-vermicompost',
+    category: 'basicHealth',
+    title: "Darwin's Last Book Wasn't About Evolution. It Was About Earthworms.",
+    teaser: 'A real, dated 1881 bestseller on soil-building worms, and the modern, peer-reviewed vermicompost science that grew directly out of it.',
+    summary:
+      'A real, genuinely surprising fact of scientific history: the final scientific book Charles Darwin ever published, in 1881, was not about evolution at all. Titled "The Formation of Vegetable Mould through the Action of Worms," it was the first serious scholarly treatment of how earthworms physically build topsoil, through burrowing, digestion, and casting, and it sold nearly as many copies in its first three years as On the Origin of Species had. Modern, peer-reviewed research has since confirmed and extended Darwin\'s own core observation directly: vermicompost (compost produced by earthworms digesting organic waste) measurably boosts soil microbial enzyme activity and nutrient cycling, shifts bacterial and fungal community composition toward beneficial groups capable of synthesizing plant growth hormones, and is itself a real, nutrient-dense soil amendment (roughly 2-3% nitrogen, 1.55-2.25% phosphorus, 1.85-2.25% potassium by weight) shown in controlled trials to improve germination, yield, and disease tolerance across a real range of crops. A genuinely direct through-line from an 1881 bestseller to a 2020s peer-reviewed soil-microbiome literature.',
+    citations: [
+      {
+        source: 'ScienceDirect: Charles Darwin, earthworms and the natural sciences -- various lessons from past to future',
+        url: 'https://www.sciencedirect.com/science/article/abs/pii/S0167880903001439',
+      },
+      {
+        source: 'MDPI Agriculture 2023: "Vermicompost: Enhancing Plant Growth and Combating Abiotic and Biotic Stress"',
+        url: 'https://www.mdpi.com/2073-4395/13/4/1134',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, dated historical origin point plus current, peer-reviewed confirmation -- not just an anecdote.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+  },
+  {
+    id: 'foodhistory-regen-agroforestry-quantified',
+    category: 'basicHealth',
+    title: 'Agroforestry: A Real, Large, Quantified Meta-Analysis of What Planting Trees Among Crops Actually Does',
+    teaser: 'A real 532-study, 3,075-comparison global analysis, not a single showcase farm -- and it includes an honest downside, not just wins.',
+    summary:
+      'Agroforestry (the deliberate integration of trees or shrubs into cropland or grazing land, via alley cropping, silvopasture, or windbreaks) is one of the single largest segments of the whole regenerative-agriculture market by real revenue share, and a real, large 2025 global meta-analysis, aggregating 532 primary studies into 3,075 direct comparisons against conventional agriculture, gives it an unusually strong evidence base for a practice this varied. The real, quantified average: agroforestry improved ecosystem-service delivery and biodiversity by 23% overall, with vertebrate diversity up 55.5%, invertebrate diversity up 47.2%, soil fertility up 56%, water regulation up 56%, and real crop-yield gains for specific staples (maize +22.8%, wheat +26%). The honest complication, stated directly rather than omitted: whole-field forage and livestock production on the exact acreage where trees are planted actually fell 24-25.8% in the same analysis, since that land is no longer purely dedicated to grazing, even though total combined output (trees plus crops plus livestock together) still outperformed a single-use monoculture control.',
+    citations: [
+      {
+        source: 'PMC 2025: "Enhancement of Agroecosystem Multifunctionality by Agroforestry: A Global Quantitative Summary" (532 studies, 3,075 comparisons)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12076275/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, large-scale global meta-analysis, the strongest evidence tier in this cluster besides the Rodale Institute\'s own controlled trial -- and it reports an honest tradeoff, not just benefits.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+  },
+  {
+    id: 'foodhistory-regen-no-till-greenwashing-critique',
+    category: 'basicHealth',
+    title: '"Regenerative" Has No Official Definition, and That Real Gap Gets Exploited',
+    teaser: 'A real, honest complication to Brazil\'s own no-till success story: industrial no-till very often means MORE herbicide, not less, and major agrochemical companies are branding around exactly that.',
+    summary:
+      'A real, credible, and directly relevant complication to this cluster\'s own earlier, more favorable framing: "regenerative agriculture" has no single, official, legally enforced definition anywhere, unlike the third-party-audited ROC standard covered elsewhere in this cluster. That real gap creates real room for the term to be applied loosely, and a Friends of the Earth report (April 2025) documents a specific, named version of the problem directly relevant to this cluster\'s own Brazil case study: over 100 million US acres of no-till corn and soybean production, and a real 93% of those acres still rely on chemical herbicides, since removing mechanical tillage as a weed-control method very often means substituting chemical weed control instead, not eliminating it. The report names Bayer (which acquired Monsanto, the original developer of glyphosate) and Syngenta directly, both offering real per-acre payments and marketing partnerships built around "regenerative" branding for herbicide-tolerant no-till systems. This directly qualifies Brazil\'s own no-till success (see this category\'s own dedicated entry): its adoption is real and its erosion-reduction results are real, but it is built substantially on glyphosate-resistant genetically modified soy, the same still-disputed chemistry this app\'s own Pesticides research already covers, not a chemical-free system.',
+    citations: [
+      {
+        source: 'The New Lede: As regenerative agriculture gains momentum, report warns of "greenwashing" (Friends of the Earth, April 2025)',
+        url: 'https://www.thenewlede.org/2025/04/as-regenerative-agriculture-gains-momentum-report-warns-of-greenwashing/',
+      },
+      {
+        source: 'A review of glyphosate-resistant (GR) soybean and corn adoption in Brazil',
+        url: 'https://awsjournal.org/wp-content/uploads/articles_xml/2675-9462-aws-40-spec1-e0202200102/2675-9462-aws-40-spec1-e0202200102.pdf',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Included deliberately, the same way the Savory entry above is, so this cluster does not read as accepting every regenerative-branded claim uncritically.',
+    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-timeline-certification-era', 'foodhistory-pesticides-glyphosate-dispute'],
   },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
