@@ -311,6 +311,14 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   },
   { label: 'Glossary', prefixes: ['glossary-'] },
   { label: 'Prevention & Lifestyle by Condition', prefixes: ['prevention-', 'apphelps-'] },
+  // 2026-08-09, direct request: "an honest medical science evidence based
+  // perspective on the popular types of diets out there." A real, distinct
+  // topic from "Prevention & Lifestyle by Condition" above -- that one is
+  // scoped per-CONDITION (what to eat if you have Hashimoto's, RA, etc.);
+  // this one is scoped per-DIET-PHILOSOPHY, condition-agnostic, and closes
+  // with a real, honest entry on how this app helps track any of them.
+  // See lib/digest/popularDiets.ts's own header comment.
+  { label: 'Popular Diets & Eating Styles', prefixes: ['diet-'] },
   { label: 'Problem Foods & Swaps', prefixes: ['problem-'] },
   { label: 'Food Additives', prefixes: ['additive-'] },
   { label: 'Nutrient Interactions', prefixes: ['interaction-'] },

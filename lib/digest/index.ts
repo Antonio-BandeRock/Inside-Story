@@ -31,6 +31,7 @@ import { COMPLEMENTARY_THERAPIES_ENTRIES } from './complementaryTherapies';
 import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PCOS_ENTRIES } from './pcos';
+import { POPULAR_DIETS_ENTRIES } from './popularDiets';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PREVENTION_LIFESTYLE_ENTRIES } from './preventionLifestyle';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
@@ -51,7 +52,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260809030000';
+export const PURPLE_DIGEST_VERSION = '20260809050000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -100,6 +101,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...HORMONES_ENTRIES,
   ...PREVENTION_LIFESTYLE_ENTRIES,
   ...APP_HELPS_ENTRIES,
+  ...POPULAR_DIETS_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
