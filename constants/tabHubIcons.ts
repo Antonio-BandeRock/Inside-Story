@@ -90,18 +90,42 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
 // The default butterfly's own real, established render width -- unchanged
 // from TabHub.tsx's own original BUTTERFLY_WIDTH constant, so picking
 // 'default' (the app's own out-of-the-box behavior) renders byte-for-byte
-// identically to how this button has always looked, not just "close." Every
-// OTHER icon is scaled so its own real LONGER edge also reaches this same
-// target -- the actual fix for "condition icons look smaller than the
-// butterfly": under the old fixed 116x78 box, every real condition icon
-// (none has a ratio anywhere near the butterfly's own wide 1.487) rendered
-// height-constrained to 78px tall with a NARROWER width, and simply never
-// got the butterfly's own true visual presence. Matching each icon's own
-// long edge to this same target, instead of forcing every icon into one
-// shape-specific box, is what makes a tall/narrow icon (Gout, Type 1
-// Diabetes) and a wide one (PCOS, Lupus) both read as similarly "large,"
-// the same way the butterfly always has.
-export const TAB_HUB_ICON_TARGET_LONG_EDGE = 116;
+// identically to how this button has always looked, not just "close."
+export const TAB_HUB_ICON_TARGET_WIDTH = 116;
+// The default butterfly's own real aspect ratio (1606:1080) -- the source
+// of its own already-established, already-safe 78px render height
+// (TAB_HUB_ICON_TARGET_WIDTH / this ratio). Kept as an exact fraction, not
+// a pre-rounded decimal, matching TabHub.tsx's own original
+// BUTTERFLY_ASPECT_RATIO precedent.
+const DEFAULT_ICON_ASPECT_RATIO = 1606 / 1080;
+
+// 2026-08-09, a real, direct correction: an earlier version of this
+// function let HEIGHT vary per icon too (scaling each icon's own longer
+// edge, whichever axis that was, up to TAB_HUB_ICON_TARGET_WIDTH) -- on
+// device, that pushed several of the taller/narrower condition icons
+// (Gout, Type 1/2 Diabetes, Cardiovascular Disease, and others with a real
+// aspect ratio well under 1) up to 116px tall, well past the button's own
+// already-tuned, already-safe 78px height, visibly poking above the
+// footer's own top line. Direct, explicit correction: "They should all
+// stay the same distance away from the line on the footer and the top
+// edge of the navigation bar" -- every icon's own vertical clearance from
+// both of those real screen edges has to be IDENTICAL, which is only
+// possible if every icon renders at the exact same fixed HEIGHT (the
+// butterfly's own already-proven-safe value), never a per-icon one. Width
+// is the one dimension genuinely safe to vary -- it has no bearing on
+// vertical clearance at all -- so every icon still renders at its own
+// real, undistorted aspect ratio; a narrower-shaped icon (Gout, Type 1
+// Diabetes) legitimately ends up narrower than a squarer one (Sjögren's)
+// or the butterfly itself at that same shared height, since there's no
+// way to make a narrow image "look as wide" as a square one without
+// either stretching it (visibly distorted, not something this app does
+// anywhere else) or letting it grow taller (exactly the bug this fix
+// closes). This IS mathematically identical to how every condition icon
+// already rendered before the "proportional" pass -- see this file's own
+// git history for that fuller reasoning -- reverted here specifically
+// because the person's own explicit, direct requirement (identical
+// clearance for every icon) rules out the alternative.
+const TAB_HUB_ICON_FIXED_HEIGHT = TAB_HUB_ICON_TARGET_WIDTH / DEFAULT_ICON_ASPECT_RATIO;
 
 // A real, shared, pure function -- not duplicated per consumer. Three real
 // components each need this exact same "how big does the CURRENTLY chosen
@@ -116,10 +140,11 @@ export function getTabHubIconRenderSize(choice: TabHubIconChoice): { width: numb
   const dims = TAB_HUB_ICON_PIXEL_DIMENSIONS[choice] ?? TAB_HUB_ICON_PIXEL_DIMENSIONS.default!;
   const [pixelWidth, pixelHeight] = dims;
   const ratio = pixelWidth / pixelHeight;
-  if (ratio >= 1) {
-    // Wider than tall (or square) -- width is the long edge.
-    return { width: TAB_HUB_ICON_TARGET_LONG_EDGE, height: TAB_HUB_ICON_TARGET_LONG_EDGE / ratio };
-  }
-  // Taller than wide -- height is the long edge.
-  return { width: TAB_HUB_ICON_TARGET_LONG_EDGE * ratio, height: TAB_HUB_ICON_TARGET_LONG_EDGE };
+  // Every icon shares the exact same height -- see TAB_HUB_ICON_FIXED_HEIGHT's
+  // own comment for why. Width follows that fixed height at the icon's own
+  // real, undistorted ratio, capped at TAB_HUB_ICON_TARGET_WIDTH as a real
+  // (if currently never-hit) safety ceiling in case a future icon is ever
+  // wider than the butterfly's own 1.487 ratio.
+  const width = Math.min(TAB_HUB_ICON_TARGET_WIDTH, TAB_HUB_ICON_FIXED_HEIGHT * ratio);
+  return { width, height: TAB_HUB_ICON_FIXED_HEIGHT };
 }
