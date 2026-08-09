@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions, type TextStyle } from 'react-native';
+import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -700,6 +700,19 @@ const CARD_LAYOUT_TRANSITION_MS = 300;
 // itself is expected to run long.
 const CARD_LAYOUT_SETTLE_BUFFER_MS = 60;
 
+// Extra ScrollView bottom padding added ONLY while a card is expanded, so a
+// group near the real end of a category's content can still scroll all the
+// way up under the fixed header without the native scrollTo call clamping
+// short -- see PurpleDigestScreen's own scrollNodeIntoView comment for the
+// full reasoning. Deliberately a fixed, generous constant rather than a
+// live useWindowDimensions() read: this value only has to be "clearly more
+// than any real screen could ever need," never pixel-precise, so there's no
+// reason to pay for a dimension-change subscription (and the resulting
+// unstable style-object identity on every render) to get it. Hoisted to
+// module scope for the same reason as the constants above -- a stable
+// value, not something that needs recomputing per render.
+const EXPANDED_EXTRA_SCROLL_PADDING = 1200;
+
 function tierColor(tier: EvidenceTier): string {
   if (tier === 'strong') return colors.accent;
   if (tier === 'moderate') return colors.primary;
@@ -733,15 +746,31 @@ export default function PurpleDigestScreen() {
   // partly or fully below the visible screen with no further room to
   // scroll it into view. A real, structural cause, not a timing race --
   // this is why the two earlier timing-focused fixes made no visible
-  // difference. Fixed by adding real, extra bottom padding, sized to a
-  // full screen height (not a hardcoded guess -- useWindowDimensions is
-  // the same real, device-accurate source useFloatingButtonScrollPadding's
-  // own comment already prefers over a fixed number), but ONLY while an
-  // entry is actually expanded -- applying it unconditionally would leave
-  // a large, empty, confusing gap at the bottom of ordinary scrolling with
-  // nothing open, which is a real, different problem this fix doesn't need
-  // to introduce to solve the one that was actually reported.
-  const { height: windowHeight } = useWindowDimensions();
+  // difference. Fixed by adding real, extra bottom padding, but ONLY while
+  // an entry is actually expanded -- applying it unconditionally would
+  // leave a large, empty, confusing gap at the bottom of ordinary scrolling
+  // with nothing open, which is a real, different problem this fix doesn't
+  // need to introduce to solve the one that was actually reported.
+  //
+  // 2026-08-09, real, direct follow-up report, same day, right after
+  // confirming the scroll fix itself worked: "the keyboard is slow to
+  // react again... you have fixed this before." The first version of this
+  // fix reached for useWindowDimensions() to size the extra padding against
+  // the real, live device height -- reasonable-sounding, but it subscribes
+  // this whole large screen to every dimension-change event RN fires, and
+  // (worse) the resulting value was used to build a brand-new
+  // contentContainerStyle array/object on every single render, forcing a
+  // full Yoga layout recompute of a now much taller ScrollView on every one
+  // of those renders. Neither risk is worth taking for a value that never
+  // needed device precision in the first place -- this only has to be
+  // "clearly more than any real screen could ever need," not exact, so a
+  // fixed, generous constant does the identical job with none of the
+  // subscription/re-render risk (see EXPANDED_EXTRA_SCROLL_PADDING, hoisted
+  // to module scope above alongside the other layout-timing constants).
+  // Also memoized below (see scrollContentContainerStyle) so the style
+  // object itself only gets a new identity when expandedId's own
+  // open/closed state actually changes, not on every unrelated render --
+  // the second, independent half of the same real fix.
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   // The real value actually handed to LensHub's own autoOpenSignal prop --
   // 2026-08-08, widened from just autoOpenLensHub (a TabHub-navigation-only
@@ -914,14 +943,25 @@ export default function PurpleDigestScreen() {
   // ref, not state, so onScroll firing repeatedly during a manual drag
   // doesn't itself force a re-render.
   const currentScrollY = useRef(0);
-  // The real fix for the scroll-clamping bug described above `windowHeight`
-  // -- a full extra screen height of bottom padding, but ONLY while a card
-  // is actually expanded (expandedId !== null). Scrolling with nothing
+  // The real fix for the scroll-clamping bug described above
+  // EXPANDED_EXTRA_SCROLL_PADDING -- extra bottom padding, but ONLY while a
+  // card is actually expanded (expandedId !== null). Scrolling with nothing
   // open never needs this (there's no tall detail panel that could ever
   // need to reach the top of the screen), so the padding stays at its
   // normal, small, floating-button-clearing size the rest of the time --
   // no new empty-space-at-the-bottom complaint traded in for the fix.
-  const scrollExtraBottomPadding = expandedId !== null ? scrollBottomPadding + windowHeight : scrollBottomPadding;
+  // Memoized (both the number and the style array below) rather than a
+  // plain per-render expression, precisely because an unmemoized version of
+  // this was the real cause of the 2026-08-09 keyboard-lag regression --
+  // see EXPANDED_EXTRA_SCROLL_PADDING's own comment for the full story.
+  const scrollExtraBottomPadding = useMemo(
+    () => (expandedId !== null ? scrollBottomPadding + EXPANDED_EXTRA_SCROLL_PADDING : scrollBottomPadding),
+    [expandedId, scrollBottomPadding],
+  );
+  const scrollContentContainerStyle = useMemo(
+    () => [styles.bodyContent, { paddingBottom: scrollExtraBottomPadding }],
+    [scrollExtraBottomPadding],
+  );
 
   // Which real DigestCategoryKeys correspond to a condition the person has
   // actually told the app they have -- see CONDITION_CODE_TO_DIGEST_KEY's
@@ -1437,7 +1477,7 @@ export default function PurpleDigestScreen() {
             <ScrollView
               ref={scrollRef}
               style={styles.body}
-              contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollExtraBottomPadding }]}
+              contentContainerStyle={scrollContentContainerStyle}
               onScroll={(event) => {
                 currentScrollY.current = event.nativeEvent.contentOffset.y;
               }}
