@@ -1,13 +1,13 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Ionicons } from '@expo/vector-icons';
-import { Linking, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
+import { Linking, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
 import { GatedTabContent } from '../../components/GatedTabContent';
-import type { HelpSection } from '../../components/HelpButton';
+import { HelpSheet, type HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
@@ -132,6 +132,31 @@ const DIGEST_SEARCH_HELP: HelpSection[] = [
   {
     heading: 'Reading a result\'s own match info',
     body: 'Typing more than one word searches for each of them independently, not the exact phrase -- a result can match one, some, or all of them. The "X of Y search terms matched" line and the small pills below it show exactly which ones did: a filled pill means that word appeared in the entry\'s own title (the strongest kind of match), an outlined pill means it only showed up in the body or a citation, and a dim pill means that particular word never appeared in this entry at all.',
+  },
+];
+
+// A small, standalone (i) icon 2026-08-09, direct request, sitting above
+// the search box next to the breadcrumb -- deliberately NOT folded into
+// DIGEST_SEARCH_HELP above, which is a different, harder-to-reach thing:
+// that only surfaces via LensHub's own Info tile, and only while sitting on
+// the 'search' lens specifically. The little match dots this explains show
+// up in EVERY category's own scoped search too, not just Search All, so
+// this needs to be reachable from anywhere someone's actually searching,
+// not gated behind picking one particular lens first. Uses its own local
+// HelpSheet (see the JSX below) rather than useRegisterScreenHelp's single
+// per-screen registration, for the same reason.
+const SEARCH_MATCH_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'How the ranking works',
+    body: 'Typing more than one word searches for each of them independently, not the exact phrase you typed -- an entry does not need to match every word to show up, and does not need to match them in the order you typed them either. Each entry earns a real score from how many of your words it matches and where: a word matching the entry\'s own title counts three times as much as a word that only shows up in its body text or a citation. Results are then ranked highest-score-first, so an entry genuinely about what you searched for rises above one that only mentions it in passing.',
+  },
+  {
+    heading: 'What the dots mean',
+    body: 'Each small dot stands for one of the words you typed, in the order you typed them, showing how that specific word did against that specific entry. A solid purple dot means that word matched the entry\'s own title -- the strongest kind of match. An outlined purple dot means it matched somewhere in the entry\'s body or a citation, but not its title. A solid grey dot means that word did not match this entry at all.',
+  },
+  {
+    heading: 'In Search All\'s own results',
+    body: 'The dots are the compact version, used in every category\'s own scoped search. Search All\'s own full result list shows the identical information as text pills instead -- the same three colors and the same meaning, just spelling out which actual word each one is, plus a line reading how many of your words matched overall.',
   },
 ];
 
@@ -920,6 +945,11 @@ export default function PurpleDigestScreen() {
   // within whichever category is showing -- at most one open at a time,
   // same "tap again to collapse" accordion shape as Insights' own SixDsView.
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  // The small "how does search matching work" sheet, opened via the (i)
+  // icon next to the breadcrumb -- see SEARCH_MATCH_HELP_SECTIONS' own
+  // comment for why this is a local HelpSheet rather than folded into the
+  // screen's usual useRegisterScreenHelp registration.
+  const [searchMatchHelpVisible, setSearchMatchHelpVisible] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
   // A real ref to each rendered shelf GROUP's own outer container (keyed by
   // group label -- Basic Health's own by-topic label, or a condition's own
@@ -1442,28 +1472,46 @@ export default function PurpleDigestScreen() {
                   already lands you on the right category's own main page too
                   (see jumpToRelated) -- this is the equivalent for backing
                   out without picking a result. */}
-              {isSearchActive ? (
-                <TouchableOpacity
-                  style={styles.backToHomeRow}
-                  onPress={clearSearch}
+              {/* 2026-08-09, direct request: a small (i) icon "above the
+                  search bar to the right of the breadcrumb" explaining the
+                  multi-word search scoring and what the little match dots'
+                  three colors mean. The breadcrumb link itself used to BE
+                  this whole row (a single TouchableOpacity); now it's the
+                  left side of a real row, with this icon as its own,
+                  separate tap target on the right -- SEARCH_MATCH_HELP_
+                  SECTIONS/searchMatchHelpVisible above own the actual
+                  content and open state. */}
+              <View style={styles.breadcrumbRow}>
+                {isSearchActive ? (
+                  <TouchableOpacity
+                    onPress={clearSearch}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Clear search, back to ${activeLensLabel}`}
+                  >
+                    <Text style={styles.backToHomeText}>‹ Clear search</Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    onPress={() => {
+                      setRevealed(false);
+                      setTimeout(() => setOpenTrigger(`back-${Date.now()}`), TAB_REVEAL_DURATION_MS);
+                    }}
+                    accessibilityRole="button"
+                    accessibilityLabel="Back to Digest home, choose another topic"
+                  >
+                    <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
+                  </TouchableOpacity>
+                )}
+
+                <Pressable
+                  onPress={() => setSearchMatchHelpVisible(true)}
+                  hitSlop={10}
                   accessibilityRole="button"
-                  accessibilityLabel={`Clear search, back to ${activeLensLabel}`}
+                  accessibilityLabel="How search matching and the match dots work"
                 >
-                  <Text style={styles.backToHomeText}>‹ Clear search</Text>
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  style={styles.backToHomeRow}
-                  onPress={() => {
-                    setRevealed(false);
-                    setTimeout(() => setOpenTrigger(`back-${Date.now()}`), TAB_REVEAL_DURATION_MS);
-                  }}
-                  accessibilityRole="button"
-                  accessibilityLabel="Back to Digest home, choose another topic"
-                >
-                  <Text style={styles.backToHomeText}>‹ Back to Digest</Text>
-                </TouchableOpacity>
-              )}
+                  <Ionicons name="information-circle-outline" size={22} color={TAB_COLOR} />
+                </Pressable>
+              </View>
 
               <DigestSearchInput
                 key={searchResetKey}
@@ -1473,6 +1521,13 @@ export default function PurpleDigestScreen() {
                 onActiveChange={handleSearchActiveChange}
               />
             </View>
+
+            <HelpSheet
+              visible={searchMatchHelpVisible}
+              onClose={() => setSearchMatchHelpVisible(false)}
+              pageTitle="Search Matching"
+              sections={SEARCH_MATCH_HELP_SECTIONS}
+            />
 
             <ScrollView
               ref={scrollRef}
@@ -2518,11 +2573,14 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
-  // The "‹ Back to Digest" escape hatch -- see its own JSX comment above
-  // headerCard for what it does. Plain text, not another bordered card, so
-  // it reads as a lightweight navigation control rather than competing
-  // with headerCard's own real page-identity content directly below it.
-  backToHomeRow: { marginBottom: 10 },
+  // The row the "‹ Back to Digest"/"‹ Clear search" link and the new (i)
+  // match-help icon share -- 2026-08-09, the link used to BE this whole
+  // row on its own; now it's the left side, with the icon as a second,
+  // separate tap target on the right.
+  breadcrumbRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
+  // Plain text, not another bordered card, so it reads as a lightweight
+  // navigation control rather than competing with headerCard's own real
+  // page-identity content directly below it.
   backToHomeText: { ...typography.body, color: TAB_COLOR, fontWeight: '600' },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
