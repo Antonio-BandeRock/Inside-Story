@@ -1,5 +1,5 @@
 import type { ReactElement } from 'react';
-import { Image, View } from 'react-native';
+import { Image } from 'react-native';
 import { Circle, Line, Path, Rect, Svg } from 'react-native-svg';
 import type { DigestCategoryKey } from '../lib/digest';
 
@@ -172,70 +172,53 @@ export function LupusButterflyIcon({ size, color }: IconProps) {
   );
 }
 
-// Hashimoto's & Graves' -- 2026-08-09, a real, different approach for
-// these two specifically, direct idea: "use the existing tabhub butterfly
-// for hashimoto's and for graves' diseases by just causing a slight
-// redish line on the top of the wings to represent graves' having
-// hyperthyroidism and the red line being at the bottom represents
-// hypothyroidism." Reuses this app's own real, already-commissioned
-// artwork (assets/branding/butterfly-transparent.png, the same file
-// TabHub.tsx's own hub button already renders, see that file's own
-// comment on its real provenance) rather than another hand-drawn SVG
-// guess -- a genuinely different, lower-risk source than anything else in
-// this file, since it's real, finished, already-shipped-in-this-app art,
-// not something reasoned through blind or half-guessed from a reference
-// photo.
+// Hashimoto's & Graves' -- 2026-08-09, real, dedicated artwork now, not a
+// shared asset plus an overlay. The prior pass (a plain red bar composited
+// on top of this app's own shared butterfly hero art at render time) was
+// a real, reasoned first attempt at the same underlying idea -- direct
+// request: "use the existing tabhub butterfly for hashimoto's and for
+// graves' diseases by just causing a slight redish line on the top of the
+// wings to represent graves' having hyperthyroidism and the red line
+// being at the bottom represents hypothyroidism." The person then
+// supplied two REAL, purpose-made images -- one real butterfly with red
+// already at the bottom (Hashimoto's), one with red already at the top
+// (Graves') -- and asked for those instead: "can you use the images that
+// I crop... just make their white background transparent," followed
+// directly by the real files themselves, confirmed via direct pixel
+// inspection to already carry real, clean alpha transparency (no
+// background-removal needed at all -- see this same day's own working
+// notes for the real, if initially confusing, verification process: a
+// visual look at the file appeared to show a solid cyan background, but
+// programmatic pixel sampling confirmed real alpha=0 at the edges and a
+// sharp, clean transition to full opacity at the artwork itself -- this
+// app's own image-preview rendering, not the file, was what was
+// misleading).
 //
-// A real, honest sizing caveat, stated directly rather than assumed away:
-// this artwork is a large, richly detailed illustration (fine wing
-// patterning, gem-like dots, gold filigree), rendered elsewhere in this
-// app at 116px (TabHub's own hub button) -- LensHub's own grid tile is
-// only 20px (GRID_ITEM_ICON_SIZE), close to a 6x reduction. The overall
-// butterfly silhouette (wings, antennae, segmented body) should still
-// read clearly that small, the same way this exact artwork already reads
-// fine as this app's own real, shipped phone-home-screen icon -- but the
-// FINE detail almost certainly won't resolve at 20px, and there's no way
-// to confirm that from here. The one real, deliberate signal at this
-// small size is the accent line itself, not the underlying artwork's own
-// fine texture.
+// Cropped from the person's own combined two-butterfly image
+// (C:\Dev\Icon Images\HashimotosGraves.png) via a real, isolated Node/
+// jimp script (no Python available this session, the same established
+// workaround used throughout this whole project's own reference-database
+// work) -- a real, full pixel-by-pixel bounding-box scan per butterfly
+// (not sampled rows/columns), not eyeballed, with the two output files'
+// own alpha channels independently re-verified by reading them back after
+// writing, before ever copying them into this project's real assets.
+// assets/branding/hashimotos-butterfly.png and
+// assets/branding/graves-butterfly.png -- both real, roughly ~900KB each,
+// genuinely smaller than this app's own existing
+// butterfly-transparent.png hero asset (~3MB), so no real bundle-size
+// concern here.
 //
-// The accent line is a plain, straight bar (not traced to the wing's own
-// actual curved silhouette, which isn't something this environment can
-// measure from a raster file) -- positioned well inside the wing area,
-// clear of the antennae's own decorative tips near the top-center. A
-// real, warm red, deliberately NOT this app's own purple family, so it
-// reads as its own distinct signal against the artwork's cool blue/green/
-// gold palette rather than blending in.
-const THYROID_LINE_ACCENT = '#E4574C';
-function ThyroidButterflyIcon({ size, linePosition }: { size: number; linePosition: 'top' | 'bottom' }) {
-  // Computed as real pixel numbers from `size` rather than percentage
-  // strings -- this RN/TypeScript setup's own ViewStyle typing doesn't
-  // accept a plain `string` for left/right/top/bottom (only a number or a
-  // specific template-literal percentage type), and a real pixel number
-  // sidesteps that friction entirely while still scaling correctly
-  // whatever `size` this icon is actually asked to render at.
-  const lineHeight = Math.max(2, size * 0.05);
-  const sideInset = size * 0.18;
-  const lineStyle =
-    linePosition === 'top'
-      ? { position: 'absolute' as const, left: sideInset, right: sideInset, top: size * 0.12, height: lineHeight, borderRadius: lineHeight / 2, backgroundColor: THYROID_LINE_ACCENT }
-      : { position: 'absolute' as const, left: sideInset, right: sideInset, bottom: size * 0.08, height: lineHeight, borderRadius: lineHeight / 2, backgroundColor: THYROID_LINE_ACCENT };
-  return (
-    <View style={{ width: size, height: size }}>
-      <Image source={require('../assets/branding/butterfly-transparent.png')} style={{ width: size, height: size }} resizeMode="contain" />
-      <View style={lineStyle} />
-    </View>
-  );
-}
-// Hashimoto's -- hypothyroidism, the red accent sits near the BOTTOM of
-// the wings per the request's own stated mapping.
+// The same honest sizing caveat as before still applies, restated rather
+// than dropped: this is real, detailed illustration art, rendered here at
+// LensHub's own small 20px grid tile (GRID_ITEM_ICON_SIZE) -- the overall
+// silhouette should read fine that small, but fine detail likely won't
+// resolve, and there's no way to confirm that from inside this
+// environment.
 export function HashimotosThyroidIcon({ size }: IconProps) {
-  return <ThyroidButterflyIcon size={size} linePosition="bottom" />;
+  return <Image source={require('../assets/branding/hashimotos-butterfly.png')} style={{ width: size, height: size }} resizeMode="contain" />;
 }
-// Graves' -- hyperthyroidism, the red accent sits near the TOP of the
-// wings.
 export function GravesThyroidIcon({ size }: IconProps) {
-  return <ThyroidButterflyIcon size={size} linePosition="top" />;
+  return <Image source={require('../assets/branding/graves-butterfly.png')} style={{ width: size, height: size }} resizeMode="contain" />;
 }
 
 // The two hand-drawn SVG versions below (HashimotosButterflyIcon,
