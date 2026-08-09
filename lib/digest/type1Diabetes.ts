@@ -396,4 +396,27 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-overview', 'type1-jdrf-presymptomatic-staging'],
   },
+  {
+    id: 'type1-global-sardinia-second-hotspot',
+    category: 'type1Diabetes',
+    title: "Sardinia Is the World's Real, Second-Highest T1D Hotspot, and It's Rising, Not Plateauing Like Finland's",
+    teaser: "This Mediterranean Italian island carries the world's second-highest Type 1 diabetes incidence after Finland, driven by a genuinely different genetic profile, and its own rate has nearly doubled in the last 20 years.",
+    summary:
+      "This category's own already-covered Finland research isn't the only real T1D hotspot worth knowing about. Sardinia, a Mediterranean island belonging to Italy, carries the world's real, second-highest Type 1 diabetes incidence (45 per 100,000), directly behind Finland's 64.2 per 100,000, and unlike Finland's own real, plateauing incidence (already covered as tied to rising vitamin D levels), Sardinia's own incidence has nearly doubled over the last 20 years and, by some more recent measures, may now be the world's actual highest. The real, distinct explanation: Sardinia's own genetic background is different from Finland's, carrying a real, high frequency of a specific predisposing genetic marker (HLA-DR3-B18) that isn't the same one driving Finland's own elevated risk, real, direct evidence that more than one distinct genetic pathway can independently produce very high real T1D risk in different, genetically isolated populations. Sardinia's own real, distinct Mediterranean climate and diet also rule out the most obvious environmental explanations already covered for Finland (rapid modernization, high-latitude vitamin D scarcity), making it a genuinely separate real research puzzle, not just a smaller copy of Finland's own story. Worth knowing directly: T1D's own highest-risk populations worldwide aren't one single story, they're at least two real, independently-arising genetic and environmental combinations landing on a similarly extreme result.",
+    chart: {
+      title: 'Type 1 diabetes incidence: Finland vs. Sardinia',
+      unit: 'per 100,000/year',
+      data: [
+        { label: 'Finland (childhood incidence)', value: 64.2 },
+        { label: 'Sardinia (childhood incidence)', value: 45 },
+      ],
+      sourceNote: 'Type 1 diabetes in Sardinia: facts and hypotheses in the context of worldwide epidemiological data, Acta Diabetologica',
+    },
+    citations: [
+      { source: 'Type 1 diabetes in Sardinia: facts and hypotheses in the context of worldwide epidemiological data, Acta Diabetologica', url: 'https://link.springer.com/article/10.1007/s00592-016-0909-2' },
+      { source: 'Incidence of type 1 diabetes in Sardinian children aged 0-14 years has almost doubled in the last twenty years', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0168822724006600' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-global-finland-highest-world'],
+  },
 ];

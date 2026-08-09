@@ -384,4 +384,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-overview', 'lupus-nephritis-monitoring'],
   },
+  {
+    id: 'lupus-global-silica-occupational-clusters',
+    category: 'lupus',
+    title: 'A Real, Documented Workplace Exposure Raises Lupus Risk Independent of Ethnicity or Region',
+    teaser: 'Real, multiple US population studies found occupational crystalline silica dust exposure directly linked to elevated lupus risk, with longer exposure tracking with greater real risk.',
+    summary:
+      "This category's own already-covered ethnicity and severity research explains much of lupus's real geographic variation; a real, separate, occupational factor adds another layer that cuts across region and ancestry alike. Multiple real, population-based case-control studies in the United States, including a real study across 60 contiguous counties in the southeastern US and a separate real study focused on urban, predominantly African American neighborhoods in Boston, both found occupational exposure to crystalline silica dust (a real, common exposure in mining, construction, sandblasting, and similar industrial work) directly linked to increased lupus risk. The real, proposed mechanism: crystalline silica appears to act as a real immune adjuvant, meaning it directly amplifies inflammation and antibody production rather than simply irritating tissue, and real research finds a longer duration of silica exposure tracking with a real, greater lupus risk, a genuine dose-response relationship. Worth knowing directly: this is a real, occupational risk factor that exists independent of the ethnicity-driven risk already covered elsewhere in this category, meaning someone's own real, individual job history (mining, construction, sandblasting, and similar industrial silica-dust-generating work) is worth naming directly to a doctor alongside family history and ancestry when thinking through personal lupus risk, a real, modifiable exposure in a category where most other real risk factors already covered aren't.",
+    citations: [
+      { source: 'Occupational exposure to crystalline silica and risk of systemic lupus erythematosus: a population-based, case-control study in the southeastern United States, PMID 12124868', url: 'https://pubmed.ncbi.nlm.nih.gov/12124868/' },
+      { source: 'Occupational exposure to crystalline silica and autoimmune disease, PMC1566238', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC1566238/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-global-ethnicity-severity'],
+  },
 ];

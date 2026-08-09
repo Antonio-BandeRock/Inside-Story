@@ -367,4 +367,50 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-overview', 'masld-global-regional-prevalence-genetics'],
   },
+  {
+    id: 'type2-microvascular-complications-screening',
+    category: 'type2Diabetes',
+    title: 'A Real, Substantial Share of Type 2 Diabetes Complications Are Already Present at the Moment of Diagnosis',
+    teaser: 'A real, 77,681-person Swedish registry found 17.2% of people already had diabetic retinopathy at the moment of their Type 2 diabetes diagnosis, real evidence the disease was often present, undetected, for years beforehand.',
+    summary:
+      "Type 2 diabetes's own real, gradual, often-symptomless onset (already covered in this category's own prediabetes-progression research) has a real, concrete consequence worth knowing directly: a substantial share of people already have measurable complication damage by the time they're diagnosed. A real, large Swedish national registry study of 77,681 newly diagnosed people found 17.2% already had diabetic retinopathy (damage to the light-sensitive tissue in the eye) at diagnosis, and a real Scottish study found a similar 19.3% prevalence at first screening. Nerve damage (diabetic neuropathy) was present in a real 8.2% of newly diagnosed patients in a separate study, lower than retinopathy but still a real, meaningful share. The real, practical, actionable finding underneath this: among people whose diabetes was caught through routine screening rather than after symptoms prompted a doctor visit, only 22% already had retinopathy, compared with 51% among those diagnosed only after symptoms led them to seek care, real, direct evidence that regular screening genuinely catches Type 2 diabetes earlier, before as much silent damage accumulates. Worth knowing directly: real, current diabetes-care standards recommend an eye exam and a foot/nerve exam at the time of diagnosis, not months or years later, specifically because real data shows this damage can already be present from day one.",
+    chart: {
+      title: 'Diabetic complications present at Type 2 diagnosis',
+      unit: '%',
+      data: [
+        { label: 'Retinopathy (screening-detected diagnosis)', value: 22 },
+        { label: 'Retinopathy (symptom-detected diagnosis)', value: 51 },
+        { label: 'Neuropathy (overall, newly diagnosed)', value: 8.2 },
+      ],
+      sourceNote: 'Prevalence and risk factors for diabetic retinopathy at diagnosis of type 2 diabetes, Swedish National Diabetes Registry, PMC11163631; Early Screening for Diabetic Retinopathy, PMC9094682',
+    },
+    citations: [
+      { source: 'Prevalence and risk factors for diabetic retinopathy at diagnosis of type 2 diabetes: Swedish National Diabetes Registry, PMC11163631', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11163631/' },
+      { source: 'Microvascular Complications and Their Associated Risk Factors in Newly Diagnosed Type 2 Diabetes Mellitus Patients, PMC4590918', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4590918/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-screening-at-diagnosis', 'type2-prediabetes-real-progression'],
+  },
+  {
+    id: 'type2-global-china-india-absolute-burden',
+    category: 'type2Diabetes',
+    title: 'China and India Together Carry the Largest Absolute Number of People With Diabetes on Earth',
+    teaser: "This category's own already-covered Nauru research shows the highest per-capita rate; China and India instead show the largest real, absolute number of people affected, over 140 million and nearly 90 million respectively.",
+    summary:
+      "This category's own already-covered Nauru entry tells a real per-capita story, roughly half of one small island's population affected. China and India tell a real, different kind of story: sheer scale. Real IDF Diabetes Atlas data finds China carrying the world's largest absolute number of people with diabetes, over 140 million in 2021, projected to exceed 174 million by 2045, with India close behind at nearly 90 million adults, accounting for roughly 1 in every 7 adults with diabetes worldwide. A real, further complication: over half of everyone with UNDIAGNOSED diabetes globally lives in just three countries, China, India, and Indonesia, meaning the true scale in these countries is likely even larger than the already-enormous confirmed numbers. Real projections show India's own diabetes population rising a further 75% by 2050. Worth knowing directly: this is a genuinely different, complementary real statistic to Nauru's own per-capita story, rather than one country having the 'worst' diabetes problem, real global diabetes burden concentrates differently depending on whether the real question is which population is proportionally hit hardest (Nauru, the Pacific Islands) or where the largest real, absolute number of affected people actually live (China, India), both real, true, and worth knowing for a genuinely global picture of this disease.",
+    chart: {
+      title: 'People with diabetes, absolute numbers (2021)',
+      unit: 'million people',
+      data: [
+        { label: 'China', value: 140 },
+        { label: 'India', value: 89.8 },
+      ],
+      sourceNote: 'IDF Diabetes Atlas: Global, regional and country-level diabetes prevalence estimates for 2021, PMC11057359',
+    },
+    citations: [
+      { source: 'IDF Diabetes Atlas: Global, regional and country-level diabetes prevalence estimates for 2021 and projections for 2045, PMC11057359', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11057359/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-global-nauru-pacific-thrifty-gene'],
+  },
 ];

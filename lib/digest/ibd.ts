@@ -386,4 +386,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-overview', 'ibd-hygiene-hypothesis-early-life'],
   },
+  {
+    id: 'ibd-global-second-generation-migrants',
+    category: 'ibd',
+    title: 'A Real, Striking Study Found Second-Generation Immigrants Picking Up Their New Country\'s Own IBD Risk',
+    teaser: "Real UK data found second-generation South Asian immigrants developing ulcerative colitis at rates matching the UK-born population, despite South Asia's own real, much lower native rates, direct evidence environment can override a whole generation's original low risk.",
+    summary:
+      "This category's own already-covered westernization research explains why IBD is rising in newly industrializing countries; a real, separate migrant study shows the same real mechanism playing out within a single family across two generations. A real British study of ulcerative colitis patients found second-generation South Asian immigrants (people born in the UK to South Asian immigrant parents) developing UC at rates that closely matched the UK's own Caucasian population, a real, striking finding given South Asia's own native IBD rates run substantially lower, already covered elsewhere in this category. This wasn't unique to the UK: real research found the same real pattern in Canada, individuals migrating from a low-prevalence region like South Asia to a high-prevalence country show a real, elevated IBD risk that continues rising across the first AND second generation, evidence this isn't simply about an individual adult adopting a new diet, but about a whole new environment (diet, hygiene, gut microbiome exposure from birth) reshaping risk across a generation raised entirely in the new setting. Worth knowing directly: this is real, some of the strongest evidence anywhere that IBD risk is genuinely, substantially environmental rather than fixed by ancestry, a family's own real IBD risk can shift to match a new home country within a single generation, not slowly over many.",
+    citations: [
+      { source: 'Inflammatory bowel disease and the South Asian diaspora, PMC6788368', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6788368/' },
+      { source: 'Migratory Movements and the Risk of Inflammatory Bowel Disease, World Gastroenterology Organisation', url: 'https://www.worldgastroenterology.org/publications/e-wgn/e-wgn-expert-point-of-view-articles-collection/migratory-movements-and-the-risk-of-ibd' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-global-westernization-asia-rising'],
+  },
 ];

@@ -387,4 +387,41 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-overview'],
   },
+  {
+    id: 'ra-window-of-opportunity-early-treatment',
+    category: 'rheumatoidArthritis',
+    title: "RA Has a Real, Named 'Window of Opportunity' Where the Same Treatment Works Better",
+    teaser: 'Real, multiple randomized trials find starting RA treatment within the first few months of symptoms produces measurably less joint damage and better function than the identical treatment started later.',
+    summary:
+      "This category's own already-covered treat-to-target strategy works better, real research finds, the sooner it starts. Rheumatology has a real, widely accepted concept called the 'therapeutic window of opportunity,' a real, time-limited period early in RA's course when the disease appears genuinely more responsive to treatment, with the potential to reset its whole long-term trajectory rather than just slow an already-established course. Real evidence backs this directly: people treated within roughly 3 months of symptom onset have measurably better outcomes than those treated later, and multiple real randomized controlled trials found earlier DMARD (disease-modifying antirheumatic drug) treatment produced significantly less joint damage on X-ray and better long-term physical function than the identical treatment started just 6 to 12 months later. Worth knowing directly, and genuinely actionable: real-world data finds that actually seizing this window often depends less on the disease itself and more on how fast someone gets to a rheumatologist in the first place, meaning a real, practical priority for anyone with new, persistent joint pain and swelling is pushing for a prompt referral and diagnosis, not waiting to see if it resolves on its own, since real evidence suggests the same eventual treatment plan works measurably better started early than started late.",
+    citations: [
+      { source: 'Window of opportunity in rheumatoid arthritis, PMC6525606', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6525606/' },
+      { source: 'Do it fast! Early access to specialized care improved long-term outcomes in rheumatoid arthritis, Advances in Rheumatology', url: 'https://link.springer.com/article/10.1186/s42358-023-00301-7' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-treat-to-target-remission'],
+  },
+  {
+    id: 'ra-global-biologic-access-disparity',
+    category: 'rheumatoidArthritis',
+    title: "This Category's Own Biologic Research Reaches a Real, Vastly Uneven Share of the World's RA Patients",
+    teaser: 'Real, international data finds biologic medication use tracking directly with a country\'s development level, from just 2.7% of RA patients in low-development countries up to 38.8% in the wealthiest ones.',
+    summary:
+      "This category's own already-covered biologic research (the real infection-risk cautions, the real periodontal/cardiovascular connections) assumes access to these medications in the first place, and real, international data finds that access itself varies enormously by country. A real, international cohort study found biologic and targeted-DMARD usage correlating directly with a country's Human Development Index, ranging from just 2.7% of RA patients in low-HDI countries up to 38.8% in very-high-HDI countries, a real, roughly fourteenfold gap that held up even after adjusting for disease severity and other patient-level factors. The real, structural reason: in roughly half of countries studied, public health systems cover biologic DMARDs for fewer than 10% of patients, driven by real, high medication costs relative to average income, alongside real regulatory and market barriers specific to lower-income health systems. Worth knowing directly: RA's own real disease biology and treatment research doesn't change by country, but whether a given person can actually access the treatments this category already covers in depth often does, a real, structural gap in outcomes that has nothing to do with how well RA itself responds to treatment.",
+    chart: {
+      title: 'Biologic medication use in RA, by country development level',
+      unit: '%',
+      data: [
+        { label: 'Low-HDI countries', value: 2.7 },
+        { label: 'Very-high-HDI countries', value: 38.8 },
+      ],
+      sourceNote: 'International COVAD-2 cohort, global inequities in biologic and targeted DMARD use in rheumatoid arthritis',
+    },
+    citations: [
+      { source: 'Global inequities in biologic and targeted DMARD use in rheumatoid arthritis: cross-sectional data from the international COVAD-2 cohort, PMID 42126605', url: 'https://pubmed.ncbi.nlm.nih.gov/42126605/' },
+      { source: 'Rheumatoid arthritis worldwide: inequalities in epidemiology and care, Moldovan Journal of Health Sciences', url: 'https://mjhs.md/article/rheumatoid-arthritis-worldwide-inequalities-epidemiology-and-care' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-biologics-infection-risk', 'ra-global-indigenous-prevalence'],
+  },
 ];

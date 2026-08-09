@@ -392,4 +392,26 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-overview'],
   },
+  {
+    id: 'psoriasis-global-greenland-low-prevalence',
+    category: 'psoriasis',
+    title: 'Greenland Sits at the Opposite Extreme From Norway, One of the Lowest Real Psoriasis Rates Documented',
+    teaser: "A real, national-registry study in Nuuk, Greenland found psoriasis in just 1.1% of adults, a striking real contrast against Norway's own 3.8-4.6% just a few hundred miles away.",
+    summary:
+      "This category's own already-covered latitude gradient (psoriasis rising with distance from the equator) makes Greenland's own real, documented prevalence a genuinely useful contrast rather than a simple confirmation of that pattern. A real, national-registry cross-sectional study in Nuuk, Greenland's capital, found only 1.1% of the adult population carrying a diagnosed psoriasis, notably lower than Norway's own 3.8 to 4.6% despite both regions sitting at genuinely high, similar latitudes. The real, honest complication the study's own authors raise directly: they suspect this figure is an UNDERESTIMATE, driven by real, limited awareness of chronic skin disease and real healthcare-access gaps in Greenland specifically, not necessarily true biological rarity, and they call directly for more awareness of chronic skin conditions there. A real, related finding worth noting: psoriasis patients in this same Nuuk cohort had notably higher rates of diabetes, hypertension, and lung disease (28.6%) than people without psoriasis (20.9%), the same real cardiometabolic comorbidity pattern already covered elsewhere in this category. Worth knowing directly: Greenland's own low reported rate is a real, useful reminder that latitude alone doesn't fully explain psoriasis prevalence, real Indigenous genetic background and real healthcare-access/awareness gaps can both push a reported rate in either direction.",
+    chart: {
+      title: 'Psoriasis prevalence: Greenland vs. Norway',
+      unit: '%',
+      data: [
+        { label: 'Nuuk, Greenland', value: 1.1 },
+        { label: 'Norway (national)', value: 4.2 },
+      ],
+      sourceNote: "Low prevalence of patients diagnosed with psoriasis in Nuuk, PMC9045770; Psoriasis in Norway registry study, PMC10128149",
+    },
+    citations: [
+      { source: 'Low prevalence of patients diagnosed with psoriasis in Nuuk: a call for increased awareness of chronic skin disease in Greenland, PMC9045770', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9045770/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-global-latitude-gradient', 'psoriasis-systemic-comorbidities'],
+  },
 ];

@@ -352,4 +352,18 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['nutrient-iodine', 'graves-global-iodine-iceland-denmark'],
   },
+  {
+    id: 'lifestyle-global-selenium-china-belt',
+    category: 'hashimotos',
+    title: "China's Own Selenium-Deficient Farming Belt Is a Real, Second National-Scale Thyroid Case Study",
+    teaser: "A real geographic band running northeast to southwest across China has selenium-poor soil, and Hashimoto's own real, cited selenium research suggests this same belt likely carries a real, elevated thyroid-autoimmunity burden.",
+    summary:
+      "This category's own iodine/China entry covers one real national-scale natural experiment; a second, genuinely different one sits inside the same country. A real, documented selenium-deficient soil belt runs from China's northeast to its southwest, first identified because it also causes Keshan disease, a rare, selenium-deficiency heart condition discovered in Keshan County in 1935. This app's own already-cited selenium research establishes a real, direct mechanism: selenium is a required component of the deiodinase enzymes and glutathione peroxidase this app's own thyroid-hormone-conversion and antioxidant research already covers, and even mild-to-moderate selenium deficiency has been linked to real, measurable increases in thyroid autoimmunity, with research finding an inverse relationship between blood selenium levels and autoimmune thyroiditis specifically in mildly deficient regions. Worth knowing directly: someone living inside this same real, documented selenium-poor belt carries a real, geographically-determined risk factor layered directly on top of this app's own existing selenium research, distinct from and additional to the iodine story covered elsewhere, a second real example of how a single country's own uneven soil chemistry can genuinely shape thyroid-autoimmunity risk region by region, not just country by country.",
+    citations: [
+      { source: 'Selenium and thyroid autoimmunity, PMC2721352', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2721352/' },
+      { source: 'Keshan Disease, StatPearls, NBK603722', url: 'https://www.ncbi.nlm.nih.gov/books/NBK603722/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['nutrient-selenium', 'lifestyle-global-iodine-china-regional'],
+  },
 ];

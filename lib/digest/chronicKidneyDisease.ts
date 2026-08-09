@@ -370,4 +370,52 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-overview'],
   },
+  {
+    id: 'ckd-transplant-survival-benefit',
+    category: 'chronicKidneyDisease',
+    title: 'A Kidney Transplant Isn\'t Just a Convenience Over Dialysis, It\'s a Real, Large Survival Advantage',
+    teaser: 'Real, matched data finds kidney transplant recipients living measurably longer than people on dialysis, a real, roughly 55% lower mortality risk once the first several months pass.',
+    summary:
+      "For advanced kidney failure, dialysis and transplant are often framed as two roughly equal ways to manage the same disease. Real, matched survival data says otherwise. A real analysis pooling multiple studies found kidney transplantation carrying a hazard ratio of 0.45 against dialysis, meaning a real, roughly 55% lower risk of death, and direct, matched comparisons confirm it in concrete numbers: 92% of transplant recipients were alive at 5 years and 87% at 10 years, against 88% and 74% for closely matched dialysis patients over the same periods. The real, honest complication worth knowing: this benefit isn't immediate. In the first months after surgery, transplant recipients actually face a real, higher short-term mortality risk than dialysis patients, driven mainly by infection risk from the immune-suppressing medications transplant requires, before the survival curves cross and transplant's real, large advantage takes over, typically becoming clearly apparent by around 9 months out. The benefit is real even in older adults, one real study of patients over 70 found 38% lower mortality and 80% five-year survival for transplant recipients versus 53% for those who stayed on dialysis. Worth knowing directly: this is real, concrete evidence for anyone evaluating their own treatment options as CKD progresses toward kidney failure, transplant, where medically eligible, carries a real, substantial survival advantage over remaining on dialysis long-term, not just a lifestyle preference.",
+    chart: {
+      title: 'Survival: kidney transplant vs. dialysis',
+      unit: '%',
+      data: [
+        { label: 'Transplant, 5-year survival', value: 92 },
+        { label: 'Dialysis, 5-year survival', value: 88 },
+        { label: 'Transplant, 10-year survival', value: 87 },
+        { label: 'Dialysis, 10-year survival', value: 74 },
+      ],
+      sourceNote: 'Propensity Score-Matched Analysis of the Survival Benefit from Kidney Transplantation, PMC6262546',
+    },
+    citations: [
+      { source: 'Propensity Score-Matched Analysis of the Survival Benefit from Kidney Transplantation in Patients with End-Stage Renal Disease, PMC6262546', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6262546/' },
+      { source: 'Survival after kidney transplantation compared with ongoing dialysis for people over 70 years of age, American Journal of Transplantation', url: 'https://www.amjtransplant.org/article/S1600-6135(23)00578-6/fulltext' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-egfr-acr-monitoring', 'ckd-dialysis-diet-reversal'],
+  },
+  {
+    id: 'ckd-global-dialysis-access-africa',
+    category: 'chronicKidneyDisease',
+    title: 'This Category\'s Own Real Transplant/Dialysis Research Assumes Access That Most of the World Doesn\'t Have',
+    teaser: 'Kidney replacement therapy access varies 200-fold between high-income regions and sub-Saharan Africa, where real data finds only about 10% of adults who reach dialysis are still receiving it three months later.',
+    summary:
+      "This category's own real, already-covered kidney-transplant-survival research assumes something not true for most of the world: real, reliable access to dialysis or transplant at all. Real, current global data finds 88% of people unable to access kidney replacement therapy live in Africa or Asia, and the real, documented gap in access itself runs a striking 200-fold between high-income regions and low-income regions like sub-Saharan Africa. The real, human cost of this gap is stark: in sub-Saharan Africa, only roughly 10% of adults (and 35% of children) who manage to start dialysis are still receiving it three months later, and most cases of kidney failure in the region likely go completely undiagnosed and untreated, real, documented near-certain mortality for a condition this app's own already-covered research treats as manageable. Real, structural causes include a severe shortage of nephrology specialists and dialysis capacity concentrated almost entirely in large cities, leaving rural populations effectively excluded, alongside real, catastrophic out-of-pocket costs relative to average income. Worth knowing directly: this app's own real CKD-management research (dialysis-diet reversal, transplant survival benefit, real monitoring schedules) is genuinely accurate advice, but it's advice built on an assumption of access that a real, large share of the world's population simply doesn't have.",
+    chart: {
+      title: 'Kidney replacement therapy access, by world region',
+      unit: 'relative scale (200x gap)',
+      data: [
+        { label: 'High-income regions', value: 200 },
+        { label: 'Sub-Saharan Africa', value: 1 },
+      ],
+      sourceNote: 'The major global burden of chronic kidney disease, The Lancet Global Health',
+    },
+    citations: [
+      { source: 'The major global burden of chronic kidney disease, The Lancet Global Health', url: 'https://www.thelancet.com/journals/langlo/article/PIIS2214-109X(24)00050-0/fulltext' },
+      { source: 'Factors affecting access to dialysis for patients with end-stage kidney disease in Sub-Saharan Africa, PMC10495707', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10495707/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-transplant-survival-benefit', 'ckd-egfr-acr-monitoring'],
+  },
 ];

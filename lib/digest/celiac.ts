@@ -378,4 +378,51 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-overview'],
   },
+  {
+    id: 'celiac-firstdegree-relative-screening',
+    category: 'celiac',
+    title: 'A Celiac Diagnosis Is a Real, Direct Reason to Screen the Rest of the Family',
+    teaser: 'Roughly 1 in 14 first-degree relatives of a celiac patient also has celiac disease, more than 10 times the general-population rate, and real guidelines recommend screening every one of them.',
+    summary:
+      "A celiac diagnosis in one family member is real, direct medical information about everyone else's own risk, not just that one person's. A real meta-analysis of 34 studies and roughly 10,000 first-degree relatives found celiac disease present in 11% by blood-antibody testing and 7% by biopsy confirmation, real numbers that translate to roughly 1 in 14 first-degree relatives (parents, siblings, children) also having the disease, with the highest real rates found among a patient's own daughters and sisters. This runs well above the general-population prevalence already covered elsewhere in this category. A real, genuinely important complication: an estimated 34% of these biopsy-confirmed relative cases were completely asymptomatic, meaning waiting for symptoms to prompt testing would miss a real, substantial share of them. Real guidance from the American College of Gastroenterology reflects this directly: every first-degree relative of a confirmed celiac patient should be screened, not just relatives who happen to report symptoms. Worth knowing directly: a real, documented gap exists between this guidance and everyday practice, one real study found physicians don't routinely recommend this screening to their patients' own family members, meaning the responsibility often falls on the diagnosed person to raise it directly rather than assume it will happen automatically.",
+    chart: {
+      title: 'Celiac prevalence: general population vs. first-degree relatives',
+      unit: '%',
+      data: [
+        { label: 'General population', value: 1 },
+        { label: 'First-degree relatives (biopsy-confirmed)', value: 7 },
+        { label: 'First-degree relatives (antibody-positive)', value: 11 },
+      ],
+      sourceNote: 'Meta-analysis of 34 studies, ~10,000 first-degree relatives; celiac.com / Gastroenterology Advisor coverage',
+    },
+    citations: [
+      { source: 'High Rates of Celiac Disease Among First-Degree Relatives, Celiac.com', url: 'https://www.celiac.com/celiac-disease/high-rates-of-celiac-disease-among-first-degree-relatives-r4906/' },
+      { source: 'Screening for celiac disease in 1st degree relatives: a 10-year follow-up study, PMC3941942', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3941942/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-diagnostic-panel', 'celiac-iceberg-underdiagnosis'],
+  },
+  {
+    id: 'celiac-global-italy-screening-vs-us',
+    category: 'celiac',
+    title: "Italy Now Mandates Nationwide Celiac Screening, and What It Found Confirms This App's Own Iceberg Research",
+    teaser: "Italy's own real, national mass-screening program found celiac disease in 1.6% of children, with only 40% of confirmed cases already diagnosed before the screening, real, direct proof of the underdiagnosis this app's own research already names.",
+    summary:
+      "This category's own already-covered celiac-iceberg research describes underdiagnosis in general terms; Italy's own real, national policy response gives it real, concrete numbers. In 2023, Italy became the first country in the world to pass a law (National Law 130/2023) mandating that every child between ages 1 and 17 be offered celiac disease screening, tested at ages 2, 6, and 10. The real, direct result confirmed exactly the underdiagnosis problem this app's own iceberg research already describes: a mass school-based screening program found celiac disease present in 1.6% of tested children, and only 40% of those confirmed cases had already been diagnosed before the screening caught them, meaning a real 60% of celiac cases in this specific population had been sitting completely undetected. The US, by contrast, has no equivalent national screening mandate, real estimates finding at least two-thirds of US celiac cases remain undiagnosed, and the US Preventive Services Task Force concluded in 2017 that the evidence was insufficient to even recommend for or against population screening. Worth knowing directly: Italy's own real, national experiment is direct, concrete evidence for what this app's own iceberg research already argues in the abstract, that most celiac disease genuinely hides beneath the surface until someone actually goes looking for it systematically.",
+    chart: {
+      title: "Italy's national celiac screening: already diagnosed vs. newly found",
+      unit: '%',
+      data: [
+        { label: 'Confirmed cases already diagnosed beforehand', value: 40 },
+        { label: 'Confirmed cases newly found by screening', value: 60 },
+      ],
+      sourceNote: "Should We All Copy Italy & Screen Kids for Celiac Disease?, Medscape; From Law to Action, Celiac Disease Foundation",
+    },
+    citations: [
+      { source: "Italy Tests Nationwide Screening to Catch Hidden Celiac Disease in Children, Celiac.com", url: 'https://www.celiac.com/celiac-disease/italy-tests-nationwide-screening-to-catch-hidden-celiac-disease-in-children-r7069' },
+      { source: "Should We All Copy Italy & Screen Kids for Celiac Disease?, Medscape", url: 'https://www.medscape.com/viewarticle/should-we-all-copy-italy-screen-kids-celiac-disease-2024a10009wv' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-iceberg-underdiagnosis', 'celiac-firstdegree-relative-screening'],
+  },
 ];

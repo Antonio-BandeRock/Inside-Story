@@ -384,4 +384,26 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-overview', 'gout-hla-b5801-screening'],
   },
+  {
+    id: 'gout-global-china-rising-westernization',
+    category: 'gout',
+    title: "Gout Is Rising Fast in China, and the Real Cause Traces Directly to Diet, Not Genetics This Time",
+    teaser: "China's own gout prevalence rose from 640.7 to 810.4 per 100,000 between 1990 and 2021, tracking directly with a real, documented shift toward meat, seafood, alcohol, and sugary drinks.",
+    summary:
+      "This category's own already-covered Oceania research explains gout risk driven mainly by real, inherited genetic variation. China's own real, rapidly rising gout rate tells a genuinely different kind of story, one driven mainly by real, fast dietary change. Real data finds gout prevalence in China rising from 640.7 to 810.4 cases per 100,000 between 1990 and 2021, with total case counts climbing from roughly 6 million to nearly 17 million over the same period. The real, documented driver: rapid dietary Westernization, a shift from a predominantly plant-based diet toward one genuinely higher in meat, seafood, alcohol, and sugar-sweetened beverages, the exact same real risk factors this category's own dietary research already covers in depth. Real research finds gout prevalence tracking directly with rising meat and seafood consumption specifically, and frequent alcohol use showing up substantially more often among people with gout or elevated uric acid. Worth knowing directly: this is a real, useful contrast to the Oceania entry elsewhere in this category, gout's real global rise isn't one single story, it's genetics driving extreme risk in some populations (Oceania) and real, fast dietary change driving a genuinely new, rapidly rising burden in others (China), both real and worth knowing depending on which real risk factor applies to a given person's own background.",
+    chart: {
+      title: 'Gout prevalence in China, 1990 vs. 2021',
+      unit: 'per 100,000',
+      data: [
+        { label: '1990', value: 640.7 },
+        { label: '2021', value: 810.4 },
+      ],
+      sourceNote: 'A comprehensive analysis of trends in the burden of gout in China and globally from 1990 to 2021, PMC11770106',
+    },
+    citations: [
+      { source: 'A comprehensive analysis of trends in the burden of gout in China and globally from 1990 to 2021, PMC11770106', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11770106/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-global-oceania-genetic-urate', 'gout-purine-foods-and-dairy'],
+  },
 ];

@@ -398,4 +398,27 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-overview', 'cvd-mediterranean-diet-predimed'],
   },
+  {
+    id: 'cvd-global-russia-post-soviet-crisis',
+    category: 'cardiovascularDisease',
+    title: "Russia Saw the Highest Cardiovascular Death Rate Ever Recorded Anywhere, and It Wasn't Fully About Diet",
+    teaser: 'Real, documented cardiovascular mortality in Russia reached levels nearly four times higher than the US, a real crisis conventional risk factors like diet and cholesterol could not fully explain.',
+    summary:
+      "This category's own already-covered Seven Countries Study ties cardiovascular risk directly to diet, and Russia's own real, documented mortality crisis shows that story isn't the whole picture. Real data found premature cardiovascular death among Russian men reaching nearly 500 per 100,000, a real level never before observed anywhere in the world, roughly twice as high as the peak the United States ever reached even in the 1960s, and almost four times the equivalent US rate. This tracked closely with the fall of the Soviet Union: cardiovascular mortality in Eastern Europe was genuinely low as recently as the early 1960s, rose steadily through the following decades, then spiked sharply after the real, severe economic and social disruption following 1990. The real, honest complication worth naming directly: research finds a substantial share of this excess mortality can't be explained by the usual, already-covered cardiovascular risk factors (diet, cholesterol, blood pressure) alone, with real, separate research pointing toward psychosocial stress, alcohol, and non-ischemic cardiac damage as real, additional contributors specific to this crisis. Worth knowing directly: this is a real, important complication to keep alongside this category's own diet-focused Mediterranean research, cardiovascular risk is real and largely food-driven in most contexts already covered in this app, but a real, documented historical crisis shows that severe social and economic upheaval can independently drive cardiovascular mortality to levels diet alone doesn't explain.",
+    chart: {
+      title: 'Premature cardiovascular mortality, men (per 100,000)',
+      unit: 'per 100,000',
+      data: [
+        { label: 'Russia (post-Soviet peak)', value: 500 },
+        { label: 'United States (equivalent era)', value: 125 },
+      ],
+      sourceNote: 'The Epidemic of Cardiovascular Disease in Eastern Europe, New England Journal of Medicine',
+    },
+    citations: [
+      { source: 'The Epidemic of Cardiovascular Disease in Eastern Europe, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJM199706263362614' },
+      { source: "Why does Russia have such high cardiovascular mortality rates?, PMC7577103", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7577103/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-global-seven-countries-mediterranean'],
+  },
 ];

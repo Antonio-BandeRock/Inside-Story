@@ -369,4 +369,42 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-overview'],
   },
+  {
+    id: 'prostate-vasectomy-no-link',
+    category: 'prostateHealth',
+    title: 'An Old, Widely-Feared Vasectomy Scare Was a Real Detection Artifact, Now Resolved by Real, Large Data',
+    teaser: "A pooled analysis of nearly 3 million men, plus a genetic Mendelian randomization study, both found no real causal link between vasectomy and prostate cancer, resolving decades of real concern.",
+    summary:
+      "A vasectomy scare over prostate cancer has circulated for decades, tracing back to real, smaller studies from the late 1980s and early 1990s that found an association between the two. Much larger, more recent real research has resolved it in the reassuring direction: a real meta-analysis of 10 cohort studies, over 7,000 cases and nearly 430,000 participants, found no significant relationship between vasectomy and prostate cancer risk, and a separate real, large European prospective study (EPIC) found no elevated risk for overall, high-grade, or advanced prostate cancer, nor prostate cancer death, in men who'd had a vasectomy. A newer, genuinely different kind of evidence closed the case further: a real Mendelian randomization analysis, which uses genetic variants to test for a true causal relationship rather than just an association, found no real genetic causal link either. The real, honest explanation for why the original scare ever showed up: men who choose to get a vasectomy tend to also have closer, more frequent PSA screening and medical follow-up afterward, a real detection-bias effect (finding more cancer simply because more looking happened), not a true biological cause. Worth knowing directly: this app's own already-covered PSA screening research applies here too, more screening finding more cancer doesn't mean vasectomy caused it, a real, important distinction this specific research question already settled.",
+    citations: [
+      { source: 'Vasectomy and prostate cancer risk: a pooled of cohort studies and Mendelian randomization analysis, PMC11853223', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11853223/' },
+      { source: 'Vasectomy and Prostate Cancer Risk in the European Prospective Investigation Into Cancer and Nutrition (EPIC), PMC5455458', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5455458/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-psa-screening'],
+  },
+  {
+    id: 'prostate-global-psa-screening-artifact',
+    category: 'prostateHealth',
+    title: "A Real Slice of the World's Prostate-Cancer Gap Is Actually a Screening Gap, Not a True Disease Gap",
+    teaser: 'Real research directly comparing similar regions found higher PSA testing rates alone driving higher detected prostate cancer incidence with NO real difference in death rate, a real detection artifact layered on top of the true biological gap.',
+    summary:
+      "This category's own already-covered migrant-study research proves a real, true biological difference in prostate cancer risk exists by region and diet. A real, separate, additional factor complicates every raw incidence number worth naming directly: how much PSA screening happens in a given country. Prostate cancer incidence ranges from 118.2 per 100,000 in the US down to just 9.5-15.1 per 100,000 across parts of Asia, but real, direct regional comparisons (including a real study contrasting Lower Saxony, Germany against Groningen, Netherlands, two demographically similar regions) found higher PSA testing rates alone driving a higher DETECTED incidence, with no corresponding real difference in prostate cancer death rate between the two, real, direct evidence of overdiagnosis (finding real cancers that would never have caused harm in a person's lifetime) rather than a true difference in underlying disease. A real, honest complication layered on top, not a contradiction of it: real genetic research finds men of Western African ancestry carrying genuinely higher real biological risk independent of screening, which is part of why the Caribbean and sub-Saharan Africa show elevated real rates despite generally lower PSA testing access. Worth knowing directly: a country's own reported prostate cancer incidence reflects BOTH real biological risk (genetics, diet, the migrant-study evidence already covered) AND how much PSA screening happens there, and this app's own PSA-screening self-advocacy research already covers exactly this same overdiagnosis risk on an individual level.",
+    chart: {
+      title: 'Prostate cancer incidence by region',
+      unit: 'per 100,000',
+      data: [
+        { label: 'United States', value: 118.2 },
+        { label: 'Western Europe', value: 87 },
+        { label: 'Asia (South Central/East)', value: 12 },
+      ],
+      sourceNote: 'The Epidemiology of Prostate Cancer, NCBI Bookshelf; Differences in Prostate Cancer Incidence and Mortality in Lower Saxony and Groningen, PMC8194402',
+    },
+    citations: [
+      { source: 'Differences between men with screening-detected versus clinically diagnosed prostate cancers in the USA, PMC555747', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC555747/' },
+      { source: 'Differences in Prostate Cancer Incidence and Mortality in Lower Saxony (Germany) and Groningen Province (Netherlands), PMC8194402', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8194402/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-global-incidence-migrant-studies', 'prostate-psa-screening'],
+  },
 ];

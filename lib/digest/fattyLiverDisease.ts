@@ -368,4 +368,39 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-overview', 'type2-global-nauru-pacific-thrifty-gene'],
   },
+  {
+    id: 'masld-tm6sf2-second-gene',
+    category: 'fattyLiverDisease',
+    title: 'A Second Real Gene, Working Through a Genuinely Different Mechanism, Also Drives Fatty Liver Risk',
+    teaser: 'PNPLA3 isn\'t the only real genetic driver of MASLD -- a second gene, TM6SF2, works by directly interfering with PNPLA3\'s own function, a real, interconnected two-gene mechanism rather than two separate risks.',
+    summary:
+      "This category's own already-covered PNPLA3 gene variant isn't the only real, documented genetic contributor to fatty liver disease. A real, second variant, TM6SF2 (specifically its E167K form), also drives real MASLD risk, and recent research has found it works in a genuinely more entangled way than simply adding a second, independent risk: the TM6SF2 variant directly increases physical interaction with the PNPLA3 protein itself, and this interaction impairs PNPLA3's own normal job of transferring polyunsaturated fatty acids within liver cells, real, disrupted fat processing that promotes both fat buildup and liver injury. This is a real, meaningfully different mechanism from PNPLA3 acting alone. Worth knowing directly: someone can carry a real, elevated fatty-liver risk driven by TWO separate but interacting genes rather than one, which may help explain why fatty liver severity varies so much even among people who share similar diet, weight, and lifestyle factors. A real, forward-looking finding from the same research: supplementing with a specific fat compound (phosphatidylcholine containing C18:3) showed promise in early research specifically for people carrying the TM6SF2 variant, a real, potential future personalized approach rather than a one-size-fits-all treatment.",
+    citations: [
+      { source: 'TM6SF2 E167K variant decreases PNPLA3-mediated PUFA transfer to promote hepatic steatosis and injury in MASLD, PMC11540376', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11540376/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['masld-pnpla3-genetic-risk'],
+  },
+  {
+    id: 'masld-global-lean-asian-phenotype',
+    category: 'fattyLiverDisease',
+    title: "'Lean' Fatty Liver Disease Is a Real, Distinct, Much More Common Phenomenon in Asian Populations",
+    teaser: 'Roughly 45% of MASLD cases in Asian cohorts occur in people who aren\'t overweight by any usual definition, more than double the global rate, and real data finds this "lean" form carries real, higher mortality risk despite the lower body weight.',
+    summary:
+      "This category's own already-covered weight-loss and Mediterranean-diet research can carry an unspoken assumption worth naming directly: that fatty liver disease mainly affects people who are overweight. Real, global data finds this is genuinely less true in Asian populations specifically. Lean MASLD (fatty liver disease occurring at a BMI under 23 for Asian populations, a real, separately defined threshold from the 25 used elsewhere) makes up 5 to 20% of the worldwide MASLD population overall, but climbs to roughly 45% specifically in Asian cohorts, more than double the global share. The real, distinct mechanism: this isn't the same disease at a smaller body size, real research finds it's characterized by its own real pattern (visceral fat concentrated internally despite a normal overall weight, reduced muscle mass, and real, specific genetic variants in PNPLA3, TM6SF2, and MBOAT7, all already covered elsewhere in this category) driving disease in someone who looks metabolically healthy from the outside. The real, sobering finding: despite the lower body weight, lean MASLD carries similar or even elevated risk of severe liver disease and a real 1.6-fold higher all-cause mortality risk compared with MASLD in people who are overweight. Worth knowing directly: a normal BMI doesn't rule out real, meaningful fatty liver risk, especially for anyone of Asian ancestry, where this specific, distinct phenotype is genuinely common rather than a rare exception.",
+    chart: {
+      title: 'Lean MASLD as a share of all MASLD cases',
+      unit: '%',
+      data: [
+        { label: 'Worldwide (typical range)', value: 12.5 },
+        { label: 'Asian cohorts', value: 45 },
+      ],
+      sourceNote: 'The emerging phenotype of nonalcoholic fatty liver disease in lean individuals, PMC12581183',
+    },
+    citations: [
+      { source: 'The emerging phenotype of nonalcoholic fatty liver disease in lean individuals: what\'s different?, PMC12581183', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12581183/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-pnpla3-genetic-risk', 'masld-tm6sf2-second-gene'],
+  },
 ];

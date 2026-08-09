@@ -380,4 +380,27 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-overview', 'pcos-lipid-panel-cardiometabolic', 'pcos-ogtt-screening'],
   },
+  {
+    id: 'pcos-global-gulf-consanguinity',
+    category: 'pcos',
+    title: "PCOS in Gulf Arab States Runs Roughly Double the Global NIH-Criteria Rate, a Real, Distinct Regional Pattern",
+    teaser: "Real, pooled data finds PCOS diagnosed by NIH criteria at 18.8% in Gulf Arab states, more than double the 8.9% global pooled rate, tied to real, documented consanguinity and genetic patterns specific to the region.",
+    summary:
+      "This category's own already-covered South Asian phenotype research is one real regional pattern in PCOS; the Middle East and Gulf region shows a genuinely different, real one. A real, pooled analysis found PCOS prevalence by the strict NIH diagnostic criteria running at 18.8% specifically in Gulf Arab states, more than double the 8.9% global pooled rate under the same criteria, and among infertile women in Gulf Cooperation Council countries specifically, real pooled PCOS prevalence reached a striking 30.0%. The real, distinct contributing factor named directly in the research: consanguineous marriage (marriage between close relatives) remains real, common across much of the region, with documented rates exceeding 50% in countries including Saudi Arabia, Oman, and the UAE, and real genome-wide research has found specific genetic variant combinations more common in women of Middle Eastern ancestry tied to more severe PCOS symptom presentation, particularly severe hirsutism and hyperandrogenism. A real, honest complication layered on top: the region's own diagnostic criteria haven't been standardized (studies use inconsistent follicle-count and hormone-testing thresholds), a real methodological gap that likely affects how precisely these regional numbers can be compared to elsewhere. Worth knowing directly: real, elevated consanguinity specifically raises PCOS-relevant genetic risk in a documented, region-specific way this app's own general PCOS research doesn't otherwise capture.",
+    chart: {
+      title: 'PCOS prevalence (NIH criteria): global vs. Gulf Arab states',
+      unit: '%',
+      data: [
+        { label: 'Global pooled rate', value: 8.9 },
+        { label: 'Gulf Arab states', value: 18.8 },
+      ],
+      sourceNote: 'Prevalence of polycystic ovary syndrome among infertile women in the Gulf Cooperation Council countries, ScienceDirect',
+    },
+    citations: [
+      { source: 'Towards consensus: standardizing polycystic ovary syndrome (PCOS) diagnosis in the Middle East and North Africa (MENA) Region, Middle East Fertility Society Journal', url: 'https://link.springer.com/article/10.1186/s43043-025-00282-1' },
+      { source: 'Prevalence of Common Gynecological Conditions in the Middle East: Systematic Review and Meta-Analysis, PMC9580651', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9580651/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-global-south-asian-prevalence'],
+  },
 ];

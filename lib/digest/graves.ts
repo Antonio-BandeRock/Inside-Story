@@ -374,4 +374,41 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-overview', 'lifestyle-global-iodine-china-regional'],
   },
+  {
+    id: 'graves-dermopathy-pretibial-myxedema',
+    category: 'graves',
+    title: "Graves' Disease Can Also Show Up on the Skin, a Real, Distinct, Often-Missed Sign",
+    teaser: "Pretibial myxedema, a real, thickened, non-pitting skin change on the shins, affects a real minority of Graves' patients overall but climbs to 15% in those who also have eye involvement.",
+    summary:
+      "Graves' disease is usually discussed for its effects on the thyroid gland and, in this category's own already-covered content, the eyes. A real, third, distinct site is worth knowing directly: the skin. Pretibial myxedema (also called Graves' dermopathy), a real, thickened, non-pitting swelling most often on the front of the shins, affects a real 0.5 to 4.3% of Graves' patients overall, historically documented as high as 5% before modern early antithyroid treatment likely reduced how often it progresses to this stage. The real, meaningful pattern worth knowing: this prevalence climbs substantially, to 15%, specifically in Graves' patients who also have eye involvement (ophthalmopathy), and a real case series found the pretibial area involved in 99% of cases with 96% of patients also having coexisting eye disease, evidence that skin and eye involvement share much of the same real underlying immune mechanism rather than occurring independently. Worth knowing directly: a new, unexplained thickened or waxy patch of skin on the shins, especially alongside already-diagnosed Graves' eye disease, is a real, recognizable, named finding worth mentioning to a doctor directly by name, not a separate, unrelated skin condition.",
+    chart: {
+      title: 'Pretibial myxedema prevalence in Graves’ disease',
+      unit: '%',
+      data: [
+        { label: 'All Graves’ patients (typical range)', value: 4.3 },
+        { label: 'Graves’ patients with eye disease', value: 15 },
+      ],
+      sourceNote: 'Update on pathophysiology and treatment of pretibial myxedema, JAAD Reviews; Dermopathy of Graves’ Disease, JCEM',
+    },
+    citations: [
+      { source: "Update on pathophysiology and treatment of pretibial myxedema: A comprehensive review of the literature, JAAD Reviews", url: 'https://www.jaadreviews.org/article/S2950-1989(25)00035-2/fulltext' },
+      { source: "Dermopathy of Graves' Disease (Pretibial Myxedema): Long-Term Outcome, Journal of Clinical Endocrinology & Metabolism", url: 'https://academic.oup.com/jcem/article/87/2/438/2846476' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-euthyroid-ophthalmopathy', 'graves-teprotumumab-thyroid-eye-disease'],
+  },
+  {
+    id: 'graves-global-treatment-choice-by-country',
+    category: 'graves',
+    title: "Which Graves' Treatment a Person Actually Gets Often Depends More on Their Country Than Their Case",
+    teaser: "The US leans toward radioactive iodine as its default Graves' treatment; Europe and Japan both lean toward antithyroid drugs or surgery first, a real, documented difference in medical culture, not disease severity.",
+    summary:
+      "This category's own already-covered antithyroid-drug-vs-radioactive-iodine-vs-surgery research assumes a real, active choice between three real, valid options, and real, international data finds that choice made very differently depending on where a person happens to be treated. Radioactive iodine has long been the most commonly used first-line treatment for Graves' disease in the United States, while real clinical practice in Europe and Japan more often defaults to antithyroid drugs or surgery instead, a real, documented difference in medical culture and guideline emphasis, not a difference in how severe Graves' disease itself tends to be in each region. Real Japanese-specific research continues actively refining combined approaches (radioactive iodine alongside continued antithyroid drugs) rather than treating radioactive iodine as a stand-alone default the way US practice more often does. Worth knowing directly: someone outside the US reading this app's own already-covered treatment-comparison research should expect their own doctor's real, likely first recommendation to differ from what's most common in US-centered patient discussions, not because their case is different, but because the country they're being treated in has a real, different default starting point among three options this category already establishes are all real, valid choices.",
+    citations: [
+      { source: 'Radioactive Iodine Therapy vs. Antithyroid Medications for Graves Disease, American Family Physician', url: 'https://www.aafp.org/pubs/afp/issues/2017/0301/p292.html' },
+      { source: "Efficacy of radioactive iodine therapy with concomitant antithyroid drugs in Japanese patients with Graves' disease, PMC12613672", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12613672/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-block-replace-vs-titration', 'graves-treatment-comparison-real-outcomes'],
+  },
 ];

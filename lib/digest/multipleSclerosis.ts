@@ -357,4 +357,49 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ms-overview', 'nutrient-vitamin-d'],
   },
+  {
+    id: 'ms-ocrelizumab-anti-cd20',
+    category: 'multipleSclerosis',
+    title: 'The First Real Drug Ever Approved for Primary Progressive MS Works by Depleting a Specific Immune Cell',
+    teaser: "Ocrelizumab, an antibody that clears out CD20-carrying B cells, became the first-ever approved treatment for primary progressive MS after a real, large trial found it slowed disability progression by a real, measurable margin.",
+    summary:
+      "For decades, primary progressive MS (one of the real, distinct disease-course types already covered in this category) had no approved disease-modifying treatment at all, unlike the relapsing forms of MS. That changed with ocrelizumab, a real, humanized antibody that selectively clears out B cells carrying a marker called CD20 from the bloodstream, plus a smaller population of CD20-marked T cells that may also play a real role. The real, pivotal ORATORIO trial randomized 732 people with primary progressive MS to either ocrelizumab or placebo for at least 120 weeks, and found 32.9% of the ocrelizumab group had confirmed disability progression at 12 weeks, compared with 39.3% on placebo, a real, statistically significant reduction (hazard ratio 0.76). This made ocrelizumab the first disease-modifying therapy ever approved specifically for primary progressive MS, a real, genuine turning point for a form of the disease this category's own history entry already notes had no real treatment option for over a century after MS was first described. Worth knowing directly: real-world data collected since approval, covering patients outside the stricter trial-enrollment criteria, continues evaluating how well this benefit holds up across a broader range of disability levels and disease durations than the original trial tested.",
+    chart: {
+      title: 'ORATORIO trial: 12-week confirmed disability progression',
+      unit: '%',
+      data: [
+        { label: 'Ocrelizumab', value: 32.9 },
+        { label: 'Placebo', value: 39.3 },
+      ],
+      sourceNote: 'Ocrelizumab versus Placebo in Primary Progressive Multiple Sclerosis, New England Journal of Medicine (ORATORIO trial)',
+    },
+    citations: [
+      { source: 'Ocrelizumab versus Placebo in Primary Progressive Multiple Sclerosis, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1606468' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-disease-course-types', 'ms-history-milestones'],
+  },
+  {
+    id: 'ms-global-sardinia-exception',
+    category: 'multipleSclerosis',
+    title: "Sardinia Breaks This Category's Own Latitude Rule, With One of the World's Highest MS Rates at a Low Latitude",
+    teaser: 'A real, Mediterranean island at a low latitude carries MS prevalence of 361 per 100,000, among the highest documented anywhere in the world, directly contradicting the latitude gradient this category already establishes.',
+    summary:
+      "This category's own already-covered latitude gradient (MS rising toward the poles, falling toward the equator) is a real, well-established pattern, and Sardinia, the same real Italian island covered elsewhere in this app for its own T1D hotspot, is real, documented evidence that pattern isn't universal. Sardinia carries a real MS prevalence of 361 per 100,000, among the highest rates reported anywhere in the world, despite sitting at a genuinely low, Mediterranean latitude where the gradient theory would predict a real, much lower rate. Real research finds this isn't unique to Sardinia specifically, Italy as a whole doesn't fit the expected latitude pattern the way most of the rest of Europe does. The real, proposed explanation splits into two parts, and researchers are honest that neither fully resolves it alone: Sardinia's own real, distinct genetic background (already covered in this app's own T1D research on the island) plausibly explains part of the elevated risk, but real research states directly that genetic diversity across Italy's own different regional populations does NOT explain the dramatic real rise in MS across the whole country over the last half-century, pointing instead toward real, unidentified environmental factors specific to the region. Worth knowing directly: Sardinia is a real, genuinely useful counter-example whenever the latitude gradient gets treated as an absolute rule rather than a real, strong but imperfect pattern, some populations carry an independently elevated real risk that latitude alone can't explain.",
+    chart: {
+      title: 'MS prevalence: Sardinia vs. a typical low-latitude expectation',
+      unit: 'per 100,000',
+      data: [
+        { label: 'Sardinia (actual)', value: 361 },
+        { label: 'Typical low-latitude prevalence', value: 60 },
+      ],
+      sourceNote: 'Prevalence of multiple sclerosis in Sardinia: A systematic cross-sectional multi-source survey, PMID 30793660',
+    },
+    citations: [
+      { source: 'Multiple sclerosis prevalence among Sardinians: further evidence against the latitude gradient theory, PMID 11603620', url: 'https://pubmed.ncbi.nlm.nih.gov/11603620/' },
+      { source: 'Multiple sclerosis epidemiological trends in Italy highlight the environmental risk factors, Journal of Neurology', url: 'https://link.springer.com/article/10.1007/s00415-021-10782-5' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-global-latitude-gradient', 'type1-global-sardinia-second-hotspot'],
+  },
 ];

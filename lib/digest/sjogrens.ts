@@ -378,4 +378,27 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-overview', 'sjogrens-antibody-testing'],
   },
+  {
+    id: 'sjogrens-global-underdiagnosis-real-data',
+    category: 'sjogrens',
+    title: "Real Data Finds Most Sjögren's Cases Sit Outside a Rheumatologist's Care Entirely, Even in Wealthy Countries",
+    teaser: "A real German claims-data study found only 11% of people with a confirmed Sjögren's diagnosis were actually receiving rheumatologic care, real evidence this category's own already-covered diagnostic-delay research understates how often people simply fall through entirely.",
+    summary:
+      "This category's own already-covered diagnostic-delay research (dryness dismissed as normal aging, seronegative cases missed by antibody testing) has a real, further, structural layer worth naming directly: even a confirmed diagnosis often doesn't lead to real, ongoing specialist care. A real German claims-data study of 54,273 people with a documented Sjögren's diagnosis found only 5,961 of them, just 11%, were actually receiving care from a rheumatologist, meaning a real, large majority were managing a real autoimmune disease without the specialist oversight this app's own already-covered care generally assumes. Real, US-based estimates independently arrive at a similarly stark picture from the diagnosis side itself: experts estimate roughly 50% of Sjögren's cases, an estimated 2 million Americans, remain completely undiagnosed, driven by real, limited healthcare-provider awareness of the disease and the real absence of one single gold-standard diagnostic test. Worth knowing directly: this app's own already-covered international research (real geographic and ethnic variation in Sjögren's presentation) is worth reading alongside this real, structural finding, someone's own real experience with Sjögren's, wherever they live, may look less like 'the disease is uncommon here' and more like 'this disease is genuinely under-recognized nearly everywhere,' a real, important distinction when comparing one's own regional prevalence data against another country's.",
+    chart: {
+      title: "Sjögren's diagnosis reaching real rheumatologic care (Germany)",
+      unit: '%',
+      data: [
+        { label: 'In rheumatologic care', value: 11 },
+        { label: 'Not in rheumatologic care', value: 89 },
+      ],
+      sourceNote: "Comorbidity and health care utilisation in persons with Sjögren's syndrome: a claims data analysis, PMID 33025885",
+    },
+    citations: [
+      { source: "Comorbidity and health care utilisation in persons with Sjögren's syndrome: a claims data analysis, PMID 33025885", url: 'https://pubmed.ncbi.nlm.nih.gov/33025885/' },
+      { source: "Guest Blog: Sjögren's: A Misunderstood and Underdiagnosed Autoimmune Disease, National Health Council", url: 'https://nationalhealthcouncil.org/blog/guest-blog-sjogrens-a-misunderstood-and-underdiagnosed-autoimmune-disease/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-global-geographic-ethnic-variation', 'sjogrens-labial-salivary-gland-biopsy'],
+  },
 ];

@@ -377,4 +377,17 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-overview'],
   },
+  {
+    id: 'migraine-global-belgium-gender-gap',
+    category: 'migraine',
+    title: 'Belgium Ranks First Worldwide for Migraine, and This Category Has One of Medicine\'s Widest Real Gender Gaps',
+    teaser: "Real, current global data ranks Belgium the highest of 204 countries for migraine prevalence, and migraine carries the third-largest female-to-male prevalence gap of any disorder studied, behind only long COVID and MS.",
+    summary:
+      "This category's own already-covered treatment-access research explains part of why migraine's burden falls unevenly by region; real, current prevalence data adds a second, genuinely surprising layer. Among 204 countries analyzed in the most recent real global burden data, Belgium recorded the highest age-standardized migraine prevalence in the world, alongside Western Europe and tropical Latin America both ranking among the highest-prevalence regions overall, a real, notable finding given migraine's own already-covered burden research shows the highest DISABILITY specifically concentrated in sub-Saharan Africa instead, real, direct evidence that where migraine occurs MOST and where it causes the most real, lasting harm are two genuinely different maps. Layered on top of regional variation, migraine carries one of the widest real gender gaps of any disorder studied worldwide, the third-largest female-to-male prevalence ratio among all conditions in the same real global analysis, trailing only long-COVID neurological complications and multiple sclerosis. Real data also finds male migraine cases rising 4 to 5 times faster than female cases in recent years, even though overall prevalence remains substantially higher in women. Worth knowing directly: migraine's own real global picture is genuinely two-dimensional, real prevalence concentrates differently than real disability, and a real, historically wide gender gap appears to be narrowing from the male side specifically, not from women's own migraine burden decreasing.",
+    citations: [
+      { source: 'The Global Burden of Migraine: A 30-Year Trend Review and Future Projections by Age, Sex, Country, and Region, PMC11751287', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11751287/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-global-burden-regional-variation'],
+  },
 ];

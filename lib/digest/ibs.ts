@@ -370,4 +370,32 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ibs-overview'],
   },
+  {
+    id: 'ibs-visceral-hypersensitivity-mechanism',
+    category: 'ibs',
+    title: "IBS's Own Core Mechanism: a Gut That Genuinely Feels More Than It Should",
+    teaser: 'A real, well-established clinical finding sits underneath most of IBS: the gut itself reports pain and pressure at a genuinely lower physical threshold than in people without IBS.',
+    summary:
+      "Underneath many of this category's own already-covered findings (the gut-brain axis, serotonin, the biopsychosocial model) sits one real, well-established physical mechanism: visceral hypersensitivity, a genuinely lower pain and pressure threshold specifically in the gut itself. Real, controlled testing using colorectal balloon distension (a standardized, measured way of testing gut sensation) consistently finds people with IBS reporting pain and urgency at a real, lower level of physical distension than people without IBS, not an imagined or exaggerated report, but a real, measurable difference in how the nervous system processes the same physical signal. The real, proposed mechanism centers on the brain-gut axis itself: heightened, overactive processing of ordinary gut signals as they travel from the intestine through the spinal cord to the brain, with real animal research directly demonstrating that gut inflammation can trigger a genuinely lasting hypersensitivity (persisting three real weeks in one study) even in the non-inflamed part of the colon well after the original trigger resolves. Stress adds a real, additional layer, triggering gut-bacteria imbalance and low-grade inflammation that can itself worsen this same hypersensitivity. Worth knowing directly: this is a real, physical explanation for why an amount of gas or gut movement that wouldn't bother most people can be genuinely, measurably more uncomfortable for someone with IBS, not a sign the discomfort is being overstated.",
+    citations: [
+      { source: 'The Importance of Visceral Hypersensitivity in Irritable Bowel Syndrome, Pharmaceuticals/MDPI', url: 'https://www.mdpi.com/1424-8247/16/10/1405' },
+      { source: 'Visceral Hypersensitivity: Symptoms, Treatment, Causes & What it Is, Cleveland Clinic', url: 'https://my.clevelandclinic.org/health/diseases/22997-visceral-hypersensitivity' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-gut-serotonin-mechanism', 'ibs-biopsychosocial-model'],
+  },
+  {
+    id: 'ibs-global-symptom-pattern-by-country',
+    category: 'ibs',
+    title: 'Which IBS Symptom Predominates Genuinely Differs by Country, a Real, Underappreciated Pattern',
+    teaser: 'A real, 8-country study found Mexican participants reporting constipation, Chinese participants reporting diarrhea, and Italian participants reporting bloating as their own most predominant IBS symptom.',
+    summary:
+      "This category's own already-covered subtype research (IBS-C, IBS-D, IBS-M) treats symptom pattern as an individual matter, but real, international data finds a genuine, country-level pattern sitting underneath individual variation too. A real, 8-country study found Mexican participants most often reporting constipation as their predominant symptom, Chinese participants most often reporting diarrhea, and Italian participants most often reporting bloating, a real, documented cultural or regional difference in which symptom dominates, not just random individual variation. Real East Asian data adds detail: comparing Japan, China, and South Korea directly, overall IBS prevalence ran significantly lower in China than in the other two, and IBS-mixed (alternating symptoms) was the most common subtype across all three, again with real, national differences in how the remaining subtypes distributed. A real, separate, consistent finding across multiple countries: IBS-D (diarrhea-predominant) runs more common in men, while IBS-C (constipation-predominant) runs more common in women, a real pattern that holds even as the OVERALL predominant symptom shifts by country. Worth knowing directly: this app's own already-covered dietary and treatment research (low-FODMAP, peppermint oil, fiber) applies across all IBS subtypes, but which subtype someone is actually likely to have may genuinely track with where they live and their own cultural food background, not purely individual gut biology.",
+    citations: [
+      { source: 'Diagnosis of constipation by analysis of methane concentration (patent, citing the 2008 8-country cross-cultural IBS study)', url: 'https://image-ppubs.uspto.gov/dirsearch-public/print/downloadPdf/10066254' },
+      { source: 'Prevalence of Irritable Bowel Syndrome in Japan, China, and South Korea: An International Cross-sectional Study, Journal of Neurogastroenterology and Motility', url: 'https://www.jnmjournal.org/journal/view.html?doi=10.5056%2Fjnm22037' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibs-rome-iv-subtypes', 'ibs-global-prevalence-diagnostic-criteria'],
+  },
 ];
