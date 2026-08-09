@@ -2611,6 +2611,19 @@ export async function initializeDatabase() {
         selected_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- The person's own real, individually-declared food allergies,
+      -- 2026-08-09, explicitly requested inside Profile's own "conditions
+      -- area." allergen_name IS the primary key (the same natural-key
+      -- pattern user_conditions above already uses) -- normalized to a
+      -- consistent capitalization by addFoodAllergy() before ever reaching
+      -- this table, so "peanuts" and "Peanuts" can't silently become two
+      -- separate rows. One row per allergy; a person can have as many as
+      -- they need, matching the direct "they might have multiple" request.
+      CREATE TABLE IF NOT EXISTS user_food_allergies (
+        allergen_name TEXT PRIMARY KEY,
+        added_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own actual lab results over time. test_code matches
       -- lab_tests.code in the bundled reference database (a cross-database
       -- free-text reference, the same pattern nutrient_code already uses
@@ -8387,6 +8400,44 @@ export async function setUserConditionSelected(code: string, selected: boolean):
   } else {
     await db.runAsync('DELETE FROM user_conditions WHERE condition_code = ?', code);
   }
+}
+
+// Real, individually-declared food allergies -- see user_food_allergies'
+// own comment above for the full reasoning. Every function here works with
+// the plain allergen name directly (the table's own real primary key), not
+// a synthetic id -- there's nothing else to reference it by.
+export async function listFoodAllergies(): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ allergen_name: string }>(
+    'SELECT allergen_name FROM user_food_allergies ORDER BY added_at',
+  );
+  return rows.map((row) => row.allergen_name);
+}
+
+// Normalizes to Title Case before storing/comparing -- "peanuts" and
+// "Peanuts" typed on two different occasions should land as the exact same
+// row, not two visually-near-duplicate ones. A plain per-word capitalize,
+// not a full linguistic title-caser (no attempt at "of"/"and" staying
+// lowercase, etc.) -- real allergen names are short enough (1-3 words)
+// that this simple version reads correctly for all of them.
+function normalizeAllergenName(raw: string): string {
+  return raw
+    .trim()
+    .split(/\s+/)
+    .map((word) => (word.length > 0 ? word[0].toUpperCase() + word.slice(1).toLowerCase() : word))
+    .join(' ');
+}
+
+export async function addFoodAllergy(rawName: string): Promise<void> {
+  const name = normalizeAllergenName(rawName);
+  if (!name) return;
+  const db = await getDatabase();
+  await db.runAsync('INSERT OR IGNORE INTO user_food_allergies (allergen_name) VALUES (?)', name);
+}
+
+export async function removeFoodAllergy(name: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM user_food_allergies WHERE allergen_name = ?', name);
 }
 
 // Whether a "HH:mm" time falls inside [windowStart, windowEnd) -- handles a

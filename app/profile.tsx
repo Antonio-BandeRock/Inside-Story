@@ -15,13 +15,18 @@ import { typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import {
+  addFoodAllergy,
   type ConditionReference,
   DietarySex,
   getStoredMeasurementSystem,
   getUserConditions,
   getUserProfile,
   listAllConditions,
+  listBodyMeasurements,
+  listFoodAllergies,
   listSymptomAssessments,
+  recordBodyMeasurement,
+  removeFoodAllergy,
   setStoredMeasurementSystem,
   setUserConditionSelected,
   setUserProfile,
@@ -29,7 +34,14 @@ import {
   UserProfile,
 } from '../lib/db';
 import { ageFromBirthDate } from '../lib/profile';
-import { cmToFeetInches, detectMeasurementSystemFromLocale, feetInchesToCm, MeasurementSystem } from '../lib/measurement';
+import {
+  cmToFeetInches,
+  detectMeasurementSystemFromLocale,
+  feetInchesToCm,
+  kgToLb,
+  lbToKg,
+  MeasurementSystem,
+} from '../lib/measurement';
 import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../lib/timeOfDay';
 import {
   GENERIC_PALETTE_LABELS,
@@ -63,24 +75,20 @@ const ICON_GRID_PILL_SIZE = 52;
 
 // One real key per collapsible card section on this screen -- see
 // collapsedSections'/renderCardHeader's own comment above for the full
-// feature. Order here doesn't matter (it's a Set, not a display order);
-// what matters is that every one of the 12 real `<View style={styles.card}>`
-// blocks below has exactly one matching key, used at both its own header
-// and its own body-visibility check.
-const ALL_CARD_SECTION_KEYS = [
-  'your-name',
-  'units',
-  'sex',
-  'birth-date',
-  'height',
-  'meal-times',
-  'eating-window',
-  'your-conditions',
-  'tabhub-icon',
-  'where-youre-at',
-  'shared-background',
-  'individual-tab-backgrounds',
-] as const;
+// feature. Order here doesn't matter (it's a Set, not a display order).
+//
+// 2026-08-09, regrouped from 12 individually-collapsible cards down to 4,
+// explicitly requested: "Group Your name, units, sex, birth date, height,
+// and weight. Group Your conditions and where you're at together...
+// group the TabHub icon, shared background, and individual tab
+// backgrounds in one section. Group Usual meal times and fasting/eating
+// windows." Every former section's own label is kept as a real, plain
+// `subLabel` heading WITHIN its new group's own body (the same in-body
+// sub-heading convention Fasting's own "Eating window starts"/"Eating
+// window ends" already used before this regrouping), not a second layer
+// of independently-collapsible sub-cards -- tapping one of these 4
+// headers is meant to reveal everything inside it at once.
+const ALL_CARD_SECTION_KEYS = ['personal-info', 'conditions', 'appearance', 'meal-schedule'] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 
 type DayPart = 'breakfast' | 'lunch' | 'dinner' | 'snack';
@@ -116,6 +124,19 @@ const BIRTH_DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => String(i + 1));
 const HEIGHT_CM_OPTIONS = Array.from({ length: 151 }, (_, i) => String(100 + i)); // 100-250 cm
 const HEIGHT_FEET_OPTIONS = Array.from({ length: 6 }, (_, i) => String(3 + i)); // 3-8 ft
 const HEIGHT_INCHES_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i)); // 0-11 in
+
+// 2026-08-09, Weight -- same real, generous-range PopoverSelect approach
+// as height above, a plain whole-unit picker (no decimal precision, same
+// precision level height already uses).
+const WEIGHT_KG_OPTIONS = Array.from({ length: 221 }, (_, i) => String(30 + i)); // 30-250 kg
+const WEIGHT_LB_OPTIONS = Array.from({ length: 485 }, (_, i) => String(66 + i)); // 66-550 lb
+
+// 2026-08-09, Food allergies -- the FDA's own real, legally-recognized
+// "Big 9" major food allergens (the same list this app's own Reading
+// Labels Digest content already covers, including sesame's real 2023
+// addition as the 9th) as quick-toggle suggestions; anything else is a
+// real, free-text add via allergyInput, not limited to this list.
+const COMMON_ALLERGENS = ['Milk', 'Eggs', 'Fish', 'Shellfish', 'Tree Nuts', 'Peanuts', 'Wheat', 'Soybeans', 'Sesame'];
 
 // Meal/eating-window times: hour stays plain ("1".."12", matching
 // buildTime24's own expected shape); minute is zero-padded ("00".."59") to
@@ -271,6 +292,24 @@ export default function ProfileScreen() {
   const [heightFeetInput, setHeightFeetInput] = useState('');
   const [heightInchesInput, setHeightInchesInput] = useState('');
 
+  // Weight, 2026-08-09 -- unlike height (a single, overwritable field on
+  // user_profile), weight lives in the real, already-existing
+  // body_measurements time-series table (see lib/db.ts's own
+  // recordBodyMeasurement) -- every commit here inserts a genuinely new
+  // reading, the same "just log it" behavior Home's own quick blood-
+  // pressure/heart-rate log already uses, not an update-in-place. Always
+  // stored in kg internally (mirroring heightCm's own always-cm
+  // convention), converted for display only.
+  const [weightKgInput, setWeightKgInput] = useState('');
+  const [weightLbInput, setWeightLbInput] = useState('');
+
+  // Food allergies, 2026-08-09, explicitly requested inside the conditions
+  // area -- a real, local list (lib/db.ts's own user_food_allergies),
+  // genuinely supporting more than one. allergyInput is the free-text
+  // "add a new one" field; foodAllergies is the loaded/committed list.
+  const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
+  const [allergyInput, setAllergyInput] = useState('');
+
   const [mealTimeBuffers, setMealTimeBuffers] = useState<Record<DayPart, TimeOfDayInput>>({
     breakfast: BLANK_TIME,
     lunch: BLANK_TIME,
@@ -289,14 +328,17 @@ export default function ProfileScreen() {
       listSymptomAssessments(1),
       listAllConditions(),
       getUserConditions(),
+      listBodyMeasurements('weight', 1),
+      listFoodAllergies(),
     ]).then(
-      ([storedProfile, storedSystem, recentAssessments, conditionRoster, storedConditions]) => {
+      ([storedProfile, storedSystem, recentAssessments, conditionRoster, storedConditions, weightReadings, storedAllergies]) => {
       if (!isMounted) return;
 
       setProfile(storedProfile);
       setLastAssessment(recentAssessments[0] ?? null);
       setAllConditions(conditionRoster);
       setSelectedConditions(storedConditions);
+      setFoodAllergies(storedAllergies);
       setFirstNameInput(storedProfile.firstName ?? '');
       setLastNameInput(storedProfile.lastName ?? '');
 
@@ -317,6 +359,18 @@ export default function ProfileScreen() {
           setHeightInchesInput(String(inches));
         } else {
           setHeightCmInput(String(Math.round(storedProfile.heightCm)));
+        }
+      }
+
+      const latestWeight = weightReadings[0];
+      if (latestWeight) {
+        // Defensively handles either stored unit even though commitWeight
+        // below always writes 'kg' -- see that function's own comment.
+        const kgValue = latestWeight.unit === 'lb' ? lbToKg(latestWeight.value) : latestWeight.value;
+        if (system === 'imperial') {
+          setWeightLbInput(String(Math.round(kgToLb(kgValue))));
+        } else {
+          setWeightKgInput(String(Math.round(kgValue)));
         }
       }
 
@@ -445,6 +499,57 @@ export default function ProfileScreen() {
     setHeightFeetInput('');
     setHeightInchesInput('');
     if (profile.heightCm != null) updateProfile({ heightCm: null });
+  }
+
+  // Always stores in kg, regardless of which unit the person is currently
+  // typing in (mirroring heightCm's own always-cm convention) -- inserts a
+  // genuinely NEW body_measurements reading every time, the same "just log
+  // it" behavior Home's own quick blood-pressure/heart-rate log already
+  // uses. No "clear" here, unlike height -- there's no single field to
+  // null out; a real historical reading, once logged, stays logged the
+  // same way a logged blood-pressure reading isn't erased from Home
+  // either. overrides mirrors commitHeight's own same-tap stale-closure
+  // fix.
+  async function commitWeight(overrides?: { kg?: string; lb?: string }) {
+    let kgValue: number;
+    if (measurementSystem === 'imperial') {
+      const lbStr = overrides?.lb ?? weightLbInput;
+      if (!lbStr) return;
+      const lb = Number(lbStr);
+      if (!lb || lb <= 0) return;
+      kgValue = lbToKg(lb);
+    } else {
+      const kgStr = overrides?.kg ?? weightKgInput;
+      if (!kgStr) return;
+      const kg = Number(kgStr);
+      if (!kg || kg <= 0) return;
+      kgValue = kg;
+    }
+    await recordBodyMeasurement({
+      loggedAt: new Date().toISOString(),
+      measurementType: 'weight',
+      value: kgValue,
+      unit: 'kg',
+    });
+    flashSaved();
+  }
+
+  // Food allergies -- addAllergy also clears the free-text input on
+  // success, so the field is ready for the next one immediately (matches
+  // how the Food tab's own ingredient-add flow resets after each add).
+  async function addAllergy(rawName: string) {
+    const trimmed = rawName.trim();
+    if (!trimmed) return;
+    await addFoodAllergy(trimmed);
+    const updated = await listFoodAllergies();
+    setFoodAllergies(updated);
+    setAllergyInput('');
+    flashSaved();
+  }
+
+  async function removeAllergy(name: string) {
+    await removeFoodAllergy(name);
+    setFoodAllergies((current) => current.filter((allergy) => allergy !== name));
   }
 
   // overrides lets a caller commit a value it just set via setMealTimeBuffers
@@ -599,13 +704,20 @@ export default function ProfileScreen() {
       </Text>
       {savedFlash ? <Text style={styles.savedFlash}>Saved</Text> : null}
 
+      {/* Personal Info -- 2026-08-09, regrouped from 5 separate cards
+          (Your name, Units, Sex, Birth date, Height) plus a new Weight
+          field, all explicitly requested together. Every former card's
+          own label is kept as a real subLabel heading within this one
+          group's body. */}
       <View style={styles.card}>
-        {renderCardHeader('your-name', 'Your name')}
-        {!collapsedSections.has('your-name') ? (
+        {renderCardHeader('personal-info', 'Personal Info')}
+        {!collapsedSections.has('personal-info') ? (
           <View style={styles.cardBody}>
+            <Text style={styles.subLabel}>Your name</Text>
             <Text style={styles.helpText}>
-              Purely for personalizing the app -- your first name shows in the header (e.g. "Tony's Inside Story").
-              Nothing else in the app uses either field.
+              Your first name shows in the header (e.g. &ldquo;Tony&apos;s Inside Story&rdquo;). Last name is also
+              collected -- one of the real reasons is for reports meant to be handed to a doctor, where both
+              names read naturally together.
             </Text>
             <View style={styles.dateRow}>
               <AppTextInput
@@ -623,17 +735,11 @@ export default function ProfileScreen() {
                 onBlur={commitLastName}
               />
             </View>
-          </View>
-        ) : null}
-      </View>
 
-      <View style={styles.card}>
-        {renderCardHeader('units', 'Units')}
-        {!collapsedSections.has('units') ? (
-          <View style={styles.cardBody}>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Units</Text>
             <Text style={styles.helpText}>
-              Used across the app for quantities and measurements -- meal ingredient amounts, height, and body
-              measurements.
+              Used across the app for quantities and measurements -- meal ingredient amounts, height, weight,
+              and body measurements.
             </Text>
             <View style={styles.pillRow}>
               {([
@@ -652,14 +758,8 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
-          </View>
-        ) : null}
-      </View>
 
-      <View style={styles.card}>
-        {renderCardHeader('sex', 'Sex')}
-        {!collapsedSections.has('sex') ? (
-          <View style={styles.cardBody}>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Sex</Text>
             <Text style={styles.helpText}>
               Used only to show sex-specific nutrient targets (RDAs) where they genuinely differ. This app is
               otherwise gender-neutral by design.
@@ -682,14 +782,8 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
-          </View>
-        ) : null}
-      </View>
 
-      <View style={styles.card}>
-        {renderCardHeader('birth-date', 'Birth date')}
-        {!collapsedSections.has('birth-date') ? (
-          <View style={styles.cardBody}>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Birth date</Text>
             <Text style={styles.helpText}>
               Used to show age-appropriate nutrient targets (some, like iron and calcium, change meaningfully with
               age). Stored as a date rather than a fixed age so it stays accurate over time.
@@ -740,17 +834,11 @@ export default function ProfileScreen() {
             </View>
             {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
             {currentAge != null ? <Text style={styles.derivedText}>Current age: {currentAge}</Text> : null}
-          </View>
-        ) : null}
-      </View>
 
-      <View style={styles.card}>
-        {renderCardHeader('height', 'Height')}
-        {!collapsedSections.has('height') ? (
-          <View style={styles.cardBody}>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Height</Text>
             <Text style={styles.helpText}>
-              Used only for the step-counter's distance estimate (it needs a stride-length estimate, which comes
-              from height). Follows your Units setting above.
+              Used for the step-counter's distance estimate, and useful alongside the rest of this section for a
+              doctor report. Follows your Units setting above.
             </Text>
             <View style={styles.dateRow}>
               {measurementSystem === 'imperial' ? (
@@ -801,14 +889,59 @@ export default function ProfileScreen() {
                 <Text style={styles.clearButtonText}>Clear</Text>
               </TouchableOpacity>
             </View>
+
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Weight</Text>
+            <Text style={styles.helpText}>
+              Your current weight -- also useful for a doctor report. Each time you set it here, it&apos;s logged as
+              a new reading (the same way a real weight-tracking history works), not just overwritten; a full
+              trend view isn&apos;t built yet, but even one current reading is useful right away. Follows your
+              Units setting above.
+            </Text>
+            <View style={styles.dateRow}>
+              {measurementSystem === 'imperial' ? (
+                <PickerField label="Pounds">
+                  <PopoverSelect
+                    options={WEIGHT_LB_OPTIONS}
+                    selected={weightLbInput || null}
+                    minWidth={64}
+                    tabColor={colors.menuIconMuted}
+                    tintedSurface
+                    searchable
+                    onSelect={(value) => {
+                      setWeightLbInput(value);
+                      commitWeight({ lb: value });
+                    }}
+                  />
+                </PickerField>
+              ) : (
+                <PickerField label="Kilograms">
+                  <PopoverSelect
+                    options={WEIGHT_KG_OPTIONS}
+                    selected={weightKgInput || null}
+                    minWidth={64}
+                    tabColor={colors.menuIconMuted}
+                    tintedSurface
+                    searchable
+                    onSelect={(value) => {
+                      setWeightKgInput(value);
+                      commitWeight({ kg: value });
+                    }}
+                  />
+                </PickerField>
+              )}
+            </View>
           </View>
         ) : null}
       </View>
 
+      {/* Meal Timing -- 2026-08-09, regrouped from 2 separate cards (Usual
+          meal times, Fasting/eating window), explicitly requested
+          together. */}
       <View style={styles.card}>
-        {renderCardHeader('meal-times', 'Usual meal times')}
-        {!collapsedSections.has('meal-times') ? (
+        {renderCardHeader('meal-schedule', 'Meal Timing')}
+        {!collapsedSections.has('meal-schedule') ? (
           <View style={styles.cardBody}>
+            <Text style={styles.subLabel}>Usual meal times</Text>
             <Text style={styles.helpText}>
               About what time you normally eat each one. Used to pre-fill the time when you schedule that meal type
               on the Schedule tab -- you can always change it there.
@@ -866,14 +999,8 @@ export default function ProfileScreen() {
                 </View>
               </View>
             ))}
-          </View>
-        ) : null}
-      </View>
 
-      <View style={styles.card}>
-        {renderCardHeader('eating-window', 'Fasting / eating window')}
-        {!collapsedSections.has('eating-window') ? (
-          <View style={styles.cardBody}>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Fasting / eating window</Text>
             <Text style={styles.helpText}>
               If you do intermittent fasting, set the window you actually eat within. Once both times are set here,
               the Schedule tab won't let you schedule a meal outside that window.
@@ -1007,10 +1134,14 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* Conditions & Check-In -- 2026-08-09, regrouped from 3 separate
+          cards (Your conditions, Where you're at, plus a brand-new Food
+          Allergies sub-section) explicitly requested together. */}
       <View style={styles.card}>
-        {renderCardHeader('your-conditions', 'Your conditions')}
-        {!collapsedSections.has('your-conditions') ? (
+        {renderCardHeader('conditions', 'Conditions & Check-In')}
+        {!collapsedSections.has('conditions') ? (
           <View style={styles.cardBody}>
+            <Text style={styles.subLabel}>Your conditions</Text>
             <Text style={styles.helpText}>
               Select every condition that applies to you -- this tells the app which condition-specific notes,
               scoring, and medications are relevant to you personally. Multiple selections are fully supported;
@@ -1043,24 +1174,93 @@ export default function ProfileScreen() {
                   .join(', ')}
               </Text>
             ) : null}
+
+            {/* Food allergies -- 2026-08-09, explicitly requested: "Add to
+                conditions area an ability to provide food allergies. They
+                might have multiple." A real, separate `user_food_allergies`
+                table (lib/db.ts) -- deliberately not folded into
+                user_conditions, since an allergy isn't a tracked disease. */}
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Food allergies</Text>
+            <Text style={styles.helpText}>
+              Separate from the condition-based food scoring above -- a real allergy or intolerance, not just a
+              preference. Multiple are fully supported. Tap a common allergen below, or add your own.
+            </Text>
+            <View style={styles.pillRow}>
+              {COMMON_ALLERGENS.map((name) => {
+                const active = foodAllergies.includes(name);
+                return (
+                  <TouchableOpacity
+                    key={name}
+                    style={[styles.pill, active && styles.pillActive]}
+                    onPress={() => (active ? removeAllergy(name) : addAllergy(name))}
+                  >
+                    <Text style={[styles.pillText, active && styles.pillTextActive]}>{name}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            <View style={styles.dateRow}>
+              <AppTextInput
+                style={[styles.input, styles.nameInput]}
+                placeholder="Add another allergen..."
+                value={allergyInput}
+                onChangeText={setAllergyInput}
+              />
+              <TouchableOpacity style={styles.addAllergyButton} onPress={() => addAllergy(allergyInput)}>
+                <Text style={styles.addAllergyButtonText}>Add</Text>
+              </TouchableOpacity>
+            </View>
+            {foodAllergies.filter((name) => !COMMON_ALLERGENS.includes(name)).length > 0 ? (
+              <View style={[styles.pillRow, { marginTop: 8 }]}>
+                {foodAllergies
+                  .filter((name) => !COMMON_ALLERGENS.includes(name))
+                  .map((name) => (
+                    <TouchableOpacity
+                      key={name}
+                      style={[styles.pill, styles.pillActive]}
+                      onPress={() => removeAllergy(name)}
+                    >
+                      <Text style={[styles.pillText, styles.pillTextActive]}>{name} ✕</Text>
+                    </TouchableOpacity>
+                  ))}
+              </View>
+            ) : null}
+
+            {selectedConditions.includes('hashimotos') ? (
+              <>
+                <Text style={[styles.subLabel, { marginTop: 14 }]}>Where you're at</Text>
+                <Text style={styles.helpText}>
+                  A short check-in covering hypothyroid symptoms, digestive/IBS symptoms, and overall wellbeing.
+                  Early on, day-to-day change can feel invisible because everything is happening at once -- this
+                  is what turns that into an actual, visible trend over time.
+                </Text>
+                {lastAssessment ? (
+                  <Text style={styles.derivedText}>Last taken {daysAgoLabel(lastAssessment.completedAt)}.</Text>
+                ) : (
+                  <Text style={styles.derivedText}>You haven't taken this yet -- your first one becomes your baseline.</Text>
+                )}
+                <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/assessment')}>
+                  <Text style={styles.checkinButtonText}>
+                    {lastAssessment ? 'Retake check-in' : 'Take your first check-in'}
+                  </Text>
+                </TouchableOpacity>
+              </>
+            ) : null}
           </View>
         ) : null}
       </View>
 
-      {/* TabHub Icon -- 2026-08-09, explicitly requested: "make it so each
-          icon is available in the user profile to choose to use in the
-          TabHub menu icon position in place of... the default TabHub
-          icon, which will also be selectable to be used. Only one can be
-          chosen at a time." Reuses the exact same active/inactive
-          IridescentRingCircle-vs-plain-pill treatment TabHub's/LensHub's
-          own grids already use for "this is the selected one," rather than
-          inventing a new selection visual language -- and the same
-          colors.primary active state the pill rows above already use for
-          this same kind of single-choice-among-many control. */}
+      {/* Appearance & Navigation -- 2026-08-09, regrouped from 3 separate
+          cards (TabHub Icon, Shared background, Individual tab
+          backgrounds) explicitly requested together. Header/footer colors,
+          box/font/line colors, and the iridescent shimmer are deliberately
+          untouched by any setting here -- this only ever affects the
+          background layer and the main navigation button's own icon. */}
       <View style={styles.card}>
-        {renderCardHeader('tabhub-icon', 'TabHub Icon')}
-        {!collapsedSections.has('tabhub-icon') ? (
+        {renderCardHeader('appearance', 'Appearance & Navigation')}
+        {!collapsedSections.has('appearance') ? (
           <View style={styles.cardBody}>
+            <Text style={styles.subLabel}>TabHub Icon</Text>
             <Text style={styles.helpText}>
               The main floating button used to open the app&apos;s navigation menu. Choose the default butterfly, or
               any tracked condition&apos;s own real icon to personalize it -- generically representing either
@@ -1094,46 +1294,8 @@ export default function ProfileScreen() {
                 );
               })}
             </View>
-          </View>
-        ) : null}
-      </View>
 
-      {selectedConditions.includes('hashimotos') ? (
-        <View style={styles.card}>
-          {renderCardHeader('where-youre-at', "Where you're at")}
-          {!collapsedSections.has('where-youre-at') ? (
-            <View style={styles.cardBody}>
-              <Text style={styles.helpText}>
-                A short check-in covering hypothyroid symptoms, digestive/IBS symptoms, and overall wellbeing.
-                Early on, day-to-day change can feel invisible because everything is happening at once -- this is
-                what turns that into an actual, visible trend over time.
-              </Text>
-              {lastAssessment ? (
-                <Text style={styles.derivedText}>Last taken {daysAgoLabel(lastAssessment.completedAt)}.</Text>
-              ) : (
-                <Text style={styles.derivedText}>You haven't taken this yet -- your first one becomes your baseline.</Text>
-              )}
-              <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/assessment')}>
-                <Text style={styles.checkinButtonText}>
-                  {lastAssessment ? 'Retake check-in' : 'Take your first check-in'}
-                </Text>
-              </TouchableOpacity>
-            </View>
-          ) : null}
-        </View>
-      ) : null}
-
-      {/* Appearance -- 2026-08-08, explicitly requested as an opt-out for
-          the shared flowery background, its animated sky overlay, and each
-          individual tab's own background photo, with a calmer generic
-          alternative in place of any of them. Header/footer colors, box/
-          font/line colors, and the iridescent shimmer are deliberately
-          untouched by any setting here -- this only ever affects the
-          background layer itself. */}
-      <View style={styles.card}>
-        {renderCardHeader('shared-background', 'Shared background')}
-        {!collapsedSections.has('shared-background') ? (
-          <View style={styles.cardBody}>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Shared background</Text>
             <Text style={styles.helpText}>
               The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps it
               for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it entirely,
@@ -1181,14 +1343,8 @@ export default function ProfileScreen() {
                 </TouchableOpacity>
               ))}
             </View>
-          </View>
-        ) : null}
-      </View>
 
-      <View style={styles.card}>
-        {renderCardHeader('individual-tab-backgrounds', 'Individual tab backgrounds')}
-        {!collapsedSections.has('individual-tab-backgrounds') ? (
-          <View style={styles.cardBody}>
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Individual tab backgrounds</Text>
             <Text style={styles.helpText}>
               Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
               rather than all at once -- turn off just the ones you don&apos;t want, and leave the rest as they are.
@@ -1503,6 +1659,21 @@ const styles = StyleSheet.create({
   clearButtonText: {
     ...typography.captionEmphasis,
     color: colors.danger,
+  },
+  // A real, positive-action counterpart to clearButton above -- same
+  // compact footprint (fits inline next to a text input, unlike
+  // checkinButton's own full-width style), colors.primary instead of
+  // colors.danger since "Add a food allergy" isn't a destructive action.
+  addAllergyButton: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 10,
+    backgroundColor: colors.primary,
+    justifyContent: 'center',
+  },
+  addAllergyButtonText: {
+    ...typography.captionEmphasis,
+    color: colors.textOnPrimary,
   },
   errorText: {
     ...typography.caption,

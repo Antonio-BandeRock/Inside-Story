@@ -22,6 +22,23 @@ export function feetInchesToCm(feet: number, inches: number): number {
   return (feet * 12 + inches) * 2.54;
 }
 
+// 2026-08-09, added for Profile's own new Weight field -- derived from the
+// exact same real grams-per-pound figure lib/unitConversion.ts's own
+// MASS_TO_GRAMS already uses (453.592) rather than a second, independently
+// sourced decimal, so the two files can never disagree by a rounding
+// difference on the same real conversion.
+const GRAMS_PER_KG = 1000;
+const GRAMS_PER_LB = 453.592;
+const KG_TO_LB = GRAMS_PER_KG / GRAMS_PER_LB;
+
+export function kgToLb(kg: number): number {
+  return kg * KG_TO_LB;
+}
+
+export function lbToKg(lb: number): number {
+  return lb / KG_TO_LB;
+}
+
 // Every "how much" pill picker in the Food tab's builders (Servings,
 // Serving Size, per-ingredient Quantity) shows fractions as home cooking
 // actually talks about them ("a quarter cup," not "0.25 cup") -- see
