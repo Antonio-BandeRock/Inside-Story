@@ -1569,6 +1569,167 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'A real, honest look at an actively-researched technology -- included specifically so this sub-cluster doesn\'t leave the impression that a technological fix is already close to solving the underlying decline documented throughout it.',
     relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-smallholder-pollinator-vulnerability'],
   },
+  // 2026-08-11, same day, a new sub-cluster: "I think we should move to
+  // how people can force change through various ways by how they use
+  // their money, and their buying power. This would need lots of
+  // information." A genuinely new research direction from the same
+  // person, distinct from the pollinator/soil-microbiome content above --
+  // real, documented economic-power mechanisms (boycotts, shareholder
+  // resolutions, institutional purchasing, certification, divestment),
+  // each verified via WebSearch/WebFetch the same way as every other
+  // batch in this whole cluster, and each including its own real, honest
+  // limitation rather than presenting economic activism as a costless,
+  // guaranteed lever. Directly complements this cluster's own existing
+  // "How to Get Involved" entry, which covers the civic/political
+  // channel (Farm Bill, USDA rulemaking) -- this sub-cluster covers the
+  // separate, market-based channel.
+  {
+    id: 'foodhistory-regen-boycott-effectiveness-evidence',
+    category: 'basicHealth',
+    title: 'Do Boycotts Actually Work? A Real, Quantified Answer',
+    teaser: 'A real academic stock-price study found targeted companies lose an average of over $120 million in market value within two months of a boycott announcement. Sales can fall 3-8% in affected markets.',
+    summary:
+      'This is real, measurable, peer-reviewed evidence, not folk wisdom. A stock-price event-study analysis of consumer boycotts found target firms\' market value dropped by an average of more than $120 million over the two months following a boycott announcement, with statistically significant negative abnormal stock returns averaging 2.7% in the days immediately after. More recent research into the social-media era found politically motivated boycotts reducing sales by a real 3-8% in directly affected markets, with the effect persisting for weeks, not just days -- and one estimate found up to 42% of multinational corporations and 54% of prominent consumer brands currently facing some active boycott campaign. The real, honest complication worth stating directly: a measurable financial hit is not automatically the same as the specific policy change a boycott demands -- the actual research shows financial pain is real and well-documented, but whether that pain converts into the targeted company actually changing its practices depends heavily on the specific goal, industry, and how sustained the pressure is, which is exactly why this sub-cluster\'s own two dedicated historic case studies (Nestle, United Farm Workers) are worth reading alongside this entry rather than assuming financial pressure alone guarantees an outcome.',
+    citations: [
+      {
+        source: 'Springer, Journal of Consumer Policy: Determining the effectiveness of consumer boycotts -- A stock price analysis of their impact on corporate targets',
+        url: 'https://link.springer.com/article/10.1007/BF00380573',
+      },
+      {
+        source: 'Multidisciplinary Reviews: Consumer boycott movements -- Impact on brand reputation and business performance in the digital age',
+        url: 'https://malque.pub/ojs/index.php/mr/article/view/8061',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, peer-reviewed, quantified financial-market evidence -- the strongest evidence tier this new sub-cluster has for whether boycotts have a real, measurable effect at all, distinct from whether that effect always produces the specific change demanded.',
+    relatedIds: ['foodhistory-regen-nestle-boycott-case-study', 'foodhistory-regen-ufw-grape-boycott-labor'],
+  },
+  {
+    id: 'foodhistory-regen-nestle-boycott-case-study',
+    category: 'basicHealth',
+    title: 'A Real, 6.5-Year Boycott That Changed International Policy',
+    teaser: 'Grassroots groups boycotted Nestle from 1977 to 1984 over its infant-formula marketing in developing countries. It produced a real, formal World Health Organization code, adopted by 118 countries.',
+    summary:
+      "A real, concrete, historic example that a sustained boycott can produce actual formal policy change, not just financial pressure. Grassroots organizations, led by the Infant Formula Action Coalition (INFACT) and the International Baby Food Action Network (IBFAN), launched a US boycott of Nestle products on July 4, 1977, over the company's own marketing of infant formula in developing countries -- a real, documented practice linked to infant illness and death where clean water for mixing formula wasn't reliably available, and where formula displaced breastfeeding's own real immune and nutritional benefits. The campaign went international in 1979 and directly led to a 1981 World Health Organization meeting that produced the International Code of Marketing of Breast-milk Substitutes, adopted by a real vote of 118 countries in favor (the US was the lone vote against). In 1984, Nestle became the first major corporation to formally agree to abide by the Code, and the original boycott was suspended. The honest, real complication worth including rather than treating this as a clean, permanent win: the boycott was relaunched in 1988 after activists alleged continued indirect-marketing violations, leading to a further 1989 Nestle commitment -- a real, concrete example that sustained monitoring, not a single agreement, is often what a successful boycott actually requires.",
+    citations: [
+      {
+        source: 'The Washington Post: 6 1/2-Year Boycott of Nestle Is Ended As Firm Adopts Baby-Formula Code',
+        url: 'https://www.washingtonpost.com/archive/politics/1984/01/27/6-12-year-boycott-of-nestle-is-ended-as-firm-adopts-baby-formula-code/24552e48-7920-449a-a5fd-0baa1f13ab66/',
+      },
+      {
+        source: 'Global Nonviolent Action Database (Swarthmore): International groups boycott Nestle products to end indiscriminate advertising, 1977-1984',
+        url: 'https://nvdatabase.swarthmore.edu/content/international-groups-boycott-nestle-products-end-indiscriminate-advertising-1977-1984',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, dated, well-documented case study -- one of the clearest historical examples of a boycott producing formal international policy change, with an honest note that it needed a second round of pressure to hold.',
+    relatedIds: ['foodhistory-regen-boycott-effectiveness-evidence', 'foodhistory-regen-ufw-grape-boycott-labor'],
+  },
+  {
+    id: 'foodhistory-regen-ufw-grape-boycott-labor',
+    category: 'basicHealth',
+    title: 'The Other Real Historic Case: Farmworker Labor Rights, Not Just Environmental Practice',
+    teaser: 'A 5-year strike and grape boycott led by Cesar Chavez produced real, signed contracts with 140 growers -- a reminder that "buying power" in food also means the people who actually pick it.',
+    summary:
+      "This whole cluster's own extensive coverage of soil, pesticides, and pollinators has said comparatively little about the people who physically grow and harvest food -- worth correcting directly, since farmworker labor conditions are a real, legitimate target for consumer economic pressure in their own right, distinct from environmental practice. In September 1965, Filipino American grape workers in Delano, California, organized under the Agricultural Workers Organizing Committee (AWOC) walked off the job; Cesar Chavez's National Farm Workers Association joined the strike shortly after, and the two groups merged into what became the United Farm Workers (UFW). The strike escalated into a real, sustained, nationwide grape boycott asking consumers to stop buying non-union grapes, a campaign that continued despite real, documented violent reprisals against striking workers. By July 1970, the pressure produced a real, concrete result: contracts signed by 140 grape growers covering wages and health and safety provisions for farmworkers, a genuine transformation of California agricultural labor relations and the event that established the UFW as a lasting voice for farmworker rights. This is a real, direct historical precedent for the idea that consumer purchasing choices can be organized specifically around labor conditions in the food supply chain, not only around environmental or health claims.",
+    citations: [
+      {
+        source: 'United Farm Workers: The 1965-1970 Delano Grape Strike and Boycott',
+        url: 'https://ufw.org/1965-1970-delano-grape-strike-boycott/',
+      },
+      {
+        source: 'US National Park Service: Workers United -- The Delano Grape Strike and Boycott',
+        url: 'https://www.nps.gov/articles/000/workers-united-the-delano-grape-strike-and-boycott.htm',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, dated, well-documented labor-rights case study, deliberately included to broaden this whole cluster\'s own coverage beyond environmental practice into farmworker conditions specifically.',
+    relatedIds: ['foodhistory-regen-boycott-effectiveness-evidence', 'foodhistory-regen-nestle-boycott-case-study'],
+  },
+  {
+    id: 'foodhistory-regen-shareholder-activism-mechanics',
+    category: 'basicHealth',
+    title: 'How an Individual Investor Can Actually File a Real Shareholder Resolution',
+    teaser: 'Real SEC rules let anyone holding just $2,000 in a company\'s stock for three years co-file a resolution on its pesticide use, deforestation exposure, or labor practices -- a real, underused lever most people don\'t know exists.',
+    summary:
+      'This is a real, concrete, and genuinely underused mechanism distinct from simply choosing what to buy: owning even a small amount of a public food company\'s stock creates a real, legal right to formally challenge its practices at the company\'s own annual meeting. Under SEC Rule 14a-8, a shareholder qualifies to submit a formal resolution by meeting one of three real ownership thresholds: continuous ownership of at least $2,000 of the company\'s stock for three years, $15,000 for two years, or $25,000 for one year. In practice, individual investors most often co-file alongside an established shareholder-advocacy nonprofit like As You Sow (founded 1992, the leading US organization in this space) or the Interfaith Center on Corporate Responsibility, lending their own shares to a coalition\'s already-drafted, legally vetted resolution rather than drafting one from scratch. Real, current (2025-2026) examples directly relevant to this whole cluster: shareholder resolutions asking Sprouts, Costco, and Walmart to disclose deforestation risk in their avocado supply chains, asking McDonald\'s to report on its own regenerative-agriculture programs, and asking Target and Kellanova (formerly Kellogg) to disclose pesticide use across their supply chains. The honest, real complication worth including directly: these resolutions frequently fail to win a majority vote even when successfully filed -- at Tyson Foods\' 2024 annual meeting, resolutions on climate lobbying, deforestation, and child labor all failed to pass -- but a filed resolution still forces a real, public company response and real investor and media attention regardless of the final vote count, which is itself a documented part of how this kind of pressure works even without an outright win.',
+    citations: [
+      {
+        source: 'As You Sow: Shareholder Advocacy -- FAQ about Shareholder Resolutions (SEC Rule 14a-8 thresholds, how co-filing works)',
+        url: 'https://www.asyousow.org/shareholder-advocacy',
+      },
+      {
+        source: 'FAIRR: Proxy Season 2025 -- Agri-Food Resolutions Buck Broader Trend (real, current named examples across the food sector)',
+        url: 'https://www.fairr.org/news-events/insights/proxy-season-2025-agri-food-resolutions-buck-broader-trend',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, official SEC rules and a real, named, currently-active organizational pathway -- a genuinely actionable, not just theoretical, mechanism, with an honest note that most individual resolutions still lose their vote.',
+    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-reform-coalition-orgs'],
+  },
+  {
+    id: 'foodhistory-regen-institutional-purchasing-power',
+    category: 'basicHealth',
+    title: "The Lever Most People Never Think About: What Your School, Hospital, or University Buys",
+    teaser: 'US institutions -- schools, hospitals, universities, prisons -- spend over $130 billion a year on food. A single local school-board procurement vote can move real money that no individual grocery run ever could.',
+    summary:
+      "A real, genuinely underappreciated economic lever sits entirely outside individual grocery-store choices: institutional food procurement. US institutional food service (schools, hospitals, universities, prisons, corporate cafeterias, senior care facilities) spends a real, official estimated $130 billion annually, and shifting even a modest share of that spending toward local, regenerative, or otherwise verified sourcing moves real money at a scale no individual purchasing decision can match. USDA data found national sales into local/regional institutional markets reached $4.1 billion in 2020, a real $700 million increase over the preceding five years, and school food purchases of local food alone generate an estimated $1 billion in additional local economic activity nationwide each year -- a real, documented multiplier effect. Health Care Without Harm, a real advocacy organization, has specifically organized hospital systems around this same leverage point, on the theory that a hospital's own food purchasing should align with its stated health mission. A real, city-level example: a review of value-based food-procurement policies across 10 US cities found they had collectively influenced over $540 million in public food spending. The practical, real-world version of this lever for an individual: a school-board meeting, a hospital system's own sourcing committee, or a university dining-services contract renewal is a real, concrete decision point most people never think to show up to, despite it moving far more purchasing power than their own household grocery budget ever will.",
+    citations: [
+      {
+        source: 'Rockefeller Foundation: The Power of Procurement ($130 billion annual institutional food spending)',
+        url: 'https://www.rockefellerfoundation.org/initiatives/the-power-of-procurement/',
+      },
+      {
+        source: 'Health Care Without Harm: Leveraging the power of procurement (USDA local-institutional-sales data, city-level procurement-policy figures)',
+        url: 'https://us.noharm.org/healthy-food/leveraging-power-procurement',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, official, quantified spending figure and a real, named advocacy infrastructure already organized around it -- a genuinely underused, concrete civic lever, not a theoretical one.',
+    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-whole-foods-organic-industry'],
+  },
+  {
+    id: 'foodhistory-regen-bcorp-certification-accountability',
+    category: 'basicHealth',
+    title: 'B Corp Certification: A Real Accountability Model, With Real, Documented Weak Spots',
+    teaser: "Over 4,000 companies now carry the B Corp seal, built on a real legal requirement to consider workers, community, and environment, not just shareholders. It has also been directly accused of greenwashing, and just overhauled its own standard because of it.",
+    summary:
+      "B Corp certification is a real, distinct accountability mechanism from organic or Regenerative Organic Certified (both scoped to farming practice specifically, see this cluster's own dedicated entries): it certifies an entire company's own governance, not just how one crop was grown. To certify, a company must pass B Lab's own Impact Assessment across governance, workers, community, environment, and customers, and, critically, must legally amend its own corporate charter to require considering all stakeholders, not just shareholder returns, a real, binding structural change most ordinary corporations aren't required to make. Over 4,000 companies now hold the certification globally, spanning a real, substantial share of the food and beverage sector specifically. The real, documented weak spot, worth stating directly rather than only celebrating the model: the original points-based system let a company offset weak performance in one category (say, environment) with strong performance in another (say, governance) and still clear the minimum 80-of-200-point bar, which real critics have pointed to in specific, named cases -- Nespresso and fast-fashion retailer Princess Polly both drew direct greenwashing accusations after certifying despite real, documented environmental or labor controversies. B Lab responded with a real, structural 2026 overhaul, replacing the flexible points system with a requirement that every certified company meet a real minimum standard across all seven of its impact areas individually, with third-party verification, rather than being able to average a weak category away.",
+    citations: [
+      {
+        source: 'The Sustainable Agency: B Corp certification changes & new standards for 2026, explained',
+        url: 'https://thesustainableagency.com/blog/b-corp-changes-and-new-standards/',
+      },
+      {
+        source: 'CHOICE: B Corps -- Real change or just more greenwashing?',
+        url: 'https://www.choice.com.au/shopping/packaging-labelling-and-advertising/labelling/articles/b-corps',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, honest, both-sides treatment -- the model\'s real structural strength (a legally binding stakeholder requirement) and its own real, documented, now-being-fixed weakness are both stated directly, consistent with this whole cluster\'s standing discipline.',
+    relatedIds: ['foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry'],
+  },
+  {
+    id: 'foodhistory-regen-divestment-food-system',
+    category: 'basicHealth',
+    title: 'Divestment: Moving Where the Money Sits, Not Just What You Buy',
+    teaser: 'Over $40 trillion in institutional assets have some fossil-fuel divestment commitment attached. A real, smaller, food-specific version of the same movement now targets factory-farm financing directly.',
+    summary:
+      "Divestment is a real, distinct lever from either boycotting or shareholder activism: instead of pressuring a company as a customer or as an owner, it means an institution (a pension fund, university endowment, or city treasury) simply removing its money from a sector entirely. The fossil-fuel divestment movement is the largest real precedent, with more than 1,593 institutions holding a combined $40.5 trillion in assets under management having made some divestment commitment as of 2023 -- though a real, important methodological caveat applies directly: that headline figure represents the TOTAL assets of committing institutions, not the actual dollar amount divested from fossil fuels specifically, since the precise fossil-fuel share of a given portfolio is often not disclosed. Real academic research on actual financial effect is genuinely mixed: portfolios excluding fossil-fuel producers don't show significantly different risk-adjusted returns than unrestricted ones, and the clearest measured impact on companies' own capital costs shows up specifically when divestment is led by regional or national governments, not scattered individual investors. A real, distinct, food-system-specific version of the same strategy exists too: in April 2021, Berkeley became the first California city to formally urge its state pension fund (CalPERS) to divest from factory farming, UK research (Feedback, working with World Animal Protection) found local-government pension funds holding a real GBP238 million in industrial livestock investments, and a global Stop Financing Factory Farming coalition now specifically targets development-bank loans to industrial animal-agriculture operations, working alongside FAIRR, a real investor-research initiative founded in 2015 specifically to map factory-farming financial risk for institutional investors.",
+    citations: [
+      {
+        source: 'Wikipedia (cross-checked against Oxford Academic Journal of Economic Geography research cited within): Fossil fuel divestment (scale figures, mixed-effectiveness research)',
+        url: 'https://en.wikipedia.org/wiki/Fossil_fuel_divestment',
+      },
+      {
+        source: 'Faunalytics: Follow The Money, Part 2 -- Divestment From Factory Farms (Berkeley/CalPERS, UK pension data, Stop Financing Factory Farming, FAIRR)',
+        url: 'https://faunalytics.org/follow-the-money-part-2-divestment-from-factory-farms/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, large-scale movement with genuinely mixed academic evidence on direct financial effect, reported honestly rather than assuming divestment automatically works -- included alongside a real, smaller, food-system-specific parallel rather than only the better-known fossil-fuel version.',
+    relatedIds: ['foodhistory-regen-shareholder-activism-mechanics', 'foodhistory-regen-institutional-purchasing-power'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
