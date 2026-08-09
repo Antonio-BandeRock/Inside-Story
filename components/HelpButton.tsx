@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useState, type ReactNode } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -26,11 +26,19 @@ export function HelpSheet({
   onClose,
   pageTitle,
   sections,
+  extra,
 }: {
   visible: boolean;
   onClose: () => void;
   pageTitle: string;
   sections: HelpSection[];
+  // Optional, additive, real JSX rendered after the plain-text sections
+  // above -- 2026-08-09, added for Purple Digest's own "About Search
+  // Matching" sheet, which needs to show real, colored dot/pill mockups
+  // alongside its prose, not just plain heading/body text. Every existing
+  // caller that doesn't pass this renders exactly as before -- this is a
+  // pure addition, not a change to the default shape.
+  extra?: ReactNode;
 }) {
   const insets = useSafeAreaInsets();
 
@@ -60,6 +68,7 @@ export function HelpSheet({
                   <Text style={styles.sectionBody}>{section.body}</Text>
                 </View>
               ))}
+              {extra}
             </ScrollView>
           </View>
         </View>

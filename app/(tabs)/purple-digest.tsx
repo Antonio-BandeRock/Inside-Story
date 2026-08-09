@@ -147,16 +147,81 @@ const DIGEST_SEARCH_HELP: HelpSection[] = [
 // per-screen registration, for the same reason.
 const SEARCH_MATCH_HELP_SECTIONS: HelpSection[] = [
   {
+    // 2026-08-09, rewritten, direct correction: "the first sentence... does
+    // not read well. Please use a better explanation that there is no way
+    // someone could get confused about what you are telling them." Split
+    // into several short, one-idea-at-a-time sentences instead of the
+    // original single, over-stacked one.
     heading: 'How the ranking works',
-    body: 'Typing more than one word searches for each of them independently, not the exact phrase you typed -- an entry does not need to match every word to show up, and does not need to match them in the order you typed them either. Each entry earns a real score from how many of your words it matches and where: a word matching the entry\'s own title counts three times as much as a word that only shows up in its body text or a citation. Results are then ranked highest-score-first, so an entry genuinely about what you searched for rises above one that only mentions it in passing.',
+    body: 'When you type more than one word, this search does not look for that exact phrase. It checks each word on its own, one at a time. An entry can show up in your results even if it only matches some of your words, not all of them -- and the words do not need to appear in the same order you typed them. Every entry then earns a real score: matching a word in the entry\'s own title is worth three times as much as matching that same word only in its body text or a citation. Entries with the highest score are always shown first, so something genuinely about what you searched for rises above something that only mentions it once in passing.',
   },
   {
     heading: 'What the dots mean',
     body: 'Each small dot stands for one of the words you typed, in the order you typed them, showing how that specific word did against that specific entry. A solid purple dot means that word matched the entry\'s own title -- the strongest kind of match. An outlined purple dot means it matched somewhere in the entry\'s body or a citation, but not its title. A solid grey dot means that word did not match this entry at all.',
   },
   {
-    heading: 'In Search All\'s own results',
-    body: 'The dots are the compact version, used in every category\'s own scoped search. Search All\'s own full result list shows the identical information as text pills instead -- the same three colors and the same meaning, just spelling out which actual word each one is, plus a line reading how many of your words matched overall.',
+    // 2026-08-09, shortened to a pointer -- the real, worked comparison
+    // against Search All now lives in the visual example below (see
+    // SearchMatchDemo), not repeated here as a second description of the
+    // same thing.
+    heading: 'See it in action',
+    body: 'A worked example is below, using the search "sleep anxiety inflammation" against three illustrative entries -- both as the compact dots you see here, and as Search All\'s own fuller version.',
+  },
+];
+
+// A real, worked example for the sheet above -- 2026-08-09, direct
+// request: "Show examples of the dots... with a few examples, such as
+// Sleep and Anxiety and Inflammation... then show how the dots would be
+// if they were searched for from the digest search all utility, and
+// explain the variations of the dots in the return search then compared
+// to the section specific search[.]" These three "entries" are
+// deliberately illustrative, clearly labeled as such (see SearchMatchDemo
+// below), not real Digest content -- their only job is to show all three
+// real dot/pill states (title match, body match, no match) across one
+// three-word query, exactly the scenario asked about.
+const DEMO_QUERY_LABEL = '"sleep anxiety inflammation"';
+const DEMO_EXAMPLES: { title: string; note: string; match: SearchMatchInfo }[] = [
+  {
+    title: 'How Sleep Disruption Drives Inflammation',
+    note: '"sleep" and "inflammation" both appear in this title -- "anxiety" is never mentioned anywhere in it.',
+    match: {
+      totalTermCount: 3,
+      matchedTermCount: 2,
+      score: 6,
+      terms: [
+        { term: 'sleep', matchedInTitle: true, matchedAnywhere: true },
+        { term: 'anxiety', matchedInTitle: false, matchedAnywhere: false },
+        { term: 'inflammation', matchedInTitle: true, matchedAnywhere: true },
+      ],
+    },
+  },
+  {
+    title: 'Managing Everyday Stress and Anxiety',
+    note: '"anxiety" is right in the title; "sleep" only comes up once in the body text; "inflammation" never appears.',
+    match: {
+      totalTermCount: 3,
+      matchedTermCount: 2,
+      score: 4,
+      terms: [
+        { term: 'sleep', matchedInTitle: false, matchedAnywhere: true },
+        { term: 'anxiety', matchedInTitle: true, matchedAnywhere: true },
+        { term: 'inflammation', matchedInTitle: false, matchedAnywhere: false },
+      ],
+    },
+  },
+  {
+    title: 'The Gut-Brain Connection',
+    note: 'None of the three words are in this title -- only "inflammation" shows up at all, once, in a citation.',
+    match: {
+      totalTermCount: 3,
+      matchedTermCount: 1,
+      score: 1,
+      terms: [
+        { term: 'sleep', matchedInTitle: false, matchedAnywhere: false },
+        { term: 'anxiety', matchedInTitle: false, matchedAnywhere: false },
+        { term: 'inflammation', matchedInTitle: false, matchedAnywhere: true },
+      ],
+    },
   },
 ];
 
@@ -1527,6 +1592,7 @@ export default function PurpleDigestScreen() {
               onClose={() => setSearchMatchHelpVisible(false)}
               pageTitle="Search Matching"
               sections={SEARCH_MATCH_HELP_SECTIONS}
+              extra={<SearchMatchDemo />}
             />
 
             <ScrollView
@@ -1950,6 +2016,85 @@ function MatchSummaryRow({ match }: { match: SearchMatchInfo }) {
           </View>
         ))}
       </View>
+    </View>
+  );
+}
+
+// The demo-only, LABELED version of the same real dot row ShelfTabCard
+// renders (see that component's own comment on `match`) -- the real,
+// on-screen dots never carry a label, since a person already knows the
+// order they typed their own words in; a worked example genuinely needs
+// one so it's obvious which dot belongs to which word without that
+// context. Reuses the exact real matchDot/matchDotTitle/matchDotBody/
+// matchDotMiss styles for the dot itself, so this demo is honestly
+// identical in color to what the real UI shows, not just a close
+// approximation of it.
+function DemoDotRow({ match }: { match: SearchMatchInfo }) {
+  return (
+    <View style={styles.demoDotRow}>
+      {match.terms.map((termMatch) => (
+        <View key={termMatch.term} style={styles.demoDotColumn}>
+          <View
+            style={[
+              styles.matchDot,
+              termMatch.matchedInTitle
+                ? styles.matchDotTitle
+                : termMatch.matchedAnywhere
+                  ? styles.matchDotBody
+                  : styles.matchDotMiss,
+            ]}
+          />
+          <Text style={styles.demoDotLabel}>{termMatch.term}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
+// The real content handed to HelpSheet's own new `extra` slot -- a full
+// worked example, not just prose, per direct request: "Show examples of
+// the dots... and then show how the dots would be if they were searched
+// for from the digest search all utility, and explain the variations of
+// the dots in the return search then compared to the section specific
+// search[.]" Reuses MatchSummaryRow (the exact real component Search
+// All's own result cards already render) directly for the pill half,
+// rather than a second, separately-styled mockup that could quietly drift
+// out of sync with the real thing -- this demo is pixel-identical to what
+// the app actually shows, not an approximation of it.
+function SearchMatchDemo() {
+  return (
+    <View style={styles.demoBlock}>
+      <Text style={styles.demoHeading}>Example: searching {DEMO_QUERY_LABEL}</Text>
+      <Text style={styles.demoIntro}>
+        Three illustrative entries below (not real Digest content) show how the same three-word search can produce
+        genuinely different dot patterns, depending on what each entry actually says.
+      </Text>
+      {DEMO_EXAMPLES.map((example) => (
+        <View key={example.title} style={styles.demoExample}>
+          <Text style={styles.demoExampleTitle}>{example.title}</Text>
+          <DemoDotRow match={example.match} />
+          <Text style={styles.demoExampleNote}>{example.note}</Text>
+        </View>
+      ))}
+
+      <Text style={styles.demoSubheading}>The same three examples in Search All</Text>
+      <Text style={styles.demoIntro}>
+        Search All shows the identical information as labeled pills instead of plain dots, since its result cards
+        have more room to spell out the actual word:
+      </Text>
+      {DEMO_EXAMPLES.map((example) => (
+        <View key={`${example.title}-pills`} style={styles.demoExample}>
+          <Text style={styles.demoExampleTitle}>{example.title}</Text>
+          <MatchSummaryRow match={example.match} />
+        </View>
+      ))}
+
+      <Text style={styles.demoClosing}>
+        Dots and pills always mean the same three things: solid/filled purple is a title match, outlined purple is a
+        body or citation match, and solid/dim grey means that word did not match this entry at all. Dots are the
+        compact version, used wherever space is tight, inside the scoped search on every category. Pills are the
+        fuller version, used only in Search All, where there is room to write out the actual matched word.
+      </Text>
     </View>
   );
 }
@@ -2705,6 +2850,31 @@ const styles = StyleSheet.create({
   matchTermPillText: { ...typography.caption, color: TAB_COLOR, fontSize: 11 },
   matchTermPillTextTitle: { color: colors.background, fontWeight: '700' },
   matchTermPillTextMiss: { color: colors.textMuted },
+  // SearchMatchDemo's own worked-example block, inside the "About Search
+  // Matching" sheet -- 2026-08-09, direct request for real, visual dot/
+  // pill examples rather than just prose. demoDotRow/demoDotColumn/
+  // demoDotLabel are demo-only (the real ShelfTabCard dots have no
+  // labels); everything else the demo shows -- the dot itself, and the
+  // whole pill row via MatchSummaryRow -- reuses the app's real styles
+  // directly, not a copy.
+  demoBlock: { marginTop: 4 },
+  demoHeading: { ...typography.label, color: TAB_COLOR, marginBottom: 4 },
+  demoSubheading: { ...typography.label, color: TAB_COLOR, marginTop: 18, marginBottom: 4 },
+  demoIntro: { ...typography.caption, color: colors.textMuted, marginBottom: 10, lineHeight: 17 },
+  demoExample: {
+    backgroundColor: colors.surface,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    padding: 10,
+    marginBottom: 10,
+  },
+  demoExampleTitle: { ...typography.bodyEmphasis, color: colors.textPrimary, marginBottom: 6 },
+  demoExampleNote: { ...typography.caption, color: colors.textMuted, marginTop: 6, lineHeight: 16 },
+  demoDotRow: { flexDirection: 'row', gap: 14 },
+  demoDotColumn: { alignItems: 'center', gap: 3 },
+  demoDotLabel: { ...typography.caption, color: colors.textMuted, fontSize: 10 },
+  demoClosing: { ...typography.body, color: colors.textSecondary, lineHeight: 19, marginTop: 4 },
   cardDetail: { marginTop: 10, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10 },
   tierLabelText: { ...typography.eyebrow, marginBottom: 6 },
   // EntryMetaRow's own reading-time text plus, when relevant, the plain,
