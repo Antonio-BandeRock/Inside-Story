@@ -603,7 +603,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'This entry\'s Next Generation Farmer Fund citation is genuinely recent news, days old as of this being written, not a modeled projection.',
-    relatedIds: ['foodhistory-regen-timeline-certification-era'],
+    relatedIds: ['foodhistory-regen-timeline-certification-era', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
     id: 'foodhistory-regen-environmental-impact',
@@ -1127,7 +1127,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, named organizations with a real, public policy platform -- not an anonymous or purely hypothetical opposition movement.',
-    relatedIds: ['foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-why-not-mandated', 'foodhistory-regen-how-to-get-involved', 'foodhistory-regen-pesticide-liability-shields'],
+    relatedIds: ['foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-why-not-mandated', 'foodhistory-regen-how-to-get-involved', 'foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-right-to-repair-farm-equipment'],
   },
   {
     id: 'foodhistory-regen-how-to-get-involved',
@@ -1148,7 +1148,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, currently-open civic channels, not a general or evergreen suggestion -- worth confirming committee markup status and comment-period deadlines directly, since a live legislative process moves and this entry\'s own "right now" framing will age.',
-    relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-co2-nutrient-decline'],
+    relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-co2-nutrient-decline', 'foodhistory-regen-right-to-repair-farm-equipment'],
   },
   // 2026-08-10/11, same day, fifth follow-up: "Keep going with more research
   // on this topic." Every citation below independently re-verified via
@@ -1546,7 +1546,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Extends this whole cluster\'s own established international framing to pollinator vulnerability specifically -- a real, structurally different, more precarious exposure than commercial US/EU agriculture has, not the same risk at a smaller scale.',
-    relatedIds: ['foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-global-implementation-synthesis'],
+    relatedIds: ['foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-global-implementation-synthesis', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
     id: 'foodhistory-regen-robotic-drone-pollination',
@@ -1686,7 +1686,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, official, quantified spending figure and a real, named advocacy infrastructure already organized around it -- a genuinely underused, concrete civic lever, not a theoretical one.',
-    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-food-waste-scale'],
+    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-food-waste-scale', 'foodhistory-regen-food-desert-access-inequality'],
   },
   {
     id: 'foodhistory-regen-bcorp-certification-accountability',
@@ -1943,6 +1943,56 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     stageNote: 'A real, direct multiplier on this cluster\'s own already-established urgency baseline -- every resource documented elsewhere in this cluster is partly being spent on food that is never eaten.',
     relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-institutional-purchasing-power'],
+  },
+  // 2026-08-12, same day, tenth continuation: "Keep going with more
+  // research on this topic," closing out the two remaining gaps named in
+  // an earlier same-day pass (food access inequality, farm-equipment
+  // right-to-repair). Every citation independently re-verified via
+  // WebSearch/WebFetch. Both entries were given a direct, real link to
+  // relevant actionable content from the start, applying the lesson from
+  // this same day's own motivational-content audit rather than needing a
+  // later fix.
+  {
+    id: 'foodhistory-regen-food-desert-access-inequality',
+    category: 'basicHealth',
+    title: 'A Different Vulnerability Story: Food Access Inequality Inside Wealthy Nations',
+    teaser: 'About 39 million Americans live in low-income, low-food-access areas -- and a real, careful study found that simply opening a new supermarket in one of these neighborhoods barely moved actual diet quality at all.',
+    summary:
+      "This cluster's own smallholder-vulnerability entry covers a real, distinct food-access problem in the Global South. A genuinely different vulnerability exists inside wealthy nations too, worth naming separately rather than assuming it's the same story at a smaller scale. USDA defines a real, specific \"low-access\" threshold (living more than half a mile from a supermarket in a poor urban area, or more than 10 miles in a rural one, combined with real income/poverty criteria), and by that measure, about 39 million Americans, roughly 13% of the US population, live in a low-income, low-food-access area, with close to 19 million having genuinely limited supermarket access specifically. The real, honest complication, matching this whole cluster's own standing discipline of checking a popular policy assumption rather than repeating it: a careful, real study (the RAND-affiliated PHRESH Project, following Pittsburgh's Hill District after a new, full-service supermarket opened) found real, modest improvements in some measures (222 fewer average daily calories, less added sugar) but no significant overall improvement in dietary quality and no change in average body mass index -- and, most tellingly, the improvements that did happen weren't even related to whether people actually used the new store. This has led real researchers toward a genuinely more complete framing than \"food desert\" alone: \"food swamps,\" areas with real, abundant access to cheap, energy-dense fast food and convenience-store options that can crowd out healthier choices even where a real grocery store does exist, with affordability, not just physical distance, doing much of the real work.",
+    citations: [
+      {
+        source: 'USDA Economic Research Service: Characteristics and Influential Factors of Food Deserts (official low-access definition, 39 million figure)',
+        url: 'https://www.ers.usda.gov/publications/pub-details?pubid=45017',
+      },
+      {
+        source: 'RAND: Diet And Perceptions Change With Supermarket Introduction In A Food Desert, But Not Because Of Supermarket Use (the PHRESH Project findings)',
+        url: 'https://www.rand.org/pubs/external_publications/EP50935.html',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, honest complication to a popular, intuitive policy assumption (build a grocery store, diets improve) -- the real research found it genuinely more complicated than that.',
+    relatedIds: ['foodhistory-regen-smallholder-pollinator-vulnerability', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-whole-foods-organic-industry'],
+  },
+  {
+    id: 'foodhistory-regen-right-to-repair-farm-equipment',
+    category: 'basicHealth',
+    title: "A Live, Current Fight Over Who Actually Controls a Farmer's Own Tractor",
+    teaser: 'A 2023 US PIRG survey found roughly 1 in 3 surveyed farmers feared losing their farm over a repair they couldn\'t get done in time. In 2026, John Deere paid $99 million to settle exactly that fight.',
+    summary:
+      "A real, current, direct extension of this cluster's own economic-power research, and a genuinely different kind of corporate-accountability fight than the pesticide-liability-shield battle already covered: who is legally allowed to repair a farmer's own equipment. Modern farm machinery runs on proprietary software, and manufacturers like John Deere have real, documented histories of restricting repair access to authorized dealers only, even for a farmer's own owned equipment, a real, estimated $4.2 billion annual cost to American farmers (roughly $3 billion in equipment downtime, $1.2 billion in inflated repair costs from having no competing option). The real, human stakes: a 2023 US PIRG survey of 53 farmers across 14 states found roughly one in three feared they could lose their farm entirely over a repair they couldn't get completed in time, since a tractor breakdown during a narrow planting or harvest window can threaten an entire season's crop regardless of how quickly the actual mechanical fix would otherwise be. Colorado became the first US state to pass a real right-to-repair law for farm equipment in 2023, guaranteeing farmers and independent mechanics access to the same software and repair materials Deere's own authorized dealers already had. The federal government followed directly: the FTC and several state attorneys general sued Deere in January 2025, and in 2026 Deere agreed to a real $99 million settlement, requiring the company, under 10 years of direct FTC and state supervision, to give farmers and independent repair providers the same diagnostic software and repair resources it already provides its own authorized dealer network.",
+    citations: [
+      {
+        source: 'Federal Trade Commission: FTC, States Secure Settlement with Deere & Company, Advancing Farmers\' Right to Repair (2026, $99 million, 10-year terms)',
+        url: 'https://www.ftc.gov/news-events/news/press-releases/2026/07/ftc-states-secure-settlement-deere-company-advancing-farmers-right-repair',
+      },
+      {
+        source: 'Farm Action: Farm Machinery -- Monopoly and the Right to Repair ($4.2 billion cost estimate, US PIRG farmer survey)',
+        url: 'https://farmaction.us/farm-machinery-monopoly-and-the-right-to-repair/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, current, live legal and legislative fight, resolved with a real settlement within this same research thread\'s own timeframe, not a historical or hypothetical example.',
+    relatedIds: ['foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-how-to-get-involved'],
   },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
