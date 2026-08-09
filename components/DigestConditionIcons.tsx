@@ -1,4 +1,5 @@
 import type { ReactElement } from 'react';
+import { Image, View } from 'react-native';
 import { Circle, Line, Path, Rect, Svg } from 'react-native-svg';
 import type { DigestCategoryKey } from '../lib/digest';
 
@@ -171,6 +172,79 @@ export function LupusButterflyIcon({ size, color }: IconProps) {
   );
 }
 
+// Hashimoto's & Graves' -- 2026-08-09, a real, different approach for
+// these two specifically, direct idea: "use the existing tabhub butterfly
+// for hashimoto's and for graves' diseases by just causing a slight
+// redish line on the top of the wings to represent graves' having
+// hyperthyroidism and the red line being at the bottom represents
+// hypothyroidism." Reuses this app's own real, already-commissioned
+// artwork (assets/branding/butterfly-transparent.png, the same file
+// TabHub.tsx's own hub button already renders, see that file's own
+// comment on its real provenance) rather than another hand-drawn SVG
+// guess -- a genuinely different, lower-risk source than anything else in
+// this file, since it's real, finished, already-shipped-in-this-app art,
+// not something reasoned through blind or half-guessed from a reference
+// photo.
+//
+// A real, honest sizing caveat, stated directly rather than assumed away:
+// this artwork is a large, richly detailed illustration (fine wing
+// patterning, gem-like dots, gold filigree), rendered elsewhere in this
+// app at 116px (TabHub's own hub button) -- LensHub's own grid tile is
+// only 20px (GRID_ITEM_ICON_SIZE), close to a 6x reduction. The overall
+// butterfly silhouette (wings, antennae, segmented body) should still
+// read clearly that small, the same way this exact artwork already reads
+// fine as this app's own real, shipped phone-home-screen icon -- but the
+// FINE detail almost certainly won't resolve at 20px, and there's no way
+// to confirm that from here. The one real, deliberate signal at this
+// small size is the accent line itself, not the underlying artwork's own
+// fine texture.
+//
+// The accent line is a plain, straight bar (not traced to the wing's own
+// actual curved silhouette, which isn't something this environment can
+// measure from a raster file) -- positioned well inside the wing area,
+// clear of the antennae's own decorative tips near the top-center. A
+// real, warm red, deliberately NOT this app's own purple family, so it
+// reads as its own distinct signal against the artwork's cool blue/green/
+// gold palette rather than blending in.
+const THYROID_LINE_ACCENT = '#E4574C';
+function ThyroidButterflyIcon({ size, linePosition }: { size: number; linePosition: 'top' | 'bottom' }) {
+  // Computed as real pixel numbers from `size` rather than percentage
+  // strings -- this RN/TypeScript setup's own ViewStyle typing doesn't
+  // accept a plain `string` for left/right/top/bottom (only a number or a
+  // specific template-literal percentage type), and a real pixel number
+  // sidesteps that friction entirely while still scaling correctly
+  // whatever `size` this icon is actually asked to render at.
+  const lineHeight = Math.max(2, size * 0.05);
+  const sideInset = size * 0.18;
+  const lineStyle =
+    linePosition === 'top'
+      ? { position: 'absolute' as const, left: sideInset, right: sideInset, top: size * 0.12, height: lineHeight, borderRadius: lineHeight / 2, backgroundColor: THYROID_LINE_ACCENT }
+      : { position: 'absolute' as const, left: sideInset, right: sideInset, bottom: size * 0.08, height: lineHeight, borderRadius: lineHeight / 2, backgroundColor: THYROID_LINE_ACCENT };
+  return (
+    <View style={{ width: size, height: size }}>
+      <Image source={require('../assets/branding/butterfly-transparent.png')} style={{ width: size, height: size }} resizeMode="contain" />
+      <View style={lineStyle} />
+    </View>
+  );
+}
+// Hashimoto's -- hypothyroidism, the red accent sits near the BOTTOM of
+// the wings per the request's own stated mapping.
+export function HashimotosThyroidIcon({ size }: IconProps) {
+  return <ThyroidButterflyIcon size={size} linePosition="bottom" />;
+}
+// Graves' -- hyperthyroidism, the red accent sits near the TOP of the
+// wings.
+export function GravesThyroidIcon({ size }: IconProps) {
+  return <ThyroidButterflyIcon size={size} linePosition="top" />;
+}
+
+// The two hand-drawn SVG versions below (HashimotosButterflyIcon,
+// GravesButterflyIcon) are no longer used by DIGEST_CONDITION_ICONS as of
+// the real artwork-based icons directly above -- kept defined, not
+// deleted, as a real fallback if the artwork-based approach doesn't work
+// out on-device, and because deleting working code that might still be
+// wanted carries real risk for zero benefit at this stage.
+//
 // Hashimoto's -- "A Butterfly with the Shield core emblem." The body is
 // widened (from BODY_PLAIN's own proportions) specifically so a shield
 // shape fits cleanly inside its silhouette, then combined with that
@@ -645,10 +719,10 @@ export function CardiovascularDiseaseHeartIcon({ size, color }: IconProps) {
 // existing Ionicons glyph (reader-outline/earth-outline/leaf-outline)
 // rather than getting a bespoke icon here.
 export const DIGEST_CONDITION_ICONS: Partial<Record<DigestCategoryKey, (props: IconProps) => ReactElement>> = {
-  hashimotos: HashimotosButterflyIcon,
+  hashimotos: HashimotosThyroidIcon,
   rheumatoidArthritis: RheumatoidArthritisHandIcon,
   psoriasis: PsoriasisButterflyIcon,
-  graves: GravesButterflyIcon,
+  graves: GravesThyroidIcon,
   type1Diabetes: Type1DiabetesSyringeIcon,
   celiac: CeliacWheatIcon,
   ibd: IbdIntestineIcon,
