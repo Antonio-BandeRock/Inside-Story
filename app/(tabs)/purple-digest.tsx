@@ -18,7 +18,7 @@ import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
-import { getUserConditions } from '../../lib/db';
+import { getUserConditions, getVisibleFoodBaseNames } from '../../lib/db';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
 import {
   ALL_DIGEST_ENTRIES,
@@ -310,6 +310,15 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     ],
   },
   { label: 'Glossary', prefixes: ['glossary-'] },
+  // 2026-08-09, direct request: "information about portions, and
+  // recommended daily allowances and minimum amounts of anything." See
+  // lib/digest/portionsAndRDAs.ts's own header comment -- every number
+  // reused directly from this app's own bundled DRI reference table.
+  { label: 'Portions & Recommended Amounts', prefixes: ['portion-'] },
+  // 2026-08-09, direct request: "how to choose the right kinds of
+  // products... so they aren't fooled and purchase the wrong things." See
+  // lib/digest/choosingQualityProducts.ts's own header comment.
+  { label: 'Choosing the Real Thing', prefixes: ['quality-'] },
   { label: 'Prevention & Lifestyle by Condition', prefixes: ['prevention-', 'apphelps-'] },
   // 2026-08-09, direct request: "an honest medical science evidence based
   // perspective on the popular types of diets out there." A real, distinct
@@ -323,6 +332,20 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   { label: 'Food Additives', prefixes: ['additive-'] },
   { label: 'Nutrient Interactions', prefixes: ['interaction-'] },
   { label: 'Fermented Foods', prefixes: ['fermented-'] },
+  // 2026-08-09, direct request: "talk about the different ways of making
+  // fermentations for drinks and foods... how they are generally made and
+  // where to look for more information." A real, deliberate companion to
+  // "Fermented Foods" above, not a merge into it -- see
+  // lib/digest/fermentationMethods.ts's own header comment for why the two
+  // stay separate (organized by strain vs. organized by method).
+  { label: 'Fermentation Methods', prefixes: ['fermentmethod-'] },
+  // 2026-08-09, direct request: "a group that has information about every
+  // fruit and vegetable and their health benefits and types of problems...
+  // This should also include nuts and seeds." See
+  // lib/digest/produceProfiles.ts's own header comment, including the real,
+  // new hide-sync mechanism this topic's own entries use (see
+  // basicHealthEntriesForPrefixes below for where that filter is applied).
+  { label: 'Fruits, Vegetables, Nuts & Seeds', prefixes: ['produce-'] },
   { label: 'Lifestyle & Environment', prefixes: ['lifestyle-'] },
   { label: 'Mitochondria & Metabolism', prefixes: ['mito-'] },
   { label: 'Self Advocacy', prefixes: ['advocacy-'] },
@@ -669,6 +692,33 @@ export default function PurpleDigestScreen() {
   }, [autoOpenLensHub]);
 
   const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
+  // Hide-sync for any Digest entry tagged with `relatedFoodNames` (currently
+  // just the Fruits, Vegetables, Nuts & Seeds profile guide -- see
+  // lib/db.ts's own getVisibleFoodBaseNames comment) -- "if any of them get
+  // hidden in the database... then their information should also
+  // disappear." One bulk query on mount for every real food name any entry
+  // in this whole Digest is tagged with, not one query per entry. `null`
+  // means "still loading" -- entries.useMemo below deliberately treats that
+  // as "show everything" rather than hiding food-tagged entries for the
+  // brief window before this resolves, so a real slow load never reads as
+  // content disappearing.
+  const [visibleFoodNames, setVisibleFoodNames] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    const allRelatedFoodNames = Array.from(
+      new Set(
+        ALL_DIGEST_ENTRIES.flatMap((entry) =>
+          !isProblemFoodEntry(entry) && entry.relatedFoodNames ? entry.relatedFoodNames : [],
+        ),
+      ),
+    );
+    getVisibleFoodBaseNames(allRelatedFoodNames).then((names) => {
+      if (!cancelled) setVisibleFoodNames(names);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   // The person's own selected conditions (Profile's own picker,
   // `user_conditions`), refetched every time this tab regains focus so a
   // condition added or removed on Profile shows up here without needing an
@@ -868,7 +918,18 @@ export default function PurpleDigestScreen() {
   // regardless of whether `lens` actually changed, defeating that memo's
   // own point of skipping recomputation on unrelated re-renders (e.g. a
   // feedback tap, an unrelated state change elsewhere on screen).
-  const entries = useMemo(() => (lens === 'search' ? [] : getEntriesForCategory(lens)), [lens]);
+  const entries = useMemo(() => {
+    if (lens === 'search') return [];
+    const raw = getEntriesForCategory(lens);
+    // See visibleFoodNames' own comment above -- still loading (null) means
+    // show everything; once resolved, drop any relatedFoodNames-tagged
+    // entry whose every real food name has since been hidden.
+    if (visibleFoodNames === null) return raw;
+    return raw.filter((entry) => {
+      if (isProblemFoodEntry(entry) || !entry.relatedFoodNames || entry.relatedFoodNames.length === 0) return true;
+      return entry.relatedFoodNames.some((name) => visibleFoodNames.has(name));
+    });
+  }, [lens, visibleFoodNames]);
   // searchQuery/categorySearchQuery are already the debounced, COMMITTED
   // values by construction now (see DigestSearchInput below) -- a real,
   // second attempt at the reported keyboard-lag fix, 2026-08-08. The first

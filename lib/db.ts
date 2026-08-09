@@ -440,6 +440,41 @@ export async function getReferenceCategories() {
   return rows.map((row) => row.category).filter((category) => !CATEGORIES_HIDDEN_FROM_BROWSING.has(category));
 }
 
+// Hide-sync for Purple Digest's per-food profile entries (the Fruits,
+// Vegetables, Nuts & Seeds guide), 2026-08-09 -- direct request: "if any of
+// them get hidden in the database so they are not viewable within the app,
+// then their information should also disappear." A Digest entry about a
+// specific food is real, useful content only as long as that food is still
+// something a person can actually find and log in this app -- once every
+// real row behind a food name has been hidden (via the Reference Database
+// Audit tool's own per-row `hidden` flag, or its whole category hidden via
+// CATEGORIES_HIDDEN_FROM_BROWSING above), an entry that still talks about it
+// as if it were browsable would be actively misleading, not just stale.
+//
+// One bulk query rather than one call per entry -- Purple Digest tags each
+// profile entry with the real base_name(s) it's about (see
+// lib/digest/produceProfiles.ts's own `relatedFoodNames` field) and asks
+// once, up front, which of the full set across every profile entry are
+// still actually visible; the screen then filters its own entry list
+// client-side against that one Set. Matched by base_name (what a person
+// actually sees in the food pickers), case-sensitively -- these names are
+// hand-typed to match the reference database exactly, the same discipline
+// already used for ALCOHOL_HIDDEN_BASE_NAMES/BEV_JUICE_ALLOWED_NAMES above.
+export async function getVisibleFoodBaseNames(names: string[]): Promise<Set<string>> {
+  if (names.length === 0) return new Set();
+  const db = await getReferenceDatabase();
+  const namePlaceholders = names.map(() => '?').join(', ');
+  const hiddenCategories = Array.from(CATEGORIES_HIDDEN_FROM_BROWSING);
+  const categoryClause = hiddenCategories.length > 0
+    ? ` AND category NOT IN (${hiddenCategories.map(() => '?').join(', ')})`
+    : '';
+  const rows = await db.getAllAsync<{ base_name: string }>(
+    `SELECT DISTINCT base_name FROM foods WHERE hidden = 0 AND base_name IN (${namePlaceholders})${categoryClause}`,
+    [...names, ...hiddenCategories],
+  );
+  return new Set(rows.map((row) => row.base_name));
+}
+
 // Reported directly by the user, 2026-08-02: manufactured/packaged
 // alcoholic beverages (beer, cider) and mixed drinks/cocktails shouldn't be
 // loggable via a generic reference-data entry at all right now -- unlike a

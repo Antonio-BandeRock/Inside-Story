@@ -4,8 +4,10 @@ import { APP_HELPS_ENTRIES } from './appHelps';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
 import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
+import { CHOOSING_QUALITY_PRODUCTS_ENTRIES } from './choosingQualityProducts';
 import { CHRONIC_KIDNEY_DISEASE_ENTRIES } from './chronicKidneyDisease';
 import { ESSENTIAL_NUTRIENTS_ENTRIES } from './essentialNutrients';
+import { FERMENTATION_METHODS_ENTRIES } from './fermentationMethods';
 import { FATTY_LIVER_DISEASE_ENTRIES } from './fattyLiverDisease';
 import { FERMENTED_FOODS_ENTRIES } from './fermentedFoods';
 import { FOOD_ADDITIVES_ENTRIES } from './foodAdditives';
@@ -32,9 +34,11 @@ import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PCOS_ENTRIES } from './pcos';
 import { POPULAR_DIETS_ENTRIES } from './popularDiets';
+import { PORTIONS_AND_RDAS_ENTRIES } from './portionsAndRDAs';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
 import { PREVENTION_LIFESTYLE_ENTRIES } from './preventionLifestyle';
 import { PROBLEM_FOODS_ENTRIES } from './problemFoods';
+import { PRODUCE_PROFILES_ENTRIES } from './produceProfiles';
 import { PROSTATE_HEALTH_ENTRIES } from './prostateHealth';
 import { PSORIASIS_ENTRIES } from './psoriasis';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
@@ -52,7 +56,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260809050000';
+export const PURPLE_DIGEST_VERSION = '20260809120000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -102,6 +106,10 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...PREVENTION_LIFESTYLE_ENTRIES,
   ...APP_HELPS_ENTRIES,
   ...POPULAR_DIETS_ENTRIES,
+  ...PORTIONS_AND_RDAS_ENTRIES,
+  ...CHOOSING_QUALITY_PRODUCTS_ENTRIES,
+  ...FERMENTATION_METHODS_ENTRIES,
+  ...PRODUCE_PROFILES_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08

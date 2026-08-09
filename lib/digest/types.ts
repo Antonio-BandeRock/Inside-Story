@@ -278,6 +278,17 @@ export type DigestEntry = {
   // Optional: only added where an entry's own claim is fundamentally a
   // small set of real, comparable numbers, not retrofitted everywhere.
   chart?: DigestChart;
+  // 2026-08-09, built for the Fruits, Vegetables, Nuts & Seeds profile
+  // guide: the real `base_name` value(s) in the reference database this
+  // entry is actually about, e.g. `['Blueberry', 'Wild Blueberry']`. When
+  // set, the entry is only shown once `lib/db.ts`'s own
+  // `getVisibleFoodBaseNames()` confirms at least one of these names is
+  // still visible (not hidden, and not sitting in a whole-category-hidden
+  // bucket) -- "if any of them get hidden in the database... then their
+  // information should also disappear," per direct request. Omit entirely
+  // for any entry that isn't about one specific, individually pickable
+  // food (which is nearly everything else in this Digest).
+  relatedFoodNames?: string[];
 };
 
 export type ProblemFoodEntry = {
