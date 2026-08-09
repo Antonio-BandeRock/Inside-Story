@@ -1147,6 +1147,15 @@ export default function PurpleDigestScreen() {
 
   const activeLensLabel =
     lens === 'search' ? 'Search All' : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
+  // The header card's own icon, 2026-08-09, direct request: "instead of
+  // the digest icon, use a bigger version of the icon for that condition."
+  // A real per-condition icon here, not the generic PurpleRibbonIcon --
+  // `lens !== 'search'` narrows PurpleDigestLens down to a real
+  // DigestCategoryKey, the same type DIGEST_CONDITION_ICONS is keyed on,
+  // so this stays type-safe without a separate cast. Falls back to
+  // PurpleRibbonIcon for the 4 lenses with no bespoke icon of their own
+  // (Search, Basic Health, Earth Matters, Home Gardening).
+  const ActiveConditionIcon = lens !== 'search' ? DIGEST_CONDITION_ICONS[lens] : undefined;
   // Plain, original category order -- no reordering. See cardOffsets' own
   // comment above for why (a real correction of an earlier "move the
   // expanded card to the front of the list" approach). A real useMemo, not
@@ -1658,7 +1667,11 @@ export default function PurpleDigestScreen() {
               {isSearchActive ? null : (
                 <View style={styles.headerCard}>
                   <View style={styles.categoryHeaderRow}>
-                    <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                    {ActiveConditionIcon ? (
+                      <ActiveConditionIcon size={36} color={TAB_COLOR} />
+                    ) : (
+                      <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                    )}
                     <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
                   </View>
                   <Text style={styles.categoryDescription}>
