@@ -1830,6 +1830,120 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'A real, official CDC-sourced mechanism directly connecting industrial livestock practice to human infectious disease -- the clearest, most direct link to this app\'s own core gut-microbiome-and-autoimmune-disease research anywhere in this whole cluster.',
     relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'gut-scfa-treg'],
   },
+  // 2026-08-11, same day, direct continuation: "Keep going with more
+  // research on this topic," following directly from the named-but-not-
+  // yet-built gaps identified the same day (seed diversity, CO2-driven
+  // nutrient decline, food waste). Every citation below independently
+  // re-verified via WebSearch/WebFetch. One real, important self-caught
+  // near-miss during this pass: an initial aggregated search result for
+  // the CO2/nutrient-decline research gave clearly inflated figures (a
+  // 65% protein decline, 50%+ zinc/iron declines) that did NOT match the
+  // real primary source once actually fetched -- the true, precise Myers
+  // et al. 2014 figures are single-digit percentage declines. Caught and
+  // corrected before writing anything, a direct, live demonstration of
+  // why this whole cluster's own standing discipline (always verify
+  // against the primary source, not an aggregated summary) exists.
+  {
+    id: 'foodhistory-regen-seed-diversity-loss',
+    category: 'basicHealth',
+    title: 'How Much Crop Diversity Has Actually Been Lost? A Real, Corrected Number',
+    teaser: 'The widely repeated "75% of crop diversity lost since 1900" figure traces to broad estimates, not a hard count -- and a real, later study found the original math behind an even more alarming version of the claim was simply wrong.',
+    summary:
+      "A commonly repeated statistic, that 75% of crop genetic diversity was lost over the 20th century, traces back to FAO's own 2010 State of the World's Plant Genetic Resources report, and the figure itself is real and still widely cited. The honest complication, consistent with this whole cluster's own standing discipline of checking a popular number rather than repeating it: FAO's own 75% figure was built from broad estimates and generalizations, not a direct, hard count of actual varieties. A real, more precise study exists, and it tells a genuinely more nuanced story: researchers compared 1903 and 2004 US seed catalogs directly, cataloging 7,262 varieties across 48 vegetable crops in 1903, and found the TOTAL number of available varieties had barely changed by 2004, only 2.2% fewer overall. What had changed dramatically was turnover, not raw diversity: 94% of the SPECIFIC varieties listed in the 1903 catalog were no longer available from common commercial sources by 2004, replaced by new varieties from preservationists, importers, and gardeners rather than genuine diversity collapse. A real, separate, worth-remembering detail: an earlier, even more alarming 1983 estimate claiming only a 3% survival rate for 1903 varieties turned out to contain a real calculation error -- the corrected rate is 7.4%, more than double what had been repeated for decades. None of this means crop diversity loss isn't real; it means the honest picture is variety replacement and narrowing commercial availability, not the simpler, more dramatic \"three-quarters gone\" headline usually repeated.",
+    citations: [
+      {
+        source: 'Phys.org: Researchers find no loss of vegetable diversity in the 20th century; correct math error in 1983 study (Heald & Chapman, University of Georgia)',
+        url: 'https://phys.org/news/2009-09-loss-vegetable-diversity-20th-century.html',
+      },
+      {
+        source: 'FAO: Crop biodiversity -- use it or lose it (the original, widely-cited 75% estimate)',
+        url: 'https://www.fao.org/newsroom/detail/Crop-biodiversity-use-it-or-lose-it/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, deliberate correction of a popular but imprecise statistic, the same discipline already applied elsewhere in this cluster to the Savory claim, the FAO hectare figure, and the no-till/greenwashing entry.',
+    relatedIds: ['foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-seed-industry-consolidation'],
+  },
+  {
+    id: 'foodhistory-regen-seed-industry-consolidation',
+    category: 'basicHealth',
+    title: 'Four Companies Now Control More Than Half the World\'s Commercial Seed Supply',
+    teaser: 'In the 1980s, the ten biggest seed companies controlled under 15% of the market. Today four companies alone control 56% -- the same companies already covered in this cluster\'s own pesticide and lobbying research.',
+    summary:
+      'A real, direct, quantified consolidation trend, and a real structural parallel to the genetic-bottleneck pattern already documented twice elsewhere in this cluster (commercial honeybee breeding, agave monoculture): four companies, Bayer, Syngenta, Corteva, and BASF, now control a real 56% of the global commercial seed market and 61% of the global pesticide market. This is a genuinely fast, recent consolidation, not a decades-old status quo: in the seed sector specifically, the combined market share of the top four rose from 21% to 57% over roughly 25 years, and the ten largest seed companies now control 70% of the market, up from under 15% in the 1980s. Bayer and Corteva alone, the two largest players, control 42% of the global commercial seed market between them, and both are heavily concentrated in just two crops -- Bayer draws roughly 75% of its own seed sales from maize and soybeans, Corteva a full 85%. This is the same Bayer already covered in this cluster\'s own pesticide-liability-shield and lobbying-imbalance entries, now shown controlling a comparably outsized share of the seed supply itself, not just the chemicals applied to it.',
+    citations: [
+      {
+        source: 'Heinrich Böll Stiftung (Pesticide Atlas): Corporations -- big profits with toxic trade (56%/61% figures)',
+        url: 'https://eu.boell.org/en/PesticideAtlas-corporations',
+      },
+      {
+        source: 'Public Eye: The dangerous concentration of the seed market (25-year consolidation trend, top-10 figures)',
+        url: 'https://www.publiceye.ch/en/topics/seeds/concentration-of-the-seed-market',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, current, independently-tracked market-concentration data -- directly ties this cluster\'s own pesticide/lobbying research on Bayer to the seed supply specifically, not a separate corporate story.',
+    relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-pesticides-glyphosate-dispute'],
+  },
+  {
+    id: 'foodhistory-regen-svalbard-seed-vault',
+    category: 'basicHealth',
+    title: 'The Real Institutional Answer to Seed Loss -- and a Real, Ironic Threat It Already Survived',
+    teaser: 'Over 1.3 million seed samples sit frozen 120 meters into an Arctic mountain, built to survive war and disaster. In 2017 it flooded from the one thing it wasn\'t designed to survive: the climate itself changing.',
+    summary:
+      "Against the real diversity-loss and consolidation trends covered elsewhere in this cluster, a real, concrete institutional backstop already exists. The Svalbard Global Seed Vault, opened in 2008 on the Norwegian Arctic island of Spitsbergen, holds over 1.3 million seed samples from nearly every country on Earth, backing up national and regional seed banks against the exact kind of loss (war, disaster, simple institutional failure) that could otherwise be permanent. The engineering itself is a real, deliberate answer to the fragility problem: three separate rock vaults sit 120 meters into the mountain Plataberget, kept at a genuinely passive -18degC by permafrost and thick rock, meaning the seeds stay frozen even during a total power failure. A real, honest, ironic complication worth including rather than glossing over: in 2017, melting permafrost, a direct effect of the same climate change the vault's own mission statement names as one of the disasters it protects against, flooded the facility's entrance tunnel and damaged electrical equipment. The seeds themselves, housed behind a second vault door deeper into the mountain, were never actually reached or damaged, a real, important correction to the more alarming \"doomsday vault flooded\" headlines the incident generated at the time. Norway responded with a real, concrete $13 million renovation: a new waterproof tunnel, relocated electrical systems, meltwater diversion channels, and active coolant pipes threaded through the surrounding soil to help keep the permafrost itself frozen going forward.",
+    citations: [
+      {
+        source: 'Crop Trust: Svalbard Global Seed Vault (1.3 million samples, engineering, mission)',
+        url: 'https://www.croptrust.org/what-we-do/programs/svalbard-global-seed-vault/',
+      },
+      {
+        source: 'Scientific American: The Arctic Seed Vault Shows the Flawed Logic of Climate Adaptation (2017 flooding, real cause and outcome)',
+        url: 'https://www.scientificamerican.com/article/the-arctic-seed-vault-shows-the-flawed-logic-of-climate-adaptation/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, positive institutional response to the diversity-loss problem, reported alongside its own real, honest complication rather than only the reassuring half of the story.',
+    relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-ogallala-water-depletion'],
+  },
+  {
+    id: 'foodhistory-regen-co2-nutrient-decline',
+    category: 'basicHealth',
+    title: 'A Real, Different Threat to Food\'s Nutrient Content: Rising CO2 Itself, Not Farming Practice',
+    teaser: 'A rigorous 7-site, 40-cultivar field study found real, single-digit declines in zinc, iron, and protein under the CO2 levels expected by mid-century -- modest per crop, but reaching 2.3 billion people who get most of their dietary zinc and iron from exactly these staples.',
+    summary:
+      "This cluster's own nutrient-density entry already covers whether FARMING PRACTICE (organic vs. conventional) changes how nutritious food is. Real, separate research asks a genuinely different question: does rising atmospheric CO2 itself, independent of how a crop is farmed, change its nutrient content. The real, most rigorous answer comes from Myers et al. 2014 (Nature), a study using free-air CO2 enrichment (FACE) technology across seven real field-experiment sites in Japan, Australia, and the United States, testing 40 real crop cultivars across up to six growing seasons for a total of 143 comparisons, at the CO2 concentration levels expected by roughly mid-century. The real, precise findings, genuinely modest per crop rather than dramatic: wheat showed 9.3% lower zinc and 6.3% lower protein, rice showed 3.3% lower zinc and 7.8% lower protein, field peas and soybeans showed comparable single-digit declines in zinc and iron. The real reason this matters despite modest individual percentages: the study found roughly 2.3 billion people worldwide get at least 60% of their dietary zinc and/or iron from these same C3 staple crops, with 1.9 billion relying on them for 70% or more of at least one of those nutrients -- a small percentage decline applied across that much of the global food supply is a real, population-scale nutrition risk, not a rounding error. C4 crops (maize, sorghum, several others) use a different photosynthetic pathway and were found substantially less affected, a real, practical distinction for which staple crops carry more of this specific risk.",
+    citations: [
+      {
+        source: 'Myers SS, et al. 2014, Nature: "Increasing CO2 threatens human nutrition" (real, exact per-crop percentage declines, 2.3 billion figure)',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4810679/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, rigorous, multi-site field study -- the exact figures here were independently re-verified against the primary source after an initial aggregated search result gave clearly inflated numbers that did not match the real paper.',
+    relatedIds: ['foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-fao-baseline-stakes'],
+  },
+  {
+    id: 'foodhistory-regen-food-waste-scale',
+    category: 'basicHealth',
+    title: 'The Direct Multiplier on Every Urgency Figure in This Cluster: Food Waste',
+    teaser: 'Roughly a third of all food produced is never eaten -- and that classic figure may itself understate the real problem, since it leaves out crops lost before ever reaching a store.',
+    summary:
+      'This is the direct multiplier on this cluster\'s own FAO soil-degradation baseline entry: every acre of soil degraded, every gallon of aquifer water pumped, and every managed pollinator trucked to an orchard is being spent, in part, on food that never actually gets eaten. The widely-cited estimate, based on real FAO and UNEP data, holds that roughly one-third of all food produced worldwide, about 1.3 billion tons a year, is lost or wasted. A real, honest complication: that classic figure may itself UNDERSTATE the true scale, since it largely excludes losses that happen before food ever leaves the farm (crops left unharvested, spoiled in storage) -- a more complete accounting from Tesco and the World Wildlife Fund, folding in those on-farm losses, put total food waste closer to 40% of the entire world food supply. The real, downstream costs are substantial and directly connect to other entries in this cluster: food loss and waste is responsible for a real 8-10% of total global greenhouse gas emissions, a real $1 trillion in annual economic cost, and, most directly relevant to this cluster\'s own land-use and water research, 28% of the world\'s arable land is used to grow food that is never actually eaten by anyone.',
+    citations: [
+      {
+        source: 'World Resources Institute: How Much Food Does the World Really Waste? (the classic 1/3 figure and its real understatement)',
+        url: 'https://www.wri.org/insights/how-much-food-does-the-world-waste',
+      },
+      {
+        source: 'UNFCCC: Food loss and waste account for 8-10% of annual global greenhouse gas emissions; cost USD 1 trillion annually',
+        url: 'https://unfccc.int/news/food-loss-and-waste-account-for-8-10-of-annual-global-greenhouse-gas-emissions-cost-usd-1-trillion',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, direct multiplier on this cluster\'s own already-established urgency baseline -- every resource documented elsewhere in this cluster is partly being spent on food that is never eaten.',
+    relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-ogallala-water-depletion'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
