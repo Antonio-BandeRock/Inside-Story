@@ -6,6 +6,7 @@ import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
+import { DIGEST_CONDITION_ICONS } from '../../components/DigestConditionIcons';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -1120,6 +1121,17 @@ export default function PurpleDigestScreen() {
       label: pinnedDigestKeys.has(meta.key) && meta.key !== 'basicHealth' ? `★ ${meta.label}` : meta.label,
       gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
       icon: meta.icon,
+      // 2026-08-09, real per-condition vector icons -- see
+      // components/DigestConditionIcons.tsx's own header comment for the
+      // full reasoning. `icon` above stays set regardless, as the real
+      // fallback for the 3 non-condition categories (basicHealth/
+      // earthMatters/homeGardening) this map has no bespoke icon for.
+      renderIcon: DIGEST_CONDITION_ICONS[meta.key]
+        ? (size: number, color: string) => {
+            const ConditionIcon = DIGEST_CONDITION_ICONS[meta.key]!;
+            return <ConditionIcon size={size} color={color} />;
+          }
+        : undefined,
       help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
     })),
   ];

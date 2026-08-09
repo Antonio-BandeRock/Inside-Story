@@ -39,6 +39,17 @@ export type LensOption<T extends string> = {
   // page's options keep rendering plain `label` as before, letting it wrap
   // (or not) on its own.
   gridLabel?: string;
+  // Overrides just this ONE grid item's own icon with a real, custom
+  // component (react-native-svg or otherwise) instead of the plain
+  // `icon` Ionicons glyph -- 2026-08-09, added for Purple Digest's own 19
+  // condition-specific vector icons (see components/DigestConditionIcons.tsx),
+  // the same real "swap one icon for a custom component" pattern this app
+  // already uses for the Purple Digest TAB icon itself (TabHub.tsx's own
+  // renderIcon special-case), just applied per grid item instead of per
+  // page. `icon` above is still required regardless -- it's the real
+  // fallback for any option that doesn't set this, and stays what every
+  // other page's own options render unchanged.
+  renderIcon?: (size: number, color: string) => ReactNode;
 };
 
 // 2026-07-26: widened from 260 -- that size was tuned against Insights/
@@ -706,11 +717,19 @@ export function LensHub<T extends string>({
                   >
                     {active ? (
                       <IridescentRingCircle size={GRID_ITEM_PILL_SIZE}>
-                        <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
+                        {option.renderIcon ? (
+                          option.renderIcon(GRID_ITEM_ICON_SIZE, tabColor)
+                        ) : (
+                          <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
+                        )}
                       </IridescentRingCircle>
                     ) : (
                       <View style={styles.itemIconPillPlain}>
-                        <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
+                        {option.renderIcon ? (
+                          option.renderIcon(GRID_ITEM_ICON_SIZE, tabColor)
+                        ) : (
+                          <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
+                        )}
                       </View>
                     )}
                     <Text
