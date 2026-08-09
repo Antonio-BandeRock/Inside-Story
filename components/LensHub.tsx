@@ -144,11 +144,25 @@ const GRID_ITEM_ICON_SIZE = 20;
 // this popup's Info icon) still use unchanged -- a real, custom image
 // icon reads differently at a given pixel size than a vector glyph does,
 // and this was asked for specifically after the artwork icons shipped,
-// not as a general "make every grid icon bigger" request. Still safely
-// inside GRID_ITEM_PILL_SIZE's own 34px circle (leaving 3px margin per
-// side), so this doesn't touch GRID_ROW_HEIGHT or any other layout math
-// below, which is driven only by the pill's own footprint, not the icon's.
-const GRID_ITEM_CUSTOM_ICON_SIZE = 28;
+// not as a general "make every grid icon bigger" request. This doesn't
+// touch GRID_ROW_HEIGHT or any other layout math below, which is driven
+// only by GRID_ITEM_PILL_SIZE's own footprint, not the icon's.
+//
+// Raised from 28 to 30, its real technical ceiling given the current pill
+// size, same day: "they could be a little bigger still." 30 is the actual
+// max this geometry allows without restructuring the pill/ring itself --
+// IridescentRingCircle's own inner white circle (what an active item's
+// icon sits inside) is `size - ringWidth * 2`, and with GRID_ITEM_PILL_SIZE
+// (34) and the ring's own default 2px width, that's exactly 34 - 4 = 30;
+// anything larger would visually spill past that inner circle's own edge
+// and overlap the animated ring itself once a tile is selected. Going
+// bigger than 30 for real would mean growing GRID_ITEM_PILL_SIZE itself
+// (or a Purple-Digest-specific pill size), which -- since GRID_ROW_HEIGHT
+// and every page's own shared, pixel-identical CARD_HEIGHT are both built
+// on that one constant -- would ripple into every other page's grid row
+// height too, a real, bigger structural change than what's been asked for
+// so far.
+const GRID_ITEM_CUSTOM_ICON_SIZE = 30;
 const GRID_ITEM_GAP = 2;
 const GRID_ITEM_PADDING_VERTICAL = 6;
 const GRID_ITEM_LABEL_LINE_HEIGHT = 14; // itemLabel's own fontSize (11) * ~1.3
