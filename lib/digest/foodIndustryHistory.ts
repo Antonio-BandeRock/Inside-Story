@@ -913,6 +913,125 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'Included deliberately, the same way the Savory entry above is, so this cluster does not read as accepting every regenerative-branded claim uncritically.',
     relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-timeline-certification-era', 'foodhistory-pesticides-glyphosate-dispute'],
   },
+  // 2026-08-10, same day, third follow-up: "Keep going with more research
+  // on this topic." Every citation below independently re-verified via
+  // WebSearch/WebFetch the same way as the first three batches. This pass
+  // reaches further back (terra preta, a real ancient precedent for
+  // biochar this cluster already covers) and further forward (gene-edited
+  // nitrogen-fixing microbes, a real, current commercial product), plus a
+  // real, honest grounding stat (cover crops, one of the most basic,
+  // longest-promoted regenerative practices, still sit on under 5% of US
+  // cropland) and a real, current political case study showing this isn't
+  // a costless, conflict-free transition (the Netherlands' own nitrogen
+  // policy and the farmer protests it triggered).
+  {
+    id: 'foodhistory-regen-terra-preta-ancient-biochar',
+    category: 'basicHealth',
+    title: 'Biochar Is Not a New Idea. Amazonian Farmers Were Doing It Thousands of Years Ago.',
+    teaser: 'Terra preta, human-made fertile soil in the Amazon, still measurably richer than the surrounding ground centuries to millennia after it was built.',
+    summary:
+      "The biochar-carrier microbial technique already covered in this cluster's own Innovations entry has a real, ancient precedent, not a purely modern origin. Terra preta (\"black earth\" in Portuguese), also called Amazonian dark earth, is real, human-made fertile soil found across the Amazon basin, created deliberately by pre-Columbian Indigenous societies by working charcoal, ash, food and fish waste, and pottery fragments into otherwise poor, heavily weathered tropical soil. Radiocarbon dating places most known terra preta between roughly 2,500 and 500 years old, with the oldest confirmed patches dated to 4,800-5,000 years, and separate research has traced an even earlier, less-charred precursor soil (\"terra mulata\") back as far as 10,000 years. These soils remain measurably richer in carbon, nutrients, and biomass than the surrounding, naturally poor Amazonian ground centuries to millennia after they were made, and documented patches span a real 6,000-18,000 square kilometers, with modeled estimates suggesting the true extent could reach over 150,000 square kilometers, roughly 3.2% of the entire Amazon forest. This is the real, direct historical precedent behind the modern biochar industry: an ancient, deliberate soil-engineering technique that worked well enough to still be measurably different from its surroundings after thousands of years.",
+    citations: [
+      {
+        source: 'Eos.org (American Geophysical Union): The Nutrient-Rich Legacy in the Amazon\'s Dark Earths (area coverage, carbon storage)',
+        url: 'https://eos.org/features/the-nutrient-rich-legacy-in-the-amazons-dark-earths',
+      },
+      {
+        source: 'ScienceDirect: Terra Preta -- an overview (formation, biochar-industry connection)',
+        url: 'https://www.sciencedirect.com/topics/agricultural-and-biological-sciences/terra-preta',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, dated, radiocarbon-confirmed archaeology, not folklore -- a genuine deep-history counterpart to the modern biochar research already cited elsewhere in this cluster.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+    chart: {
+      title: 'Terra Preta, Documented vs. Modeled Extent',
+      unit: 'thousand km²',
+      data: [
+        { label: 'Directly documented patches', value: 12 },
+        { label: 'Modeled potential total extent', value: 150 },
+      ],
+      sourceNote: 'Eos.org / AGU, real ranges reported as a single midpoint and a single upper estimate for chart display',
+    },
+  },
+  {
+    id: 'foodhistory-regen-engineered-nitrogen-fixing-microbes',
+    category: 'basicHealth',
+    title: 'Engineering Corn to Do What Only Legumes Could Do Before',
+    teaser: 'Gene-edited soil bacteria that fix nitrogen directly at a corn plant\'s roots -- a real, current, peer-reviewed alternative to synthetic fertilizer, not a lab curiosity.',
+    summary:
+      'A real, genuinely cutting-edge extension of the crop-specific microbial inoculants already covered in this cluster\'s Innovations entry: nitrogen fixation (pulling nitrogen gas out of the air and converting it into a form a plant can use) has historically only happened at meaningful scale in legume crops, through their own real, ancient symbiosis with Rhizobium bacteria living in root nodules. Corn and most other major grain crops have no such symbiosis, which is the real reason synthetic nitrogen fertilizer (itself a major, well-documented source of runoff and greenhouse-gas emissions) became so central to modern grain farming in the first place. A real, commercially available product, Pivot Bio\'s PROVEN 40, uses gene-editing to modify a naturally occurring soil bacterium (Klebsiella variicola) so it keeps its own nitrogen-fixing genes permanently switched on while colonizing corn roots directly, rather than only briefly under nitrogen-starved conditions the way the wild strain does. A real, peer-reviewed field study from Purdue University and the University of Wisconsin-Madison, using isotope tracking to directly confirm the fixed nitrogen was actually taken up by the corn plants, found farmers could reliably replace 35-40 pounds per acre of the most volatile, runoff-prone synthetic nitrogen while maintaining or improving yield.',
+    citations: [
+      {
+        source: 'PR Newswire / Pivot Bio: Peer-Reviewed Study Validates Pivot Bio\'s Gene-Edited Microbes as a Third Source of Nitrogen Delivery',
+        url: 'https://www.prnewswire.com/news-releases/peer-reviewed-study-validates-pivot-bios-gene-edited-microbes-as-a-third-source-of-nitrogen-delivery-302354658.html',
+      },
+      {
+        source: 'PMC: "Genetic remodeling of soil diazotrophs enables partial replacement of synthetic nitrogen fertilizer with biological nitrogen fixation in maize"',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11557888/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, current, peer-reviewed, commercially deployed technology, still new enough that independent long-term and multi-region confirmation is real, ongoing work, not yet a decades-long track record the way no-till or Rodale\'s trial have.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+    chart: {
+      title: 'Synthetic Nitrogen Replaced Per Acre',
+      unit: 'lbs/acre',
+      data: [{ label: 'Volatile synthetic nitrogen reliably replaced', value: 37.5 }],
+      sourceNote: 'Purdue University / University of Wisconsin-Madison peer-reviewed field study, real, measured midpoint of the reported 35-40 lb range',
+    },
+  },
+  {
+    id: 'foodhistory-regen-cover-crop-reality-check',
+    category: 'basicHealth',
+    title: 'A Real Reality Check: Even the Simplest Regenerative Practice Is Still Rare',
+    teaser: 'Cover crops have been promoted for decades and are one of the cheapest, best-understood regenerative practices there is. In 2022, they were still on under 5% of US cropland.',
+    summary:
+      'Worth stating plainly against the more dramatic growth figures elsewhere in this cluster (ROC\'s own twenty-fold acreage jump, the real double-digit market-growth rates): cover cropping, the practice of planting a non-cash crop between main growing seasons specifically to protect and feed the soil, is one of the oldest, cheapest, and best-understood of every technique covered here, and real, official USDA Census of Agriculture data still found it on only 4.7% of total US cropland in 2022. Adoption varies sharply by crop: 25% of corn-for-silage acreage used cover crops, but only 5% of corn-for-grain and 8% of soybean acreage did, and adoption skews heavily toward the wetter, milder southern and eastern US, since shorter, colder growing seasons make establishing a cover crop genuinely harder elsewhere. This is a real, useful corrective against assuming the whole regenerative-agriculture story moves at the same pace: certification programs and market dollars can grow fast even while the most basic, individual on-farm practices they\'re meant to encourage remain a real minority behavior.',
+    citations: [
+      {
+        source: 'USDA Economic Research Service: Cover crop use continues to be most common in eastern United States (2022 Census of Agriculture)',
+        url: 'https://www.ers.usda.gov/data-products/charts-of-note/chart-detail?chartId=108950',
+      },
+      {
+        source: 'USDA Economic Research Service: Rates of cover crop adoption vary depending on the cash crop being planted',
+        url: 'https://www.ers.usda.gov/data-products/charts-of-note/102161',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Official USDA Census data -- a real, grounding corrective to the faster-moving market and certification figures elsewhere in this cluster.',
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-global-implementation-synthesis'],
+    chart: {
+      title: 'US Cropland Using Cover Crops (2022)',
+      unit: '%',
+      data: [
+        { label: 'All US cropland', value: 4.7 },
+        { label: 'Corn-for-silage acreage', value: 25 },
+      ],
+      sourceNote: 'USDA Economic Research Service, real, official 2022 Census of Agriculture figures',
+    },
+  },
+  {
+    id: 'foodhistory-regen-netherlands-nitrogen-conflict',
+    category: 'basicHealth',
+    title: 'The Netherlands: A Real Case Study in How Contentious This Transition Can Get',
+    teaser: 'A court ruling, a plan to cut livestock nitrogen by half, and one of the largest farmer protest movements in modern European history -- a real, honest counterweight to every case study above.',
+    summary:
+      "Every case study in this cluster so far has been a real success story. The Netherlands is a real, important, more complicated one, worth including precisely because environmental soil/nitrogen policy does not always land smoothly. In 2019, a Dutch court ruled the government's existing nitrogen-reduction program legally inadequate against the country's own conservation commitments, forcing a real policy response: in 2022 the government announced a target to cut nitrogen emissions from livestock (a dense concentration of dairy, pig, and poultry farming in a small country) by half, which government estimates suggested could require closing roughly 30% of Dutch livestock farms or a 30% national livestock reduction. The announcement triggered a real, sustained, highly visible protest movement, farmers using tractors to block highways and occupy public spaces for months, and gave rise to a genuinely new political party (the Farmer-Citizen Movement) that won the largest share of seats in the Netherlands' 2023 provincial elections, an outcome few analysts had predicted. This is a real, direct, current example of the actual political and economic cost side of environmental farm policy, included here specifically because every other entry in this cluster shows adoption as a comparatively smooth, voluntary, or incentive-driven story.",
+    citations: [
+      {
+        source: 'Mongabay: The Dutch farmers\' protests of 2022 (a full reporting series on the nitrogen crisis and its political fallout)',
+        url: 'https://news.mongabay.com/2023/09/the-dutch-nitrogen-crisis-a-mongabay-series/',
+      },
+      {
+        source: 'USDA Foreign Agricultural Service: 2022 Dutch Farmer Protests Against New Nitrogen GHG Emissions Reductions Policies (official policy targets, livestock-reduction figures)',
+        url: 'https://www.fas.usda.gov/data/netherlands-2022-dutch-farmer-protests-against-new-nitrogen-ghg-emissions-reductions-policies',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, current, well-documented political case study -- included deliberately as a counterweight, so this cluster does not read as though every country adopts these changes smoothly or without real economic cost to farmers.',
+    relatedIds: ['foodhistory-regen-global-implementation-synthesis', 'foodhistory-regen-environmental-impact'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
