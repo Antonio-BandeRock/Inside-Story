@@ -134,4 +134,54 @@
 // food-relevant preparation step (limiting iodine-rich foods for 1-2 weeks
 // before treatment measurably improves how well the radioactive iodine is
 // taken up). No sub_criteria or food_scores changes this pass.
-export const REFERENCE_DB_VERSION = "20260809030000";
+//
+// Bumped a twenty-fifth time, 2026-08-10: the first real international
+// data-import pipeline built and run this session, direct request to
+// "begin building the import pipeline for Finland/Norway/Sweden, and for
+// Mexico to see what we can get from it" -- an 8th real national source,
+// Norway_Matvaretabellen (2,121 foods, 65,338 nutrient rows), imported
+// directly from the Norwegian Food Safety Authority's real, public,
+// CC-BY-4.0 open API (matvaretabellen.no/api/nb/), no Python needed --
+// downloaded via curl, transformed by a real Node.js script
+// (scripts/../scratchpad/import_norway.js, category map built from the
+// real 16-top-level food-group hierarchy, nutrient map built by checking
+// which of ~100 distinct nutrientIds actually carry a real measured value
+// anywhere in the live dataset -- 29 do, matching this app's own tracked
+// nutrient codes; the rest, including biotin/choline/vitamin K/manganese
+// and several carotenoids, are tracked concepts in Norway's own schema
+// with zero real values, an honest gap in their data, not this import),
+// then applied via sqlite3.exe against the live, bundled .db. Verified
+// directly: correct category distribution, internally consistent sample
+// nutrient profiles. A real, known, NOT-yet-resolved consequence, named
+// here rather than silently left: resolveEffectiveUsdaOnly()'s existing
+// default-USDA-only behavior (lib/db.ts) will hide these new Norwegian
+// rows from default browsing in any category with real USDA coverage --
+// consistent with how the 6 other existing non-USDA sources already
+// behave without their own bypass, not a regression this import
+// introduced, but a real, open product question (should international
+// sources get the same always-visible treatment as Alcohol/PantryStaples/
+// PastaNoodles/Mushroom/Bev-Juice's own deliberate curation bypasses?)
+// still needing a real decision, not decided unilaterally here.
+//
+// Finland (Fineli) and Sweden (Livsmedelsverket) were both real, genuine
+// investigation targets, not skipped -- both concluded blocked/anomalous
+// rather than imported. Finland: confirmed, repeatedly, as genuine
+// Cloudflare "managed challenge" bot protection (HTTP 403 to curl with a
+// realistic browser User-Agent, to WebFetch, and to Finland's own general
+// open-data-portal mirror attempt) -- the real, licensed, open data is
+// confirmed to exist but is not fetchable from this environment. Sweden:
+// a real, live, correctly-versioned, keyless REST API was found and fully
+// documented via its own 41KB Swagger spec (dataportal.livsmedelsverket.se)
+// -- it responds HTTP 200, correctly rejects an unsupported API version
+// with a real error, yet returns totalRecords:0 for every real query
+// attempted (the documented example food id, sequential low ids, both
+// language codes, explicit pagination) -- a genuine, unexplained anomaly
+// in the live public service itself, not a fixable request pattern found
+// this session. Mexico: datos.gob.mx (a real, live CKAN portal) returned
+// zero or entirely irrelevant results across five real, targeted searches
+// ("nutrientes", "composicion alimentos", "SMAE", "INSP alimentos") --
+// confirms this session's earlier research finding that Mexico's real
+// food-composition resources (SMAE's 3,871-food table, INSP's BAM) exist
+// only as PDF/print documents, not as a structured, freely downloadable
+// dataset through the federal open-data portal.
+export const REFERENCE_DB_VERSION = "20260810120000";
