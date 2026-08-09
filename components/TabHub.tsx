@@ -8,7 +8,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { colors, rotatedIridescentPalette } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom } from '../constants/floatingButton';
-import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
+import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { useIridescentHueRotation, useThrottledHueDegrees } from '../hooks/useIridescentHueRotation';
@@ -35,35 +35,33 @@ const CARD_RING_WIDTH = 1;
 
 const BUTTON_SIZE = FLOATING_BUTTON_SIZE;
 const BOTTOM_OFFSET = FLOATING_BUTTON_BOTTOM_OFFSET;
-// The butterfly artwork's own aspect ratio -- the image is rendered at
-// this ratio rather than forced into BUTTON_SIZE's square, so nothing gets
-// cropped. It renders larger than the tap target itself in both dimensions
-// (see `overflow: visible` + `hitSlop` on the button below) so the
-// *layout* footprint other floating hubs (LensHub, ScopeHub) position
-// themselves against stays exactly BUTTON_SIZE -- only the visible artwork
-// is larger.
+// The button's own artwork -- whichever icon is currently chosen, not just
+// the butterfly -- is rendered at ITS OWN real aspect ratio rather than
+// forced into BUTTON_SIZE's square, so nothing gets cropped or distorted.
+// It renders larger than the tap target itself in both dimensions (see
+// `overflow: visible` + `hitSlop` on the button below) so the *layout*
+// footprint other floating hubs (LensHub, ScopeHub) position themselves
+// against stays exactly BUTTON_SIZE -- only the visible artwork is larger.
 //
-// 2026-07-26: re-derived from the actual transparent PNG's content bounds
-// (1606x1080), not the original 2340x1080 source photo's canvas size --
-// the source canvas had a lot of empty margin around the butterfly, so
-// using its raw dimensions understated how wide the real artwork is
-// relative to its height. The crop that produced the current PNG was also
-// centered on the artwork's real content bounds specifically because the
-// butterfly wasn't centered in the original canvas (376px left margin vs
-// 400px right, a real ~1-2px visible offset once scaled down) -- if this
-// asset is ever regenerated from a new source image, recenter it the same
-// way rather than assuming the source canvas itself is symmetric.
-const BUTTERFLY_ASPECT_RATIO = 1606 / 1080;
-// Exported, 2026-07-28: PageIdentityLabel.tsx's own corner box needs to
-// size/position itself relative to the butterfly's own real edges (same
-// buffer from the butterfly as the butterfly keeps from the system nav
-// bar) -- reusing these rather than a second, guessed-at copy of the same
-// numbers keeps the two from silently drifting apart if this artwork is
-// ever resized.
-export const BUTTERFLY_WIDTH = 116;
-const BUTTERFLY_HEIGHT = BUTTERFLY_WIDTH / BUTTERFLY_ASPECT_RATIO;
-const BUTTERFLY_OVERHANG_X = Math.max(0, Math.ceil((BUTTERFLY_WIDTH - BUTTON_SIZE) / 2));
-export const BUTTERFLY_OVERHANG_Y = Math.max(0, Math.ceil((BUTTERFLY_HEIGHT - BUTTON_SIZE) / 2));
+// 2026-08-09: what used to be a single fixed BUTTERFLY_WIDTH/HEIGHT pair
+// (calibrated only for the default butterfly artwork's own 1606:1080
+// ratio) is now computed per-render via getTabHubIconRenderSize
+// (constants/tabHubIcons.ts) -- real, measured data confirmed the 19
+// condition icons span a genuinely wide range of real aspect ratios
+// (0.652 to 1.362), so a single fixed box sized for the butterfly's own
+// much wider 1.487 ratio left every condition icon rendering noticeably
+// smaller than the butterfly, height-constrained inside that box rather
+// than reaching its own true visual size. getTabHubIconRenderSize instead
+// scales each icon so its own LONGER edge reaches the same target the
+// butterfly's own width always has, which is what actually makes a tall
+// icon (Gout) and a wide one (PCOS) both read as similarly "present" the
+// way the butterfly always has -- see that function's own header comment
+// for the full reasoning. No longer a static export -- PageIdentityLabel.tsx
+// and MyItemsHub.tsx, the other two real consumers of this geometry (see
+// their own history), now each call getTabHubIconRenderSize directly with
+// their own live useVisualPreferences() read, rather than importing a
+// value from this specific component that could only ever reflect the
+// butterfly.
 const ICON_PILL_SIZE = 34;
 // A bit bigger than the 20px the Ionicons "ribbon" glyph this replaced
 // rendered at (2026-07-28, explicitly asked for -- see PurpleRibbonIcon.tsx
@@ -294,6 +292,18 @@ export function TabHub() {
   // so this can only be undefined if the earlier lookup itself resolved to
   // a real source, making the fallback moot either way.
   const buttonIconSource = TAB_HUB_ICON_SOURCES[tabHubIcon] ?? TAB_HUB_ICON_SOURCES.default!;
+  // See getTabHubIconRenderSize's own header comment (constants/
+  // tabHubIcons.ts) for why this is computed per-render from the chosen
+  // icon's own real aspect ratio, not a fixed size -- the actual fix for
+  // condition icons rendering smaller than the butterfly. Overhang follows
+  // the exact same formula the old static BUTTERFLY_OVERHANG_X/Y always
+  // used, just against whichever width/height is actually showing right
+  // now, so the touch target (hitSlop, below) always covers the real,
+  // currently-visible artwork rather than staying calibrated to the
+  // butterfly's own shape regardless of what's chosen.
+  const { width: buttonIconWidth, height: buttonIconHeight } = getTabHubIconRenderSize(tabHubIcon);
+  const buttonIconOverhangX = Math.max(0, Math.ceil((buttonIconWidth - BUTTON_SIZE) / 2));
+  const buttonIconOverhangY = Math.max(0, Math.ceil((buttonIconHeight - BUTTON_SIZE) / 2));
 
   // TEMPORARY diagnostic instrumentation, 2026-08-01 -- for the still-
   // unresolved "card drops in from above" bug (see this file's own long
@@ -423,7 +433,7 @@ export function TabHub() {
         }}
         activeOpacity={0.85}
         accessibilityLabel="Open navigation menu"
-        hitSlop={{ left: BUTTERFLY_OVERHANG_X, right: BUTTERFLY_OVERHANG_X, top: BUTTERFLY_OVERHANG_Y, bottom: BUTTERFLY_OVERHANG_Y }}
+        hitSlop={{ left: buttonIconOverhangX, right: buttonIconOverhangX, top: buttonIconOverhangY, bottom: buttonIconOverhangY }}
       >
         {/* No circle, no fill, no border at rest -- the artwork itself is
             the button. Its own background was removed (see
@@ -444,13 +454,14 @@ export function TabHub() {
             mechanism, shadows a view's rectangular bounds, not a
             transparent PNG's actual silhouette). */}
         {open ? (
-          <View style={styles.butterflyOpenWrap}>
+          <View style={[styles.butterflyOpenWrap, { width: buttonIconWidth, height: buttonIconHeight }]}>
             {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
               <Image
                 key={index}
                 source={buttonIconSource}
                 style={[
                   styles.butterflyImage,
+                  { width: buttonIconWidth, height: buttonIconHeight },
                   styles.butterflyShadowCopy,
                   { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY }] },
                 ]}
@@ -459,12 +470,16 @@ export function TabHub() {
             ))}
             <Image
               source={buttonIconSource}
-              style={[styles.butterflyImage, styles.butterflyRealCopy]}
+              style={[styles.butterflyImage, { width: buttonIconWidth, height: buttonIconHeight }, styles.butterflyRealCopy]}
               resizeMode="contain"
             />
           </View>
         ) : (
-          <Image source={buttonIconSource} style={styles.butterflyImage} resizeMode="contain" />
+          <Image
+            source={buttonIconSource}
+            style={[styles.butterflyImage, { width: buttonIconWidth, height: buttonIconHeight }]}
+            resizeMode="contain"
+          />
         )}
       </TouchableOpacity>
 
@@ -717,8 +732,13 @@ const styles = StyleSheet.create({
     zIndex: 10,
   },
   butterflyImage: {
-    width: BUTTERFLY_WIDTH,
-    height: BUTTERFLY_HEIGHT,
+    // width/height used to live here as fixed BUTTERFLY_WIDTH/HEIGHT --
+    // 2026-08-09, moved to a per-render inline style instead (see
+    // buttonIconWidth/Height above), since the actual rendered size now
+    // depends on which icon is currently chosen, not a single fixed
+    // butterfly-only box. Every OTHER style property here stays static,
+    // unrelated to which icon is showing.
+    //
     // Re-added 2026-07-27, explicitly requested despite no diagnosed
     // cause -- a near-identical -2px leftward nudge lived here before,
     // was removed the same day pixel analysis showed the asset itself
@@ -733,17 +753,15 @@ const styles = StyleSheet.create({
     // Adjust or remove based on how it actually looks on-device.
     transform: [{ translateX: -2 }],
   },
-  // Open-only wrapper -- sized to the artwork's own full footprint
-  // (BUTTERFLY_WIDTH x HEIGHT, not BUTTON_SIZE) so the shadow/outline/
-  // real-image children below, all absolutely positioned within it, have
-  // a large enough box to be positioned against. `button`'s own
-  // alignItems/justifyContent center this wrapper exactly the way it used
-  // to center the bare Image directly, so the closed <-> open switch
-  // doesn't shift anything.
-  butterflyOpenWrap: {
-    width: BUTTERFLY_WIDTH,
-    height: BUTTERFLY_HEIGHT,
-  },
+  // Open-only wrapper -- sized to the artwork's own full footprint (the
+  // per-render buttonIconWidth/Height, not BUTTON_SIZE -- see the inline
+  // override at this style's own usage) so the shadow/outline/real-image
+  // children below, all absolutely positioned within it, have a large
+  // enough box to be positioned against. `button`'s own alignItems/
+  // justifyContent center this wrapper exactly the way it used to center
+  // the bare Image directly, so the closed <-> open switch doesn't shift
+  // anything.
+  butterflyOpenWrap: {},
   // No transform of its own -- butterflyImage's own translateX: -2
   // survives the style merge (RN merges style OBJECTS key-by-key, and
   // this one simply doesn't declare a `transform` key to override it).

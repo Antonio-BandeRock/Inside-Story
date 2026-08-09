@@ -7,9 +7,10 @@ import {
   NAVIGATION_HAND,
   SECONDARY_HUB_CARD_LEFT_MARGIN,
 } from '../constants/floatingButton';
+import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
-import { BUTTERFLY_OVERHANG_Y, BUTTERFLY_WIDTH } from './TabHub';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
 
 // 2026-07-25: the page title and sub-tab label (e.g. "Insights" / "6
 // Dimensions") used to live in ScreenHeader, top of screen, next to the
@@ -68,35 +69,47 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   const { width: windowWidth } = useWindowDimensions();
   const tabRoute = TAB_ROUTES.find((route) => route.title === title);
   const tabColor = tabRoute?.color ?? colors.primary;
+  // 2026-08-09: this box positions itself relative to the TabHub button's
+  // own real artwork edges -- since that artwork's real size now depends
+  // on which icon is currently chosen (see TabHub.tsx's own 2026-08-09
+  // comment), this reads the same live preference and calls the same
+  // shared getTabHubIconRenderSize function TabHub.tsx itself uses, rather
+  // than importing a value from that component that could only ever
+  // reflect the default butterfly. Called unconditionally, before the
+  // early return below, per the Rules of Hooks.
+  const { tabHubIcon } = useVisualPreferences();
+  const { width: buttonIconWidth, height: buttonIconHeight } = getTabHubIconRenderSize(tabHubIcon);
+  const buttonIconOverhangY = Math.max(0, Math.ceil((buttonIconHeight - FLOATING_BUTTON_SIZE) / 2));
 
   // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
   // this file's own 2026-08-08 comment above for why the box no longer
   // shows a resting-state prompt in the meantime.
   if (!activeLensLabel) return null;
 
-  // The butterfly's own bottom edge sits BUTTERFLY_OVERHANG_Y below the
-  // button's own bottom edge (the artwork is taller than the 60px button
-  // footprint, centered around it) -- so its real buffer from the system
-  // nav bar is this much less than FLOATING_BUTTON_BOTTOM_OFFSET alone.
-  const verticalBuffer = FLOATING_BUTTON_BOTTOM_OFFSET - BUTTERFLY_OVERHANG_Y;
+  // The currently-showing icon's own bottom edge sits buttonIconOverhangY
+  // below the button's own bottom edge (the artwork is taller than the
+  // 60px button footprint, centered around it) -- so its real buffer from
+  // the system nav bar is this much less than FLOATING_BUTTON_BOTTOM_OFFSET
+  // alone.
+  const verticalBuffer = FLOATING_BUTTON_BOTTOM_OFFSET - buttonIconOverhangY;
   const boxBottom = insets.bottom + verticalBuffer;
-  // The butterfly's own full vertical span (button height + its overhang
-  // on both the top and bottom) -- matching this exactly is what makes
-  // the box's own top edge land the same distance below the footer's
-  // iridescent line the butterfly's top edge already sits.
-  const boxHeight = FLOATING_BUTTON_SIZE + BUTTERFLY_OVERHANG_Y * 2;
+  // The icon's own full vertical span (button height + its overhang on
+  // both the top and bottom) -- matching this exactly is what makes the
+  // box's own top edge land the same distance below the footer's
+  // iridescent line the icon's own top edge already sits.
+  const boxHeight = FLOATING_BUTTON_SIZE + buttonIconOverhangY * 2;
   // TabHub's own button is alignSelf: 'center' with no other horizontal
-  // inset in play, so it (and the butterfly artwork centered around it,
+  // inset in play, so it (and whichever icon is centered around it,
   // symmetrically wider on both sides) sits centered on windowWidth/2,
   // regardless of NAVIGATION_HAND -- only which SIDE the hub buttons
   // cluster on (and which side this box mirrors to) depends on that.
-  const butterflyCenterX = windowWidth / 2;
+  const buttonCenterX = windowWidth / 2;
   const horizontalPosition =
     NAVIGATION_HAND === 'left'
-      ? { left: butterflyCenterX + BUTTERFLY_WIDTH / 2 + verticalBuffer, right: SECONDARY_HUB_CARD_LEFT_MARGIN }
+      ? { left: buttonCenterX + buttonIconWidth / 2 + verticalBuffer, right: SECONDARY_HUB_CARD_LEFT_MARGIN }
       : {
           left: SECONDARY_HUB_CARD_LEFT_MARGIN,
-          right: windowWidth - (butterflyCenterX - BUTTERFLY_WIDTH / 2 - verticalBuffer),
+          right: windowWidth - (buttonCenterX - buttonIconWidth / 2 - verticalBuffer),
         };
 
   return (

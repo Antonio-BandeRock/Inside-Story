@@ -10,9 +10,10 @@ import {
   useBottomLeftHubPosition,
   useMenuCardBottom,
 } from '../constants/floatingButton';
+import { getTabHubIconRenderSize } from '../constants/tabHubIcons';
 import { typography } from '../constants/typography';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { IridescentRingCircle } from './IridescentRingCircle';
-import { BUTTERFLY_WIDTH } from './TabHub';
 
 // 2026-07-28: fills the gap deliberately left between the LensHub button
 // and the butterfly -- a "My Foods"/"My Insights"/"My Schedules"/etc.
@@ -89,16 +90,24 @@ export function MyItemsHub({
   const [open, setOpen] = useState(false);
   const { left: lensHubLeft } = useBottomLeftHubPosition();
   const cardBottom = useMenuCardBottom();
+  // 2026-08-09: the TabHub button's own real artwork width now depends on
+  // which icon is currently chosen (see TabHub.tsx's own 2026-08-09
+  // comment) -- reads the same live preference and calls the same shared
+  // getTabHubIconRenderSize function TabHub.tsx itself uses, rather than
+  // importing a value from that component that could only ever reflect
+  // the default butterfly.
+  const { tabHubIcon } = useVisualPreferences();
+  const { width: tabHubIconWidth } = getTabHubIconRenderSize(tabHubIcon);
 
   const rowBottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET;
   const lensHubRight = lensHubLeft + FLOATING_BUTTON_SIZE;
-  // The butterfly ARTWORK's own real left edge, not the smaller 60px
-  // button box underneath it -- the artwork overhangs that box by
-  // BUTTERFLY_OVERHANG_X on each side (see TabHub.tsx), so using the
-  // button box alone put this button's own center too far right, close
-  // enough to actually overlap the wing's real tip. BUTTERFLY_WIDTH is
-  // the artwork's true full width, so half of it is its real edge.
-  const tabHubLeft = windowWidth / 2 - BUTTERFLY_WIDTH / 2;
+  // The currently-showing icon's own real left edge, not the smaller 60px
+  // button box underneath it -- the artwork overhangs that box on each
+  // side (see TabHub.tsx), so using the button box alone put this
+  // button's own center too far right, close enough to actually overlap
+  // the artwork's real edge. tabHubIconWidth is that artwork's true full
+  // width, so half of it is its real edge.
+  const tabHubLeft = windowWidth / 2 - tabHubIconWidth / 2;
   const gapMidpointX = (lensHubRight + tabHubLeft) / 2;
   const buttonLeft = gapMidpointX - TOUCH_SIZE / 2;
   // Vertically centered within the same 60px-tall row LensHub/TabHub's own
