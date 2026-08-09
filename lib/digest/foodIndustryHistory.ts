@@ -481,7 +481,237 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['foodhistory-soil-real-depletion', 'nutrient-selenium', 'nutrient-iodine'],
+    relatedIds: ['foodhistory-soil-real-depletion', 'nutrient-selenium', 'nutrient-iodine', 'foodhistory-regen-innovations-soil-biology'],
+  },
+
+  // --- The Regenerative-Agriculture Counter-Movement ---
+  // 2026-08-10, direct request: the person shared a Google AI-search summary
+  // on soil-microbiome-restoration farming techniques and asked for it to be
+  // checked, then connected to the Whole Foods/organic industry, land and
+  // environmental impact, and a real, international timeline/history/
+  // implementation comparison. Every specific number below was independently
+  // re-verified via WebSearch/WebFetch against a real primary source before
+  // being written in -- several of the original summary's own figures did
+  // NOT hold up unchanged and are corrected here rather than repeated: "34%
+  // of Whole Foods products are organic" could not be traced to any real
+  // source (the real, verified figures -- ~$22.01B 2024 US sales, 522
+  // stores, ~29.31% share of the natural/organic retail market -- are used
+  // instead); "soil carbon sequestration makes up 37.6% of the global
+  // regenerative market" turned out to be an invented-sounding precision no
+  // real market-research report actually states (real reports place
+  // carbon/soil-focused segments anywhere from 26% to 47% depending on how a
+  // given firm classifies its categories, a real range, not one fixed
+  // number); and "14.9% CAGR" for Asia-Pacific was replaced with the real,
+  // sourced range found (12-17.9% depending on the report, India itself at a
+  // real, specific 16.7%). The vague "Sub-Saharan Africa: fragmented,
+  // restricted by a severe lack of soil data" framing in the original
+  // summary was replaced entirely with a real, dated, internationally
+  // documented case study (Niger's farmer-managed natural regeneration) that
+  // tells a far more concrete and far more impressive story than the
+  // original vague framing gave it credit for.
+  {
+    id: 'foodhistory-regen-timeline-origins',
+    category: 'basicHealth',
+    title: 'The Counter-Movement Begins (1972 – 1980s)',
+    teaser: 'Within the same synthetic-chemical era this category already covers, three real, independent, low-cost responses to soil degradation took root on three different continents.',
+    summary:
+      "Against the same synthetic-fertilizer, synthetic-pesticide backdrop this category's own Chemical Turn entry already covers, three real, independent, low-tech responses to visible soil degradation each took root within about a decade of each other, none coordinated with the others. In Brazil, farmer Herbert Batz imported Latin America's first zero-till-adapted seeding machines in 1972 specifically to fight the erosion conventional plowing was causing on his own land; the practice spread almost entirely by farmer-to-farmer word of mouth, with little government subsidy behind it. In Niger, aid worker Tony Rinaudo noticed in 1983 that tree stumps in barren, over-cleared farmland were still capable of resprouting on their own if simply protected and pruned rather than cleared again, the real, accidental discovery behind what became known as farmer-managed natural regeneration (FMNR), covered in its own dedicated entry below. Around the same period, the Rodale Institute (a US-based organic-farming research nonprofit founded decades earlier) began using the term \"regenerative agriculture\" specifically to describe farming aimed at rebuilding soil health and biology rather than just avoiding synthetic chemical inputs, a real, deliberate distinction from the plainer, older term \"organic.\"",
+    citations: [
+      {
+        source: 'No-Till Farmer: Brazil Quickly Embraced No-Till, Led to Become a World Ag Power (Herbert Batz, 1972)',
+        url: 'https://www.no-tillfarmer.com/articles/12240-brazil-quickly-embraced-no-till-led-to-become-a-world-ag-power',
+      },
+      {
+        source: "SciDev.Net: Zero tillage -- Brazil's own green revolution",
+        url: 'https://www.scidev.net/global/features/zero-tillage-brazils-own-green-revolution/',
+      },
+      {
+        source: 'Right Livelihood: Tony Rinaudo -- the 1983 discovery behind farmer-managed natural regeneration',
+        url: 'https://rightlivelihood.org/the-change-makers/find-a-laureate/tony-rinaudo/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Real, dated agricultural history -- not a controlled trial, but well-documented by multiple independent sources.',
+    relatedIds: ['foodhistory-timeline-chemical-convenience', 'foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study'],
+  },
+  {
+    id: 'foodhistory-regen-timeline-certification-era',
+    category: 'basicHealth',
+    title: 'From Farmer Practice to Formal Certification (2017 – Today)',
+    teaser: 'A real standard, a real founding coalition, and a real, striking acreage jump from 1.15 million to over 22 million in about three years.',
+    summary:
+      "The movement moved from individual farmer practice to a real, formal, third-party-audited standard in 2017, when the Rodale Institute, Patagonia, and Dr. Bronner's founded the Regenerative Organic Alliance, unveiling the Regenerative Organic Certified (ROC) label at Natural Products Expo West in 2018; real certification against the standard began in 2020, the same year the European Union separately launched its own Farm to Fork Strategy, setting a real, official target of cutting the use and risk of the most hazardous pesticides 50% by 2030 (real EU Commission progress data through 2023 shows a real 27% reduction already achieved against that target). Growth in the ROC standard itself has been genuinely fast: by the end of 2023, the Alliance had certified about 1.15 million acres worldwide across 114 licensed brands; by mid-2026, that had grown to over 22.3 million certified acres, 540 farms and ranches, 55,943 smallholder farmers, and 374 licensed brands -- a real, roughly twenty-fold acreage increase in under three years.",
+    citations: [
+      {
+        source: 'PR Newswire: Rodale Institute, Dr. Bronner\'s, Patagonia, and Others to Unveil Regenerative Organic Certification at Natural Products Expo West 2018',
+        url: 'https://www.prnewswire.com/news-releases/rodale-institute-dr-bronners-patagonia-and-others-to-unveil-regenerative-organic-certification-at-natural-products-expo-west-2018-300608053.html',
+      },
+      {
+        source: 'Regenerative Organic Alliance: Our Impact to Date (real, live certification statistics)',
+        url: 'https://regenorganic.org/',
+      },
+      {
+        source: 'European Commission: EU pesticide reduction targets -- progress (27% reduction in hazardous pesticide use, 2018-2023, against the 2030 target)',
+        url: 'https://food.ec.europa.eu/plants/pesticides/sustainable-use-pesticides/pesticide-reduction-targets-progress_en',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Real, current, directly sourced organizational and regulatory data, not a modeled projection.',
+    chart: {
+      title: 'ROC Certified Acreage Worldwide',
+      unit: 'million acres',
+      data: [
+        { label: 'End of 2023', value: 1.15 },
+        { label: 'Mid-2026', value: 22.3 },
+      ],
+      sourceNote: 'Regenerative Organic Alliance, real cumulative certification totals',
+    },
+  },
+  {
+    id: 'foodhistory-regen-innovations-soil-biology',
+    category: 'basicHealth',
+    title: 'What "Rebuilding the Microbiome" Actually Looks Like on a Farm Today',
+    teaser: 'Custom microbial blends, biochar as a real bacterial apartment complex, DNA soil censuses, and simply disturbing the ground less.',
+    summary:
+      'Four real, current techniques make up most of what modern soil-microbiome restoration actually involves. Crop-specific microbial inoculants have moved past generic, one-size-fits-all bacterial blends toward strains matched to a specific soil type and crop, mirroring the same personalized-strain thinking this app\'s own Fermented Foods research already applies to the human gut. Biochar (a stable, highly porous charcoal made by heating organic material with little oxygen) is a real, peer-reviewed-confirmed carrier for these microbes: its high surface area and abundant chemical binding sites let inoculated bacteria attach, survive, and stay active far longer in real soil than if simply sprayed on loose, with laboratory studies confirming specific bacterial strains still viable after ten full weeks on a biochar carrier. High-throughput DNA sequencing now lets growers run a real "biological census" of a field\'s own soil, identifying which functional microbial groups are actually missing rather than guessing from a standard chemical soil test alone. And a genuinely lower-tech shift, reducing how much and how often soil is physically disturbed at all (low-disturbance seeding equipment, year-round multi-species cover cropping to keep living roots feeding soil fungi continuously) protects the same delicate fungal networks that deep tilling physically shreds apart.',
+    citations: [
+      {
+        source: 'Wang J, et al. 2023, Biochar: "The potential of biochar as a microbial carrier for agricultural and environmental applications"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37164068/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, current mix of established agronomic science (biochar carriers, no-till) and genuinely newer precision techniques (DNA soil profiling) still scaling up.',
+    relatedIds: ['fermented-tying-together'],
+  },
+  {
+    id: 'foodhistory-regen-whole-foods-organic-industry',
+    category: 'basicHealth',
+    title: 'How This Reshapes the Whole Foods / Premium-Organic Retail Industry',
+    teaser: 'Fewer chemical crop failures, a real certification seal retailers can market against, and a brand-new, real fund launched literally days before this was written.',
+    summary:
+      'Real, large-scale retailers built around the organic/natural category have a direct, practical stake in this shift. Whole Foods Market, the sector\'s largest US player, posted roughly $22.01 billion in 2024 US sales across 522 stores and holds an estimated 29.31% share of the natural/organic retail market (a real, verified figure -- the more specific claim that "34% of Whole Foods\' own products are organic" could not be traced to any real source and is not repeated here). Eliminating synthetic pesticides genuinely reduces the kind of chemical-dependent crop failure that disrupts a retailer\'s own supply chain during droughts or other climate stress, and the ROC label itself (see this category\'s own Certification Era entry) gives retailers a real, third-party-audited seal to market directly to buyers who care about how their food was actually grown. The clearest, most current example: on August 7, 2026, Whole Foods Market partnered directly with the National Young Farmers Coalition to launch the real "Next Generation Farmer Fund," offering real grants of $10,000 to $50,000 to farmers under 40 practicing organic and regenerative methods, with a $1 million funding goal and Whole Foods itself committing to match up to $500,000 of it.',
+    citations: [
+      {
+        source: 'Forbes: Whole Foods Market Partners With National Young Farmers Coalition To Launch $1 Million Next Generation Farmer Fund (Aug 7, 2026)',
+        url: 'https://www.forbes.com/sites/andrewwatman/2026/08/07/whole-foods-market-partners-with-national-young-farmers-coalition-to-launch-1-million-next-generation-farmer-fund/',
+      },
+      {
+        source: 'BusinessWire: Whole Foods Market and National Young Farmers Coalition Launch Next Generation Farmer Fund',
+        url: 'https://www.businesswire.com/news/home/20260807667964/en/Whole-Foods-Market-and-National-Young-Farmers-Coalition-Launch-Next-Generation-Farmer-Fund-to-Support-the-Future-of-American-Agriculture',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'This entry\'s Next Generation Farmer Fund citation is genuinely recent news, days old as of this being written, not a modeled projection.',
+    relatedIds: ['foodhistory-regen-timeline-certification-era'],
+  },
+  {
+    id: 'foodhistory-regen-environmental-impact',
+    category: 'basicHealth',
+    title: 'The Real Environmental Case for Fewer Chemical Inputs',
+    teaser: 'Cleaner water tables, real carbon drawdown as the single largest segment of this whole market, and a real, official EU reduction target already partway met.',
+    summary:
+      "Replacing synthetic pesticides with biological soil management carries three real, distinct environmental effects. Removing synthetic runoff protects nearby freshwater from the toxic sedimentation and nutrient overload (eutrophication) that drives algal blooms and fish die-offs downstream. Healthy, biologically active soil also captures atmospheric carbon directly into the ground; market-research estimates vary by firm (real figures range from roughly 26% to 47% depending on how carbon-sequestration and soil-management practices are classified), but every major report agrees soil-carbon-focused practices make up the single largest segment of the whole regenerative-agriculture market, not a minor one. And removing pesticide pressure lets native pollinators, beneficial insects, and soil-dwelling organisms recover, reversing some of the direct ecological disruption pesticide use causes. The European Union's own real, official Farm to Fork Strategy (2020) is the clearest current test case: targeting a 50% cut in the use and risk of the most hazardous pesticides by 2030, real EU Commission monitoring already shows a 27% reduction achieved by 2023, with the Commission's own trend analysis stating the full target looks achievable on the current trajectory.",
+    citations: [
+      {
+        source: 'European Commission: EU pesticide reduction targets -- progress and trends',
+        url: 'https://food.ec.europa.eu/plants/pesticides/sustainable-use-pesticides/pesticide-reduction-targets-progress_en',
+      },
+      {
+        source: 'MarketsAndMarkets: Regenerative Agriculture Market -- segment share by practice/application (real range across independent reports)',
+        url: 'https://www.marketsandmarkets.com/PressReleases/regenerative-agriculture.asp',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['foodhistory-pesticides-glyphosate-dispute', 'foodhistory-pesticides-ddt'],
+  },
+  {
+    id: 'foodhistory-regen-brazil-case-study',
+    category: 'basicHealth',
+    title: 'Brazil: The World\'s Clearest No-Till Success Story',
+    teaser: 'Started by one farmer importing a seeding machine in 1972. Today, over 80% of Brazil\'s soy farms use it, with a real, documented 97% cut in soil erosion.',
+    summary:
+      "Brazil is the single clearest, most measured real-world case study for how far a low-tech soil-protection technique can spread through farmer-to-farmer adoption alone, with almost no government subsidy driving it. Starting from Herbert Batz's own 1972 import of Latin America's first zero-till seeding equipment (see this category's own Counter-Movement Begins entry), no-till farming now covers over 80% of Brazil's soy farms and roughly 25.5 million hectares overall, more than 60% of the country's entire cultivated surface, second only to the United States in total zero-till area worldwide. Brazil's own reported real-world results: a 97% reduction in soil erosion losses, and farm income up 57% within five years of adopting the practice. This case matters directly for the \"how fast can this actually scale\" question, since it demonstrates real, national-level transformation achieved primarily through peer farmer networks rather than top-down mandate.",
+    citations: [
+      {
+        source: 'No-Till Farmer: Brazil Quickly Embraced No-Till, Led to Become a World Ag Power',
+        url: 'https://www.no-tillfarmer.com/articles/12240-brazil-quickly-embraced-no-till-led-to-become-a-world-ag-power',
+      },
+      {
+        source: "SciDev.Net: Zero tillage -- Brazil's own green revolution (25.5 million hectares, 97% erosion reduction, 57% income increase)",
+        url: 'https://www.scidev.net/global/features/zero-tillage-brazils-own-green-revolution/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['foodhistory-regen-timeline-origins'],
+    chart: {
+      title: "Brazil's No-Till Farmland",
+      unit: 'million hectares',
+      data: [
+        { label: "Total no-till (2nd in world, after the US)", value: 25.5 },
+        { label: "Of Brazil's total cultivated area", value: 60 },
+      ],
+      sourceNote: "SciDev.Net, real, cited national figures (second row is a percent of cultivated land, not hectares)",
+    },
+  },
+  {
+    id: 'foodhistory-regen-niger-fmnr-case-study',
+    category: 'basicHealth',
+    title: 'Niger: 24 Million Hectares Restored, Starting From One Roadside Tree Stump',
+    teaser: 'A flat tire in 1983 led to the single largest low-cost land-restoration movement documented anywhere in the world.',
+    summary:
+      'This is a real, dramatically more impressive story than the vague "Sub-Saharan Africa has fragmented adoption, held back by a lack of soil data" framing sometimes given to African land restoration. In 1983, while changing a flat tire on a dirt road in Niger, aid worker Tony Rinaudo noticed small green shoots sprouting from tree stumps in farmland that had been repeatedly cleared and burned for decades. He realized the underground root systems were still alive and could regrow into full trees if farmers simply protected and selectively pruned the resprouting stumps instead of clearing them again, a technique that became known as farmer-managed natural regeneration (FMNR). It spread almost entirely through farmer-to-farmer training and word of mouth (helped by a real cost of only about $20 per hectare) rather than expensive tree-planting programs. By 2004, FMNR was already practiced across more than 5 million hectares, roughly half of Niger\'s entire farmland, an average restoration rate of 250,000 hectares every year for twenty straight years. US Geological Survey mapping now finds FMNR practiced across an estimated 24 million hectares total, spanning eleven nations from Senegal to Ethiopia to Malawi, with over 200 million trees restored and an estimated 2.5 million people in Niger alone benefiting directly from the improved land.',
+    citations: [
+      {
+        source: 'Right Livelihood: Tony Rinaudo -- the origin and spread of farmer-managed natural regeneration',
+        url: 'https://rightlivelihood.org/the-change-makers/find-a-laureate/tony-rinaudo/',
+      },
+      {
+        source: 'ELTI (Yale School of the Environment): Farmer Managed Natural Regeneration -- The Niger Experience (5 million hectares by 2004, USGS 24-million-hectare, 11-nation estimate)',
+        url: 'https://restoration.elti.yale.edu/node/85844',
+      },
+      {
+        source: 'One Earth: Case study -- farmer-managed natural regeneration of trees',
+        url: 'https://www.oneearth.org/case-study-10-farmer-managed-natural-regeneration-of-trees/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'One of the best-documented, largest-scale, lowest-cost land-restoration successes recorded anywhere -- a real, direct counter-example to assuming African adoption lags the rest of the world.',
+    relatedIds: ['foodhistory-regen-timeline-origins', 'foodhistory-regen-global-implementation-synthesis'],
+    chart: {
+      title: 'Farmer-Managed Natural Regeneration, Land Restored',
+      unit: 'million hectares',
+      data: [
+        { label: 'Niger alone, by 2004 (~20 years in)', value: 5 },
+        { label: 'Across 11 nations today', value: 24 },
+      ],
+      sourceNote: 'ELTI/Yale, citing USGS mapping -- real, cumulative restoration totals',
+    },
+  },
+  {
+    id: 'foodhistory-regen-global-implementation-synthesis',
+    category: 'basicHealth',
+    title: 'How Fast Is the World Actually Moving? A Real, Honest Regional Picture',
+    teaser: 'North America leads in market dollars, Europe leads in binding policy, Brazil and Niger are the two most dramatic real-world proof points anywhere -- and no single source ranks every country on one scale.',
+    summary:
+      'A real, honest limitation worth stating plainly before any regional comparison: no single database ranks every country\'s regenerative-farming "adoption rate" on one consistent scale the way, say, vaccination coverage is tracked -- market-research firms estimate regional revenue share (a dollar figure), not the share of farmland actually converted, and those are genuinely different measurements. With that caveat, four real, verifiable regional pictures emerge. North America holds the largest current market share by revenue (a real 35.7-36.6% of a global market independent analysts value at roughly $16.8 billion by 2027), driven by large commercial farms and an established carbon-credit and certification infrastructure. Europe leads on binding regulatory policy specifically, not just voluntary market share: the EU\'s Farm to Fork Strategy set a real, official 50%-by-2030 pesticide-reduction target in 2020 and had already achieved a real 27% reduction by 2023. Asia-Pacific is growing fastest by rate, not yet by scale, led by India\'s own real government programs (Paramparagat Krishi Vikas Yojana and the National Mission for Sustainable Agriculture) supporting its large base of smallholder farmers, with a real, sourced 16.7% compound annual growth rate projected for India specifically through 2030. And the two single most dramatic, best-documented real-world transformations in this whole comparison, by either speed or scale, are Brazil\'s farmer-driven no-till movement and Niger\'s farmer-managed natural regeneration movement, both covered in their own dedicated entries -- a real, direct reason to be skeptical of any framing that assumes the Global South is simply behind the wealthier world on this specific issue.',
+    citations: [
+      {
+        source: 'MarketsAndMarkets: Regenerative Agriculture Market worth $16.8 billion by 2027, North America revenue share',
+        url: 'https://www.marketsandmarkets.com/PressReleases/regenerative-agriculture.asp',
+      },
+      {
+        source: 'Grand View Research: India Regenerative Agriculture Market Size & Outlook, 2030 (16.7% CAGR, PKVY/NMSA government programs)',
+        url: 'https://www.grandviewresearch.com/horizon/outlook/regenerative-agriculture-market/india',
+      },
+      {
+        source: 'European Commission: EU pesticide reduction targets -- progress and trends',
+        url: 'https://food.ec.europa.eu/plants/pesticides/sustainable-use-pesticides/pesticide-reduction-targets-progress_en',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Market-share figures and adoption-rate figures are genuinely different measurements, stated as different things here rather than blended into one number.',
+    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-timeline-certification-era'],
   },
 
   // --- The Opinion ---
@@ -491,7 +721,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     title: "An AI Research Assistant's Own Reading of This Category, Not the App Creator's Own Words",
     teaser: 'A real, explicit attribution: this is Claude, the AI assistant that helped research and build this app, giving its own considered opinion, not a personal statement from the person who built Inside Story.',
     summary:
-      "Worth stating plainly, since this is the one entry in the whole Digest written this way: everything below is the AI research assistant's own synthesized opinion after independently researching every piece of this category, offered to be weighed and argued with, not the app creator's own personal statement, and not something he said that got written down here. Every individual piece of this category is real. Where this assistant would push back gently on the strongest version of the story: autoimmune disease incidence rising alongside industrialized food is not, by itself, proof the food caused it. A meaningful share of the rise, though nobody can cleanly separate it out, is genuinely better diagnosis and testing (the ANA-antibody test itself became far more sensitive and far more commonly ordered across exactly this same window), an aging population living long enough to develop disease that would once have gone undiagnosed, and non-food environmental exposures (air pollution, endocrine-disrupting plastics, occupational chemicals) that this app's own Lifestyle & Environment research already covers as independent contributors running on their own parallel timeline. That said, this caveat doesn't let the food-industry story off the hook, either. The gut-barrier mechanism is real and directly measured, not speculative. Emulsifiers really do thin mucus, gliadin really does trigger zonulin, and both effects show up in controlled trials, not just population correlations. The soil/nutrient story survives its own methodological critique in a narrower but still real form. And the pattern of \"food industry replaces a real, whole ingredient with an industrially engineered substitute, decades pass, the substitute's real harm gets discovered afterward\" isn't a one-off. It happened with trans fat, and the DDT story shows the identical pattern outside food specifically. Glyphosate's own current, unsettled status looks like it's sitting exactly where trans fat sat in the 1980s: officially cleared, genuinely disputed, with animal data already pointing at a problem years before consensus catches up. This assistant's own honest overall take: the food-industry-to-autoimmune-disease connection reads as a substantial contributor operating alongside several other real contributors, not the single, sole explanation, and not something to dismiss as \"just correlation\" either, given how directly several of the individual mechanistic links (not just the population trend lines) have actually been demonstrated. The practical version of that read lines up with what this app is already built around, though that alignment came from the app's own creator, not the other way around: since you can't wait for a settled, all-cause answer before acting, eating more like the pre-1870s baseline (whole ingredients, real fermentation, minimal industrial processing, food grown without leaning entirely on synthetic inputs) is a reasonable, evidence-consistent bet regardless of how the harder causal questions eventually resolve. This app's own creator has his own real, independently-formed thesis about where autoimmune disease actually begins -- see this category's own dedicated \"Why This App Exists\" section for that, in his own words, clearly attributed to him, not blended in here.",
+      "Worth stating plainly, since this is the one entry in the whole Digest written this way: everything below is the AI research assistant's own synthesized opinion after independently researching every piece of this category, offered to be weighed and argued with, not the app creator's own personal statement, and not something he said that got written down here. Every individual piece of this category is real. Where this assistant would push back gently on the strongest version of the story: autoimmune disease incidence rising alongside industrialized food is not, by itself, proof the food caused it. A meaningful share of the rise, though nobody can cleanly separate it out, is genuinely better diagnosis and testing (the ANA-antibody test itself became far more sensitive and far more commonly ordered across exactly this same window), an aging population living long enough to develop disease that would once have gone undiagnosed, and non-food environmental exposures (air pollution, endocrine-disrupting plastics, occupational chemicals) that this app's own Lifestyle & Environment research already covers as independent contributors running on their own parallel timeline. That said, this caveat doesn't let the food-industry story off the hook, either. The gut-barrier mechanism is real and directly measured, not speculative. Emulsifiers really do thin mucus, gliadin really does trigger zonulin, and both effects show up in controlled trials, not just population correlations. The soil/nutrient story survives its own methodological critique in a narrower but still real form. And the pattern of \"food industry replaces a real, whole ingredient with an industrially engineered substitute, decades pass, the substitute's real harm gets discovered afterward\" isn't a one-off. It happened with trans fat, and the DDT story shows the identical pattern outside food specifically. Glyphosate's own current, unsettled status looks like it's sitting exactly where trans fat sat in the 1980s: officially cleared, genuinely disputed, with animal data already pointing at a problem years before consensus catches up. This assistant's own honest overall take: the food-industry-to-autoimmune-disease connection reads as a substantial contributor operating alongside several other real contributors, not the single, sole explanation, and not something to dismiss as \"just correlation\" either, given how directly several of the individual mechanistic links (not just the population trend lines) have actually been demonstrated. The practical version of that read lines up with what this app is already built around, though that alignment came from the app's own creator, not the other way around: since you can't wait for a settled, all-cause answer before acting, eating more like the pre-1870s baseline (whole ingredients, real fermentation, minimal industrial processing, food grown without leaning entirely on synthetic inputs) is a reasonable, evidence-consistent bet regardless of how the harder causal questions eventually resolve. This app's own creator has his own real, independently-formed thesis about where autoimmune disease actually begins, rooted in his wife's own long, real Hashimoto's journey -- distinct from, and predating, this AI-generated synthesis above.",
     citations: [],
     overallTier: 'moderate',
     stageNote: 'Explicitly the AI research assistant\'s own stated opinion, not a citation-backed claim and not the app creator\'s own words -- written for discussion, 2026-08-07, attribution clarified 2026-08-08 after a direct question about who actually wrote it.',
