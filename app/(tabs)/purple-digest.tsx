@@ -1118,7 +1118,16 @@ export default function PurpleDigestScreen() {
       // name appears (the page header, the Info sheet heading,
       // activeLensLabel) reads straight from DIGEST_CATEGORY_META itself,
       // untouched by this screen-local reorder.
-      label: pinnedDigestKeys.has(meta.key) && meta.key !== 'basicHealth' ? `★ ${meta.label}` : meta.label,
+      //
+      // Hashimoto's is excluded from the star too, 2026-08-09, explicit
+      // request -- it's the one condition already built out to full depth
+      // and this document's own flagship focus, so marking it "you told
+      // the app you have this" the same way a newly-selected condition
+      // gets marked reads as redundant rather than informative.
+      label:
+        pinnedDigestKeys.has(meta.key) && meta.key !== 'basicHealth' && meta.key !== 'hashimotos'
+          ? `★ ${meta.label}`
+          : meta.label,
       gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
       icon: meta.icon,
       // 2026-08-09, real per-condition vector icons -- see
