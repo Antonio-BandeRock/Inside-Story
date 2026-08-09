@@ -1780,6 +1780,56 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'Real, SEC-regulated, currently operating platforms with real, verifiable investment totals -- a genuinely positive, direct-funding lever, not a pressure campaign.',
     relatedIds: ['foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-timeline-certification-era'],
   },
+  // 2026-08-11, same day, direct question: "Seeing where the data has
+  // taken us, what are we now missing and why should it be included in
+  // this knowledgebase?" Both entries below were named as the two
+  // strongest gaps -- the clearest structural omission (water) and the
+  // strongest direct tie to this whole app's own core health mission
+  // (antibiotic resistance, connecting straight to the gut-microbiome
+  // research this Digest is otherwise full of). Both independently
+  // verified via WebSearch/WebFetch the same way as every other batch.
+  {
+    id: 'foodhistory-regen-ogallala-water-depletion',
+    category: 'basicHealth',
+    title: 'The Missing Resource Underneath Every Entry in This Cluster: Water',
+    teaser: 'The same almond industry already covered in this cluster (99% of US bee colonies, $209/colony rentals) sits on top of a real aquifer that could be 70% depleted within 50 years -- and federal policy is directly named as part of why.',
+    summary:
+      "Every entry in this whole cluster, soil, pesticides, pollinators, has an unspoken water problem underneath it that hasn't been named directly until now. The Ogallala Aquifer, the largest groundwater source in the US, underlies eight states and provides roughly 30% of all US irrigation groundwater, supporting about a fifth of the country's total agricultural output. Irrigation accounts for 90% of Ogallala withdrawals, and between 1900 and 2008, farmers drained more than 273 million acre-feet from it, a real, staggering volume equivalent to two-thirds of Lake Erie. The depletion is real, current, and accelerating: parts of Kansas have already reached \"Day Zero\" (wells running dry) across roughly 30% of the aquifer beneath the state, water levels in the Texas Panhandle have dropped 44 feet, and a 2019 study found climate change could push the depletion rate up by as much as 50% by 2050. The real, honest complication worth stating directly, since it connects straight back to this cluster's own \"why isn't this mandated\" entry: real academic research found this isn't simply a drought problem or a farmer's individual choice, but a genuine \"production treadmill\" built directly into federal policy -- crop subsidies (a real $37.2 billion in 2020, up 65% that year alone) keep farming viable at low crop prices, which pushes farmers to expand irrigated acreage to stay solvent regardless of long-term water cost, and the same expanded irrigation was found to fail at actually improving local income, education, or health outcomes even as it accelerates depletion.",
+    citations: [
+      {
+        source: 'farmdoc daily / Farm Policy News: Ogallala Aquifer Depletion Threatening Rural Communities & Ag',
+        url: 'https://farmpolicynews.illinois.edu/2024/01/ogallala-aquifer-depletion-threatening-rural-communities-ag/',
+      },
+      {
+        source: 'The Conversation: Farmers are depleting the Ogallala Aquifer because the government pays them to do it (subsidy mechanism, $37.2 billion figure)',
+        url: 'https://theconversation.com/farmers-are-depleting-the-ogallala-aquifer-because-the-government-pays-them-to-do-it-145501',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, current, well-documented crisis with a direct, cited policy mechanism -- the same structural-disincentive pattern already established in this cluster\'s own crop-insurance entry, now shown to apply to water too.',
+    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes'],
+  },
+  {
+    id: 'foodhistory-regen-antibiotic-resistance-livestock',
+    category: 'basicHealth',
+    title: "The Strongest Direct Health Tie in This Whole Cluster: Antibiotic Resistance",
+    teaser: 'About 70% of medically important antibiotics sold in the US go to livestock, not people. CDC directly names food animals as a real source of the resistant bacteria that kill 35,000 Americans a year.',
+    summary:
+      "Nearly everything else in this cluster connects to human health indirectly, through soil nutrients, pollination, or nutrient density. This connects directly, and it belongs in this Digest specifically because the rest of this app already documents, in real depth, how gut-microbiome disruption ties to autoimmune disease. Roughly 70% of medically important antibiotics sold in the US (the classes doctors actually rely on to treat human infection) are sold for use in livestock, not people, and when all antimicrobials are counted, not just the medically important ones, that share rises to 80%. This is a real, current, worsening trend, not a historical problem already fixed: FDA's own sales data found livestock antibiotic sales rose 15.8% from 2023 to 2024 alone. The direct human-health mechanism is not speculative -- the CDC states plainly that there is strong evidence some human antibiotic resistance is caused by antibiotic use in food animals, naming Campylobacter, Salmonella, Enterococcus, and E. coli specifically as real, documented foodborne pathogens that can carry resistance from farm to human infection. CDC's own 2019 Antibiotic Resistance Threats Report found more than 2.8 million antibiotic-resistant infections occur in the US every year, causing over 35,000 deaths. The one real, honest, genuinely encouraging complication worth including alongside the alarming trend: that same 2019 CDC report found deaths from antibiotic resistance overall had actually fallen 18% since the agency's original 2013 report (nearly 30% in hospitals specifically), real evidence that targeted public-health intervention works even while livestock antibiotic use itself keeps climbing on a separate track.",
+    citations: [
+      {
+        source: 'EWG: Sharp rise in livestock antibiotic use threatens life-saving medications (70%/80% figures, 15.8% 2023-2024 sales rise)',
+        url: 'https://www.ewg.org/news-insights/news/2026/01/sharp-rise-livestock-antibiotic-use-threatens-life-saving-medications',
+      },
+      {
+        source: 'CDC: Antibiotic Resistance Threats in the United States, 2019 (2.8 million infections, 35,000 deaths, the 18%/30% decline since 2013)',
+        url: 'https://www.cdc.gov/antimicrobial-resistance/media/pdfs/2019-ar-threats-report-508.pdf',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, official CDC-sourced mechanism directly connecting industrial livestock practice to human infectious disease -- the clearest, most direct link to this app\'s own core gut-microbiome-and-autoimmune-disease research anywhere in this whole cluster.',
+    relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'gut-scfa-treg'],
+  },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
     category: 'basicHealth',
