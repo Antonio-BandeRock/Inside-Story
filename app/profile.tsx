@@ -1,16 +1,19 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
 import { GenericBackground } from '../components/GenericBackground';
+import { IridescentRingCircle } from '../components/IridescentRingCircle';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import {
   type ConditionReference,
   DietarySex,
@@ -33,6 +36,7 @@ import {
   setVisualPreferences,
   type BackgroundStyle,
   type GenericPalette,
+  type TabHubIconChoice,
 } from '../lib/visualPreferences';
 
 // Every tab that gets its own revealed background image (see
@@ -49,6 +53,13 @@ const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
 ];
 
 const GENERIC_PALETTE_OPTIONS: GenericPalette[] = ['lavender', 'seafoam', 'sand', 'dusk'];
+
+// TabHub Icon picker's own selected/unselected pill footprint -- matches
+// LensHub.tsx's own GRID_ITEM_PILL_SIZE / TabHub.tsx's own ICON_PILL_SIZE
+// convention (a real icon-grid selection pill), sized a bit larger since
+// this card has real, open room to work with, unlike either of those two
+// tight in-app grids.
+const ICON_GRID_PILL_SIZE = 52;
 
 type DayPart = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const DAY_PARTS: DayPart[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -482,6 +493,27 @@ export default function ProfileScreen() {
   // itself (it has no background image of its own, and isn't one of the
   // per-tab GatedTabContent screens) -- only Generic is followed here.
   const showGenericBackground = visualPrefs.homeBackgroundStyle === 'generic';
+
+  // TabHub's own personalizable icon, 2026-08-09 -- "make it so each icon
+  // is available in the user profile to choose to use in the TabHub menu
+  // icon position." The default butterfly always leads; every real
+  // built/in_progress condition follows, reusing the exact same "Your
+  // conditions" filter (status !== 'planned') and CONDITION_CODE_TO_DIGEST_KEY
+  // lookup that card already uses just below -- not a second, separately
+  // derived condition list. The TAB_HUB_ICON_SOURCES truthiness check is a
+  // real, defensive guard, not just belt-and-suspenders: it's what keeps a
+  // future condition added to the `conditions` table but without its own
+  // icon yet from silently showing a broken/blank option here.
+  const tabHubIconOptions: { key: TabHubIconChoice; label: string }[] = [
+    { key: 'default', label: 'Default (Butterfly)' },
+  ];
+  for (const condition of allConditions) {
+    if (condition.status === 'planned') continue;
+    const digestKey = CONDITION_CODE_TO_DIGEST_KEY[condition.code];
+    if (digestKey && TAB_HUB_ICON_SOURCES[digestKey]) {
+      tabHubIconOptions.push({ key: digestKey, label: condition.name });
+    }
+  }
 
   if (loading) {
     return (
@@ -925,6 +957,53 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* TabHub Icon -- 2026-08-09, explicitly requested: "make it so each
+          icon is available in the user profile to choose to use in the
+          TabHub menu icon position in place of... the default TabHub
+          icon, which will also be selectable to be used. Only one can be
+          chosen at a time." Reuses the exact same active/inactive
+          IridescentRingCircle-vs-plain-pill treatment TabHub's/LensHub's
+          own grids already use for "this is the selected one," rather than
+          inventing a new selection visual language -- and the same
+          colors.primary active state the pill rows above already use for
+          this same kind of single-choice-among-many control. */}
+      <View style={styles.card}>
+        <Text style={styles.label}>TabHub Icon</Text>
+        <Text style={styles.helpText}>
+          The main floating button used to open the app&apos;s navigation menu. Choose the default butterfly, or
+          any tracked condition&apos;s own real icon to personalize it -- generically representing either
+          Hashimoto&apos;s or Graves&apos; if you leave it as the default. Only one can be active at a time.
+        </Text>
+        <View style={styles.iconGridRow}>
+          {tabHubIconOptions.map((option) => {
+            const active = visualPrefs.tabHubIcon === option.key;
+            const source = TAB_HUB_ICON_SOURCES[option.key];
+            if (!source) return null;
+            return (
+              <TouchableOpacity
+                key={option.key}
+                style={styles.iconGridItem}
+                onPress={() => setVisualPreferences({ tabHubIcon: option.key })}
+                activeOpacity={0.7}
+              >
+                {active ? (
+                  <IridescentRingCircle size={ICON_GRID_PILL_SIZE}>
+                    <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
+                  </IridescentRingCircle>
+                ) : (
+                  <View style={styles.iconGridPillPlain}>
+                    <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
+                  </View>
+                )}
+                <Text style={[styles.iconGridLabel, active && styles.iconGridLabelActive]} numberOfLines={2}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      </View>
+
       {selectedConditions.includes('hashimotos') ? (
         <View style={styles.card}>
           <Text style={styles.label}>Where you're at</Text>
@@ -1213,6 +1292,45 @@ const styles = StyleSheet.create({
   },
   pillTextActive: {
     color: colors.textOnPrimary,
+  },
+  // TabHub Icon picker -- a wrapping grid of tappable icon tiles, one per
+  // TabHubIconChoice, mirroring TabHub.tsx's/LensHub.tsx's own grid-item
+  // shape (icon in a pill, caption below) rather than this screen's usual
+  // text-only pillRow, since choosing an ICON needs to actually show the
+  // icon.
+  iconGridRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 12,
+  },
+  iconGridItem: {
+    width: 72,
+    alignItems: 'center',
+    gap: 4,
+  },
+  // The inactive/plain state -- same footprint as IridescentRingCircle's
+  // own `size` (ICON_GRID_PILL_SIZE), just centering the icon with no
+  // ring, matching the identical iconPillPlain/itemIconPillPlain pattern
+  // TabHub.tsx/LensHub.tsx already use for their own grid items.
+  iconGridPillPlain: {
+    width: ICON_GRID_PILL_SIZE,
+    height: ICON_GRID_PILL_SIZE,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  iconGridImage: {
+    width: 40,
+    height: 40,
+  },
+  iconGridLabel: {
+    ...typography.caption,
+    fontSize: 10,
+    color: colors.textSecondary,
+    textAlign: 'center',
+  },
+  iconGridLabelActive: {
+    color: colors.primary,
+    fontWeight: '600',
   },
   dateRow: {
     flexDirection: 'row',

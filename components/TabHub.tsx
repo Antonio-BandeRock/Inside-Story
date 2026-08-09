@@ -8,9 +8,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
 import { colors, rotatedIridescentPalette } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom } from '../constants/floatingButton';
+import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { useIridescentHueRotation, useThrottledHueDegrees } from '../hooks/useIridescentHueRotation';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import { HelpSheet } from './HelpButton';
 import { IridescentRingCircle } from './IridescentRingCircle';
@@ -277,6 +279,21 @@ export function TabHub() {
   const pathname = usePathname();
   const insets = useSafeAreaInsets();
   const { currentHelp, activeTabPath } = useCurrentPageHelp();
+  // 2026-08-09, "make it so each icon is available in the user profile to
+  // choose to use in the TabHub menu icon position" -- live-reactive the
+  // same way every other visualPreferences consumer already is (Profile's
+  // own picker, the shared background), so choosing a new icon there shows
+  // up on this button immediately, no restart needed. Falls back to the
+  // default butterfly if the stored choice somehow doesn't resolve to a
+  // real source (e.g. a future app update removes a condition) -- a
+  // defensive, never-blank fallback rather than trusting the stored value
+  // unconditionally.
+  const { tabHubIcon } = useVisualPreferences();
+  // The trailing `!` is safe, not just convenient -- TAB_HUB_ICON_SOURCES.default
+  // is a real, always-present literal key in that object (never removed),
+  // so this can only be undefined if the earlier lookup itself resolved to
+  // a real source, making the fallback moot either way.
+  const buttonIconSource = TAB_HUB_ICON_SOURCES[tabHubIcon] ?? TAB_HUB_ICON_SOURCES.default!;
 
   // TEMPORARY diagnostic instrumentation, 2026-08-01 -- for the still-
   // unresolved "card drops in from above" bug (see this file's own long
@@ -431,7 +448,7 @@ export function TabHub() {
             {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
               <Image
                 key={index}
-                source={require('../assets/branding/butterfly-transparent.png')}
+                source={buttonIconSource}
                 style={[
                   styles.butterflyImage,
                   styles.butterflyShadowCopy,
@@ -441,17 +458,13 @@ export function TabHub() {
               />
             ))}
             <Image
-              source={require('../assets/branding/butterfly-transparent.png')}
+              source={buttonIconSource}
               style={[styles.butterflyImage, styles.butterflyRealCopy]}
               resizeMode="contain"
             />
           </View>
         ) : (
-          <Image
-            source={require('../assets/branding/butterfly-transparent.png')}
-            style={styles.butterflyImage}
-            resizeMode="contain"
-          />
+          <Image source={buttonIconSource} style={styles.butterflyImage} resizeMode="contain" />
         )}
       </TouchableOpacity>
 

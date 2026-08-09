@@ -22,9 +22,26 @@
 // mounted once, permanently, above every tab, so a toggle flipped on the
 // Profile screen has to reach it without a full app restart.
 
+import type { DigestCategoryKey } from './digest';
 import { getDatabase } from './db';
 
 export type BackgroundStyle = 'photo' | 'generic' | 'off';
+
+// The main floating TabHub button's own icon, 2026-08-09, explicitly
+// requested: "make it so each icon is available in the user profile to
+// choose to use in the TabHub menu icon position in place of... the
+// default TabHub icon, which will also be selectable to be used." 'default'
+// is the original, generic butterfly artwork (components/TabHub.tsx's own
+// long-standing app icon/hub button); any real DigestCategoryKey instead
+// picks that condition's own real cropped-artwork icon (see
+// components/DigestConditionIcons.tsx / constants/tabHubIcons.ts) as a
+// deliberate personalization. Only one choice at a time -- a plain scalar
+// field, not a set. Imported here as a type-only import (erased at compile
+// time, so no real runtime dependency on lib/digest/index.ts's own much
+// larger content-aggregation module -- the same precedent already
+// established for sixDimensionsReference.ts's own type-only import into
+// lib/db.ts).
+export type TabHubIconChoice = 'default' | DigestCategoryKey;
 
 // A few calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for
@@ -65,6 +82,12 @@ export type VisualPreferences = {
   // rather than a separate palette per tab, since the point is one calm,
   // consistent alternative look, not eight independent color schemes.
   genericPalette: GenericPalette;
+  // See TabHubIconChoice's own comment above. Defaults to 'default' --
+  // exactly the plain butterfly the app has always shown, so a first-ever
+  // launch (nothing chosen yet) looks identical to before this feature
+  // existed, and picking a personal icon is something the person opts into
+  // from Profile whenever they want, not a forced first-run decision.
+  tabHubIcon: TabHubIconChoice;
 };
 
 const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
@@ -72,6 +95,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   homeBackgroundStyle: 'photo',
   tabBackgroundStyle: {},
   genericPalette: 'lavender',
+  tabHubIcon: 'default',
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';

@@ -19,6 +19,7 @@ import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
+import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import { getUserConditions, getVisibleFoodBaseNames } from '../../lib/db';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
 import {
@@ -607,36 +608,15 @@ function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entri
   return groups;
 }
 
-// Maps the `conditions` reference table's own real, snake_case codes
-// (confirmed directly against the live database, not guessed) to this
-// screen's own camelCase DigestCategoryKey -- the two naming conventions
-// never lined up automatically (`chronic_kidney_disease` vs.
-// `chronicKidneyDisease`), so this is a real, hand-verified lookup, not a
-// derived transform. Used only to figure out which lens tiles correspond
-// to conditions the person has actually told the app they have (via
-// Profile's own condition picker, `user_conditions`) -- see
+// CONDITION_CODE_TO_DIGEST_KEY used to be defined locally here -- moved
+// into its own shared lib/conditionCodeMap.ts, 2026-08-09, once Profile's
+// own new TabHub-icon picker needed the identical snake_case-to-camelCase
+// lookup (see that file's own header comment for the full reasoning) --
+// one real source now, imported below, not two independently-maintained
+// copies. Still used the same way here: figuring out which lens tiles
+// correspond to conditions the person has actually told the app they have
+// (via Profile's own condition picker, `user_conditions`) -- see
 // pinnedDigestKeys below.
-const CONDITION_CODE_TO_DIGEST_KEY: Record<string, DigestCategoryKey> = {
-  hashimotos: 'hashimotos',
-  rheumatoid_arthritis: 'rheumatoidArthritis',
-  psoriasis: 'psoriasis',
-  graves: 'graves',
-  type_1_diabetes: 'type1Diabetes',
-  celiac: 'celiac',
-  ibd: 'ibd',
-  multiple_sclerosis: 'multipleSclerosis',
-  lupus: 'lupus',
-  sjogrens: 'sjogrens',
-  pcos: 'pcos',
-  chronic_kidney_disease: 'chronicKidneyDisease',
-  fatty_liver_disease: 'fattyLiverDisease',
-  type_2_diabetes: 'type2Diabetes',
-  ibs: 'ibs',
-  migraine: 'migraine',
-  cardiovascular_disease: 'cardiovascularDisease',
-  gout: 'gout',
-  prostate_health: 'prostateHealth',
-};
 
 // A real, computed-not-stored grouping applied to every CONDITION category
 // (everything except Basic Health, which already has its own, more
