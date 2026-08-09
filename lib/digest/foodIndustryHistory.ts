@@ -1106,7 +1106,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, live, currently-unfolding state-legislative fight, independently verified against real news reporting and a real legal-tracking organization, not a historical or hypothetical example.',
-    relatedIds: ['foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-no-till-greenwashing-critique'],
+    relatedIds: ['foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-no-till-greenwashing-critique', 'foodhistory-regen-reform-coalition-orgs'],
   },
   {
     id: 'foodhistory-regen-reform-coalition-orgs',
@@ -1127,7 +1127,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, named organizations with a real, public policy platform -- not an anonymous or purely hypothetical opposition movement.',
-    relatedIds: ['foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-why-not-mandated', 'foodhistory-regen-how-to-get-involved'],
+    relatedIds: ['foodhistory-regen-lobbying-imbalance', 'foodhistory-regen-why-not-mandated', 'foodhistory-regen-how-to-get-involved', 'foodhistory-regen-pesticide-liability-shields'],
   },
   {
     id: 'foodhistory-regen-how-to-get-involved',
@@ -1148,7 +1148,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, currently-open civic channels, not a general or evergreen suggestion -- worth confirming committee markup status and comment-period deadlines directly, since a live legislative process moves and this entry\'s own "right now" framing will age.',
-    relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry'],
+    relatedIds: ['foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-co2-nutrient-decline'],
   },
   // 2026-08-10/11, same day, fifth follow-up: "Keep going with more research
   // on this topic." Every citation below independently re-verified via
@@ -1272,7 +1272,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, current, survey-based national data -- this is an active, still-unfolding crisis as of this being written, not a settled historical event.',
-    relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-neonicotinoid-regulation-loophole'],
+    relatedIds: ['foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-neonicotinoid-regulation-loophole', 'foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-how-to-get-involved'],
   },
   {
     id: 'foodhistory-regen-pollinator-dependent-crops',
@@ -1377,7 +1377,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'The deliberate closing entry of this sub-cluster -- ties pollinator recovery directly back to the same practices this whole category has already documented, rather than treating it as a separate problem needing a separate solution.',
-    relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified'],
+    relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-decline-crisis'],
   },
   // 2026-08-11, same day, a seventh continuation: "Keep going with more
   // research on this topic." Every citation below independently
@@ -1409,7 +1409,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, well-documented, dated crisis parallel to the honeybee colony losses covered elsewhere in this sub-cluster -- included specifically because bat pollination is real, agriculturally significant, and almost never mentioned alongside bee-focused pollinator coverage.',
-    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-dependent-crops'],
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-pollinator-dependent-crops', 'foodhistory-regen-pollinator-habitat-regenerative-link'],
   },
   {
     id: 'foodhistory-regen-insect-apocalypse-hallmann',
@@ -1430,7 +1430,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, landmark, peer-reviewed study with a real, honest 2024 follow-up confirming no recovery -- not a one-time finding left unconfirmed.',
-    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-wild-bees-buzz-pollination'],
+    relatedIds: ['foodhistory-regen-pollinator-decline-crisis', 'foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-pollinator-habitat-regenerative-link'],
   },
   {
     id: 'foodhistory-regen-almond-pollination-rental-economics',
@@ -1665,7 +1665,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, official SEC rules and a real, named, currently-active organizational pathway -- a genuinely actionable, not just theoretical, mechanism, with an honest note that most individual resolutions still lose their vote.',
-    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-reform-coalition-orgs'],
+    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-seed-industry-consolidation'],
   },
   {
     id: 'foodhistory-regen-institutional-purchasing-power',
@@ -1686,7 +1686,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, official, quantified spending figure and a real, named advocacy infrastructure already organized around it -- a genuinely underused, concrete civic lever, not a theoretical one.',
-    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-whole-foods-organic-industry'],
+    relatedIds: ['foodhistory-regen-how-to-get-involved', 'foodhistory-regen-whole-foods-organic-industry', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-food-waste-scale'],
   },
   {
     id: 'foodhistory-regen-bcorp-certification-accountability',
@@ -1807,7 +1807,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, current, well-documented crisis with a direct, cited policy mechanism -- the same structural-disincentive pattern already established in this cluster\'s own crop-insurance entry, now shown to apply to water too.',
-    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes'],
+    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved'],
   },
   {
     id: 'foodhistory-regen-antibiotic-resistance-livestock',
@@ -1828,7 +1828,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, official CDC-sourced mechanism directly connecting industrial livestock practice to human infectious disease -- the clearest, most direct link to this app\'s own core gut-microbiome-and-autoimmune-disease research anywhere in this whole cluster.',
-    relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'gut-scfa-treg'],
+    relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'gut-scfa-treg', 'foodhistory-regen-institutional-purchasing-power', 'foodhistory-regen-how-to-get-involved'],
   },
   // 2026-08-11, same day, direct continuation: "Keep going with more
   // research on this topic," following directly from the named-but-not-
@@ -1862,7 +1862,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A real, deliberate correction of a popular but imprecise statistic, the same discipline already applied elsewhere in this cluster to the Savory claim, the FAO hectare figure, and the no-till/greenwashing entry.',
-    relatedIds: ['foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-seed-industry-consolidation'],
+    relatedIds: ['foodhistory-regen-honeybee-genetic-bottleneck', 'foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-svalbard-seed-vault'],
   },
   {
     id: 'foodhistory-regen-seed-industry-consolidation',
@@ -1883,7 +1883,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, current, independently-tracked market-concentration data -- directly ties this cluster\'s own pesticide/lobbying research on Bayer to the seed supply specifically, not a separate corporate story.',
-    relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-pesticides-glyphosate-dispute'],
+    relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-shareholder-activism-mechanics'],
   },
   {
     id: 'foodhistory-regen-svalbard-seed-vault',
@@ -1921,7 +1921,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, rigorous, multi-site field study -- the exact figures here were independently re-verified against the primary source after an initial aggregated search result gave clearly inflated numbers that did not match the real paper.',
-    relatedIds: ['foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-fao-baseline-stakes'],
+    relatedIds: ['foodhistory-regen-nutrient-density-honest-evidence', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved'],
   },
   {
     id: 'foodhistory-regen-food-waste-scale',
@@ -1942,7 +1942,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, direct multiplier on this cluster\'s own already-established urgency baseline -- every resource documented elsewhere in this cluster is partly being spent on food that is never eaten.',
-    relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-ogallala-water-depletion'],
+    relatedIds: ['foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-institutional-purchasing-power'],
   },
   {
     id: 'foodhistory-regen-global-implementation-synthesis',
