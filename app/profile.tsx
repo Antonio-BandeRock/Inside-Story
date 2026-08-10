@@ -14,6 +14,7 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
+import { HEALING_STAGES, HEALING_STAGE_INFO } from '../lib/healingStage';
 import {
   CUSTOM_BACKGROUND_MAX_DIMENSION,
   CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES,
@@ -236,6 +237,7 @@ export default function ProfileScreen() {
     fastingEnabled: false,
     eatingWindowStart: null,
     eatingWindowEnd: null,
+    healingStage: null,
   });
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   const [savedFlash, setSavedFlash] = useState(false);
@@ -1385,6 +1387,46 @@ export default function ProfileScreen() {
                     {lastAssessment ? 'Retake check-in' : 'Take your first check-in'}
                   </Text>
                 </TouchableOpacity>
+
+                {/* Healing stage -- 2026-08-09, explicitly requested: build
+                    out the "Healing-journey stages" feature decided
+                    2026-07-31 (see CLAUDE.md's own section on it) --
+                    self-declaration here, real advisory wired into Side
+                    Builder's own pending-ingredient card (lib/
+                    healingStageAdvisory.ts). Advisory + reordering only,
+                    never gating, per that same standing decision -- tap
+                    an already-selected stage again to clear it back to
+                    "not declared." */}
+                <Text style={[styles.subLabel, { marginTop: 14 }]}>Healing stage</Text>
+                <Text style={styles.helpText}>
+                  A real, named practitioner framework (associated with Dr. Izabella Wentz) for where you are in
+                  your own healing journey -- not mainstream endocrinology consensus, and treated that way here.
+                  Purely advisory: your food builders will start surfacing a real, tappable note on foods worth a
+                  second look for your current stage (only Digging and Gut Repair actually change anything) --
+                  nothing is ever hidden or blocked based on this. See the Healing Stages category in Purple
+                  Digest for the full, cited guide.
+                </Text>
+                <View style={styles.pillRow}>
+                  {HEALING_STAGES.map((stage) => {
+                    const active = profile.healingStage === stage;
+                    return (
+                      <TouchableOpacity
+                        key={stage}
+                        style={[styles.pill, active && styles.pillActive]}
+                        onPress={() => updateProfile({ healingStage: active ? null : stage })}
+                      >
+                        <Text style={[styles.pillText, active && styles.pillTextActive]}>
+                          {HEALING_STAGE_INFO[stage].label}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+                <Text style={styles.derivedText}>
+                  {profile.healingStage
+                    ? HEALING_STAGE_INFO[profile.healingStage].shortDescription
+                    : "Not declared -- tap a stage above if you'd like to."}
+                </Text>
               </>
             ) : null}
           </View>

@@ -15,12 +15,15 @@ import {
   getSide,
   getSideIngredients,
   getStoredMeasurementSystem,
+  getUserProfile,
   saveBuilderFavorite,
   saveSide,
   updateSide,
   type FoodScore,
   type SideIngredientInput,
 } from '../lib/db';
+import type { HealingStage } from '../lib/healingStage';
+import { getHealingStageAdvisory } from '../lib/healingStageAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -744,6 +747,23 @@ export function SideBuilder({
     };
   }, []);
 
+  // Healing-stage self-declaration, 2026-08-09 -- the first builder wired
+  // up for the Healing Stages feature (Profile's own new picker; see
+  // lib/healingStageAdvisory.ts for the real, evidence-tiered flag logic
+  // reused below). Loaded once the same way measurementSystem is above --
+  // a real profile field, not something this builder itself ever writes.
+  const [healingStage, setHealingStage] = useState<HealingStage | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    getUserProfile().then((profile) => {
+      if (isMounted) setHealingStage(profile.healingStage);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // 2026-07-28 -- whichever AppTextInput was last focused (Dish Name,
   // Servings, Size, Quantity) stays "active" (and AppKeyboard visible, on
   // top of everything) until something explicitly blurs it: tapping a
@@ -1430,6 +1450,27 @@ export function SideBuilder({
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
               </View>
+              {/* Healing Stage advisory -- 2026-08-09, informational, never
+                  gating, same tap-to-explain shape the alcohol/coffee/
+                  juice advisories already use elsewhere. Only renders
+                  something while a real flag fires AND the person has
+                  self-declared a food-relevant stage (Digging/Gut Repair)
+                  in Profile -- see lib/healingStageAdvisory.ts's own top
+                  comment for the real, cited flag conditions. */}
+              {(() => {
+                const advisory = getHealingStageAdvisory(pendingScores, healingStage);
+                return advisory ? (
+                  <TouchableOpacity
+                    style={[styles.healingStageAdvisoryRow, { borderColor: tabColor }]}
+                    onPress={() => showInfoAlert(advisory.title, advisory.message)}
+                  >
+                    <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                    <Text style={[styles.healingStageAdvisoryText, { color: tabColor }]}>
+                      Healing stage note -- tap to learn more
+                    </Text>
+                  </TouchableOpacity>
+                ) : null;
+              })()}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
                   vertical pill spinner sized by renderLabeledPicker (see
@@ -1602,6 +1643,20 @@ export function SideBuilder({
 }
 
 const styles = StyleSheet.create({
+  // 2026-08-09 -- same real shape as alcoholAdvisoryRow/alcoholAdvisoryText
+  // in Beverage/Fermentation/Soup/Sauces Builder (this file has no need
+  // for that specific advisory, so no shared style existed here yet).
+  healingStageAdvisoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 6,
+  },
+  healingStageAdvisoryText: { ...typography.caption },
   // Deliberately NOT a ScrollView -- see this component's own render-time
   // comment for why FoodLookup can never sit inside one.
   pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },

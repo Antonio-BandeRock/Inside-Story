@@ -5,6 +5,7 @@ import { normalizeSupplementAmount } from './supplementUnits';
 import { isAlcoholicFood } from './alcoholAdvisory';
 import { isCoffeeFood } from './coffeeAdvisory';
 import { isJuiceFood } from './juiceAdvisory';
+import type { HealingStage } from './healingStage';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
@@ -3141,6 +3142,12 @@ export async function initializeDatabase() {
       'usual_snack_time',
       'eating_window_start',
       'eating_window_end',
+      // Self-declared Hashimoto's healing stage, 2026-08-09 -- see
+      // lib/healingStage.ts's own HealingStage type for the 5 real, valid
+      // values. Nullable/plain TEXT, same as every other optional profile
+      // field here -- "not yet declared" is a real, honest state, not
+      // guessed at.
+      'healing_stage',
     ]) {
       if (!userProfileColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE user_profile ADD COLUMN ${column} TEXT;`);
@@ -8190,6 +8197,9 @@ export type UserProfile = {
   fastingEnabled: boolean;
   eatingWindowStart: string | null;
   eatingWindowEnd: string | null;
+  // See lib/healingStage.ts's own HealingStage type -- one of 5 real
+  // stage codes, or null (not yet declared / prefers not to say).
+  healingStage: HealingStage | null;
 };
 
 export async function getUserProfile(): Promise<UserProfile> {
@@ -8208,11 +8218,12 @@ export async function getUserProfile(): Promise<UserProfile> {
     fasting_enabled: number | null;
     eating_window_start: string | null;
     eating_window_end: string | null;
+    healing_stage: string | null;
   }>(
     `
       SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
              usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-             fasting_enabled, eating_window_start, eating_window_end
+             fasting_enabled, eating_window_start, eating_window_end, healing_stage
       FROM user_profile WHERE id = 1
     `,
   );
@@ -8232,8 +8243,11 @@ export async function getUserProfile(): Promise<UserProfile> {
       fastingEnabled: false,
       eatingWindowStart: null,
       eatingWindowEnd: null,
+      healingStage: null,
     };
   }
+
+  const validHealingStages = new Set(['triage', 'digging', 'gut_repair', 'rebalancing', 'maintenance']);
 
   return {
     firstName: row.first_name,
@@ -8249,6 +8263,8 @@ export async function getUserProfile(): Promise<UserProfile> {
     fastingEnabled: Boolean(row.fasting_enabled),
     eatingWindowStart: row.eating_window_start,
     eatingWindowEnd: row.eating_window_end,
+    healingStage:
+      row.healing_stage && validHealingStages.has(row.healing_stage) ? (row.healing_stage as HealingStage) : null,
   };
 }
 
@@ -8276,9 +8292,9 @@ export async function setUserProfile(update: Partial<UserProfile>) {
         INSERT INTO user_profile (
           id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
           usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-          fasting_enabled, eating_window_start, eating_window_end, updated_at
+          fasting_enabled, eating_window_start, eating_window_end, healing_stage, updated_at
         )
-        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           first_name = excluded.first_name,
           last_name = excluded.last_name,
@@ -8293,6 +8309,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
           fasting_enabled = excluded.fasting_enabled,
           eating_window_start = excluded.eating_window_start,
           eating_window_end = excluded.eating_window_end,
+          healing_stage = excluded.healing_stage,
           updated_at = excluded.updated_at
       `,
       merged.firstName?.trim() || null,
@@ -8308,6 +8325,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
       merged.fastingEnabled ? 1 : 0,
       merged.eatingWindowStart,
       merged.eatingWindowEnd,
+      merged.healingStage,
       now,
     );
   };
