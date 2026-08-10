@@ -189,6 +189,21 @@ check('a real, genuine composite fritter', 'Corn fritter', true, false);
 check('"tart" deliberately left out -- a real, legitimate tart-flavored juice must stay unaffected', 'Cherry juice, tart', true, true);
 check('"cutlet" deliberately left out -- a real, legitimate raw butchered cut must stay unaffected', 'Lamb, cutlet or frenched cutlet, with bone, lean, raw', true, true);
 
+// --- Real, direct question (not a bug report): traditional
+// whole-food-based condiments are still combinations of 2+ separate
+// ingredients, excluded regardless of how "clean" the real recipe is ---
+check('bare "Aioli," even the traditional garlic-and-olive-oil version, is still a combination of 2 real foods', 'Aioli', true, false);
+check('commercial aioli, the same real underlying reason applies too', 'Aioli sauce, prepackaged', true, false);
+check('homemade hummus is still chickpeas + tahini + lemon + garlic + oil combined', 'Hummus, homemade', true, false);
+check('the alternate real spelling found in the data', 'Dip, hummus (hommus), commercial', true, false);
+check('guacamole, same reasoning', 'Guacamole', true, false);
+check('salsa, same reasoning', 'Tomato salsa', true, false);
+check('tzatziki, same reasoning', 'Tzatziki', true, false);
+check('tapenade, same reasoning', 'Tapenade', true, false);
+check('the real, separate whole-food ingredients themselves remain correctly included', 'Garlic, raw', true, true);
+check('olive oil remains correctly included too', 'Olive oil', true, true);
+check('chickpeas remain correctly included too', 'Chickpeas, mature seeds, raw', true, true);
+
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---
 check('a gingerbread cookie containing honey is not "honey"', 'Kathrinchen honey gingerbread biscuits', true, false);

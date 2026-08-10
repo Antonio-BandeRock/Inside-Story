@@ -288,6 +288,29 @@ const COMPOSITE_DISH_SIGNALS = [
   // fruit" carry neither word, so 'muesli'/'granola'/'cornflakes' are
   // each added explicitly too.
   'cereal', 'cereals', 'muesli', 'granola', 'cornflakes', 'corn flakes',
+  // Real, direct question, not a bug report: "Things like Aioli can be
+  // healthy if it is the traditional Aioli with just garlic and extra
+  // virgin olive oil, but if it is commercially sold it isn't so
+  // great. I don't know how we can keep it if we can verify that it is
+  // only [traditional]... What is your opinion?" -- resolved as a real,
+  // general PRINCIPLE, not a per-record verification problem this
+  // pipeline has no way to solve anyway (a bare name never says which
+  // real recipe was actually used): even the cleanest, most traditional
+  // version of any of these is STILL a real combination of 2+ separate
+  // whole foods (garlic + olive oil; chickpeas + tahini + lemon +
+  // garlic + olive oil; avocado + lime + onion + cilantro), never a
+  // single ingredient, no matter how simple or additive-free the real
+  // recipe is. Every one of those real, separate ingredients already
+  // lives (or will live) in this database on its own -- nothing is lost
+  // by excluding the combined preparation itself, since the app's own
+  // Sauces Builder already exists for a person to combine them
+  // themselves, with full visibility into exactly what went in. The
+  // same reasoning already justified excluding 'pesto' earlier this
+  // pass; this generalizes it to the rest of the real family, confirmed
+  // present at real scale (aioli: 4 records; hummus/guacamole: 14;
+  // salsa/tzatziki/tapenade: 19) before adding anything.
+  'aioli', 'hummus', 'hommus', 'guacamole', 'salsa', 'tzatziki',
+  'tapenade',
 ];
 
 // New for this pass -- a real, flexible pattern match (not a plain

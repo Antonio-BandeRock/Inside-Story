@@ -15,6 +15,48 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, direct question — "traditional" vs. commercial preparations — resolved as a real, general principle
+
+Asked directly, not reported as a bug: "Things like Aioli can be healthy
+if it is the traditional Aioli with just garlic and extra virgin olive
+oil, but if it is commercially sold it isn't so great. I don't know how
+we can keep it if we can verify that it is only [traditional]... What
+is your opinion?"
+
+**The real, resolved principle, not a per-record verification problem
+this pipeline has no way to solve anyway** (a bare name never says
+which real recipe was actually used): even the cleanest, most
+traditional version of any of these — hand-pounded garlic whisked into
+extra virgin olive oil, nothing else — is still a real combination of
+2+ separate whole foods, never a single ingredient, no matter how
+simple or additive-free the real recipe is. Every one of those real,
+separate ingredients (garlic, olive oil; chickpeas, tahini, lemon;
+avocado, lime, onion, cilantro) already lives, or will live, in this
+database on its own. Nothing real is lost by excluding the combined
+preparation itself — the app's own Sauces Builder already exists for a
+person to combine them themselves, with full visibility into exactly
+what went in, rather than a database entry that claims to be "Aioli"
+while silently unable to say whether it means garlic-and-oil or a
+bottle of preservative-laden mayo. The same reasoning had already
+justified excluding `pesto` earlier this session; this generalizes it
+to the rest of the real family, checked at real scale before adding
+anything: `aioli` (4 real records), `hummus`/`hommus` (10),
+`guacamole` (5), `salsa` (14), `tzatziki` (5), `tapenade` (1) — 39
+total, added to `COMPOSITE_DISH_SIGNALS`.
+
+**Real, concrete effect on all 32,707 already-ingested records**: 39
+records excluded. Real, separate whole-food ingredients (garlic, olive
+oil, chickpeas) spot-checked and confirmed unaffected.
+
+| | Before this pass | After this pass |
+|---|---|---|
+| Whole food | 16,897 | 16,893 |
+| Not whole food | 9,012 | 9,051 |
+| Needs human review | 6,798 | 6,763 |
+
+131/131 classify.js tests passing (up from 120), 176/176 across the
+whole pipeline.
+
 ## Status: a proactive, self-initiated scan of the review queue — not waiting for the next one-at-a-time report
 
 The app owner's own real, repeated pattern this session ("I keep
