@@ -57,11 +57,34 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
 // roughly square, a single fixed box would work fine for all of them") was
 // checked and found wrong: real ratios span 0.652 (type1Diabetes, tall) to
 // 1.362 (pcos, wide) -- genuinely varied, not close to uniform, and none
-// come close to the butterfly's own wide 1606:1080 ratio. Kept as the raw
+// come close to the butterfly's own wide ~1.49:1 ratio. Kept as the raw
 // [width, height] pixel pair, not a pre-rounded decimal ratio, so the real
 // source data stays traceable/re-verifiable directly against this comment.
+//
+// default's own pair updated 2026-08-10, direct report: the button's own
+// icon visibly popped in roughly half a second after the app first became
+// interactive. Root-caused directly, not guessed: the source PNG was
+// 1606x1080 (3.1MB) despite this file never rendering it above 116x78
+// logical points anywhere in the app -- real, confirmed decode work on
+// roughly 12x more pixel data than any real device could ever display,
+// right at the exact moment a lot of other real work (the DatabaseSetup
+// Screen's own pop-out animation, Stack/GestureHandlerRootView mounting)
+// is also competing for the same thread. Re-exported at 464x312 (jimp's
+// own bilinear resize, a real, generous 4x safety margin above the
+// button's own 116x78 max render box -- comfortably above any real
+// on-device pixel density) via an isolated scratchpad jimp workspace, the
+// same established technique already used to crop the 19 condition icons.
+// Verified directly, not assumed: sampled real pixel data at all 4 corners
+// (alpha=0, transparent, in both the original and the resized file) and
+// several real body/wing points (fully opaque in both, same color family,
+// only the expected minor blending from bilinear resampling) before
+// replacing the live asset. File size dropped from 3,112,836 to 251,797
+// bytes -- a real 12.4x reduction, matching the real ~12x pixel-count
+// reduction. The ratio itself is preserved to within 0.01% (464/312 vs
+// the original 1606/1080), an utterly negligible, sub-pixel difference in
+// the computed render size below.
 const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [number, number]>> = {
-  default: [1606, 1080],
+  default: [464, 312],
   hashimotos: [255, 211],
   rheumatoidArthritis: [220, 269],
   psoriasis: [250, 221],
@@ -92,12 +115,16 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
 // 'default' (the app's own out-of-the-box behavior) renders byte-for-byte
 // identically to how this button has always looked, not just "close."
 export const TAB_HUB_ICON_TARGET_WIDTH = 116;
-// The default butterfly's own real aspect ratio (1606:1080) -- the source
-// of its own already-established, already-safe 78px render height
+// The default butterfly's own real aspect ratio -- the source of its own
+// already-established, already-safe 78px render height
 // (TAB_HUB_ICON_TARGET_WIDTH / this ratio). Kept as an exact fraction, not
 // a pre-rounded decimal, matching TabHub.tsx's own original
-// BUTTERFLY_ASPECT_RATIO precedent.
-const DEFAULT_ICON_ASPECT_RATIO = 1606 / 1080;
+// BUTTERFLY_ASPECT_RATIO precedent. Updated 2026-08-10 to the real, current
+// 464x312 asset (see TAB_HUB_ICON_PIXEL_DIMENSIONS's own comment) -- the
+// ratio itself is preserved to within 0.01% of the original 1606:1080, so
+// this changes the computed render height by a fraction of a pixel, not a
+// visible amount.
+const DEFAULT_ICON_ASPECT_RATIO = 464 / 312;
 
 // 2026-08-09, a real, direct correction: an earlier version of this
 // function let HEIGHT vary per icon too (scaling each icon's own longer
