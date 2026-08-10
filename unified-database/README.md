@@ -15,6 +15,81 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, direct report closed the largest gap yet — composite dish names (goulash/meringue) and, most importantly, brand names
+
+Reported directly: "'Rehpfeffer' savory roe deer goulash is not a single
+ingredient whole food or derivative such as a fermentation, or a juice,
+or a pulverization such as a flour, it is a combination of foods that
+have been cooked together or are waiting to be cooked, but either way
+they are not supposed to be listed here. The same for 'Wasp nests'
+almond meringue, and I should definitely not see anything with a brand
+name on it such as APPLEBEE'S, chicken tenders platter."
+
+**Goulash and meringue** — checked every real record containing either
+word before touching anything: every one is a genuine composite dish
+(goulash) or composite baked dessert (meringue, whipped egg white and
+sugar), never a single ingredient. Added directly to
+`COMPOSITE_DISH_SIGNALS`/`CANDY_SNACKS`.
+
+**Brand names — the real, largest, most careful fix in this pass.**
+Investigated the actual scope before building anything: a real scan of
+every distinct standalone ALLCAPS word across all 32,707 records found
+539 of them. A blanket "any ALLCAPS word = brand" rule was checked and
+rejected as genuinely dangerous — it would have wrongly excluded real,
+legitimate whole foods: `USDA` (a real government grading/disclaimer
+term, 47+ correctly-classified records), `UHT` (a real dairy
+pasteurization method, 17 correctly-classified records), `BBQ`/`BBQ'D`
+(a real, plain grilling method), and `DHA`/`ARA` (real nutrient names).
+Built as a new, real, explicit, individually-verified `BRAND_NAMES` list
+instead — every entry confirmed a genuine company/product-line name by
+reading its own real sample records. A real, live, confirmed false
+positive found along the way, directly proving why this needed to be a
+general, high-priority signal rather than scoped to one category:
+`APPLEBEE'S, KRAFT, Macaroni & Cheese, from kid's menu` was already
+classifying as whole food via a plain "cheese" match, since nothing had
+ever checked for a brand name alongside it.
+
+Several entries deliberately stay as full compound phrases rather than a
+bare word, specifically because the bare word collides with a real,
+legitimate whole food this pipeline already recognizes: "mead" alone is
+a real, traditional fermented honey beverage; "malt" alone is a real
+grain product (barley malt flour already exists); "cream" alone is a
+real dairy keyword. Each is only excluded as its own longer real brand
+phrase ("mead johnson," "malt-o-meal," "cream of wheat"), never the
+bare, collision-prone word — verified directly against real records for
+both.
+
+**A real, adjacent bug surfaced while testing the brand fix, not
+reported directly but fixed the same way**: manufactured breakfast
+cereal (muesli, granola, cornflakes, branded and unbranded alike) is
+definitionally a multi-ingredient combination product — yet dozens of
+real records (e.g. "Breakfast cereal muesli whole grain with fruit nuts
+sugar etc. honey") were slipping through as whole food via
+"whole"/"roasted"/"honey" matching, since nothing general excluded the
+category itself. `cereal`/`cereals`/`muesli`/`granola`/`cornflakes`
+added to `COMPOSITE_DISH_SIGNALS`.
+
+**Real, concrete effect on all 32,707 already-ingested records** — the
+largest single-pass reduction yet:
+
+| | Before this pass | After this pass |
+|---|---|---|
+| Whole food | 17,467 | 17,109 |
+| Not whole food | 7,514 | 8,458 |
+| Needs human review | 7,726 | 7,140 |
+
+Real, individually-verified impact: 44 goulash records, 22 meringue
+records, 292 brand-name records, and 706 cereal/muesli/granola/cornflakes
+records excluded. Every real USDA-graded/UHT-processed/BBQ'd legitimate
+whole food spot-checked and confirmed still correctly classified.
+
+97/97 classify.js tests passing (up from 83), 142/142 across the whole
+pipeline. A real, honest, bounded limitation stated directly in the
+code: `BRAND_NAMES` is a real, explicit, individually-verified list, not
+a claim of covering every brand that could ever appear — a future report
+naming one not caught here should be added the same way this list was
+built.
+
 ## Status: a real, direct report closed two more concrete gaps — sausage-family compound names, and composite "in/with ... sauce" dishes
 
 Reported directly: "'Palatine' bratwurst fried, in brown basic sauce

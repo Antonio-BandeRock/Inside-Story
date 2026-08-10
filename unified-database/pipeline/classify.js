@@ -126,6 +126,13 @@ const CANDY_SNACKS = [
   // ingredient reading.
   'egg salad', 'caesar salad', 'potato salad', 'tuna salad', 'taco salad',
   'chicken salad',
+  // Found live, reported directly: "'Wasp nests' almond meringue" --
+  // checked every real "meringue" record and confirmed every one is a
+  // genuine composite baked dessert (whipped egg white and sugar,
+  // baked, often with chocolate/cream/almond), never a single
+  // ingredient -- fits the same real family as CANDY_SNACKS' own
+  // cake/pastry/donut entries.
+  'meringue',
 ];
 
 const FAST_FOOD = [
@@ -206,6 +213,29 @@ const FLAVOR_OR_ADDITIVE_MARKERS = [
 const COMPOSITE_DISH_SIGNALS = [
   'sandwich', 'soup', 'stew', 'casserole', 'stuffing', 'gratin', 'quiche',
   'pesto', 'bruschetta', 'dressing', 'marinade',
+  // Found live, reported directly: "'Rehpfeffer' savory roe deer
+  // goulash" -- checked every real "goulash" record in this database
+  // (14+ real variants across German/Hungarian regional names) and
+  // confirmed every single one is a genuine composite stew, never a
+  // single ingredient.
+  'goulash',
+  // Found live, while testing the real BRAND_NAMES fix below (not
+  // reported directly, but the same underlying principle): a real,
+  // manufactured breakfast cereal is definitionally a multi-ingredient
+  // combination (grains + sweetener + often oil/dried fruit/nuts,
+  // extruded/toasted/baked together), never a single whole-food
+  // ingredient -- yet dozens of real records (branded and unbranded
+  // alike, e.g. "Breakfast cereal muesli whole grain with fruit nuts
+  // sugar etc. honey") were slipping through as whole food via
+  // "whole"/"roasted"/"dry"/"honey" matching, since nothing general
+  // excluded the category itself. Confirmed via real data that 'cereal'
+  // and its plural 'cereals' alone (a plain keyword's own word-boundary
+  // check doesn't auto-cover a plural form -- the same lesson already
+  // learned for "ice cream" vs. "ice creams") don't cover every real
+  // case: "Cornflakes unsweetened," "Bar, muesli, plain or with dried
+  // fruit" carry neither word, so 'muesli'/'granola'/'cornflakes' are
+  // each added explicitly too.
+  'cereal', 'cereals', 'muesli', 'granola', 'cornflakes', 'corn flakes',
 ];
 
 // New for this pass -- a real, flexible pattern match (not a plain
@@ -231,6 +261,52 @@ const COMPOSITE_DISH_SIGNALS = [
 // find "sauce" within that window, not consume the rest of the name).
 const IN_OR_WITH_SAUCE_PATTERN = /\b(?:in|with)\s+(?:\S+\s+){0,4}sauce\b/i;
 
+// New for this pass -- real, confirmed brand/manufacturer/restaurant
+// names, per a real, direct report: "I should definitely not see
+// anything with a brand name on it such as APPLEBEE'S, chicken tenders
+// platter." Investigated the actual scope before building anything, not
+// guessed: a real scan of every distinct standalone ALLCAPS word across
+// all 32,707 records found 539 of them, and a blanket "any ALLCAPS word
+// = brand" rule was checked and rejected as genuinely dangerous --
+// several real, legitimate whole-food records use ALLCAPS for a
+// non-brand reason and would have been wrongly excluded: USDA (a real
+// government grading/disclaimer term, 47 of 57 real records already
+// correctly whole food), UHT (a real dairy pasteurization method, 17 of
+// 18 correctly whole food), BBQ/BBQ'D (a real, plain grilling method),
+// and DHA/ARA (real nutrient names, docosahexaenoic/arachidonic acid).
+// Built as a real, explicit, individually-verified list instead --
+// every entry below was confirmed a genuine company/product-line name
+// by reading its own real sample records, and known-legitimate ALLCAPS
+// terms were deliberately left out. A real, honest, bounded first pass,
+// not a claim of covering every brand that could ever appear -- a
+// future report naming one not caught here should be added the same
+// way this list was built, not guessed at in bulk.
+//
+// A few entries are deliberately kept as full compound phrases rather
+// than a single bare word, specifically because the bare word collides
+// with a real, legitimate whole food or nutrient this pipeline already
+// recognizes elsewhere: "mead" alone is a real, traditional fermented
+// honey beverage (would collide with FERMENTED_KEEP's own spirit);
+// "malt" alone is a real grain product (Barley malt flour already
+// exists as a legitimate flour); "cream" alone is PLAIN_DAIRY_KEEP's
+// own dairy keyword. Each is only excluded here as its own real, longer
+// brand phrase ("mead johnson," "malt-o-meal," "cream of wheat"), never
+// as the bare, collision-prone word.
+const BRAND_NAMES = [
+  // Restaurant/fast-food chains not already covered by FAST_FOOD above
+  "applebee's", "denny's", 'popeyes', 'cracker barrel', "friday's",
+  // Food/beverage manufacturer and product-line brands, confirmed via
+  // real sample records, low collision risk as bare words
+  'quaker', 'kraft', 'nestle', 'chobani', 'silk', 'breyers', 'gerber',
+  'hormel', 'digiorno', "campbell's", "hershey's", "reese's", 'snickers',
+  'similac', 'prosobee', 'enfamil',
+  // Real, confirmed compound brand phrases -- kept as full phrases per
+  // the collision-risk note above
+  'mead johnson', 'mars snackfood', 'abbott nutrition', 'malt-o-meal',
+  'ocean spray', 'v8 splash', 'smart balance', 'coca-cola',
+  'cream of rice', 'cream of wheat',
+];
+
 const ALL_EXCLUDE = [
   ...PROCESSED_MEAT,
   ...CANDY_SNACKS,
@@ -238,6 +314,7 @@ const ALL_EXCLUDE = [
   ...ADDED_SUGAR_SALT_OR_PROCESSING,
   ...REFINED_SWEETENER,
   ...COMPOSITE_DISH_SIGNALS,
+  ...BRAND_NAMES,
 ];
 
 const SAFE_OVERRIDES = [
@@ -809,6 +886,7 @@ module.exports = {
   REFINED_SWEETENER,
   COMPOSITE_DISH_SIGNALS,
   IN_OR_WITH_SAUCE_PATTERN,
+  BRAND_NAMES,
   ALL_EXCLUDE,
   JUICE_DISQUALIFIERS,
   FLAVOR_OR_ADDITIVE_MARKERS,

@@ -130,6 +130,28 @@ check('"in white basic sauce with cream" -- real words between "in" and "sauce" 
 check('a bare, standalone "sauce" product is unaffected -- no "in/with" precedes it', 'Apple sauce, unsweetened', true, null);
 check('"Applesauce" (one word) is unaffected too', 'Applesauce, canned, unsweetened', true, null);
 
+// --- Real, direct report: composite goulash/meringue dishes, and real
+// brand names, should never appear in this list ---
+check('the exact reported goulash record', '"Rehpfeffer" savory roe deer goulash', true, false);
+check('any real goulash is a composite stew', 'Beef goulash (shoulder) raw', true, false);
+check('the exact reported meringue record', '"Wasp nests" almond meringue', true, false);
+check('bare "Meringue" is still a composite whipped-egg-and-sugar dessert', 'Meringue', true, false);
+check('the exact reported brand -- APPLEBEE\'S', "APPLEBEE'S, chicken tenders platter", true, false);
+check('a brand can slip through even a real dairy match -- caught before any positive rule runs', "APPLEBEE'S, KRAFT, Macaroni & Cheese, from kid's menu", true, false);
+check('a real branded cereal is excluded via the general cereal signal, not a risky bare "post" brand keyword', 'Cereals ready-to-eat, POST HONEY BUNCHES OF OATS with cinnamon bunches', true, false);
+check('a manufactured breakfast cereal is a combination product, never a single ingredient', 'Breakfast cereal muesli whole grain with fruit nuts sugar etc. honey', true, false);
+check('cornflakes, no "cereal" word present at all, still correctly excluded', 'Cornflakes unsweetened', true, false);
+check('"mead" alone is a real, legitimate fermented honey beverage, unaffected', 'Mead, fermented honey wine', true, true);
+check('"malt" alone is a real grain product, unaffected', 'Barley malt flour', true, true);
+check('a known-legitimate ALLCAPS acronym (USDA) is not treated as a brand', 'Beef, chuck, mock tender steak, USDA choice, cooked, broiled', true, true);
+check('a known-legitimate ALLCAPS abbreviation (UHT, a dairy pasteurization method) is not a brand', 'Cream, half, UHT', true, true);
+// BBQ'd was never a positive classifier either way (bare "fried"/"BBQ"
+// were both deliberately left out of RAW_WHOLE_FOOD_HINTS earlier this
+// session as genuinely ambiguous) -- the real point being tested here
+// is that it isn't wrongly EXCLUDED as if it were a brand, which a null
+// (not false) result confirms.
+check('a known-legitimate ALLCAPS cooking-method abbreviation (BBQ) is not treated as a brand', 'Pork, forequarter chop, lean, BBQ\'d, no added fat', true, null);
+
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---
 check('a gingerbread cookie containing honey is not "honey"', 'Kathrinchen honey gingerbread biscuits', true, false);
