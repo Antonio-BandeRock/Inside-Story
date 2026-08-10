@@ -35,6 +35,7 @@
 import { HEALING_STAGES, HEALING_STAGE_INFO, FOOD_RELEVANT_HEALING_STAGES } from './healingStage';
 import { IBS_PHASES, IBS_PHASE_INFO, FOOD_RELEVANT_IBS_PHASES } from './ibsPhaseAdvisory';
 import { CELIAC_STAGES, CELIAC_STAGE_INFO, FOOD_RELEVANT_CELIAC_STAGES } from './celiacStageAdvisory';
+import { IBD_STAGES, IBD_STAGE_INFO, FOOD_RELEVANT_IBD_STAGES } from './ibdStageAdvisory';
 
 export type ConditionStageDefinition = {
   code: string;
@@ -96,6 +97,18 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
       shortDescription: CELIAC_STAGE_INFO[code].shortDescription,
     })),
     foodRelevantStageCodes: FOOD_RELEVANT_CELIAC_STAGES,
+  },
+  {
+    conditionCode: 'ibd',
+    conditionLabel: 'Inflammatory Bowel Disease',
+    frameworkName: 'The Real, Clinical Flare / Remission Distinction',
+    frameworkNote: 'A real, standard clinical distinction (not the diagnostic Montreal classification, which is static) -- see Purple Digest\'s own Inflammatory Bowel Disease category for the full evidence.',
+    stages: IBD_STAGES.map((code) => ({
+      code,
+      label: IBD_STAGE_INFO[code].label,
+      shortDescription: IBD_STAGE_INFO[code].shortDescription,
+    })),
+    foodRelevantStageCodes: FOOD_RELEVANT_IBD_STAGES,
   },
 ];
 

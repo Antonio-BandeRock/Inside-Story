@@ -8,10 +8,10 @@
 //
 // Real, honest scope: only conditions with an actual entry in
 // lib/conditionStages.ts's own CONDITION_STAGING_MODELS produce anything
-// here (Hashimoto's, IBS, Celiac Disease as of this date) -- a condition
-// with no declared stage, or no real staging model built for it yet,
-// contributes nothing, silently and correctly, rather than a guessed
-// placeholder.
+// here (Hashimoto's, IBS, Celiac Disease, Inflammatory Bowel Disease as of
+// this date) -- a condition with no declared stage, or no real staging
+// model built for it yet, contributes nothing, silently and correctly,
+// rather than a guessed placeholder.
 
 import type { FoodScore } from './db';
 import { getHealingStageAdvisory } from './healingStageAdvisory';
@@ -20,6 +20,8 @@ import { getIbsPhaseAdvisory } from './ibsPhaseAdvisory';
 import type { IbsPhase } from './ibsPhaseAdvisory';
 import { getCeliacStageAdvisory } from './celiacStageAdvisory';
 import type { CeliacStage } from './celiacStageAdvisory';
+import { getIbdStageAdvisory } from './ibdStageAdvisory';
+import type { IbdStage } from './ibdStageAdvisory';
 
 export type ConditionStageAdvisory = {
   title: string;
@@ -50,6 +52,12 @@ export function getConditionStageAdvisory(
   const celiacStage = declaredStages['celiac'];
   if (celiacStage) {
     const advisory = getCeliacStageAdvisory(scores, celiacStage as CeliacStage);
+    if (advisory) parts.push(advisory);
+  }
+
+  const ibdStage = declaredStages['ibd'];
+  if (ibdStage) {
+    const advisory = getIbdStageAdvisory(scores, ibdStage as IbdStage);
     if (advisory) parts.push(advisory);
   }
 
