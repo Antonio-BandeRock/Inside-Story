@@ -85,6 +85,18 @@ const PROCESSED_MEAT = [
   'spam', 'corned beef', 'jerky', 'ham', 'smoked ham', 'vienna sausage',
   'chorizo', 'prosciutto', 'pate', 'pâté', 'meat spread', 'potted meat',
   'canned meat', 'hot dogs',
+  // Found live, reported directly: real German-family sausage names,
+  // each written as one unbroken compound word (no space for a plain
+  // "sausage" keyword's own word-boundary check to key off), were
+  // slipping through entirely -- 11 real, confirmed records (e.g.
+  // "Beef-Bratwurst grilled," "Bratwurst, chicken, cooked") were sitting
+  // at is_whole_food=1, the exact same real category of product
+  // "sausage" already excludes, just under a different real name. Each
+  // added as its own explicit keyword rather than a general "wurst"
+  // suffix check, since these are genuine compound words with no
+  // internal boundary a word-boundary regex could otherwise find.
+  'bratwurst', 'bockwurst', 'bierwurst', 'rostbratwurst', 'mettwurst',
+  'leberwurst',
 ];
 
 const CANDY_SNACKS = [
@@ -180,16 +192,44 @@ const FLAVOR_OR_ADDITIVE_MARKERS = [
 // bread/flour/spice positive rules below just because it happens to
 // mention a real whole-food word somewhere in its own longer name (e.g.
 // "Bruschetta, with tomato and basil" contains "basil," but is a
-// prepared dish, not the herb itself). Deliberately does NOT include
-// "sauce" here -- a real, live check against this app's own data found
-// no safe way to exclude it globally without also catching genuinely
-// simple, additive-free products like "Apple sauce, unsweetened"; "sauce"
-// is instead a narrower, SPICE_HERB_DISQUALIFIERS-only check below,
-// where it can't create that same risk.
+// prepared dish, not the herb itself). Deliberately does NOT include a
+// bare "sauce" here -- a real, live check against this app's own data
+// found 1,099 real records containing the standalone word "sauce," many
+// of them genuinely simple, single-ingredient products no different from
+// any other "cooked, mashed" whole food ("Apple sauce, unsweetened,"
+// "Applesauce, canned, unsweetened") -- excluding "sauce" outright would
+// have wrongly caught those too. See IN_OR_WITH_SAUCE_PATTERN below for
+// the real, precise signal this app's owner's own direct report ("'
+// Palatine' bratwurst fried, in brown basic sauce should not be in the
+// list... these are already created items with ingredients we can't
+// account for") led to instead.
 const COMPOSITE_DISH_SIGNALS = [
   'sandwich', 'soup', 'stew', 'casserole', 'stuffing', 'gratin', 'quiche',
   'pesto', 'bruschetta', 'dressing', 'marinade',
 ];
+
+// New for this pass -- a real, flexible pattern match (not a plain
+// keyword lookup), needed because the actual distinguishing signal isn't
+// the word "sauce" itself, it's a food being served IN or WITH a sauce.
+// Checked against ~40 real records before writing this, not guessed:
+// "'Palatine' bratwurst fried, in brown basic sauce," "Bratwurst fried,
+// in beer sauce," "Chicken thigh boiled, in curry sauce," "Duck fried in
+// oven, with oranges and sauce," "Cod, in parsley sauce, frozen, boiled"
+// -- every one a real composite preparation (a protein or vegetable plus
+// an unaccountable multi-ingredient sauce), matching the app owner's own
+// direct principle: "if the user wants to build them in the app using
+// whole foods, then the ingredients need to be there" -- someone can
+// already build "bratwurst" (once separately whole-food-classified) plus
+// a real, known sauce base from this database's own real ingredients,
+// rather than this pipeline needing to carry a pre-made composite whose
+// exact recipe it has no way to know. Deliberately does NOT match a bare
+// "sauce" with nothing preceding it (that's still the real, accepted
+// applesauce-type risk named above) -- only the "in/with ... sauce"
+// SHAPE, allowing up to 4 real words in between ("in white basic sauce
+// with cream" -- 2 words before "sauce" -- still matches; the "with
+// cream" trailing the match is irrelevant, the pattern only needs to
+// find "sauce" within that window, not consume the rest of the name).
+const IN_OR_WITH_SAUCE_PATTERN = /\b(?:in|with)\s+(?:\S+\s+){0,4}sauce\b/i;
 
 const ALL_EXCLUDE = [
   ...PROCESSED_MEAT,
@@ -503,6 +543,18 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     };
   }
 
+  // "In/with ... sauce" -- a food served in a real, unaccountable
+  // multi-ingredient sauce is an already-made dish, not a raw
+  // ingredient. See IN_OR_WITH_SAUCE_PATTERN's own header comment for
+  // the real report and real data that led to this.
+  if (IN_OR_WITH_SAUCE_PATTERN.test(n)) {
+    return {
+      isWholeFood: false,
+      ruleMatched: 'in_or_with_sauce',
+      autoConfidence: 'high',
+    };
+  }
+
   const safeOverride = anyKeywordMatches(n, SAFE_OVERRIDES);
   if (safeOverride) {
     return {
@@ -756,6 +808,7 @@ module.exports = {
   ADDED_SUGAR_SALT_OR_PROCESSING,
   REFINED_SWEETENER,
   COMPOSITE_DISH_SIGNALS,
+  IN_OR_WITH_SAUCE_PATTERN,
   ALL_EXCLUDE,
   JUICE_DISQUALIFIERS,
   FLAVOR_OR_ADDITIVE_MARKERS,

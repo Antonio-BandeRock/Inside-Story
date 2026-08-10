@@ -15,6 +15,58 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, direct report closed two more concrete gaps — sausage-family compound names, and composite "in/with ... sauce" dishes
+
+Reported directly: "'Palatine' bratwurst fried, in brown basic sauce
+should not be in the list for me to view. These are already created
+items with ingredients we can't account for, but if the user wants to
+build them in the app using whole foods, then the ingredients need to be
+there. That is the idea of this app."
+
+Investigated against the actual real record, not assumed — it was
+sitting in the review queue (`no_rule_matched`), and checking further
+surfaced two real, distinct, confirmed gaps, not just the one reported
+name:
+
+1. **A real sausage-family naming gap.** "Bratwurst," "Bockwurst,"
+   "Bierwurst," "Rostbratwurst," "Mettwurst," and "Leberwurst" are all
+   real German compound words (no internal space for `PROCESSED_MEAT`'s
+   existing `sausage` keyword's own word-boundary check to key off) —
+   11 real, confirmed records (e.g. "Beef-Bratwurst grilled," "Bratwurst,
+   chicken, cooked") were sitting at `is_whole_food: 1`, the exact same
+   real category of product `sausage` already excludes, just under a
+   different real name. Each added as its own explicit keyword to
+   `PROCESSED_MEAT`.
+2. **A real, precise "in/with ... sauce" composite-dish pattern**,
+   distinct from a bare "sauce" keyword (which this project had already
+   deliberately avoided, since 1,099 real records contain the standalone
+   word "sauce," including genuinely simple, single-ingredient products
+   like "Apple sauce, unsweetened"). Checked ~40 real records before
+   writing anything: "Bratwurst fried, in beer sauce," "Chicken thigh
+   boiled, in curry sauce," "Duck fried in oven, with oranges and sauce,"
+   "Cod, in parsley sauce, frozen, boiled" — every one a real composite
+   preparation (a protein or vegetable plus an unaccountable
+   multi-ingredient sauce). A new `IN_OR_WITH_SAUCE_PATTERN` regex
+   (`in`/`with`, up to 4 real words, then `sauce`) catches this real
+   shape while leaving "Apple sauce"/"Applesauce" — no "in"/"with"
+   precedes them — completely unaffected, matching the exact real
+   distinction the app owner's own report draws: a single, known
+   ingredient (apples, cooked and pureed) versus an already-made dish
+   with ingredients this pipeline has no way to account for.
+
+**Real, concrete effect on all 32,707 already-ingested records**: the
+new sauce pattern alone caught 394 real records; the bratwurst-family
+fix moved 11 confirmed false positives from `whole food` to `not whole
+food`, with zero bratwurst/bockwurst/bierwurst records remaining
+misclassified. 83/83 classify.js tests passing (up from 74), 128/128
+across the whole pipeline.
+
+| | Before this pass | After this pass |
+|---|---|---|
+| Whole food | 17,682 | 17,467 |
+| Not whole food | 7,083 | 7,514 |
+| Needs human review | 7,942 | 7,726 |
+
 ## Status: whole-food rules substantially tightened and expanded — a real, direct scope refinement from the app owner
 
 A real, direct message reshaping the actual definition this whole

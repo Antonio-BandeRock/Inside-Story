@@ -112,6 +112,24 @@ check('high-fructose corn syrup remains excluded -- a modern industrial sweetene
 check('a branded hot-chocolate MIX is not plain cocoa', 'Cocoa, hot chocolate mix, instant', true, false);
 check('"coffee cake" is a cake, not coffee', 'Coffee cake, crumb topping', true, false);
 
+// --- Real, direct report: "'Palatine' bratwurst fried, in brown basic
+// sauce" is a composite dish with unaccountable ingredients, not a
+// whole food -- and the bratwurst-family sausage gap it surfaced ---
+check('the exact reported record', '"Palatine" bratwurst fried, in brown basic sauce', true, false);
+check('bratwurst is a real, unbroken-compound-word sausage, same category as "sausage"', 'Beef-Bratwurst grilled', true, false);
+check('bockwurst, same real sausage-family gap', 'Bockwurst, pork, veal, raw', true, false);
+check('plain bratwurst alone (no sauce) is still correctly excluded -- it is a sausage', 'Bratwurst fried', true, false);
+check('"in ... sauce" -- a protein served in an unaccountable sauce is a composite dish', 'Chicken thigh boiled, in curry sauce', true, false);
+check('"with ... sauce" -- the same real pattern, different preposition', 'Duck fried in oven, with oranges and sauce', true, false);
+check('"in white basic sauce with cream" -- real words between "in" and "sauce" still match', 'Button mushrooms stewed, in white basic sauce with cream', true, false);
+// Neither of these was ever auto-classified TRUE before this pass
+// either (no raw/fresh/cooked/etc. word present) -- the real point being
+// tested here is that the new sauce pattern doesn't newly EXCLUDE them,
+// leaving them exactly where they already were: genuinely ambiguous,
+// forced into human review rather than guessed at either way.
+check('a bare, standalone "sauce" product is unaffected -- no "in/with" precedes it', 'Apple sauce, unsweetened', true, null);
+check('"Applesauce" (one word) is unaffected too', 'Applesauce, canned, unsweetened', true, null);
+
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---
 check('a gingerbread cookie containing honey is not "honey"', 'Kathrinchen honey gingerbread biscuits', true, false);
