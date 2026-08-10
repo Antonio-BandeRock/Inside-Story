@@ -796,10 +796,12 @@ export default function ProfileScreen() {
   // icon yet from silently showing a broken/blank option here.
   // 2026-08-09: default always leads (not part of the alphabetical sort),
   // then every real condition option sorted alphabetically by its own
-  // label -- explicitly requested. "Thyreomorpha Gemmata" is the real
-  // species name behind this app's own commissioned butterfly artwork.
+  // label -- explicitly requested. Briefly labeled "Default
+  // (Thyreomorpha Gemmata)" (the real species name behind this app's own
+  // commissioned butterfly artwork) the same day, then reverted to plain
+  // "Default" per a direct follow-up request.
   const tabHubIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'default', label: 'Default\n(Thyreomorpha Gemmata)' },
+    { key: 'default', label: 'Default' },
   ];
   const conditionIconOptions: { key: TabHubIconChoice; label: string }[] = [];
   for (const condition of allConditions) {
