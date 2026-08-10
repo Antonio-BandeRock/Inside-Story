@@ -8,10 +8,11 @@ import { Platform } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { ActiveInputProvider } from '../components/ActiveInputContext';
 import { AppKeyboard } from '../components/AppKeyboard';
+import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { colors } from '../constants/colors';
 import { IridescentHueProvider } from '../hooks/useIridescentHueRotation';
-import { initializeDatabase } from '../lib/db';
+import { getReferenceDatabase, initializeDatabase } from '../lib/db';
 
 // Kept visible until the header's own branding font finishes loading (see
 // ScreenHeader.tsx) -- without this, the native splash screen hides itself
@@ -27,6 +28,18 @@ SplashScreen.preventAutoHideAsync();
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({ Nunito_600SemiBold });
   const [dbReady, setDbReady] = useState(false);
+  // Real reference-database readiness, 2026-08-10, separate from dbReady
+  // above -- that one only covers the LOCAL app database's own table
+  // setup (fast), not the real, one-time copy of the bundled 22,000+-food
+  // reference database onto the device (see DatabaseSetupScreen.tsx's own
+  // header comment for the full "why this exists" history). Deliberately
+  // does NOT gate the native splash screen below -- the splash only shows
+  // a static image with no way to display real, live text, so it still
+  // hides as soon as fonts/dbReady are ready, revealing
+  // DatabaseSetupScreen (a real, JS-rendered screen, so it CAN say
+  // something) underneath for however long the reference import
+  // genuinely takes, then the real app once it resolves.
+  const [referenceDbReady, setReferenceDbReady] = useState(false);
 
   // getDatabase() elsewhere in the app only opens the SQLite file -- it
   // never guarantees initializeDatabase()'s CREATE TABLE/migration logic
@@ -40,6 +53,22 @@ export default function RootLayout() {
     initializeDatabase()
       .catch((error) => console.error('initializeDatabase failed', error))
       .finally(() => setDbReady(true));
+  }, []);
+
+  // Kicks off the real, potentially slow reference-database import here
+  // too, rather than leaving it to whichever screen happens to touch it
+  // first -- getReferenceDatabase() itself is memoized (a real, module-
+  // level promise, see its own comment in lib/db.ts), so calling it here
+  // is completely safe alongside every other place in the app that already
+  // calls it; they all resolve against this same, one real import. Fails
+  // OPEN, not closed -- a genuine import failure still reveals the real
+  // app rather than stranding someone on this screen forever, matching the
+  // same "log it, don't block on it" pattern initializeDatabase's own
+  // effect above already uses.
+  useEffect(() => {
+    getReferenceDatabase()
+      .catch((error) => console.error('getReferenceDatabase failed', error))
+      .finally(() => setReferenceDbReady(true));
   }, []);
 
   useEffect(() => {
@@ -71,6 +100,16 @@ export default function RootLayout() {
   // header is exactly the kind of place a font swap is most noticeable.
   if (!fontsLoaded || !dbReady) {
     return null;
+  }
+
+  // The native splash screen has already hidden by this point (it only
+  // ever waited on the two checks above) -- this is the real, JS-rendered
+  // screen that covers the same real wait for the reference-database
+  // import specifically, see DatabaseSetupScreen.tsx's own header comment.
+  // A fast, already-imported launch (every launch after the first) still
+  // passes through here, just resolving close to instantly.
+  if (!referenceDbReady) {
+    return <DatabaseSetupScreen />;
   }
 
   return (
