@@ -8,10 +8,10 @@
 //
 // Real, honest scope: only conditions with an actual entry in
 // lib/conditionStages.ts's own CONDITION_STAGING_MODELS produce anything
-// here (Hashimoto's, IBS, Celiac Disease, Inflammatory Bowel Disease as of
-// this date) -- a condition with no declared stage, or no real staging
-// model built for it yet, contributes nothing, silently and correctly,
-// rather than a guessed placeholder.
+// here (Hashimoto's, IBS, Celiac Disease, Inflammatory Bowel Disease,
+// Chronic Kidney Disease as of this date) -- a condition with no declared
+// stage, or no real staging model built for it yet, contributes nothing,
+// silently and correctly, rather than a guessed placeholder.
 
 import type { FoodScore } from './db';
 import { getHealingStageAdvisory } from './healingStageAdvisory';
@@ -22,6 +22,8 @@ import { getCeliacStageAdvisory } from './celiacStageAdvisory';
 import type { CeliacStage } from './celiacStageAdvisory';
 import { getIbdStageAdvisory } from './ibdStageAdvisory';
 import type { IbdStage } from './ibdStageAdvisory';
+import { getCkdStageAdvisory } from './ckdStageAdvisory';
+import type { CkdStage } from './ckdStageAdvisory';
 
 export type ConditionStageAdvisory = {
   title: string;
@@ -58,6 +60,15 @@ export function getConditionStageAdvisory(
   const ibdStage = declaredStages['ibd'];
   if (ibdStage) {
     const advisory = getIbdStageAdvisory(scores, ibdStage as IbdStage);
+    if (advisory) parts.push(advisory);
+  }
+
+  // 'chronic_kidney_disease', not 'chronicKidneyDisease' -- matches the
+  // real conditions.code value, see lib/conditionStages.ts's own note on
+  // this same registry entry.
+  const ckdStage = declaredStages['chronic_kidney_disease'];
+  if (ckdStage) {
+    const advisory = getCkdStageAdvisory(scores, ckdStage as CkdStage);
     if (advisory) parts.push(advisory);
   }
 

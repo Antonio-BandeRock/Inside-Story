@@ -36,6 +36,7 @@ import { HEALING_STAGES, HEALING_STAGE_INFO, FOOD_RELEVANT_HEALING_STAGES } from
 import { IBS_PHASES, IBS_PHASE_INFO, FOOD_RELEVANT_IBS_PHASES } from './ibsPhaseAdvisory';
 import { CELIAC_STAGES, CELIAC_STAGE_INFO, FOOD_RELEVANT_CELIAC_STAGES } from './celiacStageAdvisory';
 import { IBD_STAGES, IBD_STAGE_INFO, FOOD_RELEVANT_IBD_STAGES } from './ibdStageAdvisory';
+import { CKD_STAGES, CKD_STAGE_INFO, FOOD_RELEVANT_CKD_STAGES } from './ckdStageAdvisory';
 
 export type ConditionStageDefinition = {
   code: string;
@@ -109,6 +110,24 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
       shortDescription: IBD_STAGE_INFO[code].shortDescription,
     })),
     foodRelevantStageCodes: FOOD_RELEVANT_IBD_STAGES,
+  },
+  {
+    // NOTE: 'chronic_kidney_disease', not 'chronicKidneyDisease' -- the
+    // real conditions.code value (snake_case), confirmed via direct query,
+    // NOT the Digest's own camelCase category key. Every other entry in
+    // this registry happens to share one identical string between the two
+    // naming conventions; CKD does not (see lib/conditionCodeMap.ts's own
+    // header comment: "never lined up automatically").
+    conditionCode: 'chronic_kidney_disease',
+    conditionLabel: 'Chronic Kidney Disease',
+    frameworkName: 'The Real Pre-Dialysis / On-Dialysis Dietary Reversal',
+    frameworkNote: 'A real, cited clinical reversal (not the diagnostic KDIGO G/A staging grid, which is static) -- see Purple Digest\'s own Chronic Kidney Disease category for the full evidence.',
+    stages: CKD_STAGES.map((code) => ({
+      code,
+      label: CKD_STAGE_INFO[code].label,
+      shortDescription: CKD_STAGE_INFO[code].shortDescription,
+    })),
+    foodRelevantStageCodes: FOOD_RELEVANT_CKD_STAGES,
   },
 ];
 
