@@ -163,7 +163,17 @@
   }
 
   /* ---------- Main content ---------- */
-  .main { padding: 22px 26px 60px; max-width: 1100px; }
+  /* Real fix, reported directly: the old max-width: 1100px left a lot of
+     a wide browser window unused (the .shell grid already gives .main a
+     real 1fr track spanning everything past the 280px rail) while the
+     6-column classify table -- Name/Source/Confidence/Rule/Auto
+     call/Your decision, the last one holding all three action buttons --
+     still needed more room than that and had to be scrolled inside
+     .table-wrap's own overflow-x, hiding the Skip button off-screen.
+     Removed the cap entirely so .main genuinely fills the full available
+     width, matching "allow the full breadth of the page to be
+     available." */
+  .main { padding: 22px 26px 60px; }
 
   .view-header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
   .view-header h2 { font-size: 22px; }
