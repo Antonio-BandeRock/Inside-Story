@@ -86,26 +86,65 @@ export function DatabaseSetupScreen({
   }, [isComplete, phase]);
 
   // Phase 2: a real, elapsed-time-driven tween from wherever the estimate
-  // had reached up to a true 100 -- always the same real, brief duration
-  // regardless of the starting point (a 5-point gap and a 50-point gap
-  // both close in the same real amount of time), so this never reads as
-  // an arbitrary jump. Only once this real animation has actually reached
-  // 100 does the screen move to "Finished!" -- the display never says
-  // done a moment before the underlying import genuinely is.
+  // had reached up to a true 100 -- always the same real, fixed total
+  // duration regardless of the starting point (a 5-point gap and a
+  // 50-point gap both close in the same real amount of time), so this
+  // never reads as an arbitrary jump. Only once this real animation has
+  // actually reached 100 does the screen move to "Finished!" -- the
+  // display never says done a moment before the underlying import
+  // genuinely is.
+  //
+  // Real, direct follow-up, same day, on-device: the original single-
+  // stage, 550ms version read as "obviously faking it" -- a real, honest
+  // completion signal shouldn't LOOK like a trick. Rebuilt as two real
+  // segments rather than one flat tween: a main climb from wherever the
+  // estimate was up to the same 95% cap the earlier estimate phase
+  // already uses (900ms, a believable, visible amount of movement -- not
+  // a snap), then a deliberately SLOWER final crawl from 95 to a true 100
+  // (700ms for just that last 5 points -- roughly 3x the per-point pace
+  // of the main climb), so the very end reads as a genuine, unhurried
+  // settling-in rather than a rushed finish. Total, for the common case
+  // (an estimate that hadn't yet reached 95 when isComplete fires): 1.6s,
+  // nearly 3x the original 550ms and comfortably over the "at least
+  // double" ask. A real import that runs long enough for the estimate to
+  // reach 95 on its own skips straight to the slow final segment, so the
+  // "last 5%" always gets this same deliberate treatment regardless of
+  // how the earlier climb went.
   useEffect(() => {
     if (phase !== 'catching-up') return;
     const startPercent = percentRef.current;
     const startTime = Date.now();
     const interval = setInterval(() => {
-      const t = Math.min(1, (Date.now() - startTime) / CATCH_UP_DURATION_MS);
-      // Ease-out: fast at first, settling in smoothly right at 100 rather
-      // than a constant-speed climb that would feel like it's still
-      // rushing right up to the end.
-      const eased = 1 - (1 - t) * (1 - t);
-      const next = startPercent + (100 - startPercent) * eased;
+      const elapsed = Date.now() - startTime;
+      let next: number;
+      let done: boolean;
+      if (startPercent >= PROGRESS_CAP) {
+        // Already at or past the cap on its own -- go straight into the
+        // slow final crawl from wherever it actually is.
+        const t = Math.min(1, elapsed / CATCH_UP_FINAL_DURATION_MS);
+        const eased = 1 - Math.pow(1 - t, 3);
+        next = startPercent + (100 - startPercent) * eased;
+        done = t >= 1;
+      } else if (elapsed <= CATCH_UP_MAIN_DURATION_MS) {
+        // Main climb: startPercent up to the 95% cap. Quadratic ease-out
+        // -- a believable, visible pace, not a snap.
+        const t = elapsed / CATCH_UP_MAIN_DURATION_MS;
+        const eased = 1 - Math.pow(1 - t, 2);
+        next = startPercent + (PROGRESS_CAP - startPercent) * eased;
+        done = false;
+      } else {
+        // The slow final crawl: 95 up to a true 100. Cubic ease-out (a
+        // touch stronger than the main climb's quadratic) plus a longer
+        // real duration for a much smaller range -- reads as genuinely,
+        // deliberately slower, not just the same curve compressed.
+        const t = Math.min(1, (elapsed - CATCH_UP_MAIN_DURATION_MS) / CATCH_UP_FINAL_DURATION_MS);
+        const eased = 1 - Math.pow(1 - t, 3);
+        next = PROGRESS_CAP + (100 - PROGRESS_CAP) * eased;
+        done = t >= 1;
+      }
       setPercent(next);
       percentRef.current = next;
-      if (t >= 1) {
+      if (done) {
         clearInterval(interval);
         setPhase('finished');
       }
@@ -176,8 +215,11 @@ const PROGRESS_STEP_FACTOR = 0.012;
 const PROGRESS_CAP = 95;
 // The real, elapsed-time-driven catch-up from wherever the estimate had
 // reached up to a true 100, triggered only once isComplete is genuinely
-// true.
-const CATCH_UP_DURATION_MS = 550;
+// true -- two real segments, not one flat tween (see the effect above
+// for why): a main climb up to the shared 95% cap, then a deliberately
+// slower final crawl from 95 to a true 100.
+const CATCH_UP_MAIN_DURATION_MS = 900;
+const CATCH_UP_FINAL_DURATION_MS = 700;
 const CATCH_UP_TICK_MS = 30;
 // How long "Finished!" stays on screen before the pop-out starts -- long
 // enough to actually register as a real, distinct state, not just a
