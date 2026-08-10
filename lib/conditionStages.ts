@@ -34,6 +34,7 @@
 
 import { HEALING_STAGES, HEALING_STAGE_INFO, FOOD_RELEVANT_HEALING_STAGES } from './healingStage';
 import { IBS_PHASES, IBS_PHASE_INFO, FOOD_RELEVANT_IBS_PHASES } from './ibsPhaseAdvisory';
+import { CELIAC_STAGES, CELIAC_STAGE_INFO, FOOD_RELEVANT_CELIAC_STAGES } from './celiacStageAdvisory';
 
 export type ConditionStageDefinition = {
   code: string;
@@ -83,6 +84,18 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
       shortDescription: IBS_PHASE_INFO[code].shortDescription,
     })),
     foodRelevantStageCodes: FOOD_RELEVANT_IBS_PHASES,
+  },
+  {
+    conditionCode: 'celiac',
+    conditionLabel: 'Celiac Disease',
+    frameworkName: "The Real, Age-Dependent Villi-Healing Timeline",
+    frameworkNote: 'A real, cited healing window (not the diagnostic Marsh biopsy scale) -- see Purple Digest\'s own Celiac Disease category for the full evidence, including why healing can take up to 2 years.',
+    stages: CELIAC_STAGES.map((code) => ({
+      code,
+      label: CELIAC_STAGE_INFO[code].label,
+      shortDescription: CELIAC_STAGE_INFO[code].shortDescription,
+    })),
+    foodRelevantStageCodes: FOOD_RELEVANT_CELIAC_STAGES,
   },
 ];
 
