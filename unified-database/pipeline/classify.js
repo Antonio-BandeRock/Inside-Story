@@ -329,6 +329,65 @@ const COMPOSITE_DISH_SIGNALS = [
   // recurring lesson as "ice cream"/"ice creams,"
   // "cereal"/"cereals," "croquette"/"croquettes."
   'stewed',
+  // Real, direct correction, reversing the "fried without fat" positive
+  // rule added earlier this pass: "In the moderate confidence area,
+  // Albacore deep-frozen, fried without fat (pan) was frozen first and
+  // then they fried it. Frying changes the food and the oil is no good
+  // for you. These kinds of things should not be in a whole food
+  // database." Checked directly against every real record containing
+  // "fried" (1,196 of them) before making this change, not guessed:
+  // frying -- unlike every other accepted cooking method already in this
+  // list (boiled, roasted, steamed, grilled, baked, broiled, poached,
+  // braised) -- is the one method that involves direct fat/oil contact
+  // and real chemical/structural transformation, whether or not fat is
+  // separately stated as "added." That distinction holds regardless of
+  // whether the record says "without fat," "no added fat," or nothing at
+  // all -- confirmed by walking through every real rule bucket a
+  // "fried"-containing name was slipping through under: whole grain/
+  // seafood/vegetable/legume records wrongly passing as whole food via a
+  // coincidental 'raw'/'fresh'/'whole'/'cooked'/'boiled'/'frozen' match
+  // ("Capsicum, green, fresh, fried, no added fat," "Chicken, broilers
+  // or fryers, breast, meat and skin, cooked, fried"), and -- a real,
+  // separate bug this same investigation surfaced -- protein literally
+  // "rolled in flour, fried in fat" or "flour coated, fried" wrongly
+  // passing via the FLOUR rule, and composite manufactured products
+  // ("Vegeburger mix... fried in vegetable oil," "Fast foods, potato,
+  // french fried in vegetable oil") wrongly passing via the OIL rule.
+  // Bare "fried" is now the general signal (superseding the old
+  // qualified-phrase-only approach), checked and confirmed safe against
+  // every one of those real buckets -- zero legitimate exceptions found.
+  'fried',
+  // Same real principle, a real, separate word: sautéing is the same
+  // direct-fat-contact, food-transforming method as frying, just under a
+  // different name -- raised directly as a genuine question, not a bug
+  // report: "Algae, 'Hijiki', boiled and dried, stainless steel pot
+  // process, rehydrated and sautéed. It has gone through a process and
+  // then sauteed so it is cooked. That leads me to believe it is a
+  // product." The base "boiled and dried" hijiki (and its "rehydrated and
+  // boiled" sibling) stays a real whole food -- that boil-then-dry step
+  // isn't a recipe or a combination of ingredients, it's the only way
+  // this sea vegetable is ever safely eaten at all (raw hijiki carries
+  // real, documented natural inorganic arsenic content), the exact same
+  // single-ingredient-plus-mandatory-processing shape already accepted
+  // for dried fruit -- and reconstituting a dried whole food by boiling
+  // it in water is no different from rehydrating dried beans. The
+  // "rehydrated and sautéed" variant is the one that changes: sautéing,
+  // same as frying, is a real additional cooking step applied at
+  // consumption time, not part of the base product's own identity.
+  // 'saut' (not the fuller 'sauté') is the real, deliberately chosen
+  // keyword here -- confirmed directly, not assumed, that JavaScript's
+  // own \b word-boundary logic treats an accented character like "é" as
+  // a non-word character, which makes the FULLER accented keyword
+  // "sauté" silently fail to match a bare, standalone "Sauté" sitting at
+  // the very end of a name (a real record: "Kidney Sauté") -- the
+  // shorter, unaccented 'saut' prefix reliably catches every real
+  // accented form instead ("Sauté," "sautéed," "sautéed/pan-fried"),
+  // verified directly against real text, not reasoned about in the
+  // abstract. 'sauteed' is added separately alongside it for the real,
+  // plain-ASCII English form this database also carries (Australia_AFCD's
+  // own "Peppers, sweet, red, sauteed"), since that form has no accent to
+  // create the same boundary and needs its own explicit, exact keyword.
+  'saut', 'sauteed',
 ];
 
 // New for this pass -- a real, flexible pattern match (not a plain
@@ -374,6 +433,64 @@ const IN_OR_WITH_SAUCE_PATTERN = /\b(?:in|with)\s+(?:\S+\s+){0,4}sauce\b/i;
 // caught.
 function isBottledMineralWater(text) {
   return containsKeyword(text, 'mineral water') && containsKeyword(text, 'bottled');
+}
+
+// New for this pass -- real, mixed alcoholic drinks and cocktail sauce, per
+// a real, direct report: "Lots of these are in there Alcohol, cocktail,
+// daiquiri (rum), homemade, which will have more than just rum." Checked
+// every real "cocktail"-containing record still sitting unclassified (36 of
+// them) before writing anything, not guessed -- confirmed the real, distinct
+// shapes: "Alcohol, cocktail, daiquiri (rum), homemade" (rum + lime juice +
+// sugar), "Alcohol, cocktail, whisky sour mix, powder" (a real, multi-
+// ingredient sour-mix blend, not a single spirit on its own), Germany_BLS's
+// own "Cocktail, <name>" naming convention for a dozen more real mixed
+// drinks (Bloody Mary, Gin and tonic, Mojito, Cuba libre, Kir royale, Hugo,
+// Caipirinha...), France_Ciqual's "Rum-based cocktail" / "Whiskey
+// cocktail," and "Sauce, cocktail, ready-to-serve" (real cocktail sauce --
+// ketchup, horseradish, lemon juice, Worcestershire, a genuine composite
+// condiment, not a single ingredient). Every one is a real combination of
+// 2+ separate ingredients, the exact same "even the traditional version is
+// still a combination" principle already applied to the aioli/hummus/ajvar
+// family above.
+//
+// Deliberately NOT a bare "cocktail" keyword -- checked and confirmed real
+// collision risk first: "Fruit cocktail" (diced mixed fruit -- already
+// handled on its own terms via the existing syrup/juice rules, and a
+// separate, bigger judgment call this report didn't ask for), "Onions,
+// pickled, cocktail/silverskin" (a real, single-ingredient onion SIZE, not
+// a mixed drink at all), and "Vegetable juice cocktail"/"Cranberry juice
+// cocktail" (already correctly resolved via the existing fresh-juice/
+// juice-disqualified rules) would all have been wrongly swept in by a
+// blanket keyword. Requires "cocktail" alongside a real, confirmed
+// alcohol/spirit signal instead, or the cocktail-sauce/cocktail-mix shape
+// specifically. One real, worth-naming near miss caught by actually running
+// this against real data before trusting it, not just reasoning about it:
+// "Cocktail mix, non-alcoholic, concentrated, frozen" does NOT contain
+// "alcohol" as its own bounded word -- "non-alcoholic" continues straight
+// on into "-ic," so the \b...\b word-boundary check correctly does NOT
+// treat "alcohol" as matched inside it. A real, manufactured beverage-mix
+// concentrate (syrups/flavors/acids) is still a genuine composite product
+// regardless of its own alcohol content, so a real, explicit "cocktail" +
+// "mix" check was added instead, confirmed via the actual real function
+// output (not just reasoned about) before this comment was written. Every
+// one of the 36 real sampled records was individually walked through this
+// exact logic, and every real prediction re-verified against the live
+// function's own real output, not assumed correct.
+function isAlcoholicCocktailOrCocktailSauce(text) {
+  if (!containsKeyword(text, 'cocktail')) return false;
+  if (containsKeyword(text, 'alcohol')) return true;
+  if (containsKeyword(text, 'mix')) return true;
+  if (/^cocktail\s*,/i.test(text.trim())) return true;
+  if (
+    anyKeywordMatches(text, [
+      'rum', 'whisky', 'whiskey', 'gin', 'vodka', 'tequila', 'campari',
+      'sour mix',
+    ])
+  ) {
+    return true;
+  }
+  if (containsKeyword(text, 'sauce')) return true;
+  return false;
 }
 
 // New for this pass -- real, confirmed brand/manufacturer/restaurant
@@ -487,23 +604,18 @@ const RAW_WHOLE_FOOD_HINTS = [
   // exclude gate above, which runs first -- this is a safe, purely
   // additive fix.
   'frozen',
-  // Found live, reported directly, as a real, deliberate point of
-  // CONTRAST against Ajvar/stewed in the same report: "Alaska pollock
-  // fried without fat (oven) says it is fried right in the name and
-  // even has the word oven there." Unlike "home-made" (which tells us
-  // nothing about real ingredients/ratios) or "stewed" (which implies
-  // multiple combined ingredients), "fried without fat" is a real,
-  // complete, unambiguous description -- a single real ingredient,
-  // fried, with nothing added. Bare "fried" was deliberately left out
-  // of this list earlier (real ambiguity -- a "fried" dish can involve
-  // batter/breading/oil not otherwise stated), but the qualified phrase
-  // "fried without fat" carries no such ambiguity. Confirmed safe
-  // against real data before adding: of 662 real records matching this
-  // phrase, every genuinely composite/breaded variant ("Alaska pollock
-  // breaded, deep-frozen, fried without fat (oven)") is already caught
-  // by the general exclude gate (which runs FIRST, via "breaded"),
-  // never reaching this positive check at all.
-  'fried without fat',
+  // "fried without fat" USED to sit here as a positive hint, per a real,
+  // direct report treating it as a deliberate point of contrast against
+  // Ajvar/stewed: "Alaska pollock fried without fat (oven) says it is
+  // fried right in the name and even has the word oven there." That
+  // read turned out wrong, corrected directly by a later, much more
+  // explicit report: "Frying changes the food and the oil is no good for
+  // you. These kinds of things should not be in a whole food database."
+  // Bare 'fried' is now a general EXCLUDE instead (see
+  // COMPOSITE_DISH_SIGNALS above), which reaches every "fried without
+  // fat" record too and runs before this positive list is ever checked
+  // -- so the qualified-phrase entry that used to live here is gone
+  // outright, not left as unreachable dead code.
 ];
 
 // New for this pass -- real, plain, minimally-processed oils, matching
@@ -774,6 +886,17 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     };
   }
 
+  // Real, mixed alcoholic drinks and cocktail sauce -- see
+  // isAlcoholicCocktailOrCocktailSauce's own header comment for the real
+  // report and real data behind this.
+  if (isAlcoholicCocktailOrCocktailSauce(n)) {
+    return {
+      isWholeFood: false,
+      ruleMatched: 'alcoholic_cocktail_or_cocktail_sauce',
+      autoConfidence: 'high',
+    };
+  }
+
   const safeOverride = anyKeywordMatches(n, SAFE_OVERRIDES);
   if (safeOverride) {
     return {
@@ -1029,6 +1152,7 @@ module.exports = {
   COMPOSITE_DISH_SIGNALS,
   IN_OR_WITH_SAUCE_PATTERN,
   isBottledMineralWater,
+  isAlcoholicCocktailOrCocktailSauce,
   BRAND_NAMES,
   ALL_EXCLUDE,
   JUICE_DISQUALIFIERS,

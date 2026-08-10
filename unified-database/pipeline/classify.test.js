@@ -204,16 +204,53 @@ check('the real, separate whole-food ingredients themselves remain correctly inc
 check('olive oil remains correctly included too', 'Olive oil', true, true);
 check('chickpeas remain correctly included too', 'Chickpeas, mature seeds, raw', true, true);
 
-// --- Real, direct report: Ajvar, stewed (a real plural/form gap), and
-// a real, deliberate point of contrast -- "fried without fat" IS a
-// complete, unambiguous, legitimate simple preparation ---
+// --- Real, direct report: Ajvar and stewed (a real plural/form gap) ---
 check('the exact reported Ajvar record', 'Ajvar, sweet pepper sauce, home-made', true, false);
 check('"home-made" does not tell us real ingredients/amounts -- still excluded', 'Ajvar canned', true, false);
 check('the exact reported "two things combined" Ajvar record', 'Ajvar and spinach sauce', true, false);
 check('the exact reported "stewed" record -- the plural/form gap "stew" alone missed', 'Alaska pollock stewed', true, false);
-check('the exact reported "fried without fat (oven)" record -- a real, complete, legitimate simple preparation', 'Alaska pollock fried without fat (oven)', true, true);
-check('the pan variant, same real reasoning', 'Albacore fried without fat (pan)', true, true);
-check('a breaded, composite variant is still correctly excluded -- caught by the exclude gate first', 'Alaska pollock breaded, deep-frozen, fried without fat (oven)', true, false);
+
+// --- Real, direct correction, reversing the earlier "fried without fat
+// is a legitimate simple preparation" call: "Frying changes the food and
+// the oil is no good for you. These kinds of things should not be in a
+// whole food database." Bare "fried" is now a general exclude. ---
+check('the exact reported record -- "fried without fat" no longer whitelisted, correctly excluded now', 'Albacore deep-frozen, fried without fat (pan)', true, false);
+check('the earlier, now-reversed "point of contrast" record -- also correctly excluded now', 'Alaska pollock fried without fat (oven)', true, false);
+check('the pan variant, same real reversal', 'Albacore fried without fat (pan)', true, false);
+check('a breaded, composite variant was already correctly excluded, still is', 'Alaska pollock breaded, deep-frozen, fried without fat (oven)', true, false);
+check('plain "fried" with fat stated, previously slipping through via a "cooked" match', 'Chicken, broilers or fryers, meat only, cooked, fried', true, false);
+check('plain "fried" with salt, previously slipping through via a "salt" match', 'Chicken breast fillet with skin fried with salt', true, false);
+check('protein rolled in flour then fried -- a real, separate bug this same fix caught, previously slipping through via the FLOUR rule', 'Catfish, fillet, rolled in flour, fried in fat', true, false);
+check('a composite product fried in oil -- previously slipping through via the OIL rule', 'Fast foods, potato, french fried in vegetable oil', true, false);
+check('stir-fried still correctly excluded -- the hyphen does not defeat the word-boundary match', 'stir-fried vegetables', true, false);
+check('a real, unrelated word is not falsely caught -- "clarified" does not contain "fried"', 'Clarified butter', true, true);
+check('the real ingredient itself, on its own, remains correctly included', 'Albacore, raw', true, true);
+
+// --- Same real principle, a real, direct question (not a bug report):
+// "Algae, 'Hijiki', boiled and dried, ... rehydrated and sautéed. It has
+// gone through a process and then sauteed so it is cooked. That leads me
+// to believe it is a product. How would a Japanese person trying to eat
+// wholefood only think of it?" -- sautéing is the same direct-fat-contact
+// method as frying; the mandatory boil-and-dry step that makes hijiki
+// safe to eat at all is not. ---
+check('the base, boiled-and-dried hijiki -- a mandatory processing step, not a recipe, stays a real whole food', 'Algae, "Hijiki", boiled and dried, stainless steel pot process, raw', true, true);
+check('rehydrating the dried whole food by boiling it is no different from rehydrating dried beans -- stays whole food', 'Algae, "Hijiki", boiled and dried, stainless steel pot process, rehydrated and boiled', true, true);
+check('the exact reported record -- sautéing is a real, additional cooking step, correctly excluded now', 'Algae, "Hijiki", boiled and dried, stainless steel pot process, rehydrated and sautéed', true, false);
+check('a bare, standalone accented "Sauté" at the end of a name -- the real reason "saut" (not the fuller "sauté") was chosen as the keyword', 'Kidney Sauté', true, false);
+check('the real, plain-ASCII English form, needs its own explicit keyword', 'Peppers, sweet, red, sauteed', true, false);
+
+// --- Real, direct report: "Lots of these are in there Alcohol,
+// cocktail, daiquiri (rum), homemade, which will have more than just
+// rum." ---
+check('the exact reported record', 'Alcohol, cocktail, daiquiri (rum), homemade', true, false);
+check('a real, multi-ingredient sour-mix blend, not a single spirit', 'Alcohol, cocktail, whisky sour mix, powder', true, false);
+check("Germany_BLS's own \"Cocktail, <name>\" naming convention", 'Cocktail, Bloody Mary', true, false);
+check('a real named drink with no explicit spirit word in its own name, still caught by the "Cocktail, " prefix', 'Cocktail, Mojito', true, false);
+check('a spirit-named cocktail with no "Alcohol," prefix and no "Cocktail," prefix either', 'Rum-based cocktail', true, false);
+check('real cocktail sauce -- a genuine composite condiment, not a single ingredient', 'Sauce, cocktail, ready-to-serve', true, false);
+check('a real composite beverage-mix concentrate, regardless of its own alcohol content -- caught via the "cocktail"+"mix" check, not the alcohol check ("non-alcoholic" does not bound-match "alcohol")', 'Cocktail mix, non-alcoholic, concentrated, frozen', true, false);
+check('"Fruit cocktail" deliberately left untouched -- a real, separate judgment call this report did not ask for', 'Fruit cocktail, canned, in natural juice', true, true);
+check('"cocktail" as an onion SIZE, not a mixed drink, correctly still unaffected -- neither excluded nor included, stays in the review queue', 'Onions, pickled, cocktail/silverskin, drained', true, null);
 
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---

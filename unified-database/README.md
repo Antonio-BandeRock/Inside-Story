@@ -15,6 +15,106 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, direct report on alcoholic cocktails, then a real, direct correction reversing the "fried without fat" call, then a real, genuine question about sautéed hijiki — all resolved by the same underlying principle
+
+**Alcohol cocktails and cocktail sauce.** Reported directly: "Lots of
+these are in there Alcohol, cocktail, daiquiri (rum), homemade, which
+will have more than just rum." Investigated every real "cocktail"-
+containing record still sitting unclassified (36 of them) before
+writing anything — confirmed the real, distinct shapes: "Alcohol,
+cocktail, daiquiri (rum), homemade" (rum + lime juice + sugar),
+"Alcohol, cocktail, whisky sour mix, powder" (a real, multi-ingredient
+sour-mix blend, not a single spirit), Germany_BLS's own "Cocktail,
+&lt;name&gt;" naming convention for a dozen more real mixed drinks
+(Bloody Mary, Gin and tonic, Mojito, Cuba libre, Kir royale, Hugo,
+Caipirinha...), France_Ciqual's "Rum-based cocktail" / "Whiskey
+cocktail," and "Sauce, cocktail, ready-to-serve" (real cocktail sauce
+— ketchup, horseradish, lemon juice, Worcestershire, a genuine
+composite condiment). Every one is a real combination of 2+ separate
+ingredients, the same "even the traditional version is still a
+combination" principle already applied to the aioli/hummus/ajvar
+family.
+
+Deliberately NOT a bare "cocktail" keyword — checked and confirmed real
+collision risk first: "Fruit cocktail" (diced mixed fruit — a real,
+separate judgment call this report didn't ask for, left untouched),
+"Onions, pickled, cocktail/silverskin" (a real, single-ingredient onion
+SIZE, not a mixed drink at all), and the already-correctly-resolved
+juice-cocktail family would all have been wrongly swept in by a
+blanket keyword. Built as a new, explicit function requiring
+"cocktail" alongside a real, confirmed alcohol/spirit/mix signal or the
+cocktail-sauce shape instead. One real correction made while verifying
+this against the live function's own actual output, not just reasoned
+about: "Cocktail mix, non-alcoholic, concentrated, frozen" does NOT
+bound-match "alcohol" (the word continues straight into "-alcoholic"),
+so a separate, explicit "cocktail" + "mix" check was added to correctly
+catch this real, composite beverage-mix concentrate too.
+
+**"Fried without fat" — reversed.** The previous pass treated "fried
+without fat" as a deliberate point of contrast (a legitimate simple
+preparation, unlike "home-made" or "stewed"). Reported directly, and
+corrected: "In the moderate confidence area, Albacore deep-frozen,
+fried without fat (pan) was frozen first and then they fried it.
+Frying changes the food and the oil is no good for you. These kinds of
+things should not be in a whole food database." Checked every real
+"fried"-containing record (1,196 of them) before making this change —
+frying, unlike every other accepted cooking method already in this
+list (boiled, roasted, steamed, grilled, baked, broiled, poached,
+braised), is the one method involving direct fat/oil contact and real
+structural transformation, whether or not fat is separately stated as
+"added." Bare "fried" is now a general exclude, superseding the old
+qualified-phrase-only positive rule (removed outright, not left as
+dead code).
+
+This surfaced two real, separate pre-existing bugs along the way, both
+fixed by the same change: protein literally "rolled in flour, fried in
+fat" or "flour coated, fried" had been wrongly passing as whole food
+via the FLOUR rule, and composite manufactured products ("Vegeburger
+mix... fried in vegetable oil," "Fast foods, potato, french fried in
+vegetable oil") had been wrongly passing via the OIL rule.
+
+**Sautéed hijiki — a real, genuine question, not a bug report.**
+"I don't want to remove something that shouldn't be so I'm not sure
+about Algae, 'Hijiki', boiled and dried, stainless steel pot process,
+rehydrated and sautéed. It has gone through a process and then sauteed
+so it is cooked. That leads me to believe it is a product. How would a
+Japanese person trying to eat wholefood only think of it?"
+
+Resolved as the same real principle as frying: sautéing is direct-fat-
+contact cooking under a different name. The BASE "boiled and dried"
+hijiki (and its "rehydrated and boiled" sibling) stays a real whole
+food — that boil-then-dry step isn't a recipe or a combination of
+ingredients, it's the only way this sea vegetable is ever safely eaten
+at all (raw hijiki carries real, documented natural inorganic arsenic
+content), the same single-ingredient-plus-mandatory-processing shape
+already accepted for dried fruit — and reconstituting a dried whole
+food by boiling it in water is no different from rehydrating dried
+beans. The "rehydrated and SAUTÉED" variant is the one that changes: a
+real, additional cooking step applied at consumption time, not part of
+the base product's own identity — now correctly excluded.
+
+Building this keyword correctly took real, verified investigation, not
+assumption: JavaScript's own `\b` word-boundary logic treats an
+accented character like "é" as a non-word character, which silently
+made the fuller keyword "sauté" fail to match a bare, standalone
+"Sauté" sitting at the very end of a real record ("Kidney Sauté") —
+confirmed directly by running both forms against real text, not
+reasoned about in the abstract. The shorter, unaccented "saut" prefix
+reliably catches every real accented form instead; "sauteed" (plain
+ASCII) needed its own separate, explicit keyword for the same real
+reason.
+
+Real, concrete effect:
+
+  Whole food:        17,095 -> 16,142
+  Not whole food:      9,463 -> 10,901
+  Needs human review:  6,149 ->  5,664
+
+Every exact reported record re-confirmed directly against the live,
+re-classified database after the fix, not assumed from the rule logic
+alone. 160/160 classify.js tests passing (up from 138). Audit-tool data
+regenerated and republished to the same URL.
+
 ## Status: a real, direct report — Ajvar, a real "stewed" plural gap, and a real, deliberate point of contrast (a legitimate simple preparation this time)
 
 Reported directly, four real records at once, three flagged for
