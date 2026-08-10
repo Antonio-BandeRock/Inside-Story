@@ -923,6 +923,25 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
     // default "USDA-only" scope some categories fall back to (see
     // hasUsdaCoverage below) doesn't hide them the same way it hides every
     // other non-USDA source.
+    //
+    // 2026-08-10: adding 'Norway_Matvaretabellen' here was tried and
+    // deliberately reverted the same day. The real collision-risk check
+    // (zero exact base_name matches against USDA across all 2,121
+    // Norwegian entries) came back clean -- but a live query of the
+    // actual result set surfaced the real, disqualifying problem this
+    // check didn't catch: every one of those 2,121 names is genuinely in
+    // Norwegian ("Agurk, norsk, rå" for cucumber, "And, kjøtt med skinn,
+    // ovnsstekt" for duck), never translated during the same-day import
+    // (that work only mapped categories/nutrients, not names). Direct
+    // choice, given the option to ship as-is, hold off, or add a source
+    // tag: hold off -- untranslated foreign text mixed into the app's own
+    // primary English food-browsing experience would read as broken, not
+    // international. Norway's real data stays fully imported and intact
+    // in the database either way (see REFERENCE_DB_VERSION's own history
+    // for the import itself); this is purely a visibility decision, safe
+    // to revisit once a real name-translation pass is feasible (this
+    // app's own already-documented i18n Phase 3/4, not yet started) or a
+    // source-tag approach is built.
     clause += " AND source IN ('USDA', 'Derived')";
   }
 

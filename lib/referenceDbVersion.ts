@@ -169,19 +169,51 @@
 // Cloudflare "managed challenge" bot protection (HTTP 403 to curl with a
 // realistic browser User-Agent, to WebFetch, and to Finland's own general
 // open-data-portal mirror attempt) -- the real, licensed, open data is
-// confirmed to exist but is not fetchable from this environment. Sweden:
-// a real, live, correctly-versioned, keyless REST API was found and fully
-// documented via its own 41KB Swagger spec (dataportal.livsmedelsverket.se)
-// -- it responds HTTP 200, correctly rejects an unsupported API version
-// with a real error, yet returns totalRecords:0 for every real query
-// attempted (the documented example food id, sequential low ids, both
-// language codes, explicit pagination) -- a genuine, unexplained anomaly
-// in the live public service itself, not a fixable request pattern found
-// this session. Mexico: datos.gob.mx (a real, live CKAN portal) returned
-// zero or entirely irrelevant results across five real, targeted searches
-// ("nutrientes", "composicion alimentos", "SMAE", "INSP alimentos") --
-// confirms this session's earlier research finding that Mexico's real
-// food-composition resources (SMAE's 3,871-food table, INSP's BAM) exist
-// only as PDF/print documents, not as a structured, freely downloadable
-// dataset through the federal open-data portal.
-export const REFERENCE_DB_VERSION = "20260810120000";
+// confirmed to exist but is not fetchable from this environment. Mexico:
+// datos.gob.mx (a real, live CKAN portal) returned zero or entirely
+// irrelevant results across five real, targeted searches ("nutrientes",
+// "composicion alimentos", "SMAE", "INSP alimentos") -- confirms this
+// session's earlier research finding that Mexico's real food-composition
+// resources (SMAE's 3,871-food table, INSP's BAM) exist only as PDF/print
+// documents, not as a structured, freely downloadable dataset through the
+// federal open-data portal.
+//
+// Sweden (Livsmedelsverket) was genuinely unblocked the same day, 2026-08-10,
+// second pass: the REST API's own "totalRecords: 0" anomaly documented
+// above turned out to be a real, independently-confirmed, server-side
+// dead endpoint (corroborated by a completely separate developer's own
+// published research, github.com/buildapp-se/recept) -- but that same
+// research also named a real, working alternative: the searchable UI at
+// soknaringsinnehall.livsmedelsverket.se ships a genuine "download the
+// whole database" export. Traced its own client-side JS (slv.exportera.
+// sparaHelaDatabasen) down to the real underlying call -- a plain POST to
+// /Spara/HamtaHelaDatabasen -- and reproduced it directly via curl (an
+// explicit empty body was required; a bare POST hits a real 411 Length
+// Required from the server otherwise). Real, live result: a genuine
+// 678KB XLSX, 2,606 real foods (Livsmedelsnamn/Livsmedelsnummer/
+// Gruppering + 59 real nutrient columns), version-stamped "2026-07-01" by
+// the agency itself, 31 of those 59 columns mapping cleanly onto this
+// app's own 38 existing nutrient codes (richer coverage than Norway's own
+// 29-code mapping). Every one of the 29 real Swedish "Gruppering" category
+// values was hand-translated and mapped to this app's own categories,
+// with 3 genuinely ambiguous multi-category groupings (vegetables mixed
+// with legumes/mushrooms; a pasta/rice/grain grouping; a "Pålägg"/
+// sandwich-topping grouping mixing cheese, cold cuts, and a few real
+// miscategorized non-spread items like an oat drink and a halloumi stew)
+// resolved by reading every one of their real member names by hand, not
+// pattern-guessed -- the same "fresh pod stays Veg, only a dried/mature
+// seed is Legume" rule the original 7-source build already established
+// was applied here too. Verified directly against the live, applied
+// database: 2,606 real food rows, 79,166 real nutrient value rows,
+// category-distribution total matching the row count exactly, and a
+// real, correct carrot ("Morot") nutrient profile spot-checked against
+// known real-world values (36 kcal, 89.4g water, 861.5µg vitamin A/100g).
+// Deliberately kept invisible by default, same as Norway -- every one of
+// these 2,606 names is genuinely in Swedish, untranslated, and a direct,
+// explicit decision was already made the same day (see the same real
+// Norway-visibility discussion) to hold off on surfacing untranslated
+// international names in the app's own primary English food-browsing
+// experience until a real translation pass is feasible. The data itself
+// is fully imported and correct either way -- this is purely a
+// visibility decision, not a data-completeness one.
+export const REFERENCE_DB_VERSION = "20260810165051";
