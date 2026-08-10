@@ -37,6 +37,7 @@ import { IBS_PHASES, IBS_PHASE_INFO, FOOD_RELEVANT_IBS_PHASES } from './ibsPhase
 import { CELIAC_STAGES, CELIAC_STAGE_INFO, FOOD_RELEVANT_CELIAC_STAGES } from './celiacStageAdvisory';
 import { IBD_STAGES, IBD_STAGE_INFO, FOOD_RELEVANT_IBD_STAGES } from './ibdStageAdvisory';
 import { CKD_STAGES, CKD_STAGE_INFO, FOOD_RELEVANT_CKD_STAGES } from './ckdStageAdvisory';
+import { GOUT_STAGES, GOUT_STAGE_INFO, FOOD_RELEVANT_GOUT_STAGES } from './goutStageAdvisory';
 
 export type ConditionStageDefinition = {
   code: string;
@@ -128,6 +129,18 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
       shortDescription: CKD_STAGE_INFO[code].shortDescription,
     })),
     foodRelevantStageCodes: FOOD_RELEVANT_CKD_STAGES,
+  },
+  {
+    conditionCode: 'gout',
+    conditionLabel: 'Gout',
+    frameworkName: "Gout's Own Real, Four-Stage Natural History",
+    frameworkNote: 'A real, well-characterized clinical progression (StatPearls) -- see Purple Digest\'s own Gout category for the full, cited evidence.',
+    stages: GOUT_STAGES.map((code) => ({
+      code,
+      label: GOUT_STAGE_INFO[code].label,
+      shortDescription: GOUT_STAGE_INFO[code].shortDescription,
+    })),
+    foodRelevantStageCodes: FOOD_RELEVANT_GOUT_STAGES,
   },
 ];
 

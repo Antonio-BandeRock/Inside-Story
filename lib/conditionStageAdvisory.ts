@@ -9,9 +9,9 @@
 // Real, honest scope: only conditions with an actual entry in
 // lib/conditionStages.ts's own CONDITION_STAGING_MODELS produce anything
 // here (Hashimoto's, IBS, Celiac Disease, Inflammatory Bowel Disease,
-// Chronic Kidney Disease as of this date) -- a condition with no declared
-// stage, or no real staging model built for it yet, contributes nothing,
-// silently and correctly, rather than a guessed placeholder.
+// Chronic Kidney Disease, Gout as of this date) -- a condition with no
+// declared stage, or no real staging model built for it yet, contributes
+// nothing, silently and correctly, rather than a guessed placeholder.
 
 import type { FoodScore } from './db';
 import { getHealingStageAdvisory } from './healingStageAdvisory';
@@ -24,6 +24,8 @@ import { getIbdStageAdvisory } from './ibdStageAdvisory';
 import type { IbdStage } from './ibdStageAdvisory';
 import { getCkdStageAdvisory } from './ckdStageAdvisory';
 import type { CkdStage } from './ckdStageAdvisory';
+import { getGoutStageAdvisory } from './goutStageAdvisory';
+import type { GoutStage } from './goutStageAdvisory';
 
 export type ConditionStageAdvisory = {
   title: string;
@@ -69,6 +71,12 @@ export function getConditionStageAdvisory(
   const ckdStage = declaredStages['chronic_kidney_disease'];
   if (ckdStage) {
     const advisory = getCkdStageAdvisory(scores, ckdStage as CkdStage);
+    if (advisory) parts.push(advisory);
+  }
+
+  const goutStage = declaredStages['gout'];
+  if (goutStage) {
+    const advisory = getGoutStageAdvisory(scores, goutStage as GoutStage);
     if (advisory) parts.push(advisory);
   }
 
