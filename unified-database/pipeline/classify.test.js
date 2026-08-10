@@ -134,7 +134,7 @@ check('"in white basic sauce with cream" -- real words between "in" and "sauce" 
 // leaving them exactly where they already were: genuinely ambiguous,
 // forced into human review rather than guessed at either way.
 check('a bare, standalone "sauce" product is unaffected -- no "in/with" precedes it', 'Apple sauce, unsweetened', true, null);
-check('"Applesauce" (one word) is unaffected too', 'Applesauce, canned, unsweetened', true, null);
+check('"Applesauce" (one word) is unaffected by the sauce-pattern check, and now correctly resolves true via the new "canned" positive hint (a real, later pass)', 'Applesauce, canned, unsweetened', true, true);
 
 // --- Real, direct report: composite goulash/meringue dishes, and real
 // brand names, should never appear in this list ---
@@ -250,7 +250,81 @@ check('a spirit-named cocktail with no "Alcohol," prefix and no "Cocktail," pref
 check('real cocktail sauce -- a genuine composite condiment, not a single ingredient', 'Sauce, cocktail, ready-to-serve', true, false);
 check('a real composite beverage-mix concentrate, regardless of its own alcohol content -- caught via the "cocktail"+"mix" check, not the alcohol check ("non-alcoholic" does not bound-match "alcohol")', 'Cocktail mix, non-alcoholic, concentrated, frozen', true, false);
 check('"Fruit cocktail" deliberately left untouched -- a real, separate judgment call this report did not ask for', 'Fruit cocktail, canned, in natural juice', true, true);
-check('"cocktail" as an onion SIZE, not a mixed drink, correctly still unaffected -- neither excluded nor included, stays in the review queue', 'Onions, pickled, cocktail/silverskin, drained', true, null);
+check('"cocktail" as an onion SIZE, not a mixed drink, unaffected by the cocktail check, and now correctly resolves true via the new "pickled" positive hint (a real, later pass)', 'Onions, pickled, cocktail/silverskin, drained', true, true);
+
+// --- A real, second proactive scan (a real, random 100-record sample of
+// the review queue, the same repeatable method) -- the single largest
+// batch of real fixes yet. A major real bug, not reported directly: the
+// FAST_FOOD list only ever had singular "fast food," so real USDA
+// "Fast foods, X" records (264 of them, always plural) never actually
+// excluded at all -- 42 genuine fast-food items (nachos, tacos,
+// burritos, pizza, chimichanga) were wrongly passing via whatever OTHER
+// keyword happened to appear in their own longer name. ---
+check('the real, major "Fast foods" (plural) bug -- 42 real records were wrongly passing via an unrelated keyword before this fix', 'Fast foods, nachos, with cheese', true, false);
+check('a second real "Fast foods" example, previously passing via "cheese"', 'Fast foods, mexican, taco with beef, cheese and lettuce, hard shell', true, false);
+
+// --- Real, traditional whole-food-based condiments/pastries/dishes,
+// each individually checked against every real record before being
+// added, the same "even the traditional version is still a combination"
+// or "same family as an already-excluded category" reasoning already
+// established. ---
+check('mayonnaise -- the same real combination-condiment family as aioli/hummus', 'Mayonnaise, full fat, 80 % fat', true, false);
+check('a real sweet/laminated pastry, same family as cake/donut/pastry, not the minimal-ingredient BREAD_KEEP exception', 'Croissant, plain, industrially made', true, false);
+check('the real plural form of croissant -- caught only by re-testing, not assumed alongside the singular', 'Croissants, butter', true, false);
+check('scone, same pastry family', 'Scone, pumpkin, homemade', true, false);
+check('muffin, same pastry family', 'Muffin, banana', true, false);
+check('omelet/omelette -- real, whipped-egg, direct-fat-contact preparation, the same reasoning as frying', "Farmer's omelette", true, false);
+check('real cranberry-orange relish, a genuine combination', 'Cranberry-orange relish, canned', true, false);
+check('real brawn/head cheese -- a jellied meat product made by definition from combining animal parts', 'White brawn', true, false);
+check('real refried beans -- mashed AND fried', 'Refried beans, canned', true, false);
+check('"con carne" -- Spanish "with meat," always a real composite stew', 'Chili con carne', true, false);
+check("Japan_MEXT's own self-declared \"Compound alcoholic beverage\" category", 'Compound alcoholic beverage, "Umeshu" (plum liquor made from Japanese apricots)', true, false);
+check('a real manufacturing-process word with no legitimate single-ingredient meaning', 'Snacks, corn-based, extruded, onion', true, false);
+
+// --- Real, standalone food-additive/chemical-compound entries, named
+// with their own real E-number -- a chemical additive, not a food, even
+// when the compound itself is naturally occurring (ascorbic/citric acid). ---
+check('the E-number additive pattern', 'Ascorbic acid (E 300)', true, false);
+check('a real phosphate meat-processing additive', 'Cutter additives phosphate-based (E 450)', true, false);
+
+// --- Real, single-type alcohol -- a genuine, direct decision (not a
+// unilateral call): beer/wine/sake (fermented) and whisky/vodka/rum/gin/
+// brandy (distilled) fit the same "single ingredient plus a simple,
+// traditional transformation" category already accepted for cheese,
+// yogurt, and kombucha. Real, composite/flavored/branded exceptions all
+// checked and excluded FIRST, specifically to protect this list. ---
+check('plain beer counts as legitimate fermented whole food, per direct decision', 'Alcoholic beverage, beer, regular, all', true, true);
+check('plain wine, same real decision', 'Alcoholic Beverage, wine, table, red, Merlot', true, true);
+check('plain distilled rum, same real decision', 'Alcoholic beverage, distilled, rum, 80 proof', true, true);
+check("Japan_MEXT's own \"Fermented alcoholic beverage\" category label, matching this real decision directly", 'Fermented alcoholic beverage, "Sake", regular', true, true);
+check('a named mixed drink is still correctly excluded, even using the adjective "Alcoholic" form that does not bound-match "alcohol"', 'Alcoholic beverage, pina colada, canned', true, false);
+check('a real, non-alcoholic soft drink that happens to say "beer" -- checked and excluded before the positive "beer" keyword was added, so it cannot be wrongly swept in', 'Root beer', true, false);
+check('a real wine-based cooking sauce -- checked and excluded before the positive "wine" keyword was added', 'Red wine sauce fat 1.5%', true, false);
+check('a real, genuinely fortified wine style (spirit deliberately added to wine)', 'Strong wine vol. % 18 type Madeira', true, false);
+check('branded beer is still correctly excluded via BRAND_NAMES, ahead of the new positive "beer" keyword', 'Alcoholic beverage, beer, regular, BUDWEISER', true, false);
+
+// --- Real, plain soy-milk coagulation -- the same "coagulate with a
+// simple, traditional agent" shape already accepted for dairy cheese. ---
+check('plain tofu', 'Tofu', true, true);
+check('the real, traditional nigari-coagulated form', 'Tofu, firm, prepared with calcium sulfate and magnesium chloride (nigari)', true, true);
+check('a branded tofu product is still correctly excluded via BRAND_NAMES', 'MORI-NU, Tofu, silken, firm', true, false);
+
+// --- Real, genuine plant-based dairy ALTERNATIVES (not real dairy at
+// all, despite matching a dairy keyword like "cheese" or "yogurt") --
+// a real, second, more direct piece of evidence than fortification alone
+// (which this app already accepts for real dairy, e.g. vitamin-D milk). ---
+check('a real "plant-based... used as cheese" product is not real dairy, despite matching the "cheese" keyword', 'Plant-based product, used as cheese', true, false);
+check('a real plant-based yogurt alternative, same reasoning', 'Plant-based yogurt alternative, made from soya, unsweetened', true, false);
+
+// --- Real, simple mechanical/traditional processing steps this pass
+// found genuinely missing, each individually verified against real data. ---
+check('"desiccated" -- a real, separate word for "dried"', 'Nuts, coconut meat, desiccated, unsweetened', true, true);
+check('"toasted" -- a real, separate word for "roasted"', 'Grains, wheat germ, toasted, plain', true, true);
+check('"puree"/"pureed" -- a real, simple mechanical single-ingredient processing step, the same category as "mashed"', 'Celeriac puree', true, true);
+check('"canned" -- a real, simple preservation method, the same category as "frozen," added only after every real composite-canned-dish signal this same pass found was already in place', 'Bean, red kidney, canned, drained', true, true);
+check('"pickled"/"pickles" -- real, simple brine preservation, the same real category as kombucha/kimchi/miso', 'Beetroot, pickled', true, true);
+check('"vinegar" -- a real acetic-acid fermentation product, the same real category', 'Distilled vinegar', true, true);
+check('bare "Buttermilk" -- the exact same fused-compound-word gap as "ice cream"', 'Buttermilk', true, true);
 
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---

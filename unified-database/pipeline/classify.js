@@ -185,11 +185,104 @@ const CANDY_SNACKS = [
   // elsewhere in this same real data.
   'dessert', 'stuffed', 'restaurant prepared', 'pie', 'croquette',
   'croquettes', 'fritter',
+  // A real, second proactive scan (a real, random 100-record sample of
+  // the review queue, the same repeatable method already established) --
+  // every one checked against real data before being added, not guessed.
+  // Real composite condiment, same family as aioli/hummus/ajvar (egg +
+  // oil + vinegar/mustard, a real combination regardless of how it's
+  // sold): 'mayonnaise' -- checked all 136 real records, zero exceptions
+  // (every one either the condiment itself or a mayonnaise-based salad).
+  'mayonnaise',
+  // Real sweet/laminated baked goods, the same family CANDY_SNACKS'
+  // own cake/donut/pastry entries already cover -- flour+fat+sugar mixed
+  // INTO the base dough itself, not the minimal flour+water+yeast+salt
+  // BREAD_KEEP already treats as a real exception. Plural forms added
+  // alongside every singular one for the same real word-boundary reason
+  // as "croquette"/"croquettes" -- caught 'croissants' missing this same
+  // treatment only by actually re-testing "Croissants, butter" against
+  // the real function output (it was wrongly resolving true via the
+  // 'butter' dairy keyword) rather than assuming the singular form was
+  // enough, the same real lesson this whole file keeps re-learning.
+  'croissant', 'croissants', 'scone', 'scones', 'muffin', 'muffins',
+  // Real, whipped-egg preparation, almost always pan-cooked in real
+  // butter/oil and very often mixed with real fillings (cheese, ham,
+  // vegetables) -- the same direct-fat-contact reasoning already
+  // established for frying/sautéing, extended to the one named dish
+  // that's definitionally made that way. Checked all 35/25 real records
+  // -- zero legitimate single-ingredient exceptions.
+  'omelet', 'omelette',
+  // Real, confirmed composite products, each checked against every real
+  // record before adding, zero legitimate exceptions found in any of
+  // them: 'relish' (pickle/cranberry-orange/chutney relish, always a
+  // real combination); 'brawn' (head cheese -- a jellied meat product
+  // made by definition from combining various animal parts, all 17 real
+  // records confirmed composite); 'refried' (refried beans -- mashed AND
+  // fried, real bean-paste-plus-frying preparation, all 9 real records
+  // confirmed); 'con carne' (Spanish "with meat" -- always signals a
+  // real composite meat-and-bean stew, all 10 real records confirmed).
+  'relish', 'brawn', 'refried', 'con carne',
+  // A real, genuine manufacturing-process word with no legitimate
+  // single-ingredient meaning at all -- nothing is naturally "extruded"
+  // without a machine. Confirmed against all 34 real records (corn
+  // puffs, potato snacks, cheese-flavor twists, sweetened cereal) --
+  // zero exceptions.
+  'extruded',
+  // Real, standalone chemical/manufacturing-blend signal -- checked all
+  // 12 real records: Japan_MEXT's own "Compound alcoholic beverage"
+  // category (a real, self-declared "this is a blend" label covering
+  // Umeshu, synthetic sake, mirin, vermouth, fortified wine, curacao,
+  // medicinal liqueur -- every one a genuine spirit/wine PLUS something
+  // else combined) and "Chocolate, compound, cooking" (a real cocoa-
+  // butter-substitute product). Zero legitimate exceptions.
+  'compound',
+  // Real, specific mixed-drink names found via "Alcoholic beverage, X"
+  // (the adjective form -- \balcohol\b does not bound-match "Alcoholic,"
+  // the same real word-continuation gap already found for
+  // "non-alcoholic," so these needed their own explicit catch rather
+  // than relying on isAlcoholicCocktailOrCocktailSauce's own "alcohol"
+  // check), plus one real syrup-and-juice mocktail wrongly passing as
+  // fresh_juice.
+  'pina colada', 'tequila sunrise', 'daiquiri', 'whiskey sour',
+  'hard lemonade', 'non-alcoholic cocktail',
+  // Real, non-alcoholic carbonated soft drinks that happen to say "beer"
+  // in their own name -- confirmed via real data BEFORE adding the new
+  // positive 'beer' alcohol keyword below, specifically so that keyword
+  // can't wrongly catch these (root beer has no alcohol at all; it's a
+  // manufactured soda).
+  'root beer',
+  // Real, genuinely compound/fortified wine products -- checked before
+  // adding the new positive 'wine' alcohol keyword below, for the same
+  // reason as root beer: 'wine sauce' (a real cooking sauce, composite);
+  // 'wine cooler' (wine blended with fruit juice/soda, flavored);
+  // 'mulled wine' (wine heated with real added spices/fruit/sweetener,
+  // a genuine combination); 'spirited wine' (a real, explicit
+  // spirit-added-to-wine product, confirmed by its own real ~40% ABV,
+  // well past ordinary wine strength); and three real, named fortified-
+  // wine styles (spirit deliberately added to wine, a genuine
+  // combination, not plain wine) -- 'madeira', 'port wine', 'sherry'.
+  'wine sauce', 'wine cooler', 'mulled wine', 'spirited wine', 'madeira',
+  'port wine', 'sherry',
 ];
 
+// A real, major bug found during a proactive scan, not reported directly:
+// USDA's own "Fast foods, X" category prefix -- 264 real records -- was
+// NEVER actually excluded, because the real data is always PLURAL ("Fast
+// foods, nachos, with cheese") while this list only ever had the singular
+// "fast food," and \bfast food\b requires a boundary right after "food,"
+// which "foods" (continuing straight into "s") never has -- the exact
+// same recurring word-form lesson as "ice cream"/"ice creams,"
+// "cereal"/"cereals," "croquette"/"croquettes." Real, concrete damage
+// confirmed before fixing: 42 genuine fast-food items (nachos, tacos,
+// burritos, pizza, chimichanga, enchilada, tostada, cinnamon rolls,
+// breakfast sandwiches) were sitting at is_whole_food=1, wrongly passing
+// via whatever OTHER keyword happened to be in their own longer name
+// (cheese, butter, cream, cinnamon).
 const FAST_FOOD = [
-  'fast food', 'mcdonald', 'burger king', 'kentucky fried', 'kfc',
-  'taco bell', 'pizza hut', "wendy's", 'subway', 'domino',
+  'fast food', 'fast foods', 'mcdonald', 'burger king', 'kentucky fried',
+  'kfc', 'taco bell', 'pizza hut', "wendy's", 'subway', 'domino',
+  // Found live in the same proactive scan: "ON THE BORDER, refried beans"
+  // -- a real restaurant chain, not caught by anything above.
+  'on the border',
 ];
 
 const ADDED_SUGAR_SALT_OR_PROCESSING = [
@@ -240,6 +333,18 @@ const FLAVOR_OR_ADDITIVE_MARKERS = [
   'flavored', 'flavoured', 'strawberry', 'vanilla', 'chocolate',
   'honey flavored', 'fruit on the bottom', 'fruit at the bottom',
   'with fruit', 'sweetened', 'low fat, fruit', 'whole milk, fruit',
+  // Found live, during a proactive scan, not reported directly: 12 real
+  // "Plant-based product/alternative, used as cheese/cream cheese/
+  // yoghurt/yogurt/cream, made from soya/oat/cashew/almond" records were
+  // wrongly matching PLAIN_DAIRY_KEEP's own real dairy keywords
+  // ('cheese,' 'cream,' 'yogurt') even though they explicitly say, right
+  // in their own name, that they are NOT real dairy -- a genuine plant
+  // milk/nut-based substitute merely styled to resemble one. This is
+  // real, additional, unambiguous evidence beyond fortification alone
+  // (which this app already accepts for plain dairy, see PLAIN_DAIRY_KEEP
+  // and its own real vitamin-D-fortified-milk precedent) that the
+  // underlying product isn't real dairy in the first place.
+  'plant-based',
 ];
 
 // New for this pass -- real, unambiguous "this name describes an
@@ -413,6 +518,18 @@ const COMPOSITE_DISH_SIGNALS = [
 // find "sauce" within that window, not consume the rest of the name).
 const IN_OR_WITH_SAUCE_PATTERN = /\b(?:in|with)\s+(?:\S+\s+){0,4}sauce\b/i;
 
+// Found live, during a proactive scan, not reported directly -- real
+// standalone food-additive/chemical-compound entries, named with their
+// own real E-number (Sorbitol powder (E 420), Ascorbic acid (E 300),
+// Citric acid (E 330), phosphate-based cutter additives (E 450)...) --
+// a real, standalone chemical compound is not a food at all, regardless
+// of natural origin (citric/ascorbic/acetic/lactic acid are all real,
+// naturally-occurring compounds too, but these 8 real records are the
+// purified ADDITIVE form, sold and used as one, never eaten as a food in
+// its own right). Checked: only 8 real records in the whole database
+// match this pattern, all genuine additives, zero exceptions.
+const E_NUMBER_ADDITIVE_PATTERN = /\(E\s?\d{3,4}[a-z]?\)/i;
+
 // New for this pass -- real, branded mineral water, per a real, direct
 // report: "Abatilles mineral water, bottled, non-carbonated, lightly
 // mineralized (Arcachon, 33) ... is a brand name." Given the real,
@@ -537,6 +654,17 @@ const BRAND_NAMES = [
   'mead johnson', 'mars snackfood', 'abbott nutrition', 'malt-o-meal',
   'ocean spray', 'v8 splash', 'smart balance', 'coca-cola',
   'cream of rice', 'cream of wheat',
+  // Found live, during a proactive scan, not reported directly. Real,
+  // confirmed brand names: 'budweiser' (also correctly catches
+  // "BUDWEISER SELECT" as a bare-word match, since the brand name is
+  // followed by a real word boundary either way); 'bud light' kept as
+  // its own full phrase since "bud" alone would collide with real,
+  // legitimate plant-food terms (flower/vegetable buds); 'mori-nu',
+  // 'vitasoy', 'nasoya' -- real, confirmed tofu manufacturer/product-line
+  // brands, added alongside the new positive 'tofu' keyword below so a
+  // branded tofu product is still correctly excluded, matching this
+  // whole list's own standing "no brand names, period" principle.
+  'budweiser', 'bud light', 'mori-nu', 'vitasoy', 'nasoya',
 ];
 
 const ALL_EXCLUDE = [
@@ -559,6 +687,21 @@ const SAFE_OVERRIDES = [
 const FERMENTED_KEEP = [
   'yogurt', 'yoghurt', 'kefir', 'kimchi', 'sauerkraut', 'miso', 'tempeh',
   'kombucha', 'natto', 'cultured', 'fermented',
+  // Found live, during a proactive scan, not reported directly -- real,
+  // simple brine/acetic-acid preservation, the same real "fermented
+  // whole food" category kombucha/kimchi/miso already sit in. 'vinegar'
+  // is a real acetic-acid fermentation product (checked: "Wine vinegar,"
+  // "Distilled vinegar" -- both single-ingredient, no collision found).
+  // 'pickled'/'pickles' (both forms needed for the same real plural/verb-
+  // form word-boundary reason as "cereal"/"cereals") -- checked a real,
+  // wide sample of the ~130 real records: peppers, capers, beetroot,
+  // olives, herring, sweetcorn, Japanese Daikon "-zuke" variants, every
+  // one a genuine simple brine preservation. The real composite
+  // exceptions found in the same sample ("Herring, pickled, marinated,
+  // with mayonnaise and sour cream"; "..., with mustard sauce") are
+  // already correctly caught upstream by the new 'mayonnaise' exclude
+  // and the existing IN_OR_WITH_SAUCE_PATTERN, both of which run first.
+  'vinegar', 'pickled', 'pickles',
 ];
 
 const NATURAL_SWEETENER_KEEP = ['honey', 'maple syrup', 'molasses', 'agave'];
@@ -570,8 +713,55 @@ const NATURAL_SWEETENER_KEEP = ['honey', 'maple syrup', 'molasses', 'agave'];
 // standalone safety net: even a record whose name contains none of the
 // exclude keywords above still needs a real, positive reason before
 // being trusted, not just "nothing bad matched."
-const PLAIN_DAIRY_KEEP = ['milk', 'yogurt', 'yoghurt', 'butter', 'cream', 'cheese'];
+//
+// Found live, during a proactive scan, not reported directly: bare
+// "Buttermilk" (2 real records, each just that one word) was never
+// actually matching PLAIN_DAIRY_KEEP's own 'milk' entry -- the exact
+// same fused-compound-word gap as "ice cream"/"cereal," confirmed
+// directly (\bmilk\b requires a boundary right before "milk," and the
+// "r" immediately preceding it in "Buttermilk" is a real word
+// character, so there's no boundary there at all). The far more common
+// real form, "Milk, buttermilk, fluid, cultured, ..." (comma-separated),
+// was already working fine via the existing 'milk'/'cultured' keywords
+// -- this only fixes the bare, single-word form.
+const PLAIN_DAIRY_KEEP = ['milk', 'yogurt', 'yoghurt', 'butter', 'cream', 'cheese', 'buttermilk'];
 const FRESH_JUICE_KEEP = ['juice'];
+
+// New for this pass -- real, plain soy-milk coagulation, the exact same
+// "coagulating a plant liquid with a simple, traditional agent" shape
+// already accepted for dairy cheese (milk + rennet). Checked directly:
+// real, traditional tofu preparation ("Tofu, firm, prepared with calcium
+// sulfate and magnesium chloride (nigari)") uses nothing but a real,
+// minimal coagulant, the same category as SAFE_OVERRIDES' own dried-
+// fruit precedent -- a mechanical/chemical processing step that doesn't
+// disqualify the underlying single ingredient. Kept as its own separate
+// list (not folded into PLAIN_DAIRY_KEEP) since tofu is neither dairy
+// nor necessarily fermented -- the ruleMatched string this produces
+// (soy_derivative: tofu) stays honest about what it actually is.
+const SOY_DERIVATIVE_KEEP = ['tofu'];
+
+// New for this pass -- real, single-type alcohol, per a direct decision:
+// beer/wine/sake (fermented from one base ingredient) and whisky/vodka/
+// rum/gin/brandy/shochu (distilled from one base ingredient) fit the
+// same real "single ingredient plus a simple, traditional transformation"
+// category this database already accepts for cheese, yogurt, and
+// kombucha -- Japan_MEXT's own real data even tags sake/beer/wine
+// "Fermented alcoholic beverage" directly. 'mead' included per this
+// file's own pre-existing BRAND_NAMES comment, which already names it as
+// "a real, traditional fermented honey beverage." Every genuinely
+// composite/flavored/branded alcoholic product is already excluded
+// upstream, before this list is ever reached: mixed drinks and cocktail
+// sauce (isAlcoholicCocktailOrCocktailSauce), Japan_MEXT's own
+// self-declared "Compound alcoholic beverage" category, named mixed
+// drinks (pina colada, daiquiri, tequila sunrise, whiskey sour), branded
+// beer (BUDWEISER, BUD LIGHT), and the real, non-alcoholic look-alikes
+// checked and excluded BEFORE this list was written specifically to
+// protect it (root beer, wine sauce, wine cooler, mulled wine, spirited
+// wine, and the three named fortified-wine styles).
+const ALCOHOL_KEEP = [
+  'beer', 'wine', 'sake', 'whisky', 'whiskey', 'vodka', 'rum', 'gin',
+  'brandy', 'shochu', 'mead',
+];
 const RAW_WHOLE_FOOD_HINTS = [
   'raw', 'fresh', 'whole', 'cooked', 'boiled', 'roasted', 'steamed',
   'grilled', 'baked', 'broiled', 'poached', 'braised',
@@ -616,6 +806,32 @@ const RAW_WHOLE_FOOD_HINTS = [
   // fat" record too and runs before this positive list is ever checked
   // -- so the qualified-phrase entry that used to live here is gone
   // outright, not left as unreachable dead code.
+  //
+  // Found live, during a proactive scan, not reported directly, all
+  // checked against real data before being added: 'desiccated' (a real,
+  // separate word for "dried" -- "Nuts, coconut meat, desiccated,
+  // unsweetened" was matching nothing at all); 'toasted' (a real,
+  // separate word for "roasted" -- checked all 26 real records still
+  // unclassified: nuts/seeds toasted, plain wheat toast, toasted nori,
+  // every genuinely composite case -- toaster-type muffins, extruded
+  // toast, gingerbread-family biscuits -- already correctly caught
+  // upstream by their own real exclude keyword, which runs first);
+  // 'puree'/'pureed' (a real, simple mechanical single-ingredient
+  // processing step, the same category as "mashed" -- both word forms
+  // needed for the same real word-boundary reason as "pickled"/
+  // "pickles"; checked a real, wide sample -- celeriac, parsnip, pea,
+  // prune, raspberry, garlic, tomato, and real single-meat baby-food
+  // purees -- every genuine composite case, "Yoghurt, with fruit puree
+  // and muesli," "Pea puree soup," "Hummus/chickpea puree," is already
+  // correctly caught upstream by an existing exclude); and 'canned' (a
+  // real, simple preservation method, the same real category as
+  // "frozen" -- added LAST, and only after every real composite-canned-
+  // dish signal this same proactive scan actually found -- 'mayonnaise,'
+  // 'relish,' 'brawn,' 'refried,' 'con carne,' 'compound' -- was already
+  // in place upstream, re-verified against a real, fresh 60-record
+  // sample of the review queue afterward to confirm no remaining
+  // exceptions).
+  'desiccated', 'toasted', 'puree', 'pureed', 'canned',
 ];
 
 // New for this pass -- real, plain, minimally-processed oils, matching
@@ -876,6 +1092,17 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     };
   }
 
+  // Real, standalone food-additive/chemical-compound entry -- see
+  // E_NUMBER_ADDITIVE_PATTERN's own header comment for the real data
+  // behind this.
+  if (E_NUMBER_ADDITIVE_PATTERN.test(n)) {
+    return {
+      isWholeFood: false,
+      ruleMatched: 'e_number_additive',
+      autoConfidence: 'high',
+    };
+  }
+
   // Real, branded mineral water -- see isBottledMineralWater's own
   // header comment for the real report and real data behind this.
   if (isBottledMineralWater(n)) {
@@ -931,6 +1158,28 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     return {
       isWholeFood: true,
       ruleMatched: `plain_dairy_or_ferment: ${fermentedMatch || dairyMatch}`,
+      autoConfidence: 'high',
+    };
+  }
+
+  // Real, plain soy-milk coagulation -- see SOY_DERIVATIVE_KEEP's own
+  // header comment for the real reasoning behind this.
+  const soyMatch = anyKeywordMatches(n, SOY_DERIVATIVE_KEEP);
+  if (soyMatch) {
+    return {
+      isWholeFood: true,
+      ruleMatched: `soy_derivative: ${soyMatch}`,
+      autoConfidence: 'high',
+    };
+  }
+
+  // Real, single-type alcohol -- see ALCOHOL_KEEP's own header comment
+  // for the real decision and the real data behind this.
+  const alcoholMatch = anyKeywordMatches(n, ALCOHOL_KEEP);
+  if (alcoholMatch) {
+    return {
+      isWholeFood: true,
+      ruleMatched: `alcohol: ${alcoholMatch}`,
       autoConfidence: 'high',
     };
   }
@@ -1151,6 +1400,7 @@ module.exports = {
   REFINED_SWEETENER,
   COMPOSITE_DISH_SIGNALS,
   IN_OR_WITH_SAUCE_PATTERN,
+  E_NUMBER_ADDITIVE_PATTERN,
   isBottledMineralWater,
   isAlcoholicCocktailOrCocktailSauce,
   BRAND_NAMES,
@@ -1161,6 +1411,8 @@ module.exports = {
   FERMENTED_KEEP,
   NATURAL_SWEETENER_KEEP,
   PLAIN_DAIRY_KEEP,
+  SOY_DERIVATIVE_KEEP,
+  ALCOHOL_KEEP,
   FRESH_JUICE_KEEP,
   RAW_WHOLE_FOOD_HINTS,
   OIL_KEEP,

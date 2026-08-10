@@ -15,6 +15,116 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a second real, proactive scan — the single largest batch of fixes yet, including one major real bug (42 "Fast foods" records never actually excluded), a real, direct decision on alcohol, and a real, honest 2-record self-correction caught mid-pass
+
+Requested directly: "Continue the proactive scan for more issues like
+this." Pulled a real, random 100-record sample of the review queue
+(the same repeatable method already established), then followed
+several real threads it surfaced out to their own full scope via
+direct SQL investigation — not stopping at the first example of each
+pattern.
+
+**The single biggest find: USDA's own "Fast foods, X" category prefix
+(264 real records) was never actually excluded at all.** The
+`FAST_FOOD` list only ever had singular "fast food," but the real data
+is always plural ("Fast foods, nachos, with cheese") — and
+`\bfast food\b` requires a word boundary right after "food," which
+"foods" (continuing straight into "s") never has. The exact same
+recurring word-form lesson as "ice cream"/"ice creams,"
+"cereal"/"cereals." Real, concrete damage: 42 genuine fast-food items
+(nachos, tacos, burritos, pizza, cinnamon rolls, chimichanga,
+enchilada, tostada, breakfast sandwiches) were sitting at
+`is_whole_food=1`, wrongly passing via whatever OTHER keyword happened
+to be in their own longer name (cheese, butter, cream, cinnamon).
+
+**A real, direct decision, put to the app's owner rather than assumed:
+should plain, single-type alcohol (beer, wine, sake, whisky, vodka,
+rum, gin, brandy) count as legitimate whole food?** This database
+already accepts kombucha/kimchi/miso as "fermented whole food," and
+Japan_MEXT's own real data literally tags sake/beer/wine "Fermented
+alcoholic beverage" — the direct answer: **include it**, on the
+reasoning that both fermentation and distillation from one base
+ingredient fit the same "single ingredient plus a simple, traditional
+transformation" category already accepted for cheese and yogurt.
+Composite/mixed/flavored/branded alcohol stays excluded regardless
+(cocktails, Japan_MEXT's own self-declared "Compound alcoholic
+beverage" category — Umeshu, vermouth, fortified wine, curacao — named
+mixed drinks like piña colada and daiquiri that use the adjective
+"Alcoholic" form, and branded beer). Real, non-alcoholic look-alikes
+were checked and excluded *before* the new positive keywords were
+added, specifically to protect them: root beer (a soda, no alcohol at
+all, despite the name), wine sauce, wine cooler, mulled wine, spirited
+wine, and three named real fortified-wine styles (Madeira, Port,
+Sherry).
+
+**Real, traditional whole-food-based combinations, same principle as
+the earlier aioli/hummus/ajvar family:** mayonnaise (egg + oil +
+vinegar, checked all 136 real records, zero exceptions); croissant,
+scone, muffin (real sweet/laminated pastries, the same family as
+cake/donut/pastry, not the minimal-ingredient bread exception);
+omelet/omelette (real whipped-egg preparation, almost always
+pan-cooked, the same direct-fat-contact reasoning as frying); relish,
+brawn (head cheese — a jellied meat product made *by definition* from
+combining animal parts), refried (mashed AND fried), "con carne"
+(Spanish "with meat," always a real composite stew) — every one
+individually checked against its own full real record set, zero
+legitimate single-ingredient exceptions found in any of them.
+
+**A real, standalone chemical-additive/manufacturing-process signal,
+found live, not reported:** any record naming its own real E-number
+("Ascorbic acid (E 300)," "Cutter additives phosphate-based (E 450)")
+is a purified chemical additive, not a food, regardless of natural
+origin — 8 real records, all genuine additives. 'extruded' (a real
+manufacturing-process word with no legitimate single-ingredient
+meaning at all — nothing is naturally extruded without a machine, 34
+real records, zero exceptions) and 'compound' (Japan_MEXT's own
+self-declared blend category, 12 real records, zero exceptions).
+
+**Real, genuine plant-based dairy ALTERNATIVES, not real dairy at
+all** despite matching a real dairy keyword: "Plant-based product,
+used as cheese," "Plant-based yogurt alternative, made from soya" — 14
+real records were wrongly passing via `PLAIN_DAIRY_KEEP`'s own
+'cheese'/'cream'/'yogurt' keywords. Added 'plant-based' to the same
+flavor/additive disqualifier mechanism that already protects real
+dairy from flavored/sweetened variants.
+
+**Real, simple mechanical/traditional processing steps this pass found
+genuinely missing, each individually verified**: 'buttermilk' (bare,
+2 real records — the exact same fused-compound-word gap as "ice
+cream"); 'tofu' (real, traditional soy-milk coagulation with a simple,
+traditional agent — the same category already accepted for cheese,
+given its own new dedicated rule so the output stays honest about what
+it actually is, rather than misleadingly saying "dairy"); 'desiccated'
+(a real, separate word for "dried"); 'toasted' (a real, separate word
+for "roasted"); 'puree'/'pureed' (a real, simple mechanical
+single-ingredient step, the same category as "mashed"); 'canned' (the
+same real category as "frozen" — added LAST, only once every real
+composite-canned-dish signal this same scan found was already in
+place, then re-verified against a fresh real sample); 'pickled'/
+'pickles' and 'vinegar' (real, simple brine/acetic-acid preservation,
+the same real category as kombucha/kimchi/miso).
+
+**A real, honest self-correction, caught mid-pass by re-testing every
+single planned change against the real function output rather than
+trusting the reasoning alone:** "Croissants" (plural) was initially
+left out of the new croissant exclude, the exact same word-form mistake
+this whole file has already documented multiple times for OTHER
+keywords — caught only because "Croissants, butter" was individually
+re-tested and came back wrongly `true` (via the 'butter' dairy match)
+before this was ever called done, not assumed correct because the
+singular form worked.
+
+Real, concrete effect:
+
+  Whole food:        16,142 -> 17,160
+  Not whole food:     10,901 -> 11,357
+  Needs human review:  5,664 ->  4,190
+
+Every real fix spot-checked directly against the live, re-classified
+database, not assumed from the rule logic alone. 197/197 classify.js
+tests passing (up from 160). Audit-tool data regenerated and
+republished to the same URL.
+
 ## Status: a real, direct report on alcoholic cocktails, then a real, direct correction reversing the "fried without fat" call, then a real, genuine question about sautéed hijiki — all resolved by the same underlying principle
 
 **Alcohol cocktails and cocktail sauce.** Reported directly: "Lots of
