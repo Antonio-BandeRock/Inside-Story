@@ -204,6 +204,17 @@ check('the real, separate whole-food ingredients themselves remain correctly inc
 check('olive oil remains correctly included too', 'Olive oil', true, true);
 check('chickpeas remain correctly included too', 'Chickpeas, mature seeds, raw', true, true);
 
+// --- Real, direct report: Ajvar, stewed (a real plural/form gap), and
+// a real, deliberate point of contrast -- "fried without fat" IS a
+// complete, unambiguous, legitimate simple preparation ---
+check('the exact reported Ajvar record', 'Ajvar, sweet pepper sauce, home-made', true, false);
+check('"home-made" does not tell us real ingredients/amounts -- still excluded', 'Ajvar canned', true, false);
+check('the exact reported "two things combined" Ajvar record', 'Ajvar and spinach sauce', true, false);
+check('the exact reported "stewed" record -- the plural/form gap "stew" alone missed', 'Alaska pollock stewed', true, false);
+check('the exact reported "fried without fat (oven)" record -- a real, complete, legitimate simple preparation', 'Alaska pollock fried without fat (oven)', true, true);
+check('the pan variant, same real reasoning', 'Albacore fried without fat (pan)', true, true);
+check('a breaded, composite variant is still correctly excluded -- caught by the exclude gate first', 'Alaska pollock breaded, deep-frozen, fried without fat (oven)', true, false);
+
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---
 check('a gingerbread cookie containing honey is not "honey"', 'Kathrinchen honey gingerbread biscuits', true, false);

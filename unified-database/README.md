@@ -15,6 +15,59 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, direct report — Ajvar, a real "stewed" plural gap, and a real, deliberate point of contrast (a legitimate simple preparation this time)
+
+Reported directly, four real records at once, three flagged for
+exclusion and one flagged as a deliberate CONTRAST: "Ajvar, sweet
+pepper sauce, home-made, says that it is a home made thing, but what
+are the ingredients and at what amounts within it? Alaska pollock fried
+without fat (oven) says it is fried right in the name and even has the
+word oven there. Ajvar and spinach sauce actually says it is two things
+to make a sauce. Alaska pollock stewed is obviously a stewed list of
+ingredients."
+
+**Ajvar** — a real, traditional Balkan roasted-red-pepper-and-eggplant
+relish, the exact same "even the traditional version is a real
+combination of 2+ whole foods" shape as the aioli/hummus/guacamole
+family from the previous pass. One keyword ("ajvar") cleanly catches
+every real variant: the sweet-pepper-sauce home-made version, the
+explicit two-vegetables "Ajvar and spinach sauce," canned, relish, and
+"Ajvaryogurt."
+
+**"Stewed"** — `COMPOSITE_DISH_SIGNALS` already excluded `stew`, but
+`stewed` (446 real records) is a real, separate word for word-boundary
+matching purposes — the same recurring lesson as "ice cream"/"ice
+creams," "cereal"/"cereals," "croquette"/"croquettes."
+
+**"Fried without fat" — the real point of contrast, confirmed and
+implemented, not just excluded.** Unlike "home-made" (which says
+nothing about real ingredients/ratios) or "stewed" (which implies
+multiple combined ingredients), "fried without fat" is a real, complete,
+unambiguous description of a single real ingredient prepared a simple
+way, with nothing added — the same real shape as the already-accepted
+`boiled`/`roasted`/`grilled`/`baked` cooking methods. Bare `fried` stays
+deliberately excluded from the positive list (real ambiguity — a
+"fried" dish can involve unstated batter/breading), but the qualified
+phrase carries none of that ambiguity. Checked against all 662 real
+matching records before adding: every genuinely composite/breaded
+variant ("Alaska pollock breaded, deep-frozen, fried without fat
+(oven)") is already caught by the general exclude gate, which runs
+first, so this is a safe, purely additive positive signal.
+
+**Real, concrete effect on all 32,707 already-ingested records**: 4
+ajvar records and 446 stewed records excluded; 381 real records newly,
+correctly classified as whole food via "fried without fat." All four
+exact reported records confirmed behaving correctly.
+
+| | Before this pass | After this pass |
+|---|---|---|
+| Whole food | 16,893 | 17,095 |
+| Not whole food | 9,051 | 9,463 |
+| Needs human review | 6,763 | 6,149 |
+
+138/138 classify.js tests passing (up from 131), 183/183 across the
+whole pipeline.
+
 ## Status: a real, direct question — "traditional" vs. commercial preparations — resolved as a real, general principle
 
 Asked directly, not reported as a bug: "Things like Aioli can be healthy

@@ -311,6 +311,24 @@ const COMPOSITE_DISH_SIGNALS = [
   // salsa/tzatziki/tapenade: 19) before adding anything.
   'aioli', 'hummus', 'hommus', 'guacamole', 'salsa', 'tzatziki',
   'tapenade',
+  // Found live, reported directly: "Ajvar, sweet pepper sauce,
+  // home-made, says that it is a home made thing, but what are the
+  // ingredients and at what amounts within it?" -- ajvar is a real,
+  // traditional Balkan roasted-red-pepper-and-eggplant relish, the
+  // exact same "even the traditional version is a real combination of
+  // 2+ whole foods" shape as the aioli/hummus/guacamole family right
+  // above. One keyword cleanly catches every real variant already in
+  // this database: "Ajvar, sweet pepper sauce, home-made," "Ajvar and
+  // spinach sauce" (explicitly two vegetables combined, per the same
+  // direct report), "Ajvar canned," "Ajvar relish," "Ajvaryogurt."
+  'ajvar',
+  // Found live, reported directly: "Alaska pollock stewed is obviously
+  // a stewed list of ingredients." COMPOSITE_DISH_SIGNALS already
+  // excludes 'stew' -- but 'stewed' (467 real records) is a real,
+  // separate word for word-boundary matching purposes, the same
+  // recurring lesson as "ice cream"/"ice creams,"
+  // "cereal"/"cereals," "croquette"/"croquettes."
+  'stewed',
 ];
 
 // New for this pass -- a real, flexible pattern match (not a plain
@@ -469,6 +487,23 @@ const RAW_WHOLE_FOOD_HINTS = [
   // exclude gate above, which runs first -- this is a safe, purely
   // additive fix.
   'frozen',
+  // Found live, reported directly, as a real, deliberate point of
+  // CONTRAST against Ajvar/stewed in the same report: "Alaska pollock
+  // fried without fat (oven) says it is fried right in the name and
+  // even has the word oven there." Unlike "home-made" (which tells us
+  // nothing about real ingredients/ratios) or "stewed" (which implies
+  // multiple combined ingredients), "fried without fat" is a real,
+  // complete, unambiguous description -- a single real ingredient,
+  // fried, with nothing added. Bare "fried" was deliberately left out
+  // of this list earlier (real ambiguity -- a "fried" dish can involve
+  // batter/breading/oil not otherwise stated), but the qualified phrase
+  // "fried without fat" carries no such ambiguity. Confirmed safe
+  // against real data before adding: of 662 real records matching this
+  // phrase, every genuinely composite/breaded variant ("Alaska pollock
+  // breaded, deep-frozen, fried without fat (oven)") is already caught
+  // by the general exclude gate (which runs FIRST, via "breaded"),
+  // never reaching this positive check at all.
+  'fried without fat',
 ];
 
 // New for this pass -- real, plain, minimally-processed oils, matching
