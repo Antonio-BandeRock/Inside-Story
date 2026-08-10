@@ -1824,6 +1824,25 @@ export default function PurpleDigestScreen() {
         // grid tile -- right after the last category, filling the empty
         // half of the final row -- regardless of the 2-column layout.
         infoInGrid={true}
+        // 2026-08-09, direct request: "The iridescnt circle that is
+        // supposed to go around the tapped icon in Digest isn't big
+        // enough on any of them, and... they appear to be smaller than
+        // the ones used in the other LensHub menus." Every real condition
+        // PNG (see components/DigestConditionIcons.tsx) has its own real,
+        // non-square aspect ratio, so `contain`-fitting it inside the
+        // ordinary shared 30px ceiling left its shorter edge visibly
+        // smaller than the ring around it. Scoped to this one page (no
+        // other LensHub caller passes these) -- ~29% bigger pill/ring,
+        // with the custom-icon and Ionicons ceilings scaled by the same
+        // factor so the grid's own 4 non-condition Ionicons tiles (Search,
+        // Basic Health, Earth Matters, Home Gardening) stay visually
+        // consistent with the 19 condition tiles rather than looking
+        // small by comparison. 40 is gridPillSize's own real technical
+        // ceiling for gridCustomIconSize (44 - 2*ringWidth, the same
+        // "inner circle" math LensHub's own default 30 already follows).
+        gridPillSize={44}
+        gridCustomIconSize={40}
+        gridIconSize={26}
         // Same real custom mark used everywhere else this tab is
         // represented (Home's own shortcut button, TabHub's own grid) --
         // without this, LensHub falls back to TAB_ROUTES' plain Ionicons

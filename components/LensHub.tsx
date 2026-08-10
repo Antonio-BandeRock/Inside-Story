@@ -268,6 +268,9 @@ export function LensHub<T extends string>({
   infoInGrid = columns !== 2,
   itemLabelLines = 1,
   autoOpenSignal,
+  gridPillSize = GRID_ITEM_PILL_SIZE,
+  gridCustomIconSize = GRID_ITEM_CUSTOM_ICON_SIZE,
+  gridIconSize = GRID_ITEM_ICON_SIZE,
 }: {
   // Used to find this page's own entry in TAB_ROUTES, for the trigger
   // button's icon/color (see below) -- must match a `title` there exactly.
@@ -384,6 +387,32 @@ export function LensHub<T extends string>({
   // TabHub" signal, unlike the two earlier, reverted attempts named just
   // below). A screen that never wants this can simply omit the prop.
   autoOpenSignal?: string;
+  // 2026-08-09, explicitly requested for Purple Digest specifically: "the
+  // iridescnt circle that is supposed to go around the tapped icon in
+  // Digest isn't big enough on any of them, and... they appear to be
+  // smaller than the ones used in the other LensHub menus." True even
+  // though option.renderIcon's own real artwork (see
+  // components/DigestConditionIcons.tsx) is already asked to render at 30
+  // -- GRID_ITEM_CUSTOM_ICON_SIZE's own real technical ceiling given the
+  // DEFAULT ring geometry (see that constant's own comment) -- because
+  // none of the 19 real condition PNGs are square: `contain` fits each
+  // one's own real, measured aspect ratio (0.652-1.362) inside that box,
+  // so the shorter edge of most of them renders meaningfully smaller than
+  // the full 30px ceiling, reading as smaller/loose inside the ring even
+  // though the box itself hasn't changed. Rather than force a page-wide
+  // change (GRID_ITEM_PILL_SIZE/GRID_ITEM_CUSTOM_ICON_SIZE stay the
+  // shared default for every other page's own grid, including Purple
+  // Digest's own 4 non-condition Ionicons tiles unless this is also
+  // passed), these three optional overrides let ONE page's grid render at
+  // a genuinely bigger ring/icon size without touching GRID_ROW_HEIGHT/
+  // CARD_HEIGHT (both stay fixed, shared module constants sized off the
+  // DEFAULT pill -- `item`'s own style has no fixed height, so a bigger
+  // pill here just makes that one page's own rows taller in the natural
+  // content flow, which Purple Digest's grid already scrolls past its
+  // one shared CARD_HEIGHT window regardless).
+  gridPillSize?: number;
+  gridCustomIconSize?: number;
+  gridIconSize?: number;
 }) {
   // 2026-07-26: used to auto-open on arrival (a `forceOpen` prop, driven by
   // the calling screen's own GatedTabContent.tsx resting state) so the
@@ -743,21 +772,21 @@ export function LensHub<T extends string>({
                     activeOpacity={0.7}
                   >
                     {active ? (
-                      <IridescentRingCircle size={GRID_ITEM_PILL_SIZE}>
+                      <IridescentRingCircle size={gridPillSize}>
                         {option.renderIcon ? (
-                          option.renderIcon(GRID_ITEM_CUSTOM_ICON_SIZE, tabColor)
+                          option.renderIcon(gridCustomIconSize, tabColor)
                         ) : (
-                          <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
+                          <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
                         )}
                       </IridescentRingCircle>
                     ) : (
-                      <View style={styles.itemIconPillPlain}>
+                      <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
                         {option.renderIcon ? (
                           <View style={styles.conditionIconInactive}>
-                            {option.renderIcon(GRID_ITEM_CUSTOM_ICON_SIZE, tabColor)}
+                            {option.renderIcon(gridCustomIconSize, tabColor)}
                           </View>
                         ) : (
-                          <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
+                          <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
                         )}
                       </View>
                     )}
@@ -796,12 +825,12 @@ export function LensHub<T extends string>({
                     accessibilityLabel={selectedOption ? `About ${selectedOption.label}` : 'Select a function to see information about it'}
                   >
                     {selectedOption ? (
-                      <IridescentRingCircle size={GRID_ITEM_PILL_SIZE}>
-                        <Ionicons name="information-circle" size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
+                      <IridescentRingCircle size={gridPillSize}>
+                        <Ionicons name="information-circle" size={gridIconSize} color={tabColor} style={textShadow} />
                       </IridescentRingCircle>
                     ) : (
-                      <View style={styles.itemIconPillPlain}>
-                        <Ionicons name="information-circle" size={GRID_ITEM_ICON_SIZE} color={colors.textMuted} style={textShadow} />
+                      <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
+                        <Ionicons name="information-circle" size={gridIconSize} color={colors.textMuted} style={textShadow} />
                       </View>
                     )}
                     <Text
