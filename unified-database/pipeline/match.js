@@ -65,7 +65,10 @@ function fetchUnmatchedWholeFoods(execFileSync, SQLITE_EXE, dbPath) {
        WHERE wfc.is_whole_food = 1
          AND rf.raw_id NOT IN (SELECT raw_id FROM food_match_members);`,
     ],
-    { encoding: 'utf8' }
+    // Same real maxBuffer fix already applied throughout this pipeline
+    // -- Node's own 1MB default is too small once the database grows
+    // past a few thousand rows.
+    { encoding: 'utf8', maxBuffer: 1024 * 1024 * 256 }
   );
   return JSON.parse(raw || '[]');
 }
@@ -98,7 +101,10 @@ function fetchExistingGroupMembers(execFileSync, SQLITE_EXE, dbPath) {
        JOIN raw_foods rf ON rf.raw_id = m.raw_id
        JOIN sources s ON s.source_code = rf.source_code;`,
     ],
-    { encoding: 'utf8' }
+    // Same real maxBuffer fix already applied throughout this pipeline
+    // -- Node's own 1MB default is too small once the database grows
+    // past a few thousand rows.
+    { encoding: 'utf8', maxBuffer: 1024 * 1024 * 256 }
   );
   return JSON.parse(raw || '[]');
 }

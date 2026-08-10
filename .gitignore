@@ -49,6 +49,15 @@ app-example
 # app code, not large unrelated data files.
 ClaudeWork/
 
+# unified-database's own real, large cached input artifact -- an
+# extracted copy of the legacy 7-source raw database (120MB, derived
+# from ClaudeWork's own already-excluded zipped original). Deliberately
+# NOT excluding unified_foods.sqlite itself here -- that one IS meant to
+# be a real, committed checkpoint of actual progress, the same way the
+# app's own bundled assets/data/foods_reference.db always is, even
+# though it's large and technically regenerable.
+unified-database/.cache/
+
 # Claude Code local state -- settings.local.json is personal-machine
 # overrides by Claude Code's own convention, not meant to be shared/synced
 # between machines; scheduled_tasks.lock is a runtime lock file, not content.

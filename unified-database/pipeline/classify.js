@@ -299,7 +299,12 @@ function classifyAll(db, execFileSync, SQLITE_EXE, dbPath) {
        LEFT JOIN whole_food_classifications wfc ON wfc.raw_id = rf.raw_id
        WHERE wfc.raw_id IS NULL OR wfc.reviewed = 0;`,
     ],
-    { encoding: 'utf8' }
+    // Real bug hit at 12,520+ rows: Node's own default execFileSync
+    // maxBuffer (1MB) is too small for this query's real JSON output
+    // once the database grows past a few thousand rows -- the same
+    // fix already applied to run-source.js's own query()/runBatch(),
+    // needed here too since this file makes its own, separate call.
+    { encoding: 'utf8', maxBuffer: 1024 * 1024 * 256 }
   );
   const rows = JSON.parse(rowsRaw || '[]');
 

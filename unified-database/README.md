@@ -15,7 +15,56 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
-## Status: Phase 2 underway — Norway and Sweden both ingested and verified for real
+## Status: Phase 2 complete — all 9 real sources ingested, classified, and matched
+
+**All 9 sources are in: Norway, Sweden, USDA, Canada, UK, Australia,
+Germany, Japan, and France** — the original 7 pulled from a real,
+already-unfiltered combine already sitting in this project's own
+`ClaudeWork/unified_food_database_v3_full.sqlite.zip` (27,980 rows,
+confirmed a genuine head start, not re-fetched from scratch), the other
+2 from their own live APIs/exports as already documented below.
+
+**Real, direct, confirmed finding before building anything**: of the 7
+original sources, only France_Ciqual's own `food_name` was genuinely,
+still French — USDA, Canada, UK, Australia, Germany, and Japan all
+already carried real, usable English names (Germany and Japan had
+already been translated at an earlier point in this project's own
+history). Only France needed the same real `translate.js` pass already
+proven on Sweden.
+
+**Real, final combined totals**: 32,707 records. 15,769 whole food /
+5,306 not / 11,632 needing human review. **757 groups matched across 2+
+sources (2,005 real foods)**, 13,764 region-specific.
+
+**Concrete, verified proof this actually works at scale**, not just
+totals: "Honey" is correctly recognized as the same real food across
+**all 7 original sources at once** — Norway's own "Honey," Sweden's
+"Honung" (machine-translated), USDA's "Honey," Australia's "Honey,"
+Germany's "Honig" (source-verified, pre-translated), Japan's "Honey,"
+and France's "Miel" (machine-translated) — spanning three real
+languages, unified into one group, each row honestly labeled by its
+own real provenance. Basil matched across 6 sources; Cauliflower,
+Spinach, Kale, Chives, Garlic, and Kohlrabi each across 5. Verified
+directly against the real database, not assumed.
+
+**Real, new infrastructure built along the way**: `sources/legacy-v3-shared.js`
+(one shared adapter for all 7 legacy sources, since they share an
+identical real schema — a real, standardized INFOODS/EuroFIR-style
+nutrient tag vocabulary across all of them, confirmed directly, meaning
+one nutrient mapping instead of seven); `sources/legacy-v3-extract.js`
+(real, working zip extraction via PowerShell's own `Expand-Archive`,
+verified from a clean state, not just trusted from a manual copy);
+`unified-database/.cache/` (git-ignored — the real, large extracted
+legacy database, 120MB, regenerable on demand, not something worth
+committing).
+
+**Two more real bugs found and fixed at this larger scale**: `ENOBUFS`
+crashes in both `classify.js`'s and `match.js`'s own internal queries
+once the database passed a few thousand rows — Node's default 1MB
+`execFileSync` buffer was too small; fixed with the same `maxBuffer`
+increase already applied elsewhere in the pipeline.
+
+## Status: Phase 2 underway — Norway and Sweden both ingested and verified for real (superseded above, kept for its own real history)
 
 **Real, current numbers, from actual runs against both sources' live
 data (2026-08-10):** 4,727 total records ingested (2,121 Norway + 2,606
@@ -239,22 +288,19 @@ question for whenever Sweden's own adapter gets written.
 
 1. ~~**Phase 1: schema + pipeline.**~~ Done (this document's own status
    above).
-2. **Phase 2: real source ingestion — underway.** Norway and Sweden
-   both done and verified (`sources/norway.js`, `sources/sweden.js`,
-   run via `pipeline/run-source.js`). Sweden's own real names translated
-   (`pipeline/translate.js` + `pipeline/translate-source.js`) and
-   genuine Norway↔Sweden cross-source matches confirmed real (see the
-   dedicated section above). Real, current combined state, 4,727
-   records: 1,698 whole food / 710 not / 2,319 needing human review;
-   121 groups matched 2+ records (476 foods), 1,222 region-specific.
-   Remaining: the original 7 sources (`ClaudeWork/unified_food_database_v3_full.sqlite.zip`
-   already holds a real, unfiltered 27,980-row combine of those — a
-   real, existing head start, not starting from zero).
-3. **Phase 3: whole-food classification** — run `classify.js` for real
-   across every ingested source, review the low-confidence/ambiguous
-   queue via a new audit-tool webpage (not yet built).
-4. **Phase 4: cross-source matching** — run `match.js` for real, review
-   proposed matches the same way.
+2. ~~**Phase 2: real source ingestion.**~~ Done — all 9 sources ingested,
+   classified, translated where needed, and matched (see this
+   document's own status section above for the real, current totals
+   and the "Honey across 7 sources" proof).
+3. **Phase 3: whole-food classification review — this is the real next
+   step.** 11,632 records currently sit in "needs human review" —
+   genuinely ambiguous names, or ones with no rule match at all.
+4. **Phase 4: cross-source matching review** — 13,764 real groups sit
+   as region-specific, 757 matched across 2+ sources, all still
+   `match_confidence = 'proposed'`. Both phases need a real audit-tool
+   webpage (not yet built) for a person to actually review these, the
+   same "tool proposes, human decides" shape already proven on this
+   app's own existing Reference Database Audit tool.
 5. **Phase 5: merge in the app's own working layer** — map the current,
    already-curated `assets/data/foods_reference.db` rows onto their
    corresponding rows in this new master, carrying forward every score,
@@ -319,5 +365,13 @@ node pipeline/translate.test.js       # 7/7 (real, live network call)
 node pipeline/run-source.js sources/norway.js       # real, live ingest + classify + match against Norway's actual API
 node pipeline/run-source.js sources/sweden.js       # real, live ingest + classify + match against Sweden's actual export
 node pipeline/translate-source.js Sweden_Livsmedelsverket   # real translation, then re-classify + re-match
+node pipeline/run-source.js sources/usda.js         # real ingest from the legacy v3 combine (auto-extracts ClaudeWork's own zip on first run)
+node pipeline/run-source.js sources/uk.js
+node pipeline/run-source.js sources/australia.js
+node pipeline/run-source.js sources/canada.js
+node pipeline/run-source.js sources/germany.js
+node pipeline/run-source.js sources/japan.js
+node pipeline/run-source.js sources/france.js       # goes to "needs review" first -- food_name is genuinely still French
+node pipeline/translate-source.js France_Ciqual     # real translation, then re-classify + re-match
 node pipeline/seed-and-run-e2e.js     # real, seeded end-to-end proof (not permanent data)
 ```
