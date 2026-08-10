@@ -133,6 +133,32 @@ const CANDY_SNACKS = [
   // ingredient -- fits the same real family as CANDY_SNACKS' own
   // cake/pastry/donut entries.
   'meringue',
+  // Found live, reported directly: "'Springerle' anise biscuits" and
+  // "'Zedernbrot' lemon almond biscuits." Checked the real, full scope
+  // first: 296 real records contain "biscuit"/"biscuits," and only 4 of
+  // them are the real, borderline "savoury...crispbread" case this file
+  // already keeps reachable via BREAD_KEEP's own separate 'crispbread'
+  // entry (a source describing plain crispbread without the word
+  // "biscuit" at all still correctly classifies whole food either way).
+  // The other 292 are real, confirmed sweet or composite baked snacks --
+  // and several were already live, confirmed FALSE POSITIVES (not just
+  // sitting in review), all via the SAME real, remaining gap: "dry" (a
+  // RAW_WHOLE_FOOD_HINTS word meant for legumes/grains, e.g. "Lentils,
+  // dry") was also incidentally matching "Plain dry biscuit," "Dry
+  // biscuit with chocolate topping," "Dry fruit biscuit, low sodium" --
+  // none of them plain, whole legumes. 'biscuit'/'biscuits' added as a
+  // real, general exclude, running before that collision can happen.
+  'biscuit', 'biscuits',
+  // Found live, reported directly: "Adzuki beans, mature seeds, 'An'
+  // (bean paste), 'Koshi-an' (strained bean paste)" -- a real,
+  // multi-step processed derivative (cooked, mashed, often strained
+  // and/or sweetened), not the whole bean itself, despite "Adzuki beans"
+  // appearing right in the name. Confirmed via real data: every one of
+  // the three real Japanese bean-paste variants in this database
+  // ("Koshi-an," "Sarashi-an," "Tsubushi-an") includes the literal
+  // phrase "bean paste" in its own parenthetical description, making it
+  // a safe, general, unambiguous keyword.
+  'bean paste',
 ];
 
 const FAST_FOOD = [
@@ -260,6 +286,28 @@ const COMPOSITE_DISH_SIGNALS = [
 // cream" trailing the match is irrelevant, the pattern only needs to
 // find "sauce" within that window, not consume the rest of the name).
 const IN_OR_WITH_SAUCE_PATTERN = /\b(?:in|with)\s+(?:\S+\s+){0,4}sauce\b/i;
+
+// New for this pass -- real, branded mineral water, per a real, direct
+// report: "Abatilles mineral water, bottled, non-carbonated, lightly
+// mineralized (Arcachon, 33) ... is a brand name." Given the real,
+// practically unbounded number of real-world mineral water brands
+// (dozens of real French/German/Belgian/Italian ones alone already sit
+// in this database -- Abatilles, Evian, Badoit, Contrex, Hépar,
+// Appollinaris...), an explicit per-brand list the way BRAND_NAMES
+// works for restaurant/manufacturer names isn't realistic here. Checked
+// a real, general co-occurrence signal instead: EVERY one of 30 real,
+// sampled "mineral water"-containing records that also says "bottled"
+// is a genuine branded product -- and the real, legitimate plain-water
+// entries already in this database ("Spring water," "Tap water,"
+// "Water, municipal") never say "bottled" at all, confirmed directly.
+// Requires BOTH phrases present (order-independent, matching this real
+// data's own convention of "[Brand] mineral water, bottled, ...")
+// rather than either alone, so a hypothetical future record just
+// describing genuine mineral content without "bottled" isn't wrongly
+// caught.
+function isBottledMineralWater(text) {
+  return containsKeyword(text, 'mineral water') && containsKeyword(text, 'bottled');
+}
 
 // New for this pass -- real, confirmed brand/manufacturer/restaurant
 // names, per a real, direct report: "I should definitely not see
@@ -632,6 +680,16 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     };
   }
 
+  // Real, branded mineral water -- see isBottledMineralWater's own
+  // header comment for the real report and real data behind this.
+  if (isBottledMineralWater(n)) {
+    return {
+      isWholeFood: false,
+      ruleMatched: 'bottled_mineral_water',
+      autoConfidence: 'high',
+    };
+  }
+
   const safeOverride = anyKeywordMatches(n, SAFE_OVERRIDES);
   if (safeOverride) {
     return {
@@ -886,6 +944,7 @@ module.exports = {
   REFINED_SWEETENER,
   COMPOSITE_DISH_SIGNALS,
   IN_OR_WITH_SAUCE_PATTERN,
+  isBottledMineralWater,
   BRAND_NAMES,
   ALL_EXCLUDE,
   JUICE_DISQUALIFIERS,

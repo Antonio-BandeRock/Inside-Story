@@ -15,6 +15,65 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, direct report — biscuits, bottled mineral water brands, and multi-step bean-paste derivatives
+
+Reported directly: "'Springerle' anise biscuits are not a whole food.
+'Zedernbrot' lemon almond biscuits are not a whole food. Neither is
+Abatilles mineral water, bottled, non-carbonated, lightly mineralized
+(Arcachon, 33) which is a brand name, or Adzuki beans, mature seeds,
+'An' (bean paste), 'Koshi-an' (strained bean paste) which is a multi
+ingredient thing. I keep expecting to not see things like these in the
+list with all of my explanations, but somehow many still sneak past."
+
+**Biscuit — the real, systemic pattern behind this one.** Checked the
+full scope before touching anything: 296 real records contain
+"biscuit"/"biscuits," and only 4 are the real, borderline "savoury...
+crispbread" case this project had deliberately been protecting.
+Several of the other 292 turned out to be real, LIVE false positives,
+not just sitting in the review queue — the same underlying gap kept
+recurring: `dry` (a `RAW_WHOLE_FOOD_HINTS` word meant for legumes/
+grains, e.g. "Lentils, dry") was also incidentally matching "Plain dry
+biscuit" and "Dry biscuit with chocolate topping"; `oil` was matching
+"Biscuits, crackers, oil-sprayed"; `cocoa` was matching "Wholemeal
+shortbread biscuits, containing cocoa, with nougat filling." Added
+`biscuit`/`biscuits` as a real, general exclude — the real, accepted
+tradeoff is that the 4 legitimate crispbread-style biscuit records now
+also exclude, but real crispbread not named "biscuit" (`Crispbread,
+rye`) stays correctly reachable.
+
+**Bottled mineral water — a real, general pattern instead of chasing
+brand names one at a time.** Given the practically unbounded number of
+real mineral water brands (dozens already sit in this database —
+Abatilles, Evian, Badoit, Contrex, Hépar, Appollinaris...), an explicit
+per-brand list wasn't realistic. Checked 30 real, sampled records
+instead: every single one containing both "mineral water" and "bottled"
+is a genuine branded product, and real, legitimate plain water already
+in this database ("Spring water," "Tap water," "Water, municipal")
+never says "bottled" at all. A new `isBottledMineralWater()` check
+requires both phrases present together, order-independent.
+
+**Bean paste — a real, multi-step processed derivative, not the whole
+bean.** All three real Japanese bean-paste variants in this database
+("Koshi-an," "Sarashi-an," "Tsubushi-an") include the literal phrase
+"bean paste" in their own parenthetical description, making it a safe,
+general keyword — added directly, without touching the base "Adzuki
+beans"/"Kidney beans" names those records also (correctly) contain.
+
+**Real, concrete effect on all 32,707 already-ingested records**: 199
+biscuit records, 82 bottled-mineral-water records, and 28 bean-paste
+records excluded. All four exact reported records confirmed fixed.
+Legitimate plain water and whole cooked beans spot-checked and confirmed
+unaffected.
+
+| | Before this pass | After this pass |
+|---|---|---|
+| Whole food | 17,109 | 17,029 |
+| Not whole food | 8,458 | 8,726 |
+| Needs human review | 7,140 | 6,952 |
+
+112/112 classify.js tests passing (up from 97), 157/157 across the whole
+pipeline.
+
 ## Status: a real, direct report closed the largest gap yet — composite dish names (goulash/meringue) and, most importantly, brand names
 
 Reported directly: "'Rehpfeffer' savory roe deer goulash is not a single

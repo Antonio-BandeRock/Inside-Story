@@ -85,7 +85,13 @@ check('plain wheat flour', 'Wheat flour, whole grain', true, true);
 check('plain almond flour', 'Almond flour', true, true);
 check('bean flour', 'Beans, black, flour', true, true);
 check('a sweet biscuit that happens to mention flour is not plain flour', 'Biscuit, sweet, wholemeal flour, Digestive', true, false);
-check('savoury crispbread from flour IS legitimate bread, caught by the bread rule first', 'Biscuit, savoury, from rye flour, crispbread', true, true);
+// Superseded by a later, real, direct report on "biscuit" generally --
+// this exact record now correctly excludes via the new, general
+// "biscuit" keyword instead of reaching the bread rule at all (general
+// excludes run first). Real crispbread not named "biscuit" is still
+// correctly whole food -- see this file's own later "crispbread without
+// the word biscuit" test.
+check('a "biscuit"-named crispbread is now excluded, a real, accepted tradeoff -- see later in this file', 'Biscuit, savoury, from rye flour, crispbread', true, false);
 
 check('whole fresh basil ("flavor is the basis for enjoying the food")', 'Basil, fresh', true, true);
 check('bare, unqualified spice name with no other descriptor at all', 'Cinnamon', true, true);
@@ -151,6 +157,26 @@ check('a known-legitimate ALLCAPS abbreviation (UHT, a dairy pasteurization meth
 // is that it isn't wrongly EXCLUDED as if it were a brand, which a null
 // (not false) result confirms.
 check('a known-legitimate ALLCAPS cooking-method abbreviation (BBQ) is not treated as a brand', 'Pork, forequarter chop, lean, BBQ\'d, no added fat', true, null);
+
+// --- Real, direct report: biscuits, bottled mineral water brands, and
+// multi-step bean-paste derivatives should never appear in this list ---
+check('the exact reported Springerle record', '"Springerle" anise biscuits', true, false);
+check('the exact reported Zedernbrot record', '"Zedernbrot" lemon almond biscuits', true, false);
+check('a real, live false positive: "dry" incorrectly matching a manufactured biscuit', 'Plain dry biscuit', true, false);
+check('another real, live false positive via "dry"', 'Dry biscuit with chocolate topping', true, false);
+check('a real, live false positive via "oil"', 'Biscuits, crackers, oil-sprayed', true, false);
+check('a real, live false positive via "cocoa"', 'Wholemeal shortbread biscuits, containing cocoa, with nougat filling', true, false);
+check('the real, accepted tradeoff -- a "biscuit"-named crispbread is excluded too, but crispbread stays reachable via other real records', 'Biscuit, savoury, from wholemeal wheat flour, crispbread', true, false);
+check('crispbread without the word "biscuit" is still correctly whole food', 'Crispbread, rye', true, true);
+
+check('the exact reported Abatilles record', 'Abatilles mineral water, bottled, non-carbonated, lightly mineralized (Arcachon, 33)', true, false);
+check('any real branded bottled mineral water', 'Evian mineral water, bottled, non-carbonated, lightly mineralized (Evian, 74)', true, false);
+check('plain, unbranded spring water is unaffected -- no "bottled" present', 'Spring water', true, null);
+check('plain tap water is unaffected too', 'Tap water', true, null);
+
+check('the exact reported bean-paste record', 'Adzuki beans, mature seeds, "An" (bean paste), "Koshi-an"(strained bean paste)', true, false);
+check('a second real bean-paste variant', 'Adzuki beans, mature seeds, "An" (bean paste), "Sarashi-an" (powder of strained bean paste)', true, false);
+check('plain, whole cooked adzuki beans remain correctly whole food', 'Adzuki beans, mature seeds, whole, boiled', true, true);
 
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---
