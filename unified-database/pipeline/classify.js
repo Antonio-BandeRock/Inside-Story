@@ -159,6 +159,32 @@ const CANDY_SNACKS = [
   // phrase "bean paste" in its own parenthetical description, making it
   // a safe, general, unambiguous keyword.
   'bean paste',
+  // Proactive, self-initiated pass -- checked the current review queue
+  // for more of the same real pattern before waiting for another
+  // one-at-a-time report. Real, confirmed clean (every sampled record a
+  // genuine composite): 'dessert' (baby food/pudding/wine desserts,
+  // never a single ingredient), 'stuffed' (a stuffed anything is by
+  // definition 2+ combined foods -- "Green olives, filled or stuffed
+  // (anchovies, peppers, etc.)," "Fresh stuffed pasta"), 'restaurant
+  // prepared' (an explicit, unambiguous commercial-preparation marker),
+  // 'pie' (Apple pie, Beef Pot Pie, Boston cream pie -- every real
+  // record a genuine composite baked good or dish), 'croquette' and
+  // 'fritter' (both inherently breaded/fried mixtures).
+  //
+  // Two real, similarly-plausible candidates were checked and
+  // DELIBERATELY LEFT OUT, worth naming directly rather than silently
+  // skipped: 'tart' has a genuine double meaning in this data -- a
+  // pastry ("Apple crumble tart") but also a real taste descriptor for
+  // sour foods ("Cherry juice, tart," "Cherries, tart, dried,
+  // sweetened"), and excluding it generally would wrongly exclude
+  // legitimate tart-flavored juice. 'cutlet' also has a real,
+  // legitimate exception -- "Lamb, cutlet or frenched cutlet, with
+  // bone, lean, raw" is a genuine, simple butchered cut (matching this
+  // whole project's own "butchered cuts count as whole food" rule),
+  // not automatically breaded/composite the way "cutlet" often implies
+  // elsewhere in this same real data.
+  'dessert', 'stuffed', 'restaurant prepared', 'pie', 'croquette',
+  'croquettes', 'fritter',
 ];
 
 const FAST_FOOD = [

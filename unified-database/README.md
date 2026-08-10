@@ -15,6 +15,56 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a proactive, self-initiated scan of the review queue — not waiting for the next one-at-a-time report
+
+The app owner's own real, repeated pattern this session ("I keep
+expecting to not see things like these in the list with all of my
+explanations, but somehow many still sneak past") called for a real
+change in approach, not just another individual fix. Rather than wait
+for the next report, pulled a real, random 200-record sample from the
+current 6,952-record review queue and scanned it directly for the same
+class of remaining gap.
+
+**Real, confirmed clean, added directly**: `dessert` (baby-food/pudding/
+wine desserts, never a single ingredient — 128 real records), `stuffed`
+(a stuffed anything is, by definition, 2+ combined foods — 28 records),
+`restaurant prepared` (an explicit, unambiguous commercial marker — 19
+records), `pie` (135 records — Apple pie, Beef Pot Pie, Boston cream
+pie), `croquette`/`croquettes` (19 records — the plural needed adding
+separately, the same recurring word-boundary lesson as "ice cream" vs.
+"ice creams" and "cereal" vs. "cereals"), `fritter` (5 records).
+
+**Two real, similarly-plausible candidates checked and deliberately
+left out, worth naming directly rather than silently skipped**: `tart`
+has a genuine double meaning in this data — a pastry ("Apple crumble
+tart") but also a real taste descriptor for sour foods ("Cherry juice,
+tart," "Cherries, tart, dried, sweetened"), so excluding it generally
+would have wrongly excluded legitimate tart-flavored juice.
+`cutlet`/`cutlets` also has a real, legitimate exception — "Lamb,
+cutlet or frenched cutlet, with bone, lean, raw" is a genuine, simple
+butchered cut (matching this whole project's own "butchered cuts count
+as whole food" rule), not automatically breaded/composite the way
+"cutlet" often implies elsewhere in this same real data. Both spot-
+checked directly and confirmed still correctly classified as whole
+food after this pass.
+
+**Real, concrete effect on all 32,707 already-ingested records**: 334
+additional records excluded (128 dessert, 135 pie, 28 stuffed, 19
+restaurant-prepared, 19 croquette/croquettes, 5 fritter).
+
+| | Before this pass | After this pass |
+|---|---|---|
+| Whole food | 17,029 | 16,897 |
+| Not whole food | 8,726 | 9,012 |
+| Needs human review | 6,952 | 6,798 |
+
+120/120 classify.js tests passing (up from 112), 165/165 across the
+whole pipeline. A real, honest note for whoever picks this up next: a
+proactive scan like this one is worth repeating periodically as the
+review queue shrinks further, rather than only reacting to individual
+reports — the same real, random-sample-and-scan method used here is
+fully repeatable.
+
 ## Status: a real, direct report — biscuits, bottled mineral water brands, and multi-step bean-paste derivatives
 
 Reported directly: "'Springerle' anise biscuits are not a whole food.

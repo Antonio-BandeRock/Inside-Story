@@ -178,6 +178,17 @@ check('the exact reported bean-paste record', 'Adzuki beans, mature seeds, "An" 
 check('a second real bean-paste variant', 'Adzuki beans, mature seeds, "An" (bean paste), "Sarashi-an" (powder of strained bean paste)', true, false);
 check('plain, whole cooked adzuki beans remain correctly whole food', 'Adzuki beans, mature seeds, whole, boiled', true, true);
 
+// --- A proactive, self-initiated real-data scan of the review queue --
+// not from a direct report, but the same real pattern surfacing again ---
+check('a real, genuine composite baby-food dessert', 'Babyfood, dessert, banana pudding, strained', true, false);
+check('a real, genuine composite stuffed dish', 'Fresh stuffed pasta (e.g. ravioli, tortellini), cooked (medium food)', true, false);
+check('an explicit, unambiguous restaurant-preparation marker', 'Chinese dish, lo mein, vegetable, without meat, restaurant prepared', true, false);
+check('a real, genuine composite pie', 'Beef Pot Pie, frozen entree, prepared', true, false);
+check('a real, genuine composite croquette', 'Croquettes, potato-based, fried, frozen', true, false);
+check('a real, genuine composite fritter', 'Corn fritter', true, false);
+check('"tart" deliberately left out -- a real, legitimate tart-flavored juice must stay unaffected', 'Cherry juice, tart', true, true);
+check('"cutlet" deliberately left out -- a real, legitimate raw butchered cut must stay unaffected', 'Lamb, cutlet or frenched cutlet, with bone, lean, raw', true, true);
+
 // --- The two real, confirmed precedence bugs this pass fixed (general
 // exclude now runs before every positive rule, not just some of them) ---
 check('a gingerbread cookie containing honey is not "honey"', 'Kathrinchen honey gingerbread biscuits', true, false);
