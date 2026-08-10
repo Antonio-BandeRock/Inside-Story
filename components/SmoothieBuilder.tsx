@@ -16,6 +16,7 @@ import {
   getSmoothie,
   getSmoothieIngredients,
   getStoredMeasurementSystem,
+  getUserProfile,
   listCuratedRecipes,
   saveBuilderFavorite,
   saveSmoothie,
@@ -24,6 +25,8 @@ import {
   type FoodScore,
   type SmoothieIngredientInput,
 } from '../lib/db';
+import type { HealingStage } from '../lib/healingStage';
+import { getHealingStageAdvisory } from '../lib/healingStageAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -828,6 +831,20 @@ export function SmoothieBuilder({
     };
   }, []);
 
+  // Healing-stage self-declaration, 2026-08-09 -- see SideBuilder.tsx's own
+  // comment on this same effect for the full reasoning.
+  const [healingStage, setHealingStage] = useState<HealingStage | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    getUserProfile().then((profile) => {
+      if (isMounted) setHealingStage(profile.healingStage);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // 2026-07-28 -- whichever AppTextInput was last focused (Smoothie Name,
   // Servings, Size, Quantity) stays "active" (and AppKeyboard visible, on
   // top of everything) until something explicitly blurs it: tapping a
@@ -1580,9 +1597,27 @@ export function SmoothieBuilder({
                     are still loading or when there's no flagged
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
+                {/* Healing Stage advisory -- 2026-08-09, informational,
+                    never gating, same shape as every other advisory in
+                    this app. See lib/healingStageAdvisory.ts's own top
+                    comment for the real, cited flag conditions. */}
+                {(() => {
+                  const advisory = getHealingStageAdvisory(pendingScores, healingStage);
+                  return advisory ? (
+                    <TouchableOpacity
+                      style={[styles.juiceAdvisoryRow, { borderColor: tabColor }]}
+                      onPress={() => showInfoAlert(advisory.title, advisory.message)}
+                    >
+                      <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                      <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>
+                        Healing stage note -- tap to learn more
+                      </Text>
+                    </TouchableOpacity>
+                  ) : null;
+                })()}
                 {/* Informational, not gating -- see lib/juiceAdvisory.ts's
                     own top comment. Smoothie Builder has no Alcohol/Brewing
-                    in its own category allowlist, so this is the only
+                    in its own category allowlist, so this is the only OTHER
                     advisory row it needs. */}
                 {isJuiceFood(pendingResolved) && (
                   <TouchableOpacity

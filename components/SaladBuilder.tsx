@@ -16,6 +16,7 @@ import {
   getSalad,
   getSaladIngredients,
   getStoredMeasurementSystem,
+  getUserProfile,
   listCuratedRecipes,
   saveBuilderFavorite,
   saveSalad,
@@ -24,6 +25,8 @@ import {
   type FoodScore,
   type SaladIngredientInput,
 } from '../lib/db';
+import type { HealingStage } from '../lib/healingStage';
+import { getHealingStageAdvisory } from '../lib/healingStageAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -823,6 +826,21 @@ export function SaladBuilder({
     };
   }, []);
 
+  // Healing-stage self-declaration, 2026-08-09 -- see SideBuilder.tsx's own
+  // comment on this same effect for the full reasoning (Side Builder is
+  // the original instance this was copy-adapted from).
+  const [healingStage, setHealingStage] = useState<HealingStage | null>(null);
+
+  useEffect(() => {
+    let isMounted = true;
+    getUserProfile().then((profile) => {
+      if (isMounted) setHealingStage(profile.healingStage);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
   // 2026-07-28 -- whichever AppTextInput was last focused (Salad Name,
   // Servings, Size, Quantity) stays "active" (and AppKeyboard visible, on
   // top of everything) until something explicitly blurs it: tapping a
@@ -1580,6 +1598,25 @@ export function SaladBuilder({
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
               </View>
+              {/* Healing Stage advisory -- 2026-08-09, informational, never
+                  gating, same shape as every other advisory in this app.
+                  See lib/healingStageAdvisory.ts's own top comment for the
+                  real, cited flag conditions and SideBuilder.tsx for the
+                  original instance this was copy-adapted from. */}
+              {(() => {
+                const advisory = getHealingStageAdvisory(pendingScores, healingStage);
+                return advisory ? (
+                  <TouchableOpacity
+                    style={[styles.healingStageAdvisoryRow, { borderColor: tabColor }]}
+                    onPress={() => showInfoAlert(advisory.title, advisory.message)}
+                  >
+                    <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                    <Text style={[styles.healingStageAdvisoryText, { color: tabColor }]}>
+                      Healing stage note -- tap to learn more
+                    </Text>
+                  </TouchableOpacity>
+                ) : null;
+              })()}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
                   vertical pill spinner sized by renderLabeledPicker (see
@@ -1752,6 +1789,20 @@ export function SaladBuilder({
 }
 
 const styles = StyleSheet.create({
+  // 2026-08-09 -- same real shape as SideBuilder.tsx's own
+  // healingStageAdvisoryRow/Text (this file has no other advisory row to
+  // reuse styles from).
+  healingStageAdvisoryRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 6,
+  },
+  healingStageAdvisoryText: { ...typography.caption },
   // Deliberately NOT a ScrollView -- see this component's own render-time
   // comment for why FoodLookup can never sit inside one.
   pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
