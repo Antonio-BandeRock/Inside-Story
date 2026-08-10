@@ -709,9 +709,7 @@ const ALCOHOL_HIDDEN_BASE_NAMES = new Set([
   // real spirit already covered by the clean canonical entry above (or,
   // for rum, by the Light/White and Dark/Aged Derived variants).
   'Alcoholic beverage, distilled, rum, 80 proof',
-  'Alcohol, gin (40% alcohol by volume)',
   'Alcohol, rum  (40% alcohol by volume)',
-  'Alcohol, vodka (40% alcohol by volume)',
   'Alcohol, whisky (40% alcohol by volume)',
   'Alcohol, whisky (43% alcohol by volume)',
   'Alcohol, whisky (45% alcohol by volume)',
@@ -721,7 +719,16 @@ const ALCOHOL_HIDDEN_BASE_NAMES = new Set([
   'Vodka',
   'Whisky',
   'Liqueur',
-  'Agave spirit (Mezcal/Tequila)',
+  // 'Alcohol, gin (40% alcohol by volume)', 'Alcohol, vodka (40% alcohol
+  // by volume)', and 'Agave spirit (Mezcal/Tequila)' removed here,
+  // 2026-08-10 -- a real audit-tool decision batch explicitly unhid and
+  // renamed all 3 (to "Gin (Dry / Unflavored)", "Vodka (Potato or Grape
+  // preferred)", and "Tequila / Mezcal (100% Agave Blanco)"). The rename
+  // alone already made them unreachable by this Set (their current
+  // base_name no longer matches any entry here), so this is real cleanup
+  // of now-dead strings, not a functional change -- confirmed directly
+  // against the live database that all 3 rows show hidden=0 under their
+  // new names before removing these.
   'Rum 37.5/40 % vol',
   'Rum 80 % vol',
   'Whisky/whiskey',

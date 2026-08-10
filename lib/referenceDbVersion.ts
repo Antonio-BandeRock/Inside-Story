@@ -216,4 +216,42 @@
 // experience until a real translation pass is feasible. The data itself
 // is fully imported and correct either way -- this is purely a
 // visibility decision, not a data-completeness one.
-export const REFERENCE_DB_VERSION = "20260810165051";
+//
+// A real, 1,315-decision batch from the Reference Database Audit tool
+// applied the same day, 2026-08-10, direct instruction: "Please go to
+// [the exported decisions file] to apply the changes." 998 hide, 79
+// move (33 also carrying a rename), 234 rename-only, and 4 real
+// unhide-plus-rename decisions -- resolved against the LIVE database
+// (not assumed to still match the state the audit tool's own export was
+// taken from) via a real, tiered matching strategy: an exact
+// (category, subcategory, base_name) match first; a same-category,
+// base_name-unambiguous-within-category fallback second (correctly
+// handling 269 real decisions recorded before Meat gained its own real
+// "Meat & Poultry"/"Fish & Seafood" subcategory split); and, for the 4
+// genuinely cross-subcategory-ambiguous rename decisions (Halibut Fish,
+// Herring Fish, Pork Liver, Salmon Fish -- each sharing its own base_name
+// with an unrelated, correctly-placed Fish & Seafood row by coincidence),
+// a real, hand-verified resolution using each decision's own recorded
+// rowCount/sources to confirm, not guess, which real row it meant --
+// every one matched the "Meat & Poultry" subcategory specifically, the
+// same real "American Indian/Alaska Native Foods" catch-all leak this
+// project already fixed once before for "Lingcod Fish." All 1,315
+// decisions resolved; zero were left unmatched. Case-insensitive
+// matching was required to correctly mirror this schema's own real
+// `base_name TEXT COLLATE NOCASE` -- 2 real decisions ("Pork belly",
+// "Maple syrup") had silently failed a plain case-sensitive JS match
+// against their real, differently-cased live values ("Pork Belly",
+// "Maple Syrup") before this was caught and fixed. Every rename was
+// applied before its own accompanying move/hide/unhide statement, not
+// after -- a real, necessary ordering, since a move issued first would
+// change the row's own category/subcategory out from under the rename's
+// WHERE clause. Checked for, and found zero, real dangling
+// `food_aliases` rows pointing at any of the 271 renamed base_names.
+// Verified directly against the live, applied database (a real move
+// destination and a real move-plus-rename combo both spot-checked) and
+// via `npx tsc --noEmit`/`npx eslint` on `lib/db.ts` (clean) -- also
+// removed 3 now-dead entries from that file's own legacy
+// `ALCOHOL_HIDDEN_BASE_NAMES` Set, since the real unhide-plus-rename
+// decisions already made them unreachable by their old name, leaving
+// only cleanup, not a functional change.
+export const REFERENCE_DB_VERSION = "20260810171057";
