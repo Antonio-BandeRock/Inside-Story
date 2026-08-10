@@ -54,6 +54,7 @@ function fetchUnmatchedWholeFoods(execFileSync, SQLITE_EXE, dbPath) {
   const raw = execFileSync(
     SQLITE_EXE,
     [
+      '-cmd', '.timeout 30000',
       dbPath,
       '-json',
       `SELECT rf.raw_id, rf.source_code, rf.name_original, rf.name_english,
@@ -245,4 +246,4 @@ function proposeMatches(rows, startingGroupId = 0) {
   return statements;
 }
 
-module.exports = { normalizeForMatch, groupByKey, proposeMatches, resolvedEnglishName };
+module.exports = { normalizeForMatch, groupByKey, proposeMatches, resolvedEnglishName, fetchUnmatchedWholeFoods };

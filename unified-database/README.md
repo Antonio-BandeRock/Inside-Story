@@ -15,18 +15,42 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
-## Status: Phase 2 underway — Norway ingested and verified for real
+## Status: Phase 2 underway — Norway and Sweden both ingested and verified for real
 
-**Real, current numbers, from an actual run against Norway's live API
-(2026-08-10):** 2,121 real records ingested. Classification: 815 whole
-food, 306 not whole food, 1,000 forced into human review (genuinely
-ambiguous names, or composite/mixed dishes that don't cleanly match any
-rule — the classifier's own conservative design working as intended,
-not a flaw). Matching: 99 real groups matched 2+ records each (406
-total foods — mostly real within-source variety groupings so far, e.g.
-9 apple varieties correctly recognized as one species, 20 real lamb
-cuts as one species — genuine cross-source matches will show up once a
-second source is ingested), 409 groups stood alone as region-specific.
+**Real, current numbers, from actual runs against both sources' live
+data (2026-08-10):** 4,727 total records ingested (2,121 Norway + 2,606
+Sweden). Classification: 815 whole food, 306 not whole food, 3,606
+forced into human review — every single one of Sweden's 2,606 records
+among them, correctly and honestly, since Sweden has no verified
+English name source at all (confirmed: no documented API English
+variant, unlike Norway's real `/en/` endpoint) — classify.js's own
+safety rule refuses to guess at any of it. Matching: 99 real groups
+matched 2+ records each (406 total foods — real within-source variety
+groupings so far, e.g. 9 apple varieties correctly recognized as one
+species, 20 real lamb cuts as one species; genuine cross-source matches
+between Norway and Sweden specifically will only become possible once
+Sweden's own names are translated and re-classified), 409 groups stood
+alone as region-specific.
+
+### A fourth real bug, found running Sweden on top of Norway's already-matched data
+
+Re-running the match phase against **every** current whole-food row
+(not just newly-added ones) silently duplicated every already-existing
+group — confirmed directly: group and food counts had exactly doubled
+after Sweden's ingest, even though Sweden itself contributed zero new
+whole-food rows. The real fix (`fetchUnmatchedWholeFoods`) had actually
+already been written back in Phase 1, complete with its own doc comment
+explaining exactly this — it just was never wired into `run-source.js`,
+which built its own separate, duplicate query instead. Fixed by using
+the existing function; added a real, DB-backed regression test
+(`run-source.test.js`) proving a second run never re-matches or
+duplicates already-grouped rows. A real, honestly-named limitation the
+fix does NOT solve (see `run-source.js`'s own header comment): a
+newly-ingested row currently can't join an *existing* group from an
+earlier run — it only groups against other newly-unmatched rows in the
+same run, so it'll form its own new, correct-but-unlinked group instead
+of joining Norway's own. Not a correctness risk (nothing merges
+wrongly), just a real, deferred completeness gap worth a future pass.
 
 ### Three real bugs found and fixed via this live run, not left for later
 
@@ -172,12 +196,15 @@ question for whenever Sweden's own adapter gets written.
 
 1. ~~**Phase 1: schema + pipeline.**~~ Done (this document's own status
    above).
-2. **Phase 2: real source ingestion — underway.** Norway done and
-   verified (`sources/norway.js`, run via `pipeline/run-source.js`).
-   Real, honest current state, 2,121 records: 815 whole food / 306 not
-   / 1,000 needing human review; 99 groups matched 2+ records, 409
-   region-specific. Remaining: Sweden (real XLSX data already on hand),
-   then the original 7 sources (`ClaudeWork/unified_food_database_v3_full.sqlite.zip`
+2. **Phase 2: real source ingestion — underway.** Norway and Sweden
+   both done and verified (`sources/norway.js`, `sources/sweden.js`,
+   run via `pipeline/run-source.js`). Real, honest current state, 4,727
+   records: 815 whole food / 306 not / 3,606 needing human review (all
+   2,606 of Sweden's own records among them, since it has no verified
+   English source); 99 groups matched 2+ records, 409 region-specific.
+   Remaining: a real translation pass for Sweden's own names (no
+   shortcut exists the way Norway's `/en/` endpoint provided one), then
+   the original 7 sources (`ClaudeWork/unified_food_database_v3_full.sqlite.zip`
    already holds a real, unfiltered 27,980-row combine of those — a
    real, existing head start, not starting from zero).
 3. **Phase 3: whole-food classification** — run `classify.js` for real
@@ -195,14 +222,57 @@ question for whenever Sweden's own adapter gets written.
 8. **Ongoing: the same pipeline for any future new source** — the real
    point of building it this way.
 
+## Real candidate sources for future ingestion — named, not yet verified
+
+Raised in conversation, not yet checked for real accessibility,
+structured-export availability, or license terms this session — the
+same due diligence already applied to Finland (blocked by bot
+protection)/Mexico (PDF-only, no structured export)/Italy (search-only)/
+China (no confirmed open-data portal) needs to happen before treating
+any of these as a real, addable source, not just a name on a list:
+
+- **India — IFCT** (Indian Food Composition Tables, National Institute
+  of Nutrition) — a real gap; South Asian cuisine has essentially zero
+  representation across the current 9 sources.
+- **Brazil — TACO** (Tabela Brasileira de Composição de Alimentos,
+  UNICAMP) — worth checking given Mexico's own data turned out
+  PDF-only, not structured.
+- **South Africa — SAFOODS** — the African continent currently has zero
+  representation in the reference database at all.
+- **Denmark — Frida** (DTU Food Data) — would complete real Nordic
+  coverage alongside Norway and Sweden.
+- **Netherlands — NEVO** (RIVM) — a well-established Western European
+  database.
+- **New Zealand — NZ Food Composition Database** (Plant & Food
+  Research) — genuinely distinct from Australia's AFCD, not a
+  duplicate.
+
+Two more structural angles, not "another country" so much as sources
+this app hasn't tapped within what it already touches:
+
+- **USDA's own Foundation Foods dataset** — the app currently only uses
+  USDA's older SR Legacy data; Foundation Foods is a separate, newer,
+  more rigorously analytically-verified USDA dataset covering a smaller
+  food set.
+- **EuroFIR** — a real European network harmonizing many national
+  databases into one standardized format, using LanguaL/FoodEx2
+  classification codes. If genuinely accessible, this could be directly
+  valuable for the cross-source species-matching work already
+  underway (`pipeline/match.js`) — it may already carry real
+  classification codes rather than requiring this project to derive
+  its own matches from scratch.
+
 ## Running what exists today
 
 ```
 cd unified-database
+npm install                           # installs the real xlsx dependency (needed for sources/sweden.js)
 node pipeline/init-db.js              # creates unified_foods.sqlite from schema.sql
 node pipeline/classify.test.js        # 33/33
 node pipeline/match.test.js           # 12/12
 node pipeline/ingest.test.js          # 10/10
+node pipeline/run-source.test.js      # 6/6
 node pipeline/run-source.js sources/norway.js   # real, live ingest + classify + match against Norway's actual API
+node pipeline/run-source.js sources/sweden.js   # real, live ingest + classify + match against Sweden's actual export
 node pipeline/seed-and-run-e2e.js     # real, seeded end-to-end proof (not permanent data)
 ```

@@ -1,0 +1,8 @@
+{
+  "name": "inside-story-unified-database",
+  "private": true,
+  "description": "Pipeline for the Unified Whole-Foods Database -- see README.md. A real, standalone dependency set, isolated from the app's own package.json.",
+  "dependencies": {
+    "xlsx": "^0.18.5"
+  }
+}

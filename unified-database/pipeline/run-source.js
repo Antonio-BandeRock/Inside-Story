@@ -1,9 +1,30 @@
 // The real, permanent way to run any source adapter through the full
-// pipeline -- ingest, then classify whatever's new, then re-run the
-// matching cascade over the whole current whole-food pool (not just
-// this source's own rows, since a newly-ingested source might complete
-// a real cross-source match with something already sitting in the
-// database from an earlier run).
+// pipeline -- ingest, then classify whatever's new, then match ONLY the
+// whole-food rows that aren't already in a match group.
+//
+// REAL BUG FOUND AND FIXED while running Sweden on top of Norway's
+// already-matched data: this file's own first version matched EVERY
+// current whole-food row every time, including ones a PREVIOUS run had
+// already grouped -- match.js's own `proposeMatches` has no built-in
+// awareness of pre-existing groups, so re-running it against the same
+// 815 already-matched rows created a full, duplicate second set of
+// match groups on top of the real ones (confirmed directly: match
+// group and food counts had exactly doubled). `match.js` already had a
+// real, correct function built for exactly this, `fetchUnmatchedWholeFoods`
+// -- it just was never actually wired in here. Fixed by using it.
+//
+// Real, honest, named limitation this fix does NOT solve, worth stating
+// plainly rather than implied away: a newly-ingested row can only join
+// an EXISTING group from a past run if `proposeMatches` itself is given
+// that old group's own members to compare against -- which it currently
+// isn't (only genuinely unmatched rows are passed in). This means a
+// brand-new source's row that should join, say, Norway's own already-
+// grouped "Apple" (Malus domestica) group won't actually join it yet --
+// it'll form its own new, separate, correct-but-unlinked group instead.
+// Not a risk of silent wrong data (nothing gets merged into the wrong
+// group), just a real, deferred completeness gap -- a genuine
+// candidate for a later pass once more sources are in and this
+// scenario actually starts happening in practice.
 //
 // Usage: node run-source.js <adapter-file>
 // Example: node run-source.js ../sources/norway.js
@@ -91,14 +112,10 @@ async function main() {
   }
 
   console.log(`\n=== Matching ===`);
-  const wholeFoodRows = query(`
-    SELECT rf.raw_id, rf.source_code, rf.name_original, rf.name_english, rf.latin_name, rf.langual_codes, s.language AS source_language
-    FROM raw_foods rf
-    JOIN sources s ON s.source_code = rf.source_code
-    JOIN whole_food_classifications wfc ON wfc.raw_id = rf.raw_id
-    WHERE wfc.is_whole_food = 1;
-  `);
-  console.log(`Running the real matching cascade against ${wholeFoodRows.length} whole-food rows currently in the database.`);
+  // Only rows not already in a match group -- see this file's own
+  // header comment for the real bug this fixes.
+  const wholeFoodRows = match.fetchUnmatchedWholeFoods(execFileSync, SQLITE_EXE, dbPath);
+  console.log(`Running the real matching cascade against ${wholeFoodRows.length} newly-unmatched whole-food rows (already-matched rows from a previous run are left untouched).`);
   const t3 = Date.now();
   // Real, current MAX(match_group_id) -- required so a second/later run
   // (a new source, or a re-run after more English names are filled in)
