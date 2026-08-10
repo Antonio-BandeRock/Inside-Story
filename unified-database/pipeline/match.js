@@ -101,11 +101,41 @@ function groupByKey(rows, keyFn, matchMethod) {
  * Runs the full cascade against the given database and returns the real
  * SQL statements needed to record the results -- callable, testable,
  * and inspectable before ever being run against a real database file.
+ *
+ * REAL BUG FOUND AND FIXED, worth documenting so it's never
+ * reintroduced: the first version of this function relied on SQLite's
+ * own `last_insert_rowid()` inside every food_match_members INSERT to
+ * pick up the group id from the food_match_groups insert that preceded
+ * it. That works for exactly the FIRST member of a group -- but every
+ * INSERT statement, on ANY table, advances the connection's own single
+ * `last_insert_rowid()` value. Once a group's SECOND member insert ran,
+ * `last_insert_rowid()` had already been overwritten by the rowid of
+ * the FIRST member's own row in food_match_members (a real, separate
+ * rowid sequence, since that table isn't WITHOUT ROWID) -- not the
+ * group's own id anymore. Confirmed via a real, live run against
+ * Norway's actual data: apple varieties (all genuinely sharing the
+ * Latin name "Malus domestica Borkh.") ended up scattered across
+ * several different match_group_id values, several of which had also
+ * picked up a completely unrelated food (apricots, bananas, barley --
+ * whatever a nearby food_match_members insert's own rowid happened to
+ * coincide with). Foreign key enforcement (which should have rejected
+ * an invalid match_group_id outright) never caught this either, because
+ * PRAGMA foreign_keys = ON only applies per-connection and was never
+ * re-issued on the connections actually running these inserts.
+ *
+ * Fixed by never relying on last_insert_rowid() for this at all --
+ * `startingGroupId` (the real, current MAX(match_group_id) in the
+ * database, queried by the caller before calling this function, 0 for
+ * a fresh database) is used to assign every new group's id explicitly,
+ * in this function's own JS code, and that same literal integer is
+ * embedded directly into every INSERT for that group. No ambiguity
+ * possible, regardless of how many other inserts run in between.
  */
-function proposeMatches(rows) {
+function proposeMatches(rows, startingGroupId = 0) {
   const statements = [];
   const nowIso = new Date().toISOString();
   const alreadyGrouped = new Set(); // raw_id -> claimed by an earlier, stronger tier this same run
+  let nextGroupId = startingGroupId;
 
   function recordGroup(group) {
     const unclaimed = group.members.filter((m) => !alreadyGrouped.has(m.raw_id));
@@ -113,15 +143,17 @@ function proposeMatches(rows) {
     const canonicalName =
       resolvedEnglishName(unclaimed[0]) || unclaimed[0].name_original;
     const canonicalLatin = unclaimed.find((m) => m.latin_name)?.latin_name || null;
+    nextGroupId += 1;
+    const groupId = nextGroupId;
     statements.push(
-      `INSERT INTO food_match_groups (canonical_english_name, canonical_latin_name, is_region_specific, created_at)
-       VALUES (${esc(canonicalName)}, ${esc(canonicalLatin)}, 0, ${esc(nowIso)});`
+      `INSERT INTO food_match_groups (match_group_id, canonical_english_name, canonical_latin_name, is_region_specific, created_at)
+       VALUES (${groupId}, ${esc(canonicalName)}, ${esc(canonicalLatin)}, 0, ${esc(nowIso)});`
     );
     for (const m of unclaimed) {
       alreadyGrouped.add(m.raw_id);
       statements.push(
         `INSERT INTO food_match_members (match_group_id, raw_id, match_method, match_confidence)
-         VALUES (last_insert_rowid(), ${m.raw_id}, ${esc(group.matchMethod)}, 'proposed');`
+         VALUES (${groupId}, ${m.raw_id}, ${esc(group.matchMethod)}, 'proposed');`
       );
     }
   }
@@ -135,9 +167,21 @@ function proposeMatches(rows) {
   latinGroups.forEach(recordGroup);
 
   // Tier 2: exact, full-set LanguaL code overlap (deliberately
-  // conservative -- see this file's own header comment).
+  // conservative -- see this file's own header comment). Same real
+  // protection as Tier 3 below, and for the identical, now-confirmed
+  // reason: rows WITH a known Latin name are excluded here too. Found
+  // live, not theoretical -- highbush blueberry (Vaccinium corymbosum)
+  // and bilberry (Vaccinium myrtillus L.), two real, different species,
+  // turned out to share an IDENTICAL full LanguaL code set (both
+  // "fresh, raw, whole berry," etc. -- LanguaL's own facets describe
+  // food FORM, not necessarily exact species), so this tier merged them
+  // even though Tier 1 had already correctly, independently confirmed
+  // they're different species. A row with a real Latin name always has
+  // the strongest, most reliable signal already available (Tier 1) --
+  // LanguaL should only ever fill in for rows with no species data at
+  // all, never risk contradicting what Tier 1 already established.
   const langualGroups = groupByKey(
-    rows.filter((r) => r.langual_codes),
+    rows.filter((r) => r.langual_codes && !r.latin_name),
     (r) => {
       try {
         const codes = JSON.parse(r.langual_codes);
@@ -151,29 +195,49 @@ function proposeMatches(rows) {
   );
   langualGroups.forEach(recordGroup);
 
-  // Tier 3: canonical English name (only rows with a real, resolved
-  // English name reach this tier -- non-English, untranslated rows
-  // simply don't produce a key and fall through to the region-specific
-  // pass below, same as classify.js's own refusal to guess).
+  // Tier 3: canonical English name -- only rows with a real, resolved
+  // English name reach this tier (non-English, untranslated rows simply
+  // don't produce a key and fall through to the region-specific pass
+  // below, same as classify.js's own refusal to guess), AND, critically,
+  // only rows with NO known real Latin name. A real bug found and fixed
+  // via direct verification against real Norwegian data: two genuinely
+  // different real species -- Vaccinium corymbosum (highbush blueberry)
+  // vs. Vaccinium myrtillus L. (bilberry), and separately Cucurbita
+  // moschata vs. Cucurbita maxima (two different squash species) --
+  // each carry a real, confirmed, DIFFERENT Latin name, correctly kept
+  // apart by Tier 1 (neither had a same-species sibling to group with,
+  // so Tier 1 correctly left both unclaimed rather than guessing), but
+  // then got incorrectly merged anyway by Tier 3 purely because they
+  // share the same ambiguous common English name ("Blueberries, raw").
+  // Once a row's real species identity is KNOWN via a confirmed Latin
+  // name, it should ONLY ever be matched by a species-level signal
+  // (Tier 1/Tier 2) -- never overridden by the weaker English-name
+  // fallback, which has no way to tell two same-named-but-different
+  // species apart. A row with no Latin name at all has no such
+  // protection to lose, so it's still eligible here as before.
   const nameGroups = groupByKey(
-    rows.filter((r) => resolvedEnglishName(r)),
+    rows.filter((r) => resolvedEnglishName(r) && !r.latin_name),
     (r) => normalizeForMatch(resolvedEnglishName(r)),
     'canonical_name'
   );
   nameGroups.forEach(recordGroup);
 
   // Final pass: everything still unclaimed becomes its own real,
-  // single-member, region-specific group.
+  // single-member, region-specific group. Same explicit-id discipline
+  // as recordGroup above -- no last_insert_rowid() anywhere in this
+  // file anymore, after the real bug that method caused.
   for (const row of rows) {
     if (alreadyGrouped.has(row.raw_id)) continue;
     const canonicalName = resolvedEnglishName(row) || row.name_original;
+    nextGroupId += 1;
+    const groupId = nextGroupId;
     statements.push(
-      `INSERT INTO food_match_groups (canonical_english_name, canonical_latin_name, is_region_specific, created_at)
-       VALUES (${esc(canonicalName)}, ${esc(row.latin_name)}, 1, ${esc(nowIso)});`
+      `INSERT INTO food_match_groups (match_group_id, canonical_english_name, canonical_latin_name, is_region_specific, created_at)
+       VALUES (${groupId}, ${esc(canonicalName)}, ${esc(row.latin_name)}, 1, ${esc(nowIso)});`
     );
     statements.push(
       `INSERT INTO food_match_members (match_group_id, raw_id, match_method, match_confidence)
-       VALUES (last_insert_rowid(), ${row.raw_id}, 'unmatched_standalone', 'proposed');`
+       VALUES (${groupId}, ${row.raw_id}, 'unmatched_standalone', 'proposed');`
     );
     alreadyGrouped.add(row.raw_id);
   }

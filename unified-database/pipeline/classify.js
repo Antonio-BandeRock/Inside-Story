@@ -290,6 +290,7 @@ function classifyAll(db, execFileSync, SQLITE_EXE, dbPath) {
   const rowsRaw = execFileSync(
     SQLITE_EXE,
     [
+      '-cmd', '.timeout 30000',
       dbPath,
       '-json',
       `SELECT rf.raw_id, rf.name_original, rf.name_english, s.language AS source_language

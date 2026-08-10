@@ -15,6 +15,59 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: Phase 2 underway — Norway ingested and verified for real
+
+**Real, current numbers, from an actual run against Norway's live API
+(2026-08-10):** 2,121 real records ingested. Classification: 815 whole
+food, 306 not whole food, 1,000 forced into human review (genuinely
+ambiguous names, or composite/mixed dishes that don't cleanly match any
+rule — the classifier's own conservative design working as intended,
+not a flaw). Matching: 99 real groups matched 2+ records each (406
+total foods — mostly real within-source variety groupings so far, e.g.
+9 apple varieties correctly recognized as one species, 20 real lamb
+cuts as one species — genuine cross-source matches will show up once a
+second source is ingested), 409 groups stood alone as region-specific.
+
+### Three real bugs found and fixed via this live run, not left for later
+
+All three are documented in full, with the exact real data that
+surfaced them, in `pipeline/match.js`'s and `run-source.js`'s own
+comments and in `pipeline/match.test.js`'s regression tests — summarized
+here:
+
+1. **"database is locked" crash** — the writer never set a busy-timeout,
+   so a momentary, entirely innocent concurrent read (a progress check)
+   caused a hard failure instead of a bounded wait. Fixed with a real
+   `.timeout` setting via sqlite3's `-cmd` flag (a plain embedded
+   `PRAGMA busy_timeout` was tried first and found to corrupt `-json`
+   output — it prints its own return value as plain text ahead of the
+   real JSON).
+2. **Severe slowness (~0.5 rows/sec)** — outside an explicit
+   transaction, SQLite fsyncs after every statement; batching into many
+   separate `sqlite3.exe` invocations added real, additional subprocess
+   overhead on top of that. Fixed by wrapping an entire statement set
+   in one real transaction, run as a single invocation. Norway's full
+   2,121-record ingest (67,448 SQL statements) now completes in 1.4s.
+3. **Cross-species false matches** — `last_insert_rowid()` was used to
+   link a new group's members, but it gets overwritten by the very
+   first member-insert's own rowid (a separate sequence, since
+   `food_match_members` isn't `WITHOUT ROWID`), so every member after
+   the first in a group could silently attach to the wrong id. Caught
+   directly in real output: Apple grouped with Apricots. Fixed by
+   generating group ids explicitly in JS instead of relying on SQLite's
+   own `last_insert_rowid()` at all. A second, related, genuinely
+   different issue surfaced during the fix's own verification: two
+   real, different species (highbush blueberry vs. bilberry; two
+   different squash species) were being correctly kept apart by Tier 1
+   (species name) but then incorrectly re-merged by the weaker Tier 2
+   (LanguaL code overlap) and Tier 3 (English name) passes, since both
+   pairs happened to share an identical LanguaL code set or an
+   ambiguous common name. Fixed with a real, general principle: once a
+   row has a confirmed Latin name, only species-level signals may ever
+   group it — the weaker tiers now explicitly exclude any row that
+   already has one. Verified clean across all 223 real match groups
+   after the fix (zero remaining species conflicts).
+
 ## Status: Phase 1 complete (schema + pipeline, no real source data yet)
 
 Built and proven, 2026-08-10:
@@ -74,22 +127,23 @@ Built and proven, 2026-08-10:
   sources, with zero fuzzy name matching involved. This is the real
   payoff the whole architecture exists for.
 
-### A real, unplanned discovery from that same test run
+### A real, unplanned discovery from that same test run — confirmed, not just suspected
 
 The Norwegian sample used in the proof came from
 `matvaretabellen.no/api/en/foods.json` — Matvaretabellen's own official
-**English** endpoint, fetched earlier this session. Its `foodName`
-field is a real, source-verified English name, not something this
-project translated. This means Norway's real translation burden may be
-much smaller than the ~1,260-item estimate given earlier this session
-(which assumed Norway's data was untranslated Norwegian) — the real
-open question for Phase 2 is whether the *already-imported* app-database
-copy of Norway used the `/nb/` (Norwegian) endpoint instead, and if so,
-whether a straightforward re-import from `/en/` recovers real, verified
-English names for free. Sweden's own data (a direct XLSX export, not an
-API with a documented English variant) has no equivalent shortcut
-confirmed yet — worth checking directly in Phase 2, not assumed either
-way.
+**English** endpoint. Its `foodName` field is a real, source-verified
+English name, not something this project translated. **Confirmed**: the
+app database's own already-imported copy of Norway (visible today under
+`assets/data/foods_reference.db`'s `source = 'Norway_Matvaretabellen'`)
+is genuinely in Norwegian (e.g. "Agurk, norsk, rå" for cucumber) — it
+was imported via the `/nb/` endpoint, not `/en/`. This means the real
+~1,260-item Norway translation gap flagged earlier this session doesn't
+actually require independent translation work at all — a straightforward
+re-import from `/en/` (exactly what `sources/norway.js` now does)
+recovers real, source-verified English names for free. Sweden's own
+data (a direct XLSX export, not an API with a documented English
+variant) has no equivalent shortcut confirmed yet — a real, separate
+question for whenever Sweden's own adapter gets written.
 
 ## Safety — how this can't break the live app
 
@@ -118,11 +172,12 @@ way.
 
 1. ~~**Phase 1: schema + pipeline.**~~ Done (this document's own status
    above).
-2. **Phase 2: real source ingestion.** Write the first real adapters
-   (`sources/*.js`, see that directory's own README for the required
-   interface) — starting with Norway and Sweden, since their raw data
-   is already on hand from this project's recent sessions, then the
-   original 7 sources (`ClaudeWork/unified_food_database_v3_full.sqlite.zip`
+2. **Phase 2: real source ingestion — underway.** Norway done and
+   verified (`sources/norway.js`, run via `pipeline/run-source.js`).
+   Real, honest current state, 2,121 records: 815 whole food / 306 not
+   / 1,000 needing human review; 99 groups matched 2+ records, 409
+   region-specific. Remaining: Sweden (real XLSX data already on hand),
+   then the original 7 sources (`ClaudeWork/unified_food_database_v3_full.sqlite.zip`
    already holds a real, unfiltered 27,980-row combine of those — a
    real, existing head start, not starting from zero).
 3. **Phase 3: whole-food classification** — run `classify.js` for real
@@ -146,7 +201,8 @@ way.
 cd unified-database
 node pipeline/init-db.js              # creates unified_foods.sqlite from schema.sql
 node pipeline/classify.test.js        # 33/33
-node pipeline/match.test.js           # 6/6
+node pipeline/match.test.js           # 12/12
 node pipeline/ingest.test.js          # 10/10
+node pipeline/run-source.js sources/norway.js   # real, live ingest + classify + match against Norway's actual API
 node pipeline/seed-and-run-e2e.js     # real, seeded end-to-end proof (not permanent data)
 ```
