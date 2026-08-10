@@ -196,7 +196,7 @@ export function DatabaseSetupScreen({
           is a real, standalone full-screen use, not a compact row, so it
           gets its own, real, full-width, wrapping text instead of
           touching that shared component's own existing narrow layout. */}
-      <Text style={styles.message}>Setting up your food database for the first time</Text>
+      <Text style={styles.message}>{'Setting up your food database\nfor the first time'}</Text>
     </Animated.View>
   );
 }
