@@ -5,7 +5,6 @@ import { normalizeSupplementAmount } from './supplementUnits';
 import { isAlcoholicFood } from './alcoholAdvisory';
 import { isCoffeeFood } from './coffeeAdvisory';
 import { isJuiceFood } from './juiceAdvisory';
-import type { HealingStage } from './healingStage';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
@@ -2625,6 +2624,26 @@ export async function initializeDatabase() {
         added_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- Self-declared stage/phase within a real, condition-specific staged
+      -- framework, 2026-08-09 -- see lib/conditionStages.ts's own
+      -- CONDITION_STAGING_MODELS for the real, per-condition frameworks
+      -- this drives (Hashimoto's own Wentz Healing Stages; IBS's own real,
+      -- standard low-FODMAP elimination/reintroduction/personalization
+      -- protocol; more to follow incrementally). condition_code is the
+      -- same free-text cross-database reference user_conditions already
+      -- uses. One row per condition the person has actually declared a
+      -- stage for -- a real, deliberate replacement for this table's own
+      -- first, Hashimoto's-only attempt (a single user_profile.healing_
+      -- stage column), reverted the same day once a second real condition
+      -- (IBS) needed its own, differently-shaped stage set -- no real
+      -- users existed yet to migrate, so this was a clean swap, not a
+      -- live migration.
+      CREATE TABLE IF NOT EXISTS user_condition_stages (
+        condition_code TEXT PRIMARY KEY,
+        stage_code TEXT NOT NULL,
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own actual lab results over time. test_code matches
       -- lab_tests.code in the bundled reference database (a cross-database
       -- free-text reference, the same pattern nutrient_code already uses
@@ -3142,12 +3161,6 @@ export async function initializeDatabase() {
       'usual_snack_time',
       'eating_window_start',
       'eating_window_end',
-      // Self-declared Hashimoto's healing stage, 2026-08-09 -- see
-      // lib/healingStage.ts's own HealingStage type for the 5 real, valid
-      // values. Nullable/plain TEXT, same as every other optional profile
-      // field here -- "not yet declared" is a real, honest state, not
-      // guessed at.
-      'healing_stage',
     ]) {
       if (!userProfileColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE user_profile ADD COLUMN ${column} TEXT;`);
@@ -8197,9 +8210,6 @@ export type UserProfile = {
   fastingEnabled: boolean;
   eatingWindowStart: string | null;
   eatingWindowEnd: string | null;
-  // See lib/healingStage.ts's own HealingStage type -- one of 5 real
-  // stage codes, or null (not yet declared / prefers not to say).
-  healingStage: HealingStage | null;
 };
 
 export async function getUserProfile(): Promise<UserProfile> {
@@ -8218,12 +8228,11 @@ export async function getUserProfile(): Promise<UserProfile> {
     fasting_enabled: number | null;
     eating_window_start: string | null;
     eating_window_end: string | null;
-    healing_stage: string | null;
   }>(
     `
       SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
              usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-             fasting_enabled, eating_window_start, eating_window_end, healing_stage
+             fasting_enabled, eating_window_start, eating_window_end
       FROM user_profile WHERE id = 1
     `,
   );
@@ -8243,11 +8252,8 @@ export async function getUserProfile(): Promise<UserProfile> {
       fastingEnabled: false,
       eatingWindowStart: null,
       eatingWindowEnd: null,
-      healingStage: null,
     };
   }
-
-  const validHealingStages = new Set(['triage', 'digging', 'gut_repair', 'rebalancing', 'maintenance']);
 
   return {
     firstName: row.first_name,
@@ -8263,9 +8269,48 @@ export async function getUserProfile(): Promise<UserProfile> {
     fastingEnabled: Boolean(row.fasting_enabled),
     eatingWindowStart: row.eating_window_start,
     eatingWindowEnd: row.eating_window_end,
-    healingStage:
-      row.healing_stage && validHealingStages.has(row.healing_stage) ? (row.healing_stage as HealingStage) : null,
   };
+}
+
+// Self-declared condition-stage table, 2026-08-09 -- see the real
+// CREATE TABLE comment above (initializeDatabase) for the full reasoning.
+// A plain Record<conditionCode, stageCode> -- callers validate a given
+// stage code against that condition's own real CONDITION_STAGING_MODELS
+// entry (lib/conditionStages.ts) themselves, since this layer has no
+// reason to know what a "valid" stage looks like for every condition.
+export async function getConditionStages(): Promise<Record<string, string>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ condition_code: string; stage_code: string }>(
+    'SELECT condition_code, stage_code FROM user_condition_stages',
+  );
+  const result: Record<string, string> = {};
+  for (const row of rows) {
+    result[row.condition_code] = row.stage_code;
+  }
+  return result;
+}
+
+// stageCode === null clears the declaration for that condition entirely
+// (deletes the row) rather than storing an empty string -- "not declared"
+// should mean the row genuinely doesn't exist, the same "absence is the
+// real null state" convention user_conditions/user_food_allergies already
+// use.
+export async function setConditionStage(conditionCode: string, stageCode: string | null): Promise<void> {
+  const db = await getDatabase();
+  if (stageCode === null) {
+    await db.runAsync('DELETE FROM user_condition_stages WHERE condition_code = ?', conditionCode);
+    return;
+  }
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO user_condition_stages (condition_code, stage_code, updated_at) VALUES (?, ?, ?)
+      ON CONFLICT(condition_code) DO UPDATE SET stage_code = excluded.stage_code, updated_at = excluded.updated_at
+    `,
+    conditionCode,
+    stageCode,
+    now,
+  );
 }
 
 // setUserProfile reads the current row, merges the caller's partial update
@@ -8292,9 +8337,9 @@ export async function setUserProfile(update: Partial<UserProfile>) {
         INSERT INTO user_profile (
           id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
           usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-          fasting_enabled, eating_window_start, eating_window_end, healing_stage, updated_at
+          fasting_enabled, eating_window_start, eating_window_end, updated_at
         )
-        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           first_name = excluded.first_name,
           last_name = excluded.last_name,
@@ -8309,7 +8354,6 @@ export async function setUserProfile(update: Partial<UserProfile>) {
           fasting_enabled = excluded.fasting_enabled,
           eating_window_start = excluded.eating_window_start,
           eating_window_end = excluded.eating_window_end,
-          healing_stage = excluded.healing_stage,
           updated_at = excluded.updated_at
       `,
       merged.firstName?.trim() || null,
@@ -8325,7 +8369,6 @@ export async function setUserProfile(update: Partial<UserProfile>) {
       merged.fastingEnabled ? 1 : 0,
       merged.eatingWindowStart,
       merged.eatingWindowEnd,
-      merged.healingStage,
       now,
     );
   };

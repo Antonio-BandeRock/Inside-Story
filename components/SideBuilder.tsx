@@ -15,15 +15,14 @@ import {
   getSide,
   getSideIngredients,
   getStoredMeasurementSystem,
-  getUserProfile,
+  getConditionStages,
   saveBuilderFavorite,
   saveSide,
   updateSide,
   type FoodScore,
   type SideIngredientInput,
 } from '../lib/db';
-import type { HealingStage } from '../lib/healingStage';
-import { getHealingStageAdvisory } from '../lib/healingStageAdvisory';
+import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -752,12 +751,12 @@ export function SideBuilder({
   // lib/healingStageAdvisory.ts for the real, evidence-tiered flag logic
   // reused below). Loaded once the same way measurementSystem is above --
   // a real profile field, not something this builder itself ever writes.
-  const [healingStage, setHealingStage] = useState<HealingStage | null>(null);
+  const [conditionStages, setConditionStages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let isMounted = true;
-    getUserProfile().then((profile) => {
-      if (isMounted) setHealingStage(profile.healingStage);
+    getConditionStages().then((stages) => {
+      if (isMounted) setConditionStages(stages);
     });
     return () => {
       isMounted = false;
@@ -1458,7 +1457,7 @@ export function SideBuilder({
                   in Profile -- see lib/healingStageAdvisory.ts's own top
                   comment for the real, cited flag conditions. */}
               {(() => {
-                const advisory = getHealingStageAdvisory(pendingScores, healingStage);
+                const advisory = getConditionStageAdvisory(pendingScores, conditionStages);
                 return advisory ? (
                   <TouchableOpacity
                     style={[styles.healingStageAdvisoryRow, { borderColor: tabColor }]}
@@ -1466,7 +1465,7 @@ export function SideBuilder({
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                     <Text style={[styles.healingStageAdvisoryText, { color: tabColor }]}>
-                      Healing stage note -- tap to learn more
+                      Condition stage note -- tap to learn more
                     </Text>
                   </TouchableOpacity>
                 ) : null;

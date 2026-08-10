@@ -15,15 +15,14 @@ import {
   getSauce,
   getSauceIngredients,
   getStoredMeasurementSystem,
-  getUserProfile,
+  getConditionStages,
   saveBuilderFavorite,
   saveSauce,
   updateSauce,
   type FoodScore,
   type SauceIngredientInput,
 } from '../lib/db';
-import type { HealingStage } from '../lib/healingStage';
-import { getHealingStageAdvisory } from '../lib/healingStageAdvisory';
+import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -775,12 +774,12 @@ export function SaucesBuilder({
 
   // Healing-stage self-declaration, 2026-08-09 -- see SideBuilder.tsx's own
   // comment on this same effect for the full reasoning.
-  const [healingStage, setHealingStage] = useState<HealingStage | null>(null);
+  const [conditionStages, setConditionStages] = useState<Record<string, string>>({});
 
   useEffect(() => {
     let isMounted = true;
-    getUserProfile().then((profile) => {
-      if (isMounted) setHealingStage(profile.healingStage);
+    getConditionStages().then((stages) => {
+      if (isMounted) setConditionStages(stages);
     });
     return () => {
       isMounted = false;
@@ -1469,7 +1468,7 @@ export function SaucesBuilder({
                   See lib/healingStageAdvisory.ts's own top comment for the
                   real, cited flag conditions. */}
               {(() => {
-                const advisory = getHealingStageAdvisory(pendingScores, healingStage);
+                const advisory = getConditionStageAdvisory(pendingScores, conditionStages);
                 return advisory ? (
                   <TouchableOpacity
                     style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
@@ -1477,7 +1476,7 @@ export function SaucesBuilder({
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                     <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>
-                      Healing stage note -- tap to learn more
+                      Condition stage note -- tap to learn more
                     </Text>
                   </TouchableOpacity>
                 ) : null;

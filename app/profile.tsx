@@ -14,7 +14,7 @@ import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
-import { HEALING_STAGES, HEALING_STAGE_INFO } from '../lib/healingStage';
+import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
 import {
   CUSTOM_BACKGROUND_MAX_DIMENSION,
   CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES,
@@ -26,6 +26,7 @@ import {
   addFoodAllergy,
   type ConditionReference,
   DietarySex,
+  getConditionStages,
   getStoredMeasurementSystem,
   getUserConditions,
   getUserProfile,
@@ -35,6 +36,7 @@ import {
   listSymptomAssessments,
   recordBodyMeasurement,
   removeFoodAllergy,
+  setConditionStage,
   setStoredMeasurementSystem,
   setUserConditionSelected,
   setUserProfile,
@@ -237,7 +239,6 @@ export default function ProfileScreen() {
     fastingEnabled: false,
     eatingWindowStart: null,
     eatingWindowEnd: null,
-    healingStage: null,
   });
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   const [savedFlash, setSavedFlash] = useState(false);
@@ -324,6 +325,12 @@ export default function ProfileScreen() {
   const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
   const [allergyInput, setAllergyInput] = useState('');
 
+  // Condition stages, 2026-08-09 -- the generalized, multi-condition
+  // replacement for the old Hashimoto's-only healingStage profile column
+  // (see lib/conditionStages.ts's own header comment). One real row per
+  // condition in user_condition_stages, keyed by condition code.
+  const [conditionStageMap, setConditionStageMap] = useState<Record<string, string>>({});
+
   // Custom background image upload, 2026-08-09 -- which scope (see
   // SHARED_BACKGROUND_SCOPE_KEY / lib/customBackgroundImage.ts) currently
   // has a picker in flight, null when none. Disables that one scope's own
@@ -353,8 +360,18 @@ export default function ProfileScreen() {
       getUserConditions(),
       listBodyMeasurements('weight', 1),
       listFoodAllergies(),
+      getConditionStages(),
     ]).then(
-      ([storedProfile, storedSystem, recentAssessments, conditionRoster, storedConditions, weightReadings, storedAllergies]) => {
+      ([
+        storedProfile,
+        storedSystem,
+        recentAssessments,
+        conditionRoster,
+        storedConditions,
+        weightReadings,
+        storedAllergies,
+        storedConditionStages,
+      ]) => {
       if (!isMounted) return;
 
       setProfile(storedProfile);
@@ -362,6 +379,7 @@ export default function ProfileScreen() {
       setAllConditions(conditionRoster);
       setSelectedConditions(storedConditions);
       setFoodAllergies(storedAllergies);
+      setConditionStageMap(storedConditionStages);
       setFirstNameInput(storedProfile.firstName ?? '');
       setLastNameInput(storedProfile.lastName ?? '');
 
@@ -573,6 +591,22 @@ export default function ProfileScreen() {
   async function removeAllergy(name: string) {
     await removeFoodAllergy(name);
     setFoodAllergies((current) => current.filter((allergy) => allergy !== name));
+  }
+
+  // Condition stages -- one real row per condition; passing null clears
+  // that condition's own declaration back to "not declared."
+  async function handleSetConditionStage(conditionCode: string, stageCode: string | null) {
+    await setConditionStage(conditionCode, stageCode);
+    setConditionStageMap((current) => {
+      const updated = { ...current };
+      if (stageCode === null) {
+        delete updated[conditionCode];
+      } else {
+        updated[conditionCode] = stageCode;
+      }
+      return updated;
+    });
+    flashSaved();
   }
 
   // Custom background image, 2026-08-09 -- explicitly requested: "Add the
@@ -1387,48 +1421,62 @@ export default function ProfileScreen() {
                     {lastAssessment ? 'Retake check-in' : 'Take your first check-in'}
                   </Text>
                 </TouchableOpacity>
-
-                {/* Healing stage -- 2026-08-09, explicitly requested: build
-                    out the "Healing-journey stages" feature decided
-                    2026-07-31 (see CLAUDE.md's own section on it) --
-                    self-declaration here, real advisory wired into Side
-                    Builder's own pending-ingredient card (lib/
-                    healingStageAdvisory.ts). Advisory + reordering only,
-                    never gating, per that same standing decision -- tap
-                    an already-selected stage again to clear it back to
-                    "not declared." */}
-                <Text style={[styles.subLabel, { marginTop: 14 }]}>Healing stage</Text>
-                <Text style={styles.helpText}>
-                  A real, named practitioner framework (associated with Dr. Izabella Wentz) for where you are in
-                  your own healing journey -- not mainstream endocrinology consensus, and treated that way here.
-                  Purely advisory: your food builders will start surfacing a real, tappable note on foods worth a
-                  second look for your current stage (only Digging and Gut Repair actually change anything) --
-                  nothing is ever hidden or blocked based on this. See the Healing Stages category in Purple
-                  Digest for the full, cited guide.
-                </Text>
-                <View style={styles.pillRow}>
-                  {HEALING_STAGES.map((stage) => {
-                    const active = profile.healingStage === stage;
-                    return (
-                      <TouchableOpacity
-                        key={stage}
-                        style={[styles.pill, active && styles.pillActive]}
-                        onPress={() => updateProfile({ healingStage: active ? null : stage })}
-                      >
-                        <Text style={[styles.pillText, active && styles.pillTextActive]}>
-                          {HEALING_STAGE_INFO[stage].label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </View>
-                <Text style={styles.derivedText}>
-                  {profile.healingStage
-                    ? HEALING_STAGE_INFO[profile.healingStage].shortDescription
-                    : "Not declared -- tap a stage above if you'd like to."}
-                </Text>
               </>
             ) : null}
+
+            {/* Condition stages -- 2026-08-09, generalized from the
+                original Hashimoto's-only "Healing stage" section
+                (decided 2026-07-31) after direct instruction: "Healing
+                stages for all 18 others need to have theirs built in
+                too." A real, honest registry (lib/conditionStages.ts) --
+                only conditions with an actual, citable staged-food
+                framework get an entry here (Hashimoto's own five-stage
+                Wentz framework, IBS's own real low-FODMAP elimination/
+                reintroduction/personalization protocol as of this date) --
+                most of the other 16 don't have one yet and are correctly
+                absent, not force-fit. Each real advisory function (lib/
+                healingStageAdvisory.ts, lib/ibsPhaseAdvisory.ts) is
+                combined by the shared dispatcher (lib/
+                conditionStageAdvisory.ts), wired into every real
+                direct-ingredient Food builder. Advisory + reordering
+                only, never gating -- tap an already-selected stage again
+                to clear it back to "not declared." */}
+            {CONDITION_STAGING_MODELS.filter((model) => selectedConditions.includes(model.conditionCode)).map(
+              (model) => {
+                const currentStageCode = conditionStageMap[model.conditionCode] ?? null;
+                const currentStageDef = model.stages.find((stage) => stage.code === currentStageCode) ?? null;
+                return (
+                  <View key={model.conditionCode}>
+                    <Text style={[styles.subLabel, { marginTop: 14 }]}>{model.conditionLabel} stage</Text>
+                    <Text style={styles.helpText}>
+                      {model.frameworkName}. {model.frameworkNote} Purely advisory: your food builders will start
+                      surfacing a real, tappable note on foods worth a second look for your current stage --
+                      nothing is ever hidden or blocked based on this. See the matching category in Purple Digest
+                      for the full, cited detail.
+                    </Text>
+                    <View style={styles.pillRow}>
+                      {model.stages.map((stage) => {
+                        const active = currentStageCode === stage.code;
+                        return (
+                          <TouchableOpacity
+                            key={stage.code}
+                            style={[styles.pill, active && styles.pillActive]}
+                            onPress={() => handleSetConditionStage(model.conditionCode, active ? null : stage.code)}
+                          >
+                            <Text style={[styles.pillText, active && styles.pillTextActive]}>{stage.label}</Text>
+                          </TouchableOpacity>
+                        );
+                      })}
+                    </View>
+                    <Text style={styles.derivedText}>
+                      {currentStageDef
+                        ? currentStageDef.shortDescription
+                        : "Not declared -- tap a stage above if you'd like to."}
+                    </Text>
+                  </View>
+                );
+              },
+            )}
           </View>
         ) : null}
       </View>
