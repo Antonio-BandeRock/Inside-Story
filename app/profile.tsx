@@ -468,6 +468,23 @@ export default function ProfileScreen() {
       nowSelected ? [...current, code] : current.filter((c) => c !== code),
     );
     await setUserConditionSelected(code, nowSelected);
+    // Deselecting a condition also clears its own declared stage, 2026-08-09
+    // -- a real gap found and fixed while building the Healing Stages
+    // reordering feature: without this, an orphaned user_condition_stages
+    // row would keep silently driving both the tap-to-explain advisory and
+    // the new picker reordering even after the condition itself no longer
+    // shows here to edit or clear it (this same screen's own stage-picker
+    // section only renders for a currently-selected condition), a real,
+    // confusing "why is this still happening" gap this closes at the
+    // source rather than leaving stale.
+    if (!nowSelected && conditionStageMap[code] !== undefined) {
+      await setConditionStage(code, null);
+      setConditionStageMap((current) => {
+        const updated = { ...current };
+        delete updated[code];
+        return updated;
+      });
+    }
     flashSaved();
   }
 

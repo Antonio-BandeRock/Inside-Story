@@ -1332,6 +1332,137 @@ export async function getFoodScores(foodId: number, source: string) {
   );
 }
 
+// The real, small, fixed set of sub-criteria referenced by ANY condition's
+// own stage-advisory function -- built for the Healing Stages feature's own
+// REORDERING half (2026-08-09, see lib/foodStageReordering.ts), the
+// explicitly deferred second half of the 2026-07-31 decision ("stage-
+// appropriate foods surface first in the pickers"). Hand-maintained here
+// since the six advisory files (lib/healingStageAdvisory.ts,
+// lib/ibsPhaseAdvisory.ts, lib/celiacStageAdvisory.ts,
+// lib/ibdStageAdvisory.ts, lib/ckdStageAdvisory.ts,
+// lib/goutStageAdvisory.ts) are otherwise independent, with no single
+// shared list of what they each check -- a future advisory referencing a
+// new sub-criterion needs to add it here too, or getStageFlagScoresForNames
+// below silently won't fetch it, and reordering (though never the tap-to-
+// explain advisory itself, which reads real per-food scores directly) will
+// quietly miss that one real reason. Deliberately small and stable: each
+// entry requires real, verified evidence to add in the first place, the
+// same discipline as every stage advisory itself.
+const STAGE_ADVISORY_SUB_CRITERIA = [
+  'Gluten',
+  'Goitrogenic Load',
+  'Common Elimination-Diet Trigger Food',
+  'Additives',
+  'Processing',
+  'Excess Fiber or Anti-Nutrients',
+  'Irritants',
+  'Protein Density',
+];
+
+// Bulk equivalent of getFoodScores() above, scoped to a real category/
+// subcategory and a specific list of base_names -- the exact names a food
+// picker is about to render -- rather than one query per food (a real N+1
+// risk for a category with hundreds of names). Built for the Healing
+// Stages reordering feature; not used by the tap-to-explain advisory
+// itself, which still reads a single resolved food's own real scores via
+// getFoodScores directly.
+//
+// Returns, per base_name, one FoodScore[] array PER DISTINCT (food_id,
+// source) row that name resolves to within the given scope -- a base_name
+// can carry more than one real row (raw vs. cooked, different national
+// sources), and each one can carry a genuinely different real tier (e.g.
+// raw broccoli triggers Hashimoto's own Goitrogenic Load flag, cooked
+// broccoli doesn't) -- see lib/foodStageReordering.ts for how these
+// variants get combined into one real per-name decision.
+//
+// Deliberately two real, separate queries rather than one JOIN: this
+// app's own buildScopeClause() produces a WHERE clause written against
+// BARE, unqualified column names (category, hidden, subcategory, source,
+// base_name, name) -- and food_scores also has its own `source` column,
+// so joining foods to food_scores in the same query would make any
+// unqualified `source` reference genuinely ambiguous to SQLite. Resolving
+// the real (food_id, source) rows first, then fetching their scores by
+// food_id in a second query (re-validated against the real, resolved
+// (food_id, source) pairs before being attributed to a name, since
+// food_id alone isn't unique across sources), avoids that risk entirely
+// without needing to touch buildScopeClause's own already-widely-used
+// output format.
+export async function getStageFlagScoresForNames(
+  category: string,
+  subcategory: string | null,
+  baseNames: string[],
+  usdaOnly = true,
+): Promise<Record<string, FoodScore[][]>> {
+  if (baseNames.length === 0) return {};
+
+  const db = await getReferenceDatabase();
+  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, subcategory, usdaOnly);
+  const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
+  const namePlaceholders = baseNames.map(() => '?').join(', ');
+
+  const resolvedRows = await db.getAllAsync<{ food_id: number; source: string; base_name: string }>(
+    `
+      SELECT food_id, source, base_name
+      FROM foods
+      WHERE ${clause} AND base_name IN (${namePlaceholders})
+    `,
+    ...params,
+    ...baseNames,
+  );
+
+  if (resolvedRows.length === 0) return {};
+
+  const foodIds = [...new Set(resolvedRows.map((row) => row.food_id))];
+  const idPlaceholders = foodIds.map(() => '?').join(', ');
+  const subCriterionPlaceholders = STAGE_ADVISORY_SUB_CRITERIA.map(() => '?').join(', ');
+
+  const scoreRows = await db.getAllAsync<{
+    food_id: number;
+    source: string;
+    dimension: string;
+    subCriterion: string;
+    tier: string;
+  }>(
+    `
+      SELECT fs.food_id AS food_id, fs.source AS source, sc.dimension AS dimension, sc.sub_criterion AS subCriterion, fs.tier AS tier
+      FROM food_scores fs
+      JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+      WHERE fs.food_id IN (${idPlaceholders}) AND sc.sub_criterion IN (${subCriterionPlaceholders})
+    `,
+    ...foodIds,
+    ...STAGE_ADVISORY_SUB_CRITERIA,
+  );
+
+  // food_id alone isn't the real key (source is, alongside it) -- only
+  // attribute a scoreRow to a resolved row whose exact (food_id, source)
+  // pair genuinely appeared in this real scope.
+  const validPairs = new Set(resolvedRows.map((row) => `${row.food_id}|${row.source}`));
+  const scoresByPair = new Map<string, FoodScore[]>();
+  for (const row of scoreRows) {
+    const pairKey = `${row.food_id}|${row.source}`;
+    if (!validPairs.has(pairKey)) continue;
+    const scores = scoresByPair.get(pairKey) ?? [];
+    scores.push({ dimension: row.dimension, subCriterion: row.subCriterion, tier: row.tier });
+    scoresByPair.set(pairKey, scores);
+  }
+
+  const result: Record<string, FoodScore[][]> = {};
+  for (const row of resolvedRows) {
+    const scores = scoresByPair.get(`${row.food_id}|${row.source}`);
+    // A real, resolvable row with none of the 8 tracked sub-criteria
+    // scored -- nothing to flag for this specific variant, so it's left
+    // out of the list rather than added as an empty array (an empty
+    // FoodScore[] would otherwise get passed to getConditionStageAdvisory
+    // just like a real, checked-and-clean row -- harmless either way
+    // since it correctly produces no advisory, but omitting it keeps the
+    // list honest about which variants were actually checked).
+    if (!scores) continue;
+    const list = result[row.base_name] ?? (result[row.base_name] = []);
+    list.push(scores);
+  }
+  return result;
+}
+
 // Condition-aware food scoring, added for the multi-autoimmune expansion (Rheumatoid
 // Arthritis is the first condition built out this way, 2026-08-08 -- see CLAUDE.md's
 // own Status entry for the full reasoning). This is a genuinely additive layer, not a

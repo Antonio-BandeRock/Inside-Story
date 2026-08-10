@@ -5,12 +5,14 @@ import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
+  getConditionStages,
   getDietaryReferenceIntakesForCurrentUser,
   getFoodNutrients,
   getFoodUnitWeight,
   getPreparationMethods,
   getReferenceCategories,
   getReferenceSubcategories,
+  getStageFlagScoresForNames,
   resolveFoodChoice,
   searchReferenceFoodNames,
   type DietaryReferenceIntake,
@@ -18,6 +20,7 @@ import {
   type FoodUnitWeight,
 } from '../lib/db';
 import { buildFoodNameGroups } from '../lib/foodNameGrouping';
+import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
 import { analyzeNutrientIntake, formatAmount } from '../lib/nutrientAnalysis';
 import { useActiveField } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -351,6 +354,15 @@ export function FoodLookup({
   const [subcategory, setSubcategory] = useState<string | null>(initialSubcategory);
   const [foodQuery, setFoodQuery] = useState('');
   const [foodNameOptions, setFoodNameOptions] = useState<string[]>([]);
+  // Healing Stages reordering, 2026-08-09 -- see lib/foodStageReordering.ts's
+  // own top comment for the full feature history. conditionStages loads
+  // once on mount (a person's own declared stages don't change mid-browse);
+  // deprioritizedNames recomputes whenever the currently-rendered name list
+  // does. Both stay at their real, empty defaults -- meaning zero extra
+  // queries and zero behavior change -- for the overwhelmingly common case
+  // of nobody having declared a stage at all.
+  const [conditionStages, setConditionStages] = useState<Record<string, string>>({});
+  const [deprioritizedNames, setDeprioritizedNames] = useState<Set<string>>(new Set());
   const [baseName, setBaseName] = useState('');
   const [prepMethods, setPrepMethods] = useState<string[]>([]);
   const [prepMethod, setPrepMethod] = useState<string | null>(null);
@@ -511,6 +523,19 @@ export function FoodLookup({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // Healing Stages reordering -- loaded once, same reasoning as
+  // getReferenceCategories above: a person's own declared stages don't
+  // change while this screen is open.
+  useEffect(() => {
+    let cancelled = false;
+    getConditionStages().then((stages) => {
+      if (!cancelled) setConditionStages(stages);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   useEffect(() => {
     if (!category) {
       setSubcategories([]);
@@ -543,6 +568,27 @@ export function FoodLookup({
       cancelled = true;
     };
   }, [category, subcategory, subcategories.length, foodQuery]);
+
+  // Healing Stages reordering -- recomputes whenever the currently
+  // rendered name list does. Short-circuits to a real, empty Set with no
+  // extra query at all whenever nobody's declared a stage (the common
+  // case) or there's nothing to check yet -- see
+  // lib/foodStageReordering.ts's own top comment for the full "why this
+  // is safe to leave running" reasoning.
+  useEffect(() => {
+    if (Object.keys(conditionStages).length === 0 || foodNameOptions.length === 0) {
+      setDeprioritizedNames(new Set());
+      return;
+    }
+    let cancelled = false;
+    getStageFlagScoresForNames(category, subcategory, foodNameOptions).then((scoresByName) => {
+      if (cancelled) return;
+      setDeprioritizedNames(getStageDeprioritizedNames(scoresByName, conditionStages));
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [category, subcategory, foodNameOptions, conditionStages]);
 
   useEffect(() => {
     if (!baseName) {
@@ -811,12 +857,35 @@ export function FoodLookup({
   // one-or-two-result set. See lib/foodNameGrouping.ts's own top comment
   // for why this groups at render time rather than baking a group into
   // the reference database itself.
+  //
+  // Healing Stages reordering (2026-08-09) applies in both modes, each in
+  // the way that actually fits its own display shape: the flat search-
+  // results list gets a real, stable sort (deprioritized names move after
+  // everything else, with the exact same relevance/alphabetical order this
+  // list already had preserved within each of those two real buckets --
+  // Array.prototype.sort is stable in this engine, so a comparator that
+  // only distinguishes the two buckets is enough); the grouped browse list
+  // instead passes deprioritizedNames straight into buildFoodNameGroups,
+  // which applies the identical rule at the group/singleton level (see
+  // that function's own comment on why reordering INSIDE that function,
+  // not the raw input array, is the only way it actually takes effect).
+  const orderedFoodNameOptions =
+    deprioritizedNames.size === 0
+      ? foodNameOptions
+      : [...foodNameOptions].sort((a, b) => {
+          const aDeprioritized = deprioritizedNames.has(a);
+          const bDeprioritized = deprioritizedNames.has(b);
+          if (aDeprioritized === bDeprioritized) return 0;
+          return aDeprioritized ? 1 : -1;
+        });
+
   const foodListOptions = foodQuery.trim()
-    ? foodNameOptions.map((value) => ({ label: value, value }))
-    : buildFoodNameGroups(foodNameOptions, buildJuiceForcedGroups(category, subcategory)).map((entry) =>
-        entry.type === 'header'
-          ? { label: entry.label, value: `__group_${entry.key}`, isHeader: true }
-          : { label: entry.label, value: entry.value, groupLabel: entry.groupLabel },
+    ? orderedFoodNameOptions.map((value) => ({ label: value, value }))
+    : buildFoodNameGroups(foodNameOptions, buildJuiceForcedGroups(category, subcategory), deprioritizedNames).map(
+        (entry) =>
+          entry.type === 'header'
+            ? { label: entry.label, value: `__group_${entry.key}`, isHeader: true }
+            : { label: entry.label, value: entry.value, groupLabel: entry.groupLabel },
       );
 
   const content = (

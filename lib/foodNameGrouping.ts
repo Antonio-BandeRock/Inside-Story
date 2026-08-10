@@ -259,9 +259,26 @@ function candidateEntries(name: string): Candidate[] {
 // content after that word. `value` (used for actual food resolution)
 // always stays the real, untouched name -- only the label shown on screen
 // changes.
+// deprioritizedNames -- 2026-08-09, the REORDERING half of the Healing
+// Stages feature (lib/foodStageReordering.ts's own getStageDeprioritizedNames).
+// Deliberately touches ONLY Pass 3's own final sort key below, nothing
+// about the candidate-key/grouping logic above it (Passes 1-2.5) -- this
+// whole file's own top comment already documents real, hard-won fragility
+// in that grouping logic, so the safest way to add a real feature here is
+// to leave it completely alone and only change how the ALREADY-DECIDED
+// groups/singletons get ordered relative to each other. A GROUP is only
+// deprioritized if EVERY one of its own real members is -- a group with
+// even one non-deprioritized member stays in its normal position, since
+// the person can still find and pick that clean member from within it.
+// Omitted entirely (undefined) for every other real caller of this
+// function -- every entry's own `deprioritized` computes to `false`
+// either way, so the sort comparator's own first branch never actually
+// fires for them, falling straight through to the exact same
+// `localeCompare` comparison this function has always used.
 export function buildFoodNameGroups(
   names: string[],
   forcedGroups?: Map<string, { groupLabel: string; displayLabel: string }>,
+  deprioritizedNames?: Set<string>,
 ): GroupedFoodEntry[] {
   const forcedNames = forcedGroups
     ? names.filter((name) => forcedGroups.has(name))
@@ -325,14 +342,20 @@ export function buildFoodNameGroups(
   // list into an unfamiliar order. Within a group, members sort by their
   // own STRIPPED label (what's actually shown), not the hidden full name,
   // so what's on screen reads in true alphabetical order.
-  type SortableEntry = { sortKey: string; entries: GroupedFoodEntry[] };
+  type SortableEntry = { sortKey: string; deprioritized: boolean; entries: GroupedFoodEntry[] };
   const sortable: SortableEntry[] = [];
 
   for (const [key, members] of groups) {
     const label = capitalizeFirst(key);
     const sortedMembers = [...members].sort((a, b) => a.strippedLabel.localeCompare(b.strippedLabel));
+    // A group is only deprioritized once EVERY real member is -- see this
+    // function's own header comment on `deprioritizedNames`.
+    const groupDeprioritized = deprioritizedNames
+      ? members.every((m) => deprioritizedNames.has(m.name))
+      : false;
     sortable.push({
       sortKey: label,
+      deprioritized: groupDeprioritized,
       entries: [
         { type: 'header', key, label },
         ...sortedMembers.map((m) => ({ type: 'item' as const, label: m.strippedLabel, value: m.name, groupLabel: label })),
@@ -340,7 +363,11 @@ export function buildFoodNameGroups(
     });
   }
   for (const name of ungrouped) {
-    sortable.push({ sortKey: name, entries: [{ type: 'item', label: name, value: name }] });
+    sortable.push({
+      sortKey: name,
+      deprioritized: deprioritizedNames?.has(name) ?? false,
+      entries: [{ type: 'item', label: name, value: name }],
+    });
   }
 
   // Forced (source-based) groups -- see this function's own top comment.
@@ -380,8 +407,13 @@ export function buildFoodNameGroups(
       // itself lands in the overall list (see this block's own top
       // comment).
       const sortedMembers = [...members].sort((a, b) => a.displayLabel.localeCompare(b.displayLabel));
+      // Deliberately NOT deprioritized -- a forced (source-based) group
+      // never participates in stage reordering, matching this whole
+      // block's own already-established rule against interleaving it with
+      // anything else in the list (see this block's own top comment).
       forcedSortable.push({
         sortKey: label,
+        deprioritized: false,
         entries: [
           { type: 'header', key: label.toLowerCase(), label },
           ...sortedMembers.map((m) => ({
@@ -395,7 +427,17 @@ export function buildFoodNameGroups(
     }
   }
 
-  sortable.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
+  // Deprioritized entries sort after every non-deprioritized one; within
+  // each of those two real buckets, the exact same alphabetical order this
+  // function has always used. When deprioritizedNames is undefined, every
+  // entry's own `deprioritized` is false, so `a.deprioritized !==
+  // b.deprioritized` is never true and this falls straight through to the
+  // original, single-line comparison every existing caller already relies
+  // on.
+  sortable.sort((a, b) => {
+    if (a.deprioritized !== b.deprioritized) return a.deprioritized ? 1 : -1;
+    return a.sortKey.localeCompare(b.sortKey);
+  });
   forcedSortable.sort((a, b) => a.sortKey.localeCompare(b.sortKey));
   return [...sortable, ...forcedSortable].flatMap((entry) => entry.entries);
 }
