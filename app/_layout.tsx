@@ -39,6 +39,13 @@ export default function RootLayout() {
   // DatabaseSetupScreen (a real, JS-rendered screen, so it CAN say
   // something) underneath for however long the reference import
   // genuinely takes, then the real app once it resolves.
+  //
+  // Two real, separate states, not one -- referenceImportResolved is the
+  // real underlying Promise's own completion; referenceDbReady only flips
+  // once DatabaseSetupScreen's own "Finished!" hold + pop-out transition
+  // has actually finished PLAYING (its own onExitComplete callback), so
+  // the real app is never swapped in mid-animation.
+  const [referenceImportResolved, setReferenceImportResolved] = useState(false);
   const [referenceDbReady, setReferenceDbReady] = useState(false);
 
   // getDatabase() elsewhere in the app only opens the SQLite file -- it
@@ -68,7 +75,7 @@ export default function RootLayout() {
   useEffect(() => {
     getReferenceDatabase()
       .catch((error) => console.error('getReferenceDatabase failed', error))
-      .finally(() => setReferenceDbReady(true));
+      .finally(() => setReferenceImportResolved(true));
   }, []);
 
   useEffect(() => {
@@ -107,9 +114,18 @@ export default function RootLayout() {
   // screen that covers the same real wait for the reference-database
   // import specifically, see DatabaseSetupScreen.tsx's own header comment.
   // A fast, already-imported launch (every launch after the first) still
-  // passes through here, just resolving close to instantly.
+  // passes through here, just resolving close to instantly -- isComplete
+  // flips true almost immediately, and the screen's own real "Finished!"
+  // + pop-out transition plays out honestly fast rather than being
+  // artificially held open to look more consistent with a slow, real
+  // first-time import.
   if (!referenceDbReady) {
-    return <DatabaseSetupScreen />;
+    return (
+      <DatabaseSetupScreen
+        isComplete={referenceImportResolved}
+        onExitComplete={() => setReferenceDbReady(true)}
+      />
+    );
   }
 
   return (
