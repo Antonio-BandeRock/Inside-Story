@@ -1,0 +1,745 @@
+<title>Unified Whole-Foods Database — Specimen Review</title>
+<style>
+  :root {
+    --bg: #2B3753;
+    --surface: rgba(69, 84, 111, 0.85);
+    --surface-solid: #45546F;
+    --surface-raised: #526185;
+    --border: #5C6F94;
+    --text: #E4D5C5;
+    --text-muted: #8B9BB8;
+    --accent-classify: #DFC28E;
+    --accent-classify-dim: #A87E55;
+    --accent-match: #7FC7C3;
+    --accent-match-dim: #5FA8A4;
+    --status-good: #B9AEA0;
+    --status-flagged: #E0917A;
+    --status-flagged-bg: #4A2A22;
+    --status-yellow: #E8C878;
+    --status-yellow-bg: #4A3A1E;
+    --danger: #E0917A;
+    --font-serif: Georgia, 'Iowan Old Style', 'Palatino Linotype', 'Book Antiqua', serif;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    --font-mono: 'SF Mono', 'Cascadia Code', Consolas, 'Courier New', monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0;
+    min-height: 100vh;
+  }
+
+  h1, h2, h3 { font-family: var(--font-serif); font-weight: 600; text-wrap: balance; margin: 0; }
+  .mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  a { color: var(--accent-match); }
+
+  ::selection { background: var(--accent-classify); color: #1a1f2e; }
+
+  /* ---------- Layout shell ---------- */
+  .shell {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    min-height: 100vh;
+  }
+  @media (max-width: 860px) {
+    .shell { grid-template-columns: 1fr; }
+    .rail { position: static; height: auto; }
+  }
+
+  .rail {
+    background: var(--surface-solid);
+    border-right: 1px solid var(--border);
+    padding: 20px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+  }
+
+  .brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--border);
+  }
+  .brand .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+  }
+  .brand h1 { font-size: 19px; }
+
+  .mode-switch { display: flex; flex-direction: column; gap: 6px; }
+  .mode-btn {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    background: transparent;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 13.5px;
+    padding: 10px 12px;
+    cursor: pointer;
+    text-align: left;
+  }
+  .mode-btn .count { font-family: var(--font-mono); font-variant-numeric: tabular-nums; color: var(--text-muted); font-size: 12.5px; }
+  .mode-btn.active[data-mode="classify"] { border-color: var(--accent-classify); background: rgba(223, 194, 142, 0.12); }
+  .mode-btn.active[data-mode="match"] { border-color: var(--accent-match); background: rgba(127, 199, 195, 0.12); }
+  .mode-btn.active .count { color: var(--text); }
+
+  .rail-section { display: flex; flex-direction: column; gap: 8px; }
+  .rail-section h3 {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-weight: 600;
+  }
+
+  .stat-row { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; }
+  .stat-row .n { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  select, input[type="text"], input[type="search"] {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 5px;
+    color: var(--text);
+    font-family: var(--font-sans);
+    font-size: 13px;
+    padding: 7px 9px;
+    width: 100%;
+  }
+  select:focus, input:focus { outline: 2px solid var(--accent-match); outline-offset: 1px; }
+
+  .checkbox-row { display: flex; align-items: center; gap: 7px; font-size: 13px; }
+  .checkbox-row input { width: auto; }
+
+  .btn {
+    font-family: var(--font-sans);
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: 6px;
+    border: 1px solid transparent;
+    padding: 8px 12px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .btn:focus-visible { outline: 2px solid #fff; outline-offset: 2px; }
+  .btn-whole { background: var(--accent-classify); color: #1a1f2e; }
+  .btn-not-whole { background: transparent; border-color: var(--status-flagged); color: var(--status-flagged); }
+  .btn-skip { background: transparent; border-color: var(--border); color: var(--text-muted); }
+  .btn-confirm-group { background: var(--accent-match); color: #1a1f2e; }
+  .btn-split { background: transparent; border-color: var(--status-yellow); color: var(--status-yellow); }
+  .btn-remove { background: transparent; border-color: var(--status-flagged); color: var(--status-flagged); font-size: 11.5px; padding: 3px 7px; }
+  .btn-export { background: var(--surface-raised); color: var(--text); border-color: var(--border); width: 100%; justify-content: center; }
+  .btn-clear { background: transparent; border-color: var(--status-flagged); color: var(--status-flagged); width: 100%; justify-content: center; }
+  .btn-clear.armed { background: var(--status-flagged-bg); }
+  .btn[disabled] { opacity: 0.4; cursor: default; }
+
+  .pending-count {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+  }
+
+  /* ---------- Main content ---------- */
+  .main { padding: 22px 26px 60px; max-width: 1100px; }
+
+  .view-header { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; margin-bottom: 4px; flex-wrap: wrap; }
+  .view-header h2 { font-size: 22px; }
+  .view-sub { color: var(--text-muted); font-size: 13.5px; max-width: 62ch; margin: 6px 0 18px; }
+
+  .toolbar { display: flex; gap: 10px; align-items: center; margin-bottom: 16px; flex-wrap: wrap; }
+  .toolbar input[type="search"] { flex: 1 1 240px; }
+  .toolbar select { flex: 0 0 auto; width: auto; min-width: 140px; }
+
+  /* Classification table */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 8px; }
+  table { border-collapse: collapse; width: 100%; min-width: 720px; }
+  thead th {
+    text-align: left;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--surface-solid);
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--border);
+    position: sticky;
+    top: 0;
+  }
+  tbody td { padding: 10px 12px; border-bottom: 1px solid rgba(92, 111, 148, 0.35); vertical-align: middle; font-size: 13.5px; }
+  tbody tr:last-child td { border-bottom: none; }
+  tbody tr.decided { opacity: 0.45; }
+  .food-name { font-family: var(--font-serif); font-size: 14.5px; }
+  .food-orig { color: var(--text-muted); font-size: 12px; display: block; margin-top: 2px; }
+  .pill {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 2px 7px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    color: var(--text-muted);
+    white-space: nowrap;
+  }
+  .pill.conf-high { border-color: var(--status-good); color: var(--status-good); }
+  .pill.conf-medium { border-color: var(--status-yellow); color: var(--status-yellow); }
+  .pill.conf-low { border-color: var(--status-flagged); color: var(--status-flagged); }
+  .rule-text { color: var(--text-muted); font-size: 12px; font-family: var(--font-mono); }
+  .row-actions { display: flex; gap: 6px; white-space: nowrap; }
+  .decided-badge { font-family: var(--font-mono); font-size: 11.5px; padding: 3px 8px; border-radius: 10px; }
+  .decided-badge.whole { background: rgba(223, 194, 142, 0.18); color: var(--accent-classify); }
+  .decided-badge.not-whole { background: var(--status-flagged-bg); color: var(--status-flagged); }
+  .decided-badge.skip { background: var(--surface-raised); color: var(--text-muted); }
+
+  /* Match specimen cards */
+  .specimen-card {
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--surface);
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  .specimen-card.decided { opacity: 0.5; }
+  .specimen-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 16px;
+    background: var(--surface-solid);
+    flex-wrap: wrap;
+  }
+  .specimen-head h3 { font-size: 16px; }
+  .specimen-meta { display: flex; align-items: center; gap: 10px; }
+  .specimen-count { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  .region-badge { font-family: var(--font-mono); font-size: 11px; padding: 2px 7px; border-radius: 10px; border: 1px solid var(--status-yellow); color: var(--status-yellow); }
+  .cross-badge { font-family: var(--font-mono); font-size: 11px; padding: 2px 7px; border-radius: 10px; border: 1px solid var(--accent-match); color: var(--accent-match); }
+
+  .specimen-members { display: flex; flex-direction: column; }
+  .member-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 9px 16px;
+    border-top: 1px solid rgba(92, 111, 148, 0.35);
+  }
+  .member-info { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; min-width: 0; }
+  .member-name { font-family: var(--font-serif); font-size: 14px; }
+  .source-tag { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+  .method-tag { font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 8px; padding: 1px 6px; white-space: nowrap; }
+
+  .specimen-actions { display: flex; gap: 8px; padding: 10px 16px; border-top: 1px solid rgba(92, 111, 148, 0.35); }
+
+  /* Pagination */
+  .pager { display: flex; align-items: center; justify-content: center; gap: 12px; margin-top: 18px; }
+  .pager button {
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    color: var(--text);
+    border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    font-size: 13px;
+  }
+  .pager button[disabled] { opacity: 0.35; cursor: default; }
+  .pager .page-info { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-muted); }
+
+  .empty-state { padding: 40px 20px; text-align: center; color: var(--text-muted); }
+
+  /* Export drawer */
+  .export-panel {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 31, 46, 0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+    padding: 20px;
+  }
+  .export-panel.open { display: flex; }
+  .export-box {
+    background: var(--surface-solid);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 20px;
+    max-width: 720px;
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .export-box textarea {
+    background: var(--bg);
+    color: var(--text);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    font-family: var(--font-mono);
+    font-size: 11.5px;
+    padding: 10px;
+    flex: 1;
+    min-height: 220px;
+    resize: vertical;
+  }
+  .export-box .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+</style>
+
+<div class="shell">
+  <aside class="rail">
+    <div class="brand">
+      <span class="eyebrow">Inside Story — Unified Database</span>
+      <h1>Specimen Review</h1>
+    </div>
+
+    <div class="mode-switch">
+      <button class="mode-btn active" data-mode="classify" onclick="setMode('classify')">
+        <span>Whole-Food Classification</span>
+        <span class="count mono" id="classifyModeCount">—</span>
+      </button>
+      <button class="mode-btn" data-mode="match" onclick="setMode('match')">
+        <span>Cross-Source Matching</span>
+        <span class="count mono" id="matchModeCount">—</span>
+      </button>
+    </div>
+
+    <div class="rail-section" id="classifyFilters">
+      <h3>Filter</h3>
+      <select id="confFilter" onchange="renderView()">
+        <option value="low">Needs review (low confidence)</option>
+        <option value="medium">Medium confidence</option>
+        <option value="high">High confidence</option>
+        <option value="all">All</option>
+      </select>
+      <select id="sourceFilter" onchange="renderView()"></select>
+      <div class="checkbox-row">
+        <input type="checkbox" id="hideDecidedClassify" checked onchange="renderView()">
+        <label for="hideDecidedClassify">Hide already-decided</label>
+      </div>
+    </div>
+
+    <div class="rail-section" id="matchFilters" style="display:none;">
+      <h3>Filter</h3>
+      <select id="groupTypeFilter" onchange="renderView()">
+        <option value="cross">Matched across 2+ sources</option>
+        <option value="region">Region-specific (single source)</option>
+        <option value="all">All groups</option>
+      </select>
+      <div class="checkbox-row">
+        <input type="checkbox" id="hideDecidedMatch" checked onchange="renderView()">
+        <label for="hideDecidedMatch">Hide already-decided</label>
+      </div>
+    </div>
+
+    <div class="rail-section">
+      <h3>Real totals right now</h3>
+      <div class="stat-row"><span>Whole food</span><span class="n mono" id="statWhole">—</span></div>
+      <div class="stat-row"><span>Not whole food</span><span class="n mono" id="statNotWhole">—</span></div>
+      <div class="stat-row"><span>Needs review</span><span class="n mono" id="statNeedsReview">—</span></div>
+      <div class="stat-row"><span>Matched groups</span><span class="n mono" id="statMatched">—</span></div>
+      <div class="stat-row"><span>Region-specific</span><span class="n mono" id="statRegionSpecific">—</span></div>
+    </div>
+
+    <div class="rail-section" style="margin-top:auto;">
+      <h3>Your decisions</h3>
+      <div class="pending-count" id="pendingCount">0 pending</div>
+      <button class="btn btn-export" onclick="openExport()">Export decisions</button>
+      <button class="btn btn-clear" id="clearBtn" onclick="handleClearClick()">Clear all pending decisions</button>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="classifyView">
+      <div class="view-header">
+        <h2>Whole-Food Classification</h2>
+      </div>
+      <p class="view-sub">Every real record the automated first pass couldn't confidently decide on its own, or that you want to spot-check. Confirming a call here is what eventually moves a record out of "needs review" for good — nothing here has been human-confirmed yet.</p>
+      <div class="toolbar">
+        <input type="search" id="classifySearch" placeholder="Search by name…" oninput="renderView()">
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Source</th><th>Confidence</th><th>Rule matched</th><th>Auto call</th><th>Your decision</th></tr>
+          </thead>
+          <tbody id="classifyBody"></tbody>
+        </table>
+      </div>
+      <div class="pager" id="classifyPager"></div>
+    </div>
+
+    <div id="matchView" style="display:none;">
+      <div class="view-header">
+        <h2>Cross-Source Matching</h2>
+      </div>
+      <p class="view-sub">Each card is one real group — every row inside it is the tool's own proposal that these are the same real food across different sources. Confirm a group once it looks right, or remove a member that doesn't actually belong.</p>
+      <div class="toolbar">
+        <input type="search" id="matchSearch" placeholder="Search by food name…" oninput="renderView()">
+      </div>
+      <div id="matchList"></div>
+      <div class="pager" id="matchPager"></div>
+    </div>
+  </main>
+</div>
+
+<div class="export-panel" id="exportPanel">
+  <div class="export-box">
+    <div class="row">
+      <h3>Export your decisions</h3>
+      <button class="btn btn-skip" onclick="closeExport()">Close</button>
+    </div>
+    <p class="view-sub" style="margin:0;">Copy this and send it back — it gets applied to the real database via <span class="mono">pipeline/apply-audit-decisions.js</span>.</p>
+    <textarea id="exportText" readonly onclick="this.select()"></textarea>
+    <div class="row">
+      <span class="pending-count" id="exportCount"></span>
+      <button class="btn btn-confirm-group" onclick="copyExport()">Copy to clipboard</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const DATA = /*__DATA__*/;
+
+const sourceNameByCode = {};
+DATA.sources.forEach(function (s) { sourceNameByCode[s.s] = s.n; });
+
+const STORAGE_KEY = 'inside-story-unified-audit-decisions-v1';
+let decisions = { classify: {}, groupConfirm: {}, groupSplit: {}, memberRemove: {} };
+try {
+  const saved = localStorage.getItem(STORAGE_KEY);
+  if (saved) decisions = JSON.parse(saved);
+} catch (e) { /* real, honest fallback -- localStorage unavailable or corrupt, start fresh rather than crash */ }
+
+function saveDecisions() {
+  try { localStorage.setItem(STORAGE_KEY, JSON.stringify(decisions)); } catch (e) { /* non-fatal */ }
+  updatePendingCount();
+}
+
+function memberKey(g, i) { return g + ':' + i; }
+
+let mode = 'classify';
+let classifyPage = 0;
+let matchPage = 0;
+const PAGE_SIZE = 100;
+const MATCH_PAGE_SIZE = 25;
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.mode === m); });
+  document.getElementById('classifyView').style.display = m === 'classify' ? '' : 'none';
+  document.getElementById('matchView').style.display = m === 'match' ? '' : 'none';
+  document.getElementById('classifyFilters').style.display = m === 'classify' ? '' : 'none';
+  document.getElementById('matchFilters').style.display = m === 'match' ? '' : 'none';
+  renderView();
+}
+
+function initSourceFilter() {
+  const sel = document.getElementById('sourceFilter');
+  const opt = document.createElement('option');
+  opt.value = 'all'; opt.textContent = 'All sources';
+  sel.appendChild(opt);
+  DATA.sources.forEach(function (s) {
+    const o = document.createElement('option');
+    o.value = s.s; o.textContent = s.n;
+    sel.appendChild(o);
+  });
+}
+
+function computeStats() {
+  let whole = 0, notWhole = 0, needsReview = 0;
+  DATA.classify.forEach(function (r) {
+    if (decisions.classify[r.i]) return; // already decided by the real person -- doesn't count toward the live "still open" totals
+    if (r.w === 1) whole++;
+    else if (r.w === 0) notWhole++;
+    else needsReview++;
+  });
+  let matched = 0, regionSpecific = 0;
+  DATA.groups.forEach(function (g) {
+    if (decisions.groupConfirm[g.g]) return;
+    if (g.rs === 0) matched++; else regionSpecific++;
+  });
+  document.getElementById('statWhole').textContent = whole.toLocaleString();
+  document.getElementById('statNotWhole').textContent = notWhole.toLocaleString();
+  document.getElementById('statNeedsReview').textContent = needsReview.toLocaleString();
+  document.getElementById('statMatched').textContent = matched.toLocaleString();
+  document.getElementById('statRegionSpecific').textContent = regionSpecific.toLocaleString();
+  document.getElementById('classifyModeCount').textContent = needsReview.toLocaleString();
+  document.getElementById('matchModeCount').textContent = matched.toLocaleString();
+}
+
+function updatePendingCount() {
+  const n = Object.keys(decisions.classify).length
+    + Object.keys(decisions.groupConfirm).length
+    + Object.keys(decisions.groupSplit).length
+    + Object.keys(decisions.memberRemove).length;
+  document.getElementById('pendingCount').textContent = n.toLocaleString() + ' pending';
+  computeStats();
+}
+
+function decideClassify(i, verdict) {
+  decisions.classify[i] = verdict;
+  saveDecisions();
+  renderView();
+}
+function undoClassify(i) {
+  delete decisions.classify[i];
+  saveDecisions();
+  renderView();
+}
+
+function confirmGroup(g) {
+  decisions.groupConfirm[g] = true;
+  delete decisions.groupSplit[g];
+  saveDecisions();
+  renderView();
+}
+function flagSplit(g) {
+  decisions.groupSplit[g] = true;
+  delete decisions.groupConfirm[g];
+  saveDecisions();
+  renderView();
+}
+function undoGroup(g) {
+  delete decisions.groupConfirm[g];
+  delete decisions.groupSplit[g];
+  saveDecisions();
+  renderView();
+}
+function removeMember(g, i) {
+  decisions.memberRemove[memberKey(g, i)] = true;
+  saveDecisions();
+  renderView();
+}
+function undoRemoveMember(g, i) {
+  delete decisions.memberRemove[memberKey(g, i)];
+  saveDecisions();
+  renderView();
+}
+
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+  });
+}
+
+function filteredClassify() {
+  const conf = document.getElementById('confFilter').value;
+  const src = document.getElementById('sourceFilter').value;
+  const hideDecided = document.getElementById('hideDecidedClassify').checked;
+  const q = document.getElementById('classifySearch').value.trim().toLowerCase();
+  return DATA.classify.filter(function (r) {
+    if (conf !== 'all' && r.c !== conf) return false;
+    if (src !== 'all' && r.s !== src) return false;
+    if (hideDecided && decisions.classify[r.i]) return false;
+    if (q && r.n.toLowerCase().indexOf(q) === -1) return false;
+    return true;
+  });
+}
+
+function renderClassify() {
+  const rows = filteredClassify();
+  const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
+  classifyPage = Math.min(classifyPage, totalPages - 1);
+  const start = classifyPage * PAGE_SIZE;
+  const pageRows = rows.slice(start, start + PAGE_SIZE);
+
+  const tbody = document.getElementById('classifyBody');
+  if (pageRows.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">Nothing matches this filter.</div></td></tr>';
+  } else {
+    tbody.innerHTML = pageRows.map(function (r) {
+      const decided = decisions.classify[r.i];
+      const origLine = r.o ? '<span class="food-orig">' + escapeHtml(r.o) + '</span>' : '';
+      const autoCall = r.w === 1 ? 'Whole food' : r.w === 0 ? 'Not whole food' : 'No rule matched';
+      let actionsHtml;
+      if (decided) {
+        const label = decided === 'whole' ? 'Whole food' : decided === 'not_whole' ? 'Not whole food' : 'Skipped';
+        const cls = decided === 'whole' ? 'whole' : decided === 'not_whole' ? 'not-whole' : 'skip';
+        actionsHtml = '<span class="decided-badge ' + cls + '">' + label + '</span> '
+          + '<button class="btn btn-skip" style="padding:3px 8px;font-size:11.5px;" onclick="undoClassify(' + r.i + ')">Undo</button>';
+      } else {
+        actionsHtml = '<div class="row-actions">'
+          + '<button class="btn btn-whole" onclick="decideClassify(' + r.i + ", 'whole')\">Whole food</button>"
+          + '<button class="btn btn-not-whole" onclick="decideClassify(' + r.i + ", 'not_whole')\">Not whole food</button>"
+          + '<button class="btn btn-skip" onclick="decideClassify(' + r.i + ", 'skip')\">Skip</button>"
+          + '</div>';
+      }
+      return '<tr class="' + (decided ? 'decided' : '') + '">'
+        + '<td><span class="food-name">' + escapeHtml(r.n) + '</span>' + origLine + '</td>'
+        + '<td><span class="source-tag">' + escapeHtml(sourceNameByCode[r.s] || r.s) + '</span></td>'
+        + '<td><span class="pill conf-' + r.c + '">' + r.c + '</span></td>'
+        + '<td><span class="rule-text">' + escapeHtml(r.r) + '</span></td>'
+        + '<td>' + autoCall + '</td>'
+        + '<td>' + actionsHtml + '</td>'
+        + '</tr>';
+    }).join('');
+  }
+
+  renderPager('classifyPager', classifyPage, totalPages, function (p) { classifyPage = p; renderClassify(); });
+}
+
+function filteredGroups() {
+  const type = document.getElementById('groupTypeFilter').value;
+  const hideDecided = document.getElementById('hideDecidedMatch').checked;
+  const q = document.getElementById('matchSearch').value.trim().toLowerCase();
+  return DATA.groups.filter(function (g) {
+    if (type === 'cross' && g.rs !== 0) return false;
+    if (type === 'region' && g.rs !== 1) return false;
+    if (hideDecided && (decisions.groupConfirm[g.g] || decisions.groupSplit[g.g])) return false;
+    if (q && g.n.toLowerCase().indexOf(q) === -1 && !g.m.some(function (m) { return m.n.toLowerCase().indexOf(q) !== -1; })) return false;
+    return true;
+  });
+}
+
+function renderMatch() {
+  const groups = filteredGroups();
+  const totalPages = Math.max(1, Math.ceil(groups.length / MATCH_PAGE_SIZE));
+  matchPage = Math.min(matchPage, totalPages - 1);
+  const start = matchPage * MATCH_PAGE_SIZE;
+  const pageGroups = groups.slice(start, start + MATCH_PAGE_SIZE);
+
+  const list = document.getElementById('matchList');
+  if (pageGroups.length === 0) {
+    list.innerHTML = '<div class="empty-state">Nothing matches this filter.</div>';
+  } else {
+    list.innerHTML = pageGroups.map(function (g) {
+      const decided = decisions.groupConfirm[g.g] || decisions.groupSplit[g.g];
+      const badge = g.rs === 0
+        ? '<span class="cross-badge">' + g.m.length + ' sources</span>'
+        : '<span class="region-badge">region-specific</span>';
+      const membersHtml = g.m.map(function (m) {
+        const removed = decisions.memberRemove[memberKey(g.g, m.i)];
+        const removeBtn = removed
+          ? '<button class="btn btn-skip" style="padding:3px 8px;font-size:11px;" onclick="undoRemoveMember(' + g.g + ',' + m.i + ')">Undo remove</button>'
+          : '<button class="btn btn-remove" onclick="removeMember(' + g.g + ',' + m.i + ')">Remove</button>';
+        return '<div class="member-row" style="' + (removed ? 'opacity:0.4;text-decoration:line-through;' : '') + '">'
+          + '<div class="member-info">'
+          + '<span class="member-name">' + escapeHtml(m.n) + '</span>'
+          + '<span class="source-tag">' + escapeHtml(sourceNameByCode[m.s] || m.s) + '</span>'
+          + '<span class="method-tag">' + escapeHtml(m.mm) + '</span>'
+          + '</div>' + removeBtn + '</div>';
+      }).join('');
+      let footerHtml;
+      if (decided) {
+        const label = decisions.groupConfirm[g.g] ? 'Confirmed' : 'Flagged for split';
+        footerHtml = '<div class="specimen-actions"><span class="decided-badge ' + (decisions.groupConfirm[g.g] ? 'whole' : 'not-whole') + '">' + label + '</span> '
+          + '<button class="btn btn-skip" onclick="undoGroup(' + g.g + ')">Undo</button></div>';
+      } else {
+        footerHtml = '<div class="specimen-actions">'
+          + '<button class="btn btn-confirm-group" onclick="confirmGroup(' + g.g + ')">Confirm this group</button>'
+          + '<button class="btn btn-split" onclick="flagSplit(' + g.g + ')">Flag for split</button>'
+          + '</div>';
+      }
+      return '<div class="specimen-card ' + (decided ? 'decided' : '') + '">'
+        + '<div class="specimen-head"><h3>' + escapeHtml(g.n) + '</h3>'
+        + '<div class="specimen-meta"><span class="specimen-count">' + g.m.length + ' record' + (g.m.length === 1 ? '' : 's') + '</span>' + badge + '</div></div>'
+        + '<div class="specimen-members">' + membersHtml + '</div>'
+        + footerHtml
+        + '</div>';
+    }).join('');
+  }
+
+  renderPager('matchPager', matchPage, totalPages, function (p) { matchPage = p; renderMatch(); });
+}
+
+function renderPager(elId, page, totalPages, goto) {
+  const el = document.getElementById(elId);
+  if (totalPages <= 1) { el.innerHTML = ''; return; }
+  el.innerHTML = '';
+  const prev = document.createElement('button');
+  prev.textContent = '‹ Prev';
+  prev.disabled = page === 0;
+  prev.onclick = function () { goto(page - 1); window.scrollTo(0, 0); };
+  const info = document.createElement('span');
+  info.className = 'page-info';
+  info.textContent = 'Page ' + (page + 1) + ' of ' + totalPages;
+  const next = document.createElement('button');
+  next.textContent = 'Next ›';
+  next.disabled = page >= totalPages - 1;
+  next.onclick = function () { goto(page + 1); window.scrollTo(0, 0); };
+  el.appendChild(prev); el.appendChild(info); el.appendChild(next);
+}
+
+function renderView() {
+  if (mode === 'classify') renderClassify(); else renderMatch();
+  computeStats();
+}
+
+function openExport() {
+  const payload = {
+    exportedAt: new Date().toISOString(),
+    sourceExportedAt: DATA.exportedAt,
+    decisions: decisions,
+  };
+  const json = JSON.stringify(payload, null, 2);
+  document.getElementById('exportText').value = json;
+  const n = Object.keys(decisions.classify).length + Object.keys(decisions.groupConfirm).length + Object.keys(decisions.groupSplit).length + Object.keys(decisions.memberRemove).length;
+  document.getElementById('exportCount').textContent = n.toLocaleString() + ' real decisions in this export';
+  document.getElementById('exportPanel').classList.add('open');
+}
+function closeExport() { document.getElementById('exportPanel').classList.remove('open'); }
+function copyExport() {
+  const ta = document.getElementById('exportText');
+  ta.select();
+  try {
+    navigator.clipboard.writeText(ta.value);
+  } catch (e) { /* real, established fallback for this sandbox -- selection above already lets a manual copy work even if the Clipboard API is blocked */ }
+}
+
+// Real "click again to confirm" pattern, not a native confirm() dialog --
+// this project's own established lesson: native browser dialogs are
+// blocked inside a published Artifact's sandboxed iframe, and a blocked
+// confirm() silently resolves falsy, making a real destructive action
+// appear to do nothing at all.
+let clearArmed = false;
+let clearArmedTimeout = null;
+function handleClearClick() {
+  const btn = document.getElementById('clearBtn');
+  if (!clearArmed) {
+    clearArmed = true;
+    btn.classList.add('armed');
+    btn.textContent = 'Click again to confirm — clears everything';
+    clearArmedTimeout = setTimeout(function () {
+      clearArmed = false;
+      btn.classList.remove('armed');
+      btn.textContent = 'Clear all pending decisions';
+    }, 4000);
+    return;
+  }
+  clearTimeout(clearArmedTimeout);
+  clearArmed = false;
+  btn.classList.remove('armed');
+  btn.textContent = 'Clear all pending decisions';
+  decisions = { classify: {}, groupConfirm: {}, groupSplit: {}, memberRemove: {} };
+  saveDecisions();
+  renderView();
+}
+
+initSourceFilter();
+setMode('classify');
+</script>

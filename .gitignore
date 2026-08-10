@@ -58,6 +58,23 @@ ClaudeWork/
 # though it's large and technically regenerable.
 unified-database/.cache/
 
+# The audit tool's own derived, fully-regeneratable build outputs --
+# audit-data.json (a plain SQL export of unified_foods.sqlite) and
+# unified-audit-built.html (that export spliced into the real,
+# hand-authored unified-audit.html template). Neither carries anything
+# the real, committed unified_foods.sqlite and the template itself don't
+# already hold -- `node pipeline/export-audit-data.js && node
+# pipeline/build-audit-tool.js` regenerates both from scratch in seconds
+# whenever the tool needs republishing after a real review/apply pass.
+unified-database/audit-tool/audit-data.json
+unified-database/audit-tool/unified-audit-built.html
+
+# Real, disposable scratch files this pipeline's own test runs and
+# manual database-file swaps create and clean up after themselves --
+# excluded defensively in case a run is ever interrupted mid-test.
+unified-database/_*.sqlite
+unified-database/_*.json
+
 # Claude Code local state -- settings.local.json is personal-machine
 # overrides by Claude Code's own convention, not meant to be shared/synced
 # between machines; scheduled_tasks.lock is a runtime lock file, not content.

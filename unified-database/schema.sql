@@ -121,6 +121,7 @@ CREATE TABLE food_match_groups (
   canonical_english_name       TEXT NOT NULL,   -- the real, agreed English name representing this whole matched group
   canonical_latin_name          TEXT,             -- species name, when known, shared by every real member
   is_region_specific             INTEGER NOT NULL DEFAULT 0,  -- a real, DERIVED fact (see pipeline/match.js) -- 1 once matching has genuinely completed and this group still has exactly one real member, meaning no equivalent was found anywhere else, not a guess made up front
+  needs_split                    INTEGER NOT NULL DEFAULT 0,  -- 0 by default; set to 1 by a real person via the audit tool's "Flag for split" action when a proposed group actually bundles two or more genuinely different real foods together (see pipeline/apply-audit-decisions.js) -- persisted so a future review session can find and rework it, not just a one-time report that gets lost
   created_at                     TEXT
 );
 

@@ -15,6 +15,91 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: Phase 3/4 review tool built — a real, working audit-tool webpage, published
+
+**`audit-tool/unified-audit.html`** — the real, hand-authored template
+(not yet holding any data of its own — `/*__DATA__*/` gets spliced in at
+build time). Two real modes, matching the two real review queues this
+project already has sitting in the database:
+
+- **Whole-Food Classification** — a real, paginated, filterable/searchable
+  table over every one of the 32,707 classify records (defaulting to the
+  11,632 genuinely `low`-confidence ones), with **Whole food** / **Not
+  whole food** / **Skip** actions per row.
+- **Cross-Source Matching** — a real, paginated list of "specimen sheet"
+  cards, one per match group, each showing every real member side by
+  side with its own source and match method, with **Confirm this group**
+  / **Flag for split** at the group level and a per-member **Remove**
+  action for a genuinely bad match sitting inside an otherwise-correct
+  group.
+
+Design grounded directly in this app's own real, established tokens
+(`constants/colors.ts` — Deep Navy `#2B3753` ground, the translucent
+`rgba(69,84,111,.85)` surface family, warm gold for classification
+actions, turquoise for matching actions, the app's own real status hues
+reused for confidence/severity), a "specimen catalog" typographic
+metaphor (Georgia-led serif for food names, a clean system-sans for
+controls, tabular-nums monospace for ids/counts) — a deliberate,
+committed single dark theme, matching every other Artifact this project
+has already published rather than a light/dark toggle nothing else here
+carries.
+
+**Real decisions persist to `localStorage`** the same proven way the
+other, existing Reference Database Audit tool already does, with the
+same already-learned lesson applied from the start rather than
+rediscovered the hard way a second time: native browser dialogs
+(`window.confirm()`) are genuinely blocked inside a published Artifact's
+sandboxed iframe, so "Clear all pending decisions" uses the same real
+"click again within 4 seconds to confirm" in-page pattern, never a
+native `confirm()` call.
+
+**`pipeline/apply-audit-decisions.js`** — the real other half of the
+round-trip, applying an exported decisions file back onto
+`unified_foods.sqlite`: member removals first (so a group-confirm right
+after only ever confirms whichever real members actually remain), then
+group confirmations (`match_confidence = 'confirmed'`), then split flags
+(a real, new `food_match_groups.needs_split` column — added via the
+same conditional `ALTER TABLE` migration pattern this whole project
+already uses everywhere else a column gets added after real data
+exists), then classification decisions. **Naturally idempotent** —
+re-applying the same or an overlapping export a second time is always a
+safe no-op. Tested against a real, isolated seeded database
+(`apply-audit-decisions.test.js`, 7/7 passing, including a real
+re-apply-and-verify-no-double-effect check) — never touches the live
+32,707-record database during testing (`UNIFIED_DB_PATH` env override,
+same precedent as `SQLITE_EXE` throughout this pipeline).
+
+**`pipeline/build-audit-tool.js`** — the real, permanent build step
+tying the template and a fresh `export-audit-data.js` run together into
+the one self-contained file that actually gets published. Refuses to
+build if the real `</script`-inside-embedded-data risk is ever present
+(checked every build, not assumed clean). Re-run both scripts, in order,
+any time the tool needs republishing after a real review/apply pass:
+
+```
+node pipeline/export-audit-data.js && node pipeline/build-audit-tool.js
+```
+
+**Published**: https://claude.ai/code/artifact/51c33d40-cbd9-4468-90b0-e1e460fd5b1d
+(7.11 MB, comfortably under the 16 MB Artifact ceiling).
+
+**A real, honest finding surfaced immediately while sanity-checking the
+tool's own embedded data, worth naming directly rather than glossed
+over**: at least one proposed match group (Norway's own "Apple juice,"
+`match_group_id=1`) bundles raw apple slices, dried apples, *and* apple
+juice together under `match_method: 'latin_name'` — genuinely the same
+species, but not genuinely the same food or preparation. This is a real,
+live example of exactly the class of case the tool's own "Flag for
+split" action exists to catch, not a bug in the tool itself — but it's
+worth knowing going in that Tier 1 (Latin-name) matching is deliberately
+species-level only, with no concept of preparation state, so a
+meaningful share of the 757 matched-across-sources groups likely need
+this same kind of real, human correction before Phase 5. Neither
+`match.js` nor the schema were changed to address this automatically —
+that's a real, substantive architecture question (should matching also
+consider preparation state, not just species?) worth deciding
+deliberately rather than patched in blind.
+
 ## Status: Phase 2 complete — all 9 real sources ingested, classified, and matched
 
 **All 9 sources are in: Norway, Sweden, USDA, Canada, UK, Australia,
@@ -292,15 +377,16 @@ question for whenever Sweden's own adapter gets written.
    classified, translated where needed, and matched (see this
    document's own status section above for the real, current totals
    and the "Honey across 7 sources" proof).
-3. **Phase 3: whole-food classification review — this is the real next
-   step.** 11,632 records currently sit in "needs human review" —
-   genuinely ambiguous names, or ones with no rule match at all.
-4. **Phase 4: cross-source matching review** — 13,764 real groups sit
-   as region-specific, 757 matched across 2+ sources, all still
-   `match_confidence = 'proposed'`. Both phases need a real audit-tool
-   webpage (not yet built) for a person to actually review these, the
-   same "tool proposes, human decides" shape already proven on this
-   app's own existing Reference Database Audit tool.
+3. ~~**Phase 3: whole-food classification review.**~~ The real
+   audit-tool webpage is built and published (see status above) — actual
+   human review of the 11,632 records still sitting in "needs review" is
+   the real, standing next step, not yet done.
+4. ~~**Phase 4: cross-source matching review.**~~ The same tool covers
+   this too — actual human review/confirmation of the 757 matched
+   groups (and a decision on the 13,764 region-specific ones) is the
+   real, standing next step, not yet done. See the status section
+   above's own honest note on the real "Apple juice" preparation-state
+   finding worth keeping in mind while reviewing.
 5. **Phase 5: merge in the app's own working layer** — map the current,
    already-curated `assets/data/foods_reference.db` rows onto their
    corresponding rows in this new master, carrying forward every score,
