@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { StyleSheet } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { StyleSheet, Text } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { colors } from '../constants/colors';
+import { typography } from '../constants/typography';
 import { ProgressRing } from './ProgressRing';
 
 // A real, one-time loading screen -- 2026-08-10, direct request after
@@ -10,62 +11,37 @@ import { ProgressRing } from './ProgressRing';
 // entire bundled, scored, 22,000+-food reference database onto the
 // device's own writable storage the first time anything actually needs
 // it (expo-sqlite's importDatabaseFromAssetAsync), a real, one-time file
-// operation big enough to take real, noticeable time on a phone. That
-// import was never gated on anything visible -- the native splash screen
-// only ever waited on fonts and the LOCAL app database's own table setup
-// (see app/_layout.tsx's own dbReady), so the app's real shell rendered
-// looking normal while its content sat silently empty underneath, with
-// nothing telling a person it was doing real work rather than being
-// broken. Confirmed directly this happens on every genuinely fresh
-// install, not just a dev artifact -- a new customer's first launch has
-// no record of ever having imported this database, so this same screen
-// is exactly what they'd see too.
+// operation big enough to take real, noticeable time on a phone. Confirmed
+// directly this happens on every genuinely fresh install, not just a dev
+// artifact -- a new customer's first launch has no record of ever having
+// imported this database, so this same screen is exactly what they'd see.
 //
-// A real, follow-up request, 2026-08-10: "a standard loading feature that
-// fills an area as it gets farther or closer to being at 100%, and it
-// shows the percent loaded until it finishes, says it is finished, and
-// then the app pops into existence." A real, honest constraint shapes how
-// this is built: expo-sqlite's importDatabaseFromAssetAsync is a single
-// opaque Promise with no byte-level progress callback anywhere in its own
-// API -- there is no real number to read "43% copied" from. Rather than
-// fake a precision this app can't actually measure, or leave the request
-// half-met, the percentage shown here is a real, disclosed ESTIMATE: it
-// animates smoothly toward, but deliberately never reaches, 95% while the
-// real import is still in flight (an asymptotic curve, so it never looks
-// frozen or visibly wrong regardless of whether the real import finishes
-// in 15 seconds or 90), calibrated against this app's own directly
-// reported real-world timing (roughly 30-60 seconds). The one thing this
-// screen NEVER does is lie about actual completion -- the jump to 100%
-// and "Finished!" only happens once the real underlying Promise has
-// genuinely resolved (see the `isComplete` prop below), so however
-// approximate the number is while climbing, the moment it says done is
-// always true.
+// A real, honest constraint shapes the percentage shown: expo-sqlite's
+// importDatabaseFromAssetAsync is a single opaque Promise with no
+// byte-level progress callback anywhere in its own API -- there is no
+// real number to read "43% copied" from. The percentage climbing below is
+// a disclosed ESTIMATE, calibrated (not guessed) against this app's own
+// directly reported real-world timing (roughly 30-60 seconds) -- but the
+// one thing it never does is claim done before it's true.
 //
-// Reuses ProgressRing (already built for Home's own nutrient fuel gauges)
-// rather than a new, separate progress-bar component -- the exact same
-// "fills as it gets closer to 100%" visual the request describes, with
-// zero changes needed to that shared component.
-const PROGRESS_TICK_MS = 200;
-// How much of the remaining distance to the 95% cap gets closed on each
-// tick -- calibrated (not guessed) against the real ~30-60 second window
-// directly reported for this import: at this rate the ring reads roughly
-// 80% around 30 seconds in and roughly 93% around 60 seconds in, a
-// genuinely continuous-feeling climb across that whole real range rather
-// than rushing to the cap in the first few seconds and then sitting still.
-const PROGRESS_STEP_FACTOR = 0.012;
-const PROGRESS_CAP = 95;
-// How long "Finished!" stays on screen before the pop-out starts -- long
-// enough to actually register as a real, distinct state, not just a flash
-// mid-transition.
-const FINISHED_HOLD_MS = 600;
-const POP_DURATION_MS = 260;
-
+// Real, direct follow-up, same day, after watching this on a real device
+// with a real import finishing around 74% of the estimate's own curve:
+// "Can we set it up so it gradually goes to 100% but only hits the full
+// 100% ... when we know the app is fully loaded... Is there a trigger
+// event that the loader can watch for." The real trigger already existed
+// (`isComplete`, driven by app/_layout.tsx's own getReferenceDatabase()
+// resolving) -- what was missing was using it to animate a real, short,
+// smooth CATCH-UP from wherever the estimate happened to be sitting up to
+// a true 100%, instead of snapping straight there. This closes the real
+// tension in the request directly: the catch-up only ever STARTS once
+// isComplete is genuinely true (never early), but visually CLOSES the gap
+// over a real, brief, elapsed-time-driven animation rather than an
+// instant jump, so it never reads as a meaningless number regardless of
+// which real percentage the estimate happened to reach first.
 export function DatabaseSetupScreen({
   // True once the real reference-database import has genuinely resolved
-  // (see app/_layout.tsx's own referenceDbReady/isComplete wiring) --
-  // this screen owns its own "Finished!" hold + pop-out timing, and calls
-  // onExitComplete only once that real, visible transition has actually
-  // finished playing, not the instant the underlying import resolves.
+  // (see app/_layout.tsx's own referenceImportResolved wiring) -- this is
+  // the real trigger event driving the catch-up animation below.
   isComplete,
   onExitComplete,
 }: {
@@ -73,28 +49,69 @@ export function DatabaseSetupScreen({
   onExitComplete: () => void;
 }) {
   const [percent, setPercent] = useState(0);
-  const [phase, setPhase] = useState<'loading' | 'finished' | 'exiting'>('loading');
+  const [phase, setPhase] = useState<'loading' | 'catching-up' | 'finished' | 'exiting'>('loading');
+  // Kept in exact sync with `percent` inside every setPercent call below
+  // (never via a separate reactive effect, which would risk reading a
+  // one-render-stale value) -- the catch-up phase needs to know exactly
+  // where the estimate really was the instant isComplete flips true, to
+  // animate FROM that real point, not from some already-stale snapshot.
+  const percentRef = useRef(0);
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
 
-  // The estimated climb -- see this file's own top comment for why this
-  // is a disclosed estimate, not a real byte count.
+  // Phase 1: the estimated climb -- see this file's own top comment for
+  // why this is a disclosed estimate, not a real measurement. Never
+  // reaches its own 95% cap on its own; only the real trigger below moves
+  // this past that point.
   useEffect(() => {
     if (phase !== 'loading') return;
     const interval = setInterval(() => {
-      setPercent((current) => Math.min(PROGRESS_CAP, current + (PROGRESS_CAP - current) * PROGRESS_STEP_FACTOR));
+      setPercent((current) => {
+        const next = Math.min(PROGRESS_CAP, current + (PROGRESS_CAP - current) * PROGRESS_STEP_FACTOR);
+        percentRef.current = next;
+        return next;
+      });
     }, PROGRESS_TICK_MS);
     return () => clearInterval(interval);
   }, [phase]);
 
-  // The real import has genuinely finished -- jump to the true 100% and
-  // move to the "Finished!" state.
+  // The real trigger event -- isComplete flips true the instant the real
+  // import genuinely resolves. Moves to a real catch-up animation rather
+  // than jumping straight to 100, regardless of where the estimate had
+  // gotten to.
   useEffect(() => {
     if (isComplete && phase === 'loading') {
-      setPercent(100);
-      setPhase('finished');
+      setPhase('catching-up');
     }
   }, [isComplete, phase]);
+
+  // Phase 2: a real, elapsed-time-driven tween from wherever the estimate
+  // had reached up to a true 100 -- always the same real, brief duration
+  // regardless of the starting point (a 5-point gap and a 50-point gap
+  // both close in the same real amount of time), so this never reads as
+  // an arbitrary jump. Only once this real animation has actually reached
+  // 100 does the screen move to "Finished!" -- the display never says
+  // done a moment before the underlying import genuinely is.
+  useEffect(() => {
+    if (phase !== 'catching-up') return;
+    const startPercent = percentRef.current;
+    const startTime = Date.now();
+    const interval = setInterval(() => {
+      const t = Math.min(1, (Date.now() - startTime) / CATCH_UP_DURATION_MS);
+      // Ease-out: fast at first, settling in smoothly right at 100 rather
+      // than a constant-speed climb that would feel like it's still
+      // rushing right up to the end.
+      const eased = 1 - (1 - t) * (1 - t);
+      const next = startPercent + (100 - startPercent) * eased;
+      setPercent(next);
+      percentRef.current = next;
+      if (t >= 1) {
+        clearInterval(interval);
+        setPhase('finished');
+      }
+    }, CATCH_UP_TICK_MS);
+    return () => clearInterval(interval);
+  }, [phase]);
 
   // Hold "Finished!" briefly, then start the real pop-out transition.
   useEffect(() => {
@@ -129,12 +146,44 @@ export function DatabaseSetupScreen({
         color={colors.primary}
         size={104}
         strokeWidth={9}
-        label={phase === 'loading' ? `${Math.round(percent)}%` : 'Finished!'}
-        sublabel="Setting up your food database"
+        label={phase === 'loading' || phase === 'catching-up' ? `${Math.round(percent)}%` : 'Finished!'}
       />
+      {/* A real, separate Text below the ring rather than ProgressRing's
+          own sublabel slot -- 2026-08-10, direct report: that slot lives
+          inside a fixed 78px-wide container built for Home's own compact
+          multi-ring row, and "Setting up your food database for the
+          first time" genuinely doesn't fit there, showing as a clipped
+          "Setting up..." with the rest of the sentence lost. This screen
+          is a real, standalone full-screen use, not a compact row, so it
+          gets its own, real, full-width, wrapping text instead of
+          touching that shared component's own existing narrow layout. */}
+      <Text style={styles.message}>Setting up your food database for the first time</Text>
     </Animated.View>
   );
 }
+
+const PROGRESS_TICK_MS = 200;
+// How much of the remaining distance to the 95% cap gets closed on each
+// tick -- calibrated against the real ~30-60 second window originally
+// reported. A real, honest limitation, not fixable by a "better" number:
+// this is a real device-speed-dependent estimate, so it will genuinely
+// finish early on a faster phone (or a faster run) and late on a slower
+// one -- the real catch-up animation above is what actually absorbs that
+// variance gracefully regardless of which real percentage the import
+// happens to finish at, rather than this constant needing to be perfectly
+// tuned per device.
+const PROGRESS_STEP_FACTOR = 0.012;
+const PROGRESS_CAP = 95;
+// The real, elapsed-time-driven catch-up from wherever the estimate had
+// reached up to a true 100, triggered only once isComplete is genuinely
+// true.
+const CATCH_UP_DURATION_MS = 550;
+const CATCH_UP_TICK_MS = 30;
+// How long "Finished!" stays on screen before the pop-out starts -- long
+// enough to actually register as a real, distinct state, not just a
+// flash mid-transition.
+const FINISHED_HOLD_MS = 600;
+const POP_DURATION_MS = 260;
 
 const styles = StyleSheet.create({
   container: {
@@ -142,5 +191,12 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingHorizontal: 40,
+  },
+  message: {
+    ...typography.bodyEmphasis,
+    color: colors.textPrimary,
+    textAlign: 'center',
+    marginTop: 20,
   },
 });
