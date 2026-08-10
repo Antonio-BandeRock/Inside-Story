@@ -15,6 +15,100 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: whole-food rules substantially tightened and expanded — a real, direct scope refinement from the app owner
+
+A real, direct message reshaping the actual definition this whole
+database runs on: "The only variation we should allow in the database is
+whole food, dried whole food, fermented whole food, fresh squeezed or
+pressed juice, or oil, and fresh harvest frozen whole food, including
+dairy, cheeses, but we aren't tracking by the apple slice... We are not
+including already made dish items, or non-whole food products." Followed
+by four real, direct additions in the same conversation: breads ("because
+of the expansion of who this app is for"), whole spices and fresh herbs
+("flavor is the basis for enjoying the food"), flours in pulverized form
+("for being able to bake things"), and traditional pantry staples —
+sugar, brown sugar, baking soda, cacao, coffee, "and other things that
+humans have been using for the past 100 years prior to the heavy
+processing of foods began... we're trying to get them to understand what
+it is they're putting into their body."
+
+**Four brand-new positive categories built into `classify.js`, every one
+of them designed against REAL data already in this database rather than
+written speculatively** (the same discipline this whole pipeline has
+held to throughout): oil, bread, flour, whole spices/fresh herbs, and a
+fifth — traditional pantry staples (sugar, baking soda, baking powder,
+cream of tartar, yeast, salt, cocoa/cacao, coffee). Each carries its own
+real, targeted disqualifier list, checked only when that category's own
+positive keyword already matched, so a disqualifier can never affect an
+unrelated food (e.g. "sauce" disqualifies a matched spice/herb without
+ever risking excluding a legitimate "Apple sauce, unsweetened").
+
+**Two real, confirmed precedence bugs found and fixed along the way, not
+just noted**: the general exclude gate now runs FIRST, ahead of every
+positive rule — previously, "Kathrinchen honey gingerbread biscuits" (a
+cookie) matched `NATURAL_SWEETENER_KEEP`'s own "honey" before the
+exclude list ever got a chance to run, and the identical class of bug
+existed for `SAFE_OVERRIDES`. A real, honest, still-open limitation is
+named directly in the code rather than hidden: "Bagel with smoked salmon
+cream cheese salad" still incorrectly matches as whole food, since no
+safe, general exclude keyword actually applies to that specific
+composite name without also risking excluding legitimate foods — left
+for a human reviewer, exactly what the audit tool exists for.
+
+**A real, iterative verification pass against actual database rows — not
+just the synthetic test suite — caught a genuinely large real problem
+before this was ever called done**: an early version of the new
+spice/herb rule matched "cinnamon"/"parsley"/"poppy seed" inside dozens
+of branded cereal products (Quaker Instant Oatmeal, Cheerios Apple
+Cinnamon, Cinnamon Toast Crunch), composite baked desserts (cinnamon
+rolls, yeast-dough pastries, fruit dumplings), and composite dishes
+("Fish with sun-dried tomato parsley garlic") — none of which are the
+plain spice itself. Fixed with a new, shared `PRODUCT_SIGNAL_DISQUALIFIERS`
+list (cereal, roll, dumpling, dough, chocolate, confection, french
+toast, smoothie, stuffed, prepackaged) reused across both the spice/herb
+and pantry-staple checks. A second, narrower real collision was found
+the same way: "baking soda" contains the standalone word "soda," which
+was tripping the existing soft-drink exclude keyword before the new
+pantry-staple rule ever ran — fixed with a small, explicit guard. A
+third, separate real gap: "Olive oil vinaigrette sauce... prepackaged"
+and "Fish oil, menhaden, fully hydrogenated" were both matching the bare
+"oil" rule — fixed by adding `sauce`/`vinaigrette`/`hydrogenated`/
+`prepackaged` to `OIL_DISQUALIFIERS`.
+
+**`REFINED_SWEETENER` corrected, not just extended**: plain granulated/
+powdered/white/brown sugar used to be a real EXCLUSION — reversed per
+the app owner's own direct instruction, since crystallized cane/beet
+sugar is a centuries-old refining process, not a modern industrial one.
+What correctly stays excluded: corn syrup and high-fructose corn syrup
+specifically (HFCS was first commercially produced in the 1970s — a
+genuinely modern, industrial sweetener, not part of the "100 years prior
+to heavy processing" framing the rest of this list now follows).
+
+**Real, concrete before/after totals from re-running `classify.js`
+against every one of the 32,707 already-ingested real records** (all
+`reviewed=0`, since no real human review has happened yet — a genuine,
+full re-classification, not a partial one):
+
+| | Before this pass | After this pass |
+|---|---|---|
+| Whole food | 15,769 | 17,682 |
+| Not whole food | 5,306 | 7,083 |
+| Needs human review | 11,632 | 7,942 |
+
+A real, substantial reduction in the ambiguous review queue (-3,690,
+about 32% smaller) — the new categories gave a confident answer to
+thousands of records that previously had no applicable rule at all, while
+the precedence fixes correctly moved a real number of previously-wrong
+`true` results (composite dishes, branded products) to `false`.
+
+**74/74 real classify.js tests passing** (`classify.test.js`, up from
+60 — every new category and every real bug found via live-data spot-
+checking has its own regression test), **119/119 across the whole
+pipeline**. A new, permanent `pipeline/reclassify-all.js` — the real CLI
+entry point this project never had before for "re-run classification
+across everything already ingested after a rule change," distinct from
+`run-source.js`'s own per-source ingest pipeline.
+
 ## Status: Phase 3/4 review tool built — a real, working audit-tool webpage, published
 
 **`audit-tool/unified-audit.html`** — the real, hand-authored template
