@@ -753,7 +753,9 @@ export function LensHub<T extends string>({
                     ) : (
                       <View style={styles.itemIconPillPlain}>
                         {option.renderIcon ? (
-                          option.renderIcon(GRID_ITEM_CUSTOM_ICON_SIZE, tabColor)
+                          <View style={styles.conditionIconInactive}>
+                            {option.renderIcon(GRID_ITEM_CUSTOM_ICON_SIZE, tabColor)}
+                          </View>
                         ) : (
                           <Ionicons name={option.icon} size={GRID_ITEM_ICON_SIZE} color={tabColor} style={textShadow} />
                         )}
@@ -1050,6 +1052,18 @@ const styles = StyleSheet.create({
     height: GRID_ITEM_PILL_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  // 2026-08-09, explicitly requested: unselected condition icons (Purple
+  // Digest's own real per-condition artwork, the option.renderIcon path --
+  // no other page sets this prop, so this can't affect any Ionicons glyph
+  // used elsewhere) sit at 65% transparent until selected, at which point
+  // the active branch below renders them at the ordinary, unwrapped full
+  // opacity. Deliberately scoped to just the renderIcon wrapper rather than
+  // added to itemIconPillPlain itself, which every other page's own
+  // inactive Ionicons icons also use at full opacity/color by design (see
+  // this file's own 2026-07-26 comment on that).
+  conditionIconInactive: {
+    opacity: 0.35,
   },
   // textAlign: 'center', 2026-08-07 -- alignItems: 'center' on `item`
   // (above) only ever centered the label's own text BLOCK as a whole
