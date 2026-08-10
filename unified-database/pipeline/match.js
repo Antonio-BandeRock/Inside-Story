@@ -75,6 +75,127 @@ function resolvedEnglishName(row) {
 }
 
 /**
+ * Reads every real, current member of every existing match group --
+ * the data matchAgainstExistingGroups needs to let a newly-classified
+ * row join a group formed by an EARLIER run, rather than only ever
+ * matching against other rows from the SAME run (the real, honestly-
+ * named limitation documented in run-source.js's own header comment,
+ * and confirmed as the actual live blocker preventing any real
+ * Norway<->Sweden match once Sweden's names were translated: 0 real
+ * cross-source matches existed even after Sweden's own genuine, correct
+ * classification, purely because nothing could reach into Norway's
+ * already-formed groups from a later run).
+ */
+function fetchExistingGroupMembers(execFileSync, SQLITE_EXE, dbPath) {
+  const raw = execFileSync(
+    SQLITE_EXE,
+    [
+      '-cmd', '.timeout 30000',
+      dbPath,
+      '-json',
+      `SELECT m.match_group_id, rf.raw_id, rf.name_english, rf.latin_name, rf.langual_codes, s.language AS source_language
+       FROM food_match_members m
+       JOIN raw_foods rf ON rf.raw_id = m.raw_id
+       JOIN sources s ON s.source_code = rf.source_code;`,
+    ],
+    { encoding: 'utf8' }
+  );
+  return JSON.parse(raw || '[]');
+}
+
+/**
+ * Real fix for the real gap above: checks each newly-unmatched row
+ * against EVERY EXISTING group's own real members, using the exact
+ * same tiered precedence and the exact same "a row with a known Latin
+ * name is never matched by a weaker signal" protection already proven
+ * for the peer-to-peer cascade in proposeMatches below -- this is
+ * deliberately the SAME rules, just checked against a different, older
+ * pool of candidates, not a separate, looser standard.
+ *
+ * Returns { statements, claimedRawIds } -- claimedRawIds must be
+ * removed from whatever list gets passed into proposeMatches next, so
+ * a row claimed here never ALSO gets a brand-new, redundant group.
+ */
+function matchAgainstExistingGroups(newRows, existingMembers) {
+  const statements = [];
+  const claimedRawIds = new Set();
+  const nowIso = new Date().toISOString();
+
+  const byLatin = new Map(); // normalized latin name -> group id
+  const byLangual = new Map(); // sorted langual code set -> group id (only from members with NO latin_name of their own -- same real reason as Tier 2 below)
+  const byName = new Map(); // normalized english name -> group id (from every real member with a resolved name)
+
+  for (const m of existingMembers) {
+    if (m.latin_name) {
+      const key = normalizeForMatch(m.latin_name);
+      if (!byLatin.has(key)) byLatin.set(key, m.match_group_id);
+    }
+    if (m.langual_codes && !m.latin_name) {
+      try {
+        const codes = JSON.parse(m.langual_codes);
+        if (Array.isArray(codes) && codes.length > 0) {
+          const key = [...codes].sort().join('|');
+          if (!byLangual.has(key)) byLangual.set(key, m.match_group_id);
+        }
+      } catch {
+        // real, malformed data -- skip this member as a lookup key rather than crash
+      }
+    }
+    const name = resolvedEnglishName(m);
+    if (name) {
+      const key = normalizeForMatch(name);
+      if (!byName.has(key)) byName.set(key, m.match_group_id);
+    }
+  }
+
+  for (const row of newRows) {
+    let groupId = null;
+    let method = null;
+
+    if (row.latin_name) {
+      const hit = byLatin.get(normalizeForMatch(row.latin_name));
+      if (hit) { groupId = hit; method = 'latin_name'; }
+    }
+    // Same real protection as Tier 2/Tier 3 below: a row that already
+    // has a confirmed Latin name is NEVER matched into a different
+    // group by a weaker signal, even if that group is pre-existing.
+    if (!groupId && !row.latin_name && row.langual_codes) {
+      try {
+        const codes = JSON.parse(row.langual_codes);
+        if (Array.isArray(codes) && codes.length > 0) {
+          const hit = byLangual.get([...codes].sort().join('|'));
+          if (hit) { groupId = hit; method = 'langual_code'; }
+        }
+      } catch {
+        // malformed langual_codes on the incoming row -- skip, not a crash
+      }
+    }
+    if (!groupId && !row.latin_name) {
+      const name = resolvedEnglishName(row);
+      if (name) {
+        const hit = byName.get(normalizeForMatch(name));
+        if (hit) { groupId = hit; method = 'canonical_name'; }
+      }
+    }
+
+    if (groupId) {
+      claimedRawIds.add(row.raw_id);
+      statements.push(
+        `INSERT INTO food_match_members (match_group_id, raw_id, match_method, match_confidence)
+         VALUES (${groupId}, ${row.raw_id}, ${esc(method)}, 'proposed');`
+      );
+      // A group that just gained a real second (or third...) source is,
+      // by definition, no longer region-specific.
+      statements.push(
+        `UPDATE food_match_groups SET is_region_specific = 0 WHERE match_group_id = ${groupId};`
+      );
+    }
+  }
+
+  return { statements, claimedRawIds, timestamp: nowIso };
+}
+
+/**
  * Builds real match groups from a list of candidate rows, grouped by a
  * caller-supplied real key function. Only groups of 2+ become a real,
  * proposed multi-member match -- a lone row under a given key isn't a
@@ -246,4 +367,4 @@ function proposeMatches(rows, startingGroupId = 0) {
   return statements;
 }
 
-module.exports = { normalizeForMatch, groupByKey, proposeMatches, resolvedEnglishName, fetchUnmatchedWholeFoods };
+module.exports = { normalizeForMatch, groupByKey, proposeMatches, resolvedEnglishName, fetchUnmatchedWholeFoods, fetchExistingGroupMembers, matchAgainstExistingGroups };

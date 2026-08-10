@@ -13,18 +13,17 @@
 // real, correct function built for exactly this, `fetchUnmatchedWholeFoods`
 // -- it just was never actually wired in here. Fixed by using it.
 //
-// Real, honest, named limitation this fix does NOT solve, worth stating
-// plainly rather than implied away: a newly-ingested row can only join
-// an EXISTING group from a past run if `proposeMatches` itself is given
-// that old group's own members to compare against -- which it currently
-// isn't (only genuinely unmatched rows are passed in). This means a
-// brand-new source's row that should join, say, Norway's own already-
-// grouped "Apple" (Malus domestica) group won't actually join it yet --
-// it'll form its own new, separate, correct-but-unlinked group instead.
-// Not a risk of silent wrong data (nothing gets merged into the wrong
-// group), just a real, deferred completeness gap -- a genuine
-// candidate for a later pass once more sources are in and this
-// scenario actually starts happening in practice.
+// UPDATE, same day: the limitation named above at the time of that fix
+// ("a new row can't join an existing group from a past run") stopped
+// being a deferred, theoretical gap the moment Sweden's own real names
+// got translated -- it became the actual, confirmed live blocker
+// producing zero real cross-source matches between Norway and Sweden.
+// Fixed for real via match.js's own new `matchAgainstExistingGroups` --
+// every newly-unmatched row is checked against every EXISTING group's
+// real members first (same tiered precedence, same "a row with a known
+// Latin name is never overridden by a weaker signal" protection already
+// proven for the peer-to-peer cascade), and only what's left over after
+// that runs through the normal cascade below.
 //
 // Usage: node run-source.js <adapter-file>
 // Example: node run-source.js ../sources/norway.js
@@ -113,16 +112,31 @@ async function main() {
 
   console.log(`\n=== Matching ===`);
   // Only rows not already in a match group -- see this file's own
-  // header comment for the real bug this fixes.
+  // header comment for the real bug this fixed.
   const wholeFoodRows = match.fetchUnmatchedWholeFoods(execFileSync, SQLITE_EXE, dbPath);
-  console.log(`Running the real matching cascade against ${wholeFoodRows.length} newly-unmatched whole-food rows (already-matched rows from a previous run are left untouched).`);
   const t3 = Date.now();
+
+  // Step 1: let a new row join an EXISTING group from a previous run,
+  // if it really matches one -- see match.js's own matchAgainstExistingGroups
+  // for why this exists (the real, confirmed live gap: zero cross-source
+  // matches between Norway and Sweden even after Sweden was correctly
+  // translated and classified, because nothing could reach into
+  // Norway's already-formed groups).
+  const existingMembers = match.fetchExistingGroupMembers(execFileSync, SQLITE_EXE, dbPath);
+  const { statements: joinStatements, claimedRawIds } = match.matchAgainstExistingGroups(wholeFoodRows, existingMembers);
+  runBatch(joinStatements);
+  console.log(`${claimedRawIds.size} of ${wholeFoodRows.length} newly-unmatched rows joined an existing group from a previous run.`);
+
+  // Step 2: whatever's left runs through the normal peer-to-peer
+  // cascade, exactly as before.
+  const stillUnmatched = wholeFoodRows.filter((r) => !claimedRawIds.has(r.raw_id));
+  console.log(`Running the real peer-to-peer matching cascade against the remaining ${stillUnmatched.length} rows.`);
   // Real, current MAX(match_group_id) -- required so a second/later run
   // (a new source, or a re-run after more English names are filled in)
   // never generates a group id colliding with one already in the
   // database. 0 for a fresh database (no rows yet -> COALESCE kicks in).
   const startingGroupId = query('SELECT COALESCE(MAX(match_group_id), 0) AS m FROM food_match_groups;')[0].m;
-  const matchStatements = match.proposeMatches(wholeFoodRows, startingGroupId);
+  const matchStatements = match.proposeMatches(stillUnmatched, startingGroupId);
   runBatch(matchStatements);
   console.log(`Done in ${((Date.now() - t3) / 1000).toFixed(1)}s.`);
 

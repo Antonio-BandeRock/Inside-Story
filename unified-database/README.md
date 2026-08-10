@@ -32,6 +32,49 @@ between Norway and Sweden specifically will only become possible once
 Sweden's own names are translated and re-classified), 409 groups stood
 alone as region-specific.
 
+## Real machine translation, and a 5th real bug it surfaced — now fixed, with genuine cross-source matches confirmed
+
+**`pipeline/translate.js`**: real, working, keyless translation via
+translate.googleapis.com's own unofficial endpoint (confirmed live and
+accurate before being built on: "Nöt talg" → "Beef tallow," "Kokosmjölk,
+lätt" → "Coconut milk, light"). Real, honestly-tracked provenance: a new
+`raw_foods.name_english_source` column distinguishes `'source_verified'`
+(Norway's own real `/en/` API data) from `'machine_translated'` — the
+same discipline this whole project already holds every other unverified-
+but-useful signal to (the Wentz healing-stages framework, the Purple
+Digest's own AI-opinion entries). Real, defensive batching (max 100
+items or ~4,000 characters per request, a respectful delay between
+batches, and a hard line-count check that treats a misaligned response
+as a fully failed batch rather than risk attaching the wrong English
+name to the wrong food).
+
+Ran for real against Sweden's 2,606 untranslated names: **all 2,606
+succeeded, 0 failed**, in 12-31 seconds depending on the run.
+
+**Translating Sweden immediately surfaced a 5th real bug — the actual,
+live blocker preventing any real cross-source match at all**, not a
+remote, theoretical gap: a newly-classified row could only ever match
+*other new rows in the same run*, never join an *existing* group from
+Norway's own earlier pass. Fixed with a new `matchAgainstExistingGroups`
+in `match.js`, using the exact same tiered precedence and the exact
+same "a row with a known Latin name is never overridden by a weaker
+signal" protection already proven for the peer-to-peer cascade — just
+checked against a different, older pool of candidates.
+
+**Real, verified result after the fix**: 37 of Sweden's 883 newly-
+whole-food rows correctly joined existing Norway groups. Directly
+confirmed with real examples, not just totals — Norway's own 23-cut
+beef group (already correctly species-matched via Latin name) gained
+two real Swedish beef cuts ("Nöt ryggbiff rå," "Nöt oxfilé rå," both
+machine-translated to "Beef tenderloin raw"); Norway's carrot juice
+correctly joined by Sweden's "Morotsjuice" → "Carrot juice"; Brussels
+sprouts, basil, both correct too. This is the actual payoff the whole
+architecture was built for, now real and demonstrated, not theoretical.
+
+**Final, current combined state**: 4,727 records (2,121 Norway + 2,606
+Sweden). 1,698 whole food / 710 not / 2,319 needing human review. 121
+groups matched across 2+ sources (476 real foods), 1,222 region-specific.
+
 ### A fourth real bug, found running Sweden on top of Norway's already-matched data
 
 Re-running the match phase against **every** current whole-food row
@@ -198,13 +241,13 @@ question for whenever Sweden's own adapter gets written.
    above).
 2. **Phase 2: real source ingestion — underway.** Norway and Sweden
    both done and verified (`sources/norway.js`, `sources/sweden.js`,
-   run via `pipeline/run-source.js`). Real, honest current state, 4,727
-   records: 815 whole food / 306 not / 3,606 needing human review (all
-   2,606 of Sweden's own records among them, since it has no verified
-   English source); 99 groups matched 2+ records, 409 region-specific.
-   Remaining: a real translation pass for Sweden's own names (no
-   shortcut exists the way Norway's `/en/` endpoint provided one), then
-   the original 7 sources (`ClaudeWork/unified_food_database_v3_full.sqlite.zip`
+   run via `pipeline/run-source.js`). Sweden's own real names translated
+   (`pipeline/translate.js` + `pipeline/translate-source.js`) and
+   genuine Norway↔Sweden cross-source matches confirmed real (see the
+   dedicated section above). Real, current combined state, 4,727
+   records: 1,698 whole food / 710 not / 2,319 needing human review;
+   121 groups matched 2+ records (476 foods), 1,222 region-specific.
+   Remaining: the original 7 sources (`ClaudeWork/unified_food_database_v3_full.sqlite.zip`
    already holds a real, unfiltered 27,980-row combine of those — a
    real, existing head start, not starting from zero).
 3. **Phase 3: whole-food classification** — run `classify.js` for real
@@ -269,10 +312,12 @@ cd unified-database
 npm install                           # installs the real xlsx dependency (needed for sources/sweden.js)
 node pipeline/init-db.js              # creates unified_foods.sqlite from schema.sql
 node pipeline/classify.test.js        # 33/33
-node pipeline/match.test.js           # 12/12
+node pipeline/match.test.js           # 15/15
 node pipeline/ingest.test.js          # 10/10
 node pipeline/run-source.test.js      # 6/6
-node pipeline/run-source.js sources/norway.js   # real, live ingest + classify + match against Norway's actual API
-node pipeline/run-source.js sources/sweden.js   # real, live ingest + classify + match against Sweden's actual export
+node pipeline/translate.test.js       # 7/7 (real, live network call)
+node pipeline/run-source.js sources/norway.js       # real, live ingest + classify + match against Norway's actual API
+node pipeline/run-source.js sources/sweden.js       # real, live ingest + classify + match against Sweden's actual export
+node pipeline/translate-source.js Sweden_Livsmedelsverket   # real translation, then re-classify + re-match
 node pipeline/seed-and-run-e2e.js     # real, seeded end-to-end proof (not permanent data)
 ```

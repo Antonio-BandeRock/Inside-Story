@@ -42,12 +42,21 @@ function buildIngestStatements(sourceCode, records) {
     const langualJson = r.langualCodes ? JSON.stringify(r.langualCodes) : null;
     const rawJson = JSON.stringify(r.raw ?? {});
 
+    // An adapter only ever sets nameEnglish directly when it's a real,
+    // source-verified value (Norway's own /en/ API, say) -- machine
+    // translation is a genuinely separate, later pipeline step
+    // (translate.js) writing directly to name_english/name_english_source
+    // via its own dedicated UPDATE, never through this ingest path. So
+    // any nameEnglish an adapter provides here is always 'source_verified'.
+    const nameEnglishSource = r.nameEnglish ? 'source_verified' : null;
+
     statements.push(
-      `INSERT INTO raw_foods (source_code, source_food_id, name_original, name_english, latin_name, langual_codes, category_original, raw_json, ingested_at)
-       VALUES (${esc(sourceCode)}, ${esc(r.sourceFoodId)}, ${esc(r.nameOriginal)}, ${esc(r.nameEnglish)}, ${esc(r.latinName)}, ${esc(langualJson)}, ${esc(r.categoryOriginal)}, ${esc(rawJson)}, ${esc(nowIso)})
+      `INSERT INTO raw_foods (source_code, source_food_id, name_original, name_english, name_english_source, latin_name, langual_codes, category_original, raw_json, ingested_at)
+       VALUES (${esc(sourceCode)}, ${esc(r.sourceFoodId)}, ${esc(r.nameOriginal)}, ${esc(r.nameEnglish)}, ${esc(nameEnglishSource)}, ${esc(r.latinName)}, ${esc(langualJson)}, ${esc(r.categoryOriginal)}, ${esc(rawJson)}, ${esc(nowIso)})
        ON CONFLICT(source_code, source_food_id) DO UPDATE SET
          name_original = excluded.name_original,
-         name_english = COALESCE(excluded.name_english, raw_foods.name_english), -- never clobber a real, already-verified English name with a re-ingest that doesn't have one
+         name_english = COALESCE(excluded.name_english, raw_foods.name_english), -- never clobber a real, already-verified or already-translated English name with a re-ingest that doesn't have one
+         name_english_source = COALESCE(excluded.name_english_source, raw_foods.name_english_source),
          latin_name = COALESCE(excluded.latin_name, raw_foods.latin_name),
          langual_codes = COALESCE(excluded.langual_codes, raw_foods.langual_codes),
          category_original = excluded.category_original,

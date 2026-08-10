@@ -2,7 +2,7 @@
 // `node match.test.js`.
 
 const assert = require('assert');
-const { normalizeForMatch, proposeMatches } = require('./match.js');
+const { normalizeForMatch, proposeMatches, matchAgainstExistingGroups } = require('./match.js');
 
 let pass = 0;
 let fail = 0;
@@ -159,6 +159,49 @@ check('A row with NO Latin name at all is still eligible for real Tier 2 LanguaL
   const statements = proposeMatches(rows, 0);
   const langualMatches = statements.filter((s) => s.includes("'langual_code'"));
   assert.strictEqual(langualMatches.length, 2, 'two Latin-name-less rows sharing an identical LanguaL set should still match via Tier 2');
+});
+
+check('REGRESSION (the real live blocker): a new row from a second source, with no Latin name, whose translated English name matches an existing group member, correctly JOINS that existing group instead of forming its own new, unlinked one -- the exact real gap that left Norway/Sweden showing zero cross-source matches even after Sweden was translated and correctly classified', () => {
+  const existingMembers = [
+    { match_group_id: 5, raw_id: 100, name_english: 'Apple, Granny Smith, raw', latin_name: 'Malus domestica Borkh.', langual_codes: null, source_language: 'en' },
+    { match_group_id: 5, raw_id: 101, name_english: 'Apple juice', latin_name: 'Malus domestica Borkh.', langual_codes: null, source_language: 'en' },
+  ];
+  const newRows = [
+    // No Latin name of its own (Sweden's real, honest limitation) --
+    // but its machine-translated name matches an existing member's own name exactly.
+    { raw_id: 200, source_code: 'Sweden_Livsmedelsverket', name_english: 'Apple juice', latin_name: null, langual_codes: null, source_language: 'sv' },
+  ];
+  const { statements, claimedRawIds } = matchAgainstExistingGroups(newRows, existingMembers);
+  assert.ok(claimedRawIds.has(200), 'the new Swedish row should be claimed into the existing group');
+  const memberInsert = statements.find((s) => s.includes('food_match_members'));
+  assert.ok(memberInsert.includes('VALUES (5, 200,'), `expected the new row to join group 5, got: ${memberInsert}`);
+  assert.ok(memberInsert.includes("'canonical_name'"));
+  const regionUpdate = statements.find((s) => s.includes('UPDATE food_match_groups'));
+  assert.ok(regionUpdate && regionUpdate.includes('is_region_specific = 0') && regionUpdate.includes('= 5'), 'the group must be marked no-longer-region-specific now that it has a real second source');
+});
+
+check('A row with a confirmed Latin name is STILL protected even when joining an existing group -- it will only join via a real species match, never by a weaker signal, same as the peer-to-peer cascade', () => {
+  const existingMembers = [
+    { match_group_id: 6, raw_id: 110, name_english: 'Blueberries, raw', latin_name: 'Vaccinium corymbosum', langual_codes: null, source_language: 'en' },
+  ];
+  const newRows = [
+    // Same common name, but a REAL, different, known species -- must never join group 6.
+    { raw_id: 210, source_code: 'TEST', name_english: 'Blueberries, raw', latin_name: 'Vaccinium myrtillus L.', langual_codes: null, source_language: 'en' },
+  ];
+  const { claimedRawIds } = matchAgainstExistingGroups(newRows, existingMembers);
+  assert.ok(!claimedRawIds.has(210), 'a row with a real, different confirmed species must never join an existing group via name coincidence alone');
+});
+
+check('A row that matches nothing existing is correctly left unclaimed, ready for the normal peer-to-peer cascade', () => {
+  const existingMembers = [
+    { match_group_id: 7, raw_id: 120, name_english: 'Salmon, raw', latin_name: 'Salmo salar', langual_codes: null, source_language: 'en' },
+  ];
+  const newRows = [
+    { raw_id: 220, source_code: 'TEST', name_english: 'Trout, raw', latin_name: 'Oncorhynchus mykiss', langual_codes: null, source_language: 'en' },
+  ];
+  const { statements, claimedRawIds } = matchAgainstExistingGroups(newRows, existingMembers);
+  assert.strictEqual(claimedRawIds.size, 0);
+  assert.strictEqual(statements.length, 0);
 });
 
 console.log('');

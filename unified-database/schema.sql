@@ -58,7 +58,8 @@ CREATE TABLE raw_foods (
   source_code          TEXT NOT NULL REFERENCES sources(source_code),
   source_food_id        TEXT,               -- the source's own native ID for this food, if it has one (USDA's fdc_id, Norway's real food number, etc.) -- NULL is fine for a source with no stable native ID
   name_original          TEXT NOT NULL,      -- verbatim, exactly as the source wrote it, original language untouched
-  name_english            TEXT,               -- filled in once a real, verified English name exists -- NULL means "not yet translated," never guessed or machine-translated silently
+  name_english            TEXT,               -- a real English name, from either a source-verified provenance or real machine translation -- see name_english_source; NULL means genuinely not yet available at all
+  name_english_source     TEXT,               -- 'source_verified' (the source's own real, documented English data -- e.g. Norway's own /en/ API) | 'machine_translated' (real, automated translation -- see pipeline/translate.js -- a genuine first pass, not a human-verified fact, and never presented as equivalent to source_verified) | NULL when name_english itself is NULL
   latin_name              TEXT,               -- scientific/species name, when the source provides one -- the strongest real cross-language matching signal available
   langual_codes           TEXT,               -- JSON array of LanguaL codes, when the source provides them (e.g. '["N0001","G0003","A0152"]')
   category_original        TEXT,               -- the source's own raw category/group label, completely untouched -- normalization into this project's own category scheme happens later, downstream, never here
