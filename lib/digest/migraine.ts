@@ -514,4 +514,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-botox-preempt-trials', 'migraine-episodic-chronic-real-debate'],
   },
+  {
+    id: 'migraine-cardiovascular-risk-beyond-stroke',
+    category: 'migraine',
+    title: 'Migraine With Aura Carries a Real, Broader Cardiovascular Risk -- Not Just the Stroke Risk This Digest Already Covers',
+    teaser: "This category's own already-covered aura-stroke research names a real, specific risk -- a real, 115,000-woman, 20-year study found migraine with aura also carries significantly elevated risk of heart attack, angina, and cardiovascular death, a real, genuinely broader risk than stroke alone.",
+    summary:
+      "This category's own already-covered migraine-with-aura research already names a real, specific stroke risk, and a real, large, long-term study finds the underlying cardiovascular risk actually extends well beyond stroke alone. A real, 20-year prospective cohort study of over 115,000 women (the Nurses' Health Study II) found active migraine associated with a real, significantly elevated risk of major cardiovascular disease overall, including a real, quantified 39 percent higher risk of heart attack specifically (hazard ratio 1.39), plus significantly elevated stroke risk and angina/coronary-revascularization procedures. The real, genuinely important distinction, worth stating directly: this elevated risk was found specifically in migraine WITH aura, active migraine WITHOUT aura was not associated with increased risk of any cardiovascular event in the same real study, real, direct evidence that the aura component itself, not migraine broadly, is what carries this particular real risk. Real research names plausible, direct shared mechanisms behind this connection: endothelial dysfunction (blood-vessel-lining impairment), neurovascular dysregulation, platelet hyperactivity, and systemic inflammation, several of which are already covered elsewhere in this app's own broader cardiovascular research as real, general disease-driving processes. Worth stating directly: this real, broader cardiovascular signal, not just the already-covered stroke risk, is exactly why migraine with aura is now considered by real research as a genuine overall cardiovascular risk factor, worth a real, direct conversation about cardiovascular risk-factor management (blood pressure, cholesterol, smoking) for anyone with this specific migraine subtype, not treated as a purely neurological concern.",
+    citations: [
+      { source: 'Migraine, vascular risk, and cardiovascular events in women: prospective cohort study, PMC2505092', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC2505092/' },
+      { source: 'Migraine and risk of cardiovascular disease in women, PMID 27247281', url: 'https://pubmed.ncbi.nlm.nih.gov/27247281/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-aura-stroke-real-risk', 'cvd-overview'],
+  },
 ];

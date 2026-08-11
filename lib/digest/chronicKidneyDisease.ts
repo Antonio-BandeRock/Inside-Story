@@ -543,4 +543,17 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-depression-underrecognized', 'ckd-cognitive-decline-dementia-risk'],
   },
+  {
+    id: 'ckd-restless-legs-syndrome-real-prevalence',
+    category: 'chronicKidneyDisease',
+    title: 'Restless Legs Syndrome Affects a Real, Striking Share of Dialysis Patients -- and Carries Its Own Real Mortality Link',
+    teaser: "This category's own already-covered depression and anxiety research names real, common psychological burdens -- restless legs syndrome is a real, distinct, physical complication affecting over a quarter of hemodialysis patients globally, with a real, direct link to worse cardiovascular outcomes.",
+    summary:
+      "This category's own already-covered depression and anxiety research names real, common psychological complications of CKD, and restless legs syndrome (RLS, an uncomfortable urge to move the legs, often worse at rest or at night) is a real, distinct, physical complication deserving its own direct coverage. A real, global systematic review and meta-analysis found a pooled RLS prevalence of 27.2 percent among hemodialysis patients, real, striking evidence this affects more than a quarter of that population, well above general-population estimates. The real, useful detail: prevalence varies meaningfully by real, measured factors, higher in women (29.7 percent) than men (23.5 percent), and by region (Africa 39.0 percent, Europe 29.8 percent, Asia 25.7 percent), real, genuine population-level variation rather than one flat, universal number. The real, direct mechanism connects to this category's own already-covered anemia and iron research: reduced kidney clearance and inflammation elevate iron-regulating hormones in hemodialysis patients, real, direct evidence lowering serum iron levels and impairing how the brain itself uses iron, a real, plausible pathway to RLS specifically. The real, most serious finding, worth stating directly: RLS in this population isn't just an uncomfortable symptom, real research links it to insomnia, fatigue, anxiety, and depression, and, more seriously, to a real, increased risk of cardiovascular events and death. Worth stating directly: this real, common, physically distinct complication is worth raising directly with a nephrology team, especially since this category's own already-covered iron research (IV versus oral iron) may address a real, shared underlying cause.",
+    citations: [
+      { source: 'Global prevalence of restless legs syndrome among hemodialysis patients: A systematic review and meta-analysis, PMC10784193', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10784193/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-anemia-erythropoietin', 'ckd-iv-vs-oral-iron-real-trials'],
+  },
 ];
