@@ -522,4 +522,18 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-bariatric-surgery-remission', 'type2-direct-remission-trial'],
   },
+  {
+    id: 'type2-sleep-duration-quality-real-data',
+    category: 'type2Diabetes',
+    title: 'Short Sleep and Poor Sleep Quality Genuinely Predict Worse Blood Sugar Control, Independent of Sleep Apnea',
+    teaser: "This category's own already-covered sleep-apnea/CPAP entry names a real, honestly mixed treatment picture -- real, direct data finds sleep duration and quality THEMSELVES, apart from apnea specifically, carrying a real, striking, independent effect on glycemic control.",
+    summary:
+      "This category's own already-covered sleep-apnea research finds treating apnea itself producing a genuinely mixed real benefit for blood sugar control, and real, separate research finds sleep duration and quality carry their own, independent, real effect worth covering directly. Real, direct clinical data found people with T2D sleeping fewer than 6 hours a night had 8.3 times higher odds of poor glycemic control compared with those getting adequate sleep, and poor sleep quality itself (regardless of duration) carried a real 3.3 times higher odds of poor control. Real research names a plausible, direct mechanism: sleep disturbance is associated with real, measurable increases in circulating cortisol, sympathetic nervous system activity, and epinephrine, each already directly implicated elsewhere in this Digest's own inflammation and glucose-metabolism research, not a vague, general wellness claim. A real, separate meta-analysis of sleep characteristics and diabetes risk more broadly confirms both short and long sleep duration, not just short sleep, tracking with real, elevated risk, a genuine U-shaped real relationship. Worth stating directly: this is real, actionable information independent of whether sleep apnea is present at all, someone with T2D and consistently poor sleep, for any reason, has a real, evidence-backed reason to address sleep directly as part of glucose management, not treat it as separate from or secondary to diet and medication.",
+    citations: [
+      { source: 'Glycemic control and its association with sleep quality and duration among type 2 diabetic patients, PMID 37275405', url: 'https://pubmed.ncbi.nlm.nih.gov/37275405/' },
+      { source: 'Real-World Data in Support of Short Sleep Duration with Poor Glycemic Control, in People with Type 2 Diabetes Mellitus, PMC6556303', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6556303/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-sleep-apnea-glycemic-control', 'sleep-inflammation-cytokine-mechanism'],
+  },
 ];

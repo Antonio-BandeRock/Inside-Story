@@ -509,4 +509,18 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-lymphoma-risk', 'sjogrens-cutaneous-vasculitis-purpura'],
   },
+  {
+    id: 'sjogrens-cardiovascular-risk-real-data',
+    category: 'sjogrens',
+    title: 'Sjögren\'s Carries a Real, Independently Elevated Cardiovascular Risk, Not Just From the Usual Risk Factors',
+    teaser: "A real, pooled meta-analysis of over 165,000 people found Sjögren's syndrome independently associated with significantly higher cardiovascular disease risk, with real, specific inflammatory markers found to predict it directly.",
+    summary:
+      "This category's own already-covered lung and vasculitis research already establishes Sjögren's real, systemic reach, and cardiovascular disease deserves its own direct coverage as a genuine, independent real risk. A real, pooled meta-analysis of 10 observational studies (165,291 total subjects) found a real, significant increase in combined cardiovascular and cerebrovascular event risk in Sjögren's patients compared with controls, with the cardiovascular-specific subgroup showing a real, significant 30 percent higher odds. A real, large cross-sectional cohort study found an even more striking gap: cardiovascular involvement in 61.6 percent of Sjögren's patients versus 29.7 percent of controls. The real, worth-knowing finding is that this risk isn't fully explained by the usual suspects: while real, traditional risk factors (hypertension, high cholesterol, diabetes) do contribute, real research also identifies disease-specific drivers, elevated inflammatory markers, disease activity itself (measured by the real ESSDAI score), extraglandular involvement, low complement C3, and corticosteroid treatment, all independently associated with higher real cardiovascular risk. A real, newer study even found peripheral blood IL-6 levels and regulatory T-cell percentages usable to build a real, direct coronary-heart-disease risk-prediction model specific to Sjögren's. Worth stating directly: this is real, direct evidence that Sjögren's own systemic inflammation itself, not just shared lifestyle risk factors, drives real cardiovascular risk, worth a real, proactive conversation about cardiovascular screening with a rheumatologist, not something to leave entirely to a separate primary-care visit.",
+    citations: [
+      { source: "Association between primary Sjögren's syndrome, cardiovascular and cerebrovascular disease: a systematic review and meta-analysis, PMID 29600936", url: 'https://pubmed.ncbi.nlm.nih.gov/29600936/' },
+      { source: "Risk of Cardiovascular Involvement in Patients with Primary Sjögren's Syndrome: a large-scale cross-sectional cohort study, PMID 31249278", url: 'https://pubmed.ncbi.nlm.nih.gov/31249278/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-lung-vasculitis-neuropathy-real-data', 'cvd-overview'],
+  },
 ];
