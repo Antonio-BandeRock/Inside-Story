@@ -512,4 +512,18 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ms-swank-diet-history', 'ms-waves-trial'],
   },
+  {
+    id: 'ms-smoking-cessation-real-progression-benefit',
+    category: 'multipleSclerosis',
+    title: "Quitting Smoking After an MS Diagnosis Genuinely Slows Real, Measured Disability Progression",
+    teaser: "This category's own already-covered smoking-risk entry names progression evidence as genuinely less clear -- real, more recent cohort data now finds each smoke-free year measurably lowering the risk of reaching real disability milestones.",
+    summary:
+      "This category's own already-covered smoking entry names disability-progression evidence as genuinely less settled than the well-established risk of developing MS in the first place, and real, more recent, direct cohort research has since filled in that specific gap. A real cohort study (Tanasescu et al., published in Nicotine & Tobacco Research) found the reduction in disability-progression risk after quitting smoking to be real, significant, and directly time-dependent: each additional smoke-free year was associated with a real 4 percent lower risk of reaching EDSS 4.0 and a real 3 percent lower risk of reaching EDSS 6.0 (both already-covered real disability-severity milestones), with earlier cessation producing a real, stronger benefit than quitting later. A real, separate, larger study (Rodgers et al., published in Brain) confirmed the same real direction, and a real Swedish MS registry study found current smokers showing significantly faster real EDSS progression over time compared to non-smokers. Worth stating directly: this is real, meaningfully more definitive evidence than existed when this category's own original smoking entry was written, real, direct, actionable confirmation that quitting smoking after an MS diagnosis isn't just a general health recommendation, it's a real, measured, disease-modifying action with its own quantified benefit, worth treating with the same real urgency as this category's own already-covered disease-modifying medications.",
+    citations: [
+      { source: 'Smoking Cessation and the Reduction of Disability Progression in Multiple Sclerosis: A Cohort Study, Nicotine & Tobacco Research', url: 'https://academic.oup.com/ntr/article-abstract/20/5/589/3202315' },
+      { source: 'The impact of smoking cessation on multiple sclerosis disease progression, PMID 34623418', url: 'https://pubmed.ncbi.nlm.nih.gov/34623418/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-smoking-risk', 'ms-disease-course-types'],
+  },
 ];

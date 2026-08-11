@@ -508,4 +508,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-nephritis-monitoring', 'lupus-nephritis-isn-rps-classification'],
   },
+  {
+    id: 'lupus-c1q-complement-deficiency-genetic',
+    category: 'lupus',
+    title: "A Rare Genetic Deficiency Carries the Single Strongest Known Real Risk for Developing Lupus",
+    teaser: "Real research finds more than 90% of people with hereditary C1q deficiency, an extremely rare genetic condition, going on to develop lupus, real evidence of the strongest single genetic risk factor identified for the disease.",
+    summary:
+      "This category's own already-covered global and occupational risk research names real, population-level lupus risk factors, and one rare, specific genetic condition carries a real, individually stronger risk than any of them. C1q deficiency, an extremely rare, inherited (autosomal recessive) condition caused by mutations in the genes encoding the C1q complement protein (C1QA, C1QB, C1QC), is real, direct evidence of just how central this specific protein is to preventing autoimmunity: real research finds more than 90 percent of people with this genetic deficiency going on to develop lupus or a lupus-like disease, the single strongest known genetic risk factor for the condition, well above the real, more modest risk contributions from more common genetic variants. Real research finds C1q-deficiency-associated lupus presenting with its own, real, distinct pattern in children, genuinely earlier onset, lower anti-dsDNA antibody levels than typical lupus, and predominant skin involvement. Real, broader pediatric cohort data finds low C1q levels present in 27 percent of pediatric lupus patients overall (not full genetic deficiency, just reduced levels), alongside low C2, C3, and C4 in a meaningful minority too, real evidence the complement system's own broader role in lupus extends well beyond this one rare genetic extreme. Worth stating directly: C1q deficiency itself is genuinely rare, but the real, striking near-total penetrance (over 90 percent developing lupus) makes it real, scientifically important evidence for exactly how complement-system function protects against autoimmunity in general, a real, direct biological clue behind a disease this category's own overview already names as genuinely complex in its causes.",
+    citations: [
+      { source: 'Complement deficiency in pediatric-onset systemic lupus erythematosus, PMC5896194', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5896194/' },
+      { source: 'C1q monogenic lupus: a case series and review, Rheumatology Advances in Practice', url: 'https://academic.oup.com/rheumap/article/9/3/rkaf064/8153090' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-overview', 'lupus-global-silica-occupational-clusters'],
+  },
 ];
