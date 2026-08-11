@@ -504,4 +504,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-medications-psa-monitoring', 'prostate-5ari-cancer-risk-controversy'],
   },
+  {
+    id: 'prostate-smoking-aggressive-disease-real-data',
+    category: 'prostateHealth',
+    title: 'Smoking Genuinely Makes Prostate Cancer More Aggressive, and Quitting After Diagnosis Still Real, Measurably Helps',
+    teaser: "This category's own already-covered exercise-mortality entry names lifestyle factors mattering after diagnosis -- real research finds current smoking roughly doubling to tripling the odds of high-grade disease at biopsy, with real, direct carcinogens implicated.",
+    summary:
+      "This category's own already-covered active-surveillance and exercise-mortality research names real, actionable factors after a prostate cancer diagnosis, and smoking is a real, direct, well-documented one worth its own coverage. Real research finds current smoking associated with a significantly elevated risk of aggressive disease, roughly two to three times higher odds of being diagnosed with high-grade cancer at first biopsy compared to never-smokers. Real, prospective cohort data finds current smoking tracking with a real, moderate 30 percent increase in fatal prostate cancer risk, with some real studies finding smokers facing up to twice the mortality risk. A real, specific, plausible mechanism is named directly: polycyclic aromatic hydrocarbons, real combustion byproducts present in cigarette smoke, carry documented prostate-specific carcinogenic properties, not just a generic cancer-risk association. The real, genuinely hopeful, actionable finding: research finds continuing to smoke AFTER diagnosis specifically linked to more aggressive disease, higher recurrence, and increased mortality, while smoking cessation is strongly associated with both reduced initial risk and measurably improved outcomes in men already diagnosed. Worth stating directly: this real, timing-sensitive finding means quitting smoking after a prostate cancer diagnosis is genuinely not too late to matter, a real, concrete, evidence-backed action worth taking regardless of when in the disease course someone is.",
+    citations: [
+      { source: 'Smoking and the risk of prostate cancer: a review of risk and disease progression, PMC12512299', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12512299/' },
+      { source: 'Smoking and Prostate Cancer Survival and Recurrence, PMC3562349', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3562349/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-exercise-cancer-mortality', 'prostate-active-surveillance-real-longterm-data'],
+  },
 ];

@@ -125,7 +125,7 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
       { source: 'Oral vitamin D3 supplementation for chronic plaque psoriasis: a randomized, double-blind, placebo-controlled trial', url: 'https://pubmed.ncbi.nlm.nih.gov/29480035/' },
     ],
     overallTier: 'weak',
-    relatedIds: ['nutrient-vitamin-d'],
+    relatedIds: ['nutrient-vitamin-d', 'psoriasis-advocacy-topical-vitamin-d-calcium'],
   },
   {
     id: 'psoriasis-omega3-mixed',
