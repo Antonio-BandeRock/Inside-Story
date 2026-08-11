@@ -524,4 +524,18 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-weight-loss', 'psoriasis-systemic-comorbidities'],
   },
+  {
+    id: 'psoriasis-pediatric-real-prevalence-treatment',
+    category: 'psoriasis',
+    title: "Psoriasis Often Genuinely Starts in Childhood, and a Real, Distinct Treatment Path Exists for the More Severe Cases",
+    teaser: "This category's own already-covered guttate/pediatric-strep entry names one real childhood trigger -- real, direct prevalence data finds roughly a third of ALL psoriasis cases beginning in childhood generally, with a real, growing set of biologic options specifically approved for this age group.",
+    summary:
+      "This category's own already-covered guttate psoriasis entry names one real, specific pediatric trigger (a preceding strep infection), and real, broader prevalence data finds childhood-onset psoriasis genuinely common well beyond that one subtype: real research finds roughly a third of all psoriasis cases beginning during childhood, with prevalence climbing steadily and linearly with age, from a real 0.55 percent in UK children ages 0-9 up to 1.37 percent by ages 10-19, and a real, similar pattern (0.12 percent at age 1 rising to 1.2 percent by age 18) found in German data too, with girls affected somewhat more often than boys. Real research finds a real, meaningful minority, 10 to 20 percent of pediatric psoriasis cases, reaching moderate-to-severe severity requiring systemic treatment, not just topical management. The real, genuinely useful, practical finding: real, direct pediatric trials now support a real, growing set of biologic treatments specifically approved for children and adolescents, with etanercept the most studied to date, and adalimumab and ustekinumab also real, approved options, real research finding high efficacy with a favorable real safety profile in this specific age group, not simply adult treatments used off-label with unknown pediatric risk. Worth stating directly: this real, substantial childhood-onset share, and the real, now-available pediatric-specific biologic options, mean a child's own psoriasis diagnosis deserves the same real, serious treatment consideration this category's own adult research already covers, not automatically deferred as something to simply outgrow.",
+    citations: [
+      { source: 'Pediatric psoriasis: Understanding pathological conditions and advances in treatment, PMC11483894', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11483894/' },
+      { source: 'Biologics for pediatric psoriasis: A systematic review and meta-analysis, PMID 34888919', url: 'https://pubmed.ncbi.nlm.nih.gov/34888919/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-guttate-pediatric-strep', 'psoriasis-biologic-drug-survival-real-data'],
+  },
 ];

@@ -508,4 +508,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-post-infectious-mechanism', 'ibs-gut-serotonin-mechanism'],
   },
+  {
+    id: 'ibs-linaclotide-real-quantified-response-rates',
+    category: 'ibs',
+    title: "Linaclotide's Real Trial Numbers, Directly Quantified, Not Just 'It Works for Constipation'",
+    teaser: "This category's own already-covered rifaximin/linaclotide entry names the real mechanism -- real, direct trial data gives the actual, quantified numbers: a real 61% complete-bowel-movement response versus 13.9% on placebo in a real, dedicated 26-week trial.",
+    summary:
+      "This category's own already-covered medications entry names linaclotide as a real, subtype-targeted treatment for IBS with constipation, working through a real, distinct mechanism (directly changing fluid movement in the gut), and real, direct trial data gives this category's own already-established mechanism real, concrete numbers worth stating plainly. A real, dedicated 26-week randomized, double-blind, placebo-controlled trial found 61.0 percent of linaclotide-treated patients met the real, formal complete-spontaneous-bowel-movement responder criterion, versus just 13.9 percent on placebo, and 48.9 percent met the real pain-responder criterion versus 22.6 percent on placebo, real, substantial, quantified separation from placebo on two real, distinct outcome measures. A real, separate Phase 3 trial conducted across China and other regions found a similar real pattern: 60.0 percent of linaclotide patients versus 48.8 percent of placebo patients met the abdominal pain/discomfort responder criterion, and 31.7 percent versus 15.4 percent for overall IBS relief. A real, pooled analysis of 4 randomized controlled trials found linaclotide also genuinely reducing how long it took for symptoms to actually respond, not just whether they eventually did. Worth stating directly: these real, specific numbers give a concrete, evidence-based expectation to discuss directly with a doctor when considering linaclotide, rather than a vague sense that 'it might help.'",
+    citations: [
+      { source: 'Linaclotide for irritable bowel syndrome with constipation: a 26-week, randomized, double-blind, placebo-controlled trial to evaluate efficacy and safety, PMID 22986437', url: 'https://pubmed.ncbi.nlm.nih.gov/22986437/' },
+      { source: 'Linaclotide in irritable bowel syndrome with constipation: A Phase 3 randomized trial in China and other regions, PMID 29319191', url: 'https://pubmed.ncbi.nlm.nih.gov/29319191/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-rome-iv-subtypes'],
+  },
 ];
