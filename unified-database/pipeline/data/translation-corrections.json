@@ -1,0 +1,82 @@
+{
+  "_comment": "Real, individually-verified corrections to specific raw_foods.name_english rows -- found while investigating a real, direct bug report ('Batavia, crue is translated wrongly to Batavia, flood'), then following that same investigation into a systematic scan of every distinct French Ciqual food name currently machine_translated (2,129 distinct names). Every one of these is a genuine 'false friend' / ambiguous-word mistranslation: the French source word has TWO real, unrelated meanings, and Google's translation endpoint picked the wrong one, almost always because the bare word or short phrase gave it too little context to infer 'this is clearly a food.' Applied via apply-translation-corrections.js, which sets name_english_source='translation_corrected' -- a real, distinct, honest provenance tag from 'machine_translated' (never verified) and 'source_verified' (came with the source's own native English name), so a future review pass can immediately tell these 11 rows have already been individually checked by a person, not just guessed at again.",
+  "corrections": [
+    {
+      "raw_id": 38375,
+      "name_original": "Batavia, crue",
+      "wrong_translation": "Batavia, flood",
+      "corrected_translation": "Batavia lettuce, raw",
+      "reason": "The real, direct bug report this whole investigation started from. 'Batavia' is a real French/Belgian lettuce variety (also called Batavian lettuce or 'French crisp'); 'crue' is the feminine form of 'cru' (raw), agreeing with an implied feminine noun like 'laitue'/'salade'. With no other context, the translator instead read 'crue' as its OTHER real meaning, the noun 'a flood' (as in a river flood) -- and, separately, may have read 'Batavia' as the historical place name (colonial-era Jakarta) rather than the lettuce, which is exactly the kind of context loss that produces 'Batavia, flood' instead of 'Batavia lettuce, raw'. Confirmed by the record's real surrounding context in France_Ciqual's own ingestion order (raw_id 38370-38380): fennel, tomato, orange juice, spinach, cauliflower, [Batavia], peas, mushroom, lima bean, squash -- an unambiguous run of plain vegetables. Rendered as 'Batavia lettuce, raw' (not bare 'Batavia, raw') to match this exact database's own already-correct convention for other lettuce varieties in the same batch ('Romaine lettuce, raw', 'Iceberg lettuce, raw')."
+    },
+    {
+      "raw_id": 39354,
+      "name_original": "Bogue, crue",
+      "wrong_translation": "Bug, flood",
+      "corrected_translation": "Bogue, raw",
+      "reason": "A second, previously-unreported instance of the exact same real bug class, found by searching the whole database for the string 'flood' in name_english -- only 2 real records matched, this and the reported Batavia one. 'Bogue' (Boops boops) is a real Mediterranean sea bream species; its real common English name is also 'bogue' (a direct loanword, used in fisheries/culinary English too), which the translator apparently didn't recognize, mistranslating both the fish name (to 'Bug') and 'crue' (to 'flood') at once. Confirmed by real surrounding context (raw_id 39345-39362): mullet, sea trout, swordfish, turbot, whiting, mackerel, cod, gray sea bream, [Bogue], bonito, Spanish mackerel, toothed fish, Saint-Pierre, gurnard, corb, capelin, pink sea bream -- an unambiguous run of plain fish. Rendered as 'Bogue, raw' (name kept as-is), matching this exact database's own established precedent of keeping a real fish name that has no cleaner English equivalent (e.g. 'Saint-Pierre, raw' a few records earlier stays untranslated too)."
+    },
+    {
+      "raw_id": 38358,
+      "name_original": "Mâche, crue",
+      "wrong_translation": "Chew, raw",
+      "corrected_translation": "Corn salad, raw",
+      "reason": "Found while scanning the same systematic list for other suspicious short English translations. 'Mâche' (Valerianella locusta) is a real, common salad green (English common names: corn salad, lamb's lettuce); the translator instead read it as the related VERB 'mâcher' (to chew), producing 'Chew.' Confirmed by real surrounding context (raw_id 38355-38362): red cabbage, pumpkin, shallot, [Mâche], multifruit nectar, frozen mixed vegetables, mushroom -- an unambiguous run of plain vegetables. Rendered as 'Corn salad, raw', the real, standard English common name, rather than keeping the French term (unlike Bogue/Saint-Pierre above), since 'corn salad' is genuinely the name an English-speaking user is far more likely to search for."
+    },
+    {
+      "raw_id": 39398,
+      "name_original": "Loup tacheté, cru",
+      "wrong_translation": "Spotted Wolf, raw",
+      "corrected_translation": "Loup tacheté, raw",
+      "reason": "'Loup' has two real, unrelated meanings in French: 'wolf' (the animal) and a common colloquial name for sea bass (already correctly recognized elsewhere in this exact database: 'Bar commun ou loup' -> 'Common sea bass or bass'). With no 'bar'/'bass' co-occurring in this shorter name, the translator read 'loup' as the animal instead, producing the food-composition-database absurdity 'Spotted Wolf, raw'. No confident, verified standard English common name for this specific fish was found during this investigation (unlike Bogue), so rather than guess a possibly-wrong species name and introduce a NEW error while fixing this one, the French name is kept as-is -- the same real, deliberate 'don't guess past your own evidence' discipline this whole project already holds itself to."
+    },
+    {
+      "raw_id": 37674,
+      "name_original": "Crottin de chèvre, au lait cru",
+      "wrong_translation": "Goat manure, with raw milk",
+      "corrected_translation": "Crottin de chèvre (goat cheese), raw milk",
+      "reason": "'Crottin' literally means 'droppings/manure' in ordinary French, but 'Crottin de chèvre' is also a real, well-known small round goat-cheese style (named for its shape, the same real culinary in-joke French speakers already know) -- the translator took the literal, non-food meaning. Confirmed as a mistake, not ambiguous, by this exact same database's own neighboring record: 'Crottin de Chavignol (fromage de chèvre)' correctly kept 'Crottin de Chavignol' as-is with a real '(goat cheese)' clarifier already added by the same translation pass -- proving the source data already disambiguates this exact word elsewhere, just not for this bare, place-name-less variant. Rendered to match that exact same established in-database pattern: the French name kept, with a parenthetical clarifier, plus the real qualifier translated correctly ('au lait cru' = raw milk, not 'with raw milk' verbatim to avoid a redundant 'with')."
+    },
+    {
+      "raw_id": 37675,
+      "name_original": "Crottin de chèvre, sans précision",
+      "wrong_translation": "Goat droppings, unspecified",
+      "corrected_translation": "Crottin de chèvre (goat cheese), unspecified",
+      "reason": "The same real mistranslation as raw_id 37674 above, on the sibling 'unspecified [preparation]' variant of the identical cheese. Fixed the same way, for the same reason."
+    },
+    {
+      "raw_id": 37596,
+      "name_original": "Comté",
+      "wrong_translation": "County",
+      "corrected_translation": "Comté (cheese)",
+      "reason": "'Comté' is a real, famous French cheese (AOC, from the Jura region), but the word also means 'county' (an administrative region) in ordinary French, and a bare, single word with no other food context gave the translator nothing to disambiguate with. Confirmed as food, not geography, by the record's real surrounding context in this exact database (immediately alongside Cheddar, Camembert, Chaource, Cantal, and Coulommiers -- an unambiguous run of plain cheese names). Rendered with the same '(cheese)' clarifier this exact database's own translation already uses for other real cheese names that would otherwise be ambiguous to an English reader (see Crottin de chèvre above)."
+    },
+    {
+      "raw_id": 37569,
+      "name_original": "Carré de l'Est",
+      "wrong_translation": "Eastern Square",
+      "corrected_translation": "Carré de l'Est (cheese)",
+      "reason": "'Carré de l'Est' is a real, specific French soft cheese (literally 'square of the East,' a real cheese-shape-plus-region name, the same naming convention as many other French cheeses), but translated completely literally word-for-word into the nonsensical 'Eastern Square' for a food-composition database. Fixed the same way as Comté above, for the same reason -- kept as the real cheese's own name, with a clarifying parenthetical."
+    },
+    {
+      "raw_id": 39652,
+      "name_original": "Marron glacé",
+      "wrong_translation": "Glazed brown",
+      "corrected_translation": "Marron glacé (candied chestnut)",
+      "reason": "'Marron' means both 'chestnut' (the food) and 'brown' (the color) in French; 'glacé' means 'glazed/candied.' 'Marron glacé' is a real, well-known French confection (a candied whole chestnut), but the translator picked the color sense of 'marron,' producing the nonsensical 'Glazed brown.' 'Marron glacé' is also a real, recognized term in English-language culinary writing on its own, so kept as the name with a clarifying parenthetical rather than fully translated, matching this database's own established pattern for other named French specialties (Crottin de chèvre, Comté, Carré de l'Est above)."
+    },
+    {
+      "raw_id": 38801,
+      "name_original": "Éclair",
+      "wrong_translation": "Lightning",
+      "corrected_translation": "Éclair (pastry)",
+      "reason": "'Éclair' means both 'lightning bolt' and the choux pastry (chocolate éclair); a bare, single word gave the translator no food context, and it picked the weather sense. Confirmed as the pastry, not weather, by this exact database's own real French-source category conventions (a food-composition database has no reason to carry a weather-phenomenon entry) and by five OTHER real 'eclair' records already correctly present and untouched elsewhere in this database (from USDA/Germany_BLS, all correctly about the pastry). Rendered with the same '(pastry)' clarifier already used for other bare, potentially-ambiguous French food names above."
+    },
+    {
+      "raw_id": 39888,
+      "name_original": "Pêche melba",
+      "wrong_translation": "Melba fishing",
+      "corrected_translation": "Peach Melba",
+      "reason": "'Pêche' means both 'peach' (the fruit) and 'fishing' (from the verb 'pêcher,' to fish); with 'Melba' alone for context, the translator picked the wrong sense, producing the nonsensical 'Melba fishing.' 'Peach Melba' (peach + vanilla ice cream + raspberry sauce, invented by Auguste Escoffier) is a real, standard, globally-recognized English dessert name -- confirmed directly by this exact database's own neighboring record, 'Coupe glacée parfum pêche Melba ou poire Belle-Hélène' -> 'Belle-Hélène peach Melba or pear flavored ice cream sundae,' which already correctly translates the same two words as 'peach Melba' in context. Rendered as the real, standard English name directly, no parenthetical needed."
+    }
+  ]
+}

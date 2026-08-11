@@ -15,6 +15,126 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, direct bug report ("Batavia, crue is translated wrongly to Batavia, flood"), expanded into a systematic scan finding and fixing 11 real machine-translation errors across the whole France_Ciqual dataset
+
+**The report itself, confirmed and root-caused first.** Queried
+`raw_foods` directly for raw_id 38375: `name_original` is "Batavia,
+crue" (a real, common lettuce variety — Batavian lettuce — described as
+raw), and `name_english` really did read "Batavia, flood." Root cause:
+French `crue` has two real, unrelated meanings — the feminine form of
+`cru` ("raw," agreeing with an implied feminine noun like `laitue`), and
+the separate noun "a flood." With no other context in a bare
+`"[Name], crue"` record, Google's translation endpoint (this pipeline's
+own `translate.js`, tagging every result `machine_translated`, explicitly
+never human-verified) picked the wrong sense. Confirmed via the record's
+own real surrounding ingestion order (fennel, tomato, orange juice,
+spinach, cauliflower, **Batavia**, peas, mushroom, lima bean, squash) —
+an unambiguous run of plain vegetables, not weather.
+
+**Rather than fix only the one reported record, followed this
+investigation to its real, full scope** — the same "a report is a lead,
+not a ticket" discipline this whole file's own history already runs on.
+Extracted every DISTINCT `(french_first_comma_segment,
+english_first_comma_segment)` pair across the entire `France_Ciqual` +
+`machine_translated` population via SQL (2,129 distinct real names),
+wrote it to a scratchpad file, and manually read through the whole list
+looking for the same class of error: a short, ambiguous French word
+translated into something semantically wrong for a food-composition
+database, not just an incomplete/truncated string (a real, lower-
+priority, separate issue also visible in the same list, e.g. "Riz blanc
+étuvé" → "Parboiled" missing its own trailing "rice" — noted, not
+chased in this same pass).
+
+**Found 10 more real, confirmed instances of the exact same "false
+friend" bug class, each independently verified against this database's
+own real surrounding context before being trusted as a genuine error,
+not just a guess:**
+
+| raw_id | French | Wrong translation | Real cause | Fixed to |
+|---|---|---|---|---|
+| 38375 | Batavia, crue | Batavia, flood | crue = raw (fem.) vs. flood | Batavia lettuce, raw |
+| 39354 | Bogue, crue | Bug, flood | Bogue (a real sea-bream species) unrecognized, plus the same crue error | Bogue, raw |
+| 38358 | Mâche, crue | Chew, raw | mâche (corn salad) read as mâcher (to chew) | Corn salad, raw |
+| 39398 | Loup tacheté, cru | Spotted Wolf, raw | loup = wolf vs. its real colloquial "sea bass" sense | Loup tacheté, raw (kept French — no confident English species name found, deliberately not guessed) |
+| 37674 | Crottin de chèvre, au lait cru | Goat manure, with raw milk | crottin = droppings vs. a real named goat-cheese style | Crottin de chèvre (goat cheese), raw milk |
+| 37675 | Crottin de chèvre, sans précision | Goat droppings, unspecified | same crottin error, sibling record | Crottin de chèvre (goat cheese), unspecified |
+| 37596 | Comté | County | comté = the cheese vs. an administrative region | Comté (cheese) |
+| 37569 | Carré de l'Est | Eastern Square | a real cheese name translated fully literally | Carré de l'Est (cheese) |
+| 39652 | Marron glacé | Glazed brown | marron = chestnut vs. the color brown | Marron glacé (candied chestnut) |
+| 38801 | Éclair | Lightning | éclair = the pastry vs. a lightning bolt, no context to disambiguate | Éclair (pastry) |
+| 39888 | Pêche melba | Melba fishing | pêche = peach vs. fishing (from pêcher) | Peach Melba |
+
+Every proposed fix was checked against this exact database's own
+already-correct precedent rather than invented freely: other lettuce
+varieties already render as `"[Variety] lettuce, raw"` ("Laitue
+romaine, crue" → "Romaine lettuce, raw"); other ambiguous cheese names
+already get a parenthetical clarifier ("Crottin de Chavignol (fromage
+de chèvre)" → correctly already reads "Crottin de Chavignol (goat
+cheese)" in this same database, which is what confirmed 37674/37675
+above were genuine mistakes rather than an unresolvable ambiguity); a
+genuinely untranslatable fish name is correctly left as-is elsewhere
+("Saint-Pierre, cru" → "Saint-Pierre, raw"), the same treatment given
+to "Loup tacheté" and "Bogue" above rather than guessing a species name
+past the real evidence found.
+
+**A real, new, reusable correction mechanism was built, not a one-off
+SQL patch** — `pipeline/data/translation-corrections.json` (all 11
+corrections, each with its own full real reasoning, matching this
+file's own established documentation density) plus a new
+`pipeline/apply-translation-corrections.js`. Deliberately a genuinely
+different real script from `apply-audit-decisions.js`, not a copy: this
+one fixes a real DATA ERROR (the translation itself was factually
+wrong), not a human whole-food judgment call, so it writes to
+`raw_foods.name_english` directly, tags a brand-new, honest provenance
+value — `translation_corrected`, distinct from the existing
+`source_verified`/`machine_translated` (confirmed via direct query
+these were the only two values in use before this) — and, critically,
+**re-classifies every row it touches** using the exact same
+`classifyOne()` function `classify.js`/`reclassify-all.js` already use,
+since `classifyRecord()` reads `name_english` directly and every one of
+these 11 rows' prior classification had been computed against the
+WRONG text.
+
+**A real, self-caught bug in my own reclassification step, fixed before
+this was called done**: the first version collapsed `classifyOne()`'s
+real `isWholeFood: null` result ("no rule matched, genuinely needs human
+review" — the correct outcome for "Peach Melba," a real composite
+dessert) into a hard `0` ("confirmed not a whole food") via a careless
+`result.isWholeFood ? 1 : 0`. Caught by checking `classify.js`'s own
+established convention directly (`classifyRecord()` writes SQL `NULL`
+for a real `null` result, never `0`) before trusting my own shorthand —
+fixed, and confirmed directly against the live database that raw_id
+39888 now correctly reads `is_whole_food: null`, not `0`. Every other
+reclassified row landed exactly as expected on inspection: Batavia
+lettuce/Bogue/Corn salad/Loup tacheté (raw vegetables/fish) →
+`isWholeFood: true`; the three cheeses → `true`; Marron glacé/Éclair →
+correctly `false` (real `candied`/`pastry` exclude keywords, only
+reachable once the classifier could actually read the real name).
+
+**Also made the apply script idempotent AND self-healing, not just
+idempotent** — re-running it a second time correctly reports "already
+correct" for every row (a safe no-op on the name/source columns) but
+still re-runs the reclassification step regardless, so a bug like the
+null-collapse one above can be re-run and fixed in place rather than
+needing a second, separate one-off patch. A dedicated safety check
+confirms a row whose `name_english` has since drifted to something
+OTHER than either the expected wrong or corrected text is left
+completely alone, never blindly overwritten.
+
+Verified directly against the live database: zero of the 11 wrong
+translations ("flood," "manure," "droppings," "County," "Eastern
+Square," "Glazed brown," "Lightning," "Melba fishing," "Bug," "Chew,"
+"Spotted Wolf") remain anywhere in `raw_foods.name_english`. New
+`pipeline/apply-translation-corrections.test.js` (9 real, DB-backed
+integration tests, including the exact null-vs-0 reclassification
+distinction and the "already correct, still re-check" idempotency
+case) — full pipeline suite now 360/360 passing (up from 306, this
+file's own 9, plus the pre-existing 7/10/15/6/7/6 already-passing
+suites, unchanged). A stray hardcoded "11" in the script's own final
+verification message was also caught and fixed to read the real,
+dynamic `corrections.length` instead, so it stays honest if this file
+ever grows past 11 entries.
+
 ## Status: a continued proactive scan — a real, large batch: cooking-method gaps (simmered/casseroled/sashimi/in brine), a real, narrow wheat-gluten/seitan fix deliberately avoiding a "gluten-free" brand collision, plural gaps (ice creams, chewing gum, stock), a bare 'sauce' general exclude with real, verified exceptions (apple sauce, soy/soya/fish sauce), a promoted 'smoothie' exclude, a real burger-composite leak, and a real tofu-dumpling leak — plus a real, direct opinion on whether a "made gluten-free" brand-name product belongs in this database
 
 **A real, direct opinion, asked mid-scan: should "Andrea's, Gluten Free
