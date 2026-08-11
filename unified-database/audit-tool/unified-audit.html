@@ -413,6 +413,7 @@
       <div class="pending-count" id="pendingCount">0 pending</div>
       <button class="btn btn-export" onclick="openDecisionsReview()">Review / undo a decision</button>
       <button class="btn btn-export" onclick="openExport()">Export decisions</button>
+      <button class="btn btn-export" onclick="openImport()">Import decisions</button>
       <button class="btn btn-clear" id="clearBtn" onclick="handleClearClick()">Clear all pending decisions</button>
     </div>
   </aside>
@@ -462,6 +463,21 @@
     <div class="row">
       <span class="pending-count" id="exportCount"></span>
       <button class="btn btn-confirm-group" onclick="copyExport()">Copy to clipboard</button>
+    </div>
+  </div>
+</div>
+
+<div class="export-panel" id="importPanel">
+  <div class="export-box">
+    <div class="row">
+      <h3>Import decisions</h3>
+      <button class="btn btn-skip" onclick="closeImport()">Close</button>
+    </div>
+    <p class="view-sub" style="margin:0;">Paste a previously exported decisions JSON here to bring it back in -- e.g. after a browser cleared its storage, or a device/tab switch. This only ever <strong>adds</strong> decisions you don't already have here right now; it never overwrites or removes anything already pending in this browser, even if the pasted file disagrees with it.</p>
+    <textarea id="importText" placeholder="Paste the exported JSON here…"></textarea>
+    <div class="row">
+      <span class="pending-count" id="importResult"></span>
+      <button class="btn btn-confirm-group" onclick="runImport()">Import (merge, never overwrite)</button>
     </div>
   </div>
 </div>
@@ -866,6 +882,68 @@ function copyExport() {
   try {
     navigator.clipboard.writeText(ta.value);
   } catch (e) { /* real, established fallback for this sandbox -- selection above already lets a manual copy work even if the Clipboard API is blocked */ }
+}
+
+// Import is a real, standing safety net, not a one-off feature: this
+// browser's own pending decisions can be lost for real reasons outside
+// this tool's control (storage cleared, a different device/tab, this
+// exact page getting republished to the same URL). Every real merge
+// below only ever FILLS A GAP -- a key already present in this
+// browser's own current `decisions` is never touched, no matter what
+// the imported file says about it, so importing an old backup can
+// never silently discard something decided more recently than that
+// backup.
+function mergeDecisionBucket(current, incoming, addedCounter) {
+  if (!incoming || typeof incoming !== 'object') return;
+  Object.keys(incoming).forEach(function (key) {
+    if (Object.prototype.hasOwnProperty.call(current, key)) return; // already decided in THIS browser -- never overwritten
+    current[key] = incoming[key];
+    addedCounter.n++;
+  });
+}
+
+function openImport() {
+  document.getElementById('importText').value = '';
+  document.getElementById('importResult').textContent = '';
+  document.getElementById('importPanel').classList.add('open');
+}
+function closeImport() { document.getElementById('importPanel').classList.remove('open'); }
+
+function runImport() {
+  const raw = document.getElementById('importText').value.trim();
+  const resultEl = document.getElementById('importResult');
+  if (!raw) { resultEl.textContent = 'Paste a real exported JSON first.'; return; }
+
+  let parsed;
+  try {
+    parsed = JSON.parse(raw);
+  } catch (e) {
+    resultEl.textContent = 'That doesn\'t parse as valid JSON -- paste the exact text from a real "Export decisions" copy, unedited.';
+    return;
+  }
+
+  // Accepts either a full export payload ({decisions: {...}, exportedAt, ...})
+  // or a bare decisions object ({classify, groupConfirm, groupSplit, memberRemove}) --
+  // real flexibility for whatever shape actually got pasted back in, not a guess.
+  const incoming = parsed && typeof parsed === 'object' && parsed.decisions && typeof parsed.decisions === 'object'
+    ? parsed.decisions
+    : parsed;
+  if (!incoming || typeof incoming !== 'object' || (!incoming.classify && !incoming.groupConfirm && !incoming.groupSplit && !incoming.memberRemove)) {
+    resultEl.textContent = 'That JSON doesn\'t look like a real decisions export -- no classify/groupConfirm/groupSplit/memberRemove found in it.';
+    return;
+  }
+
+  const added = { n: 0 };
+  mergeDecisionBucket(decisions.classify, incoming.classify, added);
+  mergeDecisionBucket(decisions.groupConfirm, incoming.groupConfirm, added);
+  mergeDecisionBucket(decisions.groupSplit, incoming.groupSplit, added);
+  mergeDecisionBucket(decisions.memberRemove, incoming.memberRemove, added);
+
+  saveDecisions();
+  renderView();
+  refreshDecisionsReviewIfOpen();
+  resultEl.textContent = added.n.toLocaleString() + ' decision' + (added.n === 1 ? '' : 's') + ' brought in -- anything already pending here was left exactly as it was.';
+  document.getElementById('importText').value = '';
 }
 
 // Real "click again to confirm" pattern, not a native confirm() dialog --
