@@ -24,20 +24,15 @@ import { ProgressRing } from './ProgressRing';
 // directly reported real-world timing (roughly 30-60 seconds) -- but the
 // one thing it never does is claim done before it's true.
 //
-// Real, direct follow-up, same day, after watching this on a real device
-// with a real import finishing around 74% of the estimate's own curve:
-// "Can we set it up so it gradually goes to 100% but only hits the full
-// 100% ... when we know the app is fully loaded... Is there a trigger
-// event that the loader can watch for." The real trigger already existed
-// (`isComplete`, driven by app/_layout.tsx's own getReferenceDatabase()
-// resolving) -- what was missing was using it to animate a real, short,
-// smooth CATCH-UP from wherever the estimate happened to be sitting up to
-// a true 100%, instead of snapping straight there. This closes the real
-// tension in the request directly: the catch-up only ever STARTS once
-// isComplete is genuinely true (never early), but visually CLOSES the gap
-// over a real, brief, elapsed-time-driven animation rather than an
-// instant jump, so it never reads as a meaningless number regardless of
-// which real percentage the estimate happened to reach first.
+// A real, direct follow-up the same day tried a CATCH-UP animation instead
+// of jumping straight to 100 the instant isComplete fires -- a real, short,
+// elapsed-time-driven tween from wherever the estimate happened to be
+// sitting, so the finish never read as an arbitrary snap. Removed again,
+// 2026-08-11, direct instruction: "Remove that" -- the manufactured "still
+// doing something" animation for the last stretch was itself the problem,
+// not the snap it was built to avoid. Back to the simpler, honest behavior:
+// `isComplete` jumps `percent` straight to a true 100 and moves to
+// 'finished' immediately, no animated close.
 export function DatabaseSetupScreen({
   // True once the real reference-database import has genuinely resolved
   // (see app/_layout.tsx's own referenceImportResolved wiring) -- this is
@@ -49,13 +44,7 @@ export function DatabaseSetupScreen({
   onExitComplete: () => void;
 }) {
   const [percent, setPercent] = useState(0);
-  const [phase, setPhase] = useState<'loading' | 'catching-up' | 'finished' | 'exiting'>('loading');
-  // Kept in exact sync with `percent` inside every setPercent call below
-  // (never via a separate reactive effect, which would risk reading a
-  // one-render-stale value) -- the catch-up phase needs to know exactly
-  // where the estimate really was the instant isComplete flips true, to
-  // animate FROM that real point, not from some already-stale snapshot.
-  const percentRef = useRef(0);
+  const [phase, setPhase] = useState<'loading' | 'finished' | 'exiting'>('loading');
   const scale = useSharedValue(1);
   const opacity = useSharedValue(1);
 
@@ -66,91 +55,23 @@ export function DatabaseSetupScreen({
   useEffect(() => {
     if (phase !== 'loading') return;
     const interval = setInterval(() => {
-      setPercent((current) => {
-        const next = Math.min(PROGRESS_CAP, current + (PROGRESS_CAP - current) * PROGRESS_STEP_FACTOR);
-        percentRef.current = next;
-        return next;
-      });
+      setPercent((current) => Math.min(PROGRESS_CAP, current + (PROGRESS_CAP - current) * PROGRESS_STEP_FACTOR));
     }, PROGRESS_TICK_MS);
     return () => clearInterval(interval);
   }, [phase]);
 
   // The real trigger event -- isComplete flips true the instant the real
-  // import genuinely resolves. Moves to a real catch-up animation rather
-  // than jumping straight to 100, regardless of where the estimate had
-  // gotten to.
+  // import genuinely resolves. Jumps straight to a true 100 and 'finished'
+  // -- no animated close, no manufactured "still working" stretch. The
+  // display never says done a moment before the underlying import
+  // genuinely is (isComplete is the one real signal this waits on), but
+  // once it is, it says so immediately.
   useEffect(() => {
     if (isComplete && phase === 'loading') {
-      setPhase('catching-up');
+      setPercent(100);
+      setPhase('finished');
     }
   }, [isComplete, phase]);
-
-  // Phase 2: a real, elapsed-time-driven tween from wherever the estimate
-  // had reached up to a true 100 -- always the same real, fixed total
-  // duration regardless of the starting point (a 5-point gap and a
-  // 50-point gap both close in the same real amount of time), so this
-  // never reads as an arbitrary jump. Only once this real animation has
-  // actually reached 100 does the screen move to "Finished!" -- the
-  // display never says done a moment before the underlying import
-  // genuinely is.
-  //
-  // Real, direct follow-up, same day, on-device: the original single-
-  // stage, 550ms version read as "obviously faking it" -- a real, honest
-  // completion signal shouldn't LOOK like a trick. Rebuilt as two real
-  // segments rather than one flat tween: a main climb from wherever the
-  // estimate was up to the same 95% cap the earlier estimate phase
-  // already uses (900ms, a believable, visible amount of movement -- not
-  // a snap), then a deliberately SLOWER final crawl from 95 to a true 100
-  // (700ms for just that last 5 points -- roughly 3x the per-point pace
-  // of the main climb), so the very end reads as a genuine, unhurried
-  // settling-in rather than a rushed finish. Total, for the common case
-  // (an estimate that hadn't yet reached 95 when isComplete fires): 1.6s,
-  // nearly 3x the original 550ms and comfortably over the "at least
-  // double" ask. A real import that runs long enough for the estimate to
-  // reach 95 on its own skips straight to the slow final segment, so the
-  // "last 5%" always gets this same deliberate treatment regardless of
-  // how the earlier climb went.
-  useEffect(() => {
-    if (phase !== 'catching-up') return;
-    const startPercent = percentRef.current;
-    const startTime = Date.now();
-    const interval = setInterval(() => {
-      const elapsed = Date.now() - startTime;
-      let next: number;
-      let done: boolean;
-      if (startPercent >= PROGRESS_CAP) {
-        // Already at or past the cap on its own -- go straight into the
-        // slow final crawl from wherever it actually is.
-        const t = Math.min(1, elapsed / CATCH_UP_FINAL_DURATION_MS);
-        const eased = 1 - Math.pow(1 - t, 3);
-        next = startPercent + (100 - startPercent) * eased;
-        done = t >= 1;
-      } else if (elapsed <= CATCH_UP_MAIN_DURATION_MS) {
-        // Main climb: startPercent up to the 95% cap. Quadratic ease-out
-        // -- a believable, visible pace, not a snap.
-        const t = elapsed / CATCH_UP_MAIN_DURATION_MS;
-        const eased = 1 - Math.pow(1 - t, 2);
-        next = startPercent + (PROGRESS_CAP - startPercent) * eased;
-        done = false;
-      } else {
-        // The slow final crawl: 95 up to a true 100. Cubic ease-out (a
-        // touch stronger than the main climb's quadratic) plus a longer
-        // real duration for a much smaller range -- reads as genuinely,
-        // deliberately slower, not just the same curve compressed.
-        const t = Math.min(1, (elapsed - CATCH_UP_MAIN_DURATION_MS) / CATCH_UP_FINAL_DURATION_MS);
-        const eased = 1 - Math.pow(1 - t, 3);
-        next = PROGRESS_CAP + (100 - PROGRESS_CAP) * eased;
-        done = t >= 1;
-      }
-      setPercent(next);
-      percentRef.current = next;
-      if (done) {
-        clearInterval(interval);
-        setPhase('finished');
-      }
-    }, CATCH_UP_TICK_MS);
-    return () => clearInterval(interval);
-  }, [phase]);
 
   // Hold "Finished!" briefly, then start the real pop-out transition.
   useEffect(() => {
