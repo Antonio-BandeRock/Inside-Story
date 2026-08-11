@@ -596,4 +596,46 @@
 // rebuild) -- no `build_food_reference_db.py` change needed, since this
 // bug lives in already-applied audit-decision data, not the build pipeline
 // itself.
-export const REFERENCE_DB_VERSION = "20260811150000";
+//
+// Followed immediately, same day, by a broader sweep asked directly:
+// "are there other similar audit-decision renames that need checking?"
+// Rather than re-parse each decision file individually, queried the LIVE
+// database directly for every base_name ending in ANY parenthetical
+// process/state word (Raw/Cooked/Boiled/Baked/Roasted/Grilled/Fried/Dried/
+// Cured/Smoked/Salted/Pickled/Fermented/Brewed/Steamed/Poached/Braised/
+// Broiled/Canned/Frozen/Fresh/Pasteurized/Unsalted/Unsweetened/Sweetened/
+// Decaf/Toasted/Cold-Pressed/Rendered/Cultured/Adipose, etc.) -- 159 real
+// distinct groups, spanning all three applied decision batches at once
+// (this method doesn't care which file introduced a group, only what the
+// live data says now). For each, cross-checked the claimed word against
+// every real row's own actual source `name` text (not prep_method, which
+// is null/untagged for most of these -- the same reason the original
+// diversity-based check couldn't have caught this class on its own).
+// 153 of 159 checked out clean, including several genuinely legitimate
+// splits this same rename batch created correctly the first time (e.g.
+// "Beef Chuck (Braised)"/"Beef Chuck (Broiled)" sit as their own real,
+// internally-homogeneous groups alongside the main "Beef Chuck," each
+// confirmed 100% consistent with its own claimed state -- not the bug,
+// just an unusual but accurate naming choice). 6 flagged as worth a closer
+// look; 5 were false positives on inspection (real product-identity
+// descriptors like "Cold-Pressed"/"Rendered"/"Adipose" that were never
+// prep_method-style claims to begin with, or a real claim -- "Unsweetened"
+// hibiscus tea -- independently confirmed accurate against its own real
+// 0.0g sugar value). One genuine, if isolated, mistake found and fixed:
+// "Moose Fat (Rendered)" (Canada_CNF, food_id 21740) -- its own real
+// source name says "dried," not rendered, two genuinely different real
+// processes; corrected to "Moose Fat (Dried)," the one that's actually
+// true. A single row, not a spreading pattern like the (Raw) bug -- no
+// other row anywhere shared that same false claim. Also checked both
+// earlier 2026-08-04 decision batches (10,165 and 10,215 decisions) --
+// only 2 parenthetical renames total between them ("White, Pinot Gris
+// (Grigio)," "Bearded Seal Oil (Oogruk Oil)"), both real varietal/species
+// synonyms confirmed against their own source names, neither a prep-state
+// claim, neither a bug. Honest scope limit named directly rather than
+// implied clean: this sweep specifically covers PREP-STATE mislabeling
+// (the actual reported bug's own shape) across all ~570 rename decisions
+// applied so far -- it does not re-verify every rename's own broader
+// semantic/identity correctness (e.g. whether a renamed food's real
+// species/variety claim is itself accurate), which would mean re-reviewing
+// each decision by hand the way the original audit did.
+export const REFERENCE_DB_VERSION = "20260811150500";
