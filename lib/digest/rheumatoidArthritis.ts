@@ -637,4 +637,18 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-methotrexate-folate', 'ra-advocacy-methotrexate-monitoring'],
   },
+  {
+    id: 'ra-rituximab-bcell-depletion-real-data',
+    category: 'rheumatoidArthritis',
+    title: 'Rituximab Works by Depleting B-Cells -- and How COMPLETELY It Depletes Them Predicts Whether It Actually Helps',
+    teaser: "This category's own already-covered TNF-inhibitor and JAK-inhibitor research covers two real, distinct drug classes -- rituximab targets a genuinely different immune cell type entirely, and real, direct trial data finds its own real effectiveness tracks with how thoroughly it clears that cell type out.",
+    summary:
+      "This category's own already-covered biologic research names TNF inhibitors and JAK inhibitors as two real, established drug classes, and rituximab (a B-cell-depleting biologic, working through a genuinely different immune mechanism) deserves its own direct coverage. A real, landmark randomized trial (published in the New England Journal of Medicine) found rituximab, given as two infusions, alone or combined with cyclophosphamide or continued methotrexate, produced real, significant improvement in RA symptoms at both 24 and 48 weeks in patients whose disease hadn't responded to methotrexate alone. The real, genuinely useful mechanistic finding: research directly establishes that the DEGREE of B-cell depletion, not simply the dose of rituximab given, is what actually determines clinical response, with complete B-cell depletion tracking with real clinical improvement and longer-term maintained benefit. Real research also identifies who responds best: low pretreatment plasmablast counts, concurrent DMARD use, no smoking history, presence of the anticitrullinated-protein antibodies or rheumatoid factor this category's own already-covered serology research names, and a low interferon signature all predict achieving that real, complete B-cell depletion and clinical response. A real, honest, useful finding for anyone whose response fades over time: about half of patients who initially achieve complete depletion and respond eventually lose that response with further rounds of treatment, but three-quarters of those patients regain it in their NEXT treatment cycle, real, direct evidence that a lost response to rituximab is often reversible rather than permanent. Worth stating directly: rituximab is a real, genuinely different mechanistic option from this category's own already-covered TNF and JAK-inhibitor classes, worth discussing directly for RA that hasn't responded well to either.",
+    citations: [
+      { source: 'Efficacy of B-Cell-Targeted Therapy with Rituximab in Patients with Rheumatoid Arthritis, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa032534' },
+      { source: 'Reduced-dose rituximab in rheumatoid arthritis: efficacy depends on degree of B cell depletion, PMID 21360489', url: 'https://pubmed.ncbi.nlm.nih.gov/21360489/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-tocilizumab-il6-inhibitor', 'ra-biosimilars-cost-efficacy'],
+  },
 ];

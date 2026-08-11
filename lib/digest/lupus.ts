@@ -522,4 +522,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-overview', 'lupus-global-silica-occupational-clusters'],
   },
+  {
+    id: 'lupus-hydroxychloroquine-adherence-flare-prevention',
+    category: 'lupus',
+    title: 'Hydroxychloroquine Genuinely Prevents Flares -- But Only If It Actually Gets Taken, and Adherence Is a Real, Documented Problem',
+    teaser: "This category's own already-covered hydroxychloroquine-retinopathy entry names a real, rare eye-safety risk from long-term use -- the drug's own real, quantified flare-prevention benefit is genuinely tied to how consistently it's actually taken, and real data finds adherence a genuine, common problem.",
+    summary:
+      "This category's own already-covered hydroxychloroquine-retinopathy research names a real, rare, monitorable safety risk from this same drug's long-term use, and the real, direct flare-prevention benefit deserves its own coverage, alongside the real, honest problem of adherence that can undercut it. Real evidence finds hydroxychloroquine reduces major lupus flares by a real, substantial 57 percent, one of this disease's most consistently demonstrated real treatment effects, and real research finds an even more specific, actionable detail: lower hydroxychloroquine blood levels track with a real two-to-six-fold higher risk of a flare, meaning the benefit is genuinely dose- and consistency-dependent, not an all-or-nothing effect of simply being prescribed the drug. The real, honest complication: adherence to hydroxychloroquine is a real, well-documented, common clinical problem, with real research finding poor adherence declining further over just the first year of use, and real Medicaid-beneficiary data confirming this pattern directly. Real research names the real, practical stakes plainly: poor adherence is associated with a higher risk of flares, disease-related morbidity, hospitalizations, and worse kidney outcomes specifically, real, serious consequences from something as simple as inconsistent pill-taking. A real, more actionable finding follows directly from this: monitoring hydroxychloroquine BLOOD LEVELS directly, rather than assuming a prescription equals consistent use, is a real, practical way to catch and correct low adherence before a flare happens. Worth stating directly: this real, well-established drug's own benefit depends genuinely on consistent use, worth a direct, honest conversation about any real barriers to taking it as prescribed, not just whether it was originally prescribed at all.",
+    citations: [
+      { source: 'Hydroxychloroquine in systemic lupus erythematosus: overview of current knowledge, PMID 35186126', url: 'https://pubmed.ncbi.nlm.nih.gov/35186126/' },
+      { source: 'A Reference Range of Hydroxychloroquine Blood Levels that Can Reduce Odds of Active Lupus and Prevent Flares, PMC11078155', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11078155/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-hydroxychloroquine-retinopathy', 'lupus-nephritis-monitoring'],
+  },
 ];
