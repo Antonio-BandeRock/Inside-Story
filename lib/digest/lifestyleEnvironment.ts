@@ -1,6 +1,6 @@
 import type { DigestEntry } from './types';
 
-// Lifestyle & Environment -- 21 entries. Folds in the app's own already-
+// Lifestyle & Environment -- 22 entries. Folds in the app's own already-
 // shipped alcohol/coffee/juice advisories (lib/alcoholAdvisory.ts,
 // coffeeAdvisory.ts, juiceAdvisory.ts) as real digest content rather than
 // leaving them only reachable as small in-builder tap-to-read rows, plus
@@ -56,7 +56,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-chronic-stress-hpa', 'masld-metald-alcohol-threshold'],
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'masld-metald-alcohol-threshold', 'lifestyle-alcohol-liver-metabolism'],
   },
   {
     id: 'lifestyle-coffee-milk-antioxidants',
@@ -324,6 +324,37 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'weak',
     relatedIds: ['lifestyle-sleep-circadian'],
+  },
+  {
+    id: 'lifestyle-alcohol-liver-metabolism',
+    category: 'basicHealth',
+    title: 'What Alcohol Actually Does to Fat Burning and Blood Sugar',
+    teaser:
+      'Two controlled human studies measured it directly: a couple of drinks cuts fat burning by 73% and blocks nearly half of the body\'s glucose-making for hours afterward.',
+    summary:
+      "Alcohol doesn't sit in a queue behind other nutrients waiting its turn. The liver treats it as an emergency. Ethanol is broken down by alcohol dehydrogenase into acetaldehyde, a toxic intermediate, then quickly converted by aldehyde dehydrogenase into acetate. Most of that acetate (77% in one direct measurement) floods straight into the bloodstream rather than staying in the liver, and that flood is what does the real damage to fat and sugar metabolism elsewhere in the body. A controlled study giving healthy men just 24 grams of alcohol (roughly two standard drinks) found adipose tissue's release of fat into the blood dropped 53%, and whole-body fat burning dropped 73%, both measured directly with isotope tracers. The mechanism is acetate itself: circulating acetate levels rose 2.5-fold after drinking, and acetate directly suppresses lipolysis, the process of breaking stored fat back down into usable fuel. A separate study measuring blood-sugar production found the same pattern on the glucose side: 48 grams of alcohol cut gluconeogenesis, the liver's process of building new glucose from scratch, by 45% compared to a placebo, measured over the five hours after drinking. The mechanism there is different but related: alcohol metabolism floods liver cells with NADH, and that shift starves the gluconeogenesis pathway of what it needs to run. Put together, this is the real reason alcohol on an empty stomach carries a genuine hypoglycemia risk, and why alcohol calories don't behave like food calories once they're in the body. This app's own alcohol calculator (available in the Beverage, Fermentation, Soup, and Sauces builders) estimates the real energy content of a specific pour; this is the biology behind why that energy gets processed so differently once it's swallowed.",
+    citations: [
+      {
+        source:
+          'Siler et al. 1999, American Journal of Clinical Nutrition: de novo lipogenesis, lipid kinetics, and whole-body lipid balances in humans after acute alcohol consumption',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/10539756/',
+      },
+      {
+        source: 'Siler et al. 1998, American Journal of Physiology-Endocrinology and Metabolism: the inhibition of gluconeogenesis following alcohol in humans',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/9815011/',
+      },
+    ],
+    overallTier: 'strong',
+    chart: {
+      title: 'Metabolic Drop After 24g Alcohol (~2 Drinks)',
+      unit: '%',
+      data: [
+        { label: 'Fat release from storage (lipolysis)', value: 53 },
+        { label: 'Whole-body fat burning', value: 73 },
+      ],
+      sourceNote: 'Siler et al. 1999, American Journal of Clinical Nutrition',
+    },
+    relatedIds: ['lifestyle-alcohol-advisory', 'masld-metald-alcohol-threshold'],
   },
   {
     id: 'lifestyle-tying-together',
