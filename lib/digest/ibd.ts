@@ -524,4 +524,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-perianal-fistula-real-data', 'ibd-anti-tnf-loss-of-response'],
   },
+  {
+    id: 'ibd-cdiff-elevated-risk-real-data',
+    category: 'ibd',
+    title: 'A Real, Distinct Infection Risk Runs Alongside IBD Itself -- and Complicates Telling a Flare From an Infection',
+    teaser: "This category's own already-covered corticosteroid and combination-therapy research names real infection-risk considerations -- Clostridioides difficile infection specifically carries a real, four- to five-fold higher risk in IBD, and can look identical to a genuine flare.",
+    summary:
+      "This category's own already-covered immunosuppressive-medication research already names real, general infection-risk tradeoffs, and Clostridioides difficile infection (C. diff, a real, common cause of severe diarrhea) deserves its own direct coverage as a genuinely elevated, IBD-specific risk. Real, pooled data finds IBD patients carrying a real four- to five-fold higher risk of C. diff infection than the general population, with real, more severe courses once infected, higher real rates of hospitalization, colectomy (surgical bowel removal), recurrence, and mortality. Real testing during an active IBD flare finds C. diff toxins present in a real 5.5 to 20 percent of cases, a genuinely important number given how directly this complicates real clinical decision-making: a person with IBD experiencing worsening diarrhea could be having a genuine disease flare (which real treatment escalates immunosuppression to control) or a C. diff infection (which real treatment requires antibiotics and REDUCING immunosuppression), two real, opposite treatment directions that look clinically identical without a real, direct stool test to distinguish them. Real research names the specific, elevated-risk factors directly: active colonic inflammation itself, broad-spectrum antibiotic exposure, prolonged hospitalization, and corticosteroid or combined immunosuppressive therapy, all real, identifiable risk multipliers. Worth stating directly: this is exactly why a real C. diff stool test is a standard, recommended step before assuming worsening symptoms during a hospitalization or flare are simply the underlying disease getting worse, a genuinely important distinction this category's own already-covered fecal calprotectin research doesn't fully resolve on its own.",
+    citations: [
+      { source: 'Risk Factors, Diagnosis, and Management of Clostridioides difficile Infection in Patients with Inflammatory Bowel Disease, PMC9319314', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9319314/' },
+      { source: 'Novel risk factors and outcomes in inflammatory bowel disease patients with Clostridioides difficile infection, PMID 33786065', url: 'https://pubmed.ncbi.nlm.nih.gov/33786065/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-calprotectin', 'ibd-corticosteroid-hypertension-real-data'],
+  },
 ];

@@ -526,4 +526,17 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ms-smoking-risk', 'ms-disease-course-types'],
   },
+  {
+    id: 'ms-fecal-transplant-pilot-honest-early',
+    category: 'multipleSclerosis',
+    title: 'A Real, Small Fecal Transplant Pilot Found It Safe -- an Honestly Early, Not Yet a Treatment, Result',
+    teaser: "This category's own already-covered gut-dysbiosis research names real, altered microbiome composition in MS -- a real, small pilot trial directly tested transplanting healthy donor microbiota, finding it safe and tolerable, genuinely too early to call it effective.",
+    summary:
+      "This category's own already-covered gut-dysbiosis research already establishes that MS patients carry a real, measurably altered gut microbiome compared to healthy people, and fecal microbiota transplantation (FMT, transplanting a healthy donor's gut bacteria into a patient) is the real, direct, logical next question worth reporting honestly rather than either dismissing or overselling. A real, pilot randomized controlled trial gave monthly fecal transplants to patients with relapsing-remitting MS and found the treatment genuinely safe and tolerable, with real, preliminary signals of easing intestinal permeability (already covered elsewhere in this Digest as a real, general autoimmune-relevant mechanism) and enriching protective gut microbes. Worth stating directly and honestly, not glossed over: this trial was real but genuinely small, only 9 patients completed monthly transplants, a real, substantial reduction from an original target of 40 patients, interrupted by the sudden death of the trial's own principal investigator. This is real, legitimate safety and feasibility evidence, the necessary first real step before any larger efficacy trial can follow, not evidence FMT actually treats MS. A real, separate, ongoing trial (the MS-BIOME study at UCSF) is specifically testing feasibility, safety, and immune-function effects in a similar small population, real, continued early-stage research rather than a settled result. Worth stating directly: this is a real, genuinely promising research direction given this category's own already-established microbiome findings, but it remains real, honestly preliminary, worth watching rather than acting on as a real, current treatment option.",
+    citations: [
+      { source: 'Fecal microbiota transplantation is safe and tolerable in patients with multiple sclerosis: A pilot randomized controlled trial, DOI 10.1177/20552173221086662', url: 'https://doi.org/10.1177/20552173221086662' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['ms-gut-dysbiosis-scfa', 'ms-vitamin-d-mixed-evidence'],
+  },
 ];
