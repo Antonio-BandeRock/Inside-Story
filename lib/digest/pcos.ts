@@ -526,4 +526,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-endometrial-cancer-risk', 'pcos-combined-oral-contraceptives-first-line'],
   },
+  {
+    id: 'pcos-bariatric-surgery-real-outcomes',
+    category: 'pcos',
+    title: 'Bariatric Surgery Genuinely Helps PCOS -- But Real Data Finds It Plateaus, and Doesn’t Fix Everything',
+    teaser: "This category's own already-covered weight-loss-threshold research covers modest, non-surgical loss -- real, pooled surgical-outcome data finds bariatric surgery produces its own real, distinct pattern of metabolic and reproductive improvement, with real, honest limits.",
+    summary:
+      "This category's own already-covered weight-loss research (the BAMBINI trial) establishes a real, modest, non-surgical benefit threshold -- bariatric surgery is a genuinely different, more intensive intervention, and real, pooled outcome data finds both real benefit and real, honest limits worth knowing directly. A real, 2024 systematic review and meta-analysis found women with PCOS experience metabolic and hormonal improvements after bariatric surgery comparable to women without PCOS, with a real, specific pattern: most metabolic parameters improved significantly by 3 months after surgery, then plateaued, with only triglycerides and HDL cholesterol continuing to improve beyond that point. On the reproductive side, a real, sustained improvement in ovulatory dysfunction was found, tracking with a real reduction in luteinizing hormone. The real, honest limitation, worth stating directly rather than glossed over: testosterone levels and polycystic ovarian appearance on ultrasound showed only limited improvement after surgery, and anti-Müllerian hormone (AMH, already covered elsewhere in this category as a real diagnostic marker) didn't meaningfully change at all -- real, direct evidence that surgical weight loss, however dramatic, doesn't fully reverse every one of PCOS's own underlying hormonal features. The review's own authors also named a real, important caveat about the whole evidence base: existing research is limited and of relatively low quality, especially for reproductive outcomes like actual pregnancy rates, not yet as well studied as the metabolic outcomes. Worth stating directly: this is real, genuine benefit for a real, more intensive intervention, honestly reported alongside its own real limits, not oversold as a complete fix for every part of the condition.",
+    citations: [
+      { source: 'Impact of bariatric surgery on anthropometric, metabolic, and reproductive outcomes in polycystic ovary syndrome: a systematic review and meta-analysis, Obesity Reviews', url: 'https://onlinelibrary.wiley.com/doi/10.1111/obr.13737' },
+      { source: 'Bariatric Surgery Impact on Women with Polycystic Ovary Syndrome: A Prospective Cohort Study, PMID 40207015', url: 'https://pubmed.ncbi.nlm.nih.gov/40207015/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-weight-loss-modest', 'pcos-lean-phenotype-real-data'],
+  },
 ];

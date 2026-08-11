@@ -281,7 +281,7 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
       { source: 'Prevalence, severity, and predictors of fatigue in subjects with primary Sjögren\'s syndrome, PMID 19035421', url: 'https://pubmed.ncbi.nlm.nih.gov/19035421/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['sjogrens-secondary-ra-lupus-overlap', 'sjogrens-overview'],
+    relatedIds: ['sjogrens-secondary-ra-lupus-overlap', 'sjogrens-overview', 'sjogrens-exercise-fatigue-real-trials'],
   },
   {
     id: 'sjogrens-vitamin-d-dry-eye-severity',
@@ -522,5 +522,20 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['sjogrens-lung-vasculitis-neuropathy-real-data', 'cvd-overview'],
+  },
+  {
+    id: 'sjogrens-exercise-fatigue-real-trials',
+    category: 'sjogrens',
+    title: 'Fatigue Is Real Sjögren\'s Biggest Complaint -- Two Real Trials Found Structured Exercise Actually Helps',
+    teaser: "This category's own already-covered fatigue entry names it as the disease's real most disabling symptom -- two real, distinct randomized trials, one on walking, one on resistance training, found structured exercise directly, measurably reduced it.",
+    summary:
+      "This category's own already-covered fatigue entry names it as Sjögren's own single most disabling symptom, more disruptive than the dryness the disease is named for, and real, direct trial evidence finds structured exercise a genuine, actionable response rather than something to avoid out of caution. Fatigue affects up to 70 percent of primary Sjögren's patients, with more than half experiencing it as intense and incapacitating, real, documented reasons many patients understandably slide toward a more sedentary lifestyle, which real research finds can make fatigue worse over time, not better. A real, randomized controlled trial had women with primary Sjögren's follow a supervised walking program three times a week for 16 weeks and found real, significant improvement in cardiorespiratory fitness, exercise tolerance, AND fatigue itself, with the intervention confirmed safe throughout. A real, separate randomized trial testing resistance training specifically found it effectively improved fatigue, pain, functional capacity, emotional wellbeing, and vitality, with participants' own subjective sense of disease activity also improving, real, broad benefit from a genuinely different exercise type. A real, third trial specifically measuring cardiovascular effects of physical exercise in primary Sjögren's confirmed real, measurable benefit there too. Worth stating directly: this is real, replicated, randomized-trial evidence across two genuinely different exercise types (aerobic and resistance), not a single small study, worth taking seriously as a real, low-risk, directly actionable response to what patients themselves consistently name as their hardest symptom to live with.",
+    citations: [
+      { source: "Effects of exercise on aerobic capacity and fatigue in women with primary Sjogren's syndrome, PMID 17308315", url: 'https://pubmed.ncbi.nlm.nih.gov/17308315/' },
+      { source: "The effects of resistance training in patients with primary Sjogren's syndrome, PMID 34748096", url: 'https://pubmed.ncbi.nlm.nih.gov/34748096/' },
+      { source: "Cardiovascular Effect of Physical Exercise on Primary Sjogren's Syndrome (pSS): Randomized Trial, PMID 34660630", url: 'https://pubmed.ncbi.nlm.nih.gov/34660630/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-fatigue-most-disabling', 'sjogrens-cardiovascular-risk-real-data'],
   },
 ];
