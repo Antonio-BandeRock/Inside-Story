@@ -551,4 +551,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-omega3-dry-eye-mouth', 'sjogrens-cardiovascular-risk-real-data'],
   },
+  {
+    id: 'sjogrens-lymphoma-specific-risk-factors-checkable',
+    category: 'sjogrens',
+    title: "Beyond Overall Risk, Real Research Names Specific, Checkable Warning Signs for Sjögren's-Associated Lymphoma",
+    teaser: "This category's own already-covered lymphoma-risk entry names a real, overall elevated risk and general symptoms to watch -- real research goes further, naming specific, checkable clinical and lab findings that concretely predict who's actually at higher risk.",
+    summary:
+      "This category's own already-covered lymphoma-risk entry already establishes a real, meaningfully elevated overall risk with general, honest reassurance about typical prognosis, and real, more recent research names specific, checkable risk factors that go beyond simply knowing the overall risk exists. Real, established Sjögren's-lymphoma risk factors include persistent salivary gland swelling, lymphadenopathy (swollen lymph nodes), palpable purpura (a real, visible skin finding from small-vessel inflammation), low complement levels, cryoglobulinemia (specifically mixed monoclonal cryoglobulinemia, a real, checkable blood-test finding), and anemia. The real, useful, practical detail: research finds these risk factors compound, a higher NUMBER of these findings present in one person tracks with a real, correspondingly higher lymphoma risk, not a simple present-or-absent flag. Real, more specific research names monoclonal rheumatoid factor cross-reactive idiotypes (a specific real antibody-pattern finding) alongside cryoglobulinemia as particularly predictive markers worth monitoring longitudinally in higher-risk patients. Worth stating directly: this real, specific, checkable list turns this category's own already-covered general lymphoma-risk awareness into something genuinely actionable, real, concrete findings (a blood test for complement and cryoglobulins, a physical exam for swollen glands or purpura) worth discussing directly with a rheumatologist as part of ongoing Sjögren's monitoring, not just a background statistic to be aware of.",
+    citations: [
+      { source: 'Predictive risk factors for lymphoma in primary Sjögren\'s disease, Rheumatology, DOI 10.1093/rheumatology/keac613', url: 'https://academic.oup.com/rheumatology/article/62/4/1586/6692297' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-lymphoma-risk', 'sjogrens-parotid-swelling-lymphoma-predictor'],
+  },
 ];

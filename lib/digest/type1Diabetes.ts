@@ -557,4 +557,17 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-long-term-complications-real-data', 'type1-hba1c-time-in-range'],
   },
+  {
+    id: 'type1-dental-caries-salivary-mechanism',
+    category: 'type1Diabetes',
+    title: "T1D Also Raises Cavity Risk Directly, Through a Genuinely Different Mechanism Than the Gum Disease This Category Already Covers",
+    teaser: "This category's own already-covered periodontal-disease research names real, gum-specific inflammation -- a real, direct comparative study finds T1D also raises real tooth-decay risk through a distinct pathway: reduced saliva flow and higher bacterial load.",
+    summary:
+      "This category's own already-covered periodontal-disease research already establishes T1D's real, bidirectional relationship with gum inflammation, and dental caries (cavities) is a real, mechanistically DIFFERENT oral complication worth its own direct, distinct coverage. A real, direct comparative study of 60 T1D patients on insulin-pump therapy and 60 matched controls found the T1D group had significantly more decayed teeth (4.83 versus 3.08, on average) and significantly more filled teeth (5.15 versus 3.55) than controls. The real, specific mechanism, distinct from gum disease's own inflammatory pathway: T1D patients showed a real, significantly LOWER unstimulated salivary flow rate, and a real, significantly higher bacterial load in both saliva and dental biofilm, including elevated levels of Streptococcus and Lactobacillus species, both real, cavity-causing bacteria. Saliva itself does real, active protective work (a real, similar mechanism this Digest already covers directly for Sjögren's syndrome, another condition where reduced saliva flow drives real dental damage), and reduced flow directly means less of that real protection, alongside more of the real bacteria that cause decay in the first place. Worth stating directly: this real, distinct mechanism (cavities via reduced saliva and bacterial overgrowth) means dental care for T1D genuinely needs to address BOTH real complications, gum disease and cavities, not assume a periodontal-focused checkup alone covers the whole real picture, worth raising directly with a dentist alongside this category's own already-covered periodontal research.",
+    citations: [
+      { source: 'Dental caries and bacterial load in saliva and dental biofilm of type 1 diabetics on continuous subcutaneous insulin infusion, Journal of Applied Oral Science, PMC6007967', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6007967/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-periodontal-disease-bidirectional-real-data', 'type1-long-term-complications-real-data'],
+  },
 ];
