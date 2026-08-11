@@ -531,4 +531,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-gout-pegloticase', 'gout-tophi-real-prevalence-joint-damage'],
   },
+  {
+    id: 'gout-cares-trial-febuxostat-allopurinol-safety',
+    category: 'gout',
+    title: 'A Real, FDA-Mandated Trial Found a Genuine Safety Difference Between the Two Main Urate-Lowering Drugs',
+    teaser: "This category's own already-covered allopurinol/febuxostat comparisons focus on dosing and adherence -- a real, dedicated, FDA-required cardiovascular-safety trial found febuxostat carrying a real, measurably higher all-cause and cardiovascular death rate.",
+    summary:
+      "This category's own already-covered urate-lowering-therapy research already establishes allopurinol as the real, standard first-line choice, and the CARES trial is the real, direct reason regulators and prescribers weigh febuxostat more cautiously as a second option. A real, large (6,190 patients), multicenter, double-blind, FDA-mandated noninferiority trial specifically enrolled people with both gout and existing cardiovascular disease and followed them for a real median of 32 months. The real result was split: febuxostat was found noninferior to allopurinol for preventing major cardiovascular events overall, but cardiovascular death and death from any cause were both real, measurably more frequent in the febuxostat group. This is exactly why the CARES trial carries an FDA boxed warning specifically for febuxostat in patients with existing cardiovascular disease, a real, formal regulatory response to this trial's own findings, not a general gout-drug caution. A real, further analysis of the same trial data found a real, separate, useful caution: the risk of a major cardiovascular event actually rose sharply in the weeks right after EITHER drug was discontinued (a rate of 6.71 events per 100 person-years after stopping, versus 3.11 while still on treatment), real evidence that stopping urate-lowering therapy abruptly, regardless of which drug, carries its own real, short-term risk worth discussing with a doctor rather than doing unprompted. Worth stating directly: this real, dedicated cardiovascular-safety data is exactly why allopurinol remains this category's own already-covered first-line recommendation, with febuxostat reserved as a real, genuine alternative specifically when allopurinol itself isn't tolerated or effective, not interchangeable choices.",
+    citations: [
+      { source: 'Cardiovascular Safety of Febuxostat or Allopurinol in Patients with Gout, New England Journal of Medicine, PMID 29527974', url: 'https://pubmed.ncbi.nlm.nih.gov/29527974/' },
+      { source: 'Increased risk of cardiovascular events and death in the initial phase after discontinuation of febuxostat or allopurinol, PMC9226988', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9226988/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-allopurinol-dose-escalation-adherence', 'gout-kidney-cardiovascular-real-data'],
+  },
 ];

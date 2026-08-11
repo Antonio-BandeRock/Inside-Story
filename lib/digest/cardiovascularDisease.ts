@@ -547,4 +547,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-atrial-fibrillation-anticoagulation', 'cvd-heart-failure-abcd-staging'],
   },
+  {
+    id: 'cvd-moderate-statin-ezetimibe-vs-high-intensity',
+    category: 'cardiovascularDisease',
+    title: 'A Real Trial Found a Gentler Combination Matched High-Dose Statin Alone',
+    teaser: "This category's own already-covered statin evidence establishes the drug class's real mortality benefit -- a real, direct comparison trial found a real alternative path to the same LDL target that doesn't require pushing one drug to its highest, most side-effect-prone dose.",
+    summary:
+      "This category's own already-covered statin research establishes the real, class-wide mortality and event-reduction benefit tied to how much LDL cholesterol actually comes down, not to any one specific drug or dose. A real, direct question follows from that: does the LDL reduction have to come from a high-intensity statin dose alone, or can a moderate dose combined with a second, different drug (ezetimibe, which blocks cholesterol absorption in the gut through a completely different mechanism) get there just as safely and effectively? The RACING trial, a real, randomized comparison in patients with established atherosclerotic cardiovascular disease, found moderate-intensity statin plus ezetimibe produced a real, three-year composite outcome (cardiovascular death, major cardiovascular events, or nonfatal stroke) that was statistically comparable to high-intensity statin monotherapy, with the result holding consistently regardless of sex. A separate, real, large nationwide cohort study of patients with acute coronary syndrome found the combination approach tracked with a numerically lower adverse-outcome rate than high-intensity monotherapy (12.1 percent versus 13.3 percent), and a real, pooled meta-analysis across 32 studies found the combination approach achieved lower LDL-C levels than monotherapy overall. Worth stating directly: this doesn't reduce the real, already-established value of statins themselves -- it's real, useful evidence that reaching an LDL target doesn't require one single path, and a real, practical option worth discussing directly with a doctor for anyone who experiences real, genuine muscle-related side effects at a higher statin dose (see this category's own already-covered nocebo-effect research for how to tell a real drug effect from a real but non-pharmacological one first).",
+    citations: [
+      { source: 'Comparative outcomes of moderate-intensity statin with ezetimibe vs high-intensity statin therapy, ScienceDirect', url: 'https://www.sciencedirect.com/science/article/abs/pii/S193328742500409X' },
+      { source: 'Comparative effectiveness of moderate-intensity statin with ezetimibe therapy versus high-intensity statin monotherapy, PMC10774297', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10774297/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence', 'cvd-statin-nocebo-muscle-pain'],
+  },
 ];
