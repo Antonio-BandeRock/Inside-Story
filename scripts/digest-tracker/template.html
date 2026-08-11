@@ -1,0 +1,595 @@
+<title>Purple Digest — Depth Tracker</title>
+<style>
+  :root {
+    --ground: #2B3753;
+    --panel: #38456B;
+    --panel-hi: #435080;
+    --line: #5C6F94;
+    --ink: #E4D5C5;
+    --ink-dim: #8B9BB8;
+    --violet: #C7ACF6;
+    --violet-dim: rgba(199, 172, 246, 0.16);
+    --gold: #DFC28E;
+    --teal: #7FC7C3;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: var(--ground);
+    color: var(--ink);
+  }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 {
+    font-family: Georgia, "Iowan Old Style", "Palatino Linotype", "Book Antiqua", serif;
+    font-weight: 600;
+    text-wrap: balance;
+    margin: 0;
+  }
+
+  ::selection { background: var(--violet-dim); color: var(--ink); }
+
+  a { color: var(--violet); }
+
+  button {
+    font-family: inherit;
+    cursor: pointer;
+  }
+
+  button:focus-visible,
+  summary:focus-visible {
+    outline: 2px solid var(--teal);
+    outline-offset: 2px;
+  }
+
+  .num {
+    font-variant-numeric: tabular-nums;
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* ---------- page shell ---------- */
+
+  .wrap {
+    max-width: 1080px;
+    margin: 0 auto;
+    padding: 28px 20px 80px;
+  }
+
+  header.top {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    padding-bottom: 26px;
+    border-bottom: 1px solid var(--line);
+    margin-bottom: 28px;
+  }
+
+  .eyebrow {
+    font-size: 12px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--violet);
+    font-weight: 600;
+  }
+
+  header.top h1 {
+    font-size: clamp(26px, 4vw, 34px);
+    color: var(--ink);
+  }
+
+  header.top p.lede {
+    max-width: 62ch;
+    color: var(--ink-dim);
+    font-size: 15px;
+    margin: 0;
+  }
+
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+  }
+
+  .meta-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 999px;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    font-size: 13px;
+    color: var(--ink-dim);
+  }
+
+  .meta-pill strong {
+    color: var(--ink);
+    font-weight: 600;
+  }
+
+  .meta-pill.violet {
+    border-color: var(--violet);
+    color: var(--violet);
+  }
+  .meta-pill.violet strong { color: var(--violet); }
+
+  /* ---------- benchmark strip ---------- */
+
+  .benchmark {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 20px 22px;
+    margin-bottom: 30px;
+  }
+
+  .benchmark-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .benchmark-head h2 {
+    font-size: 17px;
+    color: var(--ink);
+  }
+
+  .benchmark-figs {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 14px;
+    color: var(--ink-dim);
+  }
+
+  .benchmark-figs .big {
+    font-size: 20px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .agg-bar-track {
+    width: 100%;
+    height: 10px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+    position: relative;
+  }
+
+  .agg-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: linear-gradient(90deg, var(--teal), var(--violet));
+    transition: width 0.6s ease;
+  }
+
+  .agg-bar-mark {
+    position: absolute;
+    top: -3px;
+    bottom: -3px;
+    width: 2px;
+    background: var(--gold);
+  }
+
+  .benchmark-foot {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    color: var(--ink-dim);
+    margin-top: 8px;
+  }
+
+  /* ---------- controls ---------- */
+
+  .controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 18px;
+  }
+
+  .sort-group {
+    display: inline-flex;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 3px;
+    gap: 2px;
+  }
+
+  .sort-btn {
+    background: transparent;
+    border: none;
+    color: var(--ink-dim);
+    font-size: 13px;
+    padding: 6px 12px;
+    border-radius: 7px;
+  }
+
+  .sort-btn[aria-pressed="true"] {
+    background: var(--violet-dim);
+    color: var(--violet);
+    font-weight: 600;
+  }
+
+  .filter-toggle {
+    background: transparent;
+    border: 1px solid var(--line);
+    color: var(--ink-dim);
+    font-size: 13px;
+    padding: 7px 13px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .filter-toggle[aria-pressed="true"] {
+    border-color: var(--teal);
+    color: var(--teal);
+  }
+
+  .filter-toggle .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 999px;
+    background: var(--teal);
+    opacity: 0;
+  }
+  .filter-toggle[aria-pressed="true"] .dot { opacity: 1; }
+
+  /* ---------- condition grid ---------- */
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 14px;
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 18px 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .card-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .card-head h3 {
+    font-size: 16px;
+    color: var(--ink);
+    line-height: 1.25;
+  }
+
+  .new-badge {
+    flex-shrink: 0;
+    background: var(--teal);
+    color: #1B2A38;
+    font-size: 11.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    white-space: nowrap;
+  }
+
+  .card-count-row {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--ink-dim);
+  }
+
+  .card-count-row .count {
+    font-size: 17px;
+    color: var(--ink);
+    font-weight: 700;
+  }
+
+  .bar-track {
+    width: 100%;
+    height: 7px;
+    border-radius: 999px;
+    background: rgba(0, 0, 0, 0.22);
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    background: var(--violet);
+    transition: width 0.6s ease;
+  }
+
+  details.entries {
+    margin-top: 2px;
+  }
+
+  details.entries summary {
+    list-style: none;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--violet);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 0;
+  }
+  details.entries summary::-webkit-details-marker { display: none; }
+
+  details.entries summary .chev {
+    display: inline-block;
+    transition: transform 0.15s ease;
+    font-size: 11px;
+  }
+  details.entries[open] summary .chev { transform: rotate(90deg); }
+
+  .entry-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    max-height: 340px;
+    overflow-y: auto;
+    padding: 4px 2px 2px;
+    margin-top: 4px;
+  }
+
+  .entry {
+    background: var(--ground);
+    border: 1px solid var(--line);
+    border-radius: 9px;
+    padding: 9px 11px;
+  }
+
+  .entry.is-new {
+    border-color: var(--teal);
+  }
+
+  .entry-title-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 3px;
+  }
+
+  .tier-dot {
+    flex-shrink: 0;
+    width: 8px;
+    height: 8px;
+    border-radius: 999px;
+    margin-top: 5px;
+  }
+  .tier-dot.strong { background: var(--teal); }
+  .tier-dot.moderate { background: var(--gold); }
+  .tier-dot.weak { background: var(--ink-dim); }
+
+  .entry-title {
+    font-size: 13.5px;
+    font-weight: 600;
+    color: var(--ink);
+    line-height: 1.3;
+  }
+
+  .entry-new-tag {
+    flex-shrink: 0;
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--teal);
+    letter-spacing: 0.03em;
+    margin-left: auto;
+    padding-left: 6px;
+  }
+
+  .entry-teaser {
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    line-height: 1.45;
+  }
+
+  footer.page-foot {
+    margin-top: 40px;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 12.5px;
+    color: var(--ink-dim);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .agg-bar-fill, .bar-fill, details.entries summary .chev { transition: none; }
+  }
+</style>
+
+<div class="wrap">
+  <header class="top">
+    <div class="eyebrow">Inside Story · Purple Digest</div>
+    <h1>Volumetric Depth Tracker</h1>
+    <p class="lede">
+      Every one of the 18 non-Hashimoto's conditions is being brought up toward the same real,
+      independently-cited depth as Hashimoto's own research. This page tracks that push as it
+      happens — regenerated and republished after every real batch of new entries, so it stays
+      current with what's actually been added rather than a one-time snapshot.
+    </p>
+    <div class="meta-row">
+      <span class="meta-pill violet">Last updated: <strong id="generated-at">—</strong></span>
+      <span class="meta-pill">Total entries added this push: <strong id="total-new" class="num">—</strong></span>
+      <span class="meta-pill">Refresh this page to see the latest batch</span>
+    </div>
+  </header>
+
+  <section class="benchmark">
+    <div class="benchmark-head">
+      <h2>Progress toward the Hashimoto's benchmark</h2>
+      <div class="benchmark-figs">
+        <span class="big num" id="agg-current">—</span>
+        <span>/</span>
+        <span class="num" id="agg-target">—</span>
+        <span>entries across all 18 conditions, combined</span>
+      </div>
+    </div>
+    <div class="agg-bar-track">
+      <div class="agg-bar-fill" id="agg-bar-fill" style="width: 0%"></div>
+    </div>
+    <div class="benchmark-foot">
+      <span>0</span>
+      <span>Hashimoto's own depth: <strong class="num" id="hashimotos-count" style="color: var(--gold)">—</strong> entries (the target every condition is climbing toward)</span>
+    </div>
+  </section>
+
+  <div class="controls">
+    <div class="sort-group" role="group" aria-label="Sort conditions">
+      <button class="sort-btn" data-sort="new" aria-pressed="true">Most new first</button>
+      <button class="sort-btn" data-sort="progress" aria-pressed="false">Closest to target</button>
+      <button class="sort-btn" data-sort="alpha" aria-pressed="false">A–Z</button>
+    </div>
+    <button class="filter-toggle" id="filter-new" aria-pressed="false">
+      <span class="dot"></span>
+      Only conditions with new entries
+    </button>
+  </div>
+
+  <div class="grid" id="grid"></div>
+
+  <footer class="page-foot">
+    Each condition's real entry count and progress bar are measured against Hashimoto's own
+    current total, not a fixed round number — so the target itself moves if Hashimoto's own
+    research grows too. "New" marks anything added since this depth push began.
+  </footer>
+</div>
+
+<script>
+  const DATA = /*__DIGEST_TRACKER_DATA__*/{};
+
+  function fmtDate(iso) {
+    const d = new Date(iso);
+    return d.toLocaleString(undefined, {
+      month: 'short', day: 'numeric', year: 'numeric',
+      hour: 'numeric', minute: '2-digit',
+    });
+  }
+
+  function render() {
+    document.getElementById('generated-at').textContent = fmtDate(DATA.generatedAt);
+    document.getElementById('hashimotos-count').textContent = DATA.hashimotosCount;
+
+    const totalCurrent = DATA.conditions.reduce((s, c) => s + c.count, 0);
+    const totalTarget = DATA.hashimotosCount * DATA.conditions.length;
+    const totalNew = DATA.conditions.reduce((s, c) => s + c.newCount, 0);
+
+    document.getElementById('total-new').textContent = totalNew;
+    document.getElementById('agg-current').textContent = totalCurrent;
+    document.getElementById('agg-target').textContent = totalTarget;
+    document.getElementById('agg-bar-fill').style.width =
+      Math.min(100, (totalCurrent / totalTarget) * 100) + '%';
+
+    renderGrid();
+  }
+
+  let sortMode = 'new';
+  let onlyNew = false;
+
+  function sortedConditions() {
+    let list = DATA.conditions.slice();
+    if (onlyNew) list = list.filter((c) => c.newCount > 0);
+    if (sortMode === 'new') {
+      list.sort((a, b) => b.newCount - a.newCount || b.count - a.count);
+    } else if (sortMode === 'progress') {
+      list.sort((a, b) => (b.count / DATA.hashimotosCount) - (a.count / DATA.hashimotosCount));
+    } else {
+      list.sort((a, b) => a.label.localeCompare(b.label));
+    }
+    return list;
+  }
+
+  function entrySort(entries) {
+    return entries.slice().sort((a, b) => {
+      if (a.isNew !== b.isNew) return a.isNew ? -1 : 1;
+      return a.title.localeCompare(b.title);
+    });
+  }
+
+  function renderGrid() {
+    const grid = document.getElementById('grid');
+    grid.innerHTML = '';
+    const list = sortedConditions();
+
+    for (const c of list) {
+      const pct = Math.min(100, (c.count / DATA.hashimotosCount) * 100);
+      const card = document.createElement('div');
+      card.className = 'card';
+
+      const entriesHtml = entrySort(c.entries).map((e) => `
+        <div class="entry${e.isNew ? ' is-new' : ''}">
+          <div class="entry-title-row">
+            <span class="tier-dot ${e.tier}" title="${e.tier} evidence"></span>
+            <span class="entry-title">${escapeHtml(e.title)}</span>
+            ${e.isNew ? '<span class="entry-new-tag">NEW</span>' : ''}
+          </div>
+          ${e.teaser ? `<div class="entry-teaser">${escapeHtml(e.teaser)}</div>` : ''}
+        </div>
+      `).join('');
+
+      card.innerHTML = `
+        <div class="card-head">
+          <h3>${escapeHtml(c.label)}</h3>
+          ${c.newCount > 0 ? `<span class="new-badge">+${c.newCount} new</span>` : ''}
+        </div>
+        <div class="card-count-row">
+          <span class="count num">${c.count}</span>
+          <span>/ ${DATA.hashimotosCount} entries</span>
+        </div>
+        <div class="bar-track"><div class="bar-fill" style="width: ${pct}%"></div></div>
+        <details class="entries">
+          <summary><span class="chev">&#9656;</span> View all ${c.count} entries</summary>
+          <div class="entry-list">${entriesHtml}</div>
+        </details>
+      `;
+      grid.appendChild(card);
+    }
+  }
+
+  function escapeHtml(s) {
+    return s.replace(/[&<>"']/g, (m) => ({
+      '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;',
+    }[m]));
+  }
+
+  document.querySelectorAll('.sort-btn').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      sortMode = btn.dataset.sort;
+      document.querySelectorAll('.sort-btn').forEach((b) => b.setAttribute('aria-pressed', b === btn));
+      renderGrid();
+    });
+  });
+
+  document.getElementById('filter-new').addEventListener('click', (e) => {
+    onlyNew = !onlyNew;
+    e.currentTarget.setAttribute('aria-pressed', String(onlyNew));
+    renderGrid();
+  });
+
+  render();
+</script>
