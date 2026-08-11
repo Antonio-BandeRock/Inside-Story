@@ -103,3 +103,6 @@ unified-database/_*.json
 # Stray tsc output dumps from earlier ad-hoc debugging
 tsc_out*.txt
 tsc_check*.txt
+
+# Generated data for the Purple Digest depth-push tracker (see scripts/digest-tracker/README.md)
+scripts/digest-tracker/digest-tracker-data.json
