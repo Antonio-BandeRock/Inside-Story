@@ -535,4 +535,116 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['graves-selenium-orbitopathy'],
   },
+  {
+    id: 'graves-thyrotoxic-periodic-paralysis',
+    category: 'graves',
+    title: "Sudden Muscle Paralysis Can Be a Real, Underrecognized First Sign of Graves' -- Especially in Asian Men",
+    teaser: 'Thyrotoxic periodic paralysis strikes a real, striking male-to-female ratio of up to 70:1, the opposite of Graves\' own usual female predominance, and can be the very first symptom that leads to diagnosis.',
+    summary:
+      "Thyrotoxic periodic paralysis (TPP) is a real, genuinely dramatic Graves' complication this category hasn't yet covered directly: sudden, temporary muscle weakness or paralysis, most often in the legs, triggered by a real, sharp drop in blood potassium (hypokalemia) driven by excess thyroid hormone pushing potassium into cells. Real epidemiological data finds it disproportionately affects Asian men (Chinese, Japanese, Vietnamese, Filipino, Korean populations), with a real incidence around 2 percent of thyrotoxicosis cases in Asian populations, compared with just 0.1 to 0.2 percent in non-Asian populations. The real, genuinely striking demographic reversal: TPP shows a male-to-female ratio as high as 70:1, despite Graves' disease itself affecting women roughly 9 times more often than men, real evidence this specific complication runs in the opposite direction from the disease's own usual demographic pattern. Real case data finds TPP most common in men aged 20 to 40, and frequently the very first, presenting symptom that leads to an undiagnosed Graves' diagnosis being made at all, sometimes before any other classic hyperthyroid symptom is even noticed. Worth stating directly: sudden, unexplained leg weakness in a young man, especially of Asian descent, is worth real, prompt medical evaluation including thyroid function testing, not just assumed to be an isolated neurological event.",
+    citations: [
+      { source: "Thyrotoxic Periodic Paralysis in an Asian Male With Graves' Disease, PMC12676636", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12676636/' },
+      { source: "Thyrotoxic periodic paralysis as the first presentation of Graves' disease: A case report, PMC10183649", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10183649/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-global-iodine-iceland-denmark', 'graves-overview'],
+  },
+  {
+    id: 'graves-cas-ophthalmopathy-staging',
+    category: 'graves',
+    title: "Graves' Eye Disease Has a Real, Formal 7-Point Score Deciding Whether It's Actively Inflamed",
+    teaser: "This category's own already-covered thyroid eye disease research gets a real, concrete staging tool: the Clinical Activity Score, a real, standardized 7-item checklist that draws the line between active and inactive orbitopathy.",
+    summary:
+      "This category's own already-covered teprotumumab and euthyroid-ophthalmopathy research treats thyroid eye disease as a real, clinically significant complication, and real, formal ophthalmology practice uses a specific, structured tool to decide exactly how active it currently is: the Clinical Activity Score (CAS), a real 7-item checklist assigning one point each for spontaneous orbital pain, pain with eye movement, eyelid swelling from active inflammation, eyelid redness, conjunctival redness, chemosis (fluid swelling of the eye surface), and inflammation of the caruncle or plica. Real, standard clinical convention treats a CAS of 3 or below as inactive disease and 4 or above as active disease, a real, concrete threshold used directly to guide treatment decisions, since anti-inflammatory treatments (like the corticosteroids and biologics already covered elsewhere in this category) are generally most effective during the active phase. Real practice also layers in other formal tools alongside CAS, including the NOSPECS severity classification and the EUGOGO severity system, together giving eye specialists a genuinely structured, not just subjective, way to track a real disease course over time. Worth stating directly: knowing this real, named scoring system exists gives a person a concrete way to understand and ask about exactly where their own eye disease sits, active versus inactive, rather than relying on a vague sense of whether things seem better or worse.",
+    citations: [
+      { source: 'Advancements in imaging research in thyroid-associated ophthalmopathy, PMC12450699', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12450699/' },
+      { source: "Age and Clinical Activity Score (CAS): Key Predictive Factors for Non-shrinking Extraocular Muscles in Graves' Ophthalmopathy After Retrobulbar Injection of Glucocorticoids, PMC12483698", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12483698/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-euthyroid-ophthalmopathy', 'graves-teprotumumab-thyroid-eye-disease'],
+  },
+  {
+    id: 'graves-thyroidectomy-real-complication-rates',
+    category: 'graves',
+    title: "Surgery for Graves' Carries Real, Quantified Risks, and Surgeon Experience Genuinely Changes the Odds",
+    teaser: 'A real, 594-patient case series found temporary hypocalcemia in over 40% and temporary vocal-cord-nerve injury in about 5% of Graves\' thyroidectomies, with real evidence surgeon experience roughly halves both.',
+    summary:
+      "This category's own already-covered treatment-comparison research names thyroidectomy as a real option alongside antithyroid drugs and radioactive iodine, and real surgical outcome data gives it its own concrete numbers. A real, 594-patient case series of total thyroidectomy for Graves' disease found temporary recurrent laryngeal nerve palsy (a real, usually reversible voice-affecting nerve injury) in 5.2 percent of patients, with permanent injury in a genuinely rare 0.16 percent. Real, temporary low calcium (hypocalcemia, from the parathyroid glands being disturbed during surgery) occurred in a real, substantial 40.6 percent, though only 0.5 percent had a permanent version, broadly consistent with real German national guideline figures citing 18 to 20 percent temporary and 3 to 7 percent permanent hypoparathyroidism rates. The real, single most actionable finding: a direct comparison found less experienced surgeons had meaningfully worse real outcomes, 13 percent nerve-injury and 47.8 percent hypocalcemia rates, compared with 1.1 percent and 18.2 percent for more experienced surgeons operating on comparable patients. Worth stating directly: this is real, concrete evidence that asking specifically about a surgeon's own real thyroidectomy volume and experience is a genuinely meaningful, actionable question before choosing surgery as a Graves' treatment path, not just a formality.",
+    citations: [
+      { source: "The value of total thyroidectomy as the definitive treatment for Graves' disease: A single centre experience of 594 cases", url: 'https://www.sciencedirect.com/science/article/pii/S2214623718301261' },
+      { source: "Accumulation of Experience and Newly Developed Devices Can Improve the Safety and Voice Outcome of Total Thyroidectomy for Graves' Disease, PMC8911351", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8911351/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-treatment-comparison-real-outcomes', 'graves-bone-density'],
+  },
+  {
+    id: 'graves-atrial-fibrillation-real-risk',
+    category: 'graves',
+    title: "Graves' Disease Carries a Real, Doubled Risk of Atrial Fibrillation, and the Treatment Chosen Appears to Matter",
+    teaser: 'A real, 94,060-patient Korean cohort found a 2.2-fold higher atrial fibrillation risk in Graves\' disease, with a real, striking finding that surgery carried no added risk while drug and radioiodine treatment groups did.',
+    summary:
+      "This category's own already-covered thyroid-storm entry names cardiac risk as a real, acute Graves' emergency, and real, large cohort data finds a more chronic, ongoing cardiac risk sitting alongside it. A real, 94,060-patient Korean national health insurance cohort study, compared against 470,300 matched controls, found people with Graves' disease carried a real 2.2-fold higher risk of developing atrial fibrillation than the general population. A real, separate Mayo Clinic cohort of 1,371 Graves' patients found 139 developed atrial fibrillation, with real, distinct risk factors for early-onset AFib (age, more severe hyperthyroidism, male sex) versus late-onset AFib (age, COPD, heart failure), and found AFib in Graves' patients tracking with real, higher mortality and cardiac hospitalization risk. The real, genuinely striking finding from the Korean cohort: patients treated with surgery showed a similar AFib risk to the general population, while those treated with antithyroid drugs or radioactive iodine showed a real, increased risk, a real, worth-discussing signal about how the choice among this category's own already-covered treatment options might carry a different long-term cardiac risk profile, not just a different remission rate. Worth stating directly: this real, elevated risk is a genuine reason cardiac monitoring stays part of ongoing Graves' care even after hyperthyroidism itself is controlled.",
+    citations: [
+      { source: "Incidence, Risk Factors, and Outcomes of Incident Atrial Fibrillation in Patients With Graves Disease, PMID 36922268", url: 'https://pubmed.ncbi.nlm.nih.gov/36922268/' },
+      { source: "Graves' disease, its treatments, and the risk of atrial fibrillation: A Korean population-based study, PMID 36387909", url: 'https://pubmed.ncbi.nlm.nih.gov/36387909/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-cardiac-thyroid-storm', 'graves-treatment-comparison-real-outcomes'],
+  },
+  {
+    id: 'graves-vitiligo-comorbidity',
+    category: 'graves',
+    title: "Vitiligo and Graves' Disease Genuinely Overlap More Than Chance Alone Would Explain",
+    teaser: "A real meta-analysis found people with vitiligo carry nearly three times the odds of Graves' disease, part of a real, well-documented pattern of autoimmune thyroid disease clustering with this specific skin condition.",
+    summary:
+      "This category's own already-covered dermopathy research names pretibial myxedema as Graves' own real, direct skin manifestation, and real research finds a genuinely different skin condition, vitiligo (patchy loss of skin pigment from autoimmune destruction of melanocytes), showing up alongside Graves' disease far more often than chance would predict. A real meta-analysis found people with vitiligo carry significantly higher odds of Graves' disease specifically, an odds ratio of 2.93, and real research finds thyroid disease overall three to eight times more common among vitiligo patients than the general population, making it the single most common real comorbidity associated with vitiligo. A real, separate bidirectional Mendelian randomization study, a genetic-evidence method already used elsewhere in this Digest to support real causal inference beyond simple correlation, found real, genuine shared causal pathways between vitiligo and autoimmune thyroid disease, not just an observed statistical pattern. Worth stating directly: this real overlap is a genuine, practical reason someone diagnosed with vitiligo is worth screening for thyroid dysfunction, and someone with Graves' disease who notices new patches of pale, depigmented skin is worth mentioning it directly to a doctor rather than assuming it's unrelated.",
+    citations: [
+      { source: 'Prevalence and Association of Autoimmune Comorbidities Among Adults with Vitiligo: A Systematic Literature Review and Meta-analysis of USA-Based Studies, PMC12549480', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12549480/' },
+      { source: 'The causal relationship between vitiligo and autoimmune thyroid diseases: A bidirectional two-sample Mendelian randomization analysis, PMC11133963', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11133963/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-dermopathy-pretibial-myxedema', 'graves-genetic-family-risk'],
+  },
+  {
+    id: 'graves-methimazole-embryopathy-real-data',
+    category: 'graves',
+    title: "Methimazole in the First Trimester Carries a Real, Named Birth-Defect Pattern -- Which Is Exactly Why Pregnancy Drug Choice Matters",
+    teaser: "This category's own already-covered trimester-specific-drug-choice entry gets real, concrete backing: methimazole taken during weeks 1-7 of pregnancy is linked to a real, specific, well-documented pattern of birth defects.",
+    summary:
+      "This category's own already-covered pregnancy-trimester-drug-choice entry already recommends switching antithyroid drugs by trimester, and real, specific case data explains exactly why that recommendation exists. Methimazole exposure during the critical early window (roughly the first through seventh week of pregnancy) is linked to a real, defined, named pattern of birth defects called methimazole embryopathy, first formally characterized in 1999. Real case data compiled across published reports found this real pattern includes choanal atresia (blocked nasal passages, present in 65 percent of documented cases), aplasia cutis (a real, localized absence of skin, usually on the scalp, in 29 percent), nipple abnormalities (23 percent), esophageal atresia (13 percent), and developmental delay (16 percent), among other real, specific findings. This is precisely why real, current clinical guidance recommends using propylthiouracil (PTU) specifically during the first trimester despite its own already-covered real liver-toxicity risk, then switching to methimazole for the remainder of pregnancy once this critical embryonic window has passed, a genuine tradeoff between two real, different risks rather than one drug being simply safer than the other. Worth stating directly: this real, specific pattern is rare in absolute terms, but it's precisely documented and precisely why trimester-specific drug switching, not just picking one antithyroid drug and continuing it, is the real, current standard of care.",
+    citations: [
+      { source: 'Methimazole embryopathy: delineation of the phenotype, PMID 10076883', url: 'https://pubmed.ncbi.nlm.nih.gov/10076883/' },
+      { source: 'Teratogenic effects of antithyroid drugs, Nature Reviews Endocrinology', url: 'https://www.nature.com/articles/nrendo.2010.159' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-pregnancy-trimester-drug-choice', 'graves-pregnancy-fetal-thyrotoxicosis'],
+  },
+  {
+    id: 'graves-longterm-low-dose-atd-maintenance',
+    category: 'graves',
+    title: "Staying on a Real, Low Dose of Methimazole Long-Term Cuts Relapse Risk by Nearly Four-Fold",
+    teaser: "This category's own already-covered relapse-after-withdrawal research gets a real, direct answer: a randomized trial found continuing low-dose methimazole (2.5-5mg) dropped 3-year relapse from 41% down to 11%.",
+    summary:
+      "This category's own already-covered recurrence-after-drug-withdrawal entry names relapse as a real, common outcome once antithyroid drugs stop, and a real, randomized, prospective controlled trial tested a direct, practical alternative to simply stopping the medication after a standard course. The trial enrolled 184 Graves' patients who had already been on methimazole for at least 18 months and had stable, normal thyroid levels on a real, low dose (2.5 to 5mg daily) for at least 6 months, then randomized them to either stop the drug entirely or continue that same low dose long-term. After 3 years of real follow-up, relapse occurred in 41 percent of patients who stopped versus just 11 percent of those who continued the low dose, a real, nearly four-fold reduction in relapse risk from simply staying on a genuinely low, well-tolerated dose rather than discontinuing. Real, separate long-term safety data (a Danish multicenter study) found continued methimazole use over many years carried a real, low, manageable adverse-event profile, not an escalating danger from prolonged use. Worth stating directly: this is real, concrete evidence worth raising directly with an endocrinologist as a genuine alternative to the standard 12-to-18-month course-then-stop approach, especially for someone who has already experienced one real relapse.",
+    citations: [
+      { source: "Benefits of Long-Term Continuation of Low-Dose Methimazole Therapy in the Prevention of Recurrent Hyperthyroidism in Graves' Hyperthyroid Patients: A Randomized Prospective Controlled Study, PMC9578883", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9578883/' },
+      { source: "Long-term methimazole therapy in Graves' hyperthyroidism and adverse reactions: a Danish multicenter study, PMC9175582", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9175582/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-recurrence-after-drug-withdrawal', 'graves-antithyroid-drug-monitoring'],
+  },
+  {
+    id: 'graves-orbital-decompression-real-outcomes',
+    category: 'graves',
+    title: "Orbital Decompression Surgery Genuinely Reverses Bulging Eyes, With Real Data on Exactly How Much and What It Risks",
+    teaser: "This category's own already-covered thyroid eye disease research gets a real surgical option: decompression surgery reduced eye protrusion by a real, measured 3-4mm on average, with real, honest complication data included.",
+    summary:
+      "This category's own already-covered teprotumumab research offers a real, drug-based option for reducing eye protrusion (proptosis) in thyroid eye disease, and orbital decompression surgery is the real, established surgical alternative, physically enlarging the eye socket to give swollen orbital tissue more room. Real outcome data across multiple case series finds consistent, meaningful results: one study of 26 orbits found proptosis reduced by a mean of 3.85mm, and a separate series found a 2.9mm mean reduction alongside real, measured visual acuity improvement of about 2.2 lines on a standard eye chart in eyes with sight-threatening disease. Real quality-of-life data backs this up directly, with significant improvement in both functional and appearance-related quality-of-life scores after surgery. The real, honest complication worth stating plainly: a real, larger historical series found new double vision (diplopia) developing in 64 percent of patients who had none before decompression surgery, though real, longer-term follow-up found 77 percent of those cases resolved to single vision or were correctable with prism lenses by the final follow-up. Worth stating directly: this is a real, effective, well-documented surgical option for advanced thyroid eye disease, with a real, genuine tradeoff (a meaningful chance of new, usually resolving double vision) worth understanding and discussing directly before deciding, not a risk-free alternative to already-covered medical treatment.",
+    citations: [
+      { source: "Medial wall orbital decompression surgery for the treatment of Graves' ophthalmopathy: follow-up results in a single medical center, International Ophthalmology", url: 'https://link.springer.com/article/10.1007/s10792-025-03635-x' },
+      { source: "Outcomes of endoscopic orbital decompression for graves' ophthalmopathy, PMID 31203506", url: 'https://pubmed.ncbi.nlm.nih.gov/31203506/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-teprotumumab-thyroid-eye-disease', 'graves-cas-ophthalmopathy-staging'],
+  },
 ];
