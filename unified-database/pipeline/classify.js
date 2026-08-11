@@ -332,6 +332,31 @@ const CANDY_SNACKS = [
   // unrelated food (German "Kirsch"/"Kirschtorte" -- cherry/cherry torte
   // -- never has a word boundary after "Kir" to begin with).
   'kir',
+  // Continued proactive scan: real, confirmed damage, each checked
+  // against every real record first. 'ice creams' (plural) -- this
+  // exact recurring word-form lesson is already named directly in this
+  // very file's own FAST_FOOD comment below ("the exact same recurring
+  // word-form lesson as 'ice cream'/'ice creams'"), yet the plural form
+  // itself was never actually added: "Ice creams, vanilla, light, no
+  // sugar added" was wrongly resolving true via a coincidental
+  // pantry_staple:sugar match (the phrase "no sugar added" itself
+  // contains the substring "sugar"), since \bice cream\b doesn't
+  // bound-match "Ice creams." 'chewing gum' (natural word order) -- this
+  // file already has the reversed, comma-form 'gum, chewing,' but real
+  // Sweden/France records write it the natural way ("Chewing gum, with
+  // sugar," "Chewing gum sugar free," bare "Chewing gum"), which never
+  // matched either form -- 4 real records wrongly true via a
+  // coincidental sugar match, 1 more sitting unclassified. 'ketchup' --
+  // a real, standalone manufactured condiment (tomato + sugar + vinegar
+  // + spices, no legitimate single-ingredient reading), checked against
+  // every real record containing it -- every one already correctly
+  // excluded via some OTHER matched keyword except the one bare "Ketchup"
+  // record, which was sitting unclassified. 'vitamin water' -- a real,
+  // standalone manufactured/fortified/flavored beverage signal; real,
+  // confirmed damage: "Vitamin water, all flavours, low Calorie" and 2
+  // more real sibling records were sitting unclassified, since only the
+  // separately-sweetened variants were being caught (via 'sweetened').
+  'ice creams', 'chewing gum', 'ketchup', 'vitamin water',
 ];
 
 // A real, major bug found during a proactive scan, not reported directly:
@@ -626,6 +651,97 @@ const COMPOSITE_DISH_SIGNALS = [
   // unclassified -- a real manufactured snack/energy bar by definition,
   // zero exceptions found.
   'pizza', 'puddings', 'formulated', 'simulated',
+  // Continued proactive scan: 'ready-made' -- a real, direct, explicit
+  // manufactured-product signal, checked against every real record
+  // containing it. Real, confirmed damage: "Salad cream (ready-made
+  // product)" and "Beef olive (ready-made meal) canned" were wrongly
+  // resolving true, leaking through PLAIN_DAIRY_KEEP's 'cream' and
+  // RAW_WHOLE_FOOD_HINTS' 'canned' respectively, despite explicitly
+  // saying "ready-made" right in their own name; "Remoulade (ready-made
+  // product)" was sitting unclassified for the same underlying reason.
+  'ready-made',
+  // Continued proactive scan: 'smoothie' -- already lived in
+  // PRODUCT_SIGNAL_DISQUALIFIERS, scoped only to the spice/herb and
+  // pantry-staple checks, never checked generally. Real, confirmed
+  // damage from promoting it: 17 real records ("Smoothie mix, pineapple,
+  // mango and banana, frozen" and 6 siblings combining 2-3 named fruits
+  // each -- the same real unknown-ratio-mix problem already fixed twice
+  // for nuts and dried fruit; "Smoothie, yogurt, juice, banana and
+  // berries"; several branded NAKED JUICE/BOLTHOUSE FARMS/V8 SPLASH
+  // smoothies) were wrongly resolving true via a coincidental frozen/
+  // juice/dairy match; 15 more real records (every remaining real
+  // "Smoothie, X and Y" / bare "Smoothie" record checked) were sitting
+  // unclassified. Checked every real smoothie record in the whole
+  // database first -- zero legitimate single-ingredient exceptions
+  // found (a smoothie is, by definition, fruit blended with a liquid at
+  // minimum, the same real "even the traditional version combines 2+
+  // whole foods" category already established for aioli/hummus/pesto).
+  'smoothie',
+  // Continued proactive scan: bare 'sauce' -- checked against every one
+  // of the ~150 real currently-"true" records containing this word, and
+  // every single one turned out to be a genuine composite sauce/
+  // condiment (butter sauce, cheese sauce, cream sauce, béchamel, tomato
+  // sauce, ravioli in sauce, canned fish in tomato sauce -- zero
+  // legitimate exceptions among them), all wrongly resolving true by
+  // leaking through PLAIN_DAIRY_KEEP's own cheese/cream/butter/milk/
+  // yogurt match with no idea a "sauce" qualifier was sitting right next
+  // to it. The same real "even the simplest, most traditional version is
+  // still a real combination of 2+ whole foods" principle this file
+  // already applies to aioli/hummus/pesto/tapenade -- a sauce, by
+  // definition, is a base plus something else. Handled via the same
+  // real exclude-gate guard mechanism already used for 'soda'/'baking
+  // soda' (see classifyOne below), rather than added as a bare keyword
+  // directly, since a small, real, verified set of exceptions exists:
+  // "apple sauce"/"applesauce" (a genuine, single-ingredient stewed-
+  // fruit preparation, the same real category as 'compote' -- the fused
+  // "applesauce" spelling never even reaches this guard, since \bsauce\b
+  // doesn't bound-match inside it, but the real, separately-occurring
+  // "Apple sauce, unsweetened, canned" two-word form does) and 'soy
+  // sauce'/'soya sauce'/'fish sauce' (real, traditional single-process
+  // FERMENTED condiments -- fermented soybean/wheat/salt, fermented fish/
+  // salt -- the same real category as miso/tempeh/kombucha already
+  // accepted in FERMENTED_KEEP, which is where these three now also
+  // live as real positive matches). Deliberately did NOT except
+  // "Worcestershire sauce" -- checked directly and confirmed it's a
+  // genuine multi-ingredient blend (vinegar, molasses, anchovies,
+  // tamarind, onion, garlic, spices), not a single-process fermentation
+  // like soy/fish sauce, so it correctly stays excluded by the new
+  // general rule.
+  'sauce',
+  // Found the same way as the 'sauce' fix right above, while spot-
+  // checking its own real results: 'stock' (broth) -- a real, derived,
+  // extracted liquid (bones/vegetables simmered in water, then
+  // strained), never a raw single-ingredient food, the same real
+  // category "consomme"/"soup" already correctly excludes. Checked
+  // every real record containing this word first: ~85 real records,
+  // every one a genuine broth/stock or a dish built on one ("Chicken
+  // stock," "Meat stock with small liver dumplings," "Beef stock
+  // canned," "Veal stock for sauces and cooking, dehydrated" -- this
+  // last one also incidentally fixes the one real "sauces," plural,
+  // record this pass found, no separate plural entry needed since
+  // "stock" already catches both real occurrences). One real, honest,
+  // accepted tradeoff, not chased further: 2 Canada_CNF records
+  // ("Artichoke, stock, canned, drained") turned out, on checking the
+  // real underlying French name, to be a genuine MISTRANSLATION of
+  // "fond" (artichoke heart/base) as "stock" -- a real, pre-existing
+  // translation-layer bug outside this file's own scope, not a
+  // classification-rule problem; these two records were already only
+  // accidentally true via a coincidental 'canned'/'raw' match before
+  // this fix, not correctly true for the right reason, so this is a
+  // real but small, honest cost, the same class of accepted tradeoff
+  // already named elsewhere in this file ("tart"/"cutlet").
+  'stock',
+];
+
+// Real, small, individually-verified exception list for the new bare
+// 'sauce' exclude above -- see that entry's own comment for the full
+// reasoning behind each phrase. Checked directly: none of these four
+// phrases appears in any currently-correctly-excluded sauce record (a
+// real composite dish that merely CONTAINS soy sauce as one ingredient,
+// e.g. "simmered in soy sauce and sugar," is already caught upstream by
+// IN_OR_WITH_SAUCE_PATTERN before this guard is ever reached).
+const SAUCE_EXCLUDE_GUARD_PHRASES = [
+  'apple sauce', 'soy sauce', 'soya sauce', 'fish sauce',
 ];
 
 // New for this pass -- a real, flexible pattern match (not a plain
@@ -839,6 +955,22 @@ const FERMENTED_KEEP = [
   // already correctly caught upstream by the new 'mayonnaise' exclude
   // and the existing IN_OR_WITH_SAUCE_PATTERN, both of which run first.
   'vinegar', 'pickled', 'pickles',
+  // Continued proactive scan: real, single-process fermented condiments,
+  // the same real category as miso/tempeh/kombucha right above -- soy
+  // sauce (fermented soybean + wheat + salt) and fish sauce (fermented
+  // fish + salt), each aged, not a manufactured blend of unrelated
+  // ingredients. Checked directly: every real plain "Soy sauce"/"Soya
+  // sauce"/"Fish sauce" record in this database (shoyu, tamari, low-
+  // sodium variants, "Nam pla") was sitting unclassified; every real
+  // composite dish that merely CONTAINS soy/fish sauce as one ingredient
+  // among several ("simmered in soy sauce and sugar," "Dressing, soy
+  // sauce based," "Japanese noodle soup... soy sauce base") is already
+  // correctly excluded upstream, before this list is ever reached, by
+  // IN_OR_WITH_SAUCE_PATTERN or another real exclude keyword -- see the
+  // new SAUCE_EXCLUDE_GUARD_PHRASES comment (COMPOSITE_DISH_SIGNALS
+  // above) for why these three phrases also need excepting from the new
+  // general 'sauce' exclude, not just added here.
+  'soy sauce', 'soya sauce', 'fish sauce',
 ];
 
 const NATURAL_SWEETENER_KEEP = ['honey', 'maple syrup', 'molasses', 'agave'];
@@ -1052,6 +1184,50 @@ const RAW_WHOLE_FOOD_HINTS = [
   // sample of the review queue afterward to confirm no remaining
   // exceptions).
   'desiccated', 'toasted', 'puree', 'pureed', 'canned',
+  // Continued proactive scan: real, plain cooking-method words missing
+  // entirely, each checked against every real still-unclassified record
+  // before adding. 'simmered' -- 44 real records, every one a plain,
+  // single organ/muscle cut of meat or fish ("Beef, heart, simmered,"
+  // "Turkey, all classes, giblets, simmered," several Norwegian fish
+  // fillets), zero composite exceptions. 'casseroled' -- 26 real
+  // Australia_AFCD records, every one a plain cut of meat with the
+  // source's own explicit "no added fat" qualifier ruling out any real
+  // combination ("Chicken, breast, lean flesh, casseroled, no added
+  // fat"); "Chicken, skin, composite, casseroled, no added fat" is
+  // AFCD's own real lab-sampling term (skin pooled from multiple parts
+  // of the bird for testing), not a recipe combination. 'sashimi' -- 6
+  // real records, every one plain raw sliced fish/mollusk, the same real
+  // category as the already-accepted bare 'raw'. 'in brine' -- 9 real
+  // records (lobster tail, mussel, shrimp, vine leaves, four olive
+  // variants), the same real traditional brine-preservation category
+  // already accepted for 'pickled'.
+  'simmered', 'casseroled', 'sashimi', 'in brine',
+  // Continued proactive scan: real, plain wheat-gluten derivatives --
+  // 'wheat gluten' (covers "Vital wheat gluten," "Seitan, wheat gluten,"
+  // the three real Japan_MEXT powdered/pellet/paste forms, and "Gluten,
+  // from wheat (vital wheat gluten)"), 'seitan' (a real, traditional
+  // East Asian wheat-gluten food in its own right, covers "Meat
+  // substitute containing gluten (seitan)," which doesn't say "wheat
+  // gluten" literally), and 'gluten (from wheat' (the one real
+  // Germany_BLS record phrased differently again, "Gluten (from
+  // wheat)" -- the keyword is deliberately written WITHOUT its own
+  // closing paren: caught live by testing this fix against the real
+  // record, not assumed to work -- containsKeyword's \b...\b wrapping
+  // means a keyword ENDING in a non-word character like ")" only
+  // matches when a real word character follows it in the source text,
+  // which never happens here since the real record ends exactly at that
+  // closing paren; dropping it still matches the full real phrase,
+  // since \b after "wheat" is a real boundary either way). Deliberately
+  // NOT a bare 'gluten' keyword -- checked first and confirmed a real,
+  // serious collision risk: \bgluten\b DOES bound-match inside
+  // "gluten-free" (a hyphen is a non-word character), and over 20 real
+  // branded "Gluten-Free" products (crackers, waffles, rolls, wafers --
+  // Van's, Udi's, Schar, Glutino, Mary's Gone Crackers) would have been
+  // wrongly swept in by a bare keyword. Every one of these three
+  // narrower phrases checked directly against that same "gluten-free"
+  // list first -- zero collisions, since none of them say "wheat
+  // gluten"/"seitan"/"gluten (from wheat" themselves.
+  'wheat gluten', 'seitan', 'gluten (from wheat',
   // Found live during a proactive scan, not reported directly: 'compote'
   // (stewed fruit, the same real simple-preparation category as 'puree'/
   // 'mashed' right above) was never actually a positive keyword anywhere
@@ -1200,6 +1376,16 @@ const SPICE_HERB_KEEP = [
   'saffron', 'mustard seed', 'celery seed', 'poppy seed', 'caraway',
   'star anise', 'vanilla bean', 'vanilla pod', 'juniper berry', 'sumac',
   'wasabi', 'ginger',
+  // Continued proactive scan: 'peppermint'/'spearmint' -- real, distinct
+  // species names, neither bound-matched by the existing bare 'mint'
+  // above (both are fused compound words with no boundary before
+  // "mint"). Real, confirmed damage: "Spearmint leaves" was sitting
+  // unclassified (no cooking-state qualifier at all to fall back on),
+  // and "Peppermint tea (infusion)" the same. "Spearmint, dried"/
+  // "Peppermint, fresh" already happened to resolve true, but only via
+  // the coincidental 'dried'/'fresh' hint, never because the herb itself
+  // was recognized.
+  'peppermint', 'spearmint',
 ];
 // Real, general "this name describes a composite dish, a branded snack
 // product, or a baked dessert USING a real whole-food identity word as
@@ -1225,6 +1411,13 @@ const PRODUCT_SIGNAL_DISQUALIFIERS = [
 const SPICE_HERB_DISQUALIFIERS = [
   'pesto', 'bruschetta', 'sauce', 'dressing', 'marinade', 'ale', 'beer',
   'soda', 'cream', 'pasta', 'chicken', 'fish', 'salad', 'butter',
+  // Continued proactive scan: 'creams' (plural) -- the exact same real
+  // plural word-boundary gap as everywhere else in this file; the
+  // existing bare 'cream' above does not bound-match "Peppermint
+  // creams" (a real British confectionery -- sugar fondant flavored
+  // with peppermint, not the plain herb), which the new 'peppermint'
+  // keep entry above would otherwise wrongly match.
+  'creams',
   ...PRODUCT_SIGNAL_DISQUALIFIERS,
 ];
 
@@ -1414,6 +1607,33 @@ function isDisqualifiedNutOrSeedProduct(text) {
   return Boolean(anyKeywordMatches(text, NUT_SEED_DISQUALIFIERS));
 }
 
+// Continued proactive scan -- a real, confirmed leak of the exact same
+// shape as isDisqualifiedNutOrSeedProduct above: a genuine composite
+// burger/hamburger SANDWICH (bun + patty + toppings, assembled at a
+// restaurant) was resolving wrongly true by leaking through BREAD_KEEP's
+// own 'bread' match or PLAIN_DAIRY_KEEP's own 'cheese'/'pickled' match,
+// neither of which has any idea "burger" means something different in
+// this context. Deliberately NOT a blanket "burger"/"hamburger" exclude
+// -- "Hamburger, raw"/"Hamburger beef raw frozen food" (a real, plain
+// Norwegian naming convention for ground beef, not a sandwich) and
+// "Hamburger bread"/"Hamburger bun"/"Bread, hamburger buns" (the plain
+// bun component on its own) are all real, legitimate whole foods this
+// file already correctly accepts -- checked and confirmed unaffected:
+// none of them contains 'with'/'restaurant', the two real, narrow
+// assembly signals every genuine composite burger record actually found
+// in this database uses ("Chicken burger with bread accessories,"
+// "Hamburger 90 g with bread and accessories prepared at a restaurant,"
+// "Hamburger double w. bread cheese pickled cucumber cooked in a
+// restaurant" -- the last one abbreviates "with" as "w.," which is why
+// 'restaurant' is checked as its own separate, independent signal
+// rather than relying on 'with' alone).
+function isDisqualifiedBurgerProduct(text) {
+  if (!anyKeywordMatches(text, ['burger', 'hamburger'])) return false;
+  return Boolean(
+    anyKeywordMatches(text, ['with', 'restaurant', 'accessories'])
+  );
+}
+
 // New for this pass -- real, traditional pantry staples, per the app
 // owner's own direct instruction: "things like baking soda, sugar,
 // brown sugar, and other things that humans have been using for the
@@ -1505,9 +1725,17 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
   // new pantry-staple vocabulary and the existing exclude list -- fixed
   // as a small, explicit guard rather than a more invasive general
   // mechanism, since it's the one real case that actually needs it.
+  // A real, second instance of the same "the general exclude word
+  // collides with a real, narrower legitimate whole food" shape as the
+  // 'soda'/'baking soda' guard right above -- see SAUCE_EXCLUDE_GUARD_
+  // PHRASES' own comment (COMPOSITE_DISH_SIGNALS above) for the full,
+  // real reasoning behind each of the four excepted phrases.
   const excludeMatchRaw = anyKeywordMatches(n, ALL_EXCLUDE);
   const excludeMatch =
     excludeMatchRaw === 'soda' && containsKeyword(n, 'baking soda')
+      ? null
+      : excludeMatchRaw === 'sauce' &&
+        anyKeywordMatches(n, SAUCE_EXCLUDE_GUARD_PHRASES)
       ? null
       : excludeMatchRaw;
   if (excludeMatch) {
@@ -1574,6 +1802,20 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     return {
       isWholeFood: false,
       ruleMatched: `nut_or_seed_disqualified: matched "${nutSeedMatch}" but also "${disqualifier}"`,
+      autoConfidence: 'high',
+    };
+  }
+
+  // Real, disqualified burger/hamburger product -- checked EARLY for the
+  // same reason as the nut/seed check right above. See
+  // isDisqualifiedBurgerProduct's own header comment for the real, live
+  // leak this fixes.
+  if (isDisqualifiedBurgerProduct(n)) {
+    const burgerMatch = anyKeywordMatches(n, ['burger', 'hamburger']);
+    const disqualifier = anyKeywordMatches(n, ['with', 'restaurant', 'accessories']);
+    return {
+      isWholeFood: false,
+      ruleMatched: `burger_disqualified: matched "${burgerMatch}" but also "${disqualifier}"`,
       autoConfidence: 'high',
     };
   }
@@ -1653,9 +1895,23 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
   }
 
   // Real, plain soy-milk coagulation -- see SOY_DERIVATIVE_KEEP's own
-  // header comment for the real reasoning behind this.
+  // header comment for the real reasoning behind this. Continued
+  // proactive scan: a real, confirmed leak found live -- "Tofu dumpling
+  // (not suitable for vegans), prepackaged" was wrongly resolving true
+  // via bare 'tofu,' despite being a genuine composite dish (a dumpling
+  // wrapper filled with tofu, not plain tofu itself). 'dumpling'/
+  // 'dumplings' checked as a real, dedicated disqualifier here, the same
+  // real leak shape already fixed for nuts/seeds and natural sweeteners.
   const soyMatch = anyKeywordMatches(n, SOY_DERIVATIVE_KEEP);
   if (soyMatch) {
+    const dumplingDisqualifier = anyKeywordMatches(n, ['dumpling', 'dumplings']);
+    if (dumplingDisqualifier) {
+      return {
+        isWholeFood: false,
+        ruleMatched: `soy_derivative_disqualified: matched "${soyMatch}" but also "${dumplingDisqualifier}"`,
+        autoConfidence: 'high',
+      };
+    }
     return {
       isWholeFood: true,
       ruleMatched: `soy_derivative: ${soyMatch}`,
@@ -1911,6 +2167,7 @@ module.exports = {
   ADDED_SUGAR_SALT_OR_PROCESSING,
   REFINED_SWEETENER,
   COMPOSITE_DISH_SIGNALS,
+  SAUCE_EXCLUDE_GUARD_PHRASES,
   IN_OR_WITH_SAUCE_PATTERN,
   E_NUMBER_ADDITIVE_PATTERN,
   isBottledMineralWater,

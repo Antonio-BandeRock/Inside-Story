@@ -15,6 +15,143 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a continued proactive scan — a real, large batch: cooking-method gaps (simmered/casseroled/sashimi/in brine), a real, narrow wheat-gluten/seitan fix deliberately avoiding a "gluten-free" brand collision, plural gaps (ice creams, chewing gum, stock), a bare 'sauce' general exclude with real, verified exceptions (apple sauce, soy/soya/fish sauce), a promoted 'smoothie' exclude, a real burger-composite leak, and a real tofu-dumpling leak — plus a real, direct opinion on whether a "made gluten-free" brand-name product belongs in this database
+
+**A real, direct opinion, asked mid-scan: should "Andrea's, Gluten Free
+Soft Dinner Roll" stay, even though it's a name brand, given it's
+specifically made for a real dietary need?** No — excluded, consistent
+with the already-established BRAND_NAMES principle. The reasoning: this
+app already has a real, separate mechanism for gluten avoidance (Purple
+Digest/Healing-Stages condition-based filtering, working on plain,
+tagged real ingredients), and a branded product's own proprietary recipe
+(almost certainly a rice/tapioca-starch-and-xanthan-gum blend) isn't a
+whole food regardless of which real need it serves — if gluten-free
+sympathy earns an exception, so does every other brand's own real
+dietary claim (low-sodium, dairy-free, keto), and BRAND_NAMES stops
+meaning anything. The real need is already served honestly by this
+database's own plain flours.
+
+**Real cooking-method words missing entirely, each checked against
+every real still-unclassified record before adding.** 'simmered' (44
+real records, every one a plain organ/muscle cut of meat or fish).
+'casseroled' (26 real Australia_AFCD records, every one a plain cut of
+meat with the source's own explicit "no added fat" qualifier). 'sashimi'
+(6 real records, plain raw sliced fish/mollusk). 'in brine' (9 real
+records, the same traditional brine-preservation category already
+accepted for 'pickled'). All four added to `RAW_WHOLE_FOOD_HINTS`.
+
+**A real, narrow wheat-gluten fix, deliberately NOT a bare 'gluten'
+keyword.** Checked first and found a real, serious collision: `\bgluten\b`
+bound-matches inside "gluten-free" (a hyphen is a non-word character),
+and over 20 real branded "Gluten-Free" products (Van's, Udi's, Schar,
+Glutino, Mary's Gone Crackers) would have been wrongly swept in. Added
+three narrow, verified-safe phrases instead — 'wheat gluten', 'seitan',
+'gluten (from wheat' (a real record ending exactly at a literal closing
+paren surfaced a genuine `\b`-after-non-word-character gap, caught by
+testing the fix against the real record, fixed by dropping the trailing
+paren from the keyword itself).
+
+**Real plural/word-order gaps, the same recurring lesson this whole
+project keeps re-learning, found again three more times.** 'ice creams'
+(this exact lesson is already named directly in this file's own
+FAST_FOOD comment, yet the plural form itself was never added — "Ice
+creams, vanilla, light, no sugar added" was wrongly true via a
+coincidental "no sugar added" substring match). 'chewing gum' (natural
+word order; the reversed comma form 'gum, chewing' already existed but
+never matched the natural phrasing real Sweden/France records actually
+use). 'stock' (broth — found only by spot-checking the new 'sauce' fix's
+own real results: "Veal stock for sauces and cooking, dehydrated" was
+still wrongly true, since \bsauce\b doesn't bound-match "sauces";
+fixing 'stock' generally, since it's clearly a derived/extracted liquid
+in its own right, incidentally also closes that plural gap with no
+separate fix needed).
+
+**A real, large bare 'sauce' general exclude, checked against every one
+of the ~150 real currently-"true" records containing it first.** Every
+single one turned out to be a genuine composite sauce/condiment (butter
+sauce, cheese sauce, cream sauce, béchamel, tomato sauce, ravioli in
+sauce), wrongly resolving true by leaking through `PLAIN_DAIRY_KEEP`'s
+own cheese/cream/butter/milk match with no idea a "sauce" qualifier sat
+right next to it — the same real "even the simplest traditional version
+is still a real combination of 2+ whole foods" principle this file
+already applies to aioli/hummus/pesto. Handled via the same real guard
+mechanism already used for 'soda'/'baking soda', with a small, real,
+verified exception list (`SAUCE_EXCLUDE_GUARD_PHRASES`): 'apple sauce'
+(the same real category as 'compote'), 'soy sauce'/'soya sauce'/'fish
+sauce' (real, traditional single-process fermented condiments, the same
+category as miso/tempeh — added to `FERMENTED_KEEP` as real positive
+matches). Deliberately did NOT except "Worcestershire sauce" — a
+genuine multi-ingredient blend (vinegar, molasses, anchovies, tamarind,
+onion, garlic, spices), correctly stays excluded by the new rule. This
+same investigation also caught 'ketchup' and 'vitamin water' as real,
+standalone manufactured-product signals that deserved their own general
+exclude, and 'ready-made' as a real, explicit, previously-unrecognized
+manufactured-product phrase.
+
+**'smoothie' promoted from a scoped-only disqualifier to a real general
+exclude.** Was already in `PRODUCT_SIGNAL_DISQUALIFIERS`, but only
+consulted by the spice/herb and pantry-staple checks, never checked
+generally. Checked every real smoothie record in the database first —
+zero legitimate single-ingredient exceptions (a smoothie, by definition,
+blends 2+ things). Real, confirmed damage: 17 records ("Smoothie mix,
+pineapple, mango and banana, frozen" and 6 siblings combining 2-3 named
+fruits each — the same real unknown-ratio-mix problem already fixed
+twice for nuts and dried fruit) were wrongly true; 15 more were sitting
+unclassified.
+
+**Two real, disqualified-leak bugs, the exact same shape already fixed
+twice this session for nuts/seeds and natural sweeteners, found this
+time on burgers and tofu.** A dedicated `isDisqualifiedBurgerProduct`
+function (mirroring `isDisqualifiedNutOrSeedProduct`) catches a real
+composite burger/hamburger SANDWICH — "Chicken burger with bread
+accessories" and "Hamburger double w. bread cheese pickled cucumber
+cooked in a restaurant" were wrongly true, leaking through `BREAD_KEEP`'s
+own 'bread' match and `PLAIN_DAIRY_KEEP`'s own 'pickled' match.
+Deliberately NOT a blanket "burger" exclude — "Hamburger, raw" (a real
+Norwegian naming convention for plain ground beef) and "Hamburger bread"
+(the plain bun on its own) both stay correctly true, checked and
+confirmed unaffected, since neither contains the real, narrow
+'with'/'restaurant' assembly signal every genuine composite record
+actually uses. Separately, "Tofu dumpling (not suitable for vegans),
+prepackaged" was wrongly true via bare 'tofu' with no disqualifier at
+all — fixed with a real, dedicated 'dumpling'/'dumplings' check inline
+in `classifyOne`.
+
+**Real, small, honestly-accepted tradeoff, not chased further:** 2
+Canada_CNF records ("Artichoke, stock, canned, drained") turned out, on
+checking the real underlying French name ("Artichaut, fond,
+appertisé"), to be a genuine MISTRANSLATION of "fond" (artichoke heart)
+as "stock" — a real, pre-existing translation-layer bug outside this
+file's own scope, not a classification-rule problem. These two were
+already only accidentally true via a coincidental match before this
+fix, not correctly true for the right reason, so the new 'stock' exclude
+now (incorrectly, but honestly) also excludes them — the same class of
+small, accepted cost already named elsewhere in this file
+("tart"/"cutlet").
+
+**Real, before/after counts, whole database (excludes the 242 already
+human-reviewed records, which this pass never touches):**
+
+| | Before | After |
+|---|---|---|
+| Whole food | 16,948 | 16,854 |
+| Not whole food | 12,228 | 12,824 |
+| Needs review | 3,531 | 3,029 |
+| Total | 32,707 | 32,707 |
+
+Test suite: 306/306 passing (up from 266).
+
+**Real, higher-value leads found but deliberately NOT fixed this pass,
+named directly rather than silently dropped, for a future round:**
+several named French cheese varieties with no "cheese" in their own name
+(Saint-Félicien, Morbier, Coulommiers — scope not yet investigated);
+'garlic' as a plain vegetable/spice identity (for "Garlic powder" and
+similar); a real multi-meat "meatballs" combination pattern (Pork+beef,
+beef+lamb); one real, low-volume "Burger veg. potatoes, lentils, beans,
+corn... frozen food" record combining 4 named vegetables (the same
+unknown-ratio-mix problem, not caught by the new burger disqualifier
+since it says neither "with" nor "restaurant").
+
 ## Status: a real, first human-reviewer decisions round-trip through the audit tool — 242 classification overrides, 54 real match-group member removals, 1 group flagged for a real split
 
 The first real decisions export from the "Unified Whole-Foods Database

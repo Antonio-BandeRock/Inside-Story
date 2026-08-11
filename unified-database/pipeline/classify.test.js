@@ -456,6 +456,73 @@ check('a real, honest label fix: this now resolves via the correct alcohol rule 
 check('plain honey itself remains correctly unaffected by every one of the above disqualifiers', 'Honey', true, true);
 check('plain maple syrup remains correctly unaffected', 'Maple syrup', true, true);
 
+// --- Continued proactive scan: real cooking-method words missing
+// entirely -- 'simmered', 'casseroled', 'sashimi', 'in brine'. ---
+check('a real, plain simmered organ meat', 'Beef, heart, simmered', true, true);
+check('a real, plain simmered fish', 'Cod, fillet, simmered', true, true);
+check('a real, plain AFCD casseroled cut with no added fat', 'Chicken, breast, lean flesh, casseroled, no added fat', true, true);
+check('AFCD\'s own real lab-sampling term "composite" does not mean a recipe combination', 'Chicken, skin, composite, casseroled, no added fat', true, true);
+check('a real, plain raw sliced fish preparation', 'Sashimi, salmon', true, true);
+check('a real, traditional brine-preserved food, the same category as pickled', 'Lobster tail, in brine, drained', true, true);
+
+// --- Continued proactive scan: real, narrow wheat-gluten keywords --
+// deliberately NOT bare 'gluten', which collides with "gluten-free." ---
+check('a real, plain wheat-gluten extract', 'Vital wheat gluten', true, true);
+check('a real, traditional East Asian wheat-gluten food in its own right', 'Seitan, wheat gluten', true, true);
+check('a real, differently-phrased plain wheat-gluten record', 'Gluten (from wheat)', true, true);
+check('the real, serious collision this fix deliberately avoids: bare "gluten" would have wrongly matched every branded gluten-FREE product', "Andrea's, Gluten Free Soft Dinner Roll", true, null);
+check('a second, real confirmed gluten-free branded product, also correctly unaffected', 'Crunchmaster, Multi-Grain Crisps, Snack Crackers, Gluten-Free', true, null);
+
+// --- Continued proactive scan: real plural/word-order gaps -- 'ice
+// creams', 'chewing gum' (natural order), plus 'ketchup'/'vitamin
+// water' as real, standalone manufactured-product signals. ---
+check('a real, confirmed record wrongly true via a coincidental "no sugar added" substring match', 'Ice creams, vanilla, light, no sugar added', true, false);
+check('a real, natural-word-order chewing gum record, the reversed comma form never matched', 'Chewing gum, with sugar', true, false);
+check('bare "Chewing gum," previously sitting unclassified', 'Chewing gum', true, false);
+check('a real, standalone manufactured condiment', 'Ketchup', true, false);
+check('a real, standalone fortified/flavored beverage, previously sitting unclassified since only the sweetened variant was caught', 'Vitamin water, all flavours, low Calorie', true, false);
+
+// --- Continued proactive scan: 'ready-made', promoted general
+// 'smoothie', and the new general bare 'sauce' exclude (with its own
+// real, verified exception list). ---
+check('a real, explicit "ready-made" signal, wrongly true via a coincidental "cream" match', 'Salad cream (ready-made product)', true, false);
+check('a real, second ready-made record, previously sitting unclassified', 'Remoulade (ready-made product)', true, false);
+check('a real, confirmed unknown-ratio fruit mix, wrongly true via a coincidental "frozen" match', 'Smoothie mix, pineapple, mango and banana, frozen', true, false);
+check('a real, bare smoothie record, previously sitting unclassified', 'Smoothie, mango and orange', true, false);
+check('a real, confirmed composite sauce, wrongly true via a coincidental "butter" match', 'White butter sauce, prepackaged', true, false);
+check('a real, second confirmed composite sauce, wrongly true via a coincidental "cheese" match', 'Cheese sauce for risotto or pasta, prepackaged', true, false);
+check('a real, leading-form "Sauce, X" record, previously sitting unclassified since the existing IN_OR_WITH_SAUCE_PATTERN only catches the trailing "with/in X sauce" form', 'Sauce, plum, ready-to-serve', true, false);
+check('a real, genuine multi-ingredient blend correctly stays excluded, not excepted', 'Worcestershire sauce', true, false);
+check('the real, verified exception: a plain, single-fruit apple sauce is the same real category as compote', 'Apple sauce, canned, unsweetened', true, true);
+check('a real, second verified exception: soy sauce is a real, traditional single-process fermented condiment, the same category as miso/tempeh', 'Soy sauce made from soy and wheat (shoyu)', true, true);
+check('a real composite dish that merely CONTAINS soy sauce as one ingredient is still correctly excluded, not swept in by the new exception', 'Fish, Japanese sand lance, "Tsukudani" (simmered whole in soy sauce and sugar)', true, false);
+check('a third real verified exception: fish sauce, the same traditional fermented-condiment category', 'Fish sauce', true, true);
+
+// --- Continued proactive scan: 'peppermint'/'spearmint', neither
+// bound-matched by the existing bare 'mint'. ---
+check('a real, bare spearmint record with no cooking-state qualifier at all', 'Spearmint leaves', true, true);
+check('a real herbal tea made from an accepted herb', 'Peppermint tea (infusion)', true, true);
+check('a real composite candy correctly stays excluded, not wrongly swept in by the new peppermint keyword', 'Peppermint creams', true, false);
+
+// --- Continued proactive scan: a real, disqualified burger/hamburger
+// leak, the same shape already fixed for nuts/seeds. ---
+check('a real, confirmed composite burger, wrongly true via a coincidental "bread" match', 'Chicken burger with bread accessories', true, false);
+check('a real, second confirmed composite burger, using the abbreviated "w." form of "with"', 'Hamburger double w. bread cheese pickled cucumber cooked in a restaurant', true, false);
+check('a real, plain ground-beef record must stay correctly unaffected -- this is Norway\'s own real naming convention, not a sandwich', 'Hamburger, raw', true, true);
+check('the plain bun component on its own must also stay correctly unaffected', 'Hamburger bread', true, true);
+
+// --- Continued proactive scan: a real tofu-dumpling leak, the same
+// shape already fixed for nuts/seeds and natural sweeteners. ---
+check('a real composite dumpling, wrongly true via bare "tofu"', 'Tofu dumpling (not suitable for vegans), prepackaged', true, false);
+check('plain tofu itself remains correctly unaffected by the new dumpling disqualifier', 'Tofu, firm, prepared with calcium sulfate and magnesium chloride (nigari)', true, true);
+
+// --- Continued proactive scan: a real, second plural gap found only by
+// spot-checking the new bare 'sauce' fix's own real results -- 'stock'
+// (broth), a real, derived, extracted liquid, never a raw ingredient. ---
+check('a real, plain chicken stock, previously sitting unclassified', 'Chicken stock', true, false);
+check('a real, confirmed record wrongly true via a coincidental "canned" match', 'Beef stock canned', true, false);
+check('a real, plural "sauces" record this same fix also incidentally catches via "stock" itself', 'Veal stock for sauces and cooking, dehydrated', true, false);
+
 // --- Ambiguous / non-English: must NOT guess ---
 check('genuinely ambiguous name, no rule fires', 'Xyzzy prepared item 42', true, null);
 check('no English evidence at all (Norwegian, untranslated)', 'Agurk, norsk, rå', false, null);
