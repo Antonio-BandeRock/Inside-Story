@@ -60,6 +60,7 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
       { source: "Efficacy of Selenium Supplementation in Graves' Orbitopathy: A Systematic Review and Meta-Analysis of Randomized Controlled Trials with Trial Sequential Analysis", url: 'https://pubmed.ncbi.nlm.nih.gov/42355878/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['graves-selenium-orbitopathy-5year-honest-followup'],
   },
   {
     id: 'graves-smoking',
@@ -520,5 +521,18 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['graves-pregnancy-fetal-thyrotoxicosis'],
+  },
+  {
+    id: 'graves-selenium-orbitopathy-5year-honest-followup',
+    category: 'graves',
+    title: "A Real, 5-Year Follow-Up Adds an Honest Nuance to Selenium's Own Landmark Orbitopathy Trial",
+    teaser: "This category's own already-covered landmark selenium trial found gains held up through the original 12-month follow-up -- a real, separate, much longer 5-year cohort study found the same early benefit didn't translate into a lasting long-term difference.",
+    summary:
+      "This category's own already-covered landmark selenium trial found real, measured improvement in mild Graves' orbitopathy sustained through its own real 12-month follow-up window (6 months of treatment plus 6 months after stopping), and a real, separate, much longer 5-year prospective controlled cohort study (74 patients) adds a genuinely important, honest nuance worth stating directly rather than assuming the original trial's own shorter-term finding extends indefinitely. The real, 5-year study found that six months of selenium supplementation did measurably change the EARLY course of mild-to-moderate orbitopathy, real, direct confirmation of the same short-term benefit already covered elsewhere in this category, but found the same regimen made no real, measurable difference in long-term outcomes at the full 5-year mark. This isn't a contradiction of the original landmark trial, both are real, and both are accurate for the specific timeframe each actually measured, it's a real, honest extension showing that a genuine early benefit doesn't automatically mean a genuine lasting one. Worth stating directly, matching this category's own already-established caution about moderate-to-severe orbitopathy specifically: selenium's own real, best-supported role remains a short-term aid during the active early phase of mild orbitopathy, not a real, proven long-term disease-modifying treatment, worth discussing directly with an endocrinologist about what a course of selenium can and can't realistically be expected to achieve.",
+    citations: [
+      { source: "Selenium in the treatment of mild-to-moderate Graves' orbitopathy: a 5-year prospective controlled cohort study, PMID 38200401", url: 'https://pubmed.ncbi.nlm.nih.gov/38200401/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['graves-selenium-orbitopathy'],
   },
 ];

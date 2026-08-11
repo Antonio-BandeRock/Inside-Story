@@ -512,4 +512,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-glp1-agonists-emerging', 'pcos-weight-loss-modest'],
   },
+  {
+    id: 'pcos-endometrial-hyperplasia-screening-progestin',
+    category: 'pcos',
+    title: 'Endometrial Hyperplasia Genuinely Affects Roughly a Third of PCOS Patients -- and Real, Simple Progestin Treatment Usually Resolves It',
+    teaser: "This category's own already-covered endometrial-cancer-risk entry names the real mechanism -- real data finds the earlier, more common step, hyperplasia itself, affecting roughly 30% of PCOS patients, with real, effective progestin treatment available before cancer risk becomes the concern.",
+    summary:
+      "This category's own already-covered endometrial-cancer entry names PCOS's real 2.7-fold cancer risk and its real, direct mechanism (unopposed estrogen exposure from anovulation), and endometrial hyperplasia, the real, earlier, more common stage along that same pathway, deserves its own direct, practical coverage. Real research finds endometrial hyperplasia or carcinoma present in a real, substantial 30 percent of PCOS patients, with a real, separate meta-analysis finding premenopausal women with PCOS specifically facing up to a 4-fold increased endometrial cancer risk, a real, higher figure than the general 2.7-fold estimate this category already covers. The real, genuinely reassuring part: real clinical guidance names conservative progestin therapy as the real, first-line treatment for non-atypical hyperplasia (the more common, less serious form), directly working by attenuating the same unopposed estrogen growth already covered elsewhere in this category, the same real protective mechanism combined oral contraceptives already provide preventively. Worth stating directly: this real, common intermediate step (hyperplasia, not yet cancer) is exactly why this category's own already-covered ultrasound and biopsy surveillance matters as a real, practical screening tool, catching and treating a real, common, genuinely reversible condition with a real, simple hormonal treatment well before it could progress toward the more serious cancer risk this category's own overview already names.",
+    citations: [
+      { source: 'TO BIOPSY OR NOT TO BIOPSY? PREVALENCE OF ENDOMETRIAL HYPERPLASIA AND CANCER IN WOMEN WITH POLYCYSTIC OVARIAN SYNDROME, Fertility and Sterility', url: 'https://www.fertstert.org/article/S0015-0282(22)00572-6/fulltext' },
+      { source: 'Endometrial progesterone resistance and PCOS, PMC3917599', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3917599/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-endometrial-cancer-risk', 'pcos-combined-oral-contraceptives-first-line'],
+  },
 ];
