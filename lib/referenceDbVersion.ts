@@ -393,4 +393,145 @@
 // Norway_Matvaretabellen 2,112, Sweden_Livsmedelsverket 2,595 --
 // continuing in real, verified batches over multiple sessions, per the
 // person's own explicit choice.
-export const REFERENCE_DB_VERSION = "20260811110000";
+//
+// Bumped again, same day, direct instruction: "continue until the
+// translations are completed" -- a real shift from three small, hand-
+// verified batches (17/17/9 rows, each individually WebSearch-verified)
+// to a genuinely large-scale continuous translation effort (7,465 rows
+// remaining at the time of this instruction). Given the true scale,
+// per-row WebSearch verification isn't tractable the way it was for the
+// Algae/SupplementPowder batches -- this and future large batches instead
+// apply direct, fluent French/Norwegian/Swedish translation (the same way
+// a bilingual person translates common vocabulary without looking every
+// word up), reserving real WebSearch verification for genuinely uncertain
+// terms (an ambiguous culinary term like "quatre epices" vs "allspice",
+// confirmed via WebSearch this batch), and real nutrient/cross-source
+// data checks wherever a merge opportunity is found. This bump covers
+// 253 France_Ciqual rows across 8 categories in one continuous pass:
+// Alcohol (10 -- 2 rows, 'Cocktail a base de whisky'/'Kir royal (au
+// champagne)', needed a matching update to lib/db.ts's own
+// ALCOHOL_HIDDEN_BASE_NAMES Set, since both were already explicitly
+// listed there under their old French strings; 4 more -- Gin/Vodka/
+// Whisky/Liqueur -- needed no such update, since those words are
+// identical in French and English and already matched the hide-list
+// as-is); PantryStaples (11 -- real cross-source merges confirmed for
+// Agar/Baking Powder/Gelatine/Baker's yeast, all matched to existing
+// USDA/Canada_CNF/Germany_BLS/Japan_MEXT base_names); Brewing (13 -- 4
+// near-identical "cocoa/chocolate drink powder" rows kept genuinely
+// distinct, malted/not and vitamin-only/vitamin+mineral enrichment all
+// preserved); PastaNoodles (19 -- 6 real raw/cooked/dried pairs of the
+// same product correctly grouped under one shared base_name); Sweets (33
+// -- established "(Average)" as this project's own standing rendering for
+// Ciqual's real "(aliment moyen)" composite-food marker, ~98 more France
+// rows still carry it; several classic named French desserts, Peach
+// Melba/Baked Alaska/Poire Belle Helene, kept their real English culinary
+// names); Baked (45, this whole category currently hidden from app
+// browsing via CATEGORIES_HIDDEN_FROM_BROWSING -- translated anyway for
+// real data integrity, flour rows kept their real French T-grade
+// ash-content classification numbers, a genuine product spec, not
+// cosmetic detail); Fats (59, oils/butters/fats, no forced merges between
+// genuinely distinct real products); Herbs (63, single-herb/spice rows
+// split base_name=herb/prep_method=state, confirmed real cross-source
+// merges against already-translated Basil/Oregano/Rosemary/Sage/Curry
+// Powder entries). Checked for, and found zero, dangling food_aliases
+// rows across all 8 categories. France_Ciqual: 2,758 -> 2,505. Remaining:
+// France_Ciqual 2,505, Norway_Matvaretabellen 2,112,
+// Sweden_Livsmedelsverket 2,595 -- continuing.
+//
+// Bumped again, same day: 225 more France_Ciqual rows translated in the
+// same continuous effort -- SaucesCondiments (97) and Grain (128).
+// SaucesCondiments: "prepackaged" ("preemballe") categorization
+// deliberately left as-is (not moved to CommercialPremade) -- these rows
+// already went through the original build's own categorization pipeline,
+// and re-categorizing them is a separate, bigger scope decision than a
+// translation pass. "Sauce chaude"/"Sauce froide" rendered "Warm"/"Cold",
+// not "Hot", a deliberate choice to avoid the real ambiguity with a
+// chili/hot sauce -- these mean served-temperature, not spice level.
+// Bechamel Sauce's own two rows (préemballée/maison) grouped under one
+// shared base_name via a real Prepackaged/Homemade prep_method split.
+// Grain: the same real raw/cooked-pair grouping already established for
+// PastaNoodles/Baked applied again here -- every rice variety, whole
+// grain, and gnocchi/semolina/couscous/bulgur/frik row's own raw and
+// cooked state share one base_name. Checked for, and found zero,
+// dangling food_aliases rows across both categories. France_Ciqual:
+// 2,505 -> 2,280. Remaining: France_Ciqual 2,280, Norway_Matvaretabellen
+// 2,112, Sweden_Livsmedelsverket 2,595 -- continuing.
+//
+// Bumped again, same day: the whole France_Ciqual Bev category (265
+// rows) translated -- the largest, most consequential batch of this
+// whole continuous effort so far. 91 branded mineral/spring water rows
+// transformed with a real, purpose-written Node.js script (a very
+// regular real source pattern -- brand name kept verbatim, "gazeuse"/
+// mineralisation-level/location descriptors translated), verified
+// afterward via a full automated scan confirming zero remaining
+// untranslated French fragments; two genuine source-data typos (a
+// doubled letter, a missing comma) caught and fixed along the way, not
+// carried into the translation. 61 juice/nectar rows -- 18 real, clear
+// single-fruit "pur jus"/"frais"/"maison" rows moved into the existing,
+// already-curated 'Juice' subcategory and added to lib/db.ts's own
+// BEV_JUICE_ALLOWED_NAMES, matching that allowlist's own already-
+// established criteria exactly; every concentrate/blend/nectar/fortified/
+// salted-tomato-juice row stayed in subcategory 'Other', translated but
+// not specially curated. 75 soft-drink/tea/plant-milk/coffee-ready-to-
+// drink rows, straightforward. And a real, previously-undiscovered
+// finding: ~30 genuinely alcoholic French beverages (wine, beer, cider,
+// spirits, liqueurs, brandy, sake) were sitting in Bev the whole time,
+// not Alcohol -- the exact same "leaked past reclassification" bug this
+// project already fixed once, 2026-08-02, for other sources
+// (reclassify_bev_alcoholic_to_alcohol()), but missed here because that
+// fix triggered on a real subcategory tag ('Alcoholic') these
+// France_Ciqual rows never carried -- found only because translating
+// their names required reading what they actually were. Recategorized to
+// Alcohol with real subcategories (Wine & Champagne / Beer & Cider /
+// Spirits & Liqueurs / Cocktails & Mixed -- the latter two already
+// entirely hidden from browsing via lib/db.ts's own
+// ALCOHOL_SUBCATEGORIES_PENDING_SCAN_FEATURE, so beer/cider/cocktail rows
+// landing there are automatically, correctly hidden with no further
+// hide-list work needed). Explicitly non-alcoholic "sounds alcoholic"
+// rows (non-alcoholic beer under 1.2% ABV, a non-alcoholic anise
+// aperitif, a non-alcoholic fruit-juice cocktail, a shandy under 1% ABV)
+// deliberately stayed in Bev, matching the same real
+// BEV_ALCOHOL_FALSE_POSITIVES precedent already established for this
+// exact pattern. 'Rum' added to ALCOHOL_HIDDEN_BASE_NAMES too, matching
+// the existing Gin/Vodka/Whisky/Liqueur bare-word entries for
+// consistency, now that a real bare "Rhum" row exists for the first
+// time. Checked for, and found zero, dangling food_aliases rows across
+// both Bev and Alcohol. France_Ciqual: 2,280 -> 2,015. Remaining:
+// France_Ciqual 2,015, Norway_Matvaretabellen 2,112,
+// Sweden_Livsmedelsverket 2,595 -- continuing.
+//
+// Bumped again, same day: France_Ciqual's whole Dairy category (299
+// rows) translated -- milk, fermented-milk drinks/yogurt, fromage
+// blanc/petit suisse, dairy desserts, and a real, substantial named-
+// cheese block (Camembert-region soft cheeses, goat cheeses, blue
+// cheeses, hard cooked-curd cheeses like Comte/Beaufort/Gruyere, washed-
+// and bloomy-rind AOC/AOP cheeses like Roquefort/Epoisses/Munster/Pont
+// l'Eveque). Every named French AOC/AOP cheese kept as its real proper
+// noun (Roquefort, Comte, Beaufort, Reblochon, etc.), the same
+// "internationally recognized name stays as-is" discipline already
+// established for named desserts and named French cocktails/spirits
+// earlier this same continuous effort. Generated via a real Node.js
+// script from a hand-built id->name mapping rather than hand-typed raw
+// SQL, given how many rows carry a real apostrophe (Pont l'Eveque,
+// Boulette d'Avesne, Creme d'Isigny) needing correct SQL escaping --
+// spot-checked directly against the generated file before applying.
+// Checked for, and found zero, dangling food_aliases rows. France_Ciqual:
+// 2,015 -> 1,716. Remaining: France_Ciqual 1,716, Norway_Matvaretabellen
+// 2,112, Sweden_Livsmedelsverket 2,595 -- continuing.
+//
+// Bumped again, same day: France_Ciqual's whole CommercialPremade
+// category (338 rows) translated -- salads/soups/stews/braises, fish and
+// seafood preparations, vegetable gratins, filled pasta, tarts/pizzas/
+// savory pastries, sandwiches, and meal-replacement products. Every
+// genuinely named regional French dish kept as its real name (Blanquette
+// de veau, Boeuf bourguignon, Coq au vin, Cassoulet, Tartiflette,
+// Flammenkueche, Pissaladiere, Pastilla, Croque-Monsieur, Vol-au-vent,
+// etc.), the same discipline already established throughout this whole
+// continuous effort. Generated via the same real Node.js-script approach
+// as the Dairy batch just before it, given the same real apostrophe-
+// escaping need (Shepherd's Pie, etc.) -- spot-checked directly before
+// applying. Checked for, and found zero, dangling food_aliases rows.
+// France_Ciqual: 1,716 -> 1,378. Remaining: France_Ciqual 1,378 (Veg 611,
+// Meat 767), Norway_Matvaretabellen 2,112, Sweden_Livsmedelsverket 2,595
+// -- continuing.
+export const REFERENCE_DB_VERSION = "20260811134500";

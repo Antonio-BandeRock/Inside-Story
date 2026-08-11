@@ -682,10 +682,15 @@ const ALCOHOL_HIDDEN_BASE_NAMES = new Set([
   'Alcohol, cocktail, pina colada (rum), homemade',
   'Alcohol, cocktail, whisky sour mix, bottled, whisky added',
   'Alcohol, cocktail, whisky sour mix, powder, water and whisky added',
-  'Cocktail à base de whisky',
+  // 'Cocktail à base de whisky'/'Kir royal (au champagne)' renamed to
+  // 'Whiskey-Based Cocktail'/'Kir Royale (Champagne)' here 2026-08-11, as
+  // part of France_Ciqual's own real translation work -- the old French
+  // strings are dead now that the rows' base_name changed, replaced with
+  // their real English equivalents so both stay correctly hidden.
+  'Whiskey-Based Cocktail',
   'Cocktail, Gin and tonic',
   'Cocktail, Tequila sunrise',
-  'Kir royal (au champagne)',
+  'Kir Royale (Champagne)',
   // Flavored, ready-to-drink products -- the same "scan only, not a
   // plain well-defined thing" reasoning as beer/cider.
   'Vodka cooler, fruit flavours',
@@ -719,6 +724,13 @@ const ALCOHOL_HIDDEN_BASE_NAMES = new Set([
   'Vodka',
   'Whisky',
   'Liqueur',
+  // 'Rum' added 2026-08-11 -- a genuine bare "Rhum" row surfaced for the
+  // first time in France_Ciqual's own real Bev-to-Alcohol reclassification
+  // this same pass (see this Set's own header comment). Same reasoning as
+  // Gin/Vodka/Whisky/Liqueur directly above: a real, distilled spirit
+  // where proof alone determines nutrition, already superseded by Rum's
+  // own clean Light/White and Dark/Aged Derived variants.
+  'Rum',
   // 'Alcohol, gin (40% alcohol by volume)', 'Alcohol, vodka (40% alcohol
   // by volume)', and 'Agave spirit (Mezcal/Tequila)' removed here,
   // 2026-08-10 -- a real audit-tool decision batch explicitly unhid and
@@ -903,6 +915,34 @@ const BEV_JUICE_ALLOWED_NAMES = new Set([
   'Satsuma mandarins, juice sacs, early ripening type, raw',
   'Satsuma mandarins, juice sacs, normal ripening type, raw',
   'Satsuma mandarins, straight fruit juice',
+  // 18 real, verified France_Ciqual entries added 2026-08-11, the same
+  // real translation pass that discovered ~30 genuinely alcoholic
+  // beverages sitting in Bev instead of Alcohol (see ALCOHOL_HIDDEN_
+  // BASE_NAMES' own comment above for that separate finding). Each one
+  // is real, unblended, not-from-concentrate, not-fortified juice --
+  // "pur jus" (pure juice), "frais" (fresh), or "maison" (homemade) in
+  // the original French -- matching this allowlist's own already-
+  // established criteria exactly. Concentrate/blend/nectar/fortified/
+  // salted-tomato-juice rows from the same France_Ciqual batch were
+  // deliberately NOT added here, staying in subcategory 'Other' instead.
+  'Carrot Juice, Pure Juice',
+  'Lemon Juice, Homemade',
+  'Orange Juice, Homemade',
+  'Grape Juice, Pure Juice',
+  'Pomegranate Juice, Pure Juice',
+  'Mango Juice, Fresh',
+  'Passion Fruit Juice, Fresh',
+  'Grapefruit Juice, Homemade',
+  'Grapefruit Juice, Pure Juice',
+  'Lemon Juice, Pure Juice',
+  'Lime Juice, Homemade',
+  'Lime Juice, Pure Juice',
+  'Clementine or Mandarin Juice, Pure Juice',
+  'Pomegranate Juice, Fresh',
+  'Orange Juice, Pure Juice',
+  'Pineapple Juice, Pure Juice',
+  'Apple Juice, Pure Juice',
+  'Blood Orange Juice, Pure Juice',
 ]);
 
 function buildScopeClause(category: string, subcategory: string | null, usdaOnly: boolean) {
