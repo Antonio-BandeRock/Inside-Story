@@ -80,6 +80,23 @@ const CATEGORY_DENSITY_CLASS: Record<string, DensityClass> = {
   Fats: 'oil_fat',
 };
 
+// Added 2026-08-10 for the Alcohol Content Calculator (lib/
+// alcoholCalculator.ts) -- that feature needs to convert an ingredient's
+// already-chosen quantity/unit (e.g. "1/2 cup") into milliliters, to
+// prefill its own Volume field, without a second, hand-copied unit table.
+// Deliberately narrower than convertToGrams: this only ever answers "how
+// many mL," never needs a food's density, so it works for every volume
+// unit unconditionally (unlike convertToGrams's own volume branch, which
+// needs a densityClass first). Same normalization as lib/db.ts's own
+// normalizeUnitForConversion (trim/lowercase/replace whitespace with
+// underscore), so a builder's own "fl oz" (space) resolves the same way
+// "fl_oz" does.
+export function volumeToMl(amount: number, unit: string): number | null {
+  const normalized = unit.trim().toLowerCase().replace(/\s+/g, '_');
+  if (!isVolumeUnit(normalized)) return null;
+  return amount * VOLUME_TO_ML[normalized];
+}
+
 export type GramConversionResult =
   | { ok: true; grams: number }
   | { ok: false; reason: 'unsupported_unit' | 'volume_needs_density' };

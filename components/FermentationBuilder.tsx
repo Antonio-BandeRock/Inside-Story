@@ -27,6 +27,7 @@ import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSy
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
+import { AlcoholCalculatorPanel } from './AlcoholCalculator';
 import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE, isCoffeeFood } from '../lib/coffeeAdvisory';
 import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE, isJuiceFood } from '../lib/juiceAdvisory';
 import { DimensionFlags } from './DimensionFlags';
@@ -1503,6 +1504,14 @@ export function FermentationBuilder({
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                   <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory -- tap to learn more</Text>
                 </TouchableOpacity>
+              )}
+              {/* A real, standalone ABV/residual-sugar/cook-time
+                  calculator -- 2026-08-10, see lib/alcoholCalculator.ts's
+                  own top comment. Same isAlcoholicFood gate as the
+                  advisory row above; the panel itself owns its own
+                  expand/collapse state. */}
+              {isAlcoholicFood(pendingResolved) && (
+                <AlcoholCalculatorPanel tabColor={tabColor} quantity={quantity} unit={unit} />
               )}
               {/* Same informational, non-gating shape as the alcohol row
                   above -- see lib/coffeeAdvisory.ts's own top comment.

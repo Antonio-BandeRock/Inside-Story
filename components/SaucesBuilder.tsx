@@ -27,6 +27,7 @@ import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSy
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
+import { AlcoholCalculatorPanel } from './AlcoholCalculator';
 import { DimensionFlags } from './DimensionFlags';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
@@ -1492,6 +1493,14 @@ export function SaucesBuilder({
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                   <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory -- tap to learn more</Text>
                 </TouchableOpacity>
+              )}
+              {/* A real, standalone ABV/residual-sugar/cook-time
+                  calculator -- 2026-08-10, see lib/alcoholCalculator.ts's
+                  own top comment. Same isAlcoholicFood gate as the
+                  advisory row above; the panel itself owns its own
+                  expand/collapse state. */}
+              {isAlcoholicFood(pendingResolved) && (
+                <AlcoholCalculatorPanel tabColor={tabColor} quantity={quantity} unit={unit} />
               )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
