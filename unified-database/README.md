@@ -15,6 +15,93 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: "a sunflower seed is a seed" — a real, direct instruction on salt/seasoning, a real, genuine ratio-uncertainty question about mixed products, and a real, structural bug found only by testing the fix against real data
+
+Direct, real feedback: "a sunflower seed is a seed, so it should be kept
+as long as it isn't salted already or seasoned. I am also seeing jams
+and jellies and preserves and sauces and enriched things, and
+strudels, and a mic [mix] od [of] seeds and raisins which sounds fine
+because they're not salted but how do you know how much of each is in
+the mix is the problem."
+
+**"Seed, sunflower" — fixed properly, not left as an accepted
+tradeoff.** The previous pass left this real, reversed-word-order
+record as a small, deliberate gap. Investigated properly this time:
+pulled every real "Seed,"/"Seeds," -prefixed record in this database
+(Norway_Matvaretabellen's own real naming convention) and found the
+real reversed-order set is small and fully enumerable, not an unbounded
+risk — exactly 5 real species ("Seed, chia," "Seed, pumpkin," "Seed,
+sesame," "Seed, sunflower," "Seed, hemp"), each added as its own
+explicit reversed-compound phrase. "Sesame, hulled seed" remains a
+real, genuine, low-volume exception (1 record, a 3-word interruption)
+— still an honest, bounded tradeoff, the same standard as "tart"/
+"cutlet."
+
+**Salted and seasoned, per direct instruction.** 'salted' (checked
+directly — `\bsalted\b` correctly does not bound-match "unsalted," so
+every real "unsalted"/"without salt" record stays unaffected);
+'with salt' (a real, separate phrase for "with salt added"/"with
+salt," also confirmed safe against "without salt" the same way).
+'seasoned' turned out to be a real, general, database-wide gap, not
+just a nut-specific one — checked against every real currently-TRUE
+record (24 of them, spanning canned vegetables, dried fish, baked
+fillets, pickled products) and confirmed zero "unseasoned" collision
+risk anywhere, so it's now a real general exclude.
+
+**The real "how do you know how much of each is in the mix" question,
+answered directly: a mix of two or more separately-identifiable whole
+foods has a genuinely unknowable individual ratio, the same real
+problem this database's own core single-ingredient scope already
+exists to avoid — true regardless of salt.** Checked and confirmed
+this was already a real, live bug at scale, not hypothetical: all 18
+real "Nuts, mixed nuts, ..." records (several already salted) were
+sitting at `is_whole_food=1`. 'mix'/'mixed' added as real disqualifiers.
+
+**A real, structural bug found only by testing the new salt/mix
+disqualifiers against real data, not assumed to work because the logic
+looked right**: `NUT_SEED_KEEP` is checked relatively late in
+`classifyOne` — meaning a genuinely disqualified record could still
+resolve true via an EARLIER-checked rule with no idea the disqualifier
+existed. Confirmed live: "Seeds, sunflower seed kernels, oil roasted,
+with salt added" and "Nuts, mixed nuts, oil roasted with peanuts" both
+still resolved true via `OIL_KEEP`'s own bare 'oil' match (from "oil
+roasted"). Fixed the same way this file already fixes an early-
+precedence problem elsewhere (`isBottledMineralWater`,
+`isAlcoholicCocktailOrCocktailSauce`): a real, dedicated function
+checked EARLY, before `SAFE_OVERRIDES`/`OIL_KEEP`/etc. ever get a
+chance to fire, reusing the exact same `NUT_SEED_KEEP`/
+`NUT_SEED_DISQUALIFIERS` lists rather than duplicating them. A real,
+second instance of the identical leak was found by checking the same
+principle more broadly once the first one turned up: "Mixed nuts with
+dried fruit" and "Mixed dried fruit" were both resolving true via
+`SAFE_OVERRIDES`' own 'dried fruit' phrase, which had no disqualifier
+of its own at all — fixed the same way.
+
+**Real, additional finds along the way, not directly reported**: a
+second real naming convention for the same seed family — USDA writes
+"pumpkin AND squash seed(s)," which the plain "pumpkin seed" compound
+phrase doesn't match — checked and confirmed via the exact same
+"caught it by re-testing against the real function output" discipline
+that already found the "Croissants" plural miss; 'enriched' (a real,
+third bug, "Wheat petals with walnuts, hazelnuts or almonds, enriched
+with vitamins and minerals" wrongly true via its own nut mention, a
+real composite cereal product, not a plain nut — deliberately scoped
+to the nut-specific disqualifier list only, the same "leave the broader
+fortification question open" standard already applied to plain milk's
+own vitamin-D precedent); 'strudel' (a real composite pastry, several
+real records say "strudel dough" rather than "pastry" and weren't
+caught before); 'planters' (a real, confirmed nut brand found live).
+
+Real, concrete effect:
+
+  Whole food:        17,215 -> 17,023
+  Not whole food:     11,539 -> 11,748
+  Needs human review:  3,953 ->  3,936
+
+Every real fix spot-checked directly against the live, re-classified
+database. 231/231 classify.js tests passing (up from 216). Audit-tool
+data regenerated and republished to the same URL.
+
 ## Status: "Are we including all nuts and seeds?" — a real, direct question that surfaced a substantial gap, plus a real, honest self-caught repeat of the same mistake this file had already fixed for other keywords earlier the same pass
 
 Asked directly, not a bug report: "Are we including all nuts and

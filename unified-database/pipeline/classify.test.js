@@ -362,6 +362,25 @@ check('marzipan, the same real "combination even in its raw-paste form" reasonin
 check('a real, flavored/compound spirit, the same real "Compound alcoholic beverage" family reached by a different name', 'Almond liqueur', true, false);
 check('"cakes" (plural) now correctly excludes real manufactured rice cakes, the same real word-form fix already applied elsewhere this pass', 'Rice cakes, plain, low salt', true, false);
 
+// --- Real, direct instruction: "a sunflower seed is a seed, so it
+// should be kept as long as it isn't salted already or seasoned." Plus
+// a real, genuine question about ratio uncertainty in mixed products. ---
+check('the exact reported reversed-order record, now fixed properly rather than left as an accepted tradeoff', 'Seed, sunflower', true, true);
+check('a real, salted seed is now correctly excluded, per direct instruction', 'Cashew nuts, salted', true, false);
+check('"with salt added" is a real, separate phrase needed alongside bare "salted"', 'Seeds, sunflower seed kernels, oil roasted, with salt added', true, false);
+check('"without salt"/"unsalted" must stay correctly unaffected -- checked directly that "salted"/"with salt" cannot false-positive on the negated form', 'Seeds, sesame seed kernels, toasted, without salt added (decorticated)', true, true);
+check('"seasoned" is now a real, general exclude -- checked against every real record, zero "unseasoned" collision risk found anywhere', 'Peas, green, canned, seasoned, solids and liquids', true, false);
+check('a real, genuine architectural bug found only by testing the new salt disqualifier against real data: a nut/seed match used to leak through an EARLIER-checked rule (here, OIL_KEEP\'s own bare "oil" match) that had no idea a disqualifier existed -- fixed with a real, dedicated early check, the same pattern already used for isAlcoholicCocktailOrCocktailSauce', 'Nuts, mixed nuts, oil roasted with peanuts', true, false);
+check('the real, direct "how do you know how much of each is in the mix" question -- a mix of unknown-ratio whole foods is excluded regardless of whether it happens to be salted', 'Nuts, mixed nuts, dry roasted with peanuts', true, false);
+check('a real, second instance of the same "mix" leak, found by checking the same principle more broadly once the first one turned up: SAFE_OVERRIDES\' own "dried fruit" phrase had no disqualifier of its own at all', 'Mixed nuts with dried fruit', true, false);
+check('"Mixed dried fruit" -- the identical unknown-ratio problem, no nuts involved at all', 'Mixed dried fruit', true, false);
+check('a real, second naming convention found for the same seed family: USDA writes "pumpkin AND squash seed(s)," which the plain "pumpkin seed" compound phrase does not match', 'Seeds, pumpkin and squash seed kernels, roasted, salted', true, false);
+check('a real, third bug found live: fortification wrongly passing a composite cereal-type product via its own nut mention', 'Wheat petals with walnuts, hazelnuts or almonds, enriched with vitamins and minerals', true, false);
+check('a real, confirmed nut brand found live', 'Nuts, mixed nuts, dry roasted, with peanuts, salt added, PLANTERS pistachio blend', true, false);
+check('real strudel is now a general exclude, including the real records that say "strudel dough" rather than "pastry"', 'Viennese apple strudel (strudel dough)', true, false);
+check('plain, unaffected nuts and seeds still pass -- the fix did not become over-broad', 'Almonds', true, true);
+check('a real, deliberate, accepted 1-record exception remains, and is expected to: a genuinely reversed AND interrupted 3-word order this enumerable-phrase approach cannot safely reach', 'Sesame, hulled seed', true, null);
+
 // --- Ambiguous / non-English: must NOT guess ---
 check('genuinely ambiguous name, no rule fires', 'Xyzzy prepared item 42', true, null);
 check('no English evidence at all (Norwegian, untranslated)', 'Agurk, norsk, rå', false, null);

@@ -172,6 +172,18 @@ const CANDY_SNACKS = [
   // reached by a different real name this time).
   'macaroon', 'macaroons', 'praline', 'pralines', 'marzipan', 'brittle',
   'dragee', 'bisque', 'liqueur',
+  // Found live, during the same nuts-and-seeds investigation, not
+  // reported directly: 'strudel' (a real composite pastry -- fruit
+  // filling wrapped in dough -- confirmed a genuine gap: several real
+  // records say "strudel dough" rather than "pastry," so they weren't
+  // caught by the existing 'pastry' keyword at all); 'seasoned' (a real,
+  // general "flavored/spiced beyond plain preparation" signal, checked
+  // against every real record -- 24 currently-TRUE records spanning
+  // canned vegetables, dried fish, pickled products, baked fillets, all
+  // genuinely composite -- and confirmed zero "unseasoned" collision
+  // risk anywhere in this database, so this is safe as a real general
+  // exclude, not scoped to nuts alone).
+  'strudel', 'seasoned',
   // Found live, reported directly: "Adzuki beans, mature seeds, 'An'
   // (bean paste), 'Koshi-an' (strained bean paste)" -- a real,
   // multi-step processed derivative (cooked, mashed, often strained
@@ -688,6 +700,10 @@ const BRAND_NAMES = [
   // branded tofu product is still correctly excluded, matching this
   // whole list's own standing "no brand names, period" principle.
   'budweiser', 'bud light', 'mori-nu', 'vitasoy', 'nasoya',
+  // Found live, during the nuts-and-seeds investigation -- a real,
+  // confirmed nut brand ("Nuts, mixed nuts, dry roasted, with peanuts,
+  // salt added, PLANTERS pistachio blend").
+  'planters',
 ];
 
 const ALL_EXCLUDE = [
@@ -1048,22 +1064,44 @@ const SPICE_HERB_DISQUALIFIERS = [
 // groundnuts) were checked and found to have ZERO real occurrences, so
 // deliberately left out rather than added speculatively.
 //
-// Two real, low-volume word-ORDER exceptions were found and deliberately
-// left unaddressed, the same honest, bounded-tradeoff standard already
-// used for "tart"/"cutlet": "Seed, sunflower" and "Sesame, hulled seed"
-// each state the seed identity in a real but reversed/interrupted word
-// order this file's own plain substring matching can't safely
-// generalize for without real over-match risk -- 2 real records, left in
-// the review queue rather than engineered around.
+// A real, direct correction to the earlier "Seed, sunflower" call, per a
+// real, direct instruction: "a sunflower seed is a seed, so it should be
+// kept." Investigated properly rather than leaving it as an accepted
+// tradeoff -- pulled every real "Seed," / "Seeds," -prefixed record in
+// this database (Norway_Matvaretabellen's own real naming convention)
+// and found the real reversed-order set is small and fully enumerable,
+// not an unbounded risk: "Seed, chia," "Seed, pumpkin," "Seed, sesame,"
+// "Seed, sunflower," "Seed, hemp" -- exactly 5 real species, each added
+// as its own explicit reversed-compound phrase, the same safe, narrow
+// approach already used for "brazil nut"/"pine nut" above, not a general
+// word-order regex (which would carry real over-match risk this file has
+// deliberately avoided elsewhere). "Seed, poppy" and "Seed, linseed or
+// flaxseed" were checked too and confirmed already correctly handled
+// (SPICE_HERB_KEEP's own separate keyword; bare 'linseed'/'flaxseed'
+// respectively). "Sesame, hulled seed" remains a real, genuine, low-
+// volume exception (1 record) -- a 3-word interruption this same
+// enumerable-phrase approach can't reach without guessing, left in the
+// review queue rather than engineered around, the same honest,
+// bounded-tradeoff standard already used for "tart"/"cutlet."
 const NUT_SEED_KEEP = [
   'almond', 'almonds', 'walnut', 'walnuts', 'pecan', 'pecans', 'cashew',
   'cashews', 'pistachio', 'pistachios', 'hazelnut', 'hazelnuts',
   'filbert', 'macadamia', 'brazil nut', 'brazil nuts', 'pine nut',
   'pine nuts', 'chestnut', 'chestnuts', 'peanut', 'peanuts', 'groundnut',
-  'sunflower seed', 'sunflower seeds', 'pumpkin seed', 'pumpkin seeds',
-  'chia seed', 'chia seeds', 'flaxseed', 'flaxseeds', 'flax seed',
+  'sunflower seed', 'sunflower seeds', 'seed, sunflower', 'pumpkin seed',
+  'pumpkin seeds', 'seed, pumpkin',
+  // USDA's own real, common naming convention for this specific seed
+  // family -- "pumpkin AND squash seed(s)," not just "pumpkin seed" --
+  // found only by re-testing "Seeds, pumpkin and squash seed kernels,
+  // roasted, salted" against the real function output and finding the
+  // inserted "and squash" breaks the plain 'pumpkin seed' adjacency
+  // match entirely, letting it wrongly resolve true via a completely
+  // unrelated 'roasted' keyword instead.
+  'pumpkin and squash seed', 'pumpkin and squash seeds', 'chia seed',
+  'chia seeds', 'seed, chia', 'flaxseed', 'flaxseeds', 'flax seed',
   'flax seeds', 'linseed', 'linseeds', 'sesame seed', 'sesame seeds',
-  'hemp seed', 'hemp seeds', 'tahini',
+  'seed, sesame',
+  'hemp seed', 'hemp seeds', 'seed, hemp', 'tahini',
 ];
 // Reuses SPICE_HERB_DISQUALIFIERS wholesale (the identical "composite
 // dish/product using the listed identity word as one ingredient among
@@ -1093,20 +1131,84 @@ const NUT_SEED_KEEP = [
 // at all is still a real, legitimate simple preparation this database
 // already correctly accepts, and never reaches this check to begin
 // with). 'liqueur'/'praline'/'macaroon'/'marzipan'/'brittle'/'dragee'/
-// 'bisque' don't need to be repeated here at all -- each is now a real,
-// general exclude (see CANDY_SNACKS above), running before this check is
-// ever reached. One real, low-volume exception deliberately left
-// unaddressed: "Nuts, almond paste" (1 record) -- real-world "almond
-// paste" almost always means a sweetened, marzipan-adjacent product, but
-// a bare 'paste' disqualifier would also have wrongly caught the
-// already-correct, genuinely plain "Sesame paste, tahini" match, so this
-// single ambiguous record was left as a small, accepted tradeoff rather
-// than risk that collision.
+// 'bisque'/'strudel'/'seasoned' don't need to be repeated here at all --
+// each is now a real, general exclude (see CANDY_SNACKS above), running
+// before this check is ever reached. One real, low-volume exception
+// deliberately left unaddressed: "Nuts, almond paste" (1 record) --
+// real-world "almond paste" almost always means a sweetened, marzipan-
+// adjacent product, but a bare 'paste' disqualifier would also have
+// wrongly caught the already-correct, genuinely plain "Sesame paste,
+// tahini" match, so this single ambiguous record was left as a small,
+// accepted tradeoff rather than risk that collision.
+//
+// Real, direct instruction, extending this same list: "a sunflower seed
+// is a seed, so it should be kept as long as it isn't salted already or
+// seasoned." 'salted' (checked directly -- \bsalted\b correctly does NOT
+// bound-match "unsalted," so "Seed, sesame, unsalted" and every other
+// real "unsalted"/"without salt" record stays correctly unaffected);
+// 'with salt' (a real, separate phrase needed for records that say "with
+// salt added" or just "with salt" -- also checked directly and confirmed
+// safe: "with salt" does not appear as a substring inside "without
+// salt," since "with" is immediately followed by "out," not a space, so
+// no real record saying "without salt"/"without salt added" is ever
+// wrongly caught).
+//
+// A real, second, direct instruction in the same message, the genuine
+// "how do you know how much of each is in the mix" question: 'mix'/
+// 'mixed' -- checked directly against real data and found this was
+// already a live, confirmed bug at real scale, not hypothetical: all 18
+// real "Nuts, mixed nuts, ..." records (an assortment of unknown-ratio
+// nut species, several also already salted) were sitting at
+// is_whole_food=1, plus "Mixed nuts with dried fruit" (wrongly true via
+// the existing 'dried fruit' safe_override) and the real "Aperitif mix
+// of seeds ... and raisins" family this same report named directly.
+// A real, honest, general principle, not just a nut-specific one: a
+// "mix" of two or more real, separately-identifiable whole foods has a
+// genuinely unknowable individual ratio, the same real problem this
+// database's own core "single ingredient" scope already exists to
+// avoid -- true regardless of whether the mix happens to be salted.
+//
+// A real, third bug found live, same investigation: 'enriched' -- "Wheat
+// petals with walnuts, hazelnuts or almonds, enriched with vitamins and
+// minerals" was wrongly true via the 'almonds' match, a real composite
+// cereal-type product, not a plain nut. Deliberately scoped to this
+// nut-specific disqualifier list only, not a general exclude -- the
+// broader "does fortification alone disqualify a food" question stays
+// the same real, deliberately open question this file already left
+// alone for plain milk's own vitamin-D-fortification precedent.
 const NUT_SEED_DISQUALIFIERS = [
   'beverage', 'drink', 'porridge', 'curry', 'curried', 'caramel', 'pork',
-  'bar', 'puffs', 'compote',
+  'bar', 'puffs', 'compote', 'salted', 'with salt', 'mix', 'mixed',
+  'enriched',
   ...SPICE_HERB_DISQUALIFIERS,
 ];
+
+// A real, structural bug found only by testing the salt/mix/enriched
+// disqualifiers above against real data, not assumed to work just
+// because the logic looked right: NUT_SEED_KEEP is checked relatively
+// late in classifyOne (after SAFE_OVERRIDES and OIL_KEEP), so a real
+// disqualified record can still "leak through" via one of those EARLIER
+// checks, which have no idea this disqualifier list even exists --
+// confirmed live: "Seeds, sunflower seed kernels, oil roasted, with
+// salt added" and "Nuts, mixed nuts, oil roasted with peanuts" were both
+// still resolving TRUE via the OIL_KEEP check's own bare 'oil' match
+// (from "oil roasted"), and "Mixed nuts with dried fruit" via
+// SAFE_OVERRIDES' own 'dried fruit' match -- all three completely
+// bypassing the nut/seed disqualifier logic above. Fixed the same way
+// this file already fixes an early-precedence problem elsewhere
+// (isBottledMineralWater, isAlcoholicCocktailOrCocktailSauce): a real,
+// dedicated function, checked EARLY in classifyOne (in the exclude-gate
+// section, before SAFE_OVERRIDES/OIL_KEEP/etc. ever get a chance to
+// fire), reusing the exact same NUT_SEED_KEEP/NUT_SEED_DISQUALIFIERS
+// lists already built above rather than duplicating them -- so there's
+// only ever one real, single source of truth for what disqualifies a
+// nut/seed match, checked at the one point that actually guarantees it
+// wins regardless of which other positive rule might otherwise fire
+// first.
+function isDisqualifiedNutOrSeedProduct(text) {
+  if (!anyKeywordMatches(text, NUT_SEED_KEEP)) return false;
+  return Boolean(anyKeywordMatches(text, NUT_SEED_DISQUALIFIERS));
+}
 
 // New for this pass -- real, traditional pantry staples, per the app
 // owner's own direct instruction: "things like baking soda, sugar,
@@ -1256,8 +1358,40 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     };
   }
 
+  // Real, disqualified nut/seed product (salted, seasoned, mixed,
+  // enriched, etc.) -- checked EARLY, deliberately ahead of
+  // SAFE_OVERRIDES/OIL_KEEP/etc. below, so a real disqualifier can never
+  // be bypassed by an earlier rule that doesn't know about it. See
+  // isDisqualifiedNutOrSeedProduct's own header comment for the real,
+  // live leak this fixes.
+  if (isDisqualifiedNutOrSeedProduct(n)) {
+    const nutSeedMatch = anyKeywordMatches(n, NUT_SEED_KEEP);
+    const disqualifier = anyKeywordMatches(n, NUT_SEED_DISQUALIFIERS);
+    return {
+      isWholeFood: false,
+      ruleMatched: `nut_or_seed_disqualified: matched "${nutSeedMatch}" but also "${disqualifier}"`,
+      autoConfidence: 'high',
+    };
+  }
+
+  // A real, second instance of the exact same "mix" leak just fixed for
+  // nuts/seeds, found by checking the same real principle more broadly
+  // once the first one turned up: "Mixed nuts with dried fruit" and
+  // "Mixed dried fruit" (a real combination of multiple, unspecified
+  // dried-fruit species -- the identical unknown-ratio problem) were both
+  // resolving true via SAFE_OVERRIDES' own 'dried fruit' phrase, which
+  // has no disqualifier of its own at all. 'mix'/'mixed' checked here
+  // too, for the same real reason.
   const safeOverride = anyKeywordMatches(n, SAFE_OVERRIDES);
   if (safeOverride) {
+    const mixDisqualifier = anyKeywordMatches(n, ['mix', 'mixed']);
+    if (mixDisqualifier) {
+      return {
+        isWholeFood: false,
+        ruleMatched: `safe_override_disqualified: matched "${safeOverride}" but also "${mixDisqualifier}"`,
+        autoConfidence: 'high',
+      };
+    }
     return {
       isWholeFood: true,
       ruleMatched: `safe_override: ${safeOverride}`,
