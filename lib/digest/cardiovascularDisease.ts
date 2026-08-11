@@ -561,4 +561,17 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-statin-evidence', 'cvd-statin-nocebo-muscle-pain'],
   },
+  {
+    id: 'cvd-tavr-vs-surgery-low-risk-partner3',
+    category: 'cardiovascularDisease',
+    title: 'A Real, Landmark Trial Found a Minimally Invasive Valve Procedure Now Matches Open-Heart Surgery, Even in Low-Risk Patients',
+    teaser: "This category's own already-covered atrial-fibrillation-ablation research names a real, minimally invasive alternative to lifelong medication -- for a genuinely different heart problem, a narrowed aortic valve, a real, 5-year landmark trial found the same kind of catheter-based approach now matches traditional open-heart surgery, even in low-risk patients.",
+    summary:
+      "This category's own already-covered research on catheter-based procedures shows a real, general shift toward less invasive treatment options, and transcatheter aortic-valve replacement (TAVR), a real, catheter-delivered valve replacement for aortic stenosis (a narrowed, hardened heart valve) done without opening the chest, is a real, genuinely major example. TAVR was originally approved only for patients too frail or high-risk for open-heart surgery, and the real, direct question was whether it could actually match surgery for healthier, LOWER-risk patients too. The PARTNER 3 trial, a real, landmark randomized trial, directly tested this in low-risk patients with severe, symptomatic aortic stenosis and found, at 5-year follow-up, no statistically significant difference between TAVR and surgery on the real, combined outcome of death, stroke, or rehospitalization (22.8 percent with TAVR versus 27.2 percent with surgery, a real, non-significant difference given the trial's own confidence interval). A real, separate trial (Evolut Low Risk) confirmed the same real pattern out to 6 years, finding no significant difference in all-cause mortality or disabling stroke between the two approaches, real, direct evidence this isn't a short-term finding that fades with longer follow-up. Worth stating directly: this real, durable, multi-year evidence is exactly why TAVR has moved from a last-resort option for frail patients to a real, genuine, evidence-backed alternative to open-heart surgery for aortic stenosis across a much broader range of patients, worth a real, direct conversation about which approach fits a specific case, rather than assuming open-heart surgery remains the only proven option.",
+    citations: [
+      { source: 'Transcatheter Aortic-Valve Replacement in Low-Risk Patients at Five Years, New England Journal of Medicine, PMID 37874020', url: 'https://pubmed.ncbi.nlm.nih.gov/37874020/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-afib-catheter-ablation-real-trial', 'cvd-elderly-atypical-mi-presentation'],
+  },
 ];

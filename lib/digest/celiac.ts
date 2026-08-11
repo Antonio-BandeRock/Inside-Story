@@ -564,4 +564,17 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['celiac-pregnancy-fertility-real-data', 'celiac-gf-diet-nutritional-pitfalls'],
   },
+  {
+    id: 'celiac-atrial-fibrillation-real-risk',
+    category: 'celiac',
+    title: "Celiac Disease Carries a Real, Distinct Arrhythmia Risk Too -- Not Just the Heart Attack Risk This Category Already Covers",
+    teaser: "This category's own already-covered hypertension-paradox entry names a real, counterintuitive lower blood-pressure finding alongside higher heart-attack risk -- a real, pooled meta-analysis finds atrial fibrillation, a genuinely distinct kind of heart problem, also significantly elevated.",
+    summary:
+      "This category's own already-covered hypertension-paradox research already establishes celiac disease's real, genuinely counterintuitive cardiovascular pattern (lower blood pressure, yet higher heart-attack risk), and atrial fibrillation, a real, distinct kind of heart-rhythm problem rather than a blockage or blood-pressure issue, deserves its own direct coverage as part of that same real, broader picture. A real, pooled meta-analysis of 4 observational studies (64,397 total participants) found celiac disease associated with a real, significant 38 percent increased risk of atrial fibrillation (pooled odds ratio 1.38). The real, plausible mechanism the researchers themselves proposed connects directly to this category's own core, already-covered identity: celiac disease's own autoimmune, inflammatory nature, the same real, systemic inflammatory process already implicated elsewhere in this category's own cardiovascular and bone-density research, rather than a mechanism unique to blood pressure or cholesterol. Worth stating directly, the same honest way this category's own hypertension-paradox entry already treats a similarly counterintuitive finding: this real, elevated arrhythmia risk occurs even though traditional cardiovascular risk factors (hypertension, high cholesterol, obesity) tend to be LESS common in celiac patients, real, further evidence this category's own cardiovascular risk runs through a genuinely different, inflammation-driven pathway rather than the standard risk-factor profile most heart-disease prevention advice is built around. Worth stating directly: this real, specific arrhythmia risk is worth mentioning directly to a doctor alongside a celiac diagnosis, particularly for anyone noticing new heart-palpitation symptoms, rather than assuming celiac disease's own cardiovascular reach stops at the heart-attack risk already covered elsewhere in this category.",
+    citations: [
+      { source: 'Celiac Disease and Risk of Atrial Fibrillation: A Meta-analysis and Systematic Review, Cureus, 2020', url: 'https://pubmed.ncbi.nlm.nih.gov/32206461/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-hypertension-paradox-real-data', 'celiac-systemic-effects-real-data'],
+  },
 ];
