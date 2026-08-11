@@ -490,4 +490,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-active-surveillance', 'prostate-real-staging-systems'],
   },
+  {
+    id: 'prostate-bph-combination-therapy-mtops-combat',
+    category: 'prostateHealth',
+    title: "Two Real, Landmark Trials Found Combining BPH Medication Classes Beats Either One Alone",
+    teaser: "The MTOPS trial found combining an alpha-blocker with a 5-alpha-reductase inhibitor cut overall BPH progression risk by 66%, versus 39% and 34% for either drug used alone.",
+    summary:
+      "This category's own already-covered BPH-medication research names alpha-blockers and 5-alpha-reductase inhibitors as two real, distinct drug classes, and two real, landmark trials directly answer whether combining them actually works better. The MTOPS trial, a real, multicenter, 4-to-6-year, double-blind, randomized, placebo-controlled study of 3,047 men, found combination therapy (doxazosin plus finasteride) reduced overall real clinical progression risk by 66 percent, genuinely outperforming doxazosin alone (39 percent reduction) and finasteride alone (34 percent reduction). A real, separate landmark trial, CombAT (dutasteride plus tamsulosin, 4,800 men over 4 years), found the same real combination advantage held up specifically for reducing acute urinary retention and the need for BPH-related surgery, with combination therapy real, statistically significantly better than either drug alone on both counts. Real, current clinical guidance finds this combination benefit particularly meaningful for men with a larger prostate (30-40 mL or more) or a higher PSA (1.5 ng/mL or more), already-familiar measurements from this category's own PSA research. Worth knowing directly: while combination therapy means taking two real medications rather than one, this app's own already-covered individual medication profiles for both drug classes, the real, quantified benefit here (a genuinely lower risk of BPH actually getting worse or requiring surgery) is worth discussing directly with a urologist for anyone with more advanced BPH symptoms.",
+    citations: [
+      { source: 'Clinical and Economic Impact of Early Versus Delayed 5-Alpha Reductase Inhibitor Therapy in Men Taking Alpha Blockers for Symptomatic Benign Prostatic Hyperplasia, PMC3171825', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3171825/' },
+      { source: 'The Effects of Combination Therapy with Dutasteride and Tamsulosin on Clinical Outcomes in Men with Symptomatic Benign Prostatic Hyperplasia: 4-Year Results from the CombAT Study', url: 'https://www.researchgate.net/publication/26891117_The_Effects_of_Combination_Therapy_with_Dutasteride_and_Tamsulosin_on_Clinical_Outcomes_in_Men_with_Symptomatic_Benign_Prostatic_Hyperplasia_4-Year_Results_from_the_CombAT_Study' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-medications-psa-monitoring', 'prostate-5ari-cancer-risk-controversy'],
+  },
 ];

@@ -483,4 +483,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-lung-vasculitis-neuropathy-real-data', 'sjogrens-fatigue-most-disabling'],
   },
+  {
+    id: 'sjogrens-fluoride-varnish-real-trial-honest-null',
+    category: 'sjogrens',
+    title: "A Real, 24-Month Trial Found Fluoride Varnish Didn't Clearly Prevent New Cavities in Sjögren's -- an Honest, Direct Result",
+    teaser: "This category's own already-covered dental-caries entry names Sjögren's real cavity risk -- a real, rigorous, placebo-controlled trial found quarterly fluoride varnish didn't produce a statistically clear reduction in new cavities, though it did meaningfully cut oral yeast overgrowth.",
+    summary:
+      "This category's own already-covered dental-caries risk entry names Sjögren's real, mechanical route to rapid tooth decay, and a real, rigorous, 24-month randomized, double-blind, placebo-controlled trial tested one of the most commonly recommended preventive tools directly: quarterly fluoride varnish applications in 78 Sjögren's patients. The honest, real result: at 24 months, new coronal enamel cavities were identical between groups (1.6 surfaces each), and while new cavities beneath the enamel (dentin caries) were numerically lower in the fluoride group (1.4 versus 2.7 surfaces), the real, statistical difference didn't reach significance. Worth stating plainly, matching this whole Digest's own standing discipline: this is a real, honest null result on the primary question, not evidence fluoride varnish definitely doesn't help, but real, direct evidence this specific trial couldn't confirm the clear preventive benefit many dental guidelines assume. A real, genuinely positive, secondary finding did emerge from the same trial: oral Candida (yeast) counts dropped 30 percent in the fluoride group while rising 61 percent in the placebo group, real evidence fluoride varnish may still carry real, meaningful benefit for oral yeast overgrowth even if the cavity-prevention picture stayed genuinely unclear. Worth knowing directly: this doesn't mean skip fluoride treatment, real dental guidance still recommends it as part of a broader prevention plan (already covered elsewhere in this category alongside xylitol), just that the specific cavity-prevention claim deserves more real, confirmatory trial evidence than currently exists.",
+    citations: [
+      { source: "A randomized, double-blind, placebo-controlled clinical trial of fluoride varnish in preventing dental caries of Sjögren's syndrome patients, PMID 27664129", url: 'https://pubmed.ncbi.nlm.nih.gov/27664129/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['sjogrens-dental-caries-risk', 'sjogrens-oral-candidiasis-risk'],
+  },
 ];

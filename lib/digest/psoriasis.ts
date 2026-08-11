@@ -497,4 +497,18 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-il23-inhibitors-efficacy', 'psoriasis-systemic-comorbidities'],
   },
+  {
+    id: 'psoriasis-alcohol-treatment-response-real-data',
+    category: 'psoriasis',
+    title: "Alcohol Misuse Doesn't Just Worsen Psoriasis -- Real Data Finds It Genuinely Blunts How Well Treatment Works",
+    teaser: 'A real, prospective multicenter cohort study found a higher alcohol-misuse screening score directly, significantly predicting a poorer response to systemic psoriasis therapy.',
+    summary:
+      "This category's own already-covered comorbidity research names real, systemic effects of psoriasis beyond the skin, and real research finds alcohol carries a genuine, two-way relevance: it worsens disease severity, and it independently predicts worse treatment outcomes. A real, prospective multicenter cohort study found that a higher score on the CAGE alcohol-screening questionnaire was significantly associated with a poorer response to systemic psoriasis therapies, real, direct evidence connecting drinking to actual treatment failure, not just symptom severity on its own. A real, earlier prospective study found a similar, sex-specific pattern: ethanol intake above 80 grams per day before starting treatment was associated with less treatment-induced improvement specifically in men. Real research proposes a genuine, biologically plausible mechanism, not just a correlation: alcohol affects several of the same neurotransmitter systems (serotonin, dopamine, tachykinin) already implicated in the inflammatory processes driving psoriasis itself. A real, direct clinical recommendation follows from this: dermatology guidance now names alcohol screening as a real, worthwhile step (know, screen, intervene) specifically because it can meaningfully change how well a real, expensive biologic or systemic treatment (already covered elsewhere in this category) actually performs. Worth stating directly: this is real, actionable information, alcohol use is a real, modifiable factor worth discussing honestly with a dermatologist, not a moral judgment, specifically because it can directly affect whether an otherwise-effective treatment actually works.",
+    citations: [
+      { source: 'Alcohol misuse is associated with poor response to systemic therapies for psoriasis: findings from a prospective multicentre cohort study, PMID 34128222', url: 'https://pubmed.ncbi.nlm.nih.gov/34128222/' },
+      { source: 'Alcohol and Psoriasis for the Dermatologist: Know, Screen, Intervene, PMID 35997945', url: 'https://pubmed.ncbi.nlm.nih.gov/35997945/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-biologic-drug-survival-real-data', 'psoriasis-systemic-comorbidities'],
+  },
 ];

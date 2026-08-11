@@ -480,4 +480,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-sledai-disease-activity', 'lupus-nephritis-monitoring'],
   },
+  {
+    id: 'lupus-uv-light-flare-mechanism',
+    category: 'lupus',
+    title: "Real Research Now Explains, at a Cellular Level, Exactly How Sunlight Triggers a Lupus Flare",
+    teaser: "This category's own already-covered sun-versus-vitamin-D catch-22 gets real, mechanistic depth: UV light directly damages skin cells in a way lupus patients' own bodies can't clear efficiently, setting off a real inflammatory cascade reaching well beyond the skin.",
+    summary:
+      "This category's own already-covered photosensitivity entry names the real tradeoff between sun avoidance and vitamin D, and real, current research now explains the actual mechanism behind why sun exposure triggers a flare in the first place. When UV light damages skin cells, those cells die through a real, normal process called apoptosis, and in someone without lupus, the body efficiently clears the resulting cellular debris. Real research finds that in lupus, this clearing process is impaired, so those dead-cell fragments linger and form real immune complexes that persist in the body far longer than they should, directly triggering an autoimmune response. Real, separate mechanistic research adds two further layers: UV exposure directly triggers production of real, specific proinflammatory cytokines (TNF-alpha, IL-6, IL-1) that drive the visible skin inflammation of a sun-triggered flare, and a real, current Hospital for Special Surgery study found UV exposure also impairs lymphatic drainage, altering immune activity in nearby lymph nodes in a way that appears to make the resulting immune response more pathogenic, a genuinely new piece connecting a skin-level trigger to lupus's own real, systemic reach. Worth stating directly: this is real, current mechanistic science actively explaining a symptom lupus patients have long reported anecdotally, and it directly reinforces why sun protection measures already covered elsewhere in this category aren't precautionary overkill, they're addressing a real, now well-characterized biological trigger.",
+    citations: [
+      { source: 'Human and Murine Evidence for Mechanisms Driving Autoimmune Photosensitivity, PMC6205973', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6205973/' },
+      { source: 'HSS Research Uncovers How UV Light Triggers Immune Activation and Disease Flares in Lupus, Hospital for Special Surgery', url: 'https://news.hss.edu/hss-research-uncovers-how-uv-light-triggers-immune-activation-and-disease-flares-in-lupus/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-photosensitivity-vitamin-d-catch22', 'lupus-skin-blood-neuro-real-data'],
+  },
 ];

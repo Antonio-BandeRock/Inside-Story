@@ -502,4 +502,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-diabetes-distress-psychological-burden', 'type1-dka-sick-day-rules'],
   },
+  {
+    id: 'type1-skin-conditions-necrobiosis-vitiligo',
+    category: 'type1Diabetes',
+    title: "T1D Reaches the Skin Too: Two Real, Distinct Conditions Worth Recognizing by Name",
+    teaser: "Necrobiosis lipoidica and vitiligo are two real, visibly different skin conditions genuinely linked to T1D -- one from the diabetes itself, one from T1D's own autoimmune nature.",
+    summary:
+      "This category's own already-covered comorbidity and autoimmune-thyroid research already shows T1D reaching well beyond blood sugar, and two real, distinct skin conditions deserve their own direct naming. Necrobiosis lipoidica is a real, uncommon skin condition (0.3 to 1.2 percent of people with diabetes), appearing as reddish-brown patches, usually on the shins, that can thin and become fragile over time. Real research finds a genuinely interesting timing pattern: it precedes a diabetes diagnosis in up to 14 percent of cases and appears at the same time as diagnosis in up to 24 percent, meaning it can actually be the first visible clue leading to a real diabetes diagnosis, not just a later complication. Vitiligo, the loss of skin pigment in patches, is a real, separate, genuinely autoimmune condition (unlike necrobiosis lipoidica, which is a direct diabetes complication rather than a separate autoimmune process), and real research finds it genuinely more common in T1D specifically: a real meta-analysis of 14 studies found vitiligo prevalence in T1D patients averaging 2.4 percent versus 0.4 percent in the general population, consistent with T1D's own real autoimmune mechanism making a second autoimmune condition (already covered in this category's own thyroid-comorbidity research) more likely. Worth stating directly: neither condition is dangerous on its own, but both are real, visible, worth recognizing by name rather than assumed to be an unrelated skin issue, especially since necrobiosis lipoidica specifically can, in real cases, be the very first sign that leads to a T1D diagnosis in the first place.",
+    citations: [
+      { source: 'Necrobiosis lipoidica: a rare complication of diabetes, PMC6080969', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6080969/' },
+      { source: 'Shining a Light on Vitiligo and Associated Comorbidities: What Is the Evidence?, Journal of Drugs in Dermatology', url: 'https://jddonline.com/articles/shining-a-light-on-vitiligo-and-associated-comorbidities-what-is-the-evidence-S1545961623P0428X/?_page=3' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-autoimmune-thyroid-comorbidity', 'type1-celiac-comorbidity'],
+  },
 ];

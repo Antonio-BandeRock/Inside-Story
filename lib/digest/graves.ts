@@ -493,4 +493,18 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-remission-real-rates'],
   },
+  {
+    id: 'graves-teprotumumab-hearing-real-data',
+    category: 'graves',
+    title: "Teprotumumab's Real Eye Benefit Comes With a Real, Worth-Knowing Hearing Side Effect",
+    teaser: "This category's own already-covered teprotumumab entry names its real, structural eye-disease reversal -- real trial and follow-up data finds roughly 10% of patients also reported hearing-related symptoms, worth discussing directly before starting treatment.",
+    summary:
+      "This category's own already-covered teprotumumab research names a real, genuine structural reversal of thyroid eye disease, and real, dedicated follow-up research into a specific side effect deserves its own direct coverage. Real clinical-trial data found hearing abnormalities reported by about 10 percent of patients receiving teprotumumab, with the pivotal trial documenting specific real cases: hypoacusis (reduced hearing), one case of temporary deafness, autophony (hearing an echo of one's own voice), and eustachian tube dysfunction, most of which resolved. Real, more recent, dedicated research finds these symptoms often gradual in onset, affecting both ears, persistent, and genuinely impactful on quality of life while they last, with real research finding the underlying mechanism involves both inner-ear and eustachian-tube dysfunction. A real, important, honest complication worth stating directly: a real, more recent formal comparison found a genuinely similar prevalence of hearing-related complaints in Graves'/thyroid-eye-disease patients who never received teprotumumab at all, real evidence that baseline hearing issues in this population make it genuinely hard to know how much of any given case is caused by the drug itself versus the underlying disease. Worth stating plainly: this is real, worth discussing directly with a doctor before starting treatment, alongside this category's own already-covered real benefit, not a reason to avoid a genuinely effective treatment outright.",
+    citations: [
+      { source: 'Assessment of Hearing Dysfunction in Patients With Graves’ Disease and Thyroid Eye Disease Without or With Teprotumumab, PMID 39138817', url: 'https://pubmed.ncbi.nlm.nih.gov/39138817/' },
+      { source: 'Otologic Symptoms Following Teprotumumab Administration in Patients with Thyroid Eye Disease, PMID 39951668', url: 'https://pubmed.ncbi.nlm.nih.gov/39951668/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-teprotumumab-thyroid-eye-disease'],
+  },
 ];

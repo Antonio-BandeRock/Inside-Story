@@ -494,4 +494,32 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-glp1-sglt2-paradigm-shift', 'cvd-overview'],
   },
+  {
+    id: 'type2-hearing-loss-real-prevalence',
+    category: 'type2Diabetes',
+    title: 'Hearing Loss Is a Real, Underrecognized Type 2 Diabetes Complication, Tied Directly to Duration and Control',
+    teaser: 'Real pooled data finds clinically significant hearing loss more than twice as common in type 2 diabetes as in matched controls, with worse control and longer disease duration both independently making it more likely.',
+    summary:
+      "This category's own already-covered microvascular and nerve-damage complications (eye, kidney, foot) reach the same real vascular and neural pathways as another, less commonly discussed one: hearing. Real pooled data finds hearing loss prevalence in type 2 diabetes ranging from 40.6 to 71.9 percent across studies, and a real, direct comparison found clinically significant hearing loss in 53.0 percent of diabetic patients versus 25.2 percent of matched controls, a real, more than two-fold relative risk. The real, most common type found is sensorineural hearing loss (46.2 percent of cases), the same real category of hearing damage caused by inner-ear or auditory-nerve injury, consistent with a real, direct link to this category's own already-covered neuropathy research: one real study found the hearing loss specifically associated with diabetic neuropathy rather than diabetes alone. Real, identified risk factors mirror this category's own already-covered complication-screening research directly: hearing loss prevalence was significantly higher in people with diabetes duration over 10 years, and both disease duration and HbA1c level (already covered elsewhere in this category as the real, central control marker) independently predicted it. Worth stating directly: hearing loss isn't part of standard diabetes complication screening the way eye and kidney checks already are, real reason to mention any hearing changes directly to a doctor rather than assume they're simply an unrelated, ordinary part of aging.",
+    citations: [
+      { source: 'Type 2 Diabetes Mellitus and Hearing Loss: A Prisma Systematic Review and Meta-Analysis, PMC12574643', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12574643/' },
+      { source: 'Hearing Loss in Type 2 Diabetes in Association with Diabetic Neuropathy, PMID 29433858', url: 'https://pubmed.ncbi.nlm.nih.gov/29433858/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-microvascular-complications-screening', 'type2-individualized-hba1c-targets'],
+  },
+  {
+    id: 'type2-bariatric-surgery-real-10year-durability',
+    category: 'type2Diabetes',
+    title: 'Bariatric Surgery Genuinely Puts Type 2 Diabetes Into Remission -- and Real, 10-Year Data Shows the Odds of It Lasting',
+    teaser: "This category's own already-covered DiRECT trial shows real, dietary remission evidence -- a real 10-year surgical follow-up found roughly half of gastric bypass patients still in remission a full decade out, with diabetes duration at the time of surgery the strongest real predictor of whether it lasts.",
+    summary:
+      "This category's own already-covered DiRECT trial found real, substantial diabetes remission through structured dietary weight loss, and real, long-term surgical data gives a genuinely different, more durable comparison point. A real Roux-en-Y gastric bypass cohort found remission rates of 74 percent at 1 year, dropping to a real 53 percent still in remission at 10 years, roughly half of patients maintaining it for a full decade. The single strongest real predictor of lasting remission: how long someone had diabetes before surgery. Patients with a shorter diabetes duration (under 4 years) maintained remission in about 80 percent of cases at 10 years, while a real, separate cohort study of patients with 10 or more years of diabetes duration found remission rates declining roughly 10 percentage points per year after surgery, from 65.6 percent at year one down to 41.9 percent by year three. Worth stating directly, and consistent with this category's own already-covered window-of-opportunity-style reasoning elsewhere in this Digest: real evidence points toward earlier surgical intervention, while glycemic control is still relatively good, producing meaningfully more durable results than waiting until diabetes has been established for a decade or more, real, concrete reason timing itself is a genuine part of this decision, not just whether to have the surgery at all.",
+    citations: [
+      { source: 'Diabetes Remission After Bariatric Surgery: A 10-Year Follow-Up Study, PMC11717815', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11717815/' },
+      { source: 'Duration of type 2 diabetes and remission rates after bariatric surgery in Sweden 2007-2015: A registry-based cohort study, PLOS Medicine', url: 'https://journals.plos.org/plosmedicine/article?id=10.1371%2Fjournal.pmed.1002985' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-bariatric-surgery-remission', 'type2-direct-remission-trial'],
+  },
 ];
