@@ -252,14 +252,37 @@ export const PopoverSelect = memo(function PopoverSelect({
             // rendering -- confirmed by walking through the repro step by
             // step (Folate picked -> Vitamin C gone; Minerals picked next
             // -> everything above Minerals gone too, compounding each
-            // pick). initialNumToRender defaulting to only 10 is what lets
-            // this bite even on this app's own short, curated picker
-            // lists. Forcing every real option to render on the first pass
-            // sidesteps the whole windowing behavior that causes it --
-            // safe and cheap here, since every real option list in this
-            // app is at most a few dozen plain text rows, never a genuinely
-            // large dataset windowing exists to protect.
-            initialNumToRender={visibleOptions.length}
+            // pick).
+            //
+            // The first fix (force the WHOLE list to render every open) was
+            // real but too broad, confirmed the same day by a second, real
+            // report: opening the Nutrient Ranking picker (39 real tracked
+            // nutrients, searchable) took a reported ~15 real seconds
+            // before any row would accept a tap -- 39 rows synchronously
+            // forced to render at once on every open, not just the one
+            // genuinely affected by the bug, jamming the JS thread long
+            // enough to visibly block touch handling. The original
+            // comment's own "at most a few dozen plain text rows" reasoning
+            // didn't hold once measured against this app's own real
+            // 39-nutrient list.
+            //
+            // Scoped down to the minimum that actually fixes the bug: the
+            // bug only exists when initialScrollIndex is set at all (a
+            // fresh open with nothing selected yet has no scroll target and
+            // no bug either -- FlatList's own ordinary default already
+            // renders fine from the top in that case). When there IS a
+            // selection to scroll to, only render far enough to guarantee
+            // everything from the top through that selected row -- exactly
+            // what "items above it vanish" needs to stop being true --
+            // rather than the tail of the list past it, which was never
+            // actually invisible. A pick near the top of a long list (the
+            // common case) now costs a few rows, not the whole 39; only a
+            // pick deep in a long list still costs proportionally more,
+            // which is a real, unavoidable tradeoff of how FlatList's own
+            // virtualization works, not a regression from this fix.
+            initialNumToRender={
+              !searchText.trim() && selectedIndex >= 0 && selectedIndex < visibleOptions.length ? selectedIndex + 1 : undefined
+            }
             initialScrollIndex={
               !searchText.trim() && selectedIndex >= 0 && selectedIndex < visibleOptions.length ? selectedIndex : undefined
             }
