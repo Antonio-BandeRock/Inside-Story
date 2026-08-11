@@ -529,4 +529,18 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-sharp-trial-statins', 'ckd-dialysis-diet-reversal'],
   },
+  {
+    id: 'ckd-anxiety-pediatric-real-data',
+    category: 'chronicKidneyDisease',
+    title: "Anxiety Affects a Real, Substantial Share of CKD Patients Too, and Children With CKD Show the Same Real Pattern",
+    teaser: "This category's own already-covered depression entry names a real, underrecognized burden -- real research finds anxiety affecting 21-26% of CKD patients too, with the same real, measurable quality-of-life impact showing up even in children and adolescents.",
+    summary:
+      "This category's own already-covered depression research names a real, direct link to worse CKD progression and outcomes, and real research finds anxiety carrying a genuinely similar, distinct burden worth its own coverage. Real research finds anxiety prevalence ranging from 21 to 26 percent across CKD patient populations, real, substantial numbers in their own right, alongside depression rather than a lesser concern. Real research names the same real, direct downstream risks already covered for depression, functional impairment, sleep disruption, and compromised nutritional status, real evidence the two conditions travel together and compound each other's real impact on disease management. A real, direct pediatric study found this same pattern extending to children and adolescents with CKD specifically, not just adults: real, standardized quality-of-life scores were significantly lower in children with CKD (63.3) compared with healthy controls (72.7), with real, elevated depression and anxiety measured directly in the affected children, and, worth noting separately, in their own primary caregivers too. Worth stating directly: real clinical research explicitly names both depression and anxiety in CKD as commonly underdiagnosed and undertreated, real, direct reason to raise anxiety symptoms specifically, not just low mood, with a nephrology team, and real reason a child's own CKD diagnosis is worth watching for the same real mental-health burden this category's own adult research already establishes.",
+    citations: [
+      { source: 'Prevalence of depression and anxiety with their effect on quality of life in chronic kidney disease patients, Scientific Reports', url: 'https://www.nature.com/articles/s41598-022-21873-2' },
+      { source: 'Quality of life, depression and anxiety in children and adolescents with CKD and their primary caregivers, PMID 36745054', url: 'https://pubmed.ncbi.nlm.nih.gov/36745054/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-depression-underrecognized', 'ckd-cognitive-decline-dementia-risk'],
+  },
 ];

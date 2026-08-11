@@ -514,4 +514,17 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['masld-fiber-intake-real-data', 'gut-scfa-treg'],
   },
+  {
+    id: 'masld-mediterranean-diet-2year-real-biomarkers',
+    category: 'fattyLiverDisease',
+    title: "A Real, 2-Year Mediterranean Diet Trial Found Sustained, Measurable Liver-Cell-Death Marker Improvement",
+    teaser: "This category's own already-covered Mediterranean-diet head-to-head trial names a real, honest nuance about what it competes against -- a real, separate 2-year trial found sustained dietary adherence directly, measurably lowering a specific real marker of liver cell death and inflammation.",
+    summary:
+      "This category's own already-covered Mediterranean-diet entry names real, honest evidence that a plainer low-fat diet works comparably well over the shorter term, and a real, separate, genuinely longer trial adds real, useful depth about SUSTAINED adherence specifically. A real, 2-year clinical trial of 62 MASLD patients (ages 40-60) randomly assigned to a Mediterranean-diet-and-physical-activity intervention found a real, significant reduction in CK-18 (cytokeratin-18), a real, specific, measurable blood marker of liver cell death and inflammation, already directly relevant to this category's own fibrosis-staging research. The real, worth-knowing detail: this benefit was found specifically in participants with HIGH adherence to the diet, and the reduction became more pronounced the longer they stayed with it, measured at both 6 and 24 months, real, direct evidence that consistency over time, not just short-term dietary compliance, is what drives the real, measurable benefit. This directly reinforces this category's own already-established graded weight-loss-and-lifestyle research (5 percent reduces steatosis, 7 percent improves inflammation, 10 percent stabilizes or reverses fibrosis), with real, additional confirmation the Mediterranean pattern specifically, sustained over years, produces genuine, measurable improvement in liver-specific biomarkers, not just general metabolic health.",
+    citations: [
+      { source: 'Two-Year Mediterranean Diet Intervention Improves Hepatic Health in MASLD Patients, PMC12111022', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12111022/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-mediterranean-diet', 'masld-weight-loss-thresholds'],
+  },
 ];

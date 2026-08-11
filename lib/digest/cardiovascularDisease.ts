@@ -533,4 +533,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-heart-failure-abcd-staging', 'ckd-sglt2-inhibitors'],
   },
+  {
+    id: 'cvd-afib-catheter-ablation-real-trial',
+    category: 'cardiovascularDisease',
+    title: "For AFib With Heart Failure, a Real Trial Found Catheter Ablation Genuinely Reduced Death and Hospitalization",
+    teaser: "This category's own already-covered atrial-fibrillation entry names anticoagulation as the real, established stroke-prevention treatment -- a real, separate, direct treatment approach, catheter ablation, was found to genuinely improve survival specifically in patients who also have heart failure.",
+    summary:
+      "This category's own already-covered atrial-fibrillation research names anticoagulation as the real, well-established treatment for the stroke risk AFib carries, and catheter ablation addresses a real, different question: whether directly treating the irregular heart rhythm itself, not just preventing its clotting consequences, genuinely improves outcomes. A real, randomized trial (published in the New England Journal of Medicine) specifically enrolled patients with both symptomatic AFib and real, already-covered heart failure (NYHA class II-IV, ejection fraction 35 percent or less) and compared catheter ablation against standard medical therapy including antiarrhythmic drugs. The real result: catheter ablation was associated with a significant reduction in both mortality and heart-failure-related hospitalizations, alongside real, measured improvement in left ventricular ejection fraction itself, a genuinely more direct real benefit than symptom control alone. Real, pooled safety data across multiple studies found the procedure's own periprocedural complication rate at 2.9 percent, real, useful context for weighing the decision. Worth stating directly: this is real, meaningful evidence specifically for the AFib-plus-heart-failure combination, a real, distinct treatment path from anticoagulation alone, worth discussing directly with a cardiologist for anyone managing both conditions together, not a universal AFib recommendation for every patient regardless of whether heart failure is also present.",
+    citations: [
+      { source: 'Catheter Ablation for Atrial Fibrillation with Heart Failure, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa1707855' },
+      { source: 'Complications of catheter ablation of atrial fibrillation: a systematic review, PMID 24243785', url: 'https://pubmed.ncbi.nlm.nih.gov/24243785/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-atrial-fibrillation-anticoagulation', 'cvd-heart-failure-abcd-staging'],
+  },
 ];

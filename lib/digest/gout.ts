@@ -517,4 +517,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-kidney-cardiovascular-real-data', 'gout-urate-lowering-therapy'],
   },
+  {
+    id: 'gout-pegloticase-tophus-resolution-real-data',
+    category: 'gout',
+    title: "When Pegloticase Keeps Working, Real Trial Data Finds It Actually Resolves Tophi in a Real Majority of Patients",
+    teaser: "This category's own already-covered pegloticase entry names its real, 41% antibody-resistance problem -- for the patients whose response holds, real Phase 3 data finds 70% reaching complete tophus resolution after a year.",
+    summary:
+      "This category's own already-covered pegloticase entry names its real, well-documented weakness, antibody resistance affecting 41 percent of patients, and real, direct trial data on the effectiveness side (for patients whose response DOES hold) deserves its own, distinct coverage. Real, replicate randomized, placebo-controlled Phase 3 trials plus an open-label extension found tophus (already covered elsewhere in this category as a real, visible sign of urate deposits and joint damage) resolution genuinely improving with continued treatment: real, complete tophus response reached 70 percent of patients and 55 percent of individually tracked target tophi after a full year of treatment, real, substantial evidence this isn't just a uric-acid-lowering number on a lab report, it's a real, physical, measurable reversal of visible disease. Real, more recent research finds ultrasound imaging genuinely useful for tracking this process directly, with real, statistically significant changes in tophus size measurable at different points during treatment, real evidence ultrasound could help guide exactly how long treatment needs to continue for a given patient. Worth stating directly, alongside this category's own already-covered antibody-resistance caveat: this real, strong resolution data is exactly why the real, active RECIPE trial and the real, newer plant-derived uricase (PRX-115) matter so much, they're both aimed at extending this same real, substantial benefit to more of the patients whose immune response currently cuts it short.",
+    citations: [
+      { source: 'Tophus burden reduction with pegloticase: results from phase 3 randomized trials and open-label extension in patients with chronic gout refractory to conventional therapy, PMC3979037', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3979037/' },
+      { source: 'Musculoskeletal Ultrasound in Monitoring the Efficacy of Gout: A Prospective Study Based on Tophus and Double Contour Sign, PMC9998831', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9998831/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['horizon-gout-pegloticase', 'gout-tophi-real-prevalence-joint-damage'],
+  },
 ];
