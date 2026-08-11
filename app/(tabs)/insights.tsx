@@ -32,6 +32,11 @@ import {
   type TriggeredAdvisory,
 } from '../../lib/db';
 import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE } from '../../lib/alcoholAdvisory';
+import {
+  COOKING_IMPACT_COMPOUNDS,
+  COOKING_IMPACT_METHODS,
+  type CookingImpactConfidence,
+} from '../../lib/cookingImpactData';
 import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE } from '../../lib/coffeeAdvisory';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
 import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE } from '../../lib/juiceAdvisory';
@@ -131,6 +136,7 @@ type Lens =
   | 'prep'
   | 'foodLookup'
   | 'nutrientRanking'
+  | 'cookingImpact'
   | 'safeFoods'
   | 'healingStage'
   | 'hydration'
@@ -211,6 +217,21 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Protein: Animal vs. Plant',
         body: 'Protein specifically splits into two ranked lists -- Animal (meat, poultry, fish, dairy, eggs) and Plant (legumes, nuts/seeds, grains, vegetables, fruit, mushrooms, algae) -- so a vegetarian can find their own high-protein foods just as easily as anyone else. Grouped by what you can actually eat, not strict biology (mushrooms and algae count as Plant here).',
+      },
+    ],
+  },
+  {
+    key: 'cookingImpact',
+    label: 'Cooking Impact',
+    icon: 'thermometer-outline',
+    help: [
+      {
+        heading: 'Cooking Impact',
+        body: 'Pick a nutrient or compound to see how much of it real, cited studies (or, where none exist for an exact combination, a defensible mechanism-based estimate, clearly labeled) found surviving each real cooking method -- independent of today\'s log, and separate from what any one logged ingredient is actually tracked as.',
+      },
+      {
+        heading: 'Measured vs. reasoned',
+        body: 'Each row is labeled "Directly measured" when a real, cited study tested that exact compound-and-method combination, or "Reasoned estimate" when no study covers that exact case but the same compound\'s own established mechanism (leaches into water, heat-stable, enzyme-dependent) still supports a real answer. Neither changes what\'s tracked for a food you\'ve actually logged -- that still comes from the food\'s own database entry.',
       },
     ],
   },
@@ -659,6 +680,12 @@ export default function InsightsScreen() {
                 loading={rankingLoading}
                 tabColor={TAB_COLOR}
               />
+            ) : lens === 'cookingImpact' ? (
+              // Also independent of today's log -- a pure, static reference
+              // lookup (no DB round-trip at all), so this owns its own
+              // local compound-selection state rather than anything lifted
+              // to this screen's own parent state.
+              <CookingImpactView tabColor={TAB_COLOR} />
             ) : lens === 'safeFoods' ? (
               // Also independent of today's log -- same reasoning as
               // nutrientRanking just above.
@@ -747,6 +774,7 @@ export default function InsightsScreen() {
       {!revealed ||
       lens === 'foodLookup' ||
       lens === 'nutrientRanking' ||
+      lens === 'cookingImpact' ||
       lens === 'safeFoods' ||
       lens === 'healingStage' ||
       lens === 'hydration' ||
@@ -1410,6 +1438,75 @@ function NutrientRankingView({
         </>
       ) : (
         <View style={[styles.table, styles.rankSpaced]}>{rankedFoods.map((food, index) => renderRow(food, index + 1))}</View>
+      )}
+    </>
+  );
+}
+
+// Cooking Impact lens, 2026-08-10 -- a real, cited reference for "how much
+// of this nutrient/compound survives this cooking method," independent of
+// today's log and independent of any one already-logged ingredient's own
+// tracked prep_method. See lib/cookingImpactData.ts's own header comment
+// for why this is a curated per-compound table rather than one formula,
+// and for exactly which claims are real, directly-measured citations vs.
+// reasoned mechanism-based estimates. Pure, static, local data -- no async
+// fetch, so (unlike NutrientRankingView above) this owns its own picker
+// state rather than needing anything lifted to the parent screen.
+function CookingImpactView({ tabColor }: { tabColor: string }) {
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const compoundOptions = COOKING_IMPACT_COMPOUNDS.map((c) => ({ label: c.label, value: c.id }));
+  const selectedCompound = COOKING_IMPACT_COMPOUNDS.find((c) => c.id === selectedId) ?? null;
+
+  function confidenceLabel(confidence: CookingImpactConfidence): string {
+    if (confidence === 'measured') return 'Directly measured';
+    if (confidence === 'reasoned') return 'Reasoned estimate';
+    return 'Baseline';
+  }
+
+  function confidenceColor(confidence: CookingImpactConfidence): string {
+    return confidence === 'measured' ? tabColor : colors.textMuted;
+  }
+
+  return (
+    <>
+      <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient / Compound</Text>
+      <PopoverSelect
+        options={compoundOptions}
+        selected={selectedId}
+        onSelect={setSelectedId}
+        tabColor={tabColor}
+        searchable
+        placeholder="Pick a nutrient or compound..."
+        minWidth={220}
+      />
+      {!selectedCompound ? (
+        <Text style={[styles.emptyText, styles.rankSpaced]}>
+          Pick a nutrient or compound above to see how much of it real cooking methods leave behind.
+        </Text>
+      ) : (
+        <>
+          <View style={[styles.noticeCard, styles.rankSpaced]}>
+            <Text style={styles.noticeText}>{selectedCompound.mechanism}</Text>
+          </View>
+          <View style={styles.table}>
+            {COOKING_IMPACT_METHODS.map((method) => {
+              const entry = selectedCompound.byMethod.find((e) => e.methodId === method.id);
+              if (!entry) return null;
+              return (
+                <View key={method.id} style={styles.cookingMethodRow}>
+                  <View style={styles.cookingMethodHeader}>
+                    <Text style={styles.cookingMethodLabel}>{method.label}</Text>
+                    <Text style={[styles.cookingConfidenceBadge, { color: confidenceColor(entry.confidence) }]}>
+                      {confidenceLabel(entry.confidence)}
+                    </Text>
+                  </View>
+                  <Text style={styles.cookingMethodSummary}>{entry.summary}</Text>
+                </View>
+              );
+            })}
+          </View>
+          <Text style={[styles.cookingCitation, styles.rankSpaced]}>{selectedCompound.citation}</Text>
+        </>
       )}
     </>
   );
@@ -2282,6 +2379,24 @@ const styles = StyleSheet.create({
   rankFoodName: { ...typography.bodyEmphasis, color: colors.textPrimary },
   rankFoodCategory: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
   rankAmount: { ...typography.captionEmphasis, color: TAB_COLOR },
+  // Cooking Impact lens, 2026-08-10.
+  cookingMethodRow: {
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  cookingMethodHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+    marginBottom: 3,
+  },
+  cookingMethodLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, flexShrink: 1 },
+  cookingConfidenceBadge: { ...typography.caption, fontSize: 11 },
+  cookingMethodSummary: { ...typography.caption, color: colors.textSecondary, lineHeight: 16 },
+  cookingCitation: { ...typography.caption, color: colors.textMuted, fontSize: 11 },
   // Healing Stage lens, 2026-08-08.
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   stagePill: {
