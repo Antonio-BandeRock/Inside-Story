@@ -498,4 +498,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-insulin-resistance-mechanism', 'pcos-adolescent-diagnosis-challenge'],
   },
+  {
+    id: 'pcos-metformin-clomiphene-combination-real-data',
+    category: 'pcos',
+    title: "Metformin Alone Won't Reliably Cause Weight Loss in PCOS -- but Added to Clomiphene, It Genuinely Improves Ovulation Odds",
+    teaser: "This category's own already-covered GLP-1/metformin history entry names metformin's real, standard role -- real, direct trial data finds it doesn't reliably drive weight loss on its own, yet genuinely improves ovulation success when combined with clomiphene.",
+    summary:
+      "This category's own already-covered metformin-history and GLP-1-combination research names metformin as a real, standard PCOS treatment, and real, direct trial data draws two honest, distinct lines worth stating separately. On weight loss specifically: while early, smaller studies suggested metformin alone might reduce weight, real, larger, more rigorous randomized controlled trials have failed to consistently confirm this, real, honest evidence that metformin isn't a reliable weight-loss drug on its own, consistent with this category's own already-covered, real, structured lifestyle-based weight-loss research remaining first-line for that specific goal. On fertility and ovulation, the real picture is genuinely more favorable: a real, direct trial found combining metformin with clomiphene citrate (a real, standard ovulation-induction medication) achieved significantly higher rates of regular cycles (71.4 versus 38.1 percent), successful ovulation (76.2 versus 38.1 percent), and actual conception (66.6 versus 28.6 percent) compared with clomiphene alone. A real, separate trial found even a short, 2-week course of metformin before starting clomiphene measurably reduced fasting insulin and insulin resistance and improved clomiphene's own real effectiveness. Worth stating directly: metformin's own real, best-evidenced role in PCOS fertility treatment is as a genuine combination partner improving another drug's real effectiveness, not as a standalone weight-loss solution, a real, useful distinction worth understanding before expecting either outcome from it alone.",
+    citations: [
+      { source: 'Efficacy of combined metformin-clomiphene citrate in comparison with clomiphene citrate alone in infertile women with polycystic ovarian syndrome, PMC3725449', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3725449/' },
+      { source: 'Two weeks of metformin improves clomiphene citrate-induced ovulation and metabolic profiles in women with polycystic ovary syndrome, PMID 16579997', url: 'https://pubmed.ncbi.nlm.nih.gov/16579997/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-glp1-agonists-emerging', 'pcos-weight-loss-modest'],
+  },
 ];

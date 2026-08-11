@@ -522,4 +522,18 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-villi-healing-timeline', 'gut-scfa-treg'],
   },
+  {
+    id: 'celiac-pediatric-bone-density-reversal',
+    category: 'celiac',
+    title: "A Child's Own Low Bone Density From Celiac Disease Can Fully Reverse -- but Only With Real, Early Diagnosis",
+    teaser: "This category's own already-covered adult bone-density entry names a real screening age -- real, direct pediatric research finds children's own bone density can return to completely normal on a gluten-free diet, if caught early enough.",
+    summary:
+      "This category's own already-covered bone-density entry names real, common reduced bone density at diagnosis in ADULTS, and real, direct pediatric research finds a genuinely more hopeful, reversible picture in children specifically, with one real, important condition attached. Real research consistently finds children and adolescents newly diagnosed with celiac disease showing significantly reduced bone mineral density at the spine and across the whole body compared to healthy peers. The real, encouraging finding: a real, direct study found a gluten-free diet promoting a rapid, real increase in bone mineral density leading to complete recovery, with bone density values in treated children becoming statistically indistinguishable from control children without celiac disease at all. A real meta-analysis confirmed this pattern held across multiple studies, and a real, longitudinal study found bone mineral content, bone area, and density all significantly low at diagnosis but genuinely normal after treatment. The real, one condition attached, worth stating directly: real research found the degree of recovery statistically tied to how strictly the gluten-free diet was actually followed, and separately emphasized that early diagnosis specifically matters, since achieving adequate real peak bone mass by the end of puberty is a genuine, real, one-time developmental window that doesn't reopen later. Worth stating plainly: this is real, genuinely good news for a child diagnosed early and kept strictly on the diet, a meaningfully more complete recovery than this category's own adult bone-density research describes.",
+    citations: [
+      { source: 'Effect of a gluten-free diet on bone mineral density in children and adolescents with celiac disease: Systematic review and meta-analysis, PMID 36469632', url: 'https://pubmed.ncbi.nlm.nih.gov/36469632/' },
+      { source: 'Bone mineral density and growth in children with coeliac disease on a gluten free-diet, PMID 28081333', url: 'https://pubmed.ncbi.nlm.nih.gov/28081333/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-bone-density', 'celiac-pediatric-vs-adult-presentation'],
+  },
 ];

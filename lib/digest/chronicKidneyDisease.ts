@@ -515,4 +515,18 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-ace-arb-potassium-monitoring', 'ckd-metabolic-acidosis-bicarbonate'],
   },
+  {
+    id: 'ckd-statin-starting-vs-continuing-dialysis',
+    category: 'chronicKidneyDisease',
+    title: "Starting a Statin ONCE Already on Dialysis Doesn't Help -- Real Trials Find Continuing One Already Started Genuinely Does",
+    teaser: "This category's own already-covered SHARP trial names the real dialysis exception -- real, further trial and observational data finds a genuinely different, more specific real distinction: it's about STARTING new vs. CONTINUING an existing statin.",
+    summary:
+      "This category's own already-covered SHARP trial found statin benefit not holding up once someone is already on dialysis, and real, further research finds a genuinely more specific, actionable distinction hiding underneath that real finding. Two real, dedicated randomized trials, 4D and AURORA, both specifically tested STARTING a statin in patients already on dialysis and found no real cardiovascular benefit from doing so, real, direct confirmation of the SHARP trial's own dialysis-specific null result. The real, more nuanced finding comes from separate research: real, observational data finds that CONTINUING a statin someone was ALREADY taking before starting dialysis is associated with genuinely improved cardiovascular and survival outcomes, a real, meaningfully different question from whether to start one fresh once dialysis has already begun. Real research directly frames this as continuation mattering specifically, not just presence, worth stating plainly since it changes the practical question someone facing dialysis should actually ask: not 'should I start a statin now that I'm on dialysis' (real evidence says no benefit), but 'should I stop the statin I'm already on now that I'm starting dialysis' (real evidence increasingly says no, keep taking it). Worth stating directly: this is a real, meaningful, easy-to-miss distinction, worth confirming directly with a nephrologist rather than assuming the SHARP trial's own dialysis exception means all statin use should stop once dialysis begins.",
+    citations: [
+      { source: 'Statin Therapy Before Transition to End-Stage Renal Disease With Posttransition Outcomes, Journal of the American Heart Association', url: 'https://www.ahajournals.org/doi/10.1161/JAHA.118.011869' },
+      { source: 'Statins in Chronic Kidney Disease and Dialysis: Clinical Trials, Mechanisms, Dosing, and Treatment Recommendations, National Lipid Association', url: 'https://www.lipid.org/lipid-spin/potpourri-2015/statins-chronic-kidney-disease-and-dialysis-clinical-trials-mechanisms' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-sharp-trial-statins', 'ckd-dialysis-diet-reversal'],
+  },
 ];

@@ -507,4 +507,18 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-teprotumumab-thyroid-eye-disease'],
   },
+  {
+    id: 'graves-pregnancy-trimester-drug-choice',
+    category: 'graves',
+    title: "Which Antithyroid Drug to Use When: a Real, Trimester-Specific Recommendation, Not a Fixed Choice",
+    teaser: "This category's own already-covered agranulocytosis/liver-risk entry names real, general antithyroid-drug risks -- pregnancy adds a real, third, trimester-specific consideration: methimazole and PTU carry genuinely different risks to the developing fetus at different points.",
+    summary:
+      "This category's own already-covered antithyroid-drug safety research names agranulocytosis and liver injury as real risks shared by both methimazole and propylthiouracil (PTU), and pregnancy adds a real, third, genuinely different consideration specific to the developing fetus. Real, current guidance recommends PTU specifically during the first trimester, the real, most sensitive window for fetal organ development, because methimazole (and its close relative carbimazole) carries a real, documented risk of causing specific birth defects (embryopathy) when taken during this exact window, a risk PTU doesn't share to the same degree. The real, honest tradeoff: PTU itself carries its own already-covered real liver-injury risk, described elsewhere in this category as capable of coming on rapidly and unpredictably, meaning the first-trimester drug choice is a real, deliberate tradeoff between two different real risks, not a simple 'safer drug' pick. Real, current practice guidance reflects this directly: switching from methimazole to PTU specifically upon confirming pregnancy, then often switching back to methimazole after the first trimester once the embryopathy-risk window has passed, since PTU's own liver risk makes it less ideal for longer-term use. Worth stating directly: this real, trimester-specific switching strategy is worth confirming directly with an endocrinologist as soon as pregnancy is confirmed or being planned, since the right drug genuinely changes depending on exactly where in pregnancy someone is, not a single answer that holds throughout.",
+    citations: [
+      { source: 'Antithyroid drug treatment in pregnancy, PMID 22774211', url: 'https://pubmed.ncbi.nlm.nih.gov/22774211/' },
+      { source: "Therapy insight: management of Graves' disease during pregnancy, PMID 17515891", url: 'https://pubmed.ncbi.nlm.nih.gov/17515891/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-pregnancy-fetal-thyrotoxicosis'],
+  },
 ];

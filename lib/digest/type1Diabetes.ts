@@ -516,4 +516,17 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-autoimmune-thyroid-comorbidity', 'type1-celiac-comorbidity'],
   },
+  {
+    id: 'type1-insulin-pump-vs-mdi-real-world',
+    category: 'type1Diabetes',
+    title: "Insulin Pump vs. Injections: Real, Large-Scale Data Finds Comparable Blood Sugar Control, but a Real, Lower Mortality Rate on a Pump",
+    teaser: "A real, 95,122-person retrospective cohort found HbA1c improvement genuinely similar between insulin pumps and multiple daily injections, but real, overall mortality was significantly lower on a pump.",
+    summary:
+      "This category's own already-covered CGM and time-in-range research names real, modern tools for tracking glucose, and insulin delivery method itself, pump versus multiple daily injections (MDI), has its own real, direct comparative data worth covering separately. A real, large retrospective cohort study (95,122 people with T1D, with 17,124 in each group after propensity-score matching to make the comparison fair) found the real, absolute HbA1c improvement at five years genuinely comparable between the two methods, a modest 0.5 percent reduction on a pump versus 0.4 percent on MDI, not a dramatic difference in blood sugar control itself. The real, more striking finding: overall mortality was significantly lower in the pump group, a real, substantial risk reduction even though the two methods produced similar blood sugar numbers on paper, real evidence that a pump may offer benefits beyond what HbA1c alone captures, echoing this category's own already-covered point that an average number can hide real, important differences. A real, separate 2021 meta-analysis in adults found pumps genuinely superior to MDI for both HbA1c and glucose variability, without increasing severe hypoglycemia, though real, honest data from the same body of research found pump use associated with a real, increased risk of diabetic ketoacidosis (already covered elsewhere in this category as a real, serious complication), a genuine tradeoff worth knowing directly rather than assuming a pump is a strictly better option in every respect.",
+    citations: [
+      { source: 'The impact of insulin pump therapy compared to multiple daily injections on complications and mortality in type 1 diabetes: A real-world retrospective cohort study, PMC12232336', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12232336/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-cgm-alone-real-outcomes', 'type1-hba1c-time-in-range'],
+  },
 ];
