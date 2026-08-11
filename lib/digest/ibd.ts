@@ -510,4 +510,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-sonic-combination-therapy', 'ibd-anti-tnf-loss-of-response'],
   },
+  {
+    id: 'ibd-crohns-strictures-real-surgery-rate',
+    category: 'ibd',
+    title: "Crohn's Own Real, Physical Narrowing (Strictures) Is Common, and Real Data Names a Genuinely High Eventual Surgery Rate",
+    teaser: "This category's own already-covered perianal-fistula entry names one real Crohn's complication -- real data finds intestinal strictures (physical narrowing from scarring) affecting a real majority of patients within a decade, with a real, high cumulative surgery rate once they develop.",
+    summary:
+      "This category's own already-covered fistula and colonoscopy-surveillance research names real, physical complications specific to Crohn's disease, and intestinal strictures, real, physical narrowing of the bowel caused by chronic inflammation and scarring, deserve their own direct coverage. Real data finds this genuinely common: roughly 50 to 70 percent of Crohn's patients develop stricturing or penetrating (fistula-forming) complications within 10 years of diagnosis, real evidence this isn't a rare, unusual outcome but a common real trajectory of the disease left to progress. The real, most direct, practical number: a real study found the cumulative risk of Crohn's-related surgery in patients with stricturing disease climbing steadily, from 18.0 percent at year 1 to 46.4 percent by year 5, and a real, separate comparison found patients with a stricturing-penetrating phenotype needing surgery at a real, striking 77.7 percent rate versus just 12.2 percent for patients with purely inflammatory (non-stricturing) Crohn's, real, direct evidence of how much this specific disease behavior changes the real, practical outlook. Real research also finds patients with strictures facing significantly higher real rates of hospitalization, steroid dependency, and repeated endoscopy along the way, not just eventual surgery. Worth stating directly: this real, honest, higher-stakes trajectory is exactly why this category's own already-covered early, aggressive treatment approach (matching this app's own already-established window-of-opportunity research for other conditions) matters specifically for Crohn's disease, worth discussing directly with a gastroenterologist rather than waiting to see how the disease behaves on its own.",
+    citations: [
+      { source: "Intestinal strictures in Crohn's disease: a 2021 update, PMC9218441", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9218441/' },
+      { source: "Analysis of the risk of future gastrointestinal surgery in Crohn's disease with stricture, PMC10980300", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10980300/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-perianal-fistula-real-data', 'ibd-anti-tnf-loss-of-response'],
+  },
 ];

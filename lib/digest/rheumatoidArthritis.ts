@@ -623,4 +623,18 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-treat-to-target-remission', 'ra-window-of-opportunity-early-treatment'],
   },
+  {
+    id: 'ra-subcutaneous-vs-oral-methotrexate',
+    category: 'rheumatoidArthritis',
+    title: "Switching Methotrexate From Pills to an Injection Genuinely Improves How Much of the Drug Actually Reaches the Body",
+    teaser: "This category's own already-covered methotrexate/folate entry names real, standard dosing -- real, direct pharmacokinetic and trial data finds the same dose delivers meaningfully more real drug, and better real disease control, as a subcutaneous injection than as a pill.",
+    summary:
+      "This category's own already-covered methotrexate research assumes oral dosing as the default, and real, direct comparative research finds a genuinely different real delivery route worth knowing about specifically. A real pharmacokinetic study found oral methotrexate's own real bioavailability (how much of the drug actually reaches the bloodstream) averaged just 64 percent of what the identical subcutaneous dose achieved, at a real, standard 30mg weekly dose, with the gap growing even larger at higher doses (above 15mg/week). A real, direct, 6-month, multicenter, randomized, double-blind trial (Braun et al.) found this pharmacokinetic difference translating into a real, measurable clinical gap: 85 percent of patients started on subcutaneous methotrexate achieved a real ACR20 response (a formal 20 percent improvement measure) at 16 weeks, versus 77 percent of those started on oral methotrexate at the same nominal dose. Worth stating directly: this real, genuinely useful, actionable finding means someone whose RA isn't responding as well as expected on oral methotrexate has a real, evidence-backed option worth asking about directly, switching to a subcutaneous injection at the SAME dose, before assuming the drug itself has failed or jumping straight to this category's own already-covered biologic options.",
+    citations: [
+      { source: 'Comparison of the clinical efficacy and safety of subcutaneous versus oral administration of methotrexate in patients with active rheumatoid arthritis, PMID 18163521', url: 'https://pubmed.ncbi.nlm.nih.gov/18163521/' },
+      { source: 'Methotrexate and Rheumatoid Arthritis: Current Evidence Regarding Subcutaneous Versus Oral Routes of Administration, Advances in Therapy', url: 'https://link.springer.com/article/10.1007/s12325-016-0295-8' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-methotrexate-folate', 'ra-advocacy-methotrexate-monitoring'],
+  },
 ];
