@@ -494,4 +494,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-biopsychosocial-model', 'ibs-rome-iv-subtypes'],
   },
+  {
+    id: 'ibs-post-covid-real-data',
+    category: 'ibs',
+    title: 'COVID-19 Joins the Real, Growing List of Infections That Can Trigger IBS',
+    teaser: "This category's own already-covered post-infectious mechanism entry names ordinary gastroenteritis as a real trigger -- real, more recent follow-up studies find COVID-19 infection itself independently raises IBS risk, through the same real, established pathway.",
+    summary:
+      "This category's own already-covered post-infectious IBS entry names a real, ordinary bout of gastroenteritis as a genuine, underappreciated trigger, and real, more recent research finds COVID-19 belongs in the same real category, working through the same real mechanism: ongoing low-grade immune activation, altered gut microbiome, and disturbed gut-brain axis regulation, already covered elsewhere in this category as directly relevant to IBS. Real, direct research confirms people previously diagnosed with COVID-19 face a genuinely elevated risk of developing IBS compared with uninfected people, with real, specific incidence data finding post-COVID IBS in 2.5 to 5.3 percent of infected patients, a real, somewhat lower rate than the roughly 10 percent found after ordinary infectious enteritis, but a real, additional, distinct trigger nonetheless. A real, identified specific risk factor stands out: having real gastrointestinal symptoms at the actual onset of the COVID-19 infection independently predicted going on to develop a post-COVID functional gastrointestinal disorder, real, useful evidence for who's genuinely more likely to be affected. Worth stating directly: this real, growing evidence base means a real, new IBS diagnosis following a COVID-19 infection, even one that seemed mild or resolved without lasting symptoms otherwise, is worth mentioning directly to a doctor as a plausible real trigger, not assumed to be an unrelated, coincidental new problem.",
+    citations: [
+      { source: 'Post-infection functional gastrointestinal disorders following coronavirus disease-19: a prospective follow-up cohort study, PMC10286442', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10286442/' },
+      { source: 'Lessons from irritable bowel syndrome: potential for understanding and managing post-COVID, PMC13033697', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC13033697/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-post-infectious-mechanism', 'ibs-gut-serotonin-mechanism'],
+  },
 ];

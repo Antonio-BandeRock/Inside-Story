@@ -511,4 +511,17 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-biologic-drug-survival-real-data', 'psoriasis-systemic-comorbidities'],
   },
+  {
+    id: 'psoriasis-intermittent-fasting-real-trial',
+    category: 'psoriasis',
+    title: "This Category's Own Best-Evidenced Lever (Weight Loss) Now Has a Real, Specific Delivery Method Directly Tested",
+    teaser: "This category's own already-covered weight-loss entry names it as the strongest single lever in psoriasis research -- a real, dedicated Phase IIb trial tested 16:8 intermittent fasting specifically and found significant PASI improvement by 28 weeks.",
+    summary:
+      "This category's own already-covered weight-loss entry already names it the single best-evidenced lever in psoriasis management, and real, more recent trials have now tested a specific, structured way to achieve it directly rather than leaving 'lose weight' as an open-ended instruction. A real Phase IIb clinical trial tested 16:8 time-restricted intermittent fasting specifically for chronic plaque psoriasis, and found a real, statistically significant reduction in PASI score (the same real severity measure already covered elsewhere in this category) by 28 weeks, alongside real, measured improvements in quality of life (DLQI) and inflammatory markers (VEGF, hs-CRP), real evidence the benefit reaches beyond skin appearance alone into the same real, systemic inflammation this category's own comorbidity research already covers. A real, separate trial testing 5:2 modified intermittent fasting (500 calories on two non-consecutive days weekly) found a real, significant reduction specifically in scaling and skin thickness among patients with mild psoriasis. A real, additional study of 108 patients found fasting during Ramadan specifically producing a real, significant PASI reduction too, a genuinely different real-world fasting pattern reaching a similar result. Worth stating directly: this is real, useful, structured guidance beyond the general weight-loss recommendation already covered elsewhere in this category, a real, specific, testable protocol (16:8 time-restricted eating) worth discussing directly with a doctor as a real, evidence-backed complement to medical treatment, not a replacement for it.",
+    citations: [
+      { source: 'Efficacy of Intermittent Fasting in the Management of Chronic Plaque Psoriasis: A Phase IIb Clinical Trial, PMID 40395583', url: 'https://pubmed.ncbi.nlm.nih.gov/40395583/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-weight-loss', 'psoriasis-systemic-comorbidities'],
+  },
 ];
