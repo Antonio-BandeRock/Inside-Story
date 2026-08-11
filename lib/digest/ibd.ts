@@ -538,4 +538,17 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-calprotectin', 'ibd-corticosteroid-hypertension-real-data'],
   },
+  {
+    id: 'ibd-skin-manifestations-en-pg-real-prevalence',
+    category: 'ibd',
+    title: 'Two Real, Distinct Skin Conditions Show Up Alongside IBD -- One Common, One Rare but Genuinely Serious',
+    teaser: "This category's own already-covered extraintestinal-manifestation research already names real joint and eye involvement -- a real, large 2,402-patient cohort quantifies the skin's own two real, distinct manifestations directly: erythema nodosum in 4.0%, pyoderma gangrenosum in a rarer 0.75%.",
+    summary:
+      "This category's own already-covered extraintestinal-manifestation research already establishes real joint, eye, and liver involvement beyond the gut itself, and the skin carries its own two real, genuinely distinct manifestations worth their own direct, quantified coverage. A real, large cohort study of 2,402 IBD patients found erythema nodosum, tender, red nodules typically on the shins, real evidence of inflammation in the fat layer beneath the skin, present in 4.0 percent of patients, real evidence this is a genuinely common, if still minority, extraintestinal sign. Pyoderma gangrenosum, a real, much rarer but far more serious skin condition (painful, rapidly enlarging ulcers that can develop from even minor skin trauma), was present in 0.75 percent of the same cohort. The real, useful, practical distinction: erythema nodosum tends to track closely with active intestinal inflammation and often improves as the underlying IBD itself is brought under control, while pyoderma gangrenosum can behave more independently, sometimes appearing even during disease remission, and real research names it as having the most debilitating disease course of the two. Real research also found both conditions more commonly associated with Crohn's disease than with ulcerative colitis specifically. Worth stating directly: erythema nodosum's own real, common, largely reassuring pattern is genuinely different from pyoderma gangrenosum's own real, rarer, more serious one, worth knowing to distinguish directly, since a new, unexplained, rapidly worsening skin ulcer deserves urgent evaluation rather than being assumed to be a minor, self-resolving IBD-related skin change.",
+    citations: [
+      { source: 'Significance of erythema nodosum and pyoderma gangrenosum in inflammatory bowel diseases: a cohort study of 2402 patients, Medicine (Baltimore), PMID 18794711', url: 'https://pubmed.ncbi.nlm.nih.gov/18794711/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-extraintestinal-manifestations', 'ibd-extraintestinal-real-prevalence-split'],
+  },
 ];

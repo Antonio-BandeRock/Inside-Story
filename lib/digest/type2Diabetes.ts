@@ -550,4 +550,17 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-microvascular-complications-screening', 'type2-screening-at-diagnosis'],
   },
+  {
+    id: 'type2-pancreatic-cancer-risk-real-data',
+    category: 'type2Diabetes',
+    title: 'T2D Carries a Real, Roughly Doubled Pancreatic Cancer Risk -- and a Genuinely Important Timing Wrinkle',
+    teaser: "This category's own already-covered microvascular-screening research names real, established complication targets -- a real, pooled meta-analysis of 36 studies (9,220 pancreatic cancer patients) finds a real, doubled cancer risk too, with a genuinely important twist about WHEN that risk shows up.",
+    summary:
+      "This category's own already-covered complication-screening research names real, established microvascular and cardiovascular targets, and pancreatic cancer deserves its own direct, honestly nuanced coverage. A real, large meta-analysis of 36 studies (9,220 people with pancreatic cancer) found a real, summary odds ratio of 1.82, roughly an 82 percent higher risk of pancreatic cancer associated with type 2 diabetes. The real, genuinely important, honest wrinkle: this risk isn't uniform over time. People whose diabetes had only recently been diagnosed (less than 4 years) had a real, significantly HIGHER risk than people with longer-standing diabetes (5 or more years), a real, quantified 2.1 versus 1.5 odds ratio. Worth stating directly, since this changes how the finding should actually be read: this timing pattern is real, strong evidence for REVERSE causation playing a real role, an early, undetected pancreatic tumor can itself disrupt blood sugar regulation and cause diabetes to appear, rather than diabetes alone directly causing the cancer in every case. The researchers themselves, after accounting for this, still concluded the data supports a real, if modest, genuine causal contribution from diabetes itself, not purely a reverse-causation artifact. Worth stating directly: this real, honest, two-part finding is exactly why a genuinely NEW diabetes diagnosis, especially later in life with no strong family or lifestyle risk factors, is sometimes worth a closer look rather than assumed to be routine T2D, a real, useful, non-alarmist piece of information worth knowing rather than avoiding out of caution.",
+    citations: [
+      { source: 'Type-II diabetes and pancreatic cancer: a meta-analysis of 36 studies, British Journal of Cancer, PMID 15886696', url: 'https://pubmed.ncbi.nlm.nih.gov/15886696/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-microvascular-complications-screening', 'type2-remission-ada-consensus-definition'],
+  },
 ];
