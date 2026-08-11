@@ -13,6 +13,7 @@ import {
   getReferenceCategories,
   getReferenceSubcategories,
   getStageFlagScoresForNames,
+  isFallbackSource,
   resolveFoodChoice,
   searchReferenceFoodNames,
   type DietaryReferenceIntake,
@@ -418,6 +419,15 @@ export function FoodLookup({
   // majority of foods without one on file, in which case the table falls
   // back to plain per-100g amounts rather than inventing a serving size.
   const [unitWeight, setUnitWeight] = useState<FoodUnitWeight | null>(null);
+  // Which real source this resolution actually landed on -- 2026-08-11,
+  // real source attribution for showNutrients=true (Insights' own Food
+  // Lookup lens; the showNutrients=false/builder path already gets this
+  // for free via onFoodResolved's own `source` field, already passed
+  // through into every builder's pendingResolved). Only meaningfully
+  // differs from "USDA" once resolveFoodChoice's own new USDA-preference
+  // tiebreaker (lib/db.ts) falls back to a non-USDA source for a food
+  // that USDA genuinely doesn't have -- see isFromFallbackSource below.
+  const [resolvedSource, setResolvedSource] = useState<string | null>(null);
   // What the person actually plans to eat, by weight -- the whole reason
   // this exists: amounts/DRI% below should reflect THIS, not a fixed
   // reference amount the person has no say over. Reset to a sensible
@@ -664,6 +674,7 @@ export function FoodLookup({
     if (!baseName || prepMethodsLoading || (prepMethods.length > 0 && !prepMethod)) {
       setNutrients(null);
       setUnitWeight(null);
+      setResolvedSource(null);
       return;
     }
     let cancelled = false;
@@ -692,6 +703,7 @@ export function FoodLookup({
           });
           return null;
         }
+        setResolvedSource(resolved.source);
         return Promise.all([
           getFoodNutrients(resolved.foodId, resolved.source),
           getFoodUnitWeight(resolved.foodId, resolved.source),
@@ -1032,6 +1044,22 @@ export function FoodLookup({
         </View>
       ) : null}
 
+      {/* Real source attribution, 2026-08-11 -- only shown once a food is
+          actually resolved (showNutrients=true path; the builder/
+          showNutrients=false path gets the same information via
+          onFoodResolved's own `source` field, already available on every
+          builder's own pendingResolved), and only when the resolution
+          genuinely fell back to a non-USDA source -- resolveFoodChoice
+          itself already prefers USDA whenever it can (lib/db.ts), so this
+          note appearing at all means USDA genuinely has no row for this
+          exact food + prep state, not that this app has an opinion either
+          way about which source is "better." */}
+      {resolvedSource && isFallbackSource(resolvedSource) ? (
+        <View style={[styles.sourceFallbackNote, { borderColor: tabColor }]}>
+          <Text style={styles.sourceFallbackText}>Not in USDA -- from {sourceLabel(resolvedSource)}</Text>
+        </View>
+      ) : null}
+
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : errorMessage ? (
@@ -1214,6 +1242,19 @@ const styles = StyleSheet.create({
   summaryChange: {
     ...typography.captionEmphasis,
     marginLeft: 8,
+  },
+  // Real source-attribution note, 2026-08-11 -- see this file's own
+  // render-time comment for when this actually shows.
+  sourceFallbackNote: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    marginTop: 4,
+  },
+  sourceFallbackText: {
+    ...typography.caption,
+    color: colors.textSecondary,
   },
   // The Portion column's own header cell -- label, the editable gram input,
   // and (when known) the "use the typical serving" reset link all stack

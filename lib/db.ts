@@ -1003,11 +1003,34 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
 // mean, since raw vs. cooked genuinely changes nutrient content and this
 // app's own scoring, so it's a meaningful choice, not just cosmetic noise
 // to auto-collapse.
-export async function searchReferenceFoodNames(category: string, subcategory: string | null, query = '', usdaOnly = true, limit = 200) {
+// 2026-08-11: no longer takes a usdaOnly param -- always queries the FULL
+// candidate set (every visible source, hidden/needs_translation/curated-
+// allowlist filtering still fully applied via buildScopeClause). Real,
+// direct request: "for food selection in the builders, it should default
+// to USDA (unless the user chooses one of the others) and then anything
+// not available in the USDA dataset that exists in any of the other
+// datasets will also be visible." The OLD usdaOnly=true default did the
+// opposite -- it HID a food entirely from this list the moment its own
+// category had ANY real USDA coverage, even for a specific food that
+// itself had zero USDA representation (a category-level decision applied
+// to food-level visibility). Safe to drop entirely at THIS level: this
+// function already returns `SELECT DISTINCT base_name`, so a food
+// measured by 5 different sources still shows exactly once here
+// regardless -- the real "Spinach x7" concern this app's own
+// resolveEffectiveUsdaOnly()/buildScopeClause() history is full of was
+// never actually about duplicate PICKER ENTRIES (DISTINCT already
+// prevented that), it was about which underlying row's real, possibly-
+// different measured value silently won once resolved. That's now solved
+// at the right layer -- resolveFoodChoice's own new USDA-preference
+// tiebreaker, see its comment below -- not by hiding the option here.
+// resolveEffectiveUsdaOnly/buildScopeClause's own usdaOnly=true path
+// stays real and load-bearing for getStageFlagScoresForNames, which has a
+// genuinely different job (checking every real variant of a name for a
+// stage-relevant flag, not picking one to track) -- not touched here.
+export async function searchReferenceFoodNames(category: string, subcategory: string | null, query = '', limit = 200) {
   const db = await getReferenceDatabase();
   const trimmed = query.trim();
-  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, subcategory, usdaOnly);
-  const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
+  const { clause, params } = buildScopeClause(category, subcategory, false);
 
   let whereClause = clause;
   let orderByClause = 'base_name';
@@ -1078,7 +1101,7 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
   // `params` above) keeps this query's params independent of the ORDER BY/
   // LIMIT params already appended to the first query.
   const collapsedQuery = trimmed.replace(/\s+/g, '');
-  const aliasScope = buildScopeClause(category, subcategory, effectiveUsdaOnly);
+  const aliasScope = buildScopeClause(category, subcategory, false);
   const aliasRows = await db.getAllAsync<{ base_name: string }>(
     `
       SELECT DISTINCT fa.base_name
@@ -1105,10 +1128,16 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
 // [] when there's nothing to disambiguate (the common case) -- the app
 // should skip the Preparation step entirely in that case, same pattern as
 // the Type step being skipped for categories with no sub-categories.
-export async function getPreparationMethods(category: string, subcategory: string | null, baseName: string, usdaOnly = true) {
+// 2026-08-11: no longer takes a usdaOnly param -- same reasoning as
+// searchReferenceFoodNames just above. This query already collapses to
+// `SELECT DISTINCT` prep_method STRINGS, so two sources both measuring
+// "Raw" for the same food still show one "Raw" option here, not two --
+// dropping the USDA-only restriction widens which real prep states are
+// offered (a food only measured cooked in a non-USDA source now shows
+// that option) without reintroducing any picker-level duplication.
+export async function getPreparationMethods(category: string, subcategory: string | null, baseName: string) {
   const db = await getReferenceDatabase();
-  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, subcategory, usdaOnly);
-  const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
+  const { clause, params } = buildScopeClause(category, subcategory, false);
 
   const rows = await db.getAllAsync<{ prep: string }>(
     `
@@ -1155,10 +1184,47 @@ export async function getPreparationMethods(category: string, subcategory: strin
 // deterministically keeps the lowest food_id, same as before -- at this
 // point category/type/name/prep(/salt) are all already fixed, so any
 // remaining rows really are the same real food, just redundantly measured.
-export async function resolveFoodChoice(category: string, subcategory: string | null, baseName: string, prepMethod: string | null, usdaOnly = true) {
+// Real, national-agency sources this app treats as "the default reference
+// standard" for a builder's own food selection -- USDA itself, plus
+// 'Derived' (real USDA nutrient figures duplicated onto a few aged/unaged
+// spirit variants no source measures separately, see build_food_reference_
+// db.py's own SYNTHETIC_SPIRIT_VARIANTS -- these are USDA data in every
+// real sense, just not stored under that literal source string).
+const USDA_PREFERRED_SOURCES = new Set(['USDA', 'Derived']);
+
+export function isFallbackSource(source: string): boolean {
+  return !USDA_PREFERRED_SOURCES.has(source);
+}
+
+// 2026-08-11, a real, direct requirement, restated in full since it
+// reshaped this whole function: "for food selection in the builders, it
+// should default to USDA (unless the user chooses one of the others) and
+// then anything not available in the USDA dataset that exists in any of
+// the other datasets will also be visible and noted that it comes from
+// another list and it is not within the USDA data." No longer takes a
+// usdaOnly param -- the OLD version either hid every non-USDA row outright
+// (usdaOnly=true, the old default) or showed everything with no
+// preference at all (usdaOnly=false, the category-level bypasses) --
+// neither matches "prefer USDA, but still surface and label a real
+// fallback for a SPECIFIC food/prep-state USDA doesn't have." Now always
+// queries the full candidate set (buildScopeClause(..., false), same
+// hidden/needs_translation/curated-allowlist filtering as before) and
+// adds ONE new, highest-priority ORDER BY tier: a real USDA/Derived row
+// always wins over any other source for the same (base_name, prep_method)
+// combination, regardless of which food_id is lower -- the existing salt-
+// preference and food_id tiebreakers only ever decide BETWEEN rows
+// already in the same tier (two USDA-preferred rows, or -- for a food
+// with no USDA representation at all -- two non-USDA rows), the same
+// "prefer the RIGHT tier outright, only compare amounts/ids within a tier"
+// shape already proven for rankFoodsByNutrient's own Raw-vs-Dried fix.
+// The caller finds out a fallback happened via the real, already-returned
+// `source` field -- see isFallbackSource() above -- no new return shape
+// needed; every caller (FoodLookup.tsx, and everything downstream of it:
+// all eleven Food builders, Insights' own Food Lookup lens) already reads
+// `.source` off the resolved selection.
+export async function resolveFoodChoice(category: string, subcategory: string | null, baseName: string, prepMethod: string | null) {
   const db = await getReferenceDatabase();
-  const effectiveUsdaOnly = await resolveEffectiveUsdaOnly(category, subcategory, usdaOnly);
-  const { clause, params } = buildScopeClause(category, subcategory, effectiveUsdaOnly);
+  const { clause, params } = buildScopeClause(category, subcategory, false);
   const normalizedPrep = prepMethod || 'Standard';
 
   const row = await db.getFirstAsync<{ food_id: number; source: string; name: string; short_name: string | null; category: string }>(
@@ -1168,6 +1234,7 @@ export async function resolveFoodChoice(category: string, subcategory: string | 
       WHERE ${clause} AND base_name = ?
         AND COALESCE(prep_method, 'Standard') = ?
       ORDER BY
+        CASE WHEN source IN ('USDA', 'Derived') THEN 0 ELSE 1 END,
         CASE
           WHEN name LIKE '%without salt%' OR name LIKE '%no salt added%' OR name LIKE '%unsalted%' THEN 0
           WHEN name LIKE '%with salt%' OR name LIKE '%salted%' THEN 2
@@ -1237,12 +1304,15 @@ export async function listCuratedRecipes(builderType: 'salad' | 'smoothie'): Pro
 // real ingredient here was individually verified against the live database
 // before being written in, but a future hide of one specific row shouldn't
 // break the whole recipe for the other ingredients still fine.
+// 2026-08-11: the real true/false usdaOnly pairs this used to try are gone
+// -- resolveFoodChoice itself no longer takes that param, it always
+// searches the full candidate set with USDA preferred internally (see its
+// own comment), so a separate "broaden past USDA-only" retry is no longer
+// a real, different query. Down to the two genuinely different attempts:
+// try 'Raw' first, then the untagged 'Standard' sentinel.
 async function resolveCuratedRecipeIngredient(category: string, baseName: string) {
   const viaKnownPrep =
-    (await resolveFoodChoice(category, null, baseName, 'Raw', true)) ??
-    (await resolveFoodChoice(category, null, baseName, null, true)) ??
-    (await resolveFoodChoice(category, null, baseName, 'Raw', false)) ??
-    (await resolveFoodChoice(category, null, baseName, null, false));
+    (await resolveFoodChoice(category, null, baseName, 'Raw')) ?? (await resolveFoodChoice(category, null, baseName, null));
   if (viaKnownPrep) return viaKnownPrep;
 
   // A real, found-not-guessed gap: several whole-food ingredients (Quinoa,
@@ -1258,7 +1328,10 @@ async function resolveCuratedRecipeIngredient(category: string, baseName: string
   // matters for the "not Raw, not untagged" case, never a genuine miss.
   const db = await getReferenceDatabase();
   const row = await db.getFirstAsync<{ food_id: number; source: string; name: string; short_name: string | null; category: string }>(
-    'SELECT food_id, source, name, short_name, category FROM foods WHERE category = ? AND base_name = ? AND hidden = 0 ORDER BY food_id LIMIT 1',
+    `SELECT food_id, source, name, short_name, category FROM foods
+     WHERE category = ? AND base_name = ? AND hidden = 0 AND needs_translation = 0
+     ORDER BY CASE WHEN source IN ('USDA', 'Derived') THEN 0 ELSE 1 END, food_id
+     LIMIT 1`,
     category,
     baseName,
   );

@@ -30,6 +30,7 @@ import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSy
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
 import { DimensionFlags } from './DimensionFlags';
+import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
 import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE, isJuiceFood } from '../lib/juiceAdvisory';
@@ -1596,6 +1597,7 @@ export function SmoothieBuilder({
                     are still loading or when there's no flagged
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
+                <SourceFallbackNote source={pendingResolved.source} tabColor={tabColor} />
                 {/* Healing Stage advisory -- 2026-08-09, informational,
                     never gating, same shape as every other advisory in
                     this app. See lib/healingStageAdvisory.ts's own top

@@ -31,6 +31,7 @@ import { AlcoholCalculatorPanel } from './AlcoholCalculator';
 import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE, isCoffeeFood } from '../lib/coffeeAdvisory';
 import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE, isJuiceFood } from '../lib/juiceAdvisory';
 import { DimensionFlags } from './DimensionFlags';
+import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
@@ -1462,6 +1463,7 @@ export function BeverageBuilder({
                     sub-criterion. */}
                 <DimensionFlags scores={pendingScores} onExplain={showInfoAlert} size={14} />
               </View>
+              <SourceFallbackNote source={pendingResolved.source} tabColor={tabColor} />
               {/* Healing Stage advisory -- 2026-08-09, informational, never
                   gating, same shape as every other advisory in this app.
                   See lib/healingStageAdvisory.ts's own top comment for the
