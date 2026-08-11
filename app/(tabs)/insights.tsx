@@ -1373,10 +1373,10 @@ function NutrientRankingView({
       <View key={`${food.category}|${food.foodId}|${food.source}`} style={styles.rankRow}>
         <Text style={styles.rankNumber}>{rank}</Text>
         <View style={styles.rankTextWrap}>
-          <Text style={styles.rankFoodName} numberOfLines={1}>
+          <Text style={styles.rankFoodName}>
             {food.baseName}
           </Text>
-          <Text style={styles.rankFoodCategory} numberOfLines={1}>
+          <Text style={styles.rankFoodCategory}>
             {categoryLabel(food.category)}
             {food.subcategory ? ` · ${food.subcategory}` : ''}
             {/* Only shown for a real, non-default prep state -- 2026-08-11.
@@ -1583,11 +1583,11 @@ function SafeFoodsView({
             <View key={`${food.category}|${food.foodId}|${food.source}`} style={styles.rankRow}>
               <Ionicons name="shield-checkmark-outline" size={16} color={tabColor} style={textShadow} />
               <View style={styles.rankTextWrap}>
-                <Text style={styles.rankFoodName} numberOfLines={1}>
+                <Text style={styles.rankFoodName}>
                   {food.baseName}
                 </Text>
                 {food.subcategory ? (
-                  <Text style={styles.rankFoodCategory} numberOfLines={1}>
+                  <Text style={styles.rankFoodCategory}>
                     {food.subcategory}
                   </Text>
                 ) : null}
@@ -1628,11 +1628,11 @@ function HealingStageView({
     return (
       <View key={`${food.foodId}|${food.source}`} style={styles.rankRow}>
         <View style={styles.rankTextWrap}>
-          <Text style={styles.rankFoodName} numberOfLines={1}>
+          <Text style={styles.rankFoodName}>
             {food.baseName}
           </Text>
           {food.subcategory ? (
-            <Text style={styles.rankFoodCategory} numberOfLines={1}>
+            <Text style={styles.rankFoodCategory}>
               {food.subcategory}
             </Text>
           ) : null}
@@ -1831,10 +1831,10 @@ function LabsView({
             return (
               <View key={result.testCode} style={styles.rankRow}>
                 <View style={styles.rankTextWrap}>
-                  <Text style={styles.rankFoodName} numberOfLines={1}>
+                  <Text style={styles.rankFoodName}>
                     {test?.displayName ?? result.testCode}
                   </Text>
-                  <Text style={styles.rankFoodCategory} numberOfLines={1}>
+                  <Text style={styles.rankFoodCategory}>
                     {daysAgoLabel(result.testedAt)}
                     {outsideRange ? ' · outside typical range' : ''}
                   </Text>
@@ -1949,11 +1949,11 @@ function MyMedsView({
           {items.map((treatment) => (
             <View key={treatment.id} style={styles.rankRow}>
               <View style={styles.rankTextWrap}>
-                <Text style={styles.rankFoodName} numberOfLines={1}>
+                <Text style={styles.rankFoodName}>
                   {treatment.name}
                 </Text>
                 {treatment.doseAmount != null ? (
-                  <Text style={styles.rankFoodCategory} numberOfLines={1}>
+                  <Text style={styles.rankFoodCategory}>
                     {treatment.doseAmount} {treatment.doseUnit}
                     {treatment.frequency ? ` · ${treatment.frequency}` : ''}
                   </Text>
@@ -2398,6 +2398,17 @@ const styles = StyleSheet.create({
     textAlign: 'right',
   },
   rankTextWrap: { flex: 1 },
+  // 2026-08-11: both of these used to carry numberOfLines={1}, silently
+  // truncating a long food name or a long category/subcategory/prep-state/
+  // source line with an ellipsis rather than wrapping -- a real, direct
+  // report, since the prep-state label (Raw vs. Dried, etc.) that
+  // rankFoodCategory renders is exactly the thing that got cut off first
+  // on a long line, undermining the whole point of showing it at all.
+  // rankRow itself has no fixed height anywhere in this chain (plain
+  // flexbox, no FlatList/virtualization in any of this file's real
+  // rank-list usages -- confirmed directly, not assumed), so removing the
+  // line cap is the whole fix: the row already grows to fit real,
+  // multi-line content on its own.
   rankFoodName: { ...typography.bodyEmphasis, color: colors.textPrimary },
   rankFoodCategory: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
   rankAmount: { ...typography.captionEmphasis, color: TAB_COLOR },
