@@ -443,4 +443,31 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mentalhealth-overview', 'mentalhealth-when-to-seek-help'],
   },
+  {
+    id: 'ms-optic-neuritis-real-data',
+    category: 'multipleSclerosis',
+    title: 'Optic Neuritis Is Often the First Real Warning Sign of MS, and a Real MRI Finding Predicts What Happens Next',
+    teaser: 'A real 20-25% of MS cases start with optic neuritis, and a real, direct finding shows brain MRI results at that first episode predicting a 25% versus 72% real risk of MS over the following 15 years.',
+    summary:
+      "This category's own already-covered McDonald diagnostic criteria research names how MS gets formally diagnosed; optic neuritis, sudden vision loss or blurring in one eye from inflammation of the optic nerve, is real, common enough to be the actual FIRST symptom in roughly 20-25% of MS cases, and up to 7 in 10 people with MS experience it at some point in their disease course. Real recovery data is genuinely encouraging on its own: 80% of people notice improvement within 3 weeks, 90% within 5 weeks, and at a real 5-year follow-up, 87% of patients had recovered to 20/25 vision or better. The real, most clinically useful finding connects this directly to this category's own already-covered diagnostic staging: a person's real risk of eventually developing MS after a first optic neuritis episode depends heavily on what their brain MRI shows at that same time -- a real 25% risk over 15 years with a normal brain MRI, versus a real 72% risk with one or more MS-typical brain lesions already visible. Worth knowing directly: a single optic neuritis episode is not automatically an MS diagnosis, but a real, immediate brain MRI at that point is a genuinely powerful, direct predictor of what comes next.",
+    citations: [
+      { source: 'Optic Neuritis, StatPearls, NBK557853', url: 'https://www.ncbi.nlm.nih.gov/books/NBK557853/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-clinically-isolated-syndrome', 'ms-mcdonald-criteria'],
+  },
+  {
+    id: 'ms-exercise-fatigue-real-evidence',
+    category: 'multipleSclerosis',
+    title: "Exercise Is a Real, Evidence-Backed Way to Fight MS Fatigue, Not Just a General Wellness Suggestion",
+    teaser: 'A real network meta-analysis of 31 trials and 1,232 patients found structured exercise measurably reducing MS fatigue and improving quality of life, with benefits from real rehabilitation programs lasting 3-6 months.',
+    summary:
+      "This category's own already-covered Uhthoff's phenomenon research names a real, important heat-related caution around exercise; real, broader trial evidence makes clear that exercise itself remains genuinely one of the best-evidenced tools for MS's own most disabling symptom, fatigue. A real network meta-analysis pooling 31 randomized controlled trials and 1,232 MS patients found sufficient real evidence that structured exercise training improves aerobic capacity and muscular strength in people with mild-to-moderate disability, with real, combined training programs (strength plus aerobic work together) showing significant improvement in muscle strength, balance, walking speed and endurance, AND a real reduction in fatigue itself, not just physical fitness. A real, practical finding worth knowing: benefits from a structured rehabilitation and exercise program can be MAINTAINED for 3-6 months afterward, not just during active training, per real Class II trial evidence. Worth knowing directly: exercise for MS fatigue is a real, evidence-backed clinical recommendation on its own merits, genuinely comparable in rigor to a real medication trial, not a generic \"stay active\" suggestion layered on top of actual treatment.",
+    citations: [
+      { source: 'Effects of exercise on fatigue and quality of life in multiple sclerosis: a network meta-analysis and systematic review, Journal of Neurology', url: 'https://link.springer.com/article/10.1007/s00415-025-13368-7' },
+      { source: 'Effects of exercise training on fitness, mobility, fatigue, and health-related quality of life among adults with multiple sclerosis, PubMed 23669008', url: 'https://pubmed.ncbi.nlm.nih.gov/23669008/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-uhthoffs-phenomenon-heat', 'ms-bladder-bowel-cognitive-real-data'],
+  },
 ];

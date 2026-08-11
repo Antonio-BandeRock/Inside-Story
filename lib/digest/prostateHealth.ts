@@ -448,4 +448,32 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mentalhealth-overview', 'mentalhealth-when-to-seek-help'],
   },
+  {
+    id: 'prostate-testosterone-therapy-cancer-risk-traverse',
+    category: 'prostateHealth',
+    title: "A Real, Large Trial Finally Answered Whether Testosterone Therapy Raises Prostate Cancer Risk",
+    teaser: 'A decades-old fear kept many men off testosterone therapy -- a real, 5,204-man randomized trial found no significant difference in prostate cancer between the testosterone group and placebo.',
+    summary:
+      "For decades, real clinical caution around testosterone replacement therapy rested on an older assumption that raising testosterone could fuel prostate cancer growth, a real, biologically plausible concern given this category's own already-covered role of androgens in the prostate. The TRAVERSE trial, a real, large, placebo-controlled, double-blind randomized trial, finally tested it directly: 5,204 men aged 45 to 80 with confirmed hypogonadism (low testosterone), followed for 14,304 total person-years, the largest and longest real trial of its kind. The result: no significant difference in high-grade or any prostate cancer, acute urinary retention, or need for prostate surgery between the testosterone group and placebo, with high-grade cancer occurring in just 0.19 percent of the testosterone group versus 0.12 percent of placebo, a real, small, statistically insignificant gap. A real, important caveat worth stating directly: this trial specifically screened out and excluded men already at high risk of prostate cancer before enrollment, so this real, reassuring finding applies to appropriately screened candidates for testosterone therapy, not an unconditional all-clear for every man regardless of baseline risk. The trial did find testosterone therapy causing a real, modest PSA increase in the first year, already directly relevant to this category's own PSA-monitoring research, real reason ongoing PSA tracking still matters during treatment even though the larger cancer-risk fear itself didn't hold up.",
+    citations: [
+      { source: 'Prostate Safety Events During Testosterone Replacement Therapy in Men With Hypogonadism: A Randomized Clinical Trial, PMC10753401', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10753401/' },
+      { source: 'Prostate Risk and Monitoring During Testosterone Replacement Therapy, PMID 38753865', url: 'https://pubmed.ncbi.nlm.nih.gov/38753865/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-medications-psa-monitoring', 'prostate-5ari-cancer-risk-controversy'],
+  },
+  {
+    id: 'prostate-pelvic-floor-physical-therapy',
+    category: 'prostateHealth',
+    title: "For Chronic Prostatitis Pain That Antibiotics Don't Fix, Real Evidence Points at the Pelvic Floor Muscles Themselves",
+    teaser: "This category's own already-covered distinction between prostatitis and BPH gets a real, practical follow-up: real trials find pelvic floor physical therapy genuinely helps chronic pelvic pain that antibiotics alone don't resolve.",
+    summary:
+      "This category's own already-covered prostatitis entry names chronic prostatitis/chronic pelvic pain syndrome as a real, distinct condition from BPH, and real research finds it's also frequently resistant to the antibiotic treatment often tried first, since much of the real, ongoing pain in this syndrome comes from tense, overactive pelvic floor muscles rather than an ongoing infection. A real, prospective study of men with this diagnosis who underwent a comprehensive pelvic floor physical therapy program, combining manual muscle-release therapy, targeted exercises, and biofeedback, found every single patient in the study showed a real, measured decrease in the Genitourinary Pain Index, with none getting worse. A real, separate, intensive 6-day protocol using myofascial release and a specific relaxation-training technique similarly found meaningful real symptom improvement in men whose pain had already proven resistant to standard treatment. The real, practical, actionable point: when prostatitis-type pelvic pain doesn't resolve with a course of antibiotics, real evidence supports pelvic floor physical therapy as a genuinely different, muscle-focused treatment path, worth raising directly with a doctor rather than assuming repeated antibiotic courses are the only option.",
+    citations: [
+      { source: 'Comprehensive pelvic floor physical therapy program for men with idiopathic chronic pelvic pain syndrome: a prospective study, PMID 29184791', url: 'https://pubmed.ncbi.nlm.nih.gov/29184791/' },
+      { source: 'Physical Therapist Management of Chronic Prostatitis/Chronic Pelvic Pain Syndrome, Physical Therapy Journal', url: 'https://academic.oup.com/ptj/article/90/12/1795/2737819' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-prostatitis-distinct-condition'],
+  },
 ];

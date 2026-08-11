@@ -453,4 +453,31 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'type1-diabetes-distress-psychological-burden'],
   },
+  {
+    id: 'type2-diabetic-foot-ulcer-amputation-risk',
+    category: 'type2Diabetes',
+    title: "Foot Ulcers Are Common in Type 2 Diabetes, and Catching One Early Is a Genuine Amputation-Prevention Strategy",
+    teaser: "A real, lifetime foot-ulcer risk as high as 25%, and a real 10-20 times higher amputation risk than someone without diabetes, make routine foot checks a genuinely high-stakes habit, not a formality.",
+    summary:
+      "Beyond the already-covered microvascular complications this category tracks (eye, kidney, nerve), a real, distinct and genuinely serious complication deserves its own direct coverage: diabetic foot ulcers. Real data finds a lifetime foot-ulcer incidence in type 2 diabetes as high as 25 percent, with a real, adjusted hazard ratio of 1.65 for developing a foot ulcer specifically because of the underlying diabetes. The real, more urgent number: someone with type 2 diabetes who develops a foot ulcer carries a real, documented 10 to 20 times higher risk of amputation than someone without diabetes at all. Real research identifies the mechanism as two, already-familiar diabetes complications compounding each other -- peripheral neuropathy (numbness that means an injury or blister can go unnoticed) combined with poor circulation from vascular disease, which together mean small, ordinarily minor wounds can progress to serious infection before they're even felt. Real, identified risk factors for actually losing a limb once an ulcer forms include smoking history, a prior foot ulcer, and signs of bone infection or tissue death, all real, checkable warning signs. The practical, real-world takeaway: daily self-checks and prompt medical attention for any foot wound, however minor it looks, are a genuinely evidence-backed way to prevent the single most severe downstream consequence of this complication.",
+    citations: [
+      { source: 'Foot Ulcer and Risk of Lower Limb Amputation or Death in People With Diabetes, Diabetes Care', url: 'https://diabetesjournals.org/care/article/45/1/83/138976/Foot-Ulcer-and-Risk-of-Lower-Limb-Amputation-or' },
+      { source: 'The incidence of lower extremity amputation and its associated risk factors in patients with diabetic foot ulcers: a meta-analysis, PMC11227953', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11227953/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-microvascular-complications-screening', 'type2-screening-at-diagnosis'],
+  },
+  {
+    id: 'type2-erectile-dysfunction-real-data',
+    category: 'type2Diabetes',
+    title: 'Erectile Dysfunction Is Genuinely More Common With Type 2 Diabetes, and It Often Signals Broader Vascular Risk',
+    teaser: 'Real research finds erectile dysfunction affecting a genuinely larger share of men with type 2 diabetes than without it, and it tracks with the same cardiovascular risk factors this category already covers.',
+    summary:
+      "A real, large Catalonian study of nearly 660,000 men found erectile dysfunction affecting 12.6 percent of men with type 2 diabetes, a real 1.5-fold higher rate than the 8.3 percent found in men without diabetes, with prevalence peaking between ages 55 and 64. Real, separate studies using different measurement methods and populations find even higher figures -- one large meta-analysis pooling 145 studies found a real 66 percent prevalence in type 2 diabetes overall, and regional studies in some populations have found rates as high as 81 percent, real evidence the exact number depends heavily on how and where it's measured, though every real study agrees the direction is the same: genuinely more common with diabetes than without. The real, worth-knowing mechanism connects directly to this category's own already-covered cardiovascular and microvascular research: erectile dysfunction shares the same real vascular-damage and nerve-damage pathways as diabetic eye, kidney, and foot complications, and real research identifies the same risk factors driving it -- poor glycemic control, smoking, hypertension, and cardiovascular disease. This means erectile dysfunction in a man with type 2 diabetes is worth treating as a real, early warning signal for broader vascular health, not just as a private quality-of-life issue to manage in isolation.",
+    citations: [
+      { source: 'Prevalence and clinical characteristics of erectile dysfunction among men with type 2 diabetes in primary care, PMID 42000296', url: 'https://pubmed.ncbi.nlm.nih.gov/42000296/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-microvascular-complications-screening', 'cvd-overview'],
+  },
 ];

@@ -441,4 +441,32 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-fatigue-most-disabling', 'mentalhealth-overview'],
   },
+  {
+    id: 'sjogrens-hashimotos-thyroid-comorbidity',
+    category: 'sjogrens',
+    title: "Sjögren's and Hashimoto's Overlap Far More Than Chance Alone Would Explain",
+    teaser: "A real, large body of evidence finds Hashimoto's and Sjögren's occurring together at a rate real genetics research can now partly explain, not just coincidence.",
+    summary:
+      "Real clinical studies find autoimmune thyroid disease genuinely common alongside Sjögren's syndrome, with reported prevalence of Sjögren's in thyroid-disease patients ranging from 3 to 32 percent depending on the population studied. One real, direct study evaluating 426 people with either Hashimoto's thyroiditis or Graves' disease found Sjögren's present in 17 percent of the Hashimoto's group versus only 5 percent of the Graves' group, a real, striking asymmetry pointing at something genuinely shared between Hashimoto's and Sjögren's specifically, not autoimmune thyroid disease in general. Real risk-ratio data backs this up directly: people with Hashimoto's are found to be roughly four times more likely to develop Sjögren's than people without it. This isn't just an observed pattern. A real, recent large-cohort study using Mendelian randomization, a genetic-evidence method that can support real causal inference rather than mere correlation, found genuine shared genetic architecture between the two diseases. When Sjögren's occurs alongside another real autoimmune disease like Hashimoto's, it's formally called secondary Sjögren's syndrome, already distinguished from primary Sjögren's elsewhere in this category -- worth naming directly to a doctor if dry mouth or dry eyes appear alongside an existing Hashimoto's diagnosis, since the real overlap rate here is genuinely higher than chance.",
+    citations: [
+      { source: 'The Association of Sjögren Syndrome and Autoimmune Thyroid Disorders, PMC', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5891591/' },
+      { source: 'An in-depth study of the correlation between Hashimoto’s thyroiditis and Sjogren’s syndrome: multiple evidences from large cohorts, Mendelian randomization, and transcriptomic analysis, European Journal of Epidemiology', url: 'https://link.springer.com/article/10.1007/s10654-025-01313-x' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-primary-secondary-real-distinction', 'sjogrens-antibody-testing'],
+  },
+  {
+    id: 'sjogrens-cutaneous-vasculitis-purpura',
+    category: 'sjogrens',
+    title: "A Real, Purple-Spotted Rash Can Be a Sign of More Serious Sjögren's Involvement",
+    teaser: "Skin vasculitis appears in a real, meaningful share of Sjögren's patients, and when it shows up it tends to travel with more severe disease elsewhere in the body too.",
+    summary:
+      "Beyond the dryness, joint pain, and fatigue this category already covers, real research finds a specific skin finding worth knowing directly: cutaneous vasculitis, inflammation of small blood vessels in the skin, affecting a real 5 to 10 percent of Sjögren's patients. It typically shows up as palpable purpura, small, raised, purplish spots that don't fade under pressure, sometimes alongside hives or reddish patches, and real data finds systemic involvement (beyond just the skin) in 44 percent of affected patients. A real, direct mechanism sits behind roughly a third of these cases: cryoglobulins, abnormal blood proteins that clump together in cold temperatures and trigger small-vessel inflammation, with true cryoglobulinemic vasculitis (a more serious, confirmed form) affecting a smaller real 3 to 4 percent of all Sjögren's patients. The real, practical reason this matters beyond the skin itself: real research finds patients with cutaneous vasculitis have a significantly higher real rate of joint involvement, peripheral neuropathy, Raynaud's phenomenon (already covered in this category), and kidney involvement than Sjögren's patients without it, meaning a new purple-spotted rash is worth a direct, prompt report to a rheumatologist rather than dismissed as an unrelated skin issue.",
+    citations: [
+      { source: "Vasculitis in Sjögren's Syndrome, PubMed", url: 'https://pubmed.ncbi.nlm.nih.gov/21870104/' },
+      { source: "Cryoglobulinaemic vasculitis: an uncommon complication of Sjögren's syndrome, PMC", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7607341/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-raynauds-phenomenon', 'sjogrens-renal-tubular-acidosis'],
+  },
 ];

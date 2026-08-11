@@ -466,4 +466,32 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['celiac-overview'],
   },
+  {
+    id: 'celiac-persistent-symptoms-ibs-overlap',
+    category: 'celiac',
+    title: "A Strict Gluten-Free Diet Doesn't Always Mean Symptoms Fully Resolve",
+    teaser: 'Real research finds up to 50% of celiac patients still experience ongoing digestive symptoms on a strict gluten-free diet, with a genuine IBS overlap in 22% -- a real, separate problem worth naming, not a sign the diet isn\'t working.',
+    summary:
+      "This category's own already-covered villi-healing-timeline research already names the real gap between symptom relief and actual gut healing; real research on ONGOING symptoms adds a further, honest layer most patients aren't warned about. Real studies find at least 20%, and by some estimates up to 50%, of celiac patients continue experiencing chronic digestive symptoms consistent with a functional gastrointestinal disorder despite strict, confirmed gluten-free adherence. A real, direct study found 36.3% still had real, persistent symptoms or malabsorption signs even after adequate dietary adherence. A real, genuine IBS overlap explains a meaningful share of this: real research places IBS prevalence in celiac patients at 22%, against a real 4-11% background rate in the general population, with over a third of celiac patients showing IBS-LIKE altered gut motility even without a formal IBS diagnosis. The real, practical answer this app's own already-cited low-FODMAP research already covers: real systematic review evidence supports a low-FODMAP approach specifically for celiac patients with these persistent, IBS-like symptoms after their gluten-free diet is already confirmed strict and adequate. Worth knowing directly: lingering symptoms on a genuinely strict gluten-free diet are a real, common, and separately addressable problem, not automatic proof gluten is still sneaking in somewhere.",
+    citations: [
+      { source: 'Efficacy of a Low-FODMAP Diet for Coeliac Patients with Persistent IBS-like Symptoms despite a Gluten-Free Diet: A Systematic Review, PMC11013587', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11013587/' },
+      { source: 'Relationship between Persistent Gastrointestinal Symptoms and Duodenal Histological Findings after Adequate Gluten-Free Diet, PMC7918091', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7918091/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-villi-healing-timeline', 'ibs-overview'],
+  },
+  {
+    id: 'celiac-skin-manifestations-beyond-dh',
+    category: 'celiac',
+    title: "Dermatitis Herpetiformis Is the Best-Known Celiac Skin Sign, But Real Research Names Several More",
+    teaser: 'Beyond dermatitis herpetiformis, real research links celiac disease to alopecia areata, urticaria, and eczema flares, with up to 20% of celiac patients first presenting through a skin symptom rather than a digestive one.',
+    summary:
+      "This category's own already-covered dermatitis herpetiformis research names the single most specific, well-established celiac skin marker; real, broader dermatology research finds it isn't the only one. Alopecia areata (an autoimmune hair-loss condition) and urticaria (recurring itchy hives) are both real, documented skin conditions that can improve once gluten is fully removed from the diet in someone with underlying celiac disease. Real research also connects celiac to vitiligo, with patients carrying dermatitis herpetiformis specifically showing real, elevated rates of vitiligo and other autoimmune disease in their own personal or family history. A real, honest caveat worth naming directly: celiac's own association with psoriasis specifically has been directly described as likely coincidental in real research, not confirmed causal, a real, important distinction from the more solidly established links above. The most practically useful real number here: up to 20% of celiac patients FIRST present through a skin symptom rather than a digestive one, meaning an unexplained, persistent skin issue is a real, legitimate reason to ask about celiac testing even without any digestive complaint at all.",
+    citations: [
+      { source: 'Frequency of Cutaneous Disorders in Patients With Celiac Disease, PMC8529358', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8529358/' },
+      { source: 'Skin Manifestations and Coeliac Disease in Paediatric Population, PMC8537533', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8537533/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['celiac-dermatitis-herpetiformis', 'celiac-iceberg-underdiagnosis'],
+  },
 ];

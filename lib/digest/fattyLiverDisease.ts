@@ -444,4 +444,32 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mentalhealth-overview', 'masld-sleep-apnea-bidirectional'],
   },
+  {
+    id: 'masld-bariatric-surgery-real-resolution-data',
+    category: 'fattyLiverDisease',
+    title: "Bariatric Surgery Is the Single Best-Documented Way to Actually Reverse Advanced Liver Fibrosis",
+    teaser: "A real, 5-year prospective study found NASH resolved in 84% of surgery patients within a year, with real, continued fibrosis regression tracked all the way out to five years.",
+    summary:
+      "This category's own already-covered weight-loss thresholds show smaller weight changes producing real, graded liver improvements, but a real, prospective 5-year French study of 180 patients with biopsy-confirmed NASH (severe enough to require surgery) found something more dramatic from bariatric surgery specifically: NASH had resolved in 84 percent of patients within one year, with no significant relapse between years one and five. Real, continued fibrosis improvement was tracked well beyond the first year too, with fibrosis disappearing entirely in 56 percent of all patients and in 45.5 percent of those who started with the most advanced bridging fibrosis. A real, separate, longer-term study (66 patients followed 6 years on average) found similarly strong real results: 74 percent had NASH resolution with no fibrosis progression, and 70 percent showed at least one full stage of fibrosis regression. Worth stating honestly alongside this real success: a real, separate study also found a meaningful minority of patients with the most severe fibrosis at baseline don't fully reverse it even after substantial surgical weight loss, real evidence bariatric surgery is the single most effective documented intervention for advanced MASLD, not a guaranteed cure for every case.",
+    citations: [
+      { source: 'Bariatric Surgery Provides Long-term Resolution of Nonalcoholic Steatohepatitis and Regression of Fibrosis, PMID 32553765', url: 'https://pubmed.ncbi.nlm.nih.gov/32553765/' },
+      { source: 'Persistence of severe liver fibrosis despite substantial weight loss with bariatric surgery, PMID 35076966', url: 'https://pubmed.ncbi.nlm.nih.gov/35076966/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-weight-loss-thresholds', 'masld-f0-f4-fibrosis-staging'],
+  },
+  {
+    id: 'masld-type2-diabetes-bidirectional-real-data',
+    category: 'fattyLiverDisease',
+    title: "MASLD and Type 2 Diabetes Drive Each Other, and Having Both at Once Is Genuinely Worse Than Either Alone",
+    teaser: 'A real, large Korean cohort of over 636,000 people with type 2 diabetes found persistent MASLD independently tracking with higher heart failure, heart attack, stroke, and death risk.',
+    summary:
+      "This category's own already-covered insulin-resistance mechanism means MASLD and type 2 diabetes share real, overlapping biology, and real, large-scale data confirms they genuinely drive one another, not just co-occur by coincidence. A real, national Korean cohort study following 636,520 people with pre-existing type 2 diabetes for a median of over 6 years found that persistent MASLD independently tracked with real, significantly higher risk of heart failure, heart attack, stroke, and all-cause mortality, even after accounting for diabetes itself. A separate, real retrospective cohort study directly confirmed the relationship runs both directions: type 2 diabetes measurably worsens MASLD's own progression, and MASLD in turn measurably worsens glycemic control and diabetes complications, a genuine feedback loop rather than one condition simply causing the other. This directly reinforces this app's own already-covered finding, elsewhere in this Digest, that the two conditions cluster together with PCOS and CKD around one shared insulin-resistance mechanism. Worth knowing directly: someone managing type 2 diabetes who also has MASLD is managing a real, measurably higher combined cardiovascular and liver risk than either condition carries alone, not simply two separate diagnoses to track in parallel.",
+    citations: [
+      { source: 'Association of temporal MASLD with type 2 diabetes, cardiovascular disease and mortality, PMC12261669', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12261669/' },
+      { source: 'The Bidirectional Relationship Between Type 2 Diabetes and Metabolic Dysfunction-Associated Steatotic Liver Disease, PMC11743228', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11743228/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-systemic-cvd-ckd-real-data', 'type2-metabolic-syndrome-cluster'],
+  },
 ];

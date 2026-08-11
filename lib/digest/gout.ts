@@ -447,4 +447,32 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['mentalhealth-overview'],
   },
+  {
+    id: 'gout-tophi-real-prevalence-joint-damage',
+    category: 'gout',
+    title: "Tophi Are More Than a Visible Sign of Gout -- They're Real, Ongoing Joint Damage",
+    teaser: 'Real data finds visible urate deposits, tophi, developing in up to a third of gout patients, and real research directly links them to worse joint damage and higher mortality, not just cosmetic concern.',
+    summary:
+      "This category's own already-covered four-stage natural history names chronic tophaceous disease as the final, most advanced stage, and real prevalence data confirms how common it genuinely is: tophi (hard, chalky deposits of urate crystals visible under the skin, usually near joints or the ears) develop in a real 12 to 35 percent of people with gout overall, with some regional studies finding rates over 50 percent in populations with less-controlled disease. The real, worth-stating point is that tophi aren't merely a cosmetic sign of long-standing gout, real research directly links them to structural joint damage, chronic joint pain and erosion, and a real, measurably increased mortality risk, distinct from the risk of gout flares alone. A real, identified genetic factor compounds this in some populations: variants in the ABCG2 gene, already relevant to how efficiently the body clears uric acid, are associated with a real, higher risk of developing tophaceous disease specifically. The real, actionable takeaway, directly consistent with this category's own urate-lowering-therapy entry: real clinical guidance names getting uric acid levels reliably below the crystal-formation threshold as the single most effective real strategy for preventing tophi from forming or growing further, not just for reducing flare frequency.",
+    citations: [
+      { source: 'Tophaceous Gout, PMC11842507', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11842507/' },
+      { source: 'The gouty tophus: a review, PMID 25761926', url: 'https://pubmed.ncbi.nlm.nih.gov/25761926/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-four-stage-natural-history', 'gout-urate-lowering-therapy'],
+  },
+  {
+    id: 'gout-sleep-apnea-bidirectional-real-data',
+    category: 'gout',
+    title: 'Gout and Sleep Apnea Genuinely Raise Each Other\'s Risk',
+    teaser: 'A real, 1.74-million-person Medicare cohort found gout more than doubling the risk of a new sleep apnea diagnosis, with real, separate evidence the relationship runs the other direction too.',
+    summary:
+      "A real, large observational study of 1.74 million older US adults (Medicare beneficiaries, 65 and up) found people with gout carried a real, significantly higher risk of a new obstructive sleep apnea diagnosis, a hazard ratio of 2.07 after adjusting for other real risk factors, with crude incidence rates of 14.3 per 1,000 person-years in people with gout versus 3.9 per 1,000 in people without it. A real, separate study found the relationship runs in the other direction too, matching people by body mass index specifically so the association couldn't simply be explained by shared obesity, and still found newly diagnosed sleep apnea tracking with a real, elevated risk of subsequently developing gout. This genuine, bidirectional link plausibly connects to already-covered biology elsewhere in this category and this Digest: sleep apnea's own intermittent oxygen deprivation raises uric acid production, while gout's own inflammation and any resulting kidney strain can worsen the vascular and metabolic factors that predispose someone to sleep apnea. Worth knowing directly: real research separately finds that treating co-existing sleep apnea in people with gout and elevated uric acid tracks with reduced premature mortality, real, practical reason to mention sleep quality and possible apnea symptoms (snoring, daytime fatigue) directly to a doctor managing gout, not treat them as two unconnected issues.",
+    citations: [
+      { source: 'Gout and the Risk of Incident Obstructive Sleep Apnea in Adults 65 Years or Older, PMID 30176977', url: 'https://pubmed.ncbi.nlm.nih.gov/30176977/' },
+      { source: 'Obstructive sleep apnea and the risk of gout: a population-based case-control study, PMC7183677', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7183677/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-metabolic-cluster-connection', 'masld-sleep-apnea-bidirectional'],
+  },
 ];

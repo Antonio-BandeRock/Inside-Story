@@ -463,4 +463,32 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mentalhealth-overview', 'mentalhealth-when-to-seek-help'],
   },
+  {
+    id: 'cvd-potassium-salt-substitute-real-trial',
+    category: 'cardiovascularDisease',
+    title: 'A Real, 21,000-Person Trial Found a Simple Salt Swap Cut Stroke and Death Risk',
+    teaser: "The Salt Substitute and Stroke Study replaced regular table salt with a potassium-enriched version in high-risk adults and found real, significant reductions in stroke, major cardiac events, and death.",
+    summary:
+      "This category's own already-covered DASH/sodium research shows reducing sodium intake genuinely lowers blood pressure, and a real, large, cluster-randomized trial (SSaSS, published in the New England Journal of Medicine) tested a genuinely practical way to do it at scale: swapping regular salt (100 percent sodium chloride) for a salt substitute (75 percent sodium chloride, 25 percent potassium chloride) in 20,995 Chinese adults with a stroke history or older age plus uncontrolled hypertension. The real results were significant across every major outcome tracked: reduced systolic blood pressure, and real, statistically significant reductions in stroke, major cardiovascular events, and total mortality, all from what amounts to changing which container of salt sits on the table. A real, follow-up analysis found the benefit specifically traced to both halves of the swap, less sodium and more potassium, each independently contributing to the blood-pressure reduction observed. Worth knowing directly: this is genuinely one of the largest, most practical, most directly actionable cardiovascular prevention trials in recent years, real evidence that a small, low-cost dietary substitution, not a new drug, produced a real, measured reduction in stroke and death in a real, high-risk population -- though the same potassium increase this trial relied on is worth checking against any existing kidney disease or potassium-sensitive medication, already covered elsewhere in this Digest.",
+    citations: [
+      { source: 'Effect of Salt Substitution on Cardiovascular Events and Death, New England Journal of Medicine, PMID 34459569', url: 'https://www.nejm.org/doi/full/10.1056/NEJMoa2105675' },
+      { source: 'The contribution of sodium reduction and potassium increase to the blood pressure lowering observed in the Salt Substitute and Stroke Study, PMC11001572', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11001572/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-dash-sodium', 'ckd-potassium-restriction-reconsidered'],
+  },
+  {
+    id: 'cvd-statin-nocebo-muscle-pain',
+    category: 'cardiovascularDisease',
+    title: "Statin Muscle Pain Is a Real Patient Experience, but Real, Blinded Trials Find It's Usually Not the Drug",
+    teaser: "A real, large individual-participant meta-analysis found muscle symptoms occurred at the same rate on statins and placebo, when neither the patient nor the doctor knew which was which.",
+    summary:
+      "This category's own already-covered statin evidence is strong on real mortality and cardiovascular-event benefit, but muscle pain remains the single most common reason people stop taking one, and real research finds something genuinely counterintuitive underneath it. A real, large individual-participant-data meta-analysis of double-blind, placebo-controlled trials found muscle symptoms occurred at essentially the same rate in the statin group and the placebo group, and calculated that only about 1 in 15 muscle-symptom reports among people actually taking a statin were genuinely caused by the drug itself. The real, direct explanation is the nocebo effect, the same real phenomenon as a placebo effect but working in reverse, where expecting a side effect genuinely increases the odds of reporting one. Real research confirms this directly: when patients don't know whether they're taking a statin or a placebo, muscle-symptom reports match; when they do know, statin-group reports rise. A real, separate finding backs this further: most patients previously labeled statin-intolerant in ordinary practice tolerate the same drug fine under blinded conditions. Worth stating honestly and carefully: this doesn't mean statin-related muscle pain is never real for a given individual, only that real, controlled evidence finds it's usually not the pharmacological cause most people assume, worth discussing directly with a doctor (including a real, blinded rechallenge) before abandoning a drug with this category's own well-documented mortality benefit.",
+    citations: [
+      { source: 'Effect of statin therapy on muscle symptoms: an individual participant data meta-analysis of large-scale, randomised, double-blind trials, PMC7613583', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7613583/' },
+      { source: 'The nocebo effect in the context of statin intolerance, PMID 27578103', url: 'https://pubmed.ncbi.nlm.nih.gov/27578103/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence'],
+  },
 ];

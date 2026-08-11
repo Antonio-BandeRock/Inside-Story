@@ -425,4 +425,31 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['horizon-ibs'],
   },
+  {
+    id: 'ibs-exercise-real-trial-evidence',
+    category: 'ibs',
+    title: 'A Real, Randomized Trial Found Simply Getting More Active Genuinely Reduces IBS Symptoms',
+    teaser: 'A real, 102-patient controlled trial found that people coached to increase everyday physical activity had significantly fewer symptom flare-ups than those who kept their routine unchanged.',
+    summary:
+      "This category's own already-covered CBT, hypnotherapy, and gut-directed antidepressants all work through the brain-gut axis, and real research finds ordinary physical activity belongs alongside them, not as an afterthought. A real, randomized controlled trial of 102 IBS patients, comparing those coached by a physiotherapist to increase daily activity against a group told to keep their existing routine, found a real, significant improvement in the IBS Severity Scoring System for the active group, with clinically meaningful symptom worsening occurring in only 8 percent of the active group versus 23 percent of the unchanged-routine group. A real, separate 24-week trial of moderate aerobic exercise found the same benefit through a real, measurable mechanism: reduced inflammation and oxidative stress that directly tracked with symptom improvement, not just a subjective sense of feeling better. Real, consistent guidance across several controlled trials points to a genuinely achievable target, 12 weeks of moderate-intensity aerobic exercise, 3 to 5 days a week, 30 to 60 minutes a session, similar in shape to general activity guidance but with real, IBS-specific trial evidence directly behind it, not just a general wellness recommendation borrowed from elsewhere.",
+    citations: [
+      { source: 'Physical activity improves symptoms in irritable bowel syndrome: a randomized controlled trial, PMID 21206488', url: 'https://pubmed.ncbi.nlm.nih.gov/21206488/' },
+      { source: 'Low-to-moderate intensity aerobic exercise training modulates irritable bowel syndrome through antioxidative and inflammatory mechanisms in women, PMID 29274540', url: 'https://pubmed.ncbi.nlm.nih.gov/29274540/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-cbt-brain-gut-therapy', 'ibs-biopsychosocial-model'],
+  },
+  {
+    id: 'ibs-sex-hormones-women-real-data',
+    category: 'ibs',
+    title: 'Why IBS Genuinely Affects More Women Than Men, and Why Symptoms Shift With the Menstrual Cycle',
+    teaser: "Real research finds women diagnosed with IBS at 1.5 to 2 times the rate of men, with estrogen and progesterone directly implicated in the gut's own motility and pain sensitivity.",
+    summary:
+      "Real epidemiological data consistently finds women diagnosed with IBS at roughly 1.5 to 2 times the rate of men, with the gap widening between ages 12 and 70 before narrowing again later in life. Real research points to female sex hormones as one of the strongest real explanations: estrogen and progesterone both directly inhibit smooth-muscle contraction in the gut wall, and progesterone specifically modulates the colon's own serotonin system, already covered elsewhere in this category as directly involved in gut motility and IBS itself. Real, mechanistic research also finds higher estrogen levels associated with increased pain sensitivity, while testosterone appears to carry a real, protective effect against pain perception, a plausible real explanation for why the sex gap in IBS is so consistent. A real, practical, symptom-level pattern falls out of this too: women with IBS tend to experience constipation-predominant symptoms more often than men do, except specifically during menstruation, when ovarian hormone levels drop and symptoms often shift toward diarrhea-predominant instead. Worth knowing directly: a real, cyclical shift in IBS symptoms tracking with the menstrual cycle isn't a coincidence or a sign of a separate problem, it's a real, hormonally-driven pattern documented directly in the literature.",
+    citations: [
+      { source: 'Gender-related differences in irritable bowel syndrome: Potential mechanisms of sex hormones, World Journal of Gastroenterology', url: 'https://www.wjgnet.com/1007-9327/full/v20/i22/6725.htm' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-gut-serotonin-mechanism', 'ibs-pregnancy-genuinely-variable'],
+  },
 ];

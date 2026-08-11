@@ -445,4 +445,32 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-ckd'],
   },
+  {
+    id: 'ckd-associated-pruritus',
+    category: 'chronicKidneyDisease',
+    title: "Persistent, Unexplained Itching Is a Real, Common, Often-Dismissed CKD Symptom",
+    teaser: "Chronic kidney disease-associated pruritus affects a real, large share of people with advanced CKD, and real research finds it's far more than a minor annoyance.",
+    summary:
+      "Beyond the protein, sodium, and mineral concerns this category already covers, real research finds a symptom that's genuinely common but often goes unrecognized as CKD-related at all: chronic kidney disease-associated pruritus, persistent, whole-body or localized itching with no other clear skin cause. Real prevalence data finds it affecting roughly 20 percent of people with earlier-stage CKD, climbing to a real 40 percent (and, in some studies, up to 80 percent) of people on hemodialysis, with roughly 40 percent of dialysis patients reporting the itching as moderate to severe rather than mild. The real, direct mechanism isn't fully settled, but it's now understood to involve real, systemic changes -- an imbalance in the body's own opioid-receptor signaling, low-grade inflammation, and mineral/bone changes already covered elsewhere in this category, not simply dry skin. The real, practical stakes go beyond comfort: real research directly links CKD-associated pruritus to genuinely worse sleep quality, and the itching itself is independently associated with a real, higher mortality risk in dialysis patients. Worth knowing directly: this is a real, name-able, discussable symptom, not something to quietly tolerate as an unavoidable part of kidney disease, and real, dedicated treatments (including a real, FDA-approved medication specifically for it) now exist.",
+    citations: [
+      { source: 'Epidemiology and burden of chronic kidney disease-associated pruritus, PMC8702817', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8702817/' },
+      { source: 'CKD-Associated Pruritus: New Insights Into Diagnosis, Pathogenesis, and Management, Kidney International Reports', url: 'https://www.kireports.org/article/S2468-0249(20)31230-4/fulltext' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-mineral-bone-cardiovascular-real-data', 'ckd-depression-underrecognized'],
+  },
+  {
+    id: 'ckd-sodium-restriction-real-trial-data',
+    category: 'chronicKidneyDisease',
+    title: 'Dietary Sodium Restriction Genuinely Lowers Blood Pressure in CKD, More Than It Does Without Kidney Disease',
+    teaser: 'A real, controlled crossover trial found cutting dietary salt produced a bigger blood-pressure drop in CKD patients than the same restriction typically produces in people without kidney disease.',
+    summary:
+      "This category's own already-covered potassium research found blanket restriction genuinely thinner on evidence than assumed -- sodium is a real, different story. A real, double-blind, placebo-controlled crossover trial in adults with stage 3-4 CKD and hypertension found that restricting dietary sodium produced a real, statistically significant average blood-pressure reduction of 10 systolic and 4 diastolic points, alongside real, measured reductions in fluid retention and albuminuria (protein leaking into urine, an already-covered marker of kidney damage). The real, worth-knowing detail: the study's own authors found this effect size genuinely larger than what's typically reported in sodium-restriction trials in people without CKD, real, direct evidence that CKD patients tend to be more salt-sensitive than the general population, not equally so. A real, separate self-management-support trial found a real, practical result too: coaching patients to manage their own sodium intake dropped systolic blood pressure from an average of 140 to 132 over three months. Worth stating plainly alongside this category's own potassium correction: unlike potassium, real sodium-restriction evidence in CKD specifically is genuinely solid, not just extrapolated from general population data.",
+    citations: [
+      { source: 'A randomized trial of dietary sodium restriction in CKD, Journal of the American Society of Nephrology, PMID 24204003', url: 'https://pubmed.ncbi.nlm.nih.gov/24204003/' },
+      { source: 'Sodium Restriction in Patients With CKD: A Randomized Controlled Trial of Self-management Support, PMID 27993433', url: 'https://pubmed.ncbi.nlm.nih.gov/27993433/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-potassium-restriction-reconsidered', 'ckd-egfr-acr-monitoring'],
+  },
 ];

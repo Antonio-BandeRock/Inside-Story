@@ -441,4 +441,46 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-psoriasis'],
   },
+  {
+    id: 'psoriasis-nail-involvement',
+    category: 'psoriasis',
+    title: "Nail Psoriasis Isn't a Cosmetic Footnote, It's a Real Marker of More Severe Disease",
+    teaser: 'Nail involvement shows up in up to 80% of psoriasis patients over a lifetime, and real data links it directly to earlier disease onset and a higher risk of psoriatic arthritis.',
+    summary:
+      "Pitting, ridging, discoloration, and separation of the nail from the nail bed (onycholysis) can look like a minor, separate nuisance, but real research treats nail psoriasis as a genuine disease marker, not a footnote. Nail involvement appears in up to 80% of people with psoriasis at some point, and can be the ONLY visible sign in about 6% of cases. In one real cohort of 200 Korean psoriasis patients, 85.5% had nail involvement, with pitting (the nail matrix's own signature change) and onycholysis (the nail bed's own signature change) the two most common findings. What makes this worth tracking rather than dismissing: real data from the PsoReal study found nail psoriasis correlates with more severe overall disease, earlier onset, and a real, higher risk of psoriatic arthritis specifically. This app's own already-covered PsA self-advocacy research already recommends watching for joint symptoms; nail changes are a real, visible, easy-to-notice early flag worth mentioning at the same appointment.",
+    citations: [
+      { source: 'Nail Psoriasis: Clinical Features and Severity Assessment, Annals of Dermatology', url: 'https://anndermatol.org/DOIx.php?id=10.5021%2Fad.24.026' },
+      { source: 'Nail psoriasis as a severity indicator: results from the PsoReal study, PMC3417918', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3417918/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-advocacy-psa-screening', 'psoriasis-psa-progression-real-data'],
+  },
+  {
+    id: 'psoriasis-psa-methotrexate-real-world',
+    category: 'psoriasis',
+    title: 'Methotrexate for Joint Symptoms Has a Real, Honest Split Between Trial Results and Real-World Use',
+    teaser: "Two randomized trials never found methotrexate beating placebo for psoriatic arthritis outright, yet real-world data shows it measurably improving joint swelling, dactylitis, and function -- a real, worth-knowing gap between the two kinds of evidence.",
+    summary:
+      "Methotrexate is this category's own already-covered first-line skin treatment, and it's also commonly prescribed once psoriasis reaches the joints (psoriatic arthritis, PsA) -- but the real evidence behind that second use is genuinely more mixed than most patients are told. Two real randomized trials never found methotrexate outperforming placebo for PsA on its own primary endpoints. Yet real clinical and strategy trials, dosed at 15mg/week or higher with active dose escalation, DID find significant improvement across disease activity, dactylitis (a whole swollen \"sausage\" finger or toe, a real, distinctive PsA sign), enthesitis (tendon-attachment inflammation), and functional status. Real-world biologic-treatment data adds a further, useful data point: dactylitis dropped from 23.6% to 3.5% of patients, and enthesitis from 33.3% to 9.0%, after 6 months of biologic treatment specifically. Worth knowing directly: real research has directly questioned whether methotrexate should keep its current status as the default first PsA treatment in international guidelines, given how much better tolerated biologics are in real, large patient cohorts -- a genuine, ongoing debate, not a settled question either way.",
+    citations: [
+      { source: 'Methotrexate achieves major cDAPSA response, and improvement in dactylitis and functional status in psoriatic arthritis, PubMed 30590763', url: 'https://pubmed.ncbi.nlm.nih.gov/30590763/' },
+      { source: 'How well are biologic and conventional DMARDs tolerated in psoriatic arthritis: A real world study, PMC10176215', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10176215/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['psoriasis-advocacy-psa-screening', 'psoriasis-psa-progression-real-data'],
+  },
+  {
+    id: 'psoriasis-bariatric-surgery',
+    category: 'psoriasis',
+    title: 'Bariatric Surgery Shows Real, Substantial Psoriasis Improvement Beyond Weight Loss Alone',
+    teaser: "A real systematic review of 447 patients found 69.5% showed improvement or remission of psoriasis after bariatric surgery, with gastric bypass specifically outperforming other surgery types.",
+    summary:
+      "This category's own already-covered weight-loss research shows real, dose-dependent benefit from ordinary weight loss; bariatric surgery data adds a more dramatic, if far more invasive, version of the same real pattern. A real systematic review pooling 447 patients across 6 studies found 69.5% showed improvement or full remission of psoriasis after metabolic bariatric surgery. Real, specific numbers vary by surgery type: 80% improvement or remission after gastric bypass, versus only 10% after non-bypass procedures, with real research pointing to a genuine, additional mechanism beyond weight loss itself -- gastric bypass measurably increases secretion of GLP-1, a gut-derived hormone with its own real anti-inflammatory signaling separate from body weight. One real, smaller study found 70% of patients still in remission six months later, with three of four previously medicated patients able to stop systemic psoriasis drugs entirely. Worth knowing directly: this is real, substantial evidence for a genuinely invasive intervention most people would only consider for obesity itself, not for psoriasis alone -- but for someone already considering bariatric surgery for other real health reasons, a real, additional psoriasis benefit is honestly worth knowing about in advance.",
+    citations: [
+      { source: 'Psoriasis outcomes following metabolic bariatric surgery: a systematic review of the literature, PMC12888285', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12888285/' },
+      { source: 'Update on Obesity in Psoriasis Patients, PMC10608303', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10608303/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['psoriasis-weight-loss', 'psoriasis-systemic-comorbidities'],
+  },
 ];

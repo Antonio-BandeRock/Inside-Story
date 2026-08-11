@@ -443,4 +443,31 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-overview', 'cvd-overview'],
   },
+  {
+    id: 'pcos-lean-phenotype-real-data',
+    category: 'pcos',
+    title: "'Lean PCOS' Is Real, and It Genuinely Undermines the 'PCOS Is a Weight Problem' Assumption",
+    teaser: 'A real, meaningful share of PCOS patients are at a normal body weight, and real research finds the same underlying insulin resistance driving the disease anyway.',
+    summary:
+      "This category's own already-covered insulin-resistance mechanism is often assumed to be a weight-driven problem, but real research directly confirms it isn't only that. Studies find insulin resistance in a real, striking 45 percent of lean PCOS patients (a normal body-mass index), compared with a higher but still-overlapping 75 to 95 percent range among overweight and obese PCOS patients. Real, direct comparison studies find that even at the same normal body weight, PCOS patients carry mild insulin resistance and abnormal lipid metabolism that non-PCOS women of the same weight don't have. A real, additional finding worth knowing: among lean PCOS patients specifically, real research finds elevated LH (luteinizing hormone) and a higher LH-to-FSH ratio compared to obese PCOS patients, real evidence that neuroendocrine (brain-hormone) disturbance, not fat tissue itself, may be the dominant real driver in this specific subgroup. The real, practical takeaway: a normal-weight diagnosis of PCOS is not a sign the condition is somehow milder or less metabolically real -- it's real evidence the disease's own root mechanism can operate independently of body weight, worth stating directly since normal-weight patients are sometimes told their symptoms can't really be PCOS.",
+    citations: [
+      { source: 'Comparing Lean and Obese PCOS in Different PCOS Phenotypes, PMC9600591', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9600591/' },
+      { source: 'Insulin resistance and adverse metabolic profile in overweight/obese and normal weight of young women with polycystic ovary syndrome, PMC6121333', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6121333/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'pcos-weight-loss-modest'],
+  },
+  {
+    id: 'pcos-eating-disorder-risk-real-data',
+    category: 'pcos',
+    title: 'PCOS Genuinely Raises Eating-Disorder Risk, Regardless of Body Weight',
+    teaser: 'A real, large 2024 meta-analysis found PCOS carries meaningfully higher odds of binge-eating disorder and bulimia nervosa, real evidence now shaping official treatment guidelines.',
+    summary:
+      "Weight-loss guidance is a real, recurring theme across this category's own research (already covered by the modest-weight-loss and lifestyle entries), but a real, large 2024 systematic review and meta-analysis (28,922 women with PCOS and 258,619 controls, published in the Journal of Clinical Endocrinology and Metabolism) found something worth stating directly alongside it: PCOS itself carries a real, significantly higher risk of eating disorders, specifically binge-eating disorder and bulimia nervosa, with the association growing even stronger (nearly three-fold higher odds) in studies using the formal Rotterdam diagnostic criteria already covered elsewhere in this category. This is real, direct evidence behind a real, practical clinical shift: the finding directly informed the 2023 international PCOS guideline update, which now explicitly recommends screening for disordered eating regardless of a patient's own body weight, specifically when a doctor is giving lifestyle or dietary counseling. Worth knowing directly: repeated, well-meaning advice to restrict food or lose weight, without first checking for an eating disorder, carries a real, documented risk of doing genuine harm in this specific population, not just being unhelpful.",
+    citations: [
+      { source: 'Increased Prevalence of Binge Eating Disorder and Bulimia Nervosa in Women With Polycystic Ovary Syndrome: A Systematic Review and Meta-Analysis, PMID 39115340', url: 'https://pubmed.ncbi.nlm.nih.gov/39115340/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-weight-loss-modest', 'pcos-sleep-mental-health-real-data'],
+  },
 ];

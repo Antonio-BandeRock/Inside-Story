@@ -451,4 +451,32 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['mentalhealth-overview'],
   },
+  {
+    id: 'graves-persistent-cardiac-symptoms-post-treatment',
+    category: 'graves',
+    title: "The Heart Doesn't Always Reset the Moment Thyroid Levels Do",
+    teaser: 'Atrial fibrillation drops from 72% to 25% once antithyroid treatment starts, a real, dramatic improvement, but a real 38% of patients still report cardiac symptoms months after hormone levels return to normal.',
+    summary:
+      "This category's own already-covered cardiac-risk research names the real, acute danger of untreated Graves'; real, longer-term data adds an honest, important nuance about what happens AFTER treatment starts working. In one real study, atrial fibrillation affected 72% of patients before antithyroid therapy began, dropping to 25% once treatment was underway, a real, substantial improvement. But treatment success measured by normal thyroid labs doesn't always mean the heart has fully caught up: a real, separate finding shows about 38% of Graves' patients still report real cardiac symptoms months after their thyroid hormone levels have returned to normal. Real research also confirms Graves' reach extends well past the heart alone, into skeletal muscle, the eyes, skin, bone, and liver, the same real, systemic, whole-body pattern this app's own research keeps finding across nearly every condition it covers. Worth knowing directly: a normal TSH doesn't automatically mean every symptom has resolved, and lingering cardiac symptoms after successful treatment are a real, documented pattern worth raising with a doctor rather than assuming they mean the treatment failed.",
+    citations: [
+      { source: "Cardiovascular Complications Secondary to Graves' Disease: A Prospective Study from Ukraine, PMC4372210", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4372210/' },
+      { source: "Graves' Disease: Complications, Endotext, NBK285551", url: 'https://www.ncbi.nlm.nih.gov/books/NBK285551/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['graves-cardiac-thyroid-storm', 'graves-treatment-comparison-real-outcomes'],
+  },
+  {
+    id: 'graves-recurrence-after-drug-withdrawal',
+    category: 'graves',
+    title: 'Roughly Half of Antithyroid-Drug Treatment Ends in Relapse, and Real Research Names Who Is Most at Risk',
+    teaser: 'Real studies find 30-50% of patients relapse within a year of stopping antithyroid drugs, with smoking, a large goiter, and stopping treatment before 12 months all named as real, independent risk factors.',
+    summary:
+      "This category's own already-covered remission-rate research names the real overall numbers; real, more specific predictor research answers the practical follow-up question -- who is actually most likely to relapse. Real studies place relapse within the first year after stopping antithyroid drugs at roughly 30-40% overall, with some cohorts finding it as high as 43-50%. Real, independently identified predictors include smoking (this app's own already-covered Graves'-specific smoking research, now with a second real reason to matter), a large goiter, elevated thyroid hormone (FT4) at the START of treatment, stopping the drug before completing a full 12 months, and a low TSH measured just 4 weeks after stopping -- a real, practical early-warning signal a doctor can check for directly rather than waiting to see if symptoms return. Real research has also found a genetic component (variation in immune costimulatory genes and TRAb levels) contributing to relapse risk, tied directly to this app's own already-covered genetic/family-risk research. Worth knowing directly: relapse after stopping treatment is common enough that it should be treated as a real, expected possibility to actively watch for, not a sign that something went wrong with an otherwise successful first round of treatment.",
+    citations: [
+      { source: "Serum TSH level as predictor of Graves' disease recurrence following antithyroid drug withdrawal: A systematic review, PMC7845983", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7845983/' },
+      { source: "Prediction for recurrence following antithyroid drug therapy for Graves' hyperthyroidism, PMC10665073", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10665073/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-remission-real-rates', 'graves-smoking', 'graves-genetic-family-risk'],
+  },
 ];

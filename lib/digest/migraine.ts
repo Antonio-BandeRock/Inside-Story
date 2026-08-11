@@ -431,4 +431,31 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['migraine-cgrp-inhibitors', 'horizon-migraine'],
   },
+  {
+    id: 'migraine-hemiplegic-genetic-subtype',
+    category: 'migraine',
+    title: "Hemiplegic Migraine Is a Real, Rare, Genetically-Identified Subtype -- Not Just a Severe Regular Migraine",
+    teaser: "A real, distinct migraine subtype can cause temporary one-sided paralysis, and real genetic research has identified the exact calcium-channel mutation behind half of all familial cases.",
+    summary:
+      "Every migraine variant covered elsewhere in this category (with aura, vestibular, chronic) still fits within ordinary migraine biology, but hemiplegic migraine is genuinely different: a real, rare subtype in which an attack causes temporary weakness or paralysis on one side of the body, sometimes lasting hours to days, in addition to the headache itself. Real genetic research has identified the actual mechanism behind roughly half of familial cases: a mutation in CACNA1A, a gene encoding a neuronal calcium channel, with two other genes (ATP1A2, SCN1A) accounting for most of the rest. This is real, confirmed molecular biology, not a hypothesis, published as the classic genetic mapping study in the New England Journal of Medicine. Real prevalence data confirms this is genuinely rare, roughly 0.01 percent of the population, split between families with a clear inherited pattern (familial hemiplegic migraine) and isolated cases with no family history (sporadic hemiplegic migraine). Worth stating directly and honestly: one-sided weakness during a headache is a real symptom that also overlaps with stroke, a genuine medical emergency, so a first episode should always be evaluated urgently rather than assumed to be this specific, rare, genetically-confirmed migraine subtype.",
+    citations: [
+      { source: 'The Clinical Spectrum of Familial Hemiplegic Migraine Associated with Mutations in a Neuronal Calcium Channel, New England Journal of Medicine', url: 'https://www.nejm.org/doi/full/10.1056/NEJM200107053450103' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-red-flags', 'migraine-aura-stroke-real-risk'],
+  },
+  {
+    id: 'migraine-pediatric-real-prevalence-treatment',
+    category: 'migraine',
+    title: 'Migraine in Children and Teens Is Genuinely Common, and the Real Evidence for Preventing It Is Surprisingly Thin',
+    teaser: 'Real prevalence data finds migraine climbing from 3% in young children to roughly 20% in teenagers, while real trial evidence for preventive medication in this age group remains genuinely limited.',
+    summary:
+      "This category's own already-covered research is overwhelmingly built on adult data, but real epidemiological research finds migraine is genuinely common in childhood too, with prevalence climbing from roughly 3 percent in younger children to around 20 percent in adolescents, and a real, separate meta-analysis pooling primary-headache studies finding an overall pediatric migraine prevalence near 11 percent. A real, genuine subset (0.6 to 1.8 percent of children and adolescents) develops chronic migraine, already covered elsewhere in this category as 15 or more headache days a month. The honest, worth-stating complication: real controlled trials in pediatric migraine prevention are genuinely limited, and real research finds the placebo response in children and adolescents is consistently larger than in adults, meaning a real reduction in headache frequency often shows up even without active medication, which makes distinguishing a genuinely effective preventive drug from a placebo effect harder in this age group specifically. Real, controlled trial data does exist for propranolol specifically, already covered elsewhere in this Digest as a real migraine-prevention medication, with children on it more likely to reach at least a 50 percent reduction in headache frequency than those on placebo, real, if modest, evidence in a population where solid trial data is genuinely harder to come by.",
+    citations: [
+      { source: 'Migraine Headache in Childhood, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK557813/' },
+      { source: 'Practice guideline update summary: Pharmacologic treatment for pediatric migraine prevention, PMID 31413170', url: 'https://pubmed.ncbi.nlm.nih.gov/31413170/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-episodic-chronic-real-debate', 'migraine-cgrp-inhibitors'],
+  },
 ];

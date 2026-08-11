@@ -451,4 +451,162 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['ra-smoking-citrullination', 'horizon-ra'],
   },
+  {
+    id: 'ra-eye-involvement',
+    category: 'rheumatoidArthritis',
+    title: "The Eyes Are a Real, Commonly Affected Organ in RA, Not an Unrelated Symptom",
+    teaser: 'Ocular involvement shows up in 25-39% of RA patients, dry eye being the most common finding, with a real 5% developing scleritis, a more severe, sight-threatening inflammation.',
+    summary:
+      "This category's own already-covered extra-articular manifestations research establishes RA as a real, whole-body disease; the eyes are one of its most commonly affected organs, and real numbers make the case directly. Ocular involvement appears in a real 25-39% of RA patients, making RA the most common rheumatic disease associated with eye disease at all. Keratoconjunctivitis sicca (dry eye, from the same real exocrine-gland dysfunction this app's own Sjögren's research covers in depth) is the most frequent finding at 15-28%. Episcleritis, inflammation of the eye's own outer surface layer, affects 1-5% and is usually mild; scleritis, a real, deeper and genuinely more serious inflammation of the eye's own structural wall, affects around 5% of RA patients with eye involvement and carries a real risk of vision loss if untreated. Worth knowing directly: a new, persistent red or painful eye in someone with RA is worth mentioning to a doctor specifically, not assumed to be an unrelated, ordinary eye irritation.",
+    citations: [
+      { source: 'Ocular inflammatory manifestations in patients with rheumatoid arthritis, Reumatología Clínica', url: 'https://www.reumatologiaclinica.org/en-ocular-inflammatory-manifestations-in-patients-articulo-S2173574325000759' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-extra-articular-manifestations', 'sjogrens-overview'],
+  },
+  {
+    id: 'ra-pericarditis-cardiac-structural',
+    category: 'rheumatoidArthritis',
+    title: "RA's Own Cardiac Risk Reaches Beyond Generic Cardiovascular Disease, Into the Heart's Own Structure",
+    teaser: 'Pericardial involvement shows up in 30-50% of RA patients on imaging even though fewer than 10% ever notice symptoms, and RA carries a real 10-fold higher risk of heart-valve nodules.',
+    summary:
+      "This category's own already-covered cardiovascular-risk research names the real, elevated general heart-disease risk in RA; a real, more specific finding is that chronic inflammation directly damages cardiac STRUCTURES, not just arteries. Real echocardiographic and post-mortem studies find pericardial involvement (inflammation of the sac surrounding the heart) in 30-50% of RA patients, yet it's clinically noticeable in under 10% of even severe cases -- a real, mostly silent process. RA also carries a real, quantified 10.7-times higher odds of pericardial fluid buildup and over 10 times higher risk of nodules forming directly on heart valves, both driven by the same chronic inflammatory cell and cytokine activity already covered elsewhere in this category, not by accelerated plaque buildup alone. Worth knowing directly: this is a real, separate mechanism from the atherosclerosis-driven heart attack risk already covered, meaning RA's own cardiac risk is genuinely broader than \"watch your cholesterol.\"",
+    citations: [
+      { source: 'Cardiac and vascular complications in rheumatoid arthritis, Reumatologia, PMC6409824', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6409824/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-nsaid-cardiovascular-risk', 'ra-advocacy-cardiovascular-risk'],
+  },
+  {
+    id: 'ra-felty-syndrome',
+    category: 'rheumatoidArthritis',
+    title: "Felty Syndrome: a Real, Rare, Increasingly Uncommon Late Complication of Long-Standing RA",
+    teaser: 'A real triad of RA, an enlarged spleen, and low white blood cell counts, once affecting 1% of RA patients, now closer to 0.5% -- a genuine sign of how much better modern treatment has gotten.',
+    summary:
+      "Felty syndrome is a real, named complication defined by three things happening together: established RA, an enlarged spleen, and neutropenia (a dangerously low count of the white blood cells that fight infection). It typically emerges only after many years of RA, one real documented case appeared 23 years after diagnosis. What makes this worth including isn't just the syndrome itself, but a real, genuinely encouraging trend: its own prevalence has fallen from an estimated 1% of RA patients in 1985 to roughly 0.5% today, and in one recent cohort, only 1.8% of neutropenic RA patients met the full criteria at all. The most likely real explanation, named directly by the researchers studying it, is the same modern disease-modifying treatment already covered throughout this category -- better-controlled inflammation earlier in the disease course appears to be preventing this late complication from developing as often as it once did.",
+    citations: [
+      { source: 'Neutropenia and Felty Syndrome in the Twenty-First Century: Redefining Ancient Concepts in Rheumatoid Arthritis Patients, Journal of Clinical Medicine, PMC11678567', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11678567/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-extra-articular-manifestations', 'ra-treat-to-target-remission'],
+  },
+  {
+    id: 'ra-rheumatoid-vasculitis',
+    category: 'rheumatoidArthritis',
+    title: 'Rheumatoid Vasculitis: Real, Serious, and Genuinely Rarer Than It Used to Be',
+    teaser: 'A real, immune-complex-driven inflammation of blood vessels that can reach the skin, brain, and nerves -- with a real, quantified mortality rate, but incidence that has fallen by more than half since biologic treatment became standard.',
+    summary:
+      "Rheumatoid vasculitis is a real, serious complication where RA's own immune-complex activity inflames blood vessels directly, reaching well beyond the joints. Real analysis of 112 documented cases found skin involvement most common (38.4%), followed by the central nervous system (26.1%) and peripheral nerves (12.3%), with a real 10.7% mortality rate in the most severe cases. Two real, practical findings stand out: having an active infection at the same time was linked to far worse outcomes (33.3% of fatal cases versus 9.2% of survivors), and real, modern treatment -- both conventional and especially biologic DMARDs, the same medications already covered throughout this category -- was linked to significantly better outcomes. The most encouraging real number here: incidence has fallen sharply, from a real 9.1 cases per million between 1988-2000 down to 3.9 per million between 2001-2010, tracking directly with the same rise of biologic treatment already documented as reshaping this whole disease's own real trajectory.",
+    citations: [
+      { source: 'Clinical heterogeneity and prognostic determinants in rheumatoid vasculitis: a systematic analysis, Frontiers in Immunology, PMC12477216', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12477216/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-extra-articular-manifestations', 'ra-biologics-infection-risk'],
+  },
+  {
+    id: 'ra-das28-cdai-scoring',
+    category: 'rheumatoidArthritis',
+    title: 'DAS28 and CDAI Can Score the Same Real Disease Activity Differently -- Worth Knowing Which One a Doctor Uses',
+    teaser: 'Two real, validated RA disease-activity scoring tools correlate strongly with each other but genuinely disagree on classification a meaningful share of the time -- and one needs a blood draw, the other doesn\'t.',
+    summary:
+      "This category's own already-covered Treat-to-Target research depends on a real, measured disease-activity SCORE to know whether treatment is actually working; DAS28 and CDAI are the two real tools most commonly used to produce that number, and they aren't interchangeable. A real, large validation study of 2,864 RA patients found both tools valid and strongly correlated with each other overall, but genuinely disagreeing on which specific activity category (remission, low, moderate, high) the same patient falls into a meaningful share of the time. The real, practical difference: CDAI is a pure clinical count (joint exam plus patient/doctor global assessments) needing no lab work at all, while DAS28 also factors in a real ESR or CRP blood-inflammation marker. Worth knowing directly: if a treatment decision hinges on \"my score,\" it's worth knowing which of the two real tools produced it, since a borderline case could genuinely read differently depending on which one was used.",
+    citations: [
+      { source: 'Disease activity assessment of rheumatoid arthritis in daily practice: validity, internal consistency, reliability and congruency of the DAS28 compared with the CDAI, Clinical and Experimental Rheumatology, PMID 19772784', url: 'https://pubmed.ncbi.nlm.nih.gov/19772784/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-treat-to-target-remission', 'ra-advocacy-rf-anti-ccp'],
+  },
+  {
+    id: 'ra-mri-ultrasound-early-erosion',
+    category: 'rheumatoidArthritis',
+    title: "X-Rays Genuinely Miss Most Early RA Joint Damage -- MRI Catches It Years Sooner",
+    teaser: 'A real, direct head-to-head study found MRI detecting 61% of real bone erosions that a standard X-ray of the same joint missed entirely, catching real damage in wrists that looked completely normal on X-ray.',
+    summary:
+      "This category's own already-covered Window of Opportunity research argues for treating RA early and aggressively; real imaging evidence explains a big part of why waiting for an X-ray to show damage is often too late. A real study using CT scanning as the gold-standard reference found MRI detecting real bone erosions with 61% sensitivity, against just 24% for a standard X-ray of the identical joint -- meaning conventional X-rays miss roughly three out of every four real erosions MRI can already see. Even more striking: in wrist joints that looked completely normal on X-ray, MRI still found real, genuine erosions in 59% of cases. Worth knowing directly: a clean X-ray early in RA does not necessarily mean joint damage hasn't already started, and asking specifically about ultrasound or MRI imaging, not just X-ray, is a real, legitimate question to raise if early, aggressive treatment decisions are on the table.",
+    citations: [
+      { source: 'Detection of bone erosions in rheumatoid arthritis wrist joints with magnetic resonance imaging, computed tomography and radiography, Arthritis Research & Therapy, PMC2374457', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2374457/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-window-of-opportunity-early-treatment', 'ra-treat-to-target-remission'],
+  },
+  {
+    id: 'ra-seronegative-real-data',
+    category: 'rheumatoidArthritis',
+    title: "\"Seronegative\" RA Often Isn't Fully Antibody-Free Once Doctors Look Harder",
+    teaser: 'Standard testing misses real antibodies in 15-25% of clinical RA cases, but extended panels find real, less-common antibodies in most of them anyway -- and the truly antibody-free group runs a genuinely milder disease.',
+    summary:
+      "Standard rheumatoid factor and anti-CCP testing, the two real tests this category's own self-advocacy research already covers, misses a real, meaningful share of true RA: 15-25% of clinically diagnosed cases test negative on both. But a real study running EXTENDED autoantibody panels on 2,755 of these \"seronegative\" patients found real antibodies hiding in the majority of them anyway -- specific ACPA fine-specificities in 30%, other rheumatoid-factor antibody types in 9.4%, anti-CarP antibodies in 16%. The genuinely useful real finding: patients who kept testing positive on ANY of these extended antibodies had significantly higher measured disease activity (DAS28 scores) over time than patients who were truly, completely antibody-negative -- meaning \"seronegative\" isn't one single group, and the small subset that's genuinely antibody-free tends to run a real, milder disease course.",
+    citations: [
+      { source: "Presence of autoantibodies in 'seronegative' rheumatoid arthritis associates with classical risk factors and high disease activity, Arthritis Research & Therapy, PMC7364538", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7364538/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-rf-anti-ccp'],
+  },
+  {
+    id: 'ra-tocilizumab-il6-inhibitor',
+    category: 'rheumatoidArthritis',
+    title: 'A Real, Landmark Trial Found One Biologic Beating Methotrexate Outright, Head-to-Head',
+    teaser: 'Tocilizumab alone produced a real 69.9% response rate versus 52.5% for methotrexate alone, and put nearly 3 times as many patients into full remission in the same real, 673-patient trial.',
+    summary:
+      "This category's own already-covered JAK-inhibitor research covers one newer RA drug class; tocilizumab, an IL-6 inhibitor working through a genuinely different real mechanism (blocking a specific inflammatory signaling molecule rather than a broader enzyme pathway), is another. The real AMBITION trial (673 patients, 24 weeks) was the first to directly test a biologic AGAINST methotrexate as pure monotherapy, not just as an add-on -- and tocilizumab alone won clearly: a real 69.9% response rate versus 52.5% for methotrexate alone, and 33.6% of patients reaching full disease remission versus just 12.1% on methotrexate. Worth knowing directly: this doesn't mean tocilizumab should replace methotrexate as the default first treatment for everyone (methotrexate remains far cheaper and better long-studied), but it's real, direct evidence that a real alternative exists for someone who can't tolerate or doesn't respond well to methotrexate specifically.",
+    citations: [
+      { source: 'Comparison of tocilizumab monotherapy versus methotrexate monotherapy in patients with moderate to severe rheumatoid arthritis: the AMBITION study, Annals of the Rheumatic Diseases, PMID 19297346', url: 'https://pubmed.ncbi.nlm.nih.gov/19297346/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-jak-inhibitors-oral-surveillance', 'ra-methotrexate-folate'],
+  },
+  {
+    id: 'ra-biosimilars-cost-efficacy',
+    category: 'rheumatoidArthritis',
+    title: 'Biosimilars Work as Well as the Original Biologics, but Adoption Has Been Real, and Really Slow',
+    teaser: "Real head-to-head comparisons find no meaningful efficacy difference from biosimilars, and real modeling suggests $54 billion in potential US savings over a decade -- yet US biosimilar use only reached 10.5% of the market two years after launch.",
+    summary:
+      "Biosimilars are real, close copies of an original biologic drug, approved once real testing confirms no meaningful clinical difference -- and for RA's own major biologics (adalimumab, etanercept, infliximab), real head-to-head comparisons confirm exactly that: no statistically significant efficacy difference from the original. The real financial case is substantial too: RAND Corporation modeling estimates biosimilars could save the US health system $54 billion over a decade, with an estimated $24 billion already saved since 2015. Yet real, tracked adoption has been genuinely slow -- US biosimilar infliximab claims rose from just 0.5% to 10.5% of the market between January 2017 and December 2018, far short of what was originally projected. Worth knowing directly: a biosimilar isn't a lesser or experimental option, it's a real, equally effective alternative that may be worth asking about directly, given how much slower real-world adoption has been than the actual evidence would justify.",
+    citations: [
+      { source: 'Two Years After Launch, Biosimilars for Rheumatoid Arthritis and Other Lifelong Conditions Captured Little Market Share, USC Schaeffer Center', url: 'https://schaeffer.usc.edu/research/two-years-after-launch-biosimilars-for-rheumatoid-arthritis-and-other-lifelong-conditions-captured-little-market-share/' },
+      { source: 'Biosimilar Cost Savings in the United States: Initial Experience and Future Potential, PMC6075809', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6075809/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-jak-inhibitors-oral-surveillance', 'ra-tocilizumab-il6-inhibitor'],
+  },
+  {
+    id: 'ra-gold-salts-history',
+    category: 'rheumatoidArthritis',
+    title: 'Gold Salts: a Real, Genuinely Effective 1929 RA Treatment That Its Own Toxicity Eventually Retired',
+    teaser: 'Injectable gold put roughly half of treated RA patients into remission decades before biologics existed -- but toxicity severe enough to include kidney damage and fatal reactions eventually pushed it out of routine use.',
+    summary:
+      "This category's own already-covered history entry traces RA's own diagnostic and immunological understanding; gold salts (chrysotherapy) are a real, direct window into how RA was actually TREATED before modern biologics existed. Gold entered European RA treatment in 1929, building on an earlier, ultimately mistaken 1920s theory that RA was somehow tuberculosis-related, since gold had helped some TB patients. It turned out to be a genuinely real, effective disease-modifying treatment on its own terms: roughly 50% of treated patients achieved real remission. But its real toxicity was severe -- kidney damage, bone marrow suppression, skin and mucosal reactions, and rare but real fatal hypersensitivity reactions -- severe enough that up to 45% of patients had to stop treatment. It remained in genuine clinical use into the 1990s before better-tolerated, faster-acting DMARDs and, eventually, biologics displaced it. Worth knowing directly: this is a real, concrete example of how far RA treatment has come in living memory, not an abstract historical footnote.",
+    citations: [
+      { source: 'Evolving strategies in the treatment of rheumatoid arthritis: a historical perspective, Reumatologia, PMC12138993', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12138993/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-history-milestones'],
+  },
+  {
+    id: 'ra-global-northern-europe-vs-east-asia',
+    category: 'rheumatoidArthritis',
+    title: "RA Runs Real, Consistently Higher in Wealthy Northern Europe Than in Japan and East Asia",
+    teaser: 'Finland, the UK, Ireland, and New Zealand all exceed 1,628 cases per 100,000 people; East Asia\'s own regional rate sits at 745.5 -- with real, declining prevalence now showing up in several of the highest-rate countries too.',
+    summary:
+      "This category's own already-covered Indigenous-population research shows one real, striking regional extreme; a real, broader global-burden analysis adds a second, genuinely useful comparison: wealthy Northern European countries against East Asia. Finland, the UK, Ireland, and New Zealand all show a real prevalence above 1,628 cases per 100,000 people, while East Asia's own regional rate sits at 745.5 per 100,000, notably lower. The real, most-cited explanation centers on diet and lifestyle rather than genetics alone: higher red-meat and high-protein-diet intake, higher salt/fat/sugar consumption, and higher obesity rates in wealthy Western populations. A real, genuinely encouraging complication to this pattern: several of the highest-prevalence countries, including Finland, Norway, and Japan, are now showing DECLINING prevalence, attributed directly to earlier detection and the same widespread modern DMARD and biologic treatment already covered throughout this category.",
+    citations: [
+      { source: 'Global, regional, and national burden and trends of rheumatoid arthritis among the elderly population: an analysis based on the 2021 Global Burden of Disease study, Frontiers in Immunology', url: 'https://www.frontiersin.org/journals/immunology/articles/10.3389/fimmu.2025.1547763/full' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-global-indigenous-prevalence', 'ra-mediterranean-diet'],
+  },
+  {
+    id: 'ra-hla-drb1-molecular-mechanism',
+    category: 'rheumatoidArthritis',
+    title: "The Real, Molecular Reason One Specific Gene Variant Drives RA So Strongly",
+    teaser: 'Real structural biology has now shown exactly how HLA-DR4\'s own risk allele works: it preferentially grips citrullinated proteins at one specific position, giving a T-cell receptor exactly the target this category\'s own smoking research already names as the trigger.',
+    summary:
+      "This category's own already-covered smoking-and-citrullination research names WHAT drives RA's own real, central immune trigger; a real, more recent structural-biology finding explains HOW one specific genetic risk factor plugs directly into that same mechanism. Individual HLA-DRB1 \"shared epitope\" gene variants carry real, quantified risk multipliers for developing antibody-positive RA specifically, not RA in general -- one variant alone (HLA-DRB1*04:08) carries a real 10.3-times higher odds, with certain combined genotypes reaching as high as 28 times. A real, 2024 structural study went further and solved the actual molecular mechanism directly: this gene variant's own protein pocket preferentially binds citrullinated (chemically altered) fragments of the body's own proteins, and a T-cell receptor specifically locks onto the citrulline sitting at one precise position on that fragment. This is a real, direct, physical explanation connecting this category's own smoking/citrullination and genetic-risk research into one single mechanism, not two separate coincidental risk factors.",
+    citations: [
+      { source: 'HLA-DRB1 Genotypes and the Risk of Developing Anti Citrullinated Protein Antibody (ACPA) Positive Rheumatoid Arthritis, PLOS One, PMC3667843', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3667843/' },
+      { source: 'The molecular basis underlying T cell specificity towards citrullinated epitopes presented by HLA-DR4, Nature Communications, PMC11266596', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11266596/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-smoking-citrullination'],
+  },
 ];

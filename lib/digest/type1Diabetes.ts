@@ -460,4 +460,32 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-overview', 'ckd-overview'],
   },
+  {
+    id: 'type1-gluten-free-mixed-evidence',
+    category: 'type1Diabetes',
+    title: 'Gluten-Free Diets Have a Real, Honestly Mixed Track Record for T1D Itself',
+    teaser: "Animal studies found gluten-free diets reducing autoimmune diabetes across multiple generations, but real human trials measuring gut microbiome changes found no matching benefit for preserving the body's own remaining insulin-producing cells.",
+    summary:
+      "This category's own already-covered celiac comorbidity research explains why gluten-free eating is medically necessary for the real subset of T1D patients who also have celiac disease; the honest, separate question is whether it helps T1D itself, independent of celiac status. Real mouse studies found gluten-free diets reducing spontaneous autoimmune diabetes across MULTIPLE GENERATIONS, a genuinely striking finding. Human evidence tells a real, more complicated story: a real trial giving children a gluten-free diet shortly after T1D diagnosis found subtle but measurable changes in their gut microbiome -- but those changes were NOT matched by any detectable preservation of the body's own remaining insulin-producing beta cells, the actual outcome that matters most clinically. Real, broader research on diet and gut dysbiosis in T1D adds honest nuance rather than a clean answer: high intake of red meat or added sugar is independently linked to dysbiosis, inflammation, and immune dysregulation that tracks with T1D risk, and gut-produced compounds like short-chain fatty acids directly influence immune signaling -- but real reviewers state directly that human trial results remain genuinely inconsistent, calling for more research before drawing firm conclusions either way.",
+    citations: [
+      { source: 'Diet, gut microbiome, and type 1 diabetes: from risk to translational opportunity, PMID 41536244', url: 'https://pubmed.ncbi.nlm.nih.gov/41536244/' },
+      { source: 'Changes in the gut bacteriome upon gluten-free diet intervention do not mediate beta cell preservation, Diabetologia', url: 'https://link.springer.com/article/10.1007/s00125-022-05805-3' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['type1-celiac-comorbidity', 'gut-scfa-treg'],
+  },
+  {
+    id: 'type1-exercise-timing-and-type',
+    category: 'type1Diabetes',
+    title: 'Which Kind of Exercise, and When, Genuinely Changes How Blood Sugar Responds',
+    teaser: 'Real research finds resistance exercise raises blood sugar stability while aerobic exercise lowers it, meaning WHEN and WHICH TYPE someone exercises is a real, practical lever for avoiding a hypoglycemic crash.',
+    summary:
+      "This category's own already-covered exercise-glucose research establishes that exercise genuinely changes insulin needs; real, more specific research answers the practical follow-up question -- which kind of exercise, and at what time of day, matters. Aerobic exercise typically requires GREATER reductions in insulin dose or more added carbohydrate than high-intensity interval training, since it more reliably lowers blood sugar; resistance training, by contrast, can actually require MORE insulin during recovery, since it triggers counter-regulatory hormones that keep blood sugar more buoyant. Real, practical guidance follows directly from this: resistance or high-intensity exercise is better timed for afternoon or evening, when hypoglycemia risk naturally runs higher, since its own blood-sugar-raising effect provides real protection; aerobic exercise fits better in the morning, when blood sugar already runs naturally higher from the body's own circadian rhythm. For anyone combining both in one session, real research even finds doing resistance exercise BEFORE aerobic exercise keeps blood sugar more stable throughout. Worth knowing directly: this isn't just \"exercise affects glucose\" in the abstract, it's real, actionable guidance on which type and which time of day genuinely works differently for the same person's own real insulin needs.",
+    citations: [
+      { source: "Resistance Isn't Futile: The Physiological Basis of the Health Effects of Resistance Exercise in Individuals With Type 1 Diabetes, PMC6688119", url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6688119/' },
+      { source: 'Exercise, type 1 diabetes mellitus and blood glucose: The implications of exercise timing, PMC9555792', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9555792/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-exercise-glucose', 'type1-hypoglycemia-unawareness'],
+  },
 ];

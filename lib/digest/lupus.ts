@@ -425,4 +425,31 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['horizon-lupus'],
   },
+  {
+    id: 'lupus-nephritis-isn-rps-classification',
+    category: 'lupus',
+    title: 'The Real, Six-Class System That Decides How Aggressively Lupus Nephritis Gets Treated',
+    teaser: 'A kidney biopsy in lupus is graded on a real, formal six-class scale, and the class assigned changes the treatment plan directly, not just the paperwork.',
+    summary:
+      "Lupus nephritis (kidney inflammation from lupus, already covered by this category's own real monitoring/immunosuppressant entries) is graded on a real, formal pathology system, the ISN/RPS classification, jointly published by the International Society of Nephrology and the Renal Pathology Society. A kidney biopsy is assigned one of six real classes: Class I is minimal, near-normal tissue under the microscope; Class II shows mild mesangial changes; Classes III and IV are focal and diffuse proliferative disease, the most aggressive, most kidney-damaging forms, with Class IV alone affecting close to half of all lupus nephritis patients in real cohort data; Class V is membranous disease, a different real damage pattern centered on the kidney's filtering membrane; Class VI is advanced, largely irreversible scarring. This isn't just a label. Real clinical guidance treats Class III/IV disease far more aggressively, with immunosuppressant combinations, than Class I/II, and a real, large prognosis study confirmed the classification's own real predictive value: it directly forecasts long-term kidney outcome, not just describes the biopsy. Worth knowing directly: the classification was formally revised in 2018 to fix real ambiguities in the original 2003 version, a genuine sign that even a well-established grading system keeps getting refined as more real evidence comes in.",
+    citations: [
+      { source: 'The ISN/RPS 2016 classification predicts renal prognosis in patients with first-onset class III/IV lupus nephritis, PMC', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7810677/' },
+      { source: 'ISN/RPS 2003 classification of lupus nephritis: an assessment of the achievements and limitations of the schema, PMC', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4119328/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-nephritis-monitoring', 'lupus-mycophenolate-cyclophosphamide-nephritis'],
+  },
+  {
+    id: 'lupus-raynauds-thrombosis-risk',
+    category: 'lupus',
+    title: "Cold, White Fingers Aren't Just a Nuisance in Lupus -- They Can Be a Real Warning Sign",
+    teaser: "Raynaud's phenomenon shows up in a real, meaningful share of lupus patients, and in one specific, real subgroup it's directly tied to a much higher risk of dangerous blood clots.",
+    summary:
+      "Raynaud's phenomenon, fingers (and sometimes toes) turning white or blue and going numb in cold or stress, is a real, common lupus symptom, caused by small blood vessels in the extremities overreacting and clamping down. On its own it's usually manageable, more an uncomfortable inconvenience than a medical emergency. The real, worth-knowing finding is what it signals in one specific, identifiable subgroup: among lupus patients who also test positive for antiphospholipid antibodies (a real, already-covered risk factor for this app's own antiphospholipid-syndrome entry), a real study found roughly one in five carried Raynaud's phenomenon, and both lupus nephritis and Raynaud's phenomenon independently predicted a real, significantly higher risk of vascular thrombosis, actual dangerous blood clots, in that same antiphospholipid-positive population. This doesn't mean everyone with cold fingers and lupus is at high clotting risk. It means Raynaud's phenomenon, in someone who already tests antiphospholipid-positive, is a real, additional signal worth naming to a rheumatologist directly rather than dismissed as a minor circulation quirk, since it's one of the concrete features that tracks with a much more serious real outcome in that specific population.",
+    citations: [
+      { source: "Lupus nephritis and Raynaud's phenomenon are significant risk factors for vascular thrombosis in SLE patients with positive antiphospholipid antibodies, PubMed", url: 'https://pubmed.ncbi.nlm.nih.gov/17805483/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-antiphospholipid-syndrome', 'lupus-nephritis-monitoring'],
+  },
 ];

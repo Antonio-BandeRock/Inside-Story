@@ -454,4 +454,32 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ibd-overview'],
   },
+  {
+    id: 'ibd-perianal-fistula-real-data',
+    category: 'ibd',
+    title: "Perianal Fistulas Affect a Real, Substantial Share of Crohn's Patients and Reach Well Beyond Physical Symptoms",
+    teaser: 'Roughly 35% of Crohn\'s patients develop at least one fistula, and real patient-survey data shows the impact reaching relationships, work, and sexual health -- not just physical discomfort.',
+    summary:
+      "This category's own already-covered extraintestinal-manifestations research names real complications reaching beyond the gut itself; perianal fistulas (abnormal tunnels forming between the bowel and skin near the anus) are a real, common, and often under-discussed complication of Crohn's disease specifically. Real research finds roughly 35% of Crohn's patients develop at least one fistula, with 70-80% of these classified as genuinely complex. A real, international patient survey found the impact reaching well past physical symptoms into relationships, social life, and work life, with pain, scarring, discharge, fecal incontinence, and real sexual difficulties all named directly as contributing factors to a measurable drop in quality of life. A real, honest treatment reality worth naming plainly: even with the best current medical and surgical therapy combined, only about a third of patients remain in sustained remission at one year, with real research finding ACTIVE INFLAMMATION itself, not simply the fistula's own presence, the biggest driver of quality of life -- a real, direct reason staying on top of disease control matters even when a fistula itself can't be fully resolved.",
+    citations: [
+      { source: "The Impact of Crohn's Perianal Fistula on Quality of Life: Results of an International Patient Survey, PMC10390083", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10390083/' },
+      { source: "The Impact of Fistulizing Disease, Treatment Modalities, and Clinical Activity on Health-Related Quality of Life in Crohn's Disease, PubMed 42509398", url: 'https://pubmed.ncbi.nlm.nih.gov/42509398/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-extraintestinal-manifestations', 'ibd-depression-anxiety-bidirectional-real-data'],
+  },
+  {
+    id: 'ibd-osteoporosis-bone-density',
+    category: 'ibd',
+    title: "IBD's Own Bone-Loss Risk Starts With Inflammation Itself, Not Just Steroid Treatment",
+    teaser: 'Osteopenia affects up to 77% of IBD patients and osteoporosis up to 41% -- and real research finds low bone density even in newly diagnosed patients who have never taken a corticosteroid.',
+    summary:
+      "This category's own already-covered corticosteroid-hypertension research already flags one real steroid side effect; bone loss is a second, real, and genuinely more surprising one, since it turns out NOT to depend on steroid use alone. Real studies find osteopenia in 22-77% of IBD patients and full osteoporosis in 17-41%, figures that vary by disease location and severity but are consistently, substantially elevated. Corticosteroids do carry a real, fast-acting risk -- measurable bone-density loss and increased fracture risk within just a few months of starting treatment, even at a real low dose of 5mg/day -- but the more surprising real finding is that low bone density shows up in NEWLY DIAGNOSED patients who have never received any steroid treatment at all, pointing directly at chronic inflammation itself as an independent cause. The real, specific mechanism: inflammatory cytokines already covered elsewhere in this category (TNF-alpha, IL-6, IL-1, IL-17) directly stimulate the body's own bone-dissolving cells through a real, named signaling pathway (RANKL/RANK/OPG). The real, practical consequence: IBD patients carry a genuine 15-45% higher risk of an osteoporotic fracture than the general population, worth a direct conversation about bone-density screening regardless of whether steroids have ever been part of treatment.",
+    citations: [
+      { source: 'Osteoporosis in inflammatory bowel disease, Journal of Crohn\'s and Colitis', url: 'https://academic.oup.com/ecco-jcc/article/2/3/202/477673' },
+      { source: 'Bone health in patients with inflammatory bowel disease, Swiss Medical Weekly', url: 'https://smw.ch/index.php/smw/article/view/3407' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-corticosteroid-hypertension-real-data', 'celiac-bone-density'],
+  },
 ];
