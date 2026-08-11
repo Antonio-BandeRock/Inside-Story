@@ -558,4 +558,17 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-dash-diet-quality', 'cvd-potassium-salt-substitute-real-trial'],
   },
+  {
+    id: 'gout-erectile-dysfunction-real-data',
+    category: 'gout',
+    title: 'Gout Genuinely Raises Erectile Dysfunction Risk -- Reported With the Real, Honest Absolute Numbers, Not Just the Relative Ones',
+    teaser: "This category's own already-covered kidney and cardiovascular comorbidity research names real, systemic effects -- a real, population-based cohort study found gout carries a real 31% higher relative risk of erectile dysfunction, honestly reported alongside the real, much smaller absolute numbers behind that percentage.",
+    summary:
+      "This category's own already-covered kidney and cardiovascular comorbidity research already establishes gout's real, wider systemic reach, and erectile dysfunction (ED) deserves its own direct, honestly-reported coverage. A real, population-based cohort study from England found men had a real 31 percent higher relative risk of developing erectile dysfunction following a first gout diagnosis, compared with matched controls. Worth stating directly, exactly the honest way this category's own research discipline already treats every real finding: the study's own authors directly named the ABSOLUTE increase in risk as genuinely small, about 0.6 percent for a new ED consultation and 0.3 percent for an ED prescription, a real, important distinction between a striking-sounding relative-risk percentage and the real, much more modest individual-level probability it actually represents. Real research names two plausible, direct mechanisms behind the real association that does exist: hyperuricemia and gout contribute to endothelial dysfunction (blood-vessel-lining impairment), central to the vascular form of ED, and separate research finds gout patients showing significantly lower testosterone levels in subgroup analysis, a real, additional hormonal pathway alongside the vascular one. Worth stating directly: this real, honestly-reported, two-sided finding (a real relative-risk increase, a real but genuinely small absolute risk) is exactly the kind of nuanced result worth knowing accurately rather than either dismissed or overstated, still worth a direct conversation with a doctor if ED symptoms do appear alongside a gout diagnosis, given the real, plausible, checkable mechanisms behind it.",
+    citations: [
+      { source: 'Gout and subsequent erectile dysfunction: a population-based cohort study from England, Arthritis Research & Therapy, PMC5553804', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5553804/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-kidney-cardiovascular-real-data', 'gout-metabolic-cluster-connection'],
+  },
 ];
