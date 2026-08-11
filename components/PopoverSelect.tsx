@@ -160,6 +160,15 @@ export const PopoverSelect = memo(function PopoverSelect({
   tintedSurface?: boolean;
 }) {
   const fieldRef = useRef<View>(null);
+  const listRef = useRef<FlatList<DropdownOption> | null>(null);
+  // Guards the scroll-to-current-selection effect below so it only ever
+  // fires once per real "open" -- reset the moment the menu closes, not
+  // touched again until it reopens. Without this, the effect (which
+  // deliberately runs on every render while open, matching this file's
+  // own established "no dependency array" convention below) would try to
+  // re-scroll on every keystroke while searching, fighting a person's own
+  // manual scroll position instead of just setting it once on open.
+  const hasScrolledToSelectionRef = useRef(false);
   const [isOpen, setIsOpen] = useState(false);
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const [searchText, setSearchText] = useState('');
@@ -238,54 +247,54 @@ export const PopoverSelect = memo(function PopoverSelect({
           ]}
         >
           <FlatList
+            ref={listRef}
             data={visibleOptions}
             keyExtractor={(option, index) => `${option.value}-${index}`}
             getItemLayout={(_, index) => ({ length: ROW_HEIGHT, offset: ROW_HEIGHT * index, index })}
-            // 2026-08-11, a real, reported bug: React Native's FlatList,
-            // when given initialScrollIndex, starts its own FIRST render
-            // batch counting FROM that index, not from the top of the
-            // array -- items before it never render at all unless a real
-            // scroll gesture past them happens, which can't happen on a
-            // short list that already fits its own box (nothing to scroll
-            // TO). Reported exactly this way: pick an item, reopen, every
-            // item above the one just picked has silently stopped
-            // rendering -- confirmed by walking through the repro step by
-            // step (Folate picked -> Vitamin C gone; Minerals picked next
-            // -> everything above Minerals gone too, compounding each
-            // pick).
+            // 2026-08-11, real history worth keeping, since two real
+            // attempts at this exact bug both had to be superseded the
+            // same day rather than just tuned:
             //
-            // The first fix (force the WHOLE list to render every open) was
-            // real but too broad, confirmed the same day by a second, real
-            // report: opening the Nutrient Ranking picker (39 real tracked
-            // nutrients, searchable) took a reported ~15 real seconds
-            // before any row would accept a tap -- 39 rows synchronously
-            // forced to render at once on every open, not just the one
-            // genuinely affected by the bug, jamming the JS thread long
-            // enough to visibly block touch handling. The original
-            // comment's own "at most a few dozen plain text rows" reasoning
-            // didn't hold once measured against this app's own real
-            // 39-nutrient list.
+            // The bug itself: React Native's FlatList, when given
+            // initialScrollIndex, starts its own FIRST render batch
+            // counting FROM that index, not from the top of the array --
+            // items before it never render at all unless a real scroll
+            // gesture past them happens, which can't happen on a short
+            // list that already fits its own box. Reported exactly this
+            // way: pick an item, reopen, every item above the one just
+            // picked has silently stopped rendering, compounding with each
+            // further pick.
             //
-            // Scoped down to the minimum that actually fixes the bug: the
-            // bug only exists when initialScrollIndex is set at all (a
-            // fresh open with nothing selected yet has no scroll target and
-            // no bug either -- FlatList's own ordinary default already
-            // renders fine from the top in that case). When there IS a
-            // selection to scroll to, only render far enough to guarantee
-            // everything from the top through that selected row -- exactly
-            // what "items above it vanish" needs to stop being true --
-            // rather than the tail of the list past it, which was never
-            // actually invisible. A pick near the top of a long list (the
-            // common case) now costs a few rows, not the whole 39; only a
-            // pick deep in a long list still costs proportionally more,
-            // which is a real, unavoidable tradeoff of how FlatList's own
-            // virtualization works, not a regression from this fix.
-            initialNumToRender={
-              !searchText.trim() && selectedIndex >= 0 && selectedIndex < visibleOptions.length ? selectedIndex + 1 : undefined
-            }
-            initialScrollIndex={
-              !searchText.trim() && selectedIndex >= 0 && selectedIndex < visibleOptions.length ? selectedIndex : undefined
-            }
+            // Attempt 1 (force the WHOLE list to render every open via
+            // initialNumToRender) fixed that, but was too broad: opening
+            // the Nutrient Ranking picker (39 real tracked nutrients,
+            // searchable) took a reported ~15 real seconds before any row
+            // would accept a tap, all 39 forced to render synchronously
+            // on every single open.
+            //
+            // Attempt 2 (scope initialNumToRender to just selectedIndex + 1,
+            // the minimum needed to cover "everything above the
+            // selection") fixed the average case, but still degrades back
+            // toward the same real slowdown whenever the current
+            // selection happens to sit deep in a long list (picking one of
+            // the last few nutrients in the 39-item list still forces
+            // nearly all of them to render) -- confirmed as still
+            // reported slow, not just a hypothetical edge case.
+            //
+            // The actual, robust fix: stop using initialScrollIndex at
+            // all, which is what triggers the underlying FlatList quirk in
+            // the first place. A plain, un-special-cased open (FlatList's
+            // own ordinary small default initialNumToRender, rendering
+            // from the top) has no bug to work around, at any list length,
+            // regardless of where the selection is -- see the
+            // scroll-to-current-selection useEffect below, which
+            // positions the list AFTER that cheap initial render via a
+            // directly-computed pixel offset (scrollToOffset, not
+            // scrollToIndex -- deliberately: scrollToOffset needs no
+            // knowledge of what FlatList has or hasn't measured/rendered
+            // yet, sidestepping the exact class of quirk this bug already
+            // came from, where scrollToIndex is documented to have real,
+            // similar edge cases of its own).
             renderItem={({ item }) => {
               const isRowSelected = item.value === selected;
               return (
@@ -314,6 +323,30 @@ export const PopoverSelect = memo(function PopoverSelect({
     } else {
       hideOverlay();
     }
+  });
+
+  // Positions the list at the current selection once per open, via a
+  // directly-computed offset -- see the FlatList's own comment above for
+  // why this replaced initialScrollIndex entirely rather than just tuning
+  // it again. Also runs with no dependency array (matching this file's
+  // own convention above), guarded by hasScrolledToSelectionRef so it
+  // only ever actually scrolls once per real open, not on every render.
+  useEffect(() => {
+    if (!isOpen) {
+      hasScrolledToSelectionRef.current = false;
+      return;
+    }
+    if (hasScrolledToSelectionRef.current) return;
+    if (searchText.trim() || selectedIndex < 0 || selectedIndex >= visibleOptions.length) return;
+    hasScrolledToSelectionRef.current = true;
+    const targetOffset = ROW_HEIGHT * selectedIndex;
+    // One frame's worth of defer -- the same "let a just-triggered mount/
+    // layout actually land first" pattern already used elsewhere in this
+    // app, guarding against the overlay's own portal render not having
+    // attached the FlatList's ref on this exact same tick yet.
+    requestAnimationFrame(() => {
+      listRef.current?.scrollToOffset({ offset: targetOffset, animated: false });
+    });
   });
 
   // Feeds this picker's own search text into AppKeyboard's search row
