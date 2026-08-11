@@ -609,4 +609,18 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ra-smoking-citrullination'],
   },
+  {
+    id: 'ra-joint-replacement-declining-real-data',
+    category: 'rheumatoidArthritis',
+    title: 'Modern RA Treatment Has Genuinely Cut the Real Odds of Needing Joint Replacement Surgery',
+    teaser: 'Real, long-term population data found joint-surgery rates for RA patients dropping from roughly 27% within a decade of diagnosis in the 1980s-90s to about 19.5% in patients diagnosed 1995-2007, tracking directly with more aggressive modern treatment.',
+    summary:
+      "This category's own already-covered Treat-to-Target and window-of-opportunity research explains WHY early, aggressive treatment matters, and real, long-term population data confirms it's genuinely changed real surgical outcomes, not just lab-measured disease activity. A real, population-based study found that patients diagnosed with RA between 1980 and 1994 had roughly a 27 percent chance of needing at least one joint surgery within 10 years, while patients diagnosed between 1995 and 2007, right as modern DMARD and biologic treatment (already covered elsewhere in this category) became standard, saw that real figure drop to about 19.5 percent. A real, separate, much longer 23-year prospective study of 1,600 RA patients found a real cumulative 30-year joint-surgery incidence of 33.7 percent, giving genuine long-term context for how the disease can progress without modern treatment. Real research directly attributes this decline to more aggressive, earlier use of DMARDs, not coincidence or changes in surgical practice, a real, concrete, structural-outcome confirmation of why this category's own early-treatment research matters as more than a lab-value target. Worth knowing directly: joint replacement remains a real, sometimes-necessary option for RA-related joint damage, but real, current population data shows it's become a meaningfully less common real-world outcome than it was a generation ago, genuine evidence that RA management overall has substantively improved.",
+    citations: [
+      { source: 'Orthopedic surgery among patients with rheumatoid arthritis 1980-2007: a population-based study focused on surgery rates, sex, and mortality, PMID 22247350', url: 'https://pubmed.ncbi.nlm.nih.gov/22247350/' },
+      { source: 'The long-term outcomes of rheumatoid arthritis: a 23-year prospective, longitudinal study of total joint replacement and its predictors in 1,600 patients with rheumatoid arthritis, PMID 9627017', url: 'https://pubmed.ncbi.nlm.nih.gov/9627017/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ra-treat-to-target-remission', 'ra-window-of-opportunity-early-treatment'],
+  },
 ];

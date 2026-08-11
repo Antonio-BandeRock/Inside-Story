@@ -482,4 +482,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-corticosteroid-hypertension-real-data', 'celiac-bone-density'],
   },
+  {
+    id: 'ibd-venous-thromboembolism-real-risk',
+    category: 'ibd',
+    title: "IBD Genuinely Raises Blood-Clot Risk, Most of All During an Active Flare",
+    teaser: 'Real meta-analyses find IBD carrying two to three times the general population\'s blood-clot risk, with a real, striking 8.4-fold spike specifically during an active flare.',
+    summary:
+      "This category's own already-covered corticosteroid and extraintestinal research names real systemic effects beyond the gut, and venous thromboembolism (blood clots in the veins, including deep vein thrombosis and the more dangerous pulmonary embolism) is a real, serious, and directly quantified one. Real meta-analyses consistently find IBD patients carrying two to three times the general population's risk of developing a blood clot. The real, most clinically useful finding is WHEN that risk peaks: real research found the hazard ratio for a clot reaching 8.4 during an active disease flare compared to controls, still real and elevated (2.1-fold) even during remission, direct evidence the underlying inflammation itself, not just hospitalization or surgery, drives the risk. Real, identified contributing factors include a prior clot (a real 4.44-fold risk multiplier), urgent surgery, blood transfusions, low blood albumin, and corticosteroid use (already covered elsewhere in this category), each independently raising risk further. A real, genuinely useful, reassuring finding: anti-TNF therapy, one of the biologic treatments already covered in this category, was NOT associated with increased clot risk, unlike corticosteroids. Worth stating directly: this real, elevated risk is exactly why hospitalized IBD patients, especially during a flare or after surgery, are often given preventive blood thinners as a matter of course, a real, evidence-based practice worth understanding rather than being surprised by.",
+    citations: [
+      { source: 'The risk of venous thromboembolic events in patients with inflammatory bowel disease: a systematic review and meta-analysis, PMID 34475739', url: 'https://pubmed.ncbi.nlm.nih.gov/34475739/' },
+      { source: 'Risk Factors of Venous Thromboembolism in Inflammatory Bowel Disease: A Systematic Review and Meta-Analysis, PMC8273255', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8273255/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-corticosteroid-hypertension-real-data', 'ibd-anti-tnf-loss-of-response'],
+  },
 ];

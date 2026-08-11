@@ -473,4 +473,18 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-potassium-restriction-reconsidered', 'ckd-egfr-acr-monitoring'],
   },
+  {
+    id: 'ckd-secondary-hyperparathyroidism-vitamin-d',
+    category: 'chronicKidneyDisease',
+    title: "Failing Kidneys Genuinely Disrupt Vitamin D Activation, Setting Off a Real, Bone-Damaging Chain Reaction",
+    teaser: 'CKD directly impairs the kidney\'s own real role in activating vitamin D, and real trial data finds treating the resulting hormone imbalance is genuinely more complicated than simply taking a supplement.',
+    summary:
+      "This category's own already-covered mineral and bone research names real cardiovascular risk from mineral-bone disorder, and secondary hyperparathyroidism is the specific real mechanism most directly driving it. Healthy kidneys perform the final, real activation step converting vitamin D into its active hormone form; as CKD progresses, that activation genuinely declines, and the resulting drop in active vitamin D and calcium triggers the parathyroid glands to release real, excess parathyroid hormone in compensation, itself a genuine driver of bone loss and cardiovascular calcification over time. A real, large observational study of 376 patients across 15 US nephrology clinics compared real-world outcomes of extended-release calcifediol against other vitamin D therapies for this exact condition. A real, separate randomized trial found something genuinely more complicated than a straightforward fix: adding active vitamin D on top of extended-release calcifediol did further lower parathyroid hormone, but the same combination was also associated with a real, faster decline in kidney function itself over the 38-week trial period, a genuine tradeoff between controlling one real complication and protecting the kidney further. Worth knowing directly: this is a real, actively managed area of nephrology where the right vitamin D approach depends on where someone sits along this category's own already-covered CKD staging, not a one-size-fits-all supplement recommendation.",
+    citations: [
+      { source: 'Real-world assessment: effectiveness and safety of extended-release calcifediol and other vitamin D therapies for secondary hyperparathyroidism in CKD patients, PMC9650892', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9650892/' },
+      { source: 'Adjunctive Active Vitamin D Decreases Kidney Function during Treatment of Secondary Hyperparathyroidism with Extended-Release Calcifediol in Non-Dialysis Chronic Kidney Disease in a Randomized Trial, PMC12342699', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12342699/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-mineral-bone-cardiovascular-real-data', 'ckd-g-a-staging-heat-map'],
+  },
 ];

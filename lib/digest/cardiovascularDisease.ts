@@ -491,4 +491,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-statin-evidence'],
   },
+  {
+    id: 'cvd-cardiac-rehab-real-barriers-completion',
+    category: 'cardiovascularDisease',
+    title: "Why So Few People Actually Finish Cardiac Rehab, Once They're Even Referred",
+    teaser: "This category's own already-covered cardiac-rehab mortality benefit is real and strong, but real research finds the gap between being eligible and actually completing the program is even wider than the enrollment numbers alone suggest.",
+    summary:
+      "This category's own already-covered cardiac rehabilitation research shows a real, substantial mortality benefit sitting largely unused, and real research digs further into exactly why. A real study of 16,159 eligible patients found only 44.3 percent were even referred to cardiac rehabilitation in the first place, and of those, just 11.2 percent went on to actually complete it, a real, much steeper drop-off than the overall enrollment figures alone suggest. Real, identified barriers, drawn from qualitative and quantitative research together, include a genuine lack of medical referral (31 percent), other concurrent medical problems (28 percent), the patient declining (11 percent), and simple geographic distance from the facility (9 percent). A real, separate study of heart failure patients specifically found 65 percent had never been enrolled at all. Real research also identifies who's most at risk of not finishing once started: living alone, having diabetes, or having depression (already covered elsewhere in this Digest) all independently predicted non-completion, while older age and COPD predicted never enrolling in the first place. Worth stating plainly: given this category's own already-covered real mortality benefit, the single most actionable finding here is that a lack of referral is the single largest identified barrier, meaning directly asking a cardiologist for a cardiac rehab referral, rather than waiting to be offered one, is a real, concrete step someone can take themselves.",
+    citations: [
+      { source: 'Cardiac Rehabilitation Completion Study: Barriers and Potential Solutions, PMID 36044761', url: 'https://pubmed.ncbi.nlm.nih.gov/36044761/' },
+      { source: 'Increasing Cardiac Rehabilitation Participation From 20% to 70%: A Road Map From the Million Hearts Cardiac Rehabilitation Collaborative, PMC5292280', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5292280/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-cardiac-rehabilitation-underused', 'mentalhealth-overview'],
+  },
 ];

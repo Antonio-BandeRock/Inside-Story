@@ -475,4 +475,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-metabolic-cluster-connection', 'masld-sleep-apnea-bidirectional'],
   },
+  {
+    id: 'gout-allopurinol-dose-escalation-adherence',
+    category: 'gout',
+    title: "Allopurinol Often Needs a Real Dose Increase to Actually Work, and Real Data Finds Adherence Is a Genuine Barrier",
+    teaser: "A real, randomized trial found dose-escalating allopurinol past a standard starting dose let 69% of patients reach their target urate level, and real-world data finds a low starting dose predicts whether people actually keep taking it.",
+    summary:
+      "This category's own already-covered urate-lowering-therapy entry names allopurinol as the real, standard first-line option, and real trial data finds a common, correctable gap in how it's often used: many patients are started on a standard dose and never escalated further, even when their uric acid stays above the real, already-covered target threshold this category names for preventing tophi and flares. A real, randomized controlled trial (183 participants, published in Annals of the Rheumatic Diseases) found that among patients still above target on a starting dose (averaging 269 mg/day), a real, structured dose-escalation protocol got 69 percent to reach their target serum urate level, with 59 percent sustaining it across the following visits, real, direct evidence that under-dosing, not treatment failure, explains a genuine share of allopurinol's real-world underperformance. A real, separate adherence study of 612 gout patients found a related, practical pattern: only 63 percent were adherent to their medication at all, and adherence itself was more likely among patients who started on a real, lower initial dose (100 mg/day or less) before escalating, rather than a higher starting dose. Worth stating directly: a gout patient whose flares continue despite taking allopurinol is worth a real conversation about dose escalation and confirmed urate levels before assuming the medication itself isn't working, since real evidence finds many cases resolve with a higher, properly titrated dose rather than a drug switch.",
+    citations: [
+      { source: 'A randomised controlled trial of the efficacy and safety of allopurinol dose escalation to achieve target serum urate in people with gout, PMID 28314755', url: 'https://pubmed.ncbi.nlm.nih.gov/28314755/' },
+      { source: 'Allopurinol Medication Adherence as a Mediator of Optimal Outcomes in Gout Management, PMID 28816767', url: 'https://pubmed.ncbi.nlm.nih.gov/28816767/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-urate-lowering-therapy', 'gout-hla-b5801-screening'],
+  },
 ];

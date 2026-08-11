@@ -494,4 +494,17 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['celiac-dermatitis-herpetiformis', 'celiac-iceberg-underdiagnosis'],
   },
+  {
+    id: 'celiac-refractory-type1-vs-type2',
+    category: 'celiac',
+    title: "Refractory Celiac Disease Is Real and Rare, and Its Two Real Types Carry Genuinely Different Survival Odds",
+    teaser: "For the small minority whose symptoms don't resolve on a strict gluten-free diet, a real, formal classification into Type I and Type II carries a genuinely different prognosis.",
+    summary:
+      "This category's own already-covered villi-healing research assumes a strict gluten-free diet eventually resolves the disease, and for the overwhelming majority it genuinely does. A real, small minority, roughly 1 percent of celiac patients, develops refractory celiac disease (RCD), persistent villous atrophy and symptoms despite at least 12 months of confirmed, strict dietary adherence. Real pathology splits RCD into two genuinely distinct types: Type I shows a normal, polyclonal population of the gut's own immune cells, while Type II shows an abnormal, monoclonal (single-lineage) expansion of those same cells, a real, distinguishing lab finding, not just a severity label. The real, worth-knowing difference is prognosis: a real Mayo Clinic cohort study found 5-year survival at 80 percent for Type I versus a real, markedly lower 45 percent for Type II, with the excess mortality in Type II driven mainly by a real, serious complication, enteropathy-associated T-cell lymphoma. Real clinical data also finds Type II presenting with more severe features across the board, including diarrhea, anemia, and low blood protein, at higher real rates than Type I. Worth stating directly: this is real, rare, and serious territory that needs a gastroenterologist's direct involvement, not something to self-diagnose from persistent symptoms alone, since far more common explanations (unintentional gluten exposure, the real IBS-overlap this category already covers) explain the vast majority of ongoing symptoms.",
+    citations: [
+      { source: 'Presentation and Long-Term Follow-up of Refractory Celiac Disease: Comparison of Type I With Type II, PMID 18996383', url: 'https://pubmed.ncbi.nlm.nih.gov/18996383/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-villi-healing-timeline', 'celiac-persistent-symptoms-ibs-overlap'],
+  },
 ];

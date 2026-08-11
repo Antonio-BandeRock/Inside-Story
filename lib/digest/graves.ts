@@ -479,4 +479,18 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-remission-real-rates', 'graves-smoking', 'graves-genetic-family-risk'],
   },
+  {
+    id: 'graves-rai-hypothyroidism-real-rate',
+    category: 'graves',
+    title: "Radioactive Iodine Reliably Cures Graves' Hyperthyroidism -- by Trading It for Hypothyroidism at a Real, High Rate",
+    teaser: "Real data finds most people treated with radioactive iodine become hypothyroid within a year, a real, expected outcome of the treatment itself, not a complication.",
+    summary:
+      "This category's own already-covered treatment landscape names radioactive iodine as a real, common first-line option for Graves' disease, and real follow-up data shows exactly what it actually does to the thyroid over time. A real, retrospective study of 312 Graves' patients found 69.87 percent already evaluated as hypothyroid at just 6 months post-treatment, and real, longer-term data across multiple studies finds cumulative hypothyroidism rates ranging widely, from roughly 38.5 percent at a median 7.5 years in one cohort up to figures approaching 90 percent in others, depending on the radioactive dose used and how aggressively physicians target the thyroid. Real research finds this variation isn't random: predictive factors identified across several studies include male sex, a shorter disease duration before treatment, a smaller thyroid gland, and lower iodine uptake on pre-treatment scanning, each independently associated with becoming hypothyroid sooner. The real, worth-understanding reframe: radioactive iodine isn't designed to preserve normal thyroid function while curing the overactivity, real evidence finds most patients trade Graves' hyperthyroidism for a real, permanent need for levothyroxine replacement, already covered extensively elsewhere in this Digest's own Hashimoto's research. This is a real, known, largely intentional tradeoff of the treatment, worth discussing directly and in advance with an endocrinologist rather than treated as a surprise complication after the fact.",
+    citations: [
+      { source: 'Predictive factors for early hypothyroidism following the radioactive iodine therapy in Graves’ disease patients, PMC7260835', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7260835/' },
+      { source: "The Incidence of Hypothyroidism Following the Radioactive Iodine Treatment of Graves' Disease and the Predictive Factors Influencing its Development, PMID 26912976", url: 'https://pubmed.ncbi.nlm.nih.gov/26912976/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-remission-real-rates'],
+  },
 ];

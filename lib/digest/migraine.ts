@@ -458,4 +458,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['migraine-episodic-chronic-real-debate', 'migraine-cgrp-inhibitors'],
   },
+  {
+    id: 'migraine-transformation-real-risk-factors',
+    category: 'migraine',
+    title: 'Real Data From a Landmark Population Study Names the Exact Factors That Push Episodic Migraine Toward Chronic',
+    teaser: "The AMPP study, a real, ongoing population study, found 2.4% of episodic migraine patients developed chronic migraine within a single year, with depression, allodynia, and medication overuse standing out as the strongest real predictors.",
+    summary:
+      "This category's own already-covered episodic-versus-chronic distinction gets real, direct depth from the American Migraine Prevalence and Prevention (AMPP) study, a real, large, ongoing longitudinal population study specifically built to track this exact transition. Real data from AMPP found that of 6,657 participants with episodic migraine in one year, 160 (2.4 percent) had developed chronic migraine by the following year, broadly consistent with real population estimates of roughly 2.5 percent transitioning annually. Real, identified risk factors go well beyond simply having more frequent attacks: depression was found strongly associated with new chronic-migraine onset, alongside allodynia (skin sensitivity during an attack, already covered elsewhere in this category), migraine symptom severity, and medication overuse, already covered elsewhere in this category too. A real, genuinely specific and actionable finding worth knowing directly: AMPP data found barbiturate and opiate use independently associated with a higher risk of transformation even after adjusting for other factors, while triptans were not, and NSAIDs showed a more complicated real relationship, sometimes protective, sometimes contributing, depending on how often headaches were already occurring. Worth stating plainly: this real data gives a genuinely actionable early-warning list, depression, allodynia, and specifically which acute medications are being used and how often, worth raising directly with a doctor before chronic migraine sets in, not just after.",
+    citations: [
+      { source: 'Depression and risk of transformation of episodic to chronic migraine, PMC3484253', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3484253/' },
+      { source: 'Acute migraine medications and evolution from episodic to chronic migraine: a longitudinal population-based study, PMID 18808500', url: 'https://pubmed.ncbi.nlm.nih.gov/18808500/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-episodic-chronic-real-debate', 'migraine-medication-overuse-headache'],
+  },
 ];

@@ -470,4 +470,32 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ms-uhthoffs-phenomenon-heat', 'ms-bladder-bowel-cognitive-real-data'],
   },
+  {
+    id: 'ms-nabiximols-spasticity-real-trials',
+    category: 'multipleSclerosis',
+    title: 'A Real, Cannabis-Derived Oral Spray Has Genuine, Formal Trial Evidence for MS Spasticity',
+    teaser: "Nabiximols, an oromucosal THC/CBD spray, carries a real, positive Cochrane-reviewed effect for MS spasticity, alongside a real, more recent trial finding it didn't move a specific clinician-rated leg-stiffness measure.",
+    summary:
+      "Muscle spasticity (stiffness and involuntary muscle contractions) is a real, common MS symptom this category hasn't yet covered directly, and nabiximols, a standardized oromucosal spray combining THC and CBD, has real, formal randomized-trial evidence behind it, not just anecdotal cannabis use. A real, early double-blind trial (189 participants) found significant improvement in perceived spasticity severity with active treatment versus placebo, and a real Cochrane review of the pooled evidence found nabiximols increasing the odds of a meaningful patient-reported spasticity improvement (odds ratio 2.51), translating to a real, absolute 216 more people per 1,000 reporting benefit compared with placebo. Worth stating honestly alongside this real, positive evidence: a more recent 2024 randomized trial (RELEASE MSS1) found nabiximols did NOT significantly affect a specific clinician-rated measure of lower-limb spasticity, a real, direct example of a treatment that patients consistently report subjective benefit from while a more objective clinical measurement doesn't fully confirm it, worth knowing rather than assuming one study settles the question either way. The real, practical takeaway: nabiximols is a real, evidence-supported option worth discussing directly with a neurologist for MS spasticity specifically, with real, current research still actively refining exactly how and for whom it works best.",
+    citations: [
+      { source: 'Cannabis and cannabinoids for symptomatic treatment for people with multiple sclerosis, PMID 35510826', url: 'https://pubmed.ncbi.nlm.nih.gov/35510826/' },
+      { source: 'Randomized controlled trial of cannabis-based medicine in spasticity caused by multiple sclerosis, PMID 17355549', url: 'https://pubmed.ncbi.nlm.nih.gov/17355549/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ms-uhthoffs-phenomenon-heat', 'ms-bladder-bowel-cognitive-real-data'],
+  },
+  {
+    id: 'ms-cognitive-impairment-brain-atrophy',
+    category: 'multipleSclerosis',
+    title: 'Cognitive Changes Are a Real, Common Part of MS, Not Just a Rare, Late-Stage Complication',
+    teaser: 'Real, pooled data finds cognitive impairment affecting roughly 41% of MS patients, tied directly to real, measurable brain-volume loss, and processing speed and memory are the specific domains most consistently affected.',
+    summary:
+      "This category's own already-covered bladder, bowel, and fatigue research already establishes MS reaches well beyond mobility symptoms, and real research finds cognitive impairment belongs directly alongside them, not as a rare complication. A real, recent systematic review and meta-analysis found a pooled cognitive-impairment prevalence of 41 percent across MS patients, with individual studies reporting a real range from 45 to 70 percent depending on how it's measured, and some real estimates for the underlying inflammatory and neurodegenerative process reaching as high as 75 percent of patients over time. Real research identifies the most consistently affected domains as processing speed and episodic memory, not the more commonly assumed picture of confusion or severe memory loss. Real MRI research directly links this to brain atrophy, measurable, ongoing loss of brain volume from the same inflammatory demyelination process already covered elsewhere in this category, with grey matter atrophy specifically identified as a real, early warning sign of future cognitive decline, though a real, separate study found the correlation between brain volume and cognitive impairment isn't always straightforward, genuine evidence the relationship is real but not perfectly linear. Worth knowing directly: real research finds cognitive impairment can appear early in the disease course, even before significant physical disability, real reason to raise memory or processing-speed concerns directly with a neurologist rather than assuming they're unrelated to MS or simply attributable to fatigue or stress.",
+    citations: [
+      { source: 'Prevalence of cognitive impairment (CI) in patients with multiple sclerosis (MS): A systematic review and meta-analysis, PMC11246688', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11246688/' },
+      { source: 'Early and severe cognitive impairment in multiple sclerosis, PMC5619107', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5619107/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-bladder-bowel-cognitive-real-data', 'ms-disease-course-types'],
+  },
 ];

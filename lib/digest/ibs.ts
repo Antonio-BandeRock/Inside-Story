@@ -452,4 +452,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-gut-serotonin-mechanism', 'ibs-pregnancy-genuinely-variable'],
   },
+  {
+    id: 'ibs-self-directed-food-avoidance-nutrient-risk',
+    category: 'ibs',
+    title: 'Self-Directed Food Avoidance, Not Just the Formal Low-FODMAP Diet, Carries a Real Nutrient-Intake Risk',
+    teaser: "This category's own low-FODMAP diet entry covers a real, structured elimination protocol -- but real research finds people with IBS often cut out far more food on their own, with a real, measurable nutritional cost.",
+    summary:
+      "This category's own already-covered low-FODMAP diet is a real, structured, time-limited protocol, deliberately not the same thing as what many people with IBS actually do on their own. Real research directly comparing IBS patients finds that severe, self-directed food avoidance and restriction (cutting out entire food groups indefinitely, without professional guidance) tracks with a real, measurably lower total caloric intake, lower protein intake, and lower intake of carbohydrates including fiber, compared to IBS patients who restrict less. This matters because fiber and diverse carbohydrate intake are directly relevant to gut health elsewhere in this category's own already-covered microbiome and motility research, so an unstructured, ever-narrowing diet can genuinely work against the same gut function someone is trying to protect. A real, separate finding worth naming directly: this same research connects greater self-directed restriction with worse, not better, real quality-of-life scores, the opposite of what someone cutting out more food might expect. The real, practical takeaway, consistent with the official AGA clinical guidance already informing this category's own low-FODMAP research: dietary changes for IBS work best as a real, time-limited, professionally guided protocol with planned reintroduction, not an ever-expanding, permanent list of foods eliminated on one's own.",
+    citations: [
+      { source: 'Food Avoidance and Restriction in Irritable Bowel Syndrome: Relevance for Symptoms, Quality of Life and Nutrient Intake, Clinical Gastroenterology and Hepatology', url: 'https://www.cghjournal.org/article/S1542-3565(21)00715-1/fulltext' },
+      { source: 'Nutrient Intake, Diet Quality, and Diet Diversity in Irritable Bowel Syndrome and the Impact of the Low FODMAP Diet, PMID 31029650', url: 'https://pubmed.ncbi.nlm.nih.gov/31029650/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-low-fodmap-diet', 'ibs-biopsychosocial-model'],
+  },
 ];

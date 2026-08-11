@@ -488,4 +488,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-exercise-glucose', 'type1-hypoglycemia-unawareness'],
   },
+  {
+    id: 'type1-disordered-eating-insulin-omission',
+    category: 'type1Diabetes',
+    title: "'Diabulimia': Deliberately Skipping Insulin for Weight Control Is a Real, Serious, Under-Discussed Risk",
+    teaser: "Real research finds T1D itself nearly doubles eating-disorder risk, and skipping insulin doses specifically to lose weight is a genuine, documented pattern, not a rare curiosity, affecting up to 40% of some studied groups.",
+    summary:
+      "This category's own already-covered carb-counting and diabetes-distress research covers the everyday cognitive burden of T1D, and real research finds a distinct, more serious risk sits alongside it: T1D itself is associated with a real, significantly increased risk of eating disorders compared to people without diabetes (a real relative risk of 2.47 in one meta-analysis), especially bulimia nervosa and binge eating. The real, T1D-specific behavior worth naming directly is insulin omission or restriction for weight control, sometimes informally called 'diabulimia' though it isn't a separate, official DSM-5 diagnosis. Real prevalence data finds this genuinely common, not rare: insulin omission for weight control affects a real 10 to 15 percent of adolescent patients, and real research finds it climbing to almost 40 percent in some studied older-adult populations, with disordered eating behaviors overall found in 30 to 50 percent of girls and 10 to 20 percent of boys with T1D in some cohorts. The real, direct danger this category's own already-covered DKA and long-term-complications research makes clear: skipping insulin doesn't just risk weight regain, it directly and predictably drives blood sugar dangerously high, with real research finding this pattern significantly increasing both short-term (DKA) and long-term complication risk. Worth stating plainly and without judgment: this is a real, documented, treatable pattern worth raising directly and honestly with a doctor or diabetes educator, not something to manage silently out of shame.",
+    citations: [
+      { source: 'Association Between Type 1 Diabetes Mellitus and Eating Disorders: A Systematic Review and Meta-Analysis, PMC11005101', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11005101/' },
+      { source: 'High prevalence with no gender difference of likely eating disorders in type 1 mellitus diabetes on insulin pump', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0168822723001055' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-diabetes-distress-psychological-burden', 'type1-dka-sick-day-rules'],
+  },
 ];

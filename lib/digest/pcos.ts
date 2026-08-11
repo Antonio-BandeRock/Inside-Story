@@ -470,4 +470,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-weight-loss-modest', 'pcos-sleep-mental-health-real-data'],
   },
+  {
+    id: 'pcos-hirsutism-quality-of-life-real-data',
+    category: 'pcos',
+    title: 'Of All PCOS Symptoms, Real Research Finds Hirsutism Carries the Single Biggest Hit to Quality of Life',
+    teaser: "A real, direct comparison across the full range of PCOS symptoms found excess hair growth, not irregular periods or weight, the single strongest predictor of reduced quality of life.",
+    summary:
+      "This category's own already-covered sleep and mental-health research already establishes a real psychological burden in PCOS, and real research finds one specific, visible symptom drives more of it than any other: hirsutism, excess coarse hair growth in a male-pattern distribution (face, chest, back), caused directly by the same androgen excess this category's own insulin-resistance research already covers. A real study directly comparing the impact of different PCOS symptoms found hirsutism had the strongest real association with reduced health-related quality of life, with the degree of hirsutism directly, proportionally tracking with how much quality of life dropped. A real, separate body of research finds hirsutism specifically, more than irregular periods, acne, or weight itself, independently associated with real, measurable anxiety and depression, consistent with this category's own already-covered mental-health findings but pointing at one specific, visible symptom as a genuine driver rather than PCOS as a diffuse whole. Real, practical evidence backs a real intervention too: a real observational study found laser hair-removal treatment for PCOS-related hirsutism producing a measurable, direct improvement in quality of life scores. Worth stating plainly: hirsutism is often treated as a cosmetic afterthought behind the 'more medically serious' concerns this category covers (insulin resistance, cardiovascular risk), but real evidence finds it carries the single heaviest real psychological weight of any PCOS symptom, worth taking seriously in its own right, not dismissed as vanity.",
+    citations: [
+      { source: 'Of PCOS Symptoms, Hirsutism Has the Most Significant Impact on the Quality of Life of Iranian Women, PMID 25874409', url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0123608' },
+      { source: 'Understanding hirsutism in PCOS, PMID 38305206', url: 'https://pubmed.ncbi.nlm.nih.gov/38305206/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-sleep-mental-health-real-data', 'pcos-insulin-resistance-mechanism'],
+  },
 ];

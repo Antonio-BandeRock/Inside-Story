@@ -452,4 +452,32 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-antiphospholipid-syndrome', 'lupus-nephritis-monitoring'],
   },
+  {
+    id: 'lupus-fatigue-real-prevalence-mechanism',
+    category: 'lupus',
+    title: "Fatigue Is the Single Most Common Lupus Symptom, and Real Research Finds It Doesn't Track With Lab-Measured Disease Activity",
+    teaser: 'Real cohort data finds 53 to 80% of lupus patients naming fatigue as a primary symptom, and real research finds it genuinely doesn\'t rise and fall with standard disease-activity lab measures the way flares do.',
+    summary:
+      "This category's own already-covered skin, joint, kidney, and blood findings are all real and measurable, but real cohort research consistently finds fatigue is the single most commonly reported lupus symptom of all, with 53 to 80 percent of patients naming it as a primary concern across multiple real studies, and one Malta-based cohort finding 56.5 percent scoring in the abnormal-fatigue range on a validated scale. The real, genuinely counterintuitive finding: a real, large multiethnic cohort study (the LUMINA cohort, 515 patients across 2,609 visits) found fatigue was NOT associated with standard disease-activity or organ-damage scores, the same real measures already covered elsewhere in this category for tracking lupus's own severity. Instead, real research found fatigue tracked more closely with pain, feelings of helplessness, and constitutional symptoms, and a real, separate, well-documented bidirectional relationship with poor sleep and depression, both already covered elsewhere in this category. Worth stating directly: this means a lupus patient can have fatigue severe enough to be disabling while lab work and standard disease-activity scores look genuinely reassuring, real evidence that fatigue deserves its own direct attention and treatment approach, not dismissal just because bloodwork doesn't explain it.",
+    citations: [
+      { source: 'Fatigue in systemic lupus erythematosus, PMC3380630', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3380630/' },
+      { source: 'Disease activity and damage are not associated with increased levels of fatigue in systemic lupus erythematosus patients from a multiethnic cohort, PMID 19714612', url: 'https://pubmed.ncbi.nlm.nih.gov/19714612/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-sledai-disease-activity', 'lupus-photosensitivity-vitamin-d-catch22'],
+  },
+  {
+    id: 'lupus-lldas-treat-to-target',
+    category: 'lupus',
+    title: 'A Real, Named Treatment Target Now Gives Lupus Care a Concrete, Measurable Goal',
+    teaser: 'The Lupus Low Disease Activity State (LLDAS) is a real, formally validated treatment target, and real multinational cohort data finds reaching it directly protects against organ damage and death.',
+    summary:
+      "This category's own already-covered SLEDAI disease-activity scoring gives lupus a real, moment-in-time severity measure, and LLDAS builds directly on it as a real, formally defined treatment target, not just a research concept: a specific combination of low disease activity, minimal or no new symptoms, a stable, low-dose (or no) steroid regimen, and only well-tolerated standard medication. A real, large, multinational prospective cohort study, published in The Lancet Rheumatology, found that sustaining LLDAS over time was directly associated with real, significantly better outcomes across flares, organ damage accumulation, quality of life, and mortality, real, formal validation strong enough that treat-to-target strategies (aiming for a specific, measurable state rather than just symptom relief) are now genuinely established in lupus management. A real, direct, kidney-specific application already ties into this category's own nephritis-monitoring research: a real study found reaching LLDAS specifically reduced renal relapse risk and helped preserve long-term kidney function in patients with lupus nephritis, with 49 percent of one real cohort reaching it within a year of treatment. Worth knowing directly: this gives a real, concrete, measurable benchmark to discuss with a rheumatologist, something more specific and actionable than a general sense of feeling better or worse.",
+    citations: [
+      { source: 'Association of sustained lupus low disease activity state with improved outcomes in systemic lupus erythematosus, The Lancet Rheumatology', url: 'https://www.thelancet.com/journals/lanrhe/article/PIIS2665-9913(24)00121-8/abstract' },
+      { source: 'Reduction in Renal Relapse and Preservation of Long-Term Kidney Function After Lupus Low Disease Activity in Patients With Lupus Nephritis, PMC12919694', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12919694/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-sledai-disease-activity', 'lupus-nephritis-monitoring'],
+  },
 ];

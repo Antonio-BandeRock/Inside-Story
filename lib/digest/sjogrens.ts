@@ -469,4 +469,18 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-raynauds-phenomenon', 'sjogrens-renal-tubular-acidosis'],
   },
+  {
+    id: 'sjogrens-interstitial-lung-disease',
+    category: 'sjogrens',
+    title: "Sjögren's Can Genuinely Reach the Lungs, and Real Prevalence Estimates Vary Widely by How Closely You Look",
+    teaser: "Real, pooled data finds interstitial lung disease affecting anywhere from 13% to 23% of primary Sjögren's patients, with one study finding it in a striking 78.6% of a newly diagnosed cohort scanned closely.",
+    summary:
+      "Beyond the dryness, joint, and skin findings already covered elsewhere in this category, real research finds interstitial lung disease (ILD), scarring and inflammation of the lung tissue itself, a genuine, if variably reported, complication of primary Sjögren's syndrome. Real meta-analyses find substantially different pooled prevalence depending on methodology: one review of 23 studies (6,157 patients) found a pooled ILD prevalence of 13 percent, while a larger, more recent meta-analysis of 30 studies (8,255 patients) found 23 percent, with real, individual studies ranging even wider, from 9.1 percent up to a striking 78.6 percent in one cohort of newly diagnosed patients specifically scanned with high-resolution imaging rather than relying on symptoms alone. A real, worth-knowing geographic pattern emerges too: pooled prevalence was found higher in Asian populations (20 percent) than European ones (10 percent), a real signal that genetics or environmental exposure, or simply differences in screening practice, may meaningfully shape who's actually found to have it. The real, practical takeaway: this wide range reflects how much detecting ILD depends on whether and how closely someone is actually screened, real reason a persistent cough or breathlessness in Sjögren's is worth a direct, dedicated pulmonary workup rather than assumed to be unrelated or simply deconditioning.",
+    citations: [
+      { source: "Prevalence and risk factors of interstitial lung disease in patients with primary Sjögren's syndrome: A systematic review and meta-analysis, PMID 32588976", url: 'https://pubmed.ncbi.nlm.nih.gov/32588976/' },
+      { source: 'Interstitial Lung Disease and Pulmonary Damage in Primary Sjögren’s Syndrome: A Systematic Review and Meta-Analysis, PMC10095380', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10095380/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-lung-vasculitis-neuropathy-real-data', 'sjogrens-fatigue-most-disabling'],
+  },
 ];

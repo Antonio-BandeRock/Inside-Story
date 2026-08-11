@@ -476,4 +476,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['prostate-prostatitis-distinct-condition'],
   },
+  {
+    id: 'prostate-active-surveillance-real-longterm-data',
+    category: 'prostateHealth',
+    title: "Real, 15-Year Active Surveillance Data Confirms Low-Grade Prostate Cancer Rarely Turns Deadly While Being Watched",
+    teaser: 'A real, long-term cohort study found metastasis at 10 years occurred in just 1.4% of active surveillance patients, and prostate-cancer-specific death in only 0.1%.',
+    summary:
+      "This category's own already-covered active-surveillance entry names it as a real, evidence-backed alternative to immediate treatment for low-risk prostate cancer, and real, long-term follow-up data gives it substantial further weight. A real, population-based study using Grade Group 1 (the lowest-risk category) found the probability of remaining treatment-free was 76 percent at 5 years, 64 percent at 10 years, and 58 percent at 15 years, real evidence many men stay on watchful monitoring for a genuinely long time rather than a brief holding pattern before inevitable treatment. The real, most reassuring numbers concern the outcomes that actually matter most: at 10 years, metastasis occurred in just 1.4 percent of participants, and prostate-cancer-specific death in only 0.1 percent, with overall metastasis-free survival at 94.2 percent and cancer-specific survival at 98.1 percent. A real, separate study specifically following patients who showed no early signs of disease progression found even stronger long-term numbers, 100 percent prostate-cancer-specific survival at 15 years. Worth knowing directly: this is real, substantial, multi-decade evidence that active surveillance is a genuinely safe long-term strategy for appropriately selected low-risk prostate cancer, not merely a way to delay an inevitable outcome, real reason it's become a real, guideline-endorsed default rather than a fringe alternative to treatment.",
+    citations: [
+      { source: 'Long-term Outcomes Following Active Surveillance of Low-grade Prostate Cancer: A Population-based Study Using a Landmark Approach, PMID 36475730', url: 'https://pubmed.ncbi.nlm.nih.gov/36475730/' },
+      { source: 'Long-Term Outcomes of Active Surveillance for Prostate Cancer: The Memorial Sloan Kettering Cancer Center Experience, PMID 31868556', url: 'https://pubmed.ncbi.nlm.nih.gov/31868556/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-active-surveillance', 'prostate-real-staging-systems'],
+  },
 ];

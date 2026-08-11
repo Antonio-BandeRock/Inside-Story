@@ -483,4 +483,18 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['psoriasis-weight-loss', 'psoriasis-systemic-comorbidities'],
   },
+  {
+    id: 'psoriasis-biologic-drug-survival-real-data',
+    category: 'psoriasis',
+    title: "Not All Psoriasis Biologics Are Kept Up With Equally -- Real, Multi-Year 'Drug Survival' Data Shows a Genuine Gap",
+    teaser: 'Real-world data tracking how long patients actually stay on a given biologic, not just whether it works in a trial, finds real, substantial differences between drugs, with some genuinely outlasting others by years.',
+    summary:
+      "This category's own already-covered biologic research (guselkumab's own real VOYAGE 1 trial data) shows strong initial results, and a real, separate, genuinely useful metric, drug survival (how long patients actually keep taking a given biologic before switching or stopping), reveals something a short trial alone can't: real durability over years of actual use. A real meta-analysis of real-world evidence found substantial variation by year 4: etanercept's survival dropped from 66 percent at year one to 41 percent by year four, infliximab from 61 to 42 percent, adalimumab from 69 to 47 percent, while ustekinumab held up markedly better, from 82 to 56 percent. A real, separate pooled analysis found 5-year survival rates of 46.3 percent for adalimumab, 35.9 percent for etanercept, and 34.7 percent for infliximab, broadly confirming the same real pattern. Real, more recent data adds a genuinely useful nuance: among biologic-naive patients, ustekinumab showed superior long-term persistence, but newer drugs (bimekizumab, guselkumab, risankizumab) showed higher 2-year survival specifically in patients who had already tried and moved on from an earlier biologic, real evidence that the right drug can depend on treatment history, not just which one performed best in an initial trial. Worth knowing directly: the real, most common reason for stopping etanercept and infliximab was loss of efficacy over time, and infliximab specifically was most often stopped for adverse effects, real, practical detail worth discussing directly when choosing among this category's own already-covered biologic options.",
+    citations: [
+      { source: 'Drug survival of biologics in treating psoriasis: a meta-analysis of real-world evidence, Scientific Reports', url: 'https://www.nature.com/articles/s41598-018-34293-y' },
+      { source: 'Biologic Drug Survival in Psoriasis: A Systematic Review & Comparative Meta-Analysis, PMC8012481', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8012481/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-il23-inhibitors-efficacy', 'psoriasis-systemic-comorbidities'],
+  },
 ];

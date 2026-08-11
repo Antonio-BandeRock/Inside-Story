@@ -472,4 +472,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-systemic-cvd-ckd-real-data', 'type2-metabolic-syndrome-cluster'],
   },
+  {
+    id: 'masld-resistance-training-muscle-mass',
+    category: 'fattyLiverDisease',
+    title: "Building Muscle, Not Just Losing Fat, Is a Real, Distinct Lever Against MASLD",
+    teaser: 'Real, prevalence data finds sarcopenia (muscle loss) affecting 20-40% of MASLD patients, and a real meta-analysis of resistance-training trials found significant reductions in both liver enzymes and liver fat itself.',
+    summary:
+      "This category's own already-covered exercise research already establishes that activity helps independent of weight loss, and real research finds resistance training specifically deserves its own, distinct attention, not just as a variant of general exercise advice. Real prevalence data finds sarcopenia, meaningful loss of skeletal muscle mass, affecting 20 to 40 percent of MASLD patients, and real mechanistic research finds this isn't incidental: reduced muscle mass directly worsens insulin resistance and liver fat accumulation, creating a real, two-way feedback loop that can accelerate progression toward fibrosis and cirrhosis, the same real staging already covered elsewhere in this category. A real, recent systematic review and meta-analysis of 11 randomized controlled trials (395 participants) found resistance exercise produced a real, significant decrease in ALT (a liver-enzyme marker already covered in this app's own labs research), with 7 of 8 imaging studies finding substantial real reductions in liver fat content directly. Real, specific, actionable guidance from this same body of trials: whole-body, multi-muscle resistance training, 8 to 10 exercises at 60 to 80 percent of one-rep-max intensity, at least 3 times weekly for a minimum of 12 weeks, is the real, minimum effective protocol found across these trials. Worth knowing directly: this is a real, separate, complementary lever from aerobic exercise and dietary weight loss, not a replacement for either, and combining it with adequate protein intake is directly relevant to preventing the sarcopenia this category's own research already flags as an independent MASLD risk.",
+    citations: [
+      { source: 'Resistance training for metabolic dysfunction-associated steatotic liver disease: a systematic review and meta-analysis, PMC12907158', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12907158/' },
+      { source: 'Metabolic dysfunction-associated steatotic liver disease: A story of muscle and mass, PMID 40495947', url: 'https://pubmed.ncbi.nlm.nih.gov/40495947/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-exercise-independent-weight-loss', 'masld-sarcopenic-obesity'],
+  },
 ];

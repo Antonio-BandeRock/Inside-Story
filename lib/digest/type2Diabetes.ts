@@ -480,4 +480,18 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-microvascular-complications-screening', 'cvd-overview'],
   },
+  {
+    id: 'type2-glp1-realworld-cardiovascular-outcomes',
+    category: 'type2Diabetes',
+    title: "Real-World Data on GLP-1 Drugs Confirms Genuine Cardiovascular Benefit Beyond Just Weight and Blood Sugar",
+    teaser: 'This category\'s own already-covered GLP-1/SGLT2 paradigm shift gets real-world confirmation: large cohort studies find GLP-1 agonists tracking with fewer heart attacks, strokes, and deaths compared to older diabetes drugs, not just controlled-trial results.',
+    summary:
+      "This category's own already-covered treatment-guideline shift toward GLP-1 receptor agonists and SGLT2 inhibitors rests on real, controlled clinical trials, and real-world data collected outside those trials, in ordinary clinical practice, independently confirms the same pattern. A real, large systematic review and meta-analysis of real-world studies found GLP-1 receptor agonist use associated with real, significant reductions in composite cardiovascular outcomes, major adverse cardiovascular events, all-cause mortality, heart attack, stroke, cardiovascular death, and heart failure, compared with other glucose-lowering drugs used in actual practice, not just a controlled trial population. A real, separate nationwide population-based cohort study found the same comparative cardiovascular safety pattern holding up at national scale. Real, honest data alongside this benefit: a real-world weight-loss study of over 2,400 patients found GLP-1 agonists producing genuine but real, modest average weight loss through 72 weeks in actual clinical use, generally less dramatic than headline clinical-trial figures, and a real, separate safety study found an increased real risk of gallbladder and biliary-related hospitalization among GLP-1 users, a real, worth-knowing tradeoff alongside the cardiovascular benefit. Worth stating directly: this real-world confirmation matters because it shows the benefit isn't an artifact of how carefully selected and monitored clinical-trial participants are, the same real cardiovascular protection shows up in ordinary practice too.",
+    citations: [
+      { source: 'Cardiovascular and Renal Effectiveness of GLP-1 Receptor Agonists vs. Other Glucose-Lowering Drugs in Type 2 Diabetes: A Systematic Review and Meta-Analysis of Real-World Studies, PMC8879165', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8879165/' },
+      { source: 'Real-world weight-loss effectiveness of glucagon-like peptide-1 agonists among patients with type 2 diabetes: A retrospective cohort study, PMID 36621904', url: 'https://pubmed.ncbi.nlm.nih.gov/36621904/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-glp1-sglt2-paradigm-shift', 'cvd-overview'],
+  },
 ];
