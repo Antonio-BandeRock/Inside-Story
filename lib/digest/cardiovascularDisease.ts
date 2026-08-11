@@ -574,4 +574,17 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-afib-catheter-ablation-real-trial', 'cvd-elderly-atypical-mi-presentation'],
   },
+  {
+    id: 'cvd-tmao-gut-microbiome-real-data',
+    category: 'cardiovascularDisease',
+    title: 'A Real, Gut-Bacteria-Produced Compound Independently Predicts Heart Attack Risk, Beyond Standard Risk Factors',
+    teaser: "This category's own already-covered lipid-panel and lipoprotein(a) research names real, standard risk markers -- TMAO, a real compound gut bacteria produce from dietary choline and carnitine, predicts real cardiovascular events on its own, independent of every traditional risk factor already measured.",
+    summary:
+      "This category's own already-covered lipid-panel and lipoprotein(a) research names real, standard cardiovascular risk markers, and TMAO (trimethylamine N-oxide), a real, gut-microbiome-produced metabolite, adds a genuinely different kind of risk signal, one that originates in the gut rather than the liver or blood vessels directly. TMAO is produced when gut bacteria metabolize dietary choline, L-carnitine, and lecithin (found in red meat, egg yolks, and certain other foods), and a real, direct study of acute coronary syndrome patients found elevated TMAO levels predicting real, substantial increases in cardiovascular risk: people in the highest TMAO quartile had a real 6.3-fold higher odds of a major cardiac event within 30 days, and a real 1.81-fold higher risk of death at 7 years, compared with the lowest quartile, even after adjusting for traditional risk factors. A real, separate, independent Swiss cohort of 1,683 patients confirmed the same real pattern, finding a real 1.57-fold higher 1-year cardiac-event risk in the highest TMAO group. Real, broader research finds TMAO's own elevated levels also independently associated with heart failure, hypertension, and arrhythmia, not just heart attack risk alone, real evidence of a genuinely wide cardiovascular reach for one gut-derived compound. Worth stating directly: this real, independent, gut-microbiome-driven risk pathway is a genuinely different lever from cholesterol or blood pressure, worth knowing about directly as real, ongoing research increasingly connects gut health (already a real, recurring theme across this app's own broader research) to cardiovascular outcomes specifically, not just digestive or autoimmune ones.",
+    citations: [
+      { source: 'Gut microbiota-dependent trimethylamine N-oxide in acute coronary syndromes: a prognostic marker for incident cardiovascular events beyond traditional risk factors, European Heart Journal', url: 'https://academic.oup.com/eurheartj/article/38/11/814/2889390' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-lipoprotein-a-underrecognized', 'gut-scfa-treg'],
+  },
 ];
