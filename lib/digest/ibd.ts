@@ -496,4 +496,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibd-corticosteroid-hypertension-real-data', 'ibd-anti-tnf-loss-of-response'],
   },
+  {
+    id: 'ibd-ustekinumab-vedolizumab-real-comparative',
+    category: 'ibd',
+    title: 'Two Real, Newer Biologics for IBD Perform Comparably Overall -- With One Real, Specific Exception in Ulcerative Colitis',
+    teaser: "This category's own already-covered anti-TNF and combination-therapy research covers one drug class -- real, direct comparative studies of two newer biologics, ustekinumab and vedolizumab, find them broadly comparable, except in one specific real, quantified case.",
+    summary:
+      "This category's own already-covered anti-TNF and SONIC combination-therapy research names one real biologic class, and ustekinumab and vedolizumab (two newer, differently-targeted biologics) have their own, real, direct head-to-head comparative data worth covering separately. A real, multicenter GETAID cohort study directly comparing the two in ulcerative colitis patients who had already failed anti-TNF therapy (already covered elsewhere in this category as a real, common scenario) found no significant difference between them after adjusting for other real, confounding factors. A real, separate study in the elderly IBD population found both comparably effective and safe, real, useful data for a population often excluded from the original approval trials. The real, worth-knowing exception: a real study in pediatric and young-adult patients found vedolizumab producing significantly higher 1-year steroid-free remission specifically in ulcerative colitis and IBD-unclassified patients (61 percent versus 32 percent for ustekinumab), while the same study found the two performing comparably in Crohn's disease patients (63 versus 68 percent at 6 months), real, direct evidence the right choice can depend on which specific IBD subtype is being treated, not just biologic availability or cost. Worth stating directly: this is real, useful, evidence-backed nuance worth discussing directly with a gastroenterologist when choosing between the two, rather than assuming they're interchangeable across every real IBD presentation.",
+    citations: [
+      { source: 'Comparative real-world effectiveness of vedolizumab and ustekinumab for patients with ulcerative colitis: a GETAID multicentre cohort study, PMID 35819361', url: 'https://pubmed.ncbi.nlm.nih.gov/35819361/' },
+      { source: 'Real-world efficacy of ustekinumab and vedolizumab in pediatric and young adult patients with inflammatory bowel disease, PMID 40836379', url: 'https://pubmed.ncbi.nlm.nih.gov/40836379/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibd-sonic-combination-therapy', 'ibd-anti-tnf-loss-of-response'],
+  },
 ];

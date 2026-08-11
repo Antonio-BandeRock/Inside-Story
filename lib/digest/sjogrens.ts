@@ -496,4 +496,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['sjogrens-dental-caries-risk', 'sjogrens-oral-candidiasis-risk'],
   },
+  {
+    id: 'sjogrens-parotid-swelling-lymphoma-predictor',
+    category: 'sjogrens',
+    title: 'Persistent Parotid (Cheek/Jaw) Gland Swelling Is a Real, Specific, Worth-Reporting Lymphoma Warning Sign',
+    teaser: "This category's own already-covered lymphoma-risk entry names the real, elevated risk overall -- real research finds one specific, physically noticeable symptom, persistent swelling of the parotid gland, a major direct predictor worth tracking.",
+    summary:
+      "This category's own already-covered lymphoma-risk entry names Sjögren's real, elevated risk of a specific blood cancer, and real research identifies one specific, physically noticeable symptom as a major direct predictor: persistent parotid gland swelling (swelling of the salivary gland located near the jaw and ear). Real research finds lymphoma in Sjögren's most often localizes specifically in the parotid gland, with MALT lymphoma (a real, usually slow-growing type, consistent with this category's own already-covered reassurance about the typical real disease course) the most frequent histological type. A real, direct study found that precise, systematic clinical recording of parotid swelling (rather than a vague general impression) measurably improved lymphoma prediction in primary Sjögren's syndrome, real evidence this is a worth-tracking, quantifiable clinical sign, not just a subjective symptom. Real research also identifies additional, real lab-based risk markers worth knowing alongside it: mixed cryoglobulinemia with vasculitis (already covered elsewhere in this category), rheumatoid factor positivity, and low complement C4 levels, together forming a real, composite risk picture rather than any single marker alone. A real, growing role for salivary-gland ultrasound in monitoring adds a genuine, non-invasive tool to this picture too. Worth stating directly: persistent, new, or worsening parotid swelling in Sjögren's is real, worth reporting to a rheumatologist directly and promptly, not assumed to be an ordinary, harmless fluctuation of an already-affected gland.",
+    citations: [
+      { source: "Predicting lymphoma in Sjögren's syndrome and the pathogenetic role of parotid microenvironment through precise parotid swelling recording, PMID 36063040", url: 'https://pubmed.ncbi.nlm.nih.gov/36063040/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-lymphoma-risk', 'sjogrens-cutaneous-vasculitis-purpura'],
+  },
 ];

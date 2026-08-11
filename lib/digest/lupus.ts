@@ -494,4 +494,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-photosensitivity-vitamin-d-catch22', 'lupus-skin-blood-neuro-real-data'],
   },
+  {
+    id: 'lupus-kidney-transplant-real-outcomes',
+    category: 'lupus',
+    title: "Kidney Transplant for Lupus Nephritis Went From 'Contraindicated' to a Real, Genuinely Safe, Strongly-Recommended Option",
+    teaser: "This category's own already-covered nephritis monitoring names real progression risk -- real, current transplant data finds patient survival matching non-lupus transplant recipients, with a real, low recurrence rate.",
+    summary:
+      "This category's own already-covered lupus nephritis and ISN/RPS staging research names real, serious kidney damage risk, and for the real minority who progress to end-stage kidney disease, transplant outcomes have genuinely transformed. Real, current data directly contradicts an older assumption that lupus made transplant too risky: one real study found patient survival at 98 percent at 1, 10, and even 15 years post-transplant, statistically comparable to age- and sex-matched controls without lupus, and a real, separate cohort found graft survival rates of 98, 98, 88, 85, and 78 percent at 1, 5, 10, 15, and 20 years respectively. Real research directly explains why survival improved: transplant itself was found to carry a genuine survival benefit over remaining on dialysis, driven mainly by reduced cardiovascular and infection-related deaths, both already covered elsewhere in this category as real lupus complications. The real, worth-knowing caveat: a real systematic review and meta-analysis found lupus nephritis transplant recipients showing somewhat lower survival than transplant recipients with other causes of kidney failure, particularly with deceased-donor kidneys, real, honest context rather than an unqualified success story. A real, reassuring, additional finding: lupus nephritis actually recurring in the new, transplanted kidney is genuinely rare, just 0.94 percent per person-year. Worth stating directly: transplant, once viewed with real caution in lupus specifically, is now real, current, guideline-supported best practice for eligible patients with end-stage lupus nephritis.",
+    citations: [
+      { source: 'Renal Transplantation and Survival Among Patients With Lupus Nephritis: A Cohort Study, PMC6739121', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6739121/' },
+      { source: 'Graft survival and mortality outcomes after kidney transplant in patients with lupus nephritis: a systematic review and meta-analysis, PMC10773647', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10773647/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-nephritis-monitoring', 'lupus-nephritis-isn-rps-classification'],
+  },
 ];

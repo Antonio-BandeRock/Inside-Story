@@ -498,4 +498,18 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ms-bladder-bowel-cognitive-real-data', 'ms-disease-course-types'],
   },
+  {
+    id: 'ms-ketogenic-diet-real-trial-honest',
+    category: 'multipleSclerosis',
+    title: 'A Real Ketogenic-Diet Trial for MS Found Real Symptom Benefit, but No Change in a Direct Nerve-Damage Marker',
+    teaser: "This category's own already-covered Swank/WAVES diet research names low saturated fat as the best-evidenced approach -- real, newer ketogenic-diet trials find genuine symptom improvement, but a real, direct biomarker study found no measurable change in ongoing nerve damage.",
+    summary:
+      "This category's own already-covered Swank and WAVES trial research already establishes low-saturated-fat, whole-food eating as MS's own best-evidenced dietary approach, and real, more recent research into the genuinely different ketogenic diet finds a real, honest, two-sided picture worth stating directly. A real systematic review pooling 6 studies (2017-2024) found ketogenic interventions reducing pro-inflammatory markers and improving real clinical outcomes, including fatigue and quality of life, with some real, objective neurological improvement in disability and walking ability. A real, separate meta-analysis found significant, measurable changes in real inflammatory markers at 3 and 6 months (leptin decreasing, adiponectin increasing). The real, honest complication: a real, dedicated clinical trial (39 participants with relapsing MS, 6 months on a ketogenic diet) measured serum neurofilament light chain, a real, direct blood marker of ongoing nerve damage, already relevant to this category's own disease-monitoring research, and found no significant change, real evidence the diet didn't measurably slow the underlying neurodegenerative process itself, even while symptoms and inflammatory markers improved. Worth stating plainly: this is a real, genuine gap between 'feels better, inflammation markers look better' and 'the underlying nerve damage marker changed,' the same kind of honest distinction this whole Digest holds every dietary intervention to, alongside a real, practical caution that ketogenic diets carry a genuine long-term nutrient-deficiency risk worth managing carefully if attempted.",
+    citations: [
+      { source: 'Serum neurofilament light chain in relapsing multiple sclerosis patients on a ketogenic diet, PMID 36996634', url: 'https://pubmed.ncbi.nlm.nih.gov/36996634/' },
+      { source: 'Safety and Efficacy of Ketogenic Diet in the Management of Multiple Sclerosis: A Systematic Review, PMC12426965', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12426965/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ms-swank-diet-history', 'ms-waves-trial'],
+  },
 ];
