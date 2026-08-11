@@ -543,4 +543,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-islet-pancreas-transplantation', 'horizon-type1'],
   },
+  {
+    id: 'type1-periodontal-disease-bidirectional-real-data',
+    category: 'type1Diabetes',
+    title: 'Gum Disease and Blood Sugar Control Genuinely Feed Each Other in a Real, Two-Way Loop',
+    teaser: "This category's own already-covered complication-screening research already tracks eyes, kidneys, and nerves -- real research finds periodontal (gum) disease belongs in that same real, systemic conversation, genuinely worsening blood sugar control while T1D itself accelerates gum damage.",
+    summary:
+      "This category's own already-covered long-term-complications research already establishes T1D's real, wide systemic reach, and periodontal (gum) disease is a real, genuinely bidirectional complication worth its own direct coverage, not a separate, unrelated dental concern. Real research confirms this runs both directions: individuals with T1D show a real, heightened susceptibility to developing periodontitis in the first place, and T1D itself accelerates both the onset and progression of gum disease once it starts, via the same real, chronic inflammatory mechanisms already covered elsewhere in this app's own research. The real, reverse direction matters just as much: periodontal inflammation itself measurably worsens glycemic control, meaning untreated gum disease can make blood sugar management genuinely harder, not just a separate, parallel problem. A real, direct study (the PARODIA project) specifically linked greater glucose VARIABILITY, not just average blood sugar level, to periodontal disease severity in T1D patients, a real, useful, specific detail given this category's own already-covered emphasis on Time in Range over averaged HbA1c alone. Real research also finds pubertal stage and glycemic control together shaping periodontal-disease risk in adolescents with T1D specifically. Worth stating directly: this real, two-way relationship is exactly why regular dental care belongs alongside this category's own already-covered eye, kidney, and nerve complication-screening schedule, not treated as a separate, lower-priority concern.",
+    citations: [
+      { source: 'Investigating the Interplay: Periodontal Disease and Type 1 Diabetes Mellitus, PMC11242877', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11242877/' },
+      { source: 'Glucose variability and periodontal disease in type 1 diabetes: the PARODIA project, PMC8413171', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8413171/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-long-term-complications-real-data', 'type1-hba1c-time-in-range'],
+  },
 ];

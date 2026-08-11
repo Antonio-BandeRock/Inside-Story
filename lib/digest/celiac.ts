@@ -550,4 +550,18 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-diagnostic-panel', 'celiac-marsh-staging'],
   },
+  {
+    id: 'celiac-male-fertility-honest-null',
+    category: 'celiac',
+    title: "A Widely Repeated 'Celiac Causes Male Infertility' Claim -- and a Real, Large Study Found Genuinely No Overall Fertility Risk",
+    teaser: "This category's own already-covered pregnancy/fertility research focuses on women -- for men specifically, real, smaller studies found abnormal sperm parameters, but a real, large, 7,121-man Swedish cohort found no meaningful overall fertility risk at all.",
+    summary:
+      "This category's own already-covered pregnancy and fertility research names real, direct risks in women (miscarriage risk that reverses on a gluten-free diet), and male fertility deserves its own honest, direct coverage precisely because the real evidence here is genuinely mixed rather than settled. Real, smaller studies do find measurable sperm abnormalities in men with untreated celiac disease, including significantly impaired sperm chromatin maturation (persistent histones and protamine deficiency, both real markers of sperm-DNA packaging quality), plausibly linked to real, already-covered nutrient deficiencies this condition can cause, particularly selenium and zinc, both directly involved in sperm development. But the real, most decisive evidence comes from a much larger, real, nationwide Swedish population-based cohort of 7,121 men with biopsy-confirmed celiac disease (villous atrophy), which found an overall fertility hazard ratio of 1.02, essentially no meaningful difference from men without celiac disease. Real, separate research directly titled the underlying question 'fact or fiction' found the broader literature genuinely conflicting: some smaller studies report higher infertility rates in celiac patients, others find no such association at all. Worth stating directly, honestly, rather than picking whichever finding sounds more dramatic: the best, largest, real population-level evidence currently available does not support a real, meaningful male-fertility risk from celiac disease itself, even though real, measurable sperm-parameter changes can occur, a real, useful distinction between a detectable biological signal and an actual, population-level fertility outcome.",
+    citations: [
+      { source: 'Celiac disease is not a risk factor for infertility in men, ScienceDirect', url: 'https://www.sciencedirect.com/science/article/pii/S001502821100166X' },
+      { source: 'Fertility in Celiac Disease: The Impact of Gluten on Male and Female Reproductive Health, PMC12073710', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12073710/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['celiac-pregnancy-fertility-real-data', 'celiac-gf-diet-nutritional-pitfalls'],
+  },
 ];
