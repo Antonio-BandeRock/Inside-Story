@@ -505,4 +505,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-cardiac-rehabilitation-underused', 'mentalhealth-overview'],
   },
+  {
+    id: 'cvd-pad-supervised-exercise-real-data',
+    category: 'cardiovascularDisease',
+    title: "Supervised Exercise Genuinely Outperforms a Home Walking Program for Peripheral Artery Disease",
+    teaser: "This category's own already-covered kidney-brain-PAD entry names PAD as a real, systemic manifestation of atherosclerosis -- real, pooled trial data finds a structured, supervised walking program adding roughly 180 meters to maximum walking distance, more than unsupervised walking alone.",
+    summary:
+      "This category's own already-covered vascular research already names peripheral artery disease (PAD) as a real, systemic form of the same atherosclerotic process behind heart attack and stroke, and real, pooled trial data gives a specific, evidence-backed treatment its own direct weight. A real meta-analysis of 25 studies (1,054 patients) with intermittent claudication (the classic PAD symptom, leg pain during walking that resolves with rest) found supervised treadmill exercise programs increased maximum walking distance by a real average of 180 meters and pain-free walking distance by 125 meters. The real, worth-knowing distinction is between supervised and unsupervised exercise specifically: a real, larger systematic review and meta-analysis (27 studies, 2,074 patients) found supervised programs meaningfully outperforming a simple 'go walk more at home' recommendation, real evidence that the structure itself, not just the activity, drives much of the benefit. A real, separate randomized trial found supervised exercise measurably improving cardiorespiratory fitness and reducing perioperative risk, directly relevant for anyone facing the vascular procedures already covered elsewhere in this category. Worth stating directly: supervised exercise therapy for PAD is real, formally recommended by the American Heart Association, and, in the US, a real, covered Medicare benefit, worth specifically requesting a referral for rather than assuming a general 'walk more' suggestion covers the same ground.",
+    citations: [
+      { source: 'Implementation of Supervised Exercise Therapy for Patients With Symptomatic Peripheral Artery Disease: A Science Advisory From the American Heart Association, PMID 31446770', url: 'https://pubmed.ncbi.nlm.nih.gov/31446770/' },
+      { source: 'Endovascular Revascularization and Supervised Exercise for Peripheral Artery Disease and Intermittent Claudication: A Randomized Clinical Trial, JAMA', url: 'https://jamanetwork.com/journals/jama/fullarticle/2468892' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-kidney-brain-pad-real-data', 'cvd-cardiac-rehabilitation-underused'],
+  },
 ];

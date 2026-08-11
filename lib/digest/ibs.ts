@@ -466,4 +466,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-low-fodmap-diet', 'ibs-biopsychosocial-model'],
   },
+  {
+    id: 'ibs-bloating-distension-real-mechanism',
+    category: 'ibs',
+    title: 'Bloating and Visible Distension Are Genuinely Different Things, and Real Research Finds Distinct Mechanisms Behind Each',
+    teaser: "Real research finds visible abdominal distension, sometimes expanding by as much as 12 cm, occurs in only about half of people who report the subjective sensation of bloating -- two real, only partly overlapping phenomena, not one symptom with two names.",
+    summary:
+      "This category's own already-covered visceral-hypersensitivity mechanism explains much of IBS's own pain and discomfort, and real research finds bloating specifically involves its own, more complicated real picture. Real objective measurement (abdominal inductance plethysmography, a real device tracking actual abdominal-wall movement) confirms distension, a genuine, measurable physical expansion of the abdomen sometimes reaching 12 cm, is a real, distinct phenomenon from bloating, the subjective sensation of fullness or pressure. Real research finds the two only correlate in roughly half of patients who report bloating, and correlate most consistently in IBS with constipation specifically, genuine evidence that 'bloating' as commonly described covers more than one real underlying process. Real, identified contributing mechanisms include impaired gas handling and clearance, visceral hypersensitivity (already covered elsewhere in this category), altered gut bacteria and small intestinal bacterial overgrowth (already covered elsewhere too), and abdomino-phrenic dyssynergia, a real, specific pattern where the diaphragm and abdominal wall muscles move in an uncoordinated way during digestion, physically pushing the belly outward. This last mechanism opened a real, genuinely different treatment path: a real, randomized, placebo-controlled trial found biofeedback specifically targeting and retraining that abdominal-wall movement pattern produced a real, significant reduction in distension, a mechanical fix for a mechanical problem, distinct from dietary or medication-based approaches already covered elsewhere in this category.",
+    citations: [
+      { source: 'Thoracoabdominal Wall Motion–Guided Biofeedback Treatment of Abdominal Distention: A Randomized Placebo-Controlled Trial, Gastroenterology', url: 'https://www.gastrojournal.org/article/S0016-5085(24)00285-3/fulltext' },
+      { source: 'Abdominal Bloating: Pathophysiology and Treatment, PMC3816178', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3816178/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-visceral-hypersensitivity-mechanism', 'ibs-sibo-real-connection-caveat'],
+  },
 ];

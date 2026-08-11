@@ -118,6 +118,7 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
       { source: 'The Dietary and Non-Dietary Management of Osteoporosis in Adult-Onset Celiac Disease: Current Status and Practical Guidance', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9654202/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['celiac-refractory-type1-vs-type2', 'celiac-villi-healing-timeline'],
   },
   {
     id: 'celiac-bone-density',
@@ -505,6 +506,6 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
       { source: 'Presentation and Long-Term Follow-up of Refractory Celiac Disease: Comparison of Type I With Type II, PMID 18996383', url: 'https://pubmed.ncbi.nlm.nih.gov/18996383/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['celiac-villi-healing-timeline', 'celiac-persistent-symptoms-ibs-overlap'],
+    relatedIds: ['celiac-villi-healing-timeline', 'celiac-persistent-symptoms-ibs-overlap', 'celiac-refractory-celiac'],
   },
 ];

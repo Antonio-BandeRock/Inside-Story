@@ -487,4 +487,18 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-mineral-bone-cardiovascular-real-data', 'ckd-g-a-staging-heat-map'],
   },
+  {
+    id: 'ckd-iv-vs-oral-iron-real-trials',
+    category: 'chronicKidneyDisease',
+    title: 'For CKD-Related Anemia, IV Iron Genuinely Outperforms Oral Iron in Real, Controlled Trials',
+    teaser: "This category's own already-covered anemia entry names iron deficiency as a real, common driver -- real head-to-head trials find intravenous iron correcting it faster and more reliably than oral iron pills in non-dialysis CKD.",
+    summary:
+      "This category's own already-covered anemia and erythropoietin research names iron deficiency as a real, common contributor, and real, controlled trials directly comparing how to correct it find a genuine, consistent gap between two real delivery methods. The FIND-CKD trial, a real 56-week, 626-patient randomized study, compared intravenous ferric carboxymaltose against oral iron in non-dialysis CKD patients with iron-deficiency anemia and found the IV group reached higher hemoglobin levels faster and required fewer additional treatments, real evidence of a genuine efficacy gap, not just a convenience difference. A real, separate 351-patient trial comparing iron isomaltoside against oral iron sulfate found the IV formulation not just non-inferior but genuinely superior in sustained hemoglobin increase from week 3 through the end of the 8-week study. The real, likely mechanism connects directly to this category's own already-covered gut research: CKD's own inflammatory state can impair how well the gut actually absorbs oral iron, meaning a pill that works fine for iron deficiency in a healthy gut may simply not be absorbed as reliably once real kidney-disease-related inflammation is present. Worth stating honestly alongside this real advantage: oral iron remains a reasonable, real first option for milder deficiency given its lower cost and no infusion visit required, but real trial evidence supports asking directly about IV iron when oral iron isn't correcting anemia as expected, rather than assuming a higher oral dose alone will eventually work.",
+    citations: [
+      { source: 'FIND-CKD: a randomized trial of intravenous ferric carboxymaltose versus oral iron in patients with chronic kidney disease and iron deficiency anaemia, PMID 24891437', url: 'https://pubmed.ncbi.nlm.nih.gov/24891437/' },
+      { source: 'A randomized trial of iron isomaltoside 1000 versus oral iron in non-dialysis-dependent chronic kidney disease patients with anaemia, PMC4805129', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4805129/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-anemia-erythropoietin', 'ckd-gut-derived-uremic-toxins'],
+  },
 ];
