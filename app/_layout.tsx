@@ -72,10 +72,58 @@ export default function RootLayout() {
   // app rather than stranding someone on this screen forever, matching the
   // same "log it, don't block on it" pattern initializeDatabase's own
   // effect above already uses.
+  //
+  // 2026-08-11, a real, reported gap in that "fails open" design: it only
+  // ever covered a REJECTED import (.catch already handles that) -- not a
+  // genuinely HUNG one that never settles at all. Reported exactly that
+  // way: DatabaseSetupScreen's own progress estimate climbed to its 95%
+  // cap and then sat there indefinitely, the app never opening. The
+  // reference database is a real, large (~130MB+) one-time SQLite asset
+  // copy -- expo-sqlite's importDatabaseFromAssetAsync has no documented
+  // timeout of its own, and if the native call genuinely never calls back
+  // (not just slow, but stuck), nothing above this ever fires, and
+  // referenceImportResolved never becomes true.
+  //
+  // Fixed with a bounded startup-only safety net, deliberately NOT placed
+  // inside getReferenceDatabase() itself: that function's own contract
+  // stays a truthful reflection of the real import for every other real
+  // caller in the app (a screen mid-session correctly SHOULD keep waiting
+  // for real data, however long it takes, not give up early). This timer
+  // only decides how long the STARTUP GATE specifically is willing to wait
+  // before letting the person into the app anyway -- it does not cancel or
+  // otherwise affect the real underlying import, which keeps running in
+  // the background and, if it does eventually succeed, still correctly
+  // becomes the memoized result every other real caller uses from that
+  // point on.
   useEffect(() => {
+    let settled = false;
+    const markResolved = () => {
+      if (!settled) {
+        settled = true;
+        setReferenceImportResolved(true);
+      }
+    };
+
     getReferenceDatabase()
       .catch((error) => console.error('getReferenceDatabase failed', error))
-      .finally(() => setReferenceImportResolved(true));
+      .finally(markResolved);
+
+    // Generous on purpose -- a real ~130MB one-time copy can legitimately
+    // take a while on a slow device, well past the loading screen's own
+    // ~30-60 second estimate. This is a last resort, not a normal path.
+    const REFERENCE_DB_STARTUP_TIMEOUT_MS = 120_000;
+    const timeoutId = setTimeout(() => {
+      if (!settled) {
+        console.error(
+          'getReferenceDatabase: startup gate timed out after ' +
+            REFERENCE_DB_STARTUP_TIMEOUT_MS +
+            'ms waiting for the reference-database import; letting the app open anyway.',
+        );
+        markResolved();
+      }
+    }, REFERENCE_DB_STARTUP_TIMEOUT_MS);
+
+    return () => clearTimeout(timeoutId);
   }, []);
 
   useEffect(() => {
