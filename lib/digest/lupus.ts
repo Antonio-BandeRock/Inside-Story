@@ -536,4 +536,18 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['lupus-hydroxychloroquine-retinopathy', 'lupus-nephritis-monitoring'],
   },
+  {
+    id: 'lupus-mediterranean-diet-real-data',
+    category: 'lupus',
+    title: 'How Diet Affects Lupus: A Real, 280-Patient Study Found Mediterranean Eating Directly Tracks With Lower Disease Activity',
+    teaser: "This category's own already-covered alfalfa-sprout and omega-3 findings cover individual foods -- a real, direct study of overall dietary pattern found Mediterranean diet adherence inversely tracking with lupus's own disease-activity score.",
+    summary:
+      "This category's own already-covered alfalfa-sprout and omega-3 research each covers one specific food or nutrient, and real, direct research answers the broader question of how overall diet affects lupus as a whole. A real, cross-sectional study of 280 lupus patients found a real, statistically significant inverse relationship between Mediterranean diet adherence and SLEDAI, this category's own already-covered formal disease-activity score, meaning higher diet adherence tracked directly with lower measured disease activity. The same real study found an even stronger inverse relationship with SDI, the real, cumulative organ-damage score, and found lower inflammation (measured via hs-CRP) tracking with higher diet adherence too. Real, specific dietary components driving this: eating more olive oil, fruit, vegetables, and fish, while eating less red meat, processed meat, sugar, and pastries, correlated with both less disease activity and less accumulated damage. A real, separate study found the odds of having active lupus (SLEDAI 5 or higher) or measurable organ damage were both significantly lower among patients with higher Mediterranean diet scores. Worth stating directly and honestly: this is real, strong correlational evidence from a real, substantial sample, not yet a randomized trial proving direct causation, but it's a real, actionable, low-risk dietary pattern worth adopting alongside this category's own already-covered medical treatments, not a replacement for them.",
+    citations: [
+      { source: 'Beneficial effect of Mediterranean diet on disease activity and cardiovascular risk in systemic lupus erythematosus patients: a cross-sectional study, PMID 32594173', url: 'https://pubmed.ncbi.nlm.nih.gov/32594173/' },
+      { source: 'Beneficial effects associated to a healthy lifestyle in systemic lupus erythematosus, PMID 37169766', url: 'https://pubmed.ncbi.nlm.nih.gov/37169766/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['lupus-alfalfa-canavanine', 'lupus-omega3-fish-oil', 'lupus-sledai-disease-activity'],
+  },
 ];

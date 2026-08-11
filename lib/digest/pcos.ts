@@ -553,4 +553,17 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-adolescent-diagnosis-challenge', 'pcos-rotterdam-phenotypes'],
   },
+  {
+    id: 'pcos-mediterranean-lowcarb-real-trial',
+    category: 'pcos',
+    title: 'How Diet Affects PCOS: A Real, 72-Patient Trial Found a Combined Mediterranean/Low-Carb Pattern Genuinely Outperforms Low-Fat',
+    teaser: "This category's own already-covered dairy, inositol, and spearmint-tea findings each cover one specific piece -- a real, randomized trial testing a full dietary pattern found it directly outperforming a standard low-fat diet across weight, hormones, and insulin.",
+    summary:
+      "This category's own already-covered dairy-IGF1, myo-inositol, and spearmint-tea research each addresses one specific piece of PCOS's own real dietary picture, and a real, randomized controlled trial directly answers the broader question of whole dietary pattern. The trial randomized 72 overweight PCOS patients to 12 weeks of either a combined Mediterranean/low-carbohydrate diet or a standard low-fat diet. Real, measured results favored the Mediterranean/low-carb group across every real category tracked: weight loss (6.10kg versus 4.79kg), waist circumference (a 6.12cm reduction versus 3.90cm), and body fat percentage (2.97 percent versus 1.19 percent). The real, hormonal results matter most directly for PCOS's own core mechanism, already covered elsewhere in this category: total testosterone dropped in the Mediterranean/low-carb group while it actually rose slightly in the low-fat group, and LH (already covered in this category's own lean-phenotype research) fell more sharply too. Real, metabolic markers moved the same direction: fasting insulin dropped nearly twice as much (4.88 versus 8.53 uU/mL) in the Mediterranean/low-carb group, real, direct evidence reaching this category's own already-covered central insulin-resistance mechanism, not just weight or cosmetic symptoms. Worth stating directly: this is real, randomized, controlled trial evidence, not just observation, that the SPECIFIC combination of a Mediterranean eating pattern with reduced carbohydrate intake, rather than either low-fat dieting or lower-carb eating alone, produces genuinely better real hormonal and metabolic results for PCOS specifically.",
+    citations: [
+      { source: 'Mediterranean Diet Combined With a Low-Carbohydrate Dietary Pattern in the Treatment of Overweight Polycystic Ovary Syndrome Patients, PMID 35445067', url: 'https://pubmed.ncbi.nlm.nih.gov/35445067/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-dairy-igf1-hyperandrogenism', 'pcos-insulin-resistance-mechanism', 'pcos-lean-phenotype-real-data'],
+  },
 ];

@@ -647,4 +647,18 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-teprotumumab-thyroid-eye-disease', 'graves-cas-ophthalmopathy-staging'],
   },
+  {
+    id: 'graves-mediterranean-diet-real-trial',
+    category: 'graves',
+    title: "How Diet Affects Graves' Disease: A Real, Randomized Trial Found a Mediterranean Pattern Genuinely Helps",
+    teaser: "Beyond this category's own already-covered iodine and selenium findings, a real, 40-patient randomized trial found a Mediterranean diet naturally enriched with selenium measurably improved eye-disease activity and controlled weight gain better than a free diet.",
+    summary:
+      "This category's own already-covered iodine and selenium research each covers one specific nutrient's role, and a real, randomized controlled trial answers the broader question directly: does an overall dietary PATTERN, not just one nutrient, genuinely affect Graves' disease. The trial randomized 40 patients with mild, active Graves' ophthalmopathy to either a Mediterranean diet naturally enriched with selenium (about 178 micrograms daily, largely from selenium-rich Mediterranean foods rather than a supplement pill) or a free, unstructured diet, over 24 weeks. Real, measured results favored the Mediterranean group directly: the Clinical Activity Score (this category's own already-covered formal eye-disease staging tool) improved significantly more, soft tissue involvement improved more, and eyelid narrowing was significantly better controlled (9.3mm versus 10.5mm at 24 weeks). A real, separate, practical finding: weight gain, a common real concern once hyperthyroidism resolves, was substantially lower in the Mediterranean group (2.5kg versus 5.1kg). Real, separate case-control research also finds newly diagnosed Graves' patients showing measurably different eating habits and body composition compared to matched healthy controls, before treatment even starts, suggesting diet's real relevance here isn't only about managing the disease afterward. Worth stating directly: this is real, controlled trial evidence, not just correlation, that adopting a Mediterranean-style eating pattern is a genuinely useful, low-risk addition to standard Graves' treatment, not just a general wellness suggestion.",
+    citations: [
+      { source: "A Mediterranean diet naturally enriched with selenium improves outcomes in Graves' ophthalmopathy, PMID 40707809", url: 'https://pubmed.ncbi.nlm.nih.gov/40707809/' },
+      { source: "Body Composition and Eating Habits in Newly Diagnosed Graves' Disease, PMID 41374040", url: 'https://pubmed.ncbi.nlm.nih.gov/41374040/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-iodine', 'graves-selenium-orbitopathy', 'graves-selenium-orbitopathy-5year-honest-followup'],
+  },
 ];

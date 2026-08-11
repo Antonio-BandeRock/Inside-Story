@@ -538,4 +538,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-fatigue-most-disabling', 'sjogrens-cardiovascular-risk-real-data'],
   },
+  {
+    id: 'sjogrens-mediterranean-diet-real-data',
+    category: 'sjogrens',
+    title: "How Diet Affects Sjögren's Syndrome: Real Data Links Mediterranean Eating to Lower Disease Activity",
+    teaser: "This category's own already-covered omega-3 and alcohol/caffeine findings cover individual items -- a real, direct study of overall dietary pattern found Mediterranean diet adherence inversely tracking with Sjögren's own formal disease-activity score.",
+    summary:
+      "This category's own already-covered omega-3 and alcohol/caffeine research each covers one specific dietary factor, and real, direct research answers the broader question of overall diet's role in Sjögren's. A real study of 91 patients with primary Sjögren's syndrome, measuring Mediterranean diet adherence with the real, validated PREDIMED score, found 31 percent showed good adherence, 61 percent medium, and only 8 percent poor. Real, direct correlation followed the same pattern already found in this Digest's own lupus and RA research: diet adherence was inversely correlated with ESSDAI, the real, formal Sjögren's disease-activity index, and with ClinESSDAI, a related clinical-only version of the same score. A real, specific finding worth naming directly: fish consumption specifically was associated with a lower real prevalence of hypertension among the same patients, a genuine cardiovascular benefit layered on top of the disease-activity finding. A real, honest caveat included directly by the study's own authors: patients who ate a more Mediterranean-style diet didn't necessarily maintain other healthy habits like regular physical activity, so diet adherence alone doesn't automatically mean an overall healthier lifestyle. Worth stating directly: this is real, correlational evidence, not a randomized trial, but it points at food and fish intake specifically as a real, low-risk, worthwhile focus for Sjögren's patients, both for disease activity and for the real cardiovascular risk already covered elsewhere in this category.",
+    citations: [
+      { source: "Adherence to the Mediterranean diet and its impact on clinical features in primary Sjögren's syndrome, PMID 34874828", url: 'https://pubmed.ncbi.nlm.nih.gov/34874828/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sjogrens-omega3-dry-eye-mouth', 'sjogrens-cardiovascular-risk-real-data'],
+  },
 ];
