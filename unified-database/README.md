@@ -15,6 +15,50 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a real, first human-reviewer decisions round-trip through the audit tool — 242 classification overrides, 54 real match-group member removals, 1 group flagged for a real split
+
+The first real decisions export from the "Unified Whole-Foods Database
+— Specimen Review" audit tool, applied via the already-built (but not
+yet exercised on real data) `pipeline/apply-audit-decisions.js`. Its own
+test suite (`apply-audit-decisions.test.js`, 7/7) was re-run first to
+confirm the tool itself was trustworthy before pointing it at the live
+32,707-record database.
+
+**242 real classification decisions** (218 `not_whole`, 24 `whole`) — a
+real, direct human override of whichever automated rule had previously
+decided (or failed to decide) each record, now permanently marked
+`reviewed=1` so no future `reclassify-all.js` run can silently overwrite
+a person's own judgment call. Spot-checked a real sample against the
+live data before AND after applying: real composite baby foods, a real
+Dutch egg-liqueur ("Advocaat"), a real rolled-anchovy-with-capers
+preparation, and a real branded-sounding French Ciqual product name were
+all confirmed `not_whole`; real, plain single-ingredient foods ("Alfalfa
+sprouts," algae jelly, a real bottled pale ale, salted anchovy) were
+confirmed `whole` — including several real judgment calls that go
+narrower than what this file's own automated rules alone would have
+concluded (a bottled, named beer style and a smoked/salted preserved
+fish, both real human calls this pipeline defers to rather than
+second-guesses).
+
+**54 real match-group member removals** — real cross-source auto-match
+mistakes a person caught by eye: "Carrot, cooked" wrongly grouped with
+"Carrot juice," "Chicken, drumstick, with skin, roasted" wrongly grouped
+with the raw variant, and 52 more, each removed from its own specific
+wrong group without touching the group's other, correct members.
+
+**1 real group flagged `needs_split`** (group 4, "Barley, cooked" +
+"Barley, uncooked," `Hordeum vulgare L.`) — persisted on
+`food_match_groups.needs_split` (the apply script's own first real use
+of this column; confirmed it added itself via the standard, additive
+`PRAGMA table_info` + conditional `ALTER TABLE` migration, no data
+loss) so a future review session can find and act on it again, not just
+a one-time report that gets lost after this run.
+
+Re-exported and rebuilt the audit tool afterward — it now shows 32,465
+real records still awaiting review (32,707 total minus the 242 just
+reviewed), confirming the tool's own review queue reflects real,
+current reviewed status, not a stale snapshot.
+
 ## Status: a continued proactive scan — a real, direct investigative question about banana cultivars (no code change, a genuine source-data limitation), then a large batch of real bugs found by following that same investigation's own real data further: 'sugared' never recognized at all, 'compote' never actually implemented despite an existing comment saying it should be, a Canadian-spelling 'yogourt'/'yogurts' plural gap, a 'flavors'/'flavours' plural-noun gap, real missing manufactured-product signals (confection/confectionery, pizza, formulated/simulated, puddings), real missing alcohol names (champagne, tequila, mezcal, maotai) plus the one real cocktail collision that had to be fixed first (Kir), and a third real instance of the "mix leak" bug class already fixed twice before, this time on NATURAL_SWEETENER_KEEP
 
 **The banana question, answered directly, no code change.** Real, direct
