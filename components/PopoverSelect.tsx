@@ -241,6 +241,25 @@ export const PopoverSelect = memo(function PopoverSelect({
             data={visibleOptions}
             keyExtractor={(option, index) => `${option.value}-${index}`}
             getItemLayout={(_, index) => ({ length: ROW_HEIGHT, offset: ROW_HEIGHT * index, index })}
+            // 2026-08-11, a real, reported bug: React Native's FlatList,
+            // when given initialScrollIndex, starts its own FIRST render
+            // batch counting FROM that index, not from the top of the
+            // array -- items before it never render at all unless a real
+            // scroll gesture past them happens, which can't happen on a
+            // short list that already fits its own box (nothing to scroll
+            // TO). Reported exactly this way: pick an item, reopen, every
+            // item above the one just picked has silently stopped
+            // rendering -- confirmed by walking through the repro step by
+            // step (Folate picked -> Vitamin C gone; Minerals picked next
+            // -> everything above Minerals gone too, compounding each
+            // pick). initialNumToRender defaulting to only 10 is what lets
+            // this bite even on this app's own short, curated picker
+            // lists. Forcing every real option to render on the first pass
+            // sidesteps the whole windowing behavior that causes it --
+            // safe and cheap here, since every real option list in this
+            // app is at most a few dozen plain text rows, never a genuinely
+            // large dataset windowing exists to protect.
+            initialNumToRender={visibleOptions.length}
             initialScrollIndex={
               !searchText.trim() && selectedIndex >= 0 && selectedIndex < visibleOptions.length ? selectedIndex : undefined
             }
