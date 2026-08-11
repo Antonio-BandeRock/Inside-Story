@@ -1676,6 +1676,7 @@ export type RankedFood = {
   category: string;
   subcategory: string | null;
   amountPer100g: number;
+  prepMethod: string | null;
 };
 
 // Real, visible foods ranked by how much of one chosen nutrient they carry
@@ -1691,12 +1692,38 @@ export type RankedFood = {
 // itself needs case-insensitive base_name comparison SQL's own GROUP BY
 // can't cleanly express alongside "keep the whole row, not just the max
 // value."
+//
+// 2026-08-11, a real, reported bug: the dedup key (category + base_name)
+// never distinguished prep_method, so it was ALSO silently collapsing a
+// food's own Raw/Boiled/Dried/Stewed rows together, not just genuine
+// cross-source duplicates of the same prep state -- the comment above only
+// ever described the cross-SOURCE case, prep_method was never meant to be
+// swept in too. Drying/dehydrating concentrates almost every nutrient by
+// removing water, so "keep whichever row reports the largest amount"
+// meant a food with a Dried variant would always win over its own Raw one
+// regardless of which a person actually meant -- confirmed directly:
+// black truffle (Germany_BLS) reads 16.54g fiber/100g raw vs. 54.923g
+// dried, and this function was returning the dried figure as if it were
+// the food's own general "black truffle" value. Fixed by making a real
+// Raw (or the untagged 'Standard' sentinel -- see resolveFoodChoice's own
+// comment for what a null prep_method means) row beat ANY other prep
+// state outright, regardless of amount -- the "keep the larger amount"
+// comparison below now only ever runs between two rows in the SAME
+// preference tier (both real Raw/Standard rows from different sources, or
+// -- for a food with no Raw/Standard row at all, e.g. a dried spice with
+// no fresh form on file -- both non-Raw rows), preserving the original,
+// real cross-source-variance reasoning without the unintended prep-method
+// side effect.
+function prefersRawOrStandard(prepMethod: string | null): boolean {
+  return prepMethod === null || prepMethod === 'Raw';
+}
+
 export async function rankFoodsByNutrient(nutrientCode: string, limit = 100): Promise<RankedFood[]> {
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<RankedFood>(
     `
       SELECT f.food_id AS foodId, f.source, f.base_name AS baseName, f.category, f.subcategory,
-             fn.amount_per_100g AS amountPer100g
+             f.prep_method AS prepMethod, fn.amount_per_100g AS amountPer100g
       FROM food_nutrients fn
       JOIN foods f ON f.food_id = fn.food_id AND f.source = fn.source
       WHERE fn.nutrient_code = ? AND f.hidden = 0 AND fn.amount_per_100g > 0
@@ -1708,7 +1735,23 @@ export async function rankFoodsByNutrient(nutrientCode: string, limit = 100): Pr
   for (const row of rows) {
     const key = `${row.category}|${row.baseName.toLowerCase()}`;
     const existing = byFood.get(key);
-    if (!existing || row.amountPer100g > existing.amountPer100g) byFood.set(key, row);
+    if (!existing) {
+      byFood.set(key, row);
+      continue;
+    }
+    const rowPrefers = prefersRawOrStandard(row.prepMethod);
+    const existingPrefers = prefersRawOrStandard(existing.prepMethod);
+    if (rowPrefers && !existingPrefers) {
+      // A genuine Raw/Standard row always wins over a cooked/dried/
+      // concentrated one, regardless of amount.
+      byFood.set(key, row);
+    } else if (rowPrefers === existingPrefers && row.amountPer100g > existing.amountPer100g) {
+      // Both rows are in the same preference tier -- the original,
+      // intended cross-source comparison (or, for a food with no real
+      // Raw/Standard row at all, a comparison among whatever prep states
+      // it does have).
+      byFood.set(key, row);
+    }
   }
 
   return Array.from(byFood.values())

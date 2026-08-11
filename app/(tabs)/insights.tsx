@@ -1379,6 +1379,14 @@ function NutrientRankingView({
           <Text style={styles.rankFoodCategory} numberOfLines={1}>
             {categoryLabel(food.category)}
             {food.subcategory ? ` · ${food.subcategory}` : ''}
+            {/* Only shown for a real, non-default prep state -- 2026-08-11.
+                Most rows are Raw/Standard (the now-preferred tier, see
+                rankFoodsByNutrient's own comment in lib/db.ts) and don't
+                need this spelled out; a food with no Raw form at all (a
+                dried spice, say) still legitimately shows its own
+                highest-measured state, and this makes clear which one,
+                rather than silently reading like a raw/fresh value. */}
+            {food.prepMethod && food.prepMethod !== 'Raw' ? ` · ${food.prepMethod}` : ''}
           </Text>
         </View>
         <Text style={styles.rankAmount}>{formatAmount(food.amountPer100g, selectedNutrient?.unit ?? '')}</Text>
