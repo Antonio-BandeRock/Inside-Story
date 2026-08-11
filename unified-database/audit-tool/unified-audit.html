@@ -318,6 +318,39 @@
     resize: vertical;
   }
   .export-box .row { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+  /* Decisions review panel -- reuses the export-panel/export-box modal
+     shell (same class names, plus this narrower class) so undoing a
+     specific accidental decision doesn't require hunting for it through
+     a paginated, filtered main table (the confidence filter defaults to
+     "low," and "Hide already-decided" is checked by default -- either
+     one alone can make an already-decided row invisible). */
+  .decisions-box { max-width: 640px; max-height: 85vh; }
+  .decisions-box input[type="search"] { flex: none; }
+  .decisions-empty { color: var(--text-muted); font-size: 13px; padding: 20px 4px; text-align: center; }
+  .decisions-group-label {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin: 10px 0 2px;
+  }
+  .decisions-group-label:first-child { margin-top: 0; }
+  .decisions-list { display: flex; flex-direction: column; gap: 6px; overflow-y: auto; padding-right: 2px; }
+  .decision-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 8px 10px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--surface);
+  }
+  .decision-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+  .decision-name { font-family: var(--font-serif); font-size: 13.5px; }
+  .decision-meta { font-size: 11.5px; color: var(--text-muted); }
 </style>
 
 <div class="shell">
@@ -378,6 +411,7 @@
     <div class="rail-section" style="margin-top:auto;">
       <h3>Your decisions</h3>
       <div class="pending-count" id="pendingCount">0 pending</div>
+      <button class="btn btn-export" onclick="openDecisionsReview()">Review / undo a decision</button>
       <button class="btn btn-export" onclick="openExport()">Export decisions</button>
       <button class="btn btn-clear" id="clearBtn" onclick="handleClearClick()">Clear all pending decisions</button>
     </div>
@@ -432,11 +466,31 @@
   </div>
 </div>
 
+<div class="export-panel" id="decisionsPanel">
+  <div class="export-box decisions-box">
+    <div class="row">
+      <h3>Your pending decisions</h3>
+      <button class="btn btn-skip" onclick="closeDecisionsReview()">Close</button>
+    </div>
+    <p class="view-sub" style="margin:0;">Every decision you've made so far, in one place -- nothing here has been exported or applied to the real database yet. Undo any of them directly, no need to find the row again in the filtered table above.</p>
+    <input type="search" id="decisionsReviewSearch" placeholder="Search by name…" oninput="renderDecisionsReviewList()">
+    <div class="decisions-list" id="decisionsReviewList"></div>
+  </div>
+</div>
+
 <script>
 const DATA = /*__DATA__*/;
 
 const sourceNameByCode = {};
 DATA.sources.forEach(function (s) { sourceNameByCode[s.s] = s.n; });
+
+// Lookup maps for the decisions-review panel -- so undoing a specific
+// past decision doesn't require re-deriving which real record/group it
+// belongs to from just its stored numeric key.
+const classifyByIndex = new Map();
+DATA.classify.forEach(function (r) { classifyByIndex.set(r.i, r); });
+const groupByG = new Map();
+DATA.groups.forEach(function (g) { groupByG.set(g.g, g); });
 
 const STORAGE_KEY = 'inside-story-unified-audit-decisions-v1';
 let decisions = { classify: {}, groupConfirm: {}, groupSplit: {}, memberRemove: {} };
@@ -511,15 +565,27 @@ function updatePendingCount() {
   computeStats();
 }
 
+// Every mutating decision function below refreshes the decisions-review
+// panel too, if it's currently open -- so undoing something from inside
+// that panel makes the row disappear immediately, and a fresh decision
+// made from the main table (e.g. a second, correct "not whole food"
+// call right after undoing a mistaken one) shows up there too without
+// needing to close and reopen the panel.
+function refreshDecisionsReviewIfOpen() {
+  if (document.getElementById('decisionsPanel').classList.contains('open')) renderDecisionsReviewList();
+}
+
 function decideClassify(i, verdict) {
   decisions.classify[i] = verdict;
   saveDecisions();
   renderView();
+  refreshDecisionsReviewIfOpen();
 }
 function undoClassify(i) {
   delete decisions.classify[i];
   saveDecisions();
   renderView();
+  refreshDecisionsReviewIfOpen();
 }
 
 function confirmGroup(g) {
@@ -527,28 +593,109 @@ function confirmGroup(g) {
   delete decisions.groupSplit[g];
   saveDecisions();
   renderView();
+  refreshDecisionsReviewIfOpen();
 }
 function flagSplit(g) {
   decisions.groupSplit[g] = true;
   delete decisions.groupConfirm[g];
   saveDecisions();
   renderView();
+  refreshDecisionsReviewIfOpen();
 }
 function undoGroup(g) {
   delete decisions.groupConfirm[g];
   delete decisions.groupSplit[g];
   saveDecisions();
   renderView();
+  refreshDecisionsReviewIfOpen();
 }
 function removeMember(g, i) {
   decisions.memberRemove[memberKey(g, i)] = true;
   saveDecisions();
   renderView();
+  refreshDecisionsReviewIfOpen();
 }
 function undoRemoveMember(g, i) {
   delete decisions.memberRemove[memberKey(g, i)];
   saveDecisions();
   renderView();
+  refreshDecisionsReviewIfOpen();
+}
+
+const CLASSIFY_VERDICT_LABEL = { whole: 'Whole food', not_whole: 'Not whole food', skip: 'Skipped' };
+
+function renderDecisionsReviewList() {
+  const q = document.getElementById('decisionsReviewSearch').value.trim().toLowerCase();
+  const matchesQuery = function (name) { return !q || name.toLowerCase().indexOf(q) !== -1; };
+  const sections = [];
+
+  const classifyRows = Object.keys(decisions.classify).map(function (key) {
+    const i = Number(key);
+    const r = classifyByIndex.get(i);
+    if (!r || !matchesQuery(r.n)) return '';
+    const verdict = decisions.classify[key];
+    return '<div class="decision-row">'
+      + '<div class="decision-info"><span class="decision-name">' + escapeHtml(r.n) + '</span>'
+      + '<span class="decision-meta">' + escapeHtml(sourceNameByCode[r.s] || r.s) + ' — <span class="mono">' + CLASSIFY_VERDICT_LABEL[verdict] + '</span></span></div>'
+      + '<button class="btn btn-skip" style="padding:5px 10px;font-size:12px;" onclick="undoClassify(' + i + ')">Undo</button>'
+      + '</div>';
+  }).filter(Boolean);
+  if (classifyRows.length) sections.push('<div class="decisions-group-label">Whole-food classification (' + classifyRows.length + ')</div>' + classifyRows.join(''));
+
+  const groupConfirmRows = Object.keys(decisions.groupConfirm).map(function (key) {
+    const g = Number(key);
+    const grp = groupByG.get(g);
+    if (!grp || !matchesQuery(grp.n)) return '';
+    return '<div class="decision-row">'
+      + '<div class="decision-info"><span class="decision-name">' + escapeHtml(grp.n) + '</span>'
+      + '<span class="decision-meta">' + grp.m.length + ' record' + (grp.m.length === 1 ? '' : 's') + ' — <span class="mono">Confirmed</span></span></div>'
+      + '<button class="btn btn-skip" style="padding:5px 10px;font-size:12px;" onclick="undoGroup(' + g + ')">Undo</button>'
+      + '</div>';
+  }).filter(Boolean);
+  if (groupConfirmRows.length) sections.push('<div class="decisions-group-label">Confirmed match groups (' + groupConfirmRows.length + ')</div>' + groupConfirmRows.join(''));
+
+  const groupSplitRows = Object.keys(decisions.groupSplit).map(function (key) {
+    const g = Number(key);
+    const grp = groupByG.get(g);
+    if (!grp || !matchesQuery(grp.n)) return '';
+    return '<div class="decision-row">'
+      + '<div class="decision-info"><span class="decision-name">' + escapeHtml(grp.n) + '</span>'
+      + '<span class="decision-meta">' + grp.m.length + ' record' + (grp.m.length === 1 ? '' : 's') + ' — <span class="mono">Flagged for split</span></span></div>'
+      + '<button class="btn btn-skip" style="padding:5px 10px;font-size:12px;" onclick="undoGroup(' + g + ')">Undo</button>'
+      + '</div>';
+  }).filter(Boolean);
+  if (groupSplitRows.length) sections.push('<div class="decisions-group-label">Flagged for split (' + groupSplitRows.length + ')</div>' + groupSplitRows.join(''));
+
+  const memberRemoveRows = Object.keys(decisions.memberRemove).map(function (key) {
+    const parts = key.split(':');
+    const g = Number(parts[0]);
+    const memberIndex = Number(parts[1]);
+    const grp = groupByG.get(g);
+    const member = grp ? grp.m.find(function (m) { return m.i === memberIndex; }) : null;
+    if (!grp || !member || !matchesQuery(member.n)) return '';
+    return '<div class="decision-row">'
+      + '<div class="decision-info"><span class="decision-name">' + escapeHtml(member.n) + '</span>'
+      + '<span class="decision-meta">removed from "' + escapeHtml(grp.n) + '" — <span class="mono">' + escapeHtml(sourceNameByCode[member.s] || member.s) + '</span></span></div>'
+      + '<button class="btn btn-skip" style="padding:5px 10px;font-size:12px;" onclick="undoRemoveMember(' + g + ',' + memberIndex + ')">Undo</button>'
+      + '</div>';
+  }).filter(Boolean);
+  if (memberRemoveRows.length) sections.push('<div class="decisions-group-label">Removed from a match group (' + memberRemoveRows.length + ')</div>' + memberRemoveRows.join(''));
+
+  const list = document.getElementById('decisionsReviewList');
+  if (sections.length === 0) {
+    list.innerHTML = '<div class="decisions-empty">' + (q ? 'No pending decision matches "' + escapeHtml(q) + '."' : 'No pending decisions yet.') + '</div>';
+  } else {
+    list.innerHTML = sections.join('');
+  }
+}
+
+function openDecisionsReview() {
+  document.getElementById('decisionsReviewSearch').value = '';
+  renderDecisionsReviewList();
+  document.getElementById('decisionsPanel').classList.add('open');
+}
+function closeDecisionsReview() {
+  document.getElementById('decisionsPanel').classList.remove('open');
 }
 
 function escapeHtml(s) {
