@@ -106,7 +106,7 @@ export function DatabaseSetupScreen({
         color={colors.primary}
         size={104}
         strokeWidth={9}
-        label={phase === 'loading' || phase === 'catching-up' ? `${Math.round(percent)}%` : 'Finished!'}
+        label={phase === 'loading' ? `${Math.round(percent)}%` : 'Finished!'}
       />
       {/* A real, separate Text below the ring rather than ProgressRing's
           own sublabel slot -- 2026-08-10, direct report: that slot lives
@@ -128,20 +128,13 @@ const PROGRESS_TICK_MS = 200;
 // reported. A real, honest limitation, not fixable by a "better" number:
 // this is a real device-speed-dependent estimate, so it will genuinely
 // finish early on a faster phone (or a faster run) and late on a slower
-// one -- the real catch-up animation above is what actually absorbs that
-// variance gracefully regardless of which real percentage the import
-// happens to finish at, rather than this constant needing to be perfectly
-// tuned per device.
+// one. Since isComplete now jumps straight to 100 with no catch-up
+// animation to absorb that variance, a real import finishing well short of
+// this cap (or well past where the estimate happens to be sitting) will
+// visibly snap -- an accepted, honest tradeoff of removing the animation,
+// not a bug.
 const PROGRESS_STEP_FACTOR = 0.012;
 const PROGRESS_CAP = 95;
-// The real, elapsed-time-driven catch-up from wherever the estimate had
-// reached up to a true 100, triggered only once isComplete is genuinely
-// true -- two real segments, not one flat tween (see the effect above
-// for why): a main climb up to the shared 95% cap, then a deliberately
-// slower final crawl from 95 to a true 100.
-const CATCH_UP_MAIN_DURATION_MS = 900;
-const CATCH_UP_FINAL_DURATION_MS = 700;
-const CATCH_UP_TICK_MS = 30;
 // How long "Finished!" stays on screen before the pop-out starts -- long
 // enough to actually register as a real, distinct state, not just a
 // flash mid-transition.
