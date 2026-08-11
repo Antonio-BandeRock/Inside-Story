@@ -508,4 +508,18 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-villi-healing-timeline', 'celiac-persistent-symptoms-ibs-overlap', 'celiac-refractory-celiac'],
   },
+  {
+    id: 'celiac-gut-dysbiosis-reversal-gfd',
+    category: 'celiac',
+    title: "A Real, Direct Study Confirms a Strict Gluten-Free Diet Genuinely Helps Repair the Gut Microbiome Itself",
+    teaser: "This category's own already-covered villi-healing timeline tracks tissue-level recovery -- real, direct microbiome sequencing finds a strict, sustained gluten-free diet also measurably restoring gut bacterial balance.",
+    summary:
+      "This category's own already-covered villi-healing research tracks how the intestinal LINING heals over time, and real, direct microbiome research finds a parallel, real recovery happening in the gut's own bacterial population too. A real, controlled animal model first demonstrated this directly: gluten-sensitive macaques showed reduced gut microbial diversity while eating gluten, and within just weeks of switching to a gluten-free diet, their microbiome composition began shifting back toward that of a normal, non-sensitive animal, real, controlled evidence of genuine reversibility. A real, direct human study, sequencing the gut bacteria of 10 women with celiac disease who had followed a strict gluten-free diet for over a year and comparing them to 10 healthy controls, found that prolonged adherence supported real remission of the dysbiosis (bacterial imbalance) associated with untreated celiac disease, and measurably enhanced overall microbiota functionality. A real, separate, more detailed study combining MRI imaging with microbiome analysis specifically tracked gut function and bacterial composition across a full year of gluten-free eating, directly measuring this same real recovery process rather than assuming it from symptom improvement alone. Worth stating directly: this real, microbiome-level recovery ties directly into this app's own broader gut-health research (already covered elsewhere in this Digest) — a strict gluten-free diet isn't just calming symptoms or healing visible tissue, real evidence finds it also restoring the gut's own bacterial ecosystem over time.",
+    citations: [
+      { source: 'Effect of a Gluten-Free Diet on the Intestinal Microbiota of Women with Celiac Disease, PMC12382989', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12382989/' },
+      { source: 'Dietary Gluten-Induced Gut Dysbiosis Is Accompanied by Selective Upregulation of microRNAs with Intestinal Tight Junction and Bacteria-Binding Motifs in Rhesus Macaque Model of Celiac Disease, PMC5133072', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5133072/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-villi-healing-timeline', 'gut-scfa-treg'],
+  },
 ];

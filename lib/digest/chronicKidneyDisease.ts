@@ -501,4 +501,18 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-anemia-erythropoietin', 'ckd-gut-derived-uremic-toxins'],
   },
+  {
+    id: 'ckd-potassium-binders-enabling-raas-inhibitors',
+    category: 'chronicKidneyDisease',
+    title: "Real, New Potassium Binders Are Letting Doctors Keep People on the Kidney-Protective Drugs Hyperkalemia Used to Force Them Off",
+    teaser: "This category's own already-covered ACE/ARB monitoring names potassium as a real, limiting side effect -- newer drugs, patiromer and sodium zirconium cyclosilicate, are directly built to solve that problem so the real, protective medication can keep being used.",
+    summary:
+      "This category's own already-covered ACE-inhibitor and ARB research names hyperkalemia (dangerously high blood potassium) as a real, limiting side effect that sometimes forces reducing or stopping these otherwise real, kidney-protective drugs. Two newer, real medications, patiromer and sodium zirconium cyclosilicate (SZC), were built directly to solve this exact tradeoff: both are real, oral potassium binders working in the gastrointestinal tract to remove excess potassium, letting the underlying RAAS-inhibitor therapy (already covered elsewhere in this category) continue rather than being scaled back. A real, systematic review and meta-analysis found both drugs effective and reasonably safe for treating hyperkalemia, with real evidence patiromer specifically associated with lower rates of recurrent hyperkalemia compared to standard care, and some real research suggesting a possible mortality benefit in CKD patients with hyperkalemia. The real NEUTRALIZE trial, testing SZC specifically in non-dialysis CKD patients with both hyperkalemia and metabolic acidosis (already covered elsewhere in this category), found real, direct evidence supporting its use in this exact overlapping population. Worth stating directly: this is a real, practical, structural solution to a genuine clinical tension this category's own research already names, someone whose real, protective ACE-inhibitor or ARB dose was reduced due to potassium concerns now has a real, evidence-backed alternative worth asking about directly, rather than accepting a lower dose of kidney protection as the only option.",
+    citations: [
+      { source: 'Patiromer and Sodium Zirconium Cyclosilicate in Treatment of Hyperkalemia: A Systematic Review and Meta-Analysis', url: 'https://www.sciencedirect.com/science/article/pii/S0011393X21000138' },
+      { source: 'Sodium Zirconium Cyclosilicate in CKD, Hyperkalemia, and Metabolic Acidosis: NEUTRALIZE Randomized Study, PMC11219110', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11219110/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-ace-arb-potassium-monitoring', 'ckd-metabolic-acidosis-bicarbonate'],
+  },
 ];

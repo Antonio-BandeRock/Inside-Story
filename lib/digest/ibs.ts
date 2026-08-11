@@ -480,4 +480,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-visceral-hypersensitivity-mechanism', 'ibs-sibo-real-connection-caveat'],
   },
+  {
+    id: 'ibs-economic-work-productivity-burden',
+    category: 'ibs',
+    title: 'IBS Carries a Real, Quantified, Multi-Billion-Dollar Economic and Work-Productivity Cost',
+    teaser: "This category's own already-covered quality-of-life research gets a real, direct number attached: over $30 billion spent annually in the US, with employees with IBS reporting 15% greater lost work productivity than coworkers without it.",
+    summary:
+      "This category's own already-covered biopsychosocial and quality-of-life research gets a real, direct economic weight attached: real research finds IBS costing the United States upward of $30 billion annually, not counting prescription or over-the-counter medication, spanning both direct medical costs and real, indirect costs from lost work and reduced productivity. A real, direct workplace study found employees with IBS reporting a 15 percent greater loss in work productivity from GI symptoms than coworkers without IBS, with the diarrhea-predominant subtype (already covered elsewhere in this category) specifically showing significantly higher real absenteeism (5.1 percent versus 2.9 percent of work time) and presenteeism (17.9 percent versus 11.3 percent, being physically present but functioning below capacity). A real, direct cost breakdown found indirect costs split roughly into absenteeism (45 percent), presenteeism (42 percent), and lost unpaid-labor productivity (13 percent), with real research finding IBS-D patients specifically incurring nearly $2,500 more in indirect costs than matched controls. Worth stating directly: this real, quantified burden matters for the same reason this category's own already-covered research on effective treatments (CBT, hypnotherapy, low-FODMAP, exercise) does, IBS is a real, genuinely costly condition, not a minor inconvenience, worth taking seriously both medically and in how workplaces and healthcare systems actually respond to it.",
+    citations: [
+      { source: 'The Socioeconomic Impact of Irritable Bowel Syndrome: An Analysis of Direct and Indirect Health Care Costs, Clinical Gastroenterology and Hepatology', url: 'https://www.cghjournal.org/article/S1542-3565(23)00076-9/fulltext' },
+      { source: 'Health-related quality of life, work productivity, and indirect costs among patients with irritable bowel syndrome with diarrhea, PMID 28196491', url: 'https://pubmed.ncbi.nlm.nih.gov/28196491/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-biopsychosocial-model', 'ibs-rome-iv-subtypes'],
+  },
 ];
