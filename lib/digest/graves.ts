@@ -661,4 +661,31 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['graves-iodine', 'graves-selenium-orbitopathy', 'graves-selenium-orbitopathy-5year-honest-followup'],
   },
+  {
+    id: 'graves-eye-disease-quality-of-life-real-data',
+    category: 'graves',
+    title: "Thyroid Eye Disease Carries Its Own Real, Distinct Mental-Health Burden, and Real Surgery Genuinely Helps It",
+    teaser: "This category's own already-covered nationwide depression/anxiety finding covers Graves' disease broadly -- real, specific data on thyroid eye disease patients finds an even wider real range, and finds orbital decompression surgery measurably improving quality of life on top of the physical outcomes already covered.",
+    summary:
+      "This category's own already-covered nationwide psychiatric research names depression and anxiety as real, state-dependent Graves' symptoms that improve once hyperthyroidism is treated, and real, dedicated research on thyroid eye disease (Graves' ophthalmopathy) specifically finds its own genuinely distinct psychiatric burden layered on top. Real pooled data finds depression affecting 18 to 33 percent and anxiety 26 to 41 percent of thyroid eye disease patients specifically, with real, broader ranges (depression 9 to 70 percent, anxiety 18 to 88 percent) reported across Graves' disease patients overall, genuine evidence of real, higher psychiatric burden when thyroid autoimmunity is involved compared to non-autoimmune hyperthyroidism. A real, genuinely useful and specific finding: depression and anxiety were significantly linked to worse real quality of life in thyroid eye disease, but specific eye symptoms themselves, bulging eyes (exophthalmos) or double vision, showed no direct correlation with mood, real evidence the psychiatric burden isn't simply a reaction to how the eyes look or function. The real, most directly actionable finding, tying straight back to this category's own already-covered orbital decompression research: real data found surgical interventions, including decompression and eye-muscle (strabismus) surgery, genuinely improving quality of life outcomes, not just the physical measurements (proptosis, visual acuity) already covered elsewhere in this category. Worth stating directly: mental health support is a real, legitimate, evidence-backed part of thyroid eye disease treatment, not a separate concern from the physical disease itself.",
+    citations: [
+      { source: "Psychological Aspects of Graves' Ophthalmopathy, PMID 39032509", url: 'https://pubmed.ncbi.nlm.nih.gov/39032509/' },
+      { source: 'Quality of Life in Thyroid Eye Disease: A Systematic Review, PMID 31567783', url: 'https://pubmed.ncbi.nlm.nih.gov/31567783/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['graves-psychiatric-disorders-nationwide', 'graves-orbital-decompression-real-outcomes'],
+  },
+  {
+    id: 'graves-hair-loss-honest-evidence-gap',
+    category: 'graves',
+    title: "Hair Loss Is a Real, Common Hyperthyroidism Worry -- Real Data Finds the Actual Evidence for It Genuinely Thin",
+    teaser: "A real, 500-patient retrospective study found hypothyroidism significantly tied to worse hair-loss severity, but found hyperthyroidism specifically showing no significant difference from normal thyroid function at all.",
+    summary:
+      "Hair thinning and shedding is a real, commonly reported worry among people with thyroid disease, and real research finds the evidence genuinely splits by direction rather than confirming hyperthyroidism as an equal real cause. A real, retrospective study of 500 women with telogen effluvium (a real, common pattern of diffuse hair shedding) found hypothyroidism, present in 30 percent of the studied patients, tied to a real, significantly worse hair-loss severity score than either normal thyroid function or hyperthyroidism. Hyperthyroidism, present in 20.4 percent of the same study population, showed no significant difference in hair-loss severity compared to patients with entirely normal thyroid function, a real, honest null finding worth stating plainly rather than assumed away. This directly means the widely-repeated assumption that an overactive thyroid itself is a major, direct driver of hair loss doesn't hold up as cleanly in real data as the parallel, better-supported finding for an underactive thyroid does. Worth stating directly and honestly: real, formal thyroid testing remains a reasonable, low-cost part of any hair-loss workup given how common thyroid disease is overall, but someone with well-controlled Graves' disease experiencing hair loss has real, honest reason to also look at other real, more directly implicated causes (nutrient deficiency, stress, medication side effects) rather than assuming the thyroid itself is automatically the driving explanation.",
+    citations: [
+      { source: 'Is thyroid dysfunction a common cause of telogen effluvium?: A retrospective study, PMID 38181279', url: 'https://pubmed.ncbi.nlm.nih.gov/38181279/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['graves-overview', 'graves-subclinical-hyperthyroidism'],
+  },
 ];
