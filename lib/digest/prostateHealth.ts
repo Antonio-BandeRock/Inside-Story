@@ -546,4 +546,17 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-5ari-cancer-risk-controversy', 'prostate-bph-combination-therapy-mtops-combat'],
   },
+  {
+    id: 'prostate-genomic-testing-active-surveillance-real-data',
+    category: 'prostateHealth',
+    title: 'A Real, Genomic Tumor Test Can Change Whether Active Surveillance Is Actually the Right Call',
+    teaser: "This category's own already-covered active-surveillance research names a real, standard, watchful-waiting path for low-risk prostate cancer -- a real, direct clinical-utility study found a genomic tumor test disagreed with the standard risk category in 39% of cases, actually changing the treatment decision in 18%.",
+    summary:
+      "This category's own already-covered active-surveillance research already establishes real, strong long-term data supporting watchful waiting for low-risk prostate cancer, and a real, genomic tumor test adds a genuinely useful additional layer of precision to that same decision. The Oncotype DX Genomic Prostate Score (GPS), a real, tissue-based test analyzing gene expression from multiple prostate-cancer-related biological pathways directly in the biopsy sample, estimates the real, individual likelihood of favorable versus adverse pathology if a patient were to undergo immediate prostatectomy, information beyond what a standard biopsy Gleason score and PSA alone can provide. A real, direct clinical-utility study found the GPS result disagreed with the patient's own standard clinical risk category in 39 percent of cases, and, more consequentially, the actual treatment recommendation (active surveillance versus definitive treatment) changed based on the genomic result in 18 percent of cases, a real, meaningful share of decisions genuinely altered by this additional information. A real, separate genomic test, the Decipher Genomic Classifier, is the only such test currently covered by Medicare specifically to inform treatment decisions across the full spectrum of localized and advanced prostate cancer, real, formal recognition of this technology's growing clinical role. Worth stating directly: this real, additional layer of information doesn't replace this category's own already-covered PSA/Gleason-based staging, it refines it, worth asking about directly for anyone facing a genuinely borderline active-surveillance-versus-treatment decision rather than relying on standard risk categories alone.",
+    citations: [
+      { source: 'The Role of the Genomic Prostate Score in Active Surveillance, Reviews in Urology, 2018', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6168326/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-active-surveillance-real-longterm-data', 'prostate-real-staging-systems'],
+  },
 ];

@@ -540,4 +540,17 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-weight-loss-modest', 'pcos-lean-phenotype-real-data'],
   },
+  {
+    id: 'pcos-diagnostic-delay-real-patient-experience-data',
+    category: 'pcos',
+    title: 'A Real, Large Survey Found a Third of Women Wait Over 2 Years and See 3+ Doctors Before an Actual PCOS Diagnosis',
+    teaser: "This category's own already-covered adolescent-diagnosis-challenge entry names a real, early-life diagnostic difficulty -- real, direct survey data of 1,385 women finds the delay extends well past adolescence, with real, measured consequences for how satisfied patients feel about their own diagnosis experience.",
+    summary:
+      "This category's own already-covered adolescent-diagnosis-challenge research names real, early-life diagnostic difficulty, and a real, large, direct patient-experience survey finds this delay is a genuine, common, adult problem too, not just a pediatric one. A real survey of 1,385 women with a reported PCOS diagnosis found more than a third (33.6 percent) waited over 2 years from first raising symptoms to actually receiving a diagnosis, and nearly half (47.1 percent) saw 3 or more different health professionals before getting one. A real, separate survey of 323 women found a real, somewhat shorter median delay of 6 to 12 months, real, useful evidence the exact delay varies across different study populations, but the broader real pattern (a meaningful subset facing years-long delays and multiple providers) held consistently across both. The real, direct, measured consequence: the same research found longer diagnostic timelines and seeing more providers were independently associated with real, lower patient satisfaction with the whole diagnosis experience, alongside real, documented mental-health impact from prolonged symptom uncertainty. Worth stating directly: this real, common delay isn't simply an inconvenience, it's real, direct evidence this category's own already-covered real complications (metabolic, cardiovascular, fertility-related) can go unaddressed for years while a diagnosis remains unconfirmed, a real, practical reason to push for the specific, real diagnostic workup this category's own overview already names (the Rotterdam criteria, an OGTT, a lipid panel) directly and proactively, rather than waiting for a diagnosis to be volunteered.",
+    citations: [
+      { source: 'Delayed Diagnosis and a Lack of Information Associated With Dissatisfaction in Women With Polycystic Ovary Syndrome, PMID 27906550', url: 'https://pubmed.ncbi.nlm.nih.gov/27906550/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-adolescent-diagnosis-challenge', 'pcos-rotterdam-phenotypes'],
+  },
 ];
