@@ -532,4 +532,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-lycopene-tomatoes', 'prostate-diet-pattern'],
   },
+  {
+    id: 'prostate-finasteride-vs-dutasteride-comparison',
+    category: 'prostateHealth',
+    title: 'The Two Main 5-Alpha-Reductase Drugs Aren’t Interchangeable -- Real, Head-to-Head Data Finds One Works Harder',
+    teaser: "This category's own already-covered 5-ARI cancer-risk controversy and combination-therapy research treat finasteride and dutasteride as one drug class -- a real, head-to-head comparison finds a genuine effectiveness difference between the two.",
+    summary:
+      "This category's own already-covered research on 5-alpha-reductase inhibitors (5-ARIs) -- the drug class that shrinks an enlarged prostate by blocking the hormone conversion driving its growth -- has mostly treated finasteride and dutasteride as one interchangeable group. A real, direct, head-to-head comparison finds a genuine difference worth knowing before choosing between them. A real-world retrospective study of 401 BPH patients (162 on finasteride, 239 on dutasteride, evaluated after at least six months of continuous treatment) found dutasteride achieved a significantly greater reduction in prostate volume (26.3 percent versus 18.1 percent), a significantly greater PSA reduction (43.7 percent versus 32.5 percent), and a real, if smaller, edge in symptom-score improvement. The real, practical reason: dutasteride blocks both real forms of the enzyme (type 1 and type 2) that converts testosterone into the more potent hormone driving prostate growth, while finasteride blocks only the type 2 form, a genuine mechanistic difference behind the measured gap. Real, direct safety comparison found the two drugs equally gentle on sexual function (no statistically meaningful difference in erectile-function scores) and on kidney function, meaning the real tradeoff isn't about safety, it's about how much shrinkage a given case of BPH actually needs. Worth stating directly: this doesn't override this category's own already-covered 5-ARI cancer-risk-controversy or MTOPS/CombAT combination-therapy research, which both still apply to either drug -- it's real, useful evidence that the choice between the two isn't arbitrary, and worth a real, direct conversation about which one better fits a specific case.",
+    citations: [
+      { source: 'Comparative Effectiveness and Safety of Finasteride and Dutasteride in the Treatment of Benign Prostatic Hyperplasia: A Real-World Retrospective Study, PMC12654297', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12654297/' },
+      { source: 'Comparison of clinical trials with finasteride and dutasteride, PMID 16985923', url: 'https://pubmed.ncbi.nlm.nih.gov/16985923/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-5ari-cancer-risk-controversy', 'prostate-bph-combination-therapy-mtops-combat'],
+  },
 ];

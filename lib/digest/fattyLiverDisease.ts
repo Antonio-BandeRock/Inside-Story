@@ -527,4 +527,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-mediterranean-diet', 'masld-weight-loss-thresholds'],
   },
+  {
+    id: 'masld-vitamin-d-mixed-evidence',
+    category: 'fattyLiverDisease',
+    title: 'Vitamin D and MASLD Are Genuinely Linked in Observational Data -- But a Real Trial Found Supplementing Didn’t Help',
+    teaser: "This category's own already-covered PIVENS trial covers vitamin E's own real, quantified NASH benefit -- vitamin D tells a genuinely different, more sobering story, real observational association without a matching real treatment benefit.",
+    summary:
+      "This category's own already-covered vitamin E research (the PIVENS trial) is a real success story for one fat-soluble vitamin directly treating MASH -- vitamin D's own story is genuinely more mixed, and worth reporting exactly that honestly rather than assuming the same pattern repeats. Real, observational data consistently finds low vitamin D levels tracking with both MASLD's presence and its severity: one real, large population study found each 1 ng/mL increase in vitamin D levels associated with a 2 percent lower MASLD risk, and people with the highest vitamin D levels had a real, sizable reduction in likelihood of fatty liver disease compared to those with the lowest levels. The real, plausible mechanism connects directly to processes already covered elsewhere in this category, vitamin D has real, documented roles in insulin sensitivity and inflammatory signaling, both central to MASLD's own progression. But a real, randomized, double-blind, placebo-controlled trial specifically testing whether SUPPLEMENTING vitamin D actually helps found a genuinely disappointing answer: in 65 patients with type 2 diabetes and NAFLD, high-dose oral vitamin D for 24 weeks significantly raised blood vitamin D levels as expected, but produced no real difference in hepatic fat content, liver enzymes, or fibrosis markers compared to placebo. Worth stating directly: this is a real, textbook example of why an observational association, however consistent, doesn't automatically mean the deficiency itself is a fixable CAUSE of the disease rather than a marker of something else going on (reduced sun exposure from lower physical activity, say) -- unlike vitamin E's own real, trial-confirmed benefit, correcting vitamin D levels specifically for liver benefit isn't currently supported by the best available real trial evidence.",
+    citations: [
+      { source: 'Vitamin D and Metabolic Dysfunction-Associated Steatotic Liver Disease (MASLD): Novel Mechanistic Insights, PMC11084591', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11084591/' },
+      { source: 'No effects of oral vitamin D supplementation on non-alcoholic fatty liver disease in patients with type 2 diabetes: a randomized, double-blind, placebo-controlled trial, PMC4926287', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4926287/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['masld-vitamin-e-pivens-trial', 'masld-weight-loss-thresholds'],
+  },
 ];
