@@ -545,4 +545,17 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-allopurinol-dose-escalation-adherence', 'gout-kidney-cardiovascular-real-data'],
   },
+  {
+    id: 'gout-dash-sodium-trial-real-mechanism',
+    category: 'gout',
+    title: "A Real, Randomized Trial Directly Tested DASH Against Uric Acid -- and Found a Genuinely Counterintuitive Sodium Result Too",
+    teaser: "This category's own already-covered DASH-pattern research names a real, 26-year cohort's own long-term risk reduction -- a real, direct, randomized feeding trial tested DASH against actual uric acid levels, and found a genuinely surprising, honest twist involving sodium.",
+    summary:
+      "This category's own already-covered DASH-diet research names a real, long-term, observational cohort finding real risk reduction over 26 years, and a real, direct, controlled, randomized ancillary study of the original DASH-Sodium trial gives this category's own already-established pattern a real, mechanistic, interventional confirmation. In this real, randomized crossover feeding study (103 participants, Johns Hopkins), the DASH diet produced a real, statistically significant reduction in serum uric acid of 0.35 mg/dL compared with a control diet, with the real effect substantially larger in people who started with already-elevated uric acid (7 mg/dL or higher), a real 1.3 mg/dL drop in that specific group. Worth stating directly, honestly, rather than smoothed over: the SAME trial found a genuinely counterintuitive real result for sodium, increasing sodium intake from a low level actually LOWERED serum uric acid (by 0.3 to 0.4 mg/dL at medium and high sodium levels), the opposite direction someone might expect given sodium's own already-covered link to hypertension elsewhere in this app's research. Real research doesn't fully resolve why this happens, but it's real, honest, controlled trial data, not something to quietly leave out because it complicates a simpler story. Worth stating directly: neither finding overturns this category's own already-established DASH-pattern benefit (the diet's OVERALL uric-acid-lowering effect held regardless of the sodium result), but the honest sodium twist is a real, useful reminder that a single nutrient's effect on one lab value doesn't always match its effect on a whole, different condition, worth discussing directly with a doctor rather than assuming every dietary rule generalizes cleanly across conditions.",
+    citations: [
+      { source: 'Effects of the Dietary Approaches To Stop Hypertension (DASH) Diet and Sodium Intake on Serum Uric Acid, Arthritis & Rheumatology, PMID 27523583', url: 'https://pubmed.ncbi.nlm.nih.gov/27523583/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-dash-diet-quality', 'cvd-potassium-salt-substitute-real-trial'],
+  },
 ];

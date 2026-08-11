@@ -541,4 +541,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['masld-vitamin-e-pivens-trial', 'masld-weight-loss-thresholds'],
   },
+  {
+    id: 'masld-liver-transplant-leading-indication-projection',
+    category: 'fattyLiverDisease',
+    title: 'MASLD Is On Track to Become the Single Leading Reason for Liver Transplant in the US -- With a Real, Projected Near-Quadrupling',
+    teaser: "This category's own already-covered fibrosis-staging research names the real, small share of MASLD that progresses to serious disease -- at the real, national population scale, that small share still adds up to a projected, near-quadrupled real transplant burden by mid-century.",
+    summary:
+      "This category's own already-covered fibrosis-staging research already establishes that only a real, small minority of MASLD progresses to cirrhosis, and a real, direct national-projection study shows exactly why even that small share matters enormously at population scale. A real, formal modeling study projects MASLD-attributed liver transplants in the US rising from a real, current baseline of 1,717 per year (2020-2025) to a real, projected 6,720 per year by 2046-2050, a real 291 percent increase, nearly quadrupling, with a real, cumulative total of 132,600 MASLD-related liver transplants projected across the full 2020-2050 period. This directly supports what real, separate research already states plainly: MASLD is projected to soon become the leading indication for liver transplant in the United States overall, and real, more specific data already finds it has become the TOP transplant indication specifically for women and for patients with hepatocellular carcinoma (HCC, liver cancer), a real, current milestone, not just a future projection. Worth stating directly: this real, striking national trajectory is exactly why this category's own already-covered weight-loss thresholds, exercise research, and medication options (resmetirom, semaglutide) matter at a real, public-health scale, not just an individual one, real, direct evidence that a disease often framed as manageable lifestyle risk is on track to reshape the single scarcest resource in all of transplant medicine, donor livers, within most current adults' own lifetimes.",
+    citations: [
+      { source: 'Estimated Burden of Metabolic Dysfunction-Associated Steatotic Liver Disease in US Adults, 2020 to 2050, JAMA Network Open, DOI 10.1001/jamanetworkopen.2024.54707', url: 'https://jamanetwork.com/journals/jamanetworkopen/fullarticle/2829360' },
+      { source: 'Epidemiology of metabolic dysfunction-associated steatotic liver disease, PMID 39159948', url: 'https://pubmed.ncbi.nlm.nih.gov/39159948/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-weight-loss-thresholds', 'horizon-masld'],
+  },
 ];
