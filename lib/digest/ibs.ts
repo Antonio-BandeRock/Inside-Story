@@ -522,4 +522,18 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-rome-iv-subtypes'],
   },
+  {
+    id: 'ibs-quality-of-life-comparable-serious-conditions',
+    category: 'ibs',
+    title: "IBS's Own Real, Measured Quality-of-Life Impact Rivals Stroke, COPD, and Chronic Kidney Disease",
+    teaser: "This category's own already-covered economic-burden entry names real, quantified work-productivity loss -- a real, direct, standardized quality-of-life comparison finds IBS's own everyday impact measuring as severe as several genuinely serious chronic organic diseases.",
+    summary:
+      "This category's own already-covered economic-burden research already names real, quantified work-productivity costs, and a real, direct, standardized quality-of-life comparison adds a genuinely important, complementary finding: IBS's own everyday impact isn't a minor inconvenience next to more visibly serious diseases, it measures as comparably severe. A real study of 752 individuals meeting the Rome IV IBS criteria found a mean EQ-5D score (a real, standardized, widely used health-related quality-of-life measure) of 0.570, a real score comparable to what's typically found in people with stroke, leg ulcers, or chronic obstructive pulmonary disease (COPD), all genuinely serious, visibly disabling chronic conditions. Real, separate research finds IBS lowering health-related quality of life to a degree similar to influenza or chronic kidney disease, real, further confirmation this isn't an isolated finding from one study alone. The real, useful, practical detail: the same research names specific factors independently predicting worse quality of life within IBS itself, not just disease presence, real symptom severity, psychological distress, and lower perceived social support, all real, identifiable, potentially addressable factors rather than a fixed, unchangeable burden. Worth stating directly: this real, standardized comparison matters because IBS is often, genuinely, treated as a lesser medical concern than conditions with more visible or measurable organ damage, precisely the gap this category's own biopsychosocial-model and fibromyalgia-overlap research already pushes back against, real, direct evidence the disease's own lived impact deserves to be taken exactly as seriously.",
+    citations: [
+      { source: 'Factors associated with lower disease-specific and generic health-related quality of life in Rome IV irritable bowel syndrome, PMID 36544055', url: 'https://pubmed.ncbi.nlm.nih.gov/36544055/' },
+      { source: 'Irritable bowel syndrome: Epidemiology, overlap disorders, pathophysiology and treatment, PMC10354571', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10354571/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-economic-work-productivity-burden', 'ibs-fibromyalgia-real-bidirectional'],
+  },
 ];

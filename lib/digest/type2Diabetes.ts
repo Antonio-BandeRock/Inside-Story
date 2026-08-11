@@ -536,4 +536,18 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type2-sleep-apnea-glycemic-control', 'sleep-inflammation-cytokine-mechanism'],
   },
+  {
+    id: 'type2-ai-retinopathy-screening-real-accuracy',
+    category: 'type2Diabetes',
+    title: 'AI-Based Eye Screening Is Now Real, Validated, and Genuinely Changes Who Actually Gets Screened',
+    teaser: "This category's own already-covered microvascular complication-screening research names retinopathy as one of three real targets -- real, validated AI screening tools now catch it as accurately as a specialist, with real trial data finding they genuinely increase how many people actually get screened at all.",
+    summary:
+      "This category's own already-covered microvascular-complication-screening research already names diabetic retinopathy as a real, standard target, and a genuinely new, real screening technology deserves its own direct coverage. FDA-cleared, autonomous AI systems (IDx-DR is the real, most established example) analyze retinal photos and flag referable disease without a human specialist reviewing every image first. Real-world validation found one such system reaching 100 percent sensitivity for detecting no, mild, or moderate retinopathy, with specificity ranging from 78.4 to 97.6 percent depending on disease stage, real, direct evidence this isn't a hypothetical technology, it performs at a real, clinically usable accuracy level today. A real, broader systematic review and meta-analysis of AI-based retinopathy screening across real-world settings confirms this general accuracy pattern holds up outside controlled trial conditions, not just in an idealized research setting. The real, most practically important finding comes from the ACCESS randomized controlled trial, which found autonomous AI screening genuinely increased both screening completion AND appropriate follow-up specifically in youth with diabetes, real, direct evidence this technology doesn't just match human accuracy, it measurably closes a real, common gap where retinopathy screening gets skipped or delayed. Worth stating directly: this real, validated technology is exactly why retinopathy screening no longer has to wait on specialist-appointment availability, worth asking directly whether a clinic offers AI-based retinal screening as a real, faster, evidence-backed alternative to a traditional dilated eye exam referral.",
+    citations: [
+      { source: 'Accuracy of Autonomous Artificial Intelligence-Based Diabetic Retinopathy Screening in Real-Life Clinical Practice, PMC11355215', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11355215/' },
+      { source: 'Autonomous artificial intelligence increases screening and follow-up for diabetic retinopathy in youth: the ACCESS randomized control trial, Nature Communications', url: 'https://www.nature.com/articles/s41467-023-44676-z' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type2-microvascular-complications-screening', 'type2-screening-at-diagnosis'],
+  },
 ];
