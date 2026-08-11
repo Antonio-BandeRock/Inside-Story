@@ -309,4 +309,88 @@
 // "Raw" rows, one per country) is still visibly unresolved until the
 // USDA-default-with-labeled-fallback logic for builders gets built --
 // named directly as real, remaining, not-yet-done work, not glossed over.
-export const REFERENCE_DB_VERSION = "20260811093000";
+//
+// Bumped again, same day: a second real, verified translation batch --
+// France_Ciqual's own 15 Algae rows plus 2 more single-row targets
+// (Mushroom, Legume). Every one of the 15 Algae rows carried its own real
+// Latin binomial species name right in the source's own French text
+// (e.g. "Wakamé (Undaria pinnatifida), séchée ou déshydratée"), making
+// species identity unambiguous without needing a nutrient-based cross-
+// check the way the Sweden mushroom batch required -- each real English
+// common name was still independently verified via WebSearch against the
+// binomial (seaweed.ie species sheets, Wikipedia, MarLIN, and other real
+// marine-botany sources), not guessed from the French name alone. Where a
+// French row's real species/prep state exactly matches an already-
+// translated Japan_MEXT row, the base_name was matched precisely so the
+// two merge into one real cross-source food group: Wakame (Undaria
+// pinnatifida, Dried -- now sitting alongside Japan_MEXT's own existing
+// Raw and Dried Wakame rows under one shared base_name), Sea lettuce
+// (Ulva sp., Dried), Green Laver (Enteromorpha sp./Ao-nori, Dried).
+// Ogo-nori (Gracilaria verrucosa) deliberately did NOT force a merge --
+// the French row is Dried while Japan_MEXT's existing bare "Ogo-nori" row
+// is a genuinely different real prep state (water 89g/100g, fresh/raw),
+// so it lands as a second, real, distinct prep-state row under the same
+// base_name rather than merged or renamed to dodge the shared name. The
+// other 9 species (Spirulina, Sugar Kelp/Saccharina latissima, Nori/
+// Porphyra sp., Dulse/Palmaria palmata, Kombu/Laminaria japonica, Oarweed/
+// Laminaria digitata, Sea Spaghetti/Himanthalia elongata, Bladderwrack/
+// Fucus vesiculosus-serratus, Irish Moss/Chondrus crispus, Rockweed/
+// Ascophyllum nodosum, Atlantic Wakame/Alaria esculenta) had no existing
+// same-species row in this database at all, so each became its own new,
+// real, named entry. "Levure alimentaire" (Mushroom) is the standard
+// French term for nutritional yeast -- verified as a genuine cross-source
+// match, not just a plausible-sounding translation, by comparing its real
+// nutrient profile directly against Germany_BLS's own already-translated
+// "Yeast flakes/nutritional yeast" row: identical fiber_total (22.5g/100g
+// both) and near-identical water (5.0g/100g both) and energy (305 vs 334
+// kcal) -- base_name matched exactly so the two merge into one real food
+// group. "Tofu soyeux, préemballé" (Legume) is "Silken Tofu, Prepackaged"
+// -- stays its own distinct row, since Germany_BLS's own "Silken tofu"
+// sits in a different category (NutSeed), so cross-source grouping
+// wouldn't apply regardless of naming. Checked for, and found zero, real
+// dangling food_aliases rows referencing any of the 17 old French
+// base_names. needs_translation cleared to 0 for exactly these 17 rows
+// (France_Ciqual: 2,775 -> 2,758); name_local preserves every original
+// French name untouched. Remaining real, not-yet-translated work: France_
+// Ciqual 2,758, Norway_Matvaretabellen 2,121, Sweden_Livsmedelsverket
+// 2,595 -- continuing in real, verified batches over multiple sessions,
+// per the person's own explicit choice, not a rushed blind pass.
+//
+// Bumped again, same day: a third real, verified translation batch --
+// Norway_Matvaretabellen's own 9 SupplementPowder rows. A genuinely
+// different kind of batch from the two whole-food ones before it: these
+// are 9 real, distinct branded Norwegian supplement products (Floradix,
+// Nycoplus, Møllers, Biopharma, Collett, Vitaplex), not species/prep
+// variants of one food. Rather than translate by hand, every one was
+// resolved directly against Matvaretabellen's own real, official
+// English-language mirror (matvaretabellen.no/en/) -- the single most
+// authoritative source available, the agency's own English name for its
+// own data -- cross-verified by confirming each English page's own
+// displayed Food ID (a real classification code, e.g. "08.008") matches
+// this row's own source_code exactly, not just a plausible-sounding name
+// match. Two real, deliberate departures from the official English text,
+// both to restore real distinguishing detail the official translation
+// dropped, matching this whole project's own standing "never discard
+// real distinguishing information" discipline: food_id 2012's official
+// English page ("Cod liver oil, Biopharma") omits the lime flavor the
+// Norwegian original explicitly states ("Tran, med limesmak, Biopharma")
+// -- confirmed directly by also fetching the real Norwegian-language page
+// at the same Food ID (08.264), which does say "med limesmak"; food_ids
+// 2065/2066 (Vitamin Bears, Vitamineral) both drop their own real
+// product-size figures (2.1g/0.55g per piece) the Norwegian originals
+// state -- both restored. "Multi Vitaminmikstur, Nycoplus" (10137) is a
+// real case where the official English page left the Norwegian word
+// "Vitaminmikstur" entirely untranslated in its own heading -- fully
+// translated here instead ("mikstur" = a liquid medicine/syrup, confirmed
+// via direct dictionary check), a genuine incomplete official
+// translation, not a real product name the way "Vitaminbjørner" (already
+// correctly rendered "Vitamin Bears" on the official page) is. Checked
+// for, and found zero, real dangling food_aliases rows referencing any of
+// the 9 old Norwegian base_names. needs_translation cleared to 0 for
+// exactly these 9 rows (Norway_Matvaretabellen: 2,121 -> 2,112);
+// name_local preserves every original Norwegian name untouched. Remaining
+// real, not-yet-translated work: France_Ciqual 2,758,
+// Norway_Matvaretabellen 2,112, Sweden_Livsmedelsverket 2,595 --
+// continuing in real, verified batches over multiple sessions, per the
+// person's own explicit choice.
+export const REFERENCE_DB_VERSION = "20260811110000";
