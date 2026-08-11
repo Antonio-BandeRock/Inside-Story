@@ -591,16 +591,27 @@ function refreshDecisionsReviewIfOpen() {
   if (document.getElementById('decisionsPanel').classList.contains('open')) renderDecisionsReviewList();
 }
 
+// Real fix, direct request: "a per item undo while I'm in there
+// working." Every one of these now updates ONLY the exact row/card you
+// just acted on, in place -- it never re-filters or re-paginates the
+// list you're actively working through, so nothing you haven't touched
+// moves or disappears, and the item you just decided keeps its own
+// inline Undo sitting right there where you clicked, immediately, with
+// no separate panel or filter change needed. computeStats() (via
+// saveDecisions()) still keeps the sidebar's real totals current
+// either way. The "Review / undo a decision" panel and Import feature
+// from before are both untouched -- this is additive on top of them,
+// not a replacement.
 function decideClassify(i, verdict) {
   decisions.classify[i] = verdict;
   saveDecisions();
-  renderView();
+  updateClassifyRowInPlace(i);
   refreshDecisionsReviewIfOpen();
 }
 function undoClassify(i) {
   delete decisions.classify[i];
   saveDecisions();
-  renderView();
+  updateClassifyRowInPlace(i);
   refreshDecisionsReviewIfOpen();
 }
 
@@ -608,33 +619,33 @@ function confirmGroup(g) {
   decisions.groupConfirm[g] = true;
   delete decisions.groupSplit[g];
   saveDecisions();
-  renderView();
+  updateGroupCardInPlace(g);
   refreshDecisionsReviewIfOpen();
 }
 function flagSplit(g) {
   decisions.groupSplit[g] = true;
   delete decisions.groupConfirm[g];
   saveDecisions();
-  renderView();
+  updateGroupCardInPlace(g);
   refreshDecisionsReviewIfOpen();
 }
 function undoGroup(g) {
   delete decisions.groupConfirm[g];
   delete decisions.groupSplit[g];
   saveDecisions();
-  renderView();
+  updateGroupCardInPlace(g);
   refreshDecisionsReviewIfOpen();
 }
 function removeMember(g, i) {
   decisions.memberRemove[memberKey(g, i)] = true;
   saveDecisions();
-  renderView();
+  updateMemberRowInPlace(g, i);
   refreshDecisionsReviewIfOpen();
 }
 function undoRemoveMember(g, i) {
   delete decisions.memberRemove[memberKey(g, i)];
   saveDecisions();
-  renderView();
+  updateMemberRowInPlace(g, i);
   refreshDecisionsReviewIfOpen();
 }
 
@@ -734,6 +745,46 @@ function filteredClassify() {
   });
 }
 
+// Real, shared piece behind the "per-item undo while I'm in there
+// working" fix: this is the ONLY thing that changes when a row's own
+// decision changes, whether that's the first full paint of the table
+// or a later in-place update after clicking a button on that exact
+// row. Kept as its own function so both call sites always agree.
+function classifyDecisionCellHtml(r) {
+  const decided = decisions.classify[r.i];
+  if (decided) {
+    const label = decided === 'whole' ? 'Whole food' : decided === 'not_whole' ? 'Not whole food' : 'Skipped';
+    const cls = decided === 'whole' ? 'whole' : decided === 'not_whole' ? 'not-whole' : 'skip';
+    return '<span class="decided-badge ' + cls + '">' + label + '</span> '
+      + '<button class="btn btn-skip" style="padding:3px 8px;font-size:11.5px;" onclick="undoClassify(' + r.i + ')">Undo</button>';
+  }
+  return '<div class="row-actions">'
+    + '<button class="btn btn-whole" onclick="decideClassify(' + r.i + ", 'whole')\">Whole food</button>"
+    + '<button class="btn btn-not-whole" onclick="decideClassify(' + r.i + ", 'not_whole')\">Not whole food</button>"
+    + '<button class="btn btn-skip" onclick="decideClassify(' + r.i + ", 'skip')\">Skip</button>"
+    + '</div>';
+}
+
+// Real fix for "I need a per-item undo while I'm in there working":
+// deciding a row used to trigger a full re-filter/re-paginate, which
+// (with "Hide already-decided" checked, the default) made the row
+// vanish from the page the instant you clicked -- the only way back to
+// it was hunting through a different filter state or the separate
+// review panel. This updates JUST the one row's own decision cell and
+// dimming, in place, so it stays exactly where it was on the page with
+// its own inline Undo right there, until you change the filter/search/
+// page yourself (a real, deliberate re-render, not a side effect of
+// the click itself).
+function updateClassifyRowInPlace(i) {
+  const cell = document.getElementById('dcell-' + i);
+  if (!cell) return; // not currently on screen (different page/filter) -- nothing to update in place
+  const r = classifyByIndex.get(i);
+  if (!r) return;
+  cell.innerHTML = classifyDecisionCellHtml(r);
+  const row = cell.closest('tr');
+  if (row) row.classList.toggle('decided', Boolean(decisions.classify[i]));
+}
+
 function renderClassify() {
   const rows = filteredClassify();
   const totalPages = Math.max(1, Math.ceil(rows.length / PAGE_SIZE));
@@ -749,26 +800,13 @@ function renderClassify() {
       const decided = decisions.classify[r.i];
       const origLine = r.o ? '<span class="food-orig">' + escapeHtml(r.o) + '</span>' : '';
       const autoCall = r.w === 1 ? 'Whole food' : r.w === 0 ? 'Not whole food' : 'No rule matched';
-      let actionsHtml;
-      if (decided) {
-        const label = decided === 'whole' ? 'Whole food' : decided === 'not_whole' ? 'Not whole food' : 'Skipped';
-        const cls = decided === 'whole' ? 'whole' : decided === 'not_whole' ? 'not-whole' : 'skip';
-        actionsHtml = '<span class="decided-badge ' + cls + '">' + label + '</span> '
-          + '<button class="btn btn-skip" style="padding:3px 8px;font-size:11.5px;" onclick="undoClassify(' + r.i + ')">Undo</button>';
-      } else {
-        actionsHtml = '<div class="row-actions">'
-          + '<button class="btn btn-whole" onclick="decideClassify(' + r.i + ", 'whole')\">Whole food</button>"
-          + '<button class="btn btn-not-whole" onclick="decideClassify(' + r.i + ", 'not_whole')\">Not whole food</button>"
-          + '<button class="btn btn-skip" onclick="decideClassify(' + r.i + ", 'skip')\">Skip</button>"
-          + '</div>';
-      }
-      return '<tr class="' + (decided ? 'decided' : '') + '">'
+      return '<tr data-i="' + r.i + '" class="' + (decided ? 'decided' : '') + '">'
         + '<td><span class="food-name">' + escapeHtml(r.n) + '</span>' + origLine + '</td>'
         + '<td><span class="source-tag">' + escapeHtml(sourceNameByCode[r.s] || r.s) + '</span></td>'
         + '<td><span class="pill conf-' + r.c + '">' + r.c + '</span></td>'
         + '<td><span class="rule-text">' + escapeHtml(r.r) + '</span></td>'
         + '<td>' + autoCall + '</td>'
-        + '<td>' + actionsHtml + '</td>'
+        + '<td id="dcell-' + r.i + '">' + classifyDecisionCellHtml(r) + '</td>'
         + '</tr>';
     }).join('');
   }
@@ -789,6 +827,56 @@ function filteredGroups() {
   });
 }
 
+// Same real, shared-function pattern as classifyDecisionCellHtml above,
+// for the two things that can change on a group card in place: the
+// member-row's own remove/undo-remove button, and the card's own
+// confirm/split footer.
+function matchMemberButtonHtml(g, m) {
+  const removed = decisions.memberRemove[memberKey(g, m.i)];
+  return removed
+    ? '<button class="btn btn-skip" style="padding:3px 8px;font-size:11px;" onclick="undoRemoveMember(' + g + ',' + m.i + ')">Undo remove</button>'
+    : '<button class="btn btn-remove" onclick="removeMember(' + g + ',' + m.i + ')">Remove</button>';
+}
+function matchFooterHtml(g) {
+  const decided = decisions.groupConfirm[g.g] || decisions.groupSplit[g.g];
+  if (decided) {
+    const label = decisions.groupConfirm[g.g] ? 'Confirmed' : 'Flagged for split';
+    return '<div class="specimen-actions"><span class="decided-badge ' + (decisions.groupConfirm[g.g] ? 'whole' : 'not-whole') + '">' + label + '</span> '
+      + '<button class="btn btn-skip" onclick="undoGroup(' + g.g + ')">Undo</button></div>';
+  }
+  return '<div class="specimen-actions">'
+    + '<button class="btn btn-confirm-group" onclick="confirmGroup(' + g.g + ')">Confirm this group</button>'
+    + '<button class="btn btn-split" onclick="flagSplit(' + g.g + ')">Flag for split</button>'
+    + '</div>';
+}
+
+// Same "stay right where I was working" fix as updateClassifyRowInPlace,
+// applied to the match-groups view: confirming/splitting/undoing a
+// group, or removing/un-removing one member, only ever updates that
+// exact card or that exact member row in place -- the group never
+// jumps or disappears out from under you just because you decided it.
+function updateGroupCardInPlace(g) {
+  const card = document.getElementById('card-' + g);
+  const footer = document.getElementById('footer-' + g);
+  if (!card || !footer) return; // not currently on screen -- nothing to update in place
+  const grp = groupByG.get(g);
+  if (!grp) return;
+  footer.innerHTML = matchFooterHtml(grp);
+  card.classList.toggle('decided', Boolean(decisions.groupConfirm[g] || decisions.groupSplit[g]));
+}
+function updateMemberRowInPlace(g, i) {
+  const btnCell = document.getElementById('removebtn-' + g + '-' + i);
+  const row = document.getElementById('memberrow-' + g + '-' + i);
+  if (!btnCell || !row) return; // not currently on screen -- nothing to update in place
+  const grp = groupByG.get(g);
+  const member = grp ? grp.m.find(function (m) { return m.i === i; }) : null;
+  if (!grp || !member) return;
+  const removed = decisions.memberRemove[memberKey(g, i)];
+  btnCell.innerHTML = matchMemberButtonHtml(g, member);
+  row.style.opacity = removed ? '0.4' : '';
+  row.style.textDecoration = removed ? 'line-through' : '';
+}
+
 function renderMatch() {
   const groups = filteredGroups();
   const totalPages = Math.max(1, Math.ceil(groups.length / MATCH_PAGE_SIZE));
@@ -807,32 +895,18 @@ function renderMatch() {
         : '<span class="region-badge">region-specific</span>';
       const membersHtml = g.m.map(function (m) {
         const removed = decisions.memberRemove[memberKey(g.g, m.i)];
-        const removeBtn = removed
-          ? '<button class="btn btn-skip" style="padding:3px 8px;font-size:11px;" onclick="undoRemoveMember(' + g.g + ',' + m.i + ')">Undo remove</button>'
-          : '<button class="btn btn-remove" onclick="removeMember(' + g.g + ',' + m.i + ')">Remove</button>';
-        return '<div class="member-row" style="' + (removed ? 'opacity:0.4;text-decoration:line-through;' : '') + '">'
+        return '<div class="member-row" id="memberrow-' + g.g + '-' + m.i + '" style="' + (removed ? 'opacity:0.4;text-decoration:line-through;' : '') + '">'
           + '<div class="member-info">'
           + '<span class="member-name">' + escapeHtml(m.n) + '</span>'
           + '<span class="source-tag">' + escapeHtml(sourceNameByCode[m.s] || m.s) + '</span>'
           + '<span class="method-tag">' + escapeHtml(m.mm) + '</span>'
-          + '</div>' + removeBtn + '</div>';
+          + '</div><span id="removebtn-' + g.g + '-' + m.i + '">' + matchMemberButtonHtml(g.g, m) + '</span></div>';
       }).join('');
-      let footerHtml;
-      if (decided) {
-        const label = decisions.groupConfirm[g.g] ? 'Confirmed' : 'Flagged for split';
-        footerHtml = '<div class="specimen-actions"><span class="decided-badge ' + (decisions.groupConfirm[g.g] ? 'whole' : 'not-whole') + '">' + label + '</span> '
-          + '<button class="btn btn-skip" onclick="undoGroup(' + g.g + ')">Undo</button></div>';
-      } else {
-        footerHtml = '<div class="specimen-actions">'
-          + '<button class="btn btn-confirm-group" onclick="confirmGroup(' + g.g + ')">Confirm this group</button>'
-          + '<button class="btn btn-split" onclick="flagSplit(' + g.g + ')">Flag for split</button>'
-          + '</div>';
-      }
-      return '<div class="specimen-card ' + (decided ? 'decided' : '') + '">'
+      return '<div class="specimen-card ' + (decided ? 'decided' : '') + '" id="card-' + g.g + '">'
         + '<div class="specimen-head"><h3>' + escapeHtml(g.n) + '</h3>'
         + '<div class="specimen-meta"><span class="specimen-count">' + g.m.length + ' record' + (g.m.length === 1 ? '' : 's') + '</span>' + badge + '</div></div>'
         + '<div class="specimen-members">' + membersHtml + '</div>'
-        + footerHtml
+        + '<div id="footer-' + g.g + '">' + matchFooterHtml(g) + '</div>'
         + '</div>';
     }).join('');
   }
