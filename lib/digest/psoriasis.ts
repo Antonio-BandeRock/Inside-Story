@@ -538,4 +538,74 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['psoriasis-guttate-pediatric-strep', 'psoriasis-biologic-drug-survival-real-data'],
   },
+  {
+    id: 'psoriasis-caspar-diagnostic-criteria',
+    category: 'psoriasis',
+    title: "A Real, Highly Accurate Formal Test Exists for Diagnosing Psoriatic Arthritis -- CASPAR",
+    teaser: "This category's own already-covered PASI staging measures skin severity, not joint disease -- CASPAR is the real, separate, formally validated criteria for diagnosing psoriatic arthritis itself, with real, strong accuracy.",
+    summary:
+      "This category's own already-covered PASI severity staging measures skin disease specifically, and psoriatic arthritis, the real joint-involving complication already covered elsewhere in this category, has its own separate, formal diagnostic tool: the ClASsification for Psoriatic ARthritis (CASPAR) criteria. Real, large, multinational prospective validation found CASPAR carrying a real sensitivity of 91.4 percent and specificity of 98.7 percent, genuinely strong diagnostic accuracy by any real clinical standard. Real, follow-up studies confirm this holds up well even in early disease specifically, the hardest real diagnostic window, with one study finding 87.4 percent sensitivity for early psoriatic arthritis, meaningfully outperforming the older Moll and Wright criteria it replaced (80.2 percent). CASPAR works by scoring a real combination of features, including current or past psoriasis, nail changes, a negative rheumatoid factor test, dactylitis (real, characteristic 'sausage digit' swelling), and evidence of new bone formation near a joint on imaging, rather than relying on any single test alone. Worth stating directly: since this category's own already-covered psoriatic arthritis progression research names a real, narrow 12-month early-detection window that changes long-term joint outcomes, knowing this real, accurate, named diagnostic tool exists is worth asking about directly the moment joint symptoms appear alongside psoriasis, rather than waiting for a vaguer clinical impression to form.",
+    citations: [
+      { source: "Classification Criteria for Psoriatic Arthritis: development of new criteria from a large international study, PMID 16646037", url: 'https://www.jrheum.org/content/39/1/154' },
+      { source: 'Sensitivity and specificity of the classification of psoriatic arthritis criteria in early psoriatic arthritis, PMID 22576997', url: 'https://pubmed.ncbi.nlm.nih.gov/22576997/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-psa-progression-real-data', 'psoriasis-advocacy-psa-screening'],
+  },
+  {
+    id: 'psoriasis-phototherapy-real-clearance-remission',
+    category: 'psoriasis',
+    title: 'Narrowband UVB Phototherapy Genuinely Clears Psoriasis in Most Patients -- and Real Data Shows How Long It Lasts',
+    teaser: 'Real, pooled data finds narrowband UVB achieving PASI75 in roughly 70-81% of patients, with real evidence that a deeper clearance (PASI90) genuinely predicts a longer real remission than a partial one.',
+    summary:
+      "This category's own already-covered treatment research spans diet, biologics, and systemic drugs, and phototherapy, controlled medical exposure to narrowband ultraviolet B (UVB) light, is a real, distinct, effective option worth its own direct coverage. Real, pooled data across studies finds narrowband UVB achieving a 75 percent reduction in psoriasis severity (PASI75) in roughly 70 to 81 percent of treated patients, with a meaningful 41 percent reaching a deeper PASI90 clearance. The real, genuinely useful finding for anyone weighing this option: how completely the skin clears directly predicts how long the improvement lasts. Real research found a median time to relapse of 6 months for patients who reached PASI90, compared with just 4 months for those who cleared less completely, real, direct evidence that pushing for a fuller course of treatment pays off in genuinely longer remission, not just a better-looking finish. A real, separate, counterintuitive finding: achieving full PASI100 clearance did not extend remission any further than PASI90, suggesting a real, practical point of diminishing returns. Real, identified predictors of a shorter remission include age 60 or older, having used a systemic medication within the past 6 months, and needing three or more phototherapy cycles. Worth stating directly: phototherapy is a real, genuinely effective, medication-free option worth discussing directly, with real, concrete expectations about both how well it's likely to work and roughly how long the benefit should last.",
+    citations: [
+      { source: 'The use of psoriasis biomarkers, including trajectory of clinical response, to predict clearance and remission duration to UVB phototherapy, PMID 34255884', url: 'https://pubmed.ncbi.nlm.nih.gov/34255884/' },
+      { source: 'Remission period in psoriasis after multiple cycles of narrowband ultraviolet B phototherapy, PMID 24942986', url: 'https://pubmed.ncbi.nlm.nih.gov/24942986/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-pasi-severity-staging', 'psoriasis-biologic-drug-survival-real-data'],
+  },
+  {
+    id: 'psoriasis-ibd-shared-il23-comorbidity',
+    category: 'psoriasis',
+    title: 'Psoriasis and Inflammatory Bowel Disease Genuinely Share the Same Real Immune Pathway',
+    teaser: "This category's own already-covered IL-23 inhibitor research reveals why it works for two seemingly unrelated diseases at once: real, shared genetic risk loci and a real, common IL-23/Th17 pathway link psoriasis directly to inflammatory bowel disease.",
+    summary:
+      "This category's own already-covered IL-23 inhibitor research names real, strong efficacy for psoriasis specifically, and real research finds the underlying reason connects directly to a completely different condition already built out elsewhere in this Digest: inflammatory bowel disease. Real genome-wide association studies have identified genuine, shared genetic susceptibility loci between psoriasis and IBD, including real, specific genes (IL23R, IL12B, TNFSF15, STAT3) implicated in both diseases independently. The real, unifying mechanism is the IL-23/Th17 immune pathway, the same real pathway already covered elsewhere in this category, driving keratinocyte overgrowth (the root cause of psoriasis's own visible skin plaques) in the skin and real, direct tissue damage in the gut wall in IBD, two very different-looking diseases sharing one real, common immune root. This isn't just theoretical: real meta-analyses and everyday clinical practice find drugs targeting the IL-17/IL-23 pathway achieving genuinely superior skin clearance for psoriasis compared to older TNF-alpha-targeting drugs, real, practical confirmation that this specific pathway is a real, central driver, not one of several equally important ones. Worth stating directly: this real, shared biology is a genuine reason someone with psoriasis experiencing new digestive symptoms, or someone with IBD noticing new skin plaques, is worth mentioning both conditions together to a doctor rather than treating them as two unrelated, coincidental diagnoses.",
+    citations: [
+      { source: 'Shared Pathophysiology of Inflammatory Bowel Disease and Psoriasis: Unraveling the Connection, PMC11449469', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11449469/' },
+      { source: 'Interleukin-17 and Interleukin-23: A Narrative Review of Mechanisms of Action in Psoriasis and Associated Comorbidities, PMC8019008', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8019008/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-il23-inhibitors-efficacy', 'ibd-overview'],
+  },
+  {
+    id: 'psoriasis-certolizumab-pregnancy-safety',
+    category: 'psoriasis',
+    title: "One Real Biologic Genuinely Doesn't Cross the Placenta, Making It the Real, Preferred Choice During Pregnancy",
+    teaser: "This category's own already-covered pregnancy-family-planning research gets a real, specific medication answer: certolizumab pegol was found essentially absent from umbilical cord blood in 13 of 14 real, tested newborns.",
+    summary:
+      "This category's own already-covered pregnancy and family-planning research names real, practical challenges managing psoriasis through pregnancy, and real pharmacokinetic research identifies one biologic medication with a genuinely distinct safety profile: certolizumab pegol. Unlike other biologics already covered elsewhere in this category, certolizumab pegol lacks the Fc portion of a normal antibody, the real, specific structural piece that actively transports other biologics across the placenta. Real, dedicated pharmacokinetic studies (the CRIB and CRADLE trials) directly measured this: certolizumab pegol was undetectable in the umbilical cord blood of 13 of 14 tested newborns, and present only in a trace amount in the 14th, real, direct evidence of minimal to no placental transfer throughout pregnancy. A real, large pharmacovigilance safety-database analysis backed this up further, finding no increased teratogenic risk and no increased fetal death risk compared to the general population, with miscarriage rates (8.9 to 15.3 percent) and birth-defect rates (3 to 4 percent) for this drug class overall comparable to the general population baseline. Worth stating directly: real clinical guidance now names certolizumab pegol as the preferred biologic specifically for psoriasis patients who are pregnant or planning pregnancy, usable safely through all three trimesters, a genuinely concrete, real answer to a decision this category's own broader pregnancy research names as a real, common source of anxiety.",
+    citations: [
+      { source: 'Certolizumab pegol for plaque psoriasis in women of childbearing potential, pregnant or breastfeeding in clinical settings: One-year outcomes from the international noninterventional CIMREAL study, PMC12105429', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12105429/' },
+      { source: 'The use of biological drugs in psoriasis patients prior to pregnancy, during pregnancy and lactation: a review of current clinical guidelines, PMID 33603597', url: 'https://pubmed.ncbi.nlm.nih.gov/33603597/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-pregnancy-family-planning', 'psoriasis-advocacy-systemic-med-monitoring'],
+  },
+  {
+    id: 'psoriasis-steroid-rebound-honest-evidence-gap',
+    category: 'psoriasis',
+    title: "'Topical Steroid Withdrawal' Is Widely Discussed Online -- and Real Research Finds the Evidence Behind It Genuinely Thin",
+    teaser: "A real systematic review and meta-analysis found the commonly repeated claim about steroid rebound flares in psoriasis genuinely lacking the supporting evidence its own popularity implies.",
+    summary:
+      "Stopping corticosteroids abruptly, whether topical creams or systemic pills, is widely discussed online as a trigger for a real, severe rebound flare worse than the original psoriasis, and real research finds this a genuinely complicated, only partly-settled question worth stating honestly rather than repeating uncritically. Real clinical distinction exists between two related but different real phenomena: tachyphylaxis (a topical steroid genuinely losing effectiveness with continued, extended use) and topical steroid withdrawal (a real cutaneous reaction appearing specifically after stopping), with several real, proposed mechanisms for the latter, including dysregulated cortisol production and rebound inflammatory cytokine release from a disrupted skin barrier, none of them yet definitively confirmed. The real, most important, directly relevant finding: a real systematic review and meta-analysis specifically examining rebound psoriasis flares following systemic corticosteroid exposure and withdrawal found the evidence supporting this widely-repeated belief genuinely lacking, and called directly for higher-quality studies before the claim can be treated as settled fact. Worth stating plainly: despite extensive real patient discussion and shared experience online, real, rigorous scientific literature on this specific topic remains genuinely scarce, and the honest, current answer is that it's a real, plausible phenomenon that hasn't yet been adequately studied, not a myth and not a proven mechanism either, worth discussing any real steroid tapering plan directly with a dermatologist rather than either dismissing the concern or treating it as settled science.",
+    citations: [
+      { source: 'Psoriasis flares and rebound phenomenon following exposure and withdrawal of systemic steroids: A systematic review and meta-analysis, Journal of the American Academy of Dermatology', url: 'https://www.jaad.org/article/S0190-9622(22)00036-6/fulltext' },
+      { source: 'Breaking the cycle: a comprehensive exploration of topical steroid addiction and withdrawal, PMC11994697', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11994697/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['psoriasis-advocacy-systemic-med-monitoring', 'psoriasis-alcohol-treatment-response-real-data'],
+  },
 ];
