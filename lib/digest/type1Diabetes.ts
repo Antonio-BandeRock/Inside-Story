@@ -529,4 +529,18 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-cgm-alone-real-outcomes', 'type1-hba1c-time-in-range'],
   },
+  {
+    id: 'type1-islet-transplant-longterm-durability',
+    category: 'type1Diabetes',
+    title: 'How Long Islet Transplantation Actually Lasts Depends Heavily on the Real Islet Dose and Immunosuppression Protocol',
+    teaser: "This category's own already-covered islet-transplantation entry names a real 50% one-year insulin-independence rate -- real, longer-term follow-up data finds durability genuinely varies a great deal depending on how much islet tissue was actually transplanted and which immunosuppressive regimen was used.",
+    summary:
+      "This category's own already-covered islet-cell-transplantation entry names a real, working one-year insulin-independence rate, and real, longer-term follow-up research finds the real, durable success rate depends heavily on two specific, real, technical factors: islet dose and immunosuppression protocol. Real, earlier research found genuinely modest long-term durability, roughly 80 percent of patients still showing measurable insulin production (C-peptide) at 5 years, but only about 10 percent maintaining full insulin independence, with a real, median independence duration of just 15 months in that earlier data. Real, more recent research with refined protocols tells a genuinely more encouraging story: patients receiving a real, higher islet dose (over 10,000 islet equivalents per kilogram) with a specific immunosuppressive regimen achieved a real, median graft survival of 9.7 years and 73 percent insulin independence, and a real, separate 20-year single-center study found 70 percent maintaining insulin independence at 10 years, 60 percent at a real, mean 13.3-year follow-up. A real, direct dose-response relationship was also confirmed: patients receiving over 600,000 total islet equivalents reached 75-80 percent insulin independence, versus 55 percent for those receiving fewer. Worth stating directly: this real, dose-and-protocol-dependent variability means islet transplantation's own real, long-term success genuinely depends on where and how it's performed, worth a real, direct conversation about a specific center's own islet-dosing and immunosuppression protocol before assuming outcomes are uniform across every transplant program.",
+    citations: [
+      { source: 'Long-term outcomes of pancreatic islet transplantation alone in type 1 diabetes: a 20-year single-centre study in Italy, The Lancet Diabetes & Endocrinology', url: 'https://www.thelancet.com/journals/landia/article/PIIS2213-8587(24)00341-3/abstract' },
+      { source: 'A Multi-Modal Approach to Islet and Pancreas Transplantation With Calcineurin-Sparing Immunosuppression Maintains Long-Term Insulin Independence in Patients With Type I Diabetes, PMC10285771', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10285771/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['type1-islet-pancreas-transplantation', 'horizon-type1'],
+  },
 ];

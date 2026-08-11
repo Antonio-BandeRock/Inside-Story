@@ -536,4 +536,18 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-bone-density', 'celiac-pediatric-vs-adult-presentation'],
   },
+  {
+    id: 'celiac-seronegative-real-prevalence',
+    category: 'celiac',
+    title: "A Real, Genuine Minority of Celiac Cases Test Negative on Antibody Bloodwork Entirely",
+    teaser: "This category's own already-covered diagnostic-panel entry names real, standard antibody testing as the starting point -- real research finds a genuine, if small, share of confirmed celiac cases test completely negative on that same bloodwork.",
+    summary:
+      "This category's own already-covered diagnostic-panel entry names antibody testing (tissue transglutaminase, endomysial antibodies) as the real, standard first step toward a celiac diagnosis, and real research confirms a genuine, if small, exception worth knowing directly: seronegative celiac disease, real, biopsy-confirmed celiac disease with completely negative antibody bloodwork. Real research found seronegative celiac disease in roughly 1.7 percent of a real, large cohort of 810 confirmed celiac patients, a real, genuine minority, but not a vanishingly rare curiosity either. The real, useful, distinguishing clinical pattern: real research found seronegative patients tending to be diagnosed at a significantly older age, with a real, higher rate of the classical malabsorption presentation, other real autoimmune conditions, and more severe villous atrophy on biopsy, a genuinely different real clinical picture than typical, antibody-positive celiac disease. A real, direct, related finding explains part of why this happens: antibody positivity itself was found to track with how SEVERE the villous atrophy already is, with endomysial antibody positive in 77 percent of cases with total villous atrophy but only 33 percent with partial atrophy, real evidence that milder, earlier tissue damage can genuinely fail to trigger a positive antibody result yet. Worth stating directly: this real, honest gap is exactly why a real, direct biopsy remains genuinely important when celiac disease is still strongly suspected despite negative antibody bloodwork, not something to rule out purely from a negative blood test alone.",
+    citations: [
+      { source: 'Seronegative celiac disease: Shedding light on an obscure clinical entity, PMID 27352981', url: 'https://pubmed.ncbi.nlm.nih.gov/27352981/' },
+      { source: 'Seronegative celiac disease: increased prevalence with lesser degrees of villous atrophy, PMID 15185855', url: 'https://pubmed.ncbi.nlm.nih.gov/15185855/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['celiac-diagnostic-panel', 'celiac-marsh-staging'],
+  },
 ];
