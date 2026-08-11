@@ -534,4 +534,66 @@
 // France_Ciqual: 1,716 -> 1,378. Remaining: France_Ciqual 1,378 (Veg 611,
 // Meat 767), Norway_Matvaretabellen 2,112, Sweden_Livsmedelsverket 2,595
 // -- continuing.
-export const REFERENCE_DB_VERSION = "20260811134500";
+//
+// A real, serious data-labeling bug fixed 2026-08-11, reported directly on
+// device: "Nutrient Ranking... One raw egg does NOT have 2017mg of
+// cholesterol." Traced to the prior session's own 1,315-decision audit-tool
+// import (inside-story-audit-decisions3.json, applied 2026-08-10): 194
+// rename decisions appended a parenthetical prep-state qualifier -- " (Raw)"
+// in 193 cases, " (Cured)" in one -- directly onto base_name, e.g. "Chicken
+// Egg" -> "Chicken Egg (Raw)". The audit tool groups by (category,
+// subcategory, base_name) only, never prep_method, and its own displayed
+// "sample" row for a group is just one representative member -- so a person
+// renaming a group based on that one sample (often genuinely raw, or just
+// containing the word "raw" in its own source name) had no way to see that
+// the SAME group also held that food's Dried/Boiled/Cooked/Roasted/Grilled/
+// Fried/Baked variants. Applying the rename relabels every row in the group
+// identically, regardless of its own real prep_method -- so a dried egg
+// powder's own real, correctly-measured 2017mg/100g cholesterol (dehydrated
+// foods concentrate nutrients relative to their fresh-weight state; this
+// figure was never wrong) ended up displayed under the false, blanket claim
+// "Chicken Egg (Raw)," with the app's own UI then ALSO appending "· Dried"
+// after it (prepMethod itself was never touched) -- "Chicken Egg (Raw) ·
+// Dried," a direct, visible contradiction. Confirmed via direct query this
+// wasn't eggs-only: "Beef Round (Raw)" alone spanned 125 rows across
+// Raw/Roasted/Grilled/Fried/Cooked; the pattern touched Meat (game meats,
+// USDA "Alaska Native" fish/organ entries, every major beef/pork/lamb/
+// turkey cut) and Dairy (all six chicken/duck/goose/quail/turkey egg
+// families) alike. One further, unrelated single-row case found by the same
+// sweep and fixed alongside it: "Pork Ham (Cured)" was USDA's own literal
+// FRESH, uncured "Pork, fresh, leg (ham)" -- 6 Raw + 6 Roasted rows, "cured"
+// wasn't true of any of them.
+//
+// Fixed by stripping only the trailing " (Raw)"/" (Cured)" qualifier back
+// off each of the 194 renamed base_names (plus two smaller strays the same
+// sweep caught: "Baobab Fruit Powder (Raw)," whose own category had since
+// moved SupplementPowder -> PantryStaples, escaping the first pass's
+// category-scoped match; "Bullfrog Meat (raw)," lowercase, missed by the
+// first pass's own case-sensitive suffix check) -- not a full revert to the
+// pre-rename name, since several of those pre-rename names were themselves
+// real, worthwhile cleanups (e.g. "horse" -> "Horse Meat") this fix has no
+// reason to throw away, only the false blanket prep-state claim needed
+// removing. Restores the exact convention every OTHER multi-prep-state food
+// group in this database already follows (confirmed directly against
+// "Bass Fish"/"Chicken Breast (without skin)," untouched by this same bug):
+// base_name stays constant across a food's real prep states, prep_method
+// alone (already correct, never touched by this bug) does the
+// differentiating -- the same field the app's own Nutrient Ranking UI
+// already reads to show "· Dried" beside a food, which is what surfaces the
+// real distinction correctly once the false label is gone. A handful of
+// case-only collisions the strip surfaced (e.g. "Duck Egg" vs.
+// pre-existing "Duck egg") were confirmed as genuine same-species reunions,
+// not two different foods merging -- a real, small side benefit, not a new
+// risk. Checked for, and found zero, food_aliases rows referencing any of
+// the mislabeled base_names (nothing needed updating there). Verified
+// directly against the live database: zero base_names anywhere still carry
+// a false blanket prep-state suffix; "Chicken Egg"/"Chicken Egg Yolk" now
+// correctly show ~350-488mg cholesterol under Raw and ~1,500-2,307mg under
+// Dried, each under its own real, correctly-labeled prep_method. Applied
+// directly against the bundled `.db` (a real, hand-written Node.js script
+// generating the UPDATE statements from the same decisions JSON, the
+// established pattern for a targeted data-correctness patch outside a full
+// rebuild) -- no `build_food_reference_db.py` change needed, since this
+// bug lives in already-applied audit-decision data, not the build pipeline
+// itself.
+export const REFERENCE_DB_VERSION = "20260811150000";
