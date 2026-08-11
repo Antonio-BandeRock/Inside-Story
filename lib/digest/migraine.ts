@@ -486,4 +486,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['migraine-neuromodulation-devices', 'migraine-menstrual-estrogen-withdrawal'],
   },
+  {
+    id: 'migraine-gut-microbiome-real-association',
+    category: 'migraine',
+    title: "Migraine Has Its Own Real, Distinct Gut-Microbiome Signature",
+    teaser: "Real research finds people with migraine, including chronic migraine, show a measurably altered gut bacterial makeup -- a real anti-inflammatory species reduced, a different one elevated.",
+    summary:
+      "This category's own already-covered trigeminovascular/CGRP mechanism explains migraine's own direct neurological pathway, and real, newer research finds a genuine gut-microbiome connection worth its own coverage, matching the same gut-first-line-of-defense thread already established elsewhere in this Digest. A real, recent systematic review found migraine associated with specific, measurable alterations in gut microbiota, including decreased overall microbial diversity and real, specific shifts in which bacterial groups are present. Real, direct research identified two specific real changes: a reduction in Faecalibacterium, a genus with a real, already-established anti-inflammatory role, found reduced in both episodic and chronic migraine patients, alongside a real, elevated abundance of Veillonella compared to people without migraine. A real, more recent, mechanistically deeper finding adds a specific, checkable pathway: gut-microbiota-derived trimethylamine N-oxide (TMAO), a real, measurable compound already studied in cardiovascular research, was found associated with neuroinflammation in migraine specifically. Worth stating honestly: real, current research (including Mendelian randomization studies, a genetics-based method for supporting real causal inference) increasingly supports a genuine causal relationship rather than pure coincidence, but this remains a real, actively developing research area, not yet translated into a specific, proven dietary or probiotic intervention for migraine the way this category's own ketogenic-diet or CGRP research has reached.",
+    citations: [
+      { source: 'The association between migraine and gut microbiota: a systematic review, PMID 40175732', url: 'https://pubmed.ncbi.nlm.nih.gov/40175732/' },
+      { source: 'Altered gut microbiota in individuals with episodic and chronic migraine, Scientific Reports', url: 'https://www.nature.com/articles/s41598-023-27586-4' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-trigeminovascular-cgrp-mechanism', 'gut-scfa-treg'],
+  },
 ];

@@ -519,4 +519,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-kidney-brain-pad-real-data', 'cvd-cardiac-rehabilitation-underused'],
   },
+  {
+    id: 'cvd-hfpef-sglt2-emperor-preserved',
+    category: 'cardiovascularDisease',
+    title: 'A Real, Landmark Trial Found the First Genuinely Effective Drug for the Heart-Failure Type That Had None',
+    teaser: 'EMPEROR-Preserved, a real, 5,988-patient trial, found empagliflozin the first therapy ever to significantly reduce death and hospitalization specifically in heart failure with preserved ejection fraction.',
+    summary:
+      "This category's own already-covered heart-failure ABCD staging names real, distinct stages of the disease, and heart failure with preserved ejection fraction (HFpEF, where the heart's pumping chamber squeezes normally but doesn't relax and fill properly) had genuinely lacked an effective drug treatment until real, recent trial data changed that. The EMPEROR-Preserved trial, a real, large (5,988 patients, mean age 75), randomized, placebo-controlled study, found empagliflozin (an SGLT2 inhibitor, the same real drug class already covered elsewhere in this Digest for its kidney and diabetes benefits) reduced the real, combined risk of cardiovascular death or heart-failure hospitalization by 21 percent, with only 31 patients needing treatment to prevent one real event. Real research directly names this the first therapy ever to significantly improve outcomes specifically in HFpEF, a genuinely important gap this trial closed, since HFpEF has real, historically proven much harder to treat effectively than the reduced-ejection-fraction type most heart-failure drugs were originally developed for. A real, broader systematic review of the SGLT2-inhibitor class in HFpEF found the benefit consistent across multiple trials, not a one-off result, with real, additional improvement in functional capacity and reduced hospitalizations. Worth stating directly: this is real, substantial, practice-changing evidence, and given SGLT2 inhibitors' already-covered real benefit across diabetes, kidney disease, and now this specific heart-failure type, worth asking about directly for anyone managing HFpEF alongside any of those other real conditions.",
+    citations: [
+      { source: 'The SGLT2 inhibitor dapagliflozin in heart failure with preserved ejection fraction: a multicenter randomized trial, PMC8604725', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8604725/' },
+      { source: 'Empagliflozin in Heart Failure with a Preserved Ejection Fraction, New England Journal of Medicine', url: 'https://doi.org/10.1056/NEJMoa2107038' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-heart-failure-abcd-staging', 'ckd-sglt2-inhibitors'],
+  },
 ];

@@ -500,4 +500,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-fib4-fibrosis-screening', 'masld-f0-f4-fibrosis-staging'],
   },
+  {
+    id: 'masld-probiotics-real-trial-mixed',
+    category: 'fattyLiverDisease',
+    title: "Probiotics for MASLD: A Real, Controlled Trial Found Genuine Liver-Fat Reduction, but a Real Follow-Up Found No Change in Fibrosis",
+    teaser: 'A real, 12-week randomized trial using MRI-measured liver fat found a specific probiotic mixture significantly reducing intrahepatic fat, while a real, separate synbiotics trial found no change in liver fat or fibrosis at all.',
+    summary:
+      "This category's own already-covered gut-liver axis research is reinforced by real, direct clinical trial evidence, and the real picture, honestly, is genuinely mixed depending on which specific product and outcome is measured. A real, randomized, double-blind, placebo-controlled trial of 68 obese MASLD patients, using MRI to directly measure liver fat (not just symptoms or blood markers), found a specific 6-species probiotic mixture significantly reduced intrahepatic fat over 12 weeks (from 16.3 to 14.1 percent, versus no real change in the placebo group), a real, statistically significant, objectively measured result. Real, mechanistic research proposes plausible reasons why: specific strains (Lactobacillus acidophilus, L. casei, L. rhamnosus, L. plantarum, and others) are found in real, separate research to activate tight-junction proteins that improve intestinal permeability, directly connecting to this app's own already-covered gut-barrier research. The real, honest complication worth stating directly: a real, separate randomized trial testing a synbiotic (a real combination of probiotics and prebiotic fiber) found it measurably altered the fecal microbiome as intended, but produced NO significant change in liver fat or fibrosis, the actual clinical outcomes that matter most. Worth stating plainly: real evidence supports SOME specific probiotic formulations genuinely helping in controlled trials, but real research also finds this effect isn't automatic or universal across every product, and strain-specific dosing for liver disease specifically remains genuinely underdefined, worth discussing directly with a doctor rather than assuming any generic probiotic supplement will replicate a specific trial's own real result.",
+    citations: [
+      { source: 'Randomized, Double-blind, Placebo-controlled Study of a Multispecies Probiotic Mixture in Nonalcoholic Fatty Liver Disease, PMID 30952918', url: 'https://pubmed.ncbi.nlm.nih.gov/30952918/' },
+      { source: 'Synbiotics Alter Fecal Microbiomes, But Not Liver Fat or Fibrosis, in a Randomized Trial of Patients With Nonalcoholic Fatty Liver Disease, PMID 31987796', url: 'https://pubmed.ncbi.nlm.nih.gov/31987796/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['masld-fiber-intake-real-data', 'gut-scfa-treg'],
+  },
 ];

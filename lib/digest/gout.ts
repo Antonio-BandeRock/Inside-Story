@@ -503,4 +503,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-colchicine-narrow-therapeutic-index', 'gout-flare-vs-septic-arthritis'],
   },
+  {
+    id: 'gout-uric-acid-kidney-stones-real-mechanism',
+    category: 'gout',
+    title: "Gout Roughly Doubles Kidney Stone Risk, and Real Research Names Urine Acidity, Not Just Uric Acid Level, as the Real Driver",
+    teaser: "This category's own already-covered kidney comorbidity entry names real kidney impairment in gout -- real, direct research finds uric acid kidney stones specifically affecting 50% of gout patients in one matched study, versus 20% of people without gout.",
+    summary:
+      "This category's own already-covered kidney/cardiovascular comorbidity entry names real, widespread kidney impairment in gout patients, and uric acid kidney stones are a real, specific, distinct complication worth its own direct coverage. A real, well-documented finding: a history of gout roughly doubles the risk of forming any kidney stone, and a real, matched study found pure uric acid stones specifically in 50 percent of gout patients versus just 20 percent of people without gout, real, striking evidence of how strongly the two conditions travel together. The real, genuinely useful mechanistic finding: research identifies low urine pH (acidity), not simply how much uric acid the kidneys excrete, as the single most important real risk factor for uric acid crystals actually forming stones, with crystallization beginning once uric acid concentration exceeds a real, specific threshold at a urine pH below 5.5. This real, distinct mechanism matters directly: someone with well-controlled blood uric acid (already covered elsewhere in this category's own urate-lowering-therapy research) can still form stones if their urine stays persistently acidic, meaning urine pH is a real, separate, checkable factor worth monitoring alongside blood uric acid itself. Real, population data finds kidney failure and stone disease (urolithiasis) together affecting 10 to 18 percent of people with gout, real evidence of genuine, substantial overlap. Worth stating directly: this real, specific mechanism (urine alkalinization, sometimes via real, prescribed medication) is a genuinely different, complementary treatment target from urate-lowering therapy alone, worth asking about directly if kidney stones have been a recurring issue alongside gout.",
+    citations: [
+      { source: 'Serum Uric Acid and Risk of Kidney Stones, American Journal of Kidney Diseases', url: 'https://www.ajkd.org/article/S0272-6386(17)30698-4/fulltext' },
+      { source: '[Diagnosis and prevention of uric acid stones], PMID 15493118', url: 'https://pubmed.ncbi.nlm.nih.gov/15493118/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-kidney-cardiovascular-real-data', 'gout-urate-lowering-therapy'],
+  },
 ];
