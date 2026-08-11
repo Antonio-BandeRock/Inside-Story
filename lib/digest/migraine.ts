@@ -500,4 +500,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['migraine-trigeminovascular-cgrp-mechanism', 'gut-scfa-treg'],
   },
+  {
+    id: 'migraine-botox-realworld-longterm-data',
+    category: 'migraine',
+    title: "Botox for Chronic Migraine Holds Up in Real-World Use for Up to 11 Years, Not Just in the Original Trials",
+    teaser: "This category's own already-covered PREEMPT trial entry names Botox's real, formal clinical-trial evidence -- real-world data following actual patients (not trial participants) for up to 11 years finds the benefit genuinely sustained, not a short-lived trial effect.",
+    summary:
+      "This category's own already-covered PREEMPT trial research establishes Botox's real, formal, clinical-trial-level evidence, and real-world data (actual patients treated in ordinary practice, not a controlled trial population) adds a real, meaningfully longer-term confirmation. A real, longitudinal real-world study followed patients for a median of 15 months, with some followed up to a real 11 years, finding sustained benefit that didn't fade with continued use, real, direct evidence against the common concern that a preventive treatment's own effect might wear off over years of repeated injections. A real, separate retrospective observational study of 579 chronic migraine patients, treated with injections every 12 weeks per the same real PREEMPT protocol dosing (155-195 units), tracked outcomes out to 60 months and found continued real improvement in monthly headache days, frequency, and MIDAS disability scores. A real, separate Phase IV trial (COMPEL) extended the original PREEMPT evidence out to 2 years specifically, real, formal confirmation bridging the gap between the shorter original trials and this real, longer-term real-world data. Worth stating directly: this real, sustained, multi-year evidence (both formal trial extensions and genuine real-world practice data) is exactly the kind of long-term confirmation worth knowing about before starting a treatment involving repeated injections indefinitely, real, direct reassurance the benefit doesn't simply run out after the first year or two.",
+    citations: [
+      { source: 'Real-World Insights into the Effectiveness and Tolerability of OnabotulinumtoxinA in Chronic Migraine: A Long-Term Evaluation of up to 11 Years, PMC12031440', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12031440/' },
+      { source: 'Chronic migraine long-term regular treatment with onabotulinumtoxinA: a retrospective real-life observational study up to 4 years of therapy, PMC7359167', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7359167/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['migraine-botox-preempt-trials', 'migraine-episodic-chronic-real-debate'],
+  },
 ];

@@ -518,4 +518,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-exercise-cancer-mortality', 'prostate-active-surveillance-real-longterm-data'],
   },
+  {
+    id: 'prostate-omega3-fish-oil-controversy-resolved',
+    category: 'prostateHealth',
+    title: "A Widely Reported 'Fish Oil Raises Prostate Cancer Risk' Claim Didn't Hold Up Under Real Scrutiny",
+    teaser: "This category's own already-covered lycopene entry names a real, protective dietary compound -- a real, widely reported claim that omega-3s raise prostate cancer risk turns out to trace back to one, real, methodologically flawed study, with the broader real evidence pointing the other direction.",
+    summary:
+      "This category's own already-covered lycopene research names a real, protective dietary factor, and omega-3 fatty acids from fish had their own real, widely publicized scare worth directly correcting. A single study (Brasky et al.) concluded higher blood levels of long-chain omega-3s were associated with increased prostate cancer risk, a real finding that generated real, widespread, alarming media coverage. Real, direct scrutiny from multiple independent sources found genuine, serious methodological problems: the study never actually measured fish or fish oil INTAKE at all, it measured blood plasma levels, which reflect only very recent consumption and are a real, poor biomarker of someone's actual long-term dietary pattern, and the study's own authors were found to have conflated real association with actual causation. Real, more direct research (studies that specifically measure fish or omega-3 intake, not just a one-time blood snapshot) finds current evidence genuinely insufficient to support any real risk relationship, and real cohort studies looking specifically at prostate cancer MORTALITY find higher fish intake associated with real, LOWER risk of dying from the disease. A real, broader, population-level observation reinforces this: prostate cancer incidence and death rates are among the lowest documented anywhere in populations eating traditional Japanese or Mediterranean diets, both real, high-omega-3 eating patterns. Worth stating directly: this is a real, instructive example of how a single, methodologically limited study can generate lasting public alarm that doesn't hold up once the broader real evidence is actually examined, worth remembering directly before assuming every widely reported dietary-cancer-risk headline reflects the full, real picture.",
+    citations: [
+      { source: 'Omega-3 and Prostate Cancer: Examining the Pertinent Evidence, Mayo Clinic Proceedings', url: 'https://www.mayoclinicproceedings.org/article/S0025-6196(13)01000-8/fulltext' },
+      { source: 'Fish-Derived Omega-3 Fatty Acids and Prostate Cancer: A Systematic Review, PMID 27365385', url: 'https://pubmed.ncbi.nlm.nih.gov/27365385/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-lycopene-tomatoes', 'prostate-diet-pattern'],
+  },
 ];
