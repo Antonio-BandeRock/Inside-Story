@@ -638,4 +638,25 @@
 // semantic/identity correctness (e.g. whether a renamed food's real
 // species/variety claim is itself accurate), which would mean re-reviewing
 // each decision by hand the way the original audit did.
-export const REFERENCE_DB_VERSION = "20260811150500";
+// A real, direct restore, 2026-08-11, direct request: "restore from the
+// last back up from 8/10/2026. ONLY THE APP database and structure."
+// assets/data/foods_reference.db was checked out verbatim from
+// c09db5159ab8ea94d8805f3da4d25d1a0ceaff77 (2026-08-10 11:13, "Apply
+// 1,315 audit-tool decisions"), the last real commit to this file on
+// 8/10 -- includes the person's own real 1,315-decision audit-tool
+// review batch and the Sweden import from earlier that same day, and
+// deliberately EXCLUDES everything from 8/11: the morning session's own
+// hand-translation work, and this same day's own egg/cholesterol
+// prep-state mislabeling fix (the "(Raw)"/"(Cured)" false-blanket-label
+// bug -- confirmed via direct query the restored file's own "Chicken Egg"
+// / Dried / 2017mg row is back to reading "Chicken Egg (Raw)," exactly as
+// it did before that fix). Deliberately did NOT revert lib/db.ts --
+// today's own two verified fixes there (getReferenceDatabase() no longer
+// forcing a network refetch on every launch; rankFoodsByNutrient()'s SQL-
+// side dedup) are real, content-independent code fixes for the actual
+// reported symptoms, not something reverting the data file should also
+// undo. Version bumped here specifically so the app detects a real
+// mismatch against whatever it already has on-device and actually
+// reimports this restored content, rather than silently keeping today's
+// now-stale cached copy.
+export const REFERENCE_DB_VERSION = "20260811160000";
