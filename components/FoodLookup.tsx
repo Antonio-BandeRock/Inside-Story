@@ -169,6 +169,36 @@ export function categoryLabel(category: string): string {
   return CATEGORY_DISPLAY_LABELS[category] ?? category;
 }
 
+// Real, human-readable labels for the reference database's own raw
+// `source` column values -- 2026-08-11, built for real source attribution
+// ("data from any of the datasets should always identify itself as being
+// from its host dataset"), starting with Insights' own Nutrient Ranking
+// lens (see app/(tabs)/insights.tsx's own renderRow) since that's the one
+// place this app already lets someone compare the same nutrient across
+// real, different foods -- the builders' own per-ingredient source label
+// is real, planned follow-up work, not done in this same pass. 'Derived'
+// is the one non-national-agency value (real USDA nutrient figures
+// duplicated onto a few aged/unaged spirit variants no source measures
+// separately, see scripts/build_food_reference_db.py's own
+// SYNTHETIC_SPIRIT_VARIANTS) -- labeled honestly rather than implying a
+// real eleventh agency.
+const SOURCE_DISPLAY_LABELS: Record<string, string> = {
+  USDA: 'USDA (USA)',
+  Canada_CNF: 'Canada (CNF)',
+  UK_CoFID: 'UK (CoFID)',
+  Germany_BLS: 'Germany (BLS)',
+  Australia_AFCD: 'Australia (AFCD)',
+  France_Ciqual: 'France (Ciqual)',
+  Japan_MEXT: 'Japan (MEXT)',
+  Norway_Matvaretabellen: 'Norway (Matvaretabellen)',
+  Sweden_Livsmedelsverket: 'Sweden (Livsmedelsverket)',
+  Derived: 'Derived (from USDA figures)',
+};
+
+export function sourceLabel(source: string): string {
+  return SOURCE_DISPLAY_LABELS[source] ?? source;
+}
+
 // Reported directly by the user, 2026-08-02, while reviewing Bev's own
 // Juice subcategory: Japan_MEXT's citrus cultivar names ("Harumi,"
 // "Kabosu," "Yuzu," etc.) and its "juice sacs"/"straight fruit juice" fruit

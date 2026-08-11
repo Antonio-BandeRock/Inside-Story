@@ -54,7 +54,7 @@ import {
 } from '../../lib/sixDimensionsReference';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
-import { FoodLookup, categoryLabel } from '../../components/FoodLookup';
+import { FoodLookup, categoryLabel, sourceLabel } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { linkifyText } from '../../components/InfoAlert';
 import type { HelpSection } from '../../components/HelpButton';
@@ -1387,6 +1387,15 @@ function NutrientRankingView({
                 highest-measured state, and this makes clear which one,
                 rather than silently reading like a raw/fresh value. */}
             {food.prepMethod && food.prepMethod !== 'Raw' ? ` · ${food.prepMethod}` : ''}
+            {/* Real source attribution, 2026-08-11 -- "data from any of
+                the datasets should always identify itself as being from
+                its host dataset." Insights is deliberately the one place
+                this app lets a food's own SOURCE stay visible rather than
+                defaulting/hiding it the way the builders' own USDA-first
+                convention will (separate, not-yet-built work) -- this is
+                exactly the "comparison between datasets" context that's
+                meant to allow. */}
+            {` · ${sourceLabel(food.source)}`}
           </Text>
         </View>
         <Text style={styles.rankAmount}>{formatAmount(food.amountPer100g, selectedNutrient?.unit ?? '')}</Text>

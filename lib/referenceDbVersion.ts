@@ -254,4 +254,59 @@
 // `ALCOHOL_HIDDEN_BASE_NAMES` Set, since the real unhide-plus-rename
 // decisions already made them unreachable by their old name, leaving
 // only cleanup, not a functional change.
-export const REFERENCE_DB_VERSION = "20260810171057";
+//
+// Bumped again, 2026-08-11: a new `foods.needs_translation` column (0/1,
+// applied directly against the live, bundled .db, same as every other
+// column added this way -- see the `hidden` column's own precedent),
+// backfilling to 1 for every real row from the three sources whose own
+// `name`/`base_name` are still in their native language, not English --
+// France_Ciqual (2,775 rows, a real, pre-existing gap that predates this
+// whole international-import effort, only ever individually patched a
+// row at a time as specific bugs surfaced -- not previously known as a
+// comprehensive, ~2,775-row problem until checked directly this pass),
+// Norway_Matvaretabellen (2,121), and Sweden_Livsmedelsverket (2,606) --
+// 7,502 rows total. Also backfilled Sweden's own `name_local` (previously
+// entirely NULL, unlike every other non-English source, which already
+// preserves its native name there) from its current `name` value, before
+// that field starts getting overwritten with real English translations.
+// lib/db.ts's buildScopeClause now filters on this column unconditionally,
+// closing a real, confirmed leak: several categories with little-to-no
+// USDA coverage of their own (Mushroom, Alcohol, PantryStaples,
+// PastaNoodles, SaucesCondiments, CommercialPremade) bypass the usdaOnly
+// filter entirely, and nobody had checked whether Norway/Sweden/France's
+// own rows were sitting in any of them -- 670 real rows were, confirmed
+// via direct query, silently visible in the live app the whole time
+// despite the 2026-08-10 "kept invisible" decision, which was only ever
+// checked against the far more common usdaOnly-filtered path. Direct,
+// confirmed report: a person saw Sweden's own "Champinjon" mushroom
+// entries showing untranslated fiber data instead of the expected
+// "Common Mushroom." Translation itself is real, separate, ongoing work
+// (explicit direction: real, verified batches over multiple sessions, not
+// a rushed blind pass) -- as each row's own `name`/`base_name` gets a
+// real English translation, its `needs_translation` flag clears and it
+// starts appearing on its own, no further code change needed.
+//
+// Bumped again, same day: the first real, verified translation batch --
+// Sweden_Livsmedelsverket's own 11 real Mushroom rows (the exact ones a
+// direct report already surfaced, "Champinjon" showing where "Common
+// Mushroom" was expected). Each translated by hand, checked against its
+// own real water content first to confirm the actual prep state before
+// naming it (e.g. "Champinjon" alone, 91.4g water/100g, confirmed
+// consistent with a real raw mushroom, not assumed) -- not machine-
+// translated and not guessed. Title Case throughout, matching this app's
+// own more recent naming convention (Red Bell Pepper, Chicken Egg) rather
+// than the older lowercase style some earlier-imported sources still
+// carry. `needs_translation` cleared to 0 for exactly these 11 rows;
+// `name_local` preserves the real original Swedish. Verified directly
+// against the live database afterward, not assumed: these 6 Button
+// Mushroom rows now correctly merge (case-insensitive base_name) with
+// Germany_BLS's own existing 8 Button Mushroom rows into one real,
+// 14-row, cross-source-comparable group -- confirming both that the
+// translation lines up with this app's own established naming (matching
+// "Button mushroom," not inventing a competing "Common Mushroom" name
+// that would have sat as a redundant near-duplicate) and that real
+// cross-source duplication at the prep-method level (two independent
+// "Raw" rows, one per country) is still visibly unresolved until the
+// USDA-default-with-labeled-fallback logic for builders gets built --
+// named directly as real, remaining, not-yet-done work, not glossed over.
+export const REFERENCE_DB_VERSION = "20260811093000";

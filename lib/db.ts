@@ -915,7 +915,32 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
   // Database Audit tool needed -- every one of this function's own callers
   // (searchReferenceFoodNames, getPreparationMethods, resolveFoodChoice,
   // and the alias-resolution path) gets this for free from one change here.
-  let clause = 'category = ? AND hidden = 0';
+  //
+  // 'needs_translation' column, 2026-08-11, same "one universal filter, not
+  // a per-category patch" reasoning -- a real, confirmed bug found while
+  // investigating a direct report: the 2026-08-10 decision to keep Norway/
+  // Sweden's own untranslated food names invisible was only ever checked
+  // against the usdaOnly branch below, which most categories go through.
+  // But several categories (Mushroom, Alcohol, PantryStaples,
+  // PastaNoodles, SaucesCondiments, CommercialPremade) deliberately BYPASS
+  // that branch entirely (see resolveEffectiveUsdaOnly's own history --
+  // each has little-to-no real USDA coverage of its own, so usdaOnly
+  // resolves false for them, skipping the `if (usdaOnly)` block below
+  // completely) -- and nobody had checked whether the untranslated
+  // sources also had rows sitting in those categories. They did: 670 real
+  // rows (Sweden's own Mushroom entries were the specific ones a person
+  // directly ran into, e.g. "Champinjon" instead of "Common Mushroom"),
+  // confirmed via direct query before this fix, silently exposed the
+  // whole time regardless of the earlier "kept invisible" framing.
+  // Putting the check here, unconditionally, in the one base clause every
+  // caller already shares, closes it for good rather than adding a sixth
+  // per-category patch to a list that's already shown itself easy to miss
+  // a case in. `needs_translation` also directly supports translating in
+  // real, verified batches over time (the person's own explicit choice,
+  // not a rush job) -- as a row's own `name`/`base_name` gets a real
+  // English translation, that row's `needs_translation` flag clears and
+  // it starts appearing on its own, no code change needed here.
+  let clause = 'category = ? AND hidden = 0 AND needs_translation = 0';
 
   if (subcategory) {
     clause += ' AND subcategory = ?';
