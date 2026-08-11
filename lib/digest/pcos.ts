@@ -484,4 +484,18 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-sleep-mental-health-real-data', 'pcos-insulin-resistance-mechanism'],
   },
+  {
+    id: 'pcos-acanthosis-nigricans-visible-marker',
+    category: 'pcos',
+    title: 'Dark, Velvety Skin Patches Are a Real, Visible, Often-Overlooked Sign of the Insulin Resistance Behind PCOS',
+    teaser: "This category's own already-covered insulin-resistance mechanism has a real, physically visible marker: acanthosis nigricans, dark, thickened, velvety skin, usually at the neck or underarms, affecting over half of PCOS patients in some studies.",
+    summary:
+      "This category's own already-covered insulin-resistance research explains PCOS's own real, central mechanism, and acanthosis nigricans, dark, thickened, velvety patches of skin typically appearing at the back of the neck, underarms, or skin folds, is a real, directly visible marker of that same underlying process, not a separate skin condition. Real prevalence data finds it genuinely common in PCOS: one real study found it in 53 percent of patients, significantly correlated with BMI, fasting insulin level, and HOMA-IR (a real, standard insulin-resistance marker), and a real, separate study in Pakistan found acanthosis present in 56.5 percent of PCOS cases, with a real, significant, direct association to insulin resistance itself. Real research in adolescents specifically finds the same pattern holding even before full PCOS diagnostic criteria are met, real evidence it can serve as an early, visible clue worth raising with a doctor. Worth stating directly: acanthosis nigricans isn't unique to PCOS (it shows up in obesity and prediabetes generally too), but its presence in someone already being evaluated for PCOS is real, meaningful, physical evidence pointing toward this category's own central insulin-resistance mechanism, worth mentioning directly during an evaluation rather than dismissed as a cosmetic skin discoloration issue on its own.",
+    citations: [
+      { source: '[Acanthosis nigricans: metabolic interrelations inherent to the polycystic ovary syndrome], PMID 25272362', url: 'https://pubmed.ncbi.nlm.nih.gov/25272362/' },
+      { source: 'Prevalence and clinical profile of insulin resistance in young women of polycystic ovary syndrome: A study from Pakistan, PMC3809275', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3809275/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'pcos-adolescent-diagnosis-challenge'],
+  },
 ];

@@ -486,4 +486,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-exercise-independent-weight-loss', 'masld-sarcopenic-obesity'],
   },
+  {
+    id: 'masld-fib4-two-tier-primary-care-screening',
+    category: 'fattyLiverDisease',
+    title: "A Real, Two-Step Screening Path Now Lets Primary Care Sort Out Who Actually Needs a Liver Specialist",
+    teaser: "This category's own already-covered FIB-4 entry names it as a screening tool -- real, current guidelines now build it into a formal, two-tier pathway that's directly cut unnecessary specialist referrals.",
+    summary:
+      "This category's own already-covered FIB-4 fibrosis-screening entry gives the basic tool, and real, current clinical guidance builds it into a genuinely practical, two-step pathway most people will actually encounter through primary care, not a liver specialist. Real, current guidelines (AASLD, ACG, and AGA jointly informing this pathway) recommend FIB-4, a real, simple score calculated from age, AST, ALT, and platelet count, already routinely drawn bloodwork, as the real first screening step for anyone with type 2 diabetes or metabolic syndrome (both already covered elsewhere in this Digest as real MASLD risk factors). Real, specific thresholds trigger the second step: an elevated FIB-4 (above 1.3 for ages 36-65, above 2.0 for over 65) leads to a real, non-invasive secondary test, transient elastography (a real ultrasound-based liver-stiffness measurement) or a similar blood-based fibrosis score, before ever involving a specialist. The real, practical payoff of this two-tier approach is stated directly in the research: it has measurably reduced unnecessary specialist referrals, letting gastroenterology and hepatology clinics focus on people who genuinely need them. Worth knowing directly: this real, structured pathway means a real, already-common lab panel can start the process of ruling MASLD-related fibrosis in or out, worth asking about directly if type 2 diabetes or metabolic syndrome is already part of someone's own real health picture.",
+    citations: [
+      { source: 'Identifying and Linking Patients At Risk for MASLD with Advanced Fibrosis to Care in Primary Care, PMC11861828', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11861828/' },
+      { source: 'FIB-4 as a screening and disease monitoring method in pre-fibrotic stages of metabolic dysfunction-associated fatty liver disease, PMID 38788522', url: 'https://pubmed.ncbi.nlm.nih.gov/38788522/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-fib4-fibrosis-screening', 'masld-f0-f4-fibrosis-staging'],
+  },
 ];

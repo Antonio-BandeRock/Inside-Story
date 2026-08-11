@@ -472,4 +472,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-episodic-chronic-real-debate', 'migraine-medication-overuse-headache'],
   },
+  {
+    id: 'migraine-acupuncture-real-evidence-honest',
+    category: 'migraine',
+    title: "Acupuncture for Migraine: Real Trials Find a Genuine Effect, but Real Research Also Finds Much of It May Not Be Needle-Specific",
+    teaser: "Real, rigorous trials find acupuncture measurably reduces migraine frequency, but a real, recurring, honest finding is that sham (fake) acupuncture often performs nearly as well as the real thing.",
+    summary:
+      "This category's own already-covered neuromodulation-devices entry names one real, drug-free migraine option, and acupuncture is a real, much older, more widely used one with a genuinely mixed evidence picture worth stating honestly rather than glossed over either direction. A real overview of systematic reviews found 15 real reviews existed on the topic, but only 4 could be formally graded for evidence quality, and that formal grading found the certainty of most underlying evidence low or very low, a real, honest limitation. Real trial data does find genuine benefit: acupuncture shows real advantages in pain improvement and efficacy compared to no treatment or drug treatment in several trials, and a real, dedicated multicenter trial for menstruation-related migraine specifically found real, meaningful prophylactic benefit. The real, most important honest complication, though, appears repeatedly across this literature: several real, well-designed trials find acupuncture performs no better than SHAM acupuncture (needles placed at non-traditional, deliberately 'incorrect' points) for reducing headache frequency, real evidence that a meaningful part of acupuncture's benefit may come from non-specific effects (attention, ritual, expectation) rather than the traditional acupuncture points themselves. Worth stating plainly: this doesn't mean acupuncture doesn't help, real trials do show benefit over no treatment at all, it means the mechanism behind that benefit is genuinely less settled than 'stimulating specific points' alone, worth knowing when deciding whether the real time and cost investment make sense for a given person.",
+    citations: [
+      { source: 'An Overview of Systematic Reviews of Randomized Controlled Trials on Acupuncture Treating Migraine, PMC6875188', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6875188/' },
+      { source: 'Acupuncture for migraine prophylaxis: a randomized controlled trial, PMID 22231691', url: 'https://pubmed.ncbi.nlm.nih.gov/22231691/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-neuromodulation-devices', 'migraine-menstrual-estrogen-withdrawal'],
+  },
 ];

@@ -489,4 +489,18 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['gout-urate-lowering-therapy', 'gout-hla-b5801-screening'],
   },
+  {
+    id: 'gout-acute-flare-treatment-real-comparative-trials',
+    category: 'gout',
+    title: 'NSAIDs, Colchicine, and Steroids: Real, Head-to-Head Trials Find All Three Work About Equally Well for a Gout Flare',
+    teaser: "This category's own already-covered colchicine entry names its own narrow therapeutic index -- real, direct comparative trials find naproxen and steroids often work just as well for an acute flare, real, useful alternatives worth knowing.",
+    summary:
+      "This category's own already-covered colchicine research names its own real, narrow safety margin, and real, direct comparative trials find the three standard acute-flare treatments, NSAIDs, colchicine, and oral corticosteroids, genuinely comparable in real-world effectiveness, giving a real, practical reason to consider alternatives when one isn't well tolerated. The real CONTACT trial, a real, multicenter, primary-care randomized study, directly compared naproxen against low-dose colchicine and found no significant difference in pain reduction over the first week, though the two carried real, different side-effect profiles: colchicine caused more diarrhea (45.9 percent vs. 20.0 percent) and headache, while naproxen caused more constipation. A real, separate, pragmatic, multicenter, double-blind trial found oral prednisolone (a corticosteroid) performing comparably to standard NSAID treatment for acute gout, real evidence supporting steroids as a genuine, real alternative, particularly relevant for anyone whose kidney function or GI history already limits NSAID use, both real, common considerations elsewhere in this category. A real, current guideline from the American College of Physicians directly reflects this real equivalence, recommending any of the three as reasonable first-line options based on individual patient factors rather than ranking one above the others. Worth stating directly: this is real, useful, actionable choice, not a hierarchy, worth discussing directly with a doctor based on which side-effect profile fits an individual's own real health picture best.",
+    citations: [
+      { source: 'Open-label randomised pragmatic trial (CONTACT) comparing naproxen and low-dose colchicine for the treatment of gout flares in primary care, PMC7025732', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7025732/' },
+      { source: 'Oral Prednisolone in the Treatment of Acute Gout: A Pragmatic, Multicenter, Double-Blind, Randomized Trial, Annals of Internal Medicine', url: 'https://doi.org/10.7326/m14-2070' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['gout-colchicine-narrow-therapeutic-index', 'gout-flare-vs-septic-arthritis'],
+  },
 ];
