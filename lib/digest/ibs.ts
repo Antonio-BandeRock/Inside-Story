@@ -536,4 +536,17 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-economic-work-productivity-burden', 'ibs-fibromyalgia-real-bidirectional'],
   },
+  {
+    id: 'ibs-eluxadoline-real-trial-data-gallbladder-warning',
+    category: 'ibs',
+    title: "A Real IBS-D Medication Genuinely Works, but Carries a Real, Specific Warning for Anyone Without a Gallbladder",
+    teaser: "This category's own already-covered rifaximin/linaclotide entry names two real IBS medications -- eluxadoline is a real, genuinely different third option, working through opioid receptors directly in the gut, with real trial data and one real, specific, must-know safety caveat.",
+    summary:
+      "This category's own already-covered medications entry names rifaximin and linaclotide as real, established IBS treatments, and eluxadoline, a real, mechanistically distinct medication for IBS with diarrhea, deserves its own direct coverage, including one real, specific safety detail worth knowing before starting it. Eluxadoline works as a mixed opioid-receptor agonist and antagonist acting directly in the gut, distinct from a systemic opioid, designed to slow diarrhea without the constipation rebound often seen with other IBS-D drugs. Two real, large Phase 3 trials (IBS-3001 and IBS-3002, published together in the New England Journal of Medicine) found the 100mg dose achieving a real, significant composite response rate of 29.3 percent versus 19.0 percent on placebo in the first trial, and 32.7 percent versus 20.2 percent in the second, both real, statistically significant improvements over placebo at 26 weeks. The real, specific safety warning, worth stating directly and clearly: pancreatitis developed in 0.3 percent of the combined trial safety population (5 of 1,666 patients), and real, post-marketing analysis found this risk concentrated specifically among patients WITHOUT a gallbladder, a real, identifiable, checkable risk factor rather than a vague, universal caution. Worth stating directly: this real, genuine efficacy data makes eluxadoline a real, legitimate third option alongside this category's own already-covered rifaximin and linaclotide, but the real, gallbladder-specific pancreatitis warning is exactly the kind of detail worth confirming directly with a doctor before starting it, particularly for anyone who has had their gallbladder removed.",
+    citations: [
+      { source: 'Eluxadoline for Irritable Bowel Syndrome with Diarrhea, New England Journal of Medicine, PMID 26789872', url: 'https://pubmed.ncbi.nlm.nih.gov/26789872/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-linaclotide-real-quantified-response-rates'],
+  },
 ];

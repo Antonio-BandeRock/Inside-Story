@@ -556,4 +556,17 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-anemia-erythropoietin', 'ckd-iv-vs-oral-iron-real-trials'],
   },
+  {
+    id: 'ckd-inappropriate-drug-dosing-real-prevalence',
+    category: 'chronicKidneyDisease',
+    title: 'A Real, Common Problem: Medications Prescribed Without Real Adjustment for Reduced Kidney Function',
+    teaser: "This category's own already-covered NSAID and contrast-dye research names real, specific medication risks -- a real, 49-study systematic review across 23 countries finds a much broader real problem: renally-excreted drugs prescribed without proper dose adjustment, affecting up to 81% of hospitalized CKD patients in some settings.",
+    summary:
+      "This category's own already-covered NSAID and contrast-induced-nephropathy research already names real, specific medication risks, and a real, much broader problem, medications prescribed at a standard dose without accounting for reduced kidney clearance, deserves its own direct coverage. A real, systematic review of 49 studies across 23 countries found inappropriate prescribing of renally-excreted drugs (medications the kidneys are meant to clear, which can accumulate to dangerous levels when kidney function is reduced) genuinely common across every care setting studied: 9.4 to 81.1 percent in hospital settings, 13 to 80.5 percent in ambulatory (outpatient) care, and 16 to 37.9 percent in long-term care facilities. This is a real, wide range reflecting genuine variation across different studies and populations, but even the low end represents a real, meaningful share of patients affected. The real, serious stakes: the same review found inappropriate prescribing associated with real, increased hospital stays and a real, 40 percent higher mortality risk, a genuinely serious consequence from something as preventable as a standard, unadjusted dose. Worth stating directly, and matching this category's own already-covered example (opioid accumulation in end-stage kidney disease requiring real dose reduction): this is a real, systemic, common problem, not a rare prescribing mistake, worth directly and proactively asking any new prescriber whether a given medication's dose has been checked against current kidney function (eGFR, already covered elsewhere in this category's own self-advocacy research), rather than assuming every prescription automatically accounts for it.",
+    citations: [
+      { source: 'Inappropriate prescribing in chronic kidney disease: A systematic review of prevalence, associated clinical outcomes and impact of interventions, International Journal of Clinical Practice, PMID 28544106', url: 'https://pubmed.ncbi.nlm.nih.gov/28544106/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ckd-nsaid-kidney-injury-real-data', 'ckd-egfr-acr-monitoring'],
+  },
 ];
