@@ -1818,42 +1818,48 @@ export type RankedFood = {
 };
 
 // Real, visible foods ranked by how much of one chosen nutrient they carry
-// per 100g -- most to least. Dedupes to one row per (category, base_name),
-// the same "Spinach x7" concern named throughout this file (see
-// resolveEffectiveUsdaOnly's own comment) -- but keeps whichever SOURCE row
-// reports the LARGEST amount for that food rather than dropping every
-// non-USDA source outright, so real cross-source measurement variance
-// doesn't silently under-report a food's own best-measured value the way a
-// blanket usdaOnly filter would. Pulls every matching row first (one
-// nutrient code is sparse enough across 22,016 foods that this is a cheap
-// scan, not a full-table one) and dedupes/sorts in JS, since the dedup key
-// itself needs case-insensitive base_name comparison SQL's own GROUP BY
-// can't cleanly express alongside "keep the whole row, not just the max
-// value."
+// per 100g -- most to least. Dedupes to one row per (category, base_name,
+// prep state), the same "Spinach x7" concern named throughout this file
+// (see resolveEffectiveUsdaOnly's own comment) -- but keeps whichever
+// SOURCE row reports the LARGEST amount for that exact food-and-prep-state
+// rather than dropping every non-USDA source outright, so real cross-source
+// measurement variance doesn't silently under-report a food's own
+// best-measured value the way a blanket usdaOnly filter would. Pulls every
+// matching row first (one nutrient code is sparse enough across 22,016
+// foods that this is a cheap scan, not a full-table one) and dedupes/sorts
+// in JS, since the dedup key itself needs case-insensitive base_name
+// comparison SQL's own GROUP BY can't cleanly express alongside "keep the
+// whole row, not just the max value."
 //
-// 2026-08-11, a real, reported bug: the dedup key (category + base_name)
-// never distinguished prep_method, so it was ALSO silently collapsing a
-// food's own Raw/Boiled/Dried/Stewed rows together, not just genuine
-// cross-source duplicates of the same prep state -- the comment above only
-// ever described the cross-SOURCE case, prep_method was never meant to be
-// swept in too. Drying/dehydrating concentrates almost every nutrient by
-// removing water, so "keep whichever row reports the largest amount"
-// meant a food with a Dried variant would always win over its own Raw one
-// regardless of which a person actually meant -- confirmed directly:
-// black truffle (Germany_BLS) reads 16.54g fiber/100g raw vs. 54.923g
-// dried, and this function was returning the dried figure as if it were
-// the food's own general "black truffle" value. Fixed by making a real
-// Raw (or the untagged 'Standard' sentinel -- see resolveFoodChoice's own
-// comment for what a null prep_method means) row beat ANY other prep
-// state outright, regardless of amount -- the "keep the larger amount"
-// comparison below now only ever runs between two rows in the SAME
-// preference tier (both real Raw/Standard rows from different sources, or
-// -- for a food with no Raw/Standard row at all, e.g. a dried spice with
-// no fresh form on file -- both non-Raw rows), preserving the original,
-// real cross-source-variance reasoning without the unintended prep-method
-// side effect.
-function prefersRawOrStandard(prepMethod: string | null): boolean {
-  return prepMethod === null || prepMethod === 'Raw';
+// 2026-08-11, a real, reported bug (and its own real fix, then a direct
+// correction to that fix the same day): the dedup key (category +
+// base_name) never distinguished prep_method, so it was ALSO silently
+// collapsing a food's own Raw/Boiled/Dried/Stewed rows together, not just
+// genuine cross-source duplicates of the same prep state. Drying
+// concentrates almost every nutrient by removing water, so "keep whichever
+// row reports the largest amount" meant a food's Dried variant would always
+// win over its own Raw one -- confirmed directly: black truffle
+// (Germany_BLS) reads 16.54g fiber/100g raw vs. 54.923g dried, and this
+// function was returning the dried figure as the food's own general "black
+// truffle" value. A first fix made a real Raw/Standard row always beat any
+// other prep state outright, which stopped the wrong number showing up --
+// but also meant the Dried row simply vanished from the ranking entirely,
+// its own real, different fiber content never shown anywhere. Direct
+// correction: "this is a raw whole foods database, and even though dried
+// still starts as raw, the numbers will be different and we need to
+// identify that. If they show up in the list twice, once raw and once
+// dried, then so be it." The dedup key now includes the food's own prep
+// state directly (normalizing a null/untagged row and an explicit 'Raw' tag
+// to the same key -- see resolveFoodChoice's own comment for why those two
+// already mean the same real thing elsewhere in this file), so Raw and
+// Dried mushrooms are two real, separately-ranked, correctly-labeled
+// entries rather than one slot with a winner-take-all comparison --
+// dedup by largest amount now only ever happens BETWEEN rows that are
+// genuinely the same food in the same real prep state, measured by
+// different sources, which is the one case this mechanism was always
+// meant to cover.
+function normalizedPrepKey(prepMethod: string | null): string {
+  return prepMethod === null ? 'Raw' : prepMethod;
 }
 
 export async function rankFoodsByNutrient(nutrientCode: string, limit = 100): Promise<RankedFood[]> {
@@ -1869,30 +1875,16 @@ export async function rankFoodsByNutrient(nutrientCode: string, limit = 100): Pr
     nutrientCode,
   );
 
-  const byFood = new Map<string, RankedFood>();
+  const byFoodAndPrep = new Map<string, RankedFood>();
   for (const row of rows) {
-    const key = `${row.category}|${row.baseName.toLowerCase()}`;
-    const existing = byFood.get(key);
-    if (!existing) {
-      byFood.set(key, row);
-      continue;
-    }
-    const rowPrefers = prefersRawOrStandard(row.prepMethod);
-    const existingPrefers = prefersRawOrStandard(existing.prepMethod);
-    if (rowPrefers && !existingPrefers) {
-      // A genuine Raw/Standard row always wins over a cooked/dried/
-      // concentrated one, regardless of amount.
-      byFood.set(key, row);
-    } else if (rowPrefers === existingPrefers && row.amountPer100g > existing.amountPer100g) {
-      // Both rows are in the same preference tier -- the original,
-      // intended cross-source comparison (or, for a food with no real
-      // Raw/Standard row at all, a comparison among whatever prep states
-      // it does have).
-      byFood.set(key, row);
+    const key = `${row.category}|${row.baseName.toLowerCase()}|${normalizedPrepKey(row.prepMethod)}`;
+    const existing = byFoodAndPrep.get(key);
+    if (!existing || row.amountPer100g > existing.amountPer100g) {
+      byFoodAndPrep.set(key, row);
     }
   }
 
-  return Array.from(byFood.values())
+  return Array.from(byFoodAndPrep.values())
     .sort((a, b) => b.amountPer100g - a.amountPer100g)
     .slice(0, limit);
 }

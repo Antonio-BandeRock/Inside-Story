@@ -1380,12 +1380,17 @@ function NutrientRankingView({
             {categoryLabel(food.category)}
             {food.subcategory ? ` · ${food.subcategory}` : ''}
             {/* Only shown for a real, non-default prep state -- 2026-08-11.
-                Most rows are Raw/Standard (the now-preferred tier, see
-                rankFoodsByNutrient's own comment in lib/db.ts) and don't
-                need this spelled out; a food with no Raw form at all (a
-                dried spice, say) still legitimately shows its own
-                highest-measured state, and this makes clear which one,
-                rather than silently reading like a raw/fresh value. */}
+                rankFoodsByNutrient now dedupes per (food, prep state), not
+                per food alone -- direct instruction, since drying/cooking
+                genuinely changes a food's own nutrient content and both
+                real numbers should be visible rather than one silently
+                winning over the other. That means the SAME food can show
+                up here twice (Mushroom, Raw and Mushroom, Dried, each its
+                own real ranked row) -- this label is what actually
+                distinguishes them, so it's genuinely load-bearing here, not
+                just a nice-to-have. Plain Raw/Standard rows still don't
+                need it spelled out, since that's the default a bare label
+                already reads as. */}
             {food.prepMethod && food.prepMethod !== 'Raw' ? ` · ${food.prepMethod}` : ''}
             {/* Real source attribution, 2026-08-11 -- "data from any of
                 the datasets should always identify itself as being from
