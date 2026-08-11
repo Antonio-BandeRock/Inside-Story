@@ -15,6 +15,29 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a continued proactive scan — a real, large batch following one motivating find ("Soy protein kebab frozen product type Oumph®") into its full scope: gravy, filling, alternative, substitute, mycoprotein, nugget/nuggets, "soy and wheat protein," and a real sugar-coated/pancake plural-and-hyphen gap
+
+**The motivating find, from a fresh random sample, not a direct report.** "Soy protein kebab frozen product type Oumph®" (a real, branded Swedish meat-alternative product) was sitting wrongly `is_whole_food=1`, via nothing more than a coincidental "frozen" match. Followed into its real, full scope rather than patched as one record — the same "a report is a lead, not a ticket" discipline this whole file's history already runs on.
+
+**Ten real, individually-verified keyword/phrase additions to `classify.js`, each checked against every real matching database record first, not guessed:**
+
+| Keyword/phrase | Real records checked | Wrongly-true damage found | What it catches |
+|---|---|---|---|
+| `sugar-coated` | 12 | 3 | The existing `sugar coated` (space) never bound-matched the equally common hyphenated spelling — "Almond/Hazelnut/Peanut roasted, sugar-coated." |
+| `gravy` | 46 | 44 | Every real gravy product (canned, dry mix, dehydrated, powder, or a composite dish built on one) — nothing had ever checked the word itself. |
+| `filling` | 42 | 40 | Stuffed vegetables, filled pasta (ravioli/tortellini/tortelloni), filled pastries/doughnuts/buns — a near-universal composite-dish signal. 2 real exceptions ("Cream puff, plain, **no filling**"; a Norwegian lefse flatbread, same) handled via a dedicated guard, matching the existing `sauce`/`soda` guard pattern, rather than force-excluded for the wrong reason. |
+| `alternative` | 32 | 10 (+7 from needs_review) | Every real "meat/cheese/cream/yogurt/ice-cream alternative" record — zero legitimate exceptions in the whole database. |
+| `substitute` | 56 | 37 | Coffee/cream/egg/milk/salt/sugar/whipped-cream substitutes, "Breast milk substitute" (infant formula). One real, honest, small judgment call: "Caviar substitute (lumpfish)" (real roe, marketed as a cheaper stand-in) moved from needs-review to a confident false rather than left open. |
+| `product type` | 7 | 4 | This specific source's (Sweden_Livsmedelsverket) own consistent naming convention for every one of its branded Oumph® products. |
+| `nugget` / `nuggets` | 40 / 5 | several + 5 | A real, definitionally shaped/manufactured food form (chicken/fish/soy-protein/mycoprotein nuggets), plural form needed separately (the same recurring `\bword\b` lesson as "ice cream"/"ice creams"). One real, deliberate exception: "Pumpkin, **golden nugget**" — a real named winter-squash variety, guarded the same way. |
+| `mycoprotein` | 24 | several | Industrially fermented (Fusarium venenatum, bound with egg albumin even in its plainest form) — never a traditional whole food regardless of shape, unlike tofu/tempeh/seitan. |
+| `soy and wheat protein` | 23 | several | A real, specific 3-word phrase this source uses for its own soy-and-wheat meat analogs — deliberately more specific than bare "soy protein," which stays genuinely unresolved for the real isolate/concentrate ingredient records elsewhere in the database. |
+| `soy protein buns` | 3 | 1 | The one real remaining straggler the whole family above left behind, closed with its own narrow, exact phrase. |
+
+**A second, separate finding from an unrelated fresh random sample, closing out this round: `pancake`/`pancakes`.** This project's own existing `NATURAL_SWEETENER_DISQUALIFIERS` comment already called pancake/waffle/cracker/porridge "real manufactured/composite products" — but that reasoning had only ever been applied narrowly (disqualifying a coincidental honey/maple-syrup match), never generalized. Checked every real "pancake"/"pancakes" record first (35+), every one a genuine composite baked good, dry mix, or flavored syrup product wrongly resolving TRUE via a coincidental `buttermilk`/`dry`/`whole` match. `waffle`/`cracker`/`porridge`/`puffed` deliberately NOT generalized in this same pass — each needs its own real, fresh database-wide check before being trusted this broadly, named here as a real, deliberately-deferred follow-up.
+
+**Every fix verified end to end, not just by reasoning:** 33 new/extended `classify.test.js` checks (337 total, up from 306), a full pipeline run at 391/391 passing, then `reclassify-all.js` run twice against the live database (once for the ten-keyword batch, once for pancake) — `whole_food` count moved from 16,859 to 16,661 (−198), `needs_review` from 3,023 to 2,953 (−70). Every one of the 227 newly-excluded records from the first batch was individually read end to end for real damage before moving on — zero false positives found. Zero pancake records remain wrongly classified after the fix, confirmed via direct query.
+
 ## Status: a real, direct bug report ("Batavia, crue is translated wrongly to Batavia, flood"), expanded into a systematic scan finding and fixing 11 real machine-translation errors across the whole France_Ciqual dataset
 
 **The report itself, confirmed and root-caused first.** Queried

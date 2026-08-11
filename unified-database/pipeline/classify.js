@@ -408,6 +408,52 @@ const ADDED_SUGAR_SALT_OR_PROCESSING = [
   // "sugared"), so the real "Doughnuts... includes unsugared" records
   // (already correctly excluded via 'cake' anyway) are unaffected.
   'sugared',
+  // Found live during a proactive scan of the whole-food-classified
+  // review queue: the existing 'sugar coated' entry above (a literal
+  // space) never matches the equally common hyphenated spelling
+  // "sugar-coated" -- containsKeyword() builds a plain \b-bounded regex
+  // with no space/hyphen normalization, so the two spellings are
+  // genuinely different substrings to it. Real, confirmed damage: 3
+  // Germany_BLS records ("Almond roasted, sugar-coated," "Hazelnut
+  // roasted, sugar-coated," "Peanut roasted, sugar-coated") sitting at
+  // is_whole_food=1, wrongly matching only the plain nut_or_seed keyword
+  // with nothing catching the real candy-coating right next to it --
+  // every other real "sugar coated"/"sugar-coated" record in this
+  // database (candies, chewing gum, chocolate, cinnamon rolls, corn
+  // flakes, doughnuts) already correctly excludes via this same list, one
+  // way or the other.
+  'sugar-coated',
+  // Found live during the same proactive scan, starting from a real
+  // "Soy protein kebab frozen product type Oumph®" (a branded meat-
+  // alternative product) sitting wrongly TRUE -- followed to its real,
+  // full scope rather than patched as one record. 'alternative' and
+  // 'substitute' are both real, general signals that a product is a
+  // manufactured stand-in for another food (meat alternative, cheese
+  // alternative, cream substitute, egg substitute, coffee substitute),
+  // the same underlying concept 'imitation'/'artificial' right above
+  // already exclude, just two different real words for it neither one
+  // ever caught. Checked every real record containing either word first,
+  // not guessed: 32 real "alternative" records and 56 real "substitute"
+  // records, and every single one -- without exception -- is a genuine
+  // manufactured mock/substitute product (meat alternatives across every
+  // real base: legume/vegetable, mycoprotein/fungus, soy/wheat/pea;
+  // dairy-free cheese/cream/yogurt/ice-cream alternatives; coffee, egg,
+  // milk, salt, sugar, and whipped-cream substitutes; "Breast milk
+  // substitute" -- infant formula). 37 of the 56 substitute records and
+  // 10 of the 32 alternative records were sitting wrongly TRUE via
+  // nothing more than a coincidental 'cooked'/'milk'/'frozen' hint; most
+  // of the rest were sitting unresolved in needs_review (no rule
+  // matched either way), now correctly resolving FALSE instead. One
+  // real, honest, small judgment call, not chased further: "Caviar
+  // substitute (lumpfish)" is technically real fish roe (a cheaper
+  // species marketed as a substitute for true caviar, often dyed/
+  // preserved), arguably still a real animal product -- moved from
+  // needs_review to a confident false rather than left an open question,
+  // the same class of small, accepted, individually-debatable cost
+  // already named elsewhere in this file ("tart"/"cutlet," the
+  // Artichoke/"fond" translation issue) in exchange for fixing a much
+  // larger, clear-cut real pattern.
+  'alternative', 'substitute',
 ];
 
 // Real, direct correction, made in the same pass: 'sugar, granulated' /
@@ -731,6 +777,145 @@ const COMPOSITE_DISH_SIGNALS = [
   // real but small, honest cost, the same class of accepted tradeoff
   // already named elsewhere in this file ("tart"/"cutlet").
   'stock',
+  // Found live during the same proactive scan, not reported directly:
+  // 'gravy' -- a real, derived, starch-thickened sauce made from meat
+  // drippings/stock plus flour and seasoning, the same real category
+  // 'sauce'/'stock' right above already exclude, yet the word itself was
+  // never checked anywhere. Checked every real record containing "gravy"
+  // first, not guessed: 46 records, every single one a genuine
+  // manufactured gravy product (canned, dry mix, dehydrated, powder, or
+  // a composite frozen dish built on one -- "Gravy, instant turkey,
+  // dry," "Gravy, chicken, canned or bottled, ready-to-serve," "Salisbury
+  // steak with gravy, frozen") wrongly resolving TRUE via nothing more
+  // than a generic 'canned'/'dry'/'dehydrated'/'frozen' cooking-method
+  // hint, with nothing catching the real composite product itself. Zero
+  // legitimate whole-food exceptions found -- no plain single-ingredient
+  // food in this database's real data happens to carry this word.
+  'gravy',
+  // Found live while chasing down a real "Soy protein kebab frozen
+  // product type Oumph®" record into its wider soy-protein/meat-
+  // alternative neighborhood (see 'product type'/'nugget' below): 'filling'
+  // -- a real, direct, near-universal signal that a food is a stuffed/
+  // filled composite dish, never a single whole ingredient (stuffed
+  // vegetables with meat/cheese/millet filling, filled pasta -- ravioli/
+  // tortellini/tortelloni, filled pastries/doughnuts/buns, "Brick garni
+  // (filling: shrimp, vegetables, poultry, meat, fish, etc.)"). Checked
+  // every real record containing this word first: 42 total, 40 of them
+  // real, genuine composite dishes wrongly sitting at is_whole_food=1 via
+  // nothing more than a coincidental cooking-method or single-ingredient
+  // keyword match, with nothing ever catching the real "this is a filled/
+  // stuffed preparation" signal itself. Exactly 2 real exceptions found
+  // (both explicitly stating the ABSENCE of a filling, "Cream puff,
+  // plain, no filling" and a Norwegian lefse flatbread with "no
+  // filling") -- handled via a small, dedicated guard right where 'sauce'/
+  // 'soda' already have one, not force-excluded for the wrong reason.
+  'filling',
+  // Found the same way, checking every real record still wrongly TRUE in
+  // this same soy-protein/mycoprotein-product family after 'alternative'/
+  // 'substitute' above: 'product type' -- a real, consistent phrase
+  // pattern this specific source (Sweden_Livsmedelsverket) uses for every
+  // one of its own branded meat-analog products ("Soy protein kebab
+  // frozen product type Oumph®," "Soy protein pieces with thyme garlic
+  // frozen product type Oumph®"). Checked every real record containing
+  // this exact phrase first: 7 total, all 7 the same real branded Oumph®
+  // product family, 4 of them wrongly TRUE via a coincidental 'frozen'
+  // match (the other 3 already correctly false via 'fried'). Zero
+  // legitimate whole-food exceptions -- this phrase never occurs outside
+  // this one real branded-product naming convention anywhere in the
+  // database.
+  'product type',
+  // Found the same way, for the real "Soy protein nugget"/"Mycoprotein
+  // nugget"/"Soy and wheat protein nugget" family this same
+  // investigation surfaced, none of which contain "product type":
+  // 'nugget' -- a real, definitionally shaped/formed/manufactured food
+  // form (chicken nugget, fish nugget, and the same real soy-protein/
+  // mycoprotein analogs), never a single raw ingredient. Checked every
+  // real record containing this word first: 40 total. The overwhelming
+  // majority are already correctly excluded via other means (fried,
+  // breaded, restaurant, fast-food-chain names); one real, deliberate,
+  // narrow exception found and excluded from this keyword rather than
+  // broken by it: "Pumpkin, golden nugget" -- Golden Nugget is a real,
+  // named winter squash VARIETY (the word "nugget" is part of the
+  // cultivar's own real name, not a food form), confirmed by checking
+  // every one of its 3 real records (raw/baked/boiled, all genuine plain
+  // squash preparations) before excluding "nugget" as a plain keyword,
+  // handled via a small, dedicated guard the same way 'filling'/'sauce'/
+  // 'soda' already are.
+  'nugget',
+  // The same real plural-form gap already documented several times in
+  // this file ("ice cream"/"ice creams," "cereal"/"cereals," "stewed"),
+  // found while verifying the singular 'nugget' fix above against every
+  // real "nuggets" record too: 5 real, genuinely composite products
+  // ("Chicken nuggets, dark and white meat, pre-cooked, frozen, not
+  // heated," "Salmon nuggets, cooked as purchased, unheated," and 3 more)
+  // still wrongly TRUE via a coincidental cooking-method hint, since
+  // \bnugget\b never bound-matches its own plural.
+  'nuggets',
+  // Found the same way, checking every remaining real record still
+  // wrongly TRUE in this same investigation: 'mycoprotein' -- unlike
+  // tofu/tempeh/seitan (traditional, minimally-processed soy/wheat-
+  // gluten staples already kept as real whole foods elsewhere in this
+  // file), mycoprotein (Fusarium venenatum mycelium, grown via
+  // industrial fermentation and bound with egg albumin even in its
+  // plainest commercial form) is never itself a traditional whole food,
+  // regardless of what shape it's later formed into. Checked every real
+  // record containing this word first: 24 total, every one either
+  // already correctly excluded via some other means (stew, gratin,
+  // sauce) or a real, genuine manufactured product ("Mycoprotein buns
+  // frozen food," "Mycoprotein mince pieces fillet cold goods el. frozen
+  // food," "Mycoprotein schnitzel refrigerator el. frozen food," "Oven-
+  // roasted mycoprotein schnitzel") still wrongly resolving TRUE via a
+  // coincidental cooking-method match. Zero legitimate exceptions.
+  'mycoprotein',
+  // Found the same way, for the parallel real "Soy and wheat protein
+  // buns/schnitzel/mince..." family this same source uses for its own
+  // soy-and-wheat-based meat analogs (a different real product line from
+  // the plain 'soy protein isolate/concentrate/textured' ingredient
+  // records elsewhere in this database, which are genuinely more
+  // ambiguous and deliberately left alone at needs_review, not force-
+  // classified either way): the longer, more specific 3-word phrase
+  // 'soy and wheat protein' -- checked every real record containing this
+  // exact phrase first: 23 total, every single one a genuine composite
+  // meat-analog product (burger, sausage, imitation bacon, mince, buns,
+  // nugget, schnitzel), several still wrongly resolving TRUE via a
+  // coincidental 'frozen'/'cooked' match ("Soy and wheat protein buns
+  // refrigerated goods or. frozen food," "Soy and wheat protein schnitzel
+  // oven-roasted," "Soy and wheat protein minced frozen product"). Zero
+  // legitimate exceptions -- this specific 3-word phrase never occurs
+  // outside this one real manufactured-product family.
+  'soy and wheat protein',
+  // The one real remaining straggler this whole investigation's own
+  // "soy protein X" family left behind after every fix above: "Soy
+  // protein buns refrigerator el. frozen food" -- its own siblings
+  // ("Soy protein buns fried"/"oven-fried") already correctly resolve
+  // false via 'fried,' but this one has nothing else catching it. Bare
+  // 'soy protein' itself is deliberately NOT excluded here (see the
+  // 'soy and wheat protein' comment above -- the plain isolate/
+  // concentrate ingredient records need to stay genuinely undecided),
+  // so this narrower, exact phrase closes the one real remaining gap
+  // without touching those.
+  'soy protein buns',
+  // Found live during a fresh, separate random sample (not part of the
+  // same soy-protein investigation): 'pancake' -- this project's own
+  // NATURAL_SWEETENER_DISQUALIFIERS list already calls pancake/waffle/
+  // cracker/porridge/puffed "real manufactured/composite products," but
+  // that reasoning had only ever been applied narrowly (disqualifying a
+  // coincidental honey/maple-syrup match), never generalized into the
+  // real exclude gate itself. Checked every real "pancake"/"pancakes"
+  // record in the database first, not guessed: 35+ records, every one a
+  // genuine composite baked good, dry mix, or flavored syrup product
+  // ("Pancake, plain (includes buttermilk), dry mix, complete, prepared
+  // with water," "Pancakes, whole wheat, dry mix, incomplete," "Syrups,
+  // table blends, pancake, with butter") wrongly resolving TRUE via a
+  // coincidental 'buttermilk'/'dry'/'whole' match, with nothing catching
+  // the real composite product itself. Both the singular and plural form
+  // are needed -- \bpancake\b does not bound-match "pancakes," the same
+  // recurring plural-form lesson as "nugget"/"nuggets" right above.
+  // 'waffle'/'cracker'/'porridge'/'puffed' are deliberately NOT
+  // generalized in this same pass -- each needs its own real, fresh
+  // database-wide safety check before being trusted this broadly, not
+  // assumed safe just because they sit in the same narrower list.
+  'pancake', 'pancakes',
 ];
 
 // Real, small, individually-verified exception list for the new bare
@@ -1736,6 +1921,29 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
       ? null
       : excludeMatchRaw === 'sauce' &&
         anyKeywordMatches(n, SAUCE_EXCLUDE_GUARD_PHRASES)
+      ? null
+      : // A real, third instance of the same "the general exclude word
+        // collides with a phrase that explicitly NEGATES it" shape as the
+        // 'soda'/'baking soda' guard above. New bare 'filling' exclude
+        // (see COMPOSITE_DISH_SIGNALS' own comment) correctly catches
+        // dozens of real stuffed/filled composite dishes, but 2 real
+        // records explicitly state the ABSENCE of a filling ("Cream
+        // puff, plain, no filling"; "Flatbread, soft, sweet, Norwegian,
+        // lefse, thick, no filling") -- excluding these via 'filling'
+        // would be excluding them for the wrong reason entirely (they
+        // have no filling at all). Deferred here rather than force-
+        // excluded, so each falls through to whatever else (if anything)
+        // legitimately classifies it, the same real, small, accepted-cost
+        // pattern as the sauce guard above.
+        excludeMatchRaw === 'filling' && containsKeyword(n, 'no filling')
+      ? null
+      : // A real, fourth instance of the same guard shape: new bare
+        // 'nugget' exclude (see COMPOSITE_DISH_SIGNALS' own comment)
+        // correctly catches the real manufactured-food-form family
+        // (chicken/fish/soy-protein/mycoprotein nuggets), but "Pumpkin,
+        // golden nugget" is a real, named winter-squash VARIETY -- the
+        // word is part of the cultivar's own name, not a food form.
+        excludeMatchRaw === 'nugget' && containsKeyword(n, 'golden nugget')
       ? null
       : excludeMatchRaw;
   if (excludeMatch) {

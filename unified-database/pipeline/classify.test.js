@@ -523,6 +523,53 @@ check('a real, plain chicken stock, previously sitting unclassified', 'Chicken s
 check('a real, confirmed record wrongly true via a coincidental "canned" match', 'Beef stock canned', true, false);
 check('a real, plural "sauces" record this same fix also incidentally catches via "stock" itself', 'Veal stock for sauces and cooking, dehydrated', true, false);
 
+// --- Continued proactive scan: a real hyphen/space gap on the existing
+// 'sugar coated' exclude. ---
+check('a real, confirmed candied-nut record, wrongly true via a coincidental "almond" match -- the hyphenated spelling was never checked', 'Almond roasted, sugar-coated', true, false);
+check('the same real gap, a second nut', 'Peanut roasted, sugar-coated', true, false);
+check('the existing space-form spelling stays correctly unaffected', 'Candies, sugar-coated almonds', true, false);
+
+// --- Continued proactive scan: real 'gravy'/'filling' composite-dish
+// gaps, and 'alternative'/'substitute' as general manufactured-product
+// signals, all found while following a real "Soy protein kebab frozen
+// product type Oumph®" report into its full scope. ---
+check('a real, confirmed dry gravy mix, wrongly true via a coincidental "dry" match', 'Gravy, instant turkey, dry', true, false);
+check('a real, second confirmed gravy record, wrongly true via a coincidental "canned" match', 'Gravy, chicken, canned or bottled, ready-to-serve', true, false);
+check('a real composite dish built on gravy, wrongly true via a coincidental "frozen" match', 'Salisbury steak with gravy, frozen', true, false);
+check('a real, general "meat alternative" manufactured-product record, wrongly true via a coincidental "cooked" match', 'Meat alternative, protein (soy/wheat/pea) base, cooked', true, false);
+check('a real "meat substitute" record, the same real concept, a different word', 'Meat substitute containing gluten, milk and soya', true, false);
+check('a real dairy-free cheese alternative, wrongly true via a coincidental "cheese" match', 'Cheese alternative Mozzarella style, vegan', true, false);
+check('a real manufactured cream substitute, wrongly true via a coincidental "cream"/vegetable-fat match', 'Cream substitute, vegetable fat', true, false);
+check('a real manufactured egg substitute, wrongly true via a coincidental "frozen" match', 'Egg substitute, frozen (yolk replaced)', true, false);
+check('a real chemical salt substitute, not the real thing this database already keeps elsewhere', 'Salt substitute, potassium chloride', true, false);
+check('a real, honest, small judgment call: fish roe marketed as a caviar substitute moves from needs-review to a confident false', 'Caviar substitute (lumpfish)', true, false);
+check('a real, stuffed-pasta record, wrongly true via a coincidental "raw" match -- the general "filling" signal was never checked', 'Fresh egg pasta Ravioli (meat filling) raw', true, false);
+check('a real, stuffed-vegetable record, wrongly true via a coincidental "cheese" match', 'Cauliflower with minced meat filling and cheese gratinated', true, false);
+check('the real, dedicated guard: a record explicitly stating it has NO filling must not be excluded for that reason', 'Cream puff, plain, no filling', true, true);
+
+// --- Continued proactive scan: the wider real branded/manufactured
+// soy-protein and mycoprotein meat-analog family, found by following the
+// original Oumph® report to its real, full scope. ---
+check('the real record the original report was found alongside: a branded soy-protein product, wrongly true via a coincidental "frozen" match', 'Soy protein kebab frozen product type Oumph®', true, false);
+check('a real sibling record in the same branded family', 'Soy protein pieces with thyme garlic frozen product type Oumph®', true, false);
+check('a real, general "nugget" manufactured-food-form signal, wrongly true via a coincidental "oven-roasted" match', 'Soy protein nugget oven-roasted', true, false);
+check('the same real signal, the mycoprotein variant', 'Mycoprotein nugget refrigerator el. frozen food', true, false);
+check('a real, deliberate, narrow exception: "golden nugget" is a real, named winter-squash variety, not a food form', 'Pumpkin, golden nugget, peeled, fresh, raw', true, true);
+check('the real plural-form gap on the new "nugget" keyword itself, the same recurring lesson as "ice cream"/"ice creams"', 'Chicken nuggets, dark and white meat, pre-cooked, frozen, not heated', true, false);
+check('a real, general "mycoprotein" exclude -- industrially fermented, never a traditional whole food regardless of shape', 'Mycoprotein schnitzel refrigerator el. frozen food', true, false);
+check('bare "Mycoprotein" itself, the base ingredient, is also correctly excluded for the same real reason', 'Mycoprotein', true, false);
+check('a real, legitimate meat cut correctly stays unaffected -- "schnitzel" itself is a real cut name, not a food form', 'Pork schnitzel (thick flank) raw', true, true);
+check('a real "soy and wheat protein" branded meat-analog family, wrongly true via a coincidental "oven-roasted" match', 'Soy and wheat protein schnitzel oven-roasted', true, false);
+check('the one real remaining straggler this whole family left behind, closed with its own narrow, exact phrase', 'Soy protein buns refrigerator el. frozen food', true, false);
+check('bare "soy protein" itself stays deliberately unresolved -- the real isolate/concentrate ingredient records are genuinely ambiguous, not force-classified either way', 'Soy protein isolate', true, null);
+
+// --- Continued proactive scan: a real, general 'pancake'/'pancakes'
+// exclude, generalizing a real judgment already made narrowly for the
+// honey-disqualifier list. ---
+check('a real, confirmed pancake dry mix, wrongly true via a coincidental "buttermilk" match', 'Pancake, plain (includes buttermilk), dry mix, complete, prepared with water', true, false);
+check('the same real gap, the plural form -- \\bpancake\\b does not bound-match "pancakes"', 'Pancakes, whole wheat, dry mix, incomplete', true, false);
+check('a real, plain homemade pancake is also correctly excluded, not just the dry-mix form', 'Pancake, buttermilk, homemade', true, false);
+
 // --- Ambiguous / non-English: must NOT guess ---
 check('genuinely ambiguous name, no rule fires', 'Xyzzy prepared item 42', true, null);
 check('no English evidence at all (Norwegian, untranslated)', 'Agurk, norsk, rå', false, null);
