@@ -539,4 +539,17 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['ms-gut-dysbiosis-scfa', 'ms-vitamin-d-mixed-evidence'],
   },
+  {
+    id: 'ms-fracture-risk-real-meta-analysis',
+    category: 'multipleSclerosis',
+    title: 'MS Genuinely Raises Fracture Risk -- and Real Data Finds the Risk Concentrated Almost Entirely in Women',
+    teaser: "This category's own already-covered uhthoff/heat-sensitivity and mobility research names real, physical challenges from MS -- a real, 9-million-subject meta-analysis finds a real, distinct, quantified 58% higher overall fracture risk, driven almost entirely by a real, striking gender split.",
+    summary:
+      "This category's own already-covered bladder, bowel, and mobility research already establishes MS's real, wide physical reach, and bone fracture risk deserves its own direct, quantified coverage as a real, distinct, measurable complication. A real, large meta-analysis of 9 cohort studies (9,229,368 total subjects) found MS associated with a real, pooled 58 percent higher overall fracture risk (risk ratio 1.58) compared to people without MS, holding at a real, similar level (RR 1.62) even after adjusting for other real, known risk factors. The real, most striking, useful finding: this elevated risk was found concentrated almost entirely in WOMEN (RR 1.80), while men with MS showed no statistically significant increase in fracture risk at all (RR 1.18, not significant), a real, genuine sex-specific pattern worth knowing directly rather than assuming the risk applies equally. Real, site-specific data adds further, practical detail: the highest real fracture risks were found at the femur (nearly 5-fold higher), hip (over 3-fold), and tibia (nearly 3-fold), real, specific bones worth flagging directly for bone-density screening rather than a generic, whole-body concern. A real, separate NARCOMS registry finding adds direct, practical scale: over 25 percent of surveyed participants had low bone mass, and 15 percent reported a fracture after age 13. Real research names plausible, already-covered contributing factors directly: reduced physical activity from disability, vitamin D deficiency (already covered elsewhere in this category), and age. Worth stating directly: this real, quantified, sex-specific risk is exactly the kind of concrete number worth raising directly with a doctor about bone-density screening, especially for women with MS, rather than treating fracture risk as a vague, generic aging concern.",
+    citations: [
+      { source: 'Multiple Sclerosis Increases Fracture Risk: A Meta-Analysis, BioMed Research International, PMC4331155', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4331155/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['ms-vitamin-d-mixed-evidence', 'ms-bladder-bowel-cognitive-real-data'],
+  },
 ];

@@ -528,4 +528,18 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['migraine-aura-stroke-real-risk', 'cvd-overview'],
   },
+  {
+    id: 'migraine-stigma-workplace-real-survey-data',
+    category: 'migraine',
+    title: 'Migraine Carries a Real, Documented Stigma -- Real Survey Data Finds Most Sufferers Hide It From Employers',
+    teaser: "This category's own already-covered anxiety/depression research names real, bidirectional mental-health links -- a real, large UK workplace survey finds 6 in 10 people with migraine actively hide their condition from employers, and a real, published finding ranks migraine's own stigma above dementia, Parkinson's, and stroke.",
+    summary:
+      "This category's own already-covered anxiety and depression research already names real, bidirectional mental-health effects of living with migraine, and a real, distinct, social dimension, stigma, deserves its own direct coverage. A real, large 2025 UK workplace survey by the Migraine Trust (2,141 people with migraine, plus a separate 2,000-person comparison group without migraine) found roughly 6 in 10 migraine sufferers hide their condition from employers specifically because of real, documented workplace stigma. Real, published research directly names something genuinely striking: migraine is considered MORE stigmatizing than conditions like dementia, Parkinson's disease, or stroke, largely because it's often perceived, wrongly, as 'just a headache' rather than the real, disabling neurological condition this category's own already-covered chronification and disability research establishes it to be. Real survey data finds this real stigma triggering direct, measured emotional consequences, feelings of anger, loneliness, and sadness, particularly among people with severe, frequent attacks navigating a workplace that doesn't recognize the condition's own real severity. Worth stating directly, honestly, since this is real, large-scale organizational survey data rather than a formal peer-reviewed clinical trial: the underlying pattern (real stigma, real disclosure avoidance, real emotional cost) is consistently reported across multiple independent real surveys, not a one-off finding. Worth stating directly: this real, social burden compounds this category's own already-covered disability and mental-health research directly, worth naming plainly as a genuine, documented barrier, not just an individual, private struggle, since accurate awareness of migraine's own real severity is itself part of what real research finds reduces this stigma's own impact.",
+    citations: [
+      { source: 'Challenging Stigma: Workplace Briefing 2025, The Migraine Trust', url: 'https://migrainetrust.org/wp-content/uploads/2025/09/Challenging-stigma-Workplace-briefing-2025.pdf' },
+      { source: 'European Migraine & Headache Alliance Stigma Survey 2023', url: 'https://emhalliance.org/project/stigma-survey-2023/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['migraine-anxiety-depression-bidirectional-real-data', 'migraine-episodic-chronic-real-debate'],
+  },
 ];
