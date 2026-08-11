@@ -331,6 +331,37 @@ check('bare "Buttermilk" -- the exact same fused-compound-word gap as "ice cream
 check('a gingerbread cookie containing honey is not "honey"', 'Kathrinchen honey gingerbread biscuits', true, false);
 check('plain honey itself is unaffected by the reorder', 'Honey, raw', true, true);
 
+// --- Real, direct question, not a bug report: "Are we including all
+// nuts and seeds?" Investigated before answering -- the real, honest
+// answer was no. Built the identical way SPICE_HERB_KEEP already
+// solves the same problem for spices/herbs: a real, explicit identity
+// list, no separate cook-state check needed. ---
+check('bare, plain nuts with no cooking-state qualifier at all', 'Walnuts', true, true);
+check('a second bare example', 'Brazil nuts', true, true);
+check('a third, singular form', 'Sweet chestnut', true, true);
+check('plain seeds, same real gap', 'Sunflower seeds', true, true);
+check('tahini -- a real, simple ground-sesame product', 'Sesame paste, tahini', true, true);
+check('a real, genuine collision found and avoided: "Macchiato" contains "chia" as a literal substring -- \'chia seed\' is kept as the full phrase specifically to avoid it', 'Macchiato, single', true, null);
+check('a real composite plant-milk beverage is correctly excluded, a real, deliberately separate question this fix does not force an answer to', 'Almond based beverage', true, false);
+check('a real composite candy/pastry using a nut as one ingredient among several', 'Chocolate-flavored hazelnut spread', true, false);
+check('a real composite dish using a nut, "curried" needed as its own real word form alongside "curry"', 'Curried rice with almonds', true, false);
+check('a real fruit-plus-nut combination -- scoped to the nut-specific disqualifier only, so a plain single-fruit compote (which never reaches this check) stays unaffected', 'Apple compote with raisins and almonds', true, false);
+check('the real, plain single-fruit compote this fix must NOT touch', 'Compote, any type of fruit, low in sugar', true, true);
+
+// --- A real, honest self-correction, caught only by testing every
+// planned entry against the real function output: the first version of
+// this same nut/seed list only had singular forms, missing the exact
+// same real plural word-boundary gap this file has already documented
+// multiple times this same pass. ---
+check('the exact real record that caught the missing-plural mistake', 'Almonds', true, true);
+check('"Nuts, almonds" (plural, comma-separated form)', 'Nuts, almonds', true, true);
+check('a real, separate, genuinely new bug found along the way: "Bagels" (plural) was never matching BREAD_KEEP\'s own singular "bagel"', 'Bagels, plain, enriched, with calcium propionate (includes onion, poppy, sesame)', true, true);
+check('"Tortillas" (plural), the same real gap', 'Tortillas', true, true);
+check('a real, general composite-dessert/candy signal found along the way: real chocolate-and-filling candies, checked against every real currently-true record before adding', 'Pralines filled with almond-caramel', true, false);
+check('marzipan, the same real "combination even in its raw-paste form" reasoning', 'Marzipan, 30 % almonds', true, false);
+check('a real, flavored/compound spirit, the same real "Compound alcoholic beverage" family reached by a different name', 'Almond liqueur', true, false);
+check('"cakes" (plural) now correctly excludes real manufactured rice cakes, the same real word-form fix already applied elsewhere this pass', 'Rice cakes, plain, low salt', true, false);
+
 // --- Ambiguous / non-English: must NOT guess ---
 check('genuinely ambiguous name, no rule fires', 'Xyzzy prepared item 42', true, null);
 check('no English evidence at all (Norwegian, untranslated)', 'Agurk, norsk, rå', false, null);

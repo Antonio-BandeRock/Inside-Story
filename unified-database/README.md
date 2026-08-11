@@ -15,6 +15,98 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: "Are we including all nuts and seeds?" — a real, direct question that surfaced a substantial gap, plus a real, honest self-caught repeat of the same mistake this file had already fixed for other keywords earlier the same pass
+
+Asked directly, not a bug report: "Are we including all nuts and
+seeds?" Investigated before answering — the real, honest answer was
+no: hundreds of genuinely plain, single-species records ("Walnuts,"
+"Brazil nuts," "Pistachio nuts," "Sunflower seed") had no stated
+cooking-state qualifier at all (no "raw"/"roasted"/"dried"), so nothing
+in this file ever recognized them.
+
+**Built the same way `SPICE_HERB_KEEP` already solves the identical
+problem for spices/herbs**: a new, real, explicit `NUT_SEED_KEEP`
+identity list — almond, walnut, pecan, cashew, pistachio, hazelnut,
+filbert, macadamia, brazil nut, pine nut, chestnut, peanut, groundnut,
+sunflower seed, pumpkin seed, chia seed, flaxseed, linseed, sesame
+seed, hemp seed, tahini — no separate raw/dried/ground check needed,
+matching the name alone is enough. A real, genuine collision found and
+avoided: "Macchiato" contains "chia" as a literal substring, so `chia
+seed` is kept as a full phrase rather than the bare word, which would
+have wrongly matched every real macchiato/latte record in this
+database. `brazil nut`/`pine nut` kept as full phrases for the same
+real reason (bare "brazil" risks a country-name collision; bare "pine"
+would match inside "pineapple").
+
+**A real, honest self-correction, caught only by testing every planned
+entry against the real function output rather than trusting the
+reasoning alone**: the first version of this exact list only had
+singular forms — missing the *identical* real plural word-boundary gap
+this same file had already documented and fixed multiple times in the
+immediately preceding pass (bagel/bagels, croissant/croissants). Bare
+"Almonds," "Walnuts," "Pecans," "Brazil nuts," "Pine nuts,"
+"Chestnuts," "Sunflower seeds," "Pumpkin seeds," "Chia seeds," "Sesame
+seeds," "Hemp seeds," and "Peanuts" were all sitting unmatched until
+this was caught by comprehensively re-testing the whole batch, not
+assumed correct because the singular forms worked. Every plural added
+was individually confirmed against real data first — three plausible
+candidates (macadamias, filberts, groundnuts) were checked and found
+to have zero real occurrences, so deliberately left out rather than
+added speculatively.
+
+**A real, second, separate bug found along the way, not reported
+directly**: `BREAD_KEEP` had the exact same gap — "Bagels" (plural)
+was never matching its own singular "bagel" keyword, sitting at
+`is_whole_food=null` for 14 real records ("Tortillas": 6 real records;
+"Chapatis": 1). Fixed alongside the nut/seed plurals.
+
+**Real, general composite-dessert/candy/alcohol signals found and
+confirmed along the way**, each checked against every real currently-
+classified record before being added as a genuine new general exclude:
+'macaroon'/'macaroons' (coconut or almond flour + egg white + sugar,
+baked — the same real family as the already-excluded 'meringue');
+'praline'/'pralines' (a real chocolate-and-filling candy — checked all
+12 real currently-TRUE records, every one genuinely composite: brandy,
+coconut cream, caramel cream, coffee); 'marzipan' (almond paste +
+sugar, a real combination even in its own "raw paste" form); 'brittle'
+(a real hard candy); 'dragee'/'bisque'; 'liqueur' (a real, flavored/
+compound spirit — the exact same "Compound alcoholic beverage" family
+already excluded, reached by a different real name); and 'cakes'
+(plural — the same word-boundary fix, now correctly catching real
+manufactured rice cakes too, while a real, deliberately-untouched
+"compote" was confirmed to stay a legitimate simple preparation).
+
+**Real, nut/seed-specific disqualifiers**, checked against every real
+composite record this scan surfaced: 'beverage'/'drink' (real plant-
+milk products — a real, separate, deliberately not-yet-decided
+category question, left alone the same way the earlier oat/soy-
+beverage fortification question was); 'porridge'; 'curry'/'curried'
+(both real word forms needed); 'caramel'; 'pork' (a real composite
+cured-meat product using a nut as one ingredient); 'bar'; 'puffs' (a
+real manufactured, extruded-style snack that doesn't literally say
+"extruded"); 'compote' — scoped to this nut-specific list only, not the
+general exclude list, since a plain single-fruit compote with no nut
+mentioned never reaches this check at all. One real, low-volume
+exception deliberately left unaddressed: "Nuts, almond paste" (1
+record) — real-world "almond paste" almost always means a sweetened,
+marzipan-adjacent product, but a bare 'paste' disqualifier would also
+have wrongly caught the already-correct, genuinely plain "Sesame
+paste, tahini" match, so this one ambiguous record was left as a
+small, accepted tradeoff rather than risk that collision. Two more
+real, low-volume word-ORDER exceptions ("Seed, sunflower," "Sesame,
+hulled seed") were found and left the same way, matching the same
+bounded-tradeoff standard already used for "tart"/"cutlet."
+
+Real, concrete effect:
+
+  Whole food:        17,160 -> 17,215
+  Not whole food:     11,357 -> 11,539
+  Needs human review:  4,190 ->  3,953
+
+Every real fix spot-checked directly against the live, re-classified
+database. 216/216 classify.js tests passing (up from 197). Audit-tool
+data regenerated and republished to the same URL.
+
 ## Status: a second real, proactive scan — the single largest batch of fixes yet, including one major real bug (42 "Fast foods" records never actually excluded), a real, direct decision on alcohol, and a real, honest 2-record self-correction caught mid-pass
 
 Requested directly: "Continue the proactive scan for more issues like

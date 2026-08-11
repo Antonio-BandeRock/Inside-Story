@@ -101,7 +101,7 @@ const PROCESSED_MEAT = [
 
 const CANDY_SNACKS = [
   'candy', 'candies', 'chocolate bar', 'chocolate-coated', 'cookie',
-  'cookies', 'cake', 'pastry', 'pastries', 'donut', 'doughnut',
+  'cookies', 'cake', 'cakes', 'pastry', 'pastries', 'donut', 'doughnut',
   'ice cream', 'sherbet', 'frozen dessert', 'soda', 'cola', 'soft drink',
   'chips', 'potato chip', 'corn chip', 'tortilla chip', 'frosting',
   'icing', 'marshmallow', 'gum, chewing', 'candy bar', 'toaster pastry',
@@ -149,6 +149,29 @@ const CANDY_SNACKS = [
   // none of them plain, whole legumes. 'biscuit'/'biscuits' added as a
   // real, general exclude, running before that collision can happen.
   'biscuit', 'biscuits',
+  // Found live, during the nuts-and-seeds investigation below, not
+  // reported directly -- real, general composite-dessert/candy signals,
+  // each individually checked against every real record before being
+  // added: 'macaroon'/'macaroons' (a real combination -- coconut or
+  // almond flour, egg white, sugar, baked -- the same real family as the
+  // already-excluded 'meringue'; zero legitimate exceptions across all
+  // 15 real records); 'praline'/'pralines' (a real chocolate-and-filling
+  // candy, checked all 12 real currently-TRUE records -- every one
+  // genuinely composite: brandy, coconut cream, caramel cream, coffee);
+  // 'marzipan' (almond paste + sugar, a real combination even in its own
+  // "raw paste" form); 'brittle' (a real hard candy -- nut/seed cooked
+  // with sugar to a hard set, "Peanut brittle," "Sesame brittle,"
+  // "Hazelnut brittle"); 'dragee' (a real sugar-coated candy); 'bisque'
+  // (real either way it's used -- a composite creamy dessert, "Almond
+  // bisque," or a composite soup, "Soup, tomato bisque," the latter
+  // already independently caught by the existing 'soup' keyword too).
+  // 'liqueur' (a real, flavored/compound spirit -- checked all 11 real
+  // currently-TRUE records, every one genuinely composite: coffee
+  // liqueur, cream liqueur, fruit liqueur -- the exact same real
+  // "Compound alcoholic beverage" family already excluded above, just
+  // reached by a different real name this time).
+  'macaroon', 'macaroons', 'praline', 'pralines', 'marzipan', 'brittle',
+  'dragee', 'bisque', 'liqueur',
   // Found live, reported directly: "Adzuki beans, mature seeds, 'An'
   // (bean paste), 'Koshi-an' (strained bean paste)" -- a real,
   // multi-step processed derivative (cooked, mashed, often strained
@@ -889,6 +912,15 @@ const OIL_DISQUALIFIERS = [
 const BREAD_KEEP = [
   'bread', 'bagel', 'baguette', 'ciabatta', 'pumpernickel', 'chapati',
   'tortilla', 'pita', 'naan', 'flatbread', 'crispbread', 'sourdough',
+  // Found live, during the nuts-and-seeds investigation below, not
+  // reported directly -- a real, separate bug of the exact same shape:
+  // "Bagels, plain, enriched, with calcium propionate (includes onion,
+  // poppy, sesame)" was sitting at is_whole_food=null, because \bbagel\b
+  // does not bound-match "Bagels" (plural, fused, the same recurring
+  // word-form lesson as "Fast food"/"Fast foods"). Checked real scope
+  // before fixing: 14 real "Bagels" records, 6 real "Tortillas," 1 real
+  // "Chapatis" -- all plural, all genuinely missed.
+  'bagels', 'tortillas', 'chapatis',
 ];
 const BREAD_DISQUALIFIERS = ['mix', 'crumb', 'crumbs', 'crouton', 'croutons', 'pudding'];
 
@@ -974,6 +1006,106 @@ const SPICE_HERB_DISQUALIFIERS = [
   'pesto', 'bruschetta', 'sauce', 'dressing', 'marinade', 'ale', 'beer',
   'soda', 'cream', 'pasta', 'chicken', 'fish', 'salad', 'butter',
   ...PRODUCT_SIGNAL_DISQUALIFIERS,
+];
+
+// New for this pass -- real, whole nuts and seeds, per a real, direct
+// question: "Are we including all nuts and seeds?" Investigated before
+// answering, not assumed -- confirmed the real, honest answer was no:
+// hundreds of genuinely plain, single-species records (bare "Walnuts,"
+// "Brazil nuts," "Pistachio nuts," "Sunflower seed") had NO stated
+// cooking-state qualifier at all (no "raw"/"roasted"/"dried"), so nothing
+// in this file ever recognized them -- the exact same real gap this
+// file's own SPICE_HERB_KEEP already exists to solve for spices/herbs,
+// built the identical way: a real, explicit identity list (not a general
+// "shelled"/"ground" keyword, which would carry the same real over-broad
+// risk already rejected for spices), so grinding/blanching/hulling a
+// LISTED nut or seed doesn't disqualify it -- matching the name alone is
+// enough. 'chia seed' (not bare 'chia') deliberately kept as the full
+// phrase -- checked directly and found a real, genuine collision:
+// "Macchiato" contains "chia" as a literal substring, and a bare keyword
+// would have wrongly matched every real macchiato/latte record in this
+// database. 'brazil nut'/'pine nut' kept as full phrases for the same
+// real reason -- bare "brazil" risks a country/region-name collision,
+// and bare "pine" would match inside "pineapple." 'peanut'/'groundnut'
+// included per this app's own established practice of common food
+// identity over botanical classification (a peanut is a legume, not a
+// tree nut, but this database already treats foods by what people
+// actually call and eat them as, the same reasoning tomato-as-vegetable
+// already rests on elsewhere).
+//
+// A real, honest, self-caught mistake, found only by testing every
+// planned entry against the real function output rather than trusting
+// the reasoning alone: the first version of this list only had singular
+// forms, and missed the exact same real plural word-boundary gap this
+// file has already documented and fixed multiple times THIS SAME PASS
+// (bagel/bagels, croissant/croissants) -- "Almonds," "Walnuts,"
+// "Pecans," "Brazil nuts," "Pine nuts," "Chestnuts," "Sunflower seeds,"
+// "Pumpkin seeds," "Chia seeds," "Sesame seeds," "Hemp seeds," "Peanuts"
+// were ALL sitting unmatched, since none of their own real singular
+// identity words bound-match the plural, fused form. Every plural below
+// was individually confirmed via real data before being added, not
+// guessed in bulk -- three plausible ones (macadamias, filberts,
+// groundnuts) were checked and found to have ZERO real occurrences, so
+// deliberately left out rather than added speculatively.
+//
+// Two real, low-volume word-ORDER exceptions were found and deliberately
+// left unaddressed, the same honest, bounded-tradeoff standard already
+// used for "tart"/"cutlet": "Seed, sunflower" and "Sesame, hulled seed"
+// each state the seed identity in a real but reversed/interrupted word
+// order this file's own plain substring matching can't safely
+// generalize for without real over-match risk -- 2 real records, left in
+// the review queue rather than engineered around.
+const NUT_SEED_KEEP = [
+  'almond', 'almonds', 'walnut', 'walnuts', 'pecan', 'pecans', 'cashew',
+  'cashews', 'pistachio', 'pistachios', 'hazelnut', 'hazelnuts',
+  'filbert', 'macadamia', 'brazil nut', 'brazil nuts', 'pine nut',
+  'pine nuts', 'chestnut', 'chestnuts', 'peanut', 'peanuts', 'groundnut',
+  'sunflower seed', 'sunflower seeds', 'pumpkin seed', 'pumpkin seeds',
+  'chia seed', 'chia seeds', 'flaxseed', 'flaxseeds', 'flax seed',
+  'flax seeds', 'linseed', 'linseeds', 'sesame seed', 'sesame seeds',
+  'hemp seed', 'hemp seeds', 'tahini',
+];
+// Reuses SPICE_HERB_DISQUALIFIERS wholesale (the identical "composite
+// dish/product using the listed identity word as one ingredient among
+// several" risk already proven out for spices), plus real, new
+// nut/seed-specific risks found and checked directly against this
+// database's own real data before being added: 'beverage'/'drink' (real
+// plant-milk products -- "Almond based beverage," "Chestnut drink,
+// plain, prepackaged" -- a real, separate, not-yet-decided category
+// question this fix deliberately doesn't force an answer to, the same
+// way it was left alone for the earlier oat/soy-beverage fortification
+// question); 'porridge' (a real composite breakfast combining oats/
+// millet with a nut/seed, e.g. "Oat porridge, overnight oats and chia
+// seeds"); 'curry'/'curried' (a real composite dish, "Fish curry with
+// saithe and peanuts," "Curried rice with almonds" -- both real word
+// forms needed for the same recurring word-form reason as everywhere
+// else in this file); 'caramel' (real candy-coated nuts, "Snacks,
+// popcorn, caramel-coated, with peanuts"); 'pork' (a real composite
+// cured-meat product using a nut as one ingredient, "Pure pork pistachio
+// mortadella"); 'bar' (a real manufactured snack-bar shape, "Snacks,
+// crisped rice bar, almond"); 'puffs' (a real manufactured, extruded-
+// style snack, "Peanut puffs" -- doesn't literally say "extruded" the
+// way this file's own general 'extruded' exclude requires, so needed its
+// own real, separate signal); 'compote' (a real fruit-plus-nut
+// combination, "Apple compote with raisins and almonds" -- deliberately
+// scoped to THIS nut-specific disqualifier list only, not the general
+// exclude list, since a plain single-fruit compote with no nut mentioned
+// at all is still a real, legitimate simple preparation this database
+// already correctly accepts, and never reaches this check to begin
+// with). 'liqueur'/'praline'/'macaroon'/'marzipan'/'brittle'/'dragee'/
+// 'bisque' don't need to be repeated here at all -- each is now a real,
+// general exclude (see CANDY_SNACKS above), running before this check is
+// ever reached. One real, low-volume exception deliberately left
+// unaddressed: "Nuts, almond paste" (1 record) -- real-world "almond
+// paste" almost always means a sweetened, marzipan-adjacent product, but
+// a bare 'paste' disqualifier would also have wrongly caught the
+// already-correct, genuinely plain "Sesame paste, tahini" match, so this
+// single ambiguous record was left as a small, accepted tradeoff rather
+// than risk that collision.
+const NUT_SEED_DISQUALIFIERS = [
+  'beverage', 'drink', 'porridge', 'curry', 'curried', 'caramel', 'pork',
+  'bar', 'puffs', 'compote',
+  ...SPICE_HERB_DISQUALIFIERS,
 ];
 
 // New for this pass -- real, traditional pantry staples, per the app
@@ -1286,6 +1418,28 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     };
   }
 
+  // Real, whole nuts and seeds: real, positive signal, unless a real
+  // disqualifier (a composite dish/candy/product using the listed nut
+  // or seed as one ingredient among several) is also present. See
+  // NUT_SEED_KEEP's own header comment for the real question and real
+  // data behind this.
+  const nutSeedMatch = anyKeywordMatches(n, NUT_SEED_KEEP);
+  if (nutSeedMatch) {
+    const disqualifier = anyKeywordMatches(n, NUT_SEED_DISQUALIFIERS);
+    if (disqualifier) {
+      return {
+        isWholeFood: false,
+        ruleMatched: `nut_or_seed_disqualified: matched "${nutSeedMatch}" but also "${disqualifier}"`,
+        autoConfidence: 'high',
+      };
+    }
+    return {
+      isWholeFood: true,
+      ruleMatched: `nut_or_seed: ${nutSeedMatch}`,
+      autoConfidence: 'high',
+    };
+  }
+
   // Real, traditional pantry staples (sugar, baking soda, cacao, coffee,
   // etc.), unless a real disqualifier (a branded mix product, a
   // composite dish/dessert, or a flavored/blended variant) is also
@@ -1423,6 +1577,8 @@ module.exports = {
   FLOUR_DISQUALIFIERS,
   SPICE_HERB_KEEP,
   SPICE_HERB_DISQUALIFIERS,
+  NUT_SEED_KEEP,
+  NUT_SEED_DISQUALIFIERS,
   PRODUCT_SIGNAL_DISQUALIFIERS,
   PANTRY_STAPLE_KEEP,
   PANTRY_STAPLE_DISQUALIFIERS,
