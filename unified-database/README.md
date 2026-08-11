@@ -15,6 +15,161 @@ replacement.
 never reads from `unified_foods.sqlite`. No app screen changes. That's
 deliberate — see "Safety" below.
 
+## Status: a continued proactive scan — a real, direct investigative question about banana cultivars (no code change, a genuine source-data limitation), then a large batch of real bugs found by following that same investigation's own real data further: 'sugared' never recognized at all, 'compote' never actually implemented despite an existing comment saying it should be, a Canadian-spelling 'yogourt'/'yogurts' plural gap, a 'flavors'/'flavours' plural-noun gap, real missing manufactured-product signals (confection/confectionery, pizza, formulated/simulated, puddings), real missing alcohol names (champagne, tequila, mezcal, maotai) plus the one real cocktail collision that had to be fixed first (Kir), and a third real instance of the "mix leak" bug class already fixed twice before, this time on NATURAL_SWEETENER_KEEP
+
+**The banana question, answered directly, no code change.** Real, direct
+question: "Banana cooking banana are listed but they aren't designated
+as any specific cooking type of banana... There are dozens of other
+starchy, non-plantain banana varieties that must be cooked before
+eating... Is there a way to tell which they are talking about?"
+Investigated directly, including reading the real, full `raw_json` for
+the Sweden record in question -- confirmed the underlying source
+(`sources/sweden.js`, whose own header comments already document this)
+genuinely carries no scientific-name or LangualCodes data at all for any
+Swedish record, a real, honest limitation of the source itself, not a
+pipeline bug. Left as-is: a real, legitimate single-ingredient food
+("cooking banana, unspecified variety"), currently unclassified anyway
+for an unrelated reason (no stated cooking-state word).
+
+**'sugared' -- a real, direct signal of added sugar, completely
+unrecognized anywhere in this file.** Found while following the banana
+investigation into a fresh random sample of the review queue. Real,
+confirmed damage: 34 real Germany_BLS records ("Rhubarb sugared, canned,
+drained," "Pear sugared, canned, drained," "Apple sauce/apple compote,
+sugared, canned," and 20+ more canned-fruit siblings, plus "Egg, yolk,
+raw, frozen, sugared, pasteurized") were sitting at `is_whole_food=1`,
+resolving wrongly true via whatever OTHER keyword happened to be nearby
+(canned, raw, dried, whole) since nothing ever checked for the explicit
+"sugared" qualifier sitting right next to it. Several more real records
+("Strawberries sugared," "Pear preserves... lightly sugared layer,"
+"Sugared chocolate confectionery") were sitting unclassified for the
+same reason. Added to `ADDED_SUGAR_SALT_OR_PROCESSING`, checked directly
+that `\bsugared\b` does not bound-match "unsugared."
+
+**'compote' -- an existing comment already said a plain compote should
+be accepted, but nothing had ever implemented it.** Real, confirmed
+damage: over 30 real Germany_BLS/France_Ciqual/Norway/Sweden records
+("Pear compote," "Blackberry compote," "Fruit compote," and every
+explicitly "unsweetened" variant -- "Pear compote unsweetened,"
+"Blueberry compote unsweetened") were sitting unclassified in the
+review queue, never resolving true. Added as a general, LATE-checked
+positive hint in `RAW_WHOLE_FOOD_HINTS` (the last fallback in
+`classifyOne`, after every exclude gate has already run) -- verified
+directly that every real composite/sweetened/flavored compote already
+in the database (with sauce, with cream, with nuts, with artificial
+sweetener, inside a pudding/dumpling dish) is already correctly excluded
+upstream by an existing rule, so none of them ever reach this list.
+36 real records now resolve true via `raw_or_simply_cooked: compote`.
+
+**'yogourt'/'yogurts' -- a real Canadian-English spelling gap and a real
+plural/word-boundary gap, both on the same real word.** Canada_CNF
+writes "Yogourt" (not "yogurt") throughout its own real data -- neither
+`PLAIN_DAIRY_KEEP` nor `FERMENTED_KEEP` recognized it at all, so all 78
+real "Yogourt" records, plain AND flavored alike, fell straight through
+to the review queue with neither the plain-dairy accept path nor the
+flavored-dairy exclude check ever engaging. 'yogurts' (plural) is a
+separate, real gap for the same reason as "buttermilk" before it:
+`\byogurt\b` does not bound-match "Frozen yogurts, flavors other than
+chocolate," which was wrongly resolving true via the unrelated 'frozen'
+hint instead. Both added to `PLAIN_DAIRY_KEEP`.
+
+**'flavors'/'flavours' (plural noun) -- a real, distinct word form from
+the already-recognized 'flavored'/'flavoured' (adjective).** Real,
+confirmed damage, independent of the yogourt fix above: "Pickled herring
+different flavors" (wrongly true via `plain_dairy_or_ferment: pickled`,
+no flavor check ever engaging) and "Kefir, fruit flavours, low fat"
+(wrongly true via `plain_dairy_or_ferment: kefir`). Added to
+`FLAVOR_OR_ADDITIVE_MARKERS`.
+
+**Real, missing manufactured-product/composite-dish signals, each
+checked against every real record before adding.** 'confection'/
+'confectionery'/'confectionary' (British spelling)/'confectioner'/
+'confectioners'/'confections' -- real candy/sweet manufactured products;
+checked ~90 real records, zero legitimate single-ingredient exceptions
+("Traditional confectionery, 'Uiro'," "Ice confection, stick,
+milk-based," "Oil, industrial, palm kernel, confection fat" were all
+wrongly true via a coincidental nearby match). 'pizza' -- a real
+composite baked dish, zero legitimate single-ingredient reading; every
+topped variant was already only excluded by coincidence (matching "ham"/
+"sausage" as its OWN keyword), never because "pizza" itself was ever
+recognized, and 3 real plain "Pizza, ..." records were sitting
+unclassified. 'puddings' (plural) -- the exact same real plural/word-
+boundary gap already fixed for "fast food"/"cereal": 'pudding' (singular)
+already lived in `CANDY_SNACKS`, but `\bpudding\b` doesn't bound-match
+"Puddings," so 2 real records were wrongly true via 'dry'. 'formulated'/
+'simulated' -- real, standalone manufacturing-process words; 4 real
+wheat-based mock-nut records ("Nuts, formulated, wheat-based, ... except
+macadamia") were wrongly true via a coincidental nut-identity match, and
+5 real unbranded "Formulated bar, ..." snack-bar records were sitting
+unclassified. All four added to `COMPOSITE_DISH_SIGNALS`.
+
+**Real, missing single-ingredient alcohol names -- champagne, tequila,
+mezcal, maotai -- plus the one real collision this required fixing
+first.** Checked directly for false-positive risk before adding bare
+'champagne': "Kir (with white wine)" was ALREADY wrongly true via the
+existing bare 'wine' keyword (a real, traditional wine-plus-liqueur
+cocktail, not plain wine), and its sibling "Kir royal (with champagne)"
+would have picked up the same wrong result the moment 'champagne' was
+added. Fixed by adding 'kir' to `CANDY_SNACKS` first (checked: every
+real "Kir" record in this database is this one cocktail family; no
+collision with unrelated German "Kirsch"/"Kirschtorte," which never has
+a word boundary after "Kir" to begin with). 'tequila'/'mezcal' -- also
+fixes a real, honest labeling bug: "Agave spirit (Mezcal/Tequila)" was
+resolving true via the coincidental, misleading `natural_sweetener:
+agave` label instead of an honest alcohol one (see the NATURAL_SWEETENER
+fix below for how this now defers correctly). 'maotai' -- a real,
+traditional single-ingredient (sorghum) Chinese distilled spirit,
+Japan_MEXT's own real data already tags it "Distilled alcoholic
+beverage" directly. All four added to `ALCOHOL_KEEP`.
+
+**A third real instance of the same "mix leak" bug class already fixed
+twice this session (nuts/seeds; `SAFE_OVERRIDES`' own dried-fruit
+phrase) -- this time on `NATURAL_SWEETENER_KEEP`.** `honey`/`maple
+syrup`/`molasses`/`agave` had no disqualifier of their own at all, so a
+real composite dish that merely CONTAINS one of them as one ingredient
+among several was resolving wrongly true before any later, more specific
+check ever got a chance to run. Real, confirmed damage, each checked
+against its own actual record: "Oats, rolled, mixed with sugar or honey
+& other flavours" and its "Porridge..." sibling (composite breakfasts);
+"Pancake, plain, homemade with butter and maple syrup," "Thin waffle
+filled with honey, prepackaged," "Cracker, honey sesame," "Honey Puffed
+Corn Balls" (real manufactured/composite products named directly);
+"Yoghurt mild honey fat 2% enriched" (a flavored yogurt, wrongly true via
+'honey' alone, before the dairy check's own flavor-marker logic ever
+ran); "Chicken pan with lime honey crème fraiche" (a composite dish --
+caught only after testing the fix against the real record revealed
+'cream' doesn't bound-match the real record's own accented "crème," the
+same real accent lesson already learned for 'saut'/'sauté'). One real,
+deliberately DIFFERENT case handled as a defer-not-disqualify: 'spirit'
+("Agave spirit (Mezcal/Tequila)") skips this whole branch entirely
+rather than resolving false, so it correctly falls through to the new
+`ALCOHOL_KEEP` 'tequila'/'mezcal' entries above instead -- still true,
+just via an honest label. New `NATURAL_SWEETENER_DISQUALIFIERS` list,
+checked every currently-true natural-sweetener record against it first
+(plain "Honey," "Molasses," "Agave, raw/cooked/dried," "Maple syrup,"
+"Melon, honey dew, peeled, raw" all confirmed to stay correctly true).
+
+**Real, before/after counts, whole database:**
+
+| | Before | After |
+|---|---|---|
+| Whole food | 17,023 | 16,926 |
+| Not whole food | 11,748 | 12,015 |
+| Needs review | 3,936 | 3,766 |
+| Total | 32,707 | 32,707 |
+
+Test suite: 266/266 passing (up from 231).
+
+**One real, genuinely different-category bug found along the way,
+deliberately NOT fixed in this same pass, named here so it isn't lost:**
+`Pasta, fresh, filled with meat and cheese, Tortellini, industrially
+made` (and its uncooked sibling) is a real, genuine composite filled-
+pasta dish, still wrongly resolving true via `plain_dairy_or_ferment:
+cheese` -- a different real category of problem (filled/stuffed pasta as
+its own composite-dish family) than anything addressed in this batch,
+worth a real, dedicated look in a future proactive-scan pass rather than
+force-fit here.
+
 ## Status: "a sunflower seed is a seed" — a real, direct instruction on salt/seasoning, a real, genuine ratio-uncertainty question about mixed products, and a real, structural bug found only by testing the fix against real data
 
 Direct, real feedback: "a sunflower seed is a seed, so it should be kept

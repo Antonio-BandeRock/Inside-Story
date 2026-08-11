@@ -297,6 +297,41 @@ const CANDY_SNACKS = [
   // combination, not plain wine) -- 'madeira', 'port wine', 'sherry'.
   'wine sauce', 'wine cooler', 'mulled wine', 'spirited wine', 'madeira',
   'port wine', 'sherry',
+  // Found live during a proactive scan, not reported directly: real candy/
+  // sweet manufactured products -- "Traditional confectionery, 'Uiro'
+  // (steamed sweet rice dough)" and 8 more Japan_MEXT siblings, "Ice
+  // confection, stick, milk-based, various flavours," "Oil, industrial,
+  // palm kernel, confection fat, uses similar to high quality cocoa
+  // butter" -- were all wrongly resolving true via whatever OTHER
+  // positive keyword happened to be nearby (steamed, milk, butter, flour)
+  // since "confection"/"confectionery" was never checked anywhere.
+  // Checked all real records containing any of these words first (~90) --
+  // every one is a genuine manufactured candy/sweet-baked-good product,
+  // zero legitimate single-ingredient exceptions. Every real word FORM
+  // added explicitly, the same recurring word-boundary lesson as
+  // everywhere else in this file: \bconfection\b alone would not
+  // bound-match "confectionery" (no boundary between "confection" and
+  // "ery"), "confectionary" (a real, separate British-spelling variant
+  // found live in 5 more Japan_MEXT records, all already also starting
+  // with "Traditional confectionery" so this is defense-in-depth, not
+  // load-bearing on its own), "confectioner's"/"confectioners," or
+  // "confections."
+  'confection', 'confectionery', 'confectionary', 'confectioner',
+  'confectioners', 'confections',
+  // Found live in the same pass, while checking real alcohol-name gaps:
+  // "Kir (with white wine)" was wrongly resolving true via the bare
+  // 'wine' alcohol keyword, and its sibling "Kir royal (with champagne)"
+  // was sitting unclassified with no way to safely add 'champagne' as a
+  // new alcohol keyword without this cocktail wrongly picking it up too.
+  // Both are a real, traditional wine/champagne-plus-crème-de-cassis
+  // mixed drink, the same "genuinely composite, not plain wine" category
+  // as 'wine cooler'/'mulled wine' right above. Checked directly: every
+  // real record containing "Kir" as its own standalone word in this
+  // database is this cocktail (a separate, already-excluded "Cocktail,
+  // Kir royale" record is unaffected either way) -- no collision with any
+  // unrelated food (German "Kirsch"/"Kirschtorte" -- cherry/cherry torte
+  // -- never has a word boundary after "Kir" to begin with).
+  'kir',
 ];
 
 // A real, major bug found during a proactive scan, not reported directly:
@@ -328,6 +363,26 @@ const ADDED_SUGAR_SALT_OR_PROCESSING = [
   'processed cheese', 'pasteurized process', 'processed product',
   'processed food', 'cheese, processed', 'spread, ', 'margarine',
   'shortening', 'non-dairy', 'creamer, non', 'whipped topping',
+  // Found live during a proactive scan of the review queue, not reported
+  // directly: 'sugared' -- a real, direct word for "sugar was added,"
+  // distinct from 'sweetened' (already in this list) -- was never
+  // recognized anywhere in this file at all. Real, confirmed damage
+  // before this fix: 34 real Germany_BLS records (canned sugared fruit --
+  // "Rhubarb sugared, canned, drained," "Pear sugared, canned, drained,"
+  // "Apple sauce/apple compote, sugared, canned," and 20+ more, plus
+  // "Egg, yolk, raw, frozen, sugared, pasteurized" and "Eggs, hen, whole,
+  // sugared") were sitting at is_whole_food=1, resolving wrongly TRUE via
+  // whatever OTHER positive keyword happened to be in the name (canned,
+  // raw, dried, whole) with no exclude keyword ever checking for the
+  // explicit "sugared" qualifier right next to it. Several more real
+  // records ("Strawberries sugared," "Pear preserves... lightly sugared
+  // layer," "Orange marmalade lightly sugared layer," "Sugared chocolate
+  // confectionery") were sitting unclassified in the review queue for the
+  // same reason. Checked for collision risk before adding: \bsugared\b
+  // does not bound-match "unsugared" (no boundary between "un" and
+  // "sugared"), so the real "Doughnuts... includes unsugared" records
+  // (already correctly excluded via 'cake' anyway) are unaffected.
+  'sugared',
 ];
 
 // Real, direct correction, made in the same pass: 'sugar, granulated' /
@@ -380,6 +435,21 @@ const FLAVOR_OR_ADDITIVE_MARKERS = [
   // and its own real vitamin-D-fortified-milk precedent) that the
   // underlying product isn't real dairy in the first place.
   'plant-based',
+  // Found live during a proactive scan, not reported directly: this list
+  // only ever had the adjective form 'flavored'/'flavoured' -- the real,
+  // distinct plural NOUN form ("all flavors," "assorted flavours,"
+  // "mixed flavors," "various flavours") is a genuinely different word,
+  // and \bflavoured\b/\bflavored\b don't bound-match it (no shared
+  // ending). Real, confirmed damage: once combined with the real
+  // Canadian-spelling 'yogourt' gap fixed the same pass, records like
+  // "Babyfood, yogourt, fruit flavours, with added Vitamin D and DHA"
+  // would otherwise still wrongly resolve true via the dairy match alone,
+  // with no flavor marker ever catching the plural wording. Also fixes
+  // the real, already-existing "Pickled herring different flavors" (was
+  // wrongly true via 'plain_dairy_or_ferment: pickled', no flavor check
+  // ever engaging) and "Kefir, fruit flavours, low fat" (was wrongly true
+  // via 'plain_dairy_or_ferment: kefir').
+  'flavors', 'flavours',
 ];
 
 // New for this pass -- real, unambiguous "this name describes an
@@ -528,6 +598,34 @@ const COMPOSITE_DISH_SIGNALS = [
   // own "Peppers, sweet, red, sauteed"), since that form has no accent to
   // create the same boundary and needs its own explicit, exact keyword.
   'saut', 'sauteed',
+  // Found live during a proactive scan, not reported directly: real
+  // manufactured/composite-product signals with no legitimate single-
+  // ingredient meaning, each verified against every real record actually
+  // in this database before adding. 'pizza' -- a real composite baked
+  // dish (dough plus toppings), zero legitimate single-ingredient
+  // reading; the 3 real records with no OTHER exclude keyword nearby
+  // ("Pizza, industrially made," "Pizza, minced meat and onion,
+  // industrially made," "Pizza, mozzarella and tomatoes, industrially
+  // made") were sitting unclassified, and every topped variant was
+  // already only excluded by coincidence (matching "ham"/"sausage"/
+  // "pepperoni" as its OWN keyword), not because "pizza" itself was ever
+  // recognized. 'puddings' -- the exact same real plural/word-boundary
+  // gap already fixed for "fast food"/"fast foods," "cereal"/"cereals":
+  // 'pudding' (singular) already lives in CANDY_SNACKS above, but
+  // \bpudding\b does not bound-match "Puddings" (no boundary before the
+  // "s"), so "Puddings, all flavors except chocolate, low calorie,
+  // regular, dry mix" and its sibling were wrongly resolving true via
+  // 'dry' instead. 'formulated'/'simulated' -- real, standalone
+  // manufacturing-process words with no legitimate single-ingredient
+  // meaning, checked against every real record: "Nuts, formulated,
+  // wheat-based, all flavors except macadamia, without salt" and 3
+  // siblings (a real, wheat-based mock-nut product) were wrongly
+  // resolving true via a coincidental 'macadamia'/'salt' match, and every
+  // real "Formulated bar, ..." record without an already-caught brand
+  // name (POWER BAR, SOUTH BEACH, LUNA BAR, ZONE PERFECT) was sitting
+  // unclassified -- a real manufactured snack/energy bar by definition,
+  // zero exceptions found.
+  'pizza', 'puddings', 'formulated', 'simulated',
 ];
 
 // New for this pass -- a real, flexible pattern match (not a plain
@@ -744,6 +842,55 @@ const FERMENTED_KEEP = [
 ];
 
 const NATURAL_SWEETENER_KEEP = ['honey', 'maple syrup', 'molasses', 'agave'];
+// Found live during a proactive scan, not reported directly -- the exact
+// same "mix leak" bug already fixed twice this session (nuts/seeds;
+// SAFE_OVERRIDES' own dried-fruit phrase), a third time: NATURAL_SWEETENER_
+// KEEP is checked relatively early in classifyOne, with no disqualifier of
+// its own, so a real composite dish that merely CONTAINS honey/maple
+// syrup/agave as one ingredient among several was resolving wrongly true
+// before any later, more specific check (the flavored-dairy check, the
+// general exclude gate's own composite-dish signals) ever got a chance to
+// run. Real, confirmed damage, each checked against its own actual record:
+// 'mixed'/'mix' -- "Oats, rolled, mixed with sugar or honey & other
+// flavours, uncooked" and its "Porridge..." sibling (a real composite
+// breakfast, not honey itself). 'pancake'/'waffle'/'cracker'/'porridge'/
+// 'puffed'/'balls'/'caramel' -- real manufactured/composite products named
+// directly: "Pancake, plain, homemade with butter and maple syrup,"
+// "Thin waffle filled with honey, prepackaged," "Cracker, honey sesame,"
+// "Wheat grains puffed with honey or caramel, enriched with vitamins and
+// minerals," "Honey Puffed Corn Balls." 'yoghurt'/'yogurt'/'yogourt'/
+// 'cream'/'milk' -- real dairy identity words that should defer to the
+// more sophisticated flavored-dairy-or-ferment check below instead of
+// resolving early here: "Yoghurt mild honey fat 2% enriched" (a flavored
+// yogurt, wrongly true via 'honey' alone, before the dairy check's own
+// flavor-marker logic ever ran) and "Chicken pan with lime honey crème
+// fraiche" (a composite dish, not honey). 'spirit' -- "Agave spirit
+// (Mezcal/Tequila)" is a real distilled beverage, not the syrup; deferred
+// here so it correctly resolves via the new ALCOHOL_KEEP 'tequila'/
+// 'mezcal' entries instead, with an honest rule_matched label. Checked
+// every currently-true natural_sweetener record against this whole list
+// before adding it -- zero false disqualifications found (plain "Honey,"
+// "Molasses," "Agave, raw/cooked/dried," "Maple syrup," "Melon, honey
+// dew, peeled, raw" all stay correctly true). 'spirit' is deliberately
+// NOT in this disqualifier list -- unlike every entry above, "Agave
+// spirit" should still resolve TRUE, just via a different, more honest
+// rule (the new ALCOHOL_KEEP 'tequila'/'mezcal' entries), so it's handled
+// as a real DEFERRAL in classifyOne below (skip this branch entirely,
+// let a later check decide) rather than a disqualification to false --
+// a genuinely different real behavior, not just a labeling nicety.
+const NATURAL_SWEETENER_DISQUALIFIERS = [
+  'mixed', 'mix', 'pancake', 'waffle', 'cracker', 'porridge', 'puffed',
+  'balls', 'caramel', 'yoghurt', 'yogurt', 'yogourt', 'cream', 'milk',
+  // Caught by actually testing the fix against the real record, not
+  // assumed to work: "Chicken pan with lime honey crème fraiche" was
+  // still resolving true even after 'cream' was added above, because
+  // the real record says "crème" (accented) -- a different literal
+  // string from plain "cream," the same real accent lesson already
+  // learned for 'saut'/'sauté' elsewhere in this file. Added as its own
+  // explicit, exact keyword rather than assumed covered by the unaccented
+  // form.
+  'crème',
+];
 
 // Plain dairy/butchered-meat/fresh-juice signals -- real, positive
 // "this is whole food" markers the original script never needed, since
@@ -763,7 +910,18 @@ const NATURAL_SWEETENER_KEEP = ['honey', 'maple syrup', 'molasses', 'agave'];
 // real form, "Milk, buttermilk, fluid, cultured, ..." (comma-separated),
 // was already working fine via the existing 'milk'/'cultured' keywords
 // -- this only fixes the bare, single-word form.
-const PLAIN_DAIRY_KEEP = ['milk', 'yogurt', 'yoghurt', 'butter', 'cream', 'cheese', 'buttermilk'];
+// Found live during a proactive scan, not reported directly: 'yogourt'
+// (the real, standard Canadian-English spelling Canada_CNF uses
+// throughout its own real data, e.g. "Yogourt, plain, fat free (0-0.5%
+// MF)") was never recognized by either this list or FERMENTED_KEEP --
+// meaning all 78 real "Yogourt" records, plain AND flavored alike, fell
+// straight through to the review queue with neither the plain-dairy
+// accept path nor the flavored-dairy exclude check ever engaging.
+// 'yogurts' (plural) added for the exact same real word-boundary reason
+// as 'buttermilk' above: \byogurt\b does not bound-match "Frozen
+// yogurts, flavors other than chocolate," which was wrongly resolving
+// true via the unrelated 'frozen' hint instead.
+const PLAIN_DAIRY_KEEP = ['milk', 'yogurt', 'yogurts', 'yogourt', 'yoghurt', 'butter', 'cream', 'cheese', 'buttermilk'];
 const FRESH_JUICE_KEEP = ['juice'];
 
 // New for this pass -- real, plain soy-milk coagulation, the exact same
@@ -800,6 +958,29 @@ const SOY_DERIVATIVE_KEEP = ['tofu'];
 const ALCOHOL_KEEP = [
   'beer', 'wine', 'sake', 'whisky', 'whiskey', 'vodka', 'rum', 'gin',
   'brandy', 'shochu', 'mead',
+  // Found live during a proactive scan, not reported directly: real,
+  // single-ingredient, traditionally-distilled/fermented spirits missing
+  // from this list under their own real names, the exact same "single
+  // ingredient plus a simple, traditional transformation" category as
+  // everything above. 'tequila'/'mezcal' -- both distilled from the same
+  // one base plant (agave); real, direct damage found first: "Agave
+  // spirit (Mezcal/Tequila)" was resolving true via the coincidental,
+  // misleading 'natural_sweetener: agave' label rather than an honest
+  // alcohol one (see the new NATURAL_SWEETENER_DISQUALIFIERS 'spirit'
+  // entry below, which defers this record to land here instead). Every
+  // real "tequila sunrise"/"Cocktail, Tequila sunrise" record is already
+  // excluded upstream (checked, before adding this) via the existing
+  // 'tequila sunrise' phrase and isAlcoholicCocktailOrCocktailSauce's own
+  // "cocktail" + spirit-name check, both of which run before this list is
+  // ever reached. 'champagne' -- a real, single-ingredient sparkling
+  // wine, the same real category as plain "wine" already accepted above;
+  // checked directly for the one real collision risk found (the "Kir
+  // (with white wine)"/"Kir royal (with champagne)" cocktail family) and
+  // fixed that FIRST, via a new 'kir' exclude in CANDY_SNACKS, so this
+  // stays safe to add. 'maotai' -- a real, traditional single-ingredient
+  // (sorghum) Chinese distilled spirit, Japan_MEXT's own real data
+  // already tags it "Distilled alcoholic beverage" directly.
+  'tequila', 'mezcal', 'champagne', 'maotai',
 ];
 const RAW_WHOLE_FOOD_HINTS = [
   'raw', 'fresh', 'whole', 'cooked', 'boiled', 'roasted', 'steamed',
@@ -871,6 +1052,29 @@ const RAW_WHOLE_FOOD_HINTS = [
   // sample of the review queue afterward to confirm no remaining
   // exceptions).
   'desiccated', 'toasted', 'puree', 'pureed', 'canned',
+  // Found live during a proactive scan, not reported directly: 'compote'
+  // (stewed fruit, the same real simple-preparation category as 'puree'/
+  // 'mashed' right above) was never actually a positive keyword anywhere
+  // in this file, despite an existing comment elsewhere already stating
+  // "a plain single-fruit compote with no nut mentioned at all is still a
+  // real, legitimate simple preparation this database already correctly
+  // accepts" -- that was the intent, but nothing implemented it. Real,
+  // confirmed damage: over 30 real Germany_BLS/France_Ciqual/Norway/
+  // Sweden records ("Pear compote," "Blackberry compote," "Mango
+  // compote," "Fruit compote," and every explicitly "unsweetened"
+  // variant -- "Pear compote unsweetened," "Blueberry compote
+  // unsweetened," "Mixed fruit compote unsweetened") were sitting
+  // unclassified in the review queue, never resolving true. Safe to add
+  // as a general, late-checked positive hint (this is always the LAST
+  // fallback in classifyOne, after every exclude gate has already run):
+  // every real composite/sweetened/flavored compote already checked
+  // against this exact word before this fix ("Apple compote with vanilla
+  // sauce," "with artificial sweetener," "with cream," "with raisins and
+  // almonds," "Rice pudding... with... compote") is already correctly
+  // excluded upstream via in_or_with_sauce, 'artificial', the flavored-
+  // dairy check, the nut/seed disqualifier, and 'pudding' respectively --
+  // none of them ever reach this list at all.
+  'compote',
 ];
 
 // New for this pass -- real, plain, minimally-processed oils, matching
@@ -1399,8 +1603,28 @@ function classifyOne({ nameForClassification, hasEnglishEvidence }) {
     };
   }
 
-  const naturalSweetener = anyKeywordMatches(n, NATURAL_SWEETENER_KEEP);
+  // Real, deliberate deferral, not a disqualification: "Agave spirit
+  // (Mezcal/Tequila)" is a real distilled beverage, not the syrup --
+  // skipping this whole branch when 'spirit' is present lets it fall
+  // through to ALCOHOL_KEEP below instead, which resolves it correctly
+  // (still TRUE, just via an honest rule_matched label) rather than
+  // returning an incorrect FALSE the way every other real disqualifier
+  // in this file does.
+  const naturalSweetener = containsKeyword(n, 'spirit')
+    ? null
+    : anyKeywordMatches(n, NATURAL_SWEETENER_KEEP);
   if (naturalSweetener) {
+    const sweetenerDisqualifier = anyKeywordMatches(
+      n,
+      NATURAL_SWEETENER_DISQUALIFIERS
+    );
+    if (sweetenerDisqualifier) {
+      return {
+        isWholeFood: false,
+        ruleMatched: `natural_sweetener_disqualified: matched "${naturalSweetener}" but also "${sweetenerDisqualifier}"`,
+        autoConfidence: 'high',
+      };
+    }
     return {
       isWholeFood: true,
       ruleMatched: `natural_sweetener: ${naturalSweetener}`,
@@ -1698,6 +1922,7 @@ module.exports = {
   SAFE_OVERRIDES,
   FERMENTED_KEEP,
   NATURAL_SWEETENER_KEEP,
+  NATURAL_SWEETENER_DISQUALIFIERS,
   PLAIN_DAIRY_KEEP,
   SOY_DERIVATIVE_KEEP,
   ALCOHOL_KEEP,

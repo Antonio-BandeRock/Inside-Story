@@ -381,6 +381,81 @@ check('real strudel is now a general exclude, including the real records that sa
 check('plain, unaffected nuts and seeds still pass -- the fix did not become over-broad', 'Almonds', true, true);
 check('a real, deliberate, accepted 1-record exception remains, and is expected to: a genuinely reversed AND interrupted 3-word order this enumerable-phrase approach cannot safely reach', 'Sesame, hulled seed', true, null);
 
+// --- Real, direct question, not a bug report: "Banana cooking banana
+// are listed but they aren't designated as any specific cooking type of
+// banana." Investigated directly, including checking the real, full
+// raw_json for hidden species data -- confirmed the underlying Sweden
+// source genuinely carries no scientific-name/LangualCodes data at all
+// for this record, a real, honest limitation of the source itself, not a
+// pipeline bug. No code change resulted from this investigation.
+
+// --- Continued proactive scan: 'sugared' -- a real, direct signal of
+// added sugar, distinct from 'sweetened', found completely unrecognized
+// anywhere in this file. ---
+check('a real, confirmed record that was wrongly true before this fix', 'Apple sauce/apple compote, sugared, canned', true, false);
+check('a second real confirmed record, a different food entirely', 'Eggs, hen, whole, sugared', true, false);
+check('"unsugared" must stay correctly unaffected -- no false-positive risk', 'Doughnuts, cake-type, plain (includes unsugared, old-fashioned)', true, false);
+
+// --- Continued proactive scan: 'compote' -- an existing comment already
+// stated a plain compote should be accepted, but nothing actually
+// implemented it; over 30 real records were sitting unclassified. ---
+check('a real, plain compote with no other qualifier at all', 'Pear compote', true, true);
+check('a real, explicitly unsweetened compote', 'Blueberry compote unsweetened', true, true);
+check('a real composite compote is still correctly excluded -- this fix did not become over-broad', 'Apple compote with vanilla sauce', true, false);
+check('a real fruit-plus-nut compote is still correctly excluded via the existing, separate nut-specific disqualifier', 'Apple compote with raisins and almonds', true, false);
+check('a real artificially-sweetened compote is still correctly excluded', 'Strawberry compote with artificial sweetener', true, false);
+
+// --- Continued proactive scan: 'yogourt' (Canadian spelling) and
+// 'yogurts' (plural) -- both real word forms missing from PLAIN_DAIRY_KEEP,
+// leaving 78 real Canada_CNF records unclassified either way. ---
+check('a real, plain Canadian-spelling yogourt record', 'Yogourt, plain, fat free (0-0.5% MF)', true, true);
+check('a real, flavored Canadian-spelling yogourt record, now correctly excluded via the flavor check', 'Yogourt, fruit flavoured (2-3.9% M.F.)', true, false);
+check('a real plain-form-soy yogourt, the soy variant of the same real spelling', 'Yogourt, soy, plain', true, true);
+check('a real, plural "yogurts" record, previously bypassing the dairy check entirely', 'Frozen yogurts, flavors other than chocolate', true, false);
+
+// --- Continued proactive scan: 'flavors'/'flavours' (plural noun) --
+// distinct from the adjective 'flavored'/'flavoured' already recognized,
+// with real, confirmed damage across dairy and fermented-food records. ---
+check('a real, confirmed record wrongly true before this fix', 'Pickled herring different flavors', true, false);
+check('a real, second confirmed record, a different ferment', 'Kefir, fruit flavours, low fat (0.5-1.9% M.F.)', true, false);
+check('the real record that combines both this pass\'s new gaps at once', 'Babyfood, yogourt, fruit flavours, with added Vitamin D and DHA', true, false);
+
+// --- Continued proactive scan: 'confection'/'confectionery' and real
+// word-form variants -- a real candy/sweet-product signal missing
+// entirely, with real confirmed damage across several unrelated foods. ---
+check('a real Japan_MEXT confectionery record, wrongly true via "steamed"', 'Traditional confectionery, "Uiro" (steamed sweet rice dough)', true, false);
+check('a real frozen-candy record, wrongly true via "milk"', 'Ice confection, stick, milk-based, various flavours', true, false);
+check('a real industrial candy-fat oil, wrongly true via "butter"', 'Oil, industrial, palm kernel, confection fat, uses similar to high quality cocoa butter', true, false);
+check('the real British-spelling variant, "confectionary"', 'Traditional confectionery, "Shiogama" (molded confectionary made from sugar, glutinous rice flour and perilla leaf powder)', true, false);
+
+// --- Continued proactive scan: 'pizza', 'puddings' (plural), and
+// 'formulated'/'simulated' -- real composite/manufactured-product
+// signals with confirmed real damage. ---
+check('a real, plain pizza record with no other exclude keyword nearby', 'Pizza, mozzarella and tomatoes, industrially made', true, false);
+check('a real, plural "Puddings" record, the same recurring plural/word-boundary gap as "fast food"/"cereal"', 'Puddings, all flavors except chocolate, low calorie, regular, dry mix', true, false);
+check('a real, wheat-based mock-nut product, wrongly true via "macadamia"', 'Nuts, formulated, wheat-based, all flavors except macadamia, without salt', true, false);
+check('a real, second mock-nut record using the word "simulated" instead', 'Nuts, simulated product, wheat-based, unflavoured, with salt', true, false);
+check('a real, unbranded manufactured snack bar, previously sitting unclassified', 'Formulated bar, POWER BAR, chocolate', true, false);
+
+// --- Continued proactive scan: real, single-ingredient alcohol names
+// missing from ALCOHOL_KEEP -- champagne, tequila, mezcal, maotai --
+// plus the one real collision this required fixing first. ---
+check('a real, plain champagne record', 'Champagne', true, true);
+check('a real, traditional single-plant distilled spirit', 'Distilled alcoholic beverage, Maotai', true, true);
+check('a real wine-based cocktail that had to be excluded first, so adding bare "champagne"/"wine" stays safe', 'Kir (with white wine)', true, false);
+check('the champagne-based sibling of the same real cocktail, now correctly excluded rather than left unclassified', 'Kir royal (with champagne)', true, false);
+
+// --- Continued proactive scan: NATURAL_SWEETENER_KEEP's own "mix
+// leak" -- the same real class of bug already fixed twice for nuts/seeds
+// and SAFE_OVERRIDES, found a third time. ---
+check('a real composite breakfast dish, wrongly true via "honey" alone', 'Oats, rolled, mixed with sugar or honey & other flavours, uncooked', true, false);
+check('a real composite dish, wrongly true via "honey" alone', 'Chicken pan with lime honey crème fraiche', true, false);
+check('a real flavored yogurt, wrongly true via "honey" before the dairy check\'s own flavor logic ever ran', 'Yoghurt mild honey fat 2% enriched', true, false);
+check('a real manufactured cracker, wrongly true via "honey"', 'Cracker, honey sesame', true, false);
+check('a real, honest label fix: this now resolves via the correct alcohol rule instead of a misleading "natural_sweetener: agave" label', 'Agave spirit (Mezcal/Tequila)', true, true);
+check('plain honey itself remains correctly unaffected by every one of the above disqualifiers', 'Honey', true, true);
+check('plain maple syrup remains correctly unaffected', 'Maple syrup', true, true);
+
 // --- Ambiguous / non-English: must NOT guess ---
 check('genuinely ambiguous name, no rule fires', 'Xyzzy prepared item 42', true, null);
 check('no English evidence at all (Norwegian, untranslated)', 'Agurk, norsk, rå', false, null);
