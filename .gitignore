@@ -42,6 +42,25 @@ app-example
 /ios
 /android
 
+# 2026-08-11: real, confirmed root cause of a genuine on-device hang --
+# assets/data/foods_reference.db.bak-* backup copies (this project's own
+# established "cp before a risky edit" safety convention) accumulated
+# across one long session, 11 of them, ~1.45GB, sitting alongside the
+# real ~133MB reference database inside the one directory that gets
+# scanned/watched as a bundled app asset directory. Nothing in the app
+# actually require()s these -- Metro's default asset bundling only
+# includes files a real require() call names -- but Metro's own dev-time
+# project crawl/haste-map build still walks the whole watched tree
+# regardless, and a bundled ~1.6GB assets/data/ (vs. the real ~133MB it
+# should be) is the direct, confirmed explanation for the reference-
+# database import repeatedly timing out on a real device. The same
+# backup convention is still fine to use -- just never inside assets/,
+# where it gets bundled/watched; a scratchpad location doesn't have this
+# risk.
+assets/data/*.bak*
+assets/data/test_alt_shape.db
+assets/data/test_current_shape.db
+
 # Scratch/working files -- raw nutrition-database source data (large
 # spreadsheets, zips, sqlite dumps) for the separate nutrition-database
 # project, plus manual file backups made during risky edits. Not part of
