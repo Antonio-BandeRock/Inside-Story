@@ -86,8 +86,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: '4R Protocol',
     teaser: 'A widely-used functional-medicine framework for gut repair: Remove, Replace, Reinoculate, Repair.',
-    summary:
-      "A four-step sequence, Remove triggers, Replace digestive support, Reinoculate with probiotics, Repair the gut lining, used across functional medicine as a general gut-restoration framework. This app's own research found every individual step has separate evidence behind it, but no clinical trial has tested the packaged 4-step protocol as one combined unit. See Gut & Microbiome for the full breakdown.",
+    summary: "A four-step sequence, Remove triggers, Replace digestive support, Reinoculate with probiotics, Repair the gut lining, used across functional medicine as a general gut-restoration framework. The research found every individual step has separate evidence behind it, but no clinical trial has tested the packaged 4-step protocol as one combined unit. See Gut & Microbiome for the full breakdown.",
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['gut-4r-protocol'],
@@ -97,8 +96,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: 'AIP (Autoimmune Protocol)',
     teaser: 'A structured elimination-then-reintroduction diet, originally built for autoimmune disease broadly, not Hashimoto\'s specifically.',
-    summary:
-      'A structured elimination diet (typically a 6-week elimination phase followed by a 5-week reintroduction) removing gluten, dairy, grains, legumes, nightshades, and several other categories, then reintroducing them one at a time to identify personal triggers. This app\'s own Healing Stages guide builds its Stage 1/Stage 2 structure directly on this clinical protocol shape.',
+    summary: 'A structured elimination diet (typically a 6-week elimination phase followed by a 5-week reintroduction) removing gluten, dairy, grains, legumes, nightshades, and several other categories, then reintroducing them one at a time to identify personal triggers. The Healing Stages guide builds its Stage 1/Stage 2 structure directly on this clinical protocol shape.',
     citations: [
       {
         source: 'The Autoimmune Protocol diet: a systematic review of the literature',
@@ -217,8 +215,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Cortisol',
     teaser: 'The body\'s own primary stress hormone, and a direct, repeated route to lower active thyroid hormone.',
-    summary:
-      'A hormone released by the adrenal glands during stress, regulated by the HPA axis. Cortisol is documented to directly suppress the deiodinase enzymes that convert inactive T4 into active T3, favoring inactive reverse T3 instead. This is the single most recurring mechanism this whole Digest keeps finding underneath seemingly unrelated topics: alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise, all covered under Lifestyle & Environment.',
+    summary: 'A hormone released by the adrenal glands during stress, regulated by the HPA axis. Cortisol is documented to directly suppress the deiodinase enzymes that convert inactive T4 into active T3, favoring inactive reverse T3 instead. This is the single most recurring mechanism the keeps finding underneath seemingly unrelated topics: alcohol, sugar-sweetened drinks, sleep disruption, and high-intensity exercise, all covered under Lifestyle & Environment.',
     citations: [
       { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
@@ -229,7 +226,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-crp',
     category: 'basicHealth',
     title: 'CRP (C-Reactive Protein)',
-    teaser: 'One of the most common checkable blood markers of general inflammation, used throughout this app\'s own Mitochondria & Metabolism research.',
+    teaser: 'One of the most common checkable blood markers of general inflammation, used throughout the Mitochondria & Metabolism research.',
     summary:
       'A protein the liver produces in response to inflammation anywhere in the body; a standard blood test most doctors can order. CRP shows up repeatedly across this Digest\'s own research as the measured outcome behind claims like "a Mediterranean-style diet reduces inflammation" or "fiber intake lowers inflammatory markers," a checkable number behind an otherwise vague-sounding claim.',
     citations: [],
@@ -249,9 +246,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-d1-d6',
     category: 'hashimotos',
     title: '6-DFF (The 6 Dimensions of Food Friendliness)',
-    teaser: 'This app\'s own scoring framework, scoring every food across six separate, research-backed factors.',
-    summary:
-      'This app\'s own six-dimension scoring rubric, used throughout Insights, referred to by its acronym 6-DFF or, just as often, plainly as "the 6 Dimensions." It covers micronutrient density and bioavailability, inflammatory response potential, lipid metabolic compatibility, hormonal support and conversion, digestive tolerance and absorption, and oxalate load and mineral interference. These six are specific to Hashimoto\'s -- plenty of other food dimensions exist that would matter to anyone, not just someone with Hashimoto\'s. Worth knowing: this isn\'t the same thing as the deiodinase enzymes (D1, D2, D3) covered elsewhere in this glossary, an easy naming collision.',
+    teaser: 'The scoring framework, scoring every food across six separate, research-backed factors.',
+    summary: 'The six-dimension scoring rubric, used throughout Insights, referred to by its acronym 6-DFF or, just as often, plainly as "the 6 Dimensions." It covers micronutrient density and bioavailability, inflammatory response potential, lipid metabolic compatibility, hormonal support and conversion, digestive tolerance and absorption, and oxalate load and mineral interference. These six are specific to Hashimoto\'s -- plenty of other food dimensions exist that would matter to anyone, not just someone with Hashimoto\'s. Worth knowing: this isn\'t the same thing as the deiodinase enzymes (D1, D2, D3) covered elsewhere in this glossary, an easy naming collision.',
     citations: [],
     overallTier: 'strong',
   },
@@ -260,8 +256,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'DAO (Diamine Oxidase) & Histamine Intolerance',
     teaser: 'The enzyme that clears dietary histamine, and a reason gut inflammation can leave someone with less of it on hand.',
-    summary:
-      'DAO is the enzyme mainly responsible for breaking down histamine absorbed from food. Gut inflammation can reduce how much DAO is available, meaning someone with an already-inflamed gut may have less capacity to clear dietary histamine than usual. This is a direct reason this app\'s Healing Stages guide asks most fermented foods, a genuinely high-histamine food category, to wait until Stage 2, once that capacity is no longer an unknown variable.',
+    summary: 'DAO is the enzyme mainly responsible for breaking down histamine absorbed from food. Gut inflammation can reduce how much DAO is available, meaning someone with an already-inflamed gut may have less capacity to clear dietary histamine than usual. This is a direct reason the Healing Stages guide asks most fermented foods, a genuinely high-histamine food category, to wait until Stage 2, once that capacity is no longer an unknown variable.',
     citations: [
       { source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition: histamine and histamine intolerance', url: 'https://pubmed.ncbi.nlm.nih.gov/17490952/' },
     ],
@@ -288,9 +283,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-dri-family',
     category: 'basicHealth',
     title: 'DRI, RDA, AI & UL (Dietary Reference Intakes)',
-    teaser: 'The official family of nutrient targets this app\'s own Insights tab measures every meal against.',
-    summary:
-      'DRI (Dietary Reference Intake) is the umbrella term NASEM (the National Academies of Sciences, Engineering, and Medicine) uses for published nutrient targets. RDA (Recommended Dietary Allowance) is the amount that meets the needs of nearly everyone in a group; AI (Adequate Intake) is used instead when there isn\'t enough evidence yet to set a full RDA; UL (Tolerable Upper Intake Level) is the highest amount unlikely to cause harm. This app\'s own reference database uses cited DRI values, including an AI for water and choline added directly from the source data, to power every nutrient-percentage figure shown in Insights.',
+    teaser: 'The official family of nutrient targets the Insights tab measures every meal against.',
+    summary: 'DRI (Dietary Reference Intake) is the umbrella term NASEM (the National Academies of Sciences, Engineering, and Medicine) uses for published nutrient targets. RDA (Recommended Dietary Allowance) is the amount that meets the needs of nearly everyone in a group; AI (Adequate Intake) is used instead when there isn\'t enough evidence yet to set a full RDA; UL (Tolerable Upper Intake Level) is the highest amount unlikely to cause harm. The reference database uses cited DRI values, including an AI for water and choline added directly from the source data, to power every nutrient-percentage figure shown in Insights.',
     citations: [],
     overallTier: 'strong',
   },
@@ -347,8 +341,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Evidence Tiers (Strong / Moderate / Weak)',
     teaser: 'The rating system behind every colored dot in this Digest.',
-    summary:
-      'This app\'s own standing discipline for every claim it makes: Strong means trial-level or meta-analysis-level support; Moderate means a finding without that same depth of replication; Weak means early, preliminary, or thin evidence, still worth knowing but not worth over-trusting. An entry citing one strong study and one weak one is deliberately tagged at the weaker tier, since a claim is only as strong as its weakest support.',
+    summary: 'The standing discipline for every claim it makes: Strong means trial-level or meta-analysis-level support; Moderate means a finding without that same depth of replication; Weak means early, preliminary, or thin evidence, still worth knowing but not worth over-trusting. An entry citing one strong study and one weak one is deliberately tagged at the weaker tier, since a claim is only as strong as its weakest support.',
     citations: [],
     overallTier: 'strong',
   },
@@ -356,9 +349,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-fodmap',
     category: 'basicHealth',
     title: 'FODMAP',
-    teaser: 'A category of carbohydrates a lot of people digest poorly, the single highest-confidence exclusion in this app\'s own Healing Stages guide.',
-    summary:
-      'FODMAP stands for Fermentable Oligosaccharides, Disaccharides, Monosaccharides, and Polyols, a category of carbohydrates the small intestine often can\'t fully digest, which then get fermented by gut bacteria in the colon, producing gas and bloating. Garlic and onion, common high-FODMAP foods, are covered directly under Problem Foods & Swaps, and the whole category is the highest-confidence exclusion in this app\'s own Healing Stages Stage 1 elimination list.',
+    teaser: 'A category of carbohydrates a lot of people digest poorly, the single highest-confidence exclusion in the Healing Stages guide.',
+    summary: 'FODMAP stands for Fermentable Oligosaccharides, Disaccharides, Monosaccharides, and Polyols, a category of carbohydrates the small intestine often can\'t fully digest, which then get fermented by gut bacteria in the colon, producing gas and bloating. Garlic and onion, common high-FODMAP foods, are covered directly under Problem Foods & Swaps, and the whole category is the highest-confidence exclusion in the Healing Stages Stage 1 elimination list.',
     citations: [
       {
         source: 'Monash University FODMAP research group: fructan content in garlic, onion & other high-FODMAP foods',
@@ -427,9 +419,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-healing-stages',
     category: 'hashimotos',
     title: 'Healing Stages 1, 2 & 3',
-    teaser: "This app's own practical, food-focused staging: Getting Started, Rebuilding, and Well-Healed.",
-    summary:
-      'This app\'s own 3-tier practical structure for the healing journey: Stage 1 "Getting Started" (a short, narrow elimination baseline), Stage 2 "Rebuilding" (systematic, one-food-at-a-time reintroduction), and Stage 3 "Well-Healed" (broad eating, tracking as a spot-check tool). Mapped onto the five clinical stages this app also names elsewhere (Triage, Digging, Gut Repair, Rebalancing, Maintenance), which only meaningfully drive food decisions in two of the five. See Healing Stages for the full map.',
+    teaser: "The practical, food-focused staging: Getting Started, Rebuilding, and Well-Healed.",
+    summary: 'The 3-tier practical structure for the healing journey: Stage 1 "Getting Started" (a short, narrow elimination baseline), Stage 2 "Rebuilding" (systematic, one-food-at-a-time reintroduction), and Stage 3 "Well-Healed" (broad eating, tracking as a spot-check tool). Mapped onto the five clinical stages also named elsewhere (Triage, Digging, Gut Repair, Rebalancing, Maintenance), which only meaningfully drive food decisions in two of the five. See Healing Stages for the full map.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['healing-stage-map'],
@@ -439,8 +430,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: 'IL-6, IL-23 & TNF-α',
     teaser: 'Three specific, named inflammatory messengers, each with a documented effect relevant to Hashimoto\'s.',
-    summary:
-      'Three specific cytokines that show up repeatedly across this app\'s own research. IL-23 directly suppresses autophagy in Hashimoto\'s thyroid tissue. IL-6 directly suppresses the enzymes that activate thyroid hormone while activating the one that destroys it. TNF-alpha is a broader inflammatory marker, one of several this Digest\'s own diet-and-inflammation research (Mediterranean-diet trials, fiber intake) tracks as a measurable outcome.',
+    summary: 'Three specific cytokines that show up repeatedly across the research. IL-23 directly suppresses autophagy in Hashimoto\'s thyroid tissue. IL-6 directly suppresses the enzymes that activate thyroid hormone while activating the one that destroys it. TNF-alpha is a broader inflammatory marker, one of several this Digest\'s own diet-and-inflammation research (Mediterranean-diet trials, fiber intake) tracks as a measurable outcome.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['mito-il23-autophagy-suppression', 'lifestyle-il6-deiodinase'],
@@ -449,9 +439,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-insulin-resistance',
     category: 'basicHealth',
     title: 'Insulin Resistance',
-    teaser: 'A state where the body\'s cells stop responding normally to insulin, a real, shared thread behind several conditions this app tracks.',
-    summary:
-      'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a real, shared underlying mechanism connecting several other conditions this app covers in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its own real, documented link back to this same root cause. See this Digest\'s own dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
+    teaser: 'A state where the body\'s cells stop responding normally to insulin, a real, shared thread behind several conditions already tracked.',
+    summary: 'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a real, shared underlying mechanism connecting several other conditions already covered in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its own real, documented link back to this same root cause. See this Digest\'s own dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['type2-metabolic-syndrome-cluster'],
@@ -498,8 +487,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Microbiome',
     teaser: 'The trillions of bacteria, yeast, and other microbes living in and on the body, overwhelmingly concentrated in the gut.',
-    summary:
-      'The collective community of bacteria, yeast, and other microorganisms living in and on the human body, most densely in the gut. Diversity within this community, not any single "best" species, is what this app\'s own Gut & Microbiome and Fermented Foods research keeps identifying as the actual target worth working toward through food.',
+    summary: 'The collective community of bacteria, yeast, and other microorganisms living in and on the human body, most densely in the gut. Diversity within this community, not any single "best" species, is what the Gut & Microbiome and Fermented Foods research keeps identifying as the actual target worth working toward through food.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['gut-tying-together', 'fermented-tying-together'],
@@ -509,8 +497,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Mitochondria',
     teaser: 'The cell\'s own energy-producing structures, present in nearly every cell in the body.',
-    summary:
-      "Tiny structures inside nearly every cell responsible for producing the cell's own usable energy, real, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a real, recurring thread across several of this Digest's own condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
+    summary: "Tiny structures inside nearly every cell responsible for producing the cell's own usable energy, real, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a real, recurring thread across several of the condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['glossary-mots-c'],
@@ -532,7 +519,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-mots-c',
     category: 'hashimotos',
     title: 'MOTS-c',
-    teaser: 'A peptide made by mitochondria themselves, and one of the few genuinely Hashimoto\'s-specific findings in this app\'s cellular-biology research.',
+    teaser: 'A peptide made by mitochondria themselves, and one of the few genuinely Hashimoto\'s-specific findings in the cellular-biology research.',
     summary:
       'A mitochondria-derived peptide that regulates insulin sensitivity and inflammation. A study measured it significantly lower in 90 Hashimoto\'s patients compared to 90 matched controls, inversely correlated with autoantibody levels, a genuinely disease-specific finding, not extrapolated from another condition. See Mitochondria & Metabolism.',
     citations: [
@@ -598,8 +585,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Probiotic & Prebiotic',
     teaser: 'Two different things that often get confused: live organisms versus the food that feeds them.',
-    summary:
-      'A probiotic is a live microorganism (a specific bacterial or yeast strain) that provides a benefit when consumed. A prebiotic is a food component, mainly fiber, that feeds the microbes already living in the gut, rather than adding new ones directly. This app\'s own research treats "which specific strain" and "how much fiber is actually reaching the gut" as two separate, both-important questions, not one interchangeable idea. See Fermented Foods and Gut & Microbiome.',
+    summary: 'A probiotic is a live microorganism (a specific bacterial or yeast strain) that provides a benefit when consumed. A prebiotic is a food component, mainly fiber, that feeds the microbes already living in the gut, rather than adding new ones directly. The research treats "which specific strain" and "how much fiber is actually reaching the gut" as two separate, both-important questions, not one interchangeable idea. See Fermented Foods and Gut & Microbiome.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['gut-strain-specific-mechanisms', 'gut-scfa-treg'],
@@ -641,7 +627,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-scfa',
     category: 'basicHealth',
     title: 'SCFA (Short-Chain Fatty Acids)',
-    teaser: 'The chemical signal gut bacteria produce from fiber, described throughout this app as the single most food-controllable lever available.',
+    teaser: 'The chemical signal gut bacteria produce from fiber, described as the single most food-controllable lever available.',
     summary:
       'Molecules, mainly butyrate, propionate, and acetate, produced when gut bacteria ferment dietary fiber. SCFAs drive measurable immune tolerance through regulatory T cell (Treg) induction, the mechanistic bridge between "eat more fiber" and "calm an overactive immune system." See Gut & Microbiome for the full, two-study-confirmed mechanism.',
     citations: [
@@ -699,7 +685,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-th17',
     category: 'hashimotos',
     title: 'Th17 (T Helper 17 Cell)',
-    teaser: 'A specific type of pro-inflammatory immune cell, and one half of the balance this whole app\'s research keeps circling back to.',
+    teaser: 'A specific type of pro-inflammatory immune cell, and one half of the balance the research keeps circling back to.',
     summary:
       'A specific subtype of T helper immune cell that drives inflammation. A shifted balance between Th17 cells and regulatory T cells (Tregs, which promote tolerance instead) is independently documented across rheumatoid arthritis, IBD, multiple sclerosis, lupus, and Hashimoto\'s alike. The same underlying immune-cell story keeps resurfacing no matter which disease is being studied. See Gut & Microbiome and Other Autoimmune Diseases.',
     citations: [
@@ -729,8 +715,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: 'TPO (Thyroid Peroxidase) & TPO Antibody',
     teaser: 'The actual enzyme Hashimoto\'s antibodies attack, and the lab value this whole app\'s own tracking is built around.',
-    summary:
-      'Thyroid peroxidase is the enzyme responsible for making thyroid hormone in the first place. TPO antibodies, the immune system mistakenly attacking this exact enzyme, weren\'t identified as the target until 1985, decades after Hashimoto\'s was first confirmed autoimmune. The modern TPO antibody blood test, tracking that same antibody, is the primary lab signal this app\'s own Healing Stages guide uses to gauge long-term progress.',
+    summary: 'Thyroid peroxidase is the enzyme responsible for making thyroid hormone in the first place. TPO antibodies, the immune system mistakenly attacking this exact enzyme, weren\'t identified as the target until 1985, decades after Hashimoto\'s was first confirmed autoimmune. The modern TPO antibody blood test, tracking that same antibody, is the primary lab signal the Healing Stages guide uses to gauge long-term progress.',
     citations: [
       {
         source: 'Anti-thyroid peroxidase antibody in patients with autoimmune thyroid disease: possible identity with anti-microsomal antibody',
@@ -796,8 +781,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Zonulin',
     teaser: 'The named protein responsible for how "leaky" the gut lining actually is, discovered by the same researcher who coined the term.',
-    summary:
-      'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. The physical mechanism behind "leaky gut" throughout this whole Digest, worth understanding as real, general gut-barrier physiology, whatever the reason someone\'s reading about it.',
+    summary: 'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. The physical mechanism behind "leaky gut", worth understanding as real, general gut-barrier physiology, whatever the reason someone\'s reading about it.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],

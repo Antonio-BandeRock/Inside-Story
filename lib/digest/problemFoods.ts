@@ -74,8 +74,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     teaser: "The single most-cited elimination in Hashimoto's food advice, and the link to autoimmunity behind it is real.",
     problem:
       "Wheat, barley, and rye all contain gluten. A subset of people, not just those with celiac disease, react to it with genuine gut symptoms, and in celiac disease specifically, the connection to autoimmune disease is well documented and shares real biology with thyroid autoimmunity.",
-    mechanism:
-      "Gliadin, a piece of the gluten protein, can trigger your gut lining to release a substance called zonulin, which loosens the tight seals between your intestinal cells. That \"leakier\" gut lining is the same mechanism this app's own gut-repair research keeps coming back to as a contributor to autoimmune risk in general, not something unique to celiac disease.",
+    mechanism: "Gliadin, a piece of the gluten protein, can trigger your gut lining to release a substance called zonulin, which loosens the tight seals between your intestinal cells. That \"leakier\" gut lining is the same mechanism the gut-repair research keeps coming back to as a contributor to autoimmune risk in general, not something unique to celiac disease.",
     swaps: [
       'Rice, buckwheat (genuinely gluten-free despite the name), and quinoa: solid, whole-grain staples with none of the gluten.',
       'Certified gluten-free oats specifically. Ordinary oats are often cross-contaminated during processing, and the certified label is what actually addresses that.',
@@ -117,8 +116,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     teaser: "The most misunderstood item on any Hashimoto's \"avoid list.\" The fix is cooking, not avoiding.",
     problem:
       "Broccoli, cauliflower, cabbage, kale, and Brussels sprouts contain compounds that, eaten raw and in large amounts, can get in the way of your thyroid's ability to take up iodine.",
-    mechanism:
-      "It takes an enzyme called myrosinase to unlock that effect, and myrosinase is largely deactivated by heat. This app's own Cooking & Prep research already shows real data that simply cooking these vegetables meaningfully cuts that risk compared to eating the same amount raw.",
+    mechanism: "It takes an enzyme called myrosinase to unlock that effect, and myrosinase is largely deactivated by heat. The Cooking & Prep research already shows real data that simply cooking these vegetables meaningfully cuts that risk compared to eating the same amount raw.",
     swaps: [
       'Just cook them. Steaming, roasting, or sautéing all knock down the goitrogenic effect while keeping most of the good stuff (fiber, vitamin C, sulforaphane) intact.',
       'Eating them raw is fine in moderate portions. The real risk is a large amount, and especially several raw goitrogenic vegetables piled into one meal.',
@@ -156,7 +154,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-high-histamine',
     category: 'hashimotos',
     foodName: 'High-Histamine Foods (aged cheese, cured meat, most ferments, leftovers)',
-    teaser: "A real, honest tension with this app's own fermented-food research, worth naming plainly.",
+    teaser: "A real, honest tension with the fermented-food research, worth naming plainly.",
     problem:
       "Aged cheese, cured or smoked meat, most fermented foods, and even fresh food that's sat in the fridge a bit too long all build up histamine as bacteria and protein naturally break down over time. For the subset of people with genuine histamine intolerance, which shows up disproportionately alongside autoimmune conditions, that's a recognizable trigger.",
     mechanism:
@@ -181,8 +179,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     teaser: 'Not "sugar" broadly. The real problem is drinking it, not eating it.',
     problem:
       'Soda, sweetened tea, and other sugary drinks deliver a big, fast hit of sugar with none of the fiber or chewing that naturally slows absorption from real food, a genuinely different risk than the same sugar eaten as part of a meal.',
-    mechanism:
-      "Fast sugar means a sharper insulin spike, and the crash that follows triggers cortisol and other stress hormones, and cortisol, in turn, dampens the enzymes that convert T4 into active T3. It's the same mechanism behind this app's own alcohol and juice advisories.",
+    mechanism: "Fast sugar means a sharper insulin spike, and the crash that follows triggers cortisol and other stress hormones, and cortisol, in turn, dampens the enzymes that convert T4 into active T3. It's the same mechanism behind the alcohol and juice advisories.",
     swaps: [
       'Whole fruit instead of fruit juice or a sweetened drink. The fiber genuinely slows the sugar hit down.',
       'Unsweetened sparkling water with a real fruit splash, rather than swapping to diet soda (which just trades one open question, sugar, for another, see Food Additives).',
@@ -242,11 +239,10 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-commercial-premade',
     category: 'basicHealth',
     foodName: 'Commercial / Pre-Made Products',
-    teaser: "This app's own design philosophy, said out loud: build it yourself when you can.",
+    teaser: "The design philosophy, said out loud: build it yourself when you can.",
     problem:
       "Branded, boxed, and other pre-made products tend to stack several of this list's other concerns into one item at once: refined oils, added sugar, synthetic dyes, emulsifiers, sodium, and the exact recipe and ratios genuinely aren't something you control, or always even see on the label.",
-    mechanism:
-      "It isn't any single mechanism. It's cumulative, less-visible exposure to several of this list's other entries stacked together at once. A large 2024 umbrella review pooling nearly 10 million people found ultra-processed food consistently tied to 32 different adverse health outcomes, exactly why this app's own ten Food-tab builders exist to assemble real meals from real, individually-chosen ingredients instead of reaching for a pre-made stand-in.",
+    mechanism: "It isn't any single mechanism. It's cumulative, less-visible exposure to several of this list's other entries stacked together at once. A large 2024 umbrella review pooling nearly 10 million people found ultra-processed food consistently tied to 32 different adverse health outcomes, exactly why the ten Food-tab builders exist to assemble real meals from real, individually-chosen ingredients instead of reaching for a pre-made stand-in.",
     swaps: [
       "Build the equivalent yourself with this app's own Food-tab builders. Sides, Sauces, Soups, and Handhelds cover most of the ground a box mix or frozen meal usually fills.",
       'When a commercial product really is the only practical option, reading the full ingredient list (not just the front label) at least makes the real tradeoff visible instead of hidden.',
@@ -265,8 +261,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     teaser: 'The real, checkable version of "wash your produce." Not every fruit or vegetable carries the same exposure.',
     problem:
       'Pesticide residue on conventionally grown produce varies a lot by crop. Some items, strawberries, spinach, kale, reliably test with detectable residue on nearly every sample in annual testing, while others, avocado, sweet corn, pineapple, reliably test clean, mostly thanks to a thick skin the edible part never actually touches.',
-    mechanism:
-      "Several commonly used pesticides are documented endocrine disruptors in animal and cell studies, which connects this directly to this app's own Lifestyle & Environment research on environmental endocrine disruptors, not a separate topic on its own.",
+    mechanism: "Several commonly used pesticides are documented endocrine disruptors in animal and cell studies, which connects this directly to the Lifestyle & Environment research on environmental endocrine disruptors, not a separate topic on its own.",
     swaps: [
       'Buy organic selectively, for the highest-residue, thin-skinned items, not as a blanket rule for everything.',
       'Conventional is a genuinely reasonable, money-saving choice for thick-skinned produce (avocado, banana, melon, pineapple), where the part you eat is naturally shielded.',
@@ -280,7 +275,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-coffee-timing',
     category: 'hashimotos',
     foodName: 'Coffee Taken Too Close to Levothyroxine',
-    teaser: "The single most useful, most fixable food-medication timing tip on this app's own list.",
+    teaser: "The single most useful, most fixable food-medication timing tip on the list.",
     problem:
       'A pharmacokinetic study found coffee taken alongside a levothyroxine dose measurably cuts how much of it actually gets absorbed: peak blood levels down 19-36%, total absorption down 27-36% in that trial.',
     mechanism:
@@ -315,8 +310,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     teaser: '"More iodine is always better for your thyroid" is exactly backwards for a lot of people with Hashimoto\'s.',
     problem:
       "Kelp, dulse, and similar sea vegetables (plus kelp-based supplements) can carry enormous amounts of iodine in a single serving, and for someone who already has Hashimoto's, a sudden iodine overload is a documented way to trigger or worsen a flare, not just a harmless \"extra nutrient.\"",
-    mechanism:
-      "Your thyroid actually has a built-in safety brake for iodine (the Wolff-Chaikoff effect) that's supposed to shut hormone production down temporarily when iodine floods in, but in Hashimoto's, that brake can misfire or get stuck, and the antibody attack itself can flare right alongside it. It's the same reason this app's own iodine reference entry calls it a two-edged nutrient: too little is a problem, but so is too much.",
+    mechanism: "Your thyroid actually has a built-in safety brake for iodine (the Wolff-Chaikoff effect) that's supposed to shut hormone production down temporarily when iodine floods in, but in Hashimoto's, that brake can misfire or get stuck, and the antibody attack itself can flare right alongside it. It's the same reason the iodine reference entry calls it a two-edged nutrient: too little is a problem, but so is too much.",
     swaps: [
       'Nori (the seaweed used for sushi) runs far lower in iodine than kelp or dulse, a reasonable way to still get some real sea-vegetable flavor and nutrition without the same overload risk.',
       'Skip kelp-based supplements entirely unless a doctor has specifically checked your iodine status first. This is one case where "a little extra can\'t hurt" genuinely isn\'t true.',
@@ -362,8 +356,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     teaser: "Probably the single most common Hashimoto's diet question, with an answer more surprising and less settled than most advice admits.",
     problem:
       "The gluten entry elsewhere in this category already covers a general gut-permeability mechanism (gliadin, zonulin) that applies to anyone, celiac or not. This is a genuinely different, more specific question: does actually removing gluten measurably change Hashimoto's antibody levels or thyroid numbers in someone without celiac disease? A very recent (2025) systematic review and meta-analysis pooling 3 randomized trials (110 participants) found a genuinely surprising, mixed answer, not the clean \"yes, it helps\" most gluten-free advice for Hashimoto's assumes.",
-    mechanism:
-      "The numbers themselves are the honest story here: going gluten-free significantly decreased anti-thyroglobulin antibodies, but significantly increased anti-TPO antibodies, moving in opposite directions on the two core antibody markers this app's own tracking is built around. TSH, free T3, and free T4 showed no significant change either way. The review's own authors rated the underlying evidence as having \"serious methodological concerns\" and being \"very uncertain,\" an admission from the researchers themselves, not this app's own hedge. None of this changes the separate case for a true celiac disease diagnosis, where gluten-free eating is genuinely medically necessary regardless of any thyroid-specific effect. This is specifically about the much more common situation of choosing to go gluten-free for the Hashimoto's itself, without a celiac diagnosis driving it.",
+    mechanism: "The numbers themselves are the honest story here: going gluten-free significantly decreased anti-thyroglobulin antibodies, but significantly increased anti-TPO antibodies, moving in opposite directions on the two core antibody markers the tracking is built around. TSH, free T3, and free T4 showed no significant change either way. The review's own authors rated the underlying evidence as having \"serious methodological concerns\" and being \"very uncertain,\" an admission from the researchers themselves, not the hedge. None of this changes the separate case for a true celiac disease diagnosis, where gluten-free eating is genuinely medically necessary regardless of any thyroid-specific effect. This is specifically about the much more common situation of choosing to go gluten-free for the Hashimoto's itself, without a celiac diagnosis driving it.",
     swaps: [
       'A real celiac disease test (not a guess) before committing to a strict, genuinely difficult gluten-free diet specifically for thyroid reasons, worth ruling in or out first, covered under Self Advocacy.',
       'If choosing to try it anyway, a real, honest personal experiment (tracked symptoms over weeks, not assumed results) is a more defensible approach than expecting a guaranteed antibody or TSH change the current evidence doesn\'t actually support.',
@@ -383,9 +376,8 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     foodName: 'Tying It All Together: The Patterns Across This Whole List',
     teaser: 'Fourteen very different foods, four repeating mechanisms underneath most of them.',
     problem:
-      "Taken food by food, this list can look like fourteen unrelated warnings. Taken as a whole, most of them trace back to just a handful of repeating mechanisms: a fermentable carbohydrate the gut can't break down (garlic, onion, sugar-sweetened drinks), a gut-permeability trigger (gluten), a heat-reversible enzyme effect (raw crucifers), a histamine-clearance bottleneck (aged, cured, and most fermented foods), and the same cortisol/HPA-axis pathway this whole app's research keeps returning to (sugar-sweetened drinks, and see Lifestyle & Environment).",
-    mechanism:
-      "None of this is separate, unrelated biology. It's a small number of gut and hormone mechanisms this whole Digest keeps coming back to, just triggered by different foods each time.",
+      "Taken food by food, this list can look like fourteen unrelated warnings. Taken as a whole, most of them trace back to just a handful of repeating mechanisms: a fermentable carbohydrate the gut can't break down (garlic, onion, sugar-sweetened drinks), a gut-permeability trigger (gluten), a heat-reversible enzyme effect (raw crucifers), a histamine-clearance bottleneck (aged, cured, and most fermented foods), and the same cortisol/HPA-axis pathway this research keeps returning to (sugar-sweetened drinks, and see Lifestyle & Environment).",
+    mechanism: "None of this is separate, unrelated biology. It's a small number of gut and hormone mechanisms the keeps coming back to, just triggered by different foods each time.",
     swaps: [
       'Test one food at a time, not the whole list at once. Most of these are genuinely conditional (soy, nightshades, dairy), not universal.',
       'Cooking, timing, and freshness resolve more of this list than outright avoidance does. Only gluten, and for a specific subgroup soy, really call for a longer elimination.',
