@@ -92,6 +92,10 @@ export default function TabLayout() {
                 constants/tabs.ts's own TAB_ROUTES entry for the full
                 reasoning. */}
             <Tabs.Screen name="purple-digest" options={{ title: 'Purple Digest' }} />
+            {/* The 9th real tab, added 2026-08-13 -- see
+                constants/tabs.ts's own TAB_ROUTES entry for the full
+                reasoning. */}
+            <Tabs.Screen name="garden" options={{ title: 'Garden' }} />
           </Tabs>
         </View>
         <TabHub />

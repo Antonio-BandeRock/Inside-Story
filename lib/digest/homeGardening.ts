@@ -61,6 +61,28 @@ import type { DigestEntry } from './types';
 // WebFetch-against-real-pages fallback (a DuckDuckGo HTML search-result
 // page fetched and read directly, then the real source page itself
 // fetched and verified), never fabricated.
+//
+// A fourth batch, 2026-08-13, direct request alongside the new, real
+// Garden tab/Agricultural Zone Finder feature (see app/(tabs)/garden.tsx):
+// "encourage people to put carbon into the ground" and "we should all be
+// growing everything we can no matter how small it may seem to be," plus
+// the first real installment of the much larger indoor-growing-equipment
+// research also requested the same day (mediums, LED lighting, water
+// quality). 5 new entries: a real 19-year UC Davis field trial on compost
+// plus cover crops as the actual carbon-building combination (cross-linked
+// to Earth Matters' own 4-per-1000 entry), a real WWII victory-garden
+// statistic as direct, concrete "even small adds up" encouragement, a real
+// comparative look at soil/hydroponic/aeroponic growing methods, a real
+// controlled dwarf-tomato study on LED intensity/spectrum/photoperiod, and
+// an honest, Extension-sourced answer on whether tap water needs filtering
+// (usually not for soil growing, genuinely matters more for hydroponics).
+// Deliberately NOT the full scope of what was asked -- grow tents/airflow
+// equipment specifics, plant-nutrient forms, full crop life-cycle
+// guidance, composting kitchen scraps in more depth, and atmospheric/
+// rainwater harvesting (collection, filtration, safe storage duration,
+// non-chemical preservation) are all real, named, still-open next steps
+// for a future continuation of this exact same batch, not silently
+// dropped.
 export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
   {
     id: 'garden-economics-subsidizing-food',
@@ -623,14 +645,126 @@ export const HOME_GARDENING_ENTRIES: DigestEntry[] = [
     ],
   },
   {
+    id: 'garden-carbon-in-the-ground',
+    category: 'homeGardening',
+    title: 'Put Real Carbon Back Into the Ground',
+    teaser: 'A 19-year UC Davis field trial found compost plus cover crops raised soil carbon 12.6% over the study period -- a real, home-scale version of the same practice Earth Matters covers at national scale.',
+    summary: "Growing food at home is also a real, direct way to put carbon back into soil rather than releasing it -- the same soil-carbon story this Digest's own Earth Matters research already documents at farm and national scale, just at the scale of a single yard or a few containers. A 19-year field trial at UC Davis's Russell Ranch Sustainable Agriculture Facility, published in Global Change Biology, compared three real management approaches by sampling soil roughly 6 feet deep, not just the surface. Conventional management neither gained nor lost much carbon. Cover crops alone actually lost carbon on net once deeper soil layers were counted, even though the top foot looked like a gain -- a real, important finding, since most home-garden advice about cover crops only ever discusses the surface. The one approach that genuinely worked: organic management combining real compost application with cover crops, which raised soil carbon 12.6% over the study period, about 0.7% a year -- comfortably ahead of the international '4 per 1000' initiative's own 0.4%-a-year target already covered in Earth Matters. The real, practical takeaway for a home gardener: compost and cover crops together, not either alone, is what the best available long-term evidence actually supports for building real, stored soil carbon rather than just healthier-looking topsoil. This app's own composting and no-dig entries (below) are the practical how-to for doing exactly this at home.",
+    citations: [
+      {
+        source: 'UC Davis: Compost Key to Sequestering Carbon in the Soil (Chiartas, Tautges, Scow et al., Global Change Biology)',
+        url: 'https://www.ucdavis.edu/climate/news/compost-key-sequestering-carbon-soil',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, 19-year controlled field trial, not a short-term or observational study -- one of the stronger evidence bases in this whole category.',
+    relatedIds: [
+      'garden-composting-at-home',
+      'garden-no-dig-raised-beds',
+      'garden-cover-crops-home',
+      'foodhistory-regen-4-per-1000-initiative',
+      'foodhistory-soil-real-depletion',
+    ],
+  },
+  {
+    id: 'garden-grow-what-you-can-however-small',
+    category: 'homeGardening',
+    title: "It Adds Up: Why Even a Small Amount Is Worth Growing",
+    teaser: 'By 1944, roughly 20 million real American home "victory gardens" -- most of them small, ordinary backyard plots -- supplied 42% of the country\'s entire vegetable supply.',
+    summary: "It's easy to assume a single small garden, a few containers on a balcony, or one raised bed doesn't meaningfully move the needle -- the real historical record says otherwise. During World War II, the US government asked ordinary households to plant \"victory gardens\" to ease pressure on the commercial food supply, and Americans responded at a scale that's genuinely striking to look back on: by 1944, more than 20 million real gardens of every size, in cities, suburbs, and rural areas alike, were producing food. According to the USDA's own wartime figures (cited directly in a 1943 Roosevelt fireside chat), those gardens supplied 42% of all the vegetables grown in the country that year -- nearly half the nation's produce, from millions of individually small, ordinary plots, not a handful of large farms. No single one of those 20 million gardens was doing anything remarkable on its own; the real effect came entirely from scale, millions of people each growing what they reasonably could in their own real space. The same math applies today, just without a wartime mandate behind it: this category's own economics entry already shows a real, favorable cost-to-value ratio scales down proportionally to a much smaller plot or a handful of containers, and the container/small-space entry below covers exactly how to do that with genuinely limited room. Growing even a little is a real, direct answer to food cost, freshness, and (per the carbon entry above) even the soil itself -- not a token gesture that only counts at a larger scale.",
+    citations: [
+      {
+        source: 'The National WWII Museum: Victory Gardens: Food for the Fight (citing USDA figures via a 1943 Roosevelt fireside chat)',
+        url: 'https://www.nationalww2museum.org/war/articles/victory-gardens-world-war-ii',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, documented historical outcome at national scale, not a projection or estimate -- included as direct, concrete encouragement, not a claim that today\'s conditions exactly match wartime ones.',
+    relatedIds: ['garden-economics-subsidizing-food', 'garden-container-small-space', 'garden-carbon-in-the-ground'],
+  },
+  {
+    id: 'garden-indoor-growing-methods-overview',
+    category: 'homeGardening',
+    title: 'Soil, Hydroponics, or Aeroponics: The Real Indoor Growing Options',
+    teaser: 'Real comparative research finds aeroponic systems yielding roughly 30% more than soil on average, with hydroponics landing in between -- but each real method trades off differently on cost, complexity, and water use.',
+    summary: "Growing indoors, in a garage, spare room, basement, or a dedicated grow tent, comes down to a real choice among three genuinely different growing mediums, each with its own real tradeoffs rather than one being simply \"better\" than the others. Soil-based container growing is the simplest and most forgiving: real potting soil (not garden soil, which compacts and drains poorly in a container) buffers against overwatering and nutrient mistakes the way no soilless method does, at the real cost of being messier and slower-growing than the alternatives. Hydroponics grows plants with their roots directly in a nutrient-rich water solution, no soil at all -- real comparative studies on tomatoes found hydroponic systems producing 100% to 250% more than the same crop grown in soil, with plants maturing 30-50% faster, at the real cost of needing a genuinely reliable nutrient-dosing and pH-monitoring routine, since there's no soil left to buffer a mistake. Aeroponics goes a step further, suspending roots in open air and misting them with nutrient solution on a timed cycle -- real research found aeroponic systems yielding, on average, more than 30% more than hydroponics for some crops (a comparative lettuce study measured red kale up 65%, bell peppers up 53%, and squash up 50% over hydroponic controls), with real water savings too: about 95% less water than field-grown produce, and roughly 40% less than hydroponics. The real cost of that extra performance is genuine mechanical complexity -- aeroponics depends on a working mist pump and clean, unclogged nozzles, and a single equipment failure can dry out and kill exposed roots within hours in a way soil or standing hydroponic solution never would. For a first indoor growing attempt, soil-based containers remain the most forgiving real starting point; hydroponics is a real, meaningful step up in yield and speed once the basic routine is comfortable; aeroponics is the highest-performing but least forgiving of the three, best reserved for someone already confident running the other two.",
+    citations: [
+      {
+        source: 'ResearchGate: Comparison Between Hydroponic and Aeroponic Systems for Lettuce Production',
+        url: 'https://www.researchgate.net/publication/317561671_COMPARISON_BETWEEN_HYDROPONIC_AND_AEROPONIC_SYSTEMS_FOR_LETTUCE_PRODUCTION',
+      },
+      {
+        source: 'MDPI Sustainability: A Comparative LCA of Aeroponic, Hydroponic, and Soil Cultivations of Bioactive Substance Producing Plants',
+        url: 'https://www.mdpi.com/2071-1050/14/4/2421',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Real, published comparative studies, but yield figures vary meaningfully by crop and by the specific system tested -- treat the percentages here as real, representative examples, not a guaranteed result for every crop and setup.',
+    relatedIds: ['garden-led-grow-lights-photoperiod', 'garden-water-quality-filtration', 'garden-container-small-space'],
+  },
+  {
+    id: 'garden-led-grow-lights-photoperiod',
+    category: 'homeGardening',
+    title: 'LED Grow Lights: Real Intensity, Spectrum, and Day-Length Guidance',
+    teaser: 'A real, controlled tomato study found 700 μmol/m²/s produced the most leaf area and dry mass of three tested intensities -- but the lowest intensity tested, 300, was actually the most efficient per unit of light energy used.',
+    summary: "Growing indoors without natural sunlight means the grow light itself is standing in for the sun, and three real, separate variables all matter: intensity, spectrum, and day length (photoperiod). Intensity is measured as PPFD (photosynthetic photon flux density, in micromol per square meter per second) -- young seedlings generally do well around 100-300 μmol/m²/s, established vegetative growth benefits from roughly 400-600, and fruiting/flowering stages typically want more, 700-900. A real, controlled study on dwarf tomato tested exactly three intensities at the vegetative stage (300, 500, and 700 μmol/m²/s) and found a genuine tradeoff, not a simple \"more is better\" result: leaf area and total dry mass both kept climbing at the highest intensity tested (700), but radiation-use efficiency, how much real growth came out per unit of light energy actually used, was highest at the lowest intensity tested (300), meaning the extra growth from more light came at a proportionally higher electricity cost. Spectrum (the actual mix of light colors) matters too: blue-heavy light is generally associated with more compact, leafy vegetative growth, while red-heavy light is associated with triggering flowering and fruiting. Day length is the third real lever -- vegetable seedlings and leafy greens generally do well under an extended 16-18 hour light period during vegetative growth, while many fruiting plants (tomatoes and peppers among them) benefit from a period closer to a natural 12-14 hour cycle once they're flowering and setting fruit, since an unnaturally long day length can delay or reduce flowering in some species. There's a real, practical takeaway underneath all three variables: a home grower balancing electricity cost against growth speed has a real, evidence-backed reason to run a lower, more efficient intensity for everyday vegetative growth and reserve a higher one for the specific stage (fruiting/flowering) where the research shows it actually pays off.",
+    citations: [
+      {
+        source: 'PMC: Optimization of Photosynthetic Photon Flux Density and Light Quality for Increasing Radiation-Use Efficiency in Dwarf Tomato under LED Light at the Vegetative Growth Stage',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8796024/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'One real, controlled study on one crop (dwarf tomato) at one growth stage -- the general intensity/spectrum/photoperiod ranges given are widely used real horticultural guidance, but the specific efficiency finding is from this single study, not a broad meta-analysis across many crops.',
+    relatedIds: ['garden-indoor-growing-methods-overview'],
+    chart: {
+      title: 'Dwarf Tomato Seedlings: Leaf Area by Light Intensity (Vegetative Stage)',
+      unit: 'cm²',
+      data: [
+        { label: '300 μmol/m²/s (most energy-efficient)', value: 73.46 },
+        { label: '500 μmol/m²/s', value: 83.66 },
+        { label: '700 μmol/m²/s (largest leaf area)', value: 95.5 },
+      ],
+      sourceNote: 'PMC8796024, real controlled dwarf-tomato LED lighting trial',
+    },
+  },
+  {
+    id: 'garden-water-quality-filtration',
+    category: 'homeGardening',
+    title: 'Does Tap Water Need Filtering for Plants? A Real, Honest Answer',
+    teaser: "For ordinary garden and container growing, real Extension guidance says typical tap-water chlorine/chloramine levels aren't toxic to plants -- but hydroponic systems and seedlings are the real exception.",
+    summary: "Whether tap water needs filtering before it reaches plants genuinely depends on the growing method, not a single universal answer. For ordinary soil-based garden and container growing, a real answer from Ask Extension (citing both the EPA and University of Nebraska Extension) is reassuring: typical municipal chlorine and chloramine levels are not toxic to garden plants, and most common vegetables, trees, and turf tolerate normal tap water without any real problem. Chlorine specifically dissipates from water left standing uncovered for about 24 hours, though chloramine (increasingly used in place of plain chlorine by many municipal systems specifically because it's more stable and doesn't dissipate the same way) does not go away just by letting water sit -- a real, practical distinction worth knowing before assuming the old \"let it sit overnight\" advice covers every water supply. The real exception is hydroponic and aeroponic growing, where the water itself becomes the entire root environment with no soil to buffer anything: one real study found chloramine-treated water caused root browning in hydroponically grown lettuce specifically. For a hydroponic or aeroponic system, real growing guidance recommends starting from filtered water, either a simple activated-carbon filter (removes chlorine and organic compounds, the same real mechanism a household water-filter pitcher already uses) or, for full mineral control, reverse osmosis (rejects roughly 94-99% of dissolved solids, producing near-zero-mineral water so a nutrient solution's own real, measured ratios aren't thrown off by whatever minerals happen to already be in the local tap water) -- with a carbon pre-filter specifically required ahead of an RO membrane, since chlorine itself can damage the membrane over time. Seedlings and young transplants are also more sensitive than mature plants across every growing method, so dechlorinated or aged water is worth the extra step specifically during that early, vulnerable stage even in an ordinary soil garden.",
+    citations: [
+      {
+        source: 'Ask Extension: Chloramine in tap water and its effects on houseplants and gardens',
+        url: 'https://ask.extension.org/kb/faq.php?id=460986',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The core "typically fine for soil growing" claim traces to a real Extension answer citing the EPA and University of Nebraska Extension; the hydroponic lettuce root-browning finding is from a single cited study, not independently re-verified against its own original paper in this pass.',
+    relatedIds: ['garden-indoor-growing-methods-overview'],
+  },
+  {
     id: 'garden-tying-together',
     category: 'homeGardening',
     title: 'Putting It Together: A Real, Practical First Garden',
     teaser: 'The whole case for a first garden fits in one sentence: pick crops that actually suit the climate and the available space, and the real savings, freshness, and pollinator benefits follow on their own.',
-    summary: "Every entry in this category points toward the same practical sequence. Start with a real growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that genuinely suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a real harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. Favor crops that return the most real grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of genuinely easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely. Watering efficiently and managing pests through companion planting rather than a spray bottle both save real money and protect the same pollinators the rest of this category depends on, and preserving a genuine surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the real grocery savings covered first in this category: fresher food with measurably more of its own nutrients intact, and, when even a few flowering plants are worked in alongside the vegetables, a genuine, individual-level answer to the pollinator crisis the Earth Matters research documents at a much larger scale. Even genuinely zero yard or balcony space isn't a full stop: a windowsill herb collection, a tray of microgreens, or a real community garden plot each still produce real, measurable food, and a real randomized trial found the last of those genuinely changes what people actually eat, not just what they intend to.",
+    summary: "Every entry in this category points toward the same practical sequence. Start with a real growing zone and its actual frost dates, not a generic planting calendar written for a different climate. Choose crops that genuinely suit that zone, cool-hardy greens and root vegetables in a short-season climate, a full spring-and-summer rotation in a moderate one, a winter-centered calendar in a warm one, and month-by-month timing rather than a single planting season in a true tropical climate. If there's no yard, containers on a balcony or patio can still produce a real harvest, especially of herbs, leafy greens, and compact tomato varieties, and a simple trellis stretches that same footprint further for anything that naturally climbs. No outdoor light at all isn't a full stop either -- a soil-based container under a real LED grow light, run at a sensible intensity and day length for the actual growth stage, is a genuinely viable indoor option, with hydroponics and aeroponics available as real, higher-yield (if less forgiving) next steps once the basics are comfortable. Favor crops that return the most real grocery value for the space, herbs and repeat-harvest greens especially, and lean on the small handful of genuinely easy, forgiving crops (radishes, lettuce, bush beans, zucchini) for a first attempt rather than something more demanding, saving seed instead of buying it fresh each year once a favorite variety is found. A cheap soil test is worth doing before planting directly into ground with an unknown history, especially in an older or urban setting, and a no-dig bed built from compost and cardboard sidesteps the question of what's underneath entirely -- the same real compost-plus-cover-crop combination a rigorous 19-year field trial found genuinely builds stored soil carbon, not just healthier-looking topsoil. Watering efficiently (filtered water matters far more for a hydroponic setup than an ordinary soil garden) and managing pests through companion planting rather than a spray bottle both save real money and protect the same pollinators the rest of this category depends on, and preserving a genuine surplus through canning or freezing stretches a harvest well past the growing season itself. None of this requires expensive equipment or prior experience, and the payoff extends past the real grocery savings covered first in this category: fresher food with measurably more of its own nutrients intact, real carbon put back into the ground, and, when even a few flowering plants are worked in alongside the vegetables, a genuine, individual-level answer to the pollinator crisis the Earth Matters research documents at a much larger scale. Even genuinely zero yard or balcony space isn't a full stop: a windowsill herb collection, a tray of microgreens, or a real community garden plot each still produce real, measurable food, and a real randomized trial found the last of those genuinely changes what people actually eat, not just what they intend to. None of this has to be large to matter -- by 1944, more than 20 million small, ordinary American home gardens together supplied 42% of the country's entire vegetable supply.",
     citations: [],
     overallTier: 'strong',
     stageNote: 'A closing synthesis drawing on every citation already given individually above, not a new claim of its own.',
-    relatedIds: ['garden-economics-subsidizing-food', 'garden-understanding-your-zone', 'garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-how-to-get-involved', 'garden-no-dig-raised-beds', 'garden-preserving-the-harvest', 'garden-community-gardens', 'garden-crop-rotation'],
+    relatedIds: [
+      'garden-economics-subsidizing-food',
+      'garden-understanding-your-zone',
+      'garden-pollinator-friendly-earth-matters-link',
+      'foodhistory-regen-how-to-get-involved',
+      'garden-no-dig-raised-beds',
+      'garden-preserving-the-harvest',
+      'garden-community-gardens',
+      'garden-crop-rotation',
+      'garden-carbon-in-the-ground',
+      'garden-grow-what-you-can-however-small',
+      'garden-indoor-growing-methods-overview',
+    ],
   },
 ];

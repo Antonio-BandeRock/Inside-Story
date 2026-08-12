@@ -237,13 +237,22 @@ const CARD_ITEM_PADDING_VERTICAL = 4; // matches `item`'s own paddingVertical be
 const CARD_ITEM_GAP = 1; // matches `item`'s own gap below
 const CARD_ITEM_LABEL_LINE_HEIGHT = 13; // itemLabel's own fontSize (10) * ~1.3, same estimate approach as LensHub.tsx's own GRID_ITEM_LABEL_LINE_HEIGHT
 const CARD_ROW_HEIGHT = CARD_ITEM_PADDING_VERTICAL * 2 + ICON_PILL_SIZE + CARD_ITEM_GAP + CARD_ITEM_LABEL_LINE_HEIGHT;
-// 8 tabs (TAB_ROUTES, Purple Digest promoted from its own hardcoded slot to
-// a real tab here 2026-08-05) + Profile fill 3 rows exactly at 3 columns;
-// Info -- now alone as the 10th item -- gets its own 4th row, centered via
-// a single blank spacer before it (see its own render below), the same
-// trick this file previously used to center Purple Digest in that same
-// spot before it became a real tab.
-const CARD_ROW_COUNT = 4;
+// Real nav items rendered before Info: every TAB_ROUTES entry, plus Profile
+// (which isn't itself one of TAB_ROUTES -- see its own comment below -- but
+// renders in the same grid slot sequence right after them).
+const CARD_GRID_COLUMNS = 3;
+const ITEMS_BEFORE_INFO = TAB_ROUTES.length + 1;
+// Info always gets its own row entirely to itself, centered in the middle
+// column -- computed from the real item count, not a hardcoded guess, so
+// this stays correct regardless of how many real tabs TAB_ROUTES ends up
+// carrying (confirmed 2026-08-13, adding Garden as the 9th tab, which
+// changed this from a 1-spacer to a 3-spacer case): first pad out whatever's
+// left of Info's own would-be shared row with blank items, then one more
+// blank to open a genuinely fresh row and land Info in its own middle
+// column (see the render below for where these blanks actually get drawn).
+const INFO_ROW_PAD_COUNT = (CARD_GRID_COLUMNS - (ITEMS_BEFORE_INFO % CARD_GRID_COLUMNS)) % CARD_GRID_COLUMNS;
+const INFO_BLANK_SPACER_COUNT = INFO_ROW_PAD_COUNT + 1;
+const CARD_ROW_COUNT = Math.ceil((ITEMS_BEFORE_INFO + INFO_BLANK_SPACER_COUNT + 1) / CARD_GRID_COLUMNS);
 const CARD_PADDING_VERTICAL = 4; // matches `card`'s own paddingVertical below, top + bottom
 const CARD_HEIGHT = CARD_ROW_COUNT * CARD_ROW_HEIGHT + CARD_PADDING_VERTICAL * 2;
 
@@ -589,7 +598,7 @@ export function TabHub() {
                 </TouchableOpacity>
               );
             })}
-            {/* 8th of 9 slots -- Profile used to be reached from a
+            {/* Rendered right after every real TAB_ROUTES tab -- Profile used to be reached from a
                 person-icon in every screen's own top-right header (see
                 ScreenHeader.tsx); it lives here instead now, with its own
                 identity color (colors.tabProfile) like a real tab, rather
@@ -620,17 +629,19 @@ export function TabHub() {
               </Text>
             </TouchableOpacity>
 
-            {/* A single blank, non-interactive spacer -- fills row 4's own
-                left column first, so Info (right after it) lands centered
-                in the middle column instead of starting a new row flush
-                left. Same trick this file previously used to center The
-                Purple Digest in this exact spot, before it was promoted to
-                a real tab (2026-08-05, see constants/tabs.ts) and started
-                flowing through the TAB_ROUTES.map() loop above instead --
-                Info is now the one lone leftover item needing it. */}
-            <View style={styles.item} pointerEvents="none" />
-            {/* Last slot -- centered on its own 4th row (see the blank
-                spacer just above). Opens the help sheet for whichever page
+            {/* INFO_BLANK_SPACER_COUNT non-interactive spacers -- pads out
+                Info's own would-be shared row, then opens a genuinely fresh
+                one, so Info always lands centered alone on its own row
+                regardless of how many real tabs came before it (see that
+                constant's own comment above for the math). Was a single,
+                hardcoded spacer before Garden's addition as TAB_ROUTES'
+                9th tab changed the real remainder from 0 to 1 -- computed
+                now instead of guessed again. */}
+            {Array.from({ length: INFO_BLANK_SPACER_COUNT }).map((_, index) => (
+              <View key={`info-spacer-${index}`} style={styles.item} pointerEvents="none" />
+            ))}
+            {/* Last slot -- centered alone on its own final row (see the
+                blank spacers just above). Opens the help sheet for whichever page
                 is currently open (see CurrentPageHelp) -- lets someone
                 check "what does this page do" from the same picker they'd
                 use to navigate, without first closing it and hunting for

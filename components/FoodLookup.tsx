@@ -7,6 +7,7 @@ import { typography } from '../constants/typography';
 import {
   getConditionStages,
   getDietaryReferenceIntakesForCurrentUser,
+  getFoodIdentity,
   getFoodNutrients,
   getFoodUnitWeight,
   getPreparationMethods,
@@ -14,11 +15,13 @@ import {
   getReferenceSubcategories,
   getStageFlagScoresForNames,
   isFallbackSource,
+  listAvailableHarvests,
   resolveFoodChoice,
   searchReferenceFoodNames,
   type DietaryReferenceIntake,
   type FoodNutrient,
   type FoodUnitWeight,
+  type GardenHarvest,
 } from '../lib/db';
 import { buildFoodNameGroups } from '../lib/foodNameGrouping';
 import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
@@ -464,6 +467,49 @@ export function FoodLookup({
   useEffect(() => {
     getDietaryReferenceIntakesForCurrentUser().then(setDriRows);
   }, []);
+
+  // "From Your Harvest" -- 2026-08-13, real, unused garden-harvest inventory
+  // (see lib/db.ts's own listAvailableHarvests) surfaced as a genuine
+  // quick-pick, offered ABOVE the ordinary Category step rather than folded
+  // into it, so a real harvest is always the fastest path to picking
+  // something you already grew. Scoped deliberately to showNutrients=false
+  // callers with a real onFoodResolved (every one of the 11 Food builders,
+  // via their own connected FoodLookup) -- Insights' own general-purpose,
+  // showNutrients=true Food Lookup lens has no onFoodResolved contract to
+  // resolve straight into, and wiring a harvest pick into its own fuller
+  // nutrient-table flow is real, separate work, not attempted here. Loaded
+  // once per mount, same "read once, not a live-updating subscription"
+  // convention as driRows above -- a harvest logged mid-session while this
+  // exact instance is already open won't appear until the next fresh mount
+  // (every builder's own connected FoodLookup already remounts fresh per
+  // ingredient, so this is rarely more than a few seconds stale in practice).
+  const [availableHarvests, setAvailableHarvests] = useState<GardenHarvest[]>([]);
+  useEffect(() => {
+    if (onFoodResolved && !showNutrients) {
+      listAvailableHarvests().then(setAvailableHarvests);
+    }
+  }, [onFoodResolved, showNutrients]);
+
+  // Resolves a tapped harvest straight into a real ResolvedFoodSelection via
+  // getFoodIdentity -- the exact same "reconstruct a full selection from
+  // just a stored foodId/source" mechanism SideBuilder's own Edit flow
+  // already relies on (see that function's own comment in lib/db.ts), not a
+  // second, separate resolution path. Bypasses this component's own
+  // Category/Type/Food/Prep state entirely -- deliberately: the harvest
+  // record already names one exact, concrete reference-database row, so
+  // there's nothing left to disambiguate.
+  async function handlePickHarvest(harvest: GardenHarvest) {
+    const identity = await getFoodIdentity(harvest.foodId, harvest.source);
+    if (!identity) return;
+    onFoodResolved?.({
+      category: identity.category,
+      subcategory: identity.subcategory,
+      baseName: identity.baseName,
+      prepMethod: identity.prepMethod,
+      foodId: harvest.foodId,
+      source: harvest.source,
+    });
+  }
 
   // Category/Type are done (whether or not this category even has a Type
   // step) once this is true -- the Food step only ever renders/mounts once
@@ -957,6 +1003,23 @@ export function FoodLookup({
           <Text style={[styles.titleText, { color: tabColor }]}>{title}</Text>
         </View>
       ) : null}
+      {/* "From Your Harvest" -- see handlePickHarvest's own comment above.
+          Only shown before Category is picked (a harvest pick bypasses
+          Category/Type/Food/Prep entirely, so there's nothing left for this
+          to sit "inside" once one of those steps is under way) and only
+          when there's real, unused harvest inventory to show. */}
+      {category === '' && availableHarvests.length > 0 ? (
+        <View style={[styles.harvestSection, { borderColor: tabColor }]}>
+          <Text style={[styles.harvestHeading, { color: tabColor }]}>From Your Harvest</Text>
+          {availableHarvests.map((harvest) => (
+            <TouchableOpacity key={harvest.id} style={styles.harvestRow} onPress={() => handlePickHarvest(harvest)}>
+              <Text style={styles.harvestText} numberOfLines={1}>
+                {harvest.foodName} -- {harvest.quantityRemaining} {harvest.unit} left
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : null}
       {/* Category: a plain always-visible InlineSelectList until one is
           picked, then a compact summary row instead (tap Change to bring
           the list back) -- see InlineSelectList.tsx's own comment for why
@@ -1220,6 +1283,29 @@ const styles = StyleSheet.create({
     ...typography.label,
     fontSize: 18,
     textAlign: 'center',
+  },
+  // "From Your Harvest" quick-pick -- see handlePickHarvest's own comment
+  // above for what this is. Styled to sit right above Category's own list
+  // as a distinct, bordered block, matching titleBar's own "physically
+  // attached" look above whatever renders directly beneath it.
+  harvestSection: {
+    borderWidth: 2,
+    borderRadius: 10,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 6,
+  },
+  harvestHeading: {
+    ...typography.eyebrow,
+    marginBottom: 4,
+  },
+  harvestRow: {
+    paddingVertical: 6,
+  },
+  harvestText: {
+    ...typography.body,
+    color: colors.textPrimary,
   },
   emptyText: {
     ...typography.body,

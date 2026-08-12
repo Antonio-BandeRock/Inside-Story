@@ -3507,6 +3507,97 @@ export async function initializeDatabase() {
         FOREIGN KEY (handheld_id) REFERENCES handhelds(id) ON DELETE CASCADE
       );
 
+      -- Home Gardening tracking, 2026-08-13 -- a real, standalone place to
+      -- log where food is actually grown (a plot), what's growing in it (a
+      -- planting), and what's actually come out of it (a harvest), the last
+      -- of which is what makes a harvest surface as a real, selectable
+      -- ingredient source in FoodLookup.tsx (see listAvailableHarvests
+      -- below). All three are local-only app tables, not part of the
+      -- bundled reference database -- a plot/planting is entirely personal
+      -- record-keeping, and a harvest's own food_id/source still points
+      -- into the real, shared reference database (via getFoodIdentity),
+      -- so its nutrition/6-DFF scoring is the identical real data every
+      -- other ingredient already uses, never a second, separate copy.
+      CREATE TABLE IF NOT EXISTS garden_plots (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        location_type TEXT NOT NULL, -- 'outdoor' | 'indoor'
+        growing_medium TEXT,
+        light_source TEXT,
+        size_description TEXT,
+        notes TEXT,
+        archived_at TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- One row per real food being grown in one plot right now (or in the
+      -- past, once its own status moves off 'growing') -- food_id/source
+      -- point at the same real reference-database row every Food builder
+      -- already resolves an ingredient to, so "what am I growing" and "what
+      -- did I harvest from it" both stay tied to real, already-scored food
+      -- identity rather than a free-text crop name with no real nutrition
+      -- data behind it.
+      CREATE TABLE IF NOT EXISTS garden_plantings (
+        id TEXT PRIMARY KEY,
+        plot_id TEXT NOT NULL,
+        food_id INTEGER NOT NULL,
+        source TEXT NOT NULL,
+        food_name TEXT NOT NULL,
+        variety_note TEXT,
+        planted_at TEXT NOT NULL,
+        expected_harvest_start TEXT,
+        expected_harvest_end TEXT,
+        status TEXT NOT NULL DEFAULT 'growing', -- 'growing' | 'harvested' | 'failed' | 'removed'
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE CASCADE
+      );
+
+      -- A real, logged harvest -- planting_id is optional (a real harvest
+      -- can be logged without ever having logged the planting it grew
+      -- from, e.g. an already-established perennial fruit tree) but when
+      -- present ties it back to the plot/planting it came from. Real, hard
+      -- inventory tracking: quantity_remaining starts equal to quantity and
+      -- is drawn down by recordHarvestUsage() every time a Food builder
+      -- actually consumes some of it via the "From Your Harvest" picker
+      -- (see FoodLookup.tsx) -- never re-derived from a log of usage
+      -- events, so a harvest's own remaining amount is always one direct,
+      -- authoritative number to check and update.
+      CREATE TABLE IF NOT EXISTS garden_harvests (
+        id TEXT PRIMARY KEY,
+        planting_id TEXT,
+        plot_id TEXT,
+        food_id INTEGER NOT NULL,
+        source TEXT NOT NULL,
+        food_name TEXT NOT NULL,
+        harvested_at TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        quantity_remaining REAL NOT NULL,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE SET NULL,
+        FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE SET NULL
+      );
+
+      -- A real, basic Scheduler tie-in, 2026-08-13 -- schedule_items.item_type
+      -- is already a free-text, extensible vocabulary (see that table's own
+      -- comment further up) with 'meal'/'supplement'/'prescription'/
+      -- 'appointment' etc. already real values; 'garden' joins that same
+      -- list rather than needing its own new table. A garden task created
+      -- this way (see scheduleGardenTask below) links back to the plot/
+      -- planting it's actually about.
+      CREATE TABLE IF NOT EXISTS garden_task_links (
+        schedule_item_id TEXT PRIMARY KEY,
+        plot_id TEXT,
+        planting_id TEXT,
+        FOREIGN KEY (schedule_item_id) REFERENCES schedule_items(id) ON DELETE CASCADE,
+        FOREIGN KEY (plot_id) REFERENCES garden_plots(id) ON DELETE SET NULL,
+        FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE SET NULL
+      );
+
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
       CREATE INDEX IF NOT EXISTS idx_wellbeing_checkins_logged_at ON wellbeing_checkins(logged_at);
       CREATE INDEX IF NOT EXISTS idx_checkin_tags_checkin ON checkin_tags(checkin_id);
@@ -3516,6 +3607,9 @@ export async function initializeDatabase() {
       CREATE INDEX IF NOT EXISTS idx_food_trials_started_at ON food_trials(started_at);
       CREATE INDEX IF NOT EXISTS idx_side_ingredients_side ON side_ingredients(side_id);
       CREATE INDEX IF NOT EXISTS idx_meal_components_meal ON meal_components(meal_id);
+      CREATE INDEX IF NOT EXISTS idx_garden_plantings_plot ON garden_plantings(plot_id);
+      CREATE INDEX IF NOT EXISTS idx_garden_harvests_remaining ON garden_harvests(quantity_remaining);
+      CREATE INDEX IF NOT EXISTS idx_garden_harvests_planting ON garden_harvests(planting_id);
     `);
 
     const mealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meals)');
@@ -3691,6 +3785,16 @@ export async function initializeDatabase() {
 
     if (!userProfileColumns.some((column) => column.name === 'fasting_enabled')) {
       await db.execAsync('ALTER TABLE user_profile ADD COLUMN fasting_enabled INTEGER NOT NULL DEFAULT 0;');
+    }
+
+    // A real USDA Plant Hardiness Zone (e.g. '7a'), 2026-08-13, for the new
+    // Garden tab's own "My Zone" lens -- manually self-selected for now
+    // (Phase 1), not auto-resolved from a ZIP/postal code (a real, named
+    // Phase 2, deferred rather than half-built here). Deliberately just one
+    // more plain column on the same user_profile row every other personal
+    // setting already lives on, not a separate one-row table.
+    if (!userProfileColumns.some((column) => column.name === 'growing_zone')) {
+      await db.execAsync('ALTER TABLE user_profile ADD COLUMN growing_zone TEXT;');
     }
 
     const exerciseLogColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(exercise_logs)');
@@ -8334,7 +8438,12 @@ function buildOccurrenceDates(firstDate: string, repeat: RepeatConfig, windowEnd
 // the first occurrence, since that's the one most callers (e.g. "Log now"
 // right after scheduling) actually need.
 async function insertScheduleSeries(input: {
-  itemType: 'meal' | 'supplement' | 'prescription' | 'appointment';
+  // 'garden' added 2026-08-13, for the new Garden tab's own real Scheduler
+  // tie-in (see scheduleGardenTask below) -- reuses this same repeat/
+  // rolling-window machinery rather than a second, parallel one, since a
+  // real garden task ("water the tomatoes") genuinely can want to repeat
+  // daily/weekly the same way a supplement dose does.
+  itemType: 'meal' | 'supplement' | 'prescription' | 'appointment' | 'garden';
   mealType: string | null;
   title: string;
   scheduledFor: string;
@@ -8958,6 +9067,11 @@ export type UserProfile = {
   fastingEnabled: boolean;
   eatingWindowStart: string | null;
   eatingWindowEnd: string | null;
+  // A real USDA Plant Hardiness Zone (e.g. '7a') -- self-selected via the
+  // new Garden tab's own Profile field, 2026-08-13. Null until set;
+  // real Phase-1 manual selection, not (yet) resolved from a ZIP/postal
+  // code -- see growingZone's own column comment in initializeDatabase.
+  growingZone: string | null;
 };
 
 export async function getUserProfile(): Promise<UserProfile> {
@@ -8976,11 +9090,12 @@ export async function getUserProfile(): Promise<UserProfile> {
     fasting_enabled: number | null;
     eating_window_start: string | null;
     eating_window_end: string | null;
+    growing_zone: string | null;
   }>(
     `
       SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
              usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-             fasting_enabled, eating_window_start, eating_window_end
+             fasting_enabled, eating_window_start, eating_window_end, growing_zone
       FROM user_profile WHERE id = 1
     `,
   );
@@ -9000,6 +9115,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       fastingEnabled: false,
       eatingWindowStart: null,
       eatingWindowEnd: null,
+      growingZone: null,
     };
   }
 
@@ -9017,6 +9133,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     fastingEnabled: Boolean(row.fasting_enabled),
     eatingWindowStart: row.eating_window_start,
     eatingWindowEnd: row.eating_window_end,
+    growingZone: row.growing_zone,
   };
 }
 
@@ -9085,9 +9202,9 @@ export async function setUserProfile(update: Partial<UserProfile>) {
         INSERT INTO user_profile (
           id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
           usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-          fasting_enabled, eating_window_start, eating_window_end, updated_at
+          fasting_enabled, eating_window_start, eating_window_end, growing_zone, updated_at
         )
-        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           first_name = excluded.first_name,
           last_name = excluded.last_name,
@@ -9102,6 +9219,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
           fasting_enabled = excluded.fasting_enabled,
           eating_window_start = excluded.eating_window_start,
           eating_window_end = excluded.eating_window_end,
+          growing_zone = excluded.growing_zone,
           updated_at = excluded.updated_at
       `,
       merged.firstName?.trim() || null,
@@ -9117,6 +9235,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
       merged.fastingEnabled ? 1 : 0,
       merged.eatingWindowStart,
       merged.eatingWindowEnd,
+      merged.growingZone,
       now,
     );
   };
@@ -10971,4 +11090,417 @@ export async function getSymptomAssessmentTrend() {
 export async function deleteSymptomAssessment(id: string) {
   const db = await getDatabase();
   await db.runAsync('DELETE FROM symptom_assessments WHERE id = ?', id);
+}
+
+// ---------------------------------------------------------------------------
+// Home Gardening (Garden tab), 2026-08-13. See the real CREATE TABLE
+// comments in initializeDatabase (garden_plots/garden_plantings/
+// garden_harvests/garden_task_links) for the full schema reasoning -- this
+// section is the real CRUD layer on top of it, plus the real harvest-
+// inventory function (listAvailableHarvests) FoodLookup.tsx calls to
+// surface "From Your Harvest" as a real ingredient source in every Food
+// builder.
+// ---------------------------------------------------------------------------
+
+export type GardenPlot = {
+  id: string;
+  name: string;
+  locationType: 'outdoor' | 'indoor';
+  growingMedium: string | null;
+  lightSource: string | null;
+  sizeDescription: string | null;
+  notes: string | null;
+  archivedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const GARDEN_PLOT_COLUMNS = `
+  id, name, location_type AS locationType, growing_medium AS growingMedium, light_source AS lightSource,
+  size_description AS sizeDescription, notes, archived_at AS archivedAt, created_at AS createdAt, updated_at AS updatedAt
+`;
+
+export async function createGardenPlot(input: {
+  name: string;
+  locationType: 'outdoor' | 'indoor';
+  growingMedium?: string | null;
+  lightSource?: string | null;
+  sizeDescription?: string | null;
+  notes?: string | null;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `garden_plot_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO garden_plots (id, name, location_type, growing_medium, light_source, size_description, notes, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.locationType,
+    input.growingMedium?.trim() || null,
+    input.lightSource?.trim() || null,
+    input.sizeDescription?.trim() || null,
+    input.notes?.trim() || null,
+    now,
+    now,
+  );
+  return id;
+}
+
+// Active plots first (most recently updated first within that group), then
+// archived ones -- an archived plot isn't deleted (its own real plantings/
+// harvests stay intact and browsable), just moved out of the way of "what
+// am I actively growing right now."
+export async function listGardenPlots(includeArchived = false): Promise<GardenPlot[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<GardenPlot>(
+    `
+      SELECT ${GARDEN_PLOT_COLUMNS}
+      FROM garden_plots
+      ${includeArchived ? '' : 'WHERE archived_at IS NULL'}
+      ORDER BY (archived_at IS NOT NULL), updated_at DESC
+    `,
+  );
+}
+
+export async function getGardenPlot(id: string): Promise<GardenPlot | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<GardenPlot>(`SELECT ${GARDEN_PLOT_COLUMNS} FROM garden_plots WHERE id = ?`, id);
+}
+
+export async function updateGardenPlot(
+  id: string,
+  update: Partial<{
+    name: string;
+    locationType: 'outdoor' | 'indoor';
+    growingMedium: string | null;
+    lightSource: string | null;
+    sizeDescription: string | null;
+    notes: string | null;
+  }>,
+): Promise<void> {
+  const db = await getDatabase();
+  const current = await getGardenPlot(id);
+  if (!current) return;
+  const merged = { ...current, ...update };
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      UPDATE garden_plots
+      SET name = ?, location_type = ?, growing_medium = ?, light_source = ?, size_description = ?, notes = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    merged.name.trim(),
+    merged.locationType,
+    merged.growingMedium,
+    merged.lightSource,
+    merged.sizeDescription,
+    merged.notes,
+    now,
+    id,
+  );
+}
+
+export async function archiveGardenPlot(id: string, archived: boolean): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.runAsync('UPDATE garden_plots SET archived_at = ?, updated_at = ? WHERE id = ?', archived ? now : null, now, id);
+}
+
+// Hard delete -- real, deliberate cascade: every real planting in this plot
+// (and every harvest tied to either the plot or one of its plantings) goes
+// with it, per the FOREIGN KEY ... ON DELETE CASCADE/SET NULL already on
+// those tables. Archiving (above) is the safer, non-destructive default;
+// this is for a plot that was genuinely created by mistake.
+export async function deleteGardenPlot(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM garden_plots WHERE id = ?', id);
+}
+
+export type GardenPlanting = {
+  id: string;
+  plotId: string;
+  foodId: number;
+  source: string;
+  foodName: string;
+  varietyNote: string | null;
+  plantedAt: string;
+  expectedHarvestStart: string | null;
+  expectedHarvestEnd: string | null;
+  status: 'growing' | 'harvested' | 'failed' | 'removed';
+  notes: string | null;
+  createdAt: string;
+  updatedAt: string;
+};
+
+const GARDEN_PLANTING_COLUMNS = `
+  id, plot_id AS plotId, food_id AS foodId, source, food_name AS foodName, variety_note AS varietyNote,
+  planted_at AS plantedAt, expected_harvest_start AS expectedHarvestStart, expected_harvest_end AS expectedHarvestEnd,
+  status, notes, created_at AS createdAt, updated_at AS updatedAt
+`;
+
+export async function createGardenPlanting(input: {
+  plotId: string;
+  foodId: number;
+  source: string;
+  foodName: string;
+  varietyNote?: string | null;
+  plantedAt: string;
+  expectedHarvestStart?: string | null;
+  expectedHarvestEnd?: string | null;
+  notes?: string | null;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `garden_planting_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO garden_plantings
+        (id, plot_id, food_id, source, food_name, variety_note, planted_at, expected_harvest_start, expected_harvest_end,
+         status, notes, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 'growing', ?, ?, ?)
+    `,
+    id,
+    input.plotId,
+    input.foodId,
+    input.source,
+    input.foodName,
+    input.varietyNote?.trim() || null,
+    input.plantedAt,
+    input.expectedHarvestStart ?? null,
+    input.expectedHarvestEnd ?? null,
+    input.notes?.trim() || null,
+    now,
+    now,
+  );
+  return id;
+}
+
+// Every planting across every plot when plotId is omitted (the Garden tab's
+// own "Plots & Plantings" lens uses this for a real, combined "what's
+// growing right now" view); scoped to one plot when given.
+export async function listGardenPlantings(plotId?: string): Promise<GardenPlanting[]> {
+  const db = await getDatabase();
+  if (plotId) {
+    return db.getAllAsync<GardenPlanting>(
+      `SELECT ${GARDEN_PLANTING_COLUMNS} FROM garden_plantings WHERE plot_id = ? ORDER BY planted_at DESC`,
+      plotId,
+    );
+  }
+  return db.getAllAsync<GardenPlanting>(`SELECT ${GARDEN_PLANTING_COLUMNS} FROM garden_plantings ORDER BY planted_at DESC`);
+}
+
+export async function getGardenPlanting(id: string): Promise<GardenPlanting | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<GardenPlanting>(`SELECT ${GARDEN_PLANTING_COLUMNS} FROM garden_plantings WHERE id = ?`, id);
+}
+
+export async function updateGardenPlanting(
+  id: string,
+  update: Partial<{
+    varietyNote: string | null;
+    plantedAt: string;
+    expectedHarvestStart: string | null;
+    expectedHarvestEnd: string | null;
+    status: 'growing' | 'harvested' | 'failed' | 'removed';
+    notes: string | null;
+  }>,
+): Promise<void> {
+  const db = await getDatabase();
+  const current = await getGardenPlanting(id);
+  if (!current) return;
+  const merged = { ...current, ...update };
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      UPDATE garden_plantings
+      SET variety_note = ?, planted_at = ?, expected_harvest_start = ?, expected_harvest_end = ?, status = ?, notes = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    merged.varietyNote,
+    merged.plantedAt,
+    merged.expectedHarvestStart,
+    merged.expectedHarvestEnd,
+    merged.status,
+    merged.notes,
+    now,
+    id,
+  );
+}
+
+export async function deleteGardenPlanting(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM garden_plantings WHERE id = ?', id);
+}
+
+export type GardenHarvest = {
+  id: string;
+  plantingId: string | null;
+  plotId: string | null;
+  foodId: number;
+  source: string;
+  foodName: string;
+  harvestedAt: string;
+  quantity: number;
+  unit: string;
+  quantityRemaining: number;
+  notes: string | null;
+  createdAt: string;
+};
+
+const GARDEN_HARVEST_COLUMNS = `
+  id, planting_id AS plantingId, plot_id AS plotId, food_id AS foodId, source, food_name AS foodName,
+  harvested_at AS harvestedAt, quantity, unit, quantity_remaining AS quantityRemaining, notes, created_at AS createdAt
+`;
+
+// quantity_remaining always starts equal to quantity -- see the real,
+// authoritative-single-number reasoning on the CREATE TABLE comment above.
+export async function recordGardenHarvest(input: {
+  plantingId?: string | null;
+  plotId?: string | null;
+  foodId: number;
+  source: string;
+  foodName: string;
+  harvestedAt: string;
+  quantity: number;
+  unit: string;
+  notes?: string | null;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `garden_harvest_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO garden_harvests
+        (id, planting_id, plot_id, food_id, source, food_name, harvested_at, quantity, unit, quantity_remaining, notes, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.plantingId ?? null,
+    input.plotId ?? null,
+    input.foodId,
+    input.source,
+    input.foodName,
+    input.harvestedAt,
+    input.quantity,
+    input.unit,
+    input.quantity,
+    input.notes?.trim() || null,
+    now,
+  );
+  return id;
+}
+
+export async function listGardenHarvests(limit = 50): Promise<GardenHarvest[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<GardenHarvest>(
+    `SELECT ${GARDEN_HARVEST_COLUMNS} FROM garden_harvests ORDER BY harvested_at DESC LIMIT ?`,
+    limit,
+  );
+}
+
+// The real function FoodLookup.tsx calls to build its own "From Your
+// Harvest" quick-pick section -- every real harvest still carrying real,
+// unused inventory (quantity_remaining > 0), most recently harvested first.
+// Deliberately no limit -- a person's own real harvest shelf is never going
+// to be large enough to need pagination the way the 26,749-food reference
+// database does.
+export async function listAvailableHarvests(): Promise<GardenHarvest[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<GardenHarvest>(
+    `SELECT ${GARDEN_HARVEST_COLUMNS} FROM garden_harvests WHERE quantity_remaining > 0 ORDER BY harvested_at DESC`,
+  );
+}
+
+// Draws down a harvest's own remaining inventory by amountUsed (in the
+// harvest's own stored unit -- see FoodLookup's own "From Your Harvest"
+// picker for how a builder's ingredient quantity gets translated into this
+// same unit before calling this) -- called every time a Food builder
+// actually consumes some of a real harvest. Clamped at 0, never negative,
+// regardless of what amountUsed claims -- a real, defensive floor rather
+// than trusting every caller to have already done that math correctly.
+export async function recordHarvestUsage(harvestId: string, amountUsed: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE garden_harvests SET quantity_remaining = MAX(0, quantity_remaining - ?) WHERE id = ?',
+    amountUsed,
+    harvestId,
+  );
+}
+
+export async function deleteGardenHarvest(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM garden_harvests WHERE id = ?', id);
+}
+
+// A real, basic Scheduler tie-in -- creates a genuine schedule_items row
+// (item_type='garden', reusing the exact same repeat/rolling-window
+// machinery every meal/supplement/prescription/appointment series already
+// uses, see insertScheduleSeries) plus a garden_task_links row so it can be
+// traced back to the real plot/planting it's actually about. Only the
+// FIRST occurrence of a repeating series gets a direct link row -- a real,
+// honest Phase-1 scope limit, not an oversight: linking every future
+// occurrence individually would mean re-running this same insert on every
+// ensureScheduleSeriesGenerated top-up, which that function doesn't yet do
+// for any item_type.
+//
+// This creates a real, queryable row -- listGardenScheduleItems (below)
+// reads it straight back for the Garden tab's own "Upcoming Tasks" list.
+// A dedicated lens INSIDE the Schedules tab for browsing/managing these
+// from that side is a real, named Phase 2 item, not built yet -- every
+// existing Schedule lens (Meals/Supplements/Prescriptions/Appointments)
+// queries its own item_type explicitly rather than rendering any
+// item_type generically, so a 'garden' row doesn't show up there on its
+// own yet.
+export async function scheduleGardenTask(input: {
+  title: string;
+  scheduledFor: string;
+  notes?: string;
+  plotId?: string | null;
+  plantingId?: string | null;
+  repeat?: RepeatConfig;
+}): Promise<string> {
+  const id = await insertScheduleSeries({
+    itemType: 'garden',
+    mealType: null,
+    title: input.title,
+    scheduledFor: input.scheduledFor,
+    notes: input.notes,
+    repeat: input.repeat ?? { type: 'none' },
+  });
+
+  if (input.plotId || input.plantingId) {
+    const db = await getDatabase();
+    await db.runAsync(
+      'INSERT INTO garden_task_links (schedule_item_id, plot_id, planting_id) VALUES (?, ?, ?)',
+      id,
+      input.plotId ?? null,
+      input.plantingId ?? null,
+    );
+  }
+
+  return id;
+}
+
+// Every planned, not-yet-happened real garden task from today onward, most
+// imminent first -- the Garden tab's own real "Upcoming Tasks" list.
+export async function listUpcomingGardenTasks(limit = 20): Promise<
+  (ScheduleItemRecord & { plotId: string | null; plantingId: string | null })[]
+> {
+  const db = await getDatabase();
+  const today = todayDateStringLocal();
+  return db.getAllAsync<ScheduleItemRecord & { plotId: string | null; plantingId: string | null }>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}, l.plot_id AS plotId, l.planting_id AS plantingId
+      FROM schedule_items s
+      LEFT JOIN garden_task_links l ON l.schedule_item_id = s.id
+      WHERE s.item_type = 'garden' AND s.status = 'planned' AND substr(s.scheduled_for, 1, 10) >= ?
+      ORDER BY s.scheduled_for ASC
+      LIMIT ?
+    `,
+    today,
+    limit,
+  );
 }

@@ -15,6 +15,7 @@ import { typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
+import { USDA_ZONES } from '../lib/gardenZones';
 import {
   CUSTOM_BACKGROUND_MAX_DIMENSION,
   CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES,
@@ -239,6 +240,7 @@ export default function ProfileScreen() {
     fastingEnabled: false,
     eatingWindowStart: null,
     eatingWindowEnd: null,
+    growingZone: null,
   });
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   const [savedFlash, setSavedFlash] = useState(false);
@@ -1118,6 +1120,28 @@ export default function ProfileScreen() {
                   />
                 </PickerField>
               )}
+            </View>
+
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Growing Zone</Text>
+            <Text style={styles.helpText}>
+              Your real USDA Plant Hardiness Zone (e.g. &quot;7a&quot;) -- powers the Garden tab&apos;s own real,
+              cited crop guidance for your climate. The Garden tab&apos;s own My Zone lens sets this exact same
+              value too; either place works.
+            </Text>
+            <View style={styles.dateRow}>
+              <PickerField label="Zone">
+                <PopoverSelect
+                  options={USDA_ZONES}
+                  selected={profile.growingZone}
+                  minWidth={64}
+                  tabColor={colors.menuIconMuted}
+                  tintedSurface
+                  onSelect={(value) => {
+                    setProfile((current) => ({ ...current, growingZone: value }));
+                    setUserProfile({ growingZone: value });
+                  }}
+                />
+              </PickerField>
             </View>
           </View>
         ) : null}
