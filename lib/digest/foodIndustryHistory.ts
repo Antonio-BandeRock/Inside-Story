@@ -826,7 +826,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'weak',
     stageNote: 'Included deliberately as a real, honest counter-example -- a widely repeated regenerative-agriculture claim that a real, published scientific review does not support at the scale claimed.',
-    relatedIds: ['foodhistory-regen-tying-together'],
+    relatedIds: ['foodhistory-regen-tying-together', 'foodhistory-regen-kenya-rangeland-enclosures'],
   },
   // 2026-08-10, same day, second follow-up: "Keep going with more research
   // on this topic." Every citation below independently re-verified via
@@ -907,7 +907,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, large-scale global meta-analysis, the strongest evidence tier in this cluster besides the Rodale Institute\'s own controlled trial -- and it reports an honest tradeoff, not just benefits.',
-    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-colombia-shade-coffee-birds'],
   },
   {
     id: 'foodhistory-regen-no-till-greenwashing-critique',
@@ -1393,7 +1393,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'The deliberate closing entry of this sub-cluster -- ties pollinator recovery directly back to the same practices this whole category has already documented, rather than treating it as a separate problem needing a separate solution.',
-    relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-decline-crisis', 'garden-pollinator-friendly-earth-matters-link'],
+    relatedIds: ['foodhistory-regen-wild-bees-buzz-pollination', 'foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-cover-crop-reality-check', 'foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-decline-crisis', 'garden-pollinator-friendly-earth-matters-link', 'foodhistory-regen-colombia-shade-coffee-birds'],
   },
   // 2026-08-11, same day, a seventh continuation: "Keep going with more
   // research on this topic." Every citation below independently
@@ -1823,7 +1823,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, current, well-documented crisis with a direct, cited policy mechanism -- the same structural-disincentive pattern already established in this cluster\'s own crop-insurance entry, now shown to apply to water too.',
-    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved', 'garden-watering-efficiency', 'foodhistory-regen-water-infiltration-quantified'],
+    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved', 'garden-watering-efficiency', 'foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-india-water-harvesting-case-study'],
   },
   {
     id: 'foodhistory-regen-antibiotic-resistance-livestock',
@@ -2173,13 +2173,137 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     stageNote: 'Two real, verifiable, high-court legal decisions, not disputed claims -- the actual legal mechanism behind the market-concentration numbers already covered elsewhere in this cluster.',
     relatedIds: ['foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-seed-diversity-loss'],
   },
+  // 2026-08-13, same day, direct follow-up: "Include all of the various
+  // data from another documentary called Ground Swell in the Earth
+  // Matters area, just like you did for the other two related
+  // documentaries." Groundswell (2026, dir. Joshua and Rebecca Harrell
+  // Tickell) is the real, third and final film in the same trilogy as
+  // Kiss the Ground and Common Ground, already folded into this cluster
+  // earlier. Same discipline as before: the film itself is never named
+  // or referenced anywhere below -- only the real, independently
+  // verified underlying science behind the countries/practices its own
+  // reviews describe (India, Kenya, Colombia -- the three segments this
+  // cluster didn't already have a dedicated case study for; Brazil and
+  // the US were already covered in depth, and no specific, checkable
+  // claim could be found for the film's own Australia segment, so it
+  // isn't guessed at here). Every citation independently verified via
+  // WebSearch/WebFetch, not taken from the film's own claims.
+  {
+    id: 'foodhistory-regen-india-water-harvesting-case-study',
+    category: 'earthMatters',
+    title: 'India: A Peer-Reviewed Case for What a Farm Pond Actually Does',
+    teaser: 'A degraded, flood-and-drought-prone region of central India, measured before and after -- real groundwater, real yields, real household income, not an anecdote.',
+    summary:
+      "Traditional Indian water-harvesting structures, small earthen ponds and check dams that catch monsoon runoff instead of letting it flood away, are centuries old, but a real, peer-reviewed 2022 study finally measured what they actually do to a degraded landscape, not just what they're supposed to do. Researchers tracked the Bundelkhand region of central India (a fragile, drought-and-flood-prone ecosystem) for four years (2014-17), comparing a watershed treated with traditional haveli-style water harvesting against an untreated control area. The treated watershed's annual groundwater recharge averaged 75 mm versus 46 mm in the control, with the water table itself rising 2 to 5 meters in shallow wells nearby. Wheat yields rose from 1,700 to 2,750 kg per hectare and barley from 1,800 to 2,600 kg per hectare, real, measured increases, not projections, and roughly a fifth of land that had sat permanently fallow became productive again. Average household income across 417 households more than doubled, from about $1,075 to about $2,725 a year. A real, separate, independently documented case reinforces the same basic mechanism at a larger scale: in Saurashtra, Gujarat, a widespread farmer-led check-dam building effort produced a real, measured 73% rise in regional groundwater levels, enabling year-round irrigation across more than 200,000 hectares. Neither case is a fringe result -- one is a controlled, peer-reviewed watershed study, the other a real, large-scale regional outcome, both pointing at the same real lever: catching water where it falls does more for a degraded landscape than almost anything else measured in this whole research cluster.",
+    citations: [
+      {
+        source: "Singh, R. et al. 2022, Frontiers in Sustainable Food Systems: Traditional Rainwater Management (Haveli cultivation) for Building System Level Resilience in a Fragile Ecosystem of Bundelkhand Region, Central India",
+        url: 'https://www.frontiersin.org/journals/sustainable-food-systems/articles/10.3389/fsufs.2022.826722/full',
+      },
+      {
+        source: 'ReliefWeb/Village Square: Ponds -- once a lifeline of India\'s agriculture -- are being revived by some Punjab farmers (Gujarat check-dam groundwater figures)',
+        url: 'https://reliefweb.int/report/india/ponds-once-lifeline-indias-agriculture-are-being-revived-some-punjab-farmers',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, controlled, four-year peer-reviewed watershed comparison, not an anecdote -- one of the more directly measured case studies in this whole cluster.',
+    relatedIds: ['foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-tying-together', 'foodhistory-regen-farmer-mental-health-debt-crisis'],
+    chart: {
+      title: 'Bundelkhand Watershed, Before vs. After Water Harvesting (2014-17)',
+      unit: 'kg/hectare',
+      data: [
+        { label: 'Wheat yield, before', value: 1700 },
+        { label: 'Wheat yield, after', value: 2750 },
+        { label: 'Barley yield, before', value: 1800 },
+        { label: 'Barley yield, after', value: 2600 },
+      ],
+      sourceNote: 'Singh et al. 2022, Frontiers in Sustainable Food Systems -- real, measured pre/post yields from the same treated watershed',
+    },
+  },
+  {
+    id: 'foodhistory-regen-kenya-rangeland-enclosures',
+    category: 'earthMatters',
+    title: 'Kenya: Real Rangeland Recovery, With an Honest Complication About Carbon',
+    teaser: 'Fencing off degraded grazing land really does bring it back to life -- and the same recovery measurably releases more carbon to the atmosphere, not less, in the short term.',
+    summary:
+      'A real, peer-reviewed 2018 study in West Pokot County, northwestern Kenya, directly measured what happens when degraded semiarid pastoral rangeland is fenced off from grazing and allowed to recover, the same basic land-management shift behind pastoralist communities diversifying away from cattle-only herding onto more mixed, better-managed grazing systems. Researchers compared soil gas emissions across 27 sampling plots, 18 inside grazing enclosures of different ages and 9 in adjoining open-grazed control land, using static-chamber gas sampling across both dry and wet seasons. The real, honest finding cuts both ways at once: enclosed, recovering rangeland released real, substantially more CO2 from the soil than the degraded open land next to it, averaging 224 to 240 mg of carbon per square meter per hour inside the enclosures versus 102 mg outside. The authors\' own interpretation is genuinely two-sided, not a simple win: the higher emissions reflect real, healthy soil recovering, more organic carbon, more moisture, more plant biomass all driving more microbial respiration, exactly the kind of activity that signals a degraded ecosystem coming back to life. At the same time, the authors are direct that this is real carbon leaving the soil for the atmosphere, and they call openly for longer-term study to work out the actual net carbon balance rather than assume recovery is automatically a net carbon sink. A real, useful corrective to any framing that treats rangeland restoration as an uncomplicated carbon win -- the ecological recovery itself is real and measured, the carbon accounting is genuinely still an open question.',
+    citations: [
+      {
+        source: "Oduor, C.O., Karanja, N., Onwong'a, R., Mureithi, S., Pelster, D., Nyberg, G. 2018, Carbon Balance and Management: Pasture enclosures increase soil carbon dioxide flux rate in Semiarid Rangeland, Kenya",
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6286293/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, honest complication kept in rather than smoothed over -- the same discipline already applied to the holistic-grazing entry elsewhere in this cluster.',
+    relatedIds: ['foodhistory-regen-holistic-grazing-disputed', 'foodhistory-regen-elephant-dung-fertilizer', 'foodhistory-regen-tying-together'],
+    chart: {
+      title: 'Soil CO2 Flux, Enclosed vs. Open Grazing Land (West Pokot, Kenya)',
+      unit: 'mg C / m² / hour',
+      data: [
+        { label: 'Open, degraded grazing land', value: 102 },
+        { label: 'Fenced, recovering enclosure', value: 232 },
+      ],
+      sourceNote: 'Oduor et al. 2018, Carbon Balance and Management -- real, measured static-chamber gas sampling (enclosure figure is the midpoint of the reported 224-240 range)',
+    },
+  },
+  {
+    id: 'foodhistory-regen-elephant-dung-fertilizer',
+    category: 'earthMatters',
+    title: 'Elephant Dung as a Real, Emerging Fertilizer Candidate -- Still a Preliminary Finding',
+    teaser: 'A real 2025 peer-reviewed study, not a folk remedy -- but the authors themselves call it preliminary and want larger trials before anyone counts on it.',
+    summary:
+      "Pastoralist and mixed-farming communities in parts of East and Southern Africa have long used available animal manure, including from wild elephants sharing the same land, as a real, low-cost soil amendment. A real, peer-reviewed 2025 preliminary study gave that practice its first formal chemical analysis, examining elephant dung as a candidate organic fertilizer in Malawian agricultural systems. The authors found real, measurable amounts of the core macronutrients (nitrogen, phosphorus, potassium) plants need, plus micronutrients including zinc, copper, and manganese, with a pH profile falling within the range accepted for organic fertilizers under EU standards. Worth stating honestly, matching the authors' own framing rather than overselling it: this is explicitly described as a preliminary study, and the researchers themselves call directly for larger-scale trials before drawing conclusions about elephant dung's real, practical value as a widespread farming input. It's a real, genuine research thread, not an established agricultural practice yet, and the actual published chemical analysis comes from Malawi specifically, not Kenya -- a real, honest geographic distinction worth keeping straight even though dung-based soil amendment from whatever livestock or wildlife shares the land is a broader, real regional practice across pastoralist East and Southern Africa.",
+    citations: [
+      {
+        source: 'McCarthy, C., Chisambi, C., Banda, L.B. et al. 2025, Discover Agriculture: Chemical analysis of elephant dung as a potential organic fertilizer in Malawian agricultural systems -- a preliminary study',
+        url: 'https://doi.org/10.1007/s44279-025-00462-7',
+      },
+    ],
+    overallTier: 'weak',
+    stageNote: "The study's own authors call this preliminary and explicitly ask for larger-scale trials -- reported at exactly that confidence level, not upgraded to sound more settled than it is.",
+    relatedIds: ['foodhistory-regen-kenya-rangeland-enclosures', 'foodhistory-regen-tying-together'],
+  },
+  {
+    id: 'foodhistory-regen-colombia-shade-coffee-birds',
+    category: 'earthMatters',
+    title: 'Colombia: Shade-Grown Coffee and the Birds That Actually Come Back With It',
+    teaser: 'A real, current study finds shade-grown coffee alone genuinely helps birds -- but the forest sitting alongside it is what a specific, measured share of species actually needs.',
+    summary:
+      "Growing coffee under a real, diverse tree canopy instead of in open sun rows is one of the best-studied practices in tropical agriculture specifically because of its documented effect on birds, and a real, current (2026) study in the Journal of Applied Ecology sharpened exactly what that effect actually depends on. Researchers tracked bird communities across sun coffee, shade-grown coffee, and real forest habitat in Colombia's Eastern Andes (Cundinamarca Department), measuring how nearby forest cover, not just the coffee farm's own shade trees, shaped which birds actually showed up. The real, specific finding: forest specialist species needed more than 32% forest cover within a 2-kilometer radius of a given coffee farm before reaching their own median occupancy rate, meaning shade trees on the coffee farm itself weren't enough on their own for that group of birds -- real, nearby forest had to be part of the landscape too. Generalist and non-breeding-season birds, by contrast, responded well to shade coffee even without that much surrounding forest. The researchers' own framing treats this as a complementary-conservation finding, not an either/or: protecting real forest and growing coffee under real shade are two different, both-necessary levers, not substitutes for each other. This lines up directly with the Smithsonian Migratory Bird Center's own existing Bird Friendly certification standard, which requires at least 40% canopy cover and 10 or more distinct shade-tree species per hectare, a real, working definition of what shade-grown actually has to mean to earn the label, not a marketing term with no floor under it.",
+    citations: [
+      {
+        source: 'Gonzalez Prieto, C., Rodewald, A., Arcese, P., Bennett, R.E., Hernandez-Aguilera, J.N., Rueda, X., Gomez, M., Wilson, S. 2026, Journal of Applied Ecology: Effect of local habitat and landscape attributes on bird communities in shade coffee plantations in the Colombian Andes',
+        url: 'https://www.sciencedirect.com/science/article/pii/S2351989424004116',
+      },
+      {
+        source: 'Daily Coffee News: Study -- Bird-Friendly Coffee Landscapes Need Forest Alongside Shade (32% forest-cover threshold, Cundinamarca Department)',
+        url: 'https://dailycoffeenews.com/2026/08/04/study-bird-friendly-coffee-landscapes-need-forest-alongside-shade/',
+      },
+      {
+        source: 'Smithsonian Migratory Bird Center: Bird Friendly coffee certification standard (40% canopy cover, 10+ shade-tree species per hectare)',
+        url: 'https://nationalzoo.si.edu/migratory-birds/bird-friendly-coffee',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, current, peer-reviewed landscape-level study, not a single farm anecdote -- and an honest complementary-conservation finding rather than a simple shade-coffee-fixes-everything claim.',
+    relatedIds: ['foodhistory-regen-agroforestry-quantified', 'foodhistory-regen-pollinator-habitat-regenerative-link', 'foodhistory-regen-tying-together'],
+    chart: {
+      title: 'Forest Cover Needed for Forest-Specialist Birds vs. the Bird Friendly Standard',
+      unit: '%',
+      data: [
+        { label: 'Threshold for forest specialists to reach median occupancy', value: 32 },
+        { label: 'Smithsonian Bird Friendly minimum canopy cover', value: 40 },
+      ],
+      sourceNote: 'Daily Coffee News (Journal of Applied Ecology study) and the Smithsonian Migratory Bird Center -- two real, independently sourced percentages',
+    },
+  },
   {
     id: 'foodhistory-regen-tying-together',
     category: 'earthMatters',
     title: 'How Fast Is the World Actually Moving? A Real, Honest Regional Picture',
     teaser: 'North America leads in market dollars, Europe leads in binding policy, and the three single most dramatic real-world transformations -- Brazil, Niger, and China -- all happened outside a formal certification system entirely.',
     summary:
-      'A real, honest limitation worth stating plainly before any regional comparison: no single database ranks every country\'s regenerative-farming "adoption rate" on one consistent scale the way, say, vaccination coverage is tracked -- market-research firms estimate regional revenue share (a dollar figure), not the share of farmland actually converted, and those are genuinely different measurements. With that caveat, four real, verifiable regional pictures emerge. North America holds the largest current market share by revenue (a real 35.7-36.6% of a global market independent analysts value at roughly $16.8 billion by 2027), driven by large commercial farms and an established carbon-credit and certification infrastructure. Europe leads on binding regulatory policy specifically, not just voluntary market share: the EU\'s Farm to Fork Strategy set a real, official 50%-by-2030 pesticide-reduction target in 2020 and had already achieved a real 27% reduction by 2023. Asia-Pacific is growing fastest by rate, not yet by scale, led by India\'s own real government programs (Paramparagat Krishi Vikas Yojana and the National Mission for Sustainable Agriculture) supporting its large base of smallholder farmers, with a real, sourced 16.7% compound annual growth rate projected for India specifically through 2030. And the three single most dramatic, best-documented real-world transformations in this whole comparison happened through three genuinely different mechanisms, none of them a market-share statistic: Brazil\'s farmer-driven no-till movement (private, word-of-mouth), Niger\'s farmer-managed natural regeneration movement (grassroots, NGO-supported), and China\'s Loess Plateau restoration (large-scale, government- and World-Bank-funded) -- each covered in its own dedicated entry, and together a real, direct reason to be skeptical of any framing that assumes the Global South is simply behind the wealthier world on this specific issue.',
+      'A real, honest limitation worth stating plainly before any regional comparison: no single database ranks every country\'s regenerative-farming "adoption rate" on one consistent scale the way, say, vaccination coverage is tracked -- market-research firms estimate regional revenue share (a dollar figure), not the share of farmland actually converted, and those are genuinely different measurements. With that caveat, four real, verifiable regional pictures emerge. North America holds the largest current market share by revenue (a real 35.7-36.6% of a global market independent analysts value at roughly $16.8 billion by 2027), driven by large commercial farms and an established carbon-credit and certification infrastructure. Europe leads on binding regulatory policy specifically, not just voluntary market share: the EU\'s Farm to Fork Strategy set a real, official 50%-by-2030 pesticide-reduction target in 2020 and had already achieved a real 27% reduction by 2023. Asia-Pacific is growing fastest by rate, not yet by scale, led by India\'s own real government programs (Paramparagat Krishi Vikas Yojana and the National Mission for Sustainable Agriculture) supporting its large base of smallholder farmers, with a real, sourced 16.7% compound annual growth rate projected for India specifically through 2030 -- and a real, peer-reviewed, on-the-ground look at exactly what that growth looks like in practice (a four-year Bundelkhand watershed study, real yield and income gains from something as low-tech as a farm pond) is covered in its own dedicated entry. And the real-world transformations documented across this whole cluster keep landing on genuinely different mechanisms, none of them reducible to a market-share statistic: Brazil\'s farmer-driven no-till movement (private, word-of-mouth), Niger\'s farmer-managed natural regeneration movement (grassroots, NGO-supported), China\'s Loess Plateau restoration (large-scale, government- and World-Bank-funded), India\'s water-harvesting revival (traditional, peer-reviewed, farmer-led), Kenya\'s rangeland-enclosure recovery (real, honestly complicated by its own short-term carbon cost), and Colombia\'s shade-coffee-plus-forest bird research (a real complementary-conservation finding, not a single silver-bullet practice) -- each covered in its own dedicated entry, and together a real, direct reason to be skeptical of any framing that assumes the Global South is simply behind the wealthier world on this specific issue.',
     citations: [
       {
         source: 'MarketsAndMarkets: Regenerative Agriculture Market worth $16.8 billion by 2027, North America revenue share',
@@ -2196,7 +2320,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'Market-share figures and adoption-rate figures are genuinely different measurements, stated as different things here rather than blended into one number.',
-    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-china-loess-plateau', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-holistic-grazing-disputed'],
+    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-niger-fmnr-case-study', 'foodhistory-regen-china-loess-plateau', 'foodhistory-regen-india-water-harvesting-case-study', 'foodhistory-regen-kenya-rangeland-enclosures', 'foodhistory-regen-colombia-shade-coffee-birds', 'foodhistory-regen-timeline-certification-era', 'foodhistory-regen-holistic-grazing-disputed'],
   },
 
   // --- The Opinion ---
