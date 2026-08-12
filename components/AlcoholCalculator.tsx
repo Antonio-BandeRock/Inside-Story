@@ -112,8 +112,9 @@ export function AlcoholCalculatorPanel({
       {expanded && (
         <Animated.View layout={LinearTransition} style={[styles.panel, { borderColor: tabColor }]}>
           <Text style={styles.panelIntro}>
-            A real, standalone estimate for a specific proof/pour -- this doesn&apos;t change what&apos;s tracked for
-            this ingredient, which still comes from the food&apos;s own database entry.
+            A separate, standalone estimate for your own real pour, alongside Quantity and Unit above (which still
+            decide what actually gets tracked for this ingredient). Useful when your bottle&apos;s real proof or a
+            recipe&apos;s cook time doesn&apos;t closely match the database entry you picked.
           </Text>
 
           <View style={styles.fieldBlock}>
