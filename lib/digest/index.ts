@@ -63,7 +63,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260813210000';
+export const PURPLE_DIGEST_VERSION = '20260813220000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via

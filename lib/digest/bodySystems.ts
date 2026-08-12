@@ -55,10 +55,34 @@ import type { DigestEntry } from './types';
 // talk to each other, the kidneys and liver as general filtration organs,
 // and general nutrition-immune function), closing with a real, narrative
 // "tying it together" entry showing one nutrient's ripple effects across
-// several systems at once. Real, honest, not-yet-covered ground for a
-// future pass: the respiratory system, the reproductive system, and the
-// adrenal glands in more depth -- named directly rather than silently
-// left out, matching this whole Digest's own standing practice.
+// several systems at once.
+//
+// A second real batch, 2026-08-13, closing two of the three gaps the note
+// above originally flagged, per direct request: "continue with the
+// respiratory and reproductive systems next." Respiratory: the alveoli's
+// own real gas-exchange surface area (cross-linked to this app's already-
+// existing Iron research, since the entire point of that surface is
+// loading oxygen onto hemoglobin) plus a real, honestly-reported vitamin D/
+// respiratory-infection finding (a large individual-participant-data
+// meta-analysis whose modest overall effect concentrates far more strongly
+// in people who were genuinely deficient at baseline -- the same "targeted,
+// not blanket" theme this app's own Vitamin D research already carries
+// elsewhere); and a second, real, more honestly mixed entry on magnesium
+// sulfate's genuine emergency-medicine use in severe asthma, where the
+// calcium-antagonist mechanism is settled but independent systematic
+// reviews genuinely disagree on the real clinical-outcome evidence.
+// Reproductive: the real, striking asymmetry between a finite, front-loaded
+// egg supply set before birth and continuous, ~65-day sperm production,
+// including the real, direct physical reason (neural tube closure within
+// 21-28 days of conception) this app's own Folate research treats adequate
+// intake as something to have in place before conception rather than after;
+// plus a second entry on zinc's real, mechanistic role in male fertility,
+// again honestly reporting a genuinely mixed supplementation-trial verdict
+// alongside the deficiency mechanism itself. Real, honest, still-not-yet-
+// covered ground for a future pass: the adrenal glands in more depth,
+// beyond the existing Hashimoto's-specific APS-2 entry already covered in
+// this app's own Organ Systems research -- named directly rather than
+// silently left out, matching this whole Digest's own standing practice.
 export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
   {
     id: 'body-systems-overview',
@@ -264,6 +288,100 @@ export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     stageNote: "A real synthesis connecting citations already given individually in this app's own Zinc, Vitamin C, Vitamin D, and Protein research, not a new external claim of its own.",
     relatedIds: ['zinc-immune-common-cold', 'vitaminc-overview', 'protein-deficiency-kwashiorkor-marasmus', 'body-tying-together'],
+  },
+  {
+    id: 'body-respiratory-gas-exchange',
+    category: 'basicHealth',
+    title: 'The Lungs Do Their Real Work Across a Surface Folded Small Enough to Fit in Your Chest',
+    teaser: "Roughly 300 million tiny air sacs, unfolded, would cover close to 80 square meters -- and the entire point of that enormous surface is getting oxygen onto the same iron molecule already covered in this app's own Iron research.",
+    summary:
+      "The lung's real, functional surface, the alveoli where oxygen actually crosses into the bloodstream and carbon dioxide crosses back out, is genuinely enormous for how compactly it's packed: an adult human has roughly 300 million individual alveoli, together providing around 80 square meters of real gas-exchange surface, with the wall between air and blood only about one cell thick on each side, a gap roughly 1/1000th of a millimeter. That entire structure exists for one real, singular purpose: loading oxygen onto hemoglobin, the same iron-built protein already covered in full in this app's own Iron deep-dive, and unloading the carbon dioxide cellular metabolism produces everywhere else in the body. A second, real, separate nutrient story plays out in this same organ, and it's more specific than \"vitamin D is generally good for immunity.\" A large, real individual-participant-data meta-analysis (25 randomized trials) found vitamin D supplementation reduced the odds of at least one acute respiratory infection overall, but honestly, only modestly (adjusted odds ratio 0.88, number needed to treat 33). What the same analysis found underneath that modest headline number is the real, more useful part: among participants who were genuinely vitamin D deficient at the start of the trial, the effect was far stronger (odds ratio 0.58, NNT 8), and stronger again among deficient participants given daily or weekly dosing specifically (odds ratio 0.30, NNT just 4). The real lesson isn't \"take vitamin D to avoid catching a cold\" as a blanket rule -- it's the same, already-established theme this app's own Vitamin D research covers elsewhere: a real, genuinely deficient body benefits far more from correcting that deficiency than an already-sufficient one gains from adding more on top.",
+    citations: [
+      {
+        source: 'Khan YS, Carey FJ 2025, Histology, Lung, StatPearls, National Library of Medicine',
+        url: 'https://www.ncbi.nlm.nih.gov/books/NBK534789/',
+      },
+      {
+        source: 'Martineau AR, Jolliffe DA, Hooper RL, et al. 2017, BMJ 356:i6583: "Vitamin D supplementation to prevent acute respiratory tract infections: systematic review and meta-analysis of individual participant data"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5310969/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The alveolar surface-area figure is settled anatomy. The vitamin D finding is a real, large individual-participant-data meta-analysis -- honestly reported here at its true, modest overall size, with the much stronger deficient-subgroup effect broken out separately rather than blended into one flattering headline number.',
+    chart: {
+      title: 'Vitamin D and Respiratory Infection: Number Needed to Treat',
+      unit: 'people',
+      data: [
+        { label: 'Everyone in the trial', value: 33 },
+        { label: 'Baseline vitamin D deficient', value: 8 },
+        { label: 'Deficient + daily/weekly dosing', value: 4 },
+      ],
+      sourceNote: 'Martineau et al. 2017, BMJ -- lower is a stronger effect; this is how many people need supplementing to prevent one infection.',
+    },
+    relatedIds: ['iron-overview', 'vitamind-2024-guideline-honest-correction', 'vitamind-deficiency-prevalence', 'body-cardiovascular-electrolytes', 'body-tying-together'],
+  },
+  {
+    id: 'body-respiratory-magnesium-asthma',
+    category: 'basicHealth',
+    title: "Magnesium's Reach Extends to the Lungs Too -- With a Real Mechanism More Settled Than the Outcome Evidence",
+    teaser: 'A mineral this app already covers for the heart, muscle, and bone has a genuine emergency-medicine use for severe asthma -- but real, honest systematic reviews disagree on how much it actually changes hospital admissions.',
+    summary:
+      "Magnesium's real, physical mechanism for relaxing airway smooth muscle is well understood pharmacology, not a contested idea: it acts as a real calcium antagonist, blocking excess calcium from entering the smooth-muscle cells lining the airways, the same basic calcium-blocking action already covered in this app's own cardiovascular electrolytes entry, here relaxing airway muscle instead of regulating heart rhythm. That real mechanism is why intravenous magnesium sulfate has a genuine, established place in emergency medicine as a real adjunct treatment for severe asthma exacerbations that haven't responded to first-line inhaled bronchodilators and steroids, a use British Thoracic Society guidance has directly recommended. What's genuinely less settled, and worth reporting honestly rather than smoothed over: real systematic reviews looking at hard outcomes, not just the underlying mechanism, disagree with each other. A 2023 review of nine studies found no statistically significant improvement in peak expiratory flow from IV magnesium, with only two of eight studies showing reduced hospital admission; nebulized magnesium showed a larger effect on lung-function measurements in the same review but not a clearer benefit on actual admission rates. A separate 2022 literature review states plainly that \"the usefulness of magnesium in the treatment of acute asthmatic episodes is unclear,\" while still noting some individual studies do show reduced admissions, and calls for real, better-designed trials rather than treating the question as closed. Magnesium's real reach into the lungs, in other words, is genuine, but it's a case where the mechanism is more settled than the clinical payoff -- one more real example of the same nutrient mattering to an organ well outside whatever its \"main job\" seems to be.",
+    citations: [
+      {
+        source: 'Rovsing AH, Savran O, Ulrik CS 2023, Frontiers in Allergy: "Magnesium sulfate treatment for acute severe asthma in adults -- a systematic review and meta-analysis"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10420062/',
+      },
+      {
+        source: 'Bokhari SA, et al. 2022, Cureus: "Role of Intravenous Magnesium in the Management of Moderate to Severe Exacerbation of Asthma: A Literature Review"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9543098/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: "Tagged at the honesty of its weakest real support, per this app's own standing rule: the calcium-antagonist mechanism is settled pharmacology, but the actual clinical-outcome evidence across independent systematic reviews is genuinely mixed, not just under-studied.",
+    relatedIds: ['magnesium-tying-together', 'body-cardiovascular-electrolytes', 'body-muscular-system', 'body-tying-together'],
+  },
+  {
+    id: 'body-reproductive-egg-supply-vs-sperm-production',
+    category: 'basicHealth',
+    title: 'One Reproductive System Starts With a Fixed Supply Before Birth. The Other Never Stops Manufacturing.',
+    teaser: 'A real, striking asymmetry: the female body reaches its highest-ever egg count before it is even born, then only loses ground from there. The male body starts a brand-new, roughly 65-day production run continuously, for life.',
+    summary:
+      "The two halves of the human reproductive system don't just look physically different, they run on two genuinely different real production models. Oogenesis, egg development, is a real, finite, front-loaded process: the number of oocytes actually peaks before birth, reaching roughly 6-7 million by mid-gestation, then falls sharply through a real, natural process called atresia to approximately 2 million by the time of birth itself, and continues declining from there through childhood, puberty, and the entire reproductive lifespan, already covered in full for what that decline means hormonally in this app's own Estrogen & Progesterone and Perimenopause research. There is no real mechanism to make more eggs later -- the entire lifetime supply is set before a person is even born. Spermatogenesis runs on the opposite real model entirely: a continuous, ongoing manufacturing process, with a fresh cycle from stem cell to mature sperm taking roughly 65 days in humans, restarting indefinitely rather than drawing down a fixed reserve. That real, roughly two-month production cycle has a genuinely practical consequence worth naming directly: a semen sample taken today largely reflects diet, health, and lifestyle from the past two to three months, not yesterday's choices, the real reason fertility-focused nutrition changes (already covered in this app's own Zinc research below) take real time to show up in results. One more real, direct consequence of just how early and fast the female side of this system moves: the neural tube, the structure that becomes the brain and spinal cord, closes within the first 21 to 28 days after conception, a window that's often over before a pregnancy is even recognized. That single, narrow timing fact is the actual, physical reason this app's own Folate research treats adequate intake as something to already have in place before conception, not something to start once a pregnancy test comes back positive.",
+    citations: [
+      {
+        source: 'Park SU, Walsh L, Berkowitz KM 2021, Reproduction 162(2):R19-R33: "Mechanisms of ovarian aging"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9354567/',
+      },
+      {
+        source: 'Gilbert SF, Developmental Biology, 6th edition, NCBI Bookshelf: "Spermatogenesis"',
+        url: 'https://www.ncbi.nlm.nih.gov/books/NBK10095/',
+      },
+      {
+        source: 'Singh R, Munakomi S 2023, Embryology, Neural Tube, StatPearls, National Library of Medicine',
+        url: 'https://www.ncbi.nlm.nih.gov/books/NBK542285/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Settled, well-established developmental biology across all three claims -- the real value here is connecting facts this app already had scattered (perimenopause, folate timing) back to the underlying reproductive-biology mechanism driving both.',
+    relatedIds: ['estrogen-progesterone-cycle', 'estrogen-progesterone-perimenopause', 'organ-reproductive-fertility', 'folate-neural-tube-defects', 'body-reproductive-zinc-fertility', 'body-tying-together'],
+  },
+  {
+    id: 'body-reproductive-zinc-fertility',
+    category: 'basicHealth',
+    title: "Zinc's Reach Extends Into Fertility Too, With Real Mechanisms and a Genuinely Mixed Supplement Verdict",
+    teaser: "This app's own Zinc research already covers immune function, skin, and wound healing. Add sperm production to that list -- along with an honest, real complication: does supplementing it actually help?",
+    summary:
+      "Zinc's real, direct role in male fertility runs deeper than a single mechanism: it's required for normal testicular development, sperm production itself, and protecting existing sperm from degradation, and a real, current 2025 review lays out the actual physiological damage genuine deficiency causes -- gonadal dysfunction, reduced testicular size, damage to the testosterone-producing Leydig cells, impaired spermatogenesis, and real oxidative stress that directly harms sperm DNA and membrane integrity. In men with clinically low seminal zinc specifically, the same real research found measurably lower semen volume, sperm count, motility, and normal sperm morphology, alongside lower testosterone, already covered for its own broader role in this app's own Testosterone research. Where the real, honest complication comes in: whether supplementing zinc actually fixes any of this in practice is genuinely less settled than the deficiency mechanism itself. The same 2025 review reports that one meta-analysis pooling eight separate studies found no significant improvement in sperm parameters from zinc supplementation, even as earlier, individual studies had reported real gains in sperm volume, motility, and morphology. That's not a contradiction to smooth over -- it's a real, honest picture already familiar from elsewhere in this app: a nutrient can be genuinely, mechanistically essential to an organ system, and still have supplementation trials that don't reliably confirm a benefit once someone's own zinc status is already adequate to begin with, the identical pattern this app's own vitamin D research already shows for respiratory infection risk, above.",
+    citations: [
+      {
+        source: 'Zečević N, Veselinović A, Perović M, Stojsavljević A 2025, Antioxidants (Basel) 14(2):165: "Association Between Zinc Levels and the Impact of Its Deficiency on Idiopathic Male Infertility: An Up-to-Date Review"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11851646/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: "The deficiency mechanism itself is well documented. Tagged at the honesty of the weaker, genuinely mixed supplementation-trial evidence, per this app's own standing rule for reporting a real null finding alongside a real mechanism rather than only the more flattering half.",
+    relatedIds: ['zinc-overview', 'zinc-tying-together', 'testosterone-overview-function', 'body-reproductive-egg-supply-vs-sperm-production', 'body-tying-together'],
   },
   {
     id: 'body-tying-together',
