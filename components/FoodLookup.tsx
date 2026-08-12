@@ -314,6 +314,7 @@ export function FoodLookup({
   initialSubcategory = null,
   allowedCategories,
   allowedSubcategories,
+  allowHarvestPick = true,
 }: {
   tabColor: string;
   // An optional page-level heading above the Category step (e.g. Food's
@@ -397,6 +398,14 @@ export function FoodLookup({
   // above -- undefined (the default) means every real subcategory stays
   // offered, so every existing caller is unaffected.
   allowedSubcategories?: Partial<Record<string, string[]>>;
+  // Suppresses "From Your Harvest" entirely (both the fetch and the
+  // section itself) -- 2026-08-13, direct report/fix: the Garden tab's own
+  // Harvest Log lens embeds this component specifically to log a NEW
+  // harvest, where surfacing previously-logged harvest inventory as a
+  // quick-pick reads as circular ("pick from your harvest" while you're in
+  // the middle of recording one). Defaults true, so every existing caller
+  // (all 11 Food builders) is unaffected.
+  allowHarvestPick?: boolean;
 }) {
   const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState(initialCategory);
@@ -485,10 +494,10 @@ export function FoodLookup({
   // ingredient, so this is rarely more than a few seconds stale in practice).
   const [availableHarvests, setAvailableHarvests] = useState<GardenHarvest[]>([]);
   useEffect(() => {
-    if (onFoodResolved && !showNutrients) {
+    if (onFoodResolved && !showNutrients && allowHarvestPick) {
       listAvailableHarvests().then(setAvailableHarvests);
     }
-  }, [onFoodResolved, showNutrients]);
+  }, [onFoodResolved, showNutrients, allowHarvestPick]);
 
   // Resolves a tapped harvest straight into a real ResolvedFoodSelection via
   // getFoodIdentity -- the exact same "reconstruct a full selection from
@@ -1008,7 +1017,7 @@ export function FoodLookup({
           Category/Type/Food/Prep entirely, so there's nothing left for this
           to sit "inside" once one of those steps is under way) and only
           when there's real, unused harvest inventory to show. */}
-      {category === '' && availableHarvests.length > 0 ? (
+      {allowHarvestPick && category === '' && availableHarvests.length > 0 ? (
         <View style={[styles.harvestSection, { borderColor: tabColor }]}>
           <Text style={[styles.harvestHeading, { color: tabColor }]}>From Your Harvest</Text>
           {availableHarvests.map((harvest) => (
