@@ -350,12 +350,53 @@ export const PopoverSelect = memo(function PopoverSelect({
   });
 
   // Feeds this picker's own search text into AppKeyboard's search row
-  // instead of rendering a text field inside the popover itself -- same
-  // "no dependency array, rebuilt every render while open" reasoning.
+  // instead of rendering a text field inside the popover itself.
+  //
+  // 2026-08-12: real, reported bug -- opening Nutrient Ranking's own
+  // searchable field (39 real tracked nutrients) froze the whole app for
+  // ~15 real seconds before the popover and the keyboard both suddenly
+  // appeared together, with any other pending tap (a TabHub press made
+  // mid-freeze) flushing at the same moment -- the signature of the JS
+  // thread being genuinely busy, not just one row being slow to render.
+  // Root cause: this effect had no dependency array and called
+  // setSearchRequest with a BRAND NEW object on literally every render of
+  // this component, unconditionally, even when nothing about the search
+  // state had actually changed. That's normally harmless for a stable
+  // caller, but Nutrient Ranking's own `options` prop was rebuilt fresh on
+  // every render of ITS parent (see NutrientRankingView's own fix in
+  // insights.tsx) -- defeating this component's memo() bailout, so ANY
+  // unrelated re-render of that screen re-rendered this component too,
+  // which re-fired this effect, which called setSearchRequest again,
+  // which re-rendered AppKeyboard (the one real consumer of searchRequest,
+  // mounted at the app root) again -- a real, high-frequency cascade, not
+  // a literal infinite loop (it does eventually settle), but easily heavy
+  // enough to read as a genuine freeze. The exact same shape as two prior,
+  // already-fixed infinite-render bugs in this app (see
+  // ActiveInputContext.tsx's own two "no dependency array" warnings) --
+  // this is a real, live third instance of the same class of problem.
+  //
+  // Fixed at both ends: the caller-side fix (memoizing `options`) should
+  // already stop this component from re-rendering needlessly. This is the
+  // belt-and-suspenders half, directly on the piece that actually raises
+  // the keyboard -- a real content guard (a ref tracking what was last
+  // actually dispatched) means setSearchRequest only fires when the
+  // meaningful values (open/closed, the typed text, the placeholder)
+  // genuinely changed, not on every incidental re-render, regardless of
+  // whether some future caller elsewhere in the app ever reintroduces an
+  // unmemoized options prop the same way. Still fully live the moment
+  // something real does change (typing, opening, closing) -- nothing here
+  // delays or debounces an actual update, it only skips redundant ones.
+  const lastDispatchedSearchRequestRef = useRef<{ value: string; placeholder?: string } | null>(null);
   useEffect(() => {
-    if (searchable) {
-      setSearchRequest(isOpen ? { value: searchText, onChangeText: handleSearchChange, placeholder: searchPlaceholder } : null);
-    }
+    if (!searchable) return;
+    const next = isOpen ? { value: searchText, placeholder: searchPlaceholder } : null;
+    const prev = lastDispatchedSearchRequestRef.current;
+    const unchanged =
+      (next === null && prev === null) ||
+      (next !== null && prev !== null && next.value === prev.value && next.placeholder === prev.placeholder);
+    if (unchanged) return;
+    lastDispatchedSearchRequestRef.current = next;
+    setSearchRequest(next ? { value: searchText, onChangeText: handleSearchChange, placeholder: searchPlaceholder } : null);
   });
 
   // Defensive: if this field unmounts while its own popover is open (its

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
@@ -1365,7 +1365,20 @@ function NutrientRankingView({
   loading: boolean;
   tabColor: string;
 }) {
-  const nutrientOptions = nutrients.map((n) => ({ label: `${n.displayName} (${n.unit})`, value: n.code }));
+  // Memoized, 2026-08-12 -- see the real render-storm root-caused and fixed
+  // the same day in PopoverSelect.tsx's own header comment. A fresh array
+  // here on every render was exactly the thing breaking PopoverSelect's own
+  // memo() bailout, and this field is a real, direct instance of that: any
+  // unrelated re-render of this screen (rankingLoading flipping, a Home/
+  // TabHub-driven re-render elsewhere in the tree, etc.) rebuilt this array,
+  // forcing PopoverSelect to re-render too, re-firing its own no-deps
+  // effects on every one of those ticks. `nutrients` only ever changes once
+  // (see its own comment above -- static reference data, loaded on mount),
+  // so this now only rebuilds when it genuinely needs to.
+  const nutrientOptions = useMemo(
+    () => nutrients.map((n) => ({ label: `${n.displayName} (${n.unit})`, value: n.code })),
+    [nutrients],
+  );
   const selectedNutrient = nutrients.find((n) => n.code === selected) ?? null;
 
   function renderRow(food: RankedFood, rank: number) {
@@ -1411,12 +1424,18 @@ function NutrientRankingView({
   return (
     <>
       <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
+      {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
+          isn't needed") -- 39 real tracked nutrients is a short, plain
+          scrollable list, not the "could be longer" case search mode was
+          built for (see PopoverSelect's own header comment). Removing it
+          also means this field never touches AppKeyboard's search row at
+          all, closing off the whole code path most directly implicated in
+          the freeze this same day (see that file's own fix comment). */}
       <PopoverSelect
         options={nutrientOptions}
         selected={selected}
         onSelect={onSelect}
         tabColor={tabColor}
-        searchable
         placeholder="Pick a nutrient..."
         minWidth={220}
       />
@@ -1476,7 +1495,13 @@ function NutrientRankingView({
 // state rather than needing anything lifted to the parent screen.
 function CookingImpactView({ tabColor }: { tabColor: string }) {
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const compoundOptions = COOKING_IMPACT_COMPOUNDS.map((c) => ({ label: c.label, value: c.id }));
+  // See NutrientRankingView's own identical comment -- COOKING_IMPACT_COMPOUNDS
+  // is a module-level constant that never changes, so this only ever needs
+  // to build once, not on every render of this view.
+  const compoundOptions = useMemo(
+    () => COOKING_IMPACT_COMPOUNDS.map((c) => ({ label: c.label, value: c.id })),
+    [],
+  );
   const selectedCompound = COOKING_IMPACT_COMPOUNDS.find((c) => c.id === selectedId) ?? null;
 
   function confidenceLabel(confidence: CookingImpactConfidence): string {
@@ -1555,7 +1580,11 @@ function SafeFoodsView({
   loading: boolean;
   tabColor: string;
 }) {
-  const categoryOptions = categories.map((category) => ({ label: categoryLabel(category), value: category }));
+  // See NutrientRankingView's own identical comment.
+  const categoryOptions = useMemo(
+    () => categories.map((category) => ({ label: categoryLabel(category), value: category })),
+    [categories],
+  );
 
   return (
     <>
@@ -1759,7 +1788,11 @@ function LabsView({
   const [saving, setSaving] = useState(false);
 
   const testByCode = new Map(labTests.map((test) => [test.code, test]));
-  const testOptions = labTests.map((test) => ({ label: test.displayName, value: test.code }));
+  // See NutrientRankingView's own identical comment.
+  const testOptions = useMemo(
+    () => labTests.map((test) => ({ label: test.displayName, value: test.code })),
+    [labTests],
+  );
 
   // Most recent result per test -- listLabResults already returns
   // most-recent-first, so the first row seen per testCode is the one to
