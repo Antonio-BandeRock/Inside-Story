@@ -57,6 +57,19 @@ export const ETHANOL_DENSITY_G_PER_ML = 0.789;
 export const ETHANOL_KCAL_PER_G = 7;
 export const SUGAR_KCAL_PER_G = 4;
 
+// How many of the chosen Volume this covers -- 2026-08-11, added alongside
+// the calculator becoming a real, trackable ingredient source rather than
+// purely informational (see components/AlcoholCalculator.tsx's own header
+// comment). Volume itself stays "one pour," so someone doesn't have to do
+// mental math (44 mL x 2) to log two shots -- the math happens here
+// instead, multiplying straight into calculateAlcoholEstimate's own
+// volumeMl input, which is linear in volume so this is exact, not an
+// approximation.
+export const POURS_PRESETS: { label: string; value: string }[] = Array.from({ length: 12 }, (_, i) => {
+  const n = i + 1;
+  return { label: `${n} pour${n === 1 ? '' : 's'}`, value: String(n) };
+});
+
 export type AlcoholRetentionOption = {
   id: string;
   label: string;

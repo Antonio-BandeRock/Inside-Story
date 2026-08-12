@@ -21,6 +21,7 @@ import {
   updateBeverage,
   type FoodScore,
   type BeverageIngredientInput,
+  type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
@@ -250,6 +251,19 @@ type BeverageIngredient = {
   // ingredient is enough. Drives the color-coded warning boxes in the
   // summary list (components/DimensionFlags.tsx).
   scores: FoodScore[];
+  // 2026-08-11 -- set the instant AlcoholCalculatorPanel reports a real,
+  // computed result for THIS ingredient (see that component's own onOverrideChange
+  // prop); null for every non-alcohol ingredient, and null again for an
+  // alcohol one whose calculator fields got cleared back out before "Add to
+  // Beverage." Carried through to BeverageIngredientInput at save time --
+  // see getBeverageNutrientBreakdown's own comment in lib/db.ts for how a
+  // non-null value here overrides the plain database-row lookup on read.
+  // There's no "reopen this row to edit it" flow in this builder (same as
+  // every other per-row field -- cutPrep, cookingMethod, prepNote all work
+  // the same "remove and re-add" way), so this is only ever set once, at
+  // add time, and only ever read back (never re-edited) when reloading an
+  // existing beverage for editing.
+  calculatorOverride: AlcoholCalculatorOverride | null;
 };
 
 // Every category this component itself needs a label for, spelled out
@@ -552,6 +566,11 @@ export function BeverageBuilder({
   // quantity, unit, AND ingredientCookingMethod are all chosen.
   const [quantity, setQuantity] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>(null);
+  // 2026-08-11 -- the live result AlcoholCalculatorPanel is currently
+  // reporting for the pending ingredient, if any (see handleAlcoholOverrideChange
+  // below and BeverageIngredient's own calculatorOverride comment). Reset
+  // alongside quantity/unit for the next ingredient.
+  const [pendingCalculatorOverride, setPendingCalculatorOverride] = useState<AlcoholCalculatorOverride | null>(null);
   // Per-ingredient cooking method/prep note, 2026-07-29 -- see
   // BeverageIngredient's own comment for why this replaced a single
   // beverage-wide question. Reset after each "Add to Beverage," same as
@@ -620,6 +639,23 @@ export function BeverageBuilder({
           cutPrep: detail.cutPrep,
           prepNote: detail.prepNote ?? '',
           scores,
+          // Restores the calculator's own real result (not its original
+          // inputs -- there's no per-row re-edit flow to restore those
+          // into, see BeverageIngredient's own comment) so re-saving this
+          // beverage unchanged keeps tracking the same real pour rather
+          // than silently reverting to the plain database-row lookup.
+          calculatorOverride:
+            detail.calculatorCalories != null
+              ? {
+                  volumeMl: detail.calculatorVolumeMl ?? 0,
+                  abvPercent: detail.calculatorAbvPercent ?? 0,
+                  residualSugarGPerL: detail.calculatorResidualSugarGPerL ?? 0,
+                  retentionId: detail.calculatorRetentionId ?? 'not-cooked',
+                  pours: detail.calculatorPours ?? 1,
+                  calories: detail.calculatorCalories,
+                  carbsG: detail.calculatorCarbsG ?? 0,
+                }
+              : null,
         });
       }
 
@@ -670,6 +706,15 @@ export function BeverageBuilder({
           cutPrep: detail.cutPrep,
           prepNote: detail.prepNote ?? '',
           scores,
+          // BuilderFavoriteIngredient (lib/db.ts) doesn't carry the
+          // calculator's own fields -- a real, known gap: reusing a
+          // favorite built from a calculator-tracked alcohol ingredient
+          // falls back to plain Quantity/Unit tracking (still the real
+          // total mL the calculator computed at save time, just no longer
+          // re-deriving calories/carbs from ABV/residual sugar). Worth
+          // closing later by widening that shared favorite payload; not
+          // done here to keep this pass scoped to the builder itself.
+          calculatorOverride: null,
         });
       }
 
@@ -845,9 +890,25 @@ export function BeverageBuilder({
     setPendingScores([]);
     setQuantity(null);
     setUnit(null);
+    setPendingCalculatorOverride(null);
     setIngredientCutPrep(null);
     setIngredientCookingMethod(null);
     setIngredientPrepNote('');
+  }
+
+  // 2026-08-11 -- AlcoholCalculatorPanel's own onOverrideChange. A real,
+  // non-null override auto-fills Quantity/Unit from the calculator's own
+  // computed total (overwriting whatever was there, since the calculator
+  // becoming valid IS the person choosing to track by real pour instead --
+  // see that component's own header comment); clearing Volume or ABV back
+  // out reports null here and simply stops overriding on save, leaving
+  // Quantity/Unit exactly as they last stood rather than blanking them.
+  function handleAlcoholOverrideChange(override: AlcoholCalculatorOverride | null, suggestedQuantity: string, suggestedUnit: string) {
+    setPendingCalculatorOverride(override);
+    if (override) {
+      setQuantity(suggestedQuantity);
+      setUnit(suggestedUnit);
+    }
   }
 
   // Persists the finished beverage (see saveBeverage/the beverages/beverage_ingredients
@@ -881,6 +942,7 @@ export function BeverageBuilder({
       cutPrep: ingredient.cutPrep,
       cookingMethod: ingredient.cookingMethod,
       prepNote: ingredient.prepNote,
+      calculatorOverride: ingredient.calculatorOverride,
     }));
     const finishedName = beverageName.trim() || 'Beverage';
     const payload = {
@@ -981,6 +1043,7 @@ export function BeverageBuilder({
       cutPrep: ingredientCutPrep,
       prepNote: ingredientPrepNote.trim(),
       scores: pendingScores,
+      calculatorOverride: pendingCalculatorOverride,
     };
     const allIngredients = [...ingredients, newIngredient];
     setIngredients(allIngredients);
@@ -1498,9 +1561,17 @@ export function BeverageBuilder({
                   calculator -- 2026-08-10, see lib/alcoholCalculator.ts's
                   own top comment. Same isAlcoholicFood gate as the
                   advisory row above; the panel itself owns its own
-                  expand/collapse state. */}
+                  expand/collapse state. 2026-08-11: onOverrideChange wires
+                  a valid, computed result up into real tracked
+                  Quantity/Unit + calories/carbs for this ingredient -- see
+                  handleAlcoholOverrideChange's own comment. */}
               {isAlcoholicFood(pendingResolved) && (
-                <AlcoholCalculatorPanel tabColor={tabColor} quantity={quantity} unit={unit} />
+                <AlcoholCalculatorPanel
+                  tabColor={tabColor}
+                  quantity={quantity}
+                  unit={unit}
+                  onOverrideChange={handleAlcoholOverrideChange}
+                />
               )}
               {/* Same informational, non-gating shape as the alcohol row
                   above -- see lib/coffeeAdvisory.ts's own top comment. */}
@@ -1538,6 +1609,26 @@ export function BeverageBuilder({
                   quantity/unit are: each measurably changes the food's
                   own nutrition, so a beverage built without them can't be
                   scored honestly. */}
+              {/* 2026-08-11 -- shown only while the alcohol calculator
+                  below is actively driving Quantity/Units for this
+                  ingredient (see handleAlcoholOverrideChange). Deliberately
+                  doesn't disable the two fields, since this app has no
+                  shared PopoverSelect "disabled" state to build on safely
+                  in a single pass -- a person CAN still tap a different
+                  Quantity/Unit by hand, but it's cosmetic only while the
+                  calculator's own result stays valid: what actually gets
+                  tracked keeps coming from the calculator below (see
+                  saveIngredient's own calculatorOverride, read
+                  independently of these two fields at save time), so the
+                  note says exactly that instead of implying otherwise. */}
+              {pendingCalculatorOverride && (
+                <Text style={styles.calculatorTrackingNote}>
+                  Quantity and Units below were set by the alcohol calculator&apos;s own real total. You can still
+                  change them by hand, but the calories and carbs actually tracked keep coming from the
+                  calculator below, not from what&apos;s picked here -- adjust Volume, ABV, or Pours down there
+                  if you want a different real total tracked.
+                </Text>
+              )}
               <View style={styles.labeledPickerRow}>
                 {ingredientFields.map((field) => (
                   <Animated.View key={field.label} layout={LinearTransition}>
@@ -2045,6 +2136,11 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   alcoholAdvisoryText: { ...typography.caption },
+  // 2026-08-11 -- the "Quantity/Units below came from the calculator" note.
+  // Same caption size as alcoholAdvisoryText but no border/background of
+  // its own -- this sits directly above the fields it's explaining, not a
+  // separate tappable row.
+  calculatorTrackingNote: { ...typography.caption, color: colors.textMuted, marginTop: 4 },
   // "Change Food", pinned above the header and left-aligned. alignSelf
   // 'flex-start' keeps its tap target tight to the text instead of
   // spanning the whole card width.

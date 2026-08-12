@@ -21,6 +21,7 @@ import {
   updateSauce,
   type FoodScore,
   type SauceIngredientInput,
+  type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
@@ -243,6 +244,8 @@ type SauceIngredient = {
   // ingredient is enough. Drives the color-coded warning boxes in the
   // summary list (components/DimensionFlags.tsx).
   scores: FoodScore[];
+  // See BeverageBuilder.tsx's own identical field comment.
+  calculatorOverride: AlcoholCalculatorOverride | null;
 };
 
 // Every category this component itself needs a label for, spelled out
@@ -555,6 +558,8 @@ export function SaucesBuilder({
   // quantity, unit, AND ingredientCookingMethod are all chosen.
   const [quantity, setQuantity] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>(null);
+  // See BeverageBuilder.tsx's own identical state comment.
+  const [pendingCalculatorOverride, setPendingCalculatorOverride] = useState<AlcoholCalculatorOverride | null>(null);
   // Per-ingredient cooking method/prep note, 2026-07-29 -- see
   // SauceIngredient's own comment for why this replaced a single
   // sauce-wide question. Reset after each "Add to Sauce," same as
@@ -623,6 +628,19 @@ export function SaucesBuilder({
           cutPrep: detail.cutPrep,
           prepNote: detail.prepNote ?? '',
           scores,
+          // See BeverageBuilder.tsx's own identical comment.
+          calculatorOverride:
+            detail.calculatorCalories != null
+              ? {
+                  volumeMl: detail.calculatorVolumeMl ?? 0,
+                  abvPercent: detail.calculatorAbvPercent ?? 0,
+                  residualSugarGPerL: detail.calculatorResidualSugarGPerL ?? 0,
+                  retentionId: detail.calculatorRetentionId ?? 'not-cooked',
+                  pours: detail.calculatorPours ?? 1,
+                  calories: detail.calculatorCalories,
+                  carbsG: detail.calculatorCarbsG ?? 0,
+                }
+              : null,
         });
       }
 
@@ -673,6 +691,9 @@ export function SaucesBuilder({
           cutPrep: detail.cutPrep,
           prepNote: detail.prepNote ?? '',
           scores,
+          // See BeverageBuilder.tsx's own identical comment on this same
+          // fromFavoriteId branch (a real, known gap).
+          calculatorOverride: null,
         });
       }
 
@@ -847,9 +868,19 @@ export function SaucesBuilder({
     setPendingScores([]);
     setQuantity(null);
     setUnit(null);
+    setPendingCalculatorOverride(null);
     setIngredientCutPrep(null);
     setIngredientCookingMethod(null);
     setIngredientPrepNote('');
+  }
+
+  // See BeverageBuilder.tsx's own identical function comment.
+  function handleAlcoholOverrideChange(override: AlcoholCalculatorOverride | null, suggestedQuantity: string, suggestedUnit: string) {
+    setPendingCalculatorOverride(override);
+    if (override) {
+      setQuantity(suggestedQuantity);
+      setUnit(suggestedUnit);
+    }
   }
 
   // Persists the finished sauce (see saveSauce/the sauces/sauce_ingredients
@@ -883,6 +914,7 @@ export function SaucesBuilder({
       cutPrep: ingredient.cutPrep,
       cookingMethod: ingredient.cookingMethod,
       prepNote: ingredient.prepNote,
+      calculatorOverride: ingredient.calculatorOverride,
     }));
     const finishedName = sauceName.trim() || 'Sauce';
     const payload = {
@@ -983,6 +1015,7 @@ export function SaucesBuilder({
       cutPrep: ingredientCutPrep,
       prepNote: ingredientPrepNote.trim(),
       scores: pendingScores,
+      calculatorOverride: pendingCalculatorOverride,
     };
     const allIngredients = [...ingredients, newIngredient];
     setIngredients(allIngredients);
@@ -1502,7 +1535,12 @@ export function SaucesBuilder({
                   advisory row above; the panel itself owns its own
                   expand/collapse state. */}
               {isAlcoholicFood(pendingResolved) && (
-                <AlcoholCalculatorPanel tabColor={tabColor} quantity={quantity} unit={unit} />
+                <AlcoholCalculatorPanel
+                  tabColor={tabColor}
+                  quantity={quantity}
+                  unit={unit}
+                  onOverrideChange={handleAlcoholOverrideChange}
+                />
               )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
@@ -1518,6 +1556,15 @@ export function SaucesBuilder({
                   quantity/unit are: each measurably changes the food's
                   own nutrition, so a sauce built without them can't be
                   scored honestly. */}
+              {/* See BeverageBuilder.tsx's own identical note/comment. */}
+              {pendingCalculatorOverride && (
+                <Text style={styles.calculatorTrackingNote}>
+                  Quantity and Units below were set by the alcohol calculator&apos;s own real total. You can still
+                  change them by hand, but the calories and carbs actually tracked keep coming from the
+                  calculator below, not from what&apos;s picked here -- adjust Volume, ABV, or Pours down there
+                  if you want a different real total tracked.
+                </Text>
+              )}
               <View style={styles.labeledPickerRow}>
                 {ingredientFields.map((field) => (
                   <Animated.View key={field.label} layout={LinearTransition}>
@@ -2023,6 +2070,8 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   alcoholAdvisoryText: { ...typography.caption },
+  // See BeverageBuilder.tsx's own identical style comment.
+  calculatorTrackingNote: { ...typography.caption, color: colors.textMuted, marginTop: 4 },
   // "Change Food", pinned above the header and left-aligned. alignSelf
   // 'flex-start' keeps its tap target tight to the text instead of
   // spanning the whole card width.

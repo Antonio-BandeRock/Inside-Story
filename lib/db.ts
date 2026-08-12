@@ -3548,6 +3548,81 @@ export async function initializeDatabase() {
       await db.execAsync('ALTER TABLE treatments ADD COLUMN generic_name TEXT;');
     }
 
+    // Real, tracked-value support for the alcohol calculator, 2026-08-11 --
+    // direct request/decision: rather than stay purely informational (the
+    // AlcoholCalculatorPanel's own original design, see that file's header
+    // comment), a person's own real calculator inputs -- when they use the
+    // panel at all -- should become what actually gets tracked for that
+    // ingredient, replacing the plain reference-database-row-times-quantity
+    // math. Nullable throughout: an ingredient added WITHOUT ever opening
+    // the calculator has every one of these columns NULL, and behaves
+    // exactly as before (normal food_nutrients lookup). The raw inputs
+    // (volume/ABV/sugar/retention/pours) are stored alongside the two
+    // derived totals (calories/carbs) specifically so re-opening a saved
+    // ingredient for editing can restore the calculator to its own
+    // original state, not just the final numbers. All four builders whose
+    // own category allowlist includes Alcohol get this identical column
+    // set -- beverage_ingredients first, fermentation_ingredients/
+    // sauce_ingredients/soup_ingredients right after, added the same day
+    // as a real, mechanical follow-up once the pattern was proven on
+    // Beverage Builder specifically.
+    const beverageIngredientColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(beverage_ingredients)');
+    const hasCalculatorCaloriesColumn = beverageIngredientColumns.some((column) => column.name === 'calculator_calories');
+
+    if (!hasCalculatorCaloriesColumn) {
+      await db.execAsync(`
+        ALTER TABLE beverage_ingredients ADD COLUMN calculator_volume_ml REAL;
+        ALTER TABLE beverage_ingredients ADD COLUMN calculator_abv_percent REAL;
+        ALTER TABLE beverage_ingredients ADD COLUMN calculator_residual_sugar_g_per_l REAL;
+        ALTER TABLE beverage_ingredients ADD COLUMN calculator_retention_id TEXT;
+        ALTER TABLE beverage_ingredients ADD COLUMN calculator_pours REAL;
+        ALTER TABLE beverage_ingredients ADD COLUMN calculator_calories REAL;
+        ALTER TABLE beverage_ingredients ADD COLUMN calculator_carbs_g REAL;
+      `);
+    }
+
+    const fermentationIngredientColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(fermentation_ingredients)');
+    const hasFermentationCalculatorColumn = fermentationIngredientColumns.some((column) => column.name === 'calculator_calories');
+    if (!hasFermentationCalculatorColumn) {
+      await db.execAsync(`
+        ALTER TABLE fermentation_ingredients ADD COLUMN calculator_volume_ml REAL;
+        ALTER TABLE fermentation_ingredients ADD COLUMN calculator_abv_percent REAL;
+        ALTER TABLE fermentation_ingredients ADD COLUMN calculator_residual_sugar_g_per_l REAL;
+        ALTER TABLE fermentation_ingredients ADD COLUMN calculator_retention_id TEXT;
+        ALTER TABLE fermentation_ingredients ADD COLUMN calculator_pours REAL;
+        ALTER TABLE fermentation_ingredients ADD COLUMN calculator_calories REAL;
+        ALTER TABLE fermentation_ingredients ADD COLUMN calculator_carbs_g REAL;
+      `);
+    }
+
+    const sauceIngredientColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(sauce_ingredients)');
+    const hasSauceCalculatorColumn = sauceIngredientColumns.some((column) => column.name === 'calculator_calories');
+    if (!hasSauceCalculatorColumn) {
+      await db.execAsync(`
+        ALTER TABLE sauce_ingredients ADD COLUMN calculator_volume_ml REAL;
+        ALTER TABLE sauce_ingredients ADD COLUMN calculator_abv_percent REAL;
+        ALTER TABLE sauce_ingredients ADD COLUMN calculator_residual_sugar_g_per_l REAL;
+        ALTER TABLE sauce_ingredients ADD COLUMN calculator_retention_id TEXT;
+        ALTER TABLE sauce_ingredients ADD COLUMN calculator_pours REAL;
+        ALTER TABLE sauce_ingredients ADD COLUMN calculator_calories REAL;
+        ALTER TABLE sauce_ingredients ADD COLUMN calculator_carbs_g REAL;
+      `);
+    }
+
+    const soupIngredientColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(soup_ingredients)');
+    const hasSoupCalculatorColumn = soupIngredientColumns.some((column) => column.name === 'calculator_calories');
+    if (!hasSoupCalculatorColumn) {
+      await db.execAsync(`
+        ALTER TABLE soup_ingredients ADD COLUMN calculator_volume_ml REAL;
+        ALTER TABLE soup_ingredients ADD COLUMN calculator_abv_percent REAL;
+        ALTER TABLE soup_ingredients ADD COLUMN calculator_residual_sugar_g_per_l REAL;
+        ALTER TABLE soup_ingredients ADD COLUMN calculator_retention_id TEXT;
+        ALTER TABLE soup_ingredients ADD COLUMN calculator_pours REAL;
+        ALTER TABLE soup_ingredients ADD COLUMN calculator_calories REAL;
+        ALTER TABLE soup_ingredients ADD COLUMN calculator_carbs_g REAL;
+      `);
+    }
+
     const userProfileColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(user_profile)');
     const hasHeightColumn = userProfileColumns.some((column) => column.name === 'height_cm');
 
@@ -4851,6 +4926,11 @@ export type FermentationIngredientInput = {
   cutPrep: string;
   cookingMethod: string;
   prepNote?: string;
+  // 2026-08-11 -- see AlcoholCalculatorOverride's own comment above
+  // (beverage_ingredients' own migration) for the full reasoning; same
+  // shape, same read-side effect, reused as-is rather than a second,
+  // near-identical type per builder.
+  calculatorOverride?: AlcoholCalculatorOverride | null;
 };
 
 export async function saveFermentation(input: {
@@ -4880,11 +4960,14 @@ export async function saveFermentation(input: {
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `fermentation_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO fermentation_ingredients
-          (id, fermentation_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, fermentation_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       id,
@@ -4898,6 +4981,13 @@ export async function saveFermentation(input: {
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -4935,11 +5025,14 @@ export async function updateFermentation(
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `fermentation_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO fermentation_ingredients
-          (id, fermentation_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, fermentation_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       fermentationId,
@@ -4953,6 +5046,13 @@ export async function updateFermentation(
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -5029,6 +5129,14 @@ export type FermentationIngredientDetail = {
   cutPrep: string;
   cookingMethod: string;
   prepNote: string | null;
+  // See BeverageIngredientDetail's own identical comment.
+  calculatorVolumeMl: number | null;
+  calculatorAbvPercent: number | null;
+  calculatorResidualSugarGPerL: number | null;
+  calculatorRetentionId: string | null;
+  calculatorPours: number | null;
+  calculatorCalories: number | null;
+  calculatorCarbsG: number | null;
 };
 
 export async function getFermentationIngredients(fermentationId: string): Promise<FermentationIngredientDetail[]> {
@@ -5036,7 +5144,11 @@ export async function getFermentationIngredients(fermentationId: string): Promis
   return db.getAllAsync<FermentationIngredientDetail>(
     `
       SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
-             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote,
+             calculator_volume_ml AS calculatorVolumeMl, calculator_abv_percent AS calculatorAbvPercent,
+             calculator_residual_sugar_g_per_l AS calculatorResidualSugarGPerL,
+             calculator_retention_id AS calculatorRetentionId, calculator_pours AS calculatorPours,
+             calculator_calories AS calculatorCalories, calculator_carbs_g AS calculatorCarbsG
       FROM fermentation_ingredients
       WHERE fermentation_id = ?
       ORDER BY sort_order
@@ -5076,6 +5188,21 @@ export async function getFermentationNutrientBreakdown(fermentationId: string): 
     const foodId = Number(foodIdStr);
     if (!source || Number.isNaN(foodId)) {
       unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    // See getBeverageNutrientBreakdown's own identical block for the full
+    // reasoning -- same real, tracked-value override, same two nutrients
+    // only (calories/carbs), same reason every other one is left out.
+    if (ingredient.calculatorCalories != null) {
+      const itemTotals: Record<string, number> = { energy_kcal: ingredient.calculatorCalories };
+      if (ingredient.calculatorCarbsG != null) {
+        itemTotals.carbohydrate = ingredient.calculatorCarbsG;
+      }
+      itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+      for (const [code, amount] of Object.entries(itemTotals)) {
+        fermentationTotals[code] = (fermentationTotals[code] ?? 0) + amount;
+      }
       continue;
     }
 
@@ -5188,6 +5315,22 @@ export async function getFermentationSixDimensionsBreakdown(fermentationId: stri
 // mirror of the fermentations/fermentation_ingredients functions directly
 // above (see the sides/side_ingredients comment further up for the full
 // "why separate tables/functions per builder" reasoning, unchanged here).
+// The real, tracked-value alcohol calculator payload, 2026-08-11 -- see
+// this file's own beverage_ingredients migration comment. When present,
+// getBeverageNutrientBreakdown uses `calories`/`carbsG` directly instead
+// of the normal food_nutrients lookup for this one ingredient; every other
+// field here exists only so the calculator can be restored to its own
+// original inputs if this ingredient is edited later.
+export type AlcoholCalculatorOverride = {
+  volumeMl: number;
+  abvPercent: number;
+  residualSugarGPerL: number;
+  retentionId: string;
+  pours: number;
+  calories: number;
+  carbsG: number;
+};
+
 export type BeverageIngredientInput = {
   foodId: number;
   source: string;
@@ -5198,6 +5341,7 @@ export type BeverageIngredientInput = {
   cutPrep: string;
   cookingMethod: string;
   prepNote?: string;
+  calculatorOverride?: AlcoholCalculatorOverride | null;
 };
 
 export async function saveBeverage(input: {
@@ -5227,11 +5371,14 @@ export async function saveBeverage(input: {
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `beverage_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO beverage_ingredients
-          (id, beverage_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, beverage_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       id,
@@ -5245,6 +5392,13 @@ export async function saveBeverage(input: {
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -5282,11 +5436,14 @@ export async function updateBeverage(
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `beverage_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO beverage_ingredients
-          (id, beverage_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, beverage_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       beverageId,
@@ -5300,6 +5457,13 @@ export async function updateBeverage(
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -5376,6 +5540,16 @@ export type BeverageIngredientDetail = {
   cutPrep: string;
   cookingMethod: string;
   prepNote: string | null;
+  // Real, tracked-value calculator fields, 2026-08-11 -- all null unless
+  // this ingredient was added via the alcohol calculator's own "use this
+  // for tracking" flow. See AlcoholCalculatorOverride's own comment.
+  calculatorVolumeMl: number | null;
+  calculatorAbvPercent: number | null;
+  calculatorResidualSugarGPerL: number | null;
+  calculatorRetentionId: string | null;
+  calculatorPours: number | null;
+  calculatorCalories: number | null;
+  calculatorCarbsG: number | null;
 };
 
 export async function getBeverageIngredients(beverageId: string): Promise<BeverageIngredientDetail[]> {
@@ -5383,7 +5557,11 @@ export async function getBeverageIngredients(beverageId: string): Promise<Bevera
   return db.getAllAsync<BeverageIngredientDetail>(
     `
       SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
-             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote,
+             calculator_volume_ml AS calculatorVolumeMl, calculator_abv_percent AS calculatorAbvPercent,
+             calculator_residual_sugar_g_per_l AS calculatorResidualSugarGPerL,
+             calculator_retention_id AS calculatorRetentionId, calculator_pours AS calculatorPours,
+             calculator_calories AS calculatorCalories, calculator_carbs_g AS calculatorCarbsG
       FROM beverage_ingredients
       WHERE beverage_id = ?
       ORDER BY sort_order
@@ -5424,6 +5602,31 @@ export async function getBeverageNutrientBreakdown(beverageId: string): Promise<
     const foodId = Number(foodIdStr);
     if (!source || Number.isNaN(foodId)) {
       unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    // Real, tracked-value calculator override, 2026-08-11 -- when present,
+    // this ingredient's own calories/carbs come directly from the
+    // calculator's own real chemistry math instead of the normal
+    // food_nutrients-times-quantity lookup below. Every OTHER nutrient
+    // (protein, fat, vitamins, minerals) is left out of `itemTotals`
+    // entirely -- deliberately, matching this app's own already-cited
+    // research that distillation strips out virtually all non-ethanol
+    // content, and the calculator was never designed to estimate anything
+    // beyond calories/carbs even in its original, purely-informational
+    // form. Skips the grams/getFoodNutrients lookup below entirely -- the
+    // 6-Dimensions breakdown (a separate function) still uses this
+    // ingredient's own real foodId/source for its qualitative D1-D6
+    // scores, which this override intentionally leaves untouched.
+    if (ingredient.calculatorCalories != null) {
+      const itemTotals: Record<string, number> = { energy_kcal: ingredient.calculatorCalories };
+      if (ingredient.calculatorCarbsG != null) {
+        itemTotals.carbohydrate = ingredient.calculatorCarbsG;
+      }
+      itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+      for (const [code, amount] of Object.entries(itemTotals)) {
+        beverageTotals[code] = (beverageTotals[code] ?? 0) + amount;
+      }
       continue;
     }
 
@@ -6244,6 +6447,8 @@ export type SoupIngredientInput = {
   cutPrep: string;
   cookingMethod: string;
   prepNote?: string;
+  // See FermentationIngredientInput's own identical comment.
+  calculatorOverride?: AlcoholCalculatorOverride | null;
 };
 
 export async function saveSoup(input: {
@@ -6273,11 +6478,14 @@ export async function saveSoup(input: {
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `soup_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO soup_ingredients
-          (id, soup_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, soup_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       id,
@@ -6291,6 +6499,13 @@ export async function saveSoup(input: {
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -6328,11 +6543,14 @@ export async function updateSoup(
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `soup_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO soup_ingredients
-          (id, soup_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, soup_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       soupId,
@@ -6346,6 +6564,13 @@ export async function updateSoup(
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -6422,6 +6647,14 @@ export type SoupIngredientDetail = {
   cutPrep: string;
   cookingMethod: string;
   prepNote: string | null;
+  // See BeverageIngredientDetail's own identical comment.
+  calculatorVolumeMl: number | null;
+  calculatorAbvPercent: number | null;
+  calculatorResidualSugarGPerL: number | null;
+  calculatorRetentionId: string | null;
+  calculatorPours: number | null;
+  calculatorCalories: number | null;
+  calculatorCarbsG: number | null;
 };
 
 export async function getSoupIngredients(soupId: string): Promise<SoupIngredientDetail[]> {
@@ -6429,7 +6662,11 @@ export async function getSoupIngredients(soupId: string): Promise<SoupIngredient
   return db.getAllAsync<SoupIngredientDetail>(
     `
       SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
-             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote,
+             calculator_volume_ml AS calculatorVolumeMl, calculator_abv_percent AS calculatorAbvPercent,
+             calculator_residual_sugar_g_per_l AS calculatorResidualSugarGPerL,
+             calculator_retention_id AS calculatorRetentionId, calculator_pours AS calculatorPours,
+             calculator_calories AS calculatorCalories, calculator_carbs_g AS calculatorCarbsG
       FROM soup_ingredients
       WHERE soup_id = ?
       ORDER BY sort_order
@@ -6469,6 +6706,21 @@ export async function getSoupNutrientBreakdown(soupId: string): Promise<DailyNut
     const foodId = Number(foodIdStr);
     if (!source || Number.isNaN(foodId)) {
       unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    // See getBeverageNutrientBreakdown's own identical block for the full
+    // reasoning -- same real, tracked-value override, same two nutrients
+    // only (calories/carbs), same reason every other one is left out.
+    if (ingredient.calculatorCalories != null) {
+      const itemTotals: Record<string, number> = { energy_kcal: ingredient.calculatorCalories };
+      if (ingredient.calculatorCarbsG != null) {
+        itemTotals.carbohydrate = ingredient.calculatorCarbsG;
+      }
+      itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+      for (const [code, amount] of Object.entries(itemTotals)) {
+        soupTotals[code] = (soupTotals[code] ?? 0) + amount;
+      }
       continue;
     }
 
@@ -6594,6 +6846,8 @@ export type SauceIngredientInput = {
   cutPrep: string;
   cookingMethod: string;
   prepNote?: string;
+  // See FermentationIngredientInput's own identical comment.
+  calculatorOverride?: AlcoholCalculatorOverride | null;
 };
 
 export async function saveSauce(input: {
@@ -6623,11 +6877,14 @@ export async function saveSauce(input: {
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `sauce_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO sauce_ingredients
-          (id, sauce_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, sauce_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       id,
@@ -6641,6 +6898,13 @@ export async function saveSauce(input: {
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -6678,11 +6942,14 @@ export async function updateSauce(
 
   for (const [index, ingredient] of input.ingredients.entries()) {
     const ingredientId = `sauce_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
     await db.runAsync(
       `
         INSERT INTO sauce_ingredients
-          (id, sauce_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+          (id, sauce_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `,
       ingredientId,
       sauceId,
@@ -6696,6 +6963,13 @@ export async function updateSauce(
       ingredient.prepNote?.trim() || null,
       index,
       now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
     );
   }
 
@@ -6772,6 +7046,14 @@ export type SauceIngredientDetail = {
   cutPrep: string;
   cookingMethod: string;
   prepNote: string | null;
+  // See BeverageIngredientDetail's own identical comment.
+  calculatorVolumeMl: number | null;
+  calculatorAbvPercent: number | null;
+  calculatorResidualSugarGPerL: number | null;
+  calculatorRetentionId: string | null;
+  calculatorPours: number | null;
+  calculatorCalories: number | null;
+  calculatorCarbsG: number | null;
 };
 
 export async function getSauceIngredients(sauceId: string): Promise<SauceIngredientDetail[]> {
@@ -6779,7 +7061,11 @@ export async function getSauceIngredients(sauceId: string): Promise<SauceIngredi
   return db.getAllAsync<SauceIngredientDetail>(
     `
       SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
-             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote,
+             calculator_volume_ml AS calculatorVolumeMl, calculator_abv_percent AS calculatorAbvPercent,
+             calculator_residual_sugar_g_per_l AS calculatorResidualSugarGPerL,
+             calculator_retention_id AS calculatorRetentionId, calculator_pours AS calculatorPours,
+             calculator_calories AS calculatorCalories, calculator_carbs_g AS calculatorCarbsG
       FROM sauce_ingredients
       WHERE sauce_id = ?
       ORDER BY sort_order
@@ -6819,6 +7105,21 @@ export async function getSauceNutrientBreakdown(sauceId: string): Promise<DailyN
     const foodId = Number(foodIdStr);
     if (!source || Number.isNaN(foodId)) {
       unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    // See getBeverageNutrientBreakdown's own identical block for the full
+    // reasoning -- same real, tracked-value override, same two nutrients
+    // only (calories/carbs), same reason every other one is left out.
+    if (ingredient.calculatorCalories != null) {
+      const itemTotals: Record<string, number> = { energy_kcal: ingredient.calculatorCalories };
+      if (ingredient.calculatorCarbsG != null) {
+        itemTotals.carbohydrate = ingredient.calculatorCarbsG;
+      }
+      itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+      for (const [code, amount] of Object.entries(itemTotals)) {
+        sauceTotals[code] = (sauceTotals[code] ?? 0) + amount;
+      }
       continue;
     }
 
