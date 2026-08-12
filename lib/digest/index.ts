@@ -2,6 +2,7 @@ import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { APP_HELPS_ENTRIES } from './appHelps';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
+import { BODY_SYSTEMS_ENTRIES } from './bodySystems';
 import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
 import { CHOOSING_QUALITY_PRODUCTS_ENTRIES } from './choosingQualityProducts';
@@ -62,7 +63,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260813200000';
+export const PURPLE_DIGEST_VERSION = '20260813210000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -122,6 +123,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...SLEEP_HEALTH_ENTRIES,
   ...MENTAL_HEALTH_ENTRIES,
   ...HOME_GARDENING_ENTRIES,
+  ...BODY_SYSTEMS_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08

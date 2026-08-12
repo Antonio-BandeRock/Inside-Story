@@ -422,6 +422,17 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
       },
     ],
   },
+  // 2026-08-13, direct request: "I don't see much about each individual
+  // organ, how they work together and interact with each other, and how
+  // being deficient or toxic with any specific macronutrient,
+  // micronutrient, or amino acids, or hormone, how does your diet relate
+  // to your bones and teeth, and lymphatic system, eyes, brain, your skin,
+  // your hair, and everything else about a person." The missing
+  // organ/system-centered layer, deliberately placed right after Essential
+  // Nutrients above (which already carries deep, nutrient-centered
+  // deficiency/toxicity coverage this new topic cross-links to rather than
+  // repeats). See lib/digest/bodySystems.ts's own header comment.
+  { label: 'How Your Body Works: Organs & Systems', prefixes: ['body-'] },
   { label: 'Glossary', prefixes: ['glossary-'] },
   // 2026-08-09, direct request: "information about portions, and
   // recommended daily allowances and minimum amounts of anything." See

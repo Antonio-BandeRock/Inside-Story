@@ -274,7 +274,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: "Magnesium, StatPearls, National Library of Medicine", url: 'https://www.ncbi.nlm.nih.gov/books/NBK519036/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['magnesium-deficiency-symptoms-staged', 'magnesium-supplement-forms-compared', 'magnesium-levothyroxine-timing', 'magnesium-muscle-cramps-honest-correction', 'advocacy-magnesium', 'migraine-magnesium-riboflavin-coq10', 'type1-magnesium-glycemic-control'],
+    relatedIds: ['magnesium-deficiency-symptoms-staged', 'magnesium-supplement-forms-compared', 'magnesium-levothyroxine-timing', 'magnesium-muscle-cramps-honest-correction', 'advocacy-magnesium', 'migraine-magnesium-riboflavin-coq10', 'type1-magnesium-glycemic-control', 'body-cardiovascular-electrolytes', 'body-muscular-system'],
   },
 
   // --- Vitamin D, added 2026-08-08, same day, direct follow-up: "go ahead
@@ -307,7 +307,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin D, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/vitamind.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['nutrient-vitamin-d', 'gut-vitamin-d-cldn2'],
+    relatedIds: ['nutrient-vitamin-d', 'gut-vitamin-d-cldn2', 'body-tying-together', 'body-skin-integumentary'],
   },
   {
     id: 'vitamind-deficiency-prevalence',
@@ -1059,7 +1059,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Hypocalcemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK430912/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['calcium-deficiency-hypocalcemia', 'calcium-toxicity-hypercalcemia', 'calcium-absorption-mechanism', 'vitamind-tying-together'],
+    relatedIds: ['calcium-deficiency-hypocalcemia', 'calcium-toxicity-hypercalcemia', 'calcium-absorption-mechanism', 'vitamind-tying-together', 'body-bones-teeth-skeleton'],
   },
 
   // -- Potassium, added 2026-08-08, the eighth deep-dive in this series.
@@ -1158,7 +1158,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Hyperkalemia, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK470284/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['potassium-deficiency-hypokalemia', 'potassium-toxicity-hyperkalemia', 'potassium-sodium-balance', 'ckd-tying-together'],
+    relatedIds: ['potassium-deficiency-hypokalemia', 'potassium-toxicity-hyperkalemia', 'potassium-sodium-balance', 'ckd-tying-together', 'body-cardiovascular-electrolytes'],
   },
 
   // -- Iodine, added 2026-08-08, the ninth deep-dive in this series, but a
