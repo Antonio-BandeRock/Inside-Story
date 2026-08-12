@@ -97,7 +97,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     title: 'A Fasting Study in Existing Hypothyroid Patients',
     teaser: 'Ramadan observance provided a naturally-occurring human fasting study in people already on thyroid medication.',
     summary:
-      "Most fasting-and-autophagy research happens in animal models or short-term lab settings. Sustained human fasting data in people who already have a thyroid condition is much harder to come by, except for one recurring natural experiment. Studies of Ramadan fasting in existing hypothyroid patients found independent TSH suppression during the fasting period, plus a practical complication: fasting disrupts the empty-stomach medication-absorption timing levothyroxine dosing depends on. A genuine, human, not animal-model, data point on how fasting interacts with existing thyroid treatment specifically, distinct from the general autophagy-benefit research above, and worth a conversation with a doctor before combining any extended fast with existing thyroid medication.",
+      "Most fasting-and-autophagy research happens in animal models or short-term lab settings. Sustained human fasting data in people who already have a thyroid condition is much harder to come by, except for one recurring natural experiment. Studies of Ramadan fasting in existing hypothyroid patients found independent TSH suppression during the fasting period, plus a practical complication: fasting disrupts the empty-stomach medication-absorption timing levothyroxine dosing depends on. A human, not animal-model, data point on how fasting interacts with existing thyroid treatment specifically, distinct from the general autophagy-benefit research above, and worth a conversation with a doctor before combining any extended fast with existing thyroid medication.",
     citations: [
       {
         source: 'Impact of fasting on thyrotropin and thyroid status during Ramadan in 292 previously well controlled hypothyroid patients (the IFTAR study)',
@@ -126,7 +126,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     id: 'mito-visceral-fat-treg-reinfusion',
     category: 'hashimotos',
     title: 'A Causal Experiment: Reinfusing Tregs Into Visceral Fat',
-    teaser: 'Not just correlation: putting the missing cells back measurably improved insulin sensitivity, in a real experiment.',
+    teaser: 'Not just correlation: putting the missing cells back measurably improved insulin sensitivity, in an experiment.',
     summary:
       "Finding that Tregs are missing from visceral fat is one thing. Proving their absence actually causes a problem is a different, much stronger kind of evidence, and this is exactly that. In a Hashimoto's mouse model, reinfusing healthy regulatory T cells, which preferentially homed back into visceral adipose tissue on their own, measurably improved insulin sensitivity. A causal experiment, not just an observed association, directly connecting the Treg depletion finding above to a concrete, measurable metabolic outcome: putting the missing piece back in, and watching things actually improve.",
     citations: [
@@ -144,7 +144,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     title: "A Humbling Counter-Finding: Levothyroxine Alone Doesn't Fix Body Fat",
     teaser: "The well-established Hashimoto's/weight-gain link doesn't resolve just by treating the hormone.",
     summary:
-      "It would be reasonable to assume that once the thyroid hormone deficit is corrected, the weight gain so often associated with Hashimoto's would simply resolve along with it. Studies say that assumption doesn't hold. Despite the well-established association between Hashimoto's and weight/body fat, correcting hypothyroidism itself with levothyroxine alone appears to have little effect on body fat in real studies. A humbling finding worth stating plainly, since it complicates a very commonly assumed cause-and-effect story. The relationship isn't simply \"low thyroid hormone causes fat gain, treat the hormone and it resolves.\"",
+      "It would be reasonable to assume that once the thyroid hormone deficit is corrected, the weight gain so often associated with Hashimoto's would simply resolve along with it. Studies say that assumption doesn't hold. Despite the well-established association between Hashimoto's and weight/body fat, correcting hypothyroidism itself with levothyroxine alone appears to have little effect on body fat in studies. A humbling finding worth stating plainly, since it complicates a very commonly assumed cause-and-effect story. The relationship isn't simply \"low thyroid hormone causes fat gain, treat the hormone and it resolves.\"",
     citations: [
       { source: 'Changes in body weight after treatment of primary hypothyroidism with levothyroxine', url: 'https://pubmed.ncbi.nlm.nih.gov/24936556/' },
     ],
@@ -167,9 +167,9 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     id: 'mito-exercise-intensity-inflammation',
     category: 'basicHealth',
     title: 'Exercise Intensity Barely Moves Inflammation Markers, Doing It at All Does',
-    teaser: 'A systematic review answers "how hard do I need to exercise," and the answer is genuinely surprising.',
+    teaser: 'A systematic review answers "how hard do I need to exercise," and the answer is surprising.',
     summary:
-      "It's a reasonable, common assumption that harder exercise means a bigger anti-inflammatory benefit. A systematic review found that assumption doesn't hold up. It found exercise intensity itself barely moves most inflammation markers (IL-6, TNF-alpha, IL-10) across the studies pooled. Doing the exercise at all matters far more than how hard it's done. This directly informs a separate, real reason some people are better off favoring lower-intensity exercise, covered next, a genuinely different mechanism entirely, not because low intensity reduces inflammation more effectively than higher intensity would.",
+      "It's a reasonable, common assumption that harder exercise means a bigger anti-inflammatory benefit. A systematic review found that assumption doesn't hold up. It found exercise intensity itself barely moves most inflammation markers (IL-6, TNF-alpha, IL-10) across the studies pooled. Doing the exercise at all matters far more than how hard it's done. This directly informs a separate, reason some people are better off favoring lower-intensity exercise, covered next, a different mechanism entirely, not because low intensity reduces inflammation more effectively than higher intensity would.",
     citations: [
       {
         source: 'Short-Lived Exercise-Induced Exerkines Modulate Inflammation for Chronic Disease Prevention: A Systematic Review and Meta-Analysis (Biomolecules, 2025)',
@@ -198,9 +198,9 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     id: 'mito-exercise-autophagy-pgc1a',
     category: 'basicHealth',
     title: 'Exercise Independently Triggers Autophagy Too',
-    teaser: "A genuinely positive closing note: exercise, not just fasting, activates the same cellular repair process, with none of fasting's own tradeoff.",
+    teaser: "A positive closing note: exercise, not just fasting, activates the same cellular repair process, with none of fasting's own tradeoff.",
     summary:
-      "After fasting's own tension (a powerful autophagy trigger with a real thyroid-hormone cost) and exercise's own cortisol caveat, this category could easily end on a note of \"everything has a downside.\" One finding pushes back against that. Exercise itself, independent of fasting, triggers autophagy and mitophagy, the mitochondria-specific version of the same cellular cleanup process, in skeletal muscle through the PGC-1α pathway. A positive mechanism that doesn't carry fasting's own T3-suppression tradeoff, making moderate, consistent, low-intensity exercise a genuinely dual-benefit intervention across both the autophagy and the cortisol/inflammation mechanisms this category covers.",
+      "After fasting's own tension (a powerful autophagy trigger with a thyroid-hormone cost) and exercise's own cortisol caveat, this category could easily end on a note of \"everything has a downside.\" One finding pushes back against that. Exercise itself, independent of fasting, triggers autophagy and mitophagy, the mitochondria-specific version of the same cellular cleanup process, in skeletal muscle through the PGC-1α pathway. A positive mechanism that doesn't carry fasting's own T3-suppression tradeoff, making moderate, consistent, low-intensity exercise a dual-benefit intervention across both the autophagy and the cortisol/inflammation mechanisms this category covers.",
     citations: [
       { source: 'Role of PGC-1α during acute exercise-induced autophagy and mitophagy in skeletal muscle', url: 'https://pubmed.ncbi.nlm.nih.gov/25673772/' },
     ],
@@ -210,10 +210,10 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
   {
     id: 'mito-tying-together',
     category: 'hashimotos',
-    title: 'Tying It All Together: Two Real Tensions, Not a Clean Story',
-    teaser: 'Twelve entries in cellular biology, and the honest takeaway is two genuine tradeoffs, not a simple "do more of this" answer.',
+    title: 'Tying It All Together: Two Tensions, Not a Clean Story',
+    teaser: 'Twelve entries in cellular biology, and the honest takeaway is two tradeoffs, not a simple "do more of this" answer.',
     summary:
-      "This category doesn't resolve into one clean recommendation, and that's deliberate. Fasting is the most potent known trigger of the exact autophagy process IL-23 was shown suppressing in Hashimoto's thyroid tissue, but fasting also measurably suppresses active thyroid hormone, so the two effects have to be weighed against each other, not treated as a free win. Visceral fat is genuinely linked to Treg depletion and insulin resistance in Hashimoto's-specific research, but a 2024 reappraisal suggests some of that same fat may be defending against a leaky gut rather than simply causing harm, meaning gut repair and fat reduction likely need pursuing together, not as substitutes. The one uncomplicated finding in the whole category: moderate, consistent, low-intensity exercise triggers autophagy of its own, through a completely different pathway than fasting, without fasting's own thyroid-hormone tradeoff, the closest thing to a clean answer this category actually has.",
+      "This category doesn't resolve into one clean recommendation, and that's deliberate. Fasting is the most potent known trigger of the exact autophagy process IL-23 was shown suppressing in Hashimoto's thyroid tissue, but fasting also measurably suppresses active thyroid hormone, so the two effects have to be weighed against each other, not treated as a free win. Visceral fat is linked to Treg depletion and insulin resistance in Hashimoto's-specific research, but a 2024 reappraisal suggests some of that same fat may be defending against a leaky gut rather than simply causing harm, meaning gut repair and fat reduction likely need pursuing together, not as substitutes. The one uncomplicated finding in the whole category: moderate, consistent, low-intensity exercise triggers autophagy of its own, through a completely different pathway than fasting, without fasting's own thyroid-hormone tradeoff, the closest thing to a clean answer this category actually has.",
     citations: [
       {
         source: "Increased Interleukin-23 in Hashimoto's Thyroiditis Disease Induces Autophagy Suppression and Reactive Oxygen Species Accumulation (Frontiers in Immunology, 2018)",

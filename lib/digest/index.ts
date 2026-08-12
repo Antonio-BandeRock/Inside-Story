@@ -63,7 +63,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260813230000';
+export const PURPLE_DIGEST_VERSION = '20260813231500';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -164,7 +164,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'basicHealth',
     label: 'Basic Health',
     icon: 'reader-outline',
-    description: 'Food, vitamins, minerals, and interactions everyone should understand about their own body, independent of any specific condition -- what the Free tier shows in full.',
+    description: 'Food, vitamins, minerals, and interactions everyone should understand about their own body, independent of any specific condition, what the Free tier shows in full.',
   },
   {
     key: 'hashimotos',
@@ -179,7 +179,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'rheumatoidArthritis',
     label: 'Rheumatoid Arthritis',
     icon: 'pulse-outline',
-    description: 'Real food, medication, and self-advocacy guidance for RA on its own terms, including the most common real overlap with Hashimoto\'s of any two conditions in the research.',
+    description: 'Food, medication, and self-advocacy guidance for RA on its own terms, including the most common overlap with Hashimoto\'s of any two conditions in the research.',
   },
   // 2026-08-08, twelfth addition (unchanged from its own original build),
   // same day: Psoriasis / Psoriatic Arthritis, this app's third real
@@ -188,7 +188,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'psoriasis',
     label: 'Psoriasis',
     icon: 'bandage-outline',
-    description: 'Real food, medication, and self-advocacy guidance for psoriasis and psoriatic arthritis on their own terms, including two findings honestly reported as unproven rather than smoothed into false confidence.',
+    description: 'Food, medication, and self-advocacy guidance for psoriasis and psoriatic arthritis on their own terms, including two findings honestly reported as unproven rather than smoothed into false confidence.',
   },
   // 2026-08-08, same day, fourth condition: Graves' Disease. See graves.ts's
   // own header comment -- the first condition built with its own real
@@ -197,7 +197,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'graves',
     label: "Graves' Disease",
     icon: 'eye-outline',
-    description: 'Real food, medication, and self-advocacy guidance for Graves\' disease, including several findings that run in the literal opposite direction from this app\'s own Hashimoto\'s research.',
+    description: 'Food, medication, and self-advocacy guidance for Graves\' disease, including several findings that run in the literal opposite direction from this app\'s own Hashimoto\'s research.',
   },
   // 2026-08-08, same day, fifth condition: Type 1 Diabetes. See
   // type1Diabetes.ts's own header comment -- a genuinely different shape
@@ -207,7 +207,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'type1Diabetes',
     label: 'Type 1 Diabetes',
     icon: 'water-outline',
-    description: 'Real food, medication, and self-advocacy guidance for Type 1 Diabetes: carb-counting accuracy, exercise and alcohol timing, DKA recognition, and the real overlap with celiac disease and Hashimoto\'s.',
+    description: 'Food, medication, and self-advocacy guidance for Type 1 Diabetes: carb-counting accuracy, exercise and alcohol timing, DKA recognition, and the overlap with celiac disease and Hashimoto\'s.',
   },
   // 2026-08-08, same day, sixth condition: Celiac Disease. See celiac.ts's
   // own header comment -- the one condition in this app where diet is the
@@ -216,7 +216,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'celiac',
     label: 'Celiac Disease',
     icon: 'nutrition-outline',
-    description: 'Real, practical guidance for celiac disease: cross-contamination thresholds, the oats controversy, gluten-free diet nutritional pitfalls, real healing timelines, and self-advocacy for diagnosis and bone density.',
+    description: 'Practical guidance for celiac disease: cross-contamination thresholds, the oats controversy, gluten-free diet nutritional pitfalls, healing timelines, and self-advocacy for diagnosis and bone density.',
   },
   // 2026-08-08, same day, seventh condition: Inflammatory Bowel Disease.
   // See ibd.ts's own header comment -- two real, distinct diseases under
@@ -226,7 +226,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'ibd',
     label: 'Inflammatory Bowel Disease',
     icon: 'body-outline',
-    description: "Real food, medication, and self-advocacy guidance for Crohn's disease and ulcerative colitis, including the smoking paradox, the low-fiber-during-a-flare myth, and an honestly reported null result on Hashimoto's comorbidity.",
+    description: "Food, medication, and self-advocacy guidance for Crohn's disease and ulcerative colitis, including the smoking paradox, the low-fiber-during-a-flare myth, and an honestly reported null result on Hashimoto's comorbidity.",
   },
   // 2026-08-08, same day, eighth condition: Multiple Sclerosis. See
   // multipleSclerosis.ts's own header comment -- a disease of the central
@@ -236,7 +236,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'multipleSclerosis',
     label: 'Multiple Sclerosis',
     icon: 'flash-outline',
-    description: "Real evidence for MS: the EBV trigger and its exact mechanism, the Swank/Wahls diet trial, honest corrections on high-dose biotin and vitamin D, and self-advocacy for JC virus monitoring and diagnosis.",
+    description: "Evidence for MS: the EBV trigger and its exact mechanism, the Swank/Wahls diet trial, honest corrections on high-dose biotin and vitamin D, and self-advocacy for JC virus monitoring and diagnosis.",
   },
   // 2026-08-08, same day, ninth condition: Lupus (SLE). See lupus.ts's own
   // header comment -- a genuinely wide-ranging condition reaching nearly
@@ -246,7 +246,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'lupus',
     label: 'Lupus (SLE)',
     icon: 'shield-half-outline',
-    description: 'Real evidence for lupus: the alfalfa sprout food trigger, the photosensitivity/vitamin D catch-22, omega-3\'s genuinely mixed evidence, and self-advocacy for retinopathy screening, kidney monitoring, and biologic treatment.',
+    description: 'Evidence for lupus: the alfalfa sprout food trigger, the photosensitivity/vitamin D catch-22, omega-3\'s mixed evidence, and self-advocacy for retinopathy screening, kidney monitoring, and biologic treatment.',
   },
   // 2026-08-08, same day, tenth condition: Sjögren's Syndrome. See
   // sjogrens.ts's own header comment -- a disease defined by its attack on
@@ -256,7 +256,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'sjogrens',
     label: "Sjögren's Syndrome",
     icon: 'rainy-outline',
-    description: "Real evidence for Sjögren's: the direct dental-caries mechanism, alcohol/caffeine's immediate dryness effect, omega-3's genuinely positive trials, a real lymphoma risk, and self-advocacy for diagnosis and medication.",
+    description: "Evidence for Sjögren's: the direct dental-caries mechanism, alcohol/caffeine's immediate dryness effect, omega-3's positive trials, a lymphoma risk, and self-advocacy for diagnosis and medication.",
   },
   // 2026-08-08, same day, eleventh condition, and this app's first
   // genuinely non-autoimmune one: PCOS. See pcos.ts's own header comment
@@ -266,7 +266,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'pcos',
     label: 'PCOS',
     icon: 'infinite-outline',
-    description: 'Real evidence for PCOS: insulin resistance as the central mechanism, the well-studied 40:1 inositol ratio, modest weight loss\'s real quantified benefit, a real endometrial cancer risk, and self-advocacy for glucose/lipid screening.',
+    description: 'Evidence for PCOS: insulin resistance as the central mechanism, the well-studied 40:1 inositol ratio, modest weight loss\'s quantified benefit, an endometrial cancer risk, and self-advocacy for glucose/lipid screening.',
   },
   // 2026-08-08, same day, twelfth condition, and this app's second
   // genuinely non-autoimmune one: Chronic Kidney Disease. See
@@ -277,7 +277,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'chronicKidneyDisease',
     label: 'Chronic Kidney Disease',
     icon: 'filter-outline',
-    description: 'Real evidence for CKD: an honest correction on potassium restriction, hidden phosphate additives, plant-forward protein guidance, SGLT2 inhibitors\' real kidney-protective effect, and self-advocacy for eGFR/ACR monitoring.',
+    description: 'Evidence for CKD: an honest correction on potassium restriction, hidden phosphate additives, plant-forward protein guidance, SGLT2 inhibitors\' kidney-protective effect, and self-advocacy for eGFR/ACR monitoring.',
   },
   // 2026-08-08, same day, thirteenth condition, and this app's third
   // genuinely non-autoimmune one: Fatty Liver Disease (MASLD). See
@@ -288,7 +288,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'fattyLiverDisease',
     label: 'Fatty Liver Disease',
     icon: 'flame-outline',
-    description: 'Real evidence for MASLD: a graded weight-loss staircase, coffee\'s consistently protective effect, resmetirom\'s thyroid-hormone-receptor mechanism, semaglutide\'s major trial results, and self-advocacy via the FIB-4 screening tool.',
+    description: 'Evidence for MASLD: a graded weight-loss staircase, coffee\'s consistently protective effect, resmetirom\'s thyroid-hormone-receptor mechanism, semaglutide\'s major trial results, and self-advocacy via the FIB-4 screening tool.',
   },
   // 2026-08-08, same day, fourteenth condition: Type 2 Diabetes. See
   // type2Diabetes.ts's own header comment -- sits at the real center of
@@ -298,7 +298,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'type2Diabetes',
     label: 'Type 2 Diabetes',
     icon: 'trending-down-outline',
-    description: 'Real evidence for T2D: the DiRECT remission trial, low-carb diet evidence, a real distinction from Type 1, a recent GLP-1/SGLT2 treatment paradigm shift, and self-advocacy on individualized HbA1c targets.',
+    description: 'Evidence for T2D: the DiRECT remission trial, low-carb diet evidence, a distinction from Type 1, a recent GLP-1/SGLT2 treatment paradigm shift, and self-advocacy on individualized HbA1c targets.',
   },
   // 2026-08-08, same day, fifteenth condition: Irritable Bowel Syndrome.
   // See ibs.ts's own header comment -- a real disorder of gut-brain
@@ -308,7 +308,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'ibs',
     label: 'Irritable Bowel Syndrome',
     icon: 'sync-outline',
-    description: 'Real evidence for IBS: the low-FODMAP diet, peppermint oil and gut-directed hypnotherapy, the post-infectious mechanism behind over half of all cases, and self-advocacy for distinguishing IBS from conditions that mimic it.',
+    description: 'Evidence for IBS: the low-FODMAP diet, peppermint oil and gut-directed hypnotherapy, the post-infectious mechanism behind over half of all cases, and self-advocacy for distinguishing IBS from conditions that mimic it.',
   },
   // 2026-08-08, same day, sixteenth condition: Migraine. See migraine.ts's
   // own header comment -- a real neurological disease with its own
@@ -317,7 +317,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'migraine',
     label: 'Migraine',
     icon: 'thunderstorm-outline',
-    description: 'Real evidence for migraine: an honest correction to food-trigger lists, the magnesium/riboflavin/CoQ10 combination trial, CGRP inhibitors, medication-overuse headache, and self-advocacy for recognizing real emergency red flags.',
+    description: 'Evidence for migraine: an honest correction to food-trigger lists, the magnesium/riboflavin/CoQ10 combination trial, CGRP inhibitors, medication-overuse headache, and self-advocacy for recognizing emergency red flags.',
   },
   // 2026-08-08, same day, seventeenth condition: Cardiovascular Disease.
   // See cardiovascularDisease.ts's own header comment -- already touched
@@ -328,7 +328,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'cardiovascularDisease',
     label: 'Cardiovascular Disease',
     icon: 'heart-outline',
-    description: 'Real evidence for cardiovascular disease: the Mediterranean diet and DASH, an honest statin evidence review, a real reversal on daily aspirin and omega-3s for prevention, and self-advocacy for lipid testing and heart attack red flags.',
+    description: 'Evidence for cardiovascular disease: the Mediterranean diet and DASH, an honest statin evidence review, a reversal on daily aspirin and omega-3s for prevention, and self-advocacy for lipid testing and heart attack red flags.',
   },
   // 2026-08-08, same day, eighteenth condition, and -- per the `conditions`
   // table's own sort_order -- the last one currently planned: Gout. See
@@ -338,13 +338,13 @@ export const DIGEST_CATEGORY_META: {
     key: 'gout',
     label: 'Gout',
     icon: 'footsteps-outline',
-    description: 'Real evidence for gout: the specific foods that raise and lower risk (meat, seafood, dairy, sugar drinks, beer, cherries, vitamin C, coffee), a real medication safety distinction, and self-advocacy for genetic testing and flare red flags.',
+    description: 'Evidence for gout: the specific foods that raise and lower risk (meat, seafood, dairy, sugar drinks, beer, cherries, vitamin C, coffee), a medication safety distinction, and self-advocacy for genetic testing and flare red flags.',
   },
   {
     key: 'prostateHealth',
     label: 'Prostate Health',
     icon: 'male-outline',
-    description: 'Real evidence for BPH and prostate cancer risk: a genuine gut-microbiome connection (dysbiosis linked to BPH, gut bacteria directly making androgens and TMAO), lycopene and cruciferous vegetables, a real supplement correction, and self-advocacy on PSA testing and monitoring.',
+    description: 'Evidence for BPH and prostate cancer risk: a gut-microbiome connection (dysbiosis linked to BPH, gut bacteria directly making androgens and TMAO), lycopene and cruciferous vegetables, a supplement correction, and self-advocacy on PSA testing and monitoring.',
   },
   // 2026-08-09, direct request: everything in this app's regenerative-
   // agriculture/pollinator/economic-power research cluster (previously
@@ -355,7 +355,7 @@ export const DIGEST_CATEGORY_META: {
     key: 'earthMatters',
     label: 'Earth Matters',
     icon: 'earth-outline',
-    description: 'The planet the food system actually runs on: soil, water, pollinators, seed diversity, regenerative-farming case studies, the economics and politics of who controls food production, and real, concrete ways to push for change with your own money and voice.',
+    description: 'The planet the food system actually runs on: soil, water, pollinators, seed diversity, regenerative-farming case studies, the economics and politics of who controls food production, and concrete ways to push for change with your own money and voice.',
   },
   // 2026-08-09, same day, a genuinely new topic, direct request: real
   // guidance on growing your own fresh fruits and vegetables at home as a
@@ -371,7 +371,7 @@ export const DIGEST_CATEGORY_META: {
     // this whole build has already used for several builders.
     label: 'Gardening',
     icon: 'leaf-outline',
-    description: "Growing even a modest amount of your own food is a real, documented way to cut a grocery bill and eat fresher produce -- what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
+    description: "Growing even a modest amount of your own food is a documented way to cut a grocery bill and eat fresher produce, what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
   },
 ];
 

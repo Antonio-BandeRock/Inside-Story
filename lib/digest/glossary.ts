@@ -125,7 +125,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Antibody & Antigen',
     teaser: 'The immune system\'s own recognition system: a threat gets flagged, then a specific defender gets built to match it.',
     summary:
-      'An antigen is anything the immune system can learn to recognize, normally a foreign threat like a virus or bacterium. An antibody is the specific protein the immune system builds to identify and help destroy that exact antigen, part of ordinary, healthy immune defense. This same recognition system occasionally misfires and builds an antibody against one of the body\'s own tissues instead of a real outside threat, the defining feature of an autoimmune disease, covered in real depth throughout this Digest\'s own per-condition research.',
+      'An antigen is anything the immune system can learn to recognize, normally a foreign threat like a virus or bacterium. An antibody is the specific protein the immune system builds to identify and help destroy that exact antigen, part of ordinary, healthy immune defense. This same recognition system occasionally misfires and builds an antibody against one of the body\'s own tissues instead of an outside threat, the defining feature of an autoimmune disease, covered in depth throughout this Digest\'s own per-condition research.',
     citations: [],
     overallTier: 'strong',
   },
@@ -190,7 +190,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'CFU (Colony-Forming Units)',
     teaser: 'The number on a probiotic label, and an honest explanation of what it does and doesn\'t actually tell you.',
     summary:
-      'CFU measures how many live organisms were present in a probiotic product at the time it was manufactured, not how many actually survive stomach acid or reach the gut. Most clinical trials showing genuine benefit used doses in the 1-10 billion CFU range for one specific, named strain, not the 50-100+ billion CFU "mega-blends" often marketed as automatically superior. See Fermented Foods for the full dosing picture.',
+      'CFU measures how many live organisms were present in a probiotic product at the time it was manufactured, not how many actually survive stomach acid or reach the gut. Most clinical trials showing benefit used doses in the 1-10 billion CFU range for one specific, named strain, not the 50-100+ billion CFU "mega-blends" often marketed as automatically superior. See Fermented Foods for the full dosing picture.',
     citations: [
       {
         source: 'Strain-Specificity and Disease-Specificity of Probiotic Efficacy: A Systematic Review and Meta-Analysis',
@@ -236,9 +236,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-cytokine',
     category: 'basicHealth',
     title: 'Cytokine',
-    teaser: 'A chemical messenger the immune system uses to coordinate itself, whether fighting a real infection or driving chronic inflammation.',
+    teaser: 'A chemical messenger the immune system uses to coordinate itself, whether fighting an infection or driving chronic inflammation.',
     summary:
-      'A broad category of small signaling proteins immune cells use to communicate with each other and with other tissues, part of ordinary, healthy immune coordination. Some cytokines drive inflammation (IL-6, IL-23, and TNF-alpha are three commonly named ones), others calm it back down, and the real balance between them is a recurring thread across this Digest\'s own per-condition research.',
+      'A broad category of small signaling proteins immune cells use to communicate with each other and with other tissues, part of ordinary, healthy immune coordination. Some cytokines drive inflammation (IL-6, IL-23, and TNF-alpha are three commonly named ones), others calm it back down, and the balance between them is a recurring thread across this Digest\'s own per-condition research.',
     citations: [],
     overallTier: 'strong',
   },
@@ -247,7 +247,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'hashimotos',
     title: '6-DFF (The 6 Dimensions of Food Friendliness)',
     teaser: 'The scoring framework, scoring every food across six separate, research-backed factors.',
-    summary: 'The six-dimension scoring rubric, used throughout Insights, referred to by its acronym 6-DFF or, just as often, plainly as "the 6 Dimensions." It covers micronutrient density and bioavailability, inflammatory response potential, lipid metabolic compatibility, hormonal support and conversion, digestive tolerance and absorption, and oxalate load and mineral interference. These six are specific to Hashimoto\'s -- plenty of other food dimensions exist that would matter to anyone, not just someone with Hashimoto\'s. Worth knowing: this isn\'t the same thing as the deiodinase enzymes (D1, D2, D3) covered elsewhere in this glossary, an easy naming collision.',
+    summary: 'The six-dimension scoring rubric, used throughout Insights, referred to by its acronym 6-DFF or, just as often, plainly as "the 6 Dimensions." It covers micronutrient density and bioavailability, inflammatory response potential, lipid metabolic compatibility, hormonal support and conversion, digestive tolerance and absorption, and oxalate load and mineral interference. These six are specific to Hashimoto\'s, plenty of other food dimensions exist that would matter to anyone, not just someone with Hashimoto\'s. Worth knowing: this isn\'t the same thing as the deiodinase enzymes (D1, D2, D3) covered elsewhere in this glossary, an easy naming collision.',
     citations: [],
     overallTier: 'strong',
   },
@@ -256,7 +256,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'DAO (Diamine Oxidase) & Histamine Intolerance',
     teaser: 'The enzyme that clears dietary histamine, and a reason gut inflammation can leave someone with less of it on hand.',
-    summary: 'DAO is the enzyme mainly responsible for breaking down histamine absorbed from food. Gut inflammation can reduce how much DAO is available, meaning someone with an already-inflamed gut may have less capacity to clear dietary histamine than usual. This is a direct reason the Healing Stages guide asks most fermented foods, a genuinely high-histamine food category, to wait until Stage 2, once that capacity is no longer an unknown variable.',
+    summary: 'DAO is the enzyme mainly responsible for breaking down histamine absorbed from food. Gut inflammation can reduce how much DAO is available, meaning someone with an already-inflamed gut may have less capacity to clear dietary histamine than usual. This is a direct reason the Healing Stages guide asks most fermented foods, a high-histamine food category, to wait until Stage 2, once that capacity is no longer an unknown variable.',
     citations: [
       { source: 'Maintz & Novak 2007, American Journal of Clinical Nutrition: histamine and histamine intolerance', url: 'https://pubmed.ncbi.nlm.nih.gov/17490952/' },
     ],
@@ -302,10 +302,10 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   {
     id: 'glossary-egfr',
     category: 'basicHealth',
-    title: 'eGFR (Estimated Glomerular Filtration Rate)',
-    teaser: 'The standard measure of how well the kidneys are filtering, and the real number a person\'s own kidney health gets tracked by.',
+    title: 'EGFR (Estimated Glomerular Filtration Rate)',
+    teaser: 'The standard measure of how well the kidneys are filtering, and the number a person\'s own kidney health gets tracked by.',
     summary:
-      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A real, staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this Digest\'s own dedicated Chronic Kidney Disease research for the full staging system and what actually protects it.',
+      'A standard blood-test-derived estimate of how much blood the kidneys are filtering per minute, the most common way kidney function gets checked, whether as part of a routine physical or to monitor a specific concern. A staged framework (G1 through G5) exists specifically to track this number over time, since kidney function loss is usually gradual and symptom-free in its early stages. See this Digest\'s own dedicated Chronic Kidney Disease research for the full staging system and what actually protects it.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ckd-overview'],
@@ -329,7 +329,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Euthyroid, Hypothyroid & Subclinical Hypothyroidism',
     teaser: 'The three distinct states thyroid lab results can describe, and why the middle one only became diagnosable fairly recently.',
     summary:
-      'Euthyroid means normal thyroid function. Hypothyroid (overt) means genuinely low thyroid hormone with clear lab abnormalities. Subclinical hypothyroidism, the middle state, means TSH is elevated but T4 is still technically normal, a diagnosis that literally couldn\'t be made until sensitive-enough lab testing existed. See History & Milestones for that story.',
+      'Euthyroid means normal thyroid function. Hypothyroid (overt) means low thyroid hormone with clear lab abnormalities. Subclinical hypothyroidism, the middle state, means TSH is elevated but T4 is still technically normal, a diagnosis that literally couldn\'t be made until sensitive-enough lab testing existed. See History & Milestones for that story.',
     citations: [
       { source: 'Laboratory Thyroid Tests: A Historical Perspective (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/37037032/' },
     ],
@@ -366,7 +366,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Gliadin',
     teaser: 'The specific fragment of gluten with a named mechanism for loosening the gut barrier, in anyone who eats it.',
     summary:
-      'A specific protein fragment within gluten (found in wheat, barley, and rye). Gliadin binds a receptor called CXCR3 on intestinal cells, triggering those cells to release zonulin, a specific, reversible mechanism for increased gut permeability. This is a real, general digestive-physiology effect, not limited to any one diagnosis, though how much it matters for any one person varies, and this Digest\'s own per-condition research covers it in more depth wherever it\'s a documented factor.',
+      'A specific protein fragment within gluten (found in wheat, barley, and rye). Gliadin binds a receptor called CXCR3 on intestinal cells, triggering those cells to release zonulin, a specific, reversible mechanism for increased gut permeability. This is a general digestive-physiology effect, not limited to any one diagnosis, though how much it matters for any one person varies, and this Digest\'s own per-condition research covers it in more depth wherever it\'s a documented factor.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
@@ -439,8 +439,8 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-insulin-resistance',
     category: 'basicHealth',
     title: 'Insulin Resistance',
-    teaser: 'A state where the body\'s cells stop responding normally to insulin, a real, shared thread behind several conditions already tracked.',
-    summary: 'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a real, shared underlying mechanism connecting several other conditions already covered in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its own real, documented link back to this same root cause. See this Digest\'s own dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
+    teaser: 'A state where the body\'s cells stop responding normally to insulin, a shared thread behind several conditions already tracked.',
+    summary: 'A physiological state where cells respond less effectively to insulin, the hormone that normally moves sugar out of the bloodstream and into cells. A precursor to type 2 diabetes, and a shared underlying mechanism connecting several other conditions already covered in depth, PCOS, fatty liver disease, chronic kidney disease, and gout among them, each with its own documented link back to this same root cause. See this Digest\'s own dedicated Type 2 Diabetes research for the full, connected picture across all of them.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['type2-metabolic-syndrome-cluster'],
@@ -449,9 +449,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-leaky-gut',
     category: 'basicHealth',
     title: 'Leaky Gut / Intestinal Permeability',
-    teaser: 'A measurable phenomenon, and a genuinely contested clinical diagnosis. Both true at once.',
+    teaser: 'A measurable phenomenon, and a contested clinical diagnosis. Both true at once.',
     summary:
-      'Intestinal permeability is a directly measurable phenomenon (via zonulin levels or lactulose-mannitol testing), a real, physical property of the gut lining relevant to digestive health broadly. "Leaky gut syndrome" as a standalone clinical diagnosis remains debated in mainstream gastroenterology, not because the biology is fake but because no agreed clinical definition or diagnostic threshold exists yet. See this Digest\'s own per-condition research for where this measurable phenomenon does and doesn\'t have a documented link to a specific diagnosis.',
+      'Intestinal permeability is a directly measurable phenomenon (via zonulin levels or lactulose-mannitol testing), a physical property of the gut lining relevant to digestive health broadly. "Leaky gut syndrome" as a standalone clinical diagnosis remains debated in mainstream gastroenterology, not because the biology is fake but because no agreed clinical definition or diagnostic threshold exists yet. See this Digest\'s own per-condition research for where this measurable phenomenon does and doesn\'t have a documented link to a specific diagnosis.',
     citations: [
       { source: 'Biomarkers for assessment of intestinal permeability in clinical practice (Scandinavian Journal of Gastroenterology, 2021)', url: 'https://pubmed.ncbi.nlm.nih.gov/34009040/' },
     ],
@@ -497,7 +497,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Mitochondria',
     teaser: 'The cell\'s own energy-producing structures, present in nearly every cell in the body.',
-    summary: "Tiny structures inside nearly every cell responsible for producing the cell's own usable energy, real, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a real, recurring thread across several of the condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
+    summary: "Tiny structures inside nearly every cell responsible for producing the cell's own usable energy, foundational cell biology relevant to how the whole body runs, from muscle to brain to organ function. Mitochondrial health shows up as a recurring thread across several of the condition-specific findings, worth a look at the specific mechanism wherever it's documented as a factor.",
     citations: [],
     overallTier: 'strong',
     relatedIds: ['glossary-mots-c'],
@@ -519,9 +519,9 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-mots-c',
     category: 'hashimotos',
     title: 'MOTS-c',
-    teaser: 'A peptide made by mitochondria themselves, and one of the few genuinely Hashimoto\'s-specific findings in the cellular-biology research.',
+    teaser: 'A peptide made by mitochondria themselves, and one of the few Hashimoto\'s-specific findings in the cellular-biology research.',
     summary:
-      'A mitochondria-derived peptide that regulates insulin sensitivity and inflammation. A study measured it significantly lower in 90 Hashimoto\'s patients compared to 90 matched controls, inversely correlated with autoantibody levels, a genuinely disease-specific finding, not extrapolated from another condition. See Mitochondria & Metabolism.',
+      'A mitochondria-derived peptide that regulates insulin sensitivity and inflammation. A study measured it significantly lower in 90 Hashimoto\'s patients compared to 90 matched controls, inversely correlated with autoantibody levels, a disease-specific finding, not extrapolated from another condition. See Mitochondria & Metabolism.',
     citations: [
       {
         source: "Reduced Circulating MOTS-c Levels in Hashimoto's Thyroiditis Reflect Integrated Autoimmune and Metabolic Dysregulation: A Cross-Sectional Study",
@@ -534,10 +534,10 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
   {
     id: 'glossary-mtor',
     category: 'basicHealth',
-    title: 'mTOR',
+    title: 'MTOR',
     teaser: 'A central cellular pathway governing growth, metabolism, and how a cell decides whether to clean house or keep building.',
     summary:
-      'A central cellular signaling pathway that governs growth, metabolism, and autophagy (the cell\'s own internal cleanup process, see that entry). Real, general cell biology relevant to fasting, exercise, and aging for anyone, and a specific, documented factor in several of this Digest\'s own condition-specific findings, worth a look wherever it shows up as a named mechanism.',
+      'A central cellular signaling pathway that governs growth, metabolism, and autophagy (the cell\'s own internal cleanup process, see that entry). General cell biology relevant to fasting, exercise, and aging for anyone, and a specific, documented factor in several of this Digest\'s own condition-specific findings, worth a look wherever it shows up as a named mechanism.',
     citations: [],
     overallTier: 'strong',
   },
@@ -619,7 +619,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'ROS (Reactive Oxygen Species)',
     teaser: 'Chemically unstable molecules produced as a byproduct of normal cell activity, harmless in moderation, damaging in excess.',
     summary:
-      'Chemically reactive molecules containing oxygen, produced naturally as a byproduct of normal cellular activity (and mitochondrial energy production specifically). The body has its own real, built-in antioxidant systems to keep them in check under ordinary conditions. In excess, unchecked by those systems, they cause measurable cellular stress and damage, a real, recurring factor in several of this Digest\'s own condition-specific findings.',
+      'Chemically reactive molecules containing oxygen, produced naturally as a byproduct of normal cellular activity (and mitochondrial energy production specifically). The body has its own built-in antioxidant systems to keep them in check under ordinary conditions. In excess, unchecked by those systems, they cause measurable cellular stress and damage, a recurring factor in several of this Digest\'s own condition-specific findings.',
     citations: [],
     overallTier: 'strong',
   },
@@ -658,7 +658,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'T4 (Thyroxine)',
     teaser: 'The hormone the thyroid gland itself mainly produces, mostly a precursor, not the final active form.',
     summary:
-      'The primary hormone the thyroid gland itself produces and releases, in anyone with a functioning thyroid. T4 is mostly a precursor. It has to be converted into T3, the active form, by deiodinase enzymes elsewhere in the body (mainly the liver) before it can do most of its work, real, everyday endocrine physiology behind how the body actually uses thyroid hormone.',
+      'The primary hormone the thyroid gland itself produces and releases, in anyone with a functioning thyroid. T4 is mostly a precursor. It has to be converted into T3, the active form, by deiodinase enzymes elsewhere in the body (mainly the liver) before it can do most of its work, everyday endocrine physiology behind how the body actually uses thyroid hormone.',
     citations: [
       {
         source: 'Role of hepatic deiodinases in thyroid hormone homeostasis and liver metabolism, inflammation, and fibrosis (European Thyroid Journal)',
@@ -674,7 +674,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Tg (Thyroglobulin) & Anti-Tg Antibody',
     teaser: 'A protein the thyroid uses to store and build hormone, and, in Hashimoto\'s, one of the two antibody targets tracked on a lab panel.',
     summary:
-      'Thyroglobulin is a protein the thyroid gland uses as scaffolding to store and synthesize thyroid hormone. Anti-Tg antibodies, antibodies mistakenly targeting this protein, were the first evidence, discovered in 1956, that Hashimoto\'s was genuinely an autoimmune disease at all. TPO antibodies (a separate, later-identified target) are the more commonly tracked marker today, but Tg\'s own history is where this whole field of evidence actually began.',
+      'Thyroglobulin is a protein the thyroid gland uses as scaffolding to store and synthesize thyroid hormone. Anti-Tg antibodies, antibodies mistakenly targeting this protein, were the first evidence, discovered in 1956, that Hashimoto\'s was an autoimmune disease at all. TPO antibodies (a separate, later-identified target) are the more commonly tracked marker today, but Tg\'s own history is where this whole field of evidence actually began.',
     citations: [
       { source: 'Autoimmune thyroid disease: a review discussing the 1956 discovery and its significance', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7266799/' },
     ],
@@ -703,7 +703,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Tight Junction (Occludin & Claudin/CLDN2)',
     teaser: 'The physical seals between gut lining cells, and specific, named proteins that hold them shut.',
     summary:
-      'Physical protein structures that seal the spaces between individual gut lining cells, controlling what can and can\'t pass through the gut barrier, in anyone\'s digestive system. Occludin and claudin (including CLDN2 specifically) are two of the core proteins that make up these seals. CLDN2 is a direct, confirmed target of the vitamin D receptor, a real, specific mechanism connecting vitamin D intake to gut-barrier integrity.',
+      'Physical protein structures that seal the spaces between individual gut lining cells, controlling what can and can\'t pass through the gut barrier, in anyone\'s digestive system. Occludin and claudin (including CLDN2 specifically) are two of the core proteins that make up these seals. CLDN2 is a direct, confirmed target of the vitamin D receptor, a specific mechanism connecting vitamin D intake to gut-barrier integrity.',
     citations: [
       { source: 'Zhang et al. 2015, Scientific Reports: tight junction CLDN2 gene is a direct target of the vitamin D receptor', url: 'https://pubmed.ncbi.nlm.nih.gov/26212084/' },
     ],
@@ -731,7 +731,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Treg (Regulatory T Cell)',
     teaser: 'The immune cell type responsible for keeping the immune system from attacking the body itself.',
     summary:
-      'A specific subtype of T cell whose job is promoting immune tolerance, helping keep the immune system from attacking the body\'s own tissue, real, everyday immune housekeeping relevant to anyone\'s baseline immune balance. SCFAs from dietary fiber directly induce Treg activity in the gut, a real, food-controllable lever, and Treg levels show up as a specific, documented factor across several of this Digest\'s own condition-specific findings.',
+      'A specific subtype of T cell whose job is promoting immune tolerance, helping keep the immune system from attacking the body\'s own tissue, everyday immune housekeeping relevant to anyone\'s baseline immune balance. SCFAs from dietary fiber directly induce Treg activity in the gut, a food-controllable lever, and Treg levels show up as a specific, documented factor across several of this Digest\'s own condition-specific findings.',
     citations: [
       { source: 'Furusawa et al. 2013, Nature: commensal microbe-derived butyrate induces colonic Treg differentiation', url: 'https://pubmed.ncbi.nlm.nih.gov/24226770/' },
     ],
@@ -743,7 +743,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'TSH (Thyroid-Stimulating Hormone)',
     teaser: 'The hormone that tells the thyroid how hard to work, and the single most commonly ordered thyroid lab value.',
     summary:
-      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, in anyone\'s own endocrine system. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time, real, general lab-testing practice worth knowing regardless of the reason for the test.',
+      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, in anyone\'s own endocrine system. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time, general lab-testing practice worth knowing regardless of the reason for the test.',
     citations: [
       { source: 'Circadian and 30 minutes variations in serum TSH and thyroid hormones in normal subjects', url: 'https://pubmed.ncbi.nlm.nih.gov/716774/' },
     ],
@@ -756,7 +756,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'Visceral Fat',
     teaser: 'Fat stored deep around the internal organs, active tissue rather than passive storage.',
     summary:
-      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Real research finds it does genuinely complicated things: it drives real metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s own inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this Digest\'s own condition-specific findings.',
+      'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Research finds it does complicated things: it drives metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s own inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this Digest\'s own condition-specific findings.',
     citations: [],
     overallTier: 'moderate',
   },
@@ -781,7 +781,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Zonulin',
     teaser: 'The named protein responsible for how "leaky" the gut lining actually is, discovered by the same researcher who coined the term.',
-    summary: 'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. The physical mechanism behind "leaky gut", worth understanding as real, general gut-barrier physiology, whatever the reason someone\'s reading about it.',
+    summary: 'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. The physical mechanism behind "leaky gut", worth understanding as general gut-barrier physiology, whatever the reason someone\'s reading about it.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],

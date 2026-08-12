@@ -31,7 +31,7 @@ export const BIG_PICTURE_ENTRIES: DigestEntry[] = [
     id: 'bigpicture-the-morning-dose',
     category: 'hashimotos',
     title: 'The Morning Decision: A Pill, a Cup of Coffee, and Forty Years of Research',
-    teaser: 'The first choice of the day is already informed by a century of real food-industry history.',
+    teaser: 'The first choice of the day is already informed by a century of food-industry history.',
     summary:
       "She takes her levothyroxine with plain water, a habit that a century ago didn't even have a name to take. Levothyroxine itself didn't become the standard treatment until well into the 1970s, replacing decades of inconsistent desiccated animal thyroid (see History & Milestones). She waits before her coffee, not out of superstition but because a pharmacokinetic study found coffee taken alongside the dose cuts absorption by more than a quarter (see Labs & Medication Timing), the same reasoning behind why calcium and iron get the same hour-long buffer. None of this is arbitrary. Decades of dosing-consistency problems and absorption research, compressed into one small daily habit that takes about ten extra seconds to follow.",
     citations: [
