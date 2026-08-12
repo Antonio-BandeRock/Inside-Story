@@ -175,7 +175,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       { source: 'Polyglandular Autoimmune Syndrome Type II (StatPearls, NIH/NCBI Bookshelf)', url: 'https://www.ncbi.nlm.nih.gov/books/NBK525992/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-chronic-stress-hpa'],
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'body-adrenal-glands-structure-function'],
   },
   {
     id: 'organ-musculoskeletal',

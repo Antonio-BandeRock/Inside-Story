@@ -11,7 +11,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { PopoverSelect } from '../../components/PopoverSelect';
-import { colors } from '../../constants/colors';
+import { colors, popoverBackground } from '../../constants/colors';
 import { typography } from '../../constants/typography';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -39,6 +39,20 @@ import {
 // This page's own identity color -- see constants/colors.ts's own comment
 // on tabGarden for how it was chosen.
 const TAB_COLOR = colors.tabGarden;
+
+// A real, deliberately soft fill for every "primary action" button and the
+// active-toggle pill in this file, 2026-08-13, direct report: "make the
+// background of the Add a Harvest button be a little easier to read and
+// easier on the eyes. This green is a bit too much for the eyes to deal
+// with." Reuses the same lightened, fully-opaque tint `popoverBackground`
+// already provides for a PopoverSelect popup's own floating surface (see
+// its own comment in constants/colors.ts) rather than a flat, saturated
+// TAB_COLOR fill -- computed once at module scope rather than re-run at
+// every one of this file's five call sites. Every primaryButton in this
+// file already sets its own text color to `colors.background` (a dark
+// navy), which reads even better against this lighter tint than it did
+// against the old raw fill.
+const PRIMARY_BUTTON_BACKGROUND = popoverBackground(TAB_COLOR);
 
 type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog';
 
@@ -78,7 +92,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Harvest Log',
-        body: 'Log what you actually picked and how much. Anything still showing real, unused amount here shows up as a real, selectable "From Your Harvest" ingredient in every Food builder -- the same real nutrition/6-DFF scoring as any other reference food, since it’s tied to the same real food identity.',
+        body: 'Log what you actually picked, and how much, from something you already tracked as planted in Plots & Plantings -- if nothing shows up here to pick from, add a planting there first. Anything still showing real, unused amount here shows up as a real, selectable "From Your Harvest" ingredient in every Food builder -- the same real nutrition/6-DFF scoring as any other reference food, since it’s tied to the same real food identity.',
       },
     ],
   },
@@ -346,15 +360,22 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
     await loadPlantingsFor(plotId);
   }
 
-  // Actively picking a food for a planting: same real fix as
-  // HarvestLogLens's own pickingFood (see that lens' own comment for the
-  // full "VirtualizedLists nested inside a ScrollView" crash this avoids)
-  // -- the whole lens swaps to a plain, non-scrolling picker view rather
-  // than rendering FoodLookup as a descendant of the plot list's own
-  // ScrollView. Only reached while a food hasn't been picked yet -- once
-  // pendingFood is set, the per-plot "Save Planting" confirm card below
-  // (plain Text/View, no FlatList) is safe to render inline in the normal
-  // scrollable plot list.
+  // Actively picking a food for a planting: the same real "picker screen"
+  // fix SideBuilder.tsx's own pickerScreen/searching split already
+  // established, and the same real fix HarvestLogLens's OWN food-picking
+  // step needed too before it was redesigned 2026-08-13 to pick from
+  // already-tracked plantings instead (see that lens' own comment) -- the
+  // whole lens swaps to a plain, non-scrolling picker view rather than
+  // rendering FoodLookup as a descendant of the plot list's own ScrollView,
+  // avoiding the real "VirtualizedLists nested inside a ScrollView" crash
+  // FoodLookup's own header comment warns callers about. Only reached
+  // while a food hasn't been picked yet -- once pendingFood is set, the
+  // per-plot "Save Planting" confirm card below (plain Text/View, no
+  // FlatList) is safe to render inline in the normal scrollable plot list.
+  // Deliberately NOT redesigned the same way Harvest Log was: a planting
+  // genuinely does come from the whole food reference database (you plant
+  // a real food, full stop), it's only a HARVEST that should be scoped
+  // down to something already tracked as planted.
   if (addingPlantingToPlot !== null && !pendingFood) {
     return (
       <View style={styles.pickerScreen}>
@@ -432,7 +453,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                       <Text style={styles.bodyText}>Planting: {pendingFoodName || pendingFood.baseName}</Text>
                       <View style={styles.actionRow}>
                         <TouchableOpacity
-                          style={[styles.primaryButton, { backgroundColor: TAB_COLOR }]}
+                          style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
                           onPress={() => handleAddPlanting(plot.id)}
                         >
                           <Text style={styles.primaryButtonText}>Save Planting</Text>
@@ -482,7 +503,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                 style={[
                   styles.pill,
                   { borderColor: TAB_COLOR },
-                  newPlotLocationType === option.value ? { backgroundColor: TAB_COLOR } : null,
+                  newPlotLocationType === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
                 ]}
                 onPress={() => setNewPlotLocationType(option.value)}
               >
@@ -505,7 +526,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
             onChangeText={setNewPlotLight}
           />
           <View style={styles.actionRow}>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: TAB_COLOR }]} onPress={handleAddPlot}>
+            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleAddPlot}>
               <Text style={styles.primaryButtonText}>Save Plot</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setShowAddPlot(false)}>
@@ -528,29 +549,39 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
 
 function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   const [harvests, setHarvests] = useState<GardenHarvest[]>([]);
+  const [plantings, setPlantings] = useState<GardenPlanting[]>([]);
+  const [plotNameById, setPlotNameById] = useState<Record<string, string>>({});
   const [upcomingTasks, setUpcomingTasks] = useState<Awaited<ReturnType<typeof listUpcomingGardenTasks>>>([]);
-  const [pendingFood, setPendingFood] = useState<ResolvedFoodSelection | null>(null);
-  const [pendingFoodName, setPendingFoodName] = useState('');
+  // A harvest is only ever recorded FROM something already tracked as a
+  // real planting, not picked fresh from the whole food reference database
+  // -- redesigned 2026-08-13, direct request: "the Harvest isn't going to
+  // have anything to do with the Food categories until the harvest is
+  // created, and at that point the harvest is added to the available food
+  // in the food category list." selectedPlanting carries the real food
+  // identity (foodId/source/foodName) straight from that planting record,
+  // matching recordGardenHarvest's own already-existing plantingId/plotId
+  // params (real db.ts plumbing that already existed but this screen never
+  // actually used until now).
+  const [selectedPlanting, setSelectedPlanting] = useState<GardenPlanting | null>(null);
+  const [pickingPlanting, setPickingPlanting] = useState(false);
   const [quantity, setQuantity] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>('count');
   const [taskTitle, setTaskTitle] = useState('');
-  // Real, on-device-reported crash, fixed 2026-08-13: "VirtualizedLists
-  // should never be nested inside plain ScrollViews with the same
-  // orientation." FoodLookup's own InlineSelectList (a real FlatList) was
-  // rendered directly inside this lens's own page-level ScrollView,
-  // alongside the Recent Harvests/Upcoming Tasks cards -- FoodLookup's own
-  // header comment explicitly documents that it owns its own scrolling and
-  // was never meant to be nested this way (every other Food builder gives
-  // it its own real, non-ScrollView "picker screen" instead -- see
-  // SideBuilder.tsx's own pickerScreen/searching split). pickingFood swaps
-  // the WHOLE lens over to a plain, non-scrolling picker view while active,
-  // so FoodLookup's own FlatList is never a structural descendant of the
-  // page's ScrollView at all, matching that same established pattern.
-  const [pickingFood, setPickingFood] = useState(false);
 
   const load = useCallback(async () => {
-    const [harvestRows, taskRows] = await Promise.all([listGardenHarvests(30), listUpcomingGardenTasks(10)]);
+    const [harvestRows, plantingRows, plotRows, taskRows] = await Promise.all([
+      listGardenHarvests(30),
+      listGardenPlantings(),
+      listGardenPlots(),
+      listUpcomingGardenTasks(10),
+    ]);
     setHarvests(harvestRows);
+    // Failed/removed plantings were never a real harvest to begin with --
+    // still-growing AND already-harvested-once plantings both stay pickable,
+    // since a real plant (tomatoes, squash, beans) can keep producing across
+    // more than one harvest event in the same season.
+    setPlantings(plantingRows.filter((p) => p.status !== 'failed' && p.status !== 'removed'));
+    setPlotNameById(Object.fromEntries(plotRows.map((p) => [p.id, p.name])));
     setUpcomingTasks(taskRows);
   }, []);
 
@@ -561,20 +592,20 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
   );
 
   async function handleRecordHarvest() {
-    if (!pendingFood || !quantity || !unit) return;
+    if (!selectedPlanting || !quantity || !unit) return;
     await recordGardenHarvest({
-      foodId: pendingFood.foodId,
-      source: pendingFood.source,
-      foodName: pendingFoodName || pendingFood.baseName,
+      plantingId: selectedPlanting.id,
+      plotId: selectedPlanting.plotId,
+      foodId: selectedPlanting.foodId,
+      source: selectedPlanting.source,
+      foodName: selectedPlanting.foodName,
       harvestedAt: todayDateString(),
       quantity: Number(quantity),
       unit,
     });
-    setPendingFood(null);
-    setPendingFoodName('');
+    setSelectedPlanting(null);
     setQuantity(null);
     setUnit('count');
-    setPickingFood(false);
     await load();
   }
 
@@ -592,52 +623,63 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
     await load();
   }
 
-  // Actively picking a food: the entire lens becomes just this plain,
-  // non-scrolling picker view -- see pickingFood's own comment above for
-  // why this can never be a ScrollView (or a descendant of one).
-  if (pickingFood) {
-    return (
-      <View style={styles.pickerScreen}>
-        <TouchableOpacity onPress={() => setPickingFood(false)}>
-          <Text style={styles.linkText}>‹ Cancel</Text>
-        </TouchableOpacity>
-        <FoodLookup
-          tabColor={TAB_COLOR}
-          showNutrients={false}
-          allowHarvestPick={false}
-          onFoodResolved={(resolved) => {
-            setPendingFood(resolved);
-            setPendingFoodName(resolved.baseName);
-            setPickingFood(false);
-          }}
-        />
-      </View>
-    );
-  }
-
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       <View style={[styles.card, { borderColor: TAB_COLOR }]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Log a Harvest</Text>
-        {pendingFood ? (
+        {selectedPlanting ? (
           <>
-            <Text style={styles.bodyText}>{pendingFoodName || pendingFood.baseName}</Text>
+            <Text style={styles.bodyText}>
+              {selectedPlanting.foodName}
+              {plotNameById[selectedPlanting.plotId] ? ` -- from ${plotNameById[selectedPlanting.plotId]}` : ''}
+            </Text>
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Amount</Text>
               <PopoverSelect options={QUANTITY_OPTIONS} selected={quantity} onSelect={setQuantity} tabColor={TAB_COLOR} />
               <PopoverSelect options={HARVEST_UNIT_OPTIONS} selected={unit} onSelect={setUnit} tabColor={TAB_COLOR} />
             </View>
             <View style={styles.actionRow}>
-              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: TAB_COLOR }]} onPress={handleRecordHarvest}>
+              <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleRecordHarvest}>
                 <Text style={styles.primaryButtonText}>Save Harvest</Text>
               </TouchableOpacity>
-              <TouchableOpacity onPress={() => { setPendingFood(null); setPendingFoodName(''); }}>
+              <TouchableOpacity onPress={() => setSelectedPlanting(null)}>
                 <Text style={styles.linkText}>Cancel</Text>
               </TouchableOpacity>
             </View>
           </>
+        ) : pickingPlanting ? (
+          <>
+            {plantings.length === 0 ? (
+              <Text style={styles.captionText}>
+                Nothing tracked as planted yet. Add a planting in Plots &amp; Plantings first -- once something&apos;s actually
+                growing, it&apos;ll show up here to log a harvest from.
+              </Text>
+            ) : (
+              plantings.map((planting) => (
+                <TouchableOpacity
+                  key={planting.id}
+                  style={styles.plantingPickRow}
+                  onPress={() => {
+                    setSelectedPlanting(planting);
+                    setPickingPlanting(false);
+                  }}
+                >
+                  <Text style={styles.bodyText}>{planting.foodName}</Text>
+                  <Text style={styles.captionText}>
+                    {plotNameById[planting.plotId] ?? 'Unknown plot'} · {planting.status}
+                  </Text>
+                </TouchableOpacity>
+              ))
+            )}
+            <TouchableOpacity onPress={() => setPickingPlanting(false)}>
+              <Text style={styles.linkText}>Cancel</Text>
+            </TouchableOpacity>
+          </>
         ) : (
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: TAB_COLOR }]} onPress={() => setPickingFood(true)}>
+          <TouchableOpacity
+            style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+            onPress={() => setPickingPlanting(true)}
+          >
             <Text style={styles.primaryButtonText}>+ Add a Harvest</Text>
           </TouchableOpacity>
         )}
@@ -683,7 +725,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
             value={taskTitle}
             onChangeText={setTaskTitle}
           />
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: TAB_COLOR }]} onPress={handleAddTask}>
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleAddTask}>
             <Text style={styles.primaryButtonText}>Add</Text>
           </TouchableOpacity>
         </View>
@@ -700,9 +742,12 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { padding: 16, gap: 12 },
   // A plain, non-scrolling container for a lens' own "actively picking a
-  // food" state -- see HarvestLogLens' own pickingFood comment for why
-  // this can never be inside a ScrollView. flex: 1 (not the padded `body`
-  // above) so FoodLookup's own internal FlatLists get the real available
+  // food" state -- see PlotsAndPlantingsLens's own addingPlantingToPlot
+  // comment for why this can never be inside a ScrollView (Harvest Log no
+  // longer needs this at all, redesigned 2026-08-13 to pick from a real,
+  // small list of already-tracked plantings instead of FoodLookup). flex: 1
+  // (not the padded `body` above) so FoodLookup's own internal FlatLists
+  // get the real available
   // height to work with, matching SideBuilder.tsx's own pickerScreen.
   pickerScreen: { flex: 1, padding: 16, gap: 8 },
   card: {
@@ -734,6 +779,13 @@ const styles = StyleSheet.create({
   pillTextActive: { color: colors.background, fontWeight: '700' },
   expandedSection: { gap: 8, marginTop: 4 },
   plantingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  // A tappable row for picking a planting to log a harvest from -- a real,
+  // small list (a season's worth of plantings, never anywhere near the
+  // scale of the whole food reference database), so it renders as a plain
+  // `.map()` directly inside the lens's own ScrollView rather than needing
+  // a second FlatList-based picker screen the way FoodLookup's own results
+  // do.
+  plantingPickRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 2 },
   pendingCard: { gap: 8 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 4 },
   primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8 },

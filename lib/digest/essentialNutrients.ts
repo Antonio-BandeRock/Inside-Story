@@ -1255,6 +1255,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'Vitamin C Deficiency, StatPearls, National Library of Medicine', url: 'https://www.ncbi.nlm.nih.gov/books/NBK493187/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['body-adrenal-glands-structure-function'],
   },
   {
     id: 'vitaminc-deficiency-scurvy',

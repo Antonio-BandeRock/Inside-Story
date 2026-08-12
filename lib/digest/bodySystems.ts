@@ -78,11 +78,22 @@ import type { DigestEntry } from './types';
 // intake as something to have in place before conception rather than after;
 // plus a second entry on zinc's real, mechanistic role in male fertility,
 // again honestly reporting a genuinely mixed supplementation-trial verdict
-// alongside the deficiency mechanism itself. Real, honest, still-not-yet-
-// covered ground for a future pass: the adrenal glands in more depth,
-// beyond the existing Hashimoto's-specific APS-2 entry already covered in
-// this app's own Organ Systems research -- named directly rather than
-// silently left out, matching this whole Digest's own standing practice.
+// alongside the deficiency mechanism itself.
+//
+// A third real entry, same day, closes the last of the three gaps this
+// note used to name: the adrenal glands in real structural depth, beyond
+// the existing Hashimoto's-specific APS-2 entry already covered in this
+// app's own Organ Systems research and the cortisol/HPA-axis mechanism
+// already covered under Lifestyle & Environment. Covers what those two
+// existing entries assume but never actually state: the real cortex/
+// medulla split, the cortex's own three real zones ("Salt, Sugar, Sex" --
+// aldosterone, cortisol, DHEA), the medulla's genuinely separate, faster
+// catecholamine/fight-or-flight mechanism, and the real, shared vitamin C
+// dependency tying both halves together (the adrenal glands hold the
+// highest vitamin C concentration of any tissue in the body, a real
+// cofactor for both cortex and medulla hormone synthesis). Every one of
+// the three real gaps this file's own header comment originally named
+// (respiratory, reproductive, adrenal) is now covered.
 export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
   {
     id: 'body-systems-overview',
@@ -234,7 +245,7 @@ export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, well-established cardiac electrophysiology, with a real, current review specifically quantifying the combined-deficiency risk.',
-    relatedIds: ['potassium-tying-together', 'magnesium-tying-together', 'interaction-tying-together', 'body-tying-together'],
+    relatedIds: ['potassium-tying-together', 'magnesium-tying-together', 'interaction-tying-together', 'body-adrenal-glands-structure-function', 'body-tying-together'],
   },
   {
     id: 'body-digestive-organs',
@@ -263,7 +274,7 @@ export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
     citations: [],
     overallTier: 'moderate',
     stageNote: "A real synthesis connecting citations already given individually in this app's own Hormones, Lifestyle & Environment, and PCOS research, not a new external claim of its own.",
-    relatedIds: ['thyroid-hormones-overview', 'lifestyle-il6-deiodinase', 'pcos-insulin-resistance-mechanism', 'body-bones-teeth-skeleton', 'body-tying-together'],
+    relatedIds: ['thyroid-hormones-overview', 'lifestyle-il6-deiodinase', 'pcos-insulin-resistance-mechanism', 'body-bones-teeth-skeleton', 'body-adrenal-glands-structure-function', 'body-tying-together'],
   },
   {
     id: 'body-kidneys-liver-filtration',
@@ -382,6 +393,35 @@ export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     stageNote: "The deficiency mechanism itself is well documented. Tagged at the honesty of the weaker, genuinely mixed supplementation-trial evidence, per this app's own standing rule for reporting a real null finding alongside a real mechanism rather than only the more flattering half.",
     relatedIds: ['zinc-overview', 'zinc-tying-together', 'testosterone-overview-function', 'body-reproductive-egg-supply-vs-sperm-production', 'body-tying-together'],
+  },
+  {
+    id: 'body-adrenal-glands-structure-function',
+    category: 'basicHealth',
+    title: 'The Adrenal Glands Run Two Completely Different Real Jobs, Stacked as One Small Organ',
+    teaser: "Cortisol is only one of at least five real hormones these two walnut-sized glands make -- and the fastest of them isn't part of the slow, well-known stress-hormone axis at all.",
+    summary:
+      "This app's own research already covers cortisol repeatedly -- what chronic stress does to the HPA axis, why \"adrenal fatigue\" isn't a real diagnosis, and the specific autoimmune condition that can attack these glands directly alongside Hashimoto's. What hasn't been covered yet is what the adrenal glands themselves actually are and do, and it's a genuinely more layered structure than the cortisol story alone suggests. Each adrenal gland is really two separate organs sharing one small package: an outer cortex and an inner medulla, doing two real, different jobs through two genuinely different mechanisms. The cortex itself splits into three real zones, remembered in real clinical teaching by the mnemonic \"Salt, Sugar, Sex\": the outer zona glomerulosa makes aldosterone, the mineralocorticoid that directly regulates sodium and potassium balance and, through that, blood pressure, already covered from the electrolyte side in this app's own cardiovascular research above; the middle zona fasciculata makes cortisol itself, the glucocorticoid already covered in depth via the HPA-axis research; and the inner zona reticularis makes DHEA and related androgens. The medulla, at the very center, does something genuinely different from all three: it releases epinephrine and norepinephrine directly into the bloodstream in response to the sympathetic nervous system, the real, fast \"fight or flight\" response -- a matter of seconds, not the cortisol axis's own slower, hours-long hormonal signaling. One real, shared nutrient connection ties both halves of this organ together: the adrenal glands hold the highest concentration of vitamin C of any tissue in the human body, a real, direct cofactor requirement for both cortisol/DHEA synthesis in the cortex and catecholamine synthesis in the medulla, with real, controlled research showing ACTH (the pituitary signal that tells the adrenal glands to release cortisol) directly triggers measurable vitamin C secretion from the gland at the same time. Two real hormone systems, running on two real timescales, sharing one real nutrient dependency.",
+    citations: [
+      {
+        source: 'Dutt M, Wehrle CJ, Jialal I 2023, Physiology, Adrenal Gland, StatPearls, National Library of Medicine',
+        url: 'https://www.ncbi.nlm.nih.gov/books/NBK537260/',
+      },
+      {
+        source: 'Padayatty SJ, et al. 2007, American Journal of Clinical Nutrition 86(1):145-149: "Human adrenal glands secrete vitamin C in response to adrenocorticotrophic hormone"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/17616774/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Settled anatomy and physiology throughout -- the real value here is the missing structural layer underneath this app\'s own already-cited cortisol, aldosterone/electrolyte, and adrenal-autoimmunity research, not a new or contested claim of its own.',
+    relatedIds: [
+      'organ-adrenal-aps2',
+      'advocacy-cortisol-testing',
+      'lifestyle-chronic-stress-hpa',
+      'body-cardiovascular-electrolytes',
+      'vitaminc-overview',
+      'body-endocrine-crosstalk',
+      'body-tying-together',
+    ],
   },
   {
     id: 'body-tying-together',

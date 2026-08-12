@@ -374,17 +374,20 @@ export const colors = {
   // Garden's own identity color, changed 2026-08-13, direct request:
   // "let's try using 'Forest Green' (Hex #228B22)" -- a deliberate,
   // real-world color choice, not another member of the computed
-  // hue-spread pastel formula every other tab color above uses. Real,
-  // honest tradeoff worth naming directly rather than silently glossing
-  // over: this is meaningfully darker/more saturated than every other tab
-  // color, and its own real luminance-contrast ratio against
-  // `menuSurface` (computed via the same WCAG relative-luminance formula
-  // this whole palette is otherwise held to) comes out to roughly 1.6:1 --
-  // well below the 3:1 floor every OTHER tab color here clears. Left as
-  // the person's own explicit, named choice rather than silently
-  // adjusted or reverted; worth a real on-device look and a second pass
-  // if it reads as hard to see once actually seen.
-  tabGarden: '#228B22',
+  // hue-spread pastel formula every other tab color above uses. That
+  // first value's own comment named a real, honest tradeoff and predicted
+  // exactly this: "meaningfully darker/more saturated than every other tab
+  // color... roughly 1.6:1 [against menuSurface]... worth a real on-device
+  // look and a second pass if it reads as hard to see once actually
+  // seen." Confirmed the same day, direct report: "This green is a bit
+  // too much for the eyes to deal with... I still think it should be a
+  // green color but one that isn't so intense." Replaced with Emerald
+  // (#50C878), another real, named color rather than a computed one --
+  // same green family, genuinely softer and brighter rather than dark and
+  // saturated. Real, checked improvement, not just a guess: contrast
+  // against `menuSurface` rises from ~1.6:1 to ~3.3:1, clearing the same
+  // 3:1 floor every other tab color here is held to.
+  tabGarden: '#50C878',
 } as const;
 
 // "#RRGGBB" -> "rgba(r, g, b, alpha)" -- used anywhere a tab's own identity

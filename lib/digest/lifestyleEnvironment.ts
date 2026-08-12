@@ -174,7 +174,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       { source: 'Stephens & Wand 2012, Alcohol Research: Current Reviews: stress and the HPA axis (NIAAA)', url: 'https://pubmed.ncbi.nlm.nih.gov/23584113/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['lifestyle-alcohol-advisory', 'mito-exercise-cortisol'],
+    relatedIds: ['lifestyle-alcohol-advisory', 'mito-exercise-cortisol', 'body-adrenal-glands-structure-function'],
   },
   {
     id: 'lifestyle-il6-deiodinase',

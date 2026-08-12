@@ -296,7 +296,7 @@ export const SELF_ADVOCACY_ENTRIES: DigestEntry[] = [
       { source: "Kalra S, Dhingra A, Kapoor N 2025: Adrenal Asthenia (Journal of the Pakistan Medical Association)", url: 'https://pubmed.ncbi.nlm.nih.gov/40143493/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['organ-adrenal-aps2', 'lifestyle-chronic-stress-hpa'],
+    relatedIds: ['organ-adrenal-aps2', 'lifestyle-chronic-stress-hpa', 'body-adrenal-glands-structure-function'],
   },
   {
     id: 'advocacy-elimination-protocol-exception',
