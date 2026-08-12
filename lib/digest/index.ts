@@ -62,7 +62,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260813180000';
+export const PURPLE_DIGEST_VERSION = '20260813190000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -361,7 +361,13 @@ export const DIGEST_CATEGORY_META: {
   // header comment.
   {
     key: 'homeGardening',
-    label: 'Home Gardening',
+    // Renamed from "Home Gardening" to "Gardening", 2026-08-13, direct
+    // request -- key stays 'homeGardening' unchanged throughout (every
+    // entry in lib/digest/homeGardening.ts, DIGEST_CATEGORY_KEYS, and
+    // every classifier/help lookup keyed on it), the same "internal
+    // identifiers stay stable, only the shown name changes" precedent
+    // this whole build has already used for several builders.
+    label: 'Gardening',
     icon: 'leaf-outline',
     description: "Growing even a modest amount of your own food is a real, documented way to cut a grocery bill and eat fresher produce -- what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
   },

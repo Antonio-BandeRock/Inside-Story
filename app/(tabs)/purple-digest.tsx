@@ -333,7 +333,7 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   // food at home as a real, practical way to subsidize grocery cost. See
   // homeGardening.ts's own header comment.
   homeGardening: {
-    heading: 'Home Gardening',
+    heading: 'Gardening',
     body: "Real, cited guidance on growing fresh food at home, organized so it's actually usable in whichever climate someone lives in. Covers the real economics of what a home garden saves, how to find and read a growing zone (the USDA Plant Hardiness Zone Map plus a short note on other countries' own systems), what to plant in four real climate bands from short-season cold to true tropical, growing food in containers with no yard at all, which crops return the most grocery value, the easiest crops for a first garden, real ways to extend a growing season, a measured freshness benefit over shipped produce, a real soil-safety caution for urban soil, and a direct link to this app's own Earth Matters pollinator research -- growing even a small amount of food at home is a real, individual-level way to act on several of that category's own larger findings.",
   },
 };
@@ -1429,19 +1429,38 @@ export default function PurpleDigestScreen() {
       .filter((key): key is DigestCategoryKey => Boolean(key)),
   );
 
-  // Basic Health always leads (matches Free-tier visibility and its own
-  // established front-of-picker precedent), then every condition the
-  // person actually has, in their own already-established build order, then
-  // every remaining condition -- real, fewer taps to reach a condition
-  // someone actually tracks, without hiding or removing anything else.
+  // Reordered 2026-08-13, direct request: "move Earth Matters and Home
+  // Gardening up to the top with Basic Health and Search All. Keep Search
+  // All in the top left, followed by Basic Health, then Earth Matters, then
+  // Gardening..., and then the conditions in alphabetical order with the
+  // ones selected in the profile as their own top group, also alphabetical
+  // within it." Basic Health/Earth Matters/Gardening are each a real,
+  // fixed lookup rather than a filter -- there's exactly one of each, no
+  // sorting needed. Every other real category (all 19 conditions,
+  // Hashimoto's included -- no longer hardcoded second) is split into the
+  // person's own selected conditions and everything else, each block
+  // independently alphabetized by its own real display label rather than
+  // hand-ordered, so this stays correct automatically if a condition's
+  // name or the roster itself ever changes.
   const basicHealthMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'basicHealth')!;
-  const pinnedConditionMetas = DIGEST_CATEGORY_META.filter(
-    (meta) => meta.key !== 'basicHealth' && pinnedDigestKeys.has(meta.key),
+  const earthMattersMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'earthMatters')!;
+  const gardeningMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'homeGardening')!;
+  const conditionMetas = DIGEST_CATEGORY_META.filter(
+    (meta) => meta.key !== 'basicHealth' && meta.key !== 'earthMatters' && meta.key !== 'homeGardening',
   );
-  const otherConditionMetas = DIGEST_CATEGORY_META.filter(
-    (meta) => meta.key !== 'basicHealth' && !pinnedDigestKeys.has(meta.key),
-  );
-  const orderedCategoryMetas = [basicHealthMeta, ...pinnedConditionMetas, ...otherConditionMetas];
+  const pinnedConditionMetas = conditionMetas
+    .filter((meta) => pinnedDigestKeys.has(meta.key))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  const otherConditionMetas = conditionMetas
+    .filter((meta) => !pinnedDigestKeys.has(meta.key))
+    .sort((a, b) => a.label.localeCompare(b.label));
+  const orderedCategoryMetas = [
+    basicHealthMeta,
+    earthMattersMeta,
+    gardeningMeta,
+    ...pinnedConditionMetas,
+    ...otherConditionMetas,
+  ];
 
   // 'search' IS one of these tiles, leading the list -- 2026-08-08, a real
   // correction of an in-between attempt this same day. The first pass had

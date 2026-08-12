@@ -242,17 +242,19 @@ const CARD_ROW_HEIGHT = CARD_ITEM_PADDING_VERTICAL * 2 + ICON_PILL_SIZE + CARD_I
 // renders in the same grid slot sequence right after them).
 const CARD_GRID_COLUMNS = 3;
 const ITEMS_BEFORE_INFO = TAB_ROUTES.length + 1;
-// Info always gets its own row entirely to itself, centered in the middle
-// column -- computed from the real item count, not a hardcoded guess, so
-// this stays correct regardless of how many real tabs TAB_ROUTES ends up
-// carrying (confirmed 2026-08-13, adding Garden as the 9th tab, which
-// changed this from a 1-spacer to a 3-spacer case): first pad out whatever's
-// left of Info's own would-be shared row with blank items, then one more
-// blank to open a genuinely fresh row and land Info in its own middle
-// column (see the render below for where these blanks actually get drawn).
-const INFO_ROW_PAD_COUNT = (CARD_GRID_COLUMNS - (ITEMS_BEFORE_INFO % CARD_GRID_COLUMNS)) % CARD_GRID_COLUMNS;
-const INFO_BLANK_SPACER_COUNT = INFO_ROW_PAD_COUNT + 1;
-const CARD_ROW_COUNT = Math.ceil((ITEMS_BEFORE_INFO + INFO_BLANK_SPACER_COUNT + 1) / CARD_GRID_COLUMNS);
+// Info renders immediately after Profile, no blank spacers -- 2026-08-13,
+// direct request: "Move the Info icon up one row so it is in the middle
+// spot, just to the right of the Profile icon." With 9 real tabs, Profile
+// (item index 9, 0-indexed) lands at column 0 of its own row (9 % 3 = 0),
+// so the very next item -- Info, with nothing padded in between -- falls
+// naturally into column 1, the middle slot of that same row, immediately
+// to Profile's right. Computed from the real item count rather than
+// hardcoded, so this keeps landing correctly if TAB_ROUTES' own length
+// ever changes to something else where Profile isn't at column 0 -- in
+// that case Info simply continues on directly from wherever Profile fell,
+// same as any other real grid item, rather than always forcing a shared
+// row.
+const CARD_ROW_COUNT = Math.ceil((ITEMS_BEFORE_INFO + 1) / CARD_GRID_COLUMNS);
 const CARD_PADDING_VERTICAL = 4; // matches `card`'s own paddingVertical below, top + bottom
 const CARD_HEIGHT = CARD_ROW_COUNT * CARD_ROW_HEIGHT + CARD_PADDING_VERTICAL * 2;
 
@@ -629,19 +631,12 @@ export function TabHub() {
               </Text>
             </TouchableOpacity>
 
-            {/* INFO_BLANK_SPACER_COUNT non-interactive spacers -- pads out
-                Info's own would-be shared row, then opens a genuinely fresh
-                one, so Info always lands centered alone on its own row
-                regardless of how many real tabs came before it (see that
-                constant's own comment above for the math). Was a single,
-                hardcoded spacer before Garden's addition as TAB_ROUTES'
-                9th tab changed the real remainder from 0 to 1 -- computed
-                now instead of guessed again. */}
-            {Array.from({ length: INFO_BLANK_SPACER_COUNT }).map((_, index) => (
-              <View key={`info-spacer-${index}`} style={styles.item} pointerEvents="none" />
-            ))}
-            {/* Last slot -- centered alone on its own final row (see the
-                blank spacers just above). Opens the help sheet for whichever page
+            {/* No blank spacers -- 2026-08-13, direct request, Info moved to
+                sit immediately right of Profile in the middle column of
+                Profile's own row, rather than centered alone on its own
+                final row (see CARD_ROW_COUNT's own comment above for why
+                this lands there with zero padding needed). */}
+            {/* Opens the help sheet for whichever page
                 is currently open (see CurrentPageHelp) -- lets someone
                 check "what does this page do" from the same picker they'd
                 use to navigate, without first closing it and hunting for

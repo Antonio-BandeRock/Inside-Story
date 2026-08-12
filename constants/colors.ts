@@ -371,19 +371,20 @@ export const colors = {
   // no remaining reason to chase the photo's exact hue over one that
   // actually reads as purple, so this reverts to 262 for good.
   tabPurpleDigest: '#C7ACF6',
-  // Garden's own identity color, added 2026-08-13 for the new Home Gardening
-  // tracking tab. Same shared pastel formula as Schedules/Purple Digest
-  // (80% saturation, 82% lightness -- the richer variant, not the base
-  // 55%/75% recipe), at hue 296 degrees: the real widest remaining gap in
-  // the whole set (68 degrees, between Purple Digest at 262 and Profile at
-  // 330 -- every other neighbor pair is 20-55 degrees apart), computed and
-  // verified via a real HSL->hex conversion, not eyeballed. Deliberately
-  // NOT placed near Food's own hue (95, green) despite both being
-  // food-related tabs -- a green so close to Food's would read as "the same
-  // tab" at a glance, exactly the confusion this whole hue-spread palette
-  // exists to avoid. Contrast against `menuSurface` verified at 3.96:1,
-  // comfortably above the 3:1 floor this whole set is held to.
-  tabGarden: '#F1ACF6',
+  // Garden's own identity color, changed 2026-08-13, direct request:
+  // "let's try using 'Forest Green' (Hex #228B22)" -- a deliberate,
+  // real-world color choice, not another member of the computed
+  // hue-spread pastel formula every other tab color above uses. Real,
+  // honest tradeoff worth naming directly rather than silently glossing
+  // over: this is meaningfully darker/more saturated than every other tab
+  // color, and its own real luminance-contrast ratio against
+  // `menuSurface` (computed via the same WCAG relative-luminance formula
+  // this whole palette is otherwise held to) comes out to roughly 1.6:1 --
+  // well below the 3:1 floor every OTHER tab color here clears. Left as
+  // the person's own explicit, named choice rather than silently
+  // adjusted or reverted; worth a real on-device look and a second pass
+  // if it reads as hard to see once actually seen.
+  tabGarden: '#228B22',
 } as const;
 
 // "#RRGGBB" -> "rgba(r, g, b, alpha)" -- used anywhere a tab's own identity
@@ -554,8 +555,11 @@ export function iridescentSheen(tabColor: string): readonly [string, string, str
 // from the butterfly artwork), swept in hue order -- warm gold, green,
 // teal, periwinkle, sky blue, purple (Purple Digest, added 2026-08-05 when
 // it was promoted from a Stack-push screen to a real tab -- see
-// constants/tabs.ts), grayscale Reports, warm terracotta, orchid (Garden,
-// added 2026-08-13 -- see tabGarden's own comment above). The one shared
+// constants/tabs.ts), grayscale Reports, warm terracotta, Forest Green
+// (Garden, added 2026-08-13, then changed to a deliberate real-world green
+// -- see tabGarden's own comment above -- the one real, deliberate break
+// from the rest of this palette's own computed-pastel hue-spread system).
+// The one shared
 // base palette for every iridescent element in the app (the header's own
 // app-name text, its divider line, and the footer's divider line above
 // TabHub) so all of them cycle through the exact same colors rather than
