@@ -310,6 +310,7 @@ export function FoodLookup({
   initialCategory = '',
   initialSubcategory = null,
   allowedCategories,
+  allowedSubcategories,
 }: {
   tabColor: string;
   // An optional page-level heading above the Category step (e.g. Food's
@@ -378,6 +379,21 @@ export function FoodLookup({
   // general-purpose "look up any food" tool, deliberately never passes
   // this and keeps seeing the full list.
   allowedCategories?: string[];
+  // A real, finer-grained companion to allowedCategories -- 2026-08-13, for
+  // Food's own new Beverage subtype picker (see food.tsx's own comment):
+  // "Juices & Nectars" needs Bev restricted down to just its own Juice
+  // subcategory, not every real Bev subcategory (Water, Tea, Coffee, etc.),
+  // and "Hydration & Wellness" needs a genuinely different, narrower subset
+  // of that same category's own subcategories (Water, Sports & Energy
+  // Drinks) -- allowedCategories alone can only restrict at the CATEGORY
+  // level, not this one level deeper. Keyed by category code, restricting
+  // that category's own subcategory list to only the given values when
+  // present; a category with no entry here (or no real subcategories at
+  // all, e.g. Brewing) is completely unaffected. Same "read once at mount,
+  // never a live-changing controlled prop" convention as allowedCategories
+  // above -- undefined (the default) means every real subcategory stays
+  // offered, so every existing caller is unaffected.
+  allowedSubcategories?: Partial<Record<string, string[]>>;
 }) {
   const [categories, setCategories] = useState<string[]>([]);
   const [category, setCategory] = useState(initialCategory);
@@ -584,11 +600,15 @@ export function FoodLookup({
     let cancelled = false;
     getReferenceSubcategories(category).then((rows) => {
       if (cancelled) return;
-      setSubcategories(rows);
+      const allowed = allowedSubcategories?.[category];
+      setSubcategories(allowed ? rows.filter((row) => allowed.includes(row)) : rows);
     });
     return () => {
       cancelled = true;
     };
+    // allowedSubcategories is read once per category the same way
+    // allowedCategories is read once at mount -- a fixed restriction, not a
+    // live-changing controlled prop.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [category]);
 

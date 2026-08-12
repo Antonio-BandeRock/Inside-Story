@@ -36,6 +36,75 @@ import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import type { BeverageSubtypeKey } from './BeverageSubtypePicker';
+
+// Real, verified restrictions per real subtype, 2026-08-13 -- see
+// BeverageSubtypePicker.tsx's own header comment for the request behind
+// this. Every category/subcategory combination here was checked directly
+// against the live reference database before being written (not guessed):
+// three of the five (Infusions & Brews, Hydration & Wellness, Performance
+// & Protein) originally would have shown almost nothing, since the real
+// rows behind them (all of Bev's own Tea/Coffee/Protein & Meal Replacement
+// subcategories, most of Water, most of Brewing) were sitting hidden
+// database-wide -- confirmed genuinely legitimate products (real teas,
+// coffees, bottled waters, protein powders, sports drinks), then unhidden
+// as a real, direct part of this same change (see REFERENCE_DB_VERSION's
+// own bump the same day).
+//
+// allowedCategories/allowedSubcategories are read once per FoodLookup
+// mount, same as that component's own initialCategory/initialSubcategory --
+// safe to hold as one plain object per subtype rather than recomputing,
+// since a subtype never changes mid-session (see BeverageBuilder's own
+// prop comment).
+//
+// initialCategory/initialSubcategory pre-resolve a step outright whenever
+// exactly one real choice exists for it (Juices & Nectars: only Bev, only
+// Juice -- both steps skip straight to searching; Cocktails & Mixology:
+// only Alcohol, but 3 real subcategory choices, so only the Category step
+// skips). Where two real categories are both genuinely valid (Infusions &
+// Brews: Bev vs. Brewing; Performance & Protein: Bev vs. SupplementPowder),
+// initialCategory is deliberately left blank so the person still picks
+// between them, now correctly narrowed to just those two options.
+const BEVERAGE_SUBTYPE_CONFIG: Record<
+  BeverageSubtypeKey,
+  {
+    allowedCategories: string[];
+    allowedSubcategories?: Partial<Record<string, string[]>>;
+    initialCategory: string;
+    initialSubcategory: string | null;
+  }
+> = {
+  cocktailsMixology: {
+    allowedCategories: ['Alcohol'],
+    allowedSubcategories: { Alcohol: ['Spirits & Liqueurs', 'Wine & Champagne', 'Other'] },
+    initialCategory: 'Alcohol',
+    initialSubcategory: null,
+  },
+  infusionsBrews: {
+    allowedCategories: ['Bev', 'Brewing'],
+    allowedSubcategories: { Bev: ['Tea', 'Coffee'] },
+    initialCategory: '',
+    initialSubcategory: null,
+  },
+  juicesNectars: {
+    allowedCategories: ['Bev'],
+    allowedSubcategories: { Bev: ['Juice'] },
+    initialCategory: 'Bev',
+    initialSubcategory: 'Juice',
+  },
+  hydrationWellness: {
+    allowedCategories: ['Bev'],
+    allowedSubcategories: { Bev: ['Water', 'Sports & Energy Drinks'] },
+    initialCategory: 'Bev',
+    initialSubcategory: null,
+  },
+  performanceProtein: {
+    allowedCategories: ['Bev', 'SupplementPowder'],
+    allowedSubcategories: { Bev: ['Protein & Meal Replacement'] },
+    initialCategory: '',
+    initialSubcategory: null,
+  },
+};
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
 // scrollable-box treatment, since this is a short, fixed set (unlike
@@ -458,10 +527,20 @@ export function BeverageBuilder({
   // except this never marks anything as an edit -- finishBeverage always
   // creates a genuinely NEW beverage from a favorite.
   fromFavoriteId,
+  // Set by app/(tabs)/food.tsx once the person has picked a real answer on
+  // BeverageSubtypePicker's own screen -- 2026-08-13, see that file's own
+  // header comment. Undefined for the editBeverageId/fromFavoriteId entry
+  // points (food.tsx's own render switch skips the subtype picker outright
+  // for those two, so this builder falls back to the full, unscoped
+  // BEVERAGE_BUILDER_CATEGORIES exactly as it always has) -- editing or
+  // reusing something that already exists is never the moment to ask "what
+  // kind of beverage is this."
+  subtype,
 }: {
   tabColor: string;
   editBeverageId?: string;
   fromFavoriteId?: string;
+  subtype?: BeverageSubtypeKey;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -594,9 +673,18 @@ export function BeverageBuilder({
   // has several ingredients from the same category (several vegetables,
   // say), and re-picking "Vegetables" every single time was real,
   // needless friction. Blank until the first food ever resolves, so the
-  // very first ingredient still starts at a genuinely blank Category list.
-  const [lastCategory, setLastCategory] = useState('');
-  const [lastSubcategory, setLastSubcategory] = useState<string | null>(null);
+  // very first ingredient still starts at a genuinely blank Category list --
+  // UNLESS a real subtype was chosen (see BEVERAGE_SUBTYPE_CONFIG's own
+  // comment above), in which case the very first ingredient starts already
+  // scoped to that subtype's own real category/subcategory instead of
+  // blank. A real lazy initializer (not a plain literal), since it only
+  // needs to run once, at this component's own first render -- subtype
+  // itself never changes for the life of one BeverageBuilder instance
+  // (food.tsx always mounts a fresh one per subtype choice).
+  const [lastCategory, setLastCategory] = useState(() => (subtype ? BEVERAGE_SUBTYPE_CONFIG[subtype].initialCategory : ''));
+  const [lastSubcategory, setLastSubcategory] = useState<string | null>(() =>
+    subtype ? BEVERAGE_SUBTYPE_CONFIG[subtype].initialSubcategory : null,
+  );
 
   // Loads an existing beverage's real data in place of the blank-builder
   // defaults above, 2026-08-01 -- runs once per editBeverageId. beverage_ingredients
@@ -1399,7 +1487,8 @@ export function BeverageBuilder({
             topReserve={searching ? 0 : SUMMARY_CARD_HEIGHT}
             initialCategory={lastCategory}
             initialSubcategory={lastSubcategory}
-            allowedCategories={BEVERAGE_BUILDER_CATEGORIES}
+            allowedCategories={subtype ? BEVERAGE_SUBTYPE_CONFIG[subtype].allowedCategories : BEVERAGE_BUILDER_CATEGORIES}
+            allowedSubcategories={subtype ? BEVERAGE_SUBTYPE_CONFIG[subtype].allowedSubcategories : undefined}
           />
         </View>
       </View>

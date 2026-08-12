@@ -9,6 +9,7 @@ import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { BakedGoodsBuilder } from '../../components/BakedGoodsBuilder';
 import { BeverageBuilder } from '../../components/BeverageBuilder';
+import { BeverageSubtypePicker, type BeverageSubtypeKey } from '../../components/BeverageSubtypePicker';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
 import { HandheldsBuilder } from '../../components/HandheldsBuilder';
 import { MealBuilder } from '../../components/MealBuilder';
@@ -359,6 +360,17 @@ export default function FoodScreen() {
   }>();
   const [lens, setLens] = useState<FoodLens>('mealBuilder');
   const activeLensLabel = FOOD_LENS_FULL_NAMES[lens];
+  // Which real answer, if any, was given on BeverageSubtypePicker's own
+  // screen -- 2026-08-13, see that component's own header comment for the
+  // full request. null means "haven't asked yet this visit," so the
+  // Beverages lens shows the picker before BeverageBuilder itself ever
+  // mounts (see the render switch below). Reset to null in the LensHub
+  // onSelect handler below, same as every other piece of "which lens am I
+  // really in" state on this screen -- a fresh pick of Beverages from the
+  // menu always asks again, matching this whole app's own "never an
+  // instant resume of whatever was last open" convention (Purple Digest's
+  // Basic Health tree does the identical reset on its own fresh arrival).
+  const [beverageSubtype, setBeverageSubtype] = useState<BeverageSubtypeKey | null>(null);
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   useFocusEffect(
@@ -845,7 +857,32 @@ export default function FoodScreen() {
             // BeverageBuilder is a direct adaptation of SideBuilder (see
             // that file's own top comment for why Side, not Salad/Smoothie)
             // -- same layout-ownership reasoning applies here too.
-            <BeverageBuilder tabColor={TAB_COLOR} editBeverageId={editBeverageId} fromFavoriteId={fromBeverageFavoriteId} />
+            //
+            // 2026-08-13: a real "what kind of beverage" question, via
+            // BeverageSubtypePicker, sits in front of BeverageBuilder
+            // itself now -- but only for a genuinely fresh arrival at this
+            // lens. editBeverageId/fromBeverageFavoriteId (editing or
+            // reusing something that already exists) skip it outright,
+            // matching every other builder's own identical deep-link
+            // convention. Two of the picker's own seven real options
+            // (Smoothies, Fermentation) don't lead to a beverageSubtype at
+            // all -- BeverageSubtypePicker's own onPress calls setLens
+            // directly for those, so this branch is simply never reached
+            // for them; this component just needs to render the picker
+            // until a real "stay in Beverage Builder" answer sets one.
+            editBeverageId || fromBeverageFavoriteId ? (
+              <BeverageBuilder tabColor={TAB_COLOR} editBeverageId={editBeverageId} fromFavoriteId={fromBeverageFavoriteId} />
+            ) : beverageSubtype ? (
+              <BeverageBuilder tabColor={TAB_COLOR} subtype={beverageSubtype} />
+            ) : (
+              <BeverageSubtypePicker
+                tabColor={TAB_COLOR}
+                onPick={(choice) => {
+                  if (choice.kind === 'redirect') setLens(choice.lens);
+                  else setBeverageSubtype(choice.key);
+                }}
+              />
+            )
           ) : lens === 'snackBuilder' ? (
             // SnackBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment for why Side, not Salad/Smoothie) --
@@ -897,6 +934,12 @@ export default function FoodScreen() {
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);
+          // A fresh pick of Beverages always asks "what kind" again --
+          // see beverageSubtype's own comment above. Reset unconditionally
+          // on every pick (not just when key === 'beverageBuilder'), the
+          // simplest way to guarantee it's never stale the next time this
+          // lens IS picked again.
+          setBeverageSubtype(null);
         }}
       />
     </View>

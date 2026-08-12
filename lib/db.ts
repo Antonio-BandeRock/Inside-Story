@@ -600,6 +600,32 @@ async function resolveEffectiveUsdaOnly(category: string, subcategory: string | 
   // measured, not noise. So for this one specific subcategory, forcing
   // usdaOnly only throws away real, wanted variety for no benefit.
   if (category === 'Bev' && subcategory === 'Juice') return false;
+  // Same exact bug, checked PROACTIVELY 2026-08-13 rather than waiting for
+  // a report -- this file's own standing practice by now, six real
+  // categories deep. Directly prompted by unhiding Bev's own Tea/Coffee/
+  // Water/Protein & Meal Replacement subcategories the same day (see
+  // REFERENCE_DB_VERSION's own bump and BeverageSubtypePicker.tsx): Bev as
+  // a whole category clearly has real USDA coverage, so without this,
+  // resolveEffectiveUsdaOnly's own default would have silently crushed
+  // every one of these back down to USDA-only, undoing most of what just
+  // got unhidden -- confirmed via direct query before writing this: only
+  // 25 of 67 real Tea rows, 11 of 52 Coffee, and 17 of 133 Water (mostly
+  // France_Ciqual's own 89 real mineral-water rows) are USDA-sourced.
+  // Deliberately per-subcategory, not a blanket Bev bypass -- the REST of
+  // Bev (Soft Drinks, Dairy & Blended, Other, all still fully hidden as of
+  // this same day, a real, separate, deliberate curation call left
+  // untouched here) still gets the real "Spinach x7" duplicate-avoidance
+  // usdaOnly exists for, the moment any of it is unhidden later.
+  if (
+    category === 'Bev' &&
+    (subcategory === 'Tea' ||
+      subcategory === 'Coffee' ||
+      subcategory === 'Water' ||
+      subcategory === 'Protein & Meal Replacement' ||
+      subcategory === 'Sports & Energy Drinks')
+  ) {
+    return false;
+  }
   // Same exact bug, same day, reported directly right after PantryStaples
   // shipped: "I have the new category, but only 7 rows of data in the
   // app... Rows in the database are not showing up here for a reason."
@@ -686,6 +712,24 @@ async function resolveEffectiveUsdaOnly(category: string, subcategory: string | 
   // measuring, say, "Macaroni and cheese, box mix" are genuinely
   // independent real products, not "Spinach x7"-style near-duplication.
   if (category === 'CommercialPremade') return false;
+  // A real, PRE-EXISTING instance of this bug, found 2026-08-13 not by a
+  // report but by checking this whole function's own coverage while adding
+  // the Bev-specific bypasses just above, for the exact same reason
+  // Alcohol's own equivalent trap was found 2026-08-02: Brewing genuinely
+  // had ZERO USDA rows when the original comment at this file's own top
+  // ("Brewing... has ZERO USDA rows at all") was written, but that stopped
+  // being true once real USDA rows were added directly to Brewing during
+  // the same-day 2026-08-02 audit build-out (the "Beverages, coffee"/
+  // "Beverages, tea"/etc. family) -- silently flipping hasUsdaCoverage
+  // ('Brewing') from false to true with no code change to notice, the
+  // identical invisible-runtime-recomputation trap Alcohol already hit.
+  // Confirmed via direct query before writing this: only 28 of 102 real,
+  // visible Brewing rows are USDA-sourced -- the other 74 (Canada_CNF,
+  // France_Ciqual, Germany_BLS, Japan_MEXT, UK_CoFID, Australia_AFCD) have
+  // been silently invisible this whole time. Safe to bypass for the same
+  // reason as every category above: real cross-source variety, not
+  // "Spinach x7"-style near-duplication.
+  if (category === 'Brewing') return false;
   return hasUsdaCoverage(category);
 }
 
