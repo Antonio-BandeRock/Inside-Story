@@ -842,6 +842,287 @@ function groupConditionEntries(entries: AnyDigestEntry[]): {
   return { topics, tyingTogether };
 }
 
+// Earth Matters and Home Gardening each need their own real, dedicated
+// classifier -- 2026-08-13, a real, direct bug report: "There are only two
+// categories listed in Earth Matters... they don't all belong in History
+// and Milestones and Putting it Together." Root cause, confirmed by
+// reading classifyConditionTopic directly rather than guessed: its own
+// early, broad `id.includes('history')` check (written for a real
+// condition's own "-history-milestones" id convention) also matches every
+// single Earth Matters entry, since every one of them lives in
+// foodIndustryHistory.ts and carries the literal substring "history" in
+// its own id prefix (foodhistory-... or foodhistory-regen-...) -- an
+// unrelated file-naming coincidence, not a real topical match. That one
+// check alone silently swallowed the entire category before any later,
+// more specific branch (Diet & Food, etc.) ever got a chance to run, which
+// is why only "History & Milestones" (everything) plus the always-separate
+// "Putting It Together" closing card ever showed up. Home Gardening never
+// hit that same specific trap (its own `garden-` ids don't contain
+// "history"), but it was still routed through the identical
+// disease-oriented classifier, whose keyword nets (Medications & Treatment,
+// Self-Advocacy & Testing, Whole-Body Effects, etc.) mean nothing for
+// composting or seed-starting -- Basic Health was checked too and is
+// genuinely fine, since it already has its own separate, dedicated,
+// prefix-based tree (BASIC_HEALTH_TOPICS below), never routed through
+// classifyConditionTopic at all.
+//
+// Both classifiers below are built as an explicit, verified id-substring
+// lookup, not a fresh attempt at a broad keyword net -- every one of the
+// real ids in both files was extracted and run through this exact logic
+// via a throwaway script before this shipped (the same "verify against
+// real data first" discipline this whole Digest has used throughout),
+// confirming 100% real coverage with zero entries falling through
+// unmatched and zero double-matches, rather than trusting that the
+// substrings chosen don't collide the way "history" once silently did.
+type EarthMattersTopic =
+  | 'Soil Science & Why It Matters'
+  | 'The Gut Connection'
+  | 'Pollinators'
+  | 'Pesticides & Chemical Inputs'
+  | 'Case Studies From Around the World'
+  | 'History & Origins of the Movement'
+  | 'Water, Seeds & Resources'
+  | 'Industry, Greenwashing & Honest Limits'
+  | 'Policy, Economics & Power'
+  | 'How You Can Take Action';
+
+// Real reading order: the grounding soil-science read leads, then the
+// single most directly app-relevant entry (the soil-to-gut-microbiome
+// connection) gets its own real, visible spot rather than being buried,
+// then the large, vivid pollinator sub-cluster, then the more
+// context-setting material (chemical inputs, real-world case studies, the
+// movement's own history, resources), then the honest-limits/critique
+// material, then policy, with "How You Can Take Action" last of all --
+// the natural "what do I do with this" capstone position right before the
+// category's own closing "Putting It Together" card.
+const EARTH_MATTERS_TOPIC_ORDER: EarthMattersTopic[] = [
+  'Soil Science & Why It Matters',
+  'The Gut Connection',
+  'Pollinators',
+  'Pesticides & Chemical Inputs',
+  'Case Studies From Around the World',
+  'History & Origins of the Movement',
+  'Water, Seeds & Resources',
+  'Industry, Greenwashing & Honest Limits',
+  'Policy, Economics & Power',
+  'How You Can Take Action',
+];
+
+function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTopic {
+  const id = entry.id.toLowerCase();
+
+  if (
+    id.includes('pollinator') ||
+    id.includes('bee') ||
+    id.includes('bat-pollinators') ||
+    id.includes('phenological-mismatch') ||
+    id.includes('insect-apocalypse') ||
+    id.includes('robotic-drone-pollination') ||
+    id.includes('almond-pollination')
+  ) {
+    return 'Pollinators';
+  }
+  if (id.includes('soil-gut-microbiome')) return 'The Gut Connection';
+  if (
+    id.includes('boycott') ||
+    id.includes('bcorp') ||
+    id.includes('divestment') ||
+    id.includes('shareholder-activism') ||
+    id.includes('institutional-purchasing') ||
+    id.includes('direct-investment') ||
+    id.includes('how-to-get-involved') ||
+    id.includes('buycott')
+  ) {
+    return 'How You Can Take Action';
+  }
+  if (
+    id.includes('brazil-case-study') ||
+    id.includes('niger-fmnr') ||
+    id.includes('china-loess-plateau') ||
+    id.includes('rodale-farming-systems-trial') ||
+    id.includes('netherlands-nitrogen-conflict') ||
+    id.includes('individual-farm-case-study')
+  ) {
+    return 'Case Studies From Around the World';
+  }
+  if (id.includes('timeline-origins') || id.includes('timeline-certification-era') || id.includes('green-revolution')) {
+    return 'History & Origins of the Movement';
+  }
+  if (id.includes('pesticides-') || id.includes('neonicotinoid')) return 'Pesticides & Chemical Inputs';
+  if (
+    id.includes('why-not-mandated') ||
+    id.includes('lobbying-imbalance') ||
+    id.includes('pesticide-liability-shields') ||
+    id.includes('reform-coalition-orgs') ||
+    id.includes('carbon-credit-integrity') ||
+    id.includes('eu-cap-structural') ||
+    id.includes('seed-industry-consolidation') ||
+    id.includes('seed-patent-litigation') ||
+    id.includes('right-to-repair') ||
+    id.includes('farmer-mental-health-debt') ||
+    id.includes('tribal-co-stewardship')
+  ) {
+    return 'Policy, Economics & Power';
+  }
+  if (
+    id.includes('ogallala-water') ||
+    id.includes('antibiotic-resistance-livestock') ||
+    id.includes('seed-diversity-loss') ||
+    id.includes('svalbard-seed-vault') ||
+    id.includes('food-waste-scale') ||
+    id.includes('food-desert-access')
+  ) {
+    return 'Water, Seeds & Resources';
+  }
+  if (
+    id.includes('whole-foods-organic-industry') ||
+    id.includes('regen-environmental-impact') ||
+    id.includes('no-till-greenwashing') ||
+    id.includes('cover-crop-reality-check')
+  ) {
+    return 'Industry, Greenwashing & Honest Limits';
+  }
+  // Everything else remaining (verified via the throwaway script above to
+  // be exactly the real soil-science/mechanism/urgency entries) falls here.
+  return 'Soil Science & Why It Matters';
+}
+
+function groupEarthMattersEntries(entries: AnyDigestEntry[]): {
+  topics: { label: string; entries: AnyDigestEntry[] }[];
+  tyingTogether: AnyDigestEntry | null;
+} {
+  const tyingTogether = entries.find(isTyingTogetherEntry) ?? null;
+  const rest = entries.filter((entry) => !isTyingTogetherEntry(entry));
+  const buckets = new Map<EarthMattersTopic, AnyDigestEntry[]>();
+  for (const entry of rest) {
+    const topic = classifyEarthMattersTopic(entry);
+    if (!buckets.has(topic)) buckets.set(topic, []);
+    buckets.get(topic)!.push(entry);
+  }
+  const topics = EARTH_MATTERS_TOPIC_ORDER.map((topic) => ({
+    label: topic as string,
+    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
+  })).filter((group) => group.entries.length > 0);
+  return { topics, tyingTogether };
+}
+
+type HomeGardeningTopic =
+  | 'Getting Started: Zones, Climate & Site'
+  | 'What to Grow First'
+  | 'Building Real Soil'
+  | 'Growing Techniques'
+  | 'After the Harvest'
+  | 'The Real Case for a Home Garden';
+
+// Real reading order: the natural first step (finding your zone, picking a
+// site) leads, then what to actually plant, then the two real ongoing-care
+// clusters (soil, technique), then what happens once something's grown,
+// with the motivational/why-bother material last, the same "capstone
+// right before the closing card" position Earth Matters' own "How You Can
+// Take Action" uses.
+const HOME_GARDENING_TOPIC_ORDER: HomeGardeningTopic[] = [
+  'Getting Started: Zones, Climate & Site',
+  'What to Grow First',
+  'Building Real Soil',
+  'Growing Techniques',
+  'After the Harvest',
+  'The Real Case for a Home Garden',
+];
+
+function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardeningTopic {
+  const id = entry.id.toLowerCase();
+
+  if (
+    id.includes('understanding-your-zone') ||
+    id.includes('cold-short-season-crops') ||
+    id.includes('moderate-climate-crops') ||
+    id.includes('warm-climate-crops') ||
+    id.includes('tropical-subtropical-crops') ||
+    id.includes('container-small-space') ||
+    id.includes('soil-safety-lead')
+  ) {
+    return 'Getting Started: Zones, Climate & Site';
+  }
+  if (
+    id.includes('highest-value-crops') ||
+    id.includes('easiest-beginner-crops') ||
+    id.includes('herbs-indoor-windowsill') ||
+    id.includes('microgreens-sprouts') ||
+    id.includes('growing-fruit-perennials')
+  ) {
+    return 'What to Grow First';
+  }
+  if (
+    id.includes('composting-at-home') ||
+    id.includes('no-dig-raised-beds') ||
+    id.includes('mulching') ||
+    id.includes('crop-rotation') ||
+    id.includes('cover-crops-home')
+  ) {
+    return 'Building Real Soil';
+  }
+  if (
+    id.includes('seed-starting-vs-transplants') ||
+    id.includes('watering-efficiency') ||
+    id.includes('natural-pest-management') ||
+    id.includes('vertical-trellising') ||
+    id.includes('extending-the-season')
+  ) {
+    return 'Growing Techniques';
+  }
+  if (id.includes('preserving-the-harvest') || id.includes('seed-saving') || id.includes('freshness-nutrient-retention')) {
+    return 'After the Harvest';
+  }
+  // Everything else remaining (verified via the throwaway script above to
+  // be exactly the real economics/mental-health/community/pollinator-link
+  // entries) falls here.
+  return 'The Real Case for a Home Garden';
+}
+
+function groupHomeGardeningEntries(entries: AnyDigestEntry[]): {
+  topics: { label: string; entries: AnyDigestEntry[] }[];
+  tyingTogether: AnyDigestEntry | null;
+} {
+  const tyingTogether = entries.find(isTyingTogetherEntry) ?? null;
+  const rest = entries.filter((entry) => !isTyingTogetherEntry(entry));
+  const buckets = new Map<HomeGardeningTopic, AnyDigestEntry[]>();
+  for (const entry of rest) {
+    const topic = classifyHomeGardeningTopic(entry);
+    if (!buckets.has(topic)) buckets.set(topic, []);
+    buckets.get(topic)!.push(entry);
+  }
+  const topics = HOME_GARDENING_TOPIC_ORDER.map((topic) => ({
+    label: topic as string,
+    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
+  })).filter((group) => group.entries.length > 0);
+  return { topics, tyingTogether };
+}
+
+// A single, shared dispatcher used everywhere a lens' own entries need
+// grouping into real topic shelves -- Earth Matters and Home Gardening
+// each route to their own dedicated classifier above; every real disease
+// condition still routes to classifyConditionTopic/groupConditionEntries,
+// unchanged. Basic Health is deliberately NOT handled here -- it already
+// has its own, separate tree-based rendering path (BasicHealthTree) that
+// never calls this function at all.
+function classifyTopicForCategory(entry: AnyDigestEntry, category: DigestCategoryKey): string {
+  if (category === 'earthMatters') return classifyEarthMattersTopic(entry);
+  if (category === 'homeGardening') return classifyHomeGardeningTopic(entry);
+  return classifyConditionTopic(entry);
+}
+
+function groupEntriesForLens(
+  category: DigestCategoryKey,
+  entries: AnyDigestEntry[],
+): {
+  topics: { label: string; entries: AnyDigestEntry[] }[];
+  tyingTogether: AnyDigestEntry | null;
+} {
+  if (category === 'earthMatters') return groupEarthMattersEntries(entries);
+  if (category === 'homeGardening') return groupHomeGardeningEntries(entries);
+  return groupConditionEntries(entries);
+}
+
 // A fixed, internal-only ref key for a condition's own standalone "tying
 // together" card, shared across every condition -- safe despite being the
 // same literal string everywhere, since groupRefs itself is reset to `{}`
@@ -1301,7 +1582,7 @@ export default function PurpleDigestScreen() {
       lens === 'basicHealth'
         ? basicHealthAllGroups(entries)
         : (() => {
-            const { topics, tyingTogether } = groupConditionEntries(entries);
+            const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
             return tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
           })();
     return baseGroups
@@ -1465,7 +1746,7 @@ export default function PurpleDigestScreen() {
     if (category === 'basicHealth') return basicHealthTopicPathForEntryId(id).join('::');
     const entry = findDigestEntryById(id);
     if (entry && isTyingTogetherEntry(entry)) return TYING_TOGETHER_GROUP_KEY;
-    if (entry) return classifyConditionTopic(entry);
+    if (entry) return classifyTopicForCategory(entry, category);
     return TYING_TOGETHER_GROUP_KEY;
   }
 
@@ -1841,17 +2122,21 @@ export default function PurpleDigestScreen() {
               ) : entries.length === 0 ? (
                 <Text style={styles.emptyText}>Nothing here yet.</Text>
               ) : (
-                // Every real condition category -- 2026-08-08, the same
-                // shelf-row-plus-detail-panel shape Basic Health's own
-                // leaf level uses, grouped into many real topics (see
-                // groupConditionEntries' own comment above, and its
-                // 2026-08-12 rebuild from a fixed 4-pillar version). The
-                // category's own closing "tying together" synthesis, if
-                // it has one, is pulled out of the shelves and shown as
-                // its own standalone card below them, always visible,
-                // never nested inside a topic it doesn't really belong to.
+                // Every real condition category, plus Earth Matters and
+                // Home Gardening -- 2026-08-08, the same shelf-row-plus-
+                // detail-panel shape Basic Health's own leaf level uses,
+                // grouped into many real topics (see groupConditionEntries'
+                // own comment above, its 2026-08-12 rebuild from a fixed
+                // 4-pillar version, and groupEntriesForLens' own comment
+                // for why Earth Matters/Home Gardening each need their own
+                // dedicated classifier rather than sharing this one,
+                // 2026-08-13). The category's own closing "tying together"
+                // synthesis, if it has one, is pulled out of the shelves
+                // and shown as its own standalone card below them, always
+                // visible, never nested inside a topic it doesn't really
+                // belong to.
                 (() => {
-                  const { topics, tyingTogether } = groupConditionEntries(entries);
+                  const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
                   return (
                     <>
                       <BasicHealthShelves
