@@ -252,6 +252,6 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-strain-specific-mechanisms', 'fermented-cfu-dosing'],
+    relatedIds: ['gut-strain-specific-mechanisms', 'fermented-cfu-dosing', 'foodhistory-regen-microbiome-symbiosis-mission'],
   },
 ];

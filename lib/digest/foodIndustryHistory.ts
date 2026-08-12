@@ -485,6 +485,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A real, credible, actively-researched hypothesis, not yet fully proven.',
+    relatedIds: ['foodhistory-regen-old-friends-hypothesis', 'gut-scfa-treg'],
   },
   {
     id: 'foodhistory-mechanism-soil-nutrients-bridge',
@@ -2028,7 +2029,77 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A real, current scientific hypothesis with real supporting pieces, honestly reported at the same confidence level its own authors give it -- not yet proven end to end.',
-    relatedIds: ['gut-scfa-treg', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-organic-farming-pollinator-abundance'],
+    relatedIds: ['gut-scfa-treg', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-organic-farming-pollinator-abundance', 'foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-karelia-biodiversity-study'],
+  },
+  // --- The Gut Connection, extended 2026-08-13: a real, direct request to
+  // build a genuine section here, and in Home Gardening, explaining how
+  // this app's own features connect to the microbiome/microbial-network
+  // research above, and to teach that humans and nature need each other
+  // symbiotically -- not two separate topics. The soil-plant-gut axis
+  // entry just above already carries the proposed MECHANISM (how a soil
+  // microbe could plausibly reach a human gut); these three entries carry
+  // the actual HUMAN evidence that environmental microbial contact
+  // measurably shapes immune health, plus the explicit bridge back to
+  // this app's own real features. Every citation independently verified
+  // via WebSearch/WebFetch before being written in.
+  {
+    id: 'foodhistory-regen-old-friends-hypothesis',
+    category: 'earthMatters',
+    title: "The Old Friends Hypothesis: What the Immune System Actually Needs From the Natural World",
+    teaser: 'Not "dirt is good for you." A real, specific claim: the immune system needs ongoing contact with the exact organisms it co-evolved with, or a real part of its own regulatory machinery never finishes building correctly.',
+    summary:
+      "The older \"hygiene hypothesis\" gets repeated as \"kids who grow up too clean develop more allergies\" -- a real, popular oversimplification that immunologist Graham Rook deliberately corrected with a more precise successor framework in 2003, refined further in a real, comprehensive 2013 review. The \"Old Friends\" hypothesis makes a narrower, more mechanistic claim: it isn't exposure to microbes in general that matters, it's exposure to a specific set of organisms (soil-dwelling bacteria, environmental saprophytes, gut symbionts, and historically, intestinal worms) that were present throughout the hundreds of thousands of years the human immune system was evolving, and that the immune system now effectively expects as a developmental input. These organisms are proposed to drive the expansion of regulatory T cells and other immunoregulatory circuits -- the same real Treg-mediated tolerance machinery already covered in this app's own Gut & Microbiome research -- not because they're harmless, but because the immune system uses cues from them to calibrate how aggressively to respond to everything else, including the body's own tissues. Modern urban life, with its real reduction in contact with soil, farm animals, and a genuinely diverse outdoor environment, removes many of those cues at once, a real, proposed reason chronic inflammatory and autoimmune disease has risen fastest in exactly the populations that lost this contact first. This is a distinct, complementary mechanism from the \"disappearing microbiota\" research already covered elsewhere in this Digest (antibiotics, C-sections, and formula feeding depleting a person's own internal gut flora) -- that's about losing microbes a person already carries; Old Friends is about losing ongoing contact with the external, environmental organisms the immune system also needs.",
+    citations: [
+      {
+        source: "Rook GA, Lowry CA, Raison CL 2013, Evolution, Medicine, and Public Health: \"Microbial 'Old Friends', immunoregulation and stress resilience\"",
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4183960/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, well-established, actively-developed framework in immunology -- the specific molecular mechanisms by which each organism does this are still being characterized, stated honestly by the framework\'s own originators.',
+    relatedIds: ['gut-scfa-treg', 'foodhistory-mechanism-disappearing-microbiota', 'foodhistory-regen-soil-gut-microbiome-axis', 'foodhistory-regen-karelia-biodiversity-study', 'foodhistory-regen-microbiome-symbiosis-mission'],
+  },
+  {
+    id: 'foodhistory-regen-karelia-biodiversity-study',
+    category: 'earthMatters',
+    title: 'Finnish vs. Russian Karelia: A Real, Population-Scale Natural Experiment in What Losing Nature Actually Costs',
+    teaser: 'Same genes, same original land, split by a border after World War II. Birch-pollen sensitization: 26.6% on the industrialized side, 2% on the side that stayed closer to a biodiverse natural environment.',
+    summary:
+      "Karelia is a real region split between Finland and Russia after World War II -- genetically similar populations, sharing the same original natural environment, that then lived under radically different degrees of industrialization and contact with a biodiverse landscape for the following decades. Researchers led by Tari Haahtela used this real, accidental natural experiment to directly test the \"biodiversity hypothesis\": that reduced contact with a genuinely biodiverse natural environment measurably impoverishes the human microbiome's own regulatory capacity. The real, measured 2003 results in schoolchildren were dramatic: birch-pollen sensitization at 26.6% on the more industrialized Finnish side versus 2% on the Russian side; timothy-grass sensitization 28.8% versus 4.8%; physician-diagnosed asthma 8.8% versus 1.6%; hay fever 15.6% versus 1.2%. Adult surveys found the same real pattern, and it held up across repeated measurement (asthma 8.3% versus 0.7% in a 2007 adult survey). Genetic testing found no meaningful ancestry difference between the two populations, which is exactly what makes the finding worth taking seriously as an environmental effect rather than a genetic one -- and a real, measured biological mechanism closely matches the pattern: the Russian Karelian population showed a richer, more diverse gene-microbe network in their own gut and skin microbiota, associated with better-balanced immune regulatory circuits. This wasn't left as an interesting correlation -- Finland built a real, national public-health response directly on this finding, the Finnish Allergy Programme (2008-2018), actively promoting nature contact and immune tolerance rather than allergen avoidance. The real, measured result: work-related allergy and asthma hospital days were cut in half over the decade, allergic disease prevalence stabilized rather than continuing its prior rise, and the country's own health system reported roughly €1.2 billion in real, combined healthcare and disability-cost savings. A real, population-scale demonstration that this isn't just a theory about the past -- deliberately restoring contact with a biodiverse environment produced a real, measured public-health outcome.",
+    chart: {
+      title: 'Real allergic-sensitization rates in schoolchildren, Finnish vs. Russian Karelia (2003)',
+      unit: '%',
+      data: [
+        { label: 'Birch pollen sensitization, Finland', value: 26.6 },
+        { label: 'Birch pollen sensitization, Russia', value: 2 },
+        { label: 'Timothy grass sensitization, Finland', value: 28.8 },
+        { label: 'Timothy grass sensitization, Russia', value: 4.8 },
+        { label: 'Physician-diagnosed asthma, Finland', value: 8.8 },
+        { label: 'Physician-diagnosed asthma, Russia', value: 1.6 },
+      ],
+      sourceNote: 'Haahtela T, et al. 2023, Frontiers in Allergy',
+    },
+    citations: [
+      {
+        source: 'Haahtela T, et al. 2023, Frontiers in Allergy: "A short history from Karelia study to biodiversity and public health interventions"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10043497/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, large, repeatedly-measured population comparison, followed by a real national intervention with real, quantified, favorable outcomes -- one of the stronger evidence chains in this whole cluster.',
+    relatedIds: ['foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-soil-gut-microbiome-axis', 'garden-hands-in-soil-immune-training'],
+  },
+  {
+    id: 'foodhistory-regen-microbiome-symbiosis-mission',
+    category: 'earthMatters',
+    title: 'Why a Health App Has an Entire Category About Soil: Human Health and Environmental Health Are One System',
+    teaser: 'Soil microbial diversity, environmental biodiversity, and a person\'s own gut and immune health are not three separate subjects. The real research above keeps landing on the same one system, described from three different angles.',
+    summary:
+      "Read together rather than one at a time, the research in this shelf makes one real, connected point rather than three separate ones. The soil-plant-human-gut axis entry above lays out the proposed physical mechanism: soil microbes can plausibly travel into a plant and from there into a person's own gut. The Old Friends hypothesis explains why that contact matters biologically: specific environmental organisms are a real, needed input for the immune system's own regulatory development, not an incidental exposure. And the Karelia study shows what happens at real, national population scale when that contact is lost, and what happens when a country deliberately restores it. This is the actual, stated reason this whole category exists inside a food-and-health app rather than as a separate environmental resource: a depleted, industrialized food system and a depleted, industrialized natural environment are not two different problems, they are the same problem showing up in two places, soil and gut, at once. This app's own features are built around that connection directly, not just its research library. The Garden tab exists specifically so growing food is real physical contact with soil, not just a place to read about it, and a real harvest becomes a genuine, selectable ingredient in every one of the Food builders rather than staying separate from daily eating. The Fermented Foods research and Fermentation Builder exist because deliberately cultivating live microbial diversity in food is a direct, edible version of the same Old Friends principle. And all eleven Food builders are built around whole, minimally-processed ingredients specifically because industrial food processing is one of the real, documented ways modern life has cut off contact with the microbial diversity a body evolved expecting, already covered in this app's own Food Additives and Gut & Microbiome research. The teaching point underneath all of it, stated directly rather than left implicit: a person's own body and the land any food comes from were never really two separate systems to begin with. Treating soil, plants, and the broader natural world with real care is not a separate cause from treating a person's own gut and immune system with real care -- it's the same project, worked from two different ends, and a species that keeps degrading the first should expect real, measurable costs to the second.",
+    citations: [],
+    overallTier: 'moderate',
+    stageNote: "A real synthesis of the citations already given individually above, plus a direct statement of why this app's own features are built the way they are -- not a new external research claim of its own.",
+    relatedIds: ['foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-karelia-biodiversity-study', 'foodhistory-regen-soil-gut-microbiome-axis', 'gut-scfa-treg', 'garden-symbiosis-mission', 'fermented-tying-together'],
   },
   {
     id: 'foodhistory-regen-liquid-carbon-pathway',

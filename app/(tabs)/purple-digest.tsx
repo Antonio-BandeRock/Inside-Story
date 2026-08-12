@@ -922,7 +922,14 @@ function classifyEarthMattersTopic(entry: AnyDigestEntry): EarthMattersTopic {
   ) {
     return 'Pollinators';
   }
-  if (id.includes('soil-gut-microbiome')) return 'The Gut Connection';
+  if (
+    id.includes('soil-gut-microbiome') ||
+    id.includes('old-friends-hypothesis') ||
+    id.includes('karelia-biodiversity') ||
+    id.includes('microbiome-symbiosis')
+  ) {
+    return 'The Gut Connection';
+  }
   if (
     id.includes('boycott') ||
     id.includes('bcorp') ||
@@ -1010,6 +1017,7 @@ type HomeGardeningTopic =
   | 'Getting Started: Zones, Climate & Site'
   | 'What to Grow First'
   | 'Building Real Soil'
+  | 'Your Garden & Your Microbiome'
   | 'Growing Techniques'
   | 'After the Harvest'
   | 'The Real Case for a Home Garden';
@@ -1019,11 +1027,19 @@ type HomeGardeningTopic =
 // clusters (soil, technique), then what happens once something's grown,
 // with the motivational/why-bother material last, the same "capstone
 // right before the closing card" position Earth Matters' own "How You Can
-// Take Action" uses.
+// Take Action" uses. "Your Garden & Your Microbiome" was added 2026-08-13,
+// direct request to build a real section on how the app's own features
+// connect to the microbiome/microbial-network research, deliberately
+// placed right after "Building Real Soil" -- soil is literally what the
+// entries here are about, so learning to build it and then learning what
+// direct contact with it does to a person's own immune system is a real,
+// natural read order, ahead of the more mechanical growing-technique
+// content.
 const HOME_GARDENING_TOPIC_ORDER: HomeGardeningTopic[] = [
   'Getting Started: Zones, Climate & Site',
   'What to Grow First',
   'Building Real Soil',
+  'Your Garden & Your Microbiome',
   'Growing Techniques',
   'After the Harvest',
   'The Real Case for a Home Garden',
@@ -1060,6 +1076,13 @@ function classifyHomeGardeningTopic(entry: AnyDigestEntry): HomeGardeningTopic {
     id.includes('cover-crops-home')
   ) {
     return 'Building Real Soil';
+  }
+  if (
+    id.includes('hands-in-soil-immune-training') ||
+    id.includes('mycobacterium-vaccae') ||
+    id.includes('garden-symbiosis-mission')
+  ) {
+    return 'Your Garden & Your Microbiome';
   }
   if (
     id.includes('seed-starting-vs-transplants') ||
