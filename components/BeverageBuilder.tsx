@@ -51,20 +51,49 @@ import type { BeverageSubtypeKey } from './BeverageSubtypePicker';
 // as a real, direct part of this same change (see REFERENCE_DB_VERSION's
 // own bump the same day).
 //
+// 2026-08-13, same day, real, direct correction, reported after actually
+// trying Performance & Protein: "I can't even add water to it. Simple
+// water is missing completely." The real root cause: every subtype's own
+// allowedSubcategories restricted Bev down to ONLY that subtype's own
+// specialty subcategory, which meant no subtype except Hydration &
+// Wellness could reach Bev > Water at all -- even though a protein shake,
+// a brewed cup of tea, and a mixed cocktail all genuinely need a real
+// liquid BASE, not just their own specialty ingredient. Checked every
+// subtype for the same gap rather than patching only the one reported --
+// Water is now included everywhere a real drink plausibly needs one.
+// Juices & Nectars also gained real Fruit and Veg access (182 real,
+// visible juicing vegetables confirmed -- carrot, beet, celery, etc.),
+// directly matching the subtype's own stated description ("Pressed
+// fruits, VEGETABLES, and simple liquid blends") -- Veg was never in
+// Beverage Builder's own base allowlist at all before this, added to both
+// this subtype and BEVERAGE_BUILDER_CATEGORIES itself (below) so editing
+// an existing beverage has the same real access. Infusions & Brews and
+// Performance & Protein both gained real Dairy/NutSeed access too (milk
+// for a latte or a protein shake, plant milk for either) -- both were
+// already in Beverage Builder's own full allowlist, just never carried
+// over into these two subtypes' own narrower scoping.
+//
+// Real, honest gap NOT fixed here, named directly rather than silently
+// left unexplained: Bev > Soft Drinks (tonic water, cola, ginger beer --
+// real, classic cocktail mixers) is still 100% hidden database-wide, the
+// same open question as Bev > Dairy & Blended/Other from the earlier
+// unhide pass -- a real, separate curation call, not assumed safe to
+// unhide again without asking first.
+//
 // allowedCategories/allowedSubcategories are read once per FoodLookup
 // mount, same as that component's own initialCategory/initialSubcategory --
 // safe to hold as one plain object per subtype rather than recomputing,
 // since a subtype never changes mid-session (see BeverageBuilder's own
 // prop comment).
 //
-// initialCategory/initialSubcategory pre-resolve a step outright whenever
-// exactly one real choice exists for it (Juices & Nectars: only Bev, only
-// Juice -- both steps skip straight to searching; Cocktails & Mixology:
-// only Alcohol, but 3 real subcategory choices, so only the Category step
-// skips). Where two real categories are both genuinely valid (Infusions &
-// Brews: Bev vs. Brewing; Performance & Protein: Bev vs. SupplementPowder),
-// initialCategory is deliberately left blank so the person still picks
-// between them, now correctly narrowed to just those two options.
+// initialCategory/initialSubcategory still pre-resolve a step outright
+// wherever exactly one real choice remains after this fix (Cocktails &
+// Mixology: only Alcohol as a CATEGORY, even though Bev/Fruit/Herbs/
+// PantryStaples/SaucesCondiments/Sweets are now also allowed for real
+// mixers/garnishes -- Alcohol is still the one someone picks first for a
+// cocktail, so it stays pre-resolved; every real subcategory choice
+// within it, or within any other now-multi-category subtype, is left for
+// the person to actually pick).
 const BEVERAGE_SUBTYPE_CONFIG: Record<
   BeverageSubtypeKey,
   {
@@ -75,22 +104,25 @@ const BEVERAGE_SUBTYPE_CONFIG: Record<
   }
 > = {
   cocktailsMixology: {
-    allowedCategories: ['Alcohol'],
-    allowedSubcategories: { Alcohol: ['Spirits & Liqueurs', 'Wine & Champagne', 'Other'] },
+    allowedCategories: ['Alcohol', 'Bev', 'Fruit', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Sweets'],
+    allowedSubcategories: {
+      Alcohol: ['Spirits & Liqueurs', 'Wine & Champagne', 'Other'],
+      Bev: ['Water', 'Juice', 'Tea', 'Coffee', 'Sports & Energy Drinks'],
+    },
     initialCategory: 'Alcohol',
     initialSubcategory: null,
   },
   infusionsBrews: {
-    allowedCategories: ['Bev', 'Brewing'],
-    allowedSubcategories: { Bev: ['Tea', 'Coffee'] },
+    allowedCategories: ['Bev', 'Brewing', 'Dairy', 'NutSeed'],
+    allowedSubcategories: { Bev: ['Tea', 'Coffee', 'Water'] },
     initialCategory: '',
     initialSubcategory: null,
   },
   juicesNectars: {
-    allowedCategories: ['Bev'],
-    allowedSubcategories: { Bev: ['Juice'] },
-    initialCategory: 'Bev',
-    initialSubcategory: 'Juice',
+    allowedCategories: ['Bev', 'Fruit', 'Veg'],
+    allowedSubcategories: { Bev: ['Juice', 'Water'] },
+    initialCategory: '',
+    initialSubcategory: null,
   },
   hydrationWellness: {
     allowedCategories: ['Bev'],
@@ -99,8 +131,8 @@ const BEVERAGE_SUBTYPE_CONFIG: Record<
     initialSubcategory: null,
   },
   performanceProtein: {
-    allowedCategories: ['Bev', 'SupplementPowder'],
-    allowedSubcategories: { Bev: ['Protein & Meal Replacement'] },
+    allowedCategories: ['Bev', 'SupplementPowder', 'Dairy', 'NutSeed', 'Fruit'],
+    allowedSubcategories: { Bev: ['Protein & Meal Replacement', 'Water'] },
     initialCategory: '',
     initialSubcategory: null,
   },

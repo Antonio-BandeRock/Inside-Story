@@ -79,8 +79,16 @@ export const FERMENTATION_BUILDER_CATEGORIES = [
   'Veg', 'Fruit', 'Dairy', 'Grain', 'PastaNoodles', 'Legume', 'Bev', 'Brewing', 'Alcohol', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Sweets',
 ];
 
+// 'Veg' added 2026-08-13, direct report -- Beverage Builder's own new
+// subtype picker's Juices & Nectars option explicitly names "pressed
+// fruits, VEGETABLES, and simple liquid blends," and Veg was never in this
+// list at all until now (confirmed real, visible juicing vegetables exist
+// -- carrot, beet, celery, cucumber). Added here too, not just to that
+// one subtype's own narrower scoping (components/BeverageBuilder.tsx's
+// own BEVERAGE_SUBTYPE_CONFIG), so editing an already-saved beverage has
+// the same real access a fresh one now does.
 export const BEVERAGE_BUILDER_CATEGORIES = [
-  'Bev', 'Brewing', 'Alcohol', 'SupplementPowder', 'Fruit', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Sweets', 'NutSeed',
+  'Bev', 'Brewing', 'Alcohol', 'SupplementPowder', 'Fruit', 'Veg', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Sweets', 'NutSeed',
 ];
 
 export const SNACK_BUILDER_CATEGORIES = [
