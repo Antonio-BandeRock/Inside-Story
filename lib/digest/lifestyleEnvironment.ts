@@ -164,6 +164,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       { source: 'Influence of sleep deprivation and circadian misalignment on cortisol, inflammatory markers, and cytokine balance', url: 'https://pubmed.ncbi.nlm.nih.gov/25640603/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['sleep-circadian-rhythm-basics', 'sleep-tying-together'],
   },
   {
     id: 'lifestyle-chronic-stress-hpa',

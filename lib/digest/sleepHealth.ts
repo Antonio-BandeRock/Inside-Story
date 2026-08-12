@@ -43,7 +43,48 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-overview'],
+    relatedIds: ['sleep-overview', 'sleep-glymphatic-system'],
+  },
+  {
+    id: 'sleep-glymphatic-system',
+    category: 'basicHealth',
+    title: "The Brain Has Its Own Waste-Clearing System, and Real Research Ties It Directly to Sleep",
+    teaser: "A landmark 2013 study found the space between brain cells expands by roughly 60% during sleep, letting fluid flush out metabolic waste faster than it does while awake. A real 2024 study now disputes the exact mechanism.",
+    summary:
+      'For decades, the brain was believed to have no lymphatic drainage of its own at all, unlike the rest of the body, where a real network of lymphatic vessels carries away excess fluid, waste, and immune cells. That assumption turned out to be only half right. In 2012, researchers led by Maiken Nedergaard at the University of Rochester described a real, distinct clearance pathway inside the brain itself, channels running alongside blood vessels, using water channels on support cells called astrocytes to move cerebrospinal fluid through brain tissue and carry waste products out. They named it the glymphatic system, glial plus lymphatic. A follow-up study in 2013 measured this system directly in sleeping mice and found the space between brain cells expands by roughly 60% during sleep, letting fluid move through more freely and clearing metabolic byproducts, including amyloid-beta, the same protein implicated in Alzheimer\'s disease, measurably faster than during wakefulness. Three years later, in 2015, a genuinely separate discovery filled in the other half of the picture: real, true lymphatic vessels, the kind found throughout the rest of the body, were identified in the meninges, the membranes surrounding the brain, connecting the brain\'s own internal clearance system to the body\'s real lymphatic network and on to the lymph nodes in the neck. A real, current scientific debate is worth naming honestly rather than glossed over. A 2024 study using a different measurement method, injecting dye directly into brain tissue rather than into the fluid surrounding it, found LESS clearance during sleep and anesthesia, the opposite of what the original glymphatic model predicts. The researchers behind the original discovery dispute the new method\'s accuracy, arguing that direct tissue injection damages brain tissue and distorts the result. What both sides agree on: some real form of waste clearance happens in the sleeping brain. Exactly how much sleep specifically drives it, and by what mechanism, is still being actively worked out.',
+    citations: [
+      {
+        source: 'Xie et al., "Sleep Drives Metabolite Clearance from the Adult Brain," Science, 2013, PMID 24136970',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/24136970/',
+      },
+      {
+        source: 'Louveau et al., "Structural and Functional Features of Central Nervous System Lymphatic Vessels," Nature, 2015',
+        url: 'https://www.nature.com/articles/nature14432',
+      },
+      {
+        source: 'Hussain et al., "Brain Clearance Is Reduced During Sleep and Anesthesia," Nature Neuroscience, 2024',
+        url: 'https://www.nature.com/articles/s41593-024-01638-y',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The existence of a real, active clearance process in the sleeping brain is well established. The exact mechanism, and whether it speeds up or slows down during sleep specifically, is a real, current, unresolved scientific dispute, not a settled fact, presented honestly rather than oversimplified.',
+    relatedIds: ['sleep-architecture', 'sleep-circadian-rhythm-basics'],
+  },
+  {
+    id: 'sleep-circadian-rhythm-basics',
+    category: 'basicHealth',
+    title: 'A Real, Internal 24-Hour Clock Runs the Body, Set Daily by Light',
+    teaser: 'A cluster of roughly 20,000 neurons sitting behind the eyes acts as the body\'s master clock, and a real, controlled study found forcing it out of sync with actual behavior disrupts blood pressure, glucose, and cortisol within days.',
+    summary:
+      'The body runs on a real, roughly 24-hour internal cycle called the circadian rhythm, governed by a master clock, the suprachiasmatic nucleus, a small cluster of around 20,000 neurons sitting in the hypothalamus, just behind the eyes. This master clock does not run on its own guess. It is reset daily by light, specialized cells in the retina detect brightness and send that signal directly to the suprachiasmatic nucleus, which in turn coordinates the timing of sleep and wakefulness, body temperature, cortisol release, and melatonin production throughout the rest of the body. Nearly every organ carries its own smaller, local clock too, and the master clock\'s real job is keeping all of them synchronized to the same schedule. When that synchronization breaks, the health consequences are real and measurable, not theoretical. A real, tightly controlled laboratory study had healthy adults eat and sleep roughly 12 hours out of their normal schedule, deliberately misaligning behavior from the body\'s own internal clock, and found real, fast physiological effects: glucose rose even though insulin also rose, leptin (a hormone that signals fullness) dropped, the daily cortisol rhythm reversed entirely, blood pressure increased, and sleep itself became less efficient, all within days. Real, larger population studies of shift workers, whose actual schedules run chronically out of sync with their own internal clock, find consistently elevated rates of obesity, type 2 diabetes, hypertension, and cardiovascular disease. The mechanism is not a mystery. It is the same one the controlled study demonstrated directly, just playing out over years instead of days.',
+    citations: [
+      {
+        source: 'Scheer, Hilton, Mantzoros & Shea, "Adverse Metabolic and Cardiovascular Consequences of Circadian Misalignment," PNAS, 2009, PMID 19255424',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/19255424/',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['sleep-overview', 'sleep-glymphatic-system', 'lifestyle-sleep-circadian', 'sleep-regularity-consistency'],
   },
   {
     id: 'sleep-immune-vaccine-response',
@@ -148,6 +189,23 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
     relatedIds: ['sleep-cbti-first-line'],
   },
   {
+    id: 'sleep-regularity-consistency',
+    category: 'basicHealth',
+    title: 'A Real, Consistent Sleep Schedule Predicts Longevity Better Than Total Sleep Time Does',
+    teaser: 'A real study of over 60,000 people found the most sleep-regular group had a 20 to 48% lower risk of dying over the following years than the least regular group, a bigger effect than sleep duration on its own.',
+    summary:
+      'Most sleep advice focuses on one number: how many hours a night. A real, large 2024 study suggests that number may not even be the most important one. Researchers followed over 60,000 adults in the UK Biobank, using wrist-worn devices to objectively track more than 10 million hours of real sleep data, and scored each person on a Sleep Regularity Index, a real, measured score for how consistent someone\'s daily sleep timing actually was, not just how long they slept. Over roughly 6 years of follow-up, people in the most sleep-regular group had a real, substantial 20 to 48% lower risk of dying from any cause than people in the least regular group, along with a 16 to 39% lower cancer-mortality risk and a 22 to 57% lower cardiometabolic-mortality risk. When the researchers directly compared regularity against duration in the same statistical model, sleep regularity remained the stronger, more consistent predictor. This does not mean sleep duration stops mattering. It means going to bed and waking up at roughly the same time every day, weekends included, is doing real, independent, protective work on its own, work a person can still lose even while getting a technically adequate number of hours, if the timing keeps shifting around. Treating a consistent sleep schedule as something to protect deliberately, the same way a real, fixed appointment gets protected on a calendar, is a genuinely evidence-backed habit, not just a tidy metaphor. The body\'s own master clock (see this app\'s own circadian rhythm research) resets itself daily against real, external cues, and an irregular sleep schedule is one of the most direct ways to keep sending it a conflicting signal.',
+    citations: [
+      {
+        source: 'Windred et al., "Sleep Regularity Is a Stronger Predictor of Mortality Risk Than Sleep Duration: A Prospective Cohort Study," Sleep, 2024, PMID 37738616',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37738616/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, large, objectively measured prospective cohort study (accelerometer data, not self-report), with a real, direct statistical comparison between regularity and duration as competing predictors, not just an association pulled from a smaller or less rigorous dataset.',
+    relatedIds: ['sleep-circadian-rhythm-basics', 'sleep-cbti-first-line', 'sleep-tying-together'],
+  },
+  {
     id: 'sleep-tying-together',
     category: 'basicHealth',
     title: 'Sleep Connects to Nearly Every Real Mechanism This App Already Tracks',
@@ -161,6 +219,6 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-overview', 'lifestyle-sleep-circadian', 'lifestyle-chronic-stress-hpa', 'migraine-sleep-bidirectional', 'masld-sleep-apnea-bidirectional', 'type2-sleep-apnea-glycemic-control', 'pcos-sleep-mental-health-real-data', 'sleep-inflammation-cytokine-mechanism', 'sleep-autoimmune-disease-real-data'],
+    relatedIds: ['sleep-overview', 'sleep-glymphatic-system', 'sleep-circadian-rhythm-basics', 'sleep-regularity-consistency', 'lifestyle-sleep-circadian', 'lifestyle-chronic-stress-hpa', 'migraine-sleep-bidirectional', 'masld-sleep-apnea-bidirectional', 'type2-sleep-apnea-glycemic-control', 'pcos-sleep-mental-health-real-data', 'sleep-inflammation-cytokine-mechanism', 'sleep-autoimmune-disease-real-data'],
   },
 ];
