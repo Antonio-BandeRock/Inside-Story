@@ -192,8 +192,7 @@ export default function RootLayout() {
           it" registry AppTextInput/AppKeyboard both read from -- wrapped
           around the whole Stack (not just the (tabs) group) so the same
           single AppKeyboard instance below works identically on top-level
-          stack screens (profile.tsx, purple-digest.tsx) too, not just tab
-          screens. */}
+          stack screens (profile.tsx, etc.) too, not just tab screens. */}
       {/* OverlayProvider: a minimal portal stand-in (see OverlayContext.tsx)
           -- Dropdown.tsx's open menu needs to escape ScreenBackground.tsx's
           own `overflow: 'hidden'` body, which a plain in-tree absolute View
@@ -202,10 +201,10 @@ export default function RootLayout() {
           shimmering element in the app (ScreenHeader/ScreenBackground/
           TabHub/IridescentRingCircle/Home's own footer line) -- wrapped
           around the whole tree, same level as ActiveInputProvider, since
-          this app's own top-level stack screens (profile.tsx,
-          purple-digest.tsx) could in principle use it too, not just the
-          (tabs) group. See hooks/useIridescentHueRotation.ts's own history
-          for why this replaced a plain JS setInterval. */}
+          this app's own top-level stack screens (profile.tsx, etc.) could
+          in principle use it too, not just the (tabs) group. See
+          hooks/useIridescentHueRotation.ts's own history for why this
+          replaced a plain JS setInterval. */}
       <IridescentHueProvider>
         <ActiveInputProvider>
           <OverlayProvider>
@@ -237,15 +236,6 @@ export default function RootLayout() {
                 options={{
                   headerShown: true,
                   title: 'Check-In',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
-                }}
-              />
-              <Stack.Screen
-                name="purple-digest"
-                options={{
-                  headerShown: true,
-                  title: 'The Purple Digest',
                   headerStyle: { backgroundColor: colors.background },
                   headerTintColor: colors.textPrimary,
                 }}
