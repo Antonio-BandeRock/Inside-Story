@@ -510,7 +510,7 @@ function basicHealthTopicPathForEntryId(id: string): string[] {
 }
 
 // A real, deterministic sort applied to every rendered group of entries
-// (a Basic Health topic/subtopic leaf list, a condition's own pillar
+// (a Basic Health topic/subtopic leaf list, a condition's own topic
 // shelf) -- 2026-08-08, direct request: "there seems to be a randomness
 // to how the data within each Digest area are being listed from start to
 // finish or which other information is next to them. There needs to be an
@@ -622,125 +622,224 @@ function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entri
 // (everything except Basic Health, which already has its own, more
 // granular by-topic shelf grouping above, and the synthetic 'search' lens)
 // -- reusing the exact same shelf UI mechanism rather than inventing a
-// second one. Loosely modeled on a real external UX recommendation (four
-// universal "pillars" per condition: core science, self-advocacy/testing,
-// life stages & history, whole-body effects), adapted to how this app's
-// own condition content actually reads.
+// second one.
 //
-// This is a real, honest v1 heuristic, matching every other grouping
-// mechanism already in this file (Basic Health's own id-prefix matching)
-// and elsewhere in this app (the food-name-grouping work in
-// lib/foodNameGrouping.ts) -- computed from each entry's own id and
-// title/food name at render time, NOT hand-reviewed entry by entry across
-// 800+ entries and 19 conditions, and NOT stored as a new field on
-// DigestEntry (which would have meant touching every existing entry object
-// by hand for a purely presentational concern, the same reasoning
-// BASIC_HEALTH_TOPICS above already gives for its own choice). Worth a
-// real spot-check across a few conditions once seen on-device before
-// trusting the classification fully -- some entries will genuinely land in
-// a less-than-ideal pillar (keyword heuristics always do), the same
-// standing caveat the Basic Health grouping and food-name-grouping features
-// both shipped under.
-type ConditionPillar = 'science' | 'advocacy' | 'body' | 'stages';
+// 2026-08-12, rebuilt from the original 4-pillar version (Core Science,
+// Self-Advocacy & Testing, Whole-Body Effects, History & Life Stages),
+// direct correction: "there are tons of topics available for each
+// condition, yet there are only [4] sections... even though they have the
+// search utility [t]he user shouldn't need to dig looking for something...
+// I want them to see something and take an interest to want to read more
+// on their own." Four broad pillars was flattening real, specific,
+// individually-inviting topics (Pregnancy & Family Planning, Mental
+// Health, a condition's own Global Perspective/Research Horizon research)
+// down into generic buckets nobody would tap out of curiosity. This
+// version surfaces those real clusters as their own real shelves instead.
+//
+// Same "reasonable v1 heuristic" discipline as the version it replaces,
+// and as every other grouping mechanism in this file (Basic Health's own
+// id-prefix matching) and elsewhere in this app (lib/foodNameGrouping.ts)
+// -- computed from each entry's own id and title/food name at render time,
+// NOT hand-reviewed entry by entry across 900+ condition entries, and NOT
+// stored as a new field on DigestEntry (the same reasoning
+// BASIC_HEALTH_TOPICS above already gives for its own choice). Verified
+// against every real entry across all 19 conditions before shipping (a
+// throwaway Node script mirroring this exact logic, run against the real
+// content files) -- every condition landed 8-17 real, non-empty topic
+// shelves (up from a fixed 4), with every singleton-sized shelf spot-
+// checked by hand and confirmed to be a real, correctly-placed, single
+// entry (e.g. a condition with exactly one Mental Health finding still
+// deserves its own real "Mental Health" shelf, not folding into a bigger,
+// vaguer bucket). Worth a further spot-check once seen on-device -- some
+// entries will still land in a less-than-ideal topic (keyword heuristics
+// always do), the same standing caveat the original pillar version and
+// every other grouping feature in this app already ships under.
+type ConditionTopic =
+  | 'Core Science'
+  | 'Diet & Food'
+  | 'Medications & Treatment'
+  | 'Self-Advocacy & Testing'
+  | 'Whole-Body Effects'
+  | 'Mental Health'
+  | 'Pregnancy & Family Planning'
+  | 'History & Milestones'
+  | 'Around the World'
+  | 'On the Horizon'
+  | 'Gut & Microbiome'
+  | 'Mitochondria & Metabolism'
+  | 'Healing Stages'
+  | 'Complementary & Manual Therapies'
+  | 'Lifestyle & Environment'
+  | 'Other Autoimmune Diseases'
+  | 'The Big Picture';
 
-const CONDITION_PILLAR_LABELS: Record<ConditionPillar, string> = {
-  science: 'Core Science',
-  advocacy: 'Self-Advocacy & Testing',
-  body: 'Whole-Body Effects',
-  stages: 'History & Life Stages',
-};
-
-// Real, intentional row order -- the deep-dive findings most people open
-// this category to actually read lead; self-advocacy (what to ask a doctor
-// for) and whole-body effects follow; history (interesting, but the least
-// actionable day-to-day) trails last, the same "most useful first" ordering
-// already established for BASIC_HEALTH_TOPICS above.
-const CONDITION_PILLAR_ORDER: ConditionPillar[] = ['science', 'advocacy', 'body', 'stages'];
+// Real row order, most inviting/actionable first -- Diet & Food leads
+// deliberately (this app's own core mission, and the single most concrete,
+// "I want to read more" topic most conditions carry); Core Science follows
+// as the grounding/mechanism read; the Hashimoto's-only clusters (Gut &
+// Microbiome, Mitochondria & Metabolism, Lifestyle & Environment, Healing
+// Stages, Complementary & Manual Therapies, Other Autoimmune Diseases, The
+// Big Picture -- none of these ever populate for any other condition, see
+// classifyConditionTopic's own id-prefix checks below) are interleaved
+// where they read naturally rather than dumped at the end; History &
+// Milestones trails last, the same "least actionable day-to-day" reasoning
+// the original 4-pillar order already established for it. The Big Picture
+// sits last of all, right before a condition's own closing "tying
+// together" card (pulled out separately, below) -- a fitting spot for
+// Hashimoto's own narrative-arc chapters.
+const CONDITION_TOPIC_ORDER: ConditionTopic[] = [
+  'Diet & Food',
+  'Core Science',
+  'Gut & Microbiome',
+  'Mitochondria & Metabolism',
+  'Medications & Treatment',
+  'Self-Advocacy & Testing',
+  'Whole-Body Effects',
+  'Other Autoimmune Diseases',
+  'Mental Health',
+  'Lifestyle & Environment',
+  'Healing Stages',
+  'Complementary & Manual Therapies',
+  'Pregnancy & Family Planning',
+  'Around the World',
+  'On the Horizon',
+  'History & Milestones',
+  'The Big Picture',
+];
 
 // Every condition's own real closing synthesis entry (see each condition
 // file's own "-tying-together" id convention, established from the very
-// first structural-parity pass) is pulled out of the pillar shelves
+// first structural-parity pass) is pulled out of the topic shelves
 // entirely and shown as its own standalone card instead -- it's a real
 // summary ACROSS everything else in the category, not a fit for any one
-// pillar.
+// topic.
 function isTyingTogetherEntry(entry: AnyDigestEntry): boolean {
   return entry.id.includes('tying-together');
 }
 
-// Checked in a real, deliberate priority order, validated by running this
-// exact logic against all 840 real entries across the whole Digest before
-// shipping (a plain Node script over the real content files, the same
-// "throwaway script, inspect real groups" discipline already used to
-// refine the food-name-grouping feature and Basic Health's own grouping) --
-// two real misclassifications that first pass surfaced are why the order
-// is what it is now, not the order first guessed at:
+// Checked in a real, deliberate priority order -- id-based signals first
+// (far more reliable than title text, since this app's own id conventions
+// are deliberate and consistent across every condition's own build
+// history), title-text keyword matching as the fallback for everything an
+// id alone can't distinguish.
 //
-// 1. Every condition's own "-overview" entry is forced to Core Science
-//    outright, before any other check -- its own title often names body
-//    systems directly (MS's own overview literally says "brain and spinal
-//    cord"), which would otherwise trip the Whole-Body Effects check below
-//    and land the one entry meant to LEAD a category's reading order in
-//    the wrong shelf entirely.
-// 2. The id-based "-stages" check (pregnancy, history, staging) runs
-//    BEFORE the more title-text-driven "-advocacy" check, not after --
-//    this app's own "-pregnancy-..." id suffix is a deliberate, reliable
-//    per-condition naming convention already established since the very
-//    first structural-parity pass, and it should win over a much weaker
-//    signal like the word "diagnosed" merely appearing somewhere inside a
-//    pregnancy entry's own title (exactly what happened to
-//    celiac-pregnancy-fertility-real-data before this reorder: its own
-//    title mentions "Once Diagnosed," which the advocacy check's `diagnos`
-//    term matched first under the original order, before the id's own,
-//    much more intentional "pregnan" signal ever got a chance).
-//
-// Title/food-name text is still checked as a real fallback beyond id alone
-// -- not every self-advocacy entry has "advocacy" in its own id (e.g.
-// `celiac-diagnostic-panel`, `type1-autoantibody-panel`), so id-only
-// matching would miss real cases a title-text check catches.
-function classifyConditionPillar(entry: AnyDigestEntry): ConditionPillar {
+// 1. "-overview" is checked before anything else, unconditionally -- an
+//    overview's own title often names body systems, antibodies, or other
+//    keyword-bait directly (Graves' own overview literally says
+//    "Antibody"), which would otherwise trip a later check and land the
+//    one entry meant to LEAD a category's reading order in the wrong shelf
+//    entirely. Carried over unchanged from the original 4-pillar version,
+//    where this exact case was already found and fixed once.
+// 2. "horizon-" (Research Horizon, every condition's own real emerging-
+//    treatment entries), "-global-" (Global Perspective, every condition's
+//    own real international/regional research), and "pregnan" (this app's
+//    own consistent "-pregnancy-..." id convention) are all real,
+//    deliberate, reliable id signals established across every condition's
+//    own build history -- checked by id substring, not title text, for the
+//    same reliability reason "-overview" is.
+// 3. "history"/"milestone" likewise -- every condition's own real
+//    "-history-milestones" entry uses this exact wording in its own id.
+// 4. A block of Hashimoto's-only id prefixes (gut-, mito-, healing-,
+//    complementary-, bigpicture-, lifestyle-, other-, labs-, problem-,
+//    nutrient-/additive-/interaction-/foodhistory-) -- real, dedicated
+//    content clusters that only ever exist for Hashimoto's, since only
+//    Hashimoto's content is assembled from this many separate, cross-
+//    cutting source files (see lib/digest/index.ts's own DIGEST_CATEGORY_
+//    META comment). A harmless no-op for every other condition, whose own
+//    entries never carry these prefixes at all.
+// 5. Keyword-in-title fallback for everything else, most specific first
+//    (Mental Health's own vocabulary is narrow and reliable enough to
+//    check before the much broader Diet/Medications/Self-Advocacy/Whole-
+//    Body nets, which do have some real overlap with each other -- a food/
+//    drug-interaction entry like "acitretin and alcohol" can plausibly
+//    read as either, and lands in Diet & Food here deliberately, matching
+//    this app's own food-first mission over a stricter "which is more
+//    medically precise" reading).
+function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
   const id = entry.id.toLowerCase();
-  if (id.endsWith('overview')) return 'science';
+  if (id.endsWith('overview')) return 'Core Science';
+
+  if (id.startsWith('horizon-')) return 'On the Horizon';
+  if (id.includes('-global-')) return 'Around the World';
+  if (id.includes('pregnan')) return 'Pregnancy & Family Planning';
+  if (id.includes('history') || id.includes('milestone')) return 'History & Milestones';
+
+  if (id.startsWith('gut-')) return 'Gut & Microbiome';
+  if (id.startsWith('mito-')) return 'Mitochondria & Metabolism';
+  if (id.startsWith('healing-')) return 'Healing Stages';
+  if (id.startsWith('complementary-')) return 'Complementary & Manual Therapies';
+  if (id.startsWith('bigpicture-')) return 'The Big Picture';
+  if (id.startsWith('lifestyle-')) return 'Lifestyle & Environment';
+  if (id.startsWith('other-')) return 'Other Autoimmune Diseases';
+  if (id.startsWith('problem-')) return 'Diet & Food';
+  if (id.startsWith('nutrient-') || id.startsWith('additive-') || id.startsWith('interaction-') || id.startsWith('foodhistory-')) {
+    return 'Diet & Food';
+  }
+  if (id.startsWith('labs-')) return 'Self-Advocacy & Testing';
+
   const title = (isProblemFoodEntry(entry) ? entry.foodName : entry.title).toLowerCase();
   const haystack = `${id} ${title}`;
-  if (/pregnan|\bhistory\b|milestone|\bstaging\b|classification/.test(haystack)) {
-    return 'stages';
-  }
-  if (/advocacy|screening|\bscreen\b|monitoring|\btest|antibody|\bpanel\b|biopsy|diagnos|\blab\b/.test(haystack)) {
-    return 'advocacy';
-  }
+
+  if (/depress|anxiety|suicid|psychiatric|mental health/.test(haystack)) return 'Mental Health';
+
   if (
-    /organ|systemic|comorbid|extra-articular|-systems|kidney|liver|cardiac|\bbone\b|lung|\beye\b|\bskin\b|neuro|\bbrain\b|cognitive|bladder/.test(
+    /\bdiet\b|nutrition|omega|mediterranean|\balcohol\b|gluten|nightshade|vitamin|fasting|weight loss|grapefruit|folate|\bfood\b|caffeine|coffee|\bsugar\b|\bfiber\b|probiotic|dairy/.test(
       haystack,
     )
   ) {
-    return 'body';
+    return 'Diet & Food';
   }
-  return 'science';
+
+  if (
+    /advocacy|screening|\bscreen\b|monitoring|diagnos|antibody|\bpanel\b|biopsy|\blab\b|criteria|\bstaging\b|classification|\btest\b|scoring|das28|pasi|caspar/.test(
+      haystack,
+    )
+  ) {
+    return 'Self-Advocacy & Testing';
+  }
+
+  if (
+    /medication|\bdrug\b|treatment|\btherapy\b|therapies|biologic|inhibitor|\bsurgery\b|surgical|\bdose\b|dosing|injection|infusion|transplant|prescri|steroid|antithyroid|nsaid|statin|metformin|insulin|allopurinol|colchicine|levothyroxine|phototherapy|biosimilar|vaccine|methotrexate|rituximab|tocilizumab|cyclosporine|acitretin|teprotumumab|methimazole|\bjak\b|il-?23|il-?6\b|sulfonylurea/.test(
+      haystack,
+    )
+  ) {
+    return 'Medications & Treatment';
+  }
+
+  if (
+    /organ|systemic|comorbid|extra-articular|-systems|kidney|liver|cardiac|\bheart\b|\bbone\b|\blung\b|\beye\b|\bskin\b|neuro|\bbrain\b|cognitive|bladder|vascul|\bnail\b|paralysis|fibromyalgia/.test(
+      haystack,
+    )
+  ) {
+    return 'Whole-Body Effects';
+  }
+
+  return 'Core Science';
 }
 
-// Buckets a condition's own entry list into the 4 real pillars above, with
+// Buckets a condition's own entry list into the real topics above, with
 // the "tying together" synthesis entry (if the condition has one) pulled
 // out separately rather than folded into any of them -- shaped
 // (`{label, entries}[]`) to match exactly what BasicHealthShelves below
 // already expects, the shared shelf-row-plus-detail-panel component every
-// condition's own pillar grouping renders through.
+// condition's own topic grouping renders through.
 function groupConditionEntries(entries: AnyDigestEntry[]): {
-  pillars: { label: string; entries: AnyDigestEntry[] }[];
+  topics: { label: string; entries: AnyDigestEntry[] }[];
   tyingTogether: AnyDigestEntry | null;
 } {
   const tyingTogether = entries.find(isTyingTogetherEntry) ?? null;
   const rest = entries.filter((entry) => !isTyingTogetherEntry(entry));
-  const buckets = new Map<ConditionPillar, AnyDigestEntry[]>();
+  const buckets = new Map<ConditionTopic, AnyDigestEntry[]>();
   for (const entry of rest) {
-    const pillar = classifyConditionPillar(entry);
-    if (!buckets.has(pillar)) buckets.set(pillar, []);
-    buckets.get(pillar)!.push(entry);
+    const topic = classifyConditionTopic(entry);
+    if (!buckets.has(topic)) buckets.set(topic, []);
+    buckets.get(topic)!.push(entry);
   }
-  const pillars = CONDITION_PILLAR_ORDER.map((pillar) => ({
-    label: CONDITION_PILLAR_LABELS[pillar],
-    entries: sortDigestEntriesLogically(buckets.get(pillar) ?? []),
+  const topics = CONDITION_TOPIC_ORDER.map((topic) => ({
+    label: topic as string,
+    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
   })).filter((group) => group.entries.length > 0);
-  return { pillars, tyingTogether };
+  return { topics, tyingTogether };
 }
 
 // A fixed, internal-only ref key for a condition's own standalone "tying
@@ -1202,8 +1301,8 @@ export default function PurpleDigestScreen() {
       lens === 'basicHealth'
         ? basicHealthAllGroups(entries)
         : (() => {
-            const { pillars, tyingTogether } = groupConditionEntries(entries);
-            return tyingTogether ? [...pillars, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : pillars;
+            const { topics, tyingTogether } = groupConditionEntries(entries);
+            return tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
           })();
     return baseGroups
       .map((group) => ({
@@ -1357,7 +1456,7 @@ export default function PurpleDigestScreen() {
   // Resolves which shelf/leaf group a given entry's own card should scroll
   // to -- Basic Health resolves the entry's own real tree path (joined into
   // one string, matching the ref key BasicHealthTree's own leaf container
-  // registers itself under); every real condition uses the pillar grouping
+  // registers itself under); every real condition uses the topic grouping
   // above, with its own "tying together" entry (if it has one) routed to
   // the fixed key that card renders under instead. 'search' never reaches
   // this (a search-result tap always resolves to a real underlying
@@ -1366,12 +1465,12 @@ export default function PurpleDigestScreen() {
     if (category === 'basicHealth') return basicHealthTopicPathForEntryId(id).join('::');
     const entry = findDigestEntryById(id);
     if (entry && isTyingTogetherEntry(entry)) return TYING_TOGETHER_GROUP_KEY;
-    if (entry) return CONDITION_PILLAR_LABELS[classifyConditionPillar(entry)];
+    if (entry) return classifyConditionTopic(entry);
     return TYING_TOGETHER_GROUP_KEY;
   }
 
   // Expanding/collapsing a single entry, wherever it's shown -- a
-  // condition's own pillar shelf, or a leaf inside Basic Health's own tree
+  // condition's own topic shelf, or a leaf inside Basic Health's own tree
   // (the tree's own drill-down navigation, separately, is owned by
   // BasicHealthTree itself, not this function) -- scrolls to that entry's
   // own group/leaf section, not the individual card.
@@ -1397,7 +1496,7 @@ export default function PurpleDigestScreen() {
     const category = target.category as DigestCategoryKey;
     setLens(category);
     // A previous category's own shelf refs (Basic Health topic paths, or a
-    // condition's own pillar labels -- both real, plain strings that can
+    // condition's own topic labels -- both real, plain strings that can
     // legitimately repeat across different categories, e.g. every
     // condition has its own "Core Science" shelf) are cleared here rather
     // than left to go stale -- otherwise a leftover ref from whichever
@@ -1513,7 +1612,7 @@ export default function PurpleDigestScreen() {
                   onBack), and that stays exactly as it is for stepping
                   between tree levels -- this is a second, separate escape
                   hatch that always works in one tap, from any lens, at any
-                  depth (a condition's pillar shelves, Search's own results,
+                  depth (a condition's topic shelves, Search's own results,
                   or any level of Basic Health's tree).
                   2026-08-08, same day, real follow-up: "when I hit back to
                   digest breadcrumb from any section, it should close the
@@ -1697,7 +1796,7 @@ export default function PurpleDigestScreen() {
                 // Basic Health's own real topic/subtopic groups (every leaf
                 // at once, not drilled into one at a time -- see
                 // basicHealthAllGroups' own comment) or a condition's own
-                // real pillar groups (plus its closing synthesis entry, if
+                // real topic groups (plus its closing synthesis entry, if
                 // it has one) are each filtered down to just the entries
                 // that actually match, with any group that ends up empty
                 // dropped entirely -- reusing BasicHealthShelves' own
@@ -1744,18 +1843,19 @@ export default function PurpleDigestScreen() {
               ) : (
                 // Every real condition category -- 2026-08-08, the same
                 // shelf-row-plus-detail-panel shape Basic Health's own
-                // leaf level uses, grouped into 4 real pillars (see
-                // groupConditionEntries' own comment above). The
+                // leaf level uses, grouped into many real topics (see
+                // groupConditionEntries' own comment above, and its
+                // 2026-08-12 rebuild from a fixed 4-pillar version). The
                 // category's own closing "tying together" synthesis, if
                 // it has one, is pulled out of the shelves and shown as
                 // its own standalone card below them, always visible,
-                // never nested inside a pillar it doesn't really belong to.
+                // never nested inside a topic it doesn't really belong to.
                 (() => {
-                  const { pillars, tyingTogether } = groupConditionEntries(entries);
+                  const { topics, tyingTogether } = groupConditionEntries(entries);
                   return (
                     <>
                       <BasicHealthShelves
-                        groups={pillars}
+                        groups={topics}
                         expandedId={expandedId}
                         groupRefs={groupRefs}
                         onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
@@ -1862,6 +1962,22 @@ export default function PurpleDigestScreen() {
           groupRefs.current = {};
           setLens(key);
           setExpandedId(null);
+          // 2026-08-12, direct report: picking a different lens from this
+          // popup left the ScrollView sitting at whatever offset the
+          // PREVIOUS lens had been scrolled to -- every other reset here
+          // (groupRefs, expandedId, search state, basicHealthTopicPath)
+          // already treats a lens switch as a fresh arrival, but the
+          // ScrollView's own native scroll offset is a real property of the
+          // component instance that swapping its children does NOT reset on
+          // its own. An unanimated jump (not scrollGroupIntoView's own
+          // animated, measure-based scroll -- there's no target entry to
+          // scroll to here, just "start at the top of the new page") plus a
+          // matching reset of the same currentScrollY ref
+          // measureAndScrollTo/onScroll rely on elsewhere, so nothing reads
+          // a stale offset in the brief window before a real onScroll event
+          // would otherwise correct it.
+          scrollRef.current?.scrollTo({ y: 0, animated: false });
+          currentScrollY.current = 0;
           setSearchQuery('');
           setCategorySearchQuery('');
           setIsSearchActive(false);
@@ -2162,8 +2278,10 @@ function SearchResultCard({
 // categorized topic cards in related groups... moving strictly from broad
 // categories down to highly specific, bite-sized pieces of information."
 // Replaces Basic Health's earlier all-31-groups-shown-at-once shelf view
-// entirely (BasicHealthShelves below is now used only by conditions' own
-// 4-pillar grouping, not by Basic Health at all).
+// entirely (BasicHealthShelves below is used for a condition's own real
+// topic grouping -- see groupConditionEntries' own comment -- and for
+// Basic Health's own scoped-search results, not for ordinary Basic Health
+// browsing anymore).
 //
 // Top level (`path` is empty): a real, scannable grid of topic cards --
 // BASIC_HEALTH_TOPICS' own 10 real entries (9 standalone, plus "Essential
@@ -2314,9 +2432,12 @@ function TopicCard({
 
 // Every real CONDITION's own grouped browsing view -- 2026-08-08, since
 // Basic Health moved to its own real tree (BasicHealthTree above), this
-// component is now used only for a condition's own 4-pillar grouping, not
-// for Basic Health at all (its earlier, original job, before Basic Health
-// outgrew a flat shelf list entirely). The per-row interaction itself was
+// component is now used for a condition's own real topic grouping (see
+// groupConditionEntries' own comment; rebuilt 2026-08-12 from a fixed
+// 4-pillar version into many more, more specific real topics) and for
+// Basic Health's own scoped-search results, not for ordinary Basic Health
+// browsing at all (its earlier, original job, before Basic Health outgrew
+// a flat shelf list entirely). The per-row interaction itself was
 // rebuilt 2026-08-08, direct correction after an even earlier version (tapping a
 // card jumped clean out of the shelf view into a
 // completely different, much longer flat list) read as genuinely
@@ -2347,7 +2468,7 @@ function TopicCard({
 // heading -- 2026-08-08, split out once a second special key
 // (TYING_TOGETHER_GROUP_KEY) needed the same "real key, different display
 // text" treatment the '::'-joined Basic Health path already had. A no-op
-// for a plain condition pillar label (Core Science, etc.), which is
+// for a plain condition topic label (Core Science, etc.), which is
 // neither of these two special shapes.
 function shelfGroupDisplayLabel(label: string): string {
   if (label === TYING_TOGETHER_GROUP_KEY) return 'Putting It Together';
@@ -2397,7 +2518,7 @@ function BasicHealthShelves({
                 given entry -- a Basic Health entry's own '::'-joined tree
                 path, or TYING_TOGETHER_GROUP_KEY for a closing synthesis
                 entry -- so tapping a shelf tab scrolls correctly whether
-                this group came from the plain pillar/tree view or the new
+                this group came from the plain topic/tree view or the new
                 filtered-search view below), so it's converted to a plain,
                 readable display string only here, at render time. See
                 shelfGroupDisplayLabel's own comment. */}
