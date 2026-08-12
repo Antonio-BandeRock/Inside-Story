@@ -1000,31 +1000,30 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
   // (searchReferenceFoodNames, getPreparationMethods, resolveFoodChoice,
   // and the alias-resolution path) gets this for free from one change here.
   //
-  // 'needs_translation' column, 2026-08-11, same "one universal filter, not
-  // a per-category patch" reasoning -- a real, confirmed bug found while
-  // investigating a direct report: the 2026-08-10 decision to keep Norway/
-  // Sweden's own untranslated food names invisible was only ever checked
-  // against the usdaOnly branch below, which most categories go through.
-  // But several categories (Mushroom, Alcohol, PantryStaples,
-  // PastaNoodles, SaucesCondiments, CommercialPremade) deliberately BYPASS
-  // that branch entirely (see resolveEffectiveUsdaOnly's own history --
-  // each has little-to-no real USDA coverage of its own, so usdaOnly
-  // resolves false for them, skipping the `if (usdaOnly)` block below
-  // completely) -- and nobody had checked whether the untranslated
-  // sources also had rows sitting in those categories. They did: 670 real
-  // rows (Sweden's own Mushroom entries were the specific ones a person
-  // directly ran into, e.g. "Champinjon" instead of "Common Mushroom"),
-  // confirmed via direct query before this fix, silently exposed the
-  // whole time regardless of the earlier "kept invisible" framing.
-  // Putting the check here, unconditionally, in the one base clause every
-  // caller already shares, closes it for good rather than adding a sixth
-  // per-category patch to a list that's already shown itself easy to miss
-  // a case in. `needs_translation` also directly supports translating in
-  // real, verified batches over time (the person's own explicit choice,
-  // not a rush job) -- as a row's own `name`/`base_name` gets a real
-  // English translation, that row's `needs_translation` flag clears and
-  // it starts appearing on its own, no code change needed here.
-  let clause = 'category = ? AND hidden = 0 AND needs_translation = 0';
+  // A 'needs_translation' column existed briefly, 2026-08-11 -- built to
+  // hide untranslated Norway/Sweden/France_Ciqual rows from categories
+  // that bypass the usdaOnly branch below (Mushroom, Alcohol,
+  // PantryStaples, PastaNoodles, SaucesCondiments, CommercialPremade),
+  // alongside a real, substantial hand-translation effort against those
+  // three sources. Both were reverted the same day, per direct
+  // instruction ("restore from the last back up from 8/10/2026. ONLY THE
+  // APP database and structure") -- the separate Unified Whole-Foods
+  // Database project (see CLAUDE.md's own "Standing directive, 2026-08-11")
+  // will eventually replace this database's own untranslated rows properly,
+  // so hand-translating the live one first was judged wasted effort.
+  // assets/data/foods_reference.db was restored to its pre-translation
+  // 2026-08-10 state, but this file wasn't touched at the same time
+  // (`lib/db.ts` was deliberately left alone for two real, unrelated fixes
+  // living here that same day), leaving this query referencing a column
+  // the restored database no longer has -- confirmed directly via
+  // `PRAGMA table_info(foods)`, and via the exact runtime crash this
+  // caused ("no such column: needs_translation") once someone actually
+  // browsed a category. Removed here to match the real, current, restored
+  // schema. The untranslated-row-visibility problem this column was built
+  // to fix is real and still open (Norway/Sweden/France_Ciqual rows can
+  // still surface in Mushroom/Alcohol/etc.) -- worth a real, different fix
+  // whenever this is picked back up, not a silent regression to ignore.
+  let clause = 'category = ? AND hidden = 0';
 
   if (subcategory) {
     clause += ' AND subcategory = ?';
@@ -1088,8 +1087,8 @@ function buildScopeClause(category: string, subcategory: string | null, usdaOnly
 // app's own scoring, so it's a meaningful choice, not just cosmetic noise
 // to auto-collapse.
 // 2026-08-11: no longer takes a usdaOnly param -- always queries the FULL
-// candidate set (every visible source, hidden/needs_translation/curated-
-// allowlist filtering still fully applied via buildScopeClause). Real,
+// candidate set (every visible source, hidden/curated-allowlist filtering
+// still fully applied via buildScopeClause). Real,
 // direct request: "for food selection in the builders, it should default
 // to USDA (unless the user chooses one of the others) and then anything
 // not available in the USDA dataset that exists in any of the other
@@ -1292,7 +1291,7 @@ export function isFallbackSource(source: string): boolean {
 // neither matches "prefer USDA, but still surface and label a real
 // fallback for a SPECIFIC food/prep-state USDA doesn't have." Now always
 // queries the full candidate set (buildScopeClause(..., false), same
-// hidden/needs_translation/curated-allowlist filtering as before) and
+// hidden/curated-allowlist filtering as before) and
 // adds ONE new, highest-priority ORDER BY tier: a real USDA/Derived row
 // always wins over any other source for the same (base_name, prep_method)
 // combination, regardless of which food_id is lower -- the existing salt-
@@ -1413,7 +1412,7 @@ async function resolveCuratedRecipeIngredient(category: string, baseName: string
   const db = await getReferenceDatabase();
   const row = await db.getFirstAsync<{ food_id: number; source: string; name: string; short_name: string | null; category: string }>(
     `SELECT food_id, source, name, short_name, category FROM foods
-     WHERE category = ? AND base_name = ? AND hidden = 0 AND needs_translation = 0
+     WHERE category = ? AND base_name = ? AND hidden = 0
      ORDER BY CASE WHEN source IN ('USDA', 'Derived') THEN 0 ELSE 1 END, food_id
      LIMIT 1`,
     category,
