@@ -129,6 +129,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
+    relatedIds: ['foodhistory-regen-green-revolution-consequences'],
   },
   {
     id: 'foodhistory-timeline-glyphosate-hfcs',
@@ -766,7 +767,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, rigorous, multi-decade controlled field trial -- the strongest evidence tier this cluster has for the yield/economics question specifically.',
-    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-individual-farm-case-study', 'foodhistory-regen-nrcs-soil-health-demonstrations', 'foodhistory-regen-liquid-carbon-pathway'],
     chart: {
       title: 'Organic vs. Conventional Corn Yield, Drought Years',
       unit: '% higher (organic)',
@@ -793,7 +794,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A real, symbolically important policy initiative with a genuine, published scientific dispute over whether its own headline number is achievable -- both sides stated here, not just the flattering one.',
-    relatedIds: ['foodhistory-regen-environmental-impact'],
+    relatedIds: ['foodhistory-regen-environmental-impact', 'foodhistory-regen-liquid-carbon-pathway'],
   },
   {
     id: 'foodhistory-regen-mycorrhizal-networks',
@@ -814,7 +815,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'The underlying fungal network is real and confirmed; several of the popular claims about what it does are genuinely overstated relative to the published evidence -- both stated here.',
-    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-liquid-carbon-pathway'],
   },
   {
     id: 'foodhistory-regen-holistic-grazing-disputed',
@@ -899,7 +900,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, dated historical origin point plus current, peer-reviewed confirmation -- not just an anecdote.',
-    relatedIds: ['foodhistory-regen-innovations-soil-biology'],
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-nrcs-soil-health-demonstrations'],
   },
   {
     id: 'foodhistory-regen-agroforestry-quantified',
@@ -937,7 +938,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'Included deliberately, the same way the Savory entry above is, so this cluster does not read as accepting every regenerative-branded claim uncritically.',
-    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-timeline-certification-era', 'foodhistory-pesticides-glyphosate-dispute'],
+    relatedIds: ['foodhistory-regen-brazil-case-study', 'foodhistory-regen-timeline-certification-era', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-individual-farm-case-study'],
   },
   // 2026-08-10, same day, third follow-up: "Keep going with more research
   // on this topic." Every citation below independently re-verified via
@@ -1026,7 +1027,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Official USDA Census data -- a real, grounding corrective to the faster-moving market and certification figures elsewhere in this cluster.',
-    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-tying-together', 'garden-cover-crops-home'],
+    relatedIds: ['foodhistory-regen-innovations-soil-biology', 'foodhistory-regen-tying-together', 'garden-cover-crops-home', 'foodhistory-regen-water-infiltration-quantified'],
     chart: {
       title: 'US Cropland Using Cover Crops (2022)',
       unit: '%',
@@ -1833,7 +1834,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'A real, current, well-documented crisis with a direct, cited policy mechanism -- the same structural-disincentive pattern already established in this cluster\'s own crop-insurance entry, now shown to apply to water too.',
-    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved', 'garden-watering-efficiency'],
+    relatedIds: ['foodhistory-regen-why-not-mandated', 'foodhistory-regen-almond-pollination-rental-economics', 'foodhistory-regen-fao-baseline-stakes', 'foodhistory-regen-how-to-get-involved', 'garden-watering-efficiency', 'foodhistory-regen-water-infiltration-quantified'],
   },
   {
     id: 'foodhistory-regen-antibiotic-resistance-livestock',
@@ -1909,7 +1910,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Real, current, independently-tracked market-concentration data -- directly ties this cluster\'s own pesticide/lobbying research on Bayer to the seed supply specifically, not a separate corporate story.',
-    relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-shareholder-activism-mechanics'],
+    relatedIds: ['foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-lobbying-imbalance', 'foodhistory-pesticides-glyphosate-dispute', 'foodhistory-regen-shareholder-activism-mechanics', 'foodhistory-regen-seed-patent-litigation'],
   },
   {
     id: 'foodhistory-regen-svalbard-seed-vault',
@@ -2019,6 +2020,170 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     stageNote: 'A real, current, live legal and legislative fight, resolved with a real settlement within this same research thread\'s own timeframe, not a historical or hypothetical example.',
     relatedIds: ['foodhistory-regen-pesticide-liability-shields', 'foodhistory-regen-reform-coalition-orgs', 'foodhistory-regen-how-to-get-involved'],
+  },
+  {
+    id: 'foodhistory-regen-soil-gut-microbiome-axis',
+    category: 'earthMatters',
+    title: 'A Real, Proposed Link Between Soil Microbes and the Human Gut, Honestly Still Unproven',
+    teaser: 'The paper\'s own authors call the evidence "largely circumstantial and hypothetical" -- worth reading that way, not as a settled fact, even though the individual pieces underneath it are real.',
+    summary:
+      "A real, current (2025) perspective paper in Nature Communications lays out the actual case for a proposed \"soil-plant-human gut microbiome axis\" -- the idea that soil microbes don't just grow the food a person eats, but can genuinely travel into the plant and, from there, into the human gut. Four real mechanisms are named. Molecular mimicry: some soil bacteria produce molecules structurally similar to signaling molecules already used by plants and the human immune system, including lipopolysaccharides that can trigger a real immune response. Horizontal gene transfer: real, documented transfer of traits (most concerningly, antibiotic resistance genes) from soil bacteria into gut bacteria, sometimes carried by manure and biosolids spread on farmland -- one cited study found roughly 27% of microbes sampled from swine-farm soil and dust already carried antibiotic resistance genes, and people directly exposed to those same farms showed gut microbiomes with a matching resistance-gene pattern. Colonization resistance: a diverse resident gut microbiome acts as a real, protective barrier against incoming pathogens, with soil-derived diversity plausibly contributing to that protection. And cross-feeding, cooperative metabolic exchange between microbes across the soil-plant-gut chain, which the paper's own authors state directly has \"not been widely demonstrated.\" Real, supporting animal evidence exists too: mice fed soil slurry showed reduced inflammation, and mice raised with outdoor soil exposure showed a real, measurably more diverse set of immune cells than mice raised in a sterile environment; a landmark 2012 Nature study (Yatsunenko et al.) independently found human gut microbiome composition varies by geography in ways tied to diet, farming exposure, and local environment. Read honestly rather than for its most dramatic version: the paper's own authors are explicit that direct evidence of this exact chain, soil microbe to plant to human gut, working end to end in real people, \"is scarce,\" and repeatedly describe the current state of the science as hypothesis-generating rather than proven. It's a real, serious, actively-researched idea grounded in real individual pieces of evidence, not yet a demonstrated mechanism.",
+    citations: [
+      {
+        source: 'Ma H, Cornadó D, Raaijmakers JM 2025, Nature Communications 16:7748: "The soil-plant-human gut microbiome axis into perspective"',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12368272/',
+      },
+      {
+        source: 'Yatsunenko T et al. 2012, Nature: "Human gut microbiome viewed across age and geography"',
+        url: 'https://www.nature.com/articles/nature11053',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, current scientific hypothesis with real supporting pieces, honestly reported at the same confidence level its own authors give it -- not yet proven end to end.',
+    relatedIds: ['gut-scfa-treg', 'foodhistory-regen-antibiotic-resistance-livestock', 'foodhistory-regen-organic-farming-pollinator-abundance'],
+  },
+  {
+    id: 'foodhistory-regen-liquid-carbon-pathway',
+    category: 'earthMatters',
+    title: 'How a Plant Actually Turns Sunlight Into Buried Carbon, and Where the Popular Number Overstates It',
+    teaser: 'The real, peer-reviewed range is 5-15% of a plant\'s own captured carbon flowing into the soil this way. Regenerative-farming advocacy sites commonly cite figures as high as 40%.',
+    summary:
+      "The real underlying mechanism behind healthy soil holding more carbon has a name, the \"liquid carbon pathway,\" coined by soil ecologist Christine Jones, and a real, physical basis: during photosynthesis, a plant captures atmospheric CO2 and, rather than keeping all of it for its own leaves and stems, actively pumps a real share of that carbon down through its roots as sugary \"exudates\" specifically to feed symbiotic mycorrhizal fungi in exchange for water and minerals the plant needs. Those fungi in turn produce their own sticky carbon compound, glomalin, that helps bind soil particles into stable aggregates, and when the fungal network itself dies, its remains (fungal necromass) become a genuinely stable, long-lasting form of soil carbon, different from surface plant matter, which soil microbes quickly consume and respire back into the air as CO2. The mechanism itself is real, peer-reviewed, uncontroversial plant physiology. Where popular regenerative-agriculture education material, not the underlying peer-reviewed science, tends to overstate things: a real, foundational peer-reviewed synthesis (Jones DL et al. 2009) puts total rhizodeposition, the actual carbon flux from roots into the soil, at roughly 5-15% of a plant's net photosynthesized carbon, with a broader literature range as low as 1% and as high as roughly 27% of the carbon a plant sends specifically to its own roots (not its total photosynthesis). Advocacy and consulting sites promoting the liquid carbon pathway concept commonly cite a flat \"40%\" figure without a matching peer-reviewed citation, a real, meaningful overstatement of the range independent plant-science literature actually supports. The real, honest version: this is a genuine, physically real mechanism worth protecting through low-disturbance farming, capable of building real, durable soil carbon over time, just not at the scale some popular retellings imply.",
+    citations: [
+      {
+        source: 'Jones DL, Nguyen C, Finlay RD 2009, Plant and Soil: "Carbon flow in the rhizosphere: carbon trading at the soil-root interface" (5-15% rhizodeposition baseline)',
+        url: 'https://link.springer.com/article/10.1007/s11104-009-9925-0',
+      },
+      {
+        source: 'Regenerative agriculture education material on the liquid carbon pathway (Christine Jones\' own framing, cross-checked against the peer-reviewed range above)',
+        url: 'https://regenagsa.org.za/l/the-liquid-carbon-pathway/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, peer-reviewed mechanism, deliberately checked against a popular advocacy figure that overstates the science it\'s drawn from -- the same "protect the real mechanism, correct the inflated number" treatment already given to holistic grazing and mycorrhizal networks elsewhere in this cluster.',
+    relatedIds: ['foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-4-per-1000-initiative', 'foodhistory-regen-rodale-farming-systems-trial'],
+  },
+  {
+    id: 'foodhistory-regen-water-infiltration-quantified',
+    category: 'earthMatters',
+    title: "It's Not Tillage Alone That Makes Soil Hold Water -- a Real, 391-Comparison Meta-Analysis Shows What Actually Does",
+    teaser: 'No-till by itself: a real, non-significant 5.7% average gain. Living roots year-round, from perennials or cover crops: a real 35-59% gain. Same soil, genuinely different real levers.',
+    summary:
+      "A widely repeated claim in regenerative-farming advocacy is that healthy soil simply holds far more water, reducing both flood and drought risk. That underlying claim is real, and a genuinely rigorous 2019 meta-analysis (Basche & DeLonge, PLOS ONE) puts real, precise numbers on exactly which practice actually drives it: pooling 391 paired field comparisons from 89 real studies across six continents, the review found introducing perennial vegetation produced the single largest real gain in water infiltration, a 59.2% average increase, and cover crops produced a real 34.8% average increase, with the effect growing stronger the longer cover crops had been used (over 4 years showed a bigger gain than shorter use). No-till farming on its own, the practice most commonly associated with regenerative agriculture in popular coverage, produced only a real, non-significant 5.7% average gain across the full dataset, though it did show real improvement specifically in wetter climates when combined with keeping crop residue on the surface (a real 41.5% gain in that narrower condition). Crop rotation alone showed a real, non-significant 18.5% effect, and cropland grazing showed a real, negative -21.3% effect on infiltration. The honest, corrected version of the popular claim: it's not tillage practice by itself that reliably improves how well soil holds water, it's whether the ground has continuous living roots in it, through perennials or cover crops, that does the real, heavy lifting -- a genuinely more precise and more actionable finding than \"no-till fixes water retention\" alone.",
+    citations: [
+      {
+        source: 'Basche AD, DeLonge MS 2019, PLOS ONE: "Comparing infiltration rates in soils managed with conventional and alternative farming methods: A meta-analysis" (89 studies, 391 comparisons)',
+        url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0215702',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, large, precisely quantified meta-analysis that both confirms the underlying popular claim (regenerative practices genuinely improve water infiltration) and corrects which specific practice actually drives it.',
+    relatedIds: ['foodhistory-regen-ogallala-water-depletion', 'foodhistory-regen-cover-crop-reality-check', 'garden-watering-efficiency'],
+  },
+  {
+    id: 'foodhistory-regen-individual-farm-case-study',
+    category: 'earthMatters',
+    title: 'A Single, Real, 33-Year Farm-Scale Transition, Tracked Year by Year',
+    teaser: "A North Dakota ranch's own soil organic matter climbed from 1.9% in 1991 to as high as 7.9% today, with crop yields running 20-25% above the county average -- one real farm, extensively documented, not independently peer-reviewed.",
+    summary:
+      "Every real regenerative-agriculture case study already built in this cluster works at national or regional scale -- Brazil's no-till movement, Niger's farmer-managed regeneration, China's Loess Plateau restoration. A genuinely different, individual-farm-scale example is also real and extensively documented: a 5,000-acre ranch in Burleigh County, North Dakota, run by the same family since a series of severe weather losses in the early 1990s forced a real change in practice. Real, tracked figures over more than three decades: soil organic matter rose from 1.9% in 1991 to a range now reported between 5.3% and 7.9%, a real, multi-fold increase directly tied to the same water-holding-capacity and infiltration mechanisms already covered elsewhere in this cluster. By 2010, the operation had eliminated synthetic fertilizer entirely, and it no longer requires fungicides or pesticides at all, while running crop yields a real 20-25% above the county average through a combination of continuous no-till, multi-species cover and companion cropping, and managed rotational grazing that gives most pastures a full year to recover between grazing periods. Worth stating plainly and honestly: this is a real, extensively documented case, covered repeatedly by agricultural extension services and industry press over more than a decade, but it is one family's own individually tracked farm data, not an independently peer-reviewed academic study the way the Rodale Institute's own controlled 40-plus-year trial is -- a genuinely different, still real, but lower tier of evidence than a designed, replicated experiment.",
+    citations: [
+      {
+        source: "Center for Regenerative Agriculture and Resilient Systems (CSU Chico): profile of the farm's own soil organic matter and yield data",
+        url: 'https://regenerativeag.csuchico.edu/mentors/browns-ranch/',
+      },
+      {
+        source: 'DTN/Progressive Farmer: The Face of Regenerative Ag (operational history, synthetic-input elimination timeline)',
+        url: 'https://www.dtnpf.com/agriculture/web/ag/news/article/2023/06/12/face-regenerative-ag',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real, extensively documented individual case, honestly tiered below the peer-reviewed Rodale trial and the government-tracked national case studies elsewhere in this cluster, since it rests on one family\'s own tracked data rather than independent academic replication.',
+    relatedIds: ['foodhistory-regen-rodale-farming-systems-trial', 'foodhistory-regen-brazil-case-study', 'foodhistory-regen-no-till-greenwashing-critique'],
+  },
+  {
+    id: 'foodhistory-regen-nrcs-soil-health-demonstrations',
+    category: 'earthMatters',
+    title: 'A Real, Simple Test Anyone Can Watch: Dropping a Clod of Soil Into a Jar of Water',
+    teaser: 'Soil with a real, stable structure holds together underwater. Soil that has lost its structure dissolves into a cloudy crust that blocks its own pores within seconds -- the same real, visible difference a farmer can check on their own land.',
+    summary:
+      "The USDA's own Natural Resources Conservation Service maintains a real, simple, widely used field test for exactly the soil-structure concept underlying most of this cluster's own claims about water infiltration and erosion resistance: the slake test. A clod of dry soil is lowered into a jar of water, and how it behaves is directly observable. Soil with real, stable aggregate structure, held together by the same fungal glomalin and organic-matter binding covered elsewhere in this cluster, stays largely intact underwater. Soil that has lost that structure through tillage and a lack of continuous living roots slakes apart within seconds, its particles dissolving into the water and settling as a dense crust that physically blocks the soil's own pores, the same mechanism that reduces infiltration, increases runoff, and worsens erosion. NRCS conservation agronomist Ray Archuleta has run this same demonstration, alongside a companion miniature-rainfall-simulator test showing real runoff differences side by side, at farms and conferences across the country for years specifically because it makes an otherwise invisible underground property visible and comparable in real time. It's a real, standard field diagnostic, not a controlled academic trial on its own, but it directly demonstrates, rather than just describes, the same soil-aggregate-stability mechanism this cluster's own carbon and water-infiltration research is built around.",
+    citations: [
+      {
+        source: 'USDA NRCS: Soil Quality Test Kit Guide (the slake test\'s own official methodology)',
+        url: 'https://www.nrcs.usda.gov/sites/default/files/2022-10/Soil%20Quality%20Test%20Kit%20Guide.pdf',
+      },
+      {
+        source: 'University of Illinois Soil Quality Initiative: Slaking (what the test measures and why it matters)',
+        url: 'https://soilquality.nres.illinois.edu/slaking/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, standard USDA field-diagnostic tool, directly demonstrating the same soil-aggregate mechanism already covered elsewhere in this cluster rather than a separate claim.',
+    relatedIds: ['foodhistory-regen-water-infiltration-quantified', 'foodhistory-regen-darwin-earthworms-vermicompost', 'foodhistory-regen-rodale-farming-systems-trial'],
+  },
+  {
+    id: 'foodhistory-regen-green-revolution-consequences',
+    category: 'earthMatters',
+    title: "The Mid-Century Shift That's the Direct Ancestor of the System This Whole Cluster Responds To",
+    teaser: 'A real, celebrated achievement -- credited with saving hundreds of millions of people from famine -- that also required inputs only well-capitalized farmers could actually afford.',
+    summary:
+      "This cluster's own already-built history entries mention the Green Revolution as one line inside a broader 1945-1976 timeline; its own real, specific mechanism and consequences deserve their own direct account, since it's the actual historical origin of the input-dependent, monoculture-based farming system every other entry in this cluster is responding to. Beginning in the 1940s-60s, American scientist Norman Borlaug developed short-stemmed, disease-resistant wheat varieties capable of absorbing far more synthetic nitrogen fertilizer than traditional varieties without collapsing under the weight of their own grain, tripling Mexico's wheat production and, alongside comparable rice and maize breeding efforts, credited with helping prevent famine across large parts of Asia and Latin America as global population surged. The tradeoff was real and structural, not incidental: these high-yield varieties only performed as advertised with heavy, ongoing synthetic fertilizer and irrigation input, a real and lasting requirement (see this cluster's own already-covered DDT and synthetic-fertilizer entries for the environmental side of that same shift). The real, human-scale consequence, less discussed than the yield gains: farmers who could afford the seed, fertilizer, and irrigation investment thrived, while resource-poor, smallholder farmers who couldn't fell into real, documented debt and, in many cases, lost their land entirely, a direct structural predecessor of the seed-cost and input-cost pressures still facing farmers today. The shift toward a small number of staple monoculture crops also reduced real agricultural biodiversity, leaving those systems more vulnerable to pests and disease, the same genetic-narrowness risk pattern this cluster has already documented independently in commercial honeybee breeding and today's seed-industry consolidation.",
+    citations: [
+      {
+        source: 'Britannica: Green revolution (Borlaug\'s wheat breeding, Mexico/India yield history)',
+        url: 'https://www.britannica.com/event/green-revolution',
+      },
+      {
+        source: 'Alliance of Bioversity International and CIAT: Exploring the effects of the Green Revolution on agriculture (input costs, smallholder debt, monoculture vulnerability)',
+        url: 'https://alliancebioversityciat.org/stories/effects-green-revolution-agriculture',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, well-documented historical turning point, presented with both its own real, celebrated achievement and its own real, structural human cost, rather than either alone.',
+    relatedIds: ['foodhistory-timeline-chemical-convenience', 'foodhistory-regen-seed-diversity-loss', 'foodhistory-regen-farmer-mental-health-debt-crisis'],
+  },
+  {
+    id: 'foodhistory-regen-farmer-mental-health-debt-crisis',
+    category: 'earthMatters',
+    title: 'The Real Human Cost Sitting Underneath Every Policy Entry in This Cluster',
+    teaser: 'A real, peer-reviewed CDC dataset identified 1,935 farmer and rancher suicide decedents over just 15 years. National farm debt has climbed toward a real, projected $624.7 billion.',
+    summary:
+      "This cluster's own entries on crop-insurance disincentives, the Ogallala Aquifer, and the Green Revolution's own input-cost pressure all point toward the same real, underlying human cost, worth naming directly rather than leaving implicit: American farmers face a genuinely elevated real mental health crisis, tightly connected to the same economic pressures already documented throughout this cluster. A real, peer-reviewed 2022 study (Miller et al., American Journal of Industrial Medicine) used CDC National Violent Death Reporting System data spanning 2003-2018 to identify 1,935 farmer and rancher suicide decedents (1,838 men, 97 women) across that 15-year window. A separate, real CDC-sourced analysis of 2016 data across 32 states found men working in farming, fishing, and forestry occupations died by suicide at a real rate of 36.1 per 100,000, and the National Rural Health Association places the overall farmer suicide rate at roughly 3.5 times the general population's own rate. The real, named financial pressure behind much of this: national farm debt stood at a real $416 billion in 2019 and has continued climbing, with USDA projecting it reaching roughly $624.7 billion in the near term, driven by the same real factors named throughout this cluster, falling commodity prices, rising input costs, natural disasters, and trade disruption, compounded by a real, documented shortage of rural mental-health providers who understand farming culture specifically. This is a real, human consequence of the same structural economics this whole cluster's own policy and market-power entries already trace in the abstract.",
+    citations: [
+      {
+        source: 'Miller M et al. 2022, American Journal of Industrial Medicine: "Characteristics of suicide among farmers and ranchers: Using the CDC NVDRS 2003-2018" (1,935 decedents)',
+        url: 'https://onlinelibrary.wiley.com/doi/full/10.1002/ajim.23399',
+      },
+      {
+        source: 'National Rural Health Association: Policy brief on increases in suicide rates among farmers in rural America (3.5x general-population rate)',
+        url: 'https://www.ruralhealth.us/getmedia/98f1009e-5418-4c06-910c-cdbb965cdb2e/NRHA-Policy-Brief-Increases-in-Suicide-Rates-Among-Farmers-in-Rural-America.pdf',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A real, peer-reviewed CDC-sourced dataset behind a specific, quantified figure, not an estimate -- the direct human-cost counterpart to this cluster\'s own already-covered economic and policy research.',
+    relatedIds: ['foodhistory-regen-green-revolution-consequences', 'foodhistory-regen-why-not-mandated', 'foodhistory-regen-how-to-get-involved', 'foodhistory-regen-ogallala-water-depletion'],
+  },
+  {
+    id: 'foodhistory-regen-seed-patent-litigation',
+    category: 'earthMatters',
+    title: 'Two Real Supreme Court Cases That Decided Whether Saving Your Own Harvested Seed Is Legal',
+    teaser: 'One Saskatchewan canola farmer and one Indiana soybean farmer both lost, in two different countries\' highest courts, over the exact same underlying question: does buying a patented seed once mean you can never plant its own descendants again.',
+    summary:
+      "This cluster's own already-covered seed-industry consolidation (four companies now controlling 56% of the global commercial seed market) is enforced through real, tested legal mechanisms, not just market dominance, and two real Supreme Court decisions, one Canadian, one American, set the actual legal ground rules still in force today. In Canada, Monsanto sued Saskatchewan canola farmer Percy Schmeiser in 1998 after his own fields were found to contain the company's patented, herbicide-resistant canola, which Schmeiser maintained had arrived through unintentional cross-contamination from neighboring farms, not deliberate purchase. Canada's Supreme Court ruled 5-4 in 2004 that Monsanto's gene patent was valid and enforceable even against unintentional contamination, though it also ruled each side would pay its own legal costs, letting Schmeiser walk away without paying Monsanto anything despite technically losing. In the United States, Indiana soybean farmer Vernon Bowman bought ordinary grain-elevator soybeans, intended for animal feed or consumption, and knowingly planted them specifically because he suspected most would carry Monsanto's patented Roundup Ready trait, then saved and replanted the resulting harvest across multiple seasons rather than buying fresh licensed seed each year. In a unanimous 2013 ruling, the US Supreme Court held that Monsanto's own patent rights survive a single sale and are not exhausted by it, meaning a farmer who plants a patented seed and grows a new generation of seed from it has created a legally new, infringing article regardless of how the original seed was obtained. Together, these two real, high-court decisions established the actual legal mechanism (not just the market share) by which patent holders can enforce control over seed saving, the traditional farming practice these companies' own genetically engineered seed licenses now generally prohibit outright.",
+    citations: [
+      {
+        source: 'Wikipedia (cross-checked against the Supreme Court of Canada\'s own published judgment): Monsanto Canada Inc v Schmeiser, 2004 SCC 34',
+        url: 'https://en.wikipedia.org/wiki/Monsanto_Canada_Inc_v_Schmeiser',
+      },
+      {
+        source: 'Justia US Supreme Court Center: Bowman v. Monsanto Co., 569 U.S. 278 (2013), unanimous decision',
+        url: 'https://supreme.justia.com/cases/federal/us/569/278/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Two real, verifiable, high-court legal decisions, not disputed claims -- the actual legal mechanism behind the market-concentration numbers already covered elsewhere in this cluster.',
+    relatedIds: ['foodhistory-regen-seed-industry-consolidation', 'foodhistory-regen-seed-diversity-loss'],
   },
   {
     id: 'foodhistory-regen-tying-together',
