@@ -61,6 +61,59 @@ export type GardenIconChoice =
   | 'ladybug'
   | 'prayingMantis';
 
+// A THIRD, real set of 38 TabHub icon choices, 2026-08-14 -- explicitly
+// requested as its own distinct group, separate from both the tracked
+// conditions and the 8 garden/pollinator icons above: "Make each one of
+// these individual animal head busts into another choice for the TabHub
+// button to be... separate the conditions from the insects and others that
+// [are] not part of the conditions, and place all of these new ones into
+// their own group, too." Cropped from one combined 38-animal reference
+// sheet the same established way as every other icon batch in this app --
+// see constants/tabHubIcons.ts's own header comment for the real
+// methodology. Deliberately its own type, not folded into GardenIconChoice
+// -- these are real domestic/wild mammal, bird, and reptile portraits, not
+// insects/pollinators, and the user's own request explicitly names them as
+// a third, separate bucket.
+export type AnimalIconChoice =
+  | 'lion'
+  | 'tiger'
+  | 'maineCoon'
+  | 'siameseCat'
+  | 'russianBlueCat'
+  | 'ragdollCat'
+  | 'orangeTabbyCat'
+  | 'bengalCat'
+  | 'persianCat'
+  | 'sphynxCat'
+  | 'grayTabbyCat'
+  | 'blackCat'
+  | 'goldenRetriever'
+  | 'germanShepherd'
+  | 'labradorRetriever'
+  | 'frenchBulldog'
+  | 'borderCollie'
+  | 'cavalierKingCharlesSpaniel'
+  | 'rhino'
+  | 'elephant'
+  | 'deer'
+  | 'cow'
+  | 'pig'
+  | 'sheep'
+  | 'goat'
+  | 'horse'
+  | 'bison'
+  | 'beaver'
+  | 'squirrel'
+  | 'chipmunk'
+  | 'rabbit'
+  | 'donkey'
+  | 'mallardDuck'
+  | 'canadaGoose'
+  | 'wolf'
+  | 'bear'
+  | 'badger'
+  | 'iguana';
+
 // The main floating TabHub button's own icon, 2026-08-09, explicitly
 // requested: "make it so each icon is available in the user profile to
 // choose to use in the TabHub menu icon position in place of... the
@@ -70,13 +123,14 @@ export type GardenIconChoice =
 // picks that condition's own real cropped-artwork icon (see
 // components/DigestConditionIcons.tsx / constants/tabHubIcons.ts) as a
 // deliberate personalization; any GardenIconChoice (added 2026-08-12) picks
-// one of the 8 real, non-condition garden/pollinator icons above. Only one
-// choice at a time -- a plain scalar field, not a set. Imported here as a
-// type-only import (erased at compile time, so no real runtime dependency
-// on lib/digest/index.ts's own much larger content-aggregation module --
-// the same precedent already established for sixDimensionsReference.ts's
-// own type-only import into lib/db.ts).
-export type TabHubIconChoice = 'default' | DigestCategoryKey | GardenIconChoice;
+// one of the 8 real, non-condition garden/pollinator icons above; any
+// AnimalIconChoice (added 2026-08-14) picks one of the 38 real animal-head
+// portraits above. Only one choice at a time -- a plain scalar field, not a
+// set. Imported here as a type-only import (erased at compile time, so no
+// real runtime dependency on lib/digest/index.ts's own much larger
+// content-aggregation module -- the same precedent already established for
+// sixDimensionsReference.ts's own type-only import into lib/db.ts).
+export type TabHubIconChoice = 'default' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice;
 
 // A few calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for

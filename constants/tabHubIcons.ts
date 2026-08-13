@@ -62,6 +62,73 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
   monarchButterfly: require('../assets/branding/garden-icons/monarch-butterfly.png'),
   ladybug: require('../assets/branding/garden-icons/ladybug.png'),
   prayingMantis: require('../assets/branding/garden-icons/praying-mantis.png'),
+  // 38 real AnimalIconChoice entries, 2026-08-14 -- cropped from one
+  // combined reference sheet (38 individually illustrated animal head
+  // busts, 6 columns x 6 rows plus a final 2-item row) via the same
+  // isolated jimp scratchpad methodology as every other icon batch in this
+  // file: a real per-region flood-fill to find each of the 38 bounding
+  // boxes, then a real per-edge, per-region safe-padding computation
+  // (capped to each region's own real gap to its nearest neighbor in that
+  // direction, minus a 3px buffer, exactly like the garden-icon sheet's
+  // own fix). One real, new wrinkle this sheet needed that the garden
+  // sheet didn't: two pairs of regions (rhino/elephant, and a diagonal
+  // frenchBulldog/deer corner) had bounding boxes that geometrically
+  // TOUCHED or overlapped by a pixel or two -- confirmed by direct alpha
+  // sampling, not assumed, that this was a thin antialiased fleck from one
+  // animal's own ear/tusk tip sharing the same boundary column as a
+  // different animal's own fleck at a non-overlapping y, not a real design
+  // overlap. The padding formula was extended to allow a small NEGATIVE
+  // pad (trimming inward from a region's own true edge, capped at 6px) so
+  // every adjacent crop pair guarantees a real, verified gap between them
+  // -- re-checked afterward via a full pairwise bounding-box comparison
+  // across all 38 crops (zero true overlaps; the two remaining flagged
+  // "overlaps" were both a 1-2px diagonal corner shared between
+  // non-adjacent regions, confirmed via direct pixel sampling to be 100%
+  // transparent background on both sides, harmless). Every one of the 38
+  // final crops was verified via direct pixel sampling (transparent
+  // corners, 38-68% real opaque interior content) and several spot-checked
+  // visually before being copied into assets/branding/animal-icons/ -- a
+  // separate folder from garden-icons/ and digest-icons/, since these 38
+  // are real domestic/wild animal portraits, not tied to pollinators or any
+  // tracked condition at all.
+  lion: require('../assets/branding/animal-icons/lion.png'),
+  tiger: require('../assets/branding/animal-icons/tiger.png'),
+  maineCoon: require('../assets/branding/animal-icons/maineCoon.png'),
+  siameseCat: require('../assets/branding/animal-icons/siameseCat.png'),
+  russianBlueCat: require('../assets/branding/animal-icons/russianBlueCat.png'),
+  ragdollCat: require('../assets/branding/animal-icons/ragdollCat.png'),
+  orangeTabbyCat: require('../assets/branding/animal-icons/orangeTabbyCat.png'),
+  bengalCat: require('../assets/branding/animal-icons/bengalCat.png'),
+  persianCat: require('../assets/branding/animal-icons/persianCat.png'),
+  sphynxCat: require('../assets/branding/animal-icons/sphynxCat.png'),
+  grayTabbyCat: require('../assets/branding/animal-icons/grayTabbyCat.png'),
+  blackCat: require('../assets/branding/animal-icons/blackCat.png'),
+  goldenRetriever: require('../assets/branding/animal-icons/goldenRetriever.png'),
+  germanShepherd: require('../assets/branding/animal-icons/germanShepherd.png'),
+  labradorRetriever: require('../assets/branding/animal-icons/labradorRetriever.png'),
+  frenchBulldog: require('../assets/branding/animal-icons/frenchBulldog.png'),
+  borderCollie: require('../assets/branding/animal-icons/borderCollie.png'),
+  cavalierKingCharlesSpaniel: require('../assets/branding/animal-icons/cavalierKingCharlesSpaniel.png'),
+  rhino: require('../assets/branding/animal-icons/rhino.png'),
+  elephant: require('../assets/branding/animal-icons/elephant.png'),
+  deer: require('../assets/branding/animal-icons/deer.png'),
+  cow: require('../assets/branding/animal-icons/cow.png'),
+  pig: require('../assets/branding/animal-icons/pig.png'),
+  sheep: require('../assets/branding/animal-icons/sheep.png'),
+  goat: require('../assets/branding/animal-icons/goat.png'),
+  horse: require('../assets/branding/animal-icons/horse.png'),
+  bison: require('../assets/branding/animal-icons/bison.png'),
+  beaver: require('../assets/branding/animal-icons/beaver.png'),
+  squirrel: require('../assets/branding/animal-icons/squirrel.png'),
+  chipmunk: require('../assets/branding/animal-icons/chipmunk.png'),
+  rabbit: require('../assets/branding/animal-icons/rabbit.png'),
+  donkey: require('../assets/branding/animal-icons/donkey.png'),
+  mallardDuck: require('../assets/branding/animal-icons/mallardDuck.png'),
+  canadaGoose: require('../assets/branding/animal-icons/canadaGoose.png'),
+  wolf: require('../assets/branding/animal-icons/wolf.png'),
+  bear: require('../assets/branding/animal-icons/bear.png'),
+  badger: require('../assets/branding/animal-icons/badger.png'),
+  iguana: require('../assets/branding/animal-icons/iguana.png'),
   hashimotos: require('../assets/branding/digest-icons/hashimotos.png'),
   rheumatoidArthritis: require('../assets/branding/digest-icons/rheumatoid-arthritis.png'),
   psoriasis: require('../assets/branding/digest-icons/psoriasis.png'),
@@ -135,6 +202,48 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   monarchButterfly: [458, 306],
   ladybug: [277, 312],
   prayingMantis: [298, 312],
+  // The 38 animal-head icons, 2026-08-14 -- real, individually measured
+  // pairs off the actual final (already-cropped, none needed downsizing --
+  // all 38 landed under the 312px ceiling on their own) files, the same
+  // jimp-based methodology as every other entry in this table.
+  lion: [196, 214],
+  tiger: [157, 180],
+  maineCoon: [161, 203],
+  siameseCat: [137, 182],
+  russianBlueCat: [146, 175],
+  ragdollCat: [167, 183],
+  orangeTabbyCat: [145, 186],
+  bengalCat: [147, 183],
+  persianCat: [179, 180],
+  sphynxCat: [155, 193],
+  grayTabbyCat: [144, 179],
+  blackCat: [142, 189],
+  goldenRetriever: [174, 197],
+  germanShepherd: [152, 209],
+  labradorRetriever: [171, 185],
+  frenchBulldog: [147, 196],
+  borderCollie: [161, 200],
+  cavalierKingCharlesSpaniel: [174, 181],
+  rhino: [161, 213],
+  elephant: [206, 201],
+  deer: [150, 217],
+  cow: [163, 203],
+  pig: [147, 192],
+  sheep: [172, 195],
+  goat: [174, 214],
+  horse: [160, 218],
+  bison: [172, 219],
+  beaver: [179, 171],
+  squirrel: [139, 218],
+  chipmunk: [158, 193],
+  rabbit: [144, 234],
+  donkey: [136, 244],
+  mallardDuck: [158, 222],
+  canadaGoose: [110, 212],
+  wolf: [182, 224],
+  bear: [187, 217],
+  badger: [186, 196],
+  iguana: [196, 206],
   // hashimotos/graves re-cropped 2026-08-12, direct request: "Use these two
   // images of butterflies... to have the blue one represent the
   // Hashimoto's condition and the more orangish-red represent Graves'

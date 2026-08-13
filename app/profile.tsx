@@ -736,6 +736,47 @@ export default function ProfileScreen() {
     );
   }
 
+  // 2026-08-14: one real, shared render for a single TabHub Icon group's own
+  // grid row -- reused 3 times (Conditions / Insects & Other Wildlife /
+  // Animals) rather than tripling the same JSX, directly answering
+  // "separate the conditions from the insects and others... and place all
+  // of these new ones into their own group, too." Each group renders under
+  // its own real subLabel heading in the JSX below; this function is just
+  // the tappable-tile grid itself, identical logic to what the old single
+  // flat tabHubIconOptions.map() already did.
+  function renderTabHubIconGroup(options: { key: TabHubIconChoice; label: string }[]) {
+    return (
+      <View style={styles.iconGridRow}>
+        {options.map((option) => {
+          const active = visualPrefs.tabHubIcon === option.key;
+          const source = TAB_HUB_ICON_SOURCES[option.key];
+          if (!source) return null;
+          return (
+            <TouchableOpacity
+              key={option.key}
+              style={styles.iconGridItem}
+              onPress={() => setVisualPreferences({ tabHubIcon: option.key })}
+              activeOpacity={0.7}
+            >
+              {active ? (
+                <IridescentRingCircle size={ICON_GRID_PILL_SIZE}>
+                  <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
+                </IridescentRingCircle>
+              ) : (
+                <View style={styles.iconGridPillPlain}>
+                  <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
+                </View>
+              )}
+              <Text style={[styles.iconGridLabel, active && styles.iconGridLabelActive]} numberOfLines={2}>
+                {option.label}
+              </Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+    );
+  }
+
   // overrides lets a caller commit a value it just set via setMealTimeBuffers
   // in the same event handler -- React state updates aren't applied
   // synchronously, so reading mealTimeBuffers[dayPart] right after calling
@@ -867,13 +908,19 @@ export default function ProfileScreen() {
   // (DEFAULT_VISUAL_PREFERENCES.tabHubIcon, lib/visualPreferences.ts) moved
   // to 'honeybee' the same day -- a first-ever launch now shows the
   // Honeybee, not the butterfly.
-  const tabHubIconOptions: { key: TabHubIconChoice; label: string }[] = [];
+  // 2026-08-14: split from one flat, concatenated tabHubIconOptions array
+  // into 3 real, separately-rendered groups, direct request alongside the
+  // 38-animal addition below: "separate the [conditions] from the insects
+  // and others that [are] not part of the conditions, and place all of
+  // these new ones into their own group, too." Each group keeps its own
+  // real, independently-sorted array -- rendered as 3 distinct labeled
+  // sections in the picker below, not merged into one list the way this
+  // used to work.
+  //
   // 2026-08-12, direct request: "Create new TabHub menu icons from these 8
   // new images... available to be selected to be the TabHub icon." Real
-  // garden/pollinator wildlife, not tied to any tracked condition -- listed
-  // first (the app's own real out-of-the-box choice, Honeybee, lives in
-  // here) and before the alphabetically-sorted condition list below,
-  // sorted alphabetically the same way that list already is.
+  // garden/pollinator wildlife, not tied to any tracked condition -- the
+  // app's own real out-of-the-box choice, Honeybee, lives in here.
   const gardenIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'honeybee', label: 'Honeybee' },
     { key: 'bumblebee', label: 'Bumblebee' },
@@ -885,7 +932,53 @@ export default function ProfileScreen() {
     { key: 'prayingMantis', label: 'Praying Mantis' },
   ];
   gardenIconOptions.sort((a, b) => a.label.localeCompare(b.label));
-  tabHubIconOptions.push(...gardenIconOptions);
+  // 2026-08-14: 38 real, individually cropped animal-head portraits, its
+  // own distinct third group -- deliberately separate from the 8 insects/
+  // pollinators above, per the same direct request. Hand-listed (not
+  // derived from anything, since none of these map to a tracked condition
+  // or a Digest category the way the group below does), sorted
+  // alphabetically the same way every other group here already is.
+  const animalIconOptions: { key: TabHubIconChoice; label: string }[] = [
+    { key: 'badger', label: 'Badger' },
+    { key: 'bear', label: 'Bear' },
+    { key: 'beaver', label: 'Beaver' },
+    { key: 'bengalCat', label: 'Bengal Cat' },
+    { key: 'bison', label: 'Bison' },
+    { key: 'blackCat', label: 'Black Cat' },
+    { key: 'borderCollie', label: 'Border Collie' },
+    { key: 'canadaGoose', label: 'Canada Goose' },
+    { key: 'cavalierKingCharlesSpaniel', label: 'Cavalier King Charles Spaniel' },
+    { key: 'chipmunk', label: 'Chipmunk' },
+    { key: 'cow', label: 'Cow' },
+    { key: 'deer', label: 'Deer' },
+    { key: 'donkey', label: 'Donkey' },
+    { key: 'elephant', label: 'Elephant' },
+    { key: 'frenchBulldog', label: 'French Bulldog' },
+    { key: 'germanShepherd', label: 'German Shepherd' },
+    { key: 'goat', label: 'Goat' },
+    { key: 'goldenRetriever', label: 'Golden Retriever' },
+    { key: 'grayTabbyCat', label: 'Gray Tabby Cat' },
+    { key: 'horse', label: 'Horse' },
+    { key: 'iguana', label: 'Iguana' },
+    { key: 'labradorRetriever', label: 'Labrador Retriever' },
+    { key: 'lion', label: 'Lion' },
+    { key: 'maineCoon', label: 'Maine Coon' },
+    { key: 'mallardDuck', label: 'Mallard Duck' },
+    { key: 'orangeTabbyCat', label: 'Orange Tabby Cat' },
+    { key: 'persianCat', label: 'Persian Cat' },
+    { key: 'pig', label: 'Pig' },
+    { key: 'rabbit', label: 'Rabbit' },
+    { key: 'ragdollCat', label: 'Ragdoll Cat' },
+    { key: 'rhino', label: 'Rhino' },
+    { key: 'russianBlueCat', label: 'Russian Blue Cat' },
+    { key: 'sheep', label: 'Sheep' },
+    { key: 'siameseCat', label: 'Siamese Cat' },
+    { key: 'sphynxCat', label: 'Sphynx Cat' },
+    { key: 'squirrel', label: 'Squirrel' },
+    { key: 'tiger', label: 'Tiger' },
+    { key: 'wolf', label: 'Wolf' },
+  ];
+  animalIconOptions.sort((a, b) => a.label.localeCompare(b.label));
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from
   // allConditions the way every other entry below it is -- it doesn't map
@@ -903,7 +996,6 @@ export default function ProfileScreen() {
     }
   }
   conditionIconOptions.sort((a, b) => a.label.localeCompare(b.label));
-  tabHubIconOptions.push(...conditionIconOptions);
 
   if (loading) {
     return (
@@ -1570,39 +1662,19 @@ export default function ProfileScreen() {
           <View style={styles.cardBody}>
             <Text style={styles.subLabel}>TabHub Icon</Text>
             <Text style={styles.helpText}>
-              The main floating button used to open the app&apos;s navigation menu. Shows the Honeybee by default --
-              choose any of the other 7 garden/pollinator icons, the &ldquo;Graves&apos; / Hashimoto&apos;s&rdquo;
-              butterfly (this app&apos;s own original artwork, generically representing either), or any other
-              tracked condition&apos;s own icon to personalize it instead. Only one can be active at a time.
+              The main floating button used to open the app&apos;s navigation menu. Shows the Honeybee by default.
+              Pick any tracked condition&apos;s own icon, any insect/pollinator icon, or any of the 38 real animal
+              portraits below to personalize it instead -- only one can be active at a time.
             </Text>
-            <View style={styles.iconGridRow}>
-              {tabHubIconOptions.map((option) => {
-                const active = visualPrefs.tabHubIcon === option.key;
-                const source = TAB_HUB_ICON_SOURCES[option.key];
-                if (!source) return null;
-                return (
-                  <TouchableOpacity
-                    key={option.key}
-                    style={styles.iconGridItem}
-                    onPress={() => setVisualPreferences({ tabHubIcon: option.key })}
-                    activeOpacity={0.7}
-                  >
-                    {active ? (
-                      <IridescentRingCircle size={ICON_GRID_PILL_SIZE}>
-                        <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
-                      </IridescentRingCircle>
-                    ) : (
-                      <View style={styles.iconGridPillPlain}>
-                        <Image source={source} style={styles.iconGridImage} resizeMode="contain" />
-                      </View>
-                    )}
-                    <Text style={[styles.iconGridLabel, active && styles.iconGridLabelActive]} numberOfLines={2}>
-                      {option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+
+            <Text style={[styles.subLabel, { marginTop: 10 }]}>Conditions</Text>
+            {renderTabHubIconGroup(conditionIconOptions)}
+
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Insects &amp; Other Wildlife</Text>
+            {renderTabHubIconGroup(gardenIconOptions)}
+
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Animals</Text>
+            {renderTabHubIconGroup(animalIconOptions)}
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Shared background</Text>
             <Text style={styles.helpText}>
