@@ -15,6 +15,27 @@ const REFERENCE_DB_NAME = 'foods_reference.db';
 const REFERENCE_DB_VERSION_KEY = 'reference_db_version';
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let referenceDatabasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
+// A real, confirmed bug, 2026-08-13: initializeDatabase() itself was never
+// memoized the way databasePromise/referenceDatabasePromise both already
+// are -- every call re-ran its own full CREATE TABLE/ALTER TABLE body from
+// scratch. app/_layout.tsx fires two separate effects on mount that both,
+// directly or indirectly, call initializeDatabase() (one directly, one via
+// getReferenceDatabase()'s own internal call) -- with no dependency
+// between them, React runs both in the same commit, so they raced. Every
+// CREATE TABLE IF NOT EXISTS survives that fine, but each ALTER TABLE ADD
+// COLUMN guard reads its own PRAGMA table_info snapshot independently --
+// two concurrent calls can both see "column doesn't exist yet" for a
+// genuinely brand-new column and both try to add it, the loser crashing
+// with a real "duplicate column name" native error (confirmed on-device
+// the moment growing_zone_country/growing_zone_postal_code were added --
+// the first migration new enough that both racing calls could still see
+// it as missing; every earlier migration's own column already existed on
+// this device by the time this race could recur, which is why this had
+// never visibly failed before). Memoized the same way getDatabase()/
+// getReferenceDatabase() already are, so this class of bug can't recur for
+// any future migration either -- see initializeDatabase()'s own body
+// below for the real fix.
+let initializeDatabasePromise: Promise<void> | null = null;
 
 export type MealRecord = {
   id: string;
@@ -2825,7 +2846,20 @@ export async function getDatabase() {
   return databasePromise;
 }
 
+// A thin, memoizing shell -- every real caller (app/_layout.tsx's own two
+// concurrent effects, getReferenceDatabase()'s own internal call, and
+// anything else that calls this) now shares the exact same one real
+// initialization run rather than each independently re-executing the full
+// migration body. See initializeDatabasePromise's own comment above for
+// why this was needed.
 export async function initializeDatabase() {
+  if (!initializeDatabasePromise) {
+    initializeDatabasePromise = runDatabaseInitialization();
+  }
+  return initializeDatabasePromise;
+}
+
+async function runDatabaseInitialization() {
   const db = await getDatabase();
 
   try {
@@ -3889,6 +3923,7 @@ export async function initializeDatabase() {
     }
   } catch (error) {
     databasePromise = null;
+    initializeDatabasePromise = null;
     throw error;
   }
 }
