@@ -1517,7 +1517,14 @@ function NutrientRankingView({
             built for (see PopoverSelect's own header comment). Removing it
             also means this field never touches AppKeyboard's search row at
             all, closing off the whole code path most directly implicated in
-            the freeze this same day (see that file's own fix comment). */}
+            the freeze this same day (see that file's own fix comment).
+            openAbove, 2026-08-14, direct request ("move the location of the
+            selection list up to a little above the header word Nutrient")
+            -- with this field pinned right above the footer, the default
+            side-anchored opening put the list roughly level with the field
+            itself, uncomfortably close to the bottom edge; opening above
+            puts it over the real open space the results area occupies,
+            right above the "Nutrient" label the field sits under. */}
         <PopoverSelect
           options={nutrientOptions}
           selected={selected}
@@ -1525,6 +1532,7 @@ function NutrientRankingView({
           tabColor={tabColor}
           placeholder="Pick a nutrient..."
           minWidth={220}
+          openAbove
         />
         {/* 2026-08-14, direct request -- moved down here from the results
             zone above (where it used to be the "nothing picked yet"

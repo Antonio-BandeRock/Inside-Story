@@ -109,6 +109,28 @@ function computePopoverPosition(anchor: Anchor, listHeight: number, width: numbe
   return { left, top };
 }
 
+// Opens directly above the field, left-aligned to it -- mirrors
+// Dropdown.tsx's own "always opens below, left-aligned" convention, just
+// flipped vertically, rather than the side-anchored positioning above.
+// Opt-in via the `openAbove` prop, 2026-08-14, explicitly requested for
+// Nutrient Ranking specifically: with that field pinned in its own fixed
+// zone right above the footer, opening to the side (the default above)
+// put the list roughly level with the field itself, uncomfortably close
+// to the bottom of the screen. Opening above instead puts it in the real
+// open space the results area already occupies, right over the "Nutrient"
+// label the field sits under.
+function computePopoverPositionAbove(anchor: Anchor, listHeight: number, width: number) {
+  const screen = Dimensions.get('window');
+
+  let left = anchor.x;
+  left = Math.max(SCREEN_MARGIN, Math.min(left, screen.width - SCREEN_MARGIN - width));
+
+  let top = anchor.y - GAP_FROM_FIELD - listHeight;
+  top = Math.max(SCREEN_MARGIN, top);
+
+  return { left, top };
+}
+
 // memo'd for the same reason WheelPicker was: a field re-rendering on
 // every keystroke elsewhere on the same screen shouldn't force every
 // OTHER picker on that screen to re-render too. This only actually holds
@@ -128,6 +150,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   searchPlaceholder = 'Type to search…',
   width = POPOVER_WIDTH,
   tintedSurface = false,
+  openAbove = false,
 }: {
   options: PopoverSelectOption[];
   selected: string | null;
@@ -158,6 +181,11 @@ export const PopoverSelect = memo(function PopoverSelect({
   // "dark line, lighter field and list" look, rather than the list reading
   // as an unrelated app-wide grey next to a picker's own accent color.
   tintedSurface?: boolean;
+  // Opt-in, default false (every existing caller keeps the standard
+  // side-anchored positioning above, unchanged). When true, opens directly
+  // above the field instead -- see computePopoverPositionAbove's own
+  // comment for why/where this is used.
+  openAbove?: boolean;
 }) {
   const fieldRef = useRef<View>(null);
   const listRef = useRef<FlatList<DropdownOption> | null>(null);
@@ -221,7 +249,11 @@ export const PopoverSelect = memo(function PopoverSelect({
     setSearchText(text);
   }
 
-  const menuPosition = anchor ? computePopoverPosition(anchor, listHeight, width, bottomReserve) : null;
+  const menuPosition = anchor
+    ? openAbove
+      ? computePopoverPositionAbove(anchor, listHeight, width)
+      : computePopoverPosition(anchor, listHeight, width, bottomReserve)
+    : null;
 
   // Rebuilt from this render's own live state (options/selected/searchText)
   // rather than a one-time snapshot taken at open -- needed now that a
