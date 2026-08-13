@@ -78,7 +78,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'My Zone',
-        body: 'Look up your real USDA Plant Hardiness Zone by country + ZIP/postal code -- works anywhere on Earth, not just the US: a real US ZIP gets the official USDA zone directly, everywhere else gets a real estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile -- both write to the same one saved value. Once set, this shows the real, cited crop guidance for your own climate band from Purple Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
+        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code -- works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile -- both write to the same one saved value. Once set, this shows cited crop guidance for your own climate band from Purple Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
       },
     ],
   },
@@ -89,7 +89,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A plot is a real place you grow food -- a raised bed, a container, an indoor grow tent, a whole outdoor garden. Add what you’re growing in it (a real reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
+        body: 'A plot is a place you grow food -- a raised bed, a container, an indoor grow tent, a whole outdoor garden. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
       },
     ],
   },
@@ -100,7 +100,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Harvest Log',
-        body: 'Log what you actually picked, and how much, from something you already tracked as planted in Plots & Plantings -- if nothing shows up here to pick from, add a planting there first. Anything still showing real, unused amount here shows up as a real, selectable "From Your Harvest" ingredient in every Food builder -- the same real nutrition/6-DFF scoring as any other reference food, since it’s tied to the same real food identity.',
+        body: 'Log what you actually picked, and how much, from something you already tracked as planted in Plots & Plantings -- if nothing shows up here to pick from, add a planting there first. Anything still showing an unused amount here shows up as a selectable "From Your Harvest" ingredient in every Food builder -- the same nutrition/6-DFF scoring as any other reference food, since it’s tied to the same food identity.',
       },
     ],
   },
@@ -109,7 +109,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
 const GARDEN_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Garden',
-    body: "Real, standing infrastructure for growing your own food and tracking it -- your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), real plots and what's planted in them, and a real harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked. A basic Scheduler tie-in exists too (a garden task creates a real schedule_items row, visible right here as \"Upcoming Tasks\" -- a dedicated lens for it inside the Schedules tab itself isn't built yet).",
+    body: "Standing infrastructure for growing your own food and tracking it -- your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), plots and what's planted in them, and a harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row, visible right here as \"Upcoming Tasks\" -- a dedicated lens for it inside the Schedules tab itself isn't built yet).",
   },
 ];
 
@@ -266,9 +266,9 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
       <View style={[styles.card, { borderColor: TAB_COLOR }]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Find My Zone</Text>
         <Text style={styles.cardBody}>
-          Enter your country and ZIP or postal code -- this works anywhere on Earth, not just the US. A real US ZIP gets the
-          official USDA zone directly; everywhere else gets a real estimate computed from that location&apos;s own historical
-          temperature data, using the same real USDA temperature bands.
+          Enter your country and ZIP or postal code -- this works anywhere on Earth, not just the US. A US ZIP gets the
+          official USDA zone directly; everywhere else gets an estimate computed from that location&apos;s own historical
+          temperature data, using the same USDA temperature bands.
         </Text>
         <View style={styles.fieldRow}>
           <Text style={styles.fieldLabel}>Country</Text>
@@ -315,7 +315,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
       <View style={[styles.card, { borderColor: TAB_COLOR }]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Your Growing Zone</Text>
         <Text style={styles.cardBody}>
-          A real USDA Plant Hardiness Zone -- based on your area&apos;s average annual minimum winter temperature, the standard
+          A USDA Plant Hardiness Zone -- based on your area&apos;s average annual minimum winter temperature, the standard
           reference for what can survive and thrive where you actually live.
         </Text>
         <View style={styles.fieldRow}>
@@ -331,7 +331,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
         <Text style={styles.captionText}>
           Already know your zone, or want to check it directly? Set it here -- this always overrides whatever the lookup above
           found. The USDA&apos;s own published map (usda.gov/plant-hardiness-zone) or a local agricultural extension office are
-          both real, direct ways to double-check either result.
+          both direct ways to double-check either result.
         </Text>
       </View>
 
@@ -340,12 +340,12 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
           <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Zone {zone} -- {bandInfo.bandLabel}</Text>
           {bandInfo.belowCoverage ? (
             <Text style={styles.captionText}>
-              This app&apos;s own real crop-band research currently starts at zone 3 -- the cold/short-season guidance below is
-              the closest real match, not a perfect one for your specific zone.
+              This app&apos;s own crop-band research currently starts at zone 3 -- the cold/short-season guidance below is
+              the closest match, not a perfect one for your specific zone.
             </Text>
           ) : null}
           <Text style={styles.cardBody}>
-            Real, cited guidance for your climate band lives in Purple Digest&apos;s own Home Gardening research. Open the Garden
+            Cited guidance for your climate band lives in Purple Digest&apos;s own Home Gardening research. Open the Garden
             topic there and look for:
           </Text>
           {bandInfo.digestTopics.map((topic) => (
@@ -780,7 +780,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           ))
         )}
         <Text style={styles.captionText}>
-          Anything still showing a real remaining amount here is selectable as &quot;From Your Harvest&quot; the next time you add an
+          Anything still showing a remaining amount here is selectable as &quot;From Your Harvest&quot; the next time you add an
           ingredient in any Food builder.
         </Text>
       </View>
@@ -808,8 +808,8 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           </TouchableOpacity>
         </View>
         <Text style={styles.captionText}>
-          Creates a real Schedule entry for tomorrow morning. A dedicated Garden lens inside the Schedules tab itself isn&apos;t
-          built yet -- this list is the real way to see it for now.
+          Creates a Schedule entry for tomorrow morning. A dedicated Garden lens inside the Schedules tab itself isn&apos;t
+          built yet -- this list is the way to see it for now.
         </Text>
       </View>
     </ScrollView>

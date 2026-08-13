@@ -225,7 +225,7 @@ export async function lookupGrowingZone(countryCode: string, postalCode: string)
     return {
       status: 'error',
       message:
-        "Found the location, but couldn't pull enough real climate data for it yet. Try a nearby larger town's postal code, or set your zone directly below.",
+        "Found the location, but couldn't pull enough climate data for it yet. Try a nearby larger town's postal code, or set your zone directly below.",
     };
   }
 
@@ -233,7 +233,7 @@ export async function lookupGrowingZone(countryCode: string, postalCode: string)
     status: 'success',
     zone: climateEstimate.zone,
     method: 'climate-estimate',
-    detail: `Estimated from ${climateEstimate.yearsUsed} real years (${climateEstimate.yearRange}) of historical temperature data -- an average annual minimum of about ${climateEstimate.avgAnnualMinF}°F, placed on the same real USDA temperature bands. Not an official government-published zone outside the US.`,
+    detail: `Estimated from ${climateEstimate.yearsUsed} years (${climateEstimate.yearRange}) of historical temperature data -- an average annual minimum of about ${climateEstimate.avgAnnualMinF}°F, placed on the same USDA temperature bands. Not an official government-published zone outside the US.`,
     placeLabel: geocoded.displayName || null,
   };
 }
