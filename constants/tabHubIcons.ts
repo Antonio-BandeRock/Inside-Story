@@ -135,10 +135,49 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   monarchButterfly: [458, 306],
   ladybug: [277, 312],
   prayingMantis: [298, 312],
-  hashimotos: [255, 211],
+  // hashimotos/graves re-cropped 2026-08-12, direct request: "Use these two
+  // images of butterflies... to have the blue one represent the
+  // Hashimoto's condition and the more orangish-red represent Graves'
+  // instead of the current two that are being used." A real, different
+  // source image this time -- a two-panel poster (title/subtitle/paragraph
+  // text under each real butterfly, explicitly NOT to be used, per the
+  // request) on a solid near-black background, not one with real alpha
+  // transparency the way every other icon sheet in this file was --
+  // confirmed via direct pixel sampling (alpha=255 everywhere checked)
+  // before assuming otherwise. Required real background removal, not just
+  // a crop: a first, plain border-seeded flood-fill (the same technique
+  // already used for the garden-icon sheet) worked for the wing interiors
+  // but visibly ate into each wing's own real, dark, dot-and-scallop-
+  // patterned outer border band -- confirmed not just by eye but by
+  // rendering the actual computed alpha mask as its own grayscale image
+  // and inspecting it directly, the only way this was actually caught (a
+  // plain color-composited preview of the crop looked fine, matching this
+  // file's own already-documented "never trust a visual preview alone"
+  // lesson). Root cause: a fine dark decorative texture, similar enough in
+  // per-pixel-step color delta to the true background, let the flood
+  // "thread" along it from the border deep into real wing content. Fixed
+  // with a real, three-part pipeline: a much tighter per-step flood
+  // tolerance (16, down from the garden sheet's 28) so the flood can only
+  // travel through genuinely smooth, low-variance background, not textured
+  // detail; a small absolute-color-distance safety net (<=14 from the real
+  // sampled background reference) to mop up any thin residual fringe the
+  // tighter flood leaves at the true edge; and a real morphological
+  // opening (erode then dilate the background region by a 2px radius) to
+  // sever thin "wormhole" tendrils -- fine dark vein lines the flood could
+  // still travel along even at tolerance=16, confirmed and fixed by
+  // re-rendering the alpha mask after each change and comparing directly,
+  // not assumed fixed from the tolerance number alone. Every crop
+  // re-verified afterward (transparent corners, ~52-53% real opaque
+  // content, both antennae genuinely intact) before being downsized to the
+  // same 312px-longer-axis safety margin as every other icon here and
+  // copied over the live files -- both DigestConditionIcons.tsx and this
+  // file's own TAB_HUB_ICON_SOURCES.hashimotos/.graves already point at
+  // these same two filenames, so overwriting them in place needed no other
+  // code change anywhere.
+  hashimotos: [389, 312],
   rheumatoidArthritis: [220, 269],
   psoriasis: [250, 221],
-  graves: [261, 212],
+  graves: [388, 312],
   type1Diabetes: [144, 221],
   celiac: [201, 224],
   ibd: [215, 283],

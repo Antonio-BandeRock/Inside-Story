@@ -230,6 +230,20 @@ export function LupusButterflyIcon({ size, color }: IconProps) {
 // order was trusted over the literal typed order (Gout at position 15,
 // not Type 1 Diabetes), and this is called out here for a real check
 // against the actual on-device result rather than assumed correct.
+//
+// hashimotos.png/graves.png replaced a second time, 2026-08-12, direct
+// request: "Use these two images of butterflies... to have the blue one
+// represent the Hashimoto's condition and the more orangish-red represent
+// Graves' instead of the current two that are being used." A genuinely
+// new, different two-butterfly reference image this time -- see
+// constants/tabHubIcons.ts's own TAB_HUB_ICON_PIXEL_DIMENSIONS.hashimotos/
+// .graves comment for the real, substantial background-removal work this
+// one needed (unlike the prior reference image, this one had no real alpha
+// transparency at all, and a first, plain flood-fill visibly ate into each
+// wing's own dark decorative border before being fixed). Both files were
+// overwritten in place at their existing filenames, so this component's
+// own `require()` calls below needed zero changes -- they already pointed
+// at the right paths.
 function ArtworkIcon({ size, source }: { size: number; source: number }) {
   return <Image source={source} style={{ width: size, height: size }} resizeMode="contain" />;
 }
