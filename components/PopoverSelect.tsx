@@ -151,6 +151,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   width = POPOVER_WIDTH,
   tintedSurface = false,
   openAbove = false,
+  debugLabel,
 }: {
   options: PopoverSelectOption[];
   selected: string | null;
@@ -186,6 +187,20 @@ export const PopoverSelect = memo(function PopoverSelect({
   // above the field instead -- see computePopoverPositionAbove's own
   // comment for why/where this is used.
   openAbove?: boolean;
+  // TEMPORARY diagnostic logging, 2026-08-14, added specifically to chase
+  // the still-unresolved ~15-second-freeze report on Nutrient Ranking's own
+  // two fields -- every avenue this bug class was previously root-caused
+  // through (an unmemoized options array, an unstable inline onSelect) has
+  // now been checked and confirmed already fixed, and both context
+  // providers this component reads (ActiveInputContext/OverlayContext) are
+  // confirmed correctly split so neither can itself be a re-render source.
+  // With static analysis genuinely exhausted, this borrows the same
+  // `[TabHub drop-timing]`-style approach already proven in this exact
+  // codebase for a comparably hard, on-device-only timing bug -- a plain
+  // Date.now()-based running log, silent (zero cost) for every caller that
+  // doesn't set this, only active on the two fields this report is about.
+  // Meant to be removed once real evidence pinpoints the actual cause.
+  debugLabel?: string;
 }) {
   const fieldRef = useRef<View>(null);
   const listRef = useRef<FlatList<DropdownOption> | null>(null);
@@ -203,6 +218,17 @@ export const PopoverSelect = memo(function PopoverSelect({
   const { showOverlay, hideOverlay } = useOverlay();
   const { setSearchRequest, forceClear } = useActiveInputControls();
   const insets = useSafeAreaInsets();
+
+  // TEMPORARY diagnostic logging -- see debugLabel's own comment above.
+  const debugTapStartRef = useRef<number | null>(null);
+  const debugRenderCountRef = useRef(0);
+  if (debugLabel) {
+    debugRenderCountRef.current += 1;
+    const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
+    console.log(
+      `[PopoverSelect:${debugLabel}] render #${debugRenderCountRef.current}${elapsed != null ? ` +${elapsed}ms since tap` : ''} isOpen=${isOpen} optionsLength=${options.length}`,
+    );
+  }
 
   const normalizedOptions = options.map(normalizeOption);
   const visibleOptions =
@@ -234,7 +260,16 @@ export const PopoverSelect = memo(function PopoverSelect({
   }
 
   function openMenu() {
+    if (debugLabel) {
+      debugTapStartRef.current = Date.now();
+      debugRenderCountRef.current = 0;
+      console.log(`[PopoverSelect:${debugLabel}] +0ms: tap, calling measureInWindow`);
+    }
     fieldRef.current?.measureInWindow((x, y, fieldWidth, fieldHeight) => {
+      if (debugLabel) {
+        const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
+        console.log(`[PopoverSelect:${debugLabel}] +${elapsed}ms: measureInWindow callback fired, calling setAnchor/setIsOpen`);
+      }
       setAnchor({ x, y, width: fieldWidth, height: fieldHeight });
       setIsOpen(true);
     });
@@ -350,6 +385,12 @@ export const PopoverSelect = memo(function PopoverSelect({
   // identical effect, so the overlay always reflects this render's latest
   // state (cheap: only one picker is ever open at a time).
   useEffect(() => {
+    if (debugLabel) {
+      const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
+      console.log(
+        `[PopoverSelect:${debugLabel}] +${elapsed}ms: showOverlay effect running, isOpen=${isOpen}, menuNode=${menuNode ? 'present' : 'null'}`,
+      );
+    }
     if (isOpen) {
       showOverlay(menuNode);
     } else {

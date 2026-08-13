@@ -60,5 +60,13 @@ export function useOverlay(): OverlayControls {
 }
 
 export function OverlayRoot() {
-  return <>{useContext(OverlayContentContext)}</>;
+  // TEMPORARY diagnostic logging, 2026-08-14 -- see PopoverSelect.tsx's own
+  // debugLabel comment for the real, still-unresolved freeze this is
+  // chasing. Cheap and harmless when nothing's open (content is null and
+  // this only re-renders on a real content change, not continuously).
+  const content = useContext(OverlayContentContext);
+  if (content) {
+    console.log(`[OverlayRoot] +render at ${Date.now()}: content present, committing`);
+  }
+  return <>{content}</>;
 }

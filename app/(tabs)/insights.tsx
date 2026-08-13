@@ -1842,6 +1842,7 @@ function NutrientRankingView({
                 tabColor={tabColor}
                 placeholder="Pick a nutrient..."
                 openAbove
+                debugLabel="NutrientField"
               />
             </View>
           ) : null}
@@ -1864,6 +1865,7 @@ function NutrientRankingView({
               placeholder="All prep states"
               minWidth={140}
               openAbove
+              debugLabel="PrepStateField"
             />
           </View>
         </View>
