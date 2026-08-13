@@ -128,11 +128,19 @@ export type VisualPreferences = {
   // rather than a separate palette per tab, since the point is one calm,
   // consistent alternative look, not eight independent color schemes.
   genericPalette: GenericPalette;
-  // See TabHubIconChoice's own comment above. Defaults to 'default' --
-  // exactly the plain butterfly the app has always shown, so a first-ever
-  // launch (nothing chosen yet) looks identical to before this feature
-  // existed, and picking a personal icon is something the person opts into
-  // from Profile whenever they want, not a forced first-run decision.
+  // See TabHubIconChoice's own comment above. Defaulted to 'default' (the
+  // plain butterfly) from 2026-08-09 through 2026-08-14; direct request the
+  // same day the 8 garden icons shipped: "Make the Default TabHub icon be
+  // the Honeybee, and rename the Default to Graves' / Hashimoto's and put
+  // it within the condition icons in alphabetical order." Now defaults to
+  // 'honeybee' -- a first-ever launch (nothing chosen yet) shows the
+  // Honeybee, not the butterfly. The 'default' key itself still exists and
+  // still points at the same real butterfly artwork (see
+  // TAB_HUB_ICON_SOURCES.default in constants/tabHubIcons.ts) -- it's no
+  // longer the app's own out-of-the-box choice, just a real, explicitly
+  // labeled "Graves' / Hashimoto's" option a person can pick from Profile
+  // like any other, sorted alphabetically among the condition icons rather
+  // than always leading the list.
   tabHubIcon: TabHubIconChoice;
 };
 
@@ -142,7 +150,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   tabBackgroundStyle: {},
   customBackgroundImages: {},
   genericPalette: 'lavender',
-  tabHubIcon: 'default',
+  tabHubIcon: 'honeybee',
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';

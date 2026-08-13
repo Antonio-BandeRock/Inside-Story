@@ -841,29 +841,37 @@ export default function ProfileScreen() {
 
   // TabHub's own personalizable icon, 2026-08-09 -- "make it so each icon
   // is available in the user profile to choose to use in the TabHub menu
-  // icon position." The default butterfly always leads; every real
-  // built/in_progress condition follows, reusing the exact same "Your
-  // conditions" filter (status !== 'planned') and CONDITION_CODE_TO_DIGEST_KEY
-  // lookup that card already uses just below -- not a second, separately
-  // derived condition list. The TAB_HUB_ICON_SOURCES truthiness check is a
-  // real, defensive guard, not just belt-and-suspenders: it's what keeps a
-  // future condition added to the `conditions` table but without its own
-  // icon yet from silently showing a broken/blank option here.
-  // 2026-08-09: default always leads (not part of the alphabetical sort),
-  // then every real condition option sorted alphabetically by its own
-  // label -- explicitly requested. Briefly labeled "Default
-  // (Thyreomorpha Gemmata)" (the real species name behind this app's own
-  // commissioned butterfly artwork) the same day, then reverted to plain
-  // "Default" per a direct follow-up request.
-  const tabHubIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'default', label: 'Default' },
-  ];
+  // icon position." Originally: the default butterfly always led the list;
+  // every real built/in_progress condition followed, reusing the exact
+  // same "Your conditions" filter (status !== 'planned') and
+  // CONDITION_CODE_TO_DIGEST_KEY lookup that card already uses just below
+  // -- not a second, separately derived condition list. The
+  // TAB_HUB_ICON_SOURCES truthiness check is a real, defensive guard, not
+  // just belt-and-suspenders: it's what keeps a future condition added to
+  // the `conditions` table but without its own icon yet from silently
+  // showing a broken/blank option here.
+  //
+  // 2026-08-14, direct follow-up to the same day's own 8-garden-icon
+  // addition: "Make the Default TabHub icon be the Honeybee, and rename the
+  // Default to Graves' / Hashimoto's and put it within the condition icons
+  // in alphabetical order." The plain butterfly's own real `'default'` key
+  // is unchanged (still `TAB_HUB_ICON_SOURCES.default`, still the same real
+  // artwork) -- only its LABEL and its position in this picker changed: it
+  // no longer leads the list on its own, it's a real, explicitly labeled
+  // "Graves' / Hashimoto's" entry sorted alphabetically among the real
+  // condition options below (matching the app's own already-established
+  // "generically representing either Hashimoto's or Graves'" framing for
+  // this specific artwork). The app's own actual out-of-the-box choice
+  // (DEFAULT_VISUAL_PREFERENCES.tabHubIcon, lib/visualPreferences.ts) moved
+  // to 'honeybee' the same day -- a first-ever launch now shows the
+  // Honeybee, not the butterfly.
+  const tabHubIconOptions: { key: TabHubIconChoice; label: string }[] = [];
   // 2026-08-12, direct request: "Create new TabHub menu icons from these 8
   // new images... available to be selected to be the TabHub icon." Real
   // garden/pollinator wildlife, not tied to any tracked condition -- listed
-  // right after Default (the app's own two non-condition option groups)
-  // and before the alphabetically-sorted condition list below, sorted
-  // alphabetically the same way that list already is.
+  // first (the app's own real out-of-the-box choice, Honeybee, lives in
+  // here) and before the alphabetically-sorted condition list below,
+  // sorted alphabetically the same way that list already is.
   const gardenIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'honeybee', label: 'Honeybee' },
     { key: 'bumblebee', label: 'Bumblebee' },
@@ -876,7 +884,15 @@ export default function ProfileScreen() {
   ];
   gardenIconOptions.sort((a, b) => a.label.localeCompare(b.label));
   tabHubIconOptions.push(...gardenIconOptions);
-  const conditionIconOptions: { key: TabHubIconChoice; label: string }[] = [];
+  // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
+  // unchanged at 'default') is seeded in here by hand, not derived from
+  // allConditions the way every other entry below it is -- it doesn't map
+  // to any single real tracked condition, it's a real, permanent, generic
+  // "either one" option, and it sorts alphabetically alongside the real
+  // condition options rather than needing its own special leading slot.
+  const conditionIconOptions: { key: TabHubIconChoice; label: string }[] = [
+    { key: 'default', label: "Graves' / Hashimoto's" },
+  ];
   for (const condition of allConditions) {
     if (condition.status === 'planned') continue;
     const digestKey = CONDITION_CODE_TO_DIGEST_KEY[condition.code];
@@ -1552,10 +1568,10 @@ export default function ProfileScreen() {
           <View style={styles.cardBody}>
             <Text style={styles.subLabel}>TabHub Icon</Text>
             <Text style={styles.helpText}>
-              The main floating button used to open the app&apos;s navigation menu. Choose the default butterfly, one
-              of 8 garden/pollinator icons, or any tracked condition&apos;s own real icon to personalize it --
-              generically representing either Hashimoto&apos;s or Graves&apos; if you leave it as the default. Only
-              one can be active at a time.
+              The main floating button used to open the app&apos;s navigation menu. Shows the Honeybee by default --
+              choose any of the other 7 garden/pollinator icons, the &ldquo;Graves&apos; / Hashimoto&apos;s&rdquo;
+              butterfly (this app&apos;s own original artwork, generically representing either), or any other
+              tracked condition&apos;s own real icon to personalize it instead. Only one can be active at a time.
             </Text>
             <View style={styles.iconGridRow}>
               {tabHubIconOptions.map((option) => {

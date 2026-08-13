@@ -117,6 +117,11 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
 // the original 1606/1080), an utterly negligible, sub-pixel difference in
 // the computed render size below.
 const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [number, number]>> = {
+  // 'default' -- the plain butterfly, relabeled "Graves' / Hashimoto's" in
+  // Profile's own picker 2026-08-14 and no longer the app's own actual
+  // out-of-the-box choice (DEFAULT_VISUAL_PREFERENCES.tabHubIcon is now
+  // 'honeybee', see lib/visualPreferences.ts) -- the key/asset/dimensions
+  // themselves are unchanged, only which choice a fresh install starts on.
   default: [464, 312],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
@@ -157,8 +162,11 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
 
 // The default butterfly's own real, established render width -- unchanged
 // from TabHub.tsx's own original BUTTERFLY_WIDTH constant, so picking
-// 'default' (the app's own out-of-the-box behavior) renders byte-for-byte
-// identically to how this button has always looked, not just "close."
+// 'default' (renamed "Graves' / Hashimoto's" in Profile's own picker,
+// 2026-08-14 -- no longer the app's own out-of-the-box choice, see
+// TAB_HUB_ICON_PIXEL_DIMENSIONS.default's own comment below) renders
+// byte-for-byte identically to how this button originally looked, not
+// just "close."
 export const TAB_HUB_ICON_TARGET_WIDTH = 116;
 // The default butterfly's own real aspect ratio -- the source of its own
 // already-established, already-safe 78px render height
