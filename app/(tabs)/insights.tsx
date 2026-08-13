@@ -1461,15 +1461,13 @@ function NutrientRankingView({
     <View style={styles.rankLayout}>
       {/* The results zone -- scrolls on its own, independent of the fixed
           field zone below it, so a long ranked list never pushes the field
-          itself out of reach. Shows the same real "nothing picked yet" /
-          "loading" / "none found" / actual results states as before,
+          itself out of reach. Renders nothing while !selected -- the field
+          zone's own caption right under the picker already explains what
+          to do, 2026-08-14, so a second, duplicate explanation up here
+          would be redundant. "loading"/"none found"/actual results are
           unchanged in substance -- only WHERE they sit changed. */}
       <ScrollView style={styles.rankResultsScroll} contentContainerStyle={styles.rankResultsContent}>
-        {!selected ? (
-          <Text style={styles.emptyText}>
-            Pick a nutrient below to see foods ranked by how much of it they contain, per 100g.
-          </Text>
-        ) : loading ? (
+        {!selected ? null : loading ? (
           <Text style={styles.emptyText}>Loading…</Text>
         ) : rankedFoods.length === 0 ? (
           <Text style={styles.emptyText}>No foods with a measured amount of this found.</Text>
@@ -1528,6 +1526,17 @@ function NutrientRankingView({
           placeholder="Pick a nutrient..."
           minWidth={220}
         />
+        {/* 2026-08-14, direct request -- moved down here from the results
+            zone above (where it used to be the "nothing picked yet"
+            placeholder), so it sits right under the field it's actually
+            describing. Reworded "below" -> "above" to match, since the
+            field is now above this text, not below it -- the same
+            direction-correction already made once before when this field
+            itself moved down to this fixed bottom zone, and the same
+            wording Cooking Impact's own analogous caption already uses. */}
+        <Text style={[styles.emptyText, styles.rankSpaced]}>
+          Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
+        </Text>
       </View>
     </View>
   );

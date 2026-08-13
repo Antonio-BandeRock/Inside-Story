@@ -13,7 +13,7 @@ import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLoo
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { COUNTRIES } from '../../constants/countries';
 import { colors, popoverBackground } from '../../constants/colors';
-import { typography } from '../../constants/typography';
+import { typography, textShadow } from '../../constants/typography';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { USDA_ZONES, zoneBandInfo } from '../../lib/gardenZones';
@@ -1124,7 +1124,15 @@ const styles = StyleSheet.create({
   bodyText: { ...typography.body, color: colors.textPrimary },
   captionText: { ...typography.caption, color: colors.textMuted },
   bulletText: { ...typography.body, color: colors.textPrimary, marginLeft: 4 },
-  emptyText: { ...typography.body, color: colors.textMuted, textAlign: 'center', marginTop: 24 },
+  // Renders bare directly over the tab's own shared photo background (no
+  // card wrapper -- see the ScrollView it sits in above) -- textMuted's own
+  // dim blue-gray with no shadow was genuinely illegible there, reported
+  // directly 2026-08-14 ("I am not able to read whatever is written above
+  // the +Add a Garden Area button"). Fixed to match Home's own already-
+  // established precedent for exactly this situation (app/(tabs)/index.tsx's
+  // own emptyText): the brighter textSecondary color plus a real drop
+  // shadow, not just a color swap alone.
+  emptyText: { ...typography.body, ...textShadow, color: colors.textSecondary, textAlign: 'center', marginTop: 24 },
   fieldRow: { flexDirection: 'row', alignItems: 'center', gap: 8, flexWrap: 'wrap' },
   fieldLabel: { ...typography.label, color: colors.textPrimary },
   textInput: {
