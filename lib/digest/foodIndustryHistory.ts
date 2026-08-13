@@ -959,7 +959,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Dated, radiocarbon-confirmed archaeology, not folklore, a deep-history counterpart to the modern biochar research already cited elsewhere in this cluster.',
+    stageNote: 'Dated, radiocarbon-confirmed archaeology, not folklore.',
     relatedIds: ['foodhistory-regen-innovations-soil-biology'],
     chart: {
       title: 'Terra Preta, Documented vs. Modeled Extent',
@@ -2092,13 +2092,12 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
   {
     id: 'foodhistory-regen-microbiome-symbiosis-mission',
     category: 'earthMatters',
-    title: 'Why a Health App Has an Entire Category About Soil: Human Health and Environmental Health Are One System',
+    title: 'Soil, the Gut, and the Immune System Are One Connected Story, Not Three Separate Ones',
     teaser: 'Soil microbial diversity, environmental biodiversity, and a person\'s own gut and immune health are not three separate subjects. The research above keeps landing on the same one system, described from three different angles.',
     summary:
-      "Read together rather than one at a time, the research in this shelf makes one connected point rather than three separate ones. The soil-plant-human-gut axis entry above lays out the proposed physical mechanism: soil microbes can plausibly travel into a plant and from there into a person's own gut. The Old Friends hypothesis explains why that contact matters biologically: specific environmental organisms are a needed input for the immune system's own regulatory development, not an incidental exposure. And the Karelia study shows what happens at national population scale when that contact is lost, and what happens when a country deliberately restores it. This is the actual, stated reason this whole category exists inside a food-and-health app rather than as a separate environmental resource: a depleted, industrialized food system and a depleted, industrialized natural environment are not two different problems, they are the same problem showing up in two places, soil and gut, at once. This app's own features are built around that connection directly, not just its research library. The Garden tab exists specifically so growing food is physical contact with soil, not just a place to read about it, and a harvest becomes a selectable ingredient in every one of the Food builders rather than staying separate from daily eating. The Fermented Foods research and Fermentation Builder exist because deliberately cultivating live microbial diversity in food is a direct, edible version of the same Old Friends principle. And all eleven Food builders are built around whole, minimally-processed ingredients specifically because industrial food processing is one of the documented ways modern life has cut off contact with the microbial diversity a body evolved expecting, already covered in this app's own Food Additives and Gut & Microbiome research. The teaching point underneath all of it, stated directly rather than left implicit: a person's own body and the land any food comes from were never really two separate systems to begin with. Treating soil, plants, and the broader natural world with care is not a separate cause from treating a person's own gut and immune system with care, it's the same project, worked from two different ends, and a species that keeps degrading the first should expect measurable costs to the second.",
+      "Read together rather than one at a time, the research above makes one connected point rather than three separate ones. The soil-plant-human-gut axis entry lays out the proposed physical mechanism: soil microbes can plausibly travel into a plant and from there into a person's own gut. The Old Friends hypothesis explains why that contact matters biologically: specific environmental organisms are a needed input for the immune system's own regulatory development, not an incidental exposure. And the Karelia study shows what happens at national population scale when that contact is lost, and what happens when a country deliberately restores it. A depleted, industrialized food system and a depleted, industrialized natural environment are not two different problems, they are the same problem showing up in two places, soil and gut, at once. Choosing whole, minimally-processed food over heavily industrial processing, cultivating live microbial diversity through fermentation, and growing food in real contact with real soil are all, in this light, the same real lever pulled from three different angles. A person's own body and the land any food comes from were never really two separate systems to begin with. Treating soil, plants, and the broader natural world with care is not a separate cause from treating a person's own gut and immune system with care, it's the same project, worked from two different ends, and a species that keeps degrading the first should expect measurable costs to the second.",
     citations: [],
     overallTier: 'moderate',
-    stageNote: "A synthesis of the citations already given individually above, plus a direct statement of why this app's own features are built the way they are, not a new external research claim of its own.",
     relatedIds: ['foodhistory-regen-old-friends-hypothesis', 'foodhistory-regen-karelia-biodiversity-study', 'foodhistory-regen-soil-gut-microbiome-axis', 'gut-scfa-treg', 'garden-symbiosis-mission', 'fermented-tying-together'],
   },
   {
@@ -2119,7 +2118,7 @@ export const FOOD_INDUSTRY_HISTORY_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    stageNote: 'A peer-reviewed mechanism, deliberately checked against a popular advocacy figure that overstates the science it\'s drawn from, the same "protect the mechanism, correct the inflated number" treatment already given to holistic grazing and mycorrhizal networks elsewhere in this cluster.',
+    stageNote: 'A peer-reviewed mechanism, checked directly against a popular figure that overstates it: the mechanism holds, the specific number does not.',
     relatedIds: ['foodhistory-regen-mycorrhizal-networks', 'foodhistory-regen-4-per-1000-initiative', 'foodhistory-regen-rodale-farming-systems-trial'],
   },
   {
