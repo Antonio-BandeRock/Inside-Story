@@ -3,9 +3,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
+  classifyPrepStateGroup,
   classifyProteinSource,
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
+  getFoodRankingsAcrossNutrients,
   getLabTests,
   getTodaysAdvisories,
   listAllActiveTreatments,
@@ -15,14 +17,18 @@ import {
   listStage1Foods,
   listStage2ReintroductionRounds,
   listTrackedNutrients,
+  PREP_STATE_GROUP_LABELS,
+  PREP_STATE_GROUP_ORDER,
   rankFoodsByNutrient,
   recordLabResult,
   type DailyDimensionScore,
   type DailyNutrientBreakdown,
   type DailyNutrientScopeTotals,
   type DailySixDimensionsBreakdown,
+  type FoodNutrientRanking,
   type LabResultRecord,
   type LabTest,
+  type PrepStateGroup,
   type RankedFood,
   type SafeFood,
   type StageFood,
@@ -54,7 +60,7 @@ import {
 } from '../../lib/sixDimensionsReference';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
-import { FoodLookup, categoryLabel, sourceLabel } from '../../components/FoodLookup';
+import { FoodLookup, categoryLabel, sourceLabel, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { linkifyText } from '../../components/InfoAlert';
 import type { HelpSection } from '../../components/HelpButton';
@@ -480,6 +486,26 @@ export default function InsightsScreen() {
   const [rankingNutrient, setRankingNutrient] = useState<string | null>(null);
   const [rankedFoods, setRankedFoods] = useState<RankedFood[]>([]);
   const [rankingLoading, setRankingLoading] = useState(false);
+  // 2026-08-14, direct request: "we need a secondary filter for Nutrient
+  // ranking. It needs to separate raw food from dried, and from canned,
+  // and from any other way that makes it so we end up with an apples to
+  // apples way of looking at the food." Shared by both of this lens's own
+  // modes below -- see rankFoodsByNutrient/getFoodRankingsAcrossNutrients's
+  // own header comments in lib/db.ts for the real, checked reasoning
+  // behind the six real groups. `null` means "All," matching every
+  // existing caller of rankFoodsByNutrient elsewhere in this app, which
+  // still gets the exact same unfiltered result it always has.
+  const [rankingPrepGroup, setRankingPrepGroup] = useState<PrepStateGroup | null>(null);
+  // The reverse of "pick a nutrient, see ranked foods" -- same message,
+  // same day: "the user should be able to select any specific food to see
+  // how it ranks in other nutrients, such as 50th in vegetables or 35th in
+  // fruit." A real, second mode within this same lens, not a separate one,
+  // sharing the prep-state filter above so both modes mean the same thing
+  // by "apples to apples."
+  const [rankingMode, setRankingMode] = useState<'byNutrient' | 'byFood'>('byNutrient');
+  const [rankingFood, setRankingFood] = useState<ResolvedFoodSelection | null>(null);
+  const [foodRankings, setFoodRankings] = useState<FoodNutrientRanking[]>([]);
+  const [foodRankingsLoading, setFoodRankingsLoading] = useState(false);
   useEffect(() => {
     listTrackedNutrients().then(setAllNutrients);
   }, []);
@@ -490,7 +516,7 @@ export default function InsightsScreen() {
     }
     let isCurrent = true;
     setRankingLoading(true);
-    rankFoodsByNutrient(rankingNutrient, 100).then((rows) => {
+    rankFoodsByNutrient(rankingNutrient, 100, rankingPrepGroup).then((rows) => {
       if (isCurrent) {
         setRankedFoods(rows);
         setRankingLoading(false);
@@ -499,7 +525,24 @@ export default function InsightsScreen() {
     return () => {
       isCurrent = false;
     };
-  }, [rankingNutrient]);
+  }, [rankingNutrient, rankingPrepGroup]);
+  useEffect(() => {
+    if (!rankingFood) {
+      setFoodRankings([]);
+      return;
+    }
+    let isCurrent = true;
+    setFoodRankingsLoading(true);
+    getFoodRankingsAcrossNutrients(rankingFood.foodId, rankingFood.source, rankingPrepGroup).then((rows) => {
+      if (isCurrent) {
+        setFoodRankings(rows);
+        setFoodRankingsLoading(false);
+      }
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [rankingFood, rankingPrepGroup]);
 
   // Safe Foods lens, 2026-08-08 -- same "independent of today's log,
   // load once" nature as Nutrient Ranking above. Categories load once on
@@ -684,6 +727,15 @@ export default function InsightsScreen() {
                 rankedFoods={rankedFoods}
                 loading={rankingLoading}
                 tabColor={TAB_COLOR}
+                prepGroup={rankingPrepGroup}
+                onPrepGroupChange={setRankingPrepGroup}
+                mode={rankingMode}
+                onModeChange={setRankingMode}
+                rankingFood={rankingFood}
+                onFoodSelected={setRankingFood}
+                onClearFood={() => setRankingFood(null)}
+                foodRankings={foodRankings}
+                foodRankingsLoading={foodRankingsLoading}
               />
             </View>
           ) : (
@@ -1381,6 +1433,20 @@ export function PrepView({
 // component now owns its own full layout, the same "not the shared page
 // ScrollView" precedent Food Lookup already established, for the same
 // real reason -- see this lens' own new branch in InsightsScreen's return.
+//
+// 2026-08-14, same day, two more real, direct requests, both handled here:
+// "we need a secondary filter for Nutrient ranking. It needs to separate
+// raw food from dried, and from canned, and from any other way that makes
+// it so we end up with an apples to apples way of looking at the food. And
+// then, the user should be able to select any specific food to see how it
+// ranks in other nutrients, such as 50th in vegetables or 35th in fruit."
+// A real, second mode (`mode`) added alongside the original "pick a
+// nutrient" one, sharing one prep-state filter (`prepGroup`) between both
+// -- see rankFoodsByNutrient/getFoodRankingsAcrossNutrients's own header
+// comments in lib/db.ts for the real, checked reasoning behind the six
+// real prep-state groups, and for why this filter is genuinely NOT
+// auto-applied based on a picked food's own prep state (a considered call,
+// not an oversight -- see getFoodRankingsAcrossNutrients's own comment).
 function NutrientRankingView({
   nutrients,
   selected,
@@ -1388,6 +1454,15 @@ function NutrientRankingView({
   rankedFoods,
   loading,
   tabColor,
+  prepGroup,
+  onPrepGroupChange,
+  mode,
+  onModeChange,
+  rankingFood,
+  onFoodSelected,
+  onClearFood,
+  foodRankings,
+  foodRankingsLoading,
 }: {
   nutrients: TrackedNutrient[];
   selected: string | null;
@@ -1395,6 +1470,15 @@ function NutrientRankingView({
   rankedFoods: RankedFood[];
   loading: boolean;
   tabColor: string;
+  prepGroup: PrepStateGroup | null;
+  onPrepGroupChange: (group: PrepStateGroup | null) => void;
+  mode: 'byNutrient' | 'byFood';
+  onModeChange: (mode: 'byNutrient' | 'byFood') => void;
+  rankingFood: ResolvedFoodSelection | null;
+  onFoodSelected: (food: ResolvedFoodSelection) => void;
+  onClearFood: () => void;
+  foodRankings: FoodNutrientRanking[];
+  foodRankingsLoading: boolean;
 }) {
   // Memoized, 2026-08-12 -- see the real render-storm root-caused and fixed
   // the same day in PopoverSelect.tsx's own header comment. A fresh array
@@ -1409,6 +1493,17 @@ function NutrientRankingView({
   const nutrientOptions = useMemo(
     () => nutrients.map((n) => ({ label: `${n.displayName} (${n.unit})`, value: n.code })),
     [nutrients],
+  );
+  // Same reasoning as nutrientOptions just above -- a fixed, six-entry list
+  // that never changes, so a plain module-scope constant would already be
+  // stable, but built via useMemo anyway for the identical, cheap
+  // insurance against a future edit accidentally making it unstable.
+  const prepGroupOptions = useMemo(
+    () => [
+      { label: 'All prep states', value: 'all' },
+      ...PREP_STATE_GROUP_ORDER.map((group) => ({ label: PREP_STATE_GROUP_LABELS[group], value: group })),
+    ],
+    [],
   );
   const selectedNutrient = nutrients.find((n) => n.code === selected) ?? null;
   // Same real clearance every other scrollable lens already applies at the
@@ -1457,6 +1552,59 @@ function NutrientRankingView({
     );
   }
 
+  // 2026-08-14 -- the reverse of renderRow: one row per NUTRIENT (not per
+  // food), sorted rank-ascending by the query itself (see
+  // getFoodRankingsAcrossNutrients's own ORDER BY), so the picked food's
+  // own most notable/exceptional nutrients naturally surface first rather
+  // than an alphabetical list someone has to scan through.
+  function renderFoodRankingRow(entry: FoodNutrientRanking) {
+    return (
+      <View key={entry.nutrientCode} style={styles.rankRow}>
+        <Text style={styles.rankNumber}>{entry.rank}</Text>
+        <View style={styles.rankTextWrap}>
+          <Text style={styles.rankFoodName}>{entry.displayName}</Text>
+          <Text style={styles.rankFoodCategory}>of {entry.poolSize}</Text>
+        </View>
+        <Text style={styles.rankAmount}>{formatAmount(entry.amountPer100g, entry.unit)}</Text>
+      </View>
+    );
+  }
+
+  // FoodLookup needs its own real, non-ScrollView-nested space while
+  // actively picking -- nesting its internal FlatList inside this view's
+  // own results ScrollView (below) is the same real RN anti-pattern that
+  // crashed Garden's own harvest/planting pickers earlier this same day
+  // (see FoodLookup.tsx's own closing comment). This branch is the whole
+  // reason mode/rankingFood/onFoodSelected are threaded down here rather
+  // than kept local to a results-only sub-view -- picking a food is a
+  // genuinely different layout, not just different content inside the
+  // same one.
+  if (mode === 'byFood' && !rankingFood) {
+    return (
+      <View style={styles.rankLayout}>
+        <View style={styles.pillWrap}>
+          <TouchableOpacity
+            style={[styles.stagePill, { borderColor: tabColor }]}
+            onPress={() => onModeChange('byNutrient')}
+          >
+            <Text style={[styles.stagePillText, { color: tabColor }]}>By Nutrient</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.stagePill, { backgroundColor: tabColor, borderColor: tabColor }]}
+            onPress={() => onModeChange('byFood')}
+          >
+            <Text style={[styles.stagePillText, styles.stagePillTextActive]}>By Food</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={[styles.emptyText, styles.rankSpaced]}>
+          Search or browse below to pick a food and see how it ranks against every nutrient it has a measured
+          amount of, within its own category.
+        </Text>
+        <FoodLookup tabColor={tabColor} showNutrients={false} onFoodResolved={onFoodSelected} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.rankLayout}>
       {/* The results zone -- scrolls on its own, independent of the fixed
@@ -1467,42 +1615,95 @@ function NutrientRankingView({
           would be redundant. "loading"/"none found"/actual results are
           unchanged in substance -- only WHERE they sit changed. */}
       <ScrollView style={styles.rankResultsScroll} contentContainerStyle={styles.rankResultsContent}>
-        {!selected ? null : loading ? (
-          <Text style={styles.emptyText}>Loading…</Text>
-        ) : rankedFoods.length === 0 ? (
-          <Text style={styles.emptyText}>No foods with a measured amount of this found.</Text>
-        ) : selected === 'protein' ? (
-          // Protein specifically splits into Animal vs. Plant -- see
-          // classifyProteinSource's own comment in lib/db.ts for exactly
-          // which categories land where and why. A food whose category isn't
-          // a real "protein source" category at all (a sauce, a sweetener)
-          // is simply left out of both lists rather than forced into either.
+        <View style={styles.pillWrap}>
+          <TouchableOpacity
+            style={[styles.stagePill, mode === 'byNutrient' ? { backgroundColor: tabColor, borderColor: tabColor } : { borderColor: tabColor }]}
+            onPress={() => onModeChange('byNutrient')}
+          >
+            <Text style={[styles.stagePillText, mode === 'byNutrient' ? styles.stagePillTextActive : { color: tabColor }]}>
+              By Nutrient
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.stagePill, mode === 'byFood' ? { backgroundColor: tabColor, borderColor: tabColor } : { borderColor: tabColor }]}
+            onPress={() => onModeChange('byFood')}
+          >
+            <Text style={[styles.stagePillText, mode === 'byFood' ? styles.stagePillTextActive : { color: tabColor }]}>
+              By Food
+            </Text>
+          </TouchableOpacity>
+        </View>
+        {mode === 'byNutrient' ? (
+          !selected ? null : loading ? (
+            <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+          ) : rankedFoods.length === 0 ? (
+            <Text style={[styles.emptyText, styles.rankSpaced]}>No foods with a measured amount of this found.</Text>
+          ) : selected === 'protein' ? (
+            // Protein specifically splits into Animal vs. Plant -- see
+            // classifyProteinSource's own comment in lib/db.ts for exactly
+            // which categories land where and why. A food whose category isn't
+            // a real "protein source" category at all (a sauce, a sweetener)
+            // is simply left out of both lists rather than forced into either.
+            <>
+              <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Animal Protein</Text>
+              <View style={styles.table}>
+                {(() => {
+                  const animal = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'animal');
+                  return animal.length === 0 ? (
+                    <Text style={styles.emptyText}>None found.</Text>
+                  ) : (
+                    animal.map((food, index) => renderRow(food, index + 1))
+                  );
+                })()}
+              </View>
+              <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Plant Protein</Text>
+              <View style={styles.table}>
+                {(() => {
+                  const plant = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'plant');
+                  return plant.length === 0 ? (
+                    <Text style={styles.emptyText}>None found.</Text>
+                  ) : (
+                    plant.map((food, index) => renderRow(food, index + 1))
+                  );
+                })()}
+              </View>
+            </>
+          ) : (
+            <View style={[styles.table, styles.rankSpaced]}>{rankedFoods.map((food, index) => renderRow(food, index + 1))}</View>
+          )
+        ) : !rankingFood ? null : (
           <>
-            <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Animal Protein</Text>
-            <View style={styles.table}>
-              {(() => {
-                const animal = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'animal');
-                return animal.length === 0 ? (
-                  <Text style={styles.emptyText}>None found.</Text>
-                ) : (
-                  animal.map((food, index) => renderRow(food, index + 1))
-                );
-              })()}
+            <View style={[styles.rankFoodSummaryRow, styles.rankSpaced]}>
+              <Text style={styles.rankFoodSummaryText}>
+                {rankingFood.baseName} · {categoryLabel(rankingFood.category)}
+              </Text>
+              <TouchableOpacity style={styles.pill} onPress={onClearFood}>
+                <Text style={styles.pillText}>Change food</Text>
+              </TouchableOpacity>
             </View>
-            <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Plant Protein</Text>
-            <View style={styles.table}>
-              {(() => {
-                const plant = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'plant');
-                return plant.length === 0 ? (
-                  <Text style={styles.emptyText}>None found.</Text>
-                ) : (
-                  plant.map((food, index) => renderRow(food, index + 1))
-                );
-              })()}
-            </View>
+            {foodRankingsLoading ? (
+              <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
+            ) : foodRankings.length === 0 && prepGroup && classifyPrepStateGroup(rankingFood.prepMethod) !== prepGroup ? (
+              // A real, worth-catching mismatch, not just a generic "nothing
+              // found": this food's own prep state doesn't belong to the
+              // currently active filter group at all, so it could never
+              // show up in a comparison pool that filter builds -- an empty
+              // result here means "wrong filter for this food," not "this
+              // food has no measured nutrients," and deserves its own,
+              // clearer message rather than reading as a possible bug.
+              <Text style={[styles.emptyText, styles.rankSpaced]}>
+                {rankingFood.baseName} is {PREP_STATE_GROUP_LABELS[classifyPrepStateGroup(rankingFood.prepMethod)].toLowerCase()},
+                not {PREP_STATE_GROUP_LABELS[prepGroup].toLowerCase()} -- switch the Prep state filter below to see how it ranks.
+              </Text>
+            ) : foodRankings.length === 0 ? (
+              <Text style={[styles.emptyText, styles.rankSpaced]}>
+                No measured nutrients found for this food within {categoryLabel(rankingFood.category)}
+                {prepGroup ? ` (${PREP_STATE_GROUP_LABELS[prepGroup]})` : ''}.
+              </Text>
+            ) : (
+              <View style={[styles.table, styles.rankSpaced]}>{foodRankings.map((entry) => renderFoodRankingRow(entry))}</View>
+            )}
           </>
-        ) : (
-          <View style={styles.table}>{rankedFoods.map((food, index) => renderRow(food, index + 1))}</View>
         )}
       </ScrollView>
 
@@ -1510,41 +1711,58 @@ function NutrientRankingView({
           the selector the way it is now"; only its position moved, down to
           just above the floating hub button/footer. */}
       <View style={[styles.rankFieldZone, { paddingBottom: fieldBottomPadding }]}>
-        <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
-        {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
-            isn't needed") -- 39 real tracked nutrients is a short, plain
-            scrollable list, not the "could be longer" case search mode was
-            built for (see PopoverSelect's own header comment). Removing it
-            also means this field never touches AppKeyboard's search row at
-            all, closing off the whole code path most directly implicated in
-            the freeze this same day (see that file's own fix comment).
-            openAbove, 2026-08-14, direct request ("move the location of the
-            selection list up to a little above the header word Nutrient")
-            -- with this field pinned right above the footer, the default
-            side-anchored opening put the list roughly level with the field
-            itself, uncomfortably close to the bottom edge; opening above
-            puts it over the real open space the results area occupies,
-            right above the "Nutrient" label the field sits under. */}
+        {mode === 'byNutrient' ? (
+          <>
+            <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
+            {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
+                isn't needed") -- 39 real tracked nutrients is a short, plain
+                scrollable list, not the "could be longer" case search mode was
+                built for (see PopoverSelect's own header comment). Removing it
+                also means this field never touches AppKeyboard's search row at
+                all, closing off the whole code path most directly implicated in
+                the freeze this same day (see that file's own fix comment).
+                openAbove, 2026-08-14, direct request ("move the location of the
+                selection list up to a little above the header word Nutrient")
+                -- with this field pinned right above the footer, the default
+                side-anchored opening put the list roughly level with the field
+                itself, uncomfortably close to the bottom edge; opening above
+                puts it over the real open space the results area occupies,
+                right above the "Nutrient" label the field sits under. */}
+            <PopoverSelect
+              options={nutrientOptions}
+              selected={selected}
+              onSelect={onSelect}
+              tabColor={tabColor}
+              placeholder="Pick a nutrient..."
+              minWidth={220}
+              openAbove
+            />
+            {/* 2026-08-14, direct request -- moved down here from the results
+                zone above (where it used to be the "nothing picked yet"
+                placeholder), so it sits right under the field it's actually
+                describing. Reworded "below" -> "above" to match, since the
+                field is now above this text, not below it -- the same
+                direction-correction already made once before when this field
+                itself moved down to this fixed bottom zone, and the same
+                wording Cooking Impact's own analogous caption already uses. */}
+            <Text style={[styles.emptyText, styles.rankSpaced]}>
+              Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
+            </Text>
+          </>
+        ) : null}
+        {/* Shared by both modes, 2026-08-14 -- see this component's own
+            header comment for why this is one control, not auto-applied
+            per picked food. */}
+        <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Prep state</Text>
         <PopoverSelect
-          options={nutrientOptions}
-          selected={selected}
-          onSelect={onSelect}
+          options={prepGroupOptions}
+          selected={prepGroup ?? 'all'}
+          onSelect={(value) => onPrepGroupChange(value === 'all' ? null : (value as PrepStateGroup))}
           tabColor={tabColor}
-          placeholder="Pick a nutrient..."
+          placeholder="All prep states"
           minWidth={220}
           openAbove
         />
-        {/* 2026-08-14, direct request -- moved down here from the results
-            zone above (where it used to be the "nothing picked yet"
-            placeholder), so it sits right under the field it's actually
-            describing. Reworded "below" -> "above" to match, since the
-            field is now above this text, not below it -- the same
-            direction-correction already made once before when this field
-            itself moved down to this fixed bottom zone, and the same
-            wording Cooking Impact's own analogous caption already uses. */}
-        <Text style={[styles.emptyText, styles.rankSpaced]}>
-          Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
-        </Text>
       </View>
     </View>
   );
@@ -2523,6 +2741,11 @@ const styles = StyleSheet.create({
   rankFoodName: { ...typography.bodyEmphasis, color: colors.textPrimary },
   rankFoodCategory: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
   rankAmount: { ...typography.captionEmphasis, color: TAB_COLOR },
+  // Nutrient Ranking's own "By Food" mode, 2026-08-14 -- the picked food's
+  // own name/category, plus the "Change food" action, sitting above its
+  // real per-nutrient ranking list.
+  rankFoodSummaryRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', gap: 8 },
+  rankFoodSummaryText: { ...typography.bodyEmphasis, color: colors.textPrimary, flexShrink: 1 },
   // Cooking Impact lens, 2026-08-10.
   cookingMethodRow: {
     paddingVertical: 10,

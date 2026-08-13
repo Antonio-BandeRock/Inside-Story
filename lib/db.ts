@@ -2000,8 +2000,129 @@ export type RankedFood = {
 // Verified directly against the live database before and after this
 // change: identical top-10 protein results, same real total deduped
 // count.
-export async function rankFoodsByNutrient(nutrientCode: string, limit = 100): Promise<RankedFood[]> {
+// Nutrient Ranking's own "apples to apples" secondary filter, 2026-08-14,
+// direct request: "we need a secondary filter for Nutrient ranking. It
+// needs to separate raw food from dried, and from canned, and from any
+// other way that makes it so we end up with an apples to apples way of
+// looking at the food." A real, direct example of why this matters had
+// already come up the same day -- tomato powder's own real 46,260 µg/100g
+// lycopene figure is genuine (independently verified against the live
+// USDA API), but it's genuine precisely BECAUSE drying concentrates
+// nearly everything by removing water, the same real mechanism
+// rankFoodsByNutrient's own header comment already documents at length
+// for why Raw and Dried are kept as two separate, distinctly-labeled
+// entries rather than merged. That existing design already stops the
+// WRONG number from displaying; it doesn't stop a person from wanting to
+// see, say, only the raw entries at once for a genuinely fair comparison
+// -- this is what this filter is actually for.
+//
+// Checked the real, live database directly before designing this, not
+// guessed at a scheme: prep_method carries 27 distinct real values, most
+// with a tiny row count ("O'Brien," "Wedges," "Scalloped" -- 1-2 rows
+// each) that wouldn't be meaningful filter choices on their own. Grouped
+// into five real, checkable buckets instead, with a genuine, honest sixth
+// for what's left over. A real, worth-naming gap, checked directly rather
+// than assumed away: prep_method itself is only structured for roughly
+// 28% of this database's visible foods overall -- USDA is the
+// best-covered real source (80%), Germany_BLS/Canada_CNF/Japan_MEXT/
+// Australia_AFCD partially, and Sweden_Livsmedelsverket/
+// Norway_Matvaretabellen/France_Ciqual have ZERO structured prep_method
+// rows at all (their own real prep-state signal, where it exists, lives
+// only in each row's own untranslated name text -- Swedish "konserv." for
+// canned, French "cru" for raw). A blank/untagged food is classified
+// 'unspecified' here rather than guessed at from a keyword scan across 9
+// different languages -- confirmed directly (a real, random sample of the
+// blank bucket) that it's genuinely mixed, holding canned, fried, and
+// baked foods right alongside raw ones for the sources that don't
+// structure this field, so treating blank as Raw here (the way
+// rankFoodsByNutrient's own internal DEDUP partition already does, for a
+// narrower, different reason -- collision-avoidance between sources, not
+// a semantic filter) would have actively misclassified real canned/cooked
+// foods as Raw, defeating the whole point of this filter.
+export type PrepStateGroup = 'raw' | 'cooked' | 'dried' | 'canned' | 'frozen' | 'unspecified';
+
+export const PREP_STATE_GROUP_LABELS: Record<PrepStateGroup, string> = {
+  raw: 'Raw',
+  cooked: 'Cooked',
+  dried: 'Dried',
+  canned: 'Canned',
+  frozen: 'Frozen',
+  unspecified: 'Unspecified prep state',
+};
+
+// Every option in a real, meaningful filter order -- 'All' isn't its own
+// PrepStateGroup value (no filter applied at all is represented as
+// `null`, not a seventh group), so callers building a picker list prepend
+// that themselves.
+export const PREP_STATE_GROUP_ORDER: PrepStateGroup[] = ['raw', 'cooked', 'dried', 'canned', 'frozen', 'unspecified'];
+
+// Real prep_method values -> group, for the four groups worth a positive,
+// explicit list. 'cooked' is deliberately NOT one of these -- see
+// prepStateGroupWhereClause's own comment for why it's defined as
+// "everything else" instead, so a genuinely new prep_method value
+// introduced by a future database rebuild automatically falls into
+// 'cooked' rather than silently vanishing from every group's filter.
+const PREP_STATE_EXPLICIT_VALUES: Record<'raw' | 'dried' | 'canned' | 'frozen', string[]> = {
+  raw: ['Raw', 'Unprepared'],
+  dried: ['Dried', 'Mashed (Dehydrated)'],
+  canned: ['Canned', 'Pickled'],
+  frozen: ['Frozen', 'Deep-Frozen'],
+};
+
+// Pure JS classifier for DISPLAY purposes (labeling a food's own group in
+// a rendered row) -- the SQL-side filtering below is a real, separate
+// WHERE-clause builder, not this function reused as a predicate, since
+// pushing the filter into SQL is what keeps a large ranking query from
+// having to cross the JS bridge with every row just to throw most of them
+// away (the same real performance discipline rankFoodsByNutrient's own
+// history already established).
+export function classifyPrepStateGroup(prepMethod: string | null): PrepStateGroup {
+  if (!prepMethod) return 'unspecified';
+  if (PREP_STATE_EXPLICIT_VALUES.raw.includes(prepMethod)) return 'raw';
+  if (PREP_STATE_EXPLICIT_VALUES.dried.includes(prepMethod)) return 'dried';
+  if (PREP_STATE_EXPLICIT_VALUES.canned.includes(prepMethod)) return 'canned';
+  if (PREP_STATE_EXPLICIT_VALUES.frozen.includes(prepMethod)) return 'frozen';
+  return 'cooked';
+}
+
+// Real SQL condition + bound params for a given group, referencing the
+// `f` alias both real callers below already use for the foods table.
+// `null` (no group picked -- "All") returns an always-true clause with no
+// params, so every existing call site's own query shape stays identical
+// to before this filter existed.
+function prepStateGroupWhereClause(group: PrepStateGroup | null): { sql: string; params: string[] } {
+  if (!group) return { sql: '1=1', params: [] };
+  if (group === 'unspecified') {
+    return { sql: "(f.prep_method IS NULL OR f.prep_method = '')", params: [] };
+  }
+  if (group === 'cooked') {
+    // Everything genuinely tagged, that isn't one of the other four real
+    // groups -- not a positive list of every "cooked" value, deliberately,
+    // so a real prep_method value this database gains later (a future
+    // rebuild, a new source) is automatically covered here rather than
+    // needing this list hand-updated to keep catching it.
+    const excluded = [
+      ...PREP_STATE_EXPLICIT_VALUES.raw,
+      ...PREP_STATE_EXPLICIT_VALUES.dried,
+      ...PREP_STATE_EXPLICIT_VALUES.canned,
+      ...PREP_STATE_EXPLICIT_VALUES.frozen,
+    ];
+    return {
+      sql: `(f.prep_method IS NOT NULL AND f.prep_method != '' AND f.prep_method NOT IN (${excluded.map(() => '?').join(',')}))`,
+      params: excluded,
+    };
+  }
+  const values = PREP_STATE_EXPLICIT_VALUES[group];
+  return { sql: `f.prep_method IN (${values.map(() => '?').join(',')})`, params: values };
+}
+
+export async function rankFoodsByNutrient(
+  nutrientCode: string,
+  limit = 100,
+  prepStateGroup: PrepStateGroup | null = null,
+): Promise<RankedFood[]> {
   const db = await getReferenceDatabase();
+  const { sql: prepClause, params: prepParams } = prepStateGroupWhereClause(prepStateGroup);
   return db.getAllAsync<RankedFood>(
     `
       SELECT foodId, source, baseName, category, subcategory, prepMethod, amountPer100g
@@ -2016,14 +2137,102 @@ export async function rankFoodsByNutrient(nutrientCode: string, limit = 100): Pr
           ) AS rn
         FROM food_nutrients fn
         JOIN foods f ON f.food_id = fn.food_id AND f.source = fn.source
-        WHERE fn.nutrient_code = ? AND f.hidden = 0 AND fn.amount_per_100g > 0
+        WHERE fn.nutrient_code = ? AND f.hidden = 0 AND fn.amount_per_100g > 0 AND ${prepClause}
       )
       WHERE rn = 1
       ORDER BY amountPer100g DESC
       LIMIT ?
     `,
     nutrientCode,
+    ...prepParams,
     limit,
+  );
+}
+
+// The reverse of rankFoodsByNutrient -- 2026-08-14, direct request in the
+// same message as the prep-state filter above: "the user should be able
+// to select any specific food to see how it ranks in other nutrients,
+// such as 50th in vegetables or 35th in fruit." Given one real, specific
+// food (foodId + source, exactly what FoodLookup's own onFoodResolved
+// already hands back), returns its own rank + real comparison-pool size
+// within its OWN category, for every nutrient it has a genuinely measured,
+// nonzero value for -- matching the request's own explicit "in
+// vegetables"/"in fruit" framing (scoped to category, not the whole
+// database at once, since comparing a vegetable's nutrient density
+// against, say, Fats or Alcohol was never the actual question).
+//
+// Deliberately reuses the SAME prepStateGroup filter as
+// rankFoodsByNutrient, rather than auto-detecting and silently applying
+// the target food's own group -- a real, considered call, not an
+// oversight: auto-switching the filter behind the scenes the instant a
+// food is picked would be a real, silent behavior change a person didn't
+// ask for, and this way the one filter control genuinely means the same
+// thing in both of Nutrient Ranking's own modes. Passing the food's own
+// real group through explicitly (the UI does this) gets the fair,
+// apples-to-apples comparison; leaving it at "All" intentionally shows how
+// the food stacks up against every prep state at once, a real, legitimate
+// question in its own right.
+//
+// Built the exact same real, SQL-side-dedup way rankFoodsByNutrient's own
+// history already established (a real, confirmed performance fix, not a
+// stylistic choice) -- one query, real window functions doing the dedupe/
+// rank/count work natively, so only the final, already-computed rows (one
+// per nutrient this food actually has a value for) ever cross the JS
+// bridge.
+export type FoodNutrientRanking = {
+  nutrientCode: string;
+  displayName: string;
+  unit: string;
+  amountPer100g: number;
+  rank: number;
+  poolSize: number;
+};
+
+export async function getFoodRankingsAcrossNutrients(
+  foodId: number,
+  source: string,
+  prepStateGroup: PrepStateGroup | null = null,
+): Promise<FoodNutrientRanking[]> {
+  const db = await getReferenceDatabase();
+  const { sql: prepClause, params: prepParams } = prepStateGroupWhereClause(prepStateGroup);
+  return db.getAllAsync<FoodNutrientRanking>(
+    `
+      WITH target AS (
+        SELECT category, base_name AS baseName, COALESCE(prep_method, '') AS prepMethod
+        FROM foods WHERE food_id = ? AND source = ?
+      ),
+      deduped AS (
+        SELECT
+          fn.nutrient_code AS nutrientCode, f.base_name AS baseName,
+          COALESCE(f.prep_method, '') AS prepMethod, fn.amount_per_100g AS amountPer100g,
+          ROW_NUMBER() OVER (
+            PARTITION BY fn.nutrient_code, f.base_name, COALESCE(f.prep_method, '')
+            ORDER BY fn.amount_per_100g DESC
+          ) AS dedupeRn
+        FROM food_nutrients fn
+        JOIN foods f ON f.food_id = fn.food_id AND f.source = fn.source
+        WHERE f.hidden = 0 AND fn.amount_per_100g > 0
+          AND f.category = (SELECT category FROM target)
+          AND ${prepClause}
+      ),
+      ranked AS (
+        SELECT
+          nutrientCode, baseName, prepMethod, amountPer100g,
+          RANK() OVER (PARTITION BY nutrientCode ORDER BY amountPer100g DESC) AS rank,
+          COUNT(*) OVER (PARTITION BY nutrientCode) AS poolSize
+        FROM deduped
+        WHERE dedupeRn = 1
+      )
+      SELECT r.nutrientCode AS nutrientCode, n.display_name AS displayName, n.unit AS unit,
+             r.amountPer100g AS amountPer100g, r.rank AS rank, r.poolSize AS poolSize
+      FROM ranked r
+      JOIN nutrients n ON n.code = r.nutrientCode
+      WHERE r.baseName = (SELECT baseName FROM target) AND r.prepMethod = (SELECT prepMethod FROM target)
+      ORDER BY r.rank ASC
+    `,
+    foodId,
+    source,
+    ...prepParams,
   );
 }
 
