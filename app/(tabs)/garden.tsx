@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -11,11 +11,13 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { PopoverSelect } from '../../components/PopoverSelect';
+import { COUNTRIES } from '../../constants/countries';
 import { colors, popoverBackground } from '../../constants/colors';
 import { typography } from '../../constants/typography';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { USDA_ZONES, zoneBandInfo } from '../../lib/gardenZones';
+import { lookupGrowingZone, type GrowingZoneLookupResult } from '../../lib/gardenZoneLookup';
 import {
   archiveGardenPlot,
   createGardenPlanting,
@@ -54,6 +56,12 @@ const TAB_COLOR = colors.tabGarden;
 // against the old raw fill.
 const PRIMARY_BUTTON_BACKGROUND = popoverBackground(TAB_COLOR);
 
+// COUNTRIES mapped once, at module scope, into the label/value shape
+// PopoverSelect's own searchable list expects -- a real, stable array
+// reference across renders (not rebuilt inline in MyZoneLens), matching
+// this component's own memo() contract.
+const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ label: country.name, value: country.code }));
+
 type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog';
 
 const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
@@ -70,7 +78,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'My Zone',
-        body: 'Set your real USDA Plant Hardiness Zone (e.g. "7a") here or in Profile -- both write to the same one saved value. Once set, this shows the real, cited crop guidance for your own climate band from Purple Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
+        body: 'Look up your real USDA Plant Hardiness Zone by country + ZIP/postal code -- works anywhere on Earth, not just the US: a real US ZIP gets the official USDA zone directly, everywhere else gets a real estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile -- both write to the same one saved value. Once set, this shows the real, cited crop guidance for your own climate band from Purple Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
       },
     ],
   },
@@ -101,7 +109,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
 const GARDEN_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Garden',
-    body: "Real, standing infrastructure for growing your own food and tracking it -- your USDA Plant Hardiness Zone, real plots and what's planted in them, and a real harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked. Phase 1: manual zone entry (not yet auto-resolved from a ZIP/postal code), and a basic Scheduler tie-in (a garden task creates a real schedule_items row, visible right here as \"Upcoming Tasks\" -- a dedicated lens for it inside the Schedules tab itself isn't built yet).",
+    body: "Real, standing infrastructure for growing your own food and tracking it -- your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), real plots and what's planted in them, and a real harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked. A basic Scheduler tie-in exists too (a garden task creates a real schedule_items row, visible right here as \"Upcoming Tasks\" -- a dedicated lens for it inside the Schedules tab itself isn't built yet).",
   },
 ];
 
@@ -206,6 +214,10 @@ export default function GardenScreen() {
 function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
   const [zone, setZone] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [country, setCountry] = useState<string | null>(null);
+  const [postalCode, setPostalCode] = useState('');
+  const [lookupBusy, setLookupBusy] = useState(false);
+  const [lookupResult, setLookupResult] = useState<GrowingZoneLookupResult | null>(null);
 
   useFocusEffect(
     useCallback(() => {
@@ -214,6 +226,8 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
         const profile = await getUserProfile();
         if (!cancelled) {
           setZone(profile.growingZone);
+          setCountry(profile.growingZoneCountry);
+          setPostalCode(profile.growingZonePostalCode ?? '');
           setLoading(false);
         }
       })();
@@ -230,10 +244,74 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
     await setUserProfile({ growingZone: value });
   }
 
+  async function handleLookup() {
+    if (!country || !postalCode.trim() || lookupBusy) return;
+    setLookupBusy(true);
+    setLookupResult(null);
+    const result = await lookupGrowingZone(country, postalCode);
+    setLookupResult(result);
+    if (result.status === 'success') {
+      setZone(result.zone);
+      await setUserProfile({ growingZone: result.zone, growingZoneCountry: country, growingZonePostalCode: postalCode.trim() });
+    }
+    setLookupBusy(false);
+  }
+
   if (loading) return null;
+
+  const lookupDisabled = !country || !postalCode.trim() || lookupBusy;
 
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
+      <View style={[styles.card, { borderColor: TAB_COLOR }]}>
+        <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Find My Zone</Text>
+        <Text style={styles.cardBody}>
+          Enter your country and ZIP or postal code -- this works anywhere on Earth, not just the US. A real US ZIP gets the
+          official USDA zone directly; everywhere else gets a real estimate computed from that location&apos;s own historical
+          temperature data, using the same real USDA temperature bands.
+        </Text>
+        <View style={styles.fieldRow}>
+          <Text style={styles.fieldLabel}>Country</Text>
+          <PopoverSelect
+            options={COUNTRY_OPTIONS}
+            selected={country}
+            onSelect={setCountry}
+            tabColor={TAB_COLOR}
+            searchable
+            width={220}
+            placeholder="Select country"
+          />
+        </View>
+        <AppTextInput
+          style={styles.textInput}
+          placeholder="ZIP or postal code"
+          value={postalCode}
+          onChangeText={setPostalCode}
+        />
+        <TouchableOpacity
+          style={[
+            styles.primaryButton,
+            { backgroundColor: PRIMARY_BUTTON_BACKGROUND },
+            lookupDisabled ? styles.disabledButton : null,
+          ]}
+          onPress={handleLookup}
+          disabled={lookupDisabled}
+        >
+          {lookupBusy ? (
+            <ActivityIndicator size="small" color={colors.background} />
+          ) : (
+            <Text style={styles.primaryButtonText}>Find My Zone</Text>
+          )}
+        </TouchableOpacity>
+        {lookupResult ? (
+          <Text style={[styles.captionText, lookupResult.status !== 'success' ? styles.errorText : null]}>
+            {lookupResult.status === 'success'
+              ? `Set to zone ${lookupResult.zone}${lookupResult.placeLabel ? ` -- ${lookupResult.placeLabel}` : ''}. ${lookupResult.detail}`
+              : lookupResult.message}
+          </Text>
+        ) : null}
+      </View>
+
       <View style={[styles.card, { borderColor: TAB_COLOR }]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Your Growing Zone</Text>
         <Text style={styles.cardBody}>
@@ -251,9 +329,9 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
           />
         </View>
         <Text style={styles.captionText}>
-          Not sure which zone you&apos;re in? A real, automatic ZIP/postal-code lookup is planned but not yet built -- for now,
-          check your zone directly against the USDA&apos;s own published map (usda.gov/plant-hardiness-zone) or a local
-          agricultural extension office.
+          Already know your zone, or want to check it directly? Set it here -- this always overrides whatever the lookup above
+          found. The USDA&apos;s own published map (usda.gov/plant-hardiness-zone) or a local agricultural extension office are
+          both real, direct ways to double-check either result.
         </Text>
       </View>
 
@@ -788,8 +866,10 @@ const styles = StyleSheet.create({
   plantingPickRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: colors.border, gap: 2 },
   pendingCard: { gap: 8 },
   actionRow: { flexDirection: 'row', alignItems: 'center', gap: 16, marginTop: 4 },
-  primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8 },
+  primaryButton: { borderRadius: 8, paddingHorizontal: 14, paddingVertical: 8, alignItems: 'center' },
   primaryButtonText: { color: colors.background, fontWeight: '700' },
+  disabledButton: { opacity: 0.5 },
+  errorText: { color: colors.danger },
   secondaryButton: { borderWidth: 1, borderRadius: 8, paddingVertical: 10, alignItems: 'center' },
   secondaryButtonText: { fontWeight: '700' },
   linkText: { ...typography.body, color: colors.primary },

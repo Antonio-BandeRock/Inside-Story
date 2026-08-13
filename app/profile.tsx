@@ -241,6 +241,8 @@ export default function ProfileScreen() {
     eatingWindowStart: null,
     eatingWindowEnd: null,
     growingZone: null,
+    growingZoneCountry: null,
+    growingZonePostalCode: null,
   });
   const [measurementSystem, setMeasurementSystem] = useState<MeasurementSystem>('metric');
   const [savedFlash, setSavedFlash] = useState(false);

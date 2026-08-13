@@ -3797,6 +3797,19 @@ export async function initializeDatabase() {
       await db.execAsync('ALTER TABLE user_profile ADD COLUMN growing_zone TEXT;');
     }
 
+    // The real country/ZIP-or-postal-code pair behind a "Find My Zone"
+    // lookup (lib/gardenZoneLookup.ts), 2026-08-13 -- Phase 2, completing
+    // growing_zone's own real gap. Stored purely for convenience (so
+    // returning to My Zone shows what was actually entered and lets a
+    // person re-run the lookup after moving, rather than re-typing it),
+    // not required for growing_zone itself to keep working -- both stay
+    // null if someone only ever sets their zone manually.
+    for (const column of ['growing_zone_country', 'growing_zone_postal_code']) {
+      if (!userProfileColumns.some((existing) => existing.name === column)) {
+        await db.execAsync(`ALTER TABLE user_profile ADD COLUMN ${column} TEXT;`);
+      }
+    }
+
     const exerciseLogColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(exercise_logs)');
     const hasStepCountColumn = exerciseLogColumns.some((column) => column.name === 'step_count');
 
@@ -9068,10 +9081,19 @@ export type UserProfile = {
   eatingWindowStart: string | null;
   eatingWindowEnd: string | null;
   // A real USDA Plant Hardiness Zone (e.g. '7a') -- self-selected via the
-  // new Garden tab's own Profile field, 2026-08-13. Null until set;
-  // real Phase-1 manual selection, not (yet) resolved from a ZIP/postal
-  // code -- see growingZone's own column comment in initializeDatabase.
+  // Garden tab's own Profile field, 2026-08-13, or resolved automatically
+  // via lib/gardenZoneLookup.ts's own real ZIP/postal-code lookup,
+  // 2026-08-13 (either way lands in this same one column -- see
+  // growingZone's own column comment in initializeDatabase). Null until
+  // set.
   growingZone: string | null;
+  // The real country code + postal code that produced growingZone, when it
+  // was set via the lookup rather than picked manually -- kept purely so
+  // returning to My Zone shows what was entered and can re-run the lookup
+  // after a move, without needing growingZone itself. Both null when the
+  // zone was set manually or never set at all.
+  growingZoneCountry: string | null;
+  growingZonePostalCode: string | null;
 };
 
 export async function getUserProfile(): Promise<UserProfile> {
@@ -9091,11 +9113,14 @@ export async function getUserProfile(): Promise<UserProfile> {
     eating_window_start: string | null;
     eating_window_end: string | null;
     growing_zone: string | null;
+    growing_zone_country: string | null;
+    growing_zone_postal_code: string | null;
   }>(
     `
       SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
              usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-             fasting_enabled, eating_window_start, eating_window_end, growing_zone
+             fasting_enabled, eating_window_start, eating_window_end,
+             growing_zone, growing_zone_country, growing_zone_postal_code
       FROM user_profile WHERE id = 1
     `,
   );
@@ -9116,6 +9141,8 @@ export async function getUserProfile(): Promise<UserProfile> {
       eatingWindowStart: null,
       eatingWindowEnd: null,
       growingZone: null,
+      growingZoneCountry: null,
+      growingZonePostalCode: null,
     };
   }
 
@@ -9134,6 +9161,8 @@ export async function getUserProfile(): Promise<UserProfile> {
     eatingWindowStart: row.eating_window_start,
     eatingWindowEnd: row.eating_window_end,
     growingZone: row.growing_zone,
+    growingZoneCountry: row.growing_zone_country,
+    growingZonePostalCode: row.growing_zone_postal_code,
   };
 }
 
@@ -9202,9 +9231,10 @@ export async function setUserProfile(update: Partial<UserProfile>) {
         INSERT INTO user_profile (
           id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
           usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
-          fasting_enabled, eating_window_start, eating_window_end, growing_zone, updated_at
+          fasting_enabled, eating_window_start, eating_window_end,
+          growing_zone, growing_zone_country, growing_zone_postal_code, updated_at
         )
-        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           first_name = excluded.first_name,
           last_name = excluded.last_name,
@@ -9220,6 +9250,8 @@ export async function setUserProfile(update: Partial<UserProfile>) {
           eating_window_start = excluded.eating_window_start,
           eating_window_end = excluded.eating_window_end,
           growing_zone = excluded.growing_zone,
+          growing_zone_country = excluded.growing_zone_country,
+          growing_zone_postal_code = excluded.growing_zone_postal_code,
           updated_at = excluded.updated_at
       `,
       merged.firstName?.trim() || null,
@@ -9236,6 +9268,8 @@ export async function setUserProfile(update: Partial<UserProfile>) {
       merged.eatingWindowStart,
       merged.eatingWindowEnd,
       merged.growingZone,
+      merged.growingZoneCountry,
+      merged.growingZonePostalCode,
       now,
     );
   };
