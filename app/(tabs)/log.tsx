@@ -63,7 +63,7 @@ type Lens = 'flares' | 'foodReactions' | 'newFoods' | 'exercise' | 'bloodPressur
 // and TRENDS_PATTERN_CAVEAT_HELP (trends.tsx).
 const LOG_PERSONAL_NOTES_HELP: HelpSection = {
   heading: 'Personal notes, not medical fact',
-  body: "Everything here is your own record of your own body -- distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
+  body: "Everything here is your own record of your own body, distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
 };
 
 const LENSES: LensOption<Lens>[] = [
@@ -98,7 +98,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'New Foods',
-        body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged -- or mark it earlier if something happens right away.",
+        body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged, or mark it earlier if something happens right away.",
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -110,7 +110,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Exercise',
-        body: 'A lightweight log of what you did and for how long -- not meant to replace dedicated exercise tracking, just somewhere to jot it down for now.',
+        body: 'A lightweight log of what you did and for how long, not meant to replace dedicated exercise tracking, just somewhere to jot it down for now.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -134,7 +134,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'General Note',
-        body: 'For anything else worth remembering -- a prescription change, how a supplement felt, a drink you had.',
+        body: 'For anything else worth remembering: a prescription change, how a supplement felt, a drink you had.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -146,7 +146,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Nocturia',
-        body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
+        body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log, added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -156,11 +156,11 @@ const LENSES: LensOption<Lens>[] = [
 const LOG_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Why "Signals"?',
-    body: "Autoimmune flares rarely come out of nowhere -- your body usually sends signals first: fatigue, joint pain, brain fog, and other warning signs worth paying attention to before a full flare hits. This tab (renamed from Bio-Compass, 2026-07-27) is where you capture those signals as they happen, not just the flare itself once it's already arrived.",
+    body: "Autoimmune flares rarely come out of nowhere: your body usually sends signals first, fatigue, joint pain, brain fog, and other warning signs worth paying attention to before a full flare hits. This tab (renamed from Bio-Compass, 2026-07-27) is where you capture those signals as they happen, not just the flare itself once it's already arrived.",
   },
   {
     heading: 'What this tab is for',
-    body: "A place to write down what's actually happening to you, separate from what you planned (Schedules) or what the cited 6-DFF (6 Dimensions of Food Friendliness)/nutrient scoring says (Insights). This is your own observations -- flares, reactions, and anything else worth remembering.",
+    body: "A place to write down what's actually happening to you, separate from what you planned (Schedules) or what the cited 6-DFF (6 Dimensions of Food Friendliness)/nutrient scoring says (Insights). This is your own observations: flares, reactions, and anything else worth remembering.",
   },
   {
     heading: 'Flares',
@@ -172,11 +172,11 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'New Foods',
-    body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged -- or mark it earlier if something happens right away.",
+    body: "Reintroducing a food you've been avoiding, or trying something new for the first time? Start a trial here. Once your chosen watch window passes, mark it cleared or flagged, or mark it earlier if something happens right away.",
   },
   {
     heading: 'Exercise',
-    body: 'A lightweight log of what you did and for how long -- not meant to replace dedicated exercise tracking, just somewhere to jot it down for now.',
+    body: 'A lightweight log of what you did and for how long, not meant to replace dedicated exercise tracking, just somewhere to jot it down for now.',
   },
   {
     heading: 'Blood Pressure',
@@ -184,15 +184,15 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'General Note',
-    body: 'For anything else worth remembering -- a prescription change, how a supplement felt, a drink you had.',
+    body: 'For anything else worth remembering: a prescription change, how a supplement felt, a drink you had.',
   },
   {
     heading: 'Nocturia',
-    body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
+    body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log, added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
   },
   {
     heading: 'Personal notes, not medical fact',
-    body: "Everything here is your own record of your own body -- distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
+    body: "Everything here is your own record of your own body, distinct from this app's cited food scoring and DRI targets elsewhere. Nothing you log here is treated as verified medical fact, the same way this app never confuses a personal hunch with a cited rule.",
   },
 ];
 
@@ -784,7 +784,7 @@ function NewFoodsLens() {
             onChangeText={setObservationDays}
           />
           <Text style={styles.helperText}>
-            3 days is a common starting point for "probably fine" -- you can mark it earlier if something happens
+            3 days is a common starting point for "probably fine." You can mark it earlier if something happens
             right away, or later if you want to keep watching.
           </Text>
           <View style={styles.formActions}>
@@ -819,7 +819,7 @@ function NewFoodsLens() {
                       <Text style={[styles.rowMeta, styles.readyText]}>Ready to review</Text>
                     )
                   ) : trial.status === 'cleared' ? (
-                    <Text style={[styles.rowMeta, styles.clearedText]}>No problems -- cleared</Text>
+                    <Text style={[styles.rowMeta, styles.clearedText]}>No problems, cleared</Text>
                   ) : (
                     <Text style={[styles.rowMeta, styles.flaggedText]}>Caused a problem</Text>
                   )}
@@ -1268,7 +1268,7 @@ function GeneralNoteLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <Text style={styles.helperText}>
-        For anything else worth remembering -- a prescription change, how a supplement felt, a drink you had.
+        For anything else worth remembering: a prescription change, how a supplement felt, a drink you had.
       </Text>
       <GeneralNoteSection />
     </ScrollView>
@@ -1285,7 +1285,7 @@ function NocturiaLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <Text style={styles.emptyText}>
-        Not built yet. Waking at night to urinate is a trackable symptom worth its own log -- this will get its own
+        Not built yet. Waking at night to urinate is a trackable symptom worth its own log; this will get its own
         logging (how many times, what time) built out.
       </Text>
     </ScrollView>

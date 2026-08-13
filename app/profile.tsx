@@ -658,7 +658,7 @@ export default function ProfileScreen() {
       } else if (result.status === 'too-small') {
         Alert.alert(
           'Image too small',
-          `That image is ${result.width}×${result.height} -- at least ${CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side is needed so it doesn't look blurry stretched to fill the screen. Try a larger photo.`,
+          `That image is ${result.width}×${result.height}. At least ${CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side is needed so it doesn't look blurry stretched to fill the screen. Try a larger photo.`,
         );
       } else if (result.status === 'too-large-after-compression') {
         Alert.alert(
@@ -925,7 +925,7 @@ export default function ProfileScreen() {
       contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
     >
       <Text style={styles.intro}>
-        Everything below is optional. This app works fine with nothing set here -- unset fields simply mean
+        Everything below is optional. This app works fine with nothing set here; unset fields simply mean
         you'll see recommendations for every applicable population instead of one tailored to you. Nothing here
         is guessed on your behalf.
       </Text>
@@ -943,7 +943,7 @@ export default function ProfileScreen() {
             <Text style={styles.subLabel}>Your name</Text>
             <Text style={styles.helpText}>
               Your first name shows in the header (e.g. &ldquo;Tony&apos;s Inside Story&rdquo;). Last name is also
-              collected -- one reason is for reports meant to be handed to a doctor, where both
+              collected: one reason is for reports meant to be handed to a doctor, where both
               names read naturally together.
             </Text>
             <View style={styles.dateRow}>
@@ -965,7 +965,7 @@ export default function ProfileScreen() {
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Units</Text>
             <Text style={styles.helpText}>
-              Used across the app for quantities and measurements -- meal ingredient amounts, height, weight,
+              Used across the app for quantities and measurements: meal ingredient amounts, height, weight,
               and body measurements.
             </Text>
             <View style={styles.pillRow}>
@@ -1119,7 +1119,7 @@ export default function ProfileScreen() {
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Weight</Text>
             <Text style={styles.helpText}>
-              Your current weight -- also useful for a doctor report. Each time you set it here, it&apos;s logged as
+              Your current weight, also useful for a doctor report. Each time you set it here, it&apos;s logged as
               a new reading (the same way a weight-tracking history works), not just overwritten; a full
               trend view isn&apos;t built yet, but even one current reading is useful right away. Follows your
               Units setting above.
@@ -1160,7 +1160,7 @@ export default function ProfileScreen() {
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Growing Zone</Text>
             <Text style={styles.helpText}>
-              Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;) -- powers the Garden tab&apos;s own
+              Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;): powers the Garden tab&apos;s own
               cited crop guidance for your climate. The Garden tab&apos;s own My Zone lens sets this exact same
               value too; either place works.
             </Text>
@@ -1193,7 +1193,7 @@ export default function ProfileScreen() {
             <Text style={styles.subLabel}>Usual meal times</Text>
             <Text style={styles.helpText}>
               About what time you normally eat each one. Used to pre-fill the time when you schedule that meal type
-              on the Schedule tab -- you can always change it there.
+              on the Schedule tab; you can always change it there.
             </Text>
             {DAY_PARTS.map((dayPart) => (
               <View key={dayPart} style={styles.mealTimeRow}>
@@ -1392,7 +1392,7 @@ export default function ProfileScreen() {
           <View style={styles.cardBody}>
             <Text style={styles.subLabel}>Your conditions</Text>
             <Text style={styles.helpText}>
-              Select every condition that applies to you -- this tells the app which condition-specific notes,
+              Select every condition that applies to you: this tells the app which condition-specific notes,
               scoring, and medications are relevant to you personally. Multiple selections are fully supported;
               having more than one is common.
             </Text>
@@ -1434,7 +1434,7 @@ export default function ProfileScreen() {
                 user_conditions, since an allergy isn't a tracked disease. */}
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Food allergies</Text>
             <Text style={styles.helpText}>
-              Separate from the condition-based food scoring above -- an allergy or intolerance, not a
+              Separate from the condition-based food scoring above: an allergy or intolerance, not a
               preference. Multiple are fully supported. Tap a common allergen below, or add your own.
             </Text>
             <View style={styles.pillRow}>
@@ -1485,13 +1485,13 @@ export default function ProfileScreen() {
                 <Text style={[styles.subLabel, { marginTop: 14 }]}>Where you're at</Text>
                 <Text style={styles.helpText}>
                   A short check-in covering hypothyroid symptoms, digestive/IBS symptoms, and overall wellbeing.
-                  Early on, day-to-day change can feel invisible because everything is happening at once -- this
+                  Early on, day-to-day change can feel invisible because everything is happening at once; this
                   is what turns that into an actual, visible trend over time.
                 </Text>
                 {lastAssessment ? (
                   <Text style={styles.derivedText}>Last taken {daysAgoLabel(lastAssessment.completedAt)}.</Text>
                 ) : (
-                  <Text style={styles.derivedText}>You haven't taken this yet -- your first one becomes your baseline.</Text>
+                  <Text style={styles.derivedText}>You haven't taken this yet. Your first one becomes your baseline.</Text>
                 )}
                 <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/assessment')}>
                   <Text style={styles.checkinButtonText}>
@@ -1527,7 +1527,7 @@ export default function ProfileScreen() {
                     <Text style={[styles.subLabel, { marginTop: 14 }]}>{model.conditionLabel} stage</Text>
                     <Text style={styles.helpText}>
                       {model.frameworkName}. {model.frameworkNote} Purely advisory: your food builders will start
-                      surfacing a tappable note on foods worth a second look for your current stage --
+                      surfacing a tappable note on foods worth a second look for your current stage;
                       nothing is ever hidden or blocked based on this. See the matching category in Purple Digest
                       for the full, cited detail.
                     </Text>
@@ -1548,7 +1548,7 @@ export default function ProfileScreen() {
                     <Text style={styles.derivedText}>
                       {currentStageDef
                         ? currentStageDef.shortDescription
-                        : "Not declared -- tap a stage above if you'd like to."}
+                        : "Not declared. Tap a stage above if you'd like to."}
                     </Text>
                   </View>
                 );
@@ -1609,7 +1609,7 @@ export default function ProfileScreen() {
               The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps it
               for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it entirely,
               leaving the same flat background color as the header and footer. &ldquo;Custom image&rdquo; lets you
-              upload your own photo -- it&apos;s automatically resized and compressed to comply with a reasonable
+              upload your own photo; it&apos;s automatically resized and compressed to comply with a reasonable
               size (up to {CUSTOM_BACKGROUND_MAX_DIMENSION}px, under{' '}
               {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a too-small
               photo (under {CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side) is rejected rather than
@@ -1648,7 +1648,7 @@ export default function ProfileScreen() {
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Individual tab backgrounds</Text>
             <Text style={styles.helpText}>
               Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
-              rather than all at once -- turn off just the ones you don&apos;t want, and leave the rest as they are.
+              rather than all at once; turn off just the ones you don&apos;t want, and leave the rest as they are.
             </Text>
             {BACKGROUND_TAB_ROUTES.map((route) => (
               <View key={route.path as string} style={styles.mealTimeRow}>

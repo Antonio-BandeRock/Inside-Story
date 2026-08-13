@@ -945,7 +945,7 @@ export function FermentationBuilder({
       }
     } catch (error) {
       console.error('[FermentationBuilder] Failed to save fermentation', error);
-      showInfoAlert('Save failed', 'Something went wrong saving this fermentation. Your ingredients are still here -- please try again.');
+      showInfoAlert('Save failed', 'Something went wrong saving this fermentation. Your ingredients are still here; please try again.');
       return;
     }
 
@@ -1524,7 +1524,7 @@ export function FermentationBuilder({
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                     <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>
-                      Condition stage note -- tap to learn more
+                      Condition stage note (tap to learn more)
                     </Text>
                   </TouchableOpacity>
                 ) : null;
@@ -1539,7 +1539,7 @@ export function FermentationBuilder({
                   onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
@@ -1551,7 +1551,7 @@ export function FermentationBuilder({
                   onPress={() => showInfoAlert(ALCOHOL_ADVISORY_TITLE, ALCOHOL_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* A real, standalone ABV/residual-sugar/cook-time
@@ -1579,7 +1579,7 @@ export function FermentationBuilder({
                   onPress={() => showInfoAlert(COFFEE_ADVISORY_TITLE, COFFEE_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Coffee & levothyroxine -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Coffee & levothyroxine (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* Same informational, non-gating shape as the alcohol/coffee
@@ -1590,7 +1590,7 @@ export function FermentationBuilder({
                   onPress={() => showInfoAlert(JUICE_ADVISORY_TITLE, JUICE_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
@@ -1612,7 +1612,7 @@ export function FermentationBuilder({
                 <Text style={styles.calculatorTrackingNote}>
                   Quantity and Units below were set by the alcohol calculator&apos;s own total. You can still
                   change them by hand, but the calories and carbs actually tracked keep coming from the
-                  calculator below, not from what&apos;s picked here -- adjust Volume, ABV, or Pours down there
+                  calculator below, not from what&apos;s picked here: adjust Volume, ABV, or Pours down there
                   if you want a different total tracked.
                 </Text>
               )}
@@ -1754,7 +1754,7 @@ export function FermentationBuilder({
             // ingredient is already in `ingredients`.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={styles.emptyText}>
-                {(fermentationName.trim() || 'Fermentation')} ready -- {ingredients.length} ingredient
+                {(fermentationName.trim() || 'Fermentation')} ready with {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
               {renderFavoriteToggle()}

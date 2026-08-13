@@ -920,8 +920,8 @@ export function FoodLookup({
     showInfoAlert(
       'Per 100g',
       "Per 100g is the standard reference amount used by USDA FoodData Central and the other national nutrition authorities this app draws from (the UK, Germany, Japan, Canada, France, and Australia's own food composition databases) when they publish how much of a nutrient a food actually contains.\n\n" +
-        "Reporting a fixed, uniform weight -- rather than a package's own serving size, which varies by manufacturer, culture, and preparation -- lets any two foods be compared on equal footing, gram for gram, regardless of how much of either one a person actually eats. It's also the form the underlying laboratory analysis itself is done in: a food sample is tested once, and its results are reported per 100g so they can be scaled to any amount afterward, rather than re-tested for every possible serving size.\n\n" +
-        "That's why Per 100g never changes here, no matter what you enter in the Portion column next to it -- it's this food's own fixed scientific reference point, the same number nutrition professionals themselves start from before scaling to whatever portion someone actually eats.",
+        "Reporting a fixed, uniform weight (rather than a package's own serving size, which varies by manufacturer, culture, and preparation) lets any two foods be compared on equal footing, gram for gram, regardless of how much of either one a person actually eats. It's also the form the underlying laboratory analysis itself is done in: a food sample is tested once, and its results are reported per 100g so they can be scaled to any amount afterward, rather than re-tested for every possible serving size.\n\n" +
+        "That's why Per 100g never changes here, no matter what you enter in the Portion column next to it: it's this food's own fixed scientific reference point, the same number nutrition professionals themselves start from before scaling to whatever portion someone actually eats.",
     );
   }
 
@@ -940,17 +940,17 @@ export function FoodLookup({
   // re-renders, breaking that cycle.
   const showPortionInfo = useCallback(() => {
     const autoSelectNote =
-      "\n\nThe amount shown here arrives already highlighted -- just start typing to replace it with your own portion, no need to clear it first.";
+      "\n\nThe amount shown here arrives already highlighted; just start typing to replace it with your own portion, no need to clear it first.";
     if (unitWeight) {
       showInfoAlert(
         'Portion',
-        `This column and % RDA reflect the weight entered here (currently ${validPortionGrams}g) -- edit it to match what you'll actually eat. Per 100g, to its left, never changes; it's always this food's own raw reference data.\n\nA typical serving of this food is 1 ${unitWeight.unitLabel} (~${Math.round(unitWeight.gramsPerUnit)}g) -- tap "Use serving" below the field to reset to that.\n\nSource: ${unitWeight.citation}` +
+        `This column and % RDA reflect the weight entered here (currently ${validPortionGrams}g); edit it to match what you'll actually eat. Per 100g, to its left, never changes; it's always this food's own raw reference data.\n\nA typical serving of this food is 1 ${unitWeight.unitLabel} (~${Math.round(unitWeight.gramsPerUnit)}g); tap "Use serving" below the field to reset to that.\n\nSource: ${unitWeight.citation}` +
           autoSelectNote,
       );
     } else {
       showInfoAlert(
         'Portion',
-        `This column and % RDA reflect the weight entered here (currently ${validPortionGrams}g) -- edit it to match what you'll actually eat. Per 100g, to its left, never changes; it's always this food's own raw reference data.\n\nWe don't have a typical serving size on file for this food, so 100g was used as the starting default for this column too.` +
+        `This column and % RDA reflect the weight entered here (currently ${validPortionGrams}g); edit it to match what you'll actually eat. Per 100g, to its left, never changes; it's always this food's own raw reference data.\n\nWe don't have a typical serving size on file for this food, so 100g was used as the starting default for this column too.` +
           autoSelectNote,
       );
     }
@@ -961,10 +961,10 @@ export function FoodLookup({
       '% RDA',
       "% RDA shows how much of your own recommended daily target for that nutrient the Portion column provides, based on the Dietary Reference Intakes set by the National Academies of Sciences, Engineering, and Medicine (NASEM), matched to the sex and age in your own profile.\n\n" +
         'A few things worth understanding about what this number actually means:\n\n' +
-        "- RDA is a population target, not a personal prescription. It's set high enough to meet the needs of about 97-98% of healthy people in your age and sex group -- it isn't calculated from your own body, labs, or health history, and Hashimoto's itself can change how much of some nutrients (iodine, selenium, and iron among them) your own body actually needs or absorbs.\n\n" +
-        "- Not every nutrient has a true RDA. Some (like biotin or vitamin K) only have an Adequate Intake (AI) instead -- a reasonable estimate used when there isn't yet enough evidence to set a precise RDA. Both are shown here the same way, as a plain percentage.\n\n" +
-        "- Higher isn't always better. For sodium specifically, the figure shown is a recommended daily limit, not a floor -- a lower percentage there is the goal, not a higher one.\n\n" +
-        "- This percentage is one piece of context, not a verdict on any single food. A food that provides only a small percentage of something isn't \"bad\" any more than one that provides a large percentage is automatically \"good\" -- what matters is the pattern across everything you eat in a day, which is what the Nutrients tab tracks over time.",
+        "- RDA is a population target, not a personal prescription. It's set high enough to meet the needs of about 97-98% of healthy people in your age and sex group; it isn't calculated from your own body, labs, or health history, and Hashimoto's itself can change how much of some nutrients (iodine, selenium, and iron among them) your own body actually needs or absorbs.\n\n" +
+        "- Not every nutrient has a true RDA. Some (like biotin or vitamin K) only have an Adequate Intake (AI) instead: a reasonable estimate used when there isn't yet enough evidence to set a precise RDA. Both are shown here the same way, as a plain percentage.\n\n" +
+        "- Higher isn't always better. For sodium specifically, the figure shown is a recommended daily limit, not a floor; a lower percentage there is the goal, not a higher one.\n\n" +
+        "- This percentage is one piece of context, not a verdict on any single food. A food that provides only a small percentage of something isn't \"bad\" any more than one that provides a large percentage is automatically \"good\"; what matters is the pattern across everything you eat in a day, which is what the Nutrients tab tracks over time.",
     );
   }
 
@@ -1023,7 +1023,7 @@ export function FoodLookup({
           {availableHarvests.map((harvest) => (
             <TouchableOpacity key={harvest.id} style={styles.harvestRow} onPress={() => handlePickHarvest(harvest)}>
               <Text style={styles.harvestText} numberOfLines={1}>
-                {harvest.foodName} -- {harvest.quantityRemaining} {harvest.unit} left
+                {harvest.foodName}: {harvest.quantityRemaining} {harvest.unit} left
               </Text>
             </TouchableOpacity>
           ))}
@@ -1148,7 +1148,7 @@ export function FoodLookup({
           way about which source is "better." */}
       {resolvedSource && isFallbackSource(resolvedSource) ? (
         <View style={[styles.sourceFallbackNote, { borderColor: tabColor }]}>
-          <Text style={styles.sourceFallbackText}>Not in USDA -- from {sourceLabel(resolvedSource)}</Text>
+          <Text style={styles.sourceFallbackText}>Not in USDA: from {sourceLabel(resolvedSource)}</Text>
         </View>
       ) : null}
 

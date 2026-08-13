@@ -533,7 +533,7 @@ export function MealBuilder({
     if (hasAnySavedComponents !== true) {
       showInfoAlert(
         'Nothing to build from yet',
-        "A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items -- there aren't any saved yet. Build one of those first (the Lens Button, bottom of the screen), then come back here.",
+        "A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items, and there aren't any saved yet. Build one of those first (the Lens Button, bottom of the screen), then come back here.",
       );
       return;
     }
@@ -563,7 +563,7 @@ export function MealBuilder({
             <View style={[styles.formCard, styles.emptyStateCard, { borderColor: tabColor }]}>
               <Ionicons name="information-circle-outline" size={22} color={tabColor} />
               <Text style={styles.emptyStateText}>
-                {"Nothing saved yet to build a meal from. A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items -- build one of those first (the Lens Button at the bottom of the screen), then come back here to put a meal together."}
+                {"Nothing saved yet to build a meal from. A meal is assembled from Sides, Salads, Smoothies, and the other Food tab builders' own saved items; build one of those first (the Lens Button at the bottom of the screen), then come back here to put a meal together."}
               </Text>
             </View>
           ) : null}
@@ -762,7 +762,7 @@ export function MealBuilder({
           </Text>
           <Text style={styles.pendingSubtitle}>{mealType ? mealType[0].toUpperCase() + mealType.slice(1) : 'No meal type chosen'}</Text>
           {components.length === 0 ? (
-            <Text style={[styles.emptyText, styles.formLabelSpaced]}>Nothing added yet -- pick a category below to add your first item.</Text>
+            <Text style={[styles.emptyText, styles.formLabelSpaced]}>Nothing added yet. Pick a category below to add your first item.</Text>
           ) : (
             <View style={[styles.savedList, styles.formLabelSpaced]}>
               {components.map((component) => (

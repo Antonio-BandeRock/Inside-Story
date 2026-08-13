@@ -17,7 +17,7 @@ export function SourceFallbackNote({ source, tabColor }: { source: string; tabCo
   if (!isFallbackSource(source)) return null;
   return (
     <View style={[styles.note, { borderColor: tabColor }]}>
-      <Text style={styles.text}>Not in USDA -- from {sourceLabel(source)}</Text>
+      <Text style={styles.text}>Not in USDA: from {sourceLabel(source)}</Text>
     </View>
   );
 }

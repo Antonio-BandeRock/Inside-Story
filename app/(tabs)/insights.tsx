@@ -165,7 +165,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'Drilling into a meal or ingredient',
-        body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears -- a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
+        body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears: a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
       },
       DRILLING_DOWN_HELP,
     ],
@@ -177,7 +177,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: '6 Dimensions',
-        body: 'Summarizes each of six research-backed factors -- micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load -- for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
+        body: 'Summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
       },
       DRILLING_DOWN_HELP,
     ],
@@ -189,7 +189,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Cooking & Prep',
-        body: 'Surfaces ingredients in today\'s meals that measurably change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
+        body: 'Surfaces ingredients in today\'s meals that measurably change outcome based on how they are prepared (e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking), each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
       },
       DRILLING_DOWN_HELP,
     ],
@@ -201,7 +201,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Food Lookup',
-        body: "Look up any food in this app's own reference database -- pick a category, then (if that category has one) a more specific type, then the food itself -- to see its full nutrient, vitamin, and mineral breakdown per 100g. This is the same reference data every logged meal is scored against; it isn't tied to today's log or any drill-down scope, unlike the other three lenses here.",
+        body: "Look up any food in this app's own reference database: pick a category, then (if that category has one) a more specific type, then the food itself, to see its full nutrient, vitamin, and mineral breakdown per 100g. This is the same reference data every logged meal is scored against; it isn't tied to today's log or any drill-down scope, unlike the other three lenses here.",
       },
     ],
   },
@@ -212,11 +212,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Nutrient Ranking',
-        body: 'Pick any nutrient this app tracks to see foods ranked from most to least, per 100g -- a way to actually find foods to build a meal around, not just check one you already picked. Same reference data as Food Lookup, independent of today\'s log.',
+        body: 'Pick any nutrient this app tracks to see foods ranked from most to least, per 100g: a way to actually find foods to build a meal around, not just check one you already picked. Same reference data as Food Lookup, independent of today\'s log.',
       },
       {
         heading: 'Protein: Animal vs. Plant',
-        body: 'Protein specifically splits into two ranked lists -- Animal (meat, poultry, fish, dairy, eggs) and Plant (legumes, nuts/seeds, grains, vegetables, fruit, mushrooms, algae) -- so a vegetarian can find their own high-protein foods just as easily as anyone else. Grouped by what you can actually eat, not strict biology (mushrooms and algae count as Plant here).',
+        body: 'Protein specifically splits into two ranked lists: Animal (meat, poultry, fish, dairy, eggs) and Plant (legumes, nuts/seeds, grains, vegetables, fruit, mushrooms, algae), so a vegetarian can find their own high-protein foods just as easily as anyone else. Grouped by what you can actually eat, not strict biology (mushrooms and algae count as Plant here).',
       },
     ],
   },
@@ -227,11 +227,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Cooking Impact',
-        body: 'Pick a nutrient or compound to see how much of it cited studies (or, where none exist for an exact combination, a defensible mechanism-based estimate, clearly labeled) found surviving each cooking method -- independent of today\'s log, and separate from what any one logged ingredient is actually tracked as.',
+        body: 'Pick a nutrient or compound to see how much of it cited studies (or, where none exist for an exact combination, a defensible mechanism-based estimate, clearly labeled) found surviving each cooking method, independent of today\'s log, and separate from what any one logged ingredient is actually tracked as.',
       },
       {
         heading: 'Measured vs. reasoned',
-        body: 'Each row is labeled "Directly measured" when a cited study tested that exact compound-and-method combination, or "Reasoned estimate" when no study covers that exact case but the same compound\'s own established mechanism (leaches into water, heat-stable, enzyme-dependent) still supports an answer. Neither changes what\'s tracked for a food you\'ve actually logged -- that still comes from the food\'s own database entry.',
+        body: 'Each row is labeled "Directly measured" when a cited study tested that exact compound-and-method combination, or "Reasoned estimate" when no study covers that exact case but the same compound\'s own established mechanism (leaches into water, heat-stable, enzyme-dependent) still supports an answer. Neither changes what\'s tracked for a food you\'ve actually logged; that still comes from the food\'s own database entry.',
       },
     ],
   },
@@ -242,11 +242,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Safe Foods',
-        body: "Foods with zero flagged concerns across every one of the 6 Dimensions -- nothing here should give the D1-D6 scoring any reason to worry, based on what this app has actually assessed. Pick a category to browse what qualifies within it.",
+        body: "Foods with zero flagged concerns across every one of the 6 Dimensions: nothing here should give the D1-D6 scoring any reason to worry, based on what this app has actually assessed. Pick a category to browse what qualifies within it.",
       },
       {
         heading: 'What "safe" means here',
-        body: '"Not Assessed" (no data either way) and a green rating both count as safe -- only an actual yellow or red flag on any of the 24 sub-criteria disqualifies a food. This is the same tier logic the 6 Dimensions lens itself uses, just applied across the whole reference database instead of one day\'s meals.',
+        body: '"Not Assessed" (no data either way) and a green rating both count as safe; only an actual yellow or red flag on any of the 24 sub-criteria disqualifies a food. This is the same tier logic the 6 Dimensions lens itself uses, just applied across the whole reference database instead of one day\'s meals.',
       },
     ],
   },
@@ -257,7 +257,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Stage 1: Getting Started',
-        body: "Foods matching this app's own published Healing Stages guide -- a short, deliberately narrow list meant to build a stable, low-noise baseline, not variety. Grouped by Proteins, Vegetables, Starches, Fruits, and Fats.",
+        body: "Foods matching this app's own published Healing Stages guide: a short, deliberately narrow list meant to build a stable, low-noise baseline, not variety. Grouped by Proteins, Vegetables, Starches, Fruits, and Fats.",
       },
       {
         heading: 'Stage 2: Rebuilding',
@@ -265,7 +265,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'What this is not',
-        body: "This is a food finder, not a personal advisory reordering system -- it doesn't know which stage YOU are in (that would need a self-declared field in Profile, which doesn't exist yet) or hide anything from you. It just shows verified foods that fit each stage's own published reasoning.",
+        body: "This is a food finder, not a personal advisory reordering system: it doesn't know which stage YOU are in (that would need a self-declared field in Profile, which doesn't exist yet) or hide anything from you. It just shows verified foods that fit each stage's own published reasoning.",
       },
     ],
   },
@@ -276,7 +276,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Hydration',
-        body: "Today's total water intake against your own target -- a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table -- this is just its own dedicated view.",
+        body: "Today's total water intake against your own target: a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table; this is just its own dedicated view.",
       },
     ],
   },
@@ -287,11 +287,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Labs',
-        body: 'Your most recent result for every test you\'ve logged, plus how long ago it was drawn. Log a new result any time -- pick the test, enter the value and date, and (optionally) your own lab\'s reference range, since that varies by lab/assay and matters more than the educational typical range shown here.',
+        body: 'Your most recent result for every test you\'ve logged, plus how long ago it was drawn. Log a new result any time: pick the test, enter the value and date, and (optionally) your own lab\'s reference range, since that varies by lab/assay and matters more than the educational typical range shown here.',
       },
       {
         heading: "What isn't built yet",
-        body: "A \"you're due for a retest\" reminder isn't built -- there's no standard interval for most tests, and guessing one would be worse than not claiming it. This is a log and a quick reference, not a scheduler.",
+        body: "A \"you're due for a retest\" reminder isn't built: there's no standard interval for most tests, and guessing one would be worse than not claiming it. This is a log and a quick reference, not a scheduler.",
       },
     ],
   },
@@ -302,11 +302,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'My Meds & Interactions',
-        body: 'A read-only view of what Schedule\'s own My Meds lens already tracks (prescriptions, OTC, supplements) plus every interaction warning currently triggered -- calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
+        body: 'A read-only view of what Schedule\'s own My Meds lens already tracks (prescriptions, OTC, supplements) plus every interaction warning currently triggered: calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
       },
       {
         heading: 'Adding or editing',
-        body: "This lens doesn't add or edit anything -- to change what you're tracking, use Schedule's own My Meds lens. This is just a more visible, always-checked place to see what's currently flagged, without having to go looking for it.",
+        body: "This lens doesn't add or edit anything; to change what you're tracking, use Schedule's own My Meds lens. This is just a more visible, always-checked place to see what's currently flagged, without having to go looking for it.",
       },
     ],
   },
@@ -321,7 +321,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: "What isn't covered",
-        body: "This is scoped to the 3 advisories that already exist -- a per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
+        body: "This is scoped to the 3 advisories that already exist. A per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
       },
     ],
   },
@@ -411,7 +411,7 @@ function scopeBreadcrumbs<M extends NavigableMeal>(
 const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Three lenses, one day of data',
-    body: 'Nutrients, 6 Dimensions, and Cooking & Prep -- tap the button to the left of the main navigation button, bottom of the screen -- are three different views over the same set of meals you logged today. Switching views does not reload anything, it just changes how the same data is presented.',
+    body: 'Nutrients, 6 Dimensions, and Cooking & Prep (tap the button to the left of the main navigation button, bottom of the screen) are three different views over the same set of meals you logged today. Switching views does not reload anything, it just changes how the same data is presented.',
   },
   {
     heading: 'Nutrients: reading the table',
@@ -419,19 +419,19 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Nutrients: drilling into a meal or ingredient',
-    body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears -- a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
+    body: 'Once you drill into a specific meal, side, or ingredient, the judgment coloring disappears: a single food is not "deficient" in a vitamin just for not being your whole day\'s supply of it. Instead each row shows what percent of today\'s target that one item contributed, sorted highest-contributor first.',
   },
   {
     heading: '6 Dimensions',
-    body: 'The 6 Dimensions scorecard summarizes each of six research-backed factors -- micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load -- for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
+    body: 'The 6 Dimensions scorecard summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
   },
   {
     heading: 'Cooking & Prep',
-    body: 'Surfaces ingredients in today\'s meals that measurably change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
+    body: 'Surfaces ingredients in today\'s meals that measurably change outcome based on how they are prepared (e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking), each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
   },
   {
     heading: 'Drilling down',
-    body: 'The third floating button, to the left of the view picker, opens the same navigator every lens shares: Whole Day -> a specific meal -> a side within it -> a single ingredient. Tap any crumb to jump straight back to that level, or tap one of the pills below it to go one level deeper -- it stays open the whole way down, showing the next level immediately, so you can keep drilling without re-opening it. Tap the ✕ or outside it to close.',
+    body: 'The third floating button, to the left of the view picker, opens the same navigator every lens shares: Whole Day -> a specific meal -> a side within it -> a single ingredient. Tap any crumb to jump straight back to that level, or tap one of the pills below it to go one level deeper; it stays open the whole way down, showing the next level immediately, so you can keep drilling without re-opening it. Tap the ✕ or outside it to close.',
   },
 ];
 
@@ -852,7 +852,7 @@ export function NutrientsTable({
       {sorted.length === 0 ? (
         <Text style={styles.emptyText}>
           {isDayScope
-            ? 'Nothing to compare yet -- once foods with nutrient data are logged today, targets will show up here.'
+            ? 'Nothing to compare yet. Once foods with nutrient data are logged today, targets will show up here.'
             : "This doesn't have a measurable amount of any tracked nutrient."}
         </Text>
       ) : (
@@ -898,7 +898,7 @@ export function NutrientsTable({
       {isDayScope && breakdown.unresolvedItems.length > 0 ? (
         <Text style={styles.footerNote}>
           {breakdown.unresolvedItems.length} ingredient{breakdown.unresolvedItems.length === 1 ? '' : 's'} couldn&apos;t be
-          counted here -- usually a solid food measured by volume, or logged as &quot;each&quot; for a food without a known
+          counted here: usually a solid food measured by volume, or logged as &quot;each&quot; for a food without a known
           per-item weight yet. Log it by weight (g/oz) to have it count.
         </Text>
       ) : null}
@@ -906,7 +906,7 @@ export function NutrientsTable({
       {isDayScope && breakdown.supplementSkipped.length > 0 ? (
         <Text style={styles.footerNote}>
           {breakdown.supplementSkipped.length} supplement ingredient{breakdown.supplementSkipped.length === 1 ? '' : 's'} couldn&apos;t
-          be counted here -- usually an IU dose for a nutrient with no single official IU-to-mass conversion (e.g.
+          be counted here: usually an IU dose for a nutrient with no single official IU-to-mass conversion (e.g.
           vitamin E), or a unit this app doesn&apos;t recognize yet. Check that supplement&apos;s ingredients on the Schedule
           tab&apos;s Supplements lens.
         </Text>
@@ -930,7 +930,7 @@ function HydrationView({ breakdown, tabColor }: { breakdown: DailyNutrientBreakd
   const water = entries.find((entry) => entry.nutrientCode === 'water');
 
   if (!water) {
-    return <Text style={styles.emptyText}>No water target found -- check your sex and birth date in Profile.</Text>;
+    return <Text style={styles.emptyText}>No water target found. Check your sex and birth date in Profile.</Text>;
   }
 
   const litersConsumed = water.combinedTotal / 1000;
@@ -951,7 +951,7 @@ function HydrationView({ breakdown, tabColor }: { breakdown: DailyNutrientBreakd
       </Text>
       <Text style={styles.hydrationNote}>
         Counts everything logged today, drinks and water-rich foods alike (soup, watermelon, and similar all
-        contribute) -- not just what you drank directly.
+        contribute), not just what you drank directly.
       </Text>
       {!breakdown.profileComplete ? (
         <View style={styles.noticeCard}>
@@ -1009,7 +1009,7 @@ function ScopeHub<M extends NavigableMeal>({
   let children: { label: string; scope: Scope }[] = [];
   if (scope.level === 'day') {
     children = breakdown.meals.map((meal, mealIndex) => ({
-      label: `${capitalize(meal.mealType)} -- ${meal.mealName}`,
+      label: `${capitalize(meal.mealType)} · ${meal.mealName}`,
       scope: { level: 'meal', mealIndex },
     }));
   } else if (scope.level === 'meal') {
@@ -1264,8 +1264,8 @@ function itemsInScope(breakdown: DailySixDimensionsBreakdown, scope: Scope): Pre
 // spelled out, but once you've drilled into that side, repeating its name
 // on every row inside it is just noise.
 function prepRowTitle(row: PrepRow, scopeLevel: Scope['level']): string {
-  if (scopeLevel === 'day') return `${row.foodName} -- ${row.mealName}, ${row.sideName}`;
-  if (scopeLevel === 'meal') return `${row.foodName} -- ${row.sideName}`;
+  if (scopeLevel === 'day') return `${row.foodName} · ${row.mealName}, ${row.sideName}`;
+  if (scopeLevel === 'meal') return `${row.foodName} · ${row.sideName}`;
   return row.foodName;
 }
 
@@ -1853,7 +1853,7 @@ function LabsView({
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : recentResults.length === 0 ? (
-        <Text style={styles.emptyText}>Nothing logged yet -- tap below to log your first result.</Text>
+        <Text style={styles.emptyText}>Nothing logged yet. Tap below to log your first result.</Text>
       ) : (
         <View style={styles.table}>
           {recentResults.map((result) => {
@@ -2029,7 +2029,7 @@ function MyMedsView({
 
       {treatments.length === 0 ? (
         <Text style={[styles.emptyText, styles.rankSpaced]}>
-          Nothing tracked yet -- add a prescription, OTC drug, or supplement on Schedule&apos;s own My Meds lens.
+          Nothing tracked yet. Add a prescription, OTC drug, or supplement on Schedule&apos;s own My Meds lens.
         </Text>
       ) : (
         <>
@@ -2060,7 +2060,7 @@ function AdvisoriesView({ advisories, loading, tabColor }: { advisories: Trigger
   if (advisories.length === 0) {
     return (
       <Text style={styles.emptyText}>
-        Nothing triggered today -- no alcohol, coffee, or plain fruit juice logged so far.
+        Nothing triggered today: no alcohol, coffee, or plain fruit juice logged so far.
       </Text>
     );
   }
@@ -2085,7 +2085,7 @@ function AdvisoriesView({ advisories, loading, tabColor }: { advisories: Trigger
             <Text style={[styles.rankGroupHeading, styles.rankSpaced]}>Today</Text>
             {items.map((item, index) => (
               <Text key={index} style={styles.myMedsMessage}>
-                {item.foodName} -- {item.mealName}
+                {item.foodName} · {item.mealName}
               </Text>
             ))}
           </View>

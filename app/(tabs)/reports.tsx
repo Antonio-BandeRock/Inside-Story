@@ -23,11 +23,11 @@ type ReportsLens = 'overview';
 const REPORTS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page will do',
-    body: 'Not built yet. Once it is, this is where you\'ll generate a printable/shareable summary of your logged meals, nutrient trends, and 6 Dimensions history -- built for handing to a doctor, nutritionist, or trainer, or just for yourself.',
+    body: 'Not built yet. Once it is, this is where you\'ll generate a printable/shareable summary of your logged meals, nutrient trends, and 6 Dimensions history: built for handing to a doctor, nutritionist, or trainer, or just for yourself.',
   },
   {
     heading: 'Privacy',
-    body: 'Reports will generate entirely on your device, the same as the rest of this app -- nothing is sent anywhere unless you explicitly export or share it yourself.',
+    body: 'Reports will generate entirely on your device, the same as the rest of this app; nothing is sent anywhere unless you explicitly export or share it yourself.',
   },
 ];
 

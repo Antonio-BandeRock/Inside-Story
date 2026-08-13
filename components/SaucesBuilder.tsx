@@ -934,7 +934,7 @@ export function SaucesBuilder({
       }
     } catch (error) {
       console.error('[SaucesBuilder] Failed to save sauce', error);
-      showInfoAlert('Save failed', 'Something went wrong saving this sauce. Your ingredients are still here -- please try again.');
+      showInfoAlert('Save failed', 'Something went wrong saving this sauce. Your ingredients are still here; please try again.');
       return;
     }
 
@@ -1513,7 +1513,7 @@ export function SaucesBuilder({
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                     <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>
-                      Condition stage note -- tap to learn more
+                      Condition stage note (tap to learn more)
                     </Text>
                   </TouchableOpacity>
                 ) : null;
@@ -1530,7 +1530,7 @@ export function SaucesBuilder({
                   onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
@@ -1542,7 +1542,7 @@ export function SaucesBuilder({
                   onPress={() => showInfoAlert(ALCOHOL_ADVISORY_TITLE, ALCOHOL_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* A real, standalone ABV/residual-sugar/cook-time
@@ -1577,7 +1577,7 @@ export function SaucesBuilder({
                 <Text style={styles.calculatorTrackingNote}>
                   Quantity and Units below were set by the alcohol calculator&apos;s own total. You can still
                   change them by hand, but the calories and carbs actually tracked keep coming from the
-                  calculator below, not from what&apos;s picked here -- adjust Volume, ABV, or Pours down there
+                  calculator below, not from what&apos;s picked here: adjust Volume, ABV, or Pours down there
                   if you want a different total tracked.
                 </Text>
               )}
@@ -1719,7 +1719,7 @@ export function SaucesBuilder({
             // ingredient is already in `ingredients`.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={styles.emptyText}>
-                {(sauceName.trim() || 'Sauce')} ready -- {ingredients.length} ingredient
+                {(sauceName.trim() || 'Sauce')} ready with {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
               {renderFavoriteToggle()}

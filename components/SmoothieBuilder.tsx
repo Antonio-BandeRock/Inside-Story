@@ -1005,7 +1005,7 @@ export function SmoothieBuilder({
       }
     } catch (error) {
       console.error('[SmoothieBuilder] Failed to save smoothie', error);
-      showInfoAlert('Save failed', 'Something went wrong saving this smoothie. Your ingredients are still here -- please try again.');
+      showInfoAlert('Save failed', 'Something went wrong saving this smoothie. Your ingredients are still here; please try again.');
       return;
     }
 
@@ -1612,7 +1612,7 @@ export function SmoothieBuilder({
                     >
                       <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                       <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>
-                        Condition stage note -- tap to learn more
+                        Condition stage note (tap to learn more)
                       </Text>
                     </TouchableOpacity>
                   ) : null;
@@ -1628,7 +1628,7 @@ export function SmoothieBuilder({
                     onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
                   </TouchableOpacity>
                 )}
                 {/* Informational, not gating -- see lib/juiceAdvisory.ts's
@@ -1642,7 +1642,7 @@ export function SmoothieBuilder({
                     onPress={() => showInfoAlert(JUICE_ADVISORY_TITLE, JUICE_ADVISORY_MESSAGE)}
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar -- tap to learn more</Text>
+                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar (tap to learn more)</Text>
                   </TouchableOpacity>
                 )}
               </View>
@@ -1798,7 +1798,7 @@ export function SmoothieBuilder({
             // ingredient is already in `ingredients`.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={styles.emptyText}>
-                {(smoothieName.trim() || 'Smoothie')} ready -- {ingredients.length} ingredient
+                {(smoothieName.trim() || 'Smoothie')} ready with {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
               {renderFavoriteToggle()}

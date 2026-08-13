@@ -78,7 +78,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'My Zone',
-        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code -- works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile -- both write to the same one saved value. Once set, this shows cited crop guidance for your own climate band from Purple Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
+        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your own climate band from Purple Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
       },
     ],
   },
@@ -89,7 +89,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A plot is a place you grow food -- a raised bed, a container, an indoor grow tent, a whole outdoor garden. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
+        body: 'A plot is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
       },
     ],
   },
@@ -100,7 +100,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Harvest Log',
-        body: 'Log what you actually picked, and how much, from something you already tracked as planted in Plots & Plantings -- if nothing shows up here to pick from, add a planting there first. Anything still showing an unused amount here shows up as a selectable "From Your Harvest" ingredient in every Food builder -- the same nutrition/6-DFF scoring as any other reference food, since it’s tied to the same food identity.',
+        body: 'Log what you actually picked, and how much, from something you already tracked as planted in Plots & Plantings. If nothing shows up here to pick from, add a planting there first. Anything still showing an unused amount here shows up as a selectable "From Your Harvest" ingredient in every Food builder, with the same nutrition/6-DFF scoring as any other reference food, since it’s tied to the same food identity.',
       },
     ],
   },
@@ -109,7 +109,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
 const GARDEN_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Garden',
-    body: "Standing infrastructure for growing your own food and tracking it -- your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), plots and what's planted in them, and a harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row, visible right here as \"Upcoming Tasks\" -- a dedicated lens for it inside the Schedules tab itself isn't built yet).",
+    body: "Standing infrastructure for growing your own food and tracking it: your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), plots and what's planted in them, and a harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row, visible right here as \"Upcoming Tasks\"; a dedicated lens for it inside the Schedules tab itself isn't built yet).",
   },
 ];
 
@@ -266,7 +266,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
       <View style={[styles.card, { borderColor: TAB_COLOR }]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Find My Zone</Text>
         <Text style={styles.cardBody}>
-          Enter your country and ZIP or postal code -- this works anywhere on Earth, not just the US. A US ZIP gets the
+          Enter your country and ZIP or postal code. This works anywhere on Earth, not just the US: a US ZIP gets the
           official USDA zone directly; everywhere else gets an estimate computed from that location&apos;s own historical
           temperature data, using the same USDA temperature bands.
         </Text>
@@ -306,7 +306,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
         {lookupResult ? (
           <Text style={[styles.captionText, lookupResult.status !== 'success' ? styles.errorText : null]}>
             {lookupResult.status === 'success'
-              ? `Set to zone ${lookupResult.zone}${lookupResult.placeLabel ? ` -- ${lookupResult.placeLabel}` : ''}. ${lookupResult.detail}`
+              ? `Set to zone ${lookupResult.zone}${lookupResult.placeLabel ? ` (${lookupResult.placeLabel})` : ''}. ${lookupResult.detail}`
               : lookupResult.message}
           </Text>
         ) : null}
@@ -315,7 +315,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
       <View style={[styles.card, { borderColor: TAB_COLOR }]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Your Growing Zone</Text>
         <Text style={styles.cardBody}>
-          A USDA Plant Hardiness Zone -- based on your area&apos;s average annual minimum winter temperature, the standard
+          A USDA Plant Hardiness Zone: based on your area&apos;s average annual minimum winter temperature, the standard
           reference for what can survive and thrive where you actually live.
         </Text>
         <View style={styles.fieldRow}>
@@ -329,7 +329,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
           />
         </View>
         <Text style={styles.captionText}>
-          Already know your zone, or want to check it directly? Set it here -- this always overrides whatever the lookup above
+          Already know your zone, or want to check it directly? Set it here; this always overrides whatever the lookup above
           found. The USDA&apos;s own published map (usda.gov/plant-hardiness-zone) or a local agricultural extension office are
           both direct ways to double-check either result.
         </Text>
@@ -337,10 +337,10 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
 
       {zone && bandInfo ? (
         <View style={[styles.card, { borderColor: TAB_COLOR }]}>
-          <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Zone {zone} -- {bandInfo.bandLabel}</Text>
+          <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Zone {zone}: {bandInfo.bandLabel}</Text>
           {bandInfo.belowCoverage ? (
             <Text style={styles.captionText}>
-              This app&apos;s own crop-band research currently starts at zone 3 -- the cold/short-season guidance below is
+              This app&apos;s own crop-band research currently starts at zone 3, so the cold/short-season guidance below is
               the closest match, not a perfect one for your specific zone.
             </Text>
           ) : null}
@@ -476,7 +476,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       {plots.length === 0 ? (
-        <Text style={styles.emptyText}>No plots yet -- add one below to start tracking what you&apos;re growing.</Text>
+        <Text style={styles.emptyText}>No plots yet. Add one below to start tracking what you&apos;re growing.</Text>
       ) : (
         plots.map((plot) => {
           const expanded = expandedPlotId === plot.id;
@@ -511,7 +511,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                       <View key={planting.id} style={styles.plantingRow}>
                         <Text style={styles.bodyText}>
                           {planting.foodName}
-                          {planting.varietyNote ? ` (${planting.varietyNote})` : ''} -- {planting.status}
+                          {planting.varietyNote ? ` (${planting.varietyNote})` : ''}: {planting.status}
                         </Text>
                         <TouchableOpacity onPress={() => handleRemovePlanting(plot.id, planting.id)}>
                           <Text style={[styles.linkText, { color: colors.danger }]}>Remove</Text>
@@ -593,13 +593,13 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
           </View>
           <AppTextInput
             style={styles.textInput}
-            placeholder="Growing medium (optional -- soil, coco coir, hydroponic...)"
+            placeholder="Growing medium (optional: soil, coco coir, hydroponic...)"
             value={newPlotMedium}
             onChangeText={setNewPlotMedium}
           />
           <AppTextInput
             style={styles.textInput}
-            placeholder="Light source (optional -- full sun, LED grow light...)"
+            placeholder="Light source (optional: full sun, LED grow light...)"
             value={newPlotLight}
             onChangeText={setNewPlotLight}
           />
@@ -709,7 +709,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           <>
             <Text style={styles.bodyText}>
               {selectedPlanting.foodName}
-              {plotNameById[selectedPlanting.plotId] ? ` -- from ${plotNameById[selectedPlanting.plotId]}` : ''}
+              {plotNameById[selectedPlanting.plotId] ? `, from ${plotNameById[selectedPlanting.plotId]}` : ''}
             </Text>
             <View style={styles.fieldRow}>
               <Text style={styles.fieldLabel}>Amount</Text>
@@ -729,7 +729,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           <>
             {plantings.length === 0 ? (
               <Text style={styles.captionText}>
-                Nothing tracked as planted yet. Add a planting in Plots &amp; Plantings first -- once something&apos;s actually
+                Nothing tracked as planted yet. Add a planting in Plots &amp; Plantings first; once something&apos;s actually
                 growing, it&apos;ll show up here to log a harvest from.
               </Text>
             ) : (
@@ -771,7 +771,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           harvests.map((harvest) => (
             <View key={harvest.id} style={styles.plantingRow}>
               <Text style={styles.bodyText}>
-                {harvest.foodName} -- {harvest.quantityRemaining} of {harvest.quantity} {harvest.unit} left
+                {harvest.foodName}: {harvest.quantityRemaining} of {harvest.quantity} {harvest.unit} left
               </Text>
               <TouchableOpacity onPress={() => handleDelete(harvest.id)}>
                 <Text style={[styles.linkText, { color: colors.danger }]}>Delete</Text>
@@ -792,7 +792,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
         ) : (
           upcomingTasks.map((task) => (
             <Text key={task.id} style={styles.bodyText}>
-              {task.title} -- {task.scheduledFor.replace('T', ' ')}
+              {task.title}: {task.scheduledFor.replace('T', ' ')}
             </Text>
           ))
         )}
@@ -809,7 +809,7 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
         </View>
         <Text style={styles.captionText}>
           Creates a Schedule entry for tomorrow morning. A dedicated Garden lens inside the Schedules tab itself isn&apos;t
-          built yet -- this list is the way to see it for now.
+          built yet, so this list is the way to see it for now.
         </Text>
       </View>
     </ScrollView>

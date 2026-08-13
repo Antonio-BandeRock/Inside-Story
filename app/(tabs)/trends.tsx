@@ -37,7 +37,7 @@ type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms';
 // caveat applies regardless of which chart you're looking at.
 const TRENDS_PATTERN_CAVEAT_HELP: HelpSection = {
   heading: 'Finding patterns, not just charts',
-  body: "This page charts what you've already logged over time. Actually matching flares to specific foods or timing is a bigger, separate piece of work this app doesn't do yet -- for now, use these charts alongside your own judgment, not as a diagnosis.",
+  body: "This page charts what you've already logged over time. Actually matching flares to specific foods or timing is a bigger, separate piece of work this app doesn't do yet; for now, use these charts alongside your own judgment, not as a diagnosis.",
 };
 
 const TRENDS_LENSES: LensOption<TrendsLens>[] = [
@@ -104,7 +104,7 @@ function checkinColor(checkinType: CheckinSeverityPoint['checkinType']): string 
 const TRENDS_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page shows',
-    body: "Nutrient intake, 6 Dimensions flags, and symptom/flare severity charted over a date range you pick, so slow changes that are invisible day-to-day become visible trends. Today's snapshot lives on Insights -- this is the same kind of information, over time instead of just today.",
+    body: "Nutrient intake, 6 Dimensions flags, and symptom/flare severity charted over a date range you pick, so slow changes that are invisible day-to-day become visible trends. Today's snapshot lives on Insights; this is the same kind of information, over time instead of just today.",
   },
   {
     heading: 'Nutrients',
@@ -120,7 +120,7 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Finding patterns, not just charts',
-    body: "This page charts what you've already logged over time. Actually matching flares to specific foods or timing is a bigger, separate piece of work this app doesn't do yet -- for now, use these charts alongside your own judgment, not as a diagnosis.",
+    body: "This page charts what you've already logged over time. Actually matching flares to specific foods or timing is a bigger, separate piece of work this app doesn't do yet; for now, use these charts alongside your own judgment, not as a diagnosis.",
   },
 ];
 

@@ -892,7 +892,7 @@ export function BakedGoodsBuilder({
       }
     } catch (error) {
       console.error('[BakedGoodsBuilder] Failed to save baked good', error);
-      showInfoAlert('Save failed', 'Something went wrong saving this baked good. Your ingredients are still here -- please try again.');
+      showInfoAlert('Save failed', 'Something went wrong saving this baked good. Your ingredients are still here; please try again.');
       return;
     }
 
@@ -1471,7 +1471,7 @@ export function BakedGoodsBuilder({
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                     <Text style={[styles.healingStageAdvisoryText, { color: tabColor }]}>
-                      Condition stage note -- tap to learn more
+                      Condition stage note (tap to learn more)
                     </Text>
                   </TouchableOpacity>
                 ) : null;
@@ -1487,7 +1487,7 @@ export function BakedGoodsBuilder({
                   onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.healingStageAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                  <Text style={[styles.healingStageAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
@@ -1642,7 +1642,7 @@ export function BakedGoodsBuilder({
             // ingredient is already in `ingredients`.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={styles.emptyText}>
-                {(bakedGoodName.trim() || 'Baked Good')} ready -- {ingredients.length} ingredient
+                {(bakedGoodName.trim() || 'Baked Good')} ready with {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
               {renderFavoriteToggle()}

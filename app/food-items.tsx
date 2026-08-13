@@ -205,7 +205,7 @@ export default function FoodItemsScreen() {
                   }
                   showInfoAlert(
                     item.title,
-                    'Full detail view -- Nutrients, 6 Dimensions, and Cooking & Prep for this item -- is coming soon.',
+                    'Full detail view (Nutrients, 6 Dimensions, and Cooking & Prep for this item) is coming soon.',
                   );
                 }}
               >

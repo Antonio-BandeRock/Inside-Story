@@ -171,7 +171,7 @@ export default function FoodItemDetailScreen() {
         {loading ? (
           <Text style={styles.emptyText}>Loading…</Text>
         ) : !side ? (
-          <Text style={styles.emptyText}>This item couldn&apos;t be found -- it may have been deleted.</Text>
+          <Text style={styles.emptyText}>This item couldn&apos;t be found. It may have been deleted.</Text>
         ) : (
           <>
             <View style={styles.lensRow}>

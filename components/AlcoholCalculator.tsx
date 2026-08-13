@@ -159,14 +159,14 @@ export function AlcoholCalculatorPanel({
     <View>
       <TouchableOpacity style={[styles.toggleRow, { borderColor: tabColor }]} onPress={() => setExpanded((value) => !value)}>
         <Ionicons name="calculator-outline" size={16} color={tabColor} />
-        <Text style={[styles.toggleText, { color: tabColor }]}>Alcohol calculator -- estimate ethanol &amp; calories</Text>
+        <Text style={[styles.toggleText, { color: tabColor }]}>Alcohol calculator: estimate ethanol &amp; calories</Text>
         <Ionicons name={expanded ? 'chevron-up' : 'chevron-down'} size={14} color={tabColor} />
       </TouchableOpacity>
 
       {expanded && (
         <Animated.View layout={LinearTransition} style={[styles.panel, { borderColor: tabColor }]}>
           <Text style={styles.panelIntro}>
-            Tell us about your actual drink -- its size, proof, and how many pours -- and we&apos;ll use that,
+            Tell us about your actual drink (its size, proof, and how many pours) and we&apos;ll use that,
             instead of the database&apos;s standard serving, to track this ingredient&apos;s calories and carbs.
             Fill in Volume and ABV below and this takes over from Quantity and Unit above automatically; clear
             either one back out and Quantity/Unit take over again.
@@ -195,7 +195,7 @@ export function AlcoholCalculatorPanel({
               width={160}
             />
             <Text style={styles.fieldHint}>
-              How many of that pour you&apos;re having -- 1 shot, 3 glasses of wine, etc. Volume above x Pours is
+              How many of that pour you&apos;re having: 1 shot, 3 glasses of wine, etc. Volume above x Pours is
               the total that gets tracked.
             </Text>
           </View>
@@ -227,7 +227,7 @@ export function AlcoholCalculatorPanel({
               width={220}
             />
             <Text style={styles.fieldHint}>
-              The natural sugar left over in the drink itself, separate from the alcohol -- higher in a sweet
+              The natural sugar left over in the drink itself, separate from the alcohol: higher in a sweet
               wine, cordial, or liqueur, close to zero in a dry wine or a plain spirit like vodka or whiskey.
               Leave at &quot;Dry / None&quot; if you&apos;re not sure.
             </Text>
@@ -267,7 +267,7 @@ export function AlcoholCalculatorPanel({
               <View style={[styles.trackedBanner, { borderColor: tabColor, backgroundColor: `${tabColor}1A` }]}>
                 <Ionicons name="checkmark-circle" size={14} color={tabColor} />
                 <Text style={[styles.trackedBannerText, { color: tabColor }]}>
-                  Tracking this now, not the database&apos;s standard serving -- Quantity and Unit above have been
+                  Tracking this now, not the database&apos;s standard serving; Quantity and Unit above have been
                   updated to your total.
                 </Text>
               </View>

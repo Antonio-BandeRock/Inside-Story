@@ -119,7 +119,7 @@ type Lens = 'meals' | 'hydration' | 'myMeds' | 'supplements' | 'prescriptions' |
 // than re-worded three times.
 const REPEATING_SCHEDULES_HELP: HelpSection = {
   heading: 'Repeating schedules',
-  body: 'Can repeat daily -- indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
+  body: 'Can repeat daily: indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
 };
 
 const LENSES: LensOption<Lens>[] = [
@@ -130,15 +130,15 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Planning vs. logging',
-        body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab -- either through "Log now" here or by creating a meal there directly.',
+        body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab, either through "Log now" here or by creating a meal there directly.',
       },
       {
         heading: 'From templates & favorites, or unplanned',
-        body: 'On the Food tab, pick a meal type first. "From templates & favorites" shows only your saved meals/favorites that match that meal type. "Something unplanned" is for when the day did not go as planned (e.g. you ate out) -- type in your best guess of what you actually had.',
+        body: 'On the Food tab, pick a meal type first. "From templates & favorites" shows only your saved meals/favorites that match that meal type. "Something unplanned" is for when the day did not go as planned (e.g. you ate out); type in your best guess of what you actually had.',
       },
       {
         heading: '"Log now" and "Rotate"',
-        body: '"Log now" turns a planned meal into a logged entry, prefilled if it came from a template/favorite. "Rotate" (smoothies, mixed vegetables, mixed fruit) only shows up when that favorite has a Rotating ingredient -- your pick applies to this one scheduled occurrence only, so a Tuesday smoothie can vary from a Wednesday one even from the same favorite.',
+        body: '"Log now" turns a planned meal into a logged entry, prefilled if it came from a template/favorite. "Rotate" (smoothies, mixed vegetables, mixed fruit) only shows up when that favorite has a Rotating ingredient; your pick applies to this one scheduled occurrence only, so a Tuesday smoothie can vary from a Wednesday one even from the same favorite.',
       },
       {
         heading: 'Planned, Logged, Skipped',
@@ -158,7 +158,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Hydration is Meals, filtered',
-        body: 'A "Beverage" meal (water, tea, coffee, a smoothie -- see the Food tab) already is a hydration entry. This lens doesn\'t track anything separately -- it\'s the same schedule/meal data, just filtered to beverages and shown with a running water total, so logging or scheduling a drink from either tab shows up in both automatically.',
+        body: 'A "Beverage" meal (water, tea, coffee, a smoothie; see the Food tab) already is a hydration entry. This lens doesn\'t track anything separately: it\'s the same schedule/meal data, just filtered to beverages and shown with a running water total, so logging or scheduling a drink from either tab shows up in both automatically.',
       },
       REPEATING_SCHEDULES_HELP,
     ],
@@ -170,19 +170,19 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'One place for everything you take',
-        body: 'Prescriptions, over-the-counter drugs, and supplements, all in one registry -- pick a prescription or OTC item from a cited reference list where it exists, or enter it yourself when it doesn\'t. A supplement asks which nutrient(s) it contains and, for the ones this app has researched, which specific form (e.g. magnesium glycinate vs. oxide) -- the form changes how well it absorbs.',
+        body: 'Prescriptions, over-the-counter drugs, and supplements, all in one registry: pick a prescription or OTC item from a cited reference list where it exists, or enter it yourself when it doesn\'t. A supplement asks which nutrient(s) it contains and, for the ones this app has researched, which specific form (e.g. magnesium glycinate vs. oxide); the form changes how well it absorbs.',
       },
       {
         heading: 'More than a name and a dose',
-        body: 'Once a nutrient and form are picked, this shows when to take it (empty stomach, with food, before bed), what to avoid taking it with, what pairs well with it, and, where this app has the data, how much you\'re already getting from food today -- so a supplement decision starts from what food is already covering, not a guess.',
+        body: 'Once a nutrient and form are picked, this shows when to take it (empty stomach, with food, before bed), what to avoid taking it with, what pairs well with it, and, where this app has the data, how much you\'re already getting from food today, so a supplement decision starts from what food is already covering, not a guess.',
       },
       {
         heading: 'Interactions',
-        body: 'Reuses the same cited interaction-checking engine as Supplements and Prescriptions, extended for My Meds specifically -- e.g. potassium supplements with blood pressure medications, or metformin\'s effect on TSH readings for anyone also on levothyroxine.',
+        body: 'Reuses the same cited interaction-checking engine as Supplements and Prescriptions, extended for My Meds specifically: potassium supplements with blood pressure medications, or metformin\'s effect on TSH readings for anyone also on levothyroxine.',
       },
       {
         heading: 'What this doesn\'t do yet',
-        body: 'Reminder times and repeat schedules for prescriptions and supplements still live on those two lenses, unchanged -- adding an item here does not yet also set up a reminder for it. Looking up a medication this app doesn\'t already have online is a planned future capability, not built yet -- for now, anything not in the list can still be tracked by entering it yourself.',
+        body: 'Reminder times and repeat schedules for prescriptions and supplements still live on those two lenses, unchanged; adding an item here does not yet also set up a reminder for it. Looking up a medication this app doesn\'t already have online is a planned future capability, not built yet: for now, anything not in the list can still be tracked by entering it yourself.',
       },
     ],
   },
@@ -193,15 +193,15 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Document every ingredient',
-        body: 'For a supplement\'s contribution to count toward your daily totals, document exactly what one dose contains -- each ingredient, its amount, and its unit (mg, mcg, g, or IU). A single-ingredient product gets one row; a multivitamin gets one row per nutrient on its label.',
+        body: 'For a supplement\'s contribution to count toward your daily totals, document exactly what one dose contains: each ingredient, its amount, and its unit (mg, mcg, g, or IU). A single-ingredient product gets one row; a multivitamin gets one row per nutrient on its label.',
       },
       {
         heading: 'Tracking / Not tracking',
-        body: 'This one toggle covers stopping a supplement, cycling on and off it, or taking it temporarily -- flip it off when you are not taking it and back on when you are. Nothing is deleted either way, so you never have to re-enter its ingredients.',
+        body: 'This one toggle covers stopping a supplement, cycling on and off it, or taking it temporarily; flip it off when you are not taking it and back on when you are. Nothing is deleted either way, so you never have to re-enter its ingredients.',
       },
       {
         heading: 'Reminder times are separate from tracking',
-        body: 'A supplement\'s contribution to your daily totals always comes from the Tracking toggle alone. Adding reminder times underneath it is optional and purely a personal adherence record -- for a supplement that needs a specific dose time (e.g. away from calcium, or with a meal for fat solubility), not a second way of counting it.',
+        body: 'A supplement\'s contribution to your daily totals always comes from the Tracking toggle alone. Adding reminder times underneath it is optional and purely a personal adherence record: for a supplement that needs a specific dose time (e.g. away from calcium, or with a meal for fat solubility), not a second way of counting it.',
       },
       {
         heading: 'Interaction checking',
@@ -217,11 +217,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Prescriptions',
-        body: 'Track what you take, its dose and frequency, and (optionally) specific reminder times -- same on/off Tracking toggle and repeat picker as Supplements. Prescriptions don\'t contribute nutrients, so there\'s no ingredient list to document.',
+        body: 'Track what you take, its dose and frequency, and (optionally) specific reminder times: same on/off Tracking toggle and repeat picker as Supplements. Prescriptions don\'t contribute nutrients, so there\'s no ingredient list to document.',
       },
       {
         heading: 'Interaction checking',
-        body: 'Levothyroxine + calcium/iron timing is checked automatically once you track levothyroxine as a prescription and calcium/iron as supplements with reminder times set -- this app matches a prescription by name (e.g. "levothyroxine" anywhere in what you named it). Anything triggered shows under "Things to check" here.',
+        body: 'Levothyroxine + calcium/iron timing is checked automatically once you track levothyroxine as a prescription and calcium/iron as supplements with reminder times set. This app matches a prescription by name (e.g. "levothyroxine" anywhere in what you named it). Anything triggered shows under "Things to check" here.',
       },
       REPEATING_SCHEDULES_HELP,
     ],
@@ -233,11 +233,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Appointments',
-        body: 'Doctor, lab/bloodwork, nutritionist, trainer, or other visits -- title, type, date/time, location, and provider. Mark one completed or cancelled once it\'s past, or remove it. Appointments don\'t repeat yet -- add each one as it\'s scheduled.',
+        body: 'Doctor, lab/bloodwork, nutritionist, trainer, or other visits: title, type, date/time, location, and provider. Mark one completed or cancelled once it\'s past, or remove it. Appointments don\'t repeat yet; add each one as it\'s scheduled.',
       },
       {
         heading: 'Phone calendar sync',
-        body: 'Appointments can connect to your phone\'s own Calendar app -- if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in beyond a one-time permission prompt -- this app never talks to Google or Microsoft directly.',
+        body: 'Appointments can connect to your phone\'s own Calendar app: if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in beyond a one-time permission prompt: this app never talks to Google or Microsoft directly.',
       },
     ],
   },
@@ -256,7 +256,7 @@ const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'myMeds' | 'supplements' 
 const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Planning vs. logging',
-    body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab -- either through "Log now" here or by creating a meal there directly.',
+    body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab, either through "Log now" here or by creating a meal there directly.',
   },
   {
     heading: 'Six schedule types, five built so far',
@@ -264,11 +264,11 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Hydration is Meals, filtered',
-    body: 'A "Beverage" meal (water, tea, coffee, a smoothie -- see the Food tab) already is a hydration entry. This lens doesn\'t track anything separately -- it\'s the same schedule/meal data, just filtered to beverages and shown with a running water total, so logging or scheduling a drink from either tab shows up in both automatically.',
+    body: 'A "Beverage" meal (water, tea, coffee, a smoothie; see the Food tab) already is a hydration entry. This lens doesn\'t track anything separately: it\'s the same schedule/meal data, just filtered to beverages and shown with a running water total, so logging or scheduling a drink from either tab shows up in both automatically.',
   },
   {
     heading: 'From templates & favorites, or unplanned',
-    body: 'On the Food tab, pick a meal type first. "From templates & favorites" shows only your saved meals/favorites that match that meal type. "Something unplanned" is for when the day did not go as planned (e.g. you ate out) -- type in your best guess of what you actually had.',
+    body: 'On the Food tab, pick a meal type first. "From templates & favorites" shows only your saved meals/favorites that match that meal type. "Something unplanned" is for when the day did not go as planned (e.g. you ate out); type in your best guess of what you actually had.',
   },
   {
     heading: '"Log now"',
@@ -276,7 +276,7 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: '"Rotate" (smoothies, mixed vegetables, mixed fruit)',
-    body: 'Shows up on a planned meal only when it was scheduled from a favorite that has at least one ingredient marked Rotating (set on the Food tab -- tap "Rotate?" next to an ingredient in a side). Tap any alternate to make it current for this specific scheduled meal, or randomize one or all of them, then Save. This choice belongs to this one occurrence only -- rotating a Tuesday smoothie never changes what a Wednesday one shows, even if both were scheduled from the same favorite, so you can plan variety across several upcoming days ahead of time. Whatever\'s chosen is exactly what "Log now" prefills and what actually gets logged, so nutrients, 6 Dimensions, and Trends always reflect the ingredient actually used that day.',
+    body: 'Shows up on a planned meal only when it was scheduled from a favorite that has at least one ingredient marked Rotating (set on the Food tab: tap "Rotate?" next to an ingredient in a side). Tap any alternate to make it current for this specific scheduled meal, or randomize one or all of them, then Save. This choice belongs to this one occurrence only; rotating a Tuesday smoothie never changes what a Wednesday one shows, even if both were scheduled from the same favorite, so you can plan variety across several upcoming days ahead of time. Whatever\'s chosen is exactly what "Log now" prefills and what actually gets logged, so nutrients, 6 Dimensions, and Trends always reflect the ingredient actually used that day.',
   },
   {
     heading: 'Planned, Logged, Skipped',
@@ -288,35 +288,35 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Supplements: document every ingredient',
-    body: 'For a supplement\'s contribution to count toward your daily totals, document exactly what one dose contains -- each ingredient, its amount, and its unit (mg, mcg, g, or IU). A single-ingredient product gets one row; a multivitamin gets one row per nutrient on its label.',
+    body: 'For a supplement\'s contribution to count toward your daily totals, document exactly what one dose contains: each ingredient, its amount, and its unit (mg, mcg, g, or IU). A single-ingredient product gets one row; a multivitamin gets one row per nutrient on its label.',
   },
   {
     heading: 'Tracking / Not tracking',
-    body: 'This one toggle covers stopping a supplement, cycling on and off it, or taking it temporarily (e.g. only during a training block) -- flip it off when you are not taking it and back on when you are. Nothing is deleted either way, so you never have to re-enter its ingredients.',
+    body: 'This one toggle covers stopping a supplement, cycling on and off it, or taking it temporarily (e.g. only during a training block); flip it off when you are not taking it and back on when you are. Nothing is deleted either way, so you never have to re-enter its ingredients.',
   },
   {
     heading: 'Reminder times are separate from tracking',
-    body: 'A supplement\'s contribution to your daily totals always comes from the Tracking toggle alone. Adding reminder times underneath it is optional and purely a personal adherence record -- for a supplement that needs a specific dose time (e.g. away from calcium, or with a meal for fat solubility), not a second way of counting it.',
+    body: 'A supplement\'s contribution to your daily totals always comes from the Tracking toggle alone. Adding reminder times underneath it is optional and purely a personal adherence record: for a supplement that needs a specific dose time (e.g. away from calcium, or with a meal for fat solubility), not a second way of counting it.',
   },
   {
     heading: 'Prescriptions',
-    body: 'Track what you take, its dose and frequency, and (optionally) specific reminder times -- same on/off Tracking toggle and repeat picker as Supplements. Prescriptions don\'t contribute nutrients, so there\'s no ingredient list to document.',
+    body: 'Track what you take, its dose and frequency, and (optionally) specific reminder times: same on/off Tracking toggle and repeat picker as Supplements. Prescriptions don\'t contribute nutrients, so there\'s no ingredient list to document.',
   },
   {
     heading: 'Appointments',
-    body: 'Doctor, lab/bloodwork, nutritionist, trainer, or other visits -- title, type, date/time, location, and provider. Mark one completed or cancelled once it\'s past, or remove it. Appointments don\'t repeat yet (most get booked one at a time anyway) -- add each one as it\'s scheduled.',
+    body: 'Doctor, lab/bloodwork, nutritionist, trainer, or other visits: title, type, date/time, location, and provider. Mark one completed or cancelled once it\'s past, or remove it. Appointments don\'t repeat yet (most get booked one at a time anyway); add each one as it\'s scheduled.',
   },
   {
     heading: 'Phone calendar sync',
-    body: 'Appointments can connect to your phone\'s own Calendar app -- if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in, and nothing beyond a one-time permission prompt -- this app never talks to Google or Microsoft directly.',
+    body: 'Appointments can connect to your phone\'s own Calendar app: if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in, and nothing beyond a one-time permission prompt: this app never talks to Google or Microsoft directly.',
   },
   {
     heading: 'Interaction checking, once there is data to check',
-    body: 'Calcium/iron/zinc timing and the fat-soluble vitamins are checked automatically. Levothyroxine + calcium/iron timing is checked too, once you track levothyroxine as a prescription and calcium/iron as supplements with reminder times set -- this app matches a prescription by name (e.g. "levothyroxine" anywhere in what you named it). Biotin + an upcoming lab draw is checked automatically too, once you\'re tracking biotin and have a "Lab / bloodwork" appointment scheduled within the next couple weeks. Anything triggered shows under "Things to check" on the Supplements and Prescriptions tabs.',
+    body: 'Calcium/iron/zinc timing and the fat-soluble vitamins are checked automatically. Levothyroxine + calcium/iron timing is checked too, once you track levothyroxine as a prescription and calcium/iron as supplements with reminder times set. This app matches a prescription by name (e.g. "levothyroxine" anywhere in what you named it). Biotin + an upcoming lab draw is checked automatically too, once you\'re tracking biotin and have a "Lab / bloodwork" appointment scheduled within the next couple weeks. Anything triggered shows under "Things to check" on the Supplements and Prescriptions tabs.',
   },
   {
     heading: 'Repeating schedules',
-    body: 'Meal, drink, supplement, and prescription reminders can repeat daily -- indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
+    body: 'Meal, drink, supplement, and prescription reminders can repeat daily: indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
   },
 ];
 
@@ -463,7 +463,7 @@ function RepeatPicker({ repeat, onChange }: { repeat: RepeatConfig; onChange: (r
             />
           ) : null}
           <Text style={styles.helperText}>
-            Generates entries about 60 days ahead at a time, topped up automatically as time passes -- editing or
+            Generates entries about 60 days ahead at a time, topped up automatically as time passes. Editing or
             skipping one day never affects any other.
           </Text>
         </>
@@ -840,7 +840,7 @@ function MealsLens() {
                     {form.mode === 'source' ? (
                       sourceMatches.length === 0 ? (
                         <Text style={styles.helperText}>
-                          No {capitalize(form.mealType)} templates or favorites yet -- save a meal as a favorite, or
+                          No {capitalize(form.mealType)} templates or favorites yet. Save a meal as a favorite, or
                           switch to "Something unplanned" below.
                         </Text>
                       ) : (
@@ -871,7 +871,7 @@ function MealsLens() {
                         </Text>
                         <AppTextInput
                           style={styles.input}
-                          placeholder="e.g. Lunch out with a coworker -- probably a sandwich and fries"
+                          placeholder="e.g. Lunch out with a coworker, probably a sandwich and fries"
                           value={form.title}
                           onChangeText={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
                         />
@@ -957,9 +957,9 @@ function MealsLens() {
                         <Text style={styles.rowTitle}>{item.title}</Text>
                         <Text style={styles.rowMeta}>
                           {capitalize(item.mealType ?? '')}
-                          {item.sourceFavoriteId ? ' -- Favorite' : item.sourceMealId ? ' -- Template' : ''}
-                          {item.status === 'logged' ? ' -- Logged' : item.status === 'skipped' ? ' -- Skipped' : ''}
-                          {item.repeatGroupId ? ' -- Repeats' : ''}
+                          {item.sourceFavoriteId ? ' · Favorite' : item.sourceMealId ? ' · Template' : ''}
+                          {item.status === 'logged' ? ' · Logged' : item.status === 'skipped' ? ' · Skipped' : ''}
+                          {item.repeatGroupId ? ' · Repeats' : ''}
                         </Text>
                       </View>
                     </View>
@@ -1004,14 +1004,14 @@ function MealsLens() {
         <TouchableOpacity style={StyleSheet.absoluteFill} activeOpacity={1} onPress={closeRotateSheet} />
         <View style={styles.rotateSheet}>
           <View style={styles.rotateSheetHeader}>
-            <Text style={styles.rotateSheetTitle}>Rotate ingredients -- {rotatingItem?.title}</Text>
+            <Text style={styles.rotateSheetTitle}>Rotate ingredients: {rotatingItem?.title}</Text>
             <TouchableOpacity onPress={closeRotateSheet}>
               <Text style={styles.rotateSheetCloseText}>✕</Text>
             </TouchableOpacity>
           </View>
           <Text style={styles.helperText}>
             Tap any alternate to make it current for this meal, or randomize. This only applies to this one scheduled
-            meal -- other scheduled meals from the same favorite are unaffected. "Log now" for this meal will use
+            meal; other scheduled meals from the same favorite are unaffected. "Log now" for this meal will use
             whatever you pick here.
           </Text>
 
@@ -1025,7 +1025,7 @@ function MealsLens() {
             {rotatingIngredients.map((ingredient, ingredientIndex) => (
               <View key={`${ingredient.dishName ?? ''}_${ingredient.foodName}_${ingredientIndex}`} style={styles.rotateIngredientCard}>
                 <Text style={styles.rotateIngredientLabel}>
-                  {ingredient.sideName ? `${ingredient.sideName} -- ` : ''}
+                  {ingredient.sideName ? `${ingredient.sideName}: ` : ''}
                   {ingredient.quantity} {ingredient.unit}
                 </Text>
                 <View style={styles.pillRow}>
@@ -1099,7 +1099,7 @@ function HydrationRowView({
           <Text style={styles.rowMeta}>
             {row.kind === 'logged-direct'
               ? 'Logged from Meals'
-              : `${capitalize(row.item.status)}${row.item.sourceFavoriteId ? ' -- Favorite' : row.item.sourceMealId ? ' -- Template' : ''}${row.item.repeatGroupId ? ' -- Repeats' : ''}`}
+              : `${capitalize(row.item.status)}${row.item.sourceFavoriteId ? ' · Favorite' : row.item.sourceMealId ? ' · Template' : ''}${row.item.repeatGroupId ? ' · Repeats' : ''}`}
           </Text>
         </View>
       </View>
@@ -1382,7 +1382,7 @@ function HydrationLens() {
                   {form.mode === 'source' ? (
                     sourceMatches.length === 0 ? (
                       <Text style={styles.helperText}>
-                        No Beverage templates or favorites yet -- save a beverage as a favorite on the Food tab, or
+                        No Beverage templates or favorites yet. Save a beverage as a favorite on the Food tab, or
                         switch to "Something unplanned" below.
                       </Text>
                     ) : (
@@ -1409,7 +1409,7 @@ function HydrationLens() {
                   ) : (
                     <>
                       <Text style={styles.helperText}>
-                        Water, tea, coffee, a smoothie -- whatever you plan to drink, plus anything mixed into it.
+                        Water, tea, coffee, a smoothie: whatever you plan to drink, plus anything mixed into it.
                       </Text>
                       <AppTextInput
                         style={styles.input}
@@ -1482,7 +1482,7 @@ function HydrationLens() {
 
           {rows.length === 0 ? (
             <Text style={styles.emptyText}>
-              Nothing logged or scheduled yet today -- this includes any "Beverage" meals logged directly from Meals too.
+              Nothing logged or scheduled yet today. This includes any "Beverage" meals logged directly from Meals too.
             </Text>
           ) : (
             <View style={styles.table}>
@@ -1882,7 +1882,7 @@ function MyMedsLens() {
         {formDetail ? (
           <>
             <Text style={styles.myMedsResearchLabel}>
-              {formDetail.formName} -- {EVIDENCE_TIER_LABEL[formDetail.evidenceStrength] ?? formDetail.evidenceStrength}
+              {formDetail.formName} · {EVIDENCE_TIER_LABEL[formDetail.evidenceStrength] ?? formDetail.evidenceStrength}
             </Text>
             <Text style={styles.helperText}>{formDetail.absorptionNote}</Text>
             {formDetail.giToleranceNote ? <Text style={styles.helperText}>{formDetail.giToleranceNote}</Text> : null}
@@ -1930,7 +1930,7 @@ function MyMedsLens() {
                     : [treatment.doseAmount ? `${treatment.doseAmount}${treatment.doseUnit ?? ''}` : null, treatment.frequency]
                         .filter(Boolean)
                         .join(', ') || 'No dose details entered'}
-                  {treatment.active ? '' : ' -- Not tracking'}
+                  {treatment.active ? '' : ' · Not tracking'}
                 </Text>
                 {ingredients.length > 0 ? (
                   <Text style={styles.rowMeta}>
@@ -1964,7 +1964,7 @@ function MyMedsLens() {
                     ? ingredients.map((ingredient) => (
                         <View key={ingredient.id}>
                           <Text style={styles.myMedsResearchLabel}>
-                            {nutrientDisplayName(ingredient.nutrientCode)} -- {ingredient.amountPerUnit}
+                            {nutrientDisplayName(ingredient.nutrientCode)}: {ingredient.amountPerUnit}
                             {ingredient.unit}/dose
                           </Text>
                           {renderNutrientResearchCard(ingredient.nutrientCode, ingredient.supplementForm ?? '')}
@@ -1998,7 +1998,7 @@ function MyMedsLens() {
                         </>
                       ) : (
                         <Text style={styles.helperText}>
-                          Not matched to this app&apos;s researched medication list -- entered manually.
+                          Not matched to this app&apos;s researched medication list; entered manually.
                         </Text>
                       )}
                 </View>
@@ -2173,7 +2173,7 @@ function MyMedsLens() {
               {selectedCommonMed ? (
                 <View style={styles.myMedsResearchCard}>
                   <Text style={styles.myMedsResearchLabel}>
-                    {selectedCommonMed.drugClass} -- {EVIDENCE_TIER_LABEL[selectedCommonMed.evidenceStrength] ?? selectedCommonMed.evidenceStrength}
+                    {selectedCommonMed.drugClass} · {EVIDENCE_TIER_LABEL[selectedCommonMed.evidenceStrength] ?? selectedCommonMed.evidenceStrength}
                   </Text>
                   <Text style={styles.helperText}>{selectedCommonMed.commonUse}</Text>
                   {selectedCommonMed.thyroidRelevantNotes ? (
@@ -2188,7 +2188,7 @@ function MyMedsLens() {
                 </View>
               ) : medForm.manualEntry ? (
                 <Text style={styles.helperText}>
-                  Not in this app&apos;s researched list yet -- you can still track it with the details you know. Looking this up
+                  Not in this app&apos;s researched list yet, but you can still track it with the details you know. Looking this up
                   online automatically is a planned future capability, not built yet.
                 </Text>
               ) : null}
@@ -2272,7 +2272,7 @@ function MyMedsLens() {
 
           {referenceOnlyRules.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Worth knowing (reference only -- not personalized)</Text>
+              <Text style={styles.interactionSectionLabel}>Worth knowing (reference only, not personalized)</Text>
               {referenceOnlyRules.map((rule) => (
                 <View key={rule.ruleId} style={[styles.interactionCard, styles.interactionCardReference]}>
                   <Text style={styles.interactionTitle}>{rule.title}</Text>
@@ -2284,7 +2284,7 @@ function MyMedsLens() {
           ) : null}
 
           {treatments.length === 0 ? (
-            <Text style={styles.emptyText}>Nothing tracked yet -- add a prescription, OTC drug, or supplement above.</Text>
+            <Text style={styles.emptyText}>Nothing tracked yet. Add a prescription, OTC drug, or supplement above.</Text>
           ) : (
             <>
               {renderTreatmentGroup('Prescriptions', treatments.filter((treatment) => treatment.treatmentType === 'prescription'))}
@@ -2667,7 +2667,7 @@ function SupplementsLens() {
 
           {referenceOnlyRules.length > 0 ? (
             <View style={styles.interactionSection}>
-              <Text style={styles.interactionSectionLabel}>Worth knowing (reference only -- not personalized)</Text>
+              <Text style={styles.interactionSectionLabel}>Worth knowing (reference only, not personalized)</Text>
               <Text style={styles.helperText}>
                 This needs information this app doesn't track yet (an upcoming lab draw), so it can't be checked
                 against your actual schedule. Shown as cited background information only.
@@ -2696,7 +2696,7 @@ function SupplementsLens() {
                       <Text style={styles.rowMeta}>
                         {treatment.unitsPerDay} {treatment.servingUnitLabel}
                         {Number(treatment.unitsPerDay) === 1 ? '' : 's'}/day
-                        {treatment.active ? '' : ' -- Not tracking'}
+                        {treatment.active ? '' : ' · Not tracking'}
                       </Text>
                       {ingredients.length > 0 ? (
                         <Text style={styles.rowMeta}>
@@ -2724,7 +2724,7 @@ function SupplementsLens() {
                     <View style={styles.doseSection}>
                       <Text style={styles.doseSectionLabel}>Reminder times today</Text>
                       {doses.length === 0 ? (
-                        <Text style={styles.helperText}>No dose times set -- the on/off toggle above still counts it toward totals.</Text>
+                        <Text style={styles.helperText}>No dose times set; the on/off toggle above still counts it toward totals.</Text>
                       ) : (
                         doses
                           .filter((dose) => dose.scheduledFor.slice(0, 10) === todayDateString())
@@ -2733,7 +2733,7 @@ function SupplementsLens() {
                               <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
                               <Text style={styles.doseRowStatus}>
                                 {capitalize(dose.status)}
-                                {dose.repeatGroupId ? ' -- Repeats' : ''}
+                                {dose.repeatGroupId ? ' · Repeats' : ''}
                               </Text>
                               <View style={styles.doseRowActions}>
                                 {dose.status === 'planned' ? (
@@ -3119,8 +3119,8 @@ function PrescriptionsLens() {
                       <Text style={styles.rowTitle}>{treatment.name}</Text>
                       <Text style={styles.rowMeta}>
                         {treatment.doseAmount != null ? `${treatment.doseAmount}${treatment.doseUnit ? ` ${treatment.doseUnit}` : ''}` : ''}
-                        {treatment.frequency ? `${treatment.doseAmount != null ? ' -- ' : ''}${treatment.frequency}` : ''}
-                        {treatment.active ? '' : ' -- Not tracking'}
+                        {treatment.frequency ? `${treatment.doseAmount != null ? ' · ' : ''}${treatment.frequency}` : ''}
+                        {treatment.active ? '' : ' · Not tracking'}
                       </Text>
                     </View>
 
@@ -3141,7 +3141,7 @@ function PrescriptionsLens() {
                     <View style={styles.doseSection}>
                       <Text style={styles.doseSectionLabel}>Reminder times today</Text>
                       {doses.length === 0 ? (
-                        <Text style={styles.helperText}>No dose times set -- the on/off toggle above still tracks it.</Text>
+                        <Text style={styles.helperText}>No dose times set; the on/off toggle above still tracks it.</Text>
                       ) : (
                         doses
                           .filter((dose) => dose.scheduledFor.slice(0, 10) === todayDateString())
@@ -3150,7 +3150,7 @@ function PrescriptionsLens() {
                               <Text style={styles.doseRowTime}>{formatTime12(dose.scheduledFor.split('T')[1] ?? '')}</Text>
                               <Text style={styles.doseRowStatus}>
                                 {capitalize(dose.status)}
-                                {dose.repeatGroupId ? ' -- Repeats' : ''}
+                                {dose.repeatGroupId ? ' · Repeats' : ''}
                               </Text>
                               <View style={styles.doseRowActions}>
                                 {dose.status === 'planned' ? (
@@ -3582,7 +3582,7 @@ function AppointmentsLens() {
                     return (
                       <TouchableOpacity key={event.id} style={styles.sourceRow} onPress={() => handleStartImport(event)}>
                         <Text style={styles.sourceRowText}>
-                          {event.title} -- {formatAppointmentDate(dateStr)}
+                          {event.title}: {formatAppointmentDate(dateStr)}
                         </Text>
                         <Text style={styles.sourceRowKind}>{event.calendarTitle}</Text>
                       </TouchableOpacity>
@@ -3696,7 +3696,7 @@ function AppointmentsLens() {
               />
 
               {form.importingDeviceEventId ? (
-                <Text style={styles.helperText}>Importing from your phone calendar -- will stay linked to that event.</Text>
+                <Text style={styles.helperText}>Importing from your phone calendar; will stay linked to that event.</Text>
               ) : null}
 
               <View style={styles.formActions}>
@@ -3724,7 +3724,7 @@ function AppointmentsLens() {
           ) : null}
 
           {appointments.length === 0 ? (
-            <Text style={styles.emptyText}>Nothing scheduled -- add an appointment or import one from your phone calendar.</Text>
+            <Text style={styles.emptyText}>Nothing scheduled. Add an appointment or import one from your phone calendar.</Text>
           ) : (
             <View style={styles.table}>
               {appointments.map((item) => (
@@ -3739,10 +3739,10 @@ function AppointmentsLens() {
                       <Text style={styles.rowTitle}>{item.title}</Text>
                       <Text style={styles.rowMeta}>
                         {appointmentTypeLabel(item.appointmentType)}
-                        {item.providerName ? ` -- ${item.providerName}` : ''}
-                        {item.location ? ` -- ${item.location}` : ''}
-                        {item.status === 'completed' ? ' -- Completed' : item.status === 'cancelled' ? ' -- Cancelled' : ''}
-                        {item.linkedDeviceCalendarEventId ? ' -- On phone calendar' : ''}
+                        {item.providerName ? ` · ${item.providerName}` : ''}
+                        {item.location ? ` · ${item.location}` : ''}
+                        {item.status === 'completed' ? ' · Completed' : item.status === 'cancelled' ? ' · Cancelled' : ''}
+                        {item.linkedDeviceCalendarEventId ? ' · On phone calendar' : ''}
                       </Text>
                     </View>
                   </View>

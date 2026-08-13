@@ -945,7 +945,7 @@ export function SoupBuilder({
       }
     } catch (error) {
       console.error('[SoupBuilder] Failed to save soup', error);
-      showInfoAlert('Save failed', 'Something went wrong saving this soup. Your ingredients are still here -- please try again.');
+      showInfoAlert('Save failed', 'Something went wrong saving this soup. Your ingredients are still here; please try again.');
       return;
     }
 
@@ -1524,7 +1524,7 @@ export function SoupBuilder({
                   >
                     <Ionicons name="information-circle-outline" size={16} color={tabColor} />
                     <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>
-                      Condition stage note -- tap to learn more
+                      Condition stage note (tap to learn more)
                     </Text>
                   </TouchableOpacity>
                 ) : null;
@@ -1539,7 +1539,7 @@ export function SoupBuilder({
                   onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
@@ -1551,7 +1551,7 @@ export function SoupBuilder({
                   onPress={() => showInfoAlert(ALCOHOL_ADVISORY_TITLE, ALCOHOL_ADVISORY_MESSAGE)}
                 >
                   <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory -- tap to learn more</Text>
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory (tap to learn more)</Text>
                 </TouchableOpacity>
               )}
               {/* A real, standalone ABV/residual-sugar/cook-time
@@ -1586,7 +1586,7 @@ export function SoupBuilder({
                 <Text style={styles.calculatorTrackingNote}>
                   Quantity and Units below were set by the alcohol calculator&apos;s own total. You can still
                   change them by hand, but the calories and carbs actually tracked keep coming from the
-                  calculator below, not from what&apos;s picked here -- adjust Volume, ABV, or Pours down there
+                  calculator below, not from what&apos;s picked here: adjust Volume, ABV, or Pours down there
                   if you want a different total tracked.
                 </Text>
               )}
@@ -1728,7 +1728,7 @@ export function SoupBuilder({
             // ingredient is already in `ingredients`.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
               <Text style={styles.emptyText}>
-                {(soupName.trim() || 'Soup')} ready -- {ingredients.length} ingredient
+                {(soupName.trim() || 'Soup')} ready with {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
               {renderFavoriteToggle()}

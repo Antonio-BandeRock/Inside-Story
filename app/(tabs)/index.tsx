@@ -134,25 +134,25 @@ const FLIP_CARD_POOL: FlipCardEntry[] = [
     icon: 'time-outline',
     hook: 'Some foods can block your prescription',
     backTitle: 'Why timing matters',
-    backBody: 'Calcium and iron can block prescription absorption if eaten too close to a dose -- Schedules tracks timing for exactly this.',
+    backBody: 'Calcium and iron can block prescription absorption if eaten too close to a dose. Schedules tracks timing for exactly this.',
   },
   {
     icon: 'leaf-outline',
     hook: 'Your gut and thyroid are connected',
     backTitle: 'Gut health matters here',
-    backBody: "Digestion and absorption are often disrupted in Hashimoto's -- gut and microbiome support matters here, not as an afterthought.",
+    backBody: "Digestion and absorption are often disrupted in Hashimoto's, so gut and microbiome support matters here, not as an afterthought.",
   },
   {
     icon: 'sparkles-outline',
     hook: 'This app does the hard part for you',
     backTitle: 'What Inside Story does',
-    backBody: 'Matching foods to your chemistry, catching interactions, and finding your patterns -- so eating feels like following clear rules, not homework.',
+    backBody: 'Matching foods to your chemistry, catching interactions, and finding your patterns, so eating feels like following clear rules, not homework.',
   },
   {
     icon: 'nutrition-outline',
     hook: 'One nut can cover a whole day of a key mineral',
     backTitle: 'Selenium and your thyroid',
-    backBody: 'Selenium helps convert thyroid hormone into its active form -- a single Brazil nut can cover a full day\'s worth, though more isn\'t automatically better; excess selenium has its own risks.',
+    backBody: 'Selenium helps convert thyroid hormone into its active form. A single Brazil nut can cover a full day\'s worth, though more isn\'t automatically better; excess selenium has its own risks.',
   },
   {
     icon: 'water-outline',
@@ -164,61 +164,61 @@ const FLIP_CARD_POOL: FlipCardEntry[] = [
     icon: 'people-outline',
     hook: 'Autoimmune disease affects women far more than men',
     backTitle: 'Why women are affected more',
-    backBody: "Roughly 3 out of 4 autoimmune disease patients are women -- Hashimoto's specifically runs 7-10x more common in women, likely tied to hormonal and X-chromosome factors still being studied.",
+    backBody: "Roughly 3 out of 4 autoimmune disease patients are women. Hashimoto's specifically runs 7-10x more common in women, likely tied to hormonal and X-chromosome factors still being studied.",
   },
   {
     icon: 'link-outline',
     hook: 'One autoimmune disease raises the odds of another',
     backTitle: 'Autoimmune conditions often cluster',
-    backBody: "Having one autoimmune disease measurably raises the risk of developing another (celiac disease and type 1 diabetes are common companions to Hashimoto's) -- part of why Signals tracks more than just thyroid symptoms.",
+    backBody: "Having one autoimmune disease measurably raises the risk of developing another (celiac disease and type 1 diabetes are common companions to Hashimoto's), part of why Signals tracks more than just thyroid symptoms.",
   },
   {
     icon: 'flask-outline',
     hook: "Your labs can lag behind how you feel",
     backTitle: "Why labs and symptoms don't always match",
-    backBody: 'TSH can trail actual hormone shifts by weeks -- part of why this app treats your own logged symptoms as data, not just noise between lab draws.',
+    backBody: 'TSH can trail actual hormone shifts by weeks, part of why this app treats your own logged symptoms as data, not just noise between lab draws.',
   },
   {
     icon: 'alert-circle-outline',
     hook: 'A common supplement can throw off thyroid labs',
     backTitle: 'Biotin can fake out thyroid tests',
-    backBody: 'High-dose biotin (common in hair/skin/nail supplements) can cause falsely abnormal thyroid results -- most labs recommend stopping it 2-3 days before a blood draw.',
+    backBody: 'High-dose biotin (common in hair/skin/nail supplements) can cause falsely abnormal thyroid results. Most labs recommend stopping it 2-3 days before a blood draw.',
   },
   {
     icon: 'restaurant-outline',
     hook: "Celiac and Hashimoto's often travel together",
     backTitle: 'The gluten connection',
-    backBody: "People with Hashimoto's have a meaningfully higher rate of celiac disease than the general population -- one more reason digestion gets close attention in this app.",
+    backBody: "People with Hashimoto's have a meaningfully higher rate of celiac disease than the general population, one more reason digestion gets close attention in this app.",
   },
   {
     icon: 'battery-dead-outline',
     hook: 'Thyroid fatigue has a physical cause, not "just stress"',
     backTitle: "Fatigue isn't a character flaw",
-    backBody: "Hypothyroid fatigue has a physiological basis -- slowed metabolism, reduced oxygen delivery -- worth naming plainly since it's so often dismissed as something to just push through.",
+    backBody: "Hypothyroid fatigue has a physiological basis (slowed metabolism, reduced oxygen delivery), worth naming plainly since it's so often dismissed as something to just push through.",
   },
   {
     icon: 'pulse-outline',
     hook: 'Stress can trigger flares',
     backTitle: 'The stress-immune connection',
-    backBody: 'Psychological stress measurably influences immune activity -- part of why Signals logging is about more than just food.',
+    backBody: 'Psychological stress measurably influences immune activity, part of why Signals logging is about more than just food.',
   },
   {
     icon: 'flame-outline',
     hook: "Cooking changes how 'goitrogenic' a food actually is",
     backTitle: "Goitrogens aren't simply bad",
-    backBody: "Cooking meaningfully reduces the goitrogenic compounds in foods like broccoli and kale -- context (raw vs. cooked, how much) matters more than a blanket avoid list, exactly what the 6 Dimensions scoring accounts for.",
+    backBody: "Cooking meaningfully reduces the goitrogenic compounds in foods like broccoli and kale. Context (raw vs. cooked, how much) matters more than a blanket avoid list, exactly what the 6 Dimensions scoring accounts for.",
   },
   {
     icon: 'hourglass-outline',
     hook: 'What you eat can cut your prescription\'s effectiveness',
     backTitle: 'The empty-stomach rule',
-    backBody: 'Levothyroxine absorption drops substantially when taken with food, especially coffee or high-fiber/high-calcium meals -- most guidance is 30-60 minutes before eating, at a consistent time every day.',
+    backBody: 'Levothyroxine absorption drops substantially when taken with food, especially coffee or high-fiber/high-calcium meals. Most guidance is 30-60 minutes before eating, at a consistent time every day.',
   },
   {
     icon: 'person-outline',
     hook: 'Your own patterns matter more than averages',
     backTitle: 'You are not a population average',
-    backBody: "Population-level guidance is a starting point, not a verdict -- this app's own trend-finding exists because your own repeated patterns are the most relevant data about your own body.",
+    backBody: "Population-level guidance is a starting point, not a verdict. This app's own trend-finding exists because your own repeated patterns are the most relevant data about your own body.",
   },
 ];
 
@@ -406,7 +406,7 @@ function findUpNext(scheduledToday: ScheduleItemRecord[]): UpNext | null {
 const HOME_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page shows',
-    body: "A live dashboard, not a static page -- your day's arc, today's fuel gauges, and how you've been feeling, refreshed every time you open it. Tap anything to jump to the tab it summarizes.",
+    body: "A live dashboard, not a static page: your day's arc, today's fuel gauges, and how you've been feeling, refreshed every time you open it. Tap anything to jump to the tab it summarizes.",
   },
   {
     heading: 'The Day Arc',
@@ -414,23 +414,23 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Fuel Gauges',
-    body: "Rings for iodine, selenium, zinc, iron, copper, vitamin D, calcium, magnesium, and B12 -- nutrients most directly tied to thyroid function and bone health. Green means on track, amber means low, red means deficient or over a safe limit. Filled from today's logged meals and supplements.",
+    body: "Rings for iodine, selenium, zinc, iron, copper, vitamin D, calcium, magnesium, and B12: nutrients most directly tied to thyroid function and bone health. Green means on track, amber means low, red means deficient or over a safe limit. Filled from today's logged meals and supplements.",
   },
   {
     heading: 'The mood orb',
-    body: "Reflects the most severe flare or food reaction you've logged in Signals over the last 2 days -- cool and calm with nothing recent, warmer the more severe. Gray means you haven't logged anything there yet, which is different from calm.",
+    body: "Reflects the most severe flare or food reaction you've logged in Signals over the last 2 days: cool and calm with nothing recent, warmer the more severe. Gray means you haven't logged anything there yet, which is different from calm.",
   },
   {
     heading: "Today's Check-In",
-    body: "A quick daily question: how are you feeling today, across a wide, categorized list covering digestion, energy, mood, sleep, skin, physical symptoms, and cognitive state -- pick everything that applies, positives included. One entry per day; tap it again any time today to change it. This builds a daily trend alongside Signals' own flare/reaction logging, not a replacement for it.",
+    body: "A quick daily question: how are you feeling today, across a wide, categorized list covering digestion, energy, mood, sleep, skin, physical symptoms, and cognitive state. Pick everything that applies, positives included. One entry per day; tap it again any time today to change it. This builds a daily trend alongside Signals' own flare/reaction logging, not a replacement for it.",
   },
   {
     heading: 'Symptom check-in reminder',
-    body: "The full symptom check-in (13 hypothyroid items, 5 digestive/IBS items, 5 wellbeing items) is a periodic, not daily, thing -- a banner appears here automatically every 30 days (or the first time you haven't taken one at all) so it's easy to notice without having to remember. It stays available any time from the \"Symptom check-in\" button below, whether or not the banner is currently showing.",
+    body: "The full symptom check-in (13 hypothyroid items, 5 digestive/IBS items, 5 wellbeing items) is a periodic, not daily, thing. A banner appears here automatically every 30 days (or the first time you haven't taken one at all) so it's easy to notice without having to remember. It stays available any time from the \"Symptom check-in\" button below, whether or not the banner is currently showing.",
   },
   {
     heading: 'What is Hashimoto’s thyroiditis?',
-    body: "An autoimmune condition: the immune system produces antibodies (most often against thyroid peroxidase, sometimes thyroglobulin) that gradually attack the thyroid gland, reducing its ability to make thyroid hormone. It's the most common cause of an underactive thyroid (hypothyroidism) in the US and other iodine-sufficient countries, and roughly 7-10x more common in women than men. The course is often slow and uneven -- some people pass through a period of normal, or even briefly overactive, thyroid function before settling into an underactive pattern.",
+    body: "An autoimmune condition: the immune system produces antibodies (most often against thyroid peroxidase, sometimes thyroglobulin) that gradually attack the thyroid gland, reducing its ability to make thyroid hormone. It's the most common cause of an underactive thyroid (hypothyroidism) in the US and other iodine-sufficient countries, and roughly 7-10x more common in women than men. The course is often slow and uneven; some people pass through a period of normal, or even briefly overactive, thyroid function before settling into an underactive pattern.",
   },
   {
     heading: 'Common challenges & symptoms',
@@ -438,11 +438,11 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Why food and timing matter here',
-    body: 'Certain foods and minerals -- calcium and iron are well-documented examples -- can interfere with how well a thyroid prescription is absorbed if eaten too close to a dose, which is part of why Schedules tracks meal, supplement, and prescription timing together. Digestion and absorption are also frequently disrupted in Hashimoto’s, which is why gut and microbiome support is treated as its own goal throughout this app.',
+    body: 'Certain foods and minerals (calcium and iron are well-documented examples) can interfere with how well a thyroid prescription is absorbed if eaten too close to a dose, which is part of why Schedules tracks meal, supplement, and prescription timing together. Digestion and absorption are also frequently disrupted in Hashimoto’s, which is why gut and microbiome support is treated as its own goal throughout this app.',
   },
   {
     heading: 'What Inside Story does',
-    body: "Not a generic calorie counter -- Inside Story exists to help someone with an autoimmune condition relearn how and what to eat, and understand how food affects their own body specifically. Hashimoto's is the first condition built out in full depth, with more autoimmune conditions in active development. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
+    body: "Not a generic calorie counter. Inside Story exists to help someone with an autoimmune condition relearn how and what to eat, and understand how food affects their own body specifically. Hashimoto's is the first condition built out in full depth, with more autoimmune conditions in active development. Meals builds and scores meals; Insights shows how today stacks up; Schedules handles timing; Trends looks for patterns over time; Signals is where you record flares, reactions, and new foods; Reports turns it all into something to hand a doctor.",
   },
   {
     heading: 'Personal notes, not medical fact',
@@ -450,7 +450,7 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Getting around',
-    body: 'Tap a tab at the bottom to jump to it, or swipe left/right anywhere on a screen to move to the next or previous tab -- Home, Meals, Insights, Schedules, Trends, Signals, Reports, in that order.',
+    body: 'Tap a tab at the bottom to jump to it, or swipe left/right anywhere on a screen to move to the next or previous tab: Home, Meals, Insights, Schedules, Trends, Signals, Reports, in that order.',
   },
 ];
 
@@ -812,7 +812,7 @@ export default function HomeScreen() {
                     <Text style={styles.assessmentDueSubtitle}>
                       {data?.daysSinceAssessment == null
                         ? "A few minutes now becomes a baseline to compare against next time."
-                        : `It's been ${data.daysSinceAssessment} days since your last one -- retaking it is what turns today into a trend.`}
+                        : `It's been ${data.daysSinceAssessment} days since your last one. Retaking it is what turns today into a trend.`}
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color={colors.primary} />
@@ -901,7 +901,7 @@ export default function HomeScreen() {
                 <Text style={[styles.arcCaption, { color: tabColorFor('/schedule') }]}>
                   {upNext
                     ? upNext.isPast
-                      ? `${upNext.item.title} was due ${formatTime12(upNext.item.scheduledFor.slice(11, 16))} -- anything to log?`
+                      ? `${upNext.item.title} was due ${formatTime12(upNext.item.scheduledFor.slice(11, 16))}: anything to log?`
                       : `Next: ${upNext.item.title} at ${formatTime12(upNext.item.scheduledFor.slice(11, 16))}`
                     : 'Nothing scheduled yet today.'}
                 </Text>
