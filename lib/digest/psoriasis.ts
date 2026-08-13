@@ -148,7 +148,7 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
       { source: 'Dosing implications of a clinical interaction between grapefruit juice and cyclosporine and metabolite concentrations in patients with autoimmune diseases', url: 'https://pubmed.ncbi.nlm.nih.gov/9002010/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['psoriasis-acitretin-alcohol'],
+    relatedIds: ['psoriasis-acitretin-alcohol', 'problem-raw-undercooked-meat-eggs'],
   },
   {
     id: 'psoriasis-acitretin-alcohol',

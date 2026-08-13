@@ -24,6 +24,7 @@ import {
   type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { RAW_MEAT_ADVISORY_MESSAGE, RAW_MEAT_ADVISORY_TITLE, isRawMeatOrEggFood } from '../lib/rawMeatAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -1528,6 +1529,19 @@ export function FermentationBuilder({
                   </TouchableOpacity>
                 ) : null;
               })()}
+              {/* Real, cited food-safety advisory -- 2026-08-13, see
+                  lib/rawMeatAdvisory.ts's own top comment. Informational,
+                  same tap-to-explain shape as every other advisory here,
+                  never gating. */}
+              {isRawMeatOrEggFood(pendingResolved, ingredientCookingMethod) && (
+                <TouchableOpacity
+                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
+                  onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
+                >
+                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                </TouchableOpacity>
+              )}
               {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
                   own top comment for why this is a separate mechanism from
                   DimensionFlags rather than a new D1-D6 sub-criterion. */}

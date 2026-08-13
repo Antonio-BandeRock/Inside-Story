@@ -350,6 +350,30 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     ],
   },
   {
+    id: 'problem-raw-undercooked-meat-eggs',
+    category: 'basicHealth',
+    foodName: 'Raw or Undercooked Meat, Poultry, Fish & Eggs',
+    teaser: 'A rare steak or sushi-grade fish can be a genuinely safe choice. Raw ground meat, undercooked poultry, and raw eggs are a different, real, and well-documented risk.',
+    problem:
+      "CDC estimates roughly 48 million people in the US get sick from a foodborne illness every year, about 128,000 are hospitalized, and 3,000 die. Raw or undercooked meat, poultry, fish, and eggs are the foods most consistently linked to it. This isn't a reason to avoid every rare steak or piece of sushi, both can be genuinely safe when handled correctly, it's a reason to know which real, specific choices actually carry the risk and which don't.",
+    mechanism:
+      'Four named pathogens do most of the real damage: Salmonella (a leading overall cause, especially tied to poultry and eggs), Campylobacter (tied to undercooked poultry), E. coli, and Listeria (fewer cases overall, but disproportionately severe, especially for pregnant people, older adults, and anyone with a weakened immune system, including several conditions this app tracks that involve biologics, methotrexate, or other immunosuppressive treatment). Ground meat carries a genuinely different, higher risk than a whole cut of the same animal: grinding mixes any surface bacteria throughout the whole batch, so a rare burger can carry bacteria all the way through in a way a rare steak, where bacteria mostly sit on the surface a hot pan already sears, does not. Raw fish has its own separate, real safety standard: the FDA requires fish served raw to first be frozen (-4°F for 7 days, or -31°F until solid then held at -31°F for 15 hours) to kill parasites like Anisakis. "Sushi-grade" is not an official grading term, it is shorthand for fish that has genuinely gone through this process.',
+    swaps: [
+      'Ground beef, pork, lamb, or veal: cook to 160°F internal temperature, checked with a food thermometer, not by color or time alone.',
+      'Whole cuts (steaks, chops, roasts) of beef, pork, lamb, or veal: 145°F is the real, official safe minimum, genuinely lower than ground meat needs.',
+      'All poultry (chicken, turkey): 165°F, checked at the innermost part of the thigh and wing and the thickest part of the breast.',
+      'Egg dishes (casseroles, egg mixtures): 160°F, or simply cook until both the white and yolk are fully firm.',
+      'Raw fish at home specifically: use fish that has actually been through the real FDA freezing process above, not just any fresh fillet from a regular counter.',
+    ],
+    citations: [
+      { source: 'Facts About Food Poisoning, CDC', url: 'https://www.cdc.gov/food-safety/data-research/facts-stats/index.html' },
+      { source: 'Safe Minimum Internal Temperature Chart, USDA Food Safety and Inspection Service', url: 'https://www.fsis.usda.gov/food-safety/safe-food-handling-and-preparation/food-safety-basics/safe-temperature-chart' },
+      { source: 'What You Need to Know About Egg Safety, FDA', url: 'https://www.fda.gov/food/buy-store-serve-safe-food/what-you-need-know-about-egg-safety' },
+      { source: 'Parasite Destruction Requirements for Raw or Undercooked Fish, local health department guidance summarizing the FDA Food Code', url: 'https://www.c-uphd.org/parasite-destruction-for-raw-or-undercooked-fish.html' },
+    ],
+    relatedIds: ['ra-biologics-infection-risk', 'psoriasis-cyclosporine-grapefruit', 'ibd-sonic-combination-therapy'],
+  },
+  {
     id: 'problem-gluten-free-without-celiac',
     category: 'hashimotos',
     foodName: 'Going Gluten-Free Without Celiac Disease, an Honestly Mixed Answer',

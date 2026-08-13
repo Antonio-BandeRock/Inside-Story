@@ -23,6 +23,7 @@ import {
   type SnackIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { RAW_MEAT_ADVISORY_MESSAGE, RAW_MEAT_ADVISORY_TITLE, isRawMeatOrEggFood } from '../lib/rawMeatAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -1466,6 +1467,19 @@ export function SnackBuilder({
                   </TouchableOpacity>
                 ) : null;
               })()}
+              {/* Real, cited food-safety advisory -- 2026-08-13, see
+                  lib/rawMeatAdvisory.ts's own top comment. Informational,
+                  same tap-to-explain shape as every other advisory here,
+                  never gating. */}
+              {isRawMeatOrEggFood(pendingResolved, ingredientCookingMethod) && (
+                <TouchableOpacity
+                  style={[styles.healingStageAdvisoryRow, { borderColor: tabColor }]}
+                  onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
+                >
+                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                  <Text style={[styles.healingStageAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                </TouchableOpacity>
+              )}
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
                   vertical pill spinner sized by renderLabeledPicker (see

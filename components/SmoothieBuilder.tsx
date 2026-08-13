@@ -26,6 +26,7 @@ import {
   type SmoothieIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { RAW_MEAT_ADVISORY_MESSAGE, RAW_MEAT_ADVISORY_TITLE, isRawMeatOrEggFood } from '../lib/rawMeatAdvisory';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -1616,10 +1617,25 @@ export function SmoothieBuilder({
                     </TouchableOpacity>
                   ) : null;
                 })()}
+                {/* Real, cited food-safety advisory -- 2026-08-13, see
+                    lib/rawMeatAdvisory.ts's own top comment. Informational,
+                    same tap-to-explain shape as every other advisory here,
+                    never gating. Directly relevant here specifically for
+                    raw eggs, a real, common smoothie ingredient. */}
+                {isRawMeatOrEggFood(pendingResolved, ingredientCookingMethod) && (
+                  <TouchableOpacity
+                    style={[styles.juiceAdvisoryRow, { borderColor: tabColor }]}
+                    onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
+                  >
+                    <Ionicons name="information-circle-outline" size={16} color={tabColor} />
+                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Raw meat & food safety -- tap to learn more</Text>
+                  </TouchableOpacity>
+                )}
                 {/* Informational, not gating -- see lib/juiceAdvisory.ts's
                     own top comment. Smoothie Builder has no Alcohol/Brewing
-                    in its own category allowlist, so this is the only OTHER
-                    advisory row it needs. */}
+                    in its own category allowlist, so this and the raw-meat/
+                    egg row above are the only two other advisory rows it
+                    needs. */}
                 {isJuiceFood(pendingResolved) && (
                   <TouchableOpacity
                     style={[styles.juiceAdvisoryRow, { borderColor: tabColor }]}

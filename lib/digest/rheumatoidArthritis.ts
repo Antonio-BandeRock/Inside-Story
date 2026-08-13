@@ -108,7 +108,7 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
       { source: 'Whittle SL, Hughes RA, Food-drug interactions in rheumatoid arthritis, Rheumatology (Oxford), 2004', url: 'https://pubmed.ncbi.nlm.nih.gov/15292527/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ra-methotrexate-folate'],
+    relatedIds: ['ra-methotrexate-folate', 'problem-raw-undercooked-meat-eggs'],
   },
   {
     id: 'ra-alcohol-methotrexate',

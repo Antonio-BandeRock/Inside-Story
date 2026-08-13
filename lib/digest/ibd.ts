@@ -305,7 +305,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: "Infliximab, Azathioprine, or Combination Therapy for Crohn's Disease, New England Journal of Medicine 2010 (Colombel et al.), PMID 20393175", url: 'https://pubmed.ncbi.nlm.nih.gov/20393175/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibd-anti-tnf-loss-of-response', 'ibd-azathioprine-tpmt'],
+    relatedIds: ['ibd-anti-tnf-loss-of-response', 'ibd-azathioprine-tpmt', 'problem-raw-undercooked-meat-eggs'],
   },
   {
     id: 'ibd-crohns-disease-exclusion-diet',
