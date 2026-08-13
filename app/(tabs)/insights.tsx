@@ -189,7 +189,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Cooking & Prep',
-        body: 'Surfaces ingredients in today\'s meals that genuinely change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
+        body: 'Surfaces ingredients in today\'s meals that measurably change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
       },
       DRILLING_DOWN_HELP,
     ],
@@ -212,7 +212,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Nutrient Ranking',
-        body: 'Pick any nutrient this app tracks to see real foods ranked from most to least, per 100g -- a way to actually find foods to build a meal around, not just check one you already picked. Same reference data as Food Lookup, independent of today\'s log.',
+        body: 'Pick any nutrient this app tracks to see foods ranked from most to least, per 100g -- a way to actually find foods to build a meal around, not just check one you already picked. Same reference data as Food Lookup, independent of today\'s log.',
       },
       {
         heading: 'Protein: Animal vs. Plant',
@@ -227,11 +227,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Cooking Impact',
-        body: 'Pick a nutrient or compound to see how much of it real, cited studies (or, where none exist for an exact combination, a defensible mechanism-based estimate, clearly labeled) found surviving each real cooking method -- independent of today\'s log, and separate from what any one logged ingredient is actually tracked as.',
+        body: 'Pick a nutrient or compound to see how much of it cited studies (or, where none exist for an exact combination, a defensible mechanism-based estimate, clearly labeled) found surviving each cooking method -- independent of today\'s log, and separate from what any one logged ingredient is actually tracked as.',
       },
       {
         heading: 'Measured vs. reasoned',
-        body: 'Each row is labeled "Directly measured" when a real, cited study tested that exact compound-and-method combination, or "Reasoned estimate" when no study covers that exact case but the same compound\'s own established mechanism (leaches into water, heat-stable, enzyme-dependent) still supports a real answer. Neither changes what\'s tracked for a food you\'ve actually logged -- that still comes from the food\'s own database entry.',
+        body: 'Each row is labeled "Directly measured" when a cited study tested that exact compound-and-method combination, or "Reasoned estimate" when no study covers that exact case but the same compound\'s own established mechanism (leaches into water, heat-stable, enzyme-dependent) still supports an answer. Neither changes what\'s tracked for a food you\'ve actually logged -- that still comes from the food\'s own database entry.',
       },
     ],
   },
@@ -246,7 +246,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: 'What "safe" means here',
-        body: '"Not Assessed" (no data either way) and a real green rating both count as safe -- only an actual yellow or red flag on any of the 24 sub-criteria disqualifies a food. This is the same tier logic the 6 Dimensions lens itself uses, just applied across the whole reference database instead of one day\'s meals.',
+        body: '"Not Assessed" (no data either way) and a green rating both count as safe -- only an actual yellow or red flag on any of the 24 sub-criteria disqualifies a food. This is the same tier logic the 6 Dimensions lens itself uses, just applied across the whole reference database instead of one day\'s meals.',
       },
     ],
   },
@@ -257,15 +257,15 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Stage 1: Getting Started',
-        body: "Real foods matching this app's own published Healing Stages guide -- a short, deliberately narrow list meant to build a stable, low-noise baseline, not variety. Grouped by Proteins, Vegetables, Starches, Fruits, and Fats.",
+        body: "Foods matching this app's own published Healing Stages guide -- a short, deliberately narrow list meant to build a stable, low-noise baseline, not variety. Grouped by Proteins, Vegetables, Starches, Fruits, and Fats.",
       },
       {
         heading: 'Stage 2: Rebuilding',
-        body: 'A real, reasoned reintroduction order, one round at a time: cooked goitrogenic vegetables and legumes first, nightshades next, dairy next, gluten last and most cautiously. Tap a round to see real foods in it.',
+        body: 'A reasoned reintroduction order, one round at a time: cooked goitrogenic vegetables and legumes first, nightshades next, dairy next, gluten last and most cautiously. Tap a round to see the foods in it.',
       },
       {
         heading: 'What this is not',
-        body: "This is a food finder, not a personal advisory reordering system -- it doesn't know which stage YOU are in (that would need a real self-declared field in Profile, which doesn't exist yet) or hide anything from you. It just shows real, verified foods that fit each stage's own published reasoning.",
+        body: "This is a food finder, not a personal advisory reordering system -- it doesn't know which stage YOU are in (that would need a self-declared field in Profile, which doesn't exist yet) or hide anything from you. It just shows verified foods that fit each stage's own published reasoning.",
       },
     ],
   },
@@ -276,7 +276,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Hydration',
-        body: "Today's total water intake against your own real target -- a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table -- this is just its own dedicated view.",
+        body: "Today's total water intake against your own target -- a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table -- this is just its own dedicated view.",
       },
     ],
   },
@@ -291,7 +291,7 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: "What isn't built yet",
-        body: "A real \"you're due for a retest\" reminder isn't built -- there's no standard interval for most tests, and guessing one would be worse than not claiming it. This is a log and a quick reference, not a scheduler.",
+        body: "A \"you're due for a retest\" reminder isn't built -- there's no standard interval for most tests, and guessing one would be worse than not claiming it. This is a log and a quick reference, not a scheduler.",
       },
     ],
   },
@@ -302,7 +302,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'My Meds & Interactions',
-        body: 'A read-only view of what Schedule\'s own My Meds lens already tracks (prescriptions, OTC, supplements) plus every real interaction warning currently triggered -- calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
+        body: 'A read-only view of what Schedule\'s own My Meds lens already tracks (prescriptions, OTC, supplements) plus every interaction warning currently triggered -- calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
       },
       {
         heading: 'Adding or editing',
@@ -317,11 +317,11 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: "Today's Advisories",
-        body: 'Every real, cited advisory this app already has (alcohol, coffee, fruit juice) checked across your whole day at once, instead of only appearing one item at a time buried inside a Food builder.',
+        body: 'Every cited advisory this app already has (alcohol, coffee, fruit juice) checked across your whole day at once, instead of only appearing one item at a time buried inside a Food builder.',
       },
       {
         heading: "What isn't covered",
-        body: "This is scoped to the 3 advisories that already exist -- a real per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
+        body: "This is scoped to the 3 advisories that already exist -- a per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
       },
     ],
   },
@@ -427,7 +427,7 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Cooking & Prep',
-    body: 'Surfaces ingredients in today\'s meals that genuinely change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
+    body: 'Surfaces ingredients in today\'s meals that measurably change outcome based on how they are prepared -- e.g. cooking cruciferous vegetables rather than eating them raw, or soaking legumes before cooking -- each with the citation it is based on. At the whole-day/meal level, only items that actually need attention are shown; drilled into one side or ingredient, everything shows, including a plain "nothing specific" answer.',
   },
   {
     heading: 'Drilling down',
@@ -1441,7 +1441,7 @@ function NutrientRankingView({
       />
       {!selected ? (
         <Text style={[styles.emptyText, styles.rankSpaced]}>
-          Pick a nutrient above to see real foods ranked by how much of it they contain, per 100g.
+          Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
         </Text>
       ) : loading ? (
         <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
@@ -1528,7 +1528,7 @@ function CookingImpactView({ tabColor }: { tabColor: string }) {
       />
       {!selectedCompound ? (
         <Text style={[styles.emptyText, styles.rankSpaced]}>
-          Pick a nutrient or compound above to see how much of it real cooking methods leave behind.
+          Pick a nutrient or compound above to see how much of it common cooking methods leave behind.
         </Text>
       ) : (
         <>

@@ -140,7 +140,7 @@ const FLIP_CARD_POOL: FlipCardEntry[] = [
     icon: 'leaf-outline',
     hook: 'Your gut and thyroid are connected',
     backTitle: 'Gut health matters here',
-    backBody: "Digestion and absorption are often disrupted in Hashimoto's -- gut and microbiome support is a real goal here, not an afterthought.",
+    backBody: "Digestion and absorption are often disrupted in Hashimoto's -- gut and microbiome support matters here, not as an afterthought.",
   },
   {
     icon: 'sparkles-outline',
@@ -152,7 +152,7 @@ const FLIP_CARD_POOL: FlipCardEntry[] = [
     icon: 'nutrition-outline',
     hook: 'One nut can cover a whole day of a key mineral',
     backTitle: 'Selenium and your thyroid',
-    backBody: 'Selenium helps convert thyroid hormone into its active form -- a single Brazil nut can cover a full day\'s worth, though more isn\'t automatically better; excess selenium has its own real risks.',
+    backBody: 'Selenium helps convert thyroid hormone into its active form -- a single Brazil nut can cover a full day\'s worth, though more isn\'t automatically better; excess selenium has its own risks.',
   },
   {
     icon: 'water-outline',
@@ -176,7 +176,7 @@ const FLIP_CARD_POOL: FlipCardEntry[] = [
     icon: 'flask-outline',
     hook: "Your labs can lag behind how you feel",
     backTitle: "Why labs and symptoms don't always match",
-    backBody: 'TSH can trail actual hormone shifts by weeks -- part of why this app treats your own logged symptoms as real data, not just noise between lab draws.',
+    backBody: 'TSH can trail actual hormone shifts by weeks -- part of why this app treats your own logged symptoms as data, not just noise between lab draws.',
   },
   {
     icon: 'alert-circle-outline',
@@ -188,23 +188,23 @@ const FLIP_CARD_POOL: FlipCardEntry[] = [
     icon: 'restaurant-outline',
     hook: "Celiac and Hashimoto's often travel together",
     backTitle: 'The gluten connection',
-    backBody: "People with Hashimoto's have a meaningfully higher rate of celiac disease than the general population -- one more reason digestion gets real attention in this app.",
+    backBody: "People with Hashimoto's have a meaningfully higher rate of celiac disease than the general population -- one more reason digestion gets close attention in this app.",
   },
   {
     icon: 'battery-dead-outline',
-    hook: 'Thyroid fatigue is real, not "just stress"',
+    hook: 'Thyroid fatigue has a physical cause, not "just stress"',
     backTitle: "Fatigue isn't a character flaw",
-    backBody: "Hypothyroid fatigue has a real physiological basis -- slowed metabolism, reduced oxygen delivery -- worth naming plainly since it's so often dismissed as something to just push through.",
+    backBody: "Hypothyroid fatigue has a physiological basis -- slowed metabolism, reduced oxygen delivery -- worth naming plainly since it's so often dismissed as something to just push through.",
   },
   {
     icon: 'pulse-outline',
-    hook: 'Stress can genuinely trigger flares',
+    hook: 'Stress can trigger flares',
     backTitle: 'The stress-immune connection',
     backBody: 'Psychological stress measurably influences immune activity -- part of why Signals logging is about more than just food.',
   },
   {
     icon: 'flame-outline',
-    hook: "Cooking changes how 'goitrogenic' a food really is",
+    hook: "Cooking changes how 'goitrogenic' a food actually is",
     backTitle: "Goitrogens aren't simply bad",
     backBody: "Cooking meaningfully reduces the goitrogenic compounds in foods like broccoli and kale -- context (raw vs. cooked, how much) matters more than a blanket avoid list, exactly what the 6 Dimensions scoring accounts for.",
   },
@@ -422,7 +422,7 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: "Today's Check-In",
-    body: "A real, quick daily question: how are you feeling today, across a wide, categorized list covering digestion, energy, mood, sleep, skin, physical symptoms, and cognitive state -- pick everything that applies, positives included. One entry per day; tap it again any time today to change it. This builds a genuine daily trend alongside Signals' own flare/reaction logging, not a replacement for it.",
+    body: "A quick daily question: how are you feeling today, across a wide, categorized list covering digestion, energy, mood, sleep, skin, physical symptoms, and cognitive state -- pick everything that applies, positives included. One entry per day; tap it again any time today to change it. This builds a daily trend alongside Signals' own flare/reaction logging, not a replacement for it.",
   },
   {
     heading: 'Symptom check-in reminder',
@@ -811,8 +811,8 @@ export default function HomeScreen() {
                     </Text>
                     <Text style={styles.assessmentDueSubtitle}>
                       {data?.daysSinceAssessment == null
-                        ? "A few minutes now becomes a real baseline to compare against next time."
-                        : `It's been ${data.daysSinceAssessment} days since your last one -- retaking it is what turns today into a real trend.`}
+                        ? "A few minutes now becomes a baseline to compare against next time."
+                        : `It's been ${data.daysSinceAssessment} days since your last one -- retaking it is what turns today into a trend.`}
                     </Text>
                   </View>
                   <Ionicons name="chevron-forward" size={18} color={colors.primary} />

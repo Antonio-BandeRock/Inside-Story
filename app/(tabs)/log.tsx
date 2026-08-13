@@ -146,7 +146,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Nocturia',
-        body: 'Not built yet. Waking at night to urinate is a real, trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
+        body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
       },
       LOG_PERSONAL_NOTES_HELP,
     ],
@@ -188,7 +188,7 @@ const LOG_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Nocturia',
-    body: 'Not built yet. Waking at night to urinate is a real, trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
+    body: 'Not built yet. Waking at night to urinate is a trackable symptom worth its own log -- added as a placeholder here, 2026-07-28, until its own logging (how many times, what time) gets designed and built.',
   },
   {
     heading: 'Personal notes, not medical fact',
@@ -1285,7 +1285,7 @@ function NocturiaLens() {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       <Text style={styles.emptyText}>
-        Not built yet. Waking at night to urinate is a real, trackable symptom worth its own log -- this will get its own
+        Not built yet. Waking at night to urinate is a trackable symptom worth its own log -- this will get its own
         logging (how many times, what time) built out.
       </Text>
     </ScrollView>

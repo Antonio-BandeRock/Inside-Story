@@ -921,7 +921,7 @@ export function FoodLookup({
       'Per 100g',
       "Per 100g is the standard reference amount used by USDA FoodData Central and the other national nutrition authorities this app draws from (the UK, Germany, Japan, Canada, France, and Australia's own food composition databases) when they publish how much of a nutrient a food actually contains.\n\n" +
         "Reporting a fixed, uniform weight -- rather than a package's own serving size, which varies by manufacturer, culture, and preparation -- lets any two foods be compared on equal footing, gram for gram, regardless of how much of either one a person actually eats. It's also the form the underlying laboratory analysis itself is done in: a food sample is tested once, and its results are reported per 100g so they can be scaled to any amount afterward, rather than re-tested for every possible serving size.\n\n" +
-        "That's why Per 100g never changes here, no matter what you enter in the Portion column next to it -- it's this food's own fixed scientific reference point, the same number nutrition professionals themselves start from before scaling to a real portion.",
+        "That's why Per 100g never changes here, no matter what you enter in the Portion column next to it -- it's this food's own fixed scientific reference point, the same number nutrition professionals themselves start from before scaling to whatever portion someone actually eats.",
     );
   }
 

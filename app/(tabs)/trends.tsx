@@ -36,7 +36,7 @@ type TrendsLens = 'nutrients' | 'sixDs' | 'symptoms';
 // Shared across all three lenses' own Info content below -- the same
 // caveat applies regardless of which chart you're looking at.
 const TRENDS_PATTERN_CAVEAT_HELP: HelpSection = {
-  heading: 'Finding real patterns, not just charts',
+  heading: 'Finding patterns, not just charts',
   body: "This page charts what you've already logged over time. Actually matching flares to specific foods or timing is a bigger, separate piece of work this app doesn't do yet -- for now, use these charts alongside your own judgment, not as a diagnosis.",
 };
 
@@ -119,7 +119,7 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
     body: 'Severity of every logged flare and food reaction from Signals, plotted by the date it happened.',
   },
   {
-    heading: 'Finding real patterns, not just charts',
+    heading: 'Finding patterns, not just charts',
     body: "This page charts what you've already logged over time. Actually matching flares to specific foods or timing is a bigger, separate piece of work this app doesn't do yet -- for now, use these charts alongside your own judgment, not as a diagnosis.",
   },
 ];

@@ -516,7 +516,7 @@ export default function ProfileScreen() {
     const numericDay = Number(day);
 
     if (!isValidIsoDate(numericYear, numericMonth, numericDay)) {
-      setDateError('Enter a real, complete date (not in the future).');
+      setDateError('Enter a complete date (not in the future).');
       return;
     }
 
@@ -943,7 +943,7 @@ export default function ProfileScreen() {
             <Text style={styles.subLabel}>Your name</Text>
             <Text style={styles.helpText}>
               Your first name shows in the header (e.g. &ldquo;Tony&apos;s Inside Story&rdquo;). Last name is also
-              collected -- one of the real reasons is for reports meant to be handed to a doctor, where both
+              collected -- one reason is for reports meant to be handed to a doctor, where both
               names read naturally together.
             </Text>
             <View style={styles.dateRow}>
@@ -988,7 +988,7 @@ export default function ProfileScreen() {
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Sex</Text>
             <Text style={styles.helpText}>
-              Used only to show sex-specific nutrient targets (RDAs) where they genuinely differ. This app is
+              Used only to show sex-specific nutrient targets (RDAs) where they differ. This app is
               otherwise gender-neutral by design.
             </Text>
             <View style={styles.pillRow}>
@@ -1120,7 +1120,7 @@ export default function ProfileScreen() {
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Weight</Text>
             <Text style={styles.helpText}>
               Your current weight -- also useful for a doctor report. Each time you set it here, it&apos;s logged as
-              a new reading (the same way a real weight-tracking history works), not just overwritten; a full
+              a new reading (the same way a weight-tracking history works), not just overwritten; a full
               trend view isn&apos;t built yet, but even one current reading is useful right away. Follows your
               Units setting above.
             </Text>
@@ -1160,7 +1160,7 @@ export default function ProfileScreen() {
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Growing Zone</Text>
             <Text style={styles.helpText}>
-              Your real USDA Plant Hardiness Zone (e.g. &quot;7a&quot;) -- powers the Garden tab&apos;s own real,
+              Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;) -- powers the Garden tab&apos;s own
               cited crop guidance for your climate. The Garden tab&apos;s own My Zone lens sets this exact same
               value too; either place works.
             </Text>
@@ -1434,7 +1434,7 @@ export default function ProfileScreen() {
                 user_conditions, since an allergy isn't a tracked disease. */}
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Food allergies</Text>
             <Text style={styles.helpText}>
-              Separate from the condition-based food scoring above -- a real allergy or intolerance, not just a
+              Separate from the condition-based food scoring above -- an allergy or intolerance, not a
               preference. Multiple are fully supported. Tap a common allergen below, or add your own.
             </Text>
             <View style={styles.pillRow}>
@@ -1527,7 +1527,7 @@ export default function ProfileScreen() {
                     <Text style={[styles.subLabel, { marginTop: 14 }]}>{model.conditionLabel} stage</Text>
                     <Text style={styles.helpText}>
                       {model.frameworkName}. {model.frameworkNote} Purely advisory: your food builders will start
-                      surfacing a real, tappable note on foods worth a second look for your current stage --
+                      surfacing a tappable note on foods worth a second look for your current stage --
                       nothing is ever hidden or blocked based on this. See the matching category in Purple Digest
                       for the full, cited detail.
                     </Text>
@@ -1573,7 +1573,7 @@ export default function ProfileScreen() {
               The main floating button used to open the app&apos;s navigation menu. Shows the Honeybee by default --
               choose any of the other 7 garden/pollinator icons, the &ldquo;Graves&apos; / Hashimoto&apos;s&rdquo;
               butterfly (this app&apos;s own original artwork, generically representing either), or any other
-              tracked condition&apos;s own real icon to personalize it instead. Only one can be active at a time.
+              tracked condition&apos;s own icon to personalize it instead. Only one can be active at a time.
             </Text>
             <View style={styles.iconGridRow}>
               {tabHubIconOptions.map((option) => {
@@ -1611,7 +1611,7 @@ export default function ProfileScreen() {
               leaving the same flat background color as the header and footer. &ldquo;Custom image&rdquo; lets you
               upload your own photo -- it&apos;s automatically resized and compressed to comply with a reasonable
               size (up to {CUSTOM_BACKGROUND_MAX_DIMENSION}px, under{' '}
-              {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a genuinely too-small
+              {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a too-small
               photo (under {CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side) is rejected rather than
               stretched blurry.
             </Text>
@@ -1620,7 +1620,7 @@ export default function ProfileScreen() {
             <Text style={styles.subLabel}>Animated sky (sun, moon, stars, day/night)</Text>
             <Text style={styles.helpText}>
               Only shows while the shared background above is set to &ldquo;Photo.&rdquo; Turning it off stops the
-              continuously-running animation, which is the real thing to disable if battery use matters more
+              continuously-running animation, the actual thing to disable if battery use matters more
               than the visual.
             </Text>
             <View style={styles.pillRow}>

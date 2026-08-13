@@ -127,7 +127,7 @@ export default function AssessmentScreen() {
     <ScrollView style={styles.screen} contentContainerStyle={styles.container}>
       <Text style={styles.intro}>
         Answer as many as feel relevant -- you don't have to finish every question for this to be useful. Retake
-        this any time; that's what turns today's snapshot into a real trend.
+        this any time; that's what turns today's snapshot into a trend.
       </Text>
       <Text style={styles.progressText}>
         {answeredCount} of {items.length} answered
@@ -183,7 +183,7 @@ function deltaLabel(delta: number, higherIsBetter: boolean, unit: string): { tex
 
   const improved = higherIsBetter ? delta > 0 : delta < 0;
   if (improved) {
-    return { text: `Down ${rounded}${unit} in the right direction since your last check-in -- real progress.`, tone: 'good' };
+    return { text: `Down ${rounded}${unit} in the right direction since your last check-in -- progress.`, tone: 'good' };
   }
   return { text: `Up ${rounded}${unit} since your last check-in -- worth noticing, not worth panicking over.`, tone: 'watch' };
 }
@@ -212,7 +212,7 @@ function AssessmentResults({
       <Text style={styles.resultsTitle}>Your check-in</Text>
       {!comparison ? (
         <Text style={styles.intro}>
-          This is your first check-in, so there's nothing to compare yet -- but now you have a real baseline.
+          This is your first check-in, so there's nothing to compare yet -- but now you have a baseline.
           The value here isn't today's number, it's what today's number looks like next to your next one.
         </Text>
       ) : null}

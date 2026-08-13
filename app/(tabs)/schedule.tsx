@@ -119,7 +119,7 @@ type Lens = 'meals' | 'hydration' | 'myMeds' | 'supplements' | 'prescriptions' |
 // than re-worded three times.
 const REPEATING_SCHEDULES_HELP: HelpSection = {
   heading: 'Repeating schedules',
-  body: 'Can repeat daily -- indefinitely, a set number of times, or until a date you choose. Real entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
+  body: 'Can repeat daily -- indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
 };
 
 const LENSES: LensOption<Lens>[] = [
@@ -138,11 +138,11 @@ const LENSES: LensOption<Lens>[] = [
       },
       {
         heading: '"Log now" and "Rotate"',
-        body: '"Log now" turns a planned meal into a real logged entry, prefilled if it came from a template/favorite. "Rotate" (smoothies, mixed vegetables, mixed fruit) only shows up when that favorite has a Rotating ingredient -- your pick applies to this one scheduled occurrence only, so a Tuesday smoothie can vary from a Wednesday one even from the same favorite.',
+        body: '"Log now" turns a planned meal into a logged entry, prefilled if it came from a template/favorite. "Rotate" (smoothies, mixed vegetables, mixed fruit) only shows up when that favorite has a Rotating ingredient -- your pick applies to this one scheduled occurrence only, so a Tuesday smoothie can vary from a Wednesday one even from the same favorite.',
       },
       {
         heading: 'Planned, Logged, Skipped',
-        body: 'A planned meal you never got to stays honestly marked "Planned," not silently dropped. "Skip" marks it as intentionally not happening today, without deleting the record of what you had planned.',
+        body: 'A planned meal you never got to stays marked "Planned," not silently dropped. "Skip" marks it as intentionally not happening today, without deleting the record of what you had planned.',
       },
       {
         heading: 'Usual meal times & fasting window',
@@ -170,15 +170,15 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'One place for everything you take',
-        body: 'Prescriptions, over-the-counter drugs, and supplements, all in one registry -- pick a prescription or OTC item from a real, cited reference list where it exists, or enter it yourself when it doesn\'t. A supplement asks which nutrient(s) it contains and, for the ones this app has researched, which specific form (e.g. magnesium glycinate vs. oxide) -- the form genuinely changes how well it absorbs.',
+        body: 'Prescriptions, over-the-counter drugs, and supplements, all in one registry -- pick a prescription or OTC item from a cited reference list where it exists, or enter it yourself when it doesn\'t. A supplement asks which nutrient(s) it contains and, for the ones this app has researched, which specific form (e.g. magnesium glycinate vs. oxide) -- the form changes how well it absorbs.',
       },
       {
-        heading: 'Real research, not just a name and a dose',
-        body: 'Once a nutrient and form are picked, this shows when to take it (empty stomach, with food, before bed), what to avoid taking it with, what pairs well with it, and, where this app has real data, how much you\'re already getting from food today -- so a supplement decision starts from what food is already covering, not a guess.',
+        heading: 'More than a name and a dose',
+        body: 'Once a nutrient and form are picked, this shows when to take it (empty stomach, with food, before bed), what to avoid taking it with, what pairs well with it, and, where this app has the data, how much you\'re already getting from food today -- so a supplement decision starts from what food is already covering, not a guess.',
       },
       {
         heading: 'Interactions',
-        body: 'Reuses the same cited interaction-checking engine as Supplements and Prescriptions, extended for My Meds specifically -- e.g. potassium supplements with blood pressure medications, or metformin\'s real effect on TSH readings for anyone also on levothyroxine.',
+        body: 'Reuses the same cited interaction-checking engine as Supplements and Prescriptions, extended for My Meds specifically -- e.g. potassium supplements with blood pressure medications, or metformin\'s effect on TSH readings for anyone also on levothyroxine.',
       },
       {
         heading: 'What this doesn\'t do yet',
@@ -272,15 +272,15 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: '"Log now"',
-    body: 'Turns a planned meal into a real logged entry. If it was scheduled from a template or favorite, the Meals builder opens with those exact ingredients already filled in.',
+    body: 'Turns a planned meal into a logged entry. If it was scheduled from a template or favorite, the Meals builder opens with those exact ingredients already filled in.',
   },
   {
     heading: '"Rotate" (smoothies, mixed vegetables, mixed fruit)',
-    body: 'Shows up on a planned meal only when it was scheduled from a favorite that has at least one ingredient marked Rotating (set on the Food tab -- tap "Rotate?" next to an ingredient in a side). Tap any alternate to make it current for this specific scheduled meal, or randomize one or all of them, then Save. This choice belongs to this one occurrence only -- rotating a Tuesday smoothie never changes what a Wednesday one shows, even if both were scheduled from the same favorite, so you can plan real variety across several upcoming days ahead of time. Whatever\'s chosen is exactly what "Log now" prefills and what actually gets logged, so nutrients, 6 Dimensions, and Trends always reflect the real ingredient used that day.',
+    body: 'Shows up on a planned meal only when it was scheduled from a favorite that has at least one ingredient marked Rotating (set on the Food tab -- tap "Rotate?" next to an ingredient in a side). Tap any alternate to make it current for this specific scheduled meal, or randomize one or all of them, then Save. This choice belongs to this one occurrence only -- rotating a Tuesday smoothie never changes what a Wednesday one shows, even if both were scheduled from the same favorite, so you can plan variety across several upcoming days ahead of time. Whatever\'s chosen is exactly what "Log now" prefills and what actually gets logged, so nutrients, 6 Dimensions, and Trends always reflect the ingredient actually used that day.',
   },
   {
     heading: 'Planned, Logged, Skipped',
-    body: 'A planned meal you never got to stays honestly marked "Planned," not silently dropped. "Skip" marks it as intentionally not happening today, without deleting the record of what you had planned.',
+    body: 'A planned meal you never got to stays marked "Planned," not silently dropped. "Skip" marks it as intentionally not happening today, without deleting the record of what you had planned.',
   },
   {
     heading: 'Usual meal times & fasting window',
@@ -311,12 +311,12 @@ const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
     body: 'Appointments can connect to your phone\'s own Calendar app -- if you\'ve already added your Outlook or Google account in your phone\'s Settings, its events already live there. "Import from Phone Calendar" pulls in an existing event as an appointment here; "Add to Phone Calendar" pushes an appointment you made here out to your phone\'s calendar so its own reminders fire too. No separate sign-in, and nothing beyond a one-time permission prompt -- this app never talks to Google or Microsoft directly.',
   },
   {
-    heading: 'Interaction checking, once real data exists',
+    heading: 'Interaction checking, once there is data to check',
     body: 'Calcium/iron/zinc timing and the fat-soluble vitamins are checked automatically. Levothyroxine + calcium/iron timing is checked too, once you track levothyroxine as a prescription and calcium/iron as supplements with reminder times set -- this app matches a prescription by name (e.g. "levothyroxine" anywhere in what you named it). Biotin + an upcoming lab draw is checked automatically too, once you\'re tracking biotin and have a "Lab / bloodwork" appointment scheduled within the next couple weeks. Anything triggered shows under "Things to check" on the Supplements and Prescriptions tabs.',
   },
   {
     heading: 'Repeating schedules',
-    body: 'Meal, drink, supplement, and prescription reminders can repeat daily -- indefinitely, a set number of times, or until a date you choose. Real entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
+    body: 'Meal, drink, supplement, and prescription reminders can repeat daily -- indefinitely, a set number of times, or until a date you choose. Entries are generated about 60 days ahead and topped up automatically, so editing, skipping, or removing one day never touches any other.',
   },
 ];
 
@@ -463,7 +463,7 @@ function RepeatPicker({ repeat, onChange }: { repeat: RepeatConfig; onChange: (r
             />
           ) : null}
           <Text style={styles.helperText}>
-            Generates real entries about 60 days ahead at a time, topped up automatically as time passes -- editing or
+            Generates entries about 60 days ahead at a time, topped up automatically as time passes -- editing or
             skipping one day never affects any other.
           </Text>
         </>

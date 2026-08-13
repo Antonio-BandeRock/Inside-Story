@@ -196,7 +196,7 @@ export function AlcoholCalculatorPanel({
             />
             <Text style={styles.fieldHint}>
               How many of that pour you&apos;re having -- 1 shot, 3 glasses of wine, etc. Volume above x Pours is
-              the real total that gets tracked.
+              the total that gets tracked.
             </Text>
           </View>
 
@@ -268,13 +268,13 @@ export function AlcoholCalculatorPanel({
                 <Ionicons name="checkmark-circle" size={14} color={tabColor} />
                 <Text style={[styles.trackedBannerText, { color: tabColor }]}>
                   Tracking this now, not the database&apos;s standard serving -- Quantity and Unit above have been
-                  updated to your real total.
+                  updated to your total.
                 </Text>
               </View>
             </View>
           ) : (
             <Text style={styles.resultPrompt}>
-              Fill in Volume and ABV above and we&apos;ll track your real pour here instead of the database&apos;s
+              Fill in Volume and ABV above and we&apos;ll track your pour here instead of the database&apos;s
               standard serving.
             </Text>
           )}
