@@ -101,17 +101,13 @@ const ICON_GRID_PILL_SIZE = 52;
 // of independently-collapsible sub-cards -- tapping one of these 4
 // headers is meant to reveal everything inside it at once.
 //
-// 2026-08-14, a real, later, narrower exception: the TabHub Icon picker's
-// own 3 groups (see TabHubIconGroupKey below) DO get their own,
-// independent second layer of collapse, direct request right after the
-// 38-animal batch shipped: "Is there a way to collapse each of the
-// sections of TabHub Icons inside of the already collapsable section they
-// are a part of?" A real, deliberate carve-out from the "no nested
-// sub-cards" rule stated above, not a reversal of it -- the icon picker
-// alone had grown to 65 real tappable tiles (19 conditions + 8 insects/
-// wildlife + 38 animals) by the time this was asked, genuinely different
-// in scale from any other sub-section this app ever grouped under one
-// header, and the only place in this whole screen this exception applies.
+// 2026-08-14, a real, later, narrower exception -- since generalized to
+// the whole 'appearance' card, see AppearanceSubsectionKey's own comment
+// below for the fuller, current story. Originally just the TabHub Icon
+// picker's own 3 groups (TabHubIconGroupKey below): "Is there a way to
+// collapse each of the sections of TabHub Icons inside of the already
+// collapsable section they are a part of?" A real, deliberate carve-out
+// from the "no nested sub-cards" rule stated above, not a reversal of it.
 const ALL_CARD_SECTION_KEYS = ['personal-info', 'conditions', 'appearance', 'meal-schedule'] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 
@@ -119,10 +115,37 @@ type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 // its own, second, independent collapse layer. Deliberately its own
 // separate key space/state (collapsedIconGroups below), not folded into
 // CardSectionKey/collapsedSections -- these 3 groups only ever exist
-// nested inside the single 'appearance' card, never as a top-level card of
-// their own.
+// nested inside the 'appearance' card's own "TabHub Icon" sub-section (see
+// AppearanceSubsectionKey right below), never as a top-level card of their
+// own -- a real THIRD level of nesting: card -> sub-section -> group.
 const ALL_TAB_HUB_ICON_GROUP_KEYS = ['tabHubConditions', 'tabHubInsects', 'tabHubAnimals'] as const;
 type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
+
+// 2026-08-14, same day, a real, direct follow-up that generalizes the
+// exception above from "just TabHub Icon's own 3 groups" to the WHOLE
+// 'appearance' card: "There isn't much definition of space between the
+// TabHub Icon appearance and navigation selection and the next selection
+// picker below that, and so-on after that one to tell where one ends and
+// the next begins. Is it possible to make each of them, and the things
+// they control to be collapsable, too?" Every one of the 5 real
+// sub-sections this card has always shown (TabHub Icon, Shared background,
+// Animated sky, Individual tab backgrounds, Generic color combination) now
+// gets its own real, independent collapse -- see collapsedAppearanceSubsections/
+// renderAppearanceSubsectionHeader below, which also adds a real, visible
+// divider line above every one but the first specifically to answer the
+// "definition of space... where one ends and the next begins" half of the
+// request, not just the collapsing half. Deliberately its own third
+// separate key space/state, not folded into CardSectionKey or
+// TabHubIconGroupKey -- these 5 sit one level ABOVE TabHubIconGroupKey's
+// own 3 (TabHub Icon is itself one of these 5, containing all 3 of those).
+const ALL_APPEARANCE_SUBSECTION_KEYS = [
+  'tabHubIcon',
+  'sharedBackground',
+  'animatedSky',
+  'individualTabBackgrounds',
+  'genericPalette',
+] as const;
+type AppearanceSubsectionKey = (typeof ALL_APPEARANCE_SUBSECTION_KEYS)[number];
 
 type DayPart = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const DAY_PARTS: DayPart[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -339,6 +362,44 @@ export default function ProfileScreen() {
       >
         <Text style={styles.subLabel}>{title}</Text>
         <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={16} color={colors.menuIconMuted} />
+      </TouchableOpacity>
+    );
+  }
+  // 2026-08-14, direct follow-up: "Is it possible to make each of them,
+  // and the things they control to be collapsable, too?" -- see
+  // AppearanceSubsectionKey's own comment above for the full request. All
+  // 5 real sub-sections of the Appearance & Navigation card start
+  // collapsed, the same "just headers first" default every other
+  // collapsible layer on this screen already uses.
+  const [collapsedAppearanceSubsections, setCollapsedAppearanceSubsections] = useState<Set<AppearanceSubsectionKey>>(
+    () => new Set(ALL_APPEARANCE_SUBSECTION_KEYS),
+  );
+  function toggleAppearanceSubsection(key: AppearanceSubsectionKey) {
+    setCollapsedAppearanceSubsections((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+  // Same tappable-header shape as renderCardHeader/renderIconGroupHeader
+  // above, plus a real, visible divider line above every sub-section but
+  // the first (styles.appearanceSubsectionHeaderFirst zeroes that border/
+  // spacing out for TabHub Icon, which already sits directly under the
+  // card's own real header with nothing else above it to separate from) --
+  // this is the direct answer to "there isn't much definition of space...
+  // to tell where one ends and the next begins," not just the collapsing
+  // itself.
+  function renderAppearanceSubsectionHeader(key: AppearanceSubsectionKey, title: string, isFirst: boolean) {
+    const collapsed = collapsedAppearanceSubsections.has(key);
+    return (
+      <TouchableOpacity
+        style={[styles.appearanceSubsectionHeader, isFirst && styles.appearanceSubsectionHeaderFirst]}
+        onPress={() => toggleAppearanceSubsection(key)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.subLabel}>{title}</Text>
+        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={17} color={colors.menuIconMuted} />
       </TouchableOpacity>
     );
   }
@@ -1719,100 +1780,124 @@ export default function ProfileScreen() {
         {renderCardHeader('appearance', 'Appearance & Navigation')}
         {!collapsedSections.has('appearance') ? (
           <View style={styles.cardBody}>
-            <Text style={styles.subLabel}>TabHub Icon</Text>
-            <Text style={styles.helpText}>
-              The main floating button used to open the app&apos;s navigation menu. Shows the Honeybee by default.
-              Pick any tracked condition&apos;s own icon, any insect/pollinator icon, or any of the 38 real animal
-              portraits below to personalize it instead -- only one can be active at a time.
-            </Text>
+            {renderAppearanceSubsectionHeader('tabHubIcon', 'TabHub Icon', true)}
+            {!collapsedAppearanceSubsections.has('tabHubIcon') ? (
+              <>
+                <Text style={styles.helpText}>
+                  The main floating button used to open the app&apos;s navigation menu. Shows the Honeybee by
+                  default. Pick any tracked condition&apos;s own icon, any insect/pollinator icon, or any of the 38
+                  real animal portraits below to personalize it instead -- only one can be active at a time.
+                </Text>
 
-            {renderIconGroupHeader('tabHubConditions', 'Conditions', 10)}
-            {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
+                {renderIconGroupHeader('tabHubConditions', 'Conditions', 10)}
+                {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
 
-            {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife', 14)}
-            {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
+                {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife', 14)}
+                {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
 
-            {renderIconGroupHeader('tabHubAnimals', 'Animals', 14)}
-            {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
+                {renderIconGroupHeader('tabHubAnimals', 'Animals', 14)}
+                {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
+              </>
+            ) : null}
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Shared background</Text>
-            <Text style={styles.helpText}>
-              The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps it
-              for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it entirely,
-              leaving the same flat background color as the header and footer. &ldquo;Custom image&rdquo; lets you
-              upload your own photo; it&apos;s automatically resized and compressed to comply with a reasonable
-              size (up to {CUSTOM_BACKGROUND_MAX_DIMENSION}px, under{' '}
-              {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a too-small
-              photo (under {CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side) is rejected rather than
-              stretched blurry.
-            </Text>
-            {renderBackgroundOptionsRow(SHARED_BACKGROUND_SCOPE_KEY, true, visualPrefs.homeBackgroundStyle)}
+            {renderAppearanceSubsectionHeader('sharedBackground', 'Shared background', false)}
+            {!collapsedAppearanceSubsections.has('sharedBackground') ? (
+              <>
+                <Text style={styles.helpText}>
+                  The flowery scene behind Home and every tab before you pick a function. &ldquo;Generic&rdquo; swaps
+                  it for a calm gradient instead (pick the color combination below); &ldquo;Off&rdquo; removes it
+                  entirely, leaving the same flat background color as the header and footer. &ldquo;Custom
+                  image&rdquo; lets you upload your own photo; it&apos;s automatically resized and compressed to
+                  comply with a reasonable size (up to {CUSTOM_BACKGROUND_MAX_DIMENSION}px, under{' '}
+                  {Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB on disk); a too-small
+                  photo (under {CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side) is rejected rather than
+                  stretched blurry.
+                </Text>
+                {renderBackgroundOptionsRow(SHARED_BACKGROUND_SCOPE_KEY, true, visualPrefs.homeBackgroundStyle)}
+              </>
+            ) : null}
 
-            <Text style={styles.subLabel}>Animated sky (sun, moon, stars, day/night)</Text>
-            <Text style={styles.helpText}>
-              Only shows while the shared background above is set to &ldquo;Photo.&rdquo; Turning it off stops the
-              continuously-running animation, the actual thing to disable if battery use matters more
-              than the visual.
-            </Text>
-            <View style={styles.pillRow}>
-              {([
-                { value: true, label: 'Animated' },
-                { value: false, label: 'Off' },
-              ]).map((option) => (
-                <TouchableOpacity
-                  key={option.label}
-                  style={[styles.pillSmall, visualPrefs.skyAnimationsEnabled === option.value && styles.pillActive]}
-                  onPress={() => setVisualPreferences({ skyAnimationsEnabled: option.value })}
-                >
-                  <Text
-                    style={[
-                      styles.pillTextSmall,
-                      visualPrefs.skyAnimationsEnabled === option.value && styles.pillTextActive,
-                    ]}
-                  >
-                    {option.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+            {renderAppearanceSubsectionHeader('animatedSky', 'Animated sky (sun, moon, stars, day/night)', false)}
+            {!collapsedAppearanceSubsections.has('animatedSky') ? (
+              <>
+                <Text style={styles.helpText}>
+                  Only shows while the shared background above is set to &ldquo;Photo.&rdquo; Turning it off stops
+                  the continuously-running animation, the actual thing to disable if battery use matters more
+                  than the visual.
+                </Text>
+                <View style={styles.pillRow}>
+                  {([
+                    { value: true, label: 'Animated' },
+                    { value: false, label: 'Off' },
+                  ]).map((option) => (
+                    <TouchableOpacity
+                      key={option.label}
+                      style={[
+                        styles.pillSmall,
+                        visualPrefs.skyAnimationsEnabled === option.value && styles.pillActive,
+                      ]}
+                      onPress={() => setVisualPreferences({ skyAnimationsEnabled: option.value })}
+                    >
+                      <Text
+                        style={[
+                          styles.pillTextSmall,
+                          visualPrefs.skyAnimationsEnabled === option.value && styles.pillTextActive,
+                        ]}
+                      >
+                        {option.label}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              </>
+            ) : null}
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Individual tab backgrounds</Text>
-            <Text style={styles.helpText}>
-              Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
-              rather than all at once; turn off just the ones you don&apos;t want, and leave the rest as they are.
-            </Text>
-            {BACKGROUND_TAB_ROUTES.map((route) => (
-              <View key={route.path as string} style={styles.mealTimeRow}>
-                <Text style={styles.mealTimeLabel}>{route.title}</Text>
-                {renderBackgroundOptionsRow(
-                  route.path as string,
-                  false,
-                  visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo',
-                )}
-              </View>
-            ))}
+            {renderAppearanceSubsectionHeader('individualTabBackgrounds', 'Individual tab backgrounds', false)}
+            {!collapsedAppearanceSubsections.has('individualTabBackgrounds') ? (
+              <>
+                <Text style={styles.helpText}>
+                  Each tab&apos;s own background photo (Food, Insights, Schedules, and the rest), set independently
+                  rather than all at once; turn off just the ones you don&apos;t want, and leave the rest as they
+                  are.
+                </Text>
+                {BACKGROUND_TAB_ROUTES.map((route) => (
+                  <View key={route.path as string} style={styles.mealTimeRow}>
+                    <Text style={styles.mealTimeLabel}>{route.title}</Text>
+                    {renderBackgroundOptionsRow(
+                      route.path as string,
+                      false,
+                      visualPrefs.tabBackgroundStyle[route.path as string] ?? 'photo',
+                    )}
+                  </View>
+                ))}
+              </>
+            ) : null}
 
-            <Text style={styles.subLabel}>Generic color combination</Text>
-            <Text style={styles.helpText}>
-              Used anywhere above (or the shared background) set to &ldquo;Generic.&rdquo; One shared choice, not a
-              separate pick per tab.
-            </Text>
-            <View style={styles.pillRow}>
-              {GENERIC_PALETTE_OPTIONS.map((palette) => {
-                const active = palette === visualPrefs.genericPalette;
-                return (
-                  <TouchableOpacity
-                    key={palette}
-                    style={[styles.pillSmall, active && styles.pillActive]}
-                    onPress={() => setVisualPreferences({ genericPalette: palette })}
-                  >
-                    <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
-                      {GENERIC_PALETTE_LABELS[palette]}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            {renderAppearanceSubsectionHeader('genericPalette', 'Generic color combination', false)}
+            {!collapsedAppearanceSubsections.has('genericPalette') ? (
+              <>
+                <Text style={styles.helpText}>
+                  Used anywhere above (or the shared background) set to &ldquo;Generic.&rdquo; One shared choice,
+                  not a separate pick per tab.
+                </Text>
+                <View style={styles.pillRow}>
+                  {GENERIC_PALETTE_OPTIONS.map((palette) => {
+                    const active = palette === visualPrefs.genericPalette;
+                    return (
+                      <TouchableOpacity
+                        key={palette}
+                        style={[styles.pillSmall, active && styles.pillActive]}
+                        onPress={() => setVisualPreferences({ genericPalette: palette })}
+                      >
+                        <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
+                          {GENERIC_PALETTE_LABELS[palette]}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            ) : null}
           </View>
         ) : null}
       </View>
@@ -1933,6 +2018,28 @@ const styles = StyleSheet.create({
   },
   cardBody: {
     marginTop: 8,
+  },
+  // 2026-08-14, direct request: "there isn't much definition of space...
+  // to tell where one ends and the next begins" -- a real, visible divider
+  // line above each of the Appearance & Navigation card's own 5
+  // sub-sections (see renderAppearanceSubsectionHeader), on top of making
+  // each one independently collapsible. appearanceSubsectionHeaderFirst
+  // zeroes the border/spacing out for the very first sub-section (TabHub
+  // Icon), which already sits directly under the card's own real header
+  // with nothing above it to visually separate from.
+  appearanceSubsectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 18,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  appearanceSubsectionHeaderFirst: {
+    marginTop: 0,
+    paddingTop: 0,
+    borderTopWidth: 0,
   },
   helpText: {
     ...typography.body,
