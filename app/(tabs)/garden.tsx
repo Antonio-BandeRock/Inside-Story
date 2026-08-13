@@ -677,10 +677,10 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                     </View>
                   ) : (
                     <TouchableOpacity
-                      style={[styles.secondaryButton, { borderColor: TAB_COLOR }]}
+                      style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
                       onPress={() => setAddingPlantingToPlot(plot.id)}
                     >
-                      <Text style={[styles.secondaryButtonText, { color: TAB_COLOR }]}>+ Add a Planting</Text>
+                      <Text style={styles.primaryButtonText}>+ Add a Planting</Text>
                     </TouchableOpacity>
                   )}
 
@@ -869,8 +869,11 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
           </View>
         </View>
       ) : (
-        <TouchableOpacity style={[styles.secondaryButton, { borderColor: TAB_COLOR }]} onPress={handleShowAddPlot}>
-          <Text style={[styles.secondaryButtonText, { color: TAB_COLOR }]}>+ Add a Garden Area</Text>
+        <TouchableOpacity
+          style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+          onPress={handleShowAddPlot}
+        >
+          <Text style={styles.primaryButtonText}>+ Add a Garden Area</Text>
         </TouchableOpacity>
       )}
     </ScrollView>
