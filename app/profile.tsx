@@ -100,8 +100,29 @@ const ICON_GRID_PILL_SIZE = 52;
 // window ends" already used before this regrouping), not a second layer
 // of independently-collapsible sub-cards -- tapping one of these 4
 // headers is meant to reveal everything inside it at once.
+//
+// 2026-08-14, a real, later, narrower exception: the TabHub Icon picker's
+// own 3 groups (see TabHubIconGroupKey below) DO get their own,
+// independent second layer of collapse, direct request right after the
+// 38-animal batch shipped: "Is there a way to collapse each of the
+// sections of TabHub Icons inside of the already collapsable section they
+// are a part of?" A real, deliberate carve-out from the "no nested
+// sub-cards" rule stated above, not a reversal of it -- the icon picker
+// alone had grown to 65 real tappable tiles (19 conditions + 8 insects/
+// wildlife + 38 animals) by the time this was asked, genuinely different
+// in scale from any other sub-section this app ever grouped under one
+// header, and the only place in this whole screen this exception applies.
 const ALL_CARD_SECTION_KEYS = ['personal-info', 'conditions', 'appearance', 'meal-schedule'] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
+
+// See ALL_CARD_SECTION_KEYS's own comment above for why this one area gets
+// its own, second, independent collapse layer. Deliberately its own
+// separate key space/state (collapsedIconGroups below), not folded into
+// CardSectionKey/collapsedSections -- these 3 groups only ever exist
+// nested inside the single 'appearance' card, never as a top-level card of
+// their own.
+const ALL_TAB_HUB_ICON_GROUP_KEYS = ['tabHubConditions', 'tabHubInsects', 'tabHubAnimals'] as const;
+type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
 
 type DayPart = 'breakfast' | 'lunch' | 'dinner' | 'snack';
 const DAY_PARTS: DayPart[] = ['breakfast', 'lunch', 'dinner', 'snack'];
@@ -280,6 +301,44 @@ export default function ProfileScreen() {
       <TouchableOpacity style={styles.cardHeaderRow} onPress={() => toggleSection(key)} activeOpacity={0.7}>
         <Text style={styles.label}>{title}</Text>
         <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={18} color={colors.menuIconMuted} />
+      </TouchableOpacity>
+    );
+  }
+  // 2026-08-14, direct request: "Is there a way to collapse each of the
+  // sections of TabHub Icons inside of the already collapsable section
+  // they are a part of?" A second, independent collapse layer scoped only
+  // to the TabHub Icon picker's own 3 groups (see TabHubIconGroupKey's own
+  // comment above for why this one area is exempt from the "no nested
+  // sub-cards" rule the rest of this screen holds to). Starts every group
+  // collapsed, same "just headers first" default as the top-level cards --
+  // with 65 real tiles across the 3 groups combined, showing all of them
+  // the instant the outer Appearance & Navigation card opens would defeat
+  // the whole point of collapsing that card in the first place.
+  const [collapsedIconGroups, setCollapsedIconGroups] = useState<Set<TabHubIconGroupKey>>(
+    () => new Set(ALL_TAB_HUB_ICON_GROUP_KEYS),
+  );
+  function toggleIconGroup(key: TabHubIconGroupKey) {
+    setCollapsedIconGroups((current) => {
+      const next = new Set(current);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
+  }
+  // Same tappable-header shape as renderCardHeader above, just using
+  // subLabel's own smaller/lighter styling (matching every other in-card
+  // sub-heading on this screen) and a slightly smaller chevron, since this
+  // is a sub-level header nested one layer deeper than a real card header.
+  function renderIconGroupHeader(key: TabHubIconGroupKey, title: string, marginTop: number) {
+    const collapsed = collapsedIconGroups.has(key);
+    return (
+      <TouchableOpacity
+        style={[styles.cardHeaderRow, { marginTop }]}
+        onPress={() => toggleIconGroup(key)}
+        activeOpacity={0.7}
+      >
+        <Text style={styles.subLabel}>{title}</Text>
+        <Ionicons name={collapsed ? 'chevron-down' : 'chevron-up'} size={16} color={colors.menuIconMuted} />
       </TouchableOpacity>
     );
   }
@@ -1667,14 +1726,14 @@ export default function ProfileScreen() {
               portraits below to personalize it instead -- only one can be active at a time.
             </Text>
 
-            <Text style={[styles.subLabel, { marginTop: 10 }]}>Conditions</Text>
-            {renderTabHubIconGroup(conditionIconOptions)}
+            {renderIconGroupHeader('tabHubConditions', 'Conditions', 10)}
+            {!collapsedIconGroups.has('tabHubConditions') ? renderTabHubIconGroup(conditionIconOptions) : null}
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Insects &amp; Other Wildlife</Text>
-            {renderTabHubIconGroup(gardenIconOptions)}
+            {renderIconGroupHeader('tabHubInsects', 'Insects & Other Wildlife', 14)}
+            {!collapsedIconGroups.has('tabHubInsects') ? renderTabHubIconGroup(gardenIconOptions) : null}
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Animals</Text>
-            {renderTabHubIconGroup(animalIconOptions)}
+            {renderIconGroupHeader('tabHubAnimals', 'Animals', 14)}
+            {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Shared background</Text>
             <Text style={styles.helpText}>
