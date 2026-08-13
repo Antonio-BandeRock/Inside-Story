@@ -55,6 +55,25 @@ export function formatAmount(value: number, unit: string): string {
   return `${scaledValue.toFixed(decimals)} ${scaledUnit}`;
 }
 
+// Nutrient Ranking's own "By Food" mode, 2026-08-14, direct request: "the
+// information displayed should also tell the user what percentage of the
+// recommended daily allowance that it represents for a suggested serving
+// size of however much." A food's own reference-database amount is always
+// per 100g; this scales it to a real serving (either a real, cited
+// natural-unit weight from food_unit_weights -- "1 medium banana" -- or a
+// plain 100g fallback when no such entry exists, see this feature's own
+// caller for which) and expresses it as a percentage of one real DRI row,
+// the exact same `(amount / target) * 100` formula analyzeNutrientIntake
+// already uses above for today's logged meals -- one real, shared formula,
+// not a second, independently-invented one. Returns null when the DRI
+// amount itself is non-positive (shouldn't happen with real seeded data,
+// but a genuine divide-by-zero guard costs nothing).
+export function percentOfDailyTarget(amountPer100g: number, servingGrams: number, driAmount: number): number | null {
+  if (driAmount <= 0) return null;
+  const servingAmount = (amountPer100g / 100) * servingGrams;
+  return (servingAmount / driAmount) * 100;
+}
+
 export type NutrientIntakeItem = {
   // Grams of the food actually consumed -- unit-to-grams conversion (cups,
   // ounces, etc. -> grams) is a separate, not-yet-built piece; callers must

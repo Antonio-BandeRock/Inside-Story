@@ -7,7 +7,9 @@ import {
   classifyProteinSource,
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
+  getDietaryReferenceIntakesForCurrentUser,
   getFoodRankingsAcrossNutrients,
+  getFoodUnitWeight,
   getLabTests,
   getTodaysAdvisories,
   listAllActiveTreatments,
@@ -25,6 +27,7 @@ import {
   type DailyNutrientBreakdown,
   type DailyNutrientScopeTotals,
   type DailySixDimensionsBreakdown,
+  type DietaryReferenceIntake,
   type FoodNutrientRanking,
   type LabResultRecord,
   type LabTest,
@@ -46,7 +49,13 @@ import {
 import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE } from '../../lib/coffeeAdvisory';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
 import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE } from '../../lib/juiceAdvisory';
-import { analyzeNutrientIntake, formatAmount, nutrientStatusSeverity, type StatusSeverity } from '../../lib/nutrientAnalysis';
+import {
+  analyzeNutrientIntake,
+  formatAmount,
+  nutrientStatusSeverity,
+  percentOfDailyTarget,
+  type StatusSeverity,
+} from '../../lib/nutrientAnalysis';
 import {
   NUTRIENT_STATUS_LABELS,
   flattenItemScores,
@@ -506,8 +515,24 @@ export default function InsightsScreen() {
   const [rankingFood, setRankingFood] = useState<ResolvedFoodSelection | null>(null);
   const [foodRankings, setFoodRankings] = useState<FoodNutrientRanking[]>([]);
   const [foodRankingsLoading, setFoodRankingsLoading] = useState(false);
+  // 2026-08-14, same day, direct follow-up: "the information displayed
+  // should also tell the user what percentage of the recommended daily
+  // allowance that it represents for a suggested serving size of however
+  // much." `rankingDriRows` depends only on the person's own saved
+  // profile (sex/age), not on which food/prep-group is active, so it
+  // loads once on mount -- the same "static per-session, not per-pick"
+  // shape `allNutrients` already has above. `rankingFoodServing` is the
+  // real "however much" this asks for: a real, cited natural-unit weight
+  // (getFoodUnitWeight, "1 medium banana") when this food is one of the
+  // small, curated set that has one, or a plain, honest 100g fallback
+  // when it isn't -- never an invented, uncited serving size.
+  const [rankingDriRows, setRankingDriRows] = useState<DietaryReferenceIntake[]>([]);
+  const [rankingFoodServing, setRankingFoodServing] = useState<{ grams: number; label: string } | null>(null);
   useEffect(() => {
     listTrackedNutrients().then(setAllNutrients);
+  }, []);
+  useEffect(() => {
+    getDietaryReferenceIntakesForCurrentUser().then(setRankingDriRows);
   }, []);
   useEffect(() => {
     if (!rankingNutrient) {
@@ -529,13 +554,20 @@ export default function InsightsScreen() {
   useEffect(() => {
     if (!rankingFood) {
       setFoodRankings([]);
+      setRankingFoodServing(null);
       return;
     }
     let isCurrent = true;
     setFoodRankingsLoading(true);
-    getFoodRankingsAcrossNutrients(rankingFood.foodId, rankingFood.source, rankingPrepGroup).then((rows) => {
+    Promise.all([
+      getFoodRankingsAcrossNutrients(rankingFood.foodId, rankingFood.source, rankingPrepGroup),
+      getFoodUnitWeight(rankingFood.foodId, rankingFood.source),
+    ]).then(([rows, unitWeight]) => {
       if (isCurrent) {
         setFoodRankings(rows);
+        setRankingFoodServing(
+          unitWeight ? { grams: unitWeight.gramsPerUnit, label: `1 ${unitWeight.unitLabel} (${Math.round(unitWeight.gramsPerUnit)}g)` } : { grams: 100, label: '100g' },
+        );
         setFoodRankingsLoading(false);
       }
     });
@@ -736,6 +768,8 @@ export default function InsightsScreen() {
                 onClearFood={() => setRankingFood(null)}
                 foodRankings={foodRankings}
                 foodRankingsLoading={foodRankingsLoading}
+                driRows={rankingDriRows}
+                foodServing={rankingFoodServing}
               />
             </View>
           ) : (
@@ -1463,6 +1497,8 @@ function NutrientRankingView({
   onClearFood,
   foodRankings,
   foodRankingsLoading,
+  driRows,
+  foodServing,
 }: {
   nutrients: TrackedNutrient[];
   selected: string | null;
@@ -1479,6 +1515,8 @@ function NutrientRankingView({
   onClearFood: () => void;
   foodRankings: FoodNutrientRanking[];
   foodRankingsLoading: boolean;
+  driRows: DietaryReferenceIntake[];
+  foodServing: { grams: number; label: string } | null;
 }) {
   // Memoized, 2026-08-12 -- see the real render-storm root-caused and fixed
   // the same day in PopoverSelect.tsx's own header comment. A fresh array
@@ -1505,6 +1543,33 @@ function NutrientRankingView({
     ],
     [],
   );
+  // 2026-08-14, a real, direct recurrence of the exact ~15-second freeze
+  // this app already root-caused once (see PopoverSelect.tsx's own header
+  // comment): a fresh arrow function literal, defined inline in this
+  // component's own JSX, is created on every render, breaking
+  // PopoverSelect's memo() bailout the same way an unmemoized `options`
+  // array did before -- this field's own onSelect prop was exactly that.
+  // `onPrepGroupChange` (setRankingPrepGroup, a raw React setState setter,
+  // passed straight down from InsightsScreen) is itself already stable, so
+  // wrapping it here is enough to make the whole callback stable too.
+  const handlePrepGroupSelect = useCallback(
+    (value: string) => onPrepGroupChange(value === 'all' ? null : (value as PrepStateGroup)),
+    [onPrepGroupChange],
+  );
+  // One real DRI row per nutrient code, for the %DV computation below --
+  // takes whichever row sorts first when the person's own profile doesn't
+  // have sex/age set (getDietaryReferenceIntakesForProfile's own comment:
+  // an unset profile can return several real rows per nutrient, one per
+  // demographic). A real, acknowledged simplification for that specific
+  // case; the common case (a set profile) only ever has one row per
+  // nutrient to begin with, so this never actually has to choose there.
+  const driByNutrient = useMemo(() => {
+    const map = new Map<string, DietaryReferenceIntake>();
+    for (const dri of driRows) {
+      if (!map.has(dri.nutrientCode)) map.set(dri.nutrientCode, dri);
+    }
+    return map;
+  }, [driRows]);
   const selectedNutrient = nutrients.find((n) => n.code === selected) ?? null;
   // Same real clearance every other scrollable lens already applies at the
   // bottom of ITS own last piece of content, applied here to the bottom of
@@ -1557,7 +1622,18 @@ function NutrientRankingView({
   // getFoodRankingsAcrossNutrients's own ORDER BY), so the picked food's
   // own most notable/exceptional nutrients naturally surface first rather
   // than an alphabetical list someone has to scan through.
+  //
+  // 2026-08-14, same day, direct follow-up: "the information displayed
+  // should also tell the user what percentage of the recommended daily
+  // allowance that it represents for a suggested serving size of however
+  // much." Shown as a second, smaller line under the per-100g amount --
+  // omitted entirely (not shown as "N/A" or similar) for the real,
+  // roughly third of tracked nutrients (lycopene, caffeine, every fat/
+  // carb/sugar figure) with no official DRI at all, per this app's own
+  // standing discipline against inventing a target that doesn't exist.
   function renderFoodRankingRow(entry: FoodNutrientRanking) {
+    const dri = driByNutrient.get(entry.nutrientCode);
+    const percent = dri && foodServing ? percentOfDailyTarget(entry.amountPer100g, foodServing.grams, dri.amount) : null;
     return (
       <View key={entry.nutrientCode} style={styles.rankRow}>
         <Text style={styles.rankNumber}>{entry.rank}</Text>
@@ -1565,7 +1641,10 @@ function NutrientRankingView({
           <Text style={styles.rankFoodName}>{entry.displayName}</Text>
           <Text style={styles.rankFoodCategory}>of {entry.poolSize}</Text>
         </View>
-        <Text style={styles.rankAmount}>{formatAmount(entry.amountPer100g, entry.unit)}</Text>
+        <View style={styles.rankAmountWrap}>
+          <Text style={styles.rankAmount}>{formatAmount(entry.amountPer100g, entry.unit)}</Text>
+          {percent != null ? <Text style={styles.rankDriPercent}>{Math.round(percent)}% DV</Text> : null}
+        </View>
       </View>
     );
   }
@@ -1674,9 +1753,21 @@ function NutrientRankingView({
         ) : !rankingFood ? null : (
           <>
             <View style={[styles.rankFoodSummaryRow, styles.rankSpaced]}>
-              <Text style={styles.rankFoodSummaryText}>
-                {rankingFood.baseName} · {categoryLabel(rankingFood.category)}
-              </Text>
+              <View style={styles.rankTextWrap}>
+                <Text style={styles.rankFoodSummaryText}>
+                  {rankingFood.baseName} · {categoryLabel(rankingFood.category)}
+                </Text>
+                {/* 2026-08-14, direct request -- "a suggested serving size
+                    of however much." A real, cited natural-unit weight
+                    (getFoodUnitWeight, "1 medium banana") when this food is
+                    one of the small, curated set that has one; a plain,
+                    honest 100g fallback (this whole lens's own existing
+                    reference basis already) otherwise -- never an invented,
+                    uncited serving size. Every row's own %DV below is
+                    computed for exactly this amount, stated once here
+                    rather than repeated on every row. */}
+                {foodServing ? <Text style={styles.rankFoodCategory}>Suggested serving: {foodServing.label}</Text> : null}
+              </View>
               <TouchableOpacity style={styles.pill} onPress={onClearFood}>
                 <Text style={styles.pillText}>Change food</Text>
               </TouchableOpacity>
@@ -1707,62 +1798,88 @@ function NutrientRankingView({
         )}
       </ScrollView>
 
-      {/* The fixed field zone -- the field itself is unchanged, per "place
-          the selector the way it is now"; only its position moved, down to
-          just above the floating hub button/footer. */}
+      {/* The fixed field zone -- the fields themselves are unchanged, per
+          "place the selector the way it is now"; pinned just above the
+          floating hub button/footer.
+          2026-08-14, direct follow-up: "Place the Nutrient and the Prep
+          state side by side to each other. Make the Nutrient only as wide
+          as necessary, and then Prep state can be to the right of it."
+          Both fields now sit in one real row rather than stacked, each
+          sized to its own content (Nutrient's own minWidth removed
+          entirely, falling back to PopoverSelect's own default 0 --
+          "only as wide as necessary," literally). "Place the selection
+          lists at the same level I identified previously" comes free as a
+          direct consequence of this same row, not a separate mechanism:
+          computePopoverPositionAbove positions each popover off its OWN
+          field's real measured Y position, and with both fields sharing
+          the same row (same Y), and both real option lists capped at the
+          identical MAX_VISIBLE_ROWS (6 -- 39 nutrients and 7 prep-state
+          options both exceed it), both popovers compute to the exact same
+          real height and land at the exact same level regardless of which
+          one is tapped. */}
       <View style={[styles.rankFieldZone, { paddingBottom: fieldBottomPadding }]}>
-        {mode === 'byNutrient' ? (
-          <>
-            <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
-            {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
-                isn't needed") -- 39 real tracked nutrients is a short, plain
-                scrollable list, not the "could be longer" case search mode was
-                built for (see PopoverSelect's own header comment). Removing it
-                also means this field never touches AppKeyboard's search row at
-                all, closing off the whole code path most directly implicated in
-                the freeze this same day (see that file's own fix comment).
-                openAbove, 2026-08-14, direct request ("move the location of the
-                selection list up to a little above the header word Nutrient")
-                -- with this field pinned right above the footer, the default
-                side-anchored opening put the list roughly level with the field
-                itself, uncomfortably close to the bottom edge; opening above
-                puts it over the real open space the results area occupies,
-                right above the "Nutrient" label the field sits under. */}
+        <View style={styles.rankFieldRow}>
+          {mode === 'byNutrient' ? (
+            <View style={styles.rankFieldColumn}>
+              <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
+              {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
+                  isn't needed") -- 39 real tracked nutrients is a short, plain
+                  scrollable list, not the "could be longer" case search mode was
+                  built for (see PopoverSelect's own header comment). Removing it
+                  also means this field never touches AppKeyboard's search row at
+                  all, closing off the whole code path most directly implicated in
+                  the freeze this same day (see that file's own fix comment).
+                  openAbove, 2026-08-14, direct request ("move the location of the
+                  selection list up to a little above the header word Nutrient")
+                  -- with this field pinned right above the footer, the default
+                  side-anchored opening put the list roughly level with the field
+                  itself, uncomfortably close to the bottom edge; opening above
+                  puts it over the real open space the results area occupies. */}
+              <PopoverSelect
+                options={nutrientOptions}
+                selected={selected}
+                onSelect={onSelect}
+                tabColor={tabColor}
+                placeholder="Pick a nutrient..."
+                openAbove
+              />
+            </View>
+          ) : null}
+          {/* Shared by both modes, 2026-08-14 -- see this component's own
+              header comment for why this is one control, not auto-applied
+              per picked food. A real, second recurrence of the exact
+              render-storm freeze this app already root-caused once was
+              found and fixed here the same day -- see handlePrepGroupSelect's
+              own comment above: this field's own onSelect used to be a
+              fresh inline arrow function on every render, breaking
+              PopoverSelect's memo() bailout the identical way an
+              unmemoized options array already had before. */}
+          <View style={styles.rankFieldColumn}>
+            <Text style={[styles.sectionLabel, { color: tabColor }]}>Prep state</Text>
             <PopoverSelect
-              options={nutrientOptions}
-              selected={selected}
-              onSelect={onSelect}
+              options={prepGroupOptions}
+              selected={prepGroup ?? 'all'}
+              onSelect={handlePrepGroupSelect}
               tabColor={tabColor}
-              placeholder="Pick a nutrient..."
-              minWidth={220}
+              placeholder="All prep states"
+              minWidth={140}
               openAbove
             />
-            {/* 2026-08-14, direct request -- moved down here from the results
-                zone above (where it used to be the "nothing picked yet"
-                placeholder), so it sits right under the field it's actually
-                describing. Reworded "below" -> "above" to match, since the
-                field is now above this text, not below it -- the same
-                direction-correction already made once before when this field
-                itself moved down to this fixed bottom zone, and the same
-                wording Cooking Impact's own analogous caption already uses. */}
-            <Text style={[styles.emptyText, styles.rankSpaced]}>
-              Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
-            </Text>
-          </>
+          </View>
+        </View>
+        {mode === 'byNutrient' ? (
+          /* 2026-08-14, direct request -- moved down here from the results
+             zone above (where it used to be the "nothing picked yet"
+             placeholder), so it sits right under the fields it's actually
+             describing. Reworded "below" -> "above" to match, since the
+             fields are now above this text, not below it -- the same
+             direction-correction already made once before when this field
+             itself moved down to this fixed bottom zone, and the same
+             wording Cooking Impact's own analogous caption already uses. */
+          <Text style={[styles.emptyText, styles.rankSpaced]}>
+            Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
+          </Text>
         ) : null}
-        {/* Shared by both modes, 2026-08-14 -- see this component's own
-            header comment for why this is one control, not auto-applied
-            per picked food. */}
-        <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Prep state</Text>
-        <PopoverSelect
-          options={prepGroupOptions}
-          selected={prepGroup ?? 'all'}
-          onSelect={(value) => onPrepGroupChange(value === 'all' ? null : (value as PrepStateGroup))}
-          tabColor={tabColor}
-          placeholder="All prep states"
-          minWidth={220}
-          openAbove
-        />
       </View>
     </View>
   );
@@ -2741,6 +2858,19 @@ const styles = StyleSheet.create({
   rankFoodName: { ...typography.bodyEmphasis, color: colors.textPrimary },
   rankFoodCategory: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
   rankAmount: { ...typography.captionEmphasis, color: TAB_COLOR },
+  // Nutrient Ranking's own "By Food" mode, 2026-08-14 -- the amount and,
+  // when a real DRI exists for that nutrient, a %DV line right under it,
+  // both right-aligned as one column rather than two separately-placed
+  // Texts.
+  rankAmountWrap: { alignItems: 'flex-end' },
+  rankDriPercent: { ...typography.caption, color: colors.textSecondary, marginTop: 1 },
+  // Nutrient/Prep state side by side, 2026-08-14 -- see this lens' own
+  // fixed-field-zone comment above for the full reasoning. flexShrink on
+  // the column is a real, defensive guard against either field's own
+  // content overflowing the row's width on a narrow screen, not just
+  // decoration.
+  rankFieldRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
+  rankFieldColumn: { flexShrink: 1 },
   // Nutrient Ranking's own "By Food" mode, 2026-08-14 -- the picked food's
   // own name/category, plus the "Change food" action, sitting above its
   // real per-nutrient ranking list.
