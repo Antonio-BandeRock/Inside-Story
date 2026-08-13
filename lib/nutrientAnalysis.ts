@@ -15,10 +15,44 @@ import type { DietaryReferenceIntake, FoodNutrient } from './db';
 // precision than that once the amount is already in double digits). Used
 // by both Insights' own daily Nutrients lens and FoodLookup.tsx's
 // per-food table, which otherwise had two copies of this exact function
-// drifting independently.
+// drifting independently -- also, since 2026-08-08, Nutrient Ranking's own
+// per-food rows.
+//
+// 2026-08-14, direct report: "tomato powder has 46260 ug of Lycopene...
+// why portray it in ug if the number is so big?" -- checked the number
+// itself directly against the real USDA FoodData Central API before
+// touching anything (fdcId 170461, "Tomato powder": 46300 µg, matching
+// this app's own stored 46260 µg to within a trivial rounding difference
+// -- a genuinely, physically plausible figure for an intensely dehydrated
+// product, confirmed via this same food's own water content, 3.06g/100g,
+// and calorie density, 302 kcal/100g, both consistent with ~95%+ of the
+// water having been removed). The number and the column were both
+// correct; the READING was the real, fixable problem. Checked how common
+// this actually is across the whole database before deciding how broadly
+// to fix it -- iodine reaches 494,000 µg, vitamin A 145,455 µg RAE,
+// folate 61,538 µg, and vitamin C reaches 100,000 mg (a pure ascorbic
+// acid ingredient, genuinely 100% vitamin C by weight) -- a real, general
+// readability problem for any sufficiently concentrated/dehydrated/
+// supplement-style food, not a lycopene-specific quirk, so fixed
+// generally here rather than patched for lycopene alone. Auto-scales a
+// genuinely large µg amount up to mg, and mg up to g, once it reaches
+// four digits -- deliberately NOT applied to `µg RAE` (vitamin A's own
+// unit), which stays in µg in essentially every real clinical/nutrition
+// reference regardless of magnitude, so scaling it to "mg RAE" would
+// reduce recognizability rather than improve it; also not applied to `g`
+// or `kcal`, where no larger real-world unit makes sense.
 export function formatAmount(value: number, unit: string): string {
-  const decimals = value < 10 ? 1 : 0;
-  return `${value.toFixed(decimals)} ${unit}`;
+  let scaledValue = value;
+  let scaledUnit = unit;
+  if (unit === 'µg' && value >= 1000) {
+    scaledValue = value / 1000;
+    scaledUnit = 'mg';
+  } else if (unit === 'mg' && value >= 1000) {
+    scaledValue = value / 1000;
+    scaledUnit = 'g';
+  }
+  const decimals = scaledValue < 10 ? 1 : 0;
+  return `${scaledValue.toFixed(decimals)} ${scaledUnit}`;
 }
 
 export type NutrientIntakeItem = {
