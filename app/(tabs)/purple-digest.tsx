@@ -574,38 +574,44 @@ function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: stri
   return sortDigestEntriesLogically(entries.filter((entry) => prefixes.some((p) => entry.id.startsWith(p))));
 }
 
-// Resolves whichever real node a path currently points at (top-level
-// topic list when `path` is empty, a topic's own subtopics when `path` is
-// one real "Essential Nutrients"-shaped topic, or the real leaf entries at
-// the end of either path) -- the one real function every level of
-// BasicHealthTree below reads from, so the path itself stays the single
-// source of truth for "where the person currently is."
-function basicHealthEntriesForPath(entries: AnyDigestEntry[], path: string[]): AnyDigestEntry[] {
-  if (path.length === 0) return [];
-  if (path[0] === BASIC_HEALTH_MORE_TOPIC_LABEL) {
-    return sortDigestEntriesLogically(entries.filter((entry) => basicHealthTopicPathForEntryId(entry.id).length === 0));
-  }
-  const topic = BASIC_HEALTH_TOPICS.find((t) => t.label === path[0]);
-  if (!topic) return [];
-  if (path.length === 2 && topic.subtopics) {
-    const sub = topic.subtopics.find((s) => s.label === path[1]);
-    return sub ? basicHealthEntriesForPrefixes(entries, sub.prefixes) : [];
-  }
-  return topic.prefixes ? basicHealthEntriesForPrefixes(entries, topic.prefixes) : [];
-}
+// basicHealthEntriesForPath (resolving one node of a drill-down path at a
+// time) used to live here, for the tree-based BasicHealthTree component --
+// removed 2026-08-14 alongside that whole component, once Basic Health's
+// ordinary browsing view was unified with the same all-shelves-shown-at-
+// once pattern every condition, Earth Matters, and Home Gardening already
+// use. See basicHealthAllGroups below, and its own header comment.
 
 // Every real Basic Health leaf group at once (every standalone topic, and
 // every Essential Nutrients subtopic individually), flattened into the
 // same {label, entries} shape BasicHealthShelves already renders --
-// 2026-08-08, built for the new sticky-search filtered view below: "all
+// 2026-08-08, originally built for a sticky-search filtered view: "all
 // things below in the knowledgebase hierarchical set of the area are
-// displayed below and filtered." Rather than drilling through the tree one
+// displayed below and filtered." Rather than drilling through a tree one
 // level at a time, a search shows every real leaf topic at once, filtered
-// down to just the ones with a match. `label` is deliberately the same
-// '::'-joined path string shelfGroupKeyForEntry already computes for a
-// Basic Health entry (not a prettier "Topic › Subtopic" string) -- see
-// BasicHealthShelves' own comment for why the ref/scroll-key and the
-// display text have to stay the same underlying value.
+// down to just the ones with a match.
+//
+// 2026-08-14, direct report: "I like the way that the conditions'
+// information is setup for how someone uses the information. The Basic
+// Health section doesn't follow the same pattern... It seems that area
+// somehow didn't follow the same flow as the other areas." Correct --
+// every real condition, plus Earth Matters and Home Gardening, already
+// browse as one continuous vertical scroll of tap-to-expand shelf rows,
+// with no drilling in or backing out required at all; Basic Health alone
+// still forced a real, separate drill-down-then-back navigation (see the
+// removed BasicHealthTree, below the render dispatch that used to call
+// it). This same function -- already proven correct here for the search
+// view -- is now ALSO the real, ordinary (non-search) Basic Health
+// browsing view, closing that gap: every one of Basic Health's own 21 real
+// topics (Essential Nutrients' own 21 nutrient/hormone subtopics flattened
+// into their own real shelf rows, right where "Essential Nutrients" itself
+// used to sit as one single container) renders as its own shelf, exactly
+// like every other category.
+//
+// `label` is deliberately the same '::'-joined path string
+// shelfGroupKeyForEntry already computes for a Basic Health entry (not a
+// prettier "Topic › Subtopic" string) -- see BasicHealthShelves' own
+// comment for why the ref/scroll-key and the display text have to stay the
+// same underlying value.
 function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
   const groups: { label: string; entries: AnyDigestEntry[] }[] = [];
   for (const topic of BASIC_HEALTH_TOPICS) {
@@ -1144,9 +1150,17 @@ function groupHomeGardeningEntries(entries: AnyDigestEntry[]): {
 // grouping into real topic shelves -- Earth Matters and Home Gardening
 // each route to their own dedicated classifier above; every real disease
 // condition still routes to classifyConditionTopic/groupConditionEntries,
-// unchanged. Basic Health is deliberately NOT handled here -- it already
-// has its own, separate tree-based rendering path (BasicHealthTree) that
-// never calls this function at all.
+// unchanged. Basic Health is deliberately NOT handled here -- not because
+// it renders differently anymore (2026-08-14: it uses the same real
+// BasicHealthShelves component as everything else), but because its own
+// real shape is genuinely different from what this dispatcher's return
+// type assumes: `groupEntriesForLens` below also pulls a category-wide
+// "tying together" entry out into its own standalone card, and Basic
+// Health has no such single, category-wide entry -- only real, per-topic
+// tying-together entries that already sort correctly to the end of their
+// own shelf via sortDigestEntriesLogically. Basic Health calls
+// basicHealthAllGroups directly instead, a flat {label, entries}[] with no
+// separate tyingTogether field to extract.
 function classifyTopicForCategory(entry: AnyDigestEntry, category: DigestCategoryKey): string {
   if (category === 'earthMatters') return classifyEarthMattersTopic(entry);
   if (category === 'homeGardening') return classifyHomeGardeningTopic(entry);
@@ -1383,13 +1397,11 @@ export default function PurpleDigestScreen() {
   // categorySearchQuery directly (focus change, jumpToRelated, a fresh
   // LensHub selection) -- see each of those for why.
   const [searchResetKey, setSearchResetKey] = useState(0);
-  // Basic Health's own real tree position -- [] at the top-level topic
-  // grid, [topicLabel] one level in, [topicLabel, subtopicLabel] two
-  // levels in (only "Essential Nutrients" currently has real subtopics).
-  // Reset the same way as everything else on a fresh tab visit and a fresh
-  // lens selection -- landing back on Basic Health should always start at
-  // its own top level, never mid-tree from a previous visit.
-  const [basicHealthTopicPath, setBasicHealthTopicPath] = useState<string[]>([]);
+  // basicHealthTopicPath (tracking a real drill-down position in Basic
+  // Health's own tree) removed 2026-08-14 alongside BasicHealthTree itself
+  // -- Basic Health now renders every one of its own topics as a shelf all
+  // at once, the same as every other category, with no "current position"
+  // left to track.
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
@@ -1397,14 +1409,12 @@ export default function PurpleDigestScreen() {
       setCategorySearchQuery('');
       setIsSearchActive(false);
       setSearchResetKey((key) => key + 1);
-      setBasicHealthTopicPath([]);
       return () => {
         setRevealed(false);
         setSearchQuery('');
         setCategorySearchQuery('');
         setIsSearchActive(false);
         setSearchResetKey((key) => key + 1);
-        setBasicHealthTopicPath([]);
       };
     }, []),
   );
@@ -1795,14 +1805,15 @@ export default function PurpleDigestScreen() {
     scrollNodeIntoView(() => groupRefs.current[label]);
   }
 
-  // Resolves which shelf/leaf group a given entry's own card should scroll
-  // to -- Basic Health resolves the entry's own real tree path (joined into
-  // one string, matching the ref key BasicHealthTree's own leaf container
-  // registers itself under); every real condition uses the topic grouping
-  // above, with its own "tying together" entry (if it has one) routed to
-  // the fixed key that card renders under instead. 'search' never reaches
-  // this (a search-result tap always resolves to a real underlying
-  // category via jumpToRelated before this is called).
+  // Resolves which shelf group a given entry's own card should scroll to --
+  // Basic Health resolves the entry's own real topic path (joined into one
+  // string, matching the exact group.label basicHealthAllGroups already
+  // computes for it, which BasicHealthShelves registers a real ref under
+  // for every shelf, all at once); every real condition uses the topic
+  // grouping above, with its own "tying together" entry (if it has one)
+  // routed to the fixed key that card renders under instead. 'search'
+  // never reaches this (a search-result tap always resolves to a real
+  // underlying category via jumpToRelated before this is called).
   function shelfGroupKeyForEntry(id: string, category: DigestCategoryKey): string {
     if (category === 'basicHealth') return basicHealthTopicPathForEntryId(id).join('::');
     const entry = findDigestEntryById(id);
@@ -1812,10 +1823,9 @@ export default function PurpleDigestScreen() {
   }
 
   // Expanding/collapsing a single entry, wherever it's shown -- a
-  // condition's own topic shelf, or a leaf inside Basic Health's own tree
-  // (the tree's own drill-down navigation, separately, is owned by
-  // BasicHealthTree itself, not this function) -- scrolls to that entry's
-  // own group/leaf section, not the individual card.
+  // condition's own topic shelf, or one of Basic Health's own shelves,
+  // rendered by the same real BasicHealthShelves component either way --
+  // scrolls to that entry's own group section, not the individual card.
   function toggleEntry(id: string, category: DigestCategoryKey) {
     const wasExpanded = expandedId === id;
     setExpandedId(wasExpanded ? null : id);
@@ -1826,12 +1836,12 @@ export default function PurpleDigestScreen() {
   // Jumping to a related entry: switch category (if it's a different one),
   // expand that entry, and collapse whatever was open before -- a related
   // chip always lands you looking at exactly that entry, wherever it
-  // actually sits. For Basic Health specifically, this also has to drive
-  // the tree itself directly to the entry's own real leaf (its own topic,
-  // or topic+subtopic) -- without this, the tree would still be sitting
-  // wherever it was left, and the entry wouldn't be showing at all. The
-  // same real function a shelf card's own tap, a Related chip, and a
-  // search result (Search All or any category's own scoped search) all use.
+  // actually sits. Every one of Basic Health's own shelves is already
+  // mounted at once (2026-08-14, see basicHealthAllGroups' own comment),
+  // so no drill-down state needs driving here anymore -- the same real
+  // scroll-to-group step below already reaches it directly. The same real
+  // function a shelf card's own tap, a Related chip, and a search result
+  // (Search All or any category's own scoped search) all use.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
@@ -1847,9 +1857,6 @@ export default function PurpleDigestScreen() {
     // frame before the new category's real shelf finishes mounting and
     // overwrites it.
     groupRefs.current = {};
-    if (category === 'basicHealth') {
-      setBasicHealthTopicPath(basicHealthTopicPathForEntryId(id));
-    }
     // Jumping always lands on the grouped view -- there's no separate
     // "list mode" to switch into anymore -- and a search-in-progress
     // (either Search All or any category's own scoped search) is cleared,
@@ -1949,13 +1956,13 @@ export default function PurpleDigestScreen() {
                   is no way to back out of an area to go back to the level
                   before, all the way to the Digest home screen with the
                   LensHub menu showing so the user can choose another lens if
-                  they want to." Basic Health's own tree already has a
-                  one-level-at-a-time "back" link (BasicHealthTree's own
-                  onBack), and that stays exactly as it is for stepping
-                  between tree levels -- this is a second, separate escape
-                  hatch that always works in one tap, from any lens, at any
-                  depth (a condition's topic shelves, Search's own results,
-                  or any level of Basic Health's tree).
+                  they want to." Basic Health's own tree used to have a
+                  separate, one-level-at-a-time "back" link of its own
+                  (BasicHealthTree's own onBack, removed 2026-08-14 along
+                  with the rest of the tree) -- this link always did, and
+                  still does, something different: a real escape hatch back
+                  to the LensHub picker itself, in one tap, from any lens, at
+                  any depth of scroll.
                   2026-08-08, same day, real follow-up: "when I hit back to
                   digest breadcrumb from any section, it should close the
                   current section and display the Digest LensHub menu for
@@ -2170,11 +2177,18 @@ export default function PurpleDigestScreen() {
                   </>
                 )
               ) : lens === 'basicHealth' ? (
-                <BasicHealthTree
-                  entries={entries}
-                  path={basicHealthTopicPath}
-                  onDrillIn={(label) => setBasicHealthTopicPath((prev) => [...prev, label])}
-                  onBack={() => setBasicHealthTopicPath((prev) => prev.slice(0, -1))}
+                // 2026-08-14, direct report: Basic Health used to be the
+                // one real outlier still using a separate drill-down-then-
+                // back tree (BasicHealthTree, removed) while every
+                // condition, plus Earth Matters and Home Gardening, already
+                // browsed as one continuous scroll of tap-to-expand shelves.
+                // Same real component, same real interaction, as everywhere
+                // else now -- basicHealthAllGroups is the exact function
+                // Basic Health's own scoped search already proved this
+                // shape works for, reused directly rather than a second,
+                // parallel grouping mechanism.
+                <BasicHealthShelves
+                  groups={basicHealthAllGroups(entries)}
                   expandedId={expandedId}
                   groupRefs={groupRefs}
                   onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
@@ -2311,8 +2325,8 @@ export default function PurpleDigestScreen() {
           // 2026-08-12, direct report: picking a different lens from this
           // popup left the ScrollView sitting at whatever offset the
           // PREVIOUS lens had been scrolled to -- every other reset here
-          // (groupRefs, expandedId, search state, basicHealthTopicPath)
-          // already treats a lens switch as a fresh arrival, but the
+          // (groupRefs, expandedId, search state) already treats a lens
+          // switch as a fresh arrival, but the
           // ScrollView's own native scroll offset is a real property of the
           // component instance that swapping its children does NOT reset on
           // its own. An unanimated jump (not scrollGroupIntoView's own
@@ -2331,12 +2345,6 @@ export default function PurpleDigestScreen() {
           // text -- 2026-08-08, see its own comment for why the two plain
           // setters above alone no longer reach it.
           setSearchResetKey((key2) => key2 + 1);
-          // Picking Basic Health from the picker always lands on its own
-          // top-level topic grid, never mid-tree from an earlier visit --
-          // the same "never an instant resume of whatever was last open"
-          // convention this whole screen already follows on every fresh
-          // arrival at the tab.
-          setBasicHealthTopicPath([]);
           setRevealed(true);
         }}
       />
@@ -2619,171 +2627,33 @@ function SearchResultCard({
   );
 }
 
-// Basic Health's own real, 2-level tree navigation -- 2026-08-08, direct
-// correction: "I think there needs to be a combination of tree style and
-// categorized topic cards in related groups... moving strictly from broad
-// categories down to highly specific, bite-sized pieces of information."
-// Replaces Basic Health's earlier all-31-groups-shown-at-once shelf view
-// entirely (BasicHealthShelves below is used for a condition's own real
-// topic grouping -- see groupConditionEntries' own comment -- and for
-// Basic Health's own scoped-search results, not for ordinary Basic Health
-// browsing anymore).
-//
-// Top level (`path` is empty): a real, scannable grid of topic cards --
-// BASIC_HEALTH_TOPICS' own 10 real entries (9 standalone, plus "Essential
-// Nutrients" as one single topic representing all 22 individual nutrient
-// deep-dives, exactly the example given: "all of the deep dive into macro,
-// micro, acid, and hormone related nutrients should be one of the topics
-// to dive into"). One level in: either a real subtopic grid (only
-// "Essential Nutrients" has one today) or, for every standalone topic,
-// straight to the real leaf. A real leaf -- one or two levels down,
-// depending on the topic -- is a plain, scannable list of that leaf's own
-// entries, reusing DigestCard exactly as every other category's own
-// accordion list already does ("the app dynamically generates a clean...
-// list of distinct, scannable visual cards... letting the user immediately
-// choose the exact type of information they want to read").
-function BasicHealthTree({
-  entries,
-  path,
-  onDrillIn,
-  onBack,
-  expandedId,
-  groupRefs,
-  onToggleEntry,
-  onJumpToRelated,
-}: {
-  entries: AnyDigestEntry[];
-  path: string[];
-  onDrillIn: (label: string) => void;
-  onBack: () => void;
-  expandedId: string | null;
-  groupRefs: MutableRefObject<Record<string, Measurable | null>>;
-  onToggleEntry: (id: string) => void;
-  onJumpToRelated: (id: string) => void;
-}) {
-  if (path.length === 0) {
-    const unmatchedCount = entries.filter(
-      (entry) => basicHealthTopicPathForEntryId(entry.id).length === 0,
-    ).length;
-    return (
-      <View style={styles.topicGrid}>
-        {BASIC_HEALTH_TOPICS.map((topic) => (
-          <TopicCard
-            key={topic.label}
-            label={topic.label}
-            count={
-              topic.subtopics ? topic.subtopics.length : basicHealthEntriesForPrefixes(entries, topic.prefixes ?? []).length
-            }
-            countNoun={topic.subtopics ? 'topics' : 'entries'}
-            onPress={() => onDrillIn(topic.label)}
-          />
-        ))}
-        {/* A real, dynamic safety net -- only ever appears if a real entry
-            genuinely doesn't match any known topic's own prefixes. See
-            BASIC_HEALTH_MORE_TOPIC_LABEL's own comment. */}
-        {unmatchedCount > 0 ? (
-          <TopicCard
-            label={BASIC_HEALTH_MORE_TOPIC_LABEL}
-            count={unmatchedCount}
-            countNoun="entries"
-            onPress={() => onDrillIn(BASIC_HEALTH_MORE_TOPIC_LABEL)}
-          />
-        ) : null}
-      </View>
-    );
-  }
+// Basic Health's own real, 2-level drill-down tree (BasicHealthTree,
+// TopicCard) lived here from 2026-08-08 -- "a combination of tree style
+// and categorized topic cards in related groups... moving strictly from
+// broad categories down to highly specific, bite-sized pieces of
+// information" -- through 2026-08-14, when it was removed. Direct report
+// that day: "I like the way that the conditions' information is setup for
+// how someone uses the information. The Basic Health section doesn't
+// follow the same pattern... It seems that area somehow didn't follow the
+// same flow as the other areas." Correct -- by then every condition, plus
+// Earth Matters and Home Gardening, had already been unified into one
+// continuous scroll of tap-to-expand shelf rows with no drilling in or
+// backing out required at all (see groupConditionEntries' own comment
+// below); Basic Health alone still made someone tap into a topic card,
+// then a subtopic card for Essential Nutrients specifically, then tap
+// "back" to see anything else. Basic Health now uses the exact same
+// BasicHealthShelves component below, fed by basicHealthAllGroups (see
+// that function's own comment) -- the same real grouping already proven
+// correct here for Basic Health's own scoped search, reused for ordinary
+// browsing too, rather than a second, parallel mechanism kept alongside it.
 
-  const topic = BASIC_HEALTH_TOPICS.find((t) => t.label === path[0]);
-
-  // One level in, and this real topic has its own real subtopics
-  // (Essential Nutrients, the only one today) -- a subtopic grid, not the
-  // leaf list yet.
-  if (path.length === 1 && topic?.subtopics) {
-    return (
-      <>
-        <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
-          <Text style={styles.treeBackLink}>{'‹'} Basic Health</Text>
-        </TouchableOpacity>
-        <Text style={styles.treeHeading}>{topic.label}</Text>
-        <View style={styles.topicGrid}>
-          {topic.subtopics.map((sub) => (
-            <TopicCard
-              key={sub.label}
-              label={sub.label}
-              count={basicHealthEntriesForPrefixes(entries, sub.prefixes).length}
-              countNoun="entries"
-              onPress={() => onDrillIn(sub.label)}
-            />
-          ))}
-        </View>
-      </>
-    );
-  }
-
-  // A real leaf -- either a standalone topic with no subtopics, or one
-  // specific Essential Nutrients subtopic (or the dynamic "More" bucket).
-  const leafEntries = basicHealthEntriesForPath(entries, path);
-  const leafKey = path.join('::');
-  const backLabel = path.length === 2 ? path[0] : 'Basic Health';
-  return (
-    <View
-      ref={(r) => {
-        groupRefs.current[leafKey] = r as unknown as Measurable | null;
-      }}
-    >
-      <TouchableOpacity onPress={onBack} activeOpacity={0.7}>
-        <Text style={styles.treeBackLink}>
-          {'‹'} {backLabel}
-        </Text>
-      </TouchableOpacity>
-      <Text style={styles.treeHeading}>{path[path.length - 1]}</Text>
-      {leafEntries.length === 0 ? (
-        <Text style={styles.emptyText}>Nothing here yet.</Text>
-      ) : (
-        leafEntries.map((entry) => (
-          <Animated.View key={entry.id} layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)}>
-            <DigestCard
-              entry={entry}
-              expanded={expandedId === entry.id}
-              onToggle={() => onToggleEntry(entry.id)}
-              onJumpToRelated={onJumpToRelated}
-            />
-          </Animated.View>
-        ))
-      )}
-    </View>
-  );
-}
-
-function TopicCard({
-  label,
-  count,
-  countNoun,
-  onPress,
-}: {
-  label: string;
-  count: number;
-  countNoun: string;
-  onPress: () => void;
-}) {
-  return (
-    <TouchableOpacity style={styles.topicCard} onPress={onPress} activeOpacity={0.85}>
-      <Text style={styles.topicCardTitle}>{label}</Text>
-      <Text style={styles.topicCardCount}>
-        {count} {countNoun}
-      </Text>
-    </TouchableOpacity>
-  );
-}
-
-// Every real CONDITION's own grouped browsing view -- 2026-08-08, since
-// Basic Health moved to its own real tree (BasicHealthTree above), this
-// component is now used for a condition's own real topic grouping (see
+// Every real CONDITION's own grouped browsing view -- 2026-08-08, and, as
+// of 2026-08-14, Basic Health's own real browsing view too (see the note
+// above). Also used for a condition's own real topic grouping (see
 // groupConditionEntries' own comment; rebuilt 2026-08-12 from a fixed
 // 4-pillar version into many more, more specific real topics) and for
-// Basic Health's own scoped-search results, not for ordinary Basic Health
-// browsing at all (its earlier, original job, before Basic Health outgrew
-// a flat shelf list entirely). The per-row interaction itself was
+// every category's own scoped search results. The per-row interaction
+// itself was
 // rebuilt 2026-08-08, direct correction after an even earlier version (tapping a
 // card jumped clean out of the shelf view into a
 // completely different, much longer flat list) read as genuinely
@@ -3070,10 +2940,10 @@ function renderRichText(text: string, boldStyle: TextStyle) {
 // A real, local-only thumbs-up/down control -- 2026-08-08, self-contained
 // (loads and saves its own one entry's value directly, see lib/
 // digestFeedback.ts's own comment for why) rather than threaded as props
-// through BasicHealthTree/BasicHealthShelves, both already several props
-// deep. Tapping the already-active choice again clears it back to no
-// opinion, the same toggle shape this app's own PopoverSelect-adjacent
-// controls already use elsewhere.
+// through BasicHealthShelves, already several props deep. Tapping the
+// already-active choice again clears it back to no opinion, the same
+// toggle shape this app's own PopoverSelect-adjacent controls already use
+// elsewhere.
 function FeedbackRow({ entryId }: { entryId: string }) {
   const [value, setValue] = useState<DigestFeedbackValue | null>(null);
   useEffect(() => {
@@ -3257,24 +3127,10 @@ const styles = StyleSheet.create({
   },
   searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
   searchResultCategory: { ...typography.caption, color: TAB_COLOR, marginBottom: 4 },
-  // Basic Health's own real tree navigation -- a wrapping grid of topic
-  // cards (top level and, for Essential Nutrients, one level in), plus a
-  // plain back-link and heading shown once a real leaf is reached.
-  topicGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: 16 },
-  topicCard: {
-    width: '47%',
-    minHeight: 76,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    backgroundColor: colors.surface,
-    padding: 12,
-    justifyContent: 'center',
-  },
-  topicCardTitle: { ...typography.label, color: TAB_COLOR, fontSize: 14, marginBottom: 4 },
-  topicCardCount: { ...typography.caption, color: colors.textMuted },
-  treeBackLink: { ...typography.captionEmphasis, color: colors.primary, marginBottom: 10 },
-  treeHeading: { ...typography.screenTitle, color: TAB_COLOR, marginBottom: 12 },
+  // topicGrid/topicCard/topicCardTitle/topicCardCount/treeBackLink/
+  // treeHeading (Basic Health's own real tree navigation) removed
+  // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
+  // own comment, above this file's grouping functions.
   shelfSection: { marginBottom: 18 },
   shelfHeading: { ...typography.label, color: TAB_COLOR, marginBottom: 8 },
   // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
