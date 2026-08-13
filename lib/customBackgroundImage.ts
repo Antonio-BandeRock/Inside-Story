@@ -9,31 +9,37 @@
 // expo-file-system, all three added to this project specifically for this
 // feature (2026-08-09). Adding these is a real native-module change --
 // app.json gained an expo-image-picker plugin entry with a real permission
-// description -- so this needs a genuine native rebuild (`npx expo run:
-// android`) before it works on-device, not just a Metro/JS reload.
+// description -- which needed a genuine native rebuild (`npx expo run:
+// android`) before it would work on-device, not just a Metro/JS reload.
+// That rebuild happened the same day (real, USB-connected, 3m19s, 462
+// tasks) and the feature was confirmed working on-device directly
+// afterward ("Yes the import of an image worked great!") -- all three
+// packages are genuinely present in the installed binary now, so nothing
+// about this file is still pending a rebuild.
 //
-// **A real, on-device crash was caught the same day these were added**:
-// "Cannot find native module 'ExpoImageManipulator'... on launch. App
-// opens behind it." -- the original version of this file used plain, top-
-// level `import ... from 'expo-image-manipulator'` (etc.) statements, and
-// each of these packages' own JS wrapper calls `requireNativeModule()`
-// once at module-load time, not per function call. Since this file is
-// reachable from app/profile.tsx (a real screen in the route tree), the
-// bundle's own module graph required all three packages -- and therefore
-// ran their native-module lookups -- the instant the app's JS bundle was
-// evaluated, well before anyone ever tapped "Custom image," and long
-// before a real native rebuild had a chance to actually link the modules
-// in. Fixed by switching every one of these three imports to a real,
-// dynamic `await import(...)` INSIDE each exported function instead --
-// Metro still bundles the code (so it's ready the moment a real rebuild
-// links the native side in), but the actual top-level `requireNativeModule`
-// call inside each package doesn't run until that dynamic import is
-// actually awaited, i.e. only once someone genuinely taps "Custom image."
-// This means the rest of the app -- including Profile itself -- works
-// completely normally on the CURRENT, not-yet-rebuilt dev-client binary;
-// only tapping the Custom image button itself will still fail (a real,
-// contained, one-button failure, not a whole-app launch crash) until the
-// real rebuild happens.
+// **A real, on-device crash was caught the same day these were added,
+// BEFORE that rebuild, and the fix below is why the rest of the app
+// stayed usable in the meantime**: "Cannot find native module
+// 'ExpoImageManipulator'... on launch. App opens behind it." -- the
+// original version of this file used plain, top-level `import ... from
+// 'expo-image-manipulator'` (etc.) statements, and each of these packages'
+// own JS wrapper calls `requireNativeModule()` once at module-load time,
+// not per function call. Since this file is reachable from
+// app/profile.tsx (a real screen in the route tree), the bundle's own
+// module graph required all three packages -- and therefore ran their
+// native-module lookups -- the instant the app's JS bundle was evaluated,
+// well before anyone ever tapped "Custom image," and well before the real
+// rebuild above had a chance to actually link the modules in. Fixed by
+// switching every one of these three imports to a real, dynamic `await
+// import(...)` INSIDE each exported function instead -- Metro still
+// bundles the code, but the actual top-level `requireNativeModule` call
+// inside each package doesn't run until that dynamic import is actually
+// awaited, i.e. only once someone genuinely taps "Custom image." This is
+// still the real, live shape of these imports below (not reverted to
+// plain top-level imports now that the rebuild is done) -- it costs
+// nothing once the native modules are already linked, and keeps this file
+// safe against the same class of crash if a future native module is ever
+// added here the same way.
 //
 // Real, enforced compliance rather than a "please pick something smaller"
 // rejection: any picked image gets automatically downscaled (if larger
