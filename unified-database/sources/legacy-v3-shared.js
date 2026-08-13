@@ -105,6 +105,26 @@ const NUTRIENT_TAG_MAP = {
   BIOT: 'biotin_b7',
   AU_BIOTIN_B7_UG: 'biotin_b7',
   // No real inositol tag exists anywhere in this dataset -- confirmed by direct query, an honest gap, not an oversight.
+  // Lycopene, added 2026-08-13 alongside the live app's own matching
+  // addition (see lib/referenceDbVersion.ts's own real detail on that
+  // pass) -- direct request to "modify the new future replacement
+  // database to also include the change." Four real tags confirmed
+  // directly against this file's own real v3_full source (a
+  // COUNT(*)-per-tag-per-source query, not assumed): LYCOPENE (USDA,
+  // 5,314 real rows), LYCPN (Canada_CNF, 3,366), AU_LYCOPENE_UG
+  // (Australia_AFCD, 31), LYCO (UK_CoFID, 1) -- all four genuinely in µg,
+  // no unit-mismatch risk the way CAFFN's own gram-vs-milligram trap
+  // required excluding. A real, honest, and genuinely BROADER result than
+  // the live app's own same-day addition got: the live app's master
+  // workbook only has real, filled-in lycopene values for USDA (3,845
+  // rows); this raw source independently carries real values for three
+  // more national sources the live app's own workbook doesn't currently
+  // have data for at all -- expected and fine, this project's own
+  // explicitly wider scope, not a discrepancy to reconcile.
+  LYCOPENE: 'lycopene',
+  LYCPN: 'lycopene',
+  AU_LYCOPENE_UG: 'lycopene',
+  LYCO: 'lycopene',
 };
 
 function ensureExtracted() {

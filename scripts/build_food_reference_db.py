@@ -2408,6 +2408,22 @@ NUTRIENT_DEFINITIONS = [
     ("manganese", "Manganese", "mg", "mineral"),
     ("selenium", "Selenium", "µg", "mineral"),
     ("iodine", "Iodine", "µg", "mineral"),
+    # Grouped 'other' -- same "no strict bucket fits" call already made for
+    # water/caffeine/choline above. Lycopene is a carotenoid pigment, not a
+    # vitamin (unlike beta-carotene, it isn't a vitamin A precursor either),
+    # so 'vitamin' would misrepresent it; 'other' already has real
+    # precedent (inositol) for exactly this "real, tracked, but genuinely
+    # doesn't fit macro/mineral/vitamin/amino_acid" case. Added 2026-08-13,
+    # direct request tied to real prostate-health research (see
+    # lib/digest/prostateHealth.ts). Real column ("Lycopene (UG)" and three
+    # real variant spellings, confirmed directly against the live master
+    # workbook) is present in all 7 source sheets, but as of this addition
+    # only USDA actually has real, filled-in values (3,845 rows, 140 of
+    # them genuinely non-zero) -- the other 6 sheets carry the header with
+    # every cell empty in this specific workbook, an honest, confirmed gap,
+    # not an oversight. See NUTRIENT_COLUMN_ALIASES below for the real
+    # encoding-corruption note this same check surfaced.
+    ("lycopene", "Lycopene", "µg", "other"),
 ]
 
 NUTRIENT_COLUMN_ALIASES = {
@@ -2459,6 +2475,24 @@ NUTRIENT_COLUMN_ALIASES = {
     "manganese": ["Manganese, Mn (MG)"],
     "selenium": ["Selenium, Se (UG)"],
     "iodine": ["Iodine (µg)"],
+    # Four real column-header variants confirmed present (via direct
+    # normalize_header() check against the live master workbook, not
+    # assumed) across all 7 source sheets: "Lycopene (ug) (ug)", "Lycopene
+    # (UG)", and two that carry a genuine, confirmed pre-existing encoding
+    # corruption in the workbook's own shared-strings table -- "Lycopene
+    # (�g)" / "LYCOPENE (�g)", where � is a real Unicode
+    # replacement character, not a terminal-rendering artifact (confirmed
+    # via Python's own repr(), not eyeballed). The SAME corruption affects
+    # at least two already-tracked nutrients too (spot-checked directly:
+    # "Biotin (�g)", "VITAMIN D (D2 + D3) (�g)") -- a real,
+    # pre-existing, general workbook issue, not something introduced here
+    # or specific to lycopene, and not chased further for those other
+    # nutrients in this same pass (flagged honestly as a real, open gap
+    # rather than silently fixed or silently ignored). All four aliases
+    # are included here specifically so a real value hiding behind the
+    # corrupted variant isn't silently missed, matching this dict's own
+    # standing "broaden coverage without guessing at a unit" discipline.
+    "lycopene": ["Lycopene (ug) (ug)", "Lycopene (�g)", "Lycopene (UG)", "LYCOPENE (�g)"],
 }
 
 # --- Physiology knowledge base -----------------------------------------

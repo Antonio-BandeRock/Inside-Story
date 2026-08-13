@@ -659,4 +659,53 @@
 // mismatch against whatever it already has on-device and actually
 // reimports this restored content, rather than silently keeping today's
 // now-stale cached copy.
-export const REFERENCE_DB_VERSION = "20260813120000";
+//
+// Bumped again, direct request: "research the use of lycopene in relation
+// to prostate health... if we aren't yet tracking lycopene from the USDA
+// data, please modify the app database to include it." Confirmed directly
+// (queried the live nutrients table first, not assumed) that lycopene was
+// entirely untracked -- 38 nutrients existed, no carotenoid at all beyond
+// vitamin_a. Added a new `lycopene` nutrient (µg, group 'other', matching
+// the same "no strict bucket fits" precedent already set for water/
+// caffeine/choline/inositol) plus 3,845 real `food_nutrients` rows for
+// every USDA food carrying a real, filled-in lycopene value in the master
+// combined workbook (140 genuinely non-zero, the rest a real, explicit
+// zero -- both are real measured data, not missing data, the same
+// distinction every other nutrient in this table already preserves).
+// Extracted directly from the same real master xlsx
+// scripts/build_food_reference_db.py itself reads, using that script's
+// own real parse_sheet/normalize_header functions (not reimplemented or
+// guessed), and food_id/source correspondence against the live foods
+// table was independently verified before inserting anything -- all 3,845
+// matched exactly, zero mismatches. Values spot-checked against known
+// real-world nutrition science before trusting them: tomato powder
+// (46.26mg/100g) and other concentrated tomato products lead, matching
+// published lycopene concentration data; raw tomato (2.57mg/100g),
+// watermelon (4.53mg/100g), guava (5.20mg/100g), and pink grapefruit
+// (1.14-1.42mg/100g) all land within their own real, independently
+// published ranges; cooked tomato reading higher than raw matches the
+// well-documented real effect of cooking concentrating bioavailable
+// lycopene. A real, honest gap found and left unfixed in this same pass,
+// not silently patched over: all 7 source sheets carry the real column
+// header, but only USDA's own copy has real values filled in -- the other
+// 6 have the column present with every cell empty in this specific
+// workbook (see NUTRIENT_COLUMN_ALIASES's own comment on this for the
+// full detail, including a real, separate, pre-existing encoding-
+// corruption finding this same check surfaced affecting at least two
+// other already-tracked nutrients too, biotin and vitamin D, not chased
+// further here since it's outside this task's own real scope). Applied
+// directly against the bundled `.db` via sqlite3.exe (the established
+// pattern for a targeted nutrient addition outside a full pipeline
+// rebuild -- Water/Choline/Caffeine were all added this same way), with
+// NUTRIENT_DEFINITIONS/NUTRIENT_COLUMN_ALIASES in
+// build_food_reference_db.py also updated so a future full rebuild picks
+// this up identically, not just the live file. The separate unified-
+// database project's own NUTRIENT_TAG_MAP (sources/legacy-v3-shared.js)
+// was updated too, per the same direct request to "modify the new future
+// replacement database to also include the change" -- that pipeline's own
+// raw source already has real lycopene data for 4 sources (USDA 5,314
+// rows, Canada_CNF 3,366, Australia_AFCD 31, UK_CoFID 1), genuinely
+// broader coverage than the live app gets from this pass, which is
+// real, expected, and fine given that project's own explicitly broader
+// scope.
+export const REFERENCE_DB_VERSION = "20260813150000";

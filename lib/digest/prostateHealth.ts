@@ -77,14 +77,58 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
   {
     id: 'prostate-lycopene-tomatoes',
     category: 'prostateHealth',
-    title: 'Lycopene, Concentrated in Tomatoes, Carries a Dose-Response Risk Reduction',
-    teaser: 'A systematic review and meta-analysis found a linear relationship: the more lycopene in the diet or the bloodstream, the lower the measured prostate cancer risk.',
+    title: 'Lycopene, Concentrated in Tomatoes, Carries a Dose-Response Risk Reduction, With One Honest Caveat',
+    teaser: 'A 42-study, 692,000-participant meta-analysis found both dietary and circulating lycopene tracked with a real, roughly 12% lower prostate cancer risk, though the same analysis found no significant effect on advanced disease specifically.',
     summary:
-      "Lycopene is the specific carotenoid pigment that gives tomatoes their red color, and it carries some of the best-established single-nutrient evidence for prostate cancer risk reduction in this whole research area. A systematic review and meta-analysis found a linear inverse association between dietary lycopene intake and prostate cancer risk, and separately found high blood levels of lycopene associated with an 11% reduction in overall cancer risk, a dose-response relationship rather than an all-or-nothing effect. The World Cancer Research Fund's own evidence review states there is sufficient evidence that high intake of tomatoes, tomato products, or lycopene supplementation can decrease prostate cancer risk. Cooking and processing tomatoes (into sauce, paste, or juice) actually increases lycopene's bioavailability compared to raw tomatoes, a practical, useful detail worth knowing rather than assuming raw is always better.",
+      "Lycopene is the specific carotenoid pigment that gives tomatoes their red color, and it carries some of the best-established single-nutrient evidence for prostate cancer risk reduction in this whole research area, precise enough to state the real numbers rather than a general trend. The largest systematic review and meta-analysis on the topic (42 studies, 43,851 cases across 692,012 participants) found both dietary lycopene intake and circulating (blood) lycopene independently associated with a statistically significant, roughly 12% lower prostate cancer risk (RR 0.88 for each, comparing highest to lowest intake/level), with a real, measurable dose-response relationship on top: risk fell an estimated 1% per additional 2mg of dietary lycopene, and 3.5-3.6% per additional 10 micrograms/dL of circulating lycopene. A second, independent meta-analysis (26 studies, 17,517 cases across 563,299 participants) found a similar dose-response pattern and identified 9 to 21mg/day as the range where higher lycopene intake most consistently tracked with reduced risk, translating to roughly a 2.1% risk reduction per additional 5mg/day within that range. Worth stating honestly rather than glossed over, matching this whole research area's own standing discipline: the larger meta-analysis found no significant association between lycopene and specifically advanced prostate cancer, only a non-significant trend toward less aggressive disease, meaning the strongest, clearest evidence is for lowering overall risk of developing prostate cancer at all, not for slowing an already-aggressive case. The World Cancer Research Fund's own evidence review separately states there is sufficient evidence that high intake of tomatoes, tomato products, or lycopene supplementation can decrease prostate cancer risk. Cooking and processing tomatoes measurably increases lycopene's bioavailability compared to raw tomatoes, with real, quantified numbers and a specific whole-food ranking covered in its own dedicated entry.",
     citations: [
-      { source: 'Increased dietary and circulating lycopene are associated with reduced prostate cancer risk: a systematic review and meta-analysis, Prostate Cancer and Prostatic Diseases', url: 'https://www.nature.com/articles/pcan201725' },
+      { source: 'Increased dietary and circulating lycopene are associated with reduced prostate cancer risk: a systematic review and meta-analysis, Prostate Cancer and Prostatic Diseases, PMID 28440323', url: 'https://pubmed.ncbi.nlm.nih.gov/28440323/' },
+      { source: 'Lycopene and Risk of Prostate Cancer: A Systematic Review and Meta-Analysis, Medicine (Baltimore), PMID 26287411', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4616444/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['prostate-lycopene-bph-clinical-trial', 'prostate-lycopene-food-sources-bioavailability'],
+  },
+  {
+    id: 'prostate-lycopene-bph-clinical-trial',
+    category: 'prostateHealth',
+    title: 'A Small, Real BPH Trial: Lycopene Lowered PSA and Stopped Prostate Growth, Placebo Did Not',
+    teaser: 'A 6-month, placebo-controlled trial in 40 men with confirmed BPH found daily lycopene significantly lowered PSA and prevented prostate enlargement, while the placebo group’s prostates kept growing.',
+    summary:
+      "The prostate-cancer-risk evidence above is about lycopene and cancer risk specifically; BPH (already covered in this category's own overview) is a separate, non-cancerous condition with its own, smaller but real trial evidence. A randomized, placebo-controlled trial enrolled 40 men with histologically confirmed BPH and gave half 15mg/day of lycopene, the other half a placebo, for 6 months. The lycopene group showed a statistically significant drop in PSA levels, while the placebo group showed no change; more strikingly, prostate size stayed stable in the lycopene group over the 6 months, while it kept enlarging in the placebo group, direct evidence of slowed disease progression rather than just a lab-value change. The proposed mechanism runs through several already-familiar pathways: lycopene's own antioxidant activity reduces the oxidative stress and localized inflammation known to drive BPH progression, and separate research finds it may also inhibit 5-alpha-reductase, the same enzyme finasteride and dutasteride (already covered in this category's own medication research) work by blocking, plus effects on cell-cycle progression and insulin-like growth factor signaling. Worth stating the honest limitation directly rather than overselling a real result: this was a small trial (40 men total), and while its outcome measures (PSA, prostate size) are real and objective, it hasn't yet been replicated at the larger scale the prostate-cancer-risk meta-analyses above were built on. A reasonable, food-first candidate to raise with a doctor for BPH management, not yet strong enough evidence to treat as a settled, first-line recommendation on its own.",
+    citations: [
+      { source: 'Lycopene Inhibits Disease Progression in Patients with Benign Prostate Hyperplasia, The Journal of Nutrition, PMID 18156403', url: 'https://pubmed.ncbi.nlm.nih.gov/18156403/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-lycopene-tomatoes', 'prostate-medications-psa-monitoring', 'prostate-gut-microbiome-bph'],
+  },
+  {
+    id: 'prostate-lycopene-food-sources-bioavailability',
+    category: 'prostateHealth',
+    title: 'Which Foods Actually Carry the Most Lycopene, and Why Cooked Beats Raw',
+    teaser: 'Concentrated, cooked tomato products carry far more lycopene per 100g than raw tomatoes do, and a real, controlled study found tomato paste delivers 2.5 times the peak blood level of the same lycopene eaten raw.',
+    summary:
+      "Now a real, tracked nutrient in this app's own reference database, rather than an external claim with no way to check a specific food, lycopene's own true food-source ranking turns out to run counter to a common assumption. Concentrated, cooked, or dried tomato products dominate: sun-dried tomatoes and tomato powder each carry roughly 45,000-46,000 micrograms per 100g, tomato paste and tomato sauce run from about 13,900 up to 28,800 micrograms per 100g depending on how concentrated the product is, and plain canned tomato products and vegetable/tomato juice blends still carry several thousand micrograms per 100g. Plain raw tomato, by contrast, carries a real but meaningfully smaller amount, roughly 2,500 to 4,000 micrograms per 100g across different cuts and ripeness. Watermelon (about 4,500 micrograms per 100g) and common guava (about 5,200 micrograms per 100g) are both real, substantial non-tomato sources, worth knowing directly since tomato so thoroughly dominates the popular conversation about this nutrient; papaya (about 1,800 micrograms per 100g) and pink or red grapefruit (roughly 1,100-1,400 micrograms per 100g) round out the real, meaningfully lycopene-containing produce. This isn't a coincidence of processing, it's a documented, controlled finding: a classic, tightly controlled human study gave the same real amount of lycopene as either fresh tomato juice or tomato paste and measured a 2.5-fold higher peak blood lycopene concentration and a 3.8-fold higher total absorption (area under the curve) from the tomato paste, since heat and mechanical processing break down the plant cell walls and convert lycopene into a more absorbable molecular form. One real, practical caveat worth stating directly: this same body of research finds the bioavailability boost from cooking and concentrating tomatoes depends on genuinely eating it alongside some dietary fat, since lycopene is fat-soluble and needs it to be absorbed at all, a real, practical reason a tomato sauce cooked with olive oil, or a salad with tomato and a fat-containing dressing, is a more effective real-world choice than dry tomato paste eaten alone.",
+    citations: [
+      { source: 'Lycopene is more bioavailable from tomato paste than from fresh tomatoes, American Journal of Clinical Nutrition, PMID 9209178', url: 'https://pubmed.ncbi.nlm.nih.gov/9209178/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-lycopene-tomatoes', 'prostate-lycopene-bph-clinical-trial', 'prostate-cruciferous-sulforaphane'],
+    relatedFoodNames: ['Tomato', 'Tomato products', 'Tomato sauce', 'Tomato powder', 'Red Tomato', 'Watermelon', 'Common Guava', 'Papaya', 'Grapefruit'],
+    chart: {
+      title: 'Lycopene Content of Foods (micrograms per 100g)',
+      unit: 'µg',
+      data: [
+        { label: 'Sun-dried tomato', value: 45902 },
+        { label: 'Tomato paste (concentrated)', value: 28764 },
+        { label: 'Tomato sauce', value: 13895 },
+        { label: 'Common guava', value: 5204 },
+        { label: 'Watermelon', value: 4532 },
+        { label: 'Red tomato (raw)', value: 4088 },
+        { label: 'Papaya', value: 1828 },
+        { label: 'Pink/red grapefruit', value: 1419 },
+      ],
+      sourceNote: "This app's own 22,000-plus-food reference database, USDA-sourced",
+    },
   },
   {
     id: 'prostate-cruciferous-sulforaphane',
@@ -96,6 +140,7 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Phytochemicals from cruciferous vegetables, epigenetics, and prostate cancer prevention', url: 'https://pubmed.ncbi.nlm.nih.gov/23800833/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['prostate-lycopene-food-sources-bioavailability'],
   },
   {
     id: 'prostate-choline-tmao',
@@ -180,7 +225,7 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Benign Prostatic Hyperplasia, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK558920/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening'],
+    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-lycopene-bph-clinical-trial', 'prostate-lycopene-food-sources-bioavailability', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening'],
   },
 
   // -- Full-depth parity additions, 2026-08-08. Every citation
