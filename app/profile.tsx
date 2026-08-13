@@ -858,6 +858,24 @@ export default function ProfileScreen() {
   const tabHubIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'default', label: 'Default' },
   ];
+  // 2026-08-12, direct request: "Create new TabHub menu icons from these 8
+  // new images... available to be selected to be the TabHub icon." Real
+  // garden/pollinator wildlife, not tied to any tracked condition -- listed
+  // right after Default (the app's own two non-condition option groups)
+  // and before the alphabetically-sorted condition list below, sorted
+  // alphabetically the same way that list already is.
+  const gardenIconOptions: { key: TabHubIconChoice; label: string }[] = [
+    { key: 'honeybee', label: 'Honeybee' },
+    { key: 'bumblebee', label: 'Bumblebee' },
+    { key: 'dragonfly', label: 'Dragonfly' },
+    { key: 'hummingbird', label: 'Hummingbird' },
+    { key: 'treeFrog', label: 'Tree Frog' },
+    { key: 'monarchButterfly', label: 'Monarch Butterfly' },
+    { key: 'ladybug', label: 'Ladybug' },
+    { key: 'prayingMantis', label: 'Praying Mantis' },
+  ];
+  gardenIconOptions.sort((a, b) => a.label.localeCompare(b.label));
+  tabHubIconOptions.push(...gardenIconOptions);
   const conditionIconOptions: { key: TabHubIconChoice; label: string }[] = [];
   for (const condition of allConditions) {
     if (condition.status === 'planned') continue;
@@ -1534,9 +1552,10 @@ export default function ProfileScreen() {
           <View style={styles.cardBody}>
             <Text style={styles.subLabel}>TabHub Icon</Text>
             <Text style={styles.helpText}>
-              The main floating button used to open the app&apos;s navigation menu. Choose the default butterfly, or
-              any tracked condition&apos;s own real icon to personalize it -- generically representing either
-              Hashimoto&apos;s or Graves&apos; if you leave it as the default. Only one can be active at a time.
+              The main floating button used to open the app&apos;s navigation menu. Choose the default butterfly, one
+              of 8 garden/pollinator icons, or any tracked condition&apos;s own real icon to personalize it --
+              generically representing either Hashimoto&apos;s or Graves&apos; if you leave it as the default. Only
+              one can be active at a time.
             </Text>
             <View style={styles.iconGridRow}>
               {tabHubIconOptions.map((option) => {

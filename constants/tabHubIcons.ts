@@ -13,22 +13,55 @@ import type { TabHubIconChoice } from '../lib/visualPreferences';
 // offset copies for its own hand-rolled drop-shadow trick -- see
 // TabHub.tsx's own ELEVATION_SHADOW_LAYERS), each with different inline
 // styling a pre-wrapped component couldn't accommodate. Every one of these
-// 20 real, literal require() calls is necessary -- Metro's bundler needs a
+// 28 real, literal require() calls is necessary -- Metro's bundler needs a
 // static, non-dynamic path for each one, the same constraint
 // DigestConditionIcons.tsx's own header comment already documents.
 //
+// The 8 GardenIconChoice entries (honeybee through prayingMantis) were
+// added 2026-08-12, direct request: "Create new TabHub menu icons from
+// these 8 new images... available to be selected to be the TabHub icon."
+// Cropped from one combined reference sheet (8 real, individually
+// illustrated pollinators/garden wildlife, 2 columns x 4 rows) via the same
+// isolated jimp scratchpad methodology already used for the 19 condition
+// icons -- a real, per-region flood-fill to find each bounding box,
+// followed by a real pairwise-overlap check across every PADDED crop box
+// (not just the raw regions), which caught one real close call: the
+// top-right two regions (bumblebee, hummingbird) sit only ~2px apart in
+// the source sheet, tight enough that a first, uniform padding value bled
+// real content across that one boundary -- fixed with a per-edge,
+// per-region safe-padding computation (capped to each region's own real
+// gap to its nearest neighbor in that direction, minus a 3px buffer)
+// rather than one global pad value, then re-verified with zero real
+// content bleed across every one of the 28 real region pairs before any
+// file was written. Every one of the 8 final crops was then downsized to
+// at most 312px on its own longer axis (a real 4x safety margin above
+// TAB_HUB_ICON_FIXED_HEIGHT's own 78px render ceiling, mirroring the
+// 'default' icon's own already-established 464x312-for-a-116x78-box
+// precedent below) and re-verified via direct pixel sampling before being
+// copied into assets/branding/garden-icons/ -- a separate folder from
+// digest-icons/, since these 8 are real garden/pollinator wildlife, not
+// tied to any tracked condition at all.
+//
 // Partial, not a full Record -- TabHubIconChoice is 'default' | every real
-// DigestCategoryKey, which also includes basicHealth/earthMatters/
-// homeGardening (the 3 structural, non-condition categories, real
-// DigestCategoryKey values but not "conditions" in the sense this feature
-// means, with no bespoke icon of their own) -- the exact same reasoning
-// DigestConditionIcons.tsx's own DIGEST_CONDITION_ICONS already uses
-// Partial for. Every consumer of this map (TabHub.tsx's own lookup,
-// Profile's own picker) already falls back to `.default` / filters out an
-// undefined result, so nothing further needed to change once this became
-// Partial.
+// DigestCategoryKey | every real GardenIconChoice. DigestCategoryKey alone
+// also includes basicHealth/earthMatters/homeGardening (the 3 structural,
+// non-condition categories, real DigestCategoryKey values but not
+// "conditions" in the sense this feature means, with no bespoke icon of
+// their own) -- the exact same reasoning DigestConditionIcons.tsx's own
+// DIGEST_CONDITION_ICONS already uses Partial for. Every consumer of this
+// map (TabHub.tsx's own lookup, Profile's own picker) already falls back
+// to `.default` / filters out an undefined result, so nothing further
+// needed to change once this became Partial.
 export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourcePropType>> = {
   default: require('../assets/branding/butterfly-transparent.png'),
+  honeybee: require('../assets/branding/garden-icons/honeybee.png'),
+  bumblebee: require('../assets/branding/garden-icons/bumblebee.png'),
+  dragonfly: require('../assets/branding/garden-icons/dragonfly.png'),
+  hummingbird: require('../assets/branding/garden-icons/hummingbird.png'),
+  treeFrog: require('../assets/branding/garden-icons/tree-frog.png'),
+  monarchButterfly: require('../assets/branding/garden-icons/monarch-butterfly.png'),
+  ladybug: require('../assets/branding/garden-icons/ladybug.png'),
+  prayingMantis: require('../assets/branding/garden-icons/praying-mantis.png'),
   hashimotos: require('../assets/branding/digest-icons/hashimotos.png'),
   rheumatoidArthritis: require('../assets/branding/digest-icons/rheumatoid-arthritis.png'),
   psoriasis: require('../assets/branding/digest-icons/psoriasis.png'),
@@ -85,6 +118,18 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
 // the computed render size below.
 const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [number, number]>> = {
   default: [464, 312],
+  // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
+  // measured pairs off the actual final (already-downsized) files, the
+  // same jimp-based methodology as every other entry in this table, not
+  // assumed from the crop-region math.
+  honeybee: [408, 312],
+  bumblebee: [396, 312],
+  dragonfly: [389, 312],
+  hummingbird: [356, 312],
+  treeFrog: [347, 312],
+  monarchButterfly: [458, 306],
+  ladybug: [277, 312],
+  prayingMantis: [298, 312],
   hashimotos: [255, 211],
   rheumatoidArthritis: [220, 269],
   psoriasis: [250, 221],

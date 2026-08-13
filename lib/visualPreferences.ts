@@ -38,6 +38,29 @@ export type BackgroundStyle = 'photo' | 'generic' | 'off' | 'custom';
 // separately.
 export const SHARED_BACKGROUND_SCOPE_KEY = 'shared';
 
+// A second, real set of 8 TabHub icon choices, 2026-08-12 -- explicitly
+// requested alongside the condition icons: "Create new TabHub menu icons
+// from these 8 new images... available to be selected to be the TabHub
+// icon." Genuinely different in kind from every DigestCategoryKey choice
+// below -- these 8 (honeybee, bumblebee, dragonfly, hummingbird, tree
+// frog, monarch butterfly, ladybug, praying mantis) aren't tied to any
+// tracked condition at all, real garden/pollinator wildlife instead,
+// thematically matching this app's own Garden tab and Earth Matters
+// pollinator research even though this feature itself (picking the main
+// button's own icon) has nothing to do with either. Cropped from one
+// combined reference sheet the same established way as the 19 condition
+// icons -- see constants/tabHubIcons.ts's own header comment for the real
+// methodology.
+export type GardenIconChoice =
+  | 'honeybee'
+  | 'bumblebee'
+  | 'dragonfly'
+  | 'hummingbird'
+  | 'treeFrog'
+  | 'monarchButterfly'
+  | 'ladybug'
+  | 'prayingMantis';
+
 // The main floating TabHub button's own icon, 2026-08-09, explicitly
 // requested: "make it so each icon is available in the user profile to
 // choose to use in the TabHub menu icon position in place of... the
@@ -46,13 +69,14 @@ export const SHARED_BACKGROUND_SCOPE_KEY = 'shared';
 // long-standing app icon/hub button); any real DigestCategoryKey instead
 // picks that condition's own real cropped-artwork icon (see
 // components/DigestConditionIcons.tsx / constants/tabHubIcons.ts) as a
-// deliberate personalization. Only one choice at a time -- a plain scalar
-// field, not a set. Imported here as a type-only import (erased at compile
-// time, so no real runtime dependency on lib/digest/index.ts's own much
-// larger content-aggregation module -- the same precedent already
-// established for sixDimensionsReference.ts's own type-only import into
-// lib/db.ts).
-export type TabHubIconChoice = 'default' | DigestCategoryKey;
+// deliberate personalization; any GardenIconChoice (added 2026-08-12) picks
+// one of the 8 real, non-condition garden/pollinator icons above. Only one
+// choice at a time -- a plain scalar field, not a set. Imported here as a
+// type-only import (erased at compile time, so no real runtime dependency
+// on lib/digest/index.ts's own much larger content-aggregation module --
+// the same precedent already established for sixDimensionsReference.ts's
+// own type-only import into lib/db.ts).
+export type TabHubIconChoice = 'default' | DigestCategoryKey | GardenIconChoice;
 
 // A few calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for
