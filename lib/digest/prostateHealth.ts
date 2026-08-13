@@ -165,7 +165,48 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Chemoprevention of Prostate Cancer by Natural Agents: Evidence from Molecular and Epidemiological Studies, Anticancer Research', url: 'https://ar.iiarjournals.org/content/39/10/5231' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['zinc-overview', 'zinc-tying-together'],
+    relatedIds: ['zinc-overview', 'zinc-tying-together', 'prostate-zinc-citrate-truncated-krebs-cycle', 'prostate-zinc-testosterone-deficiency'],
+  },
+  {
+    id: 'prostate-zinc-citrate-truncated-krebs-cycle',
+    category: 'prostateHealth',
+    title: 'Why the Prostate Deliberately Wastes Energy: Zinc Forces Citrate to Pile Up Instead of Being Burned',
+    teaser: 'Normal prostate cells run a genuinely broken version of the Krebs cycle on purpose, with zinc as the switch, so citrate accumulates 30 to 50 times higher than in almost any other tissue in the body.',
+    summary:
+      "The prior entry names zinc's own outsized concentration in the prostate; this is the actual, specific biochemistry behind it, and it directly involves citrate too. Nearly every other cell type oxidizes citrate all the way through the Krebs cycle for maximum energy (ATP) production. Normal prostate epithelial cells do something unusual: they accumulate zinc at high enough levels to directly inhibit a specific enzyme, mitochondrial aconitase, the one that would otherwise oxidize citrate further. This deliberately truncates the Krebs cycle partway through, so citrate piles up instead of being burned, and the cell secretes that citrate into prostatic fluid as one of the gland's own defining functions, at a real, measurable energy cost (less ATP from oxidation, made up for with more glycolysis). The actual, quantified numbers are striking: normal peripheral-zone prostate tissue holds roughly 13,000 nmol/g of citrate and 3,000 nmol/g of zinc, 30 to 50-fold and 3 to 10-fold higher than in ordinary soft tissue, and prostatic fluid itself concentrates citrate even further, into the tens of thousands of nmol/g range. Worth stating the direction of this relationship precisely, since it's easy to get backwards: testosterone (along with prolactin) is what drives this whole system, independently increasing zinc uptake into prostate cells (via a specific zinc transporter, ZIP1), which is what then allows citrate to accumulate and be secreted. This is testosterone-DEPENDENT machinery, not something zinc or citrate themselves are doing TO testosterone levels, an important distinction covered directly in its own dedicated comparison entry. During prostate cancer's own development, this whole system reverses: cells lose their zinc accumulation and switch back to normal citrate-oxidizing metabolism, which is exactly why both zinc and citrate levels collapse in cancerous tissue, covered next.",
+    citations: [
+      { source: 'Novel role of zinc in the regulation of prostate citrate metabolism and its implications in prostate cancer, The Prostate, PMID 9609552', url: 'https://pubmed.ncbi.nlm.nih.gov/9609552/' },
+      { source: 'Zinc and Zinc Transporters in Normal Prostate Function and the Pathogenesis of Prostate Cancer, Frontiers in Bioscience, PMC4461430', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC4461430/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-zinc-connection', 'prostate-seminal-citrate-cancer-marker', 'prostate-testosterone-nutrients-comparison'],
+  },
+  {
+    id: 'prostate-seminal-citrate-cancer-marker',
+    category: 'prostateHealth',
+    title: 'Seminal Citrate Itself Is a Real, Measurable Cancer-Detection Marker, and Outperformed PSA in One Study',
+    teaser: 'Because citrate secretion collapses when prostate cells turn cancerous, one real study found measuring citrate directly beat PSA at telling clinically significant cancer apart from benign disease.',
+    summary:
+      "The prior entry covers why citrate accumulates in a healthy prostate; the practical, clinical payoff of that same biology is that citrate collapsing is itself a usable diagnostic signal, not just a laboratory curiosity. One real study measured seminal citrate via nuclear magnetic resonance spectroscopy in 31 men with clinically significant, localized prostate cancer against 28 controls with benign prostatic hyperplasia and persistently elevated PSA but repeated negative biopsies (an average of 2.7 biopsies each, followed for nearly 9 years). Median citrate came in at 15.53 mM/L in the benign controls versus just 3.93 mM/L in the cancer group, a roughly four-fold drop, and citrate's own diagnostic accuracy (AUC 0.748) was significantly better than PSA's (AUC 0.548) at telling the two groups apart, the same PSA already covered elsewhere in this category for its own real, honest screening limitations. Worth stating the real limitation directly, matching this whole research area's own standing discipline: this was a small study (59 men total), and the authors themselves note real practical obstacles to using citrate this way at scale, over a third of patients and nearly a fifth of controls couldn't provide a usable sample via masturbation, and it can't be measured in men who've had certain prior surgery. A genuinely promising, but not yet mainstream-ready, alternative or complement to PSA, worth knowing exists rather than assuming PSA is the only real option.",
+    citations: [
+      { source: 'Seminal citrate is superior to PSA for detecting clinically significant prostate cancer, International Braz J Urol, PMC6909860', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC6909860/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-zinc-citrate-truncated-krebs-cycle', 'prostate-psa-screening'],
+  },
+  {
+    id: 'prostate-zinc-testosterone-deficiency',
+    category: 'prostateHealth',
+    title: 'Zinc Genuinely Restores Testosterone, But Only in Men Who Are Actually Deficient',
+    teaser: 'A classic, real trial found testosterone dropped 73% under experimental zinc restriction and rose significantly once zinc-deficient elderly men were supplemented, but zinc does not raise testosterone beyond normal in men who already have enough.',
+    summary:
+      "Zinc's own relationship to testosterone is real and directly demonstrated, in both directions, but it's a deficiency-correction story, not a general testosterone-boosting one. A classic study measured serum testosterone in young, healthy men before and during an experimentally induced marginal zinc deficiency (20 weeks of restricted dietary zinc): testosterone fell from a mean of 39.9 to 10.6 nmol/L, a 73% drop. The same study then supplemented nine elderly men who were already marginally zinc-deficient with oral zinc gluconate for 3 to 6 months, and found testosterone rose significantly, from 8.3 (±6.3) to 16.0 (±4.4) nmol/L. The honest, important limit on this finding, worth stating directly rather than left to imply zinc is a general testosterone booster: the broader literature since consistently finds this effect is specific to correcting an actual deficiency, zinc supplementation in men who already have adequate zinc status does not raise testosterone further, including in one trial of healthy, regularly exercising men that found no significant effect at all. Practically, this means zinc is a real, worth-knowing lever specifically for someone with a genuine, confirmed zinc deficiency, not a supplement expected to move testosterone in someone already zinc-replete, a distinction directly comparing to citrate and beta-sitosterol's own, different relationships to testosterone in the dedicated comparison entry.",
+    citations: [
+      { source: 'Zinc status and serum testosterone levels of healthy adults, Nutrition, PMID 8875519', url: 'https://pubmed.ncbi.nlm.nih.gov/8875519/' },
+      { source: 'Correlation between serum zinc and testosterone: A systematic review, PMID 36577241', url: 'https://pubmed.ncbi.nlm.nih.gov/36577241/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-zinc-connection', 'prostate-testosterone-nutrients-comparison'],
   },
   {
     id: 'prostate-selenium-select-trial-correction',
@@ -191,6 +232,34 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Effect of Increasing Doses of Saw Palmetto Extract on Lower Urinary Tract Symptoms: A Randomized Trial, JAMA', url: 'https://jamanetwork.com/journals/jama/fullarticle/1104439' },
     ],
     overallTier: 'weak',
+    relatedIds: ['prostate-beta-sitosterol-bph-evidence'],
+  },
+  {
+    id: 'prostate-beta-sitosterol-bph-evidence',
+    category: 'prostateHealth',
+    title: 'Beta-Sitosterol on Its Own Has More Consistent BPH Trial Evidence Than Saw Palmetto Does',
+    teaser: 'The Cochrane review pooling four real placebo-controlled trials (519 men) found beta-sitosterol significantly improved urinary symptom scores and flow measures, a more consistent result than the split evidence saw palmetto itself carries.',
+    summary:
+      "Beta-sitosterol is one of the specific active plant compounds (a phytosterol) present in saw palmetto and several other plants, and worth covering as its own, distinct entry, since isolated beta-sitosterol carries evidence that's genuinely more consistent than saw palmetto's own mixed picture covered above. A Cochrane systematic review pooled four randomized, placebo-controlled, double-blind trials (519 men total, 4 to 26 weeks each) and found real, significant improvement across multiple objective measures: the International Prostate Symptom Score improved by a weighted mean of 4.9 points, peak urinary flow improved by 3.91 mL/second, and residual bladder volume (urine left behind after voiding) dropped by 28.62 mL, all favoring beta-sitosterol over placebo. The proposed mechanisms overlap with saw palmetto's own (anti-inflammatory activity, partial inhibition of 5-alpha-reductase, covered in its own dedicated entry), plausible given beta-sitosterol is itself one of saw palmetto's real active components. Worth stating the honest limitation directly, the same one the review's own authors state: these trials were all short-term (well under a year), so beta-sitosterol's long-term effectiveness, safety, and whether it actually prevents BPH's own real complications (already covered elsewhere in this category) remain genuinely unestablished.",
+    citations: [
+      { source: 'Beta-sitosterols for benign prostatic hyperplasia, Cochrane Database of Systematic Reviews, PMID 10796740', url: 'https://www.cochranelibrary.com/cdsr/doi/10.1002/14651858.CD001043/full' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-saw-palmetto-mixed', 'prostate-beta-sitosterol-testosterone-dht'],
+  },
+  {
+    id: 'prostate-beta-sitosterol-testosterone-dht',
+    category: 'prostateHealth',
+    title: 'Beta-Sitosterol and Testosterone: a Popular "It Lowers Your Testosterone" Claim That Mostly Doesn\'t Hold Up',
+    teaser: 'Beta-sitosterol can weakly block the same enzyme finasteride blocks, but most real human trials find no effect on serum testosterone at typical doses, and one recent BPH trial found the opposite: a real, small increase.',
+    summary:
+      "Beta-sitosterol carries a real mechanistic reason someone might worry it lowers testosterone, and a real, mostly reassuring human evidence base once actually tested. The mechanistic concern: laboratory research finds beta-sitosterol can inhibit 5-alpha-reductase, the same enzyme finasteride and dutasteride block by design (already covered in this category's own medication research), the enzyme that converts testosterone into the more potent DHT. In vitro testing found beta-sitosterol genuinely does this, but roughly 660 times more weakly than dutasteride does. When this gets tested directly in people rather than in a test tube, the picture turns out considerably more reassuring than the popular fitness-and-supplement-forum version of this claim: most human trials at typical supplemental doses find no significant change in total or free testosterone, and one small trial in bodybuilders taking a notably high dose found only a small, non-statistically-significant decrease. More strikingly, a real, well-designed 2020 trial in 99 men with symptomatic BPH (three arms: beta-sitosterol-enriched saw palmetto oil, standard lower-concentration saw palmetto oil, and placebo, 12 weeks) found the enriched, higher-concentration beta-sitosterol group had a small but statistically significant INCREASE in free testosterone compared to placebo, while the standard, lower-concentration formulation showed no significant change at all, suggesting concentration may genuinely matter for whatever real effect exists. Worth stating plainly: the honest, current evidence does not support beta-sitosterol as either a meaningful testosterone-lowering risk or a reliable testosterone-boosting supplement, a genuinely different, more nuanced answer than either popular framing claims outright.",
+    citations: [
+      { source: 'Exploring the Inhibitory Potential of Phytosterols beta-Sitosterol, Stigmasterol, and Campesterol on 5-Alpha Reductase Activity in the Human Prostate, PMC11597715', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11597715/' },
+      { source: 'A double blind, placebo-controlled randomized comparative study on the efficacy of phytosterol-enriched and conventional saw palmetto oil in mitigating benign prostate hyperplasia and androgen deficiency, BMC Urology, PMID 32620155', url: 'https://bmcurol.biomedcentral.com/articles/10.1186/s12894-020-00648-9' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-beta-sitosterol-bph-evidence', 'prostate-medications-psa-monitoring', 'prostate-testosterone-nutrients-comparison'],
   },
   {
     id: 'prostate-medications-psa-monitoring',
@@ -216,6 +285,17 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     relatedIds: ['prostate-medications-psa-monitoring'],
   },
   {
+    id: 'prostate-testosterone-nutrients-comparison',
+    category: 'prostateHealth',
+    title: 'Zinc, Citrate, Beta-Sitosterol, and Lycopene: How Each One Actually Relates to Testosterone',
+    teaser: 'Four substances this category covers for different reasons get compared side by side on one specific question, and the honest answer is that each relates to testosterone in a genuinely different way, not the same way.',
+    summary:
+      "Zinc, citrate, beta-sitosterol, and lycopene are each covered elsewhere in this category for real, separate, and different reasons, but they get asked about together often enough, and their relationships to testosterone are different enough, that a direct, side-by-side comparison is worth having in one place. Zinc has the strongest, most direct real evidence: correcting an actual zinc deficiency measurably raises testosterone (a 73% drop was seen under experimental restriction, a significant rise seen with correction in deficient elderly men), but zinc does not raise testosterone further in men who already have adequate zinc status, a deficiency-correction relationship, not a general boosting one. Citrate is the clearest case where the popular framing gets the direction backwards: citrate doesn't raise testosterone, testosterone (along with prolactin) is what drives the zinc uptake that allows citrate to accumulate and be secreted in the first place, citrate is a real, useful downstream marker of healthy, testosterone-driven prostate function, not a lever that acts on testosterone itself. Beta-sitosterol has a real, if weak, mechanistic reason to expect a testosterone-lowering effect (mild 5-alpha-reductase inhibition, the same enzyme finasteride blocks, though roughly 660 times more weakly), but most direct human testing finds no meaningful change in either direction at typical doses, and one real, well-designed BPH trial actually found a small, statistically significant increase in free testosterone with a higher-concentration formulation. Lycopene has the least settled evidence of the four: no solid human trial directly measures lycopene's effect on testosterone, and the animal research that does exist is genuinely inconsistent, some models (an experimentally induced fertility-injury model in rats, an aging-poultry model) find lycopene raising testosterone, while a separate, short-term study in otherwise healthy rats found the opposite, a real, unresolved, model-dependent picture rather than a clean answer either way. Worth stating plainly: none of this changes any of these four substances' own separate, real, and better-established value for prostate health specifically, covered in their own dedicated entries, this comparison is only about the narrower, specific testosterone question.",
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['prostate-zinc-testosterone-deficiency', 'prostate-zinc-citrate-truncated-krebs-cycle', 'prostate-beta-sitosterol-testosterone-dht', 'prostate-lycopene-tomatoes'],
+  },
+  {
     id: 'prostate-tying-together',
     category: 'prostateHealth',
     title: 'What Actually Holds Up for Prostate Health, Pulled Together',
@@ -225,7 +305,7 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Benign Prostatic Hyperplasia, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK558920/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-lycopene-bph-clinical-trial', 'prostate-lycopene-food-sources-bioavailability', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening'],
+    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-lycopene-bph-clinical-trial', 'prostate-lycopene-food-sources-bioavailability', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening', 'prostate-zinc-citrate-truncated-krebs-cycle', 'prostate-beta-sitosterol-bph-evidence', 'prostate-testosterone-nutrients-comparison'],
   },
 
   // -- Full-depth parity additions, 2026-08-08. Every citation

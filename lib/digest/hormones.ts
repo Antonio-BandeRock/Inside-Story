@@ -151,6 +151,7 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
       { source: 'Aging and androgens: Physiology and clinical implications, PMID 36459352', url: 'https://pubmed.ncbi.nlm.nih.gov/36459352/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['prostate-testosterone-nutrients-comparison'],
   },
   {
     id: 'testosterone-age-decline-real-data',
