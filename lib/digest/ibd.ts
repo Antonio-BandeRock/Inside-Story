@@ -422,7 +422,7 @@ export const IBD_ENTRIES: DigestEntry[] = [
       { source: 'The bidirectional risk of inflammatory bowel disease and anxiety or depression: A systematic review and meta-analysis', url: 'https://www.sciencedirect.com/science/article/pii/S0163834323000774' },
     ],
     overallTier: 'strong',
-    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'sleep-autoimmune-disease-real-data'],
+    relatedIds: ['mentalhealth-overview', 'mentalhealth-inflammation-link', 'sleep-autoimmune-disease-real-data', 'ibd-gut-inflammation-hippocampal-neurogenesis'],
   },
   {
     id: 'ibd-corticosteroid-hypertension-real-data',
@@ -532,5 +532,18 @@ export const IBD_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['ibd-extraintestinal-manifestations', 'ibd-extraintestinal-real-prevalence-split'],
+  },
+  {
+    id: 'ibd-gut-inflammation-hippocampal-neurogenesis',
+    category: 'ibd',
+    title: 'Gut Inflammation Itself Directly Suppresses New-Neuron Growth in the Brain, a Real, Specific Mechanism',
+    teaser: "This category's own already-covered depression/anxiety research names inflammatory cytokines as a plausible mechanism, a real mouse colitis model traced that mechanism directly to the hippocampus itself, finding measurably suppressed new-neuron production during both active and ongoing gut inflammation.",
+    summary:
+      "This category's own already-covered depression and anxiety research names inflammatory cytokines, vagal signaling, and gut dysbiosis as plausible mechanisms; a real, more specific study traces one of those mechanisms directly into the brain's own hippocampus. A real mouse model of colitis (induced with dextran sodium sulfate, a standard, well-established way to model IBD-like intestinal inflammation) found that intestinal inflammation directly triggered a real, measurable inflammatory response in the hippocampus itself, including activation of the brain's own immune cells (microglia) and increased inflammatory signaling genes, alongside measurable deficits in hippocampal neurogenesis markers after both a single, acute flare and after chronic, repeated inflammation. The proposed mechanism is direct and specific: the same neural progenitor cells that would otherwise become new neurons carry receptors for the pro-inflammatory cytokines gut inflammation produces, and a sustained inflammatory environment in that cell niche directly works against normal neurogenic activity, rather than the gut and brain effects being separate, coincidental problems. Worth stating directly: this is animal research, not yet directly confirmed in human IBD patients, but it offers a real, specific, mechanistic explanation connecting active gut inflammation to the brain changes that plausibly underlie the mood and cognitive symptoms already covered in this category's own research, a genuine, biological throughline rather than two separate, loosely-associated conditions.",
+    citations: [
+      { source: 'Chronic intestinal inflammation alters hippocampal neurogenesis, PMID 25889852', url: 'https://pubmed.ncbi.nlm.nih.gov/25889852/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ibd-depression-anxiety-bidirectional-real-data', 'neurogenesis-tying-together', 'gut-scfa-treg'],
   },
 ];

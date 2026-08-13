@@ -433,6 +433,14 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // deficiency/toxicity coverage this new topic cross-links to rather than
   // repeats). See lib/digest/bodySystems.ts's own header comment.
   { label: 'How Your Body Works: Organs & Systems', prefixes: ['body-'] },
+  // 2026-08-13, direct request: "Neurogenesis needs to be represented in
+  // the Basic Health section." A real, general, condition-agnostic
+  // topic -- see lib/digest/neurogenesis.ts's own header comment. Where
+  // a real, specific condition-level connection exists instead, it lives
+  // as its own entry in that condition's own file (Hashimoto's, Type 2
+  // Diabetes, Cardiovascular Disease, Multiple Sclerosis, IBD), per the
+  // same request's own direct follow-up.
+  { label: 'Neurogenesis', prefixes: ['neurogenesis-'] },
   { label: 'Glossary', prefixes: ['glossary-'] },
   // 2026-08-09, direct request: "information about portions, and
   // recommended daily allowances and minimum amounts of anything." See

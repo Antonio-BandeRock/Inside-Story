@@ -166,7 +166,7 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Metabolic-Associated Fatty Liver Disease and Cognitive Performance in Type 2 Diabetes, PMC11428552', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11428552/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['masld-f0-f4-fibrosis-staging'],
+    relatedIds: ['masld-f0-f4-fibrosis-staging', 'type2-hippocampal-neurogenesis-insulin-resistance'],
   },
   {
     id: 'type2-history-milestones',
@@ -542,5 +542,19 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['type2-microvascular-complications-screening', 'type2-remission-ada-consensus-definition'],
+  },
+  {
+    id: 'type2-hippocampal-neurogenesis-insulin-resistance',
+    category: 'type2Diabetes',
+    title: 'Insulin Resistance Directly Suppresses New-Neuron Growth, and Metformin Appears to Work Against That',
+    teaser: "This category's own already-covered cognitive-decline research names hippocampal volume loss and impaired memory, real mouse models of T2D found the actual new-neuron-production process itself measurably reduced, with a genuinely hopeful twist involving a medication already in wide use.",
+    summary:
+      "This category's own already-covered cognitive research establishes that T2D tracks with smaller hippocampal volume and real memory impairment, and a specific, real mechanism helps explain why: hippocampal neurogenesis itself, the ongoing production of new neurons in that same brain region, is measurably reduced in real mouse models of type 2 diabetes, both in obesity-driven and non-obesity-driven versions of the disease, meaning this isn't purely a byproduct of excess weight. A separate, real study found the mechanism runs at least partly through the adrenal stress hormone corticosterone (the rodent equivalent of human cortisol), diabetes measurably impaired hippocampal memory function, synaptic plasticity, and new-neuron production together, and elevated glucocorticoid levels contributed directly to these effects. The genuinely hopeful, practical twist: metformin, already one of the most widely prescribed T2D medications and already covered elsewhere in this app's own medication research, appears to work in the opposite direction, real research found it activates a specific cellular signaling pathway that promotes neural progenitor cell differentiation and measurably enhances spatial memory formation in mice, a real, concrete example of a medication doing more for the brain than simply lowering blood sugar.",
+    citations: [
+      { source: 'Deficits in hippocampal neurogenesis in obesity-dependent and -independent type-2 diabetes mellitus mouse models, Scientific Reports, PMID 33004912', url: 'https://pubmed.ncbi.nlm.nih.gov/33004912/' },
+      { source: 'Diabetes impairs hippocampal function through glucocorticoid-mediated effects on new and mature neurons, Nature Neuroscience, Stranahan et al. 2008, PMID 18278039', url: 'https://pubmed.ncbi.nlm.nih.gov/18278039/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['neurogenesis-tying-together', 'type2-cognitive-liver-real-data'],
   },
 ];

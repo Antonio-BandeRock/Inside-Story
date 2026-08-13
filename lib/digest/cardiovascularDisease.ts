@@ -176,7 +176,7 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Cardiovascular Prognosis in Patients with Peripheral Artery Disease and Approach to Therapy, PMC10740501', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC10740501/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ckd-mineral-bone-cardiovascular-real-data'],
+    relatedIds: ['ckd-mineral-bone-cardiovascular-real-data', 'cvd-myocardial-ischemia-neurogenesis-impairment'],
   },
   {
     id: 'cvd-history-milestones',
@@ -568,5 +568,18 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['cvd-lipoprotein-a-underrecognized', 'gut-scfa-treg'],
+  },
+  {
+    id: 'cvd-myocardial-ischemia-neurogenesis-impairment',
+    category: 'cardiovascularDisease',
+    title: 'A Heart Attack Itself Measurably Suppresses New-Neuron Growth in the Brain, Not Just Blood Flow to It',
+    teaser: "This category's own already-covered kidney-brain-PAD research names chronic vascular disease reaching the brain, a real, separate study found an actual heart attack event itself directly suppresses hippocampal neurogenesis, lasting at least two months afterward, through an inflammatory pathway rather than a blood-flow one alone.",
+    summary:
+      "This category's own already-covered research establishes chronic vascular disease reaching the brain over time; a real, more specific and more acute mechanism deserves its own direct coverage. A controlled study found that a heart attack itself (myocardial ischemia/reperfusion) directly and measurably reduces new-neuron production in the hippocampus, the effect showed up within 72 hours and remained significantly reduced a full two months later, alongside measurable impairment on both object-location and fear-conditioning memory tasks. The proposed mechanism is genuinely distinct from simple reduced blood flow: researchers found real, documented activation of the brain's own immune cells (microglia and astrocytes) in the hippocampus within days of the cardiac event, and this inflammatory response, not cell death from oxygen deprivation, correlated with the drop in new-neuron production, evidence that a heart attack sets off a real, measurable inflammatory signal that reaches the brain and suppresses this specific process directly. Worth stating directly: this is animal research, not yet confirmed in humans, but it offers a real, concrete, mechanistic explanation for something already commonly observed clinically, memory and cognitive complaints following a real cardiac event, beyond what reduced blood flow to the brain alone would explain.",
+    citations: [
+      { source: 'Myocardial Ischemia/Reperfusion impairs neurogenesis and hippocampal-dependent learning and memory, Brain, Behavior, and Immunity, Evonuk et al. 2016, PMC5511033', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5511033/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['cvd-kidney-brain-pad-real-data', 'neurogenesis-tying-together'],
   },
 ];

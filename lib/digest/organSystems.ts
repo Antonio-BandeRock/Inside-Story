@@ -122,6 +122,21 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
       { source: 'Brain Fog in Hypothyroidism: What Is It, How Is It Measured, and What Can Be Done About It (Thyroid)', url: 'https://pubmed.ncbi.nlm.nih.gov/35414261/' },
     ],
     overallTier: 'moderate',
+    relatedIds: ['organ-brain-neurogenesis-thyroid-mechanism'],
+  },
+  {
+    id: 'organ-brain-neurogenesis-thyroid-mechanism',
+    category: 'hashimotos',
+    title: 'The Real, Specific Mechanism Behind "Brain Fog": Thyroid Hormone Directly Controls New-Neuron Growth',
+    teaser: 'The prior entry names BDNF signaling as a plausible candidate for hypothyroid brain fog. This is the actual, more specific mechanism: adult-onset hypothyroidism measurably reduces new-neuron production in the hippocampus, and it reverses once thyroid levels are restored to normal.',
+    summary:
+      "The prior entry honestly notes hypothyroid \"brain fog\" isn't fully mapped mechanistically yet. One real, specific, and directly demonstrated piece of that mechanism does exist, covered here as its own entry rather than folded into the broader, more general Basic Health neurogenesis topic, since this connection is specific enough to Hashimoto's own core mechanism (hypothyroidism) to deserve its own direct coverage. A real study found that inducing hypothyroidism in adult rats reduced hippocampal progenitor cell proliferation by roughly 30 percent, along with a decline in the number of young, developing neurons and reduced complexity of their own connections, changes that directly correlated with a measurable depressive-like behavior in the same animals. The genuinely encouraging, practical part of this finding: this reduction is fully reversible, restoring normal thyroid hormone levels reverses the reduced proliferation back toward normal. The actual molecular mechanism has since been worked out in real detail: active thyroid hormone (T3) functions as what researchers describe as a genuine \"neurogenic switch,\" directly suppressing specific genes (Sox2, CyclinD1, c-Myc) that keep neural stem cells in a dividing, undifferentiated state, pushing them instead toward becoming mature, functioning neurons. Worth stating directly: this gives hypothyroid \"brain fog\" a real, specific, and reversible biological mechanism, not just a vague, unmeasurable complaint, and it's a direct, concrete reason consistent thyroid management matters for more than lab numbers alone.",
+    citations: [
+      { source: 'Modulation of adult hippocampal neurogenesis by thyroid hormones: implications in depressive-like behavior, Molecular Psychiatry, Montero-Pedrazuela et al. 2006, PMID 16446739', url: 'https://pubmed.ncbi.nlm.nih.gov/16446739/' },
+      { source: 'Thyroid Hormone Signaling and Adult Neurogenesis in Mammals, Frontiers in Endocrinology, PMC4009442', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4009442/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['organ-brain-cognitive', 'neurogenesis-tying-together'],
   },
   {
     id: 'organ-kidney',

@@ -478,7 +478,7 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
       { source: 'Early and severe cognitive impairment in multiple sclerosis, PMC5619107', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC5619107/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ms-bladder-bowel-cognitive-real-data', 'ms-disease-course-types'],
+    relatedIds: ['ms-bladder-bowel-cognitive-real-data', 'ms-disease-course-types', 'ms-hippocampal-neurogenesis-demyelination-distinct-remyelination'],
   },
   {
     id: 'ms-ketogenic-diet-real-trial-honest',
@@ -532,5 +532,18 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['ms-vitamin-d-mixed-evidence', 'ms-bladder-bowel-cognitive-real-data'],
+  },
+  {
+    id: 'ms-hippocampal-neurogenesis-demyelination-distinct-remyelination',
+    category: 'multipleSclerosis',
+    title: 'Demyelination Nearly Shuts Down New-Neuron Growth Too, a Real, Distinct Process From Remyelination Itself',
+    teaser: "This category's own already-covered cognitive-impairment research names measurable brain-volume loss, a real, more specific mechanism shows demyelination in the hippocampus can nearly abolish new-neuron production there too, a separate process from rebuilding myelin, that recovers once remyelination actually happens.",
+    summary:
+      "This category's own already-covered cognitive research establishes real, measurable brain atrophy in MS; a specific, real mechanism in the hippocampus itself adds a further, more precise layer worth stating carefully, since it's genuinely distinct from remyelination, MS's own better-known repair process (rebuilding the myelin coating on nerve fibers), not the same thing described two different ways. A real animal-model study using a hippocampal demyelination model found new-neuron production nearly abolished in the demyelinated region, driven by neural stem cells shifting from an actively dividing state into a dormant, quiescent one, rather than the stem cells themselves being destroyed. The genuinely hopeful, and mechanistically important, finding: this same study found neurogenesis and the normal connectivity of new neurons both recovered back toward normal levels once remyelination of that same hippocampal region actually occurred, direct evidence the underlying stem-cell reservoir survives the demyelinated period intact and can be reactivated, rather than being permanently lost. With MS's own chronic disease course, though, research finds neurogenesis genuinely declines over time as demyelination persists or recurs, tracking with the memory impairment already covered in this category's own cognitive research, a real, mechanistic reason ongoing disease control matters directly for this specific, otherwise-recoverable process, not just for preventing further physical disability.",
+    citations: [
+      { source: 'Hippocampal Neurogenesis and Neural Circuit Formation in a Cuprizone-Induced Multiple Sclerosis Mouse Model, Journal of Neuroscience, PMID 31719166', url: 'https://pubmed.ncbi.nlm.nih.gov/31719166/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['ms-cognitive-impairment-brain-atrophy', 'neurogenesis-tying-together'],
   },
 ];

@@ -31,6 +31,7 @@ import { MENTAL_HEALTH_ENTRIES } from './mentalHealth';
 import { MIGRAINE_ENTRIES } from './migraine';
 import { MITOCHONDRIA_METABOLISM_ENTRIES } from './mitochondriaMetabolism';
 import { MULTIPLE_SCLEROSIS_ENTRIES } from './multipleSclerosis';
+import { NEUROGENESIS_ENTRIES } from './neurogenesis';
 import { NUTRIENT_INTERACTIONS_ENTRIES } from './nutrientInteractions';
 import { NUTRIENTS_ENTRIES } from './nutrients';
 import { COMPLEMENTARY_THERAPIES_ENTRIES } from './complementaryTherapies';
@@ -63,7 +64,7 @@ export * from './types';
 // concrete to compare, the same way the reference database's own version
 // check already works. Format matches that file's own convention
 // (YYYYMMDDHHMMSS, the moment this content was last meaningfully changed).
-export const PURPLE_DIGEST_VERSION = '20260813234500';
+export const PURPLE_DIGEST_VERSION = '20260814000000';
 
 // Every category's own real content array, aggregated into one flat list.
 // ProblemFoodEntry is included in the SAME flat list as DigestEntry (via
@@ -97,6 +98,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...CELIAC_ENTRIES,
   ...IBD_ENTRIES,
   ...MULTIPLE_SCLEROSIS_ENTRIES,
+  ...NEUROGENESIS_ENTRIES,
   ...LUPUS_ENTRIES,
   ...SJOGRENS_ENTRIES,
   ...PCOS_ENTRIES,
