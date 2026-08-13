@@ -3555,7 +3555,7 @@ async function runDatabaseInitialization() {
       CREATE TABLE IF NOT EXISTS garden_plots (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
-        location_type TEXT NOT NULL, -- 'outdoor' | 'indoor'
+        location_type TEXT NOT NULL, -- 'outdoor' | 'indoor' | 'greenhouse'
         growing_medium TEXT,
         light_source TEXT,
         size_description TEXT,
@@ -3841,6 +3841,32 @@ async function runDatabaseInitialization() {
     for (const column of ['growing_zone_country', 'growing_zone_postal_code']) {
       if (!userProfileColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE user_profile ADD COLUMN ${column} TEXT;`);
+      }
+    }
+
+    // Garden Area redesign, 2026-08-14 -- "+Add a Plot" became "+Add a
+    // Garden Area," direct request replacing the original free-text
+    // growing_medium/light_source fields with a real, structured 5-phase
+    // flow: location & environment (widening location_type's own real
+    // values to include 'greenhouse', a comment-only change above --
+    // location_type itself is plain TEXT, no migration needed for that
+    // part), space type, sunlight exposure, real numeric size, and a real
+    // per-area hardiness-zone lookup (reusing lib/gardenZoneLookup.ts, the
+    // same mechanism My Zone already uses for the whole profile -- see
+    // GardenPlot's own comment for why this is per-area, not just a single
+    // global value). growing_medium/light_source/size_description are left
+    // in place, unused by the new wizard but still readable for any plot
+    // created before this -- no real users exist yet, so this is purely
+    // additive.
+    const gardenPlotColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(garden_plots)');
+    for (const column of ['space_type', 'sunlight_exposure', 'size_unit', 'zone', 'zone_country', 'zone_postal_code']) {
+      if (!gardenPlotColumns.some((existing) => existing.name === column)) {
+        await db.execAsync(`ALTER TABLE garden_plots ADD COLUMN ${column} TEXT;`);
+      }
+    }
+    for (const column of ['length', 'width']) {
+      if (!gardenPlotColumns.some((existing) => existing.name === column)) {
+        await db.execAsync(`ALTER TABLE garden_plots ADD COLUMN ${column} REAL;`);
       }
     }
 
@@ -11171,10 +11197,47 @@ export async function deleteSymptomAssessment(id: string) {
 // builder.
 // ---------------------------------------------------------------------------
 
+// Space Type -- Phase 2 of the "New Garden Area" wizard (garden.tsx), the
+// real structured replacement for the old free-text growingMedium field.
+export type GardenSpaceType =
+  | 'in_ground'
+  | 'raised_bed'
+  | 'containers'
+  | 'hydroponic'
+  | 'tent'
+  | 'led_lights'
+  | 'temp_humidity_control';
+
+// Sunlight Exposure -- Phase 3, the real structured replacement for the old
+// free-text lightSource field. 'airflow' sits alongside the real light-level
+// options per the original request's own exact spec, not a mistake left in
+// -- kept as given rather than second-guessed.
+export type GardenSunlightExposure = 'full_sun' | 'partial_shade' | 'full_shade' | 'indoor_led_timer' | 'airflow';
+
+export type GardenSizeUnit = 'feet' | 'meters';
+
 export type GardenPlot = {
   id: string;
   name: string;
-  locationType: 'outdoor' | 'indoor';
+  locationType: 'outdoor' | 'indoor' | 'greenhouse';
+  spaceType: GardenSpaceType | null;
+  sunlightExposure: GardenSunlightExposure | null;
+  length: number | null;
+  width: number | null;
+  sizeUnit: GardenSizeUnit | null;
+  // A real, per-AREA hardiness zone -- deliberately separate from the
+  // single, whole-person user_profile.growing_zone (lib's My Zone feature),
+  // since a real person can have more than one garden area in genuinely
+  // different physical locations (an outdoor plot at home, a container
+  // garden somewhere else). New-area creation pre-fills these three from
+  // the profile's own already-saved zone/country/postal code as a real
+  // convenience default (see garden.tsx's own handleShowAddPlot), editable
+  // per area via the exact same lib/gardenZoneLookup.ts lookup My Zone
+  // itself already uses -- one real lookup mechanism, two real places it
+  // writes to.
+  zone: string | null;
+  zoneCountry: string | null;
+  zonePostalCode: string | null;
   growingMedium: string | null;
   lightSource: string | null;
   sizeDescription: string | null;
@@ -11185,13 +11248,23 @@ export type GardenPlot = {
 };
 
 const GARDEN_PLOT_COLUMNS = `
-  id, name, location_type AS locationType, growing_medium AS growingMedium, light_source AS lightSource,
-  size_description AS sizeDescription, notes, archived_at AS archivedAt, created_at AS createdAt, updated_at AS updatedAt
+  id, name, location_type AS locationType, space_type AS spaceType, sunlight_exposure AS sunlightExposure,
+  length, width, size_unit AS sizeUnit, zone, zone_country AS zoneCountry, zone_postal_code AS zonePostalCode,
+  growing_medium AS growingMedium, light_source AS lightSource, size_description AS sizeDescription, notes,
+  archived_at AS archivedAt, created_at AS createdAt, updated_at AS updatedAt
 `;
 
 export async function createGardenPlot(input: {
   name: string;
-  locationType: 'outdoor' | 'indoor';
+  locationType: 'outdoor' | 'indoor' | 'greenhouse';
+  spaceType?: GardenSpaceType | null;
+  sunlightExposure?: GardenSunlightExposure | null;
+  length?: number | null;
+  width?: number | null;
+  sizeUnit?: GardenSizeUnit | null;
+  zone?: string | null;
+  zoneCountry?: string | null;
+  zonePostalCode?: string | null;
   growingMedium?: string | null;
   lightSource?: string | null;
   sizeDescription?: string | null;
@@ -11202,12 +11275,24 @@ export async function createGardenPlot(input: {
   const now = new Date().toISOString();
   await db.runAsync(
     `
-      INSERT INTO garden_plots (id, name, location_type, growing_medium, light_source, size_description, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO garden_plots (
+        id, name, location_type, space_type, sunlight_exposure, length, width, size_unit,
+        zone, zone_country, zone_postal_code, growing_medium, light_source, size_description, notes,
+        created_at, updated_at
+      )
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.locationType,
+    input.spaceType ?? null,
+    input.sunlightExposure ?? null,
+    input.length ?? null,
+    input.width ?? null,
+    input.sizeUnit ?? null,
+    input.zone ?? null,
+    input.zoneCountry ?? null,
+    input.zonePostalCode ?? null,
     input.growingMedium?.trim() || null,
     input.lightSource?.trim() || null,
     input.sizeDescription?.trim() || null,
@@ -11243,7 +11328,15 @@ export async function updateGardenPlot(
   id: string,
   update: Partial<{
     name: string;
-    locationType: 'outdoor' | 'indoor';
+    locationType: 'outdoor' | 'indoor' | 'greenhouse';
+    spaceType: GardenSpaceType | null;
+    sunlightExposure: GardenSunlightExposure | null;
+    length: number | null;
+    width: number | null;
+    sizeUnit: GardenSizeUnit | null;
+    zone: string | null;
+    zoneCountry: string | null;
+    zonePostalCode: string | null;
     growingMedium: string | null;
     lightSource: string | null;
     sizeDescription: string | null;
@@ -11258,11 +11351,21 @@ export async function updateGardenPlot(
   await db.runAsync(
     `
       UPDATE garden_plots
-      SET name = ?, location_type = ?, growing_medium = ?, light_source = ?, size_description = ?, notes = ?, updated_at = ?
+      SET name = ?, location_type = ?, space_type = ?, sunlight_exposure = ?, length = ?, width = ?, size_unit = ?,
+          zone = ?, zone_country = ?, zone_postal_code = ?, growing_medium = ?, light_source = ?, size_description = ?,
+          notes = ?, updated_at = ?
       WHERE id = ?
     `,
     merged.name.trim(),
     merged.locationType,
+    merged.spaceType,
+    merged.sunlightExposure,
+    merged.length,
+    merged.width,
+    merged.sizeUnit,
+    merged.zone,
+    merged.zoneCountry,
+    merged.zonePostalCode,
     merged.growingMedium,
     merged.lightSource,
     merged.sizeDescription,

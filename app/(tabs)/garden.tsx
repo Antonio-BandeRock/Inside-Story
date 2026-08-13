@@ -36,6 +36,9 @@ import {
   type GardenHarvest,
   type GardenPlanting,
   type GardenPlot,
+  type GardenSizeUnit,
+  type GardenSpaceType,
+  type GardenSunlightExposure,
 } from '../../lib/db';
 
 // This page's own identity color -- see constants/colors.ts's own comment
@@ -62,12 +65,13 @@ const PRIMARY_BUTTON_BACKGROUND = popoverBackground(TAB_COLOR);
 // this component's own memo() contract.
 const COUNTRY_OPTIONS = COUNTRIES.map((country) => ({ label: country.name, value: country.code }));
 
-type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog';
+type GardenLens = 'myZone' | 'plotsAndPlantings' | 'harvestLog' | 'upcomingTasks';
 
 const GARDEN_LENS_FULL_NAMES: Record<GardenLens, string> = {
   myZone: 'My Zone',
   plotsAndPlantings: 'Plots &\nPlantings',
   harvestLog: 'Harvest\nLog',
+  upcomingTasks: 'Upcoming\nTasks',
 };
 
 const GARDEN_LENSES: LensOption<GardenLens>[] = [
@@ -89,7 +93,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'Plots & Plantings',
-        body: 'A plot is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
+        body: 'A garden area is a place you grow food: a raised bed, a container, an indoor grow tent, a whole outdoor garden. Adding one walks through where it is, what kind of space it is, how much sun it gets, its real size, and its own hardiness zone -- all real details a future planting algorithm can use, none of them required to just get started. Add what you’re growing in it (a reference food, the same ones every Food builder already uses) to track it from planting through harvest.',
       },
     ],
   },
@@ -104,19 +108,71 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
       },
     ],
   },
+  {
+    key: 'upcomingTasks',
+    label: 'Upcoming Tasks',
+    icon: 'calendar-outline',
+    help: [
+      {
+        heading: 'Upcoming Garden Tasks',
+        body: 'Real garden chores (watering, feeding, checking on something) scheduled for a specific date -- created here and stored the same way any other Schedule item is. A dedicated lens for these inside the Schedules tab itself isn’t built yet, so this is the real place to see and add them for now.',
+      },
+    ],
+  },
 ];
 
 const GARDEN_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'Garden',
-    body: "Standing infrastructure for growing your own food and tracking it: your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), plots and what's planted in them, and a harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row, visible right here as \"Upcoming Tasks\"; a dedicated lens for it inside the Schedules tab itself isn't built yet).",
+    body: "Standing infrastructure for growing your own food and tracking it: your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), garden areas and what's planted in them, a harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked, and upcoming garden tasks. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row; a dedicated lens for it inside the Schedules tab itself isn't built yet).",
   },
 ];
 
-const LOCATION_TYPE_OPTIONS: { value: 'outdoor' | 'indoor'; label: string }[] = [
+// Phase 1 -- Location & Environment. Widened 2026-08-14 to include
+// Greenhouse alongside the original Outdoor/Indoor.
+const LOCATION_TYPE_OPTIONS: { value: 'outdoor' | 'indoor' | 'greenhouse'; label: string }[] = [
   { value: 'outdoor', label: 'Outdoor' },
   { value: 'indoor', label: 'Indoor' },
+  { value: 'greenhouse', label: 'Greenhouse' },
 ];
+
+// Phase 2 -- Space Type, the real structured replacement for the old
+// free-text "growing medium" field.
+const SPACE_TYPE_OPTIONS: { value: GardenSpaceType; label: string }[] = [
+  { value: 'in_ground', label: 'In-Ground Plot' },
+  { value: 'raised_bed', label: 'Raised Bed' },
+  { value: 'containers', label: 'Containers & Pots' },
+  { value: 'hydroponic', label: 'Hydroponic' },
+  { value: 'tent', label: 'Tent' },
+  { value: 'led_lights', label: 'LED Lights' },
+  { value: 'temp_humidity_control', label: 'Temperature & Humidity Control' },
+];
+
+// Phase 3 -- Sunlight Exposure, the real structured replacement for the old
+// free-text "light source" field.
+const SUNLIGHT_OPTIONS: { value: GardenSunlightExposure; label: string }[] = [
+  { value: 'full_sun', label: 'Full Sun (6+ hours)' },
+  { value: 'partial_shade', label: 'Partial Shade (3–6 hours)' },
+  { value: 'full_shade', label: 'Full Shade (<3 hours)' },
+  { value: 'indoor_led_timer', label: 'Indoor LED Lights, Timer required' },
+  { value: 'airflow', label: 'Airflow' },
+];
+
+// Phase 4 -- Size & Dimensions' own Feet/Meters toggle.
+const SIZE_UNIT_OPTIONS: { value: GardenSizeUnit; label: string }[] = [
+  { value: 'feet', label: 'Feet' },
+  { value: 'meters', label: 'Meters' },
+];
+
+// Real display-label lookups for the collapsed garden-area card's own
+// summary line -- reuses the exact same option arrays above rather than a
+// second, separately-maintained label map.
+const SPACE_TYPE_LABELS: Record<GardenSpaceType, string> = Object.fromEntries(
+  SPACE_TYPE_OPTIONS.map((o) => [o.value, o.label]),
+) as Record<GardenSpaceType, string>;
+const SUNLIGHT_LABELS: Record<GardenSunlightExposure, string> = Object.fromEntries(
+  SUNLIGHT_OPTIONS.map((o) => [o.value, o.label]),
+) as Record<GardenSunlightExposure, string>;
 
 const HARVEST_UNIT_OPTIONS = ['g', 'kg', 'oz', 'lb', 'count'];
 
@@ -151,16 +207,23 @@ export default function GardenScreen() {
   const [plotCount, setPlotCount] = useState<number | undefined>(undefined);
   const [plantingCount, setPlantingCount] = useState<number | undefined>(undefined);
   const [harvestCount, setHarvestCount] = useState<number | undefined>(undefined);
+  const [taskCount, setTaskCount] = useState<number | undefined>(undefined);
 
   const loadMyGardenCounts = useCallback(async () => {
-    const [plots, plantings, harvests] = await Promise.all([listGardenPlots(), listGardenPlantings(), listGardenHarvests(500)]);
+    const [plots, plantings, harvests, tasks] = await Promise.all([
+      listGardenPlots(),
+      listGardenPlantings(),
+      listGardenHarvests(500),
+      listUpcomingGardenTasks(500),
+    ]);
     setPlotCount(plots.length);
     setPlantingCount(plantings.length);
     setHarvestCount(harvests.length);
+    setTaskCount(tasks.length);
   }, []);
 
   const myGardenCategories: MyItemsCategory[] = [
-    { id: 'plots', label: 'Plots', count: plotCount, onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); } },
+    { id: 'plots', label: 'Garden Areas', count: plotCount, onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); } },
     {
       id: 'plantings',
       label: 'Plantings',
@@ -168,6 +231,7 @@ export default function GardenScreen() {
       onPress: () => { setLens('plotsAndPlantings'); setRevealed(true); },
     },
     { id: 'harvests', label: 'Harvests', count: harvestCount, onPress: () => { setLens('harvestLog'); setRevealed(true); } },
+    { id: 'tasks', label: 'Upcoming Tasks', count: taskCount, onPress: () => { setLens('upcomingTasks'); setRevealed(true); } },
   ];
 
   return (
@@ -184,6 +248,8 @@ export default function GardenScreen() {
             <PlotsAndPlantingsLens scrollBottomPadding={scrollBottomPadding} />
           ) : lens === 'harvestLog' ? (
             <HarvestLogLens scrollBottomPadding={scrollBottomPadding} />
+          ) : lens === 'upcomingTasks' ? (
+            <UpcomingTasksLens scrollBottomPadding={scrollBottomPadding} />
           ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>
@@ -368,10 +434,29 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   const [plantingsByPlot, setPlantingsByPlot] = useState<Record<string, GardenPlanting[]>>({});
   const [expandedPlotId, setExpandedPlotId] = useState<string | null>(null);
   const [showAddPlot, setShowAddPlot] = useState(false);
-  const [newPlotName, setNewPlotName] = useState('');
-  const [newPlotLocationType, setNewPlotLocationType] = useState<'outdoor' | 'indoor'>('outdoor');
-  const [newPlotMedium, setNewPlotMedium] = useState('');
-  const [newPlotLight, setNewPlotLight] = useState('');
+  const [newAreaName, setNewAreaName] = useState('');
+  // Phase 1 -- Location & Environment. Always has a real value (defaults to
+  // 'outdoor', matching this field's own real NOT NULL column) rather than
+  // starting null -- every other new field below genuinely can stay unset.
+  const [newAreaLocationType, setNewAreaLocationType] = useState<'outdoor' | 'indoor' | 'greenhouse'>('outdoor');
+  // Phase 2 -- Space Type.
+  const [newAreaSpaceType, setNewAreaSpaceType] = useState<GardenSpaceType | null>(null);
+  // Phase 3 -- Sunlight Exposure.
+  const [newAreaSunlight, setNewAreaSunlight] = useState<GardenSunlightExposure | null>(null);
+  // Phase 4 -- Size & Dimensions.
+  const [newAreaLength, setNewAreaLength] = useState('');
+  const [newAreaWidth, setNewAreaWidth] = useState('');
+  const [newAreaSizeUnit, setNewAreaSizeUnit] = useState<GardenSizeUnit>('feet');
+  // Phase 5 -- Hardiness Zone (Automated). Pre-filled from the person's own
+  // already-saved profile zone (see handleShowAddPlot below) so this rarely
+  // needs a fresh lookup for the common case of one person, one climate,
+  // several garden areas -- reuses lib/gardenZoneLookup.ts, the exact same
+  // real mechanism MyZoneLens already uses for the whole profile.
+  const [newAreaZoneCountry, setNewAreaZoneCountry] = useState<string | null>(null);
+  const [newAreaZonePostal, setNewAreaZonePostal] = useState('');
+  const [newAreaZone, setNewAreaZone] = useState<string | null>(null);
+  const [zoneLookupBusy, setZoneLookupBusy] = useState(false);
+  const [zoneLookupResult, setZoneLookupResult] = useState<GrowingZoneLookupResult | null>(null);
   const [addingPlantingToPlot, setAddingPlantingToPlot] = useState<string | null>(null);
   const [pendingFood, setPendingFood] = useState<ResolvedFoodSelection | null>(null);
   const [pendingFoodName, setPendingFoodName] = useState('');
@@ -392,18 +477,57 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
     setPlantingsByPlot((current) => ({ ...current, [plotId]: rows }));
   }
 
-  async function handleAddPlot() {
-    if (!newPlotName.trim()) return;
+  // Opens the New Garden Area form, pre-filling Phase 5's own zone fields
+  // from the profile's already-saved zone (if any) -- "without forcing the
+  // user to do heavy research" per the original request: someone who
+  // already set their zone in My Zone shouldn't have to redo the lookup for
+  // every area, just confirm or override it here.
+  async function handleShowAddPlot() {
+    const profile = await getUserProfile();
+    setNewAreaZoneCountry(profile.growingZoneCountry);
+    setNewAreaZonePostal(profile.growingZonePostalCode ?? '');
+    setNewAreaZone(profile.growingZone);
+    setZoneLookupResult(null);
+    setShowAddPlot(true);
+  }
+
+  async function handleZoneLookup() {
+    if (!newAreaZoneCountry || !newAreaZonePostal.trim() || zoneLookupBusy) return;
+    setZoneLookupBusy(true);
+    setZoneLookupResult(null);
+    const result = await lookupGrowingZone(newAreaZoneCountry, newAreaZonePostal);
+    setZoneLookupResult(result);
+    if (result.status === 'success') {
+      setNewAreaZone(result.zone);
+    }
+    setZoneLookupBusy(false);
+  }
+
+  async function handleAddGardenArea() {
+    if (!newAreaName.trim()) return;
     await createGardenPlot({
-      name: newPlotName,
-      locationType: newPlotLocationType,
-      growingMedium: newPlotMedium || null,
-      lightSource: newPlotLight || null,
+      name: newAreaName,
+      locationType: newAreaLocationType,
+      spaceType: newAreaSpaceType,
+      sunlightExposure: newAreaSunlight,
+      length: newAreaLength.trim() ? Number(newAreaLength) : null,
+      width: newAreaWidth.trim() ? Number(newAreaWidth) : null,
+      sizeUnit: newAreaLength.trim() || newAreaWidth.trim() ? newAreaSizeUnit : null,
+      zone: newAreaZone,
+      zoneCountry: newAreaZoneCountry,
+      zonePostalCode: newAreaZonePostal.trim() || null,
     });
-    setNewPlotName('');
-    setNewPlotMedium('');
-    setNewPlotLight('');
-    setNewPlotLocationType('outdoor');
+    setNewAreaName('');
+    setNewAreaLocationType('outdoor');
+    setNewAreaSpaceType(null);
+    setNewAreaSunlight(null);
+    setNewAreaLength('');
+    setNewAreaWidth('');
+    setNewAreaSizeUnit('feet');
+    setNewAreaZoneCountry(null);
+    setNewAreaZonePostal('');
+    setNewAreaZone(null);
+    setZoneLookupResult(null);
     setShowAddPlot(false);
     await loadPlots();
   }
@@ -476,7 +600,7 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
   return (
     <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       {plots.length === 0 ? (
-        <Text style={styles.emptyText}>No plots yet. Add one below to start tracking what you&apos;re growing.</Text>
+        <Text style={styles.emptyText}>No garden areas yet. Add one below to start tracking what you&apos;re growing.</Text>
       ) : (
         plots.map((plot) => {
           const expanded = expandedPlotId === plot.id;
@@ -494,9 +618,19 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                 <View style={{ flex: 1 }}>
                   <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>{plot.name}</Text>
                   <Text style={styles.captionText}>
-                    {plot.locationType === 'indoor' ? 'Indoor' : 'Outdoor'}
-                    {plot.growingMedium ? ` · ${plot.growingMedium}` : ''}
-                    {plot.lightSource ? ` · ${plot.lightSource}` : ''}
+                    {plot.locationType === 'greenhouse' ? 'Greenhouse' : plot.locationType === 'indoor' ? 'Indoor' : 'Outdoor'}
+                    {plot.spaceType
+                      ? ` · ${SPACE_TYPE_LABELS[plot.spaceType]}`
+                      : plot.growingMedium
+                        ? ` · ${plot.growingMedium}`
+                        : ''}
+                    {plot.sunlightExposure
+                      ? ` · ${SUNLIGHT_LABELS[plot.sunlightExposure]}`
+                      : plot.lightSource
+                        ? ` · ${plot.lightSource}`
+                        : ''}
+                    {plot.length && plot.width ? ` · ${plot.length}×${plot.width} ${plot.sizeUnit ?? ''}` : ''}
+                    {plot.zone ? ` · Zone ${plot.zone}` : ''}
                   </Text>
                 </View>
                 <Text style={{ color: TAB_COLOR }}>{expanded ? '▲' : '▼'}</Text>
@@ -552,10 +686,10 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
 
                   <View style={styles.actionRow}>
                     <TouchableOpacity onPress={() => handleArchivePlot(plot.id)}>
-                      <Text style={styles.linkText}>Archive Plot</Text>
+                      <Text style={styles.linkText}>Archive Area</Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDeletePlot(plot.id)}>
-                      <Text style={[styles.linkText, { color: colors.danger }]}>Delete Plot</Text>
+                      <Text style={[styles.linkText, { color: colors.danger }]}>Delete Area</Text>
                     </TouchableOpacity>
                   </View>
                 </View>
@@ -567,13 +701,15 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
 
       {showAddPlot ? (
         <View style={[styles.card, { borderColor: TAB_COLOR }]}>
-          <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>New Plot</Text>
+          <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>New Garden Area</Text>
           <AppTextInput
             style={styles.textInput}
             placeholder="Name (e.g. Backyard raised bed)"
-            value={newPlotName}
-            onChangeText={setNewPlotName}
+            value={newAreaName}
+            onChangeText={setNewAreaName}
           />
+
+          <Text style={styles.fieldLabel}>Where is your garden located?</Text>
           <View style={styles.pillRow}>
             {LOCATION_TYPE_OPTIONS.map((option) => (
               <TouchableOpacity
@@ -581,31 +717,151 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
                 style={[
                   styles.pill,
                   { borderColor: TAB_COLOR },
-                  newPlotLocationType === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
+                  newAreaLocationType === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
                 ]}
-                onPress={() => setNewPlotLocationType(option.value)}
+                onPress={() => setNewAreaLocationType(option.value)}
               >
-                <Text style={newPlotLocationType === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
+                <Text style={newAreaLocationType === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
                   {option.label}
                 </Text>
               </TouchableOpacity>
             ))}
           </View>
+          <Text style={styles.captionText}>Determines temperature exposure, humidity levels, and natural climate risks.</Text>
+
+          <Text style={[styles.fieldLabel, { marginTop: 10 }]}>What type of space are you growing in?</Text>
+          <View style={styles.pillRow}>
+            {SPACE_TYPE_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.pill,
+                  { borderColor: TAB_COLOR },
+                  newAreaSpaceType === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
+                ]}
+                onPress={() => setNewAreaSpaceType(newAreaSpaceType === option.value ? null : option.value)}
+              >
+                <Text style={newAreaSpaceType === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.captionText}>
+            Dictates soil depth limitations, drainage styles, root spacing rules, and indoor requirements.
+          </Text>
+
+          <Text style={[styles.fieldLabel, { marginTop: 10 }]}>How much direct sun does this space get daily?</Text>
+          <View style={styles.pillRow}>
+            {SUNLIGHT_OPTIONS.map((option) => (
+              <TouchableOpacity
+                key={option.value}
+                style={[
+                  styles.pill,
+                  { borderColor: TAB_COLOR },
+                  newAreaSunlight === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
+                ]}
+                onPress={() => setNewAreaSunlight(newAreaSunlight === option.value ? null : option.value)}
+              >
+                <Text style={newAreaSunlight === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
+                  {option.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <Text style={styles.captionText}>Sunlight is the single biggest filter on which plants can actually survive here.</Text>
+
+          <Text style={[styles.fieldLabel, { marginTop: 10 }]}>What is the size of your space?</Text>
+          <View style={styles.fieldRow}>
+            <AppTextInput
+              style={[styles.textInput, styles.sizeInput]}
+              placeholder="Length"
+              keyboardType="decimal-pad"
+              value={newAreaLength}
+              onChangeText={setNewAreaLength}
+            />
+            <AppTextInput
+              style={[styles.textInput, styles.sizeInput]}
+              placeholder="Width"
+              keyboardType="decimal-pad"
+              value={newAreaWidth}
+              onChangeText={setNewAreaWidth}
+            />
+            <View style={styles.pillRow}>
+              {SIZE_UNIT_OPTIONS.map((option) => (
+                <TouchableOpacity
+                  key={option.value}
+                  style={[
+                    styles.pill,
+                    { borderColor: TAB_COLOR },
+                    newAreaSizeUnit === option.value ? { backgroundColor: PRIMARY_BUTTON_BACKGROUND } : null,
+                  ]}
+                  onPress={() => setNewAreaSizeUnit(option.value)}
+                >
+                  <Text style={newAreaSizeUnit === option.value ? styles.pillTextActive : { color: TAB_COLOR }}>
+                    {option.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+          <Text style={styles.captionText}>Lets the app calculate real planting density and grid spacing later.</Text>
+
+          <Text style={[styles.fieldLabel, { marginTop: 10 }]}>Hardiness zone for this area</Text>
+          <View style={styles.fieldRow}>
+            <Text style={styles.fieldLabel}>Country</Text>
+            <PopoverSelect
+              options={COUNTRY_OPTIONS}
+              selected={newAreaZoneCountry}
+              onSelect={setNewAreaZoneCountry}
+              tabColor={TAB_COLOR}
+              searchable
+              width={180}
+              placeholder="Country"
+            />
+          </View>
           <AppTextInput
             style={styles.textInput}
-            placeholder="Growing medium (optional: soil, coco coir, hydroponic...)"
-            value={newPlotMedium}
-            onChangeText={setNewPlotMedium}
+            placeholder="ZIP or postal code"
+            value={newAreaZonePostal}
+            onChangeText={setNewAreaZonePostal}
           />
-          <AppTextInput
-            style={styles.textInput}
-            placeholder="Light source (optional: full sun, LED grow light...)"
-            value={newPlotLight}
-            onChangeText={setNewPlotLight}
-          />
+          <TouchableOpacity
+            style={[
+              styles.secondaryButton,
+              { borderColor: TAB_COLOR },
+              !newAreaZoneCountry || !newAreaZonePostal.trim() || zoneLookupBusy ? styles.disabledButton : null,
+            ]}
+            onPress={handleZoneLookup}
+            disabled={!newAreaZoneCountry || !newAreaZonePostal.trim() || zoneLookupBusy}
+          >
+            {zoneLookupBusy ? (
+              <ActivityIndicator size="small" color={TAB_COLOR} />
+            ) : (
+              <Text style={[styles.secondaryButtonText, { color: TAB_COLOR }]}>Find My Zone</Text>
+            )}
+          </TouchableOpacity>
+          {zoneLookupResult ? (
+            <Text style={[styles.captionText, zoneLookupResult.status !== 'success' ? styles.errorText : null]}>
+              {zoneLookupResult.status === 'success'
+                ? `Zone ${zoneLookupResult.zone}${zoneLookupResult.placeLabel ? ` (${zoneLookupResult.placeLabel})` : ''}. ${zoneLookupResult.detail}`
+                : zoneLookupResult.message}
+            </Text>
+          ) : newAreaZone ? (
+            <Text style={styles.captionText}>Current zone for this area: {newAreaZone}</Text>
+          ) : null}
+          <Text style={styles.captionText}>
+            Instantly calculates frost dates and local climate constraints from a country + ZIP/postal code, the same
+            lookup as My Zone -- pre-filled from your profile if already set there, editable here if this specific
+            area is somewhere else.
+          </Text>
+
           <View style={styles.actionRow}>
-            <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleAddPlot}>
-              <Text style={styles.primaryButtonText}>Save Plot</Text>
+            <TouchableOpacity
+              style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]}
+              onPress={handleAddGardenArea}
+            >
+              <Text style={styles.primaryButtonText}>Save Garden Area</Text>
             </TouchableOpacity>
             <TouchableOpacity onPress={() => setShowAddPlot(false)}>
               <Text style={styles.linkText}>Cancel</Text>
@@ -613,8 +869,8 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
           </View>
         </View>
       ) : (
-        <TouchableOpacity style={[styles.secondaryButton, { borderColor: TAB_COLOR }]} onPress={() => setShowAddPlot(true)}>
-          <Text style={[styles.secondaryButtonText, { color: TAB_COLOR }]}>+ Add a Plot</Text>
+        <TouchableOpacity style={[styles.secondaryButton, { borderColor: TAB_COLOR }]} onPress={handleShowAddPlot}>
+          <Text style={[styles.secondaryButtonText, { color: TAB_COLOR }]}>+ Add a Garden Area</Text>
         </TouchableOpacity>
       )}
     </ScrollView>
@@ -629,7 +885,6 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
   const [harvests, setHarvests] = useState<GardenHarvest[]>([]);
   const [plantings, setPlantings] = useState<GardenPlanting[]>([]);
   const [plotNameById, setPlotNameById] = useState<Record<string, string>>({});
-  const [upcomingTasks, setUpcomingTasks] = useState<Awaited<ReturnType<typeof listUpcomingGardenTasks>>>([]);
   // A harvest is only ever recorded FROM something already tracked as a
   // real planting, not picked fresh from the whole food reference database
   // -- redesigned 2026-08-13, direct request: "the Harvest isn't going to
@@ -644,14 +899,12 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
   const [pickingPlanting, setPickingPlanting] = useState(false);
   const [quantity, setQuantity] = useState<string | null>(null);
   const [unit, setUnit] = useState<string | null>('count');
-  const [taskTitle, setTaskTitle] = useState('');
 
   const load = useCallback(async () => {
-    const [harvestRows, plantingRows, plotRows, taskRows] = await Promise.all([
+    const [harvestRows, plantingRows, plotRows] = await Promise.all([
       listGardenHarvests(30),
       listGardenPlantings(),
       listGardenPlots(),
-      listUpcomingGardenTasks(10),
     ]);
     setHarvests(harvestRows);
     // Failed/removed plantings were never a real harvest to begin with --
@@ -660,7 +913,6 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
     // more than one harvest event in the same season.
     setPlantings(plantingRows.filter((p) => p.status !== 'failed' && p.status !== 'removed'));
     setPlotNameById(Object.fromEntries(plotRows.map((p) => [p.id, p.name])));
-    setUpcomingTasks(taskRows);
   }, []);
 
   useFocusEffect(
@@ -689,15 +941,6 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
 
   async function handleDelete(id: string) {
     await deleteGardenHarvest(id);
-    await load();
-  }
-
-  async function handleAddTask() {
-    if (!taskTitle.trim()) return;
-    const now = new Date();
-    now.setDate(now.getDate() + 1);
-    await scheduleGardenTask({ title: taskTitle, scheduledFor: `${now.toISOString().slice(0, 10)}T09:00` });
-    setTaskTitle('');
     await load();
   }
 
@@ -784,7 +1027,44 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           ingredient in any Food builder.
         </Text>
       </View>
+    </ScrollView>
+  );
+}
 
+// ---------------------------------------------------------------------------
+// Upcoming Garden Tasks -- 2026-08-14, moved out into its own real lens
+// (previously a card tucked inside Harvest Log), direct request: "Move
+// Upcoming Garden Tasks out to the Garden LensHub menu as it's own entity."
+// Content and logic carried over unchanged from that card, just given its
+// own real screen.
+// ---------------------------------------------------------------------------
+
+function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
+  const [upcomingTasks, setUpcomingTasks] = useState<Awaited<ReturnType<typeof listUpcomingGardenTasks>>>([]);
+  const [taskTitle, setTaskTitle] = useState('');
+
+  const load = useCallback(async () => {
+    const rows = await listUpcomingGardenTasks(20);
+    setUpcomingTasks(rows);
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  async function handleAddTask() {
+    if (!taskTitle.trim()) return;
+    const now = new Date();
+    now.setDate(now.getDate() + 1);
+    await scheduleGardenTask({ title: taskTitle, scheduledFor: `${now.toISOString().slice(0, 10)}T09:00` });
+    setTaskTitle('');
+    await load();
+  }
+
+  return (
+    <ScrollView contentContainerStyle={[styles.body, { paddingBottom: scrollBottomPadding }]}>
       <View style={[styles.card, { borderColor: TAB_COLOR }]}>
         <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>Upcoming Garden Tasks</Text>
         {upcomingTasks.length === 0 ? (
@@ -808,8 +1088,8 @@ function HarvestLogLens({ scrollBottomPadding }: { scrollBottomPadding: number }
           </TouchableOpacity>
         </View>
         <Text style={styles.captionText}>
-          Creates a Schedule entry for tomorrow morning. A dedicated Garden lens inside the Schedules tab itself isn&apos;t
-          built yet, so this list is the way to see it for now.
+          Creates a Schedule entry for tomorrow morning. A dedicated lens for these inside the Schedules tab itself
+          isn&apos;t built yet, so this is the way to see and add them for now.
         </Text>
       </View>
     </ScrollView>
@@ -852,8 +1132,16 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     color: colors.textPrimary,
   },
-  pillRow: { flexDirection: 'row', gap: 8 },
+  // flexWrap added 2026-08-14 -- the New Garden Area wizard's own Space
+  // Type (7 options) and Sunlight Exposure (5 options, one genuinely long
+  // label) rows both need to wrap; harmless for every shorter row already
+  // using this same style, since wrap has no visible effect when
+  // everything already fits on one line.
+  pillRow: { flexDirection: 'row', gap: 8, flexWrap: 'wrap' },
   pill: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 6 },
+  // Phase 4's own Length/Width entry boxes -- narrow enough to sit
+  // side-by-side with the Feet/Meters toggle in the same fieldRow.
+  sizeInput: { width: 90 },
   pillTextActive: { color: colors.background, fontWeight: '700' },
   expandedSection: { gap: 8, marginTop: 4 },
   plantingRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
