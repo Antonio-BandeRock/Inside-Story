@@ -661,17 +661,22 @@ export default function InsightsScreen() {
             <View style={styles.foodLookupActiveListContainer}>
               <FoodLookup tabColor={TAB_COLOR} />
             </View>
-          ) : (
-            <ScrollView
-              ref={scrollViewRef}
-              style={styles.body}
-              contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
-            >
-              {lens === 'nutrientRanking' ? (
-              // Independent of today's log (same reference-data nature as
-              // Food Lookup) -- checked ahead of `loading`/`errorMessage`
-              // below, which are specific to the daily-breakdown fetch this
-              // lens never waits on.
+          ) : lens === 'nutrientRanking' ? (
+            // Also deliberately NOT inside the shared ScrollView below --
+            // 2026-08-14, direct report: reaching the Nutrient field meant
+            // reaching to the TOP of the screen every time, working against
+            // this app's own one-handed-operation goal (the floating hub
+            // buttons already cluster low for exactly this reason -- see
+            // NAVIGATION_HAND's own comment in constants/floatingButton.ts).
+            // NutrientRankingView now owns its own full internal layout
+            // (the field pinned low, results scrollable above it), the
+            // same "this lens owns its own layout, not the shared page
+            // wrapper" precedent Food Lookup already established just
+            // above, for the same real reason: this needs a layout the
+            // shared ScrollView's own single, uniform scroll area can't
+            // express (a fixed zone AND an independently scrolling zone
+            // together, not one scrolling column).
+            <View style={styles.foodLookupActiveListContainer}>
               <NutrientRankingView
                 nutrients={allNutrients}
                 selected={rankingNutrient}
@@ -680,7 +685,14 @@ export default function InsightsScreen() {
                 loading={rankingLoading}
                 tabColor={TAB_COLOR}
               />
-            ) : lens === 'cookingImpact' ? (
+            </View>
+          ) : (
+            <ScrollView
+              ref={scrollViewRef}
+              style={styles.body}
+              contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}
+            >
+              {lens === 'cookingImpact' ? (
               // Also independent of today's log -- a pure, static reference
               // lookup (no DB round-trip at all), so this owns its own
               // local compound-selection state rather than anything lifted
@@ -688,7 +700,9 @@ export default function InsightsScreen() {
               <CookingImpactView tabColor={TAB_COLOR} />
             ) : lens === 'safeFoods' ? (
               // Also independent of today's log -- same reasoning as
-              // nutrientRanking just above.
+              // Nutrient Ranking, which owns its own layout outside this
+              // shared ScrollView now (see InsightsScreen's own render,
+              // above cookingImpact's own branch).
               <SafeFoodsView
                 categories={safeFoodCategories}
                 selected={safeFoodCategory}
@@ -699,7 +713,7 @@ export default function InsightsScreen() {
               />
             ) : lens === 'healingStage' ? (
               // Also independent of today's log -- same reasoning as
-              // nutrientRanking/safeFoods just above.
+              // Nutrient Ranking/Safe Foods above.
               <HealingStageView
                 tab={healingStageTab}
                 onTabChange={setHealingStageTab}
@@ -1347,9 +1361,26 @@ export function PrepView({
 // items based on how much of any specific thing is within them, such as
 // to provide the list of foods in order of most protein to least, but
 // separated by whether they are animal protein versus plant protein."
-// Plain PopoverSelect + mapped rows, the same shape NutrientsTable/
-// SixDsView above already use -- no FlatList needed at this scale (100
-// rows max, see rankFoodsByNutrient's own limit).
+// Plain mapped rows, the same shape NutrientsTable/SixDsView above already
+// use -- no FlatList needed at this scale (100 rows max, see
+// rankFoodsByNutrient's own limit).
+//
+// 2026-08-14, direct report: "the field is at the top of the body of the
+// app space and we are trying to make the app mostly capable of being
+// fully operated from the chosen hand... Place the selector the way it is
+// now and place it just above the footer top edge, and w[h]en something
+// is selected from it, the results should be viewed just above the
+// selector." Rebuilt from one plain scrolling column (label, field,
+// results, all stacked top to bottom, the field reachable only by
+// scrolling all the way up) into a real, two-zone layout: a scrollable
+// results area filling the available space, and a fixed, non-scrolling
+// field zone -- unchanged in its own look, per "place the selector the
+// way it is now" -- pinned at the bottom, clearing the floating hub
+// button/footer the exact same way the last item in any other lens' own
+// scroll area already does (useFloatingButtonScrollPadding). This
+// component now owns its own full layout, the same "not the shared page
+// ScrollView" precedent Food Lookup already established, for the same
+// real reason -- see this lens' own new branch in InsightsScreen's return.
 function NutrientRankingView({
   nutrients,
   selected,
@@ -1380,6 +1411,11 @@ function NutrientRankingView({
     [nutrients],
   );
   const selectedNutrient = nutrients.find((n) => n.code === selected) ?? null;
+  // Same real clearance every other scrollable lens already applies at the
+  // bottom of ITS own last piece of content, applied here to the bottom of
+  // the fixed field zone instead, so it sits just above the floating hub
+  // button/footer rather than under it.
+  const fieldBottomPadding = useFloatingButtonScrollPadding();
 
   function renderRow(food: RankedFood, rank: number) {
     return (
@@ -1422,65 +1458,78 @@ function NutrientRankingView({
   }
 
   return (
-    <>
-      <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
-      {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
-          isn't needed") -- 39 real tracked nutrients is a short, plain
-          scrollable list, not the "could be longer" case search mode was
-          built for (see PopoverSelect's own header comment). Removing it
-          also means this field never touches AppKeyboard's search row at
-          all, closing off the whole code path most directly implicated in
-          the freeze this same day (see that file's own fix comment). */}
-      <PopoverSelect
-        options={nutrientOptions}
-        selected={selected}
-        onSelect={onSelect}
-        tabColor={tabColor}
-        placeholder="Pick a nutrient..."
-        minWidth={220}
-      />
-      {!selected ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>
-          Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
-        </Text>
-      ) : loading ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
-      ) : rankedFoods.length === 0 ? (
-        <Text style={[styles.emptyText, styles.rankSpaced]}>No foods with a measured amount of this found.</Text>
-      ) : selected === 'protein' ? (
-        // Protein specifically splits into Animal vs. Plant -- see
-        // classifyProteinSource's own comment in lib/db.ts for exactly
-        // which categories land where and why. A food whose category isn't
-        // a real "protein source" category at all (a sauce, a sweetener)
-        // is simply left out of both lists rather than forced into either.
-        <>
-          <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Animal Protein</Text>
-          <View style={styles.table}>
-            {(() => {
-              const animal = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'animal');
-              return animal.length === 0 ? (
-                <Text style={styles.emptyText}>None found.</Text>
-              ) : (
-                animal.map((food, index) => renderRow(food, index + 1))
-              );
-            })()}
-          </View>
-          <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Plant Protein</Text>
-          <View style={styles.table}>
-            {(() => {
-              const plant = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'plant');
-              return plant.length === 0 ? (
-                <Text style={styles.emptyText}>None found.</Text>
-              ) : (
-                plant.map((food, index) => renderRow(food, index + 1))
-              );
-            })()}
-          </View>
-        </>
-      ) : (
-        <View style={[styles.table, styles.rankSpaced]}>{rankedFoods.map((food, index) => renderRow(food, index + 1))}</View>
-      )}
-    </>
+    <View style={styles.rankLayout}>
+      {/* The results zone -- scrolls on its own, independent of the fixed
+          field zone below it, so a long ranked list never pushes the field
+          itself out of reach. Shows the same real "nothing picked yet" /
+          "loading" / "none found" / actual results states as before,
+          unchanged in substance -- only WHERE they sit changed. */}
+      <ScrollView style={styles.rankResultsScroll} contentContainerStyle={styles.rankResultsContent}>
+        {!selected ? (
+          <Text style={styles.emptyText}>
+            Pick a nutrient below to see foods ranked by how much of it they contain, per 100g.
+          </Text>
+        ) : loading ? (
+          <Text style={styles.emptyText}>Loading…</Text>
+        ) : rankedFoods.length === 0 ? (
+          <Text style={styles.emptyText}>No foods with a measured amount of this found.</Text>
+        ) : selected === 'protein' ? (
+          // Protein specifically splits into Animal vs. Plant -- see
+          // classifyProteinSource's own comment in lib/db.ts for exactly
+          // which categories land where and why. A food whose category isn't
+          // a real "protein source" category at all (a sauce, a sweetener)
+          // is simply left out of both lists rather than forced into either.
+          <>
+            <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Animal Protein</Text>
+            <View style={styles.table}>
+              {(() => {
+                const animal = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'animal');
+                return animal.length === 0 ? (
+                  <Text style={styles.emptyText}>None found.</Text>
+                ) : (
+                  animal.map((food, index) => renderRow(food, index + 1))
+                );
+              })()}
+            </View>
+            <Text style={[styles.rankGroupHeading, styles.rankSpaced, { color: tabColor }]}>Plant Protein</Text>
+            <View style={styles.table}>
+              {(() => {
+                const plant = rankedFoods.filter((food) => classifyProteinSource(food.category) === 'plant');
+                return plant.length === 0 ? (
+                  <Text style={styles.emptyText}>None found.</Text>
+                ) : (
+                  plant.map((food, index) => renderRow(food, index + 1))
+                );
+              })()}
+            </View>
+          </>
+        ) : (
+          <View style={styles.table}>{rankedFoods.map((food, index) => renderRow(food, index + 1))}</View>
+        )}
+      </ScrollView>
+
+      {/* The fixed field zone -- the field itself is unchanged, per "place
+          the selector the way it is now"; only its position moved, down to
+          just above the floating hub button/footer. */}
+      <View style={[styles.rankFieldZone, { paddingBottom: fieldBottomPadding }]}>
+        <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
+        {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
+            isn't needed") -- 39 real tracked nutrients is a short, plain
+            scrollable list, not the "could be longer" case search mode was
+            built for (see PopoverSelect's own header comment). Removing it
+            also means this field never touches AppKeyboard's search row at
+            all, closing off the whole code path most directly implicated in
+            the freeze this same day (see that file's own fix comment). */}
+        <PopoverSelect
+          options={nutrientOptions}
+          selected={selected}
+          onSelect={onSelect}
+          tabColor={tabColor}
+          placeholder="Pick a nutrient..."
+          minWidth={220}
+        />
+      </View>
+    </View>
   );
 }
 
@@ -2413,6 +2462,18 @@ const styles = StyleSheet.create({
     lineHeight: 18,
   },
   // Nutrient Ranking lens, 2026-08-08.
+  // 2026-08-14 -- the real two-zone layout described in NutrientRankingView's
+  // own header comment: a scrollable results area filling whatever space
+  // is left, and a fixed, non-scrolling field zone pinned at the bottom
+  // (its own paddingBottom is set inline, via useFloatingButtonScrollPadding,
+  // since it's insets-dependent -- see fieldBottomPadding above).
+  rankLayout: { flex: 1 },
+  rankResultsScroll: { flex: 1 },
+  // A little top breathing room (the outer foodLookupActiveListContainer's
+  // own paddingTop:5 is barely there) and enough bottom room that the last
+  // real result row doesn't sit flush against the field zone below it.
+  rankResultsContent: { paddingTop: 6, paddingBottom: 16 },
+  rankFieldZone: { paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border },
   rankSpaced: { marginTop: 14 },
   rankGroupHeading: { ...typography.eyebrow, marginBottom: 8 },
   rankRow: {
