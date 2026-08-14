@@ -266,11 +266,12 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     category: 'prostateHealth',
     title: 'A Precise Lab-Interpretation Trap: 5-Alpha-Reductase Inhibitors Cut PSA Roughly in Half',
     teaser: "Finasteride and dutasteride, two of the most common BPH medications, change what a normal PSA number looks like, a direct reason to double a reported value before comparing it to anything.",
-    summary: "Finasteride and dutasteride (5-alpha-reductase inhibitors) are common, effective BPH medications that work by blocking the enzyme that converts testosterone into DHT, the more potent androgen actually driving prostate tissue growth; both documented to shrink prostate volume, improve urinary symptoms, and reduce the risk of acute urinary retention and BPH-related surgery over time. Dutasteride blocks a broader range of the enzyme than finasteride, producing a somewhat larger DHT reduction. The single most important self-advocacy fact here, a precise lab-interpretation trap the same way biotin's own lab-interference finding already documented elsewhere: after 6-12 months on either medication, PSA levels drop by roughly 50%, meaning a reported PSA value needs to be doubled before comparing it against a normal reference range or tracking it for a change over time. Tamsulosin, a different class of medication (an alpha-blocker), works by relaxing the muscle around the prostate and bladder neck directly rather than shrinking the gland, and doesn't carry this same PSA effect.",
+    summary: "Finasteride and dutasteride (5-alpha-reductase inhibitors) are common, effective BPH medications that work by blocking the enzyme that converts testosterone into DHT, the more potent androgen actually driving prostate tissue growth; both documented to shrink prostate volume, improve urinary symptoms, and reduce the risk of acute urinary retention and BPH-related surgery over time. Dutasteride blocks a broader range of the enzyme than finasteride, producing a somewhat larger DHT reduction. The single most important self-advocacy fact here, a precise lab-interpretation trap the same way biotin's own lab-interference finding already documented elsewhere: after 6-12 months on either medication, PSA levels drop by roughly 50%, meaning a reported PSA value needs to be doubled before comparing it against a normal reference range or tracking it for a change over time. Tamsulosin, a different class of medication (an alpha-blocker), works by relaxing the muscle around the prostate and bladder neck directly rather than shrinking the gland, and doesn't carry this same PSA effect, the same alpha-1-adrenergic receptors covered directly in the stress/cold/caffeine research.",
     citations: [
       { source: '5-Alpha Reductase Inhibitors, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK555930/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['prostate-alpha-adrenergic-stress-cold-caffeine', 'prostate-tadalafil-dual-bph-ed', 'prostate-pae-mechanism-paradox'],
   },
   {
     id: 'prostate-psa-screening',
@@ -300,12 +301,12 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     category: 'prostateHealth',
     title: 'What Actually Holds Up for Prostate Health, Pulled Together',
     teaser: 'A direct gut-bacteria-to-hormone pathway, two individually strong protective foods, and a humbling correction on a supplement that works well for a different condition.',
-    summary: "Line up everything in this category and prostate health reads as a gut-microbiome-connected condition, not a stretch to include here. Gut dysbiosis is directly linked to BPH through the same SCFA-and-inflammation mechanism the Gut & Microbiome research already documents for autoimmune disease, and specific gut bacteria can directly manufacture the androgens and metabolize dietary compounds (choline into TMAO) that measurably affect prostate cancer risk and progression, a direct, mechanistic connection rather than a loose correlation. Lycopene and cruciferous vegetables both carry individually strong protective evidence, two dependable, concrete food-first levers. Zinc's own distinctive, outsized concentration in healthy prostate tissue makes it a natural reuse of the existing nutrient scoring. And two honest corrections round out the practical picture: selenium, strongly evidenced for Hashimoto's, does not prevent prostate cancer and its usual supplement partner (vitamin E) may raise risk, while saw palmetto's own popularity outruns its actually mixed evidence, likely due to product-standardization problems. The two self-advocacy entries carry the same kind of precise, practical numbers the other conditions have already established matter: 5-alpha-reductase inhibitors cutting PSA roughly in half (a lab-interpretation trap), and PSA screening's own honest, quantified benefit-versus-harm tradeoff, a shared decision rather than an automatic yes.",
+    summary: "Line up everything in this category and prostate health reads as a gut-microbiome-connected condition, not a stretch to include here. Gut dysbiosis is directly linked to BPH through the same SCFA-and-inflammation mechanism the Gut & Microbiome research already documents for autoimmune disease, and specific gut bacteria can directly manufacture the androgens and metabolize dietary compounds (choline into TMAO) that measurably affect prostate cancer risk and progression, a direct, mechanistic connection rather than a loose correlation. Lycopene and cruciferous vegetables both carry individually strong protective evidence, two dependable, concrete food-first levers. Zinc's own distinctive, outsized concentration in healthy prostate tissue makes it a natural reuse of the existing nutrient scoring. And two honest corrections round out the practical picture: selenium, strongly evidenced for Hashimoto's, does not prevent prostate cancer and its usual supplement partner (vitamin E) may raise risk, while saw palmetto's own popularity outruns its actually mixed evidence, likely due to product-standardization problems. A whole additional cluster of research, added later, reframes BPH as sharing real vascular biology with coronary artery disease: a documented chronic pelvic ischemia hypothesis, a shared HIF-1alpha/VEGF growth pathway with prostate cancer, and a real, well-established vascular link between BPH, erectile dysfunction, and cardiovascular disease, honestly corrected in two places where the underlying claims had been oversold, prostatic artery embolization is not simply the most effective procedure once compared directly against TURP, and the direct trial evidence for nitrate improving urinary flow used a prescription drug, not a vegetable. The self-advocacy entries carry the same kind of precise, practical numbers the other conditions have already established matter: 5-alpha-reductase inhibitors cutting PSA roughly in half (a lab-interpretation trap), PSA screening's own honest, quantified benefit-versus-harm tradeoff, and a real, structured behavioral program that outperformed medication for reducing nighttime bathroom trips.",
     citations: [
       { source: 'Benign Prostatic Hyperplasia, StatPearls, NCBI Bookshelf', url: 'https://www.ncbi.nlm.nih.gov/books/NBK558920/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-lycopene-bph-clinical-trial', 'prostate-lycopene-food-sources-bioavailability', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening', 'prostate-zinc-citrate-truncated-krebs-cycle', 'prostate-beta-sitosterol-bph-evidence', 'prostate-testosterone-nutrients-comparison'],
+    relatedIds: ['prostate-gut-microbiome-bph', 'prostate-lycopene-tomatoes', 'prostate-lycopene-bph-clinical-trial', 'prostate-lycopene-food-sources-bioavailability', 'prostate-cruciferous-sulforaphane', 'prostate-selenium-select-trial-correction', 'prostate-psa-screening', 'prostate-zinc-citrate-truncated-krebs-cycle', 'prostate-beta-sitosterol-bph-evidence', 'prostate-testosterone-nutrients-comparison', 'prostate-vascular-ischemia-hypothesis', 'prostate-pae-mechanism-paradox', 'prostate-behavioral-nocturia-reduction'],
   },
 
   // -- Full-depth parity additions, 2026-08-08. Every citation
@@ -449,7 +450,7 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'The association between metabolic syndrome and benign prostatic hyperplasia: a systematic review and meta-analysis, PMID 32482153', url: 'https://pubmed.ncbi.nlm.nih.gov/32482153/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['pcos-insulin-resistance-mechanism', 'type2-metabolic-syndrome-cluster'],
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'type2-metabolic-syndrome-cluster', 'prostate-vascular-ischemia-hypothesis'],
   },
   {
     id: 'prostate-age-specific-psa-ranges',
@@ -651,6 +652,134 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-5ari-cancer-risk-controversy', 'prostate-bph-combination-therapy-mtops-combat'],
   },
+  // -- Vascular-disease cluster, 2026-08-14, prompted directly by a shared
+  // summary of BPH's own emerging vascular biology. Every specific claim in
+  // that summary was independently checked rather than transcribed: the
+  // core reframe (BPH shares real biology with coronary atherosclerosis,
+  // via a documented chronic-pelvic-ischemia hypothesis) held up, but
+  // several individual claims needed real correction once checked against
+  // the primary literature -- most notably, "the most effective BPH
+  // procedure" (prostatic artery embolization) turns out NOT to outperform
+  // TURP on the core urinary outcomes a real meta-analysis actually
+  // measured, and "nitrate-rich vegetables... directly counteract the
+  // vascular deficit" overstates evidence that, once traced to its actual
+  // source, tested a prescription cardiovascular drug, not a food. Both
+  // corrected honestly below rather than repeated. The hormone-driven
+  // (DHT) mechanism already covered throughout this category's own
+  // medication research remains the primary, well-established driver of
+  // BPH; this cluster covers a real, additional, still-emerging vascular
+  // contributor, not a replacement for it.
+  {
+    id: 'prostate-vascular-ischemia-hypothesis',
+    category: 'prostateHealth',
+    title: 'BPH Increasingly Looks Like It Shares Real Biology With Coronary Artery Disease',
+    teaser: 'A documented hypothesis links BPH to the same process that narrows coronary arteries: reduced pelvic blood flow, prostatic hypoxia, and tissue remodeling, though the authors of the underlying research are honest that the evidence is still limited.',
+    summary:
+      "Endothelial dysfunction, the initial step of the atherosclerotic process that eventually narrows coronary arteries, doesn't stop at the heart. It involves multiple vascular territories, including the small arteries that supply the prostate. This is the basis of a documented chronic pelvic ischemia hypothesis: reduced pelvic blood flow is proposed to cause prostatic hypoxia and oxidative stress, which in turn drives hyperplastic tissue remodeling, and atherosclerosis is itself named as a risk factor for BPH. A rat model gives this a direct causal test: experimentally inducing prostatic ischemia in spontaneously hypertensive rats produced ventral prostatic hyperplasia, evidence the ischemia-to-growth link isn't just an association observed in people who already have both conditions. The structural picture in human tissue is consistent with chronic low blood flow too: loss of smooth muscle cells and nerve fibers, oxidative damage to epithelial cells, and resulting fibrosis, all reducing the prostate's own elasticity and altering how it responds during urination. Worth stating plainly, matching the honesty of the underlying research itself: the review literature describes this as a real, plausible, and actively studied hypothesis supported by observational data and emerging genetic analyses, not a settled, fully proven mechanism, and it sits alongside hormonal (DHT-driven) signaling as an additional contributor, not a replacement for it.",
+    citations: [
+      { source: 'Pharmacological treatment of chronic pelvic ischemia, Current Drug Targets, PMID 24883108', url: 'https://pubmed.ncbi.nlm.nih.gov/24883108/' },
+      { source: 'Prostatic ischemia induces ventral prostatic hyperplasia in the SHR, Scientific Reports', url: 'https://www.nature.com/articles/srep03822' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-overview', 'prostate-metabolic-syndrome-bph-link', 'prostate-hif-vegf-angiogenesis-shared-pathway', 'prostate-vascular-triad-luts-ed-cvd', 'prostate-pae-mechanism-paradox', 'cvd-overview'],
+  },
+  {
+    id: 'prostate-hif-vegf-angiogenesis-shared-pathway',
+    category: 'prostateHealth',
+    title: 'BPH and Prostate Cancer Share a Molecular Growth Pathway, Though Cancer Relies on It Far More',
+    teaser: 'Low-oxygen prostate tissue activates the same HIF-1alpha/VEGF signaling pathway in both BPH and prostate cancer, but direct comparative studies find angiogenesis considerably more prominent in cancer than in BPH.',
+    summary:
+      "The tissue hypoxia named in the ischemia hypothesis above doesn't just sit there passively. Low-oxygen prostate tissue activates hypoxia-inducible factor-1alpha (HIF-1alpha), which switches on genes for vascular endothelial growth factor (VEGF) and drives angiogenesis, the growth of new blood vessels a hyperplastic or malignant mass needs to keep expanding. This same HIF-1alpha/VEGF pathway is documented as active in BPH tissue, and is separately, and far more prominently, tied to prostate cancer's own progression, where HIF-1alpha upregulation is considered an early event in a real, formally named process called the angiogenic switch, the point where a small, dormant tumor begins actively recruiting its own blood supply. Worth stating honestly rather than overstating the overlap: a direct comparative study measuring microvessel density found angiogenesis significantly more prominent in prostate cancer than in BPH tissue from the same patient population. This is a shared molecular pathway triggered by the same low-oxygen conditions, not evidence that BPH is somehow becoming cancer, and BPH and prostate cancer remain two separate diseases (see the overview). It has already opened a real, if early, research direction of its own: at least one BPH-specific herbal compound has been studied specifically for inhibiting this pathway, a genuinely different therapeutic angle from the hormone-blocking medications already covered elsewhere in this category.",
+    citations: [
+      { source: 'Expression of vascular endothelial growth factor (VEGF) and association with microvessel density in benign prostatic hyperplasia and prostate cancer, PMID 15113042', url: 'https://pubmed.ncbi.nlm.nih.gov/15113042/' },
+      { source: 'Qianliening capsule inhibits benign prostatic hyperplasia angiogenesis via the HIF-1alpha signaling pathway, PMC4061199', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC4061199/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-vascular-ischemia-hypothesis', 'prostate-overview'],
+  },
+  {
+    id: 'prostate-vascular-triad-luts-ed-cvd',
+    category: 'prostateHealth',
+    title: 'BPH, Erectile Dysfunction, and Heart Disease Share a Well-Documented Vascular Root',
+    teaser: 'Endothelial dysfunction, the process that narrows coronary arteries, is the same recognized mechanism behind erectile dysfunction. Research increasingly finds urinary symptom severity tracking with the same vascular risk too.',
+    summary:
+      "Erectile dysfunction and cardiovascular disease are formally recognized as sharing one underlying cause: endothelial dysfunction, the same impaired nitric-oxide-mediated blood vessel relaxation that drives atherosclerotic plaque formation, whether it happens in coronary arteries or penile arteries. Because penile arteries are smaller, blood-flow-limiting plaque tends to show up there first, which is why vasculogenic ED is recognized in current medical practice as an early warning sign of broader cardiovascular disease, often preceding a heart attack by 3 to 5 years. Urinary symptoms from BPH are now understood to belong in this same picture: the incidence of LUTS and ED correlates with the prevalence of the same vascular risk factors, and human studies measuring blood flow directly find lower bladder and prostate blood flow in men with more severe urinary symptoms. Four specific mechanisms are named as connecting LUTS and ED: the nitric oxide/NO synthase pathway, autonomic (sympathetic) hyperactivity, a signaling pathway called Rho-kinase activation, and pelvic atherosclerosis itself, the same process the chronic pelvic ischemia hypothesis describes. Worth stating plainly: the ED-endothelial dysfunction-cardiovascular disease connection is well-established medical practice, while LUTS's own inclusion in that same picture is a real, actively growing body of evidence, not yet as long-established as the other two.",
+    citations: [
+      { source: 'The triad: erectile dysfunction--endothelial dysfunction--cardiovascular disease, PMID 19128223', url: 'https://pubmed.ncbi.nlm.nih.gov/19128223/' },
+      { source: 'Molecular Regulation of Concomitant Lower Urinary Tract Symptoms and Erectile Dysfunction in Pelvic Ischemia, PMC9782153', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9782153/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-vascular-ischemia-hypothesis', 'prostate-tadalafil-dual-bph-ed', 'cvd-overview'],
+  },
+  {
+    id: 'prostate-alpha-adrenergic-stress-cold-caffeine',
+    category: 'prostateHealth',
+    title: 'Stress, Cold, and Caffeine Really Do Tighten the Muscle Around the Prostate and Bladder Neck',
+    teaser: 'Alpha-1-adrenergic receptors sit directly in prostate and bladder-neck smooth muscle. Whole-body cold exposure has direct trial evidence for worsening urinary symptoms through this exact receptor pathway, and caffeine carries its own documented association.',
+    summary:
+      "Alpha-1-adrenergic receptors are located directly in the smooth muscle of the bladder neck, the prostate capsule, and the fibromuscular stroma surrounding the urethra. Variations in how strongly these receptors are stimulated directly change how much they constrict, which is why BPH symptoms can genuinely vary day to day even with no change in the prostate's own actual size, and it's the exact mechanism alpha-blocker medications work by blocking. Cold exposure has real, direct evidence behind it: research measuring the effect of whole-body cooling found it measurably worsens urinary symptoms, including urgency, nighttime waking, and residual urine, with the underlying pathway traced specifically to a nerve mechanism that itself signals through these same alpha-1-adrenergic receptors. Caffeine carries a documented association too, both through its stimulant effect on the sympathetic nervous system and its own separate diuretic effect (more urine produced, more often), and a cross-sectional analysis of NHANES data found a measurable association between caffeine intake and BPH. Worth stating honestly: general psychological stress activates this same broad sympathetic response, the same fight-or-flight pathway that raises alpha-1-adrenergic tone throughout the body, a real, biologically plausible extension of the identical mechanism, though a dedicated trial testing psychological stress specifically on prostate muscle tone was not found here, distinct from the direct cold-exposure and caffeine evidence above.",
+    citations: [
+      { source: 'Cold stress induces lower urinary tract symptoms, International Journal of Urology, PMID 23441811', url: 'https://pubmed.ncbi.nlm.nih.gov/23441811/' },
+      { source: 'Exploring the association between caffeine intake and benign prostatic hyperplasia: results from the NHANES 2005-2008, PMC11770993', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11770993/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-vascular-ischemia-hypothesis', 'prostate-medications-psa-monitoring', 'prostate-behavioral-nocturia-reduction'],
+  },
+  {
+    id: 'prostate-pae-mechanism-paradox',
+    category: 'prostateHealth',
+    title: 'Prostatic Artery Embolization: Deliberately Cutting Off Blood Supply to a Disease Already Linked to Too Little of It',
+    teaser: "A real interventional-radiology procedure treats BPH by completely blocking the arteries feeding the prostate, an apparent contradiction once you know reduced blood flow is hypothesized to drive BPH's own growth. It resolves cleanly, and the real comparative data corrects a common overstatement about how effective it actually is.",
+    summary:
+      "Prostatic artery embolization (PAE) is a catheter-based procedure that deliberately occludes the small arteries feeding the prostate, inducing tissue ischemia that leads to coagulation necrosis and apoptosis, real cell death that shrinks the gland; it also reduces the density of alpha-1-adrenergic receptors in prostate tissue, independently lowering smooth muscle tone. This raises a real, worth-answering question given the ischemia hypothesis covered above: if chronically reduced blood flow is proposed to help drive BPH's own growth, why would deliberately cutting off blood flow entirely treat it rather than make it worse? The resolution isn't a contradiction, it's two different points on the same dose-response curve. Chronic, PARTIAL reduction in blood flow is hypothesized to trigger a hypoxia-driven growth-signaling response (the HIF-1alpha/VEGF pathway named above), a survival adaptation under low-but-not-absent oxygen. Acute, COMPLETE devascularization, what embolization actually does, instead causes outright cell death, since tissue can't survive with no blood supply at all, and it's that cell death, not growth signaling, that shrinks the gland. Worth correcting directly, since this often gets overstated: comparative trial data does not find PAE simply the most effective BPH procedure overall. A meta-analysis of 6 randomized controlled trials (402 patients, roughly 12-month follow-up) found TURP, the older, more established surgical procedure, achieved significantly greater prostate volume reduction and greater improvement in peak urinary flow than PAE, with symptom scores, quality of life, and overall complication rates statistically equivalent between the two. PAE's own clearest, most clinically meaningful advantage is real and substantial in a different way: an 88% lower rate of postoperative sexual dysfunction compared with TURP, the genuine reason it's become a real, worth-knowing option for men who want to avoid that specific risk.",
+    citations: [
+      { source: 'Prostatic Artery Embolization: Indications, Preparation, Techniques, Imaging Evaluation, Reporting, and Complications, RadioGraphics', url: 'https://pubs.rsna.org/doi/full/10.1148/rg.2021200144' },
+      { source: 'An Updated Meta-Analysis of the Efficacy and Safety of Prostatic Artery Embolization vs. Transurethral Resection of the Prostate in the Treatment of Benign Prostatic Hyperplasia, PMC8715078', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC8715078/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-vascular-ischemia-hypothesis', 'prostate-hif-vegf-angiogenesis-shared-pathway', 'prostate-medications-psa-monitoring', 'prostate-bph-combination-therapy-mtops-combat'],
+  },
+  {
+    id: 'prostate-tadalafil-dual-bph-ed',
+    category: 'prostateHealth',
+    title: 'One Daily Pill, Two Conditions: Why Tadalafil Treats Both BPH and ED at Once',
+    teaser: 'The FDA approved tadalafil specifically for men who have both BPH and erectile dysfunction together, and the reason one drug works on both is the same vascular biology already covered above, not a coincidence.',
+    summary:
+      "Tadalafil (Cialis) is a real, direct example of the vascular connection between BPH and ED covered above becoming an actual, approved treatment. On October 6, 2011, the FDA approved once-daily tadalafil (5mg) specifically for men who have both erectile dysfunction and BPH symptoms together, based on a clinical trial program of 1,989 men across three placebo-controlled studies, one of which was run specifically in men with both conditions, and found real, measured improvement in both at once compared with placebo. The biology is direct: tadalafil is a phosphodiesterase-5 (PDE5) inhibitor, blocking the enzyme that breaks down cGMP, which relaxes smooth muscle and increases blood flow, the mechanism it was originally approved for in ED (in penile tissue), and the same relaxation effect turns out to work in the smooth muscle of the prostate, bladder, and urethra too. Worth a direct, real safety note, given how closely this connects to the dietary-nitrate research covered separately: nitrate MEDICATIONS (nitroglycerin, isosorbide, and similar drugs already prescribed for cardiovascular disease) work through a related part of the same cGMP pathway, and combining them with a PDE5 inhibitor like tadalafil is a well-documented, dangerous drug interaction that can cause a severe, sudden drop in blood pressure. This specific danger applies to nitrate medications, not to eating nitrate-rich vegetables, an important distinction covered directly in its own entry.",
+    citations: [
+      { source: 'CIALIS (tadalafil) tablets, for oral use, FDA drug label', url: 'https://www.accessdata.fda.gov/drugsatfda_docs/label/2017/021368s029lbl.pdf' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-vascular-triad-luts-ed-cvd', 'prostate-medications-psa-monitoring', 'prostate-dietary-nitrate-vascular-plausibility'],
+  },
+  {
+    id: 'prostate-dietary-nitrate-vascular-plausibility',
+    category: 'prostateHealth',
+    title: 'Nitrate-Rich Vegetables and BPH: a Real Mechanism, Not Yet a Direct Food Trial',
+    teaser: 'Dietary nitrate from foods like beets and leafy greens genuinely becomes nitric oxide in the body, and a real small trial found NO-pathway activation improved urinary flow in men with BPH. The trial itself used a prescription cardiovascular drug, though, not a vegetable.',
+    summary:
+      "Dietary nitrate, concentrated in beets, leafy greens like spinach and arugula, and celery, is a genuine physiological precursor the body converts into nitric oxide (NO) through the nitrate-nitrite-NO pathway, and dietary nitrate from foods like beetroot juice carries real, well-documented trial evidence for measurably lowering blood pressure and improving vascular function generally. There is direct human evidence connecting this same NO pathway to urinary symptoms specifically: a study gave men already on prescription organic-nitrate medication (a nitric-oxide-donor drug, prescribed for their own separate cardiovascular disease, not eaten as a food) and found a statistically significant improvement in peak urinary flow rate and a significant drop in residual urine volume among the men who had obstructive BPH symptoms. This is real, useful evidence that activating the NO pathway can measurably improve urinary flow in people, but worth stating honestly rather than smoothing over the gap: the actual nitrate source tested was a cardiovascular drug, and no direct trial giving BPH patients dietary nitrate from vegetables and measuring urinary outcomes was found here. The chain from 'dietary nitrate raises NO' to 'NO-donor drugs measurably help BPH symptoms' to 'eating nitrate-rich vegetables will meaningfully help BPH' is biologically plausible, not yet directly tested. Nitrate-rich vegetables carry their own separate, well-established cardiovascular benefit regardless, a genuinely low-risk, food-first way to support the same vascular system this whole cluster is about, worth doing on those merits alone even without direct BPH-outcome trial proof.",
+    citations: [
+      { source: 'Nitric oxide based influence of nitrates on micturition in patients with benign prostatic hyperplasia, International Urology and Nephrology, PMID 10672953', url: 'https://pubmed.ncbi.nlm.nih.gov/10672953/' },
+      { source: 'A Double-Blind Placebo-Controlled Crossover Study of the Effect of Beetroot Juice Containing Dietary Nitrate on Aortic and Brachial Blood Pressure Over 24 h, PMC6369216', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC6369216/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['prostate-vascular-ischemia-hypothesis', 'prostate-tadalafil-dual-bph-ed', 'prostate-diet-pattern'],
+  },
+  {
+    id: 'prostate-behavioral-nocturia-reduction',
+    category: 'prostateHealth',
+    title: 'A Real Trial Found Behavior Change Beat Medication for Reducing Nighttime Bathroom Trips',
+    teaser: 'A randomized trial found a structured behavioral program reduced nocturia more than drug therapy did, with real, quantified numbers behind it, and no medication involved at all.',
+    summary:
+      "Nocturia (waking at night to urinate, already named as one of the day-to-day symptoms this whole category covers) responds to behavior change with real, quantified trial evidence, not just general advice. A randomized trial (197 women aged 55 to 92 with incontinence, 131 of whom, 66%, had nocturia at baseline) compared a structured multicomponent behavioral training program against drug therapy and placebo. Behavioral training reduced nocturia by a median of 0.50 episodes per night, significantly more than drug therapy's 0.30-episode reduction (p=0.02) and placebo's 0.00. The behavioral program itself was concrete and specific, not vague: pelvic floor muscle control and exercises, urge-suppression strategies, timed voiding to gradually lengthen the interval between bathroom trips, and individualized fluid management, reducing total evening fluid intake, avoiding caffeine and alcohol later in the day, and timing any diuretic medication earlier rather than later. Worth noting directly: this specific trial was run in older women, not men with BPH-driven nocturia, but the mechanism it targets (bladder and fluid behavior, not one organ specifically) generalizes, and current clinical guidance recommends these same conservative behavioral measures as the appropriate first step for nocturia from any cause, before or alongside medication, not after it's already failed.",
+    citations: [
+      { source: 'Effects of behavioral and drug therapy on nocturia in older incontinent women, Journal of the American Geriatrics Society, PMID 15877562', url: 'https://pubmed.ncbi.nlm.nih.gov/15877562/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['prostate-alpha-adrenergic-stress-cold-caffeine', 'prostate-overview'],
+  },
+
   {
     id: 'prostate-genomic-testing-active-surveillance-real-data',
     category: 'prostateHealth',
