@@ -1,4 +1,4 @@
-import { memo, useEffect, useRef, useState } from 'react';
+import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Dimensions, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
@@ -446,7 +446,20 @@ export const PopoverSelect = memo(function PopoverSelect({
   // No dependency array, deliberately -- mirrors Dropdown.tsx's own
   // identical effect, so the overlay always reflects this render's latest
   // state (cheap: only one picker is ever open at a time).
-  useEffect(() => {
+  //
+  // 2026-08-14, changed from useEffect to useLayoutEffect: real, on-device
+  // adb logcat evidence (not just this app's own console output) found a
+  // genuine, measured 2-second gap between THIS effect calling showOverlay
+  // and OverlayRoot (a separate component, mounted at the app's true root)
+  // actually re-rendering to reflect it -- happening even though this
+  // component's own isOpen state had already committed fast. A plain
+  // useEffect callback is scheduled as regular-priority work, deferrable
+  // by React's own scheduler; useLayoutEffect runs synchronously as part
+  // of the same commit instead, giving this specific update no room to be
+  // deprioritized behind whatever else the scheduler is weighing at that
+  // moment. A real, low-risk, surgical change -- only affects when this
+  // one effect runs relative to paint, not what it does.
+  useLayoutEffect(() => {
     if (debugLabel) {
       const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
       console.log(
