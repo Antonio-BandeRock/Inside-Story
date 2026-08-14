@@ -198,6 +198,22 @@ function RealSky({ width, skyBandHeight, opacity, now }: { width: number; skyBan
 // disc's own intended rendered radius -- everything about how big the box
 // needs to be is derived from that plus the two measurements below, not
 // guessed.
+//
+// 2026-08-13, real, on-device memory evidence (adb dumpsys meminfo, taken
+// while investigating an unrelated freeze) found this app's own graphics
+// memory footprint unusually large -- moon.png was the single biggest
+// individual cause found: a 2000x2000 source file, decoding to a real
+// ~15.3MB uncompressed bitmap, for a disc whose own real on-screen box
+// (radius*2 / MOON_DISC_DIAMETER_FRACTION, with radius maxing out around
+// 30-45px even at the largest real distanceScale this file computes) never
+// exceeds roughly 90-135px. Resized to 480x480 -- a real, generous ~4-5x
+// safety margin over that real max, the same precedent already applied to
+// every other oversized image asset in this app -- cutting its own decoded
+// size to well under 1MB. sun.png (452x474, ~0.82MB decoded, real on-screen
+// box maxing out around 60-70px) got the same treatment, resized to
+// 300x315. Neither fix alone fully explains this app's own much larger
+// total memory footprint (a real, separate, ongoing investigation), but
+// both were genuine, verified, one-directional wins regardless.
 const MOON_DISC_RADIUS = 16;
 // A dark navy rather than pure black -- the unlit portion should read as
 // "the same sphere, in shadow" rather than a flat black bite taken out of
