@@ -558,6 +558,13 @@ export function LensHub<T extends string>({
   // RN's Modal doesn't expose that duration directly to time against, so
   // this is an estimate, not a measured value.
   function choose(key: T) {
+    // TEMPORARY DIAGNOSTIC, 2026-08-14 -- see app/_layout.tsx's own
+    // [Heartbeat] comment for the full reasoning. Logged as an absolute
+    // Date.now() timestamp specifically so it lines up directly against
+    // the heartbeat's own absolute timestamps in logcat, without needing a
+    // separate elapsed-since-mount clock the way TabHub's logDropTiming
+    // uses. Remove once the real freeze is found and fixed.
+    console.log(`[LensHub timing] ${Date.now()} choose(${String(key)}) for ${pageTitle}`);
     setOpen(false);
     setTimeout(() => onSelect(key), TAB_REVEAL_DURATION_MS);
   }
@@ -591,6 +598,9 @@ export function LensHub<T extends string>({
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
         onPress={() => {
+          // TEMPORARY DIAGNOSTIC, 2026-08-14 -- see app/_layout.tsx's own
+          // [Heartbeat] comment. Remove once the real freeze is found.
+          console.log(`[LensHub timing] ${Date.now()} corner tap for ${pageTitle}`);
           setCardReady(false);
           // Fresh measurements each time the popup opens -- stale hint
           // state from a previous open (e.g. this same page re-opened
@@ -666,7 +676,12 @@ export function LensHub<T extends string>({
         animationType="fade"
         statusBarTranslucent
         navigationBarTranslucent
-        onShow={() => setCardReady(true)}
+        onShow={() => {
+          // TEMPORARY DIAGNOSTIC, 2026-08-14 -- see app/_layout.tsx's own
+          // [Heartbeat] comment. Remove once the real freeze is found.
+          console.log(`[LensHub timing] ${Date.now()} Modal onShow for ${pageTitle}`);
+          setCardReady(true);
+        }}
         onRequestClose={() => setOpen(false)}
       >
         {/* A ninth investigated (and disproven) theory for TabHub's own

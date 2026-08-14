@@ -132,6 +132,39 @@ export default function RootLayout() {
     }
   }, [fontsLoaded, dbReady]);
 
+  // TEMPORARY DIAGNOSTIC, 2026-08-14 -- a real, always-on JS-thread
+  // "heartbeat," added specifically to catch the still-open ~15-second
+  // freeze the FlatList->ScrollView swap and the moon/sun image-size fix
+  // both failed to resolve, now reported as time-based and screen-agnostic
+  // rather than tied to any one popover/component. Every static-analysis
+  // theory checked so far (PopoverSelect's own elevation/list rendering,
+  // ScreenHeader's continuous ~10Hz useThrottledHueDegrees loop, TabHub's
+  // own popup-scoped version of the same, visualPreferences's own caching)
+  // has come back either already-disproven on-device or too small on its
+  // own to plausibly explain a real, multi-second block -- this instead
+  // gives real, direct proof: a plain setInterval ticking every 500ms,
+  // mounted once here (independent of dbReady/referenceDbReady, so it
+  // starts the instant the JS bundle evaluates and never stops). A real
+  // freeze will show up in `adb logcat` as an unmistakable GAP between
+  // consecutive [Heartbeat] lines -- its real duration bracketed exactly,
+  // and whatever OTHER log lines fire immediately before/after the gap
+  // will point straight at the actual blocking operation, rather than
+  // guessing at a tenth theory with no on-device evidence behind it.
+  // Remove once the real cause is found and fixed.
+  useEffect(() => {
+    let lastTick = Date.now();
+    const intervalId = setInterval(() => {
+      const now = Date.now();
+      const drift = now - lastTick - 500;
+      lastTick = now;
+      // A positive drift well past normal timer jitter (a few tens of ms)
+      // means the JS thread was genuinely blocked for roughly that long
+      // between this tick and the last one.
+      console.log(`[Heartbeat] ${now} drift=${drift}ms`);
+    }, 500);
+    return () => clearInterval(intervalId);
+  }, []);
+
   // Android only -- edge-to-edge (app.json's edgeToEdgeEnabled) means the
   // app draws behind the system nav bar, but without this, Android has no
   // idea the app's own background there is dark and falls back to its own
