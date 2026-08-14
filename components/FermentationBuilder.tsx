@@ -24,6 +24,7 @@ import {
   type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { isFlaggedTier } from '../lib/sixDimensionsReference';
 import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
@@ -1541,6 +1542,41 @@ export function FermentationBuilder({
                 tabColor={tabColor}
                 onExplain={showInfoAlert}
               />
+
+              {/* "Worth testing?", 2026-08-14 -- a real cross-tab shortcut
+                  into the structured Food Testing loop (Signals > New
+                  Foods), only offered while this exact food is genuinely
+                  flagged for one of the person's own tracked conditions
+                  (the same pendingScores/isFlaggedTier signal DimensionFlags
+                  already renders above). Reuses alcoholAdvisoryRow/Text --
+                  this file has no other advisory row style to share, same
+                  reasoning as the healing-stage advisory just above. See
+                  SideBuilder.tsx for the original instance of this block,
+                  and log.tsx's own LogScreen for the matching read side. */}
+              {pendingScores.some((score) => isFlaggedTier(score.tier)) ? (
+                <TouchableOpacity
+                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
+                  onPress={() => {
+                    if (!pendingResolved) return;
+                    router.push({
+                      pathname: '/log',
+                      params: {
+                        trialFoodId: pendingResolved.foodId,
+                        trialSource: pendingResolved.source,
+                        trialBaseName: pendingResolved.baseName,
+                        trialCategory: pendingResolved.category,
+                        trialSubcategory: pendingResolved.subcategory ?? '',
+                        trialPrepMethod: pendingResolved.prepMethod ?? '',
+                      },
+                    });
+                  }}
+                >
+                  <Ionicons name="flask-outline" size={16} color={tabColor} />
+                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>
+                    Worth testing? Start tracking it in Signals
+                  </Text>
+                </TouchableOpacity>
+              ) : null}
 
               {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
                   own top comment for why this is a separate mechanism from
