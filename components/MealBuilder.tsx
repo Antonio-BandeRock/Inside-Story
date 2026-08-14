@@ -503,12 +503,19 @@ export function MealBuilder({
       // same mechanism the favoriteId effect above reads back), so there's
       // no way to schedule this meal at all without a real favorite to
       // point at. Structurally required, not a preference.
-      const favorite = await saveMealFavorite({ name: finishedName, mealType, components: components.map(toSelection) });
+      const selections = components.map(toSelection);
+      const favorite = await saveMealFavorite({ name: finishedName, mealType, components: selections });
+      // components passed through here too, 2026-08-14 -- so any real
+      // 'waiting' food trial matching one of these ingredients activates
+      // the moment this scheduled occurrence's own date arrives, not just
+      // when a meal is logged right now via "Log This Now" below. See
+      // activateWaitingTrialsForComponents's own comment in lib/db.ts.
       await scheduleMeal({
         title: finishedName,
         mealType,
         scheduledFor: `${todayLocalDateString()}T${time24}`,
         sourceFavoriteId: favorite.id,
+        components: selections,
       });
     } catch (error) {
       console.error('[MealBuilder] Failed to schedule meal', error);

@@ -8529,6 +8529,16 @@ export async function createMealFromComponents(input: {
     ingredients,
   });
   await saveMealComponents(meal.id, input.components);
+
+  // Real "this food got eaten" moment -- see activateWaitingTrialsForComponents'
+  // own comment. Wrapped so a hiccup here can never break a real, already-
+  // successful meal log.
+  try {
+    await activateWaitingTrialsForComponents(input.components, input.eatenAt);
+  } catch (error) {
+    console.error('[createMealFromComponents] Failed to activate waiting food trials', error);
+  }
+
   return { id: meal.id };
 }
 
@@ -8637,6 +8647,58 @@ export async function getMealComponentsGoitrogenicFlags(components: MealComponen
     }
   }
   return flagged;
+}
+
+// The real "start the clock" moment for a 'waiting' trial -- 2026-08-14,
+// direct feedback: "the 3 day trial can't start until they have scheduled
+// the meal that will contain the trial food." Structured identically to
+// getMealComponentsGoitrogenicFlags immediately above (same real
+// getComponentIngredients resolution loop, same foodId.split('|')
+// parsing) -- reusing an already-proven pattern rather than a new one.
+// For each real, resolved ingredient across every selected component,
+// checks for a matching 'waiting' trial and, if found, genuinely starts
+// it: status -> 'trialing', started_at set to the real occurredAt (when
+// the food was actually eaten or is actually scheduled to be, never
+// "today" by default), and a real, fresh reminder series anchored there.
+//
+// Called from the two real places this app's own architecture ever
+// creates a genuine "this food got eaten" event -- createMealFromComponents
+// (Log This Now, occurredAt = the real eatenAt) and scheduleMeal (Save &
+// Schedule for Later, occurredAt = the real scheduledFor) -- both callers
+// wrap this in a try/catch so a hiccup here can never break the real
+// meal-logging/scheduling action itself.
+export async function activateWaitingTrialsForComponents(
+  components: MealComponentSelection[],
+  occurredAt: string,
+): Promise<void> {
+  for (const component of components) {
+    const ingredients = await getComponentIngredients(component.componentType, component.componentId);
+    for (const ingredient of ingredients) {
+      if (!ingredient.foodId) continue;
+      const [foodIdStr, source] = ingredient.foodId.split('|');
+      const foodId = Number(foodIdStr);
+      if (!source || Number.isNaN(foodId)) continue;
+
+      const trials = await getFoodTrialHistory(foodId, source);
+      const waitingTrial = trials.find((trial) => trial.status === 'waiting');
+      if (!waitingTrial) continue;
+
+      const db = await getDatabase();
+      const now = new Date().toISOString();
+      await db.runAsync(
+        `UPDATE food_trials SET status = 'trialing', started_at = ?, updated_at = ? WHERE id = ?`,
+        occurredAt,
+        now,
+        waitingTrial.id,
+      );
+      await scheduleFoodTrialCheckins({
+        foodTrialId: waitingTrial.id,
+        foodName: waitingTrial.foodName,
+        firstScheduledFor: `${occurredAt.slice(0, 10)}T20:00`,
+        observationDays: waitingTrial.observationDays,
+      });
+    }
+  }
 }
 
 export type MealItemRecord = {
@@ -9029,8 +9091,15 @@ export async function scheduleMeal(input: {
   sourceFavoriteId?: string;
   sourceMealId?: string;
   repeat?: RepeatConfig;
+  // Optional, 2026-08-14 -- when the caller already has the real, in-memory
+  // component list on screen (e.g. MealBuilder.tsx's own "Save & Schedule
+  // for Later"), passing it here activates any real 'waiting' food trial
+  // among its ingredients, anchored to this real scheduled date rather
+  // than left waiting indefinitely. See activateWaitingTrialsForComponents'
+  // own comment.
+  components?: MealComponentSelection[];
 }) {
-  return insertScheduleSeries({
+  const result = await insertScheduleSeries({
     itemType: 'meal',
     mealType: input.mealType,
     title: input.title,
@@ -9040,6 +9109,16 @@ export async function scheduleMeal(input: {
     sourceMealId: input.sourceMealId,
     repeat: input.repeat ?? { type: 'none' },
   });
+
+  if (input.components) {
+    try {
+      await activateWaitingTrialsForComponents(input.components, input.scheduledFor);
+    } catch (error) {
+      console.error('[scheduleMeal] Failed to activate waiting food trials', error);
+    }
+  }
+
+  return result;
 }
 
 export async function listScheduledMealsForDate(date: string) {
@@ -11335,7 +11414,16 @@ export async function getExerciseAndMeasurementTimeline(days = 90) {
   return { exercises, measurements };
 }
 
-export type FoodTrialStatus = 'trialing' | 'cleared' | 'flagged';
+// 'waiting' -- 2026-08-14, direct feedback: "the 3 day trial can't start
+// until they have scheduled the meal that will contain the trial food."
+// Only ever the INITIAL status for a trial with a real foodId/source (see
+// createFoodTrial's own comment) -- a free-text-only trial has no way to
+// auto-detect "was this logged," so it still starts 'trialing' immediately,
+// unchanged. A 'waiting' trial carries no active reminders at all until
+// activateWaitingTrialsForComponents (below) finds it genuinely scheduled
+// or logged, or the person taps a real, explicit "Start now" override
+// (reopenFoodTrial, reused verbatim -- see its own comment).
+export type FoodTrialStatus = 'waiting' | 'trialing' | 'cleared' | 'flagged';
 
 export type FoodTrialRecord = {
   id: string;
@@ -11365,6 +11453,13 @@ export type FoodTrialRecord = {
 // schedule the person didn't choose. foodId/source/prepMethod/
 // conditionCode are all optional -- a trial can still be a plain free-text
 // name with no real link to a reference-database row.
+//
+// 2026-08-14 -- the real INITIAL status now depends on whether this trial
+// has a real foodId/source: with one, it starts 'waiting' (see
+// FoodTrialStatus's own comment -- no reminders scheduled here, the
+// caller must not call scheduleFoodTrialCheckins for a 'waiting' result);
+// without one (free text only), it starts 'trialing' exactly as before,
+// since there's no real food to later detect in a scheduled/logged meal.
 export async function createFoodTrial(input: {
   foodName: string;
   startedAt: string;
@@ -11374,21 +11469,23 @@ export async function createFoodTrial(input: {
   source?: string | null;
   prepMethod?: string | null;
   conditionCode?: string | null;
-}) {
+}): Promise<{ id: string; status: FoodTrialStatus }> {
   const db = await getDatabase();
   const id = `food_trial_${Date.now()}`;
   const now = new Date().toISOString();
+  const status: FoodTrialStatus = input.foodId != null && input.source ? 'waiting' : 'trialing';
 
   await db.runAsync(
     `
       INSERT INTO food_trials
         (id, food_name, started_at, observation_days, status, notes, food_id, source, prep_method, condition_code, created_at, updated_at)
-      VALUES (?, ?, ?, ?, 'trialing', ?, ?, ?, ?, ?, ?, ?)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.foodName.trim(),
     input.startedAt,
     input.observationDays ?? 3,
+    status,
     input.notes?.trim() || null,
     input.foodId ?? null,
     input.source ?? null,
@@ -11398,7 +11495,7 @@ export async function createFoodTrial(input: {
     now,
   );
 
-  return id;
+  return { id, status };
 }
 
 export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
@@ -11518,7 +11615,11 @@ export async function markConcernAlreadyTested(
   conditionCode: string,
   outcome: 'cleared' | 'flagged',
 ): Promise<string> {
-  const id = await createFoodTrial({
+  // A concern is deliberately free-text only (see lib/conditionFoodConcerns.ts's
+  // own comment -- several are real food GROUPS, not one reference-database
+  // row), so createFoodTrial always returns it 'trialing', immediately
+  // resolved below -- 'waiting' never applies here.
+  const { id } = await createFoodTrial({
     foodName: concernLabel,
     startedAt: `${todayDateStringLocal()}T${new Date().toTimeString().slice(0, 5)}`,
     conditionCode,

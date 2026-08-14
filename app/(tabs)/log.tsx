@@ -1,5 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
@@ -725,6 +725,7 @@ function FoodReactionsLens() {
 // lib/db.ts's own cancelFoodTrialCheckins comment) -- only the existing,
 // unchanged manual resolveFoodTrial call ends it early.
 function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
+  const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [trials, setTrials] = useState<FoodTrialRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -789,9 +790,18 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
   // onFoodResolved path below already sets, so a food arriving this way
   // opens the trial-creation form already pre-filled rather than blank.
   const appliedPrefillKey = useRef<string | null>(null);
+  // Real, plain state (not just the ref above) specifically so the "‹ Back
+  // to what you were building" link (2026-08-14) stays reactive and keeps
+  // showing even after the form closes/the trial resolves -- the builder
+  // that sent someone here (SideBuilder.tsx's own router.push, confirmed
+  // via its own real params) carries no dish-name param, only the food's
+  // own identity, so this is deliberately a generic label, not "Back to
+  // [dish]" -- there's no real dish name available to show accurately.
+  const [arrivedViaPrefill, setArrivedViaPrefill] = useState(false);
   useEffect(() => {
     if (!prefill) return;
     const key = `${prefill.foodId}:${prefill.source}`;
+    setArrivedViaPrefill(true);
     if (appliedPrefillKey.current === key) return;
     appliedPrefillKey.current = key;
     setPickedFood(prefill);
@@ -835,34 +845,55 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
       Alert.alert('Enter the name of the food.');
       return;
     }
-    const date = resolveDateChoice(dateChoice, customDate);
-    if (!date) {
-      Alert.alert('Enter a valid date.');
-      return;
-    }
     const days = Number(observationDays);
     const realObservationDays = Number.isFinite(days) && days > 0 ? days : 3;
-    const trialId = await createFoodTrial({
+
+    // A real, reference-database-linked food skips the date question
+    // entirely, 2026-08-14 -- there's nothing meaningful to ask before the
+    // food is actually scheduled or logged (see createFoodTrial's own
+    // comment: it starts this real 'waiting', not 'trialing', whenever
+    // foodId/source are present). startedAt is a harmless placeholder here,
+    // genuinely overwritten by activateWaitingTrialsForComponents once the
+    // food shows up in a real meal. A free-text trial keeps the original,
+    // fully-required date behavior, since there's no way to auto-detect
+    // anything for it later.
+    let startedAt: string;
+    if (pickedFood) {
+      startedAt = new Date().toISOString();
+    } else {
+      const date = resolveDateChoice(dateChoice, customDate);
+      if (!date) {
+        Alert.alert('Enter a valid date.');
+        return;
+      }
+      startedAt = `${date}T${nowTimeString24()}`;
+    }
+
+    const { id: trialId, status } = await createFoodTrial({
       foodName,
-      startedAt: `${date}T${nowTimeString24()}`,
+      startedAt,
       observationDays: realObservationDays,
       foodId: pickedFood?.foodId ?? null,
       source: pickedFood?.source ?? null,
       prepMethod: pickedFood?.prepMethod ?? null,
       conditionCode: selectedConditionCode,
     });
-    // Real, daily reminders for the whole window -- the first one lands the
-    // same evening (20:00), not the exact minute the trial starts, since
-    // "how did today go" only makes sense to ask once the day's actually
-    // played out. See scheduleFoodTrialCheckins' own comment for why this
-    // always covers the full window regardless of what gets logged
-    // mid-way.
-    await scheduleFoodTrialCheckins({
-      foodTrialId: trialId,
-      foodName,
-      firstScheduledFor: `${date}T20:00`,
-      observationDays: realObservationDays,
-    });
+
+    // Only a real, immediately-'trialing' free-text trial gets its
+    // reminders scheduled here -- a 'waiting' trial's own reminders don't
+    // start until it's genuinely activated (see activateWaitingTrialsFor
+    // Components), and starting them now would ask "how did today go"
+    // about a day the food was never actually eaten on.
+    if (status === 'trialing') {
+      const date = startedAt.slice(0, 10);
+      await scheduleFoodTrialCheckins({
+        foodTrialId: trialId,
+        foodName,
+        firstScheduledFor: `${date}T20:00`,
+        observationDays: realObservationDays,
+      });
+    }
+
     setFormOpen(false);
     resetForm();
     load();
@@ -963,6 +994,11 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {arrivedViaPrefill ? (
+        <TouchableOpacity onPress={() => router.back()}>
+          <Text style={styles.backLink}>‹ Back to what you were building</Text>
+        </TouchableOpacity>
+      ) : null}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
           <Text style={styles.addButtonText}>+ Start a new food trial</Text>
@@ -1014,13 +1050,17 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
               </View>
             </>
           ) : null}
-          <Text style={styles.label}>When did you start?</Text>
-          <DateChoicePicker
-            value={dateChoice}
-            onChange={setDateChoice}
-            customDate={customDate}
-            onCustomDateChange={setCustomDate}
-          />
+          {!pickedFood ? (
+            <>
+              <Text style={styles.label}>When did you start?</Text>
+              <DateChoicePicker
+                value={dateChoice}
+                onChange={setDateChoice}
+                customDate={customDate}
+                onCustomDateChange={setCustomDate}
+              />
+            </>
+          ) : null}
           <Text style={styles.label}>Watch it for how many days?</Text>
           <AppTextInput
             style={[styles.input, styles.timeInput]}
@@ -1029,12 +1069,19 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
             value={observationDays}
             onChangeText={setObservationDays}
           />
-          <Text style={styles.helperText}>
-            3 days is a common starting point for &ldquo;probably fine.&rdquo; A real daily reminder runs the whole
-            window either way, even if something feels off partway through -- a delayed second reaction is exactly
-            what the full window is meant to catch. You can still mark it cleared or flagged earlier yourself if
-            you&apos;d rather not wait.
-          </Text>
+          {pickedFood ? (
+            <Text style={styles.helperText}>
+              This will start automatically once you log or schedule a meal with {foodName} -- or you can start it
+              right now from the trial list below once it&apos;s saved.
+            </Text>
+          ) : (
+            <Text style={styles.helperText}>
+              3 days is a common starting point for &ldquo;probably fine.&rdquo; A real daily reminder runs the whole
+              window either way, even if something feels off partway through -- a delayed second reaction is exactly
+              what the full window is meant to catch. You can still mark it cleared or flagged earlier yourself if
+              you&apos;d rather not wait.
+            </Text>
+          )}
           <View style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
               <Text style={styles.secondaryButtonText}>Cancel</Text>
@@ -1061,21 +1108,38 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
               <View key={trial.id} style={styles.row}>
                 <View style={styles.rowTextCol}>
                   <Text style={styles.rowTitle}>{trial.foodName}</Text>
-                  <Text style={styles.rowMeta}>Started {formatEntryDate(trial.startedAt)}</Text>
-                  {trial.status === 'trialing' ? (
-                    daysLeft > 0 ? (
-                      <Text style={styles.rowMeta}>{daysLeft} day{daysLeft === 1 ? '' : 's'} left to watch</Text>
-                    ) : (
-                      <Text style={[styles.rowMeta, styles.readyText]}>Ready to review</Text>
-                    )
-                  ) : trial.status === 'cleared' ? (
-                    <Text style={[styles.rowMeta, styles.clearedText]}>No problems, cleared</Text>
+                  {trial.status === 'waiting' ? (
+                    // No real "Started" date to show yet -- startedAt on a
+                    // 'waiting' trial is just the moment the form was
+                    // submitted, not a genuine start (see createFoodTrial's
+                    // own comment), so showing it here would misrepresent
+                    // exactly the thing this whole feature exists to fix.
+                    <Text style={[styles.rowMeta, styles.waitingText]}>
+                      Waiting to start -- will begin automatically once you log or schedule a meal with this food
+                    </Text>
                   ) : (
-                    <Text style={[styles.rowMeta, styles.flaggedText]}>Caused a problem</Text>
+                    <>
+                      <Text style={styles.rowMeta}>Started {formatEntryDate(trial.startedAt)}</Text>
+                      {trial.status === 'trialing' ? (
+                        daysLeft > 0 ? (
+                          <Text style={styles.rowMeta}>{daysLeft} day{daysLeft === 1 ? '' : 's'} left to watch</Text>
+                        ) : (
+                          <Text style={[styles.rowMeta, styles.readyText]}>Ready to review</Text>
+                        )
+                      ) : trial.status === 'cleared' ? (
+                        <Text style={[styles.rowMeta, styles.clearedText]}>No problems, cleared</Text>
+                      ) : (
+                        <Text style={[styles.rowMeta, styles.flaggedText]}>Caused a problem</Text>
+                      )}
+                    </>
                   )}
                 </View>
                 <View style={styles.rowActions}>
-                  {trial.status === 'trialing' ? (
+                  {trial.status === 'waiting' ? (
+                    <TouchableOpacity onPress={() => handleReopen(trial.id)}>
+                      <Text style={styles.actionTextPrimary}>Start now</Text>
+                    </TouchableOpacity>
+                  ) : trial.status === 'trialing' ? (
                     <>
                       <TouchableOpacity onPress={() => handleResolve(trial, 'cleared')}>
                         <Text style={styles.actionTextPrimary}>No problems</Text>
@@ -1720,6 +1784,10 @@ const styles = StyleSheet.create({
   // meanings than "which tab."
   label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10 },
   helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8 },
+  // The "‹ Back to what you were building" link, 2026-08-14 -- same real
+  // treatment as Purple Digest's own already-established "‹ Back to
+  // Digest" link (backToHomeText), not a new visual language.
+  backLink: { ...typography.body, color: TAB_COLOR, fontWeight: '600', marginBottom: 12 },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },
   pillSmall: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 8 },
@@ -1759,4 +1827,5 @@ const styles = StyleSheet.create({
   readyText: { color: colors.statusFlagged },
   clearedText: { color: colors.primary },
   flaggedText: { color: colors.danger },
+  waitingText: { color: colors.textMuted },
 });

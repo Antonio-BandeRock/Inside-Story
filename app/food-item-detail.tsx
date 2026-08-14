@@ -303,6 +303,14 @@ export default function FoodItemDetailScreen() {
                       if (trial.status === 'trialing') {
                         return <Text style={styles.ingredientTrialNote}>Currently being tested.</Text>;
                       }
+                      if (trial.status === 'waiting') {
+                        // A plain, non-tappable note -- 2026-08-14, matches
+                        // "Currently being tested" above rather than
+                        // offering a second, separate "Start now" action
+                        // here; the real one already lives on the Signals
+                        // tab's own trial list (log.tsx's handleReopen).
+                        return <Text style={styles.ingredientTrialNote}>Waiting to start (once scheduled/logged).</Text>;
+                      }
                       return (
                         <TouchableOpacity onPress={() => handleReopenIngredientTrial(trial.id, ingredient.id)}>
                           <Text style={styles.ingredientTrialLink}>
