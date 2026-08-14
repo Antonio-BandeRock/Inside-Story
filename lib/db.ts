@@ -1790,6 +1790,51 @@ export async function getFoodScoresForCondition(
   );
 }
 
+export type SaferPrepAlternative = {
+  prepMethod: string;
+  foodId: number;
+  source: string;
+};
+
+// Whether a real, unflagged version of this exact food exists at a
+// different prep state -- 2026-08-14, the "safe if treated a certain way"
+// gradient. Reuses getPreparationMethods/resolveFoodChoice (the same real
+// sibling-row resolution FoodLookup.tsx already relies on) and
+// getFoodScoresForCondition's own tier data, no new schema. Returns null
+// when the current prep state isn't actually flagged for this condition
+// (nothing to suggest an alternative to) or when no unflagged sibling
+// exists. Deliberately returns the first real match, not every one --
+// this is meant as a single, concrete "try it this way instead" nudge,
+// not an exhaustive comparison table.
+export async function getSaferPrepAlternative(
+  category: string,
+  subcategory: string | null,
+  baseName: string,
+  currentPrepMethod: string | null,
+  conditionCode: string,
+): Promise<SaferPrepAlternative | null> {
+  const currentScores = await (async () => {
+    const resolved = await resolveFoodChoice(category, subcategory, baseName, currentPrepMethod);
+    if (!resolved) return null;
+    return getFoodScoresForCondition(resolved.foodId, resolved.source, conditionCode);
+  })();
+  if (!currentScores || !currentScores.some((row) => isFlaggedTier(row.tier))) return null;
+
+  const allPrepMethods = await getPreparationMethods(category, subcategory, baseName);
+  const normalizedCurrent = currentPrepMethod || 'Standard';
+  const candidates = allPrepMethods.filter((prep) => prep !== normalizedCurrent);
+
+  for (const prep of candidates) {
+    const resolved = await resolveFoodChoice(category, subcategory, baseName, prep);
+    if (!resolved) continue;
+    const scores = await getFoodScoresForCondition(resolved.foodId, resolved.source, conditionCode);
+    if (!scores.some((row) => isFlaggedTier(row.tier))) {
+      return { prepMethod: prep, foodId: resolved.foodId, source: resolved.source };
+    }
+  }
+  return null;
+}
+
 // Phase 1 "standard panel" nutrients (energy, macros, common vitamins and
 // minerals) -- amounts are per 100g as imported from each food's own
 // national source. `source` on the returned rows doubles as the
@@ -3409,7 +3454,12 @@ async function runDatabaseInitialization() {
       -- wellbeing_checkins (a moment-in-time report) because a trial is a
       -- stateful thing in progress: it has a start date, a window still
       -- open or closed, and an eventual resolution ('cleared' or
-      -- 'flagged'), not just a single logged observation.
+      -- 'flagged'), not just a single logged observation. food_id/source/
+      -- prep_method/condition_code (2026-08-14, real ALTER TABLE additions,
+      -- see runDatabaseInitialization) are the structured version: a real
+      -- reference-database food, the exact prep state being tested, and
+      -- which tracked condition prompted the test -- all optional, so the
+      -- original free-text-only flow keeps working unchanged.
       CREATE TABLE IF NOT EXISTS food_trials (
         id TEXT PRIMARY KEY,
         food_name TEXT NOT NULL,
@@ -3841,6 +3891,23 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (planting_id) REFERENCES garden_plantings(id) ON DELETE SET NULL
       );
 
+      -- The same real, basic Scheduler tie-in as garden_task_links above,
+      -- 2026-08-14, for the structured food-testing feature's own daily
+      -- during-a-trial check-in reminders (see scheduleFoodTrialCheckins
+      -- below): a real schedule_items row (item_type='foodTest') per day of
+      -- the observation window, each traced back to the trial it's about.
+      -- Same real, honest Phase-1 scope limit as garden_task_links: only
+      -- the FIRST occurrence of the series gets a direct link row here,
+      -- since every occurrence carries the same food_trial_id and any
+      -- consumer reading this table already resolves the whole series via
+      -- schedule_items.repeat_group_id from that one row.
+      CREATE TABLE IF NOT EXISTS food_trial_task_links (
+        schedule_item_id TEXT PRIMARY KEY,
+        food_trial_id TEXT NOT NULL,
+        FOREIGN KEY (schedule_item_id) REFERENCES schedule_items(id) ON DELETE CASCADE,
+        FOREIGN KEY (food_trial_id) REFERENCES food_trials(id) ON DELETE CASCADE
+      );
+
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
       CREATE INDEX IF NOT EXISTS idx_wellbeing_checkins_logged_at ON wellbeing_checkins(logged_at);
       CREATE INDEX IF NOT EXISTS idx_checkin_tags_checkin ON checkin_tags(checkin_id);
@@ -4155,6 +4222,38 @@ async function runDatabaseInitialization() {
     const wellbeingCheckinColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(wellbeing_checkins)');
     if (!wellbeingCheckinColumns.some((column) => column.name === 'food_name')) {
       await db.execAsync('ALTER TABLE wellbeing_checkins ADD COLUMN food_name TEXT;');
+    }
+
+    // Real food identity + testing context on a food trial, 2026-08-14 --
+    // the structured food-testing/reintroduction feature. A trial can still
+    // be started as free text only (foodName alone, the original design,
+    // unchanged) or, when initiated from a real reference-database food (a
+    // "Worth testing?" tap on a flagged ingredient, or a suggested
+    // candidate), carries its full identity: which exact food/source, what
+    // prep state is actually being tested (raw vs. cooked can genuinely
+    // differ), and which tracked condition/concern prompted the test (the
+    // same food can be tested for entirely different reasons under
+    // different conditions -- dairy for lactose recovery during Celiac
+    // healing vs. dairy as an RA elimination-diet trigger). All nullable --
+    // a genuinely additive migration, no real users yet to migrate.
+    const foodTrialColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(food_trials)');
+    for (const column of ['source', 'prep_method', 'condition_code']) {
+      if (!foodTrialColumns.some((existing) => existing.name === column)) {
+        await db.execAsync(`ALTER TABLE food_trials ADD COLUMN ${column} TEXT;`);
+      }
+    }
+    if (!foodTrialColumns.some((existing) => existing.name === 'food_id')) {
+      await db.execAsync('ALTER TABLE food_trials ADD COLUMN food_id INTEGER;');
+    }
+
+    // Ties a lightweight daily during-a-trial check-in (or its escalated
+    // full symptom log -- same table either way, see recordCheckin's own
+    // comment) back to the real trial it belongs to, so a trial's own
+    // history reads as one connected record rather than scattered entries
+    // someone would have to mentally reassemble. Null for every ordinary
+    // check-in that isn't part of a trial.
+    if (!wellbeingCheckinColumns.some((column) => column.name === 'food_trial_id')) {
+      await db.execAsync('ALTER TABLE wellbeing_checkins ADD COLUMN food_trial_id TEXT;');
     }
   } catch (error) {
     databasePromise = null;
@@ -8725,8 +8824,11 @@ async function insertScheduleSeries(input: {
   // tie-in (see scheduleGardenTask below) -- reuses this same repeat/
   // rolling-window machinery rather than a second, parallel one, since a
   // real garden task ("water the tomatoes") genuinely can want to repeat
-  // daily/weekly the same way a supplement dose does.
-  itemType: 'meal' | 'supplement' | 'prescription' | 'appointment' | 'garden';
+  // daily/weekly the same way a supplement dose does. 'foodTest' added
+  // 2026-08-14, the identical reasoning for the structured food-testing
+  // feature's own daily during-a-trial check-in reminders (see
+  // scheduleFoodTrialCheckins below).
+  itemType: 'meal' | 'supplement' | 'prescription' | 'appointment' | 'garden' | 'foodTest';
   mealType: string | null;
   title: string;
   scheduledFor: string;
@@ -10823,7 +10925,16 @@ export async function deleteLabResult(id: string) {
   await db.runAsync('DELETE FROM lab_results WHERE id = ?', id);
 }
 
-export type CheckinType = 'flare' | 'post_meal' | 'post_exercise' | 'general' | 'stress' | 'sleep';
+// 'food_trial_daily' added 2026-08-14, the structured food-testing
+// feature's own lightweight daily during-a-trial prompt (see
+// scheduleFoodTrialCheckins). A "nothing to report" tap writes one of
+// these directly (neutral valence, no tags); a "something felt off" tap
+// instead opens the same real, full picker every other checkinType
+// already uses (flare/post_meal/etc.), just pre-linked via foodTrialId --
+// deliberately not its own second, lighter form shape, so an escalated
+// report gets the exact same real tag/severity/notes detail any other
+// reaction would.
+export type CheckinType = 'flare' | 'post_meal' | 'post_exercise' | 'general' | 'stress' | 'sleep' | 'food_trial_daily';
 export type CheckinValence = 'positive' | 'negative' | 'neutral';
 
 export type WellbeingCheckin = {
@@ -10836,6 +10947,10 @@ export type WellbeingCheckin = {
   foodName: string | null;
   relatedMealId: string | null;
   relatedExerciseId: string | null;
+  // Which food trial this check-in belongs to, if any -- 2026-08-14, see
+  // wellbeing_checkins' own ALTER TABLE comment (runDatabaseInitialization)
+  // for why this rides on the existing table rather than a new one.
+  foodTrialId: string | null;
   tags: string[];
   createdAt: string;
 };
@@ -10852,6 +10967,7 @@ export async function recordCheckin(input: {
   foodName?: string;
   relatedMealId?: string;
   relatedExerciseId?: string;
+  foodTrialId?: string;
   tags?: string[];
 }) {
   const db = await getDatabase();
@@ -10861,8 +10977,8 @@ export async function recordCheckin(input: {
   await db.runAsync(
     `
       INSERT INTO wellbeing_checkins
-        (id, logged_at, checkin_type, valence, severity, notes, food_name, related_meal_id, related_exercise_id, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (id, logged_at, checkin_type, valence, severity, notes, food_name, related_meal_id, related_exercise_id, food_trial_id, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.loggedAt,
@@ -10873,6 +10989,7 @@ export async function recordCheckin(input: {
     input.foodName?.trim() || null,
     input.relatedMealId ?? null,
     input.relatedExerciseId ?? null,
+    input.foodTrialId ?? null,
     now,
     now,
   );
@@ -10911,7 +11028,9 @@ async function attachCheckinTags(
   return checkins.map((checkin) => ({ ...checkin, tags: tagsByCheckin.get(checkin.id) ?? [] }));
 }
 
-export async function listCheckins(filters: { checkinType?: CheckinType; relatedMealId?: string; limit?: number } = {}) {
+export async function listCheckins(
+  filters: { checkinType?: CheckinType; relatedMealId?: string; foodTrialId?: string; limit?: number } = {},
+) {
   const db = await getDatabase();
   const conditions: string[] = [];
   const params: (string | number)[] = [];
@@ -10924,6 +11043,13 @@ export async function listCheckins(filters: { checkinType?: CheckinType; related
     conditions.push('related_meal_id = ?');
     params.push(filters.relatedMealId);
   }
+  // A trial's own connected check-in history, 2026-08-14 -- every daily
+  // "nothing to report"/"something felt off" entry logged during its
+  // window, read back as one real, ordered record.
+  if (filters.foodTrialId) {
+    conditions.push('food_trial_id = ?');
+    params.push(filters.foodTrialId);
+  }
 
   const whereClause = conditions.length ? `WHERE ${conditions.join(' AND ')}` : '';
   const limit = filters.limit ?? 50;
@@ -10931,7 +11057,8 @@ export async function listCheckins(filters: { checkinType?: CheckinType; related
   const rows = await db.getAllAsync<Omit<WellbeingCheckin, 'tags'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
-             related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, created_at AS createdAt
+             related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
+             created_at AS createdAt
       FROM wellbeing_checkins
       ${whereClause}
       ORDER BY logged_at DESC
@@ -10963,7 +11090,8 @@ export async function getCheckinForDate(date: string, checkinType: CheckinType):
   const row = await db.getFirstAsync<Omit<WellbeingCheckin, 'tags'>>(
     `
       SELECT id, logged_at AS loggedAt, checkin_type AS checkinType, valence, severity, notes, food_name AS foodName,
-             related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, created_at AS createdAt
+             related_meal_id AS relatedMealId, related_exercise_id AS relatedExerciseId, food_trial_id AS foodTrialId,
+             created_at AS createdAt
       FROM wellbeing_checkins
       WHERE checkin_type = ? AND logged_at LIKE ?
       ORDER BY logged_at DESC
@@ -11219,6 +11347,13 @@ export type FoodTrialRecord = {
   notes: string | null;
   createdAt: string;
   updatedAt: string;
+  // Real reference-database identity, 2026-08-14 -- null for a trial
+  // started as free text only (the original flow). See food_trials' own
+  // CREATE TABLE comment for why these four ride together.
+  foodId: number | null;
+  source: string | null;
+  prepMethod: string | null;
+  conditionCode: string | null;
 };
 
 // A new food being watched over time rather than a single moment-in-time
@@ -11227,12 +11362,18 @@ export type FoodTrialRecord = {
 // default suggestion for when the person can reasonably call it "probably
 // fine"; resolveFoodTrial can be called earlier (an immediate reaction) or
 // later (nothing to review yet) -- the app never forces a verdict on a
-// schedule the person didn't choose.
+// schedule the person didn't choose. foodId/source/prepMethod/
+// conditionCode are all optional -- a trial can still be a plain free-text
+// name with no real link to a reference-database row.
 export async function createFoodTrial(input: {
   foodName: string;
   startedAt: string;
   observationDays?: number;
   notes?: string;
+  foodId?: number | null;
+  source?: string | null;
+  prepMethod?: string | null;
+  conditionCode?: string | null;
 }) {
   const db = await getDatabase();
   const id = `food_trial_${Date.now()}`;
@@ -11240,14 +11381,19 @@ export async function createFoodTrial(input: {
 
   await db.runAsync(
     `
-      INSERT INTO food_trials (id, food_name, started_at, observation_days, status, notes, created_at, updated_at)
-      VALUES (?, ?, ?, ?, 'trialing', ?, ?, ?)
+      INSERT INTO food_trials
+        (id, food_name, started_at, observation_days, status, notes, food_id, source, prep_method, condition_code, created_at, updated_at)
+      VALUES (?, ?, ?, ?, 'trialing', ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.foodName.trim(),
     input.startedAt,
     input.observationDays ?? 3,
     input.notes?.trim() || null,
+    input.foodId ?? null,
+    input.source ?? null,
+    input.prepMethod ?? null,
+    input.conditionCode ?? null,
     now,
     now,
   );
@@ -11260,12 +11406,36 @@ export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
   return db.getAllAsync<FoodTrialRecord>(
     `
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
-             status, resolved_at AS resolvedAt, notes, created_at AS createdAt, updated_at AS updatedAt
+             status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
+             condition_code AS conditionCode, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       ORDER BY started_at DESC
       LIMIT ?
     `,
     limit,
+  );
+}
+
+// Every past trial for one exact real food, regardless of prep state
+// tested or which condition prompted it -- the real per-food "journal"
+// this is meant to build toward: "tested 3x -- 2 raw (1 reaction, 1
+// cleared), 1 cooked (cleared)." Deliberately not filtered by status, so a
+// still-open trial shows up alongside resolved ones. This is seed data for
+// a future personal-rule builder, not that builder itself -- no
+// auto-suggestion logic here, just the real, connected history.
+export async function getFoodTrialHistory(foodId: number, source: string): Promise<FoodTrialRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<FoodTrialRecord>(
+    `
+      SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
+             status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
+             condition_code AS conditionCode, created_at AS createdAt, updated_at AS updatedAt
+      FROM food_trials
+      WHERE food_id = ? AND source = ?
+      ORDER BY started_at DESC
+    `,
+    foodId,
+    source,
   );
 }
 
@@ -11281,6 +11451,14 @@ export async function resolveFoodTrial(id: string, status: 'cleared' | 'flagged'
     now,
     id,
   );
+
+  // The window is genuinely over now, either way -- a deliberate, explicit
+  // choice by the person, not something the daily reminder logic itself
+  // ever does automatically (see scheduleFoodTrialCheckins' own comment:
+  // a mid-window reaction report does NOT stop the reminders on its own,
+  // exactly so a delayed second reaction still gets caught -- but an
+  // explicit "I'm calling this done" here genuinely should).
+  await cancelFoodTrialCheckins(id);
 }
 
 // Puts a resolved trial back into 'trialing' -- e.g. a symptom shows up a
@@ -11297,6 +11475,7 @@ export async function reopenFoodTrial(id: string) {
 }
 
 export async function deleteFoodTrial(id: string) {
+  await cancelFoodTrialCheckins(id);
   const db = await getDatabase();
   await db.runAsync('DELETE FROM food_trials WHERE id = ?', id);
 }
@@ -11863,6 +12042,69 @@ export async function scheduleGardenTask(input: {
   }
 
   return id;
+}
+
+// A real, daily-repeating reminder series for the length of a food trial's
+// own observation window (2026-08-14, the structured food-testing
+// feature) -- reuses the exact same repeat/rolling-window machinery as
+// scheduleGardenTask just above, `type: 'daily', endType: 'count'` capping
+// it at exactly observationDays real occurrences, one per day of the
+// window. Each occurrence is meant to open a lightweight "how did today go
+// with [food]?" prompt (see log.tsx's own FoodTrialCheckinPrompt) rather
+// than a full symptom form every time -- escalating to the real, full
+// picker only happens on the person's own "something felt off" tap, not
+// automatically. Deliberately does NOT stop or shorten the series if a
+// mid-window reaction gets logged -- per the confirmed design, a trial
+// always runs its full window by default, specifically so a delayed
+// second reaction still gets caught; only an explicit resolveFoodTrial
+// call (a person's own deliberate "I'm calling this done") cancels the
+// remaining reminders, via cancelFoodTrialCheckins below.
+export async function scheduleFoodTrialCheckins(input: {
+  foodTrialId: string;
+  foodName: string;
+  firstScheduledFor: string;
+  observationDays: number;
+}): Promise<string> {
+  const id = await insertScheduleSeries({
+    itemType: 'foodTest',
+    mealType: null,
+    title: `How did today go with ${input.foodName}?`,
+    scheduledFor: input.firstScheduledFor,
+    repeat: { type: 'daily', endType: 'count', count: Math.max(1, input.observationDays) },
+  });
+
+  const db = await getDatabase();
+  await db.runAsync(
+    'INSERT INTO food_trial_task_links (schedule_item_id, food_trial_id) VALUES (?, ?)',
+    id,
+    input.foodTrialId,
+  );
+
+  return id;
+}
+
+// Cancels a trial's own remaining, not-yet-happened daily check-in
+// reminders -- called from resolveFoodTrial/deleteFoodTrial, both real,
+// deliberate "this is done" moments, never from a mid-window reaction
+// report on its own (see scheduleFoodTrialCheckins' own comment for why).
+// Reopening a resolved trial (reopenFoodTrial) deliberately does NOT
+// re-create a new reminder series -- a real, accepted, honest Phase-1
+// scope limit rather than silently surprising someone with reminders they
+// didn't ask to restart.
+async function cancelFoodTrialCheckins(foodTrialId: string): Promise<void> {
+  const db = await getDatabase();
+  const link = await db.getFirstAsync<{ repeat_group_id: string | null }>(
+    `
+      SELECT si.repeat_group_id
+      FROM food_trial_task_links ftl
+      JOIN schedule_items si ON si.id = ftl.schedule_item_id
+      WHERE ftl.food_trial_id = ?
+    `,
+    foodTrialId,
+  );
+  if (link?.repeat_group_id) {
+    await deleteScheduleSeries(link.repeat_group_id);
+  }
 }
 
 // Every planned, not-yet-happened real garden task from today onward, most

@@ -26,7 +26,7 @@ import {
   type SmoothieIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
-import { RAW_MEAT_ADVISORY_MESSAGE, RAW_MEAT_ADVISORY_TITLE, isRawMeatOrEggFood } from '../lib/rawMeatAdvisory';
+import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
@@ -34,7 +34,6 @@ import { DimensionFlags } from './DimensionFlags';
 import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useInfoAlert } from './InfoAlert';
-import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE, isJuiceFood } from '../lib/juiceAdvisory';
 import { PopoverSelect } from './PopoverSelect';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
@@ -1622,29 +1621,23 @@ export function SmoothieBuilder({
                     same tap-to-explain shape as every other advisory here,
                     never gating. Directly relevant here specifically for
                     raw eggs, a real, common smoothie ingredient. */}
-                {isRawMeatOrEggFood(pendingResolved, ingredientCookingMethod) && (
-                  <TouchableOpacity
-                    style={[styles.juiceAdvisoryRow, { borderColor: tabColor }]}
-                    onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
-                  >
-                    <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
-                  </TouchableOpacity>
-                )}
+                {/* General-health gradient advisories, 2026-08-14 -- one unified,
+                  mutable-per-topic component replacing the separate
+                  alcohol/coffee/juice/raw-meat rows that used to live here.
+                  See lib/generalHealthRules.ts's own top comment. */}
+              <GeneralHealthAdvisories
+                resolved={pendingResolved}
+                cookMethod={ingredientCookingMethod}
+                tabColor={tabColor}
+                onExplain={showInfoAlert}
+              />
+
                 {/* Informational, not gating -- see lib/juiceAdvisory.ts's
                     own top comment. Smoothie Builder has no Alcohol/Brewing
                     in its own category allowlist, so this and the raw-meat/
                     egg row above are the only two other advisory rows it
                     needs. */}
-                {isJuiceFood(pendingResolved) && (
-                  <TouchableOpacity
-                    style={[styles.juiceAdvisoryRow, { borderColor: tabColor }]}
-                    onPress={() => showInfoAlert(JUICE_ADVISORY_TITLE, JUICE_ADVISORY_MESSAGE)}
-                  >
-                    <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                    <Text style={[styles.juiceAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar (tap to learn more)</Text>
-                  </TouchableOpacity>
-                )}
+                
               </View>
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own

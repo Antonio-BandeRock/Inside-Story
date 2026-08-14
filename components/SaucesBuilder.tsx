@@ -24,11 +24,11 @@ import {
   type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
-import { RAW_MEAT_ADVISORY_MESSAGE, RAW_MEAT_ADVISORY_TITLE, isRawMeatOrEggFood } from '../lib/rawMeatAdvisory';
+import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
-import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
+import { isAlcoholicFood } from '../lib/alcoholAdvisory';
 import { AlcoholCalculatorPanel } from './AlcoholCalculator';
 import { DimensionFlags } from './DimensionFlags';
 import { SourceFallbackNote } from './SourceFallbackNote';
@@ -1524,27 +1524,21 @@ export function SaucesBuilder({
                   never gating. Directly relevant here specifically for raw
                   eggs in an uncooked sauce (homemade mayonnaise, aioli,
                   hollandaise). */}
-              {isRawMeatOrEggFood(pendingResolved, ingredientCookingMethod) && (
-                <TouchableOpacity
-                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
-                  onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
-                >
-                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
-                </TouchableOpacity>
-              )}
+              {/* General-health gradient advisories, 2026-08-14 -- one unified,
+                  mutable-per-topic component replacing the separate
+                  alcohol/coffee/juice/raw-meat rows that used to live here.
+                  See lib/generalHealthRules.ts's own top comment. */}
+              <GeneralHealthAdvisories
+                resolved={pendingResolved}
+                cookMethod={ingredientCookingMethod}
+                tabColor={tabColor}
+                onExplain={showInfoAlert}
+              />
+
               {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
                   own top comment for why this is a separate mechanism from
                   DimensionFlags rather than a new D1-D6 sub-criterion. */}
-              {isAlcoholicFood(pendingResolved) && (
-                <TouchableOpacity
-                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
-                  onPress={() => showInfoAlert(ALCOHOL_ADVISORY_TITLE, ALCOHOL_ADVISORY_MESSAGE)}
-                >
-                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory (tap to learn more)</Text>
-                </TouchableOpacity>
-              )}
+              
               {/* A real, standalone ABV/residual-sugar/cook-time
                   calculator -- 2026-08-10, see lib/alcoholCalculator.ts's
                   own top comment. Same isAlcoholicFood gate as the

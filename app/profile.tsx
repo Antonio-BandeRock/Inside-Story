@@ -12,9 +12,12 @@ import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonS
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
 import { typography } from '../constants/typography';
+import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreferences';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
+import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
+import { setTopicMuted } from '../lib/generalHealthPreferences';
 import { USDA_ZONES } from '../lib/gardenZones';
 import {
   CUSTOM_BACKGROUND_MAX_DIMENSION,
@@ -108,7 +111,7 @@ const ICON_GRID_PILL_SIZE = 52;
 // collapse each of the sections of TabHub Icons inside of the already
 // collapsable section they are a part of?" A real, deliberate carve-out
 // from the "no nested sub-cards" rule stated above, not a reversal of it.
-const ALL_CARD_SECTION_KEYS = ['personal-info', 'conditions', 'appearance', 'meal-schedule'] as const;
+const ALL_CARD_SECTION_KEYS = ['personal-info', 'conditions', 'general-health', 'appearance', 'meal-schedule'] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 
 // See ALL_CARD_SECTION_KEYS's own comment above for why this one area gets
@@ -415,6 +418,16 @@ export default function ProfileScreen() {
   // background / each tab's own revealed background immediately, with no
   // extra local state to keep in sync.
   const visualPrefs = useVisualPreferences();
+
+  // Live, app-wide (lib/generalHealthPreferences.ts) -- 2026-08-14, direct
+  // requirement: "Make the muting granular, per topic, not sweeping." One
+  // real toggle per lib/generalHealthRules.ts topic, not a single on/off
+  // switch -- setTopicMuted only ever touches the one topic tapped,
+  // leaving every other topic's own current preference untouched.
+  const generalHealthPrefs = useGeneralHealthPreferences();
+  function toggleGeneralHealthTopic(topicId: string) {
+    setTopicMuted(topicId, !generalHealthPrefs.mutedTopics[topicId]);
+  }
 
   // Local text-field buffers -- kept separate from `profile` so the person
   // can type a partial value (e.g. just a year) without it being parsed/
@@ -1766,6 +1779,41 @@ export default function ProfileScreen() {
                 );
               },
             )}
+          </View>
+        ) : null}
+      </View>
+
+      {/* General Health Guidance -- 2026-08-14, the general-health gradient's
+          own per-topic mute list (lib/generalHealthRules.ts/
+          generalHealthPreferences.ts). Every topic starts shown (not
+          muted); turning one off only hides it while actively building a
+          meal -- it never affects what Trends or a doctor-facing Report
+          shows, since neither ever reads this preference, only the
+          builders themselves do. */}
+      <View style={styles.card}>
+        {renderCardHeader('general-health', 'General Health Guidance')}
+        {!collapsedSections.has('general-health') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              These are condition-agnostic notes (glycemic impact, cooking method, portion size, and similar) that
+              can show up while building a meal, regardless of which conditions you track. Turn any one off below if
+              it&apos;s not useful to you -- your Trends and any report you generate still show the full picture
+              either way, this only affects what appears while you&apos;re actively cooking.
+            </Text>
+            <View style={styles.pillRow}>
+              {GENERAL_HEALTH_RULES.map((rule) => {
+                const shown = !generalHealthPrefs.mutedTopics[rule.topicId];
+                return (
+                  <TouchableOpacity
+                    key={rule.topicId}
+                    style={[styles.pill, shown && styles.pillActive]}
+                    onPress={() => toggleGeneralHealthTopic(rule.topicId)}
+                  >
+                    <Text style={[styles.pillText, shown && styles.pillTextActive]}>{rule.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         ) : null}
       </View>

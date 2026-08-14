@@ -1,9 +1,10 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
+import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
@@ -20,15 +21,21 @@ import {
   deleteCheckin,
   deleteExerciseLog,
   deleteFoodTrial,
+  getFoodTrialHistory,
+  getUserConditions,
+  listAllConditions,
   listBodyMeasurements,
   listCheckins,
   listExerciseLogs,
+  listFoodAllergies,
   listFoodTrials,
   recordBodyMeasurement,
   recordCheckin,
   recordExercise,
   resolveFoodTrial,
+  scheduleFoodTrialCheckins,
   type BodyMeasurementRecord,
+  type ConditionReference,
   type ExerciseLog,
   type FoodTrialRecord,
   type WellbeingCheckin,
@@ -700,28 +707,105 @@ function FoodReactionsLens() {
   );
 }
 
+// The structured food-testing/reintroduction feature, 2026-08-14 -- built
+// out from the original, minimal free-text-only version per direct
+// confirmation this deserved real depth: "the test it and log it loop
+// needs to be real, and structured feature from day one." Real food
+// identity (foodId/source/prepMethod, via FoodLookup -- the same picker
+// every Food builder already uses), optional condition tagging, real
+// per-food test history (getFoodTrialHistory), a best-effort allergy
+// check, and real Schedule-driven daily reminders for the length of the
+// window (scheduleFoodTrialCheckins) that prompt a lightweight "how did
+// today go" check-in -- escalating to the same full tag/severity/notes
+// CheckinForm every other lens here already uses only when something
+// actually feels off, per the confirmed design. A trial always runs its
+// full window by default regardless of a mid-window report (see
+// lib/db.ts's own cancelFoodTrialCheckins comment) -- only the existing,
+// unchanged manual resolveFoodTrial call ends it early.
 function NewFoodsLens() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [trials, setTrials] = useState<FoodTrialRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [formOpen, setFormOpen] = useState(false);
+  const [pickingFood, setPickingFood] = useState(false);
+  const [pickedFood, setPickedFood] = useState<ResolvedFoodSelection | null>(null);
+  const [foodHistory, setFoodHistory] = useState<FoodTrialRecord[]>([]);
+  const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
+  const [trackedConditions, setTrackedConditions] = useState<ConditionReference[]>([]);
+  const [selectedConditionCode, setSelectedConditionCode] = useState<string | null>(null);
   const [foodName, setFoodName] = useState('');
   const [dateChoice, setDateChoice] = useState<DateChoice>('today');
   const [customDate, setCustomDate] = useState('');
   const [observationDays, setObservationDays] = useState('3');
 
+  // One real, live-fetched "did I already check in today" entry per active
+  // trial -- undefined while not yet loaded, null once loaded and
+  // confirmed nothing logged today, a real WellbeingCheckin once one has.
+  const [todaysCheckinByTrial, setTodaysCheckinByTrial] = useState<Record<string, WellbeingCheckin | null>>({});
+  // Which trial (if any) currently has the escalated full picker open --
+  // at most one at a time, matching every other single-form-at-once
+  // pattern already used throughout this file.
+  const [escalatingTrialId, setEscalatingTrialId] = useState<string | null>(null);
+  const [escalateSeverity, setEscalateSeverity] = useState<number | null>(null);
+  const [escalateTags, setEscalateTags] = useState<string[]>([]);
+  const [escalateNotes, setEscalateNotes] = useState('');
+  const [escalateDateChoice, setEscalateDateChoice] = useState<DateChoice>('today');
+  const [escalateCustomDate, setEscalateCustomDate] = useState('');
+  const [escalateTime, setEscalateTime] = useState<TimeOfDayInput>(() => splitTime24(nowTimeString24()));
+
   const load = useCallback(() => {
     setLoading(true);
-    listFoodTrials().then((rows) => {
-      setTrials(rows);
-      setLoading(false);
-    });
+    Promise.all([listFoodTrials(), getUserConditions(), listAllConditions(), listFoodAllergies()]).then(
+      async ([rows, selectedCodes, allConditions, allergies]) => {
+        setTrials(rows);
+        setTrackedConditions(allConditions.filter((condition) => selectedCodes.includes(condition.code)));
+        setFoodAllergies(allergies);
+        setLoading(false);
+
+        // Real, per-trial "checked in today yet" status -- one small query
+        // per currently-active trial (a real, small list in practice).
+        const active = rows.filter((trial) => trial.status === 'trialing');
+        const today = todayDateString();
+        const entries = await Promise.all(
+          active.map(async (trial) => {
+            const checkins = await listCheckins({ foodTrialId: trial.id, limit: 5 });
+            const todaysCheckin = checkins.find((entry) => entry.loggedAt.startsWith(today)) ?? null;
+            return [trial.id, todaysCheckin] as const;
+          }),
+        );
+        setTodaysCheckinByTrial(Object.fromEntries(entries));
+      },
+    );
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
+  // Real per-food test history, refreshed whenever a real, reference-linked
+  // food is picked -- see getFoodTrialHistory's own comment in lib/db.ts.
+  useEffect(() => {
+    if (!pickedFood) {
+      setFoodHistory([]);
+      return;
+    }
+    let isMounted = true;
+    getFoodTrialHistory(pickedFood.foodId, pickedFood.source).then((history) => {
+      if (isMounted) setFoodHistory(history);
+    });
+    return () => { isMounted = false; };
+  }, [pickedFood]);
+
+  // Best-effort only -- allergies are free text (lib/db.ts's own
+  // user_food_allergies table), not linked to a real food row, so this is
+  // a real, worth-having safety nudge, not a guaranteed-precise match.
+  const allergyMatch = pickedFood
+    ? foodAllergies.find((name) => pickedFood.baseName.toLowerCase().includes(name.toLowerCase()))
+    : foodAllergies.find((name) => foodName.toLowerCase().includes(name.toLowerCase()));
+
   function resetForm() {
     setFoodName('');
+    setPickedFood(null);
+    setFoodHistory([]);
+    setSelectedConditionCode(null);
     setDateChoice('today');
     setCustomDate('');
     setObservationDays('3');
@@ -738,10 +822,27 @@ function NewFoodsLens() {
       return;
     }
     const days = Number(observationDays);
-    await createFoodTrial({
+    const realObservationDays = Number.isFinite(days) && days > 0 ? days : 3;
+    const trialId = await createFoodTrial({
       foodName,
       startedAt: `${date}T${nowTimeString24()}`,
-      observationDays: Number.isFinite(days) && days > 0 ? days : 3,
+      observationDays: realObservationDays,
+      foodId: pickedFood?.foodId ?? null,
+      source: pickedFood?.source ?? null,
+      prepMethod: pickedFood?.prepMethod ?? null,
+      conditionCode: selectedConditionCode,
+    });
+    // Real, daily reminders for the whole window -- the first one lands the
+    // same evening (20:00), not the exact minute the trial starts, since
+    // "how did today go" only makes sense to ask once the day's actually
+    // played out. See scheduleFoodTrialCheckins' own comment for why this
+    // always covers the full window regardless of what gets logged
+    // mid-way.
+    await scheduleFoodTrialCheckins({
+      foodTrialId: trialId,
+      foodName,
+      firstScheduledFor: `${date}T20:00`,
+      observationDays: realObservationDays,
     });
     setFormOpen(false);
     resetForm();
@@ -758,6 +859,80 @@ function NewFoodsLens() {
     load();
   }
 
+  // The lightweight daily prompt's own "nothing to report" path -- one
+  // tap, a real but minimal wellbeing_checkins row, no escalation needed.
+  async function handleTodayNothingToReport(trial: FoodTrialRecord) {
+    await recordCheckin({
+      loggedAt: new Date().toISOString(),
+      checkinType: 'food_trial_daily',
+      valence: 'neutral',
+      foodName: trial.foodName,
+      foodTrialId: trial.id,
+    });
+    load();
+  }
+
+  function handleTodaySomethingFeltOff(trial: FoodTrialRecord) {
+    setEscalatingTrialId(trial.id);
+    setEscalateSeverity(null);
+    setEscalateTags([]);
+    setEscalateNotes('');
+    setEscalateDateChoice('today');
+    setEscalateCustomDate('');
+    setEscalateTime(splitTime24(nowTimeString24()));
+  }
+
+  function toggleEscalateTag(code: string) {
+    setEscalateTags((current) => (current.includes(code) ? current.filter((c) => c !== code) : [...current, code]));
+  }
+
+  async function handleSaveEscalation(trial: FoodTrialRecord) {
+    if (escalateSeverity == null) {
+      Alert.alert('Select how severe it felt.');
+      return;
+    }
+    const loggedAt = resolveDateTime(escalateDateChoice, escalateCustomDate, escalateTime);
+    if (!loggedAt) {
+      Alert.alert('Enter a valid date and time.');
+      return;
+    }
+    await recordCheckin({
+      loggedAt,
+      checkinType: 'food_trial_daily',
+      valence: 'negative',
+      severity: escalateSeverity,
+      notes: escalateNotes,
+      foodName: trial.foodName,
+      foodTrialId: trial.id,
+      tags: escalateTags,
+    });
+    setEscalatingTrialId(null);
+    load();
+  }
+
+  // FoodLookup's own internal list is a real FlatList -- it can never sit
+  // nested inside this lens's own outer ScrollView (the exact real,
+  // confirmed Android crash Garden's own harvest/planting pickers already
+  // hit and fixed, 2026-08-13/14) -- so picking a food gets its own
+  // dedicated, non-scrolling branch, the same established fix pattern.
+  if (pickingFood) {
+    return (
+      <View style={styles.pickerScreen}>
+        <FoodLookup
+          tabColor={TAB_COLOR}
+          title="Which food are you testing?"
+          showNutrients={false}
+          allowHarvestPick={false}
+          onFoodResolved={(resolved) => {
+            setPickedFood(resolved);
+            setFoodName(`${resolved.baseName}${resolved.prepMethod ? ` (${resolved.prepMethod})` : ''}`);
+            setPickingFood(false);
+          }}
+        />
+      </View>
+    );
+  }
+
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {!formOpen ? (
@@ -768,6 +943,49 @@ function NewFoodsLens() {
         <View style={styles.formCard}>
           <Text style={styles.label}>What food are you introducing?</Text>
           <AppTextInput style={styles.input} placeholder="e.g. Quinoa" value={foodName} onChangeText={setFoodName} />
+          <TouchableOpacity style={styles.secondaryButton} onPress={() => setPickingFood(true)}>
+            <Text style={styles.secondaryButtonText}>
+              {pickedFood ? 'Change the specific food' : 'Pick a specific food (optional)'}
+            </Text>
+          </TouchableOpacity>
+          {pickedFood ? (
+            <Text style={styles.helperText}>
+              Linked to the real, cited version of this food -- prep state and any real per-food history below come
+              from that link, not just the name.
+            </Text>
+          ) : null}
+          {allergyMatch ? (
+            <Text style={[styles.helperText, styles.flaggedText]}>
+              This may match your own declared allergy to {allergyMatch}. This feature is for testing a sensitivity
+              or reintroduction, not a real allergy -- talk to a doctor before testing a known allergen.
+            </Text>
+          ) : null}
+          {foodHistory.length > 0 ? (
+            <Text style={styles.helperText}>
+              You&apos;ve tested this exact food before: {foodHistory.length} time{foodHistory.length === 1 ? '' : 's'}
+              {' '}({foodHistory.filter((entry) => entry.status === 'cleared').length} cleared,{' '}
+              {foodHistory.filter((entry) => entry.status === 'flagged').length} flagged).
+            </Text>
+          ) : null}
+          {trackedConditions.length > 0 ? (
+            <>
+              <Text style={styles.label}>Which condition or concern is this testing? (optional)</Text>
+              <View style={styles.pillRow}>
+                {trackedConditions.map((condition) => {
+                  const active = selectedConditionCode === condition.code;
+                  return (
+                    <TouchableOpacity
+                      key={condition.code}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() => setSelectedConditionCode(active ? null : condition.code)}
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>{condition.name}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </>
+          ) : null}
           <Text style={styles.label}>When did you start?</Text>
           <DateChoicePicker
             value={dateChoice}
@@ -784,8 +1002,10 @@ function NewFoodsLens() {
             onChangeText={setObservationDays}
           />
           <Text style={styles.helperText}>
-            3 days is a common starting point for "probably fine." You can mark it earlier if something happens
-            right away, or later if you want to keep watching.
+            3 days is a common starting point for &ldquo;probably fine.&rdquo; A real daily reminder runs the whole
+            window either way, even if something feels off partway through -- a delayed second reaction is exactly
+            what the full window is meant to catch. You can still mark it cleared or flagged earlier yourself if
+            you&apos;d rather not wait.
           </Text>
           <View style={styles.formActions}>
             <TouchableOpacity style={styles.secondaryButton} onPress={() => { setFormOpen(false); resetForm(); }}>
@@ -807,6 +1027,8 @@ function NewFoodsLens() {
           {trials.map((trial) => {
             const daysElapsed = Math.floor((Date.now() - new Date(trial.startedAt).getTime()) / (24 * 60 * 60 * 1000));
             const daysLeft = trial.observationDays - daysElapsed;
+            const todaysCheckin = todaysCheckinByTrial[trial.id];
+            const isEscalating = escalatingTrialId === trial.id;
             return (
               <View key={trial.id} style={styles.row}>
                 <View style={styles.rowTextCol}>
@@ -839,6 +1061,49 @@ function NewFoodsLens() {
                     <Text style={styles.actionText}>Remove</Text>
                   </TouchableOpacity>
                 </View>
+
+                {/* The lightweight daily prompt, 2026-08-14 -- only shows
+                    while a trial is still active AND today's real check-in
+                    (light or escalated) hasn't already been logged.
+                    "Something felt off" escalates to the same full
+                    tag/severity/notes picker every other lens here uses,
+                    never a second, separately-built form -- confirmed
+                    design: escalating does NOT end the trial or stop
+                    tomorrow's reminder. */}
+                {trial.status === 'trialing' && !isEscalating ? (
+                  todaysCheckin ? (
+                    <Text style={[styles.rowMeta, { marginTop: 10 }]}>Checked in today already.</Text>
+                  ) : (
+                    <View style={[styles.rowActions, { marginTop: 10 }]}>
+                      <Text style={styles.rowMeta}>Today:</Text>
+                      <TouchableOpacity onPress={() => handleTodayNothingToReport(trial)}>
+                        <Text style={styles.actionTextPrimary}>Nothing to report</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity onPress={() => handleTodaySomethingFeltOff(trial)}>
+                        <Text style={styles.actionTextRemove}>Something felt off</Text>
+                      </TouchableOpacity>
+                    </View>
+                  )
+                ) : null}
+                {isEscalating ? (
+                  <CheckinForm
+                    severity={escalateSeverity}
+                    onSeverityChange={setEscalateSeverity}
+                    tags={escalateTags}
+                    onToggleTag={toggleEscalateTag}
+                    notes={escalateNotes}
+                    onNotesChange={setEscalateNotes}
+                    dateChoice={escalateDateChoice}
+                    onDateChoiceChange={setEscalateDateChoice}
+                    customDate={escalateCustomDate}
+                    onCustomDateChange={setEscalateCustomDate}
+                    time={escalateTime}
+                    onTimeChange={setEscalateTime}
+                    onCancel={() => setEscalatingTrialId(null)}
+                    onSave={() => handleSaveEscalation(trial)}
+                    saveLabel="Save today's report"
+                  />
+                ) : null}
               </View>
             );
           })}
@@ -1352,6 +1617,11 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
+  // Deliberately NOT a ScrollView -- see NewFoodsLens' own render-time
+  // comment for why FoodLookup can never sit inside one, the same
+  // established fix already applied in Garden's own harvest/planting
+  // pickers.
+  pickerScreen: { flex: 1, paddingHorizontal: 16, paddingTop: 5 },
   emptyText: { ...typography.body, color: colors.textSecondary, marginBottom: 16 },
   addButton: {
     borderWidth: 1,

@@ -24,14 +24,12 @@ import {
   type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
-import { RAW_MEAT_ADVISORY_MESSAGE, RAW_MEAT_ADVISORY_TITLE, isRawMeatOrEggFood } from '../lib/rawMeatAdvisory';
+import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
-import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE, isAlcoholicFood } from '../lib/alcoholAdvisory';
+import { isAlcoholicFood } from '../lib/alcoholAdvisory';
 import { AlcoholCalculatorPanel } from './AlcoholCalculator';
-import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE, isCoffeeFood } from '../lib/coffeeAdvisory';
-import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE, isJuiceFood } from '../lib/juiceAdvisory';
 import { DimensionFlags } from './DimensionFlags';
 import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
@@ -1533,27 +1531,21 @@ export function FermentationBuilder({
                   lib/rawMeatAdvisory.ts's own top comment. Informational,
                   same tap-to-explain shape as every other advisory here,
                   never gating. */}
-              {isRawMeatOrEggFood(pendingResolved, ingredientCookingMethod) && (
-                <TouchableOpacity
-                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
-                  onPress={() => showInfoAlert(RAW_MEAT_ADVISORY_TITLE, RAW_MEAT_ADVISORY_MESSAGE)}
-                >
-                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Raw meat & food safety (tap to learn more)</Text>
-                </TouchableOpacity>
-              )}
+              {/* General-health gradient advisories, 2026-08-14 -- one unified,
+                  mutable-per-topic component replacing the separate
+                  alcohol/coffee/juice/raw-meat rows that used to live here.
+                  See lib/generalHealthRules.ts's own top comment. */}
+              <GeneralHealthAdvisories
+                resolved={pendingResolved}
+                cookMethod={ingredientCookingMethod}
+                tabColor={tabColor}
+                onExplain={showInfoAlert}
+              />
+
               {/* Informational, not gating -- see lib/alcoholAdvisory.ts's
                   own top comment for why this is a separate mechanism from
                   DimensionFlags rather than a new D1-D6 sub-criterion. */}
-              {isAlcoholicFood(pendingResolved) && (
-                <TouchableOpacity
-                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
-                  onPress={() => showInfoAlert(ALCOHOL_ADVISORY_TITLE, ALCOHOL_ADVISORY_MESSAGE)}
-                >
-                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Alcohol advisory (tap to learn more)</Text>
-                </TouchableOpacity>
-              )}
+              
               {/* A real, standalone ABV/residual-sugar/cook-time
                   calculator -- 2026-08-10, see lib/alcoholCalculator.ts's
                   own top comment. Same isAlcoholicFood gate as the
@@ -1573,26 +1565,10 @@ export function FermentationBuilder({
                   brewed from tea, and a coffee-based ferment (kombucha
                   made from coffee, a real if less common practice) would
                   route through Brewing's own Coffee-keyword items too. */}
-              {isCoffeeFood(pendingResolved) && (
-                <TouchableOpacity
-                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
-                  onPress={() => showInfoAlert(COFFEE_ADVISORY_TITLE, COFFEE_ADVISORY_MESSAGE)}
-                >
-                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Coffee & levothyroxine (tap to learn more)</Text>
-                </TouchableOpacity>
-              )}
+              
               {/* Same informational, non-gating shape as the alcohol/coffee
                   rows above -- see lib/juiceAdvisory.ts's own top comment. */}
-              {isJuiceFood(pendingResolved) && (
-                <TouchableOpacity
-                  style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
-                  onPress={() => showInfoAlert(JUICE_ADVISORY_TITLE, JUICE_ADVISORY_MESSAGE)}
-                >
-                  <Ionicons name="information-circle-outline" size={16} color={tabColor} />
-                  <Text style={[styles.alcoholAdvisoryText, { color: tabColor }]}>Fruit juice & blood sugar (tap to learn more)</Text>
-                </TouchableOpacity>
-              )}
+              
               {/* Four stacked labeled fields, 2026-07-31 -- Quantity,
                   Units, Cut Prep, Cook Prep, in that order, each its own
                   vertical pill spinner sized by renderLabeledPicker (see
