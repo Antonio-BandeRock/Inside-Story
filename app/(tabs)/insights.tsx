@@ -568,7 +568,17 @@ export default function InsightsScreen() {
     }
     let isCurrent = true;
     setRankingLoading(true);
+    // TEMPORARY diagnostic logging, 2026-08-14 -- see PopoverSelect.tsx's
+    // own debugLabel comment for the still-open freeze investigation this
+    // is chasing. Real, direct, on-device timing of the query itself
+    // (not a desktop estimate) -- the one piece of ground truth missing so
+    // far. queuedAt captures the moment this effect actually starts
+    // running, distinct from when React scheduled the update that
+    // triggered it.
+    const queuedAt = Date.now();
+    console.log(`[RankQuery] starting rankFoodsByNutrient(${rankingNutrient}, 100, ${rankingPrepGroup})`);
     rankFoodsByNutrient(rankingNutrient, 100, rankingPrepGroup).then((rows) => {
+      console.log(`[RankQuery] resolved in ${Date.now() - queuedAt}ms, ${rows.length} rows`);
       if (isCurrent) {
         setRankedFoods(rows);
         setRankingLoading(false);
@@ -1909,6 +1919,7 @@ function NutrientRankingView({
                 placeholder="Pick a nutrient..."
                 openAbove
                 onOpenChange={handleNutrientPopoverOpenChange}
+                debugLabel="NutrientField"
               />
             </View>
           ) : null}
@@ -1932,6 +1943,7 @@ function NutrientRankingView({
               minWidth={140}
               openAbove
               onOpenChange={handlePrepStatePopoverOpenChange}
+              debugLabel="PrepStateField"
             />
           </View>
         </View>
