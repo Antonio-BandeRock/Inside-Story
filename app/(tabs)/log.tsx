@@ -1,5 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
-import { useCallback, useEffect, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import type { HelpSection } from '../../components/HelpButton';
@@ -722,7 +723,7 @@ function FoodReactionsLens() {
 // full window by default regardless of a mid-window report (see
 // lib/db.ts's own cancelFoodTrialCheckins comment) -- only the existing,
 // unchanged manual resolveFoodTrial call ends it early.
-function NewFoodsLens() {
+function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [trials, setTrials] = useState<FoodTrialRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -779,6 +780,23 @@ function NewFoodsLens() {
   }, []);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  // Real, cross-tab prefill -- 2026-08-14, arriving from a Food builder's
+  // own "Worth testing?" button (see SideBuilder.tsx's own comment).
+  // Applied once per real, distinct prefill (foodId+source), the same
+  // real food identity the manual "Pick a specific food" -> FoodLookup ->
+  // onFoodResolved path below already sets, so a food arriving this way
+  // opens the trial-creation form already pre-filled rather than blank.
+  const appliedPrefillKey = useRef<string | null>(null);
+  useEffect(() => {
+    if (!prefill) return;
+    const key = `${prefill.foodId}:${prefill.source}`;
+    if (appliedPrefillKey.current === key) return;
+    appliedPrefillKey.current = key;
+    setPickedFood(prefill);
+    setFoodName(`${prefill.baseName}${prefill.prepMethod ? ` (${prefill.prepMethod})` : ''}`);
+    setFormOpen(true);
+  }, [prefill]);
 
   // Real per-food test history, refreshed whenever a real, reference-linked
   // food is picked -- see getFoodTrialHistory's own comment in lib/db.ts.
@@ -1559,17 +1577,55 @@ function NocturiaLens() {
 
 export default function LogScreen() {
   useRegisterScreenHelp('Signals', LOG_HELP_SECTIONS, '/log');
+  // trialFoodId/trialSource/trialBaseName/trialCategory/trialSubcategory/
+  // trialPrepMethod -- a real cross-tab deep link from a Food builder's own
+  // "Worth testing?" button (see SideBuilder.tsx's own comment), the same
+  // shape food.tsx's own editXId/fromXFavoriteId params already use.
+  const { trialFoodId, trialSource, trialBaseName, trialCategory, trialSubcategory, trialPrepMethod } =
+    useLocalSearchParams<{
+      trialFoodId?: string;
+      trialSource?: string;
+      trialBaseName?: string;
+      trialCategory?: string;
+      trialSubcategory?: string;
+      trialPrepMethod?: string;
+    }>();
   const [lens, setLens] = useState<Lens>('flares');
   const activeLensLabel = LENSES.find((option) => option.key === lens)?.label;
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   useFocusEffect(
     useCallback(() => {
+      // trialFoodId overrides the normal "always land on the picker" reset
+      // below -- without this, arriving here with a food already carried
+      // along would still show the LensHub picker for a beat instead of
+      // New Foods itself, matching food.tsx's own editXId branches exactly.
+      if (trialFoodId) {
+        setLens('newFoods');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, []),
+    }, [trialFoodId]),
   );
   const autoOpenLensHub = useAutoOpenLensHubSignal();
+
+  // Real food identity carried from the deep link -- foodId/source/baseName/
+  // category are all required for a genuine ResolvedFoodSelection; anything
+  // less (a stray or partial param set) is treated as no prefill at all
+  // rather than guessed at.
+  const trialPrefill: ResolvedFoodSelection | null =
+    trialFoodId && trialSource && trialBaseName && trialCategory
+      ? {
+          foodId: Number(trialFoodId),
+          source: trialSource,
+          baseName: trialBaseName,
+          category: trialCategory,
+          subcategory: trialSubcategory || null,
+          prepMethod: trialPrepMethod || null,
+        }
+      : null;
 
   return (
     <View style={styles.screen}>
@@ -1583,7 +1639,7 @@ export default function LogScreen() {
           ) : lens === 'foodReactions' ? (
             <FoodReactionsLens />
           ) : lens === 'newFoods' ? (
-            <NewFoodsLens />
+            <NewFoodsLens prefill={trialPrefill} />
           ) : lens === 'exercise' ? (
             <ExerciseLens />
           ) : lens === 'bloodPressure' ? (
