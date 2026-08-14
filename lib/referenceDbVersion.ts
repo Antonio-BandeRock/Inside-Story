@@ -708,4 +708,56 @@
 // broader coverage than the live app gets from this pass, which is
 // real, expected, and fine given that project's own explicitly broader
 // scope.
-export const REFERENCE_DB_VERSION = "20260813150000";
+// Bumped again, 2026-08-13, chasing a real, reported freeze: "Insights >
+// Nutrient Ranking... tapping the selector freezes the app for about 15
+// seconds." A first, real fix landed the same day (an unstable inline
+// onSelect prop breaking PopoverSelect's memo() bailout, a genuine second
+// instance of an already-documented bug class in this app) but the report
+// persisted after a confirmed clean Metro restart and a genuine on-device
+// retest. Added temporary, timestamped diagnostic logging directly to
+// PopoverSelect/OverlayRoot (the same real technique already proven for the
+// TabHub drop-in bug) to get real evidence rather than guess again -- it
+// showed the React/JS side committing the popover in 20-33ms, genuinely
+// fast, followed by a long, completely silent gap (11.3s and 17.2s across
+// two separate on-device tests, on two different fields) before anything
+// else happened. Directly asked what the person actually saw; the answer
+// was decisive: "the list appears right away and I tap on a selection right
+// away and then it hangs so I tap again. Then, the screen catches up with
+// things I have tapped" -- the textbook signature of queued touch events
+// waiting on a busy JS thread, not a rendering/positioning bug.
+//
+// Traced this to a real, verifiable structural gap: food_nutrients' own
+// PRIMARY KEY is (food_id, source, nutrient_code) -- nutrient_code sits
+// last, not leading, so `WHERE fn.nutrient_code = ?` (rankFoodsByNutrient's
+// own real filter, firing the moment a nutrient is picked) had no usable
+// index on that column at all. EXPLAIN QUERY PLAN confirmed SQLite was
+// falling back to starting from foods.hidden (16,146 real non-hidden
+// rows) and probing food_nutrients' own composite PK once per candidate --
+// a real, working plan, but one that touches a FIXED ~16,146 rows
+// regardless of which nutrient is actually being ranked, even for a
+// genuinely sparse one. Added a real, targeted index,
+// idx_food_nutrients_nutrient(nutrient_code, amount_per_100g DESC) --
+// verified via EXPLAIN QUERY PLAN that SQLite now does a direct index range
+// scan on nutrient_code instead. Timed the real, exact query (via
+// sqlite3.exe, not guessed) across the actual row-count spread this app's
+// own 40 tracked nutrients span: dramatic wins for anything sparser than
+// the ~16,146 non-hidden-food threshold (lycopene, 3,845 rows -> 2ms;
+// caffeine, 5,178 -> 4ms; iodine, 13,504 -> 106ms, all measured on desktop
+// hardware, not the real device) -- and a real, honest, smaller cost for
+// the handful of near-universal nutrients whose own row count actually
+// exceeds that threshold (protein, 26,123 rows, went from 138ms to 324ms;
+// sodium similarly to 288ms). Given most of the ~40 tracked nutrients sit
+// well below the crossover point, this is a real, net-positive change
+// overall, not a wash -- kept deliberately rather than reverted despite
+// that one honest tradeoff.
+//
+// Stated directly rather than overclaimed: every timing figure above is
+// from this desktop machine via the sqlite3.exe CLI, not the real device
+// the freeze was reported on, and even the worst-case desktop figure
+// (324ms) doesn't obviously scale to the full 11-17 REAL seconds observed
+// without assuming a large mobile-vs-desktop performance gap this session
+// has no way to directly confirm. This is a real, verified, structural
+// improvement worth keeping regardless of whether it turns out to fully
+// explain the reported delay on its own -- genuinely not yet known until
+// retested on-device after this version bump forces the real reimport.
+export const REFERENCE_DB_VERSION = "20260813180500";
