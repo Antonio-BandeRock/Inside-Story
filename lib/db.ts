@@ -15,49 +15,6 @@ const REFERENCE_DB_NAME = 'foods_reference.db';
 const REFERENCE_DB_VERSION_KEY = 'reference_db_version';
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
 let referenceDatabasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
-
-// TEMPORARY DIAGNOSTIC, 2026-08-14 -- see app/_layout.tsx's own [Heartbeat]
-// comment for the full context on the still-open ~12-14s freeze
-// investigation this is chasing. A live logcat capture during a real,
-// reproduced freeze showed the app's own native heap growing rapidly
-// (100MB->180MB+ across several real GC events) and doing the heaviest
-// disk read of any process on the device during that exact window -- but
-// nothing this app's own JS-level logging already covers (PopoverSelect,
-// LensHub, the Nutrient Ranking query effect itself) showed anything
-// running at all during the gap; the actual ranking query only starts
-// AFTER the freeze resolves, confirmed too fast (under 2.5s) to be the
-// cause on its own. Rather than guess at which of this file's own 300+
-// real query call sites might be responsible, this wraps every real
-// SQLiteDatabase call once, at the one shared source both getDatabase()
-// and getReferenceDatabase() already return through -- every existing
-// caller gets this for free, no other line in this file needs to change.
-// Logs both the start and completion of every call (not just slow ones)
-// specifically so a query that's still "starting" with no matching "done"
-// by the time the heartbeat resumes is directly visible as the one that
-// was actually in flight. Remove once the real cause is found and fixed.
-function instrumentDatabase(db: SQLite.SQLiteDatabase, label: string): SQLite.SQLiteDatabase {
-  const methodNames = ['getAllAsync', 'getFirstAsync', 'runAsync', 'execAsync'] as const;
-  for (const methodName of methodNames) {
-    const original = (db[methodName] as (...args: unknown[]) => Promise<unknown>).bind(db);
-    (db as unknown as Record<string, unknown>)[methodName] = (...args: unknown[]) => {
-      const sql = typeof args[0] === 'string' ? args[0].replace(/\s+/g, ' ').trim().slice(0, 140) : '(non-string first arg)';
-      const startedAt = Date.now();
-      const callId = Math.random().toString(36).slice(2, 7);
-      console.log(`[DB:${label}:${callId}] ${methodName} starting: ${sql}`);
-      return original(...args).then(
-        (result) => {
-          console.log(`[DB:${label}:${callId}] ${methodName} DONE in ${Date.now() - startedAt}ms`);
-          return result;
-        },
-        (error) => {
-          console.log(`[DB:${label}:${callId}] ${methodName} FAILED after ${Date.now() - startedAt}ms: ${error}`);
-          throw error;
-        },
-      );
-    };
-  }
-  return db;
-}
 // A real, confirmed bug, 2026-08-13: initializeDatabase() itself was never
 // memoized the way databasePromise/referenceDatabasePromise both already
 // are -- every call re-ran its own full CREATE TABLE/ALTER TABLE body from
@@ -429,7 +386,7 @@ export type FoodNutrient = {
 // script and replace assets/data/foods_reference.db to refresh.
 export async function getReferenceDatabase() {
   if (!referenceDatabasePromise) {
-    referenceDatabasePromise = (async (): Promise<SQLite.SQLiteDatabase> => {
+    referenceDatabasePromise = (async () => {
       // initializeDatabase is idempotent (CREATE TABLE IF NOT EXISTS), safe
       // to call here regardless of whether the caller already did -- this
       // guarantees app_meta exists before the version check below runs.
@@ -507,7 +464,7 @@ export async function getReferenceDatabase() {
         );
       }
 
-      return SQLite.openDatabaseAsync(REFERENCE_DB_NAME).then((db) => instrumentDatabase(db, 'reference'));
+      return SQLite.openDatabaseAsync(REFERENCE_DB_NAME);
     })();
   }
 
@@ -3092,7 +3049,7 @@ export async function getAssessmentItems(domainCode?: string) {
 
 export async function getDatabase() {
   if (!databasePromise) {
-    databasePromise = SQLite.openDatabaseAsync(DB_NAME).then((db) => instrumentDatabase(db, 'main'));
+    databasePromise = SQLite.openDatabaseAsync(DB_NAME);
   }
 
   return databasePromise;

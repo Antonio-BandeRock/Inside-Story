@@ -568,17 +568,7 @@ export default function InsightsScreen() {
     }
     let isCurrent = true;
     setRankingLoading(true);
-    // TEMPORARY diagnostic logging, 2026-08-14 -- see PopoverSelect.tsx's
-    // own debugLabel comment for the still-open freeze investigation this
-    // is chasing. Real, direct, on-device timing of the query itself
-    // (not a desktop estimate) -- the one piece of ground truth missing so
-    // far. queuedAt captures the moment this effect actually starts
-    // running, distinct from when React scheduled the update that
-    // triggered it.
-    const queuedAt = Date.now();
-    console.log(`[RankQuery] starting rankFoodsByNutrient(${rankingNutrient}, 100, ${rankingPrepGroup})`);
     rankFoodsByNutrient(rankingNutrient, 100, rankingPrepGroup).then((rows) => {
-      console.log(`[RankQuery] resolved in ${Date.now() - queuedAt}ms, ${rows.length} rows`);
       if (isCurrent) {
         setRankedFoods(rows);
         setRankingLoading(false);
@@ -614,17 +604,45 @@ export default function InsightsScreen() {
   }, [rankingFood, rankingPrepGroup]);
 
   // Safe Foods lens, 2026-08-08 -- same "independent of today's log,
-  // load once" nature as Nutrient Ranking above. Categories load once on
-  // mount (the underlying safe-food computation is cached for the whole
-  // session anyway, see getSafeFoodIds in lib/db.ts); the actual food list
-  // refetches only when the picked category changes.
+  // load once" nature as Nutrient Ranking above.
+  //
+  // 2026-08-14, a real, direct root cause found for this whole session's
+  // own multi-day freeze investigation (see lib/db.ts's own getSafeFoodIds
+  // comment for the full story) -- this effect used to run unconditionally
+  // on MOUNT, with an empty dependency array, meaning it fired every single
+  // time Insights itself opened, for every lens, regardless of whether the
+  // person ever visited Safe Foods at all. getSafeFoodIds() underneath it
+  // does a genuine, unindexed, no-WHERE-clause SELECT of every row in
+  // food_scores (roughly 180K+ rows) and two full JS passes over the
+  // result -- a live logcat capture during a real, reproduced freeze
+  // confirmed this single call alone took 18,657ms and blocked the JS
+  // thread completely (even a bare setInterval heartbeat) for its whole
+  // real duration, no matter which lens someone was actually trying to
+  // use at the time. Now gated on `lens === 'safeFoods'` and a ref-based
+  // "already requested" guard, so this genuinely slow, one-time
+  // computation only ever runs if and when someone actually opens this
+  // lens -- getSafeFoodIds() is still module-level memoized in lib/db.ts,
+  // so switching away and back never re-runs the expensive part, only
+  // this effect's own trigger changed. safeFoodCategoriesLoading is real,
+  // honest loading state for that first, still-genuinely-slow load --
+  // without it, opening Safe Foods for the first time would show a blank
+  // picker with zero feedback for up to ~19 real seconds, reading exactly
+  // like the freeze this whole change exists to fix.
   const [safeFoodCategories, setSafeFoodCategories] = useState<string[]>([]);
+  const [safeFoodCategoriesLoading, setSafeFoodCategoriesLoading] = useState(false);
   const [safeFoodCategory, setSafeFoodCategory] = useState<string | null>(null);
   const [safeFoods, setSafeFoods] = useState<SafeFood[]>([]);
   const [safeFoodsLoading, setSafeFoodsLoading] = useState(false);
+  const safeFoodCategoriesRequested = useRef(false);
   useEffect(() => {
-    listSafeFoodCategories().then(setSafeFoodCategories);
-  }, []);
+    if (lens !== 'safeFoods' || safeFoodCategoriesRequested.current) return;
+    safeFoodCategoriesRequested.current = true;
+    setSafeFoodCategoriesLoading(true);
+    listSafeFoodCategories().then((categories) => {
+      setSafeFoodCategories(categories);
+      setSafeFoodCategoriesLoading(false);
+    });
+  }, [lens]);
   useEffect(() => {
     if (!safeFoodCategory) {
       setSafeFoods([]);
@@ -843,6 +861,7 @@ export default function InsightsScreen() {
               // above cookingImpact's own branch).
               <SafeFoodsView
                 categories={safeFoodCategories}
+                categoriesLoading={safeFoodCategoriesLoading}
                 selected={safeFoodCategory}
                 onSelect={setSafeFoodCategory}
                 foods={safeFoods}
@@ -1850,7 +1869,6 @@ function NutrientRankingView({
                 tabColor={tabColor}
                 placeholder="Pick a nutrient..."
                 onOpenChange={handleNutrientPopoverOpenChange}
-                debugLabel="NutrientField"
               />
             </View>
           ) : null}
@@ -1864,7 +1882,6 @@ function NutrientRankingView({
               placeholder="All prep states"
               minWidth={140}
               onOpenChange={handlePrepStatePopoverOpenChange}
-              debugLabel="PrepStateField"
             />
           </View>
         </View>
@@ -2049,6 +2066,7 @@ function CookingImpactView({ tabColor }: { tabColor: string }) {
 // what "safe" means here.
 function SafeFoodsView({
   categories,
+  categoriesLoading,
   selected,
   onSelect,
   foods,
@@ -2056,6 +2074,7 @@ function SafeFoodsView({
   tabColor,
 }: {
   categories: string[];
+  categoriesLoading: boolean;
   selected: string | null;
   onSelect: (category: string) => void;
   foods: SafeFood[];
@@ -2067,6 +2086,20 @@ function SafeFoodsView({
     () => categories.map((category) => ({ label: categoryLabel(category), value: category })),
     [categories],
   );
+
+  // 2026-08-14 -- the one-time safe-food computation behind this whole
+  // lens genuinely takes up to ~19 real seconds the first time it runs
+  // (see InsightsScreen's own comment on why); this message exists so
+  // that wait reads as an honest, expected one-time cost rather than a
+  // frozen screen, the exact confusion this whole change was built to fix.
+  if (categoriesLoading) {
+    return (
+      <Text style={[styles.emptyText, styles.rankSpaced]}>
+        Checking every food against the full 6 Dimensions scorecard, once for this session -- this can take up to
+        20 seconds the first time.
+      </Text>
+    );
+  }
 
   return (
     <>

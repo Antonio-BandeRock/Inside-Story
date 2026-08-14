@@ -152,7 +152,6 @@ export const PopoverSelect = memo(function PopoverSelect({
   tintedSurface = false,
   openAbove = false,
   onOpenChange,
-  debugLabel,
 }: {
   options: PopoverSelectOption[];
   selected: string | null;
@@ -208,20 +207,6 @@ export const PopoverSelect = memo(function PopoverSelect({
   // overlapping scroll region from claiming touches while a popover
   // sits on top of it.
   onOpenChange?: (isOpen: boolean) => void;
-  // TEMPORARY diagnostic logging, 2026-08-14, added specifically to chase
-  // the still-unresolved ~15-second-freeze report on Nutrient Ranking's own
-  // two fields -- every avenue this bug class was previously root-caused
-  // through (an unmemoized options array, an unstable inline onSelect) has
-  // now been checked and confirmed already fixed, and both context
-  // providers this component reads (ActiveInputContext/OverlayContext) are
-  // confirmed correctly split so neither can itself be a re-render source.
-  // With static analysis genuinely exhausted, this borrows the same
-  // `[TabHub drop-timing]`-style approach already proven in this exact
-  // codebase for a comparably hard, on-device-only timing bug -- a plain
-  // Date.now()-based running log, silent (zero cost) for every caller that
-  // doesn't set this, only active on the two fields this report is about.
-  // Meant to be removed once real evidence pinpoints the actual cause.
-  debugLabel?: string;
 }) {
   const fieldRef = useRef<View>(null);
   const listRef = useRef<ScrollView | null>(null);
@@ -239,17 +224,6 @@ export const PopoverSelect = memo(function PopoverSelect({
   const { showOverlay, hideOverlay } = useOverlay();
   const { setSearchRequest, forceClear } = useActiveInputControls();
   const insets = useSafeAreaInsets();
-
-  // TEMPORARY diagnostic logging -- see debugLabel's own comment above.
-  const debugTapStartRef = useRef<number | null>(null);
-  const debugRenderCountRef = useRef(0);
-  if (debugLabel) {
-    debugRenderCountRef.current += 1;
-    const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
-    console.log(
-      `[PopoverSelect:${debugLabel}] render #${debugRenderCountRef.current}${elapsed != null ? ` +${elapsed}ms since tap` : ''} isOpen=${isOpen} optionsLength=${options.length}`,
-    );
-  }
 
   const normalizedOptions = options.map(normalizeOption);
   const visibleOptions =
@@ -281,34 +255,13 @@ export const PopoverSelect = memo(function PopoverSelect({
   }
 
   function openMenu() {
-    if (debugLabel) {
-      debugTapStartRef.current = Date.now();
-      debugRenderCountRef.current = 0;
-      console.log(`[PopoverSelect:${debugLabel}] +0ms: tap, calling measureInWindow`);
-    }
     fieldRef.current?.measureInWindow((x, y, fieldWidth, fieldHeight) => {
-      if (debugLabel) {
-        const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
-        console.log(`[PopoverSelect:${debugLabel}] +${elapsed}ms: measureInWindow callback fired, calling setAnchor/setIsOpen`);
-      }
       setAnchor({ x, y, width: fieldWidth, height: fieldHeight });
       setIsOpen(true);
     });
   }
 
   function handleSelect(value: string) {
-    // TEMPORARY diagnostic logging -- see debugLabel's own comment above.
-    // Specifically: does a tap on a ROW inside the already-open list reach
-    // this handler quickly, or is the touch itself sitting queued/delayed
-    // before JS ever gets to run this function at all? The prior round of
-    // logging only covered the field's own tap (openMenu) and the render/
-    // effect cycle -- neither one can see a delay that happens BEFORE
-    // handleSelect ever starts, which is exactly what "the selections
-    // aren't reacting to being tapped" describes.
-    if (debugLabel) {
-      const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
-      console.log(`[PopoverSelect:${debugLabel}] row tap -> handleSelect fired, value=${value}, +${elapsed}ms since field opened`);
-    }
     onSelect(value);
     closeMenu();
   }
@@ -440,12 +393,6 @@ export const PopoverSelect = memo(function PopoverSelect({
   // moment. A real, low-risk, surgical change -- only affects when this
   // one effect runs relative to paint, not what it does.
   useLayoutEffect(() => {
-    if (debugLabel) {
-      const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
-      console.log(
-        `[PopoverSelect:${debugLabel}] +${elapsed}ms: showOverlay effect running, isOpen=${isOpen}, menuNode=${menuNode ? 'present' : 'null'}`,
-      );
-    }
     if (isOpen) {
       showOverlay(menuNode);
     } else {
