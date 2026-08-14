@@ -505,6 +505,26 @@ export default function InsightsScreen() {
   // existing caller of rankFoodsByNutrient elsewhere in this app, which
   // still gets the exact same unfiltered result it always has.
   const [rankingPrepGroup, setRankingPrepGroup] = useState<PrepStateGroup | null>(null);
+  // 2026-08-14, direct report: results were showing (and the underlying
+  // query firing) the instant a Nutrient was picked, using whatever
+  // Prep state happened to already be set (defaulting to "All") -- before
+  // the person ever got a real chance to touch that field themselves. That
+  // also meant the results table was already fully mounted, with real
+  // content, right as they went to open the Prep state popover next --
+  // a real, plausible contributor to this screen's own already-documented
+  // touch-arbitration freeze (two scrollable/touchable regions competing
+  // for the same screen space), not just a UX ordering complaint. `null`
+  // for rankingPrepGroup can't distinguish "never touched" from "explicitly
+  // chose All prep states" (both are real, valid end states), so this is a
+  // separate, dedicated flag rather than inferred from the value itself --
+  // set true the first time the person makes ANY real selection here
+  // (including "All prep states" itself, a genuine choice in its own
+  // right), never reset afterward for the rest of this screen's lifetime.
+  const [rankingPrepGroupTouched, setRankingPrepGroupTouched] = useState(false);
+  const handleRankingPrepGroupChange = useCallback((group: PrepStateGroup | null) => {
+    setRankingPrepGroupTouched(true);
+    setRankingPrepGroup(group);
+  }, []);
   // The reverse of "pick a nutrient, see ranked foods" -- same message,
   // same day: "the user should be able to select any specific food to see
   // how it ranks in other nutrients, such as 50th in vegetables or 35th in
@@ -535,7 +555,14 @@ export default function InsightsScreen() {
     getDietaryReferenceIntakesForCurrentUser().then(setRankingDriRows);
   }, []);
   useEffect(() => {
-    if (!rankingNutrient) {
+    // 2026-08-14, gated on rankingPrepGroupTouched too, not just
+    // rankingNutrient -- see that flag's own comment above. Skipping the
+    // query entirely (not just hiding the result) until both real
+    // selections exist means the results ScrollView stays genuinely empty
+    // while a person is still working through the Nutrient/Prep state
+    // fields, not just visually hidden with a full table already mounted
+    // underneath.
+    if (!rankingNutrient || !rankingPrepGroupTouched) {
       setRankedFoods([]);
       return;
     }
@@ -560,7 +587,7 @@ export default function InsightsScreen() {
     return () => {
       isCurrent = false;
     };
-  }, [rankingNutrient, rankingPrepGroup]);
+  }, [rankingNutrient, rankingPrepGroup, rankingPrepGroupTouched]);
   useEffect(() => {
     if (!rankingFood) {
       setFoodRankings([]);
@@ -770,7 +797,8 @@ export default function InsightsScreen() {
                 loading={rankingLoading}
                 tabColor={TAB_COLOR}
                 prepGroup={rankingPrepGroup}
-                onPrepGroupChange={setRankingPrepGroup}
+                prepGroupTouched={rankingPrepGroupTouched}
+                onPrepGroupChange={handleRankingPrepGroupChange}
                 mode={rankingMode}
                 onModeChange={setRankingMode}
                 rankingFood={rankingFood}
@@ -1499,6 +1527,7 @@ function NutrientRankingView({
   loading,
   tabColor,
   prepGroup,
+  prepGroupTouched,
   onPrepGroupChange,
   mode,
   onModeChange,
@@ -1517,6 +1546,7 @@ function NutrientRankingView({
   loading: boolean;
   tabColor: string;
   prepGroup: PrepStateGroup | null;
+  prepGroupTouched: boolean;
   onPrepGroupChange: (group: PrepStateGroup | null) => void;
   mode: 'byNutrient' | 'byFood';
   onModeChange: (mode: 'byNutrient' | 'byFood') => void;
@@ -1726,11 +1756,14 @@ function NutrientRankingView({
     <View style={styles.rankLayout}>
       {/* The results zone -- scrolls on its own, independent of the fixed
           field zone below it, so a long ranked list never pushes the field
-          itself out of reach. Renders nothing while !selected -- the field
-          zone's own caption right under the picker already explains what
-          to do, 2026-08-14, so a second, duplicate explanation up here
-          would be redundant. "loading"/"none found"/actual results are
-          unchanged in substance -- only WHERE they sit changed. */}
+          itself out of reach. Renders nothing while !selected or
+          !prepGroupTouched (2026-08-14, direct request: results must not
+          appear until BOTH a Nutrient and a Prep state have been chosen,
+          in that order) -- the field zone's own caption right under the
+          picker already explains what to do at each step, so a second,
+          duplicate explanation up here would be redundant. "loading"/"none
+          found"/actual results are unchanged in substance -- only WHERE
+          they sit, and WHEN they're allowed to appear at all, changed. */}
       <ScrollView
         style={styles.rankResultsScroll}
         contentContainerStyle={styles.rankResultsContent}
@@ -1756,7 +1789,7 @@ function NutrientRankingView({
           </TouchableOpacity>
         </View>
         {mode === 'byNutrient' ? (
-          !selected ? null : loading ? (
+          !selected || !prepGroupTouched ? null : loading ? (
             <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
           ) : rankedFoods.length === 0 ? (
             <Text style={[styles.emptyText, styles.rankSpaced]}>No foods with a measured amount of this found.</Text>
@@ -1922,9 +1955,18 @@ function NutrientRankingView({
              fields are now above this text, not below it -- the same
              direction-correction already made once before when this field
              itself moved down to this fixed bottom zone, and the same
-             wording Cooking Impact's own analogous caption already uses. */
+             wording Cooking Impact's own analogous caption already uses.
+             2026-08-14, same day, made a real, three-state caption rather
+             than one static line, matching the new "Nutrient, then Prep
+             state, in that order" gating just above -- names whichever
+             real step is still outstanding instead of one instruction that
+             stopped being accurate the moment the first field was picked. */
           <Text style={[styles.emptyText, styles.rankSpaced]}>
-            Pick a nutrient above to see foods ranked by how much of it they contain, per 100g.
+            {!selected
+              ? 'Pick a nutrient above, then a prep state, to see foods ranked by how much of it they contain, per 100g.'
+              : !prepGroupTouched
+                ? 'Now pick a prep state above to see foods ranked by how much of this nutrient they contain.'
+                : 'Change either field above to see a different ranking.'}
           </Text>
         ) : null}
       </View>
