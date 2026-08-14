@@ -775,19 +775,33 @@ export default function InsightsScreen() {
             </View>
           ) : lens === 'nutrientRanking' ? (
             // Also deliberately NOT inside the shared ScrollView below --
-            // 2026-08-14, direct report: reaching the Nutrient field meant
-            // reaching to the TOP of the screen every time, working against
-            // this app's own one-handed-operation goal (the floating hub
-            // buttons already cluster low for exactly this reason -- see
-            // NAVIGATION_HAND's own comment in constants/floatingButton.ts).
-            // NutrientRankingView now owns its own full internal layout
-            // (the field pinned low, results scrollable above it), the
+            // NutrientRankingView owns its own internal ScrollView (the
             // same "this lens owns its own layout, not the shared page
             // wrapper" precedent Food Lookup already established just
-            // above, for the same real reason: this needs a layout the
-            // shared ScrollView's own single, uniform scroll area can't
-            // express (a fixed zone AND an independently scrolling zone
-            // together, not one scrolling column).
+            // above), needed so its own anyPopoverOpen guard (see its own
+            // header comment) can control scroll/touch on exactly the one
+            // ScrollView this lens renders, not the app-wide shared one
+            // every other lens also uses.
+            //
+            // 2026-08-14, real history worth keeping, since this exact
+            // field position has now moved twice for two different real
+            // reasons: originally pinned low, near the floating TabHub
+            // button, specifically because reaching the Nutrient field at
+            // the TOP of the screen worked against this app's own
+            // one-handed-operation goal (the floating hub buttons already
+            // cluster low for exactly this reason -- see NAVIGATION_HAND's
+            // own comment in constants/floatingButton.ts). Moved back to
+            // the top the same day, as a real, deliberate diagnostic test
+            // (see NutrientRankingView's own header comment): on-device
+            // evidence traced a real ~15s row-tap freeze to an Android
+            // elevation conflict with that same button, and raising the
+            // popover's elevation past the button's real elevation didn't
+            // fully close the gap on retest. This move knowingly
+            // reintroduces the original one-handed-reach tradeoff, as the
+            // most direct way to confirm or rule out whether proximity to
+            // that button still plays any role at all -- worth revisiting
+            // once the actual cause is fully confirmed, not assumed
+            // permanent either way.
             <View style={styles.foodLookupActiveListContainer}>
               <NutrientRankingView
                 nutrients={allNutrients}
@@ -1506,6 +1520,26 @@ export function PrepView({
 // ScrollView" precedent Food Lookup already established, for the same
 // real reason -- see this lens' own new branch in InsightsScreen's return.
 //
+// 2026-08-14, later the same day, real, on-device adb logcat evidence
+// found this field's real ~15s row-tap freeze traced to an Android
+// elevation/stacking conflict specifically with the floating TabHub
+// button (see PopoverSelect.tsx's own `elevation` comment) -- the button
+// was forced to always draw above other content, the popover wasn't, and
+// they geometrically overlap right where this field sat, pinned above
+// the footer. Raising the popover's own elevation past the button's
+// fixed the worst of it (a confirmed 15s -> under 2s improvement), but a
+// second real retest still showed a smaller, real 1-4s delay rather than
+// the instant response every other PopoverSelect field in the app has.
+// Moved back to the top of the ordinary scrolling column (the field-plus-
+// results-both-in-one-column shape this lens originally had, before the
+// bottom-pinned redesign described just above) as a real, direct
+// diagnostic test -- removes proximity to that button as a variable
+// entirely, rather than adding a third theory on top of two already-tried
+// ones. Knowingly reintroduces the original one-handed-reach problem that
+// motivated pinning it low in the first place (see InsightsScreen's own
+// render, this lens' branch) -- an accepted, deliberate tradeoff for the
+// duration of this specific test, not a final layout decision either way.
+//
 // 2026-08-14, same day, two more real, direct requests, both handled here:
 // "we need a secondary filter for Nutrient ranking. It needs to separate
 // raw food from dried, and from canned, and from any other way that makes
@@ -1754,19 +1788,29 @@ function NutrientRankingView({
 
   return (
     <View style={styles.rankLayout}>
-      {/* The results zone -- scrolls on its own, independent of the fixed
-          field zone below it, so a long ranked list never pushes the field
-          itself out of reach. Renders nothing while !selected or
-          !prepGroupTouched (2026-08-14, direct request: results must not
-          appear until BOTH a Nutrient and a Prep state have been chosen,
-          in that order) -- the field zone's own caption right under the
-          picker already explains what to do at each step, so a second,
-          duplicate explanation up here would be redundant. "loading"/"none
-          found"/actual results are unchanged in substance -- only WHERE
-          they sit, and WHEN they're allowed to appear at all, changed. */}
+      {/* 2026-08-14, moved back up here from a fixed zone pinned near the
+          footer/floating TabHub button -- a real, direct diagnostic test,
+          not a permanent redesign decision on its own: on-device evidence
+          traced the field row's own ~15s row-tap freeze to an Android
+          elevation/stacking conflict specifically with that button (see
+          PopoverSelect.tsx's own `elevation` comment), and raising the
+          popover's elevation past the button's fixed the worst of it -- but
+          a real retest still showed a smaller, real ~1-4s delay rather
+          than the instant response every OTHER PopoverSelect field in the
+          app has. Moving the field back into the ordinary top-of-page flow
+          removes proximity to that button as a variable entirely, the most
+          direct way to confirm whether it's still playing any role at all.
+          If this reads as fully instant here, that's real, added
+          confirmation; if the same delay follows the field up here, that's
+          real, decisive evidence the elevation fix wasn't the whole story
+          and something else is still going on. Bottom padding
+          (fieldBottomPadding, now applied to this ScrollView's own content
+          instead of a separate fixed zone) still clears the floating
+          button for whatever's rendered last -- now the results table,
+          the same as every other scrollable lens on this screen. */}
       <ScrollView
         style={styles.rankResultsScroll}
-        contentContainerStyle={styles.rankResultsContent}
+        contentContainerStyle={[styles.rankResultsContent, { paddingBottom: fieldBottomPadding }]}
         scrollEnabled={!anyPopoverOpen}
         pointerEvents={anyPopoverOpen ? 'none' : 'auto'}
       >
@@ -1788,6 +1832,51 @@ function NutrientRankingView({
             </Text>
           </TouchableOpacity>
         </View>
+        <View style={[styles.rankFieldRow, styles.rankSpaced]}>
+          {mode === 'byNutrient' ? (
+            <View style={styles.rankFieldColumn}>
+              <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
+              {/* openAbove removed along with the move above -- that
+                  positioning only made sense for a field pinned right above
+                  the footer with little room below it. Back in the normal
+                  top-of-page flow, the default side-anchored positioning
+                  (every other PopoverSelect field in the app) is the
+                  natural fit again, and removing it also removes one more
+                  variable from the diagnostic test this move is part of. */}
+              <PopoverSelect
+                options={nutrientOptions}
+                selected={selected}
+                onSelect={onSelect}
+                tabColor={tabColor}
+                placeholder="Pick a nutrient..."
+                onOpenChange={handleNutrientPopoverOpenChange}
+                debugLabel="NutrientField"
+              />
+            </View>
+          ) : null}
+          <View style={styles.rankFieldColumn}>
+            <Text style={[styles.sectionLabel, { color: tabColor }]}>Prep state</Text>
+            <PopoverSelect
+              options={prepGroupOptions}
+              selected={prepGroup ?? 'all'}
+              onSelect={handlePrepGroupSelect}
+              tabColor={tabColor}
+              placeholder="All prep states"
+              minWidth={140}
+              onOpenChange={handlePrepStatePopoverOpenChange}
+              debugLabel="PrepStateField"
+            />
+          </View>
+        </View>
+        {mode === 'byNutrient' ? (
+          <Text style={[styles.emptyText, styles.rankSpaced]}>
+            {!selected
+              ? 'Pick a nutrient, then a prep state, to see foods ranked by how much of it they contain, per 100g.'
+              : !prepGroupTouched
+                ? 'Now pick a prep state to see foods ranked by how much of this nutrient they contain.'
+                : 'Change either field above to see a different ranking.'}
+          </Text>
+        ) : null}
         {mode === 'byNutrient' ? (
           !selected || !prepGroupTouched ? null : loading ? (
             <Text style={[styles.emptyText, styles.rankSpaced]}>Loading…</Text>
@@ -1873,103 +1962,6 @@ function NutrientRankingView({
           </>
         )}
       </ScrollView>
-
-      {/* The fixed field zone -- the fields themselves are unchanged, per
-          "place the selector the way it is now"; pinned just above the
-          floating hub button/footer.
-          2026-08-14, direct follow-up: "Place the Nutrient and the Prep
-          state side by side to each other. Make the Nutrient only as wide
-          as necessary, and then Prep state can be to the right of it."
-          Both fields now sit in one real row rather than stacked, each
-          sized to its own content (Nutrient's own minWidth removed
-          entirely, falling back to PopoverSelect's own default 0 --
-          "only as wide as necessary," literally). "Place the selection
-          lists at the same level I identified previously" comes free as a
-          direct consequence of this same row, not a separate mechanism:
-          computePopoverPositionAbove positions each popover off its OWN
-          field's real measured Y position, and with both fields sharing
-          the same row (same Y), and both real option lists capped at the
-          identical MAX_VISIBLE_ROWS (6 -- 39 nutrients and 7 prep-state
-          options both exceed it), both popovers compute to the exact same
-          real height and land at the exact same level regardless of which
-          one is tapped. */}
-      <View style={[styles.rankFieldZone, { paddingBottom: fieldBottomPadding }]}>
-        <View style={styles.rankFieldRow}>
-          {mode === 'byNutrient' ? (
-            <View style={styles.rankFieldColumn}>
-              <Text style={[styles.sectionLabel, { color: tabColor }]}>Nutrient</Text>
-              {/* Not searchable, 2026-08-12, direct request ("the keyboard, which
-                  isn't needed") -- 39 real tracked nutrients is a short, plain
-                  scrollable list, not the "could be longer" case search mode was
-                  built for (see PopoverSelect's own header comment). Removing it
-                  also means this field never touches AppKeyboard's search row at
-                  all, closing off the whole code path most directly implicated in
-                  the freeze this same day (see that file's own fix comment).
-                  openAbove, 2026-08-14, direct request ("move the location of the
-                  selection list up to a little above the header word Nutrient")
-                  -- with this field pinned right above the footer, the default
-                  side-anchored opening put the list roughly level with the field
-                  itself, uncomfortably close to the bottom edge; opening above
-                  puts it over the real open space the results area occupies. */}
-              <PopoverSelect
-                options={nutrientOptions}
-                selected={selected}
-                onSelect={onSelect}
-                tabColor={tabColor}
-                placeholder="Pick a nutrient..."
-                openAbove
-                onOpenChange={handleNutrientPopoverOpenChange}
-                debugLabel="NutrientField"
-              />
-            </View>
-          ) : null}
-          {/* Shared by both modes, 2026-08-14 -- see this component's own
-              header comment for why this is one control, not auto-applied
-              per picked food. A real, second recurrence of the exact
-              render-storm freeze this app already root-caused once was
-              found and fixed here the same day -- see handlePrepGroupSelect's
-              own comment above: this field's own onSelect used to be a
-              fresh inline arrow function on every render, breaking
-              PopoverSelect's memo() bailout the identical way an
-              unmemoized options array already had before. */}
-          <View style={styles.rankFieldColumn}>
-            <Text style={[styles.sectionLabel, { color: tabColor }]}>Prep state</Text>
-            <PopoverSelect
-              options={prepGroupOptions}
-              selected={prepGroup ?? 'all'}
-              onSelect={handlePrepGroupSelect}
-              tabColor={tabColor}
-              placeholder="All prep states"
-              minWidth={140}
-              openAbove
-              onOpenChange={handlePrepStatePopoverOpenChange}
-              debugLabel="PrepStateField"
-            />
-          </View>
-        </View>
-        {mode === 'byNutrient' ? (
-          /* 2026-08-14, direct request -- moved down here from the results
-             zone above (where it used to be the "nothing picked yet"
-             placeholder), so it sits right under the fields it's actually
-             describing. Reworded "below" -> "above" to match, since the
-             fields are now above this text, not below it -- the same
-             direction-correction already made once before when this field
-             itself moved down to this fixed bottom zone, and the same
-             wording Cooking Impact's own analogous caption already uses.
-             2026-08-14, same day, made a real, three-state caption rather
-             than one static line, matching the new "Nutrient, then Prep
-             state, in that order" gating just above -- names whichever
-             real step is still outstanding instead of one instruction that
-             stopped being accurate the moment the first field was picked. */
-          <Text style={[styles.emptyText, styles.rankSpaced]}>
-            {!selected
-              ? 'Pick a nutrient above, then a prep state, to see foods ranked by how much of it they contain, per 100g.'
-              : !prepGroupTouched
-                ? 'Now pick a prep state above to see foods ranked by how much of this nutrient they contain.'
-                : 'Change either field above to see a different ranking.'}
-          </Text>
-        ) : null}
-      </View>
     </View>
   );
 }
@@ -2902,19 +2894,19 @@ const styles = StyleSheet.create({
     color: TAB_COLOR,
     lineHeight: 18,
   },
-  // Nutrient Ranking lens, 2026-08-08.
-  // 2026-08-14 -- the real two-zone layout described in NutrientRankingView's
-  // own header comment: a scrollable results area filling whatever space
-  // is left, and a fixed, non-scrolling field zone pinned at the bottom
-  // (its own paddingBottom is set inline, via useFloatingButtonScrollPadding,
-  // since it's insets-dependent -- see fieldBottomPadding above).
+  // Nutrient Ranking lens, 2026-08-08. 2026-08-14 -- the fields (Nutrient/
+  // Prep state) used to live in a separate fixed zone pinned above the
+  // floating TabHub button; moved back into this same ordinary scrolling
+  // column, at the top, as a real diagnostic test for that button's own
+  // Android elevation conflict with an open popover (see PopoverSelect.tsx's
+  // own `elevation` comment, and NutrientRankingView's own header comment
+  // for the full reasoning). One plain scrolling column now, the same shape
+  // every other lens on this screen already uses -- its own paddingBottom
+  // (fieldBottomPadding, insets-dependent) still clears the floating button
+  // for whatever renders last, now the results table.
   rankLayout: { flex: 1 },
   rankResultsScroll: { flex: 1 },
-  // A little top breathing room (the outer foodLookupActiveListContainer's
-  // own paddingTop:5 is barely there) and enough bottom room that the last
-  // real result row doesn't sit flush against the field zone below it.
   rankResultsContent: { paddingTop: 6, paddingBottom: 16 },
-  rankFieldZone: { paddingTop: 10, borderTopWidth: 1, borderTopColor: colors.border },
   rankSpaced: { marginTop: 14 },
   rankGroupHeading: { ...typography.eyebrow, marginBottom: 8 },
   rankRow: {
