@@ -276,6 +276,18 @@ export const PopoverSelect = memo(function PopoverSelect({
   }
 
   function handleSelect(value: string) {
+    // TEMPORARY diagnostic logging -- see debugLabel's own comment above.
+    // Specifically: does a tap on a ROW inside the already-open list reach
+    // this handler quickly, or is the touch itself sitting queued/delayed
+    // before JS ever gets to run this function at all? The prior round of
+    // logging only covered the field's own tap (openMenu) and the render/
+    // effect cycle -- neither one can see a delay that happens BEFORE
+    // handleSelect ever starts, which is exactly what "the selections
+    // aren't reacting to being tapped" describes.
+    if (debugLabel) {
+      const elapsed = debugTapStartRef.current != null ? Date.now() - debugTapStartRef.current : null;
+      console.log(`[PopoverSelect:${debugLabel}] row tap -> handleSelect fired, value=${value}, +${elapsed}ms since field opened`);
+    }
     onSelect(value);
     closeMenu();
   }
