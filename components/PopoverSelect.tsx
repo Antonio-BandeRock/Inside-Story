@@ -1,5 +1,5 @@
 import { memo, useEffect, useLayoutEffect, useRef, useState } from 'react';
-import { Dimensions, FlatList, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Dimensions, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground, popoverBackground } from '../constants/colors';
@@ -224,7 +224,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   debugLabel?: string;
 }) {
   const fieldRef = useRef<View>(null);
-  const listRef = useRef<FlatList<DropdownOption> | null>(null);
+  const listRef = useRef<ScrollView | null>(null);
   // Guards the scroll-to-current-selection effect below so it only ever
   // fires once per real "open" -- reset the moment the menu closes, not
   // touched again until it reopens. Without this, the effect (which
@@ -346,91 +346,71 @@ export const PopoverSelect = memo(function PopoverSelect({
             },
           ]}
         >
-          <FlatList
-            ref={listRef}
-            data={visibleOptions}
-            keyExtractor={(option, index) => `${option.value}-${index}`}
-            getItemLayout={(_, index) => ({ length: ROW_HEIGHT, offset: ROW_HEIGHT * index, index })}
-            // 2026-08-14, tried and confirmed NOT the fix for the still-open
-            // "row tap takes 1-15 real, variable seconds to register" freeze
-            // investigation -- kept anyway since it's harmless for a list
-            // this small (6-8 visible rows at once), just not the answer.
-            // Every JS-side avenue (memo bailout, context re-renders, the
-            // database query -- confirmed fast and genuinely non-blocking,
-            // repeated re-renders during the delay -- confirmed zero)
-            // has been directly, individually ruled out via real,
-            // timestamped on-device evidence. removeClippedSubviews was a
-            // real, well-precedented Android-specific hypothesis (a view
-            // that's visibly rendered but doesn't register a touch, an
-            // artifact of FlatList's own clipping-optimization machinery)
-            // -- re-tested on-device with this set to false and the exact
-            // same ~15-second delay still reproduced (Prep State field,
-            // "Canned"), ruling it out too. The pattern that's actually
-            // held up across every real test so far -- intermittent,
-            // affects either field, no JS code visibly running during the
-            // gap at all -- increasingly points toward something outside
-            // this component's own code entirely (a JS-engine-level pause,
-            // not a React/RN-level one), the next real thing being checked.
-            removeClippedSubviews={false}
-            // 2026-08-11, real history worth keeping, since two real
-            // attempts at this exact bug both had to be superseded the
-            // same day rather than just tuned:
-            //
-            // The bug itself: React Native's FlatList, when given
-            // initialScrollIndex, starts its own FIRST render batch
-            // counting FROM that index, not from the top of the array --
-            // items before it never render at all unless a real scroll
-            // gesture past them happens, which can't happen on a short
-            // list that already fits its own box. Reported exactly this
-            // way: pick an item, reopen, every item above the one just
-            // picked has silently stopped rendering, compounding with each
-            // further pick.
-            //
-            // Attempt 1 (force the WHOLE list to render every open via
-            // initialNumToRender) fixed that, but was too broad: opening
-            // the Nutrient Ranking picker (39 real tracked nutrients,
-            // searchable) took a reported ~15 real seconds before any row
-            // would accept a tap, all 39 forced to render synchronously
-            // on every single open.
-            //
-            // Attempt 2 (scope initialNumToRender to just selectedIndex + 1,
-            // the minimum needed to cover "everything above the
-            // selection") fixed the average case, but still degrades back
-            // toward the same real slowdown whenever the current
-            // selection happens to sit deep in a long list (picking one of
-            // the last few nutrients in the 39-item list still forces
-            // nearly all of them to render) -- confirmed as still
-            // reported slow, not just a hypothetical edge case.
-            //
-            // The actual, robust fix: stop using initialScrollIndex at
-            // all, which is what triggers the underlying FlatList quirk in
-            // the first place. A plain, un-special-cased open (FlatList's
-            // own ordinary small default initialNumToRender, rendering
-            // from the top) has no bug to work around, at any list length,
-            // regardless of where the selection is -- see the
-            // scroll-to-current-selection useEffect below, which
-            // positions the list AFTER that cheap initial render via a
-            // directly-computed pixel offset (scrollToOffset, not
-            // scrollToIndex -- deliberately: scrollToOffset needs no
-            // knowledge of what FlatList has or hasn't measured/rendered
-            // yet, sidestepping the exact class of quirk this bug already
-            // came from, where scrollToIndex is documented to have real,
-            // similar edge cases of its own).
-            renderItem={({ item }) => {
-              const isRowSelected = item.value === selected;
-              return (
-                <TouchableOpacity
-                  style={[styles.row, isRowSelected ? { backgroundColor: tabColor } : null]}
-                  onPress={() => handleSelect(item.value)}
-                >
-                  <Text numberOfLines={1} style={[styles.rowText, isRowSelected ? styles.rowTextSelected : null]}>
-                    {item.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            }}
-            ListEmptyComponent={searchable ? <Text style={styles.emptyText}>No matches.</Text> : null}
-          />
+          {/* 2026-08-14, real, decisive on-device evidence (adb top -H
+              during an active freeze) found the app's own native main UI
+              thread -- not the JS thread, not Android's input dispatcher --
+              sustaining 60-90% CPU for the whole ~15s gap, real, ongoing
+              native work, not an idle/stuck thread. That redirects this
+              investigation squarely at native view mount/unmount cost, and
+              FlatList is real, load-bearing overhead this component never
+              actually needed: every real option list here is small (39
+              nutrients at most, MAX_VISIBLE_ROWS/_SEARCHABLE already cap
+              what's visible to 6-8 at once) -- FlatList's own virtualization
+              machinery (windowing, cell recycling, its own internal mount/
+              unmount bookkeeping on every open/close) was pure cost for a
+              dataset this size, never real benefit. Replaced with a plain
+              ScrollView over a directly-mapped list -- the same real,
+              proven pattern this app's own InlineSelectList/Dropdown menus
+              already use successfully for comparable option counts. This
+              also makes every real FlatList-specific bug this component has
+              already fixed (see the two real, dated FlatList-quirk
+              writeups kept just below as real history, not because they
+              still describe the current code) structurally unreachable
+              rather than individually patched around -- there's no
+              initialScrollIndex/getItemLayout/removeClippedSubviews
+              mechanism left to have a quirk in at all.
+
+              2026-08-11, real history kept for context, even though the
+              FlatList it describes is gone: React Native's FlatList, given
+              initialScrollIndex, used to start its own first render batch
+              counting FROM that index, not the top of the array -- items
+              above it never rendered at all unless a real scroll gesture
+              passed them, which a short, already-fits-its-box list can't
+              trigger. Two real attempts (forcing the whole list to render
+              via initialNumToRender, then scoping that to just
+              selectedIndex + 1) each fixed part of it but reintroduced a
+              real ~15s stall of their own on Nutrient Ranking's own longer
+              39-item list. The actual fix at the time was dropping
+              initialScrollIndex entirely and positioning the list AFTER a
+              cheap, ordinary initial render via a directly-computed pixel
+              offset instead -- the same real approach (offset math, not
+              index-based scrolling) this ScrollView-based version below
+              still uses, now scrollTo instead of FlatList's own
+              scrollToOffset. removeClippedSubviews=false was a separate,
+              real, well-precedented Android-specific hypothesis tried the
+              same day (re-tested on-device, the exact same delay still
+              reproduced, ruling it out) -- moot now too, alongside every
+              other FlatList-specific prop this file used to carry. */}
+          {visibleOptions.length === 0 ? (
+            searchable ? <Text style={styles.emptyText}>No matches.</Text> : null
+          ) : (
+            <ScrollView ref={listRef} style={styles.list} showsVerticalScrollIndicator={false}>
+              {visibleOptions.map((option, index) => {
+                const isRowSelected = option.value === selected;
+                return (
+                  <TouchableOpacity
+                    key={`${option.value}-${index}`}
+                    style={[styles.row, isRowSelected ? { backgroundColor: tabColor } : null]}
+                    onPress={() => handleSelect(option.value)}
+                  >
+                    <Text numberOfLines={1} style={[styles.rowText, isRowSelected ? styles.rowTextSelected : null]}>
+                      {option.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+          )}
         </View>
       </View>
     ) : null;
@@ -474,11 +454,12 @@ export const PopoverSelect = memo(function PopoverSelect({
   });
 
   // Positions the list at the current selection once per open, via a
-  // directly-computed offset -- see the FlatList's own comment above for
-  // why this replaced initialScrollIndex entirely rather than just tuning
-  // it again. Also runs with no dependency array (matching this file's
-  // own convention above), guarded by hasScrolledToSelectionRef so it
-  // only ever actually scrolls once per real open, not on every render.
+  // directly-computed offset -- see the ScrollView-replaced-FlatList
+  // comment above for why this stays offset-based math rather than an
+  // index-based scroll call. Also runs with no dependency array (matching
+  // this file's own convention above), guarded by hasScrolledToSelectionRef
+  // so it only ever actually scrolls once per real open, not on every
+  // render.
   useEffect(() => {
     if (!isOpen) {
       hasScrolledToSelectionRef.current = false;
@@ -491,9 +472,9 @@ export const PopoverSelect = memo(function PopoverSelect({
     // One frame's worth of defer -- the same "let a just-triggered mount/
     // layout actually land first" pattern already used elsewhere in this
     // app, guarding against the overlay's own portal render not having
-    // attached the FlatList's ref on this exact same tick yet.
+    // attached the ScrollView's ref on this exact same tick yet.
     requestAnimationFrame(() => {
-      listRef.current?.scrollToOffset({ offset: targetOffset, animated: false });
+      listRef.current?.scrollTo({ y: targetOffset, animated: false });
     });
   });
 
@@ -628,6 +609,12 @@ const styles = StyleSheet.create({
     elevation: 24,
     zIndex: 24,
   },
+  // 2026-08-14, real, direct consequence of the FlatList -> ScrollView
+  // replacement above -- a plain ScrollView doesn't automatically stretch
+  // to fill its own parent the way a bare View does, so without this it
+  // wouldn't reliably fill/scroll within the popover's own fixed-height,
+  // overflow:hidden container.
+  list: { flex: 1 },
   row: {
     height: ROW_HEIGHT,
     justifyContent: 'center',
