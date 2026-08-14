@@ -25,6 +25,7 @@ import {
   listFavorites,
   listMeals,
   listMealsForDate,
+  listPastScheduledMeals,
   listPrescriptionTreatments,
   listScheduledMealsForDate,
   listScheduledPrescriptionDosesForTreatment,
@@ -41,6 +42,7 @@ import {
   setAppointmentCancelled,
   setScheduledMealRotationSelections,
   setScheduledMealSkipped,
+  settlePastScheduledMeals,
   setTreatmentActive,
   unlinkAppointmentFromDeviceCalendarEvent,
   updateAppointment,
@@ -112,7 +114,7 @@ const USUAL_TIME_MEAL_TYPES = new Set(['breakfast', 'lunch', 'dinner', 'snack'])
 // soon" placeholders, the same pattern already used for the Trends/Reports
 // bottom tabs, rather than guessing at data models for domains that
 // haven't been designed yet.
-type Lens = 'meals' | 'hydration' | 'myMeds' | 'supplements' | 'prescriptions' | 'appointments' | 'exercise';
+type Lens = 'meals' | 'pastMeals' | 'hydration' | 'myMeds' | 'supplements' | 'prescriptions' | 'appointments' | 'exercise';
 
 // A repeat picker exists on Meals, Supplements' own reminder times, and
 // Prescriptions -- shared across those three Info entries below rather
@@ -149,6 +151,29 @@ const LENSES: LensOption<Lens>[] = [
         body: 'Set in Profile. "Usual meal times" just pre-fills the time picker for that meal type. If you turn on fasting and set an eating window, this page will not let you schedule a meal outside it.',
       },
       REPEATING_SCHEDULES_HELP,
+    ],
+  },
+  {
+    key: 'pastMeals',
+    label: 'Past Meals',
+    icon: 'time-outline',
+    help: [
+      {
+        heading: 'Why this exists',
+        body: 'A scheduled meal is real, running data the moment its date passes -- it counts toward Trends and Reports on its own, in whatever amounts you originally planned, so you never have to separately "log" it just to make it count.',
+      },
+      {
+        heading: 'Correcting what actually happened',
+        body: 'Tap any past meal to open it and adjust one piece at a time: more if you had extra, less or none if you skipped something, anywhere in between. Anything left untouched still counts exactly as planned.',
+      },
+      {
+        heading: 'A food trial riding on it',
+        body: 'If you drop something to none that a food trial was riding on, this asks directly: was it never actually eaten (the trial goes back to waiting), or did you just eat it a different day (the trial\'s own start date gets corrected instead)?',
+      },
+      {
+        heading: 'Skipped meals',
+        body: 'A meal you marked Skipped ahead of time shows here too, as a plain record -- it was never assumed to have happened, so there is nothing to correct.',
+      },
     ],
   },
   {
@@ -249,7 +274,7 @@ const LENSES: LensOption<Lens>[] = [
   },
 ];
 
-const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
+const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'pastMeals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'>, string> = {
   exercise: 'Schedule planned workouts and activity. Not built yet.',
 };
 
@@ -490,7 +515,15 @@ function MealsLens() {
 
   const load = useCallback(() => {
     setLoading(true);
-    ensureScheduleSeriesGenerated()
+    // settlePastScheduledMeals first, 2026-08-14 -- a real, idempotent
+    // "catch anything that's lapsed since this screen was last open" pass
+    // (see its own comment in lib/db.ts), so today's own schedule and
+    // every other real caller that reads meal data (Trends, Insights,
+    // Home) stay accurate the moment this screen is opened, not just
+    // whenever Past Meals happens to be visited.
+    settlePastScheduledMeals()
+      .catch((error) => console.error('settlePastScheduledMeals failed', error))
+      .then(() => ensureScheduleSeriesGenerated())
       .then(() =>
         Promise.all([
           listScheduledMealsForDate(todayDateString()),
@@ -1129,6 +1162,88 @@ function HydrationRowView({
         </View>
       ) : null}
     </View>
+  );
+}
+
+function formatPastMealDate(value: string): string {
+  const [year, month, day] = value.slice(0, 10).split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+}
+
+// "Past Meals" -- 2026-08-14, direct request: a real place to review and,
+// when reality differed, correct what actually happened once a scheduled
+// meal's time has passed. Every real row here already counts toward
+// Trends/Reports the moment its date passes (settlePastScheduledMeals, see
+// its own comment in lib/db.ts) -- this lens is purely about reviewing and
+// correcting already-real data, not creating it in the first place.
+function PastMealsLens() {
+  const router = useRouter();
+  const scrollBottomPadding = useFloatingButtonScrollPadding();
+  const [items, setItems] = useState<ScheduleItemRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  const load = useCallback(() => {
+    setLoading(true);
+    // settlePastScheduledMeals first, same reasoning as MealsLens' own
+    // load() -- catches anything that's lapsed since this lens was last
+    // open, so what's shown here is never stale relative to what Trends
+    // already counts.
+    settlePastScheduledMeals()
+      .catch((error) => console.error('settlePastScheduledMeals failed', error))
+      .then(() => listPastScheduledMeals(100))
+      .then((rows) => setItems(rows))
+      .finally(() => setLoading(false));
+  }, []);
+
+  useFocusEffect(useCallback(() => { load(); }, [load]));
+
+  // Reuses Meal Builder directly (Part 4) -- the exact same real cross-tab
+  // navigation convention every other "open Food tab at a specific record"
+  // action in this app already uses (handleLogNow just above, food.tsx's
+  // own editSideId etc.).
+  function openEditor(item: ScheduleItemRecord) {
+    if (!item.linkedMealId) return;
+    router.push({ pathname: '/food', params: { editMealId: item.linkedMealId } });
+  }
+
+  return (
+    <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {loading ? (
+        <Text style={styles.emptyText}>Loading…</Text>
+      ) : items.length === 0 ? (
+        <Text style={styles.emptyText}>No past meals yet.</Text>
+      ) : (
+        <View style={styles.table}>
+          {items.map((item) => {
+            // A real, honest edge case, not hidden -- see
+            // listPastScheduledMeals' own comment: a 'planned' row this
+            // old means auto-materializing it genuinely failed (its own
+            // source record was likely deleted). Shown plainly rather than
+            // silently dropped, but with nothing real to tap into yet.
+            const canEdit = item.status === 'logged' && !!item.linkedMealId;
+            return (
+              <TouchableOpacity key={item.id} style={styles.row} disabled={!canEdit} onPress={() => openEditor(item)}>
+                <View style={styles.rowMain}>
+                  <Text style={styles.rowTime}>{formatTime12(item.scheduledFor.split('T')[1] ?? '')}</Text>
+                  <View style={styles.rowTextCol}>
+                    <Text style={styles.rowTitle}>{item.title}</Text>
+                    <Text style={styles.rowMeta}>
+                      {formatPastMealDate(item.scheduledFor)} · {capitalize(item.mealType ?? '')}
+                      {item.status === 'skipped'
+                        ? ' · Skipped'
+                        : item.status === 'planned'
+                          ? " · Couldn't be logged automatically -- open it from Meals to log it directly"
+                          : ''}
+                    </Text>
+                  </View>
+                </View>
+                {canEdit ? <Text style={styles.actionTextPrimary}>Adjust</Text> : null}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+      )}
+    </ScrollView>
   );
 }
 
@@ -3791,7 +3906,7 @@ function AppointmentsLens() {
 // A short, honest placeholder for the remaining schedule type not built
 // yet -- same "coming soon" pattern already used for the Trends/Reports
 // bottom tabs, one level deeper inside Schedule.
-function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'> }) {
+function ComingSoonLens({ lens }: { lens: Exclude<Lens, 'meals' | 'pastMeals' | 'myMeds' | 'supplements' | 'hydration' | 'prescriptions' | 'appointments'> }) {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
@@ -3826,6 +3941,8 @@ export default function ScheduleScreen() {
         <GatedTabContent pageTitle="Schedules" variant="schedule" revealed={revealed}>
           {lens === 'meals' ? (
             <MealsLens />
+          ) : lens === 'pastMeals' ? (
+            <PastMealsLens />
           ) : lens === 'hydration' ? (
             <HydrationLens />
           ) : lens === 'myMeds' ? (

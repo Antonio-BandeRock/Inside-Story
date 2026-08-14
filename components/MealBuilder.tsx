@@ -1,23 +1,29 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
+  correctFoodTrialStartDate,
   createMealFromComponents,
+  findTrialsAffectedByMealEdit,
+  getMeal,
   getMealComponentDisplayInfo,
   getMealComponents,
   getMealComponentsGoitrogenicFlags,
   getMealFavorite,
   listMealComponentOptions,
   markScheduledMealLogged,
+  revertFoodTrialToWaiting,
   saveMealFavorite,
   scheduleMeal,
+  updateMealFromComponents,
   type MealComponentOption,
   type MealComponentSelection,
   type MealComponentType,
+  type TrialNeedingReconciliation,
 } from '../lib/db';
 import { parseAmountValue } from '../lib/measurement';
 import { buildTime24, formatTime12, type TimeOfDayInput } from '../lib/timeOfDay';
@@ -93,6 +99,17 @@ function todayLocalDateString(): string {
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
 }
 
+// Part 5's own "Fix the date" step, 2026-08-14 -- the trial-correction date
+// picker offers Today/Yesterday as one-tap choices (the two by far most
+// likely real answers to "I ate it, just not exactly on schedule") before
+// falling back to a typed custom date.
+function yesterdayLocalDateString(): string {
+  const now = new Date();
+  now.setDate(now.getDate() - 1);
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
 // Same 12-value hour/60-value minute lists Profile's own time pickers use
 // (see app/profile.tsx's own HOUR_OPTIONS/MINUTE_OPTIONS) -- "Save &
 // Schedule for Later" below reuses that exact Hour/Minute/AM-PM PopoverSelect
@@ -158,6 +175,17 @@ export function MealBuilder({
   // scheduleItemId does -- resuming a favorite isn't a fresh choice of
   // what to build.
   favoriteId,
+  // Set when reached via Past Meals (Schedule's own PastMealsLens, see
+  // app/(tabs)/food.tsx's own editMealId handling) -- 2026-08-14. Unlike
+  // templateMealId just above (which means "start a brand-new meal,
+  // prefilled from this one as a starting point"), this is the exact real
+  // meal, adjusted in place -- resolved with the same real
+  // getMealComponents/getMealComponentDisplayInfo pattern templateMealId
+  // already uses, but saved via updateMealFromComponents, not
+  // createMealFromComponents, and with a real trial-reconciliation check
+  // (findTrialsAffectedByMealEdit) run right after. See this file's own
+  // saveEditedMeal for the full save path.
+  editMealId,
 }: {
   tabColor: string;
   scheduleItemId?: string;
@@ -165,6 +193,7 @@ export function MealBuilder({
   initialTitle?: string;
   templateMealId?: string;
   favoriteId?: string;
+  editMealId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -182,14 +211,15 @@ export function MealBuilder({
 
   const [mealName, setMealName] = useState(initialTitle ?? '');
   const [mealType, setMealType] = useState<string | null>(initialMealType || null);
-  // Reached via Log Now, or via a saved favorite's own "Use this Favorite"
-  // tap, already knows both of the above -- skips straight to assembling
-  // instead of showing an identity form for information that's already
-  // settled (the favoriteId effect below fills mealName/mealType in
-  // asynchronously; identityReady/the assembling screen tolerate a beat of
-  // "No meal type chosen" while that load is still in flight, the same way
-  // templateMealId's own component list starts empty and fills in).
-  const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId || !!favoriteId);
+  // Reached via Log Now, via a saved favorite's own "Use this Favorite"
+  // tap, or via Past Meals' own editMealId, already knows both of the
+  // above -- skips straight to assembling instead of showing an identity
+  // form for information that's already settled (the favoriteId/editMealId
+  // effects below fill mealName/mealType in asynchronously; identityReady/
+  // the assembling screen tolerate a beat of "No meal type chosen" while
+  // that load is still in flight, the same way templateMealId's own
+  // component list starts empty and fills in).
+  const [identityConfirmed, setIdentityConfirmed] = useState(!!scheduleItemId || !!favoriteId || !!editMealId);
 
   // A meal can only be assembled FROM the other ten builders' own saved
   // output (see this file's own top comment) -- with nothing saved
@@ -288,6 +318,49 @@ export function MealBuilder({
       isCurrent = false;
     };
   }, [favoriteId]);
+
+  // Real, in-place editing of an already-real meal, 2026-08-14, Past Meals
+  // -- mirrors templateMealId's own effect almost exactly (same
+  // getMealComponents/getMealComponentDisplayInfo resolution, same
+  // silent-drop for a since-deleted component), except this also loads the
+  // real meal's own name/mealType (getMeal, a real gap this closed --
+  // templateMealId never needed it, since Log Now already carries
+  // initialTitle/initialMealType), and captures the just-loaded components
+  // into originalComponentsForEdit -- saveEditedMeal (below) diffs against
+  // this exact snapshot to know which real foods lost their own share,
+  // needed for the trial-reconciliation check (Part 5).
+  const originalComponentsForEdit = useRef<MealComponentSelection[] | null>(null);
+  useEffect(() => {
+    if (!editMealId) return;
+    let isCurrent = true;
+    (async () => {
+      const [meal, records] = await Promise.all([getMeal(editMealId), getMealComponents(editMealId)]);
+      if (!isCurrent) return;
+      const resolved: SelectedComponent[] = [];
+      for (const record of records) {
+        const detail = await getMealComponentDisplayInfo(record.componentType, record.componentId);
+        if (!detail) continue;
+        resolved.push({
+          key: record.id,
+          componentType: record.componentType,
+          componentId: record.componentId,
+          name: detail.name,
+          servings: detail.servings,
+          yourSharePercent: record.yourSharePercent,
+        });
+      }
+      if (!isCurrent) return;
+      if (meal) {
+        setMealName(meal.name);
+        setMealType(meal.meal_type);
+      }
+      setComponents(resolved);
+      originalComponentsForEdit.current = resolved.map(toSelection);
+    })();
+    return () => {
+      isCurrent = false;
+    };
+  }, [editMealId]);
 
   // null: showing the "Add from..." grid. Set: showing that one category's
   // own saved-items list.
@@ -536,6 +609,142 @@ export function MealBuilder({
     );
   }
 
+  // Part 4/5 of Past Meals, 2026-08-14 -- editMealId mode's own save path.
+  // Distinct from logMealNow (which always creates a brand-new meal):
+  // updateMealFromComponents adjusts the SAME real, already-logged meal in
+  // place, matching Past Meals' whole point -- correcting what actually
+  // happened, not logging a new event. On success, diffs the components
+  // this screen loaded in against what's actually being saved for any real
+  // food trial whose meal-of-record just stopped proving it happened (see
+  // findTrialsAffectedByMealEdit's own comment) and walks the person
+  // through a real decision for each one, one at a time.
+  const [savingEdit, setSavingEdit] = useState(false);
+  const [reconciliationQueue, setReconciliationQueue] = useState<TrialNeedingReconciliation[]>([]);
+  const [correctingTrial, setCorrectingTrial] = useState<TrialNeedingReconciliation | null>(null);
+  const [correctionDateChoice, setCorrectionDateChoice] = useState<'today' | 'yesterday' | 'custom'>('today');
+  const [correctionCustomDate, setCorrectionCustomDate] = useState('');
+  const [correctionTimeBuffer, setCorrectionTimeBuffer] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
+  const [correcting, setCorrecting] = useState(false);
+
+  // One Alert per affected trial, chained -- matches this app's own
+  // established sequential-Alert convention (see the onboarding-review
+  // "already tested" flow this mirrors in spirit) rather than trying to
+  // cram several unrelated decisions into one dialog.
+  function promptNextReconciliation(queue: TrialNeedingReconciliation[]) {
+    if (queue.length === 0) {
+      router.back();
+      return;
+    }
+    const [next, ...rest] = queue;
+    Alert.alert(
+      `${next.foodName} -- no longer in this meal`,
+      "You removed it, or changed how much of it you had down to none, and a food trial is actively riding on this meal as proof it was eaten. What actually happened?",
+      [
+        {
+          text: 'Never actually happened',
+          style: 'destructive',
+          onPress: () => {
+            void (async () => {
+              try {
+                await revertFoodTrialToWaiting(next.trial.id);
+              } catch (error) {
+                console.error('[MealBuilder] Failed to revert trial to waiting', error);
+              }
+              promptNextReconciliation(rest);
+            })();
+          },
+        },
+        {
+          text: 'I ate it, just a different day',
+          onPress: () => {
+            setReconciliationQueue(rest);
+            setCorrectingTrial(next);
+            setCorrectionDateChoice('today');
+            setCorrectionCustomDate('');
+            setCorrectionTimeBuffer({ hour: '', minute: '', ampm: '' });
+          },
+        },
+        { text: 'Decide later', style: 'cancel', onPress: () => promptNextReconciliation(rest) },
+      ],
+    );
+  }
+
+  function cancelTrialDateCorrection() {
+    const rest = reconciliationQueue;
+    setCorrectingTrial(null);
+    promptNextReconciliation(rest);
+  }
+
+  async function confirmTrialDateCorrection() {
+    if (!correctingTrial) return;
+    const time24 = buildTime24(correctionTimeBuffer.hour, correctionTimeBuffer.minute, correctionTimeBuffer.ampm);
+    if (!time24) {
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, and AM or PM).');
+      return;
+    }
+    let dateStr: string;
+    if (correctionDateChoice === 'today') {
+      dateStr = todayLocalDateString();
+    } else if (correctionDateChoice === 'yesterday') {
+      dateStr = yesterdayLocalDateString();
+    } else {
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(correctionCustomDate.trim())) {
+        showInfoAlert('Almost there', 'Enter the date as YYYY-MM-DD.');
+        return;
+      }
+      dateStr = correctionCustomDate.trim();
+    }
+    dismissKeyboard();
+    setCorrecting(true);
+    try {
+      await correctFoodTrialStartDate(correctingTrial.trial.id, `${dateStr}T${time24}`);
+    } catch (error) {
+      console.error('[MealBuilder] Failed to correct trial date', error);
+    }
+    setCorrecting(false);
+    const rest = reconciliationQueue;
+    setCorrectingTrial(null);
+    promptNextReconciliation(rest);
+  }
+
+  async function saveEditedMeal() {
+    if (!editMealId) return;
+    if (components.length === 0) {
+      showInfoAlert('Nothing to save', 'A meal needs at least one item -- if none of this actually happened, remove the whole entry from Past Meals instead.');
+      return;
+    }
+    if (!mealType) {
+      showInfoAlert('Almost there', 'Please choose a meal type.');
+      return;
+    }
+    dismissKeyboard();
+    setSavingEdit(true);
+    const newSelections = components.map(toSelection);
+    const result = await updateMealFromComponents(editMealId, {
+      name: mealName.trim() || 'Meal',
+      mealType,
+      components: newSelections,
+    });
+    if ('error' in result) {
+      setSavingEdit(false);
+      showInfoAlert('Save failed', result.error);
+      return;
+    }
+    const oldSelections = originalComponentsForEdit.current ?? [];
+    let affected: TrialNeedingReconciliation[] = [];
+    try {
+      affected = await findTrialsAffectedByMealEdit(editMealId, oldSelections, newSelections);
+    } catch (error) {
+      console.error('[MealBuilder] Failed to check for affected food trials', error);
+    }
+    setSavingEdit(false);
+    if (affected.length === 0) {
+      router.back();
+      return;
+    }
+    promptNextReconciliation(affected);
+  }
+
   function handleContinuePress() {
     if (hasAnySavedComponents !== true) {
       showInfoAlert(
@@ -718,6 +927,113 @@ export function MealBuilder({
     );
   }
 
+  // Part 5's own "Fix the date" step, 2026-08-14 -- same Hour/Minute/AM-PM
+  // PopoverSelect row schedulingTime above already established, plus a
+  // Today/Yesterday/Custom date choice ahead of it (a trial correction can
+  // genuinely be about any recent day, not just "today").
+  if (correctingTrial) {
+    return (
+      <>
+        {infoAlertElement}
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
+          <View style={[styles.formCard, { borderColor: tabColor }]}>
+            <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>
+              {correctingTrial.foodName}
+            </Text>
+            <Text style={styles.pendingSubtitle}>When did you actually eat it?</Text>
+            <View style={styles.pillWrap}>
+              {(
+                [
+                  { key: 'today', label: 'Today' },
+                  { key: 'yesterday', label: 'Yesterday' },
+                  { key: 'custom', label: 'A different date' },
+                ] as const
+              ).map((option) => {
+                const active = correctionDateChoice === option.key;
+                return (
+                  <TouchableOpacity
+                    key={option.key}
+                    style={[
+                      styles.typePill,
+                      { backgroundColor: active ? tabColor : inputBackground(tabColor), borderColor: active ? tabColor : colors.border },
+                    ]}
+                    onPress={() => setCorrectionDateChoice(option.key)}
+                  >
+                    <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+            {correctionDateChoice === 'custom' ? (
+              <AppTextInput
+                style={[styles.formInput, styles.formLabelSpaced, { backgroundColor: inputBackground(tabColor) }]}
+                value={correctionCustomDate}
+                onChangeText={setCorrectionCustomDate}
+                placeholder="YYYY-MM-DD"
+                placeholderTextColor={colors.textMuted}
+              />
+            ) : null}
+            <Text style={[styles.pendingSubtitle, styles.formLabelSpaced]}>What time?</Text>
+            <View style={styles.timeRow}>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>Hour</Text>
+                <PopoverSelect
+                  options={HOUR_OPTIONS}
+                  selected={correctionTimeBuffer.hour || null}
+                  minWidth={48}
+                  tabColor={tabColor}
+                  onSelect={(value) => setCorrectionTimeBuffer((current) => ({ ...current, hour: value }))}
+                />
+              </View>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>Minute</Text>
+                <PopoverSelect
+                  options={MINUTE_OPTIONS}
+                  selected={correctionTimeBuffer.minute || null}
+                  minWidth={52}
+                  tabColor={tabColor}
+                  onSelect={(value) => setCorrectionTimeBuffer((current) => ({ ...current, minute: value }))}
+                />
+              </View>
+              <View style={styles.timeField}>
+                <Text style={[styles.formLabel, { color: tabColor }]}>AM/PM</Text>
+                <View style={styles.pillWrap}>
+                  {(['AM', 'PM'] as const).map((option) => {
+                    const active = correctionTimeBuffer.ampm === option;
+                    return (
+                      <TouchableOpacity
+                        key={option}
+                        style={[
+                          styles.typePill,
+                          { backgroundColor: active ? tabColor : inputBackground(tabColor), borderColor: active ? tabColor : colors.border },
+                        ]}
+                        onPress={() => setCorrectionTimeBuffer((current) => ({ ...current, ampm: option }))}
+                      >
+                        <Text style={[styles.typePillText, active ? { color: colors.textOnPrimary } : null]}>{option}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </View>
+            </View>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={[styles.secondaryButton, { flex: 1 }]} onPress={cancelTrialDateCorrection} disabled={correcting}>
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Back</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, marginTop: 0, opacity: correcting ? 0.6 : 1 }]}
+                onPress={confirmTrialDateCorrection}
+                disabled={correcting}
+              >
+                {correcting ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Save Correction</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </ScrollView>
+      </>
+    );
+  }
+
   // Browsing one category's own saved items.
   if (browsingCategory) {
     const meta = CATEGORY_META.find((entry) => entry.type === browsingCategory)!;
@@ -799,7 +1115,22 @@ export function MealBuilder({
           ))}
         </View>
 
-        {components.length > 0 && (
+        {components.length > 0 && editMealId ? (
+          // Editing a real, already-real meal in place (Past Meals'
+          // portion-correction flow, 2026-08-14) -- a single real "Save
+          // Changes" action, not the Log Now/Schedule pair below, since
+          // neither of those makes sense for a meal that's already logged
+          // (or already lapsed and auto-materialized) somewhere real on the
+          // calendar; this genuinely adjusts that same event, it doesn't
+          // create a new one.
+          <TouchableOpacity
+            style={[styles.primaryButton, styles.logButton, { backgroundColor: tabColor, opacity: savingEdit ? 0.6 : 1 }]}
+            onPress={saveEditedMeal}
+            disabled={savingEdit}
+          >
+            {savingEdit ? <ActivityIndicator color={colors.textOnPrimary} /> : <Text style={styles.primaryButtonText}>Save Changes</Text>}
+          </TouchableOpacity>
+        ) : components.length > 0 ? (
           <>
             {renderFavoriteToggle()}
             <TouchableOpacity
@@ -822,7 +1153,7 @@ export function MealBuilder({
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Save &amp; Schedule for Later</Text>
             </TouchableOpacity>
           </>
-        )}
+        ) : null}
       </ScrollView>
     </>
   );

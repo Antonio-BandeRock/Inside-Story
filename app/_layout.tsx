@@ -12,7 +12,7 @@ import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { colors } from '../constants/colors';
 import { IridescentHueProvider } from '../hooks/useIridescentHueRotation';
-import { getReferenceDatabase, initializeDatabase } from '../lib/db';
+import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
 
 // Kept visible until the header's own branding font finishes loading (see
 // ScreenHeader.tsx) -- without this, the native splash screen hides itself
@@ -61,6 +61,24 @@ export default function RootLayout() {
       .catch((error) => console.error('initializeDatabase failed', error))
       .finally(() => setDbReady(true));
   }, []);
+
+  // Real, fire-and-forget "keep Trends honest" pass, 2026-08-14 -- see
+  // settlePastScheduledMeals' own comment in lib/db.ts for the full "why."
+  // Deliberately does NOT gate anything visible (no loading state, no
+  // splash-screen dependency) -- a session where this happens to run
+  // slightly late (or fails outright, logged rather than surfaced) is no
+  // worse than before this existed; both Schedule Meals lenses also call
+  // it defensively on their own focus, so this is a real, additional
+  // "catch it as early as possible" pass, not the only place it runs.
+  // Gated on dbReady, not fired unconditionally -- the local tables it
+  // reads/writes (schedule_items, food_trials, meals, ...) only exist once
+  // initializeDatabase() above has actually finished.
+  useEffect(() => {
+    if (!dbReady) return;
+    settlePastScheduledMeals().catch((error) =>
+      console.error('settlePastScheduledMeals failed at startup', error),
+    );
+  }, [dbReady]);
 
   // Kicks off the real, potentially slow reference-database import here
   // too, rather than leaving it to whichever screen happens to touch it

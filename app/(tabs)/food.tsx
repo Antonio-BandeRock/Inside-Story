@@ -274,6 +274,13 @@ export default function FoodScreen() {
   // -- editing isn't a fresh choice of what to build, it's returning to
   // something specific.
   const {
+    // Past Meals' own portion-correction flow (Schedule tab), 2026-08-14 --
+    // same "jump straight into the right builder, already revealed" shape
+    // as every editXId below, but names a real, already-logged MEAL rather
+    // than one of the ten sub-builders' own saved records (see
+    // MealBuilder's own editMealId prop for the load/save logic this
+    // drives).
+    editMealId,
     editSideId,
     editSaladId,
     editSmoothieId,
@@ -332,6 +339,7 @@ export default function FoodScreen() {
     // no pre-existing params of its own to fold this into).
     openLensHub,
   } = useLocalSearchParams<{
+    editMealId?: string;
     editSideId?: string;
     editSaladId?: string;
     editSmoothieId?: string;
@@ -419,6 +427,11 @@ export default function FoodScreen() {
         return;
       }
       if (mealFavoriteId) {
+        setLens('mealBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (editMealId) {
         setLens('mealBuilder');
         setRevealed(true);
         return;
@@ -532,6 +545,7 @@ export default function FoodScreen() {
     }, [
       scheduleItemId,
       mealFavoriteId,
+      editMealId,
       editSideId,
       editSaladId,
       editSmoothieId,
@@ -858,6 +872,7 @@ export default function FoodScreen() {
               initialTitle={scheduledTitle}
               templateMealId={templateMealId}
               favoriteId={mealFavoriteId}
+              editMealId={editMealId}
             />
           ) : lens === 'sideBuilder' ? (
             // SideBuilder owns its own layout entirely (a plain View while

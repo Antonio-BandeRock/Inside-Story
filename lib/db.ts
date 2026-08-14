@@ -4237,7 +4237,24 @@ async function runDatabaseInitialization() {
     // healing vs. dairy as an RA elimination-diet trigger). All nullable --
     // a genuinely additive migration, no real users yet to migrate.
     const foodTrialColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(food_trials)');
-    for (const column of ['source', 'prep_method', 'condition_code']) {
+    for (const column of [
+      'source',
+      'prep_method',
+      'condition_code',
+      // activated_by_schedule_item_id/activated_by_meal_id -- 2026-08-14,
+      // the real "which meal actually proves this food got eaten" trace
+      // Past Meals needs, per lib/pendingFoodTrialReturn.ts's own sibling
+      // Status entry. Both nullable, both TEXT (matching schedule_items.id/
+      // meals.id, both TEXT PRIMARY KEYs) -- see
+      // activateWaitingTrialsForComponents' own comment for exactly when
+      // each gets set. A trial activated at real schedule time only ever
+      // has the schedule_item id at first (no real meal exists yet);
+      // activated_by_meal_id gets backfilled once one does, whether that's
+      // "Log now" or settlePastScheduledMeals' own later auto-materialize
+      // pass.
+      'activated_by_schedule_item_id',
+      'activated_by_meal_id',
+    ]) {
       if (!foodTrialColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE food_trials ADD COLUMN ${column} TEXT;`);
       }
@@ -8262,6 +8279,20 @@ export async function createMeal(input: {
   return { id, name: input.name.trim(), mealType: input.mealType, eatenAt: input.eatenAt, notes: input.notes?.trim() || null, isImmediate: input.isImmediate };
 }
 
+// A single real meal's own metadata -- 2026-08-14, the real gap Past
+// Meals' own editMealId mode needs (Meal Builder's own name/mealType
+// fields need a real starting value, not just its components). No
+// equivalent existed before this -- listMeals/listMealsForDate are both
+// real, bounded lists, never a single-row lookup by id.
+export async function getMeal(id: string): Promise<MealRecord | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<MealRecord>(
+    'SELECT id, name, meal_type, eaten_at, notes, is_immediate, created_at FROM meals WHERE id = ?',
+    id,
+  );
+  return row ?? null;
+}
+
 // Updates the meal's own fields -- deliberately doesn't touch eaten_at OR
 // is_immediate, since editing a meal to fix an ingredient shouldn't
 // silently re-date it or reclassify whether it was originally logged live
@@ -8534,7 +8565,7 @@ export async function createMealFromComponents(input: {
   // own comment. Wrapped so a hiccup here can never break a real, already-
   // successful meal log.
   try {
-    await activateWaitingTrialsForComponents(input.components, input.eatenAt);
+    await activateWaitingTrialsForComponents(input.components, input.eatenAt, { mealId: meal.id });
   } catch (error) {
     console.error('[createMealFromComponents] Failed to activate waiting food trials', error);
   }
@@ -8667,9 +8698,25 @@ export async function getMealComponentsGoitrogenicFlags(components: MealComponen
 // Schedule for Later, occurredAt = the real scheduledFor) -- both callers
 // wrap this in a try/catch so a hiccup here can never break the real
 // meal-logging/scheduling action itself.
+//
+// refs, 2026-08-14 -- the real "which meal (or schedule occurrence, if no
+// real meal exists yet) proves this happened" trace Past Meals needs to
+// later find and correct/revert the right trial. scheduleMeal only ever
+// has a real schedule_item id at the moment it calls this (no meals row
+// exists until "Log now" or settlePastScheduledMeals' own later
+// auto-materialize pass creates one), so it passes refs.scheduleItemId
+// only. createMealFromComponents (both the direct "Log This Now" path and
+// settlePastScheduledMeals, which goes through it too) always has a real
+// meal.id, so it passes refs.mealId. Two real, separate cases follow from
+// that split: a genuinely NEW activation records whichever ref is given;
+// an ALREADY-active trial with no activated_by_meal_id yet (activated
+// earlier at schedule time, before a real meal existed) gets it backfilled
+// the moment one shows up, so Past Meals can always find it by meal id
+// once a real meal exists, regardless of which path actually started it.
 export async function activateWaitingTrialsForComponents(
   components: MealComponentSelection[],
   occurredAt: string,
+  refs?: { scheduleItemId?: string; mealId?: string },
 ): Promise<void> {
   for (const component of components) {
     const ingredients = await getComponentIngredients(component.componentType, component.componentId);
@@ -8681,22 +8728,38 @@ export async function activateWaitingTrialsForComponents(
 
       const trials = await getFoodTrialHistory(foodId, source);
       const waitingTrial = trials.find((trial) => trial.status === 'waiting');
-      if (!waitingTrial) continue;
-
       const db = await getDatabase();
       const now = new Date().toISOString();
-      await db.runAsync(
-        `UPDATE food_trials SET status = 'trialing', started_at = ?, updated_at = ? WHERE id = ?`,
-        occurredAt,
-        now,
-        waitingTrial.id,
-      );
-      await scheduleFoodTrialCheckins({
-        foodTrialId: waitingTrial.id,
-        foodName: waitingTrial.foodName,
-        firstScheduledFor: `${occurredAt.slice(0, 10)}T20:00`,
-        observationDays: waitingTrial.observationDays,
-      });
+
+      if (waitingTrial) {
+        await db.runAsync(
+          `UPDATE food_trials SET status = 'trialing', started_at = ?, activated_by_schedule_item_id = ?, activated_by_meal_id = ?, updated_at = ? WHERE id = ?`,
+          occurredAt,
+          refs?.scheduleItemId ?? null,
+          refs?.mealId ?? null,
+          now,
+          waitingTrial.id,
+        );
+        await scheduleFoodTrialCheckins({
+          foodTrialId: waitingTrial.id,
+          foodName: waitingTrial.foodName,
+          firstScheduledFor: `${occurredAt.slice(0, 10)}T20:00`,
+          observationDays: waitingTrial.observationDays,
+        });
+        continue;
+      }
+
+      if (refs?.mealId) {
+        const activeTrial = trials.find((trial) => trial.status === 'trialing' && !trial.activatedByMealId);
+        if (activeTrial) {
+          await db.runAsync(
+            `UPDATE food_trials SET activated_by_meal_id = ?, updated_at = ? WHERE id = ?`,
+            refs.mealId,
+            now,
+            activeTrial.id,
+          );
+        }
+      }
     }
   }
 }
@@ -8851,6 +8914,19 @@ function todayDateStringLocal(): string {
   const now = new Date();
   const pad = (value: number) => String(value).padStart(2, '0');
   return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+// The real, current moment in the same local "YYYY-MM-DDTHH:mm" shape
+// scheduled_for/eaten_at already use -- see components/MealBuilder.tsx's
+// own identical, independent copy (a component file has no business
+// importing from this data-layer module the other direction, and this is
+// small/trivial enough that a second, local copy is the right call, same
+// as todayDateStringLocal's own precedent just above). settlePastScheduledMeals
+// (below) is this file's own real, first user of it.
+function nowLocalDateTimeString(): string {
+  const now = new Date();
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}T${pad(now.getHours())}:${pad(now.getMinutes())}`;
 }
 
 // Every calendar date (YYYY-MM-DD) an occurrence should exist for, starting
@@ -9112,13 +9188,100 @@ export async function scheduleMeal(input: {
 
   if (input.components) {
     try {
-      await activateWaitingTrialsForComponents(input.components, input.scheduledFor);
+      // result is the first real occurrence's own schedule_item id
+      // (insertScheduleSeries' own return value, already captured above) --
+      // no real meals row exists yet at this point, so this is the only
+      // real trace available until "Log now" or settlePastScheduledMeals'
+      // own auto-materialize pass creates one (see
+      // activateWaitingTrialsForComponents' own comment).
+      await activateWaitingTrialsForComponents(input.components, input.scheduledFor, { scheduleItemId: result });
     } catch (error) {
       console.error('[scheduleMeal] Failed to activate waiting food trials', error);
     }
   }
 
   return result;
+}
+
+// The real "make Trends honest" fix -- 2026-08-14, direct feedback:
+// "trending and reporting are only as good as the data put in." Confirmed
+// directly, not assumed: scheduling a meal already starts its own food
+// trial's clock (activateWaitingTrialsForComponents, just above), but
+// never creates a real logged meal -- getDailyNutrientAnalysis (and
+// therefore every Trends/Reports figure) only ever reads real meals/
+// meal_items rows, so a scheduled-but-never-"Log now"-ed meal stayed
+// invisible to them forever, even once its own date had passed.
+//
+// Finds every real, still-'planned' item_type='meal' schedule_items row
+// whose scheduled_for has already passed, resolves its real components
+// the exact same way MealBuilder.tsx's own templateMealId/favoriteId
+// effects already do (getMealComponents for a sourceMealId, getMealFavorite
+// for a sourceFavoriteId), and runs it through the same, real,
+// already-proven createMealFromComponents a genuine "Log now" tap already
+// uses -- eatenAt set to the real scheduledFor, not "now," so a meal
+// settled days late still lands on the day it was actually supposed to
+// happen. That one call also already handles activating/backfilling any
+// real food trial riding on it (see activateWaitingTrialsForComponents'
+// own comment) -- no separate trial logic needed here.
+//
+// A schedule_items row with neither a real sourceMealId nor
+// sourceFavoriteId (a free-text "unplanned" entry with nothing chosen) is
+// left alone -- there's genuinely nothing to auto-materialize; it still
+// needs the person's own real, manual confirmation, exactly as it always
+// has. Already-'logged' and already-'skipped' rows never match this
+// query's own WHERE clause at all, so this is safe to call repeatedly --
+// see this function's own two real call sites (app/_layout.tsx at real
+// app startup, and both Schedule Meals lenses' own load()) for why that
+// idempotence matters.
+export async function settlePastScheduledMeals(): Promise<void> {
+  const db = await getDatabase();
+  const now = nowLocalDateTimeString();
+  const items = await db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE item_type = 'meal' AND status = 'planned' AND scheduled_for < ?
+      ORDER BY scheduled_for ASC
+    `,
+    now,
+  );
+
+  for (const item of items) {
+    let components: MealComponentSelection[] = [];
+    if (item.sourceMealId) {
+      const records = await getMealComponents(item.sourceMealId);
+      components = records.map((record) => ({
+        componentType: record.componentType,
+        componentId: record.componentId,
+        yourSharePercent: record.yourSharePercent,
+      }));
+    } else if (item.sourceFavoriteId) {
+      const favorite = await getMealFavorite(item.sourceFavoriteId);
+      if (favorite) {
+        components = favorite.components.map((component) => ({
+          componentType: component.componentType,
+          componentId: component.componentId,
+          yourSharePercent: component.yourSharePercent,
+        }));
+      }
+    }
+    if (components.length === 0) continue;
+
+    try {
+      const result = await createMealFromComponents({
+        name: item.title,
+        mealType: item.mealType ?? 'meal',
+        eatenAt: item.scheduledFor,
+        isImmediate: false,
+        components,
+      });
+      if ('id' in result) {
+        await markScheduledMealLogged(item.id, result.id);
+      }
+    } catch (error) {
+      console.error('[settlePastScheduledMeals] Failed to auto-materialize a lapsed scheduled meal', item.id, error);
+    }
+  }
 }
 
 export async function listScheduledMealsForDate(date: string) {
@@ -9131,6 +9294,30 @@ export async function listScheduledMealsForDate(date: string) {
       ORDER BY scheduled_for ASC
     `,
     date,
+  );
+}
+
+// The real "Past Meals" list -- 2026-08-14, the browsing side of
+// settlePastScheduledMeals just above (see that function's own comment for
+// the full "why"). By the time someone opens this, every real past
+// scheduled meal is either 'logged' (materialized automatically, or
+// explicitly "Log now"-ed) or 'skipped' (a real, deliberate "this didn't
+// happen") -- 'planned' rows this old shouldn't exist anymore, matching
+// this app's own established list-size convention (listMeals(100),
+// listFoodTrials()), not unbounded.
+export async function listPastScheduledMeals(limit = 100): Promise<ScheduleItemRecord[]> {
+  const db = await getDatabase();
+  const now = nowLocalDateTimeString();
+  return db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE item_type = 'meal' AND scheduled_for < ? AND status IN ('logged', 'skipped', 'planned')
+      ORDER BY scheduled_for DESC
+      LIMIT ?
+    `,
+    now,
+    limit,
   );
 }
 
@@ -11442,6 +11629,13 @@ export type FoodTrialRecord = {
   source: string | null;
   prepMethod: string | null;
   conditionCode: string | null;
+  // 2026-08-14, see activateWaitingTrialsForComponents' own comment --
+  // which real schedule occurrence and/or meal actually proves this food
+  // got eaten. Both null until a trial genuinely activates; activatedByMealId
+  // specifically is what Past Meals' own reconciliation step (Part 5)
+  // matches against.
+  activatedByScheduleItemId: string | null;
+  activatedByMealId: string | null;
 };
 
 // A new food being watched over time rather than a single moment-in-time
@@ -11504,7 +11698,8 @@ export async function listFoodTrials(limit = 100): Promise<FoodTrialRecord[]> {
     `
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
-             condition_code AS conditionCode, created_at AS createdAt, updated_at AS updatedAt
+             condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
+             activated_by_meal_id AS activatedByMealId, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       ORDER BY started_at DESC
       LIMIT ?
@@ -11526,7 +11721,8 @@ export async function getFoodTrialHistory(foodId: number, source: string): Promi
     `
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
-             condition_code AS conditionCode, created_at AS createdAt, updated_at AS updatedAt
+             condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
+             activated_by_meal_id AS activatedByMealId, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE food_id = ? AND source = ?
       ORDER BY started_at DESC
@@ -11599,6 +11795,99 @@ export async function reopenFoodTrial(id: string) {
   });
 }
 
+// Part 5 of Past Meals, 2026-08-14 -- "This never actually happened, put
+// it back to waiting." A real, deliberate mirror of createFoodTrial's own
+// original 'waiting' shape: status reverts, both real "which meal/schedule
+// item proves this happened" links clear (the meal that was supposed to
+// prove it no longer does), and the now-wrong reminder series stops. Does
+// NOT touch started_at (that column is NOT NULL, and a 'waiting' trial's
+// own UI already never shows it -- see log.tsx's own dedicated 'waiting'
+// branch).
+export async function revertFoodTrialToWaiting(id: string): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `UPDATE food_trials SET status = 'waiting', activated_by_meal_id = NULL, activated_by_schedule_item_id = NULL, updated_at = ? WHERE id = ?`,
+    now,
+    id,
+  );
+  await cancelFoodTrialCheckins(id);
+}
+
+// Part 5 of Past Meals, 2026-08-14 -- "I ate it, just a different day/time
+// -- let me fix the date." Mirrors reopenFoodTrial's own already-proven
+// cancel-then-reschedule pattern exactly, just anchored to a real, chosen
+// date instead of always "today."
+export async function correctFoodTrialStartDate(id: string, newStartedAt: string): Promise<void> {
+  const db = await getDatabase();
+  const trial = await db.getFirstAsync<{ food_name: string; observation_days: number }>(
+    'SELECT food_name, observation_days FROM food_trials WHERE id = ?',
+    id,
+  );
+  if (!trial) return;
+
+  const now = new Date().toISOString();
+  await db.runAsync(`UPDATE food_trials SET started_at = ?, updated_at = ? WHERE id = ?`, newStartedAt, now, id);
+
+  await cancelFoodTrialCheckins(id);
+  await scheduleFoodTrialCheckins({
+    foodTrialId: id,
+    foodName: trial.food_name,
+    firstScheduledFor: `${newStartedAt.slice(0, 10)}T20:00`,
+    observationDays: trial.observation_days,
+  });
+}
+
+export type TrialNeedingReconciliation = {
+  trial: FoodTrialRecord;
+  foodName: string;
+};
+
+// The real "did this edit drop a trial's own food out entirely" check --
+// 2026-08-14, Part 5 of Past Meals. Compares a meal's real OLD components
+// (as loaded before the edit) against the NEW set actually being saved;
+// for any real food that was present with a genuine share before but is
+// now either removed entirely or reduced to 0%, checks whether a real
+// trial (activated_by_meal_id = mealId, still 'trialing') is riding on it
+// -- if so, it needs a real, human decision (revertFoodTrialToWaiting or
+// correctFoodTrialStartDate, both just above), since the meal that was
+// supposed to prove it happened no longer says it did. A food whose share
+// merely changed (more or less, but still above 0) is left alone -- it
+// genuinely was eaten, on schedule, so the trial's own timing stays
+// correct.
+export async function findTrialsAffectedByMealEdit(
+  mealId: string,
+  oldComponents: MealComponentSelection[],
+  newComponents: MealComponentSelection[],
+): Promise<TrialNeedingReconciliation[]> {
+  const newShareByKey = new Map<string, number>();
+  for (const component of newComponents) {
+    newShareByKey.set(`${component.componentType}:${component.componentId}`, component.yourSharePercent);
+  }
+
+  const affected: TrialNeedingReconciliation[] = [];
+  for (const component of oldComponents) {
+    const key = `${component.componentType}:${component.componentId}`;
+    const newShare = newShareByKey.get(key);
+    if (newShare != null && newShare > 0) continue;
+
+    const ingredients = await getComponentIngredients(component.componentType, component.componentId);
+    for (const ingredient of ingredients) {
+      if (!ingredient.foodId) continue;
+      const [foodIdStr, source] = ingredient.foodId.split('|');
+      const foodId = Number(foodIdStr);
+      if (!source || Number.isNaN(foodId)) continue;
+
+      const trials = await getFoodTrialHistory(foodId, source);
+      const affectedTrial = trials.find((trial) => trial.status === 'trialing' && trial.activatedByMealId === mealId);
+      if (affectedTrial) {
+        affected.push({ trial: affectedTrial, foodName: ingredient.foodName });
+      }
+    }
+  }
+  return affected;
+}
+
 // The onboarding-review path -- 2026-08-14, real per-condition "have you
 // already tried this?" (see lib/conditionFoodConcerns.ts's own top comment
 // for the full context). Creates a real food_trials row exactly the same
@@ -11639,7 +11928,8 @@ export async function getFoodTrialsForCondition(conditionCode: string): Promise<
     `
       SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
              status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
-             condition_code AS conditionCode, created_at AS createdAt, updated_at AS updatedAt
+             condition_code AS conditionCode, activated_by_schedule_item_id AS activatedByScheduleItemId,
+             activated_by_meal_id AS activatedByMealId, created_at AS createdAt, updated_at AS updatedAt
       FROM food_trials
       WHERE condition_code = ?
       ORDER BY started_at DESC
