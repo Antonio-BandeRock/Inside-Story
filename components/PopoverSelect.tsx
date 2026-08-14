@@ -151,6 +151,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   width = POPOVER_WIDTH,
   tintedSurface = false,
   openAbove = false,
+  onOpenChange,
   debugLabel,
 }: {
   options: PopoverSelectOption[];
@@ -187,6 +188,26 @@ export const PopoverSelect = memo(function PopoverSelect({
   // above the field instead -- see computePopoverPositionAbove's own
   // comment for why/where this is used.
   openAbove?: boolean;
+  // 2026-08-14, a real, new, testable hypothesis for the still-open
+  // "row tap takes 1-15 real, variable seconds to register" freeze --
+  // confirmed via direct question that this ONLY happens on Nutrient
+  // Ranking's own two fields, nowhere else in the app, which points away
+  // from anything device/engine-wide and back toward something genuinely
+  // unique to this one screen's own layout. The one real, concrete
+  // difference: openAbove positions the popover directly OVER the results
+  // area's own independently-scrolling ScrollView (this screen owns its
+  // own layout specifically so the field can sit fixed near the footer
+  // with results scrolling separately above it) -- every OTHER
+  // PopoverSelect caller in the app opens beside a field with no
+  // competing scrollable region underneath it at all. A real, known class
+  // of RN/Android touch-arbitration issue: two independently-scrollable/
+  // touchable regions occupying the same physical screen space can
+  // genuinely contend over which one actually owns a given touch. Lets a
+  // caller know exactly when this popover is genuinely open/closed, so it
+  // can (for exactly this reason) temporarily stop the underlying,
+  // overlapping scroll region from claiming touches while a popover
+  // sits on top of it.
+  onOpenChange?: (isOpen: boolean) => void;
   // TEMPORARY diagnostic logging, 2026-08-14, added specifically to chase
   // the still-unresolved ~15-second-freeze report on Nutrient Ranking's own
   // two fields -- every avenue this bug class was previously root-caused
@@ -330,25 +351,26 @@ export const PopoverSelect = memo(function PopoverSelect({
             data={visibleOptions}
             keyExtractor={(option, index) => `${option.value}-${index}`}
             getItemLayout={(_, index) => ({ length: ROW_HEIGHT, offset: ROW_HEIGHT * index, index })}
-            // 2026-08-14, real, testable hypothesis for the still-open
-            // "row tap takes 1-14 real, variable seconds to register" freeze
-            // investigation -- every JS-side avenue (memo bailout, context
-            // re-renders, the database query, repeated re-renders during
-            // the delay) has now been directly, individually ruled out via
-            // real, timestamped on-device evidence, leaving a genuine
-            // native-side touch-dispatch delay as the remaining explanation.
-            // removeClippedSubviews is a documented, real, Android-specific
-            // source of exactly this symptom -- a view that's visibly
-            // rendered but doesn't register a touch, an artifact of
-            // FlatList's own clipping-optimization machinery, worst for
-            // freshly-mounted content near a scroll boundary (this list's
-            // own real, every-open situation, since it always remounts
-            // fresh). This list is capped at 6-8 visible rows at once (see
-            // MAX_VISIBLE_ROWS/MAX_VISIBLE_ROWS_SEARCHABLE above) -- there's
-            // no real performance cost to disabling the optimization for a
-            // list this small, so explicitly turning it off is a safe,
-            // well-precedented thing to try regardless of which way the
-            // platform default currently leans.
+            // 2026-08-14, tried and confirmed NOT the fix for the still-open
+            // "row tap takes 1-15 real, variable seconds to register" freeze
+            // investigation -- kept anyway since it's harmless for a list
+            // this small (6-8 visible rows at once), just not the answer.
+            // Every JS-side avenue (memo bailout, context re-renders, the
+            // database query -- confirmed fast and genuinely non-blocking,
+            // repeated re-renders during the delay -- confirmed zero)
+            // has been directly, individually ruled out via real,
+            // timestamped on-device evidence. removeClippedSubviews was a
+            // real, well-precedented Android-specific hypothesis (a view
+            // that's visibly rendered but doesn't register a touch, an
+            // artifact of FlatList's own clipping-optimization machinery)
+            // -- re-tested on-device with this set to false and the exact
+            // same ~15-second delay still reproduced (Prep State field,
+            // "Canned"), ruling it out too. The pattern that's actually
+            // held up across every real test so far -- intermittent,
+            // affects either field, no JS code visibly running during the
+            // gap at all -- increasingly points toward something outside
+            // this component's own code entirely (a JS-engine-level pause,
+            // not a React/RN-level one), the next real thing being checked.
             removeClippedSubviews={false}
             // 2026-08-11, real history worth keeping, since two real
             // attempts at this exact bug both had to be superseded the
@@ -412,6 +434,14 @@ export const PopoverSelect = memo(function PopoverSelect({
         </View>
       </View>
     ) : null;
+
+  // Real dependency array here, deliberately, unlike the effects around it
+  // -- onOpenChange (see its own comment above) only needs to fire when
+  // isOpen genuinely changes, not on every incidental re-render while open.
+  useEffect(() => {
+    onOpenChange?.(isOpen);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen]);
 
   // No dependency array, deliberately -- mirrors Dropdown.tsx's own
   // identical effect, so the overlay always reflects this render's latest

@@ -1586,6 +1586,34 @@ function NutrientRankingView({
   // the fixed field zone instead, so it sits just above the floating hub
   // button/footer rather than under it.
   const fieldBottomPadding = useFloatingButtonScrollPadding();
+  // 2026-08-14, real, testable hypothesis for the still-open row-tap-delay
+  // freeze -- see PopoverSelect's own onOpenChange comment for the full
+  // reasoning. Tracks whether EITHER field's popover is genuinely open
+  // right now (a Set, not a bool, since two independent fields each report
+  // their own open/close) so the results area below can stop competing
+  // with it for touches while it's up -- a real, testable fix for the
+  // "two independently-scrollable/touchable regions sharing the same
+  // screen space" theory, and a reasonable UX improvement in its own
+  // right regardless (nobody's trying to scroll results while a picker is
+  // actively open over them).
+  const [openPopovers, setOpenPopovers] = useState<Set<'nutrient' | 'prepState'>>(() => new Set());
+  const handleNutrientPopoverOpenChange = useCallback((isFieldOpen: boolean) => {
+    setOpenPopovers((current) => {
+      const next = new Set(current);
+      if (isFieldOpen) next.add('nutrient');
+      else next.delete('nutrient');
+      return next;
+    });
+  }, []);
+  const handlePrepStatePopoverOpenChange = useCallback((isFieldOpen: boolean) => {
+    setOpenPopovers((current) => {
+      const next = new Set(current);
+      if (isFieldOpen) next.add('prepState');
+      else next.delete('prepState');
+      return next;
+    });
+  }, []);
+  const anyPopoverOpen = openPopovers.size > 0;
 
   function renderRow(food: RankedFood, rank: number) {
     return (
@@ -1703,7 +1731,12 @@ function NutrientRankingView({
           to do, 2026-08-14, so a second, duplicate explanation up here
           would be redundant. "loading"/"none found"/actual results are
           unchanged in substance -- only WHERE they sit changed. */}
-      <ScrollView style={styles.rankResultsScroll} contentContainerStyle={styles.rankResultsContent}>
+      <ScrollView
+        style={styles.rankResultsScroll}
+        contentContainerStyle={styles.rankResultsContent}
+        scrollEnabled={!anyPopoverOpen}
+        pointerEvents={anyPopoverOpen ? 'none' : 'auto'}
+      >
         <View style={styles.pillWrap}>
           <TouchableOpacity
             style={[styles.stagePill, mode === 'byNutrient' ? { backgroundColor: tabColor, borderColor: tabColor } : { borderColor: tabColor }]}
@@ -1852,6 +1885,7 @@ function NutrientRankingView({
                 tabColor={tabColor}
                 placeholder="Pick a nutrient..."
                 openAbove
+                onOpenChange={handleNutrientPopoverOpenChange}
                 debugLabel="NutrientField"
               />
             </View>
@@ -1875,6 +1909,7 @@ function NutrientRankingView({
               placeholder="All prep states"
               minWidth={140}
               openAbove
+              onOpenChange={handlePrepStatePopoverOpenChange}
               debugLabel="PrepStateField"
             />
           </View>
