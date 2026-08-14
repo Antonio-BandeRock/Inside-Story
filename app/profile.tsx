@@ -30,7 +30,9 @@ import {
   addFoodAllergy,
   type ConditionReference,
   DietarySex,
+  type FoodTrialRecord,
   getConditionStages,
+  getFoodTrialsForCondition,
   getStoredMeasurementSystem,
   getUserConditions,
   getUserProfile,
@@ -38,8 +40,10 @@ import {
   listBodyMeasurements,
   listFoodAllergies,
   listSymptomAssessments,
+  markConcernAlreadyTested,
   recordBodyMeasurement,
   removeFoodAllergy,
+  reopenFoodTrial,
   setConditionStage,
   setStoredMeasurementSystem,
   setUserConditionSelected,
@@ -47,6 +51,7 @@ import {
   SymptomAssessmentRecord,
   UserProfile,
 } from '../lib/db';
+import { getConditionFoodConcerns, type ConditionFoodConcern } from '../lib/conditionFoodConcerns';
 import { ageFromBirthDate } from '../lib/profile';
 import {
   cmToFeetInches,
@@ -468,6 +473,12 @@ export default function ProfileScreen() {
   // condition in user_condition_stages, keyed by condition code.
   const [conditionStageMap, setConditionStageMap] = useState<Record<string, string>>({});
 
+  // Already-tested-foods onboarding review, 2026-08-14 -- one real trial
+  // array per condition that actually has a curated concern list (see
+  // lib/conditionFoodConcerns.ts's own top comment). Keyed by condition
+  // code, loaded/refreshed by the effect below.
+  const [conditionFoodConcernTrials, setConditionFoodConcernTrials] = useState<Record<string, FoodTrialRecord[]>>({});
+
   // Custom background image upload, 2026-08-09 -- which scope (see
   // SHARED_BACKGROUND_SCOPE_KEY / lib/customBackgroundImage.ts) currently
   // has a picker in flight, null when none. Disables that one scope's own
@@ -568,6 +579,31 @@ export default function ProfileScreen() {
       isMounted = false;
     };
   }, []);
+
+  // Loads/refreshes real trial data for the already-tested-foods review,
+  // scoped to only the selected conditions that actually have a curated
+  // concern list -- re-fires whenever a condition gets toggled, so newly
+  // selecting a condition with real concerns picks this up live rather
+  // than needing a screen reload.
+  useEffect(() => {
+    let isMounted = true;
+    const relevantCodes = selectedConditions.filter((code) => getConditionFoodConcerns(code) !== null);
+    if (relevantCodes.length === 0) {
+      setConditionFoodConcernTrials({});
+      return;
+    }
+    Promise.all(relevantCodes.map((code) => getFoodTrialsForCondition(code))).then((results) => {
+      if (!isMounted) return;
+      const next: Record<string, FoodTrialRecord[]> = {};
+      relevantCodes.forEach((code, index) => {
+        next[code] = results[index];
+      });
+      setConditionFoodConcernTrials(next);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, [selectedConditions]);
 
   const flashSaved = useCallback(() => {
     setSavedFlash(true);
@@ -760,6 +796,31 @@ export default function ProfileScreen() {
       }
       return updated;
     });
+    flashSaved();
+  }
+
+  // Already-tested-foods review, 2026-08-14 -- marking a concern creates a
+  // real, already-resolved food_trials row (see markConcernAlreadyTested's
+  // own comment in lib/db.ts for why it never schedules a reminder
+  // series), then refreshes just that one condition's own trial list.
+  async function handleMarkConcern(
+    concern: ConditionFoodConcern,
+    conditionCode: string,
+    outcome: 'cleared' | 'flagged',
+  ) {
+    await markConcernAlreadyTested(concern.label, conditionCode, outcome);
+    const trials = await getFoodTrialsForCondition(conditionCode);
+    setConditionFoodConcernTrials((current) => ({ ...current, [conditionCode]: trials }));
+    flashSaved();
+  }
+
+  // "Not sure anymore?" -- reopenFoodTrial itself now reschedules a real,
+  // fresh reminder series (see its own comment in lib/db.ts); this just
+  // needs to call it and refresh this one condition's own trial list.
+  async function handleReopenConcernTrial(trialId: string, conditionCode: string) {
+    await reopenFoodTrial(trialId);
+    const trials = await getFoodTrialsForCondition(conditionCode);
+    setConditionFoodConcernTrials((current) => ({ ...current, [conditionCode]: trials }));
     flashSaved();
   }
 
@@ -1779,6 +1840,73 @@ export default function ProfileScreen() {
                 );
               },
             )}
+
+            {/* Already-tested-foods review, 2026-08-14 -- direct request:
+                someone with real, established experience for a condition
+                shouldn't have to re-run the full testing loop for
+                something they already know the answer to. Only shows for
+                a selected condition with a real, curated concern list (see
+                lib/conditionFoodConcerns.ts -- Hashimoto's only, as of
+                this date; every other condition is correctly absent until
+                its own list is researched, not force-fit). "Already
+                tolerate"/"Already avoid" write a real, already-resolved
+                food_trials row with no reminder series attached; "put back
+                into testing" reopens it for real, with a fresh reminder
+                series -- the same real reopen mechanism Signals' own New
+                Foods lens uses. */}
+            {selectedConditions
+              .map((code) => ({ code, concerns: getConditionFoodConcerns(code) }))
+              .filter((entry): entry is { code: string; concerns: ConditionFoodConcern[] } => entry.concerns !== null)
+              .map(({ code, concerns }) => {
+                const conditionLabel = allConditions.find((c) => c.code === code)?.name ?? code;
+                const trials = conditionFoodConcernTrials[code] ?? [];
+                return (
+                  <View key={`concerns-${code}`}>
+                    <Text style={[styles.subLabel, { marginTop: 18 }]}>Already tested foods -- {conditionLabel}</Text>
+                    <Text style={styles.helpText}>
+                      Real, known foods worth a second look for this condition. If you already know from real
+                      experience whether you tolerate one, mark it here instead of running the full testing loop
+                      again -- you can always put it back into testing later.
+                    </Text>
+                    {concerns.map((concern) => {
+                      const trial = trials.find((t) => t.foodName === concern.label);
+                      return (
+                        <View key={concern.id} style={styles.concernRow}>
+                          <Text style={styles.concernLabel}>{concern.label}</Text>
+                          <Text style={styles.helpText}>{concern.shortNote}</Text>
+                          {!trial ? (
+                            <View style={styles.pillRow}>
+                              <TouchableOpacity
+                                style={styles.pill}
+                                onPress={() => handleMarkConcern(concern, code, 'cleared')}
+                              >
+                                <Text style={styles.pillText}>Already tolerate this</Text>
+                              </TouchableOpacity>
+                              <TouchableOpacity
+                                style={styles.pill}
+                                onPress={() => handleMarkConcern(concern, code, 'flagged')}
+                              >
+                                <Text style={styles.pillText}>Already avoid this</Text>
+                              </TouchableOpacity>
+                            </View>
+                          ) : trial.status === 'trialing' ? (
+                            <Text style={styles.derivedText}>Currently being tested in Signals.</Text>
+                          ) : (
+                            <View style={styles.pillRow}>
+                              <Text style={styles.derivedText}>
+                                {trial.status === 'cleared' ? 'Marked: tolerated.' : 'Marked: avoiding.'}
+                              </Text>
+                              <TouchableOpacity onPress={() => handleReopenConcernTrial(trial.id, code)}>
+                                <Text style={styles.concernReopenLink}>Not sure anymore? Put back into testing</Text>
+                              </TouchableOpacity>
+                            </View>
+                          )}
+                        </View>
+                      );
+                    })}
+                  </View>
+                );
+              })}
           </View>
         ) : null}
       </View>
@@ -2256,6 +2384,23 @@ const styles = StyleSheet.create({
   derivedText: {
     ...typography.caption,
     color: colors.textSecondary,
+    marginTop: 8,
+  },
+  // Already-tested-foods review, 2026-08-14 -- one row per real concern
+  // under a condition's own curated list (see lib/conditionFoodConcerns.ts).
+  concernRow: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
+  },
+  concernLabel: {
+    ...typography.bodyEmphasis,
+    color: colors.textPrimary,
+  },
+  concernReopenLink: {
+    ...typography.caption,
+    color: colors.primary,
     marginTop: 8,
   },
   checkinButton: {

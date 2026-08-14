@@ -33,6 +33,7 @@ import {
   recordBodyMeasurement,
   recordCheckin,
   recordExercise,
+  reopenFoodTrial,
   resolveFoodTrial,
   scheduleFoodTrialCheckins,
   type BodyMeasurementRecord,
@@ -877,6 +878,15 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
     load();
   }
 
+  // "Not sure anymore?" -- 2026-08-14, the real, previously-missing other
+  // half of the testing loop. reopenFoodTrial itself now reschedules a
+  // real, fresh reminder series (see its own comment in lib/db.ts) --
+  // this just needs to call it and refresh the list.
+  async function handleReopen(id: string) {
+    await reopenFoodTrial(id);
+    load();
+  }
+
   // The lightweight daily prompt's own "nothing to report" path -- one
   // tap, a real but minimal wellbeing_checkins row, no escalation needed.
   async function handleTodayNothingToReport(trial: FoodTrialRecord) {
@@ -1074,7 +1084,11 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
                         <Text style={styles.actionTextRemove}>Flag it</Text>
                       </TouchableOpacity>
                     </>
-                  ) : null}
+                  ) : (
+                    <TouchableOpacity onPress={() => handleReopen(trial.id)}>
+                      <Text style={styles.actionTextPrimary}>Reopen for testing</Text>
+                    </TouchableOpacity>
+                  )}
                   <TouchableOpacity onPress={() => handleDelete(trial.id)}>
                     <Text style={styles.actionText}>Remove</Text>
                   </TouchableOpacity>

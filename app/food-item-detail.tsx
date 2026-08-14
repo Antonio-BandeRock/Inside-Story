@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { NutrientsTable, PrepView, SixDsView, type Scope } from './(tabs)/insights';
+import type { ResolvedFoodSelection } from '../components/FoodLookup';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
@@ -20,6 +21,9 @@ import {
   getFermentationIngredients,
   getFermentationNutrientBreakdown,
   getFermentationSixDimensionsBreakdown,
+  getFoodIdentity,
+  getFoodScores,
+  getFoodTrialHistory,
   getSalad,
   getSaladIngredients,
   getSaladNutrientBreakdown,
@@ -48,11 +52,14 @@ import {
   getSoupIngredients,
   getSoupNutrientBreakdown,
   getSoupSixDimensionsBreakdown,
+  reopenFoodTrial,
   type DailyNutrientBreakdown,
   type DailySixDimensionsBreakdown,
+  type FoodTrialRecord,
   type SideDetail,
   type SideIngredientDetail,
 } from '../lib/db';
+import { isFlaggedTier } from '../lib/sixDimensionsReference';
 
 // Step 2 of "save a Side, then actually be able to see it" (step 1:
 // app/food-items.tsx's own list screen) -- reuses Insights' own
@@ -110,6 +117,19 @@ export default function FoodItemDetailScreen() {
   const [expandedDimension, setExpandedDimension] = useState<string | null>(null);
   const [expandedTierKey, setExpandedTierKey] = useState<string | null>(null);
 
+  // The Favorites/Saved-item round-trip, 2026-08-14 -- direct request: "if
+  // it gets into the Favorites because of testing, it can again be put
+  // back to testing." Real, per-ingredient status keyed by the ingredient's
+  // own row id (SideIngredientDetail.id), computed once ingredients load.
+  // Reuses the exact same flagged signal every Food builder's own "Worth
+  // testing?" button already checks (getFoodScores + isFlaggedTier -- a
+  // general, condition-agnostic check across every scored sub-criterion,
+  // not narrowed to the person's own tracked conditions, matching the
+  // builders exactly so "flagged" means the same thing everywhere).
+  const [ingredientTrialInfo, setIngredientTrialInfo] = useState<
+    Record<string, { flagged: boolean; latestTrial: FoodTrialRecord | null; identity: ResolvedFoodSelection | null }>
+  >({});
+
   useEffect(() => {
     let isCurrent = true;
     setLoading(true);
@@ -125,6 +145,71 @@ export default function FoodItemDetailScreen() {
       isCurrent = false;
     };
   }, [itemType, id]);
+
+  useEffect(() => {
+    let isCurrent = true;
+    const realIngredients = ingredients.filter((ingredient) => ingredient.foodId);
+    if (realIngredients.length === 0) {
+      setIngredientTrialInfo({});
+      return;
+    }
+    Promise.all(
+      realIngredients.map(async (ingredient) => {
+        const [foodIdStr, source] = ingredient.foodId!.split('|');
+        const foodId = Number(foodIdStr);
+        const [scores, trials, identity] = await Promise.all([
+          getFoodScores(foodId, source),
+          getFoodTrialHistory(foodId, source),
+          getFoodIdentity(foodId, source),
+        ]);
+        const flagged = scores.some((score) => isFlaggedTier(score.tier));
+        return {
+          rowId: ingredient.id,
+          flagged,
+          latestTrial: trials[0] ?? null,
+          identity: identity ? { ...identity, foodId, source } : null,
+        };
+      }),
+    ).then((results) => {
+      if (!isCurrent) return;
+      const next: Record<string, { flagged: boolean; latestTrial: FoodTrialRecord | null; identity: ResolvedFoodSelection | null }> = {};
+      results.forEach((entry) => {
+        next[entry.rowId] = { flagged: entry.flagged, latestTrial: entry.latestTrial, identity: entry.identity };
+      });
+      setIngredientTrialInfo(next);
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [ingredients]);
+
+  async function handleReopenIngredientTrial(trialId: string, rowId: string) {
+    await reopenFoodTrial(trialId);
+    const info = ingredientTrialInfo[rowId];
+    if (!info) return;
+    const ingredient = ingredients.find((row) => row.id === rowId);
+    if (!ingredient?.foodId) return;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const trials = await getFoodTrialHistory(Number(foodIdStr), source);
+    setIngredientTrialInfo((current) => ({
+      ...current,
+      [rowId]: { ...info, latestTrial: trials[0] ?? null },
+    }));
+  }
+
+  function handleWorthTesting(identity: ResolvedFoodSelection) {
+    router.push({
+      pathname: '/log',
+      params: {
+        trialFoodId: identity.foodId,
+        trialSource: identity.source,
+        trialBaseName: identity.baseName,
+        trialCategory: identity.category,
+        trialSubcategory: identity.subcategory ?? '',
+        trialPrepMethod: identity.prepMethod ?? '',
+      },
+    });
+  }
 
   function changeLens(next: DetailLens) {
     setLens(next);
@@ -200,6 +285,32 @@ export default function FoodItemDetailScreen() {
                       {ingredient.quantity} {ingredient.unit} · {ingredient.cutPrep} · {ingredient.cookingMethod}
                     </Text>
                     {ingredient.prepNote ? <Text style={styles.ingredientNote}>{ingredient.prepNote}</Text> : null}
+                    {/* The Favorites/Saved-item round-trip, 2026-08-14 --
+                        see this file's own top-of-component comment.
+                        Invisible by default: renders nothing at all unless
+                        this exact ingredient is genuinely flagged. */}
+                    {(() => {
+                      const info = ingredientTrialInfo[ingredient.id];
+                      if (!info?.flagged) return null;
+                      const trial = info.latestTrial;
+                      if (!trial) {
+                        return info.identity ? (
+                          <TouchableOpacity onPress={() => handleWorthTesting(info.identity!)}>
+                            <Text style={styles.ingredientTrialLink}>Worth testing?</Text>
+                          </TouchableOpacity>
+                        ) : null;
+                      }
+                      if (trial.status === 'trialing') {
+                        return <Text style={styles.ingredientTrialNote}>Currently being tested.</Text>;
+                      }
+                      return (
+                        <TouchableOpacity onPress={() => handleReopenIngredientTrial(trial.id, ingredient.id)}>
+                          <Text style={styles.ingredientTrialLink}>
+                            Tested: {trial.status === 'cleared' ? 'tolerated' : 'avoiding'} -- reopen?
+                          </Text>
+                        </TouchableOpacity>
+                      );
+                    })()}
                   </View>
                 ))}
               </>
@@ -464,6 +575,18 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 4,
     fontStyle: 'italic',
+  },
+  // The Favorites/Saved-item round-trip, 2026-08-14 -- see this file's own
+  // top-of-component comment.
+  ingredientTrialLink: {
+    ...typography.caption,
+    color: colors.tabFood,
+    marginTop: 4,
+  },
+  ingredientTrialNote: {
+    ...typography.caption,
+    color: colors.textSecondary,
+    marginTop: 4,
   },
   sectionLabel: {
     ...typography.eyebrow,

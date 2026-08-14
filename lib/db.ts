@@ -11463,14 +11463,87 @@ export async function resolveFoodTrial(id: string, status: 'cleared' | 'flagged'
 
 // Puts a resolved trial back into 'trialing' -- e.g. a symptom shows up a
 // few days after clearing a food, and the person wants to reopen it rather
-// than start an entirely new trial record.
+// than start an entirely new trial record. Also true for a food marked
+// "already tested" during the onboarding-review flow (markConcernAlready
+// Tested, below) -- "not sure anymore" should genuinely restart real
+// observation, not just flip a status column.
+//
+// 2026-08-14 -- this used to ONLY flip the status/clear resolved_at, with
+// no real reminders ever rescheduled, a real gap that predates this
+// session's own extensions to food_trials. Fixed here: a real, fresh daily-
+// reminder series is scheduled for the trial's own already-stored
+// observationDays window (not asked again -- "the same trial, continued"),
+// matching the "a test always runs its full window" decision already made
+// for the original testing loop. cancelFoodTrialCheckins is called first
+// as a defensive no-op -- a resolved trial's own reminders should already
+// be gone (resolveFoodTrial already cancels them), but this guards against
+// any real edge case where they weren't.
 export async function reopenFoodTrial(id: string) {
   const db = await getDatabase();
+  const trial = await db.getFirstAsync<{ food_name: string; observation_days: number }>(
+    'SELECT food_name, observation_days FROM food_trials WHERE id = ?',
+    id,
+  );
+  if (!trial) return;
+
   const now = new Date().toISOString();
   await db.runAsync(
     `UPDATE food_trials SET status = 'trialing', resolved_at = NULL, updated_at = ? WHERE id = ?`,
     now,
     id,
+  );
+
+  await cancelFoodTrialCheckins(id);
+  await scheduleFoodTrialCheckins({
+    foodTrialId: id,
+    foodName: trial.food_name,
+    firstScheduledFor: `${todayDateStringLocal()}T20:00`,
+    observationDays: trial.observation_days,
+  });
+}
+
+// The onboarding-review path -- 2026-08-14, real per-condition "have you
+// already tried this?" (see lib/conditionFoodConcerns.ts's own top comment
+// for the full context). Creates a real food_trials row exactly the same
+// way the live testing loop does (createFoodTrial), then immediately
+// resolves it -- but deliberately never calls scheduleFoodTrialCheckins:
+// there's no real observation window needed for something already known
+// from real, established experience, only for something genuinely new.
+// The result is indistinguishable from a trial resolved through the real
+// loop (same table, same status values, same reopenFoodTrial path back
+// into active testing) -- this is a real shortcut into the SAME data, not
+// a second, parallel concept.
+export async function markConcernAlreadyTested(
+  concernLabel: string,
+  conditionCode: string,
+  outcome: 'cleared' | 'flagged',
+): Promise<string> {
+  const id = await createFoodTrial({
+    foodName: concernLabel,
+    startedAt: `${todayDateStringLocal()}T${new Date().toTimeString().slice(0, 5)}`,
+    conditionCode,
+  });
+  await resolveFoodTrial(id, outcome);
+  return id;
+}
+
+// Every real trial (any status) tagged to one condition -- the onboarding-
+// review screen's own real "has this concern already been reviewed" check,
+// matched client-side against each concern's own label (a small, bounded
+// list per condition by design -- see lib/conditionFoodConcerns.ts -- so no
+// per-concern round trip is needed).
+export async function getFoodTrialsForCondition(conditionCode: string): Promise<FoodTrialRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<FoodTrialRecord>(
+    `
+      SELECT id, food_name AS foodName, started_at AS startedAt, observation_days AS observationDays,
+             status, resolved_at AS resolvedAt, notes, food_id AS foodId, source, prep_method AS prepMethod,
+             condition_code AS conditionCode, created_at AS createdAt, updated_at AS updatedAt
+      FROM food_trials
+      WHERE condition_code = ?
+      ORDER BY started_at DESC
+    `,
+    conditionCode,
   );
 }
 
