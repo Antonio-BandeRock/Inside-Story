@@ -330,6 +330,26 @@ export const PopoverSelect = memo(function PopoverSelect({
             data={visibleOptions}
             keyExtractor={(option, index) => `${option.value}-${index}`}
             getItemLayout={(_, index) => ({ length: ROW_HEIGHT, offset: ROW_HEIGHT * index, index })}
+            // 2026-08-14, real, testable hypothesis for the still-open
+            // "row tap takes 1-14 real, variable seconds to register" freeze
+            // investigation -- every JS-side avenue (memo bailout, context
+            // re-renders, the database query, repeated re-renders during
+            // the delay) has now been directly, individually ruled out via
+            // real, timestamped on-device evidence, leaving a genuine
+            // native-side touch-dispatch delay as the remaining explanation.
+            // removeClippedSubviews is a documented, real, Android-specific
+            // source of exactly this symptom -- a view that's visibly
+            // rendered but doesn't register a touch, an artifact of
+            // FlatList's own clipping-optimization machinery, worst for
+            // freshly-mounted content near a scroll boundary (this list's
+            // own real, every-open situation, since it always remounts
+            // fresh). This list is capped at 6-8 visible rows at once (see
+            // MAX_VISIBLE_ROWS/MAX_VISIBLE_ROWS_SEARCHABLE above) -- there's
+            // no real performance cost to disabling the optimization for a
+            // list this small, so explicitly turning it off is a safe,
+            // well-precedented thing to try regardless of which way the
+            // platform default currently leans.
+            removeClippedSubviews={false}
             // 2026-08-11, real history worth keeping, since two real
             // attempts at this exact bug both had to be superseded the
             // same day rather than just tuned:
