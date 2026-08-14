@@ -607,7 +607,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.25,
     shadowRadius: 8,
     shadowOffset: { width: 0, height: 4 },
-    elevation: 8,
+    // 2026-08-14, real, on-device-confirmed root cause of the long-open
+    // "row tap takes 1-15 real seconds to register" freeze, specific to
+    // Nutrient Ranking's own two fields (the only PopoverSelect pair in the
+    // app pinned right above the floating TabHub button). That button's own
+    // style already documents needing forced elevation 10/zIndex 10
+    // specifically because plain JSX paint order isn't reliably respected
+    // on Android once an animated/portal view is involved (see
+    // components/TabHub.tsx's own `button` style comment) -- this popover
+    // is exactly that kind of view (mounted through OverlayContext's own
+    // portal at the app root), and at elevation 8 it was consistently
+    // losing that same real Android stacking fight wherever it happens to
+    // geometrically overlap the button's own touch target (itself larger
+    // than its visible icon, via hitSlop). Dropdown.tsx's own menu uses the
+    // identical elevation 8 and never has this problem -- confirming 8 was
+    // never too low in general, only too low specifically against this one
+    // higher-elevation neighbor. Raised well past 10, not just barely above
+    // it, for real margin rather than a fix that could still lose the same
+    // fight intermittently.
+    elevation: 24,
+    zIndex: 24,
   },
   row: {
     height: ROW_HEIGHT,
