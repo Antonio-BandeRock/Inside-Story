@@ -1,6 +1,6 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useState } from 'react';
+import { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -35,6 +35,7 @@ import {
   listSnacks,
   listSoups,
 } from '../../lib/db';
+import { consumePendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 
 // This page's own identity color -- every box FoodLookup draws (list
 // borders, the results table, its own text) takes this as its `tabColor`
@@ -373,8 +374,39 @@ export default function FoodScreen() {
   const [beverageSubtype, setBeverageSubtype] = useState<BeverageSubtypeKey | null>(null);
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
+  // A real food-trial round trip, 2026-08-14 -- see lib/pendingFoodTrialReturn.ts's
+  // own comment for the full "why." A ref, not state, deliberately -- this
+  // screen itself never unmounts on a tab switch (app/(tabs)/_layout.tsx's
+  // own <Tabs> keeps every screen mounted in the background), so a plain
+  // ref reliably carries "we're returning from a trial we ourselves
+  // started" from the departure blur into the very next focus, with no
+  // extra render needed to smuggle it across.
+  const resumingFromFoodTrial = useRef(false);
   useFocusEffect(
     useCallback(() => {
+      // The real blur-time decision, shared by every path below (the
+      // early-return trial-resume branch included) -- skips the normal
+      // "tear the builder down" reset for exactly one blur when it's
+      // caused by navigating away to start a food trial, marking
+      // resumingFromFoodTrial so the very next focus knows to skip its own
+      // reset too. Any OTHER blur (a real, unrelated departure) resets
+      // normally, same as always.
+      function handleBlur() {
+        if (consumePendingFoodTrialReturn()) {
+          resumingFromFoodTrial.current = true;
+          return;
+        }
+        setRevealed(false);
+      }
+
+      // Genuinely nothing to do here -- revealed/lens were never actually
+      // reset in the first place (see handleBlur just above), so whatever
+      // builder was open, and however far into building it, is still
+      // exactly there.
+      if (resumingFromFoodTrial.current) {
+        resumingFromFoodTrial.current = false;
+        return handleBlur;
+      }
       // editSideId/editSaladId/editSmoothieId/editFermentationId/
       // editBeverageId/editSnackId/editBakedGoodsId/editSoupId/editSauceId
       // override the normal "always land on the picker" reset below --
@@ -496,7 +528,7 @@ export default function FoodScreen() {
         return;
       }
       setRevealed(false);
-      return () => setRevealed(false);
+      return handleBlur;
     }, [
       scheduleItemId,
       mealFavoriteId,

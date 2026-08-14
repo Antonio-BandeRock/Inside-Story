@@ -24,6 +24,7 @@ import {
   type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
+import { markPendingFoodTrialReturn } from '../lib/pendingFoodTrialReturn';
 import { isFlaggedTier } from '../lib/sixDimensionsReference';
 import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
@@ -1551,6 +1552,7 @@ export function SaucesBuilder({
                   style={[styles.alcoholAdvisoryRow, { borderColor: tabColor }]}
                   onPress={() => {
                     if (!pendingResolved) return;
+                    markPendingFoodTrialReturn();
                     router.push({
                       pathname: '/log',
                       params: {

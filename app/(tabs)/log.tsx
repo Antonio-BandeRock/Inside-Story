@@ -995,7 +995,18 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {arrivedViaPrefill ? (
-        <TouchableOpacity onPress={() => router.back()}>
+        // router.navigate, not router.back() -- 2026-08-14, direct report:
+        // back() actually landed on Home. Confirmed why: switching tabs
+        // inside this app's own <Tabs> navigator never creates a real,
+        // pop-able history entry the way a genuine Stack push does, so
+        // back() had nothing real to undo and fell through to the tab
+        // navigator's own default (Home). navigate('/food') is this
+        // codebase's own already-proven way to return to a sibling tab
+        // (see TabHub.tsx's own go(), which does the identical thing) --
+        // and, paired with the real state-preservation fix in food.tsx's
+        // own focus effect (see lib/pendingFoodTrialReturn.ts), lands
+        // right back on the exact builder, mid-build, not just the tab.
+        <TouchableOpacity onPress={() => router.navigate('/food')}>
           <Text style={styles.backLink}>‹ Back to what you were building</Text>
         </TouchableOpacity>
       ) : null}
