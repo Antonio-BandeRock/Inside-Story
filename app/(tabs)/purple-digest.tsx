@@ -3546,6 +3546,11 @@ function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string;
     try {
       const profile = await getUserProfile();
       const fromName = profile.firstName?.trim() || 'A friend';
+      // Still built and checked -- confirms the recipe genuinely resolves
+      // to something real before bothering the OS share sheet at all -- but
+      // deliberately never shown: see the matching comment on the other
+      // handleShare below for why the plain-text message stays genuinely
+      // plain now, with no embedded link at all.
       const link = await encodeShareLinkFromCuratedRecipe(recipeId, builderType, fromName);
       if (!link) {
         Alert.alert('Nothing to share', "This couldn't be prepared for sharing.");
@@ -3555,7 +3560,7 @@ function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string;
       const ingredientLines = (recipe?.ingredients ?? [])
         .map((ingredient) => `${ingredient.quantity} ${ingredient.unit} ${ingredient.foodName}`)
         .join('\n');
-      const message = [recipe?.name ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`, link]
+      const message = [recipe?.name ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
         .filter(Boolean)
         .join('\n\n');
       const photoUri = await getPhotoForTarget({ kind: 'curatedRecipe', recipeId });
@@ -3773,19 +3778,26 @@ function SavedOrFavoriteActions({
         Alert.alert('Nothing to share', "This couldn't be prepared for sharing. Try again once it's fully saved.");
         return;
       }
-      // Plain lines, no bullet/heading styling -- "basic formatted text"
-      // for someone WITHOUT this app to just read directly; the deep link
-      // at the end is the extra convenience for someone who does have it,
-      // and is what actually carries the ingredients/photo across for a
-      // real app-to-app share (see lib/sharing.ts's own encodeShareLink).
+      // 2026-08-15, direct on-device report: embedding the deep link in
+      // this plain-text message meant everyone -- including someone
+      // without the app -- saw a long, unreadable encoded blob at the
+      // bottom of a normal-looking text message. Base64-encoding it (see
+      // lib/sharing.ts's own encodeEnvelope) made that blob look like an
+      // opaque token instead of visibly broken text, but it's still a real
+      // wall of characters nobody without the app has any use for -- and
+      // the same day's own follow-up named the actual right fix directly:
+      // once real device-to-device sharing exists (the app's own future
+      // Connections list plus a real, OS-registered .is file format, see
+      // CLAUDE.md's own security-requirement note), THAT is the real
+      // mechanism for a rich, ready-to-import share reaching someone who
+      // has the app -- plain text is genuinely just plain text, for anyone,
+      // with nothing hidden in it. `link` above is still built and checked
+      // (confirms this is genuinely shareable before bothering the OS share
+      // sheet), just never shown -- the same real envelope/base64 encoding
+      // it produces is exactly what a future .is file is expected to reuse,
+      // written to a file instead of embedded in a URL.
       const ingredientLines = (entry.recipeCard?.ingredients ?? []).map((ingredient) => ingredient.text).join('\n');
-      const message = [
-        entry.title,
-        entry.recipeCard?.yield ?? '',
-        ingredientLines,
-        `Shared from Inside Story by ${fromName}.`,
-        link,
-      ]
+      const message = [entry.title, entry.recipeCard?.yield ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
         .filter(Boolean)
         .join('\n\n');
       // A real, local photo file, attached best-effort via Share's own
