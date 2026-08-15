@@ -287,6 +287,53 @@ export type DigestChart = {
   sourceNote: string;
 };
 
+// 2026-08-15 -- real, detailed recipe content, direct request: "provide a
+// list of all ingredients, their individual preparation, and their
+// quantities enough for 2 people, with clear instructions... how much it
+// makes and serves with a rating of sorts for how much this meal alone
+// provides in RDA, with a short indication of things to be aware of if you
+// have a condition." A purpose-built optional addition to DigestEntry
+// (same pattern as chart/relatedFoodNames/linkedCuratedRecipeId above),
+// not a new shape -- a recipe entry still carries a real title/teaser/
+// summary/citations/overallTier the same as every other DigestEntry, it
+// just has this real, structured detail on top.
+export type RecipeIngredientLine = {
+  // Pre-formatted, human-readable, e.g. "2 cups broccoli florets, chopped"
+  // -- deliberately not split into separate quantity/unit/name fields the
+  // UI would have to reassemble, since natural recipe phrasing varies too
+  // much dish to dish to force through one rigid template.
+  text: string;
+};
+
+export type RecipeNutritionHighlight = {
+  nutrient: string; // display name, e.g. "Vitamin C"
+  // A plain-language statement grounded in a real, computed percentage
+  // against this app's own dietary_reference_intakes data, e.g. "About 70%
+  // of a day's worth in one bowl" -- never a bare, uncontextualized number.
+  note: string;
+};
+
+export type RecipeConditionNote = {
+  condition: string; // human display name, e.g. "Gout"
+  // What to watch for, and, wherever a genuine workaround exists (a swap,
+  // a different prep method, a smaller portion), how to actually still
+  // enjoy the dish despite it.
+  note: string;
+};
+
+export type RecipeCard = {
+  // e.g. "Makes about 4 cups, serves 2 generous bowls."
+  yield: string;
+  ingredients: RecipeIngredientLine[];
+  // One real step per entry, numbered by the UI.
+  instructions: string[];
+  nutritionHighlights: RecipeNutritionHighlight[];
+  // Can be a genuinely empty array -- an honest "nothing in this dish is
+  // flagged for any tracked condition" result, not a forced caution.
+  conditionNotes: RecipeConditionNote[];
+  flavorNotes: string;
+};
+
 export type DigestEntryCategory = (typeof DIGEST_CATEGORY_KEYS)[number];
 
 export type DigestEntry = {
@@ -342,6 +389,11 @@ export type DigestEntry = {
   // stay opt-in rather than retrofitted everywhere.
   linkedCuratedRecipeId?: string;
   linkedBuilderType?: BuilderFavoriteItemType;
+  // 2026-08-15, built alongside the "Recipes" category's own real detail
+  // pass -- see RecipeCard's own comment above. Set only on the 47 real
+  // recipe entries in lib/digest/recipes.ts; every other entry in this
+  // whole Digest leaves it unset.
+  recipeCard?: RecipeCard;
 };
 
 export type ProblemFoodEntry = {

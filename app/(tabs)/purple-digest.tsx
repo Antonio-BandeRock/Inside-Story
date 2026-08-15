@@ -34,6 +34,7 @@ import {
   type AnyDigestEntry,
   type DigestCategoryKey,
   type EvidenceTier,
+  type RecipeCard,
   type SearchMatchInfo,
 } from '../../lib/digest';
 
@@ -3216,6 +3217,7 @@ function DigestCard({
               <Text style={styles.buildRecipeButtonText}>Build This Recipe</Text>
             </TouchableOpacity>
           ) : null}
+          {entry.recipeCard ? <RecipeCardDetail card={entry.recipeCard} /> : null}
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
           <CitationsBlock citations={entry.citations} />
@@ -3224,6 +3226,61 @@ function DigestCard({
         </View>
       ) : null}
     </TouchableOpacity>
+  );
+}
+
+// 2026-08-15, direct request: every Recipes-category entry gets a real,
+// detailed card -- a scaled ingredient list, step-by-step instructions, a
+// stated yield, a nutrition rating, and condition-specific cautions,
+// alongside the flavor description this whole entry was already built
+// around. Reuses the same detailLabel/detailText labeled-section pattern
+// every other card already uses (see DigestCard's own ProblemFoodEntry
+// branch above), rather than a separate visual language just for this one
+// field -- only entry.recipeCard's own real, computed content differs.
+function RecipeCardDetail({ card }: { card: RecipeCard }) {
+  return (
+    <View>
+      <Text style={styles.detailLabel}>Makes</Text>
+      <Text style={styles.detailText}>{card.yield}</Text>
+
+      <Text style={styles.detailLabel}>Ingredients (serves 2)</Text>
+      {card.ingredients.map((ingredient, index) => (
+        <Text key={index} style={styles.swapText}>
+          {'•'} {ingredient.text}
+        </Text>
+      ))}
+
+      <Text style={styles.detailLabel}>How to make it</Text>
+      {card.instructions.map((step, index) => (
+        <Text key={index} style={styles.recipeStepText}>
+          {index + 1}. {step}
+        </Text>
+      ))}
+
+      <View style={styles.recipeNutritionBox}>
+        <Text style={styles.recipeNutritionLabel}>What this dish gives you</Text>
+        {card.nutritionHighlights.map((highlight, index) => (
+          <Text key={index} style={styles.recipeNutritionText}>
+            {'•'} <Text style={styles.detailTextBold}>{highlight.nutrient}:</Text> {highlight.note}
+          </Text>
+        ))}
+      </View>
+
+      {card.conditionNotes.length > 0 ? (
+        <View style={styles.recipeConditionBox}>
+          <Text style={styles.recipeConditionLabel}>Worth knowing if you have...</Text>
+          {card.conditionNotes.map((note, index) => (
+            <View key={index} style={index > 0 ? styles.recipeConditionItemSpaced : undefined}>
+              <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
+              <Text style={styles.recipeNutritionText}>{note.note}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      <Text style={styles.detailLabel}>Flavor palette</Text>
+      <Text style={styles.detailText}>{card.flavorNotes}</Text>
+    </View>
   );
 }
 
@@ -3430,6 +3487,36 @@ const styles = StyleSheet.create({
   },
   buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background },
   stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8 },
+  // RecipeCardDetail's own numbered instruction steps -- same body/color
+  // treatment as detailText, just its own style key so a slightly tighter
+  // top margin per line (rather than detailText's single-block spacing)
+  // reads correctly as a real numbered list rather than one dense paragraph.
+  recipeStepText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 4 },
+  // The "what this dish gives you" nutrition callout -- a real, tinted box
+  // (the same lightened-tab-color recipe already used elsewhere in this
+  // app for a highlighted callout) so it reads as a distinct rating rather
+  // than blending into the surrounding plain paragraphs.
+  recipeNutritionBox: {
+    backgroundColor: `${TAB_COLOR}18`,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  recipeNutritionLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 4 },
+  recipeNutritionText: { ...typography.body, color: colors.textPrimary, lineHeight: 18, marginTop: 2 },
+  // The per-condition caution box -- a real, distinct tint from the
+  // nutrition callout above (a warm accent rather than the tab's own
+  // color) so a caution reads visually different from a highlight, and
+  // only ever renders when a real recipeCard.conditionNotes entry exists.
+  recipeConditionBox: {
+    backgroundColor: `${colors.accent}18`,
+    borderRadius: 10,
+    padding: 10,
+    marginTop: 10,
+  },
+  recipeConditionLabel: { ...typography.eyebrow, color: colors.accent, marginBottom: 4 },
+  recipeConditionCondition: { ...typography.bodyEmphasis, color: colors.accent, marginTop: 4 },
+  recipeConditionItemSpaced: { marginTop: 6 },
   feedbackRow: {
     flexDirection: 'row',
     alignItems: 'center',
