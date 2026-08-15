@@ -138,7 +138,12 @@ type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 // nested inside the 'appearance' card's own "TabHub Icon" sub-section (see
 // AppearanceSubsectionKey right below), never as a top-level card of their
 // own -- a real THIRD level of nesting: card -> sub-section -> group.
-const ALL_TAB_HUB_ICON_GROUP_KEYS = ['tabHubConditions', 'tabHubInsects', 'tabHubAnimals'] as const;
+// 'tabHubFoodBuilders' added 2026-08-14, same day -- Dessert Builder's own
+// new icon (components/FoodBuilderIcons.tsx) is real, but neither a
+// tracked condition, an insect/pollinator, nor an animal, so it gets its
+// own real 4th group rather than being folded into any of the existing
+// three for a fit that isn't quite honest.
+const ALL_TAB_HUB_ICON_GROUP_KEYS = ['tabHubConditions', 'tabHubInsects', 'tabHubAnimals', 'tabHubFoodBuilders'] as const;
 type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
 
 // 2026-08-14, same day, a real, direct follow-up that generalizes the
@@ -1190,6 +1195,15 @@ export default function ProfileScreen() {
     { key: 'wolf', label: 'Wolf' },
   ];
   animalIconOptions.sort((a, b) => a.label.localeCompare(b.label));
+  // 2026-08-14: a real, new, 4th group -- Food tab builder icons, starting
+  // with Dessert Builder (components/FoodBuilderIcons.tsx), the first
+  // hand-drawn VECTOR icon this picker has ever offered rather than a real,
+  // cropped photo (see that file's own header comment). Neither a tracked
+  // condition, a pollinator, nor an animal, so it doesn't belong in any of
+  // the three groups above -- a real, honest 4th group of its own.
+  const foodBuilderIconOptions: { key: TabHubIconChoice; label: string }[] = [
+    { key: 'dessertBuilder', label: 'Dessert Builder (Cupcake)' },
+  ];
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from
   // allConditions the way every other entry below it is -- it doesn't map
@@ -1978,8 +1992,9 @@ export default function ProfileScreen() {
               <>
                 <Text style={styles.helpText}>
                   The main floating button used to open the app&apos;s navigation menu. Shows the Honeybee by
-                  default. Pick any tracked condition&apos;s own icon, any insect/pollinator icon, or any of the 38
-                  real animal portraits below to personalize it instead -- only one can be active at a time.
+                  default. Pick any tracked condition&apos;s own icon, any insect/pollinator icon, any of the 38
+                  real animal portraits, or a Food tab builder icon below to personalize it instead -- only one
+                  can be active at a time.
                 </Text>
 
                 {renderIconGroupHeader('tabHubConditions', 'Conditions', 10)}
@@ -1990,6 +2005,9 @@ export default function ProfileScreen() {
 
                 {renderIconGroupHeader('tabHubAnimals', 'Animals', 14)}
                 {!collapsedIconGroups.has('tabHubAnimals') ? renderTabHubIconGroup(animalIconOptions) : null}
+
+                {renderIconGroupHeader('tabHubFoodBuilders', 'Food Builders', 14)}
+                {!collapsedIconGroups.has('tabHubFoodBuilders') ? renderTabHubIconGroup(foodBuilderIconOptions) : null}
               </>
             ) : null}
 
