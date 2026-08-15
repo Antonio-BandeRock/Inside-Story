@@ -1,6 +1,5 @@
 import * as SQLite from 'expo-sqlite';
 import { File } from 'expo-file-system';
-import * as Linking from 'expo-linking';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
@@ -190,6 +189,11 @@ export type BuilderFavoritePayload = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: BuilderFavoriteIngredient[];
+  // 2026-08-15 -- a real photo of the finished dish, set/cleared via
+  // lib/mealPhotos.ts's own setPhotoForTarget({kind:'favorite', ...}).
+  // Unset for the vast majority of favorites, which never had a photo
+  // attached.
+  photoUri?: string;
 };
 
 export type BuilderFavoriteItemType =
@@ -280,6 +284,11 @@ export type MealFavoriteComponentsPayload = {
   // favoriteBaseIngredients) sees a real, safe empty array rather than
   // undefined if it ever reads a new-shape row without checking first.
   ingredients: [];
+  // 2026-08-15 -- the same real photo field BuilderFavoritePayload carries,
+  // set/cleared via lib/mealPhotos.ts's own setPhotoForTarget({kind:
+  // 'favorite', ...}) -- represents the whole assembled plate for a
+  // favorite meal, not any one of its own real components.
+  photoUri?: string;
 };
 
 export async function saveMealFavorite(payload: {
@@ -3489,6 +3498,26 @@ async function runDatabaseInitialization() {
         updated_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- A real, genuine share someone sent, staged here rather than
+      -- immediately, permanently saved -- 2026-08-15 direct request:
+      -- "Recipes Shared With Me" in My Kitchen, staying until the person
+      -- decides to save it to their own recipes/favorites or just delete
+      -- it. kind mirrors ShareEnvelope's own payload.kind
+      -- ('component'|'meal', see lib/sharing.ts); component_type is only
+      -- ever set for a real 'component' share. payload_json is the real
+      -- ShareComponentPayload/ShareMealPayload, minus its own photoBase64
+      -- field (decoded into photo_uri, a real local file, at stage time --
+      -- no reason to keep the same image bytes twice).
+      CREATE TABLE IF NOT EXISTS shared_recipes (
+        id TEXT PRIMARY KEY,
+        from_name TEXT NOT NULL,
+        kind TEXT NOT NULL,
+        component_type TEXT,
+        payload_json TEXT NOT NULL,
+        photo_uri TEXT,
+        received_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own actual lab results over time. test_code matches
       -- lab_tests.code in the bundled reference database (a cross-database
       -- free-text reference, the same pattern nutrient_code already uses
@@ -4461,6 +4490,21 @@ async function runDatabaseInitialization() {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (!columns.some((column) => column.name === 'shared_from_name')) {
         await db.execAsync(`ALTER TABLE ${table} ADD COLUMN shared_from_name TEXT;`);
+      }
+    }
+
+    // photo_uri -- 2026-08-15, a real photo of the finished dish, direct
+    // request. Nullable, TEXT, added identically to all 11 real saved-
+    // record tables (matching COMPONENT_TABLE_BY_TYPE exactly) -- see
+    // lib/mealPhotos.ts's own PhotoTarget/getPhotoForTarget/
+    // setPhotoForTarget for the one real place every one of the four real
+    // photo-storage shapes (this column, favorites.payload_json, a
+    // curated-recipe's own per-user app_meta override, and
+    // shared_recipes.photo_uri below) actually gets read/written.
+    for (const table of Object.values(COMPONENT_TABLE_BY_TYPE)) {
+      const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+      if (!columns.some((column) => column.name === 'photo_uri')) {
+        await db.execAsync(`ALTER TABLE ${table} ADD COLUMN photo_uri TEXT;`);
       }
     }
   } catch (error) {
@@ -9263,10 +9307,13 @@ export async function listMealComponentOptions(componentType: MealComponentType)
 // will actually build.
 
 // Which real, saved-record table each component type lives in -- the one
-// small, shared lookup both the shared_from_name migration below and the
-// sharing import path (which needs to write to the right table by real
-// name) key off, rather than a switch repeated in three places.
-const COMPONENT_TABLE_BY_TYPE: Record<MealComponentType, string> = {
+// small, shared lookup the shared_from_name/photo_uri migrations below key
+// off, rather than a switch repeated in three places. Exported so
+// lib/mealPhotos.ts and lib/sharing.ts (both real leaf modules that import
+// FROM this file, never the reverse -- see lib/sharing.ts's own header
+// comment for why) can reuse the identical real table map rather than a
+// second, separately-maintained copy.
+export const COMPONENT_TABLE_BY_TYPE: Record<MealComponentType, string> = {
   side: 'sides',
   salad: 'salads',
   smoothie: 'smoothies',
@@ -9280,20 +9327,8 @@ const COMPONENT_TABLE_BY_TYPE: Record<MealComponentType, string> = {
   dessert: 'desserts',
 };
 
-// Reads the small, real "who shared this with me" footnote a shared item
-// carries once imported (see importSharedItem below) -- a direct column
-// read against whichever real table this component type actually lives
-// in, rather than widening all 11 getX()'s own already-established return
-// shape just for one optional, rarely-populated field.
-export async function getSharedFromName(componentType: MealComponentType, componentId: string): Promise<string | null> {
-  const db = await getDatabase();
-  const table = COMPONENT_TABLE_BY_TYPE[componentType];
-  const row = await db.getFirstAsync<{ shared_from_name: string | null }>(
-    `SELECT shared_from_name FROM ${table} WHERE id = ?`,
-    componentId,
-  );
-  return row?.shared_from_name ?? null;
-}
+// getSharedFromName moved to lib/sharing.ts, 2026-08-15, alongside the rest
+// of the real sharing feature -- see that file's own header comment.
 
 // The real per-ingredient nutrient-summing math already proven for the
 // Trends performance rewrite (resolveIngredientNutrientTotals,
@@ -10114,242 +10149,16 @@ export async function scheduleSingleComponent(input: {
   });
 }
 
-// --- Sharing (2026-08-15) --------------------------------------------------
-//
-// This app has no company server and never will (see CLAUDE.md's own
-// "Local-first, no company server holding health data" architecture
-// decision) -- so sharing a real creation with someone else can't go
-// through anything this app itself hosts. Built entirely on two real,
-// already-registered pieces instead: this app's own hashimotosapp:// deep-
-// link scheme (app.json) and React Native's built-in Share API (already
-// used, zero new dependency, in app/(tabs)/reports.tsx). The actual wire
-// format is plain, human-readable JSON in the link's own query string --
-// deliberately NOT base64 (no real benefit for a plain ingredient list,
-// and this app has no base64 dependency anywhere to reuse), URL-encoded by
-// Linking.createURL (expo-linking, already a real dependency) so the exact
-// scheme/path format always matches whatever this specific project is
-// actually configured for, rather than a hand-built string risking the
-// same real dev-client-vs-production URL mismatch this app's own history
-// already documents hitting once before.
-
-export type ShareComponentPayload = {
-  kind: 'component';
-  componentType: MealComponentType;
-  builder: BuilderFavoritePayload;
-};
-
-export type ShareMealPayload = {
-  kind: 'meal';
-  name: string;
-  mealType: string;
-  components: { componentType: MealComponentType; builder: BuilderFavoritePayload }[];
-};
-
-export type ShareEnvelope = {
-  v: 1;
-  fromName: string;
-  payload: ShareComponentPayload | ShareMealPayload;
-};
-
-// Real, honest limitation carried straight over from the already-shipped
-// Favorites feature: BuilderFavoritePayload/BuilderFavoriteIngredient
-// (what a share round-trips through) has no calculatorOverride field, so a
-// beverage/fermentation/soup/sauce ingredient tracked via the Alcohol
-// Calculator loses that specific override on the far end of a share, the
-// exact same way it already does when favorited -- not a new gap this
-// feature introduces.
-async function buildBuilderFavoritePayload(
-  componentType: MealComponentType,
-  componentId: string,
-): Promise<BuilderFavoritePayload | null> {
-  const detail = await getComponentDetail(componentType, componentId);
-  if (!detail) return null;
-  const ingredients = await getComponentIngredients(componentType, componentId);
-
-  return {
-    name: detail.name,
-    servings: detail.servings,
-    servingSizeAmount: detail.servingSizeAmount,
-    servingSizeUnit: detail.servingSizeUnit,
-    ingredients: ingredients
-      .filter((ingredient): ingredient is typeof ingredient & { foodId: string } => Boolean(ingredient.foodId))
-      .map((ingredient) => {
-        const [foodIdStr, source] = ingredient.foodId.split('|');
-        return {
-          foodId: Number(foodIdStr),
-          source,
-          foodName: ingredient.foodName,
-          category: ingredient.category ?? '',
-          quantity: ingredient.quantity,
-          unit: ingredient.unit,
-          cutPrep: ingredient.cutPrep,
-          cookingMethod: ingredient.cookingMethod,
-          prepNote: ingredient.prepNote ?? undefined,
-        };
-      }),
-  };
-}
-
-export async function encodeShareLink(
-  componentType: MealComponentType,
-  componentId: string,
-  fromName: string,
-): Promise<string | null> {
-  const builder = await buildBuilderFavoritePayload(componentType, componentId);
-  if (!builder) return null;
-  const envelope: ShareEnvelope = {
-    v: 1,
-    fromName: fromName.trim() || 'A friend',
-    payload: { kind: 'component', componentType, builder },
-  };
-  return Linking.createURL('/import-shared', { queryParams: { data: JSON.stringify(envelope) } });
-}
-
-// The real, separate meal-favorite case -- a receiving device has no way
-// to reference the sender's own component ids (those only exist locally,
-// on the sender's own phone), so the payload bundles each real, resolved
-// component's own full ingredient list directly, not just a reference to
-// it.
-export async function encodeMealShareLink(mealFavoriteId: string, fromName: string): Promise<string | null> {
-  const favorite = await getMealFavorite(mealFavoriteId);
-  if (!favorite) return null;
-
-  const components: ShareMealPayload['components'] = [];
-  for (const component of favorite.components) {
-    const builder = await buildBuilderFavoritePayload(component.componentType, component.componentId);
-    if (builder) components.push({ componentType: component.componentType, builder });
-  }
-  if (components.length === 0) return null;
-
-  const envelope: ShareEnvelope = {
-    v: 1,
-    fromName: fromName.trim() || 'A friend',
-    payload: { kind: 'meal', name: favorite.name, mealType: favorite.mealType, components },
-  };
-  return Linking.createURL('/import-shared', { queryParams: { data: JSON.stringify(envelope) } });
-}
-
-// Defensive parse -- never trusts a received link's own shape blindly, the
-// same discipline every other real "external input" boundary in this app
-// already holds to. Returns null for anything genuinely malformed rather
-// than throwing, so app/import-shared.tsx can show a plain, honest "this
-// link doesn't look right" state instead of crashing.
-// The real, direct case app/import-shared.tsx actually uses -- Expo
-// Router itself already parses the incoming hashimotosapp://import-shared
-// deep link and hands the screen its own `data` query param as a plain,
-// already-decoded string (useLocalSearchParams), so decoding straight from
-// that raw JSON string avoids a second, redundant URL re-parse that could
-// subtly double-decode something Expo Router's own parsing already
-// handled.
-export function decodeShareEnvelope(raw: string): ShareEnvelope | null {
-  try {
-    const parsed = JSON.parse(raw) as Partial<ShareEnvelope>;
-    if (parsed.v !== 1 || typeof parsed.fromName !== 'string' || !parsed.payload) return null;
-
-    if (parsed.payload.kind === 'component') {
-      const p = parsed.payload;
-      if (!p.componentType || !p.builder?.name || !Array.isArray(p.builder?.ingredients)) return null;
-      return parsed as ShareEnvelope;
-    }
-    if (parsed.payload.kind === 'meal') {
-      const p = parsed.payload;
-      if (!p.name || !Array.isArray(p.components) || p.components.length === 0) return null;
-      return parsed as ShareEnvelope;
-    }
-    return null;
-  } catch {
-    return null;
-  }
-}
-
-// A real, general fallback for a raw, un-parsed URL (e.g. one typed/pasted
-// somewhere Expo Router's own linking hasn't already resolved it) --
-// thin wrapper over decodeShareEnvelope above.
-export function decodeShareLink(url: string): ShareEnvelope | null {
-  try {
-    const { queryParams } = Linking.parse(url);
-    const raw = queryParams?.data;
-    if (typeof raw !== 'string') return null;
-    return decodeShareEnvelope(raw);
-  } catch {
-    return null;
-  }
-}
-
-async function saveComponentFromBuilderPayload(
-  componentType: MealComponentType,
-  builder: BuilderFavoritePayload,
-): Promise<{ id: string }> {
-  const input = {
-    name: builder.name,
-    servings: builder.servings,
-    servingSizeAmount: builder.servingSizeAmount,
-    servingSizeUnit: builder.servingSizeUnit,
-    ingredients: builder.ingredients,
-  };
-  switch (componentType) {
-    case 'side':
-      return saveSide(input);
-    case 'salad':
-      return saveSalad(input);
-    case 'smoothie':
-      return saveSmoothie(input);
-    case 'fermentation':
-      return saveFermentation(input);
-    case 'beverage':
-      return saveBeverage(input);
-    case 'snack':
-      return saveSnack(input);
-    case 'bakedGoods':
-      return saveBakedGoods(input);
-    case 'soup':
-      return saveSoup(input);
-    case 'sauce':
-      return saveSauce(input);
-    case 'handheld':
-      return saveHandheld(input);
-    case 'dessert':
-      return saveDessert(input);
-  }
-}
-
-async function setSharedFromName(componentType: MealComponentType, componentId: string, sharedFromName: string): Promise<void> {
-  const db = await getDatabase();
-  const table = COMPONENT_TABLE_BY_TYPE[componentType];
-  await db.runAsync(`UPDATE ${table} SET shared_from_name = ? WHERE id = ?`, sharedFromName, componentId);
-}
-
-// The one, real, always-last step -- only ever called after
-// app/import-shared.tsx has shown its own real preview and the person has
-// explicitly confirmed "Add to My Kitchen". Writes a genuine new, local
-// saved record (never overwrites or merges into anything the person
-// already has) via the same real saveX() every one of the 11 direct-
-// ingredient builders already uses to save their own work, then stamps
-// the real sender's name onto it -- the small, non-prominent "shared from"
-// footnote the request asked for.
-export async function importSharedItem(
-  envelope: ShareEnvelope,
-): Promise<{ componentType: MealComponentType; componentId: string } | { mealFavoriteId: string }> {
-  if (envelope.payload.kind === 'component') {
-    const { componentType, builder } = envelope.payload;
-    const { id } = await saveComponentFromBuilderPayload(componentType, builder);
-    await setSharedFromName(componentType, id, envelope.fromName);
-    return { componentType, componentId: id };
-  }
-
-  const savedComponents: MealFavoriteComponent[] = [];
-  for (const component of envelope.payload.components) {
-    const { id } = await saveComponentFromBuilderPayload(component.componentType, component.builder);
-    await setSharedFromName(component.componentType, id, envelope.fromName);
-    savedComponents.push({ componentType: component.componentType, componentId: id, yourSharePercent: 100 });
-  }
-  const favorite = await saveMealFavorite({
-    name: `${envelope.payload.name} (from ${envelope.fromName})`,
-    mealType: envelope.payload.mealType,
-    components: savedComponents,
-  });
-  return { mealFavoriteId: favorite.id };
-}
+// The whole real sharing feature (ShareEnvelope/ShareComponentPayload/
+// ShareMealPayload, buildBuilderFavoritePayload, encodeShareLink/
+// encodeMealShareLink/encodeShareLinkFromCuratedRecipe, decodeShareEnvelope/
+// decodeShareLink, setSharedFromName, and the real "Recipes Shared With Me"
+// staging flow -- stageSharedItem/listSharedRecipes/
+// promoteSharedRecipeToSaved/promoteSharedRecipeToFavorite/
+// deleteSharedRecipe) moved to lib/sharing.ts, 2026-08-15 -- see that
+// file's own header comment for why (it needs to import lib/mealPhotos.ts,
+// which this file itself can't do without risking a real circular
+// import).
 
 // The real "make Trends honest" fix -- 2026-08-14, direct feedback:
 // "trending and reporting are only as good as the data put in." Confirmed

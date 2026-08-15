@@ -424,17 +424,25 @@ export type DigestEntry = {
   // that's computed live rather than authored. Unset for every static
   // entry in this whole Digest.
   dynamicGroupLabel?: string;
-  // 2026-08-15, built for the same two categories -- what a real Schedule/
-  // Share action button on this entry should actually act on. A single
+  // 2026-08-15, built for the same categories -- what a real Schedule/
+  // Share/Photo action on this entry should actually act on. A single
   // saved/favorited item (any of the 11 direct-ingredient/dessert
   // builders' own work) carries componentType/componentId; a favorite
   // MEAL carries mealFavoriteId instead, since scheduling/sharing a whole
   // meal already goes through the real, separately-shaped
-  // scheduleMeal/encodeMealShareLink path. Unset for every other entry in
-  // this whole Digest.
+  // scheduleMeal/encodeMealShareLink path. A real, genuine share someone
+  // sent, not yet decided one way or the other (see lib/sharing.ts's own
+  // shared_recipes staging table), carries sharedRecipeId instead -- its
+  // own componentType is only ever set for a real component-kind share
+  // (never a meal-kind one), and it gets a real "Save to My Recipes"/"Save
+  // as Favorite"/"Delete" action set rather than Schedule/Share, since
+  // there's nothing to schedule or re-share until the person has actually
+  // decided what to do with it. Unset for every other entry in this whole
+  // Digest.
   dynamicAction?:
     | { kind: 'component'; componentType: BuilderFavoriteItemType; componentId: string }
-    | { kind: 'meal'; mealFavoriteId: string };
+    | { kind: 'meal'; mealFavoriteId: string }
+    | { kind: 'shared'; sharedRecipeId: string; componentType?: BuilderFavoriteItemType };
 };
 
 export type ProblemFoodEntry = {

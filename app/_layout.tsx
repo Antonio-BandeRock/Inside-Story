@@ -282,8 +282,9 @@ export default function RootLayout() {
                 }}
               />
               {/* 2026-08-15 -- the real receiving screen for a shared
-                  item, reached via a hashimotosapp://share?... deep link
-                  (see lib/db.ts's own encodeShareLink/decodeShareLink).
+                  item, reached via a hashimotosapp://import-shared?...
+                  deep link (see lib/sharing.ts's own encodeShareLink/
+                  decodeShareLink -- moved out of lib/db.ts the same day).
                   Themed the same as every other Stack screen. */}
               <Stack.Screen
                 name="import-shared"

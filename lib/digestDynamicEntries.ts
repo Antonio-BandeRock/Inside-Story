@@ -36,7 +36,6 @@ import {
   getConditionNotesForIngredients,
   getMealFavorite,
   getNutritionHighlightsForIngredients,
-  getSharedFromName,
   getUserConditions,
   listAllConditions,
   listFavorites,
@@ -49,6 +48,7 @@ import {
   type MealComponentType,
   type MealIngredientInput,
 } from './db';
+import { getSharedFromName, listSharedRecipes, type ShareComponentPayload, type ShareMealPayload } from './sharing';
 import type { DigestEntry } from './digest/types';
 
 const COMPONENT_TYPES: MealComponentType[] = [
@@ -321,5 +321,74 @@ export async function buildMyFavoritesEntries(): Promise<DigestEntry[]> {
     if (entry) entries.push(entry);
   }
 
+  return entries;
+}
+
+// --- Recipes Shared With Me ----------------------------------------------
+//
+// A real, genuine share someone sent -- lands here, inside My Kitchen,
+// rather than immediately becoming a permanent saved record, 2026-08-15
+// direct request: "It stays there until they try it and decide if they
+// want to add it to their own saved recipes or as a favorite... if they
+// didn't like the recipe they can just delete it." See lib/sharing.ts's
+// own listSharedRecipes/promoteSharedRecipeToSaved/
+// promoteSharedRecipeToFavorite/deleteSharedRecipe for the real functions
+// this group's own DynamicEntryActions 'shared' branch (purple-digest.tsx)
+// calls.
+// photoUri isn't read here -- components/EntryPhotoSection.tsx (Purple
+// Digest's own rendering layer) resolves a staged share's own photo LIVE,
+// via the same real {kind:'sharedRecipe', sharedRecipeId} target every
+// other consumer of a staged row's photo already resolves through, rather
+// than baking a snapshot of it onto this entry at build time.
+async function buildSharedRecipeEntry(
+  id: string,
+  fromName: string,
+  payload: ShareComponentPayload | ShareMealPayload,
+  conditions: { code: string; name: string }[],
+): Promise<DigestEntry> {
+  const isMeal = payload.kind === 'meal';
+  const ingredients: MealIngredientInput[] = isMeal
+    ? payload.components.flatMap((component) => component.builder.ingredients.map(builderIngredientToMealIngredientInput))
+    : payload.builder.ingredients.map(builderIngredientToMealIngredientInput);
+  const servings = isMeal ? 1 : payload.builder.servings;
+  const name = isMeal ? payload.name : payload.builder.name;
+  const ingredientNames = isMeal
+    ? payload.components.map((component) => component.builder.name).join(', ')
+    : payload.builder.ingredients.map((ingredient) => ingredient.foodName).join(', ');
+
+  const [highlights, conditionNotes] = await Promise.all([
+    getNutritionHighlightsForIngredients(ingredients, servings),
+    getConditionNotesForIngredients(ingredients, conditions),
+  ]);
+
+  return {
+    id: `sharedrecipe-${id}`,
+    category: 'myKitchen',
+    title: name,
+    teaser: `Shared with you by ${fromName}: ${ingredientNames}.`,
+    summary: isMeal
+      ? `A whole meal shared by ${fromName} -- try it, then decide whether to save it to your own recipes or as a favorite.`
+      : `A ${payload.componentType.replace(/([A-Z])/g, ' $1').toLowerCase()}, shared by ${fromName}, makes ${servingsLabel(servings)} -- try it, then decide whether to save it to your own recipes or as a favorite.`,
+    citations: [],
+    overallTier: 'strong',
+    dynamicGroupLabel: 'Recipes Shared With Me',
+    dynamicAction: isMeal
+      ? { kind: 'shared', sharedRecipeId: id }
+      : { kind: 'shared', sharedRecipeId: id, componentType: payload.componentType as BuilderFavoriteItemType },
+    recipeCard: {
+      yield: isMeal ? `One plate: ${ingredientNames}.` : `Makes ${servingsLabel(servings)}.`,
+      ingredients: ingredients.filter((ingredient) => ingredient.foodId).map((ingredient) => ({ text: formatIngredientText(ingredient) })),
+      nutritionHighlights: highlights,
+      conditionNotes,
+    },
+  };
+}
+
+export async function buildSharedRecipeEntries(): Promise<DigestEntry[]> {
+  const [conditions, staged] = await Promise.all([getTrackedConditions(), listSharedRecipes()]);
+  const entries: DigestEntry[] = [];
+  for (const row of staged) {
+    entries.push(await buildSharedRecipeEntry(row.id, row.fromName, row.payload, conditions));
+  }
   return entries;
 }

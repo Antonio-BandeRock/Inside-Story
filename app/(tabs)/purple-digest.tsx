@@ -8,6 +8,7 @@ import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
 import { DIGEST_CONDITION_ICONS } from '../../components/DigestConditionIcons';
+import { EntryPhotoSection, resolvePhotoTarget } from '../../components/EntryPhotoSection';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
@@ -23,17 +24,27 @@ import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import {
-  encodeMealShareLink,
-  encodeShareLink,
+  getCuratedRecipe,
   getUserConditions,
   getUserProfile,
   getVisibleFoodBaseNames,
+  saveBuilderFavorite,
   scheduleMeal,
   scheduleSingleComponent,
   type BuilderFavoriteItemType,
 } from '../../lib/db';
-import { buildMyFavoritesEntries, buildMyKitchenEntries } from '../../lib/digestDynamicEntries';
+import { buildMyFavoritesEntries, buildMyKitchenEntries, buildSharedRecipeEntries } from '../../lib/digestDynamicEntries';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
+import { getPhotoForTarget } from '../../lib/mealPhotos';
+import {
+  buildBuilderFavoritePayload,
+  deleteSharedRecipe,
+  encodeMealShareLink,
+  encodeShareLink,
+  encodeShareLinkFromCuratedRecipe,
+  promoteSharedRecipeToFavorite,
+  promoteSharedRecipeToSaved,
+} from '../../lib/sharing';
 import { buildTime24, formatTime12 } from '../../lib/timeOfDay';
 import {
   ALL_DIGEST_ENTRIES,
@@ -1311,6 +1322,11 @@ function groupRecipesEntries(entries: AnyDigestEntry[]): {
 // linkedBuilderType the way classifyRecipesTopic does, since these
 // entries' real grouping is already known the moment they're built.
 const DYNAMIC_ENTRY_GROUP_ORDER = [
+  // 2026-08-15, direct request: "it shows up in their My Kitchen area
+  // under a heading of Recipes Shared With Me" -- leads the whole shelf,
+  // since a real, genuine share someone just sent is the thing most worth
+  // seeing first.
+  'Recipes Shared With Me',
   'Sides',
   'Salads & Bowls',
   'Smoothies',
@@ -1583,11 +1599,27 @@ export default function PurpleDigestScreen() {
     myKitchen: DigestEntry[] | null;
     myFavorites: DigestEntry[] | null;
   }>({ myKitchen: null, myFavorites: null });
+  // 2026-08-15 -- bumped after a real, in-place action changes a person's
+  // own saved/favorited/staged-shared data (a photo saved, a thumbs-up
+  // added a favorite, a staged share promoted or deleted) so the effect
+  // below re-fetches without needing a genuine focus/blur transition.
+  // Threaded down through BasicHealthShelves/DigestCard/DynamicEntryActions
+  // as onDynamicEntriesChanged -- the exact same real prop-drilling shape
+  // onJumpToRelated already established.
+  const [dynamicEntriesRefreshToken, setDynamicEntriesRefreshToken] = useState(0);
+  const refreshDynamicEntries = useCallback(() => setDynamicEntriesRefreshToken((token) => token + 1), []);
   useFocusEffect(
     useCallback(() => {
       if (lens !== 'myKitchen' && lens !== 'myFavorites') return;
       let cancelled = false;
-      const loader = lens === 'myKitchen' ? buildMyKitchenEntries() : buildMyFavoritesEntries();
+      // My Kitchen also carries a real, dynamic "Recipes Shared With Me"
+      // group -- see lib/digestDynamicEntries.ts's own buildSharedRecipeEntries
+      // and CLAUDE.md's own 2026-08-15 sharing-staging entry for why this
+      // lives inside myKitchen rather than as its own category.
+      const loader =
+        lens === 'myKitchen'
+          ? Promise.all([buildMyKitchenEntries(), buildSharedRecipeEntries()]).then(([kitchen, shared]) => [...shared, ...kitchen])
+          : buildMyFavoritesEntries();
       loader
         .then((built) => {
           if (!cancelled) setDynamicEntries((prev) => ({ ...prev, [lens]: built }));
@@ -1599,7 +1631,13 @@ export default function PurpleDigestScreen() {
       return () => {
         cancelled = true;
       };
-    }, [lens]),
+      // dynamicEntriesRefreshToken is deliberately never read inside this
+      // callback -- it exists purely to force a fresh re-run after a real
+      // in-place change (a photo save, a thumbs-up favorite-add, a staged
+      // share promoted/deleted), the same real "bump a counter to trigger
+      // a refetch" pattern this app already uses elsewhere.
+      // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [lens, dynamicEntriesRefreshToken]),
   );
   // The Search All lens's own COMMITTED query text -- 2026-08-08, no longer
   // written to on every keystroke (see DigestSearchInput's own comment
@@ -2451,6 +2489,7 @@ export default function PurpleDigestScreen() {
                       onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
                       onJumpToRelated={jumpToRelated}
                       matchInfoById={categorySearchMatchInfo}
+                      onDynamicEntriesChanged={refreshDynamicEntries}
                     />
                   </>
                 )
@@ -2471,6 +2510,7 @@ export default function PurpleDigestScreen() {
                   groupRefs={groupRefs}
                   onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
                   onJumpToRelated={jumpToRelated}
+                  onDynamicEntriesChanged={refreshDynamicEntries}
                 />
               ) : entries.length === 0 ? (
                 <Text style={styles.emptyText}>Nothing here yet.</Text>
@@ -2498,6 +2538,7 @@ export default function PurpleDigestScreen() {
                         groupRefs={groupRefs}
                         onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
                         onJumpToRelated={jumpToRelated}
+                        onDynamicEntriesChanged={refreshDynamicEntries}
                       />
                       {tyingTogether ? (
                         <View
@@ -2513,6 +2554,7 @@ export default function PurpleDigestScreen() {
                               expanded={expandedId === tyingTogether.id}
                               onToggle={() => toggleEntry(tyingTogether.id, lens as DigestCategoryKey)}
                               onJumpToRelated={jumpToRelated}
+                              onDynamicEntriesChanged={refreshDynamicEntries}
                             />
                           </Animated.View>
                         </View>
@@ -2976,6 +3018,7 @@ function BasicHealthShelves({
   onToggleEntry,
   onJumpToRelated,
   matchInfoById,
+  onDynamicEntriesChanged,
 }: {
   groups: { label: string; entries: AnyDigestEntry[] }[];
   expandedId: string | null;
@@ -2987,6 +3030,10 @@ function BasicHealthShelves({
   // is exactly what ShelfTabCard needs to know not to render a match
   // indicator at all outside of search.
   matchInfoById?: Map<string, SearchMatchInfo>;
+  // 2026-08-15 -- real, in-place refresh for My Kitchen/My Favorites after
+  // a photo save, a thumbs-up favorite-add, or a staged share getting
+  // promoted/deleted. A harmless no-op prop everywhere else in this Digest.
+  onDynamicEntriesChanged?: () => void;
 }) {
   return (
     <>
@@ -3039,6 +3086,7 @@ function BasicHealthShelves({
                   expanded
                   onToggle={() => onToggleEntry(expandedEntry.id)}
                   onJumpToRelated={onJumpToRelated}
+                  onDynamicEntriesChanged={onDynamicEntriesChanged}
                 />
               </Animated.View>
             ) : null}
@@ -3222,19 +3270,60 @@ function renderRichText(text: string, boldStyle: TextStyle) {
 // already-active choice again clears it back to no opinion, the same
 // toggle shape this app's own PopoverSelect-adjacent controls already use
 // elsewhere.
-function FeedbackRow({ entryId }: { entryId: string }) {
+// 2026-08-15, direct request: a thumbs-up doubles as "add to favorites"
+// for any entry that has a real favoritable backing -- a My Kitchen
+// creation, or one of the 47 curated Recipes. Only ever called on the real
+// "just became up" transition (see FeedbackRow's own handlePress below),
+// so re-tapping an already-up thumb, or toggling down then up again,
+// never creates a duplicate favorite. Returns false (a real, silent no-op,
+// not an error) for every entry with nothing real to favorite -- an
+// already-favorited My Favorites entry, a favorite MEAL/staged-share
+// entry (no single componentId to snapshot), or any of this Digest's
+// 1,500+ ordinary science/content entries.
+async function tryAddEntryToFavorites(entry: AnyDigestEntry): Promise<boolean> {
+  if (isProblemFoodEntry(entry)) return false;
+  if (entry.category === 'myFavorites') return false;
+
+  if (entry.category === 'myKitchen' && entry.dynamicAction?.kind === 'component') {
+    const payload = await buildBuilderFavoritePayload(entry.dynamicAction.componentType, entry.dynamicAction.componentId);
+    if (!payload) return false;
+    await saveBuilderFavorite(entry.dynamicAction.componentType, payload);
+    return true;
+  }
+
+  if (entry.linkedCuratedRecipeId && entry.linkedBuilderType) {
+    const recipe = await getCuratedRecipe(entry.linkedCuratedRecipeId);
+    if (!recipe) return false;
+    await saveBuilderFavorite(entry.linkedBuilderType, {
+      name: recipe.name,
+      servings: recipe.servings,
+      servingSizeAmount: recipe.servingSizeAmount,
+      servingSizeUnit: recipe.servingSizeUnit,
+      ingredients: recipe.ingredients,
+    });
+    return true;
+  }
+
+  return false;
+}
+
+function FeedbackRow({ entry, onDynamicEntriesChanged }: { entry: AnyDigestEntry; onDynamicEntriesChanged?: () => void }) {
+  const entryId = entry.id;
   const [value, setValue] = useState<DigestFeedbackValue | null>(null);
+  const [justFavorited, setJustFavorited] = useState(false);
   useEffect(() => {
     let cancelled = false;
     getDigestFeedbackFor(entryId).then((loaded) => {
       if (!cancelled) setValue(loaded);
     });
+    setJustFavorited(false);
     return () => {
       cancelled = true;
     };
   }, [entryId]);
 
   const handlePress = (next: DigestFeedbackValue) => {
+    const becameUp = next === 'up' && value !== 'up';
     const resolved = value === next ? null : next;
     setValue(resolved);
     setDigestFeedback(entryId, resolved).catch(() => {
@@ -3242,35 +3331,48 @@ function FeedbackRow({ entryId }: { entryId: string }) {
       // worst case, this one tap's own preference doesn't persist; the UI
       // itself already reflects the tap either way.
     });
+    if (becameUp) {
+      tryAddEntryToFavorites(entry)
+        .then((added) => {
+          if (added) {
+            setJustFavorited(true);
+            onDynamicEntriesChanged?.();
+          }
+        })
+        .catch((error) => console.error('[FeedbackRow] Failed to add to favorites', error));
+    }
   };
 
   return (
-    <View style={styles.feedbackRow}>
-      <Text style={styles.feedbackPrompt}>Was this helpful?</Text>
-      <TouchableOpacity
-        onPress={() => handlePress('up')}
-        accessibilityRole="button"
-        accessibilityLabel="Mark this entry helpful"
-        hitSlop={8}
-      >
-        <Ionicons
-          name={value === 'up' ? 'thumbs-up' : 'thumbs-up-outline'}
-          size={18}
-          color={value === 'up' ? colors.accent : colors.textMuted}
-        />
-      </TouchableOpacity>
-      <TouchableOpacity
-        onPress={() => handlePress('down')}
-        accessibilityRole="button"
-        accessibilityLabel="Mark this entry not helpful"
-        hitSlop={8}
-      >
-        <Ionicons
-          name={value === 'down' ? 'thumbs-down' : 'thumbs-down-outline'}
-          size={18}
-          color={value === 'down' ? colors.danger : colors.textMuted}
-        />
-      </TouchableOpacity>
+    <View>
+      <View style={styles.feedbackRow}>
+        <Text style={styles.feedbackPrompt}>Was this helpful?</Text>
+        <TouchableOpacity
+          onPress={() => handlePress('up')}
+          accessibilityRole="button"
+          accessibilityLabel="Mark this entry helpful"
+          hitSlop={8}
+        >
+          <Ionicons
+            name={value === 'up' ? 'thumbs-up' : 'thumbs-up-outline'}
+            size={18}
+            color={value === 'up' ? colors.accent : colors.textMuted}
+          />
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => handlePress('down')}
+          accessibilityRole="button"
+          accessibilityLabel="Mark this entry not helpful"
+          hitSlop={8}
+        >
+          <Ionicons
+            name={value === 'down' ? 'thumbs-down' : 'thumbs-down-outline'}
+            size={18}
+            color={value === 'down' ? colors.danger : colors.textMuted}
+          />
+        </TouchableOpacity>
+      </View>
+      {justFavorited ? <Text style={styles.favoriteAddedText}>Added to your Favorites.</Text> : null}
     </View>
   );
 }
@@ -3280,11 +3382,15 @@ function DigestCard({
   expanded,
   onToggle,
   onJumpToRelated,
+  onDynamicEntriesChanged,
 }: {
   entry: AnyDigestEntry;
   expanded: boolean;
   onToggle: () => void;
   onJumpToRelated: (id: string) => void;
+  // 2026-08-15 -- real, in-place refresh for My Kitchen/My Favorites, see
+  // BasicHealthShelves' own comment on the identical prop.
+  onDynamicEntriesChanged?: () => void;
 }) {
   const router = useRouter();
   if (isProblemFoodEntry(entry)) {
@@ -3311,7 +3417,7 @@ function DigestCard({
             {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
             <CitationsBlock citations={entry.citations} />
             {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
-            <FeedbackRow entryId={entry.id} />
+            <FeedbackRow entry={entry} />
           </View>
         ) : null}
       </TouchableOpacity>
@@ -3333,25 +3439,29 @@ function DigestCard({
           <EntryMetaRow entry={entry} />
           <Text style={styles.detailText}>{renderRichText(entry.summary, styles.detailTextBold)}</Text>
           {entry.linkedCuratedRecipeId && entry.linkedBuilderType ? (
-            <TouchableOpacity
-              style={styles.buildRecipeButton}
-              activeOpacity={0.85}
-              onPress={() => {
-                const paramName = RECIPE_BUILDER_PARAM[entry.linkedBuilderType!];
-                router.push({ pathname: '/food', params: { [paramName]: entry.linkedCuratedRecipeId! } });
-              }}
-            >
-              <Ionicons name="hammer-outline" size={18} color={colors.background} />
-              <Text style={styles.buildRecipeButtonText}>Build This Recipe</Text>
-            </TouchableOpacity>
+            <View style={styles.recipeButtonRow}>
+              <TouchableOpacity
+                style={[styles.buildRecipeButton, styles.recipeButtonFlex]}
+                activeOpacity={0.85}
+                onPress={() => {
+                  const paramName = RECIPE_BUILDER_PARAM[entry.linkedBuilderType!];
+                  router.push({ pathname: '/food', params: { [paramName]: entry.linkedCuratedRecipeId! } });
+                }}
+              >
+                <Ionicons name="hammer-outline" size={18} color={colors.background} />
+                <Text style={styles.buildRecipeButtonText}>Build This Recipe</Text>
+              </TouchableOpacity>
+              <CuratedRecipeShareButton recipeId={entry.linkedCuratedRecipeId} builderType={entry.linkedBuilderType} />
+            </View>
           ) : null}
           {entry.recipeCard ? <RecipeCardDetail card={entry.recipeCard} /> : null}
-          {entry.dynamicAction ? <DynamicEntryActions entry={entry} /> : null}
+          <EntryPhotoSection entry={entry} tabColor={TAB_COLOR} />
+          {entry.dynamicAction ? <DynamicEntryActions entry={entry} onDynamicEntriesChanged={onDynamicEntriesChanged} /> : null}
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
           <CitationsBlock citations={entry.citations} />
           {entry.relatedIds ? <RelatedChips ids={entry.relatedIds} onJumpToRelated={onJumpToRelated} /> : null}
-          <FeedbackRow entryId={entry.id} />
+          <FeedbackRow entry={entry} onDynamicEntriesChanged={onDynamicEntriesChanged} />
         </View>
       ) : null}
     </TouchableOpacity>
@@ -3421,6 +3531,50 @@ function RecipeCardDetail({ card }: { card: RecipeCard }) {
   );
 }
 
+// 2026-08-15, direct request: "I want the user to be able to share a
+// recipe from the provided app recipes and their favorites and from their
+// saved recipes." My Kitchen/My Favorites already share via
+// DynamicEntryActions (they carry a real dynamicAction); a curated Recipe
+// entry doesn't (there's no user-owned componentId to key one off), so it
+// gets this small, separate real share button instead, sitting right next
+// to "Build This Recipe."
+function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string; builderType: BuilderFavoriteItemType }) {
+  const [sharing, setSharing] = useState(false);
+
+  async function handleShare() {
+    setSharing(true);
+    try {
+      const profile = await getUserProfile();
+      const fromName = profile.firstName?.trim() || 'A friend';
+      const link = await encodeShareLinkFromCuratedRecipe(recipeId, builderType, fromName);
+      if (!link) {
+        Alert.alert('Nothing to share', "This couldn't be prepared for sharing.");
+        return;
+      }
+      const recipe = await getCuratedRecipe(recipeId);
+      const ingredientLines = (recipe?.ingredients ?? [])
+        .map((ingredient) => `${ingredient.quantity} ${ingredient.unit} ${ingredient.foodName}`)
+        .join('\n');
+      const message = [recipe?.name ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`, link]
+        .filter(Boolean)
+        .join('\n\n');
+      const photoUri = await getPhotoForTarget({ kind: 'curatedRecipe', recipeId });
+      await Share.share(photoUri ? { message, url: photoUri } : { message });
+    } catch (error) {
+      console.error('[CuratedRecipeShareButton] Failed to share', error);
+      Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  return (
+    <TouchableOpacity style={styles.recipeShareButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
+      <Ionicons name="share-outline" size={18} color={TAB_COLOR} />
+    </TouchableOpacity>
+  );
+}
+
 // 2026-08-15, real Schedule/Share actions for My Kitchen/My Favorites --
 // direct request: "All items should be available to be added to the
 // schedule from here on anytime in the future... there should be a way to
@@ -3446,8 +3600,111 @@ const SCHEDULE_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => String(ind
 const SCHEDULE_HOUR_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index + 1));
 const SCHEDULE_MINUTE_OPTIONS = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0'));
 
-function DynamicEntryActions({ entry }: { entry: DigestEntry }) {
+// 2026-08-15 -- a real, plain dispatcher, narrowing entry.dynamicAction's
+// own three real kinds (see lib/digest/types.ts) into the right one of two
+// real sibling components: a not-yet-decided staged share gets its own
+// real "try it, then decide" action set (SharedRecipeActions), never
+// Schedule/Share; a genuine saved/favorited component or favorite meal
+// keeps the original Schedule/Share pair (SavedOrFavoriteActions).
+function DynamicEntryActions({ entry, onDynamicEntriesChanged }: { entry: DigestEntry; onDynamicEntriesChanged?: () => void }) {
   const action = entry.dynamicAction;
+  if (!action) return null;
+  if (action.kind === 'shared') {
+    return <SharedRecipeActions sharedRecipeId={action.sharedRecipeId} onDynamicEntriesChanged={onDynamicEntriesChanged} />;
+  }
+  return <SavedOrFavoriteActions entry={entry} action={action} />;
+}
+
+// "Try it, then decide" -- 2026-08-15 direct request: "It stays there
+// until they try it and decide if they want to add it to their own saved
+// recipes or as a favorite... if they didn't like the recipe they can
+// just delete it." Deliberately no Schedule/Share here -- there's nothing
+// real to schedule or re-share until the person has actually decided what
+// to do with a share someone else sent them.
+function SharedRecipeActions({
+  sharedRecipeId,
+  onDynamicEntriesChanged,
+}: {
+  sharedRecipeId: string;
+  onDynamicEntriesChanged?: () => void;
+}) {
+  const [busy, setBusy] = useState<'saved' | 'favorite' | 'delete' | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function handleSaveToRecipes() {
+    setBusy('saved');
+    try {
+      const result = await promoteSharedRecipeToSaved(sharedRecipeId);
+      if (result && result.length > 0) {
+        setMessage('Saved to My Kitchen, under your own saved recipes.');
+        onDynamicEntriesChanged?.();
+      }
+    } catch (error) {
+      console.error('[SharedRecipeActions] Failed to save', error);
+      Alert.alert('Something went wrong', "This couldn't be saved. Please try again.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleSaveAsFavorite() {
+    setBusy('favorite');
+    try {
+      const result = await promoteSharedRecipeToFavorite(sharedRecipeId);
+      if (result) {
+        setMessage('Saved to your Favorites.');
+        onDynamicEntriesChanged?.();
+      }
+    } catch (error) {
+      console.error('[SharedRecipeActions] Failed to save as favorite', error);
+      Alert.alert('Something went wrong', "This couldn't be saved. Please try again.");
+    } finally {
+      setBusy(null);
+    }
+  }
+
+  async function handleDelete() {
+    setBusy('delete');
+    try {
+      await deleteSharedRecipe(sharedRecipeId);
+      onDynamicEntriesChanged?.();
+    } catch (error) {
+      console.error('[SharedRecipeActions] Failed to delete', error);
+      Alert.alert('Something went wrong', "This couldn't be deleted. Please try again.");
+      setBusy(null);
+    }
+  }
+
+  return (
+    <View>
+      <View style={styles.dynamicActionRow}>
+        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleSaveToRecipes} disabled={busy !== null}>
+          <Ionicons name="bookmark-outline" size={16} color={TAB_COLOR} />
+          <Text style={styles.dynamicActionButtonText}>{busy === 'saved' ? 'Saving…' : 'Save to My Recipes'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleSaveAsFavorite} disabled={busy !== null}>
+          <Ionicons name="heart-outline" size={16} color={TAB_COLOR} />
+          <Text style={styles.dynamicActionButtonText}>{busy === 'favorite' ? 'Saving…' : 'Save as Favorite'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleDelete} disabled={busy !== null}>
+          <Ionicons name="trash-outline" size={16} color={colors.danger} />
+          <Text style={[styles.dynamicActionButtonText, styles.dynamicActionButtonTextDanger]}>
+            {busy === 'delete' ? 'Deleting…' : 'Delete'}
+          </Text>
+        </TouchableOpacity>
+      </View>
+      {message ? <Text style={styles.dynamicActionConfirm}>{message}</Text> : null}
+    </View>
+  );
+}
+
+function SavedOrFavoriteActions({
+  entry,
+  action,
+}: {
+  entry: DigestEntry;
+  action: { kind: 'component'; componentType: BuilderFavoriteItemType; componentId: string } | { kind: 'meal'; mealFavoriteId: string };
+}) {
   const today = useMemo(() => new Date(), []);
   const [schedulingOpen, setSchedulingOpen] = useState(false);
   const [scheduleMealType, setScheduleMealType] = useState<string | null>(null);
@@ -3461,10 +3718,8 @@ function DynamicEntryActions({ entry }: { entry: DigestEntry }) {
   const [scheduledMessage, setScheduledMessage] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
 
-  if (!action) return null;
-
   async function handleConfirmSchedule() {
-    if (!action || !scheduleMealType || !scheduleYear || !scheduleMonth || !scheduleDay) return;
+    if (!scheduleMealType || !scheduleYear || !scheduleMonth || !scheduleDay) return;
     // Hour/minute/AM-PM are optional -- a real, honest noon default rather
     // than forcing a time nobody asked to specify. buildTime24 already
     // returns null for an incomplete answer (see its own comment), which
@@ -3506,7 +3761,6 @@ function DynamicEntryActions({ entry }: { entry: DigestEntry }) {
   }
 
   async function handleShare() {
-    if (!action) return;
     setSharing(true);
     try {
       const profile = await getUserProfile();
@@ -3519,10 +3773,12 @@ function DynamicEntryActions({ entry }: { entry: DigestEntry }) {
         Alert.alert('Nothing to share', "This couldn't be prepared for sharing. Try again once it's fully saved.");
         return;
       }
-      // A real, plain-text ingredient list -- exactly what someone WITHOUT
-      // this app can just read directly; the deep link at the end is the
-      // extra convenience for someone who does have it.
-      const ingredientLines = (entry.recipeCard?.ingredients ?? []).map((ingredient) => `- ${ingredient.text}`).join('\n');
+      // Plain lines, no bullet/heading styling -- "basic formatted text"
+      // for someone WITHOUT this app to just read directly; the deep link
+      // at the end is the extra convenience for someone who does have it,
+      // and is what actually carries the ingredients/photo across for a
+      // real app-to-app share (see lib/sharing.ts's own encodeShareLink).
+      const ingredientLines = (entry.recipeCard?.ingredients ?? []).map((ingredient) => ingredient.text).join('\n');
       const message = [
         entry.title,
         entry.recipeCard?.yield ?? '',
@@ -3532,7 +3788,14 @@ function DynamicEntryActions({ entry }: { entry: DigestEntry }) {
       ]
         .filter(Boolean)
         .join('\n\n');
-      await Share.share({ message });
+      // A real, local photo file, attached best-effort via Share's own
+      // `url` field -- how much (if anything) a given target messaging
+      // app actually does with it alongside `message` genuinely varies by
+      // app/OS, not a guaranteed universal thumbnail attachment, but the
+      // honest, no-new-dependency way to try.
+      const photoTarget = resolvePhotoTarget(entry);
+      const photoUri = photoTarget ? await getPhotoForTarget(photoTarget) : null;
+      await Share.share(photoUri ? { message, url: photoUri } : { message });
     } catch (error) {
       console.error('[DynamicEntryActions] Failed to share', error);
       Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
@@ -3827,10 +4090,26 @@ const styles = StyleSheet.create({
   },
   buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background },
   buildRecipeButtonDisabled: { opacity: 0.5 },
-  // DynamicEntryActions' own Schedule/Share row, 2026-08-15 -- a lighter
-  // touch than buildRecipeButton's own solid fill, since these are two
-  // co-equal secondary actions sitting side by side rather than the one
-  // unambiguous CTA a curated Recipe's own "Build This Recipe" button is.
+  // "Build This Recipe" plus its own small, real Share button sitting
+  // right beside it, 2026-08-15 -- see CuratedRecipeShareButton's own
+  // comment.
+  recipeButtonRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
+  recipeButtonFlex: { flex: 1, marginTop: 0 },
+  recipeShareButton: {
+    width: 44,
+    height: 44,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: TAB_COLOR,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  // DynamicEntryActions' own Schedule/Share (or Save/Favorite/Delete) row,
+  // 2026-08-15 -- a lighter touch than buildRecipeButton's own solid fill,
+  // since these are co-equal secondary actions sitting side by side rather
+  // than the one unambiguous CTA a curated Recipe's own "Build This
+  // Recipe" button is.
   dynamicActionRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   dynamicActionButton: {
     flex: 1,
@@ -3844,6 +4123,7 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
   },
   dynamicActionButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
+  dynamicActionButtonTextDanger: { color: colors.danger },
   dynamicActionConfirm: { ...typography.caption, color: colors.accent, marginTop: 8 },
   dynamicScheduleForm: {
     marginTop: 12,
@@ -3906,6 +4186,9 @@ const styles = StyleSheet.create({
     borderTopColor: colors.border,
   },
   feedbackPrompt: { ...typography.caption, color: colors.textMuted, marginRight: 2 },
+  // 2026-08-15 -- the real, brief "thumbs-up doubled as add-to-favorites"
+  // confirmation, see FeedbackRow's own comment.
+  favoriteAddedText: { ...typography.caption, color: colors.accent, marginTop: 4 },
   citationsBlock: { marginTop: 10 },
   citationsLabel: { ...typography.eyebrow, color: TAB_COLOR, marginBottom: 2 },
   citationLink: {

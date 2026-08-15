@@ -1,25 +1,42 @@
-// 2026-08-15 -- the real receiving screen for a shared item, direct
-// request: "If they send to has the app, it gets added to their own app
-// under Saved and is identified as having been shared from whomever sent
-// it to them, but not in a big way. Sort of a footnote." Reached via a
+// 2026-08-15 -- the real receiving screen for a shared item. Reached via a
 // real hashimotosapp://import-shared?data=... deep link (see
-// lib/db.ts's own encodeShareLink/encodeMealShareLink) -- Expo Router
-// already resolves that link straight to this route and hands `data`
-// here as an already-decoded query param.
+// lib/sharing.ts's own encodeShareLink/encodeMealShareLink/
+// encodeShareLinkFromCuratedRecipe) -- Expo Router already resolves that
+// link straight to this route and hands `data` here as an already-decoded
+// query param.
+//
+// Direct request: "When they receive it, it shows up in their My Kitchen
+// area under a heading of Recipes Shared With Me. It stays there until
+// they try it and decide if they want to add it to their own saved
+// recipes or as a favorite, then it moves out... if they didn't like the
+// recipe they can just delete it." This screen's own real job is only the
+// FIRST half of that -- a genuine, explicit, informed local confirmation
+// (the one real safety gate this app can offer before the real invitation-
+// based pairing/encryption layer named in CLAUDE.md's own standing
+// security-requirement note exists) before anything gets written at all --
+// stageSharedItem writes a real staging row (lib/sharing.ts's own
+// shared_recipes table), never a permanent saved record directly. The
+// "try it, then decide" half lives on the resulting Purple Digest card
+// itself (see DynamicEntryActions' own 'shared' branch in
+// app/(tabs)/purple-digest.tsx).
 //
 // Never writes anything before a real, explicit confirmation -- the same
 // discipline this app already holds every other "external, unverified
 // input" boundary to. decodeShareEnvelope is defensive by design (returns
 // null for anything genuinely malformed), so a bad/corrupted link shows a
 // plain, honest "this link doesn't look right" state instead of crashing.
+// A real photo, when the envelope carries one, previews directly from its
+// own base64 bytes (a plain data: URI -- no need to write a real file just
+// to show a preview); stageSharedItem is the one real place that decodes
+// it into a genuine local file, once the person actually confirms.
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
-import { decodeShareEnvelope, importSharedItem, type ShareEnvelope } from '../lib/db';
+import { decodeShareEnvelope, stageSharedItem, type ShareEnvelope } from '../lib/sharing';
 
 function previewIngredientLines(envelope: ShareEnvelope): string[] {
   if (envelope.payload.kind === 'component') {
@@ -49,10 +66,10 @@ export default function ImportSharedScreen() {
     if (!envelope) return;
     setStatus('saving');
     try {
-      await importSharedItem(envelope);
+      await stageSharedItem(envelope);
       setStatus('saved');
     } catch (error) {
-      console.error('[ImportSharedScreen] Failed to import shared item', error);
+      console.error('[ImportSharedScreen] Failed to stage shared item', error);
       setErrorMessage("Something went wrong saving this. Please try again.");
       setStatus('error');
     }
@@ -77,9 +94,10 @@ export default function ImportSharedScreen() {
       <View style={styles.screen}>
         <View style={styles.body}>
           <Ionicons name="checkmark-circle-outline" size={40} color={colors.accent} />
-          <Text style={styles.title}>Added to My Kitchen</Text>
+          <Text style={styles.title}>Saved to Shared Recipes</Text>
           <Text style={styles.text}>
-            {previewName(envelope)} is now saved, with a small note showing it was shared by {envelope.fromName}.
+            {previewName(envelope)} is now under Recipes Shared With Me, in My Kitchen -- shared by {envelope.fromName}. Try
+            it, then save it to your own recipes or as a favorite, or just delete it if it&apos;s not for you.
           </Text>
           <TouchableOpacity
             style={styles.primaryButton}
@@ -94,11 +112,16 @@ export default function ImportSharedScreen() {
   }
 
   const ingredientLines = previewIngredientLines(envelope);
+  const photoBase64 = envelope.payload.photoBase64;
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
       <Text style={styles.fromLine}>Shared with you by {envelope.fromName}</Text>
       <Text style={styles.title}>{previewName(envelope)}</Text>
+
+      {photoBase64 ? (
+        <Image source={{ uri: `data:image/jpeg;base64,${photoBase64}` }} style={styles.photo} resizeMode="cover" />
+      ) : null}
 
       <Text style={styles.sectionLabel}>Ingredients</Text>
       {ingredientLines.map((line, index) => (
@@ -116,7 +139,7 @@ export default function ImportSharedScreen() {
           onPress={handleAdd}
           disabled={status === 'saving'}
         >
-          <Text style={styles.primaryButtonText}>{status === 'saving' ? 'Adding…' : 'Add to My Kitchen'}</Text>
+          <Text style={styles.primaryButtonText}>{status === 'saving' ? 'Saving…' : 'Save to Shared Recipes'}</Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[styles.secondaryButton, styles.actionButton]}
@@ -137,6 +160,7 @@ const styles = StyleSheet.create({
   fromLine: { ...typography.caption, color: colors.textMuted, marginBottom: 4 },
   title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center' },
   text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
+  photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 16, backgroundColor: colors.surface },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 20, marginBottom: 6 },
   ingredientLine: { ...typography.body, color: colors.textPrimary, lineHeight: 20 },
   errorText: { ...typography.caption, color: colors.danger, marginTop: 16 },
