@@ -1,5 +1,5 @@
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
-import Svg, { Circle, Line, Path } from 'react-native-svg';
+import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 
@@ -7,6 +7,13 @@ const HEIGHT = 140;
 const TOP_Y = 16;
 const BASE_Y = HEIGHT - 30;
 const NODE_RADIUS = 6;
+// A real gutter for the new yMin/yMax value labels, 2026-08-15 -- reported
+// directly: "there is a line, but it literally tells me nothing." A bare
+// line with only two DATE labels (the chart's own pre-existing
+// formatShortDate row) never told anyone what the line's own height
+// actually meant. Wide enough for a real 3-digit value ("120%") without
+// crowding the leftmost plotted point.
+const Y_AXIS_LABEL_WIDTH = 34;
 
 const MONTH_ABBREVIATIONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -29,6 +36,8 @@ export function TrendLineChart({
   yMin,
   yMax,
   referenceLine,
+  referenceLineLabel,
+  valueFormatter = (value) => String(Math.round(value)),
   emptyMessage = 'Not enough logged history yet to chart a trend.',
   lineColor = colors.primary,
 }: {
@@ -36,11 +45,19 @@ export function TrendLineChart({
   yMin: number;
   yMax: number;
   referenceLine?: number;
+  // What the dashed reference line actually represents (e.g. "100% target",
+  // "Typical range midpoint") -- an unlabeled dashed line is exactly as
+  // uninformative as an unlabeled axis was.
+  referenceLineLabel?: string;
+  // How a raw plotted value should read as text -- nutrients want "45%",
+  // weight wants "72 kg", a lab test wants its own real unit. Defaults to a
+  // plain rounded number for any caller that doesn't care.
+  valueFormatter?: (value: number) => string;
   emptyMessage?: string;
   lineColor?: string;
 }) {
   const { width: windowWidth } = useWindowDimensions();
-  const width = Math.max(200, windowWidth - 40 - NODE_RADIUS * 2);
+  const plotWidth = Math.max(160, windowWidth - 40 - NODE_RADIUS * 2 - Y_AXIS_LABEL_WIDTH);
 
   if (points.length < 2) {
     return (
@@ -58,7 +75,7 @@ export function TrendLineChart({
 
   function dateToX(date: string): number {
     const t = Math.max(0, Math.min(1, (new Date(date).getTime() - rangeStartMs) / dateSpan));
-    return NODE_RADIUS + t * width;
+    return Y_AXIS_LABEL_WIDTH + NODE_RADIUS + t * plotWidth;
   }
 
   function valueToY(value: number): number {
@@ -67,20 +84,37 @@ export function TrendLineChart({
   }
 
   const pathD = sorted.map((point, index) => `${index === 0 ? 'M' : 'L'} ${dateToX(point.date)},${valueToY(point.value)}`).join(' ');
+  const plotRightEdge = Y_AXIS_LABEL_WIDTH + NODE_RADIUS + plotWidth;
+  const referenceY = referenceLine != null ? valueToY(referenceLine) : null;
 
   return (
     <View style={styles.container}>
-      <Svg width={width + NODE_RADIUS * 2} height={HEIGHT}>
-        {referenceLine != null ? (
+      <Svg width={plotRightEdge + NODE_RADIUS} height={HEIGHT}>
+        {/* Real yMax/yMin value labels -- the actual fix for "the line
+            tells me nothing." Placed in the left gutter, roughly level
+            with the chart's own top and bottom plotting bounds. */}
+        <SvgText x={0} y={TOP_Y + 4} fontSize={11} fill={colors.textMuted}>
+          {valueFormatter(yMax)}
+        </SvgText>
+        <SvgText x={0} y={BASE_Y + 4} fontSize={11} fill={colors.textMuted}>
+          {valueFormatter(yMin)}
+        </SvgText>
+
+        {referenceY != null ? (
           <Line
-            x1={NODE_RADIUS}
-            x2={NODE_RADIUS + width}
-            y1={valueToY(referenceLine)}
-            y2={valueToY(referenceLine)}
+            x1={Y_AXIS_LABEL_WIDTH + NODE_RADIUS}
+            x2={plotRightEdge}
+            y1={referenceY}
+            y2={referenceY}
             stroke={colors.border}
             strokeWidth={1.5}
             strokeDasharray="4,4"
           />
+        ) : null}
+        {referenceY != null && referenceLineLabel ? (
+          <SvgText x={Y_AXIS_LABEL_WIDTH + NODE_RADIUS + 4} y={referenceY - 4} fontSize={10} fill={colors.textMuted}>
+            {referenceLineLabel}
+          </SvgText>
         ) : null}
 
         <Path d={pathD} stroke={lineColor} strokeWidth={3} fill="none" />
@@ -95,7 +129,7 @@ export function TrendLineChart({
           />
         ))}
       </Svg>
-      <View style={styles.labelRow}>
+      <View style={[styles.labelRow, { paddingLeft: Y_AXIS_LABEL_WIDTH }]}>
         <Text style={styles.labelText}>{formatShortDate(sorted[0].date)}</Text>
         <Text style={styles.labelText}>{formatShortDate(sorted[sorted.length - 1].date)}</Text>
       </View>

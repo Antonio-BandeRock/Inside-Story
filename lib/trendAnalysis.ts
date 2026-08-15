@@ -62,8 +62,21 @@ export async function getNutrientTrendSeries(nutrientCode: string, days: number)
   let displayName: string | null = null;
   let unit: string | null = null;
 
-  for (const date of dates) {
-    const breakdown = await getDailyNutrientBreakdown(date);
+  // Reported directly, 2026-08-15: "why does it take so long... for any
+  // time frame." getDailyNutrientBreakdown is real, but genuinely heavy --
+  // per day it queries every meal, then every meal item, then per-item
+  // getFoodNutrients/getFoodUnitWeight/getFoodCategory calls, each a real
+  // SQLite round-trip. This used to await that whole chain one day at a
+  // time in a for-loop, so a 90-day range paid for 90 fully sequential
+  // heavy queries even on a mostly-empty range. Every day's own breakdown
+  // is genuinely independent of every other day's, so there's no reason to
+  // serialize them -- fired concurrently instead, the same real Promise.all
+  // pattern this app already uses everywhere else for independent reads.
+  const breakdowns = await Promise.all(dates.map((date) => getDailyNutrientBreakdown(date)));
+
+  for (let i = 0; i < dates.length; i++) {
+    const date = dates[i];
+    const breakdown = breakdowns[i];
     if (breakdown.meals.length === 0) continue;
 
     const entries = analyzeNutrientIntake(breakdown.driRows, breakdown.dayTotals, breakdown.supplementTotals);
@@ -85,12 +98,16 @@ export async function getSixDimensionsFlagTrendSeries(days: number): Promise<Tre
   const dates = dateRangeStrings(days);
   const points: TrendPoint[] = [];
 
-  for (const date of dates) {
-    const breakdown = await getDailySixDimensionsBreakdown(date);
+  // Same real fix as getNutrientTrendSeries just above -- each day's own
+  // breakdown is independent, fired concurrently instead of one at a time.
+  const breakdowns = await Promise.all(dates.map((date) => getDailySixDimensionsBreakdown(date)));
+
+  for (let i = 0; i < dates.length; i++) {
+    const breakdown = breakdowns[i];
     if (breakdown.meals.length === 0) continue;
 
     const flagCount = breakdown.day.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
-    points.push({ date, value: flagCount });
+    points.push({ date: dates[i], value: flagCount });
   }
 
   return points;

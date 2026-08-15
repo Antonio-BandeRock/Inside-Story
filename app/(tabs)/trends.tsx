@@ -143,11 +143,21 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
   },
 ];
 
+// Reported directly: "Is it tallying the past N days or the next N days?"
+// Genuinely ambiguous with a bare "7d"/"30d"/"90d" pill and no other cue on
+// screen. This has always looked backward (dateStringDaysAgo subtracts from
+// today, see trendAnalysis.ts), it just never said so.
 const DAY_RANGE_OPTIONS = [
-  { value: 7, label: '7d' },
-  { value: 30, label: '30d' },
-  { value: 90, label: '90d' },
+  { value: 7, label: 'Last 7d' },
+  { value: 30, label: 'Last 30d' },
+  { value: 90, label: 'Last 90d' },
 ] as const;
+
+// The real, established 1-4 severity wording from app/(tabs)/log.tsx's own
+// SeverityPicker (SEVERITY_OPTIONS) -- reused here rather than a second,
+// independently-worded scale, so a Y-axis label on the Symptoms chart says
+// the same thing the person actually tapped when logging it.
+const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: 'Severe', 4: 'Very severe' };
 
 // Same green/yellow/red vocabulary the rest of the app uses for nutrient
 // status (see index.tsx's nutrientRingColor (Home)) -- a nutrient's trend line
@@ -396,6 +406,8 @@ export default function TrendsScreen() {
                       yMin={0}
                       yMax={Math.max(120, ...(nutrientSeries?.points.map((point) => point.value) ?? [120]))}
                       referenceLine={100}
+                      referenceLineLabel="100% target"
+                      valueFormatter={(value) => `${Math.round(value)}%`}
                       lineColor={nutrientStatusColor(nutrientSeries?.latestStatus ?? null)}
                       emptyMessage="Log a few meals on different days to see this nutrient's trend."
                     />
@@ -414,6 +426,7 @@ export default function TrendsScreen() {
                     points={sixDsSeries ?? []}
                     yMin={0}
                     yMax={Math.max(4, ...(sixDsSeries ?? []).map((point) => point.value))}
+                    valueFormatter={(value) => `${Math.round(value)} flagged`}
                     lineColor={colors.statusFlagged}
                     emptyMessage="Log a few meals on different days to see flagged items trend over time."
                   />
@@ -432,6 +445,7 @@ export default function TrendsScreen() {
                     }))}
                     yMin={1}
                     yMax={4}
+                    valueFormatter={(value) => SEVERITY_LABELS[Math.round(value)] ?? String(Math.round(value))}
                     emptyMessage="Log a flare or food reaction in Signals to see a severity trend here."
                   />
                   <View style={styles.legendRow}>
@@ -468,6 +482,7 @@ export default function TrendsScreen() {
                         points={displayPoints}
                         yMin={yMin}
                         yMax={yMax}
+                        valueFormatter={(value) => `${value.toFixed(1)} ${measurementSystem === 'imperial' ? 'lb' : 'kg'}`}
                         emptyMessage="Log a weight reading on Profile to see it trend here."
                       />
                       {latest ? (
@@ -511,6 +526,8 @@ export default function TrendsScreen() {
                           yMin={yMin}
                           yMax={yMax}
                           referenceLine={referenceLine}
+                          referenceLineLabel={referenceLine != null ? 'Typical range midpoint' : undefined}
+                          valueFormatter={(value) => `${value} ${latest?.unit ?? test?.rangeUnit ?? ''}`.trim()}
                           emptyMessage="Log a result for this test on Insights' own Labs lens to see it trend here."
                         />
                         {latest ? (
