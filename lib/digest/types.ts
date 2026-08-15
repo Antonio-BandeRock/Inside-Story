@@ -20,6 +20,14 @@
 // system that doesn't exist in code yet. Wire it up for real once that
 // system ships, rather than fabricating the integration today.
 
+// Type-only import, erased entirely at compile time -- no real runtime
+// circular dependency risk, the same precedent lib/sixDimensionsReference.ts
+// -> lib/db.ts already established (see this app's own 2026-08-08 Insights
+// Nutrient Ranking entry in CLAUDE.md). Confirmed directly before adding
+// this: lib/db.ts imports nothing from lib/digest, and no lib/digest/*.ts
+// file imported from lib/db.ts before this.
+import type { BuilderFavoriteItemType } from '../db';
+
 export type EvidenceTier = 'strong' | 'moderate' | 'weak';
 
 export type DigestCitation = {
@@ -232,6 +240,19 @@ export const DIGEST_CATEGORY_KEYS = [
   // personalized feature, since Profile carries no location/zone field to
   // build one against.
   'homeGardening',
+  // 2026-08-14 -- a real, new "Recipes" category, direct request: "These
+  // meals should all be available as pre-made choices already available to
+  // be used in the app, and are automatically available to them from the
+  // Digest area, where a new category of Recipes for different kinds of
+  // meals will be available." One real DigestEntry per curated_recipes row
+  // (see lib/digest/recipes.ts), each linking back to the real builder that
+  // can actually construct it (linkedCuratedRecipeId/linkedBuilderType
+  // below) via a "Build This Recipe" button. Given the same always-near-the-
+  // top placement as basicHealth/earthMatters/homeGardening in
+  // purple-digest.tsx's own reorder logic -- a real, discoverable food-
+  // building tool, not a disease condition, so grouping it alphabetically
+  // among the 19 conditions would bury it.
+  'recipes',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
@@ -312,6 +333,15 @@ export type DigestEntry = {
   // for any entry that isn't about one specific, individually pickable
   // food (which is nearly everything else in this Digest).
   relatedFoodNames?: string[];
+  // 2026-08-14, built for the new "Recipes" category -- the real
+  // curated_recipes.id this entry corresponds to, and which of the 10
+  // direct-ingredient Food builders can actually assemble it. Both must be
+  // set together (see PurpleDigestScreen's own DigestCard render) for a
+  // real "Build This Recipe" button to show; every other entry in this
+  // whole Digest leaves both unset, matching how relatedFoodNames/chart
+  // stay opt-in rather than retrofitted everywhere.
+  linkedCuratedRecipeId?: string;
+  linkedBuilderType?: BuilderFavoriteItemType;
 };
 
 export type ProblemFoodEntry = {

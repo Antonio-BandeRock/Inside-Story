@@ -16,6 +16,7 @@ import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreference
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
+import { clearSeededTestData, seedTestWeek } from '../lib/devSeed';
 import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
 import { setTopicMuted } from '../lib/generalHealthPreferences';
 import { USDA_ZONES } from '../lib/gardenZones';
@@ -116,7 +117,18 @@ const ICON_GRID_PILL_SIZE = 52;
 // collapse each of the sections of TabHub Icons inside of the already
 // collapsable section they are a part of?" A real, deliberate carve-out
 // from the "no nested sub-cards" rule stated above, not a reversal of it.
-const ALL_CARD_SECTION_KEYS = ['personal-info', 'conditions', 'general-health', 'appearance', 'meal-schedule'] as const;
+// 'developer' added 2026-08-14 -- a real 6th card, always in this list
+// (harmless to include even in a real production build, since nothing
+// renders it there -- see the actual JSX below, gated on the real __DEV__
+// global directly, not on this key's own presence here).
+const ALL_CARD_SECTION_KEYS = [
+  'personal-info',
+  'conditions',
+  'general-health',
+  'appearance',
+  'meal-schedule',
+  'developer',
+] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 
 // See ALL_CARD_SECTION_KEYS's own comment above for why this one area gets
@@ -487,6 +499,11 @@ export default function ProfileScreen() {
   // a single flat boolean, so picking for one tab doesn't visually disable
   // every other tab's row too.
   const [pickingImageForScope, setPickingImageForScope] = useState<string | null>(null);
+
+  // Developer Tools card, 2026-08-14 -- __DEV__-gated, see that card's own
+  // JSX below for the real "never in a production build" reasoning.
+  const [seedingTestWeek, setSeedingTestWeek] = useState(false);
+  const [clearingSeededData, setClearingSeededData] = useState(false);
 
   const [mealTimeBuffers, setMealTimeBuffers] = useState<Record<DayPart, TimeOfDayInput>>({
     breakfast: BLANK_TIME,
@@ -2077,6 +2094,74 @@ export default function ProfileScreen() {
           </View>
         ) : null}
       </View>
+
+      {/* Developer Tools -- 2026-08-14, gated on the real, standard React
+          Native __DEV__ global directly (not just ALL_CARD_SECTION_KEYS'
+          own inclusion of 'developer' above, which is harmless either way)
+          -- this whole card, including its header, renders nothing at all
+          in a real production build. Seeds/clears lib/devSeed.ts's own
+          seedTestWeek()/clearSeededTestData(), built purely so Past Meals,
+          Trends, and Signals have real, genuine content to test against on
+          a fresh dev build -- see that file's own header comment for the
+          full "why." */}
+      {__DEV__ ? (
+        <View style={styles.card}>
+          {renderCardHeader('developer', 'Developer Tools')}
+          {!collapsedSections.has('developer') ? (
+            <View style={styles.cardBody}>
+              <Text style={styles.helpText}>
+                Only ever shown in a dev build, never a real release. Seeds a real, [TEST]-prefixed test week
+                (six past days already logged, today&apos;s breakfast and lunch, two upcoming days still
+                planned, a handful of saved sides/salads/etc., and a few food trials in different states) so
+                Past Meals, Trends, and Signals all have something genuine to look at. Clear removes exactly
+                what this tool itself created, nothing else.
+              </Text>
+              <TouchableOpacity
+                style={styles.addAllergyButton}
+                disabled={seedingTestWeek}
+                onPress={async () => {
+                  setSeedingTestWeek(true);
+                  try {
+                    await seedTestWeek();
+                    Alert.alert('Seeded', 'A real test week has been created.');
+                  } catch (error) {
+                    Alert.alert(
+                      'Something went wrong',
+                      error instanceof Error ? error.message : 'Failed to seed test data.',
+                    );
+                  } finally {
+                    setSeedingTestWeek(false);
+                  }
+                }}
+              >
+                <Text style={styles.addAllergyButtonText}>{seedingTestWeek ? 'Seeding...' : 'Seed a Test Week'}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.clearButton}
+                disabled={clearingSeededData}
+                onPress={async () => {
+                  setClearingSeededData(true);
+                  try {
+                    const { deletedCount } = await clearSeededTestData();
+                    Alert.alert('Cleared', `Removed ${deletedCount} seeded record(s).`);
+                  } catch (error) {
+                    Alert.alert(
+                      'Something went wrong',
+                      error instanceof Error ? error.message : 'Failed to clear seeded test data.',
+                    );
+                  } finally {
+                    setClearingSeededData(false);
+                  }
+                }}
+              >
+                <Text style={styles.clearButtonText}>
+                  {clearingSeededData ? 'Clearing...' : 'Clear Seeded Test Data'}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+        </View>
+      ) : null}
     </ScrollView>
     {closeButton}
     </View>

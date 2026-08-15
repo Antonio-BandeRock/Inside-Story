@@ -307,6 +307,27 @@ export default function FoodScreen() {
     fromSoupFavoriteId,
     fromSauceFavoriteId,
     fromHandheldFavoriteId,
+    // Purple Digest's own new "Recipes" category, 2026-08-14 -- one
+    // "Build This Recipe" button per curated-recipe card (see
+    // app/(tabs)/purple-digest.tsx's own DigestCard), one param per
+    // builder, same shape as the fromXFavoriteId params just above: opens
+    // that builder fresh and pre-filled from the named curated recipe,
+    // never marks anything as an edit. Reused directly by each builder's
+    // own openRecipeId prop, added in Phase 2 -- see e.g. SideBuilder.tsx's
+    // own openRecipeId comment for the full mechanism (getCuratedRecipe ->
+    // getFoodIdentity/getFoodScores per ingredient). No openMealRecipeId --
+    // Meal Builder has no curated recipes of its own; it assembles from the
+    // other ten builders' saved output instead.
+    openSideRecipeId,
+    openSaladRecipeId,
+    openSmoothieRecipeId,
+    openFermentationRecipeId,
+    openBeverageRecipeId,
+    openSnackRecipeId,
+    openBakedGoodsRecipeId,
+    openSoupRecipeId,
+    openSauceRecipeId,
+    openHandheldRecipeId,
     // Set when reached via a saved MEAL favorite's own "Use this Favorite"
     // tap (see app/food-items.tsx) -- 2026-08-08. Named mealFavoriteId
     // rather than fromMealFavoriteId (unlike the ten fromXFavoriteId params
@@ -360,6 +381,16 @@ export default function FoodScreen() {
     fromSoupFavoriteId?: string;
     fromSauceFavoriteId?: string;
     fromHandheldFavoriteId?: string;
+    openSideRecipeId?: string;
+    openSaladRecipeId?: string;
+    openSmoothieRecipeId?: string;
+    openFermentationRecipeId?: string;
+    openBeverageRecipeId?: string;
+    openSnackRecipeId?: string;
+    openBakedGoodsRecipeId?: string;
+    openSoupRecipeId?: string;
+    openSauceRecipeId?: string;
+    openHandheldRecipeId?: string;
     mealFavoriteId?: string;
     scheduleItemId?: string;
     mealType?: string;
@@ -540,6 +571,62 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      // Purple Digest's own "Build This Recipe" routing, 2026-08-14 -- same
+      // shape as the fromXFavoriteId checks just above, checked right after
+      // them so an edit or favorite-reuse link always wins if somehow more
+      // than one of these were present at once (shouldn't happen in
+      // practice, since purple-digest.tsx only ever pushes one of these ten
+      // params at a time).
+      if (openSideRecipeId) {
+        setLens('sideBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openSaladRecipeId) {
+        setLens('saladBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openSmoothieRecipeId) {
+        setLens('smoothieBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openFermentationRecipeId) {
+        setLens('fermentationBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openBeverageRecipeId) {
+        setLens('beverageBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openSnackRecipeId) {
+        setLens('snackBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openBakedGoodsRecipeId) {
+        setLens('bakedGoodsBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openSoupRecipeId) {
+        setLens('soupBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openSauceRecipeId) {
+        setLens('saucesBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (openHandheldRecipeId) {
+        setLens('handheldsBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return handleBlur;
     }, [
@@ -566,6 +653,16 @@ export default function FoodScreen() {
       fromSoupFavoriteId,
       fromSauceFavoriteId,
       fromHandheldFavoriteId,
+      openSideRecipeId,
+      openSaladRecipeId,
+      openSmoothieRecipeId,
+      openFermentationRecipeId,
+      openBeverageRecipeId,
+      openSnackRecipeId,
+      openBakedGoodsRecipeId,
+      openSoupRecipeId,
+      openSauceRecipeId,
+      openHandheldRecipeId,
     ]),
   );
 
@@ -880,17 +977,32 @@ export default function FoodScreen() {
             // otherwise) -- see that component's own comment for why,
             // same FlatList-in-ScrollView reasoning as Insights' own Food
             // Lookup lens.
-            <SideBuilder tabColor={TAB_COLOR} editSideId={editSideId} fromFavoriteId={fromSideFavoriteId} />
+            <SideBuilder
+              tabColor={TAB_COLOR}
+              editSideId={editSideId}
+              fromFavoriteId={fromSideFavoriteId}
+              openRecipeId={openSideRecipeId}
+            />
           ) : lens === 'saladBuilder' ? (
             // SaladBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment) -- same layout-ownership reasoning
             // applies here too.
-            <SaladBuilder tabColor={TAB_COLOR} editSaladId={editSaladId} fromFavoriteId={fromSaladFavoriteId} />
+            <SaladBuilder
+              tabColor={TAB_COLOR}
+              editSaladId={editSaladId}
+              fromFavoriteId={fromSaladFavoriteId}
+              openRecipeId={openSaladRecipeId}
+            />
           ) : lens === 'smoothieBuilder' ? (
             // SmoothieBuilder is a direct adaptation of SaladBuilder (see
             // that file's own top comment) -- same layout-ownership
             // reasoning applies here too.
-            <SmoothieBuilder tabColor={TAB_COLOR} editSmoothieId={editSmoothieId} fromFavoriteId={fromSmoothieFavoriteId} />
+            <SmoothieBuilder
+              tabColor={TAB_COLOR}
+              editSmoothieId={editSmoothieId}
+              fromFavoriteId={fromSmoothieFavoriteId}
+              openRecipeId={openSmoothieRecipeId}
+            />
           ) : lens === 'fermentationBuilder' ? (
             // FermentationBuilder is a direct adaptation of SideBuilder
             // (see that file's own top comment for why Side, not Salad/
@@ -899,6 +1011,7 @@ export default function FoodScreen() {
               tabColor={TAB_COLOR}
               editFermentationId={editFermentationId}
               fromFavoriteId={fromFermentationFavoriteId}
+              openRecipeId={openFermentationRecipeId}
             />
           ) : lens === 'beverageBuilder' ? (
             // BeverageBuilder is a direct adaptation of SideBuilder (see
@@ -911,14 +1024,23 @@ export default function FoodScreen() {
             // lens. editBeverageId/fromBeverageFavoriteId (editing or
             // reusing something that already exists) skip it outright,
             // matching every other builder's own identical deep-link
-            // convention. Two of the picker's own seven real options
+            // convention -- openBeverageRecipeId (Purple Digest's own
+            // "Build This Recipe" button, 2026-08-14) does the same, for
+            // the identical reason: a curated recipe already names its own
+            // real ingredients, so there's no real "what kind" question
+            // left to ask. Two of the picker's own seven real options
             // (Smoothies, Fermentation) don't lead to a beverageSubtype at
             // all -- BeverageSubtypePicker's own onPress calls setLens
             // directly for those, so this branch is simply never reached
             // for them; this component just needs to render the picker
             // until a real "stay in Beverage Builder" answer sets one.
-            editBeverageId || fromBeverageFavoriteId ? (
-              <BeverageBuilder tabColor={TAB_COLOR} editBeverageId={editBeverageId} fromFavoriteId={fromBeverageFavoriteId} />
+            editBeverageId || fromBeverageFavoriteId || openBeverageRecipeId ? (
+              <BeverageBuilder
+                tabColor={TAB_COLOR}
+                editBeverageId={editBeverageId}
+                fromFavoriteId={fromBeverageFavoriteId}
+                openRecipeId={openBeverageRecipeId}
+              />
             ) : beverageSubtype ? (
               <BeverageBuilder tabColor={TAB_COLOR} subtype={beverageSubtype} />
             ) : (
@@ -934,7 +1056,12 @@ export default function FoodScreen() {
             // SnackBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment for why Side, not Salad/Smoothie) --
             // same layout-ownership reasoning applies here too.
-            <SnackBuilder tabColor={TAB_COLOR} editSnackId={editSnackId} fromFavoriteId={fromSnackFavoriteId} />
+            <SnackBuilder
+              tabColor={TAB_COLOR}
+              editSnackId={editSnackId}
+              fromFavoriteId={fromSnackFavoriteId}
+              openRecipeId={openSnackRecipeId}
+            />
           ) : lens === 'bakedGoodsBuilder' ? (
             // BakedGoodsBuilder is a direct adaptation of SideBuilder (see
             // that file's own top comment for why Side, not Salad/Smoothie)
@@ -943,19 +1070,30 @@ export default function FoodScreen() {
               tabColor={TAB_COLOR}
               editBakedGoodsId={editBakedGoodsId}
               fromFavoriteId={fromBakedGoodsFavoriteId}
+              openRecipeId={openBakedGoodsRecipeId}
             />
           ) : lens === 'soupBuilder' ? (
             // SoupBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment for why Side, not Salad/Smoothie) --
             // same layout-ownership reasoning applies here too.
-            <SoupBuilder tabColor={TAB_COLOR} editSoupId={editSoupId} fromFavoriteId={fromSoupFavoriteId} />
+            <SoupBuilder
+              tabColor={TAB_COLOR}
+              editSoupId={editSoupId}
+              fromFavoriteId={fromSoupFavoriteId}
+              openRecipeId={openSoupRecipeId}
+            />
           ) : lens === 'saucesBuilder' ? (
             // SaucesBuilder is a direct adaptation of SideBuilder (see that
             // file's own top comment for why Side, not Salad/Smoothie, and
             // for why this one component is plural despite everything
             // inside it being named singular) -- same layout-ownership
             // reasoning applies here too.
-            <SaucesBuilder tabColor={TAB_COLOR} editSauceId={editSauceId} fromFavoriteId={fromSauceFavoriteId} />
+            <SaucesBuilder
+              tabColor={TAB_COLOR}
+              editSauceId={editSauceId}
+              fromFavoriteId={fromSauceFavoriteId}
+              openRecipeId={openSauceRecipeId}
+            />
           ) : lens === 'handheldsBuilder' ? (
             // HandheldsBuilder is a direct adaptation of SideBuilder (see
             // that file's own top comment for why Side, not Salad/Smoothie,
@@ -963,7 +1101,12 @@ export default function FoodScreen() {
             // inside it being named singular, the same situation Sauces
             // already established) -- same layout-ownership reasoning
             // applies here too.
-            <HandheldsBuilder tabColor={TAB_COLOR} editHandheldId={editHandheldId} fromFavoriteId={fromHandheldFavoriteId} />
+            <HandheldsBuilder
+              tabColor={TAB_COLOR}
+              editHandheldId={editHandheldId}
+              fromFavoriteId={fromHandheldFavoriteId}
+              openRecipeId={openHandheldRecipeId}
+            />
           ) : null}
         </GatedTabContent>
       </SwipeableTabScreen>

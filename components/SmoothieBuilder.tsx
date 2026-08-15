@@ -450,10 +450,15 @@ export function SmoothieBuilder({
   // except this never marks anything as an edit -- finishSmoothie always
   // creates a genuinely NEW smoothie from a favorite.
   fromFavoriteId,
+  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // recipe entry, 2026-08-14 -- see SaladBuilder.tsx's own identical
+  // openRecipeId for the full reasoning.
+  openRecipeId,
 }: {
   tabColor: string;
   editSmoothieId?: string;
   fromFavoriteId?: string;
+  openRecipeId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -748,6 +753,17 @@ export function SmoothieBuilder({
       setLoadingCuratedRecipeId(null);
     }
   }
+
+  // Auto-fires the flow above when arriving from a Purple Digest "Build
+  // This Recipe" button (see openRecipeId's own comment) -- the same
+  // !editSmoothieId/!fromFavoriteId guard the manual picker cards use, so a
+  // genuine edit/favorite-resume in progress is never silently discarded.
+  useEffect(() => {
+    if (openRecipeId && !editSmoothieId && !fromFavoriteId) {
+      handlePickCuratedRecipe(openRecipeId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openRecipeId]);
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);

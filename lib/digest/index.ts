@@ -48,6 +48,7 @@ import { PRODUCE_PROFILES_ENTRIES } from './produceProfiles';
 import { PROSTATE_HEALTH_ENTRIES } from './prostateHealth';
 import { PSORIASIS_ENTRIES } from './psoriasis';
 import { READING_LABELS_ENTRIES } from './readingLabels';
+import { RECIPES_ENTRIES } from './recipes';
 import { RHEUMATOID_ARTHRITIS_ENTRIES } from './rheumatoidArthritis';
 import { SELF_ADVOCACY_ENTRIES } from './selfAdvocacy';
 import { SJOGRENS_ENTRIES } from './sjogrens';
@@ -126,6 +127,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...MENTAL_HEALTH_ENTRIES,
   ...HOME_GARDENING_ENTRIES,
   ...BODY_SYSTEMS_ENTRIES,
+  ...RECIPES_ENTRIES,
 ];
 
 // The old `| 'problemFoods'` union member is gone as of the 2026-08-08
@@ -374,6 +376,16 @@ export const DIGEST_CATEGORY_META: {
     label: 'Gardening',
     icon: 'leaf-outline',
     description: "Growing even a modest amount of your own food is a documented way to cut a grocery bill and eat fresher produce, what to grow, organized by climate zone so you can find guidance for where you actually live, plus container growing, beginner crops, and season extension.",
+  },
+  // 2026-08-14, direct request: "a new category of Recipes for different
+  // kinds of meals will be available." See recipes.ts's own header comment
+  // -- one real entry per bundled curated_recipes row, each with a "Build
+  // This Recipe" button that opens the matching Food builder pre-filled.
+  {
+    key: 'recipes',
+    label: 'Recipes',
+    icon: 'restaurant-outline',
+    description: 'Pre-built starter recipes for every direct-ingredient Food builder, from a whole-wheat loaf to homemade yogurt to a Mediterranean salad, each one already assembled and ready to build, adjust, or save.',
   },
 ];
 

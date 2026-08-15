@@ -1426,7 +1426,11 @@ export type CuratedRecipeSummary = {
   healthBenefit: string;
 };
 
-export async function listCuratedRecipes(builderType: 'salad' | 'smoothie'): Promise<CuratedRecipeSummary[]> {
+// Widened 2026-08-14 from the original 'salad' | 'smoothie' literal to the
+// real, already-exported BuilderFavoriteItemType union -- curated recipes
+// now span all 10 direct-ingredient builders, not just the first two this
+// feature originally shipped with.
+export async function listCuratedRecipes(builderType: BuilderFavoriteItemType): Promise<CuratedRecipeSummary[]> {
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<{ id: string; name: string; flavor_profile: string; health_benefit: string }>(
     'SELECT id, name, flavor_profile, health_benefit FROM curated_recipes WHERE builder_type = ? ORDER BY sort_order',
@@ -1543,6 +1547,110 @@ export async function getCuratedRecipe(
     servingSizeUnit: recipe.serving_size_unit,
     ingredients,
   };
+}
+
+// Fetches the curated recipe strains a real curated fermentation recipe
+// declares it uses (see curated_recipe_strains just below) -- a real,
+// separate lookup from getCuratedRecipe's own ingredient resolution, since
+// a strain isn't a food and doesn't go through resolveCuratedRecipeIngredient
+// at all.
+export async function getCuratedRecipeStrainIds(recipeId: string): Promise<string[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<{ strain_id: string }>(
+    'SELECT strain_id FROM curated_recipe_strains WHERE recipe_id = ?',
+    recipeId,
+  );
+  return rows.map((row) => row.strain_id);
+}
+
+// --- Real, specific bacterial-strain tracking (2026-08-14) ----------------
+//
+// Two real layers, matching this app's own already-established
+// reference-vs-local split (see this file's own initializeDatabase() for
+// fermentation_batch_strains, the local-only half): fermentation_strains
+// is a real, small, bundled reference catalog (scripts/add_fermentation_
+// strains.py -- 7 real strains, every one reused directly from already-
+// published, already-cited Purple Digest content, zero new research done
+// here), and fermentation_batch_strains links a real, saved fermentation
+// batch to whichever of those real strains a person actually used.
+export type FermentationStrain = {
+  id: string;
+  scientificName: string;
+  commonName: string | null;
+  category: string | null;
+  description: string;
+  digestEntryId: string | null;
+};
+
+function toFermentationStrain(row: {
+  id: string;
+  scientific_name: string;
+  common_name: string | null;
+  category: string | null;
+  description: string;
+  digest_entry_id: string | null;
+}): FermentationStrain {
+  return {
+    id: row.id,
+    scientificName: row.scientific_name,
+    commonName: row.common_name,
+    category: row.category,
+    description: row.description,
+    digestEntryId: row.digest_entry_id,
+  };
+}
+
+export async function listFermentationStrains(): Promise<FermentationStrain[]> {
+  const db = await getReferenceDatabase();
+  const rows = await db.getAllAsync<{
+    id: string;
+    scientific_name: string;
+    common_name: string | null;
+    category: string | null;
+    description: string;
+    digest_entry_id: string | null;
+  }>('SELECT id, scientific_name, common_name, category, description, digest_entry_id FROM fermentation_strains ORDER BY scientific_name');
+  return rows.map(toFermentationStrain);
+}
+
+export async function getFermentationStrain(id: string): Promise<FermentationStrain | null> {
+  const db = await getReferenceDatabase();
+  const row = await db.getFirstAsync<{
+    id: string;
+    scientific_name: string;
+    common_name: string | null;
+    category: string | null;
+    description: string;
+    digest_entry_id: string | null;
+  }>('SELECT id, scientific_name, common_name, category, description, digest_entry_id FROM fermentation_strains WHERE id = ?', id);
+  return row ? toFermentationStrain(row) : null;
+}
+
+// A real delete-then-insert replace, matching replaceMealItems's own
+// already-established pattern -- the whole real strain list for one
+// fermentation batch is always set at once (from a multi-select picker),
+// never appended one at a time, so there's no reason for a more granular
+// add/remove pair.
+export async function setFermentationBatchStrains(fermentationId: string, strainIds: string[]): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM fermentation_batch_strains WHERE fermentation_id = ?', fermentationId);
+  for (let i = 0; i < strainIds.length; i++) {
+    await db.runAsync(
+      'INSERT INTO fermentation_batch_strains (id, fermentation_id, strain_id) VALUES (?, ?, ?)',
+      `fbs_${Date.now()}_${i}`,
+      fermentationId,
+      strainIds[i],
+    );
+  }
+}
+
+export async function getFermentationBatchStrains(fermentationId: string): Promise<string[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ strain_id: string }>(
+    'SELECT strain_id FROM fermentation_batch_strains WHERE fermentation_id = ?',
+    fermentationId,
+  );
+  return rows.map((row) => row.strain_id);
 }
 
 // Used by getDailyNutrientAnalysis to resolve a volume unit (e.g. "cup")
@@ -3581,10 +3689,11 @@ async function runDatabaseInitialization() {
       -- Fermentation Builder's own real persistence, 2026-08-02 -- same
       -- per-builder-table reasoning as sides/side_ingredients,
       -- salads/salad_ingredients, and smoothies/smoothie_ingredients above.
-      -- Deliberately the same shape as those three (no strain-specific
-      -- columns) -- see components/FermentationBuilder.tsx's own top
-      -- comment for why real bacterial-strain tracking is out of scope
-      -- here, a separate future research workstream, not a schema gap.
+      -- Real bacterial-strain tracking (once flagged here as a separate
+      -- future research workstream) is now built -- see
+      -- fermentation_batch_strains just below, plus the reference-DB-side
+      -- fermentation_strains/curated_recipe_strains tables added 2026-08-14
+      -- via scripts/add_fermentation_strains.py.
       CREATE TABLE IF NOT EXISTS fermentations (
         id TEXT PRIMARY KEY,
         name TEXT NOT NULL,
@@ -3607,6 +3716,25 @@ async function runDatabaseInitialization() {
         cooking_method TEXT NOT NULL,
         prep_note TEXT,
         sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (fermentation_id) REFERENCES fermentations(id) ON DELETE CASCADE
+      );
+
+      -- 2026-08-14 -- a real many-to-many link between one saved
+      -- fermentation batch and the real strain(s) actually used in it.
+      -- Deliberately local, not reference-DB content (unlike
+      -- fermentation_strains itself, the real strain catalog, which lives
+      -- in the bundled reference database) -- this table records a real
+      -- person's own choice for their own saved batch. strain_id is a
+      -- plain, unenforced reference into the reference DB's own
+      -- fermentation_strains table, resolved at the application layer, the
+      -- same "no real cross-file SQL FK, food_id/source already cross this
+      -- exact boundary the identical way" pattern this whole app already
+      -- uses everywhere else.
+      CREATE TABLE IF NOT EXISTS fermentation_batch_strains (
+        id TEXT PRIMARY KEY,
+        fermentation_id TEXT NOT NULL,
+        strain_id TEXT NOT NULL,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         FOREIGN KEY (fermentation_id) REFERENCES fermentations(id) ON DELETE CASCADE
       );

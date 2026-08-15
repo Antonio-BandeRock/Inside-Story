@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Linking, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
@@ -20,7 +21,7 @@ import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
-import { getUserConditions, getVisibleFoodBaseNames } from '../../lib/db';
+import { getUserConditions, getVisibleFoodBaseNames, type BuilderFavoriteItemType } from '../../lib/db';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
 import {
   ALL_DIGEST_ENTRIES,
@@ -82,6 +83,25 @@ type Measurable = {
 // as Home's own background. Worth commissioning real Purple Digest art
 // later; not a blocker for shipping real content.
 const TAB_COLOR = colors.tabPurpleDigest;
+
+// A recipe entry's own linkedBuilderType (see lib/digest/recipes.ts) maps
+// onto one real param per builder in app/(tabs)/food.tsx -- openSideRecipeId,
+// openSaladRecipeId, etc., 2026-08-14, the exact same per-builder-named-
+// param convention editSideId/fromSideFavoriteId/etc. already use there.
+// DigestCard's own "Build This Recipe" button reads this to know which
+// param to push.
+const RECIPE_BUILDER_PARAM: Record<BuilderFavoriteItemType, string> = {
+  side: 'openSideRecipeId',
+  salad: 'openSaladRecipeId',
+  smoothie: 'openSmoothieRecipeId',
+  fermentation: 'openFermentationRecipeId',
+  beverage: 'openBeverageRecipeId',
+  snack: 'openSnackRecipeId',
+  bakedGoods: 'openBakedGoodsRecipeId',
+  soup: 'openSoupRecipeId',
+  sauce: 'openSauceRecipeId',
+  handheld: 'openHandheldRecipeId',
+};
 
 const DIGEST_HELP_SECTIONS: HelpSection[] = [
   {
@@ -335,6 +355,14 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   homeGardening: {
     heading: 'Gardening',
     body: "Cited guidance on growing fresh food at home, organized so it's actually usable in whichever climate someone lives in. Covers the economics of what a home garden saves, how to find and read a growing zone (the USDA Plant Hardiness Zone Map plus a short note on other countries' own systems), what to plant in four climate bands from short-season cold to true tropical, growing food in containers with no yard at all, which crops return the most grocery value, the easiest crops for a first garden, ways to extend a growing season, a measured freshness benefit over shipped produce, a soil-safety caution for urban soil, and a direct link to this app's own Earth Matters pollinator research, growing even a small amount of food at home is an individual-level way to act on several of that category's own larger findings.",
+  },
+  // 2026-08-14, direct request: "a new category of Recipes... will be
+  // available." One card per bundled starter recipe, tap it to see the
+  // whole ingredient list, then a "Build This Recipe" button opens the
+  // matching Food builder with everything already filled in.
+  recipes: {
+    heading: 'Recipes',
+    body: 'A pre-built starting point for every direct-ingredient Food builder: sides, salads, smoothies, fermentations, beverages, snacks, baked goods, soups, sauces, and handhelds. Each card shows the real flavor profile and health benefit up front, and a "Build This Recipe" button opens the matching builder already loaded with every ingredient, quantity, and prep step, ready to adjust, save, or log as-is.',
   },
 };
 
@@ -1497,8 +1525,18 @@ export default function PurpleDigestScreen() {
   const basicHealthMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'basicHealth')!;
   const earthMattersMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'earthMatters')!;
   const gardeningMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'homeGardening')!;
+  // 2026-08-14 -- a real, new "Recipes" category, given the same fixed,
+  // always-near-the-top treatment as the three above rather than sorted
+  // alphabetically among the 19 conditions (see recipes.ts's own header
+  // comment): a real, discoverable food-building tool, not a disease
+  // condition.
+  const recipesMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'recipes')!;
   const conditionMetas = DIGEST_CATEGORY_META.filter(
-    (meta) => meta.key !== 'basicHealth' && meta.key !== 'earthMatters' && meta.key !== 'homeGardening',
+    (meta) =>
+      meta.key !== 'basicHealth' &&
+      meta.key !== 'earthMatters' &&
+      meta.key !== 'homeGardening' &&
+      meta.key !== 'recipes',
   );
   const pinnedConditionMetas = conditionMetas
     .filter((meta) => pinnedDigestKeys.has(meta.key))
@@ -1510,6 +1548,7 @@ export default function PurpleDigestScreen() {
     basicHealthMeta,
     earthMattersMeta,
     gardeningMeta,
+    recipesMeta,
     ...pinnedConditionMetas,
     ...otherConditionMetas,
   ];
@@ -3008,6 +3047,7 @@ function DigestCard({
   onToggle: () => void;
   onJumpToRelated: (id: string) => void;
 }) {
+  const router = useRouter();
   if (isProblemFoodEntry(entry)) {
     return (
       <TouchableOpacity style={styles.card} onPress={onToggle} activeOpacity={0.85}>
@@ -3053,6 +3093,19 @@ function DigestCard({
           </Text>
           <EntryMetaRow entry={entry} />
           <Text style={styles.detailText}>{renderRichText(entry.summary, styles.detailTextBold)}</Text>
+          {entry.linkedCuratedRecipeId && entry.linkedBuilderType ? (
+            <TouchableOpacity
+              style={styles.buildRecipeButton}
+              activeOpacity={0.85}
+              onPress={() => {
+                const paramName = RECIPE_BUILDER_PARAM[entry.linkedBuilderType!];
+                router.push({ pathname: '/food', params: { [paramName]: entry.linkedCuratedRecipeId! } });
+              }}
+            >
+              <Ionicons name="hammer-outline" size={18} color={colors.background} />
+              <Text style={styles.buildRecipeButtonText}>Build This Recipe</Text>
+            </TouchableOpacity>
+          ) : null}
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
           <CitationsBlock citations={entry.citations} />
@@ -3250,6 +3303,22 @@ const styles = StyleSheet.create({
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
   detailTextBold: { fontWeight: '700' },
   swapText: { ...typography.body, color: colors.textPrimary, lineHeight: 19, marginTop: 2 },
+  // The Recipes category's own real CTA, 2026-08-14 -- solid-filled with
+  // TAB_COLOR (not the lightened popoverBackground tint other screens use
+  // for a primary action), since this is the one, unambiguous "do the
+  // thing" button on an entry that otherwise only ever shows plain,
+  // read-only research text.
+  buildRecipeButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: TAB_COLOR,
+    borderRadius: 10,
+    paddingVertical: 12,
+    marginTop: 12,
+  },
+  buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background },
   stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8 },
   feedbackRow: {
     flexDirection: 'row',

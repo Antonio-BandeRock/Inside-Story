@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
@@ -10,17 +10,25 @@ import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/fl
 import { typography } from '../constants/typography';
 import {
   getBuilderFavorite,
+  getCuratedRecipe,
+  getCuratedRecipeStrainIds,
   getFoodIdentity,
   getFoodScores,
   getFermentation,
+  getFermentationBatchStrains,
   getFermentationIngredients,
   getStoredMeasurementSystem,
   getConditionStages,
+  listCuratedRecipes,
+  listFermentationStrains,
   saveBuilderFavorite,
   saveFermentation,
+  setFermentationBatchStrains,
   updateFermentation,
+  type CuratedRecipeSummary,
   type FoodScore,
   type FermentationIngredientInput,
+  type FermentationStrain,
   type AlcoholCalculatorOverride,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
@@ -434,17 +442,20 @@ const SUMMARY_DIVIDER_SHIFT = 30;
 // real iteration -- inherited here as still-accurate design reasoning, not
 // a claim that FermentationBuilder went through that same history itself.
 //
-// Deliberately scoped to the SAME ingredient/ferment-name/servings shape as
-// Side Builder, nothing more, per CLAUDE.md's own explicit note: real
-// bacterial-strain tracking (Lactobacillus acidophilus, L. plantarum,
-// Bifidobacterium species, Streptococcus thermophilus, Leuconostoc
-// mesenteroides, etc., each with cited, documented effects) is a separate,
-// dedicated research workstream that hasn't started -- there's no reference
-// data layer for it yet to build a real UI against. The one concrete,
-// buildable difference from Side Builder: 'Fermented' added to this file's
-// own COOKING_METHODS list (see that constant's own comment) so the prep
-// step that actually defines a fermented food has a real answer to select,
-// which the inherited list didn't have at all.
+// Scoped to the same ingredient/ferment-name/servings shape as Side
+// Builder, plus one real addition, 2026-08-14: a Cultures & Probiotics
+// picker (see fermentationStrains/selectedStrainIds below), letting this
+// builder record which of a real, cited set of bacterial strains
+// (Lactobacillus acidophilus, L. plantarum, Bifidobacterium species,
+// Streptococcus thermophilus, L. delbrueckii subsp. bulgaricus, Leuconostoc
+// mesenteroides, Saccharomyces boulardii) a saved batch actually used --
+// see lib/db.ts's own "Real, specific bacterial-strain tracking" comment
+// block and scripts/add_fermentation_strains.py for the full reference-data
+// story. The one other concrete, buildable difference from Side Builder:
+// 'Fermented' added to this file's own COOKING_METHODS list (see that
+// constant's own comment) so the prep step that actually defines a
+// fermented food has a real answer to select, which the inherited list
+// didn't have at all.
 export function FermentationBuilder({
   tabColor,
   // Set when reached via the Edit button on an already-saved fermentation (see
@@ -462,10 +473,15 @@ export function FermentationBuilder({
   // except this never marks anything as an edit -- finishFermentation
   // always creates a genuinely NEW fermentation from a favorite.
   fromFavoriteId,
+  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // recipe entry, 2026-08-14 -- see SideBuilder.tsx's own identical
+  // openRecipeId for the full reasoning.
+  openRecipeId,
 }: {
   tabColor: string;
   editFermentationId?: string;
   fromFavoriteId?: string;
+  openRecipeId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -544,6 +560,27 @@ export function FermentationBuilder({
   const [servings, setServings] = useState<string | null>(null);
   const [servingSizeAmount, setServingSizeAmount] = useState<string | null>(null);
   const [servingSizeUnit, setServingSizeUnit] = useState<string | null>(null);
+  // Cultures & Probiotics, 2026-08-14 -- real, optional, whole-batch strain
+  // tracking, distinct from the per-ingredient food list below (a strain
+  // describes the whole fermentation, not one ingredient). fermentationStrains
+  // loads once (the real, small catalog barely changes); selectedStrainIds
+  // is this one batch's own real choice, a tappable multi-select (same
+  // pattern as Profile's own Food Allergies pills), never required to
+  // Continue.
+  const [fermentationStrains, setFermentationStrains] = useState<FermentationStrain[]>([]);
+  useEffect(() => {
+    let isCurrent = true;
+    listFermentationStrains().then((strains) => {
+      if (isCurrent) setFermentationStrains(strains);
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+  const [selectedStrainIds, setSelectedStrainIds] = useState<string[]>([]);
+  function toggleStrain(id: string) {
+    setSelectedStrainIds((current) => (current.includes(id) ? current.filter((existing) => existing !== id) : [...current, id]));
+  }
   // Drives the Continue button's own color (see its own JSX comment
   // below) -- true only once Fermentation Name and all three pickers are actually
   // filled in/chosen.
@@ -656,6 +693,8 @@ export function FermentationBuilder({
         });
       }
 
+      const strainIds = await getFermentationBatchStrains(editFermentationId);
+
       if (!isCurrent) return;
       setFermentationName(fermentation.name);
       setServings(formatAmountForPicker(fermentation.servings, SERVINGS_PICKER_VALUES));
@@ -663,6 +702,7 @@ export function FermentationBuilder({
       setServingSizeUnit(fermentation.servingSizeUnit);
       setServingsConfirmed(true);
       setIngredients(loaded);
+      setSelectedStrainIds(strainIds);
     })();
 
     return () => {
@@ -722,6 +762,76 @@ export function FermentationBuilder({
       isCurrent = false;
     };
   }, [fromFavoriteId]);
+
+  // Curated starter recipes (2026-08-09, extended to Fermentation Builder
+  // 2026-08-14) -- see SideBuilder.tsx's own identical block for the full
+  // reasoning. This builder's own handler ALSO applies the recipe's real
+  // curated_recipe_strains (see lib/db.ts's own getCuratedRecipeStrainIds)
+  // into selectedStrainIds -- the one real difference from every other
+  // builder's own identical pattern, since only this builder has a strain
+  // picker at all (Phase 1, 2026-08-14).
+  const [curatedRecipes, setCuratedRecipes] = useState<CuratedRecipeSummary[]>([]);
+  useEffect(() => {
+    let isCurrent = true;
+    listCuratedRecipes('fermentation').then((recipes) => {
+      if (isCurrent) setCuratedRecipes(recipes);
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  const [loadingCuratedRecipeId, setLoadingCuratedRecipeId] = useState<string | null>(null);
+
+  async function handlePickCuratedRecipe(id: string) {
+    setLoadingCuratedRecipeId(id);
+    try {
+      const [recipe, strainIds] = await Promise.all([getCuratedRecipe(id), getCuratedRecipeStrainIds(id)]);
+      if (!recipe) return;
+
+      const loaded: FermentationIngredient[] = [];
+      for (const detail of recipe.ingredients) {
+        const [identity, scores] = await Promise.all([
+          getFoodIdentity(detail.foodId, detail.source),
+          getFoodScores(detail.foodId, detail.source),
+        ]);
+        loaded.push({
+          resolved: {
+            category: detail.category ?? identity?.category ?? '',
+            subcategory: identity?.subcategory ?? null,
+            baseName: identity?.baseName ?? detail.foodName,
+            prepMethod: identity?.prepMethod ?? null,
+            foodId: detail.foodId,
+            source: detail.source,
+          },
+          quantity: formatAmountForPicker(detail.quantity, AMOUNT_PICKER_VALUES),
+          unit: detail.unit,
+          cookingMethod: detail.cookingMethod,
+          cutPrep: detail.cutPrep,
+          prepNote: detail.prepNote ?? '',
+          scores,
+          calculatorOverride: null,
+        });
+      }
+
+      setFermentationName(recipe.name);
+      setServings(formatAmountForPicker(recipe.servings, SERVINGS_PICKER_VALUES));
+      setServingSizeAmount(formatAmountForPicker(recipe.servingSizeAmount, AMOUNT_PICKER_VALUES));
+      setServingSizeUnit(recipe.servingSizeUnit);
+      setServingsConfirmed(true);
+      setIngredients(loaded);
+      setSelectedStrainIds(strainIds);
+    } finally {
+      setLoadingCuratedRecipeId(null);
+    }
+  }
+
+  useEffect(() => {
+    if (openRecipeId && !editFermentationId && !fromFavoriteId) {
+      handlePickCuratedRecipe(openRecipeId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openRecipeId]);
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);
@@ -937,16 +1047,29 @@ export function FermentationBuilder({
       ingredients: ingredientInputs,
     };
 
+    let savedFermentationId = editFermentationId ?? null;
     try {
       if (editFermentationId) {
         await updateFermentation(editFermentationId, payload);
       } else {
-        await saveFermentation(payload);
+        const result = await saveFermentation(payload);
+        savedFermentationId = result.id;
       }
     } catch (error) {
       console.error('[FermentationBuilder] Failed to save fermentation', error);
       showInfoAlert('Save failed', 'Something went wrong saving this fermentation. Your ingredients are still here; please try again.');
       return;
+    }
+
+    // Independent of the real save above, same reasoning as the favorite
+    // toggle just below -- a strain-save failure never rolls back or
+    // re-blocks the fermentation itself, which already succeeded.
+    if (savedFermentationId) {
+      try {
+        await setFermentationBatchStrains(savedFermentationId, selectedStrainIds);
+      } catch (error) {
+        console.error('[FermentationBuilder] Failed to save fermentation strains', error);
+      }
     }
 
     // Independent of the real save above -- 2026-08-08, see
@@ -981,6 +1104,7 @@ export function FermentationBuilder({
     setServings(null);
     setServingSizeAmount(null);
     setServingSizeUnit(null);
+    setSelectedStrainIds([]);
     setServingsConfirmed(false);
     setAlsoSaveAsFavorite(false);
     setFinishStep('building');
@@ -1155,6 +1279,15 @@ export function FermentationBuilder({
           <Text style={styles.summaryDetailText} numberOfLines={1}>
             {servingSizeAmount || '?'} {servingSizeUnit ?? '?'} / serving
           </Text>
+          {selectedStrainIds.length > 0 ? (
+            <Text style={styles.summaryDetailText} numberOfLines={2}>
+              Cultures:{' '}
+              {selectedStrainIds
+                .map((id) => fermentationStrains.find((strain) => strain.id === id)?.commonName)
+                .filter(Boolean)
+                .join(', ')}
+            </Text>
+          ) : null}
         </TouchableOpacity>
         <View style={styles.summaryDivider} />
         <View style={styles.summaryRightColumn}>
@@ -1399,6 +1532,38 @@ export function FermentationBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
+          {/* Curated Starter Recipes, 2026-08-14 -- see SideBuilder.tsx's
+              own identical block for the full reasoning. Picking one here
+              also pre-fills the strain picker below, per this recipe's own
+              real curated_recipe_strains links. */}
+          {curatedRecipes.length > 0 && !editFermentationId && !fromFavoriteId ? (
+            <View style={styles.curatedRecipesSection}>
+              <Text style={[styles.formLabel, { color: tabColor }]}>Or Start From a Recipe</Text>
+              {curatedRecipes.map((recipe) => (
+                <TouchableOpacity
+                  key={recipe.id}
+                  style={[styles.curatedRecipeCard, { borderColor: tabColor }]}
+                  onPress={() => handlePickCuratedRecipe(recipe.id)}
+                  disabled={loadingCuratedRecipeId !== null}
+                >
+                  <Text style={[styles.curatedRecipeName, { color: tabColor }]}>{recipe.name}</Text>
+                  <Text style={styles.curatedRecipeFlavor} numberOfLines={2}>
+                    {recipe.flavorProfile}
+                  </Text>
+                  <Text style={styles.curatedRecipeBenefit} numberOfLines={3}>
+                    {recipe.healthBenefit}
+                  </Text>
+                  {loadingCuratedRecipeId === recipe.id ? (
+                    <ActivityIndicator size="small" color={tabColor} style={styles.curatedRecipeSpinner} />
+                  ) : (
+                    <Text style={[styles.curatedRecipeCta, { color: tabColor }]}>Use This Recipe →</Text>
+                  )}
+                </TouchableOpacity>
+              ))}
+              <View style={[styles.curatedRecipesDivider, { borderColor: tabColor }]} />
+            </View>
+          ) : null}
+
           {/* Fermentation Name, 2026-07-28 -- its own full-width field above
               Servings/Size, since it's not part of either's own row/
               column pairing and applies to the fermentation as a whole. */}
@@ -1437,6 +1602,52 @@ export function FermentationBuilder({
               </Animated.View>
             ))}
           </View>
+
+          {/* Cultures & Probiotics, 2026-08-14 -- real, optional, describes
+              the whole batch (not one ingredient), so it sits here with
+              Name/Servings/Size rather than down in the per-ingredient
+              list. Never required to Continue -- a fermentation with no
+              strain picked is still a real, valid one, matching Side
+              Builder's own oil/seasoning nudge (a soft suggestion, never a
+              block). Same tappable-pill multi-select shape as Profile's own
+              Food Allergies field. */}
+          {fermentationStrains.length > 0 ? (
+            <>
+              <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>
+                Cultures &amp; Probiotics (optional)
+              </Text>
+              <View style={styles.strainPillWrap}>
+                {fermentationStrains.map((strain) => {
+                  const active = selectedStrainIds.includes(strain.id);
+                  return (
+                    <TouchableOpacity
+                      key={strain.id}
+                      style={[styles.strainPill, { borderColor: active ? tabColor : colors.border }, active ? { backgroundColor: tabColor } : null]}
+                      onPress={() => toggleStrain(strain.id)}
+                    >
+                      <Text style={[styles.strainPillText, active ? { color: colors.textOnPrimary } : null]}>
+                        {strain.commonName ?? strain.scientificName}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {selectedStrainIds.length > 0 ? (
+                <View style={styles.strainDescriptionBlock}>
+                  {selectedStrainIds.map((id) => {
+                    const strain = fermentationStrains.find((entry) => entry.id === id);
+                    if (!strain) return null;
+                    return (
+                      <Text key={id} style={styles.strainDescriptionText}>
+                        <Text style={[styles.strainDescriptionName, { color: tabColor }]}>{strain.scientificName}: </Text>
+                        {strain.description}
+                      </Text>
+                    );
+                  })}
+                </View>
+              ) : null}
+            </>
+          ) : null}
 
           {/* Not a real `disabled` TouchableOpacity, 2026-07-28, explicitly
               requested -- a disabled button never fires onPress at all, so
@@ -1798,9 +2009,50 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: 16,
   },
+  curatedRecipesSection: {
+    marginBottom: 16,
+  },
+  curatedRecipeCard: {
+    borderWidth: 1,
+    borderRadius: 8,
+    padding: 10,
+    marginTop: 8,
+  },
+  curatedRecipeName: {
+    ...typography.bodyEmphasis,
+  },
+  curatedRecipeFlavor: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: 2,
+    fontStyle: 'italic',
+  },
+  curatedRecipeBenefit: {
+    ...typography.caption,
+    color: colors.textMuted,
+    marginTop: 4,
+  },
+  curatedRecipeCta: {
+    ...typography.captionEmphasis,
+    marginTop: 6,
+  },
+  curatedRecipeSpinner: {
+    marginTop: 6,
+    alignSelf: 'flex-start',
+  },
+  curatedRecipesDivider: {
+    borderBottomWidth: 1,
+    marginTop: 12,
+    opacity: 0.3,
+  },
   formLabel: {
     ...typography.eyebrow,
   },
+  // 2026-08-14 -- spacing above a second/later label within the same
+  // formCard (Fermentation Name has none, being first); matches this
+  // app's own already-established convention elsewhere (e.g. MealBuilder's
+  // own identical formLabelSpaced).
+  formLabelSpaced: { marginTop: 14 },
   formInput: {
     ...typography.body,
     color: colors.textPrimary,
@@ -1811,6 +2063,19 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginTop: 4,
   },
+  // Cultures & Probiotics multi-select, 2026-08-14 -- same tappable-pill
+  // shape as Profile's own Food Allergies field (app/profile.tsx).
+  strainPillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
+  strainPill: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  strainPillText: { ...typography.body, color: colors.textPrimary },
+  strainDescriptionBlock: { marginTop: 10, gap: 4 },
+  strainDescriptionText: { ...typography.body, color: colors.textSecondary },
+  strainDescriptionName: { ...typography.bodyEmphasis },
   // Two true rows, 2026-07-28 -- a label band (Servings/Size/Units) and an
   // input band (the three scrollable pill pickers themselves) directly
   // beneath it, each its own flex row with alignItems: 'flex-end' so every

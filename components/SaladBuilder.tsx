@@ -434,10 +434,18 @@ export function SaladBuilder({
   // favorite (see lib/db.ts's own BuilderFavoritePayload comment for why
   // a favorite is a real snapshot, not a pointer to a live record).
   fromFavoriteId,
+  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // recipe entry (see app/(tabs)/purple-digest.tsx / app/(tabs)/food.tsx),
+  // 2026-08-14 -- auto-fires the identical handlePickCuratedRecipe() flow
+  // the "Or Start From a Recipe" cards below already use, so arriving this
+  // way pre-fills the builder immediately rather than only pointing at the
+  // picker a second time.
+  openRecipeId,
 }: {
   tabColor: string;
   editSaladId?: string;
   fromFavoriteId?: string;
+  openRecipeId?: string;
 }) {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -744,6 +752,17 @@ export function SaladBuilder({
       setLoadingCuratedRecipeId(null);
     }
   }
+
+  // Auto-fires the flow above when arriving from a Purple Digest "Build
+  // This Recipe" button (see openRecipeId's own comment) -- the same
+  // !editSaladId/!fromFavoriteId guard the manual picker cards use, so a
+  // genuine edit/favorite-resume in progress is never silently discarded.
+  useEffect(() => {
+    if (openRecipeId && !editSaladId && !fromFavoriteId) {
+      handlePickCuratedRecipe(openRecipeId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [openRecipeId]);
 
   function handleFoodResolved(resolved: ResolvedFoodSelection) {
     setPendingResolved(resolved);
