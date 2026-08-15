@@ -1,13 +1,17 @@
-// A real, dev-only tool -- rewritten from scratch 2026-08-14. The old
-// seedTestDay() (this file's own previous content) was confirmed dead
-// before this rewrite: zero call sites anywhere in the app, built against
-// the pre-2026-08-02 all-in-one meal data model, from before the Food tab
-// became eleven separate builders. This is its real replacement,
-// seedTestWeek() -- built to give Past Meals/Trends/Signals/the ordinary
-// Meals lens something genuinely real to look at on a fresh dev build,
-// reusing real, already-verified curated-recipe content (see
-// lib/digest/recipes.ts's own header comment) rather than hand-writing a
-// second, parallel set of fake ingredients.
+// A real, dev-only tool. Rebuilt 2026-08-15 (Part F of the same pass that
+// fixed Trends' own real performance/picker/informative-chart gaps) --
+// direct feedback: the prior seedTestWeek() only covered a real 9 days
+// (-6..+2) using ONE repeated breakfast/lunch/dinner set every single day,
+// and the request was explicit: "provide 90 days of meals... 60 days in
+// the past and 30 days into the future." Rebuilt into seedTest90Days(),
+// still reusing real, already-verified curated-recipe content (see
+// lib/digest/recipes.ts's own header comment) through the exact same
+// per-builder save functions a person tapping "Or Start From a Recipe"
+// already goes through -- never a second, parallel creation path -- but
+// now cycling through 5 real breakfast/lunch/dinner templates and 4 real
+// snack templates (see the *_TEMPLATES arrays below) instead of one fixed
+// set, so a real 90-day span shows genuine day-to-day variety, not the
+// identical three dishes repeated 90 times.
 //
 // Every real record this creates gets its own real name prefixed with
 // NAME_PREFIX below, and a real, dedicated local manifest table
@@ -16,8 +20,8 @@
 // which row this tool made, in which table. clearSeededTestData() reads
 // that manifest back to undo precisely what was made, nothing more,
 // nothing less -- with one real, named exception: the actual `meals` rows
-// settlePastScheduledMeals() itself creates while settling the past week
-// below can't be captured this way (that real, production function
+// settlePastScheduledMeals() itself creates while settling the past 60
+// days below can't be captured this way (that real, production function
 // reports back nothing about which meal ids it made), so those are cleaned
 // up via a real name-prefix sweep instead. See clearSeededTestData()'s own
 // comment for the full reasoning.
@@ -30,6 +34,7 @@ import {
   createMealFromComponents,
   deleteBakedGoods,
   deleteBeverage,
+  deleteDessert,
   deleteFavorite,
   deleteFermentation,
   deleteFoodTrial,
@@ -47,6 +52,7 @@ import {
   resolveFoodTrial,
   saveBakedGoods,
   saveBeverage,
+  saveDessert,
   saveFermentation,
   saveHandheld,
   saveMealFavorite,
@@ -108,10 +114,10 @@ async function recordSeeded(tableName: string, recordId: string): Promise<void> 
 type ComponentRecord = { componentType: MealComponentType; componentId: string };
 
 // Resolves one real curated recipe (lib/digest/recipes.ts's own real
-// content, built in Phase 2 of this same session) and saves it as a real
-// record through the matching builder's own real save function -- the
-// identical path a person tapping "Or Start From a Recipe" and then
-// "Save" already goes through, not a second, parallel creation path.
+// content) and saves it as a real record through the matching builder's
+// own real save function -- the identical path a person tapping "Or Start
+// From a Recipe" and then "Save" already goes through, not a second,
+// parallel creation path.
 async function saveRecipeAsComponent(recipeId: string, componentType: MealComponentType): Promise<ComponentRecord | null> {
   const recipe = await getCuratedRecipe(recipeId);
   if (!recipe) return null;
@@ -143,9 +149,8 @@ async function saveRecipeAsComponent(recipeId: string, componentType: MealCompon
       ({ id } = await saveFermentation(payload));
       tableName = 'fermentations';
       // Carries the recipe's own real strains straight through (see
-      // Phase 1's fermentation_strains/curated_recipe_strains tables) --
-      // the same real call FermentationBuilder.tsx's own
-      // handlePickCuratedRecipe already makes.
+      // fermentation_strains/curated_recipe_strains) -- the same real call
+      // FermentationBuilder.tsx's own handlePickCuratedRecipe already makes.
       const strainIds = await getCuratedRecipeStrainIds(recipeId);
       if (strainIds.length > 0) await setFermentationBatchStrains(id, strainIds);
       break;
@@ -174,6 +179,20 @@ async function saveRecipeAsComponent(recipeId: string, componentType: MealCompon
       ({ id } = await saveHandheld(payload));
       tableName = 'handhelds';
       break;
+    case 'dessert':
+      ({ id } = await saveDessert(payload));
+      tableName = 'desserts';
+      break;
+    default: {
+      // A real, exhaustive default -- both fixes a genuine pre-existing
+      // TypeScript bug (id/tableName were declared with no default,
+      // meaning tsc couldn't prove every real componentType assigned them
+      // without this) and, more importantly, means an unrecognized real
+      // componentType fails loudly here rather than silently leaving
+      // id/tableName unassigned.
+      const exhaustiveCheck: never = componentType;
+      throw new Error(`saveRecipeAsComponent: unhandled componentType "${String(exhaustiveCheck)}"`);
+    }
   }
 
   await recordSeeded(tableName, id);
@@ -203,96 +222,247 @@ async function createMealFavoriteFromComponents(
   return { id: favorite.id, components };
 }
 
-// Real, one-shot content, deliberately covering all ten direct-ingredient
-// builders exactly once -- ten real saved records, not a few dozen, is
-// already enough real variety for a real test week; more would mean more
-// to individually verify for no real added value here.
-const RECIPE_PLAN: { recipeId: string; componentType: MealComponentType }[] = [
-  { recipeId: 'curated_smoothie_green_glow', componentType: 'smoothie' },
-  { recipeId: 'curated_baked_banana_oat_cookies', componentType: 'bakedGoods' },
-  { recipeId: 'curated_bev_golden_milk', componentType: 'beverage' },
-  { recipeId: 'curated_salad_mediterranean_chickpea_feta', componentType: 'salad' },
-  { recipeId: 'curated_soup_tomato_basil', componentType: 'soup' },
-  { recipeId: 'curated_snack_roasted_chickpeas', componentType: 'snack' },
-  { recipeId: 'curated_handheld_grilled_chicken_sandwich', componentType: 'handheld' },
-  { recipeId: 'curated_side_lemon_garlic_broccoli', componentType: 'side' },
-  { recipeId: 'curated_sauce_basic_tomato', componentType: 'sauce' },
-  { recipeId: 'curated_ferment_sauerkraut', componentType: 'fermentation' },
+type RecipeRef = { recipeId: string; componentType: MealComponentType };
+type MealTemplate = { title: string; mealType: string; recipes: RecipeRef[] };
+
+// Five real breakfast/lunch/dinner combinations apiece, and four real
+// standalone snacks -- a genuine rotation across the real curated-recipe
+// library (44 pre-existing + 3 added directly alongside this rebuild: the
+// Rainbow Stir-Fried Vegetables side and the 2 curated desserts, see
+// REFERENCE_DB_VERSION's own history), cycled by day offset so a real
+// 90-day span shows real day-to-day variety instead of one repeated set.
+// Not every one of the 47 real recipes is used here -- a deliberate,
+// bounded rotation, not an attempt to force in literally everything.
+const BREAKFAST_TEMPLATES: MealTemplate[] = [
+  {
+    title: 'Breakfast',
+    mealType: 'breakfast',
+    recipes: [
+      { recipeId: 'curated_smoothie_green_glow', componentType: 'smoothie' },
+      { recipeId: 'curated_baked_banana_oat_cookies', componentType: 'bakedGoods' },
+    ],
+  },
+  {
+    title: 'Breakfast',
+    mealType: 'breakfast',
+    recipes: [
+      { recipeId: 'curated_side_herb_roasted_potatoes', componentType: 'side' },
+      { recipeId: 'curated_bev_golden_milk', componentType: 'beverage' },
+      { recipeId: 'curated_ferment_plain_yogurt', componentType: 'fermentation' },
+    ],
+  },
+  {
+    title: 'Breakfast',
+    mealType: 'breakfast',
+    recipes: [
+      { recipeId: 'curated_smoothie_berry_antioxidant', componentType: 'smoothie' },
+      { recipeId: 'curated_baked_buttermilk_biscuits', componentType: 'bakedGoods' },
+    ],
+  },
+  {
+    title: 'Breakfast',
+    mealType: 'breakfast',
+    recipes: [
+      { recipeId: 'curated_ferment_probiotic_yogurt', componentType: 'fermentation' },
+      { recipeId: 'curated_snack_trail_mix', componentType: 'snack' },
+    ],
+  },
+  {
+    title: 'Breakfast',
+    mealType: 'breakfast',
+    recipes: [
+      { recipeId: 'curated_smoothie_iron_vitamin_c', componentType: 'smoothie' },
+      { recipeId: 'curated_baked_whole_wheat_bread', componentType: 'bakedGoods' },
+      { recipeId: 'curated_bev_ginger_turmeric_tonic', componentType: 'beverage' },
+    ],
+  },
 ];
 
-export async function seedTestWeek(): Promise<void> {
+const LUNCH_TEMPLATES: MealTemplate[] = [
+  {
+    title: 'Lunch',
+    mealType: 'lunch',
+    recipes: [
+      { recipeId: 'curated_salad_mediterranean_chickpea_feta', componentType: 'salad' },
+      { recipeId: 'curated_soup_tomato_basil', componentType: 'soup' },
+    ],
+  },
+  {
+    title: 'Lunch',
+    mealType: 'lunch',
+    recipes: [
+      { recipeId: 'curated_handheld_grilled_chicken_sandwich', componentType: 'handheld' },
+      { recipeId: 'curated_side_lemon_garlic_broccoli', componentType: 'side' },
+      { recipeId: 'curated_sauce_basic_tomato', componentType: 'sauce' },
+    ],
+  },
+  {
+    title: 'Lunch',
+    mealType: 'lunch',
+    recipes: [
+      { recipeId: 'curated_salad_southwest_quinoa_black_bean', componentType: 'salad' },
+      { recipeId: 'curated_soup_red_lentil', componentType: 'soup' },
+    ],
+  },
+  {
+    title: 'Lunch',
+    mealType: 'lunch',
+    recipes: [
+      { recipeId: 'curated_handheld_turkey_avocado_wrap', componentType: 'handheld' },
+      { recipeId: 'curated_salad_kale_citrus_iron', componentType: 'salad' },
+    ],
+  },
+  {
+    title: 'Lunch',
+    mealType: 'lunch',
+    recipes: [
+      { recipeId: 'curated_handheld_black_bean_sweet_potato_tacos', componentType: 'handheld' },
+      { recipeId: 'curated_salad_sesame_ginger_slaw', componentType: 'salad' },
+    ],
+  },
+];
+
+const DINNER_TEMPLATES: MealTemplate[] = [
+  {
+    title: 'Dinner',
+    mealType: 'dinner',
+    recipes: [
+      { recipeId: 'curated_side_rainbow_stir_fry', componentType: 'side' },
+      { recipeId: 'curated_sauce_simple_pesto', componentType: 'sauce' },
+      { recipeId: 'curated_soup_butternut_squash', componentType: 'soup' },
+    ],
+  },
+  {
+    title: 'Dinner',
+    mealType: 'dinner',
+    recipes: [
+      { recipeId: 'curated_handheld_egg_salad_lettuce_wraps', componentType: 'handheld' },
+      { recipeId: 'curated_salad_spinach_strawberry_almond', componentType: 'salad' },
+      { recipeId: 'curated_dessert_baked_cinnamon_apples', componentType: 'dessert' },
+    ],
+  },
+  {
+    title: 'Dinner',
+    mealType: 'dinner',
+    recipes: [
+      { recipeId: 'curated_soup_chicken_vegetable', componentType: 'soup' },
+      { recipeId: 'curated_side_garlic_mashed_cauliflower', componentType: 'side' },
+      { recipeId: 'curated_salad_beet_walnut_arugula', componentType: 'salad' },
+      { recipeId: 'curated_ferment_sauerkraut', componentType: 'fermentation' },
+    ],
+  },
+  {
+    title: 'Dinner',
+    mealType: 'dinner',
+    recipes: [
+      { recipeId: 'curated_handheld_turkey_avocado_wrap', componentType: 'handheld' },
+      { recipeId: 'curated_side_sauteed_spinach_garlic', componentType: 'side' },
+      { recipeId: 'curated_dessert_mixed_berry_chia_pudding', componentType: 'dessert' },
+    ],
+  },
+  {
+    title: 'Dinner',
+    mealType: 'dinner',
+    recipes: [
+      { recipeId: 'curated_side_herb_roasted_potatoes', componentType: 'side' },
+      { recipeId: 'curated_sauce_tahini_lemon', componentType: 'sauce' },
+      { recipeId: 'curated_bev_iced_green_tea_mint', componentType: 'beverage' },
+      { recipeId: 'curated_ferment_kombucha', componentType: 'fermentation' },
+    ],
+  },
+];
+
+const SNACK_TEMPLATES: MealTemplate[] = [
+  { title: 'Snack', mealType: 'snack', recipes: [{ recipeId: 'curated_snack_apple_almond_butter', componentType: 'snack' }] },
+  { title: 'Snack', mealType: 'snack', recipes: [{ recipeId: 'curated_snack_berries_yogurt', componentType: 'snack' }] },
+  { title: 'Snack', mealType: 'snack', recipes: [{ recipeId: 'curated_snack_roasted_chickpeas', componentType: 'snack' }] },
+  { title: 'Snack', mealType: 'snack', recipes: [{ recipeId: 'curated_bev_electrolyte_water', componentType: 'beverage' }] },
+];
+
+type ResolvedFavorite = { id: string; components: MealComponentSelection[] };
+
+// Resolves every real template in a list into a real, saved favorite --
+// componentCache is shared across ALL four template lists (breakfast/
+// lunch/dinner/snack), so a real recipe referenced by more than one
+// template (e.g. curated_side_herb_roasted_potatoes shows up in both a
+// breakfast and a dinner template) only gets saved once, not once per
+// place it's referenced.
+async function resolveAllTemplates(
+  templates: MealTemplate[],
+  componentCache: Map<string, ComponentRecord | null>,
+): Promise<ResolvedFavorite[]> {
+  const favorites: ResolvedFavorite[] = [];
+  for (const [index, template] of templates.entries()) {
+    const parts: (ComponentRecord | null)[] = [];
+    for (const ref of template.recipes) {
+      if (!componentCache.has(ref.recipeId)) {
+        componentCache.set(ref.recipeId, await saveRecipeAsComponent(ref.recipeId, ref.componentType));
+      }
+      parts.push(componentCache.get(ref.recipeId) ?? null);
+    }
+    const favorite = await createMealFavoriteFromComponents(`${template.title} Option ${index + 1}`, template.mealType, parts);
+    if (favorite) favorites.push(favorite);
+  }
+  return favorites;
+}
+
+// Picks which of a real template list's own favorites applies on a given
+// day -- a plain, deterministic cycle (day offset mod list length,
+// normalized so a negative offset still lands on a real, valid index), not
+// randomized, so re-running this tool always produces the exact same real
+// rotation for the exact same day.
+function templateFor(favorites: ResolvedFavorite[], dayOffset: number): ResolvedFavorite {
+  const index = ((dayOffset % favorites.length) + favorites.length) % favorites.length;
+  return favorites[index];
+}
+
+const PAST_DAYS = 60;
+const FUTURE_DAYS = 30;
+
+export async function seedTest90Days(): Promise<void> {
   await ensureSeedManifestTable();
 
-  const saved: Record<string, ComponentRecord | null> = {};
-  for (const plan of RECIPE_PLAN) {
-    saved[plan.recipeId] = await saveRecipeAsComponent(plan.recipeId, plan.componentType);
-  }
+  const componentCache = new Map<string, ComponentRecord | null>();
+  const breakfastFavorites = await resolveAllTemplates(BREAKFAST_TEMPLATES, componentCache);
+  const lunchFavorites = await resolveAllTemplates(LUNCH_TEMPLATES, componentCache);
+  const dinnerFavorites = await resolveAllTemplates(DINNER_TEMPLATES, componentCache);
+  const snackFavorites = await resolveAllTemplates(SNACK_TEMPLATES, componentCache);
 
-  const breakfastFav = await createMealFavoriteFromComponents('Breakfast', 'breakfast', [
-    saved['curated_smoothie_green_glow'],
-    saved['curated_baked_banana_oat_cookies'],
-    saved['curated_bev_golden_milk'],
-  ]);
-  const lunchFav = await createMealFavoriteFromComponents('Lunch', 'lunch', [
-    saved['curated_salad_mediterranean_chickpea_feta'],
-    saved['curated_soup_tomato_basil'],
-    saved['curated_snack_roasted_chickpeas'],
-  ]);
-  const dinnerFav = await createMealFavoriteFromComponents('Dinner', 'dinner', [
-    saved['curated_handheld_grilled_chicken_sandwich'],
-    saved['curated_side_lemon_garlic_broccoli'],
-    saved['curated_sauce_basic_tomato'],
-    saved['curated_ferment_sauerkraut'],
-  ]);
-
-  if (!breakfastFav || !lunchFav || !dinnerFav) {
-    // A real, honest failure -- one of the ten curated recipes above
+  if (breakfastFavorites.length === 0 || lunchFavorites.length === 0 || dinnerFavorites.length === 0 || snackFavorites.length === 0) {
+    // A real, honest failure -- one of the real curated recipes above
     // failed to resolve at all (every real ingredient in every one of
     // these was already verified against the live database before being
     // written in, so this shouldn't happen in practice, but a silent
     // partial seed would be worse than a clear stop here).
-    throw new Error('seedTestWeek: one or more real curated recipes failed to resolve -- aborting rather than seeding a partial week.');
+    throw new Error('seedTest90Days: one or more real curated recipes failed to resolve -- aborting rather than seeding partial data.');
   }
 
-  // Six real past days -- scheduled first, then genuinely settled via
+  async function scheduleAt(favorite: ResolvedFavorite, title: string, mealType: string, dayOffset: number, hour: number, minute: number) {
+    await recordSeeded(
+      'schedule_items',
+      await scheduleMeal({
+        title: `${NAME_PREFIX}${title}`,
+        mealType,
+        scheduledFor: dateAt(dayOffset, hour, minute),
+        sourceFavoriteId: favorite.id,
+        components: favorite.components,
+      }),
+    );
+  }
+
+  // Real past days -- scheduled first, then genuinely settled via
   // settlePastScheduledMeals() below, the exact real production code path
   // a lapsed scheduled meal goes through (see that function's own comment
-  // in lib/db.ts). This is what gives the new Past Meals lens real,
-  // genuine content to show.
-  for (let dayOffset = -6; dayOffset <= -1; dayOffset += 1) {
-    await recordSeeded(
-      'schedule_items',
-      await scheduleMeal({
-        title: `${NAME_PREFIX}Breakfast`,
-        mealType: 'breakfast',
-        scheduledFor: dateAt(dayOffset, 8, 0),
-        sourceFavoriteId: breakfastFav.id,
-        components: breakfastFav.components,
-      }),
-    );
-    await recordSeeded(
-      'schedule_items',
-      await scheduleMeal({
-        title: `${NAME_PREFIX}Lunch`,
-        mealType: 'lunch',
-        scheduledFor: dateAt(dayOffset, 12, 30),
-        sourceFavoriteId: lunchFav.id,
-        components: lunchFav.components,
-      }),
-    );
-    await recordSeeded(
-      'schedule_items',
-      await scheduleMeal({
-        title: `${NAME_PREFIX}Dinner`,
-        mealType: 'dinner',
-        scheduledFor: dateAt(dayOffset, 18, 30),
-        sourceFavoriteId: dinnerFav.id,
-        components: dinnerFav.components,
-      }),
-    );
+  // in lib/db.ts). This is what gives the Past Meals lens real, genuine
+  // content to show.
+  for (let dayOffset = -PAST_DAYS; dayOffset <= -1; dayOffset += 1) {
+    await scheduleAt(templateFor(breakfastFavorites, dayOffset), 'Breakfast', 'breakfast', dayOffset, 8, 0);
+    await scheduleAt(templateFor(lunchFavorites, dayOffset), 'Lunch', 'lunch', dayOffset, 12, 30);
+    await scheduleAt(templateFor(dinnerFavorites, dayOffset), 'Dinner', 'dinner', dayOffset, 18, 30);
+    await scheduleAt(templateFor(snackFavorites, dayOffset), 'Snack', 'snack', dayOffset, 15, 0);
   }
 
-  // The real, genuine settle pass -- materializes every one of the 18
+  // The real, genuine settle pass -- materializes every one of the real
   // schedule_items rows just created above into a real meals/meal_items/
   // meal_components row apiece, and marks each schedule_items row
   // 'logged'. See clearSeededTestData()'s own comment for how the
@@ -300,16 +470,16 @@ export async function seedTestWeek(): Promise<void> {
   // back nothing about which meal ids it made.
   await settlePastScheduledMeals();
 
-  // Today -- breakfast and lunch already eaten, logged directly (the same
-  // real path a genuine "Log This Now" tap in Meal Builder already uses);
-  // dinner deliberately left unscheduled, a realistic "haven't eaten yet
-  // today."
+  // Today -- breakfast, lunch, and the afternoon snack already eaten,
+  // logged directly (the same real path a genuine "Log This Now" tap in
+  // Meal Builder already uses); dinner deliberately left unscheduled, a
+  // realistic "haven't eaten yet today."
   const todayBreakfast = await createMealFromComponents({
     name: `${NAME_PREFIX}Breakfast`,
     mealType: 'breakfast',
     eatenAt: dateAt(0, 8, 0),
     isImmediate: false,
-    components: breakfastFav.components,
+    components: templateFor(breakfastFavorites, 0).components,
   });
   if ('id' in todayBreakfast) await recordSeeded('meals', todayBreakfast.id);
 
@@ -318,44 +488,28 @@ export async function seedTestWeek(): Promise<void> {
     mealType: 'lunch',
     eatenAt: dateAt(0, 12, 30),
     isImmediate: false,
-    components: lunchFav.components,
+    components: templateFor(lunchFavorites, 0).components,
   });
   if ('id' in todayLunch) await recordSeeded('meals', todayLunch.id);
 
-  // Tomorrow and the day after -- stay 'planned' (never settled), so the
-  // ordinary Meals lens (not Past Meals) has real, genuine upcoming
-  // content too.
-  for (let dayOffset = 1; dayOffset <= 2; dayOffset += 1) {
-    await recordSeeded(
-      'schedule_items',
-      await scheduleMeal({
-        title: `${NAME_PREFIX}Breakfast`,
-        mealType: 'breakfast',
-        scheduledFor: dateAt(dayOffset, 8, 0),
-        sourceFavoriteId: breakfastFav.id,
-        components: breakfastFav.components,
-      }),
-    );
-    await recordSeeded(
-      'schedule_items',
-      await scheduleMeal({
-        title: `${NAME_PREFIX}Lunch`,
-        mealType: 'lunch',
-        scheduledFor: dateAt(dayOffset, 12, 30),
-        sourceFavoriteId: lunchFav.id,
-        components: lunchFav.components,
-      }),
-    );
-    await recordSeeded(
-      'schedule_items',
-      await scheduleMeal({
-        title: `${NAME_PREFIX}Dinner`,
-        mealType: 'dinner',
-        scheduledFor: dateAt(dayOffset, 18, 30),
-        sourceFavoriteId: dinnerFav.id,
-        components: dinnerFav.components,
-      }),
-    );
+  const todaySnack = await createMealFromComponents({
+    name: `${NAME_PREFIX}Snack`,
+    mealType: 'snack',
+    eatenAt: dateAt(0, 15, 0),
+    isImmediate: false,
+    components: templateFor(snackFavorites, 0).components,
+  });
+  if ('id' in todaySnack) await recordSeeded('meals', todaySnack.id);
+
+  // Real future days -- stay 'planned' (never settled), so the ordinary
+  // Meals lens (not Past Meals) and Trends' own real future-projection path
+  // (getProjectedNutrientTotalsByDateRange, see lib/db.ts) both have real,
+  // genuine content to read.
+  for (let dayOffset = 1; dayOffset <= FUTURE_DAYS; dayOffset += 1) {
+    await scheduleAt(templateFor(breakfastFavorites, dayOffset), 'Breakfast', 'breakfast', dayOffset, 8, 0);
+    await scheduleAt(templateFor(lunchFavorites, dayOffset), 'Lunch', 'lunch', dayOffset, 12, 30);
+    await scheduleAt(templateFor(dinnerFavorites, dayOffset), 'Dinner', 'dinner', dayOffset, 18, 30);
+    await scheduleAt(templateFor(snackFavorites, dayOffset), 'Snack', 'snack', dayOffset, 15, 0);
   }
 
   // A few real food trials, in different real states, so Signals has real
@@ -403,7 +557,7 @@ export async function seedTestWeek(): Promise<void> {
 // -- plus a real, separate name-prefix sweep for the one real class of row
 // this tool creates but can't individually track: the meals/meal_items/
 // meal_components rows settlePastScheduledMeals() itself materializes
-// during seedTestWeek() above. That real, production function (correctly,
+// during seedTest90Days() above. That real, production function (correctly,
 // for its own real job) reports back nothing about which meal ids it
 // made, so there's nothing to record in the manifest for those -- every
 // one of them still carries the real NAME_PREFIX on its own name, which is
@@ -449,6 +603,9 @@ export async function clearSeededTestData(): Promise<{ deletedCount: number }> {
           break;
         case 'handhelds':
           await deleteHandheld(row.record_id);
+          break;
+        case 'desserts':
+          await deleteDessert(row.record_id);
           break;
         case 'favorites':
           await deleteFavorite(row.record_id);

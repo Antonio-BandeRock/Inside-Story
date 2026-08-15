@@ -1,3 +1,4 @@
+import { Fragment, useState } from 'react';
 import { StyleSheet, Text, useWindowDimensions, View } from 'react-native';
 import Svg, { Circle, Line, Path, Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
@@ -7,7 +8,7 @@ const HEIGHT = 140;
 const TOP_Y = 16;
 const BASE_Y = HEIGHT - 30;
 const NODE_RADIUS = 6;
-// A real gutter for the new yMin/yMax value labels, 2026-08-15 -- reported
+// A real gutter for the yMin/yMax value labels, 2026-08-15 -- reported
 // directly: "there is a line, but it literally tells me nothing." A bare
 // line with only two DATE labels (the chart's own pre-existing
 // formatShortDate row) never told anyone what the line's own height
@@ -59,6 +60,23 @@ export function TrendLineChart({
   const { width: windowWidth } = useWindowDimensions();
   const plotWidth = Math.max(160, windowWidth - 40 - NODE_RADIUS * 2 - Y_AXIS_LABEL_WIDTH);
 
+  // Real tap-to-select, 2026-08-15 -- direct feedback: "each dot has no
+  // data. Are we 19% of the RDA?" The yMin/yMax gutter labels above answer
+  // "what's the chart's own overall range," never "what is THIS one dot."
+  // Defaults to the most recent point until something is actually tapped.
+  // A real render-time reset (React's own documented "adjusting state when
+  // props change" pattern, not a useEffect) rather than a stale index that
+  // could point at the wrong date once the caller hands this a genuinely
+  // new points array (a different range/nutrient/lens) -- cheap since it's
+  // just a string built from the raw, unsorted prop, not the sorted copy.
+  const pointsSignature = points.map((point) => `${point.date}:${point.value}`).join('|');
+  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
+  const [lastSignature, setLastSignature] = useState(pointsSignature);
+  if (pointsSignature !== lastSignature) {
+    setLastSignature(pointsSignature);
+    setSelectedIndex(null);
+  }
+
   if (points.length < 2) {
     return (
       <View style={styles.emptyBox}>
@@ -72,6 +90,8 @@ export function TrendLineChart({
   const rangeEndMs = new Date(sorted[sorted.length - 1].date).getTime();
   const dateSpan = Math.max(1, rangeEndMs - rangeStartMs);
   const valueSpan = Math.max(1e-6, yMax - yMin);
+  const effectiveIndex = selectedIndex != null && selectedIndex < sorted.length ? selectedIndex : sorted.length - 1;
+  const selectedPoint = sorted[effectiveIndex];
 
   function dateToX(date: string): number {
     const t = Math.max(0, Math.min(1, (new Date(date).getTime() - rangeStartMs) / dateSpan));
@@ -89,10 +109,18 @@ export function TrendLineChart({
 
   return (
     <View style={styles.container}>
-      <Svg width={plotRightEdge + NODE_RADIUS} height={HEIGHT}>
-        {/* Real yMax/yMin value labels -- the actual fix for "the line
-            tells me nothing." Placed in the left gutter, roughly level
-            with the chart's own top and bottom plotting bounds. */}
+      {/* The real "what's THIS dot" answer -- date + formatted value of
+          whichever point is currently selected, always something (defaults
+          to the latest real point), placed above the chart so it reads as
+          the headline figure, not a footnote. */}
+      <Text style={styles.selectedValueText}>
+        {formatShortDate(selectedPoint.date)}: {valueFormatter(selectedPoint.value)}
+      </Text>
+
+      <Svg width={plotRightEdge + NODE_RADIUS + 10} height={HEIGHT}>
+        {/* Real yMax/yMin value labels -- real context for the chart's own
+            overall range, kept alongside the per-point readout above rather
+            than replaced by it. */}
         <SvgText x={0} y={TOP_Y + 4} fontSize={11} fill={colors.textMuted}>
           {valueFormatter(yMax)}
         </SvgText>
@@ -120,13 +148,29 @@ export function TrendLineChart({
         <Path d={pathD} stroke={lineColor} strokeWidth={3} fill="none" />
 
         {sorted.map((point, index) => (
-          <Circle
-            key={`${point.date}-${index}`}
-            cx={dateToX(point.date)}
-            cy={valueToY(point.value)}
-            r={NODE_RADIUS}
-            fill={point.color ?? lineColor}
-          />
+          <Fragment key={`${point.date}-${index}`}>
+            {/* A larger, invisible touch target -- NODE_RADIUS itself
+                (6px) is too small to reliably tap on a real device.
+                fill="transparent" still participates in SVG hit-testing
+                (unlike fill="none"), so this catches a tap anywhere within
+                a comfortable radius around the visible dot without
+                changing how the dot itself looks. */}
+            <Circle
+              cx={dateToX(point.date)}
+              cy={valueToY(point.value)}
+              r={NODE_RADIUS + 10}
+              fill="transparent"
+              onPress={() => setSelectedIndex(index)}
+            />
+            <Circle
+              cx={dateToX(point.date)}
+              cy={valueToY(point.value)}
+              r={index === effectiveIndex ? NODE_RADIUS + 2 : NODE_RADIUS}
+              fill={point.color ?? lineColor}
+              stroke={index === effectiveIndex ? colors.textPrimary : 'none'}
+              strokeWidth={index === effectiveIndex ? 2 : 0}
+            />
+          </Fragment>
         ))}
       </Svg>
       <View style={[styles.labelRow, { paddingLeft: Y_AXIS_LABEL_WIDTH }]}>
@@ -139,6 +183,7 @@ export function TrendLineChart({
 
 const styles = StyleSheet.create({
   container: { alignItems: 'center' },
+  selectedValueText: { ...typography.sectionTitle, color: colors.textPrimary, fontSize: 18, marginBottom: 8, textAlign: 'center' },
   labelRow: { flexDirection: 'row', justifyContent: 'space-between', width: '100%', marginTop: 2 },
   labelText: { ...typography.caption, color: colors.textMuted },
   // No border of its own, 2026-07-27 -- this component's only real caller

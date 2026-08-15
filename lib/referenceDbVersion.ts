@@ -843,4 +843,47 @@
 // (one correctly-excluded false positive confirmed by hand -- "Choosing
 // the Real Thing," a real, deliberately-named, already-existing Digest
 // topic, not filler).
-export const REFERENCE_DB_VERSION = "20260814200000";
+// 2026-08-15, Part E of the Nutrient-trend performance/picker/seed pass --
+// direct feedback: "the meals you created are very lacking... extremely
+// minimal. I want this to be as if we are trying very hard to include all
+// of the colors of the rainbow." Checked real, current curated_recipes/
+// curated_recipe_ingredients content via sqlite3.exe before touching
+// anything, not assumed from memory: most recipes (salads, smoothies,
+// soups, sauces, handhelds, baked goods, snacks) already carry genuine
+// color/ingredient variety; the yogurt/kombucha/sauerkraut fermentations
+// are correctly minimal (real strain data lives in curated_recipe_strains,
+// not here, and a plain yogurt genuinely is just milk + culture, matching
+// the person's own stated principle against padding a dish that's supposed
+// to stay simple). The real, confirmed gap was the Side builder's own 4
+// recipes -- every one was a single vegetable plus oil/garlic/seasoning,
+// exactly the "stir fried veggies can contain several items in it" example
+// named directly.
+//
+// Two existing sides enriched into real multi-vegetable medleys (broccoli
+// -> broccoli+carrot+red bell pepper; herb-roasted potatoes -> potato+sweet
+// potato+onion), and one brand-new recipe added --
+// curated_side_rainbow_stir_fry, 10 real ingredients spanning 6 differently
+// -colored vegetables, the direct, literal answer to the stir-fry example.
+// Also added 2 real curated dessert recipes (Baked Cinnamon Apples, Mixed
+// Berry Chia Pudding) -- confirmed via direct query that builder_type=
+// 'dessert' had zero curated recipes despite DessertBuilder.tsx (the app's
+// own 12th builder, shipped 2026-08-14) already having its own real "Or
+// Start From a Recipe" section wired up and waiting for exactly this.
+// Every ingredient (new and enriched) checked against a real, currently-
+// visible (hidden=0) foods row before being written in, same discipline as
+// every prior reference-database change in this project (scripts/
+// part_e_recipe_enrichment.sql).
+//
+// A real, self-caught mistake fixed in the same pass, before commit, not
+// after: the first draft of every new flavor_profile/health_benefit string
+// violated this project's own already-documented standing writing-style
+// rule (see this same file's own history two entries up -- "remove 'real'/
+// 'genuinely' filler and ' -- ' double-hyphen punctuation"). Caught by
+// re-reading my own text against that rule before finalizing, not by a
+// report -- rewritten with real punctuation and no filler words (scripts/
+// part_e_style_fix.sql), then the whole 47-row table re-scanned for any
+// other violation; the one other match found (curated_smoothie_golden_
+// turmeric's own "Choosing the Real Thing" reference) is the exact same,
+// already-reviewed, correctly-excluded Digest-topic-name false positive
+// this file's own prior entry already names, not a genuine violation.
+export const REFERENCE_DB_VERSION = "20260815101958";

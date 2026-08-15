@@ -16,7 +16,7 @@ import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreference
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
-import { clearSeededTestData, seedTestWeek } from '../lib/devSeed';
+import { clearSeededTestData, seedTest90Days } from '../lib/devSeed';
 import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
 import { setTopicMuted } from '../lib/generalHealthPreferences';
 import { USDA_ZONES } from '../lib/gardenZones';
@@ -2118,21 +2118,27 @@ export default function ProfileScreen() {
           own inclusion of 'developer' above, which is harmless either way)
           -- this whole card, including its header, renders nothing at all
           in a real production build. Seeds/clears lib/devSeed.ts's own
-          seedTestWeek()/clearSeededTestData(), built purely so Past Meals,
-          Trends, and Signals have real, genuine content to test against on
-          a fresh dev build -- see that file's own header comment for the
-          full "why." */}
+          seedTest90Days()/clearSeededTestData(), built purely so Past
+          Meals, Trends, and Signals have real, genuine content to test
+          against on a fresh dev build -- see that file's own header
+          comment for the full "why." Rebuilt 2026-08-15 from a real 9-day
+          seed into a real 90-day one (60 past, 30 future), cycling through
+          several real breakfast/lunch/dinner/snack combinations instead of
+          repeating one fixed set every day -- see devSeed.ts's own
+          *_TEMPLATES arrays for the real rotation. */}
       {__DEV__ ? (
         <View style={styles.card}>
           {renderCardHeader('developer', 'Developer Tools')}
           {!collapsedSections.has('developer') ? (
             <View style={styles.cardBody}>
               <Text style={styles.helpText}>
-                Only ever shown in a dev build, never a real release. Seeds a real, [TEST]-prefixed test week
-                (six past days already logged, today&apos;s breakfast and lunch, two upcoming days still
-                planned, a handful of saved sides/salads/etc., and a few food trials in different states) so
-                Past Meals, Trends, and Signals all have something genuine to look at. Clear removes exactly
-                what this tool itself created, nothing else.
+                Only ever shown in a dev build, never a real release. Seeds a real, [TEST]-prefixed 90-day
+                span (60 past days already logged, today&apos;s breakfast/lunch/snack, 30 upcoming days
+                still planned, cycling through several real breakfast/lunch/dinner/snack combinations
+                rather than repeating one fixed set, plus a handful of saved sides/salads/etc. and a few
+                food trials in different states) so Past Meals, Trends, and Signals all have something
+                genuine to look at. This can take a real while to finish given the real scale. Clear
+                removes exactly what this tool itself created, nothing else.
               </Text>
               <TouchableOpacity
                 style={styles.addAllergyButton}
@@ -2140,8 +2146,8 @@ export default function ProfileScreen() {
                 onPress={async () => {
                   setSeedingTestWeek(true);
                   try {
-                    await seedTestWeek();
-                    Alert.alert('Seeded', 'A real test week has been created.');
+                    await seedTest90Days();
+                    Alert.alert('Seeded', 'A real 90-day span of test data has been created.');
                   } catch (error) {
                     Alert.alert(
                       'Something went wrong',
@@ -2152,7 +2158,7 @@ export default function ProfileScreen() {
                   }
                 }}
               >
-                <Text style={styles.addAllergyButtonText}>{seedingTestWeek ? 'Seeding...' : 'Seed a Test Week'}</Text>
+                <Text style={styles.addAllergyButtonText}>{seedingTestWeek ? 'Seeding, this can take a while…' : 'Seed 90 Days of Test Data'}</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.clearButton}

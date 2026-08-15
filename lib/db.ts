@@ -11721,6 +11721,363 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
   };
 }
 
+export type NutrientTotalsByDateRange = {
+  // date -> nutrientCode -> total amount for that day, across every real
+  // meal logged. Only dates with at least one real, resolvable item ever
+  // appear as a key -- a day with nothing eaten produces no entry at all,
+  // never a false zero.
+  dayTotals: Record<string, Record<string, number>>;
+  driRows: DietaryReferenceIntake[];
+  supplementTotals: Record<string, number>;
+};
+
+// The real fix for a genuine, confirmed performance bug -- 2026-08-15,
+// reported directly: "why does it take so long... We aren't having to
+// check the whole damn database of foods for this." Confirmed the actual
+// cause by reading getDatabase(): this whole app runs every query through
+// ONE shared, memoized SQLite connection, so a real fix has to cut the
+// NUMBER of underlying queries, not just their JS-side scheduling (already
+// tried once, via Promise.all, and confirmed not to help for exactly this
+// reason).
+//
+// getDailyNutrientBreakdown above is correct but genuinely heavy per call
+// (1 query for that day's meals, 1 per meal for its items, up to 2-3 per
+// distinct ingredient), and Trends used to call it once PER CALENDAR DAY in
+// the requested range, with every cache reset fresh each day and
+// getDietaryReferenceIntakesForCurrentUser/getSupplementNutrientTotals
+// re-fetched every single day even though neither is date-dependent at
+// all. This is the real, purpose-built range-scoped replacement: ONE query
+// (getMealItemsInWindow, already proven -- built 2026-08-14 for
+// lib/patternFinder.ts) for every real item across the WHOLE range, ONE
+// call each for the two date-independent pieces, and a nutrient/unit-weight
+// /category lookup cache shared across the entire range instead of reset
+// per day -- a food eaten on 20 of 90 days now costs one real lookup total,
+// not 20. Reuses the exact same real unit-conversion/share-fraction math as
+// getDailyNutrientBreakdown, just fed from already-fetched data instead of
+// a fresh query per item. Deliberately doesn't track unresolvedItems/
+// per-side/per-meal detail the way the richer single-date function does --
+// a trend chart only ever needs day totals, and carrying that extra real
+// work across a 90-day range would be real, unnecessary cost.
+// A real, small normalized shape both a real MealItemRecord row and a
+// component's own resolved MealIngredientInput can be mapped onto -- the
+// two differ in field names (servingSize/servingUnit + a real, always-1
+// quantity multiplier on a saved row; quantity/unit with no separate
+// multiplier on a resolved-but-not-yet-saved component ingredient,
+// confirmed directly against insertMealItems' own real INSERT: it always
+// writes literal 1 for meal_items.quantity, the only real write path this
+// column has ever had) -- one shared resolver means the same real
+// unit-conversion/share-fraction math is genuinely the same code for both a
+// real logged meal and a projected, not-yet-eaten one, not two copies that
+// could quietly drift apart.
+type ResolvableIngredient = {
+  foodId: string | null | undefined;
+  foodName?: string;
+  category: string | null | undefined;
+  rawAmount: number;
+  rawUnit: string;
+  quantityMultiplier?: number | null;
+  dishServings?: number | null;
+  yourSharePercent?: number | null;
+};
+
+type IngredientResolutionCaches = {
+  nutrient: Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>;
+  unitWeight: Map<string, FoodUnitWeight | null>;
+  category: Map<string, string | null>;
+};
+
+function createIngredientResolutionCaches(): IngredientResolutionCaches {
+  return { nutrient: new Map(), unitWeight: new Map(), category: new Map() };
+}
+
+async function resolveIngredientNutrientTotals(
+  ingredient: ResolvableIngredient,
+  caches: IngredientResolutionCaches,
+): Promise<Record<string, number> | null> {
+  if (!ingredient.foodId || ingredient.rawAmount == null || !ingredient.rawUnit) return null;
+  const [foodIdStr, source] = ingredient.foodId.split('|');
+  const foodId = Number(foodIdStr);
+  if (!source || Number.isNaN(foodId)) return null;
+
+  let grams: number;
+  if (ingredient.rawUnit.trim().toLowerCase() === 'each') {
+    const key = `${foodId}|${source}`;
+    if (!caches.unitWeight.has(key)) caches.unitWeight.set(key, await getFoodUnitWeight(foodId, source));
+    const unitWeight = caches.unitWeight.get(key) ?? null;
+    if (!unitWeight) return null;
+    grams = unitWeight.gramsPerUnit * ingredient.rawAmount;
+  } else {
+    const unit = normalizeUnitForConversion(ingredient.rawUnit);
+    if (!unit) return null;
+    let foodCategory: string | null = null;
+    if ((VOLUME_UNITS as readonly string[]).includes(unit)) {
+      const key = `${foodId}|${source}`;
+      if (ingredient.category) {
+        foodCategory = ingredient.category;
+      } else {
+        if (!caches.category.has(key)) caches.category.set(key, await getFoodCategory(foodId, source));
+        foodCategory = caches.category.get(key) ?? null;
+      }
+    }
+    const conversion = convertToGrams(ingredient.rawAmount, unit, { foodCategory: foodCategory ?? undefined });
+    if (!conversion.ok) return null;
+    grams = conversion.grams;
+  }
+
+  const totalGramsForDish = grams * (ingredient.quantityMultiplier ?? 1);
+  const shareFraction = ingredient.yourSharePercent != null ? ingredient.yourSharePercent / 100 : 1 / (ingredient.dishServings ?? 1);
+  const gramsConsumed = totalGramsForDish * shareFraction;
+
+  const key = `${foodId}|${source}`;
+  if (!caches.nutrient.has(key)) caches.nutrient.set(key, await getFoodNutrients(foodId, source));
+  const nutrients = caches.nutrient.get(key)!;
+
+  return sumFoodNutrientTotals([{ gramsConsumed, nutrients }]);
+}
+
+function addNutrientTotalsInto(target: Record<string, number>, source: Record<string, number>) {
+  for (const [code, amount] of Object.entries(source)) {
+    target[code] = (target[code] ?? 0) + amount;
+  }
+}
+
+export async function getNutrientTotalsByDateRange(startLocal: string, endLocal: string): Promise<NutrientTotalsByDateRange> {
+  const [items, supplementResult, driRows] = await Promise.all([
+    getMealItemsInWindow(startLocal, endLocal),
+    getSupplementNutrientTotals(),
+    getDietaryReferenceIntakesForCurrentUser(),
+  ]);
+
+  const caches = createIngredientResolutionCaches();
+  const dayTotals: Record<string, Record<string, number>> = {};
+
+  for (const item of items) {
+    const itemTotals = await resolveIngredientNutrientTotals(
+      {
+        foodId: item.foodId,
+        category: item.category,
+        rawAmount: item.servingSize ?? 0,
+        rawUnit: item.servingUnit ?? '',
+        quantityMultiplier: item.quantity,
+        dishServings: item.dishServings,
+        yourSharePercent: item.yourSharePercent,
+      },
+      caches,
+    );
+    if (!itemTotals) continue;
+
+    const date = item.eatenAt.slice(0, 10);
+    if (!dayTotals[date]) dayTotals[date] = {};
+    addNutrientTotalsInto(dayTotals[date], itemTotals);
+  }
+
+  return { dayTotals, driRows, supplementTotals: supplementResult.totals };
+}
+
+// The real future half of the same fix -- a day that hasn't happened yet
+// has no real meals/meal_items row at all (confirmed: settlePastScheduledMeals
+// only ever materializes one once its own scheduled_for has passed), so
+// there's nothing for getMealItemsInWindow to find. This reads real,
+// still-'planned' schedule_items rows instead and resolves each one's real
+// components the exact same way settlePastScheduledMeals itself already
+// does (getMealComponents for a sourceMealId, getMealFavorite for a
+// sourceFavoriteId) -- but stops short of ever calling
+// createMealFromComponents, since the day genuinely hasn't happened and
+// shouldn't be faked into existing early. Shared by both the nutrient and
+// 6-DFF future-projection paths below, so the real schedule/component
+// resolution chain only exists once, not duplicated a second time for a
+// second real metric.
+async function getProjectedIngredientsByDateRange(startDate: string, endDate: string): Promise<Record<string, ResolvableIngredient[]>> {
+  const db = await getDatabase();
+  const scheduleRows = await db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE item_type = 'meal' AND status = 'planned' AND substr(scheduled_for, 1, 10) BETWEEN ? AND ?
+      ORDER BY scheduled_for ASC
+    `,
+    startDate,
+    endDate,
+  );
+
+  // A rotation reasonably reuses the same real favorite/meal template across
+  // many future days -- resolved once per real source, not once per day it
+  // happens to be scheduled on.
+  const componentSelectionCache = new Map<string, MealComponentSelection[]>();
+  const resolvedIngredientCache = new Map<string, MealIngredientInput[]>();
+
+  async function getComponentSelections(item: ScheduleItemRecord): Promise<MealComponentSelection[]> {
+    const key = item.sourceMealId ? `meal:${item.sourceMealId}` : item.sourceFavoriteId ? `favorite:${item.sourceFavoriteId}` : null;
+    if (!key) return [];
+    const cached = componentSelectionCache.get(key);
+    if (cached) return cached;
+
+    let selections: MealComponentSelection[] = [];
+    if (item.sourceMealId) {
+      const records = await getMealComponents(item.sourceMealId);
+      selections = records.map((record) => ({
+        componentType: record.componentType,
+        componentId: record.componentId,
+        yourSharePercent: record.yourSharePercent,
+      }));
+    } else if (item.sourceFavoriteId) {
+      const favorite = await getMealFavorite(item.sourceFavoriteId);
+      if (favorite) {
+        selections = favorite.components.map((component) => ({
+          componentType: component.componentType,
+          componentId: component.componentId,
+          yourSharePercent: component.yourSharePercent,
+        }));
+      }
+    }
+    componentSelectionCache.set(key, selections);
+    return selections;
+  }
+
+  async function getResolvedIngredients(selection: MealComponentSelection): Promise<MealIngredientInput[]> {
+    const key = `${selection.componentType}:${selection.componentId}:${selection.yourSharePercent}`;
+    const cached = resolvedIngredientCache.get(key);
+    if (cached) return cached;
+    const resolved = await resolveMealComponent(selection);
+    const ingredients = resolved?.ingredients ?? [];
+    resolvedIngredientCache.set(key, ingredients);
+    return ingredients;
+  }
+
+  const byDate: Record<string, ResolvableIngredient[]> = {};
+
+  for (const item of scheduleRows) {
+    const selections = await getComponentSelections(item);
+    if (selections.length === 0) continue;
+    const date = item.scheduledFor.slice(0, 10);
+
+    for (const selection of selections) {
+      const ingredients = await getResolvedIngredients(selection);
+      for (const ingredient of ingredients) {
+        if (!byDate[date]) byDate[date] = [];
+        byDate[date].push({
+          foodId: ingredient.foodId,
+          foodName: ingredient.foodName,
+          category: ingredient.category,
+          rawAmount: ingredient.quantity,
+          rawUnit: ingredient.unit,
+          dishServings: ingredient.dishServings,
+          yourSharePercent: ingredient.yourSharePercent,
+        });
+      }
+    }
+  }
+
+  return byDate;
+}
+
+export async function getProjectedNutrientTotalsByDateRange(startDate: string, endDate: string): Promise<NutrientTotalsByDateRange> {
+  const [byDate, supplementResult, driRows] = await Promise.all([
+    getProjectedIngredientsByDateRange(startDate, endDate),
+    getSupplementNutrientTotals(),
+    getDietaryReferenceIntakesForCurrentUser(),
+  ]);
+
+  const caches = createIngredientResolutionCaches();
+  const dayTotals: Record<string, Record<string, number>> = {};
+
+  for (const [date, ingredients] of Object.entries(byDate)) {
+    for (const ingredient of ingredients) {
+      const totals = await resolveIngredientNutrientTotals(ingredient, caches);
+      if (!totals) continue;
+      if (!dayTotals[date]) dayTotals[date] = {};
+      addNutrientTotalsInto(dayTotals[date], totals);
+    }
+  }
+
+  return { dayTotals, driRows, supplementTotals: supplementResult.totals };
+}
+
+// Same real fix as getNutrientTotalsByDateRange just above, applied to the
+// 6-DFF flag count instead of nutrient amounts -- one query for every real
+// item in range, one cross-range score cache, then reuses
+// aggregateBySubCriterion verbatim per day (the exact same real grouping
+// getDailySixDimensionsBreakdown's own "day" field already computes for one
+// date) so the flag-count semantics can't drift from the single-date
+// version.
+export async function getSixDimensionsFlagCountsByDateRange(startLocal: string, endLocal: string): Promise<Record<string, number>> {
+  const items = await getMealItemsInWindow(startLocal, endLocal);
+  const scoreCache = new Map<string, FoodScore[]>();
+
+  async function getCachedScores(foodId: number, source: string) {
+    const key = `${foodId}|${source}`;
+    let scores = scoreCache.get(key);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(key, scores);
+    }
+    return scores;
+  }
+
+  const dayFoods = new Map<string, Map<string, { foodName: string; scores: FoodScore[] }>>();
+
+  for (const item of items) {
+    if (!item.foodId) continue;
+    const [foodIdStr, source] = item.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const date = item.eatenAt.slice(0, 10);
+    if (!dayFoods.has(date)) dayFoods.set(date, new Map());
+    const dayMap = dayFoods.get(date)!;
+    const foodKey = `${foodId}|${source}`;
+    if (!dayMap.has(foodKey)) {
+      dayMap.set(foodKey, { foodName: item.foodName, scores: await getCachedScores(foodId, source) });
+    }
+  }
+
+  const counts: Record<string, number> = {};
+  for (const [date, foods] of dayFoods.entries()) {
+    const bySubCriterion = aggregateBySubCriterion(Array.from(foods.values()));
+    counts[date] = bySubCriterion.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
+  }
+  return counts;
+}
+
+// The future half of the 6-DFF flag count, mirroring
+// getProjectedNutrientTotalsByDateRange -- reuses the identical real
+// schedule-resolution chain via getProjectedIngredientsByDateRange, then
+// runs the same real aggregateBySubCriterion/isFlaggedTier logic
+// getSixDimensionsFlagCountsByDateRange itself already uses, so a projected
+// day's flag count means exactly the same thing a real logged day's does.
+export async function getProjectedSixDimensionsFlagCountsByDateRange(startDate: string, endDate: string): Promise<Record<string, number>> {
+  const byDate = await getProjectedIngredientsByDateRange(startDate, endDate);
+  const scoreCache = new Map<string, FoodScore[]>();
+
+  async function getCachedScores(foodId: number, source: string) {
+    const key = `${foodId}|${source}`;
+    let scores = scoreCache.get(key);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(key, scores);
+    }
+    return scores;
+  }
+
+  const counts: Record<string, number> = {};
+  for (const [date, ingredients] of Object.entries(byDate)) {
+    const foods = new Map<string, { foodName: string; scores: FoodScore[] }>();
+    for (const ingredient of ingredients) {
+      if (!ingredient.foodId) continue;
+      const [foodIdStr, source] = ingredient.foodId.split('|');
+      const foodId = Number(foodIdStr);
+      if (!source || Number.isNaN(foodId)) continue;
+      const foodKey = `${foodId}|${source}`;
+      if (!foods.has(foodKey)) {
+        foods.set(foodKey, { foodName: ingredient.foodName ?? '', scores: await getCachedScores(foodId, source) });
+      }
+    }
+    const bySubCriterion = aggregateBySubCriterion(Array.from(foods.values()));
+    counts[date] = bySubCriterion.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
+  }
+  return counts;
+}
+
 export type LabResultRecord = {
   id: string;
   testCode: string;

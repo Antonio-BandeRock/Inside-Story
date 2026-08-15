@@ -35,12 +35,14 @@ import {
 } from '../../lib/patternFinder';
 import { markPendingFoodTrialReturn } from '../../lib/pendingFoodTrialReturn';
 import {
+  dateStringOffsetFrom,
   getCheckinSeverityTrendSeries,
-  getNutrientTrendSeries,
-  getSixDimensionsFlagTrendSeries,
+  getNutrientTrendSeriesForRange,
+  getSixDimensionsFlagTrendSeriesForRange,
   getWeightTrendPoints,
   paddedTrendRange,
   type CheckinSeverityPoint,
+  type NutrientTrendSeries,
   type TrendPoint,
 } from '../../lib/trendAnalysis';
 import { CORE_NUTRIENT_CODES } from './index';
@@ -71,7 +73,7 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
     help: [
       {
         heading: 'Nutrients',
-        body: "Pick a nutrient to see its percent-of-target trend across the date range, with a dashed line at 100%. Only days with at least one logged meal are plotted, so days before you started logging don't show up as false zeros.",
+        body: "Pick a nutrient to see its percent-of-target trend across the date range, with a dashed line at 100%. Only days with at least one logged (or, for a future range, genuinely scheduled) meal are plotted, so days with nothing to go on don't show up as false zeros. Tap any point on the line to see that exact day's own value.",
       },
       TRENDS_PATTERN_CAVEAT_HELP,
     ],
@@ -143,21 +145,90 @@ const TRENDS_LENSES: LensOption<TrendsLens>[] = [
   },
 ];
 
-// Reported directly: "Is it tallying the past N days or the next N days?"
-// Genuinely ambiguous with a bare "7d"/"30d"/"90d" pill and no other cue on
-// screen. This has always looked backward (dateStringDaysAgo subtracts from
-// today, see trendAnalysis.ts), it just never said so.
+// The plain "Last 7d/30d/90d" picker -- kept exactly as it was for the four
+// lenses this range redesign doesn't apply to (Symptoms/Weight/Labs/Pattern
+// Finder are all sparse, real, already-happened events, none of which have
+// a genuine future-projection story the way scheduled meals do).
 const DAY_RANGE_OPTIONS = [
   { value: 7, label: 'Last 7d' },
   { value: 30, label: 'Last 30d' },
   { value: 90, label: 'Last 90d' },
 ] as const;
 
-// The real, established 1-4 severity wording from app/(tabs)/log.tsx's own
-// SeverityPicker (SEVERITY_OPTIONS) -- reused here rather than a second,
-// independently-worded scale, so a Y-axis label on the Symptoms chart says
-// the same thing the person actually tapped when logging it.
-const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: 'Severe', 4: 'Very severe' };
+// The real, symmetric past/future picker for Nutrients and 6 Dimensions,
+// 2026-08-15 -- direct, specific spec: "90d, 60d, 30d, 7d, Yesterday,
+// Today, Tomorrow, 7d, 30d, 60d, 90d." Both meal-based lenses can genuinely
+// answer a future question (via lib/db.ts's own real projected-totals
+// functions, reading what's actually scheduled), unlike the four lenses
+// above -- there's no such thing as a "scheduled" flare or lab result.
+type DateRangeSelection =
+  | { kind: 'past'; days: 7 | 30 | 60 | 90 }
+  | { kind: 'future'; days: 7 | 30 | 60 | 90 }
+  | { kind: 'single'; label: 'yesterday' | 'today' | 'tomorrow' }
+  | { kind: 'custom'; startDate: string; endDate: string };
+
+type RangePillDefinition = { key: string; label: string; selection: DateRangeSelection };
+
+// Past buckets end the day BEFORE today, future buckets start the day
+// AFTER today -- Yesterday/Today/Tomorrow are each their own real
+// single-day pick, so nothing here double-covers today itself.
+const RANGE_PILLS: RangePillDefinition[] = [
+  { key: 'past-90', label: '90d', selection: { kind: 'past', days: 90 } },
+  { key: 'past-60', label: '60d', selection: { kind: 'past', days: 60 } },
+  { key: 'past-30', label: '30d', selection: { kind: 'past', days: 30 } },
+  { key: 'past-7', label: '7d', selection: { kind: 'past', days: 7 } },
+  { key: 'yesterday', label: 'Yesterday', selection: { kind: 'single', label: 'yesterday' } },
+  { key: 'today', label: 'Today', selection: { kind: 'single', label: 'today' } },
+  { key: 'tomorrow', label: 'Tomorrow', selection: { kind: 'single', label: 'tomorrow' } },
+  { key: 'future-7', label: '7d', selection: { kind: 'future', days: 7 } },
+  { key: 'future-30', label: '30d', selection: { kind: 'future', days: 30 } },
+  { key: 'future-60', label: '60d', selection: { kind: 'future', days: 60 } },
+  { key: 'future-90', label: '90d', selection: { kind: 'future', days: 90 } },
+];
+
+function rangeSelectionKey(selection: DateRangeSelection): string {
+  if (selection.kind === 'past') return `past-${selection.days}`;
+  if (selection.kind === 'future') return `future-${selection.days}`;
+  if (selection.kind === 'single') return selection.label;
+  return 'custom';
+}
+
+// Small Y/M/D option lists for the custom picker -- a real year either side
+// of the current one comfortably covers every real past/future range this
+// picker's own fixed pills already reach (90 days), plus real margin for a
+// genuinely far-out custom pick.
+const CUSTOM_YEAR_OPTIONS = Array.from({ length: 3 }, (_, i) => String(new Date().getFullYear() - 1 + i));
+const CUSTOM_MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
+const CUSTOM_DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => String(i + 1));
+
+// Same 'YYYY-MM-DD' local-time helper (and same reasoning) duplicated in
+// index.tsx (Home)/food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's
+// calendar date is wrong for anyone not on UTC, especially in the evening.
+function todayDateString(): string {
+  const now = new Date();
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${now.getFullYear()}-${pad(now.getMonth() + 1)}-${pad(now.getDate())}`;
+}
+
+const MONTH_ABBREVIATIONS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+function formatDisplayDate(dateString: string): string {
+  const [, monthStr, dayStr] = dateString.split('-');
+  const monthIndex = Number(monthStr) - 1;
+  return `${MONTH_ABBREVIATIONS[monthIndex] ?? monthStr} ${Number(dayStr)}`;
+}
+
+// A small local equivalent of Profile's own (unexported) PickerField --
+// same real shape (a label above a field), not worth exporting a shared
+// component for one page's own custom-date panel.
+function DateField({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <View style={styles.dateFieldGroup}>
+      <Text style={styles.dateFieldLabel}>{label}</Text>
+      {children}
+    </View>
+  );
+}
 
 // Same green/yellow/red vocabulary the rest of the app uses for nutrient
 // status (see index.tsx's nutrientRingColor (Home)) -- a nutrient's trend line
@@ -181,12 +252,8 @@ const TRENDS_HELP_SECTIONS: HelpSection[] = [
     body: "Nutrient intake, 6 Dimensions flags, and symptom/flare severity charted over a date range you pick, so slow changes that are invisible day-to-day become visible trends. Today's snapshot lives on Insights; this is the same kind of information, over time instead of just today.",
   },
   {
-    heading: 'Nutrients',
-    body: "Pick a nutrient to see its percent-of-target trend across the date range, with a dashed line at 100%. Only days with at least one logged meal are plotted, so days before you started logging don't show up as false zeros.",
-  },
-  {
-    heading: '6 Dimensions',
-    body: 'How many 6-DFF flags (goitrogenic, high-risk, etc.) got logged per day, across the date range.',
+    heading: 'Nutrients & 6 Dimensions: past AND future',
+    body: "These two can look ahead as well as back, reading what's genuinely scheduled rather than only what's already been logged -- a range that reaches past today shows a real projection for the scheduled days, never a guess for a day nothing's actually planned on.",
   },
   {
     heading: 'Symptoms & Flares',
@@ -219,12 +286,20 @@ export default function TrendsScreen() {
       return () => setRevealed(false);
     }, []),
   );
+  // Still used by the four lenses whose own picker didn't change.
   const [days, setDays] = useState<7 | 30 | 90>(30);
+  // The new picker, Nutrients/6 Dimensions only.
+  const [dateRangeSelection, setDateRangeSelection] = useState<DateRangeSelection>({ kind: 'past', days: 30 });
+  const [showCustomPicker, setShowCustomPicker] = useState(false);
+  const [customIsRange, setCustomIsRange] = useState(false);
+  const [customStartDate, setCustomStartDate] = useState<string | null>(null);
+  const [customEndDate, setCustomEndDate] = useState<string | null>(null);
+
   const [selectedNutrient, setSelectedNutrient] = useState<string>(CORE_NUTRIENT_CODES[0]);
   const [nutrientLabels, setNutrientLabels] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
 
-  const [nutrientSeries, setNutrientSeries] = useState<Awaited<ReturnType<typeof getNutrientTrendSeries>> | null>(null);
+  const [nutrientSeries, setNutrientSeries] = useState<NutrientTrendSeries | null>(null);
   const [sixDsSeries, setSixDsSeries] = useState<TrendPoint[] | null>(null);
   const [symptomsSeries, setSymptomsSeries] = useState<CheckinSeverityPoint[] | null>(null);
   const [weightSeries, setWeightSeries] = useState<TrendPoint[] | null>(null);
@@ -263,6 +338,30 @@ export default function TrendsScreen() {
     }, []),
   );
 
+  // Resolves whichever pill (or custom pick) is active into a concrete
+  // {startDate, endDate}, plus whether it's genuinely a single day -- the
+  // one place this translation happens, so the load effect and the render
+  // branch below both read the exact same real dates.
+  const resolvedRange = useMemo(() => {
+    const today = todayDateString();
+    if (dateRangeSelection.kind === 'past') {
+      return { startDate: dateStringOffsetFrom(today, -dateRangeSelection.days), endDate: dateStringOffsetFrom(today, -1), isSingleDay: false };
+    }
+    if (dateRangeSelection.kind === 'future') {
+      return { startDate: dateStringOffsetFrom(today, 1), endDate: dateStringOffsetFrom(today, dateRangeSelection.days), isSingleDay: false };
+    }
+    if (dateRangeSelection.kind === 'single') {
+      const offset = dateRangeSelection.label === 'yesterday' ? -1 : dateRangeSelection.label === 'tomorrow' ? 1 : 0;
+      const date = dateStringOffsetFrom(today, offset);
+      return { startDate: date, endDate: date, isSingleDay: true };
+    }
+    return {
+      startDate: dateRangeSelection.startDate,
+      endDate: dateRangeSelection.endDate,
+      isSingleDay: dateRangeSelection.startDate === dateRangeSelection.endDate,
+    };
+  }, [dateRangeSelection]);
+
   // Only the active lens's series is computed -- each of the three lenses'
   // data (especially Nutrients/6 Dimensions, which loop one DB call per
   // day in the range) is real work, so there's no reason to pay for all
@@ -270,12 +369,12 @@ export default function TrendsScreen() {
   const load = useCallback(() => {
     setLoading(true);
     if (lens === 'nutrients') {
-      getNutrientTrendSeries(selectedNutrient, days).then((series) => {
+      getNutrientTrendSeriesForRange(selectedNutrient, resolvedRange.startDate, resolvedRange.endDate).then((series) => {
         setNutrientSeries(series);
         setLoading(false);
       });
     } else if (lens === 'sixDs') {
-      getSixDimensionsFlagTrendSeries(days).then((points) => {
+      getSixDimensionsFlagTrendSeriesForRange(resolvedRange.startDate, resolvedRange.endDate).then((points) => {
         setSixDsSeries(points);
         setLoading(false);
       });
@@ -309,7 +408,7 @@ export default function TrendsScreen() {
         setLoading(false);
       });
     }
-  }, [lens, days, selectedNutrient, selectedTestCode, patternWindow]);
+  }, [lens, days, resolvedRange, selectedNutrient, selectedTestCode, patternWindow]);
 
   useFocusEffect(useCallback(() => { load(); }, [load]));
 
@@ -346,6 +445,36 @@ export default function TrendsScreen() {
     }
   }
 
+  // Same overrides-based, stale-closure-avoiding commit pattern as
+  // Profile's own commitBirthDate -- a PopoverSelect's own onSelect fires
+  // with the just-picked value in the same synchronous tap that also needs
+  // it, before this render's own closure would otherwise see it.
+  function commitCustomDate(which: 'start' | 'end', overrides: { year?: string; month?: string; day?: string }) {
+    const current = which === 'start' ? customStartDate : customEndDate;
+    const [curY, curM, curD] = current ? current.split('-') : [String(new Date().getFullYear()), '', ''];
+    const year = overrides.year ?? curY;
+    const month = overrides.month ?? curM;
+    const day = overrides.day ?? curD;
+    if (!year || !month || !day) {
+      if (which === 'start') setCustomStartDate(null);
+      else setCustomEndDate(null);
+      return;
+    }
+    const pad = (n: string) => n.padStart(2, '0');
+    const composed = `${year}-${pad(month)}-${pad(day)}`;
+
+    const newStart = which === 'start' ? composed : customStartDate;
+    const newEnd = customIsRange ? (which === 'end' ? composed : customEndDate) : composed;
+    if (which === 'start') setCustomStartDate(composed);
+    else setCustomEndDate(composed);
+
+    if (newStart && newEnd) {
+      const finalStart = newStart <= newEnd ? newStart : newEnd;
+      const finalEnd = newStart <= newEnd ? newEnd : newStart;
+      setDateRangeSelection({ kind: 'custom', startDate: finalStart, endDate: finalEnd });
+    }
+  }
+
   const activeLensLabel = TRENDS_LENSES.find((option) => option.key === lens)?.label;
   const latestNutrientPoint = nutrientSeries && nutrientSeries.points.length > 0 ? nutrientSeries.points[nutrientSeries.points.length - 1] : null;
   // Same reasoning as Insights' own identical testOptions/nutrientOptions
@@ -353,6 +482,8 @@ export default function TrendsScreen() {
   // focus effect above), so a fresh array on every render would otherwise
   // break PopoverSelect's own memo() bailout for no reason.
   const labTestOptions = useMemo(() => labTests.map((test) => ({ label: test.displayName, value: test.code })), [labTests]);
+
+  const showsRangePicker = lens === 'nutrients' || lens === 'sixDs';
 
   return (
     <View style={styles.screen}>
@@ -364,17 +495,132 @@ export default function TrendsScreen() {
           <ScrollView style={styles.scroll} contentContainerStyle={[styles.content, { paddingBottom: scrollBottomPadding }]}>
             <Text style={styles.sectionHeading}>{activeLensLabel}</Text>
 
-            <View style={styles.pillRow}>
-              {DAY_RANGE_OPTIONS.map((option) => (
-                <TouchableOpacity
-                  key={option.value}
-                  style={[styles.pill, days === option.value && styles.pillActive]}
-                  onPress={() => setDays(option.value)}
+            {showsRangePicker ? (
+              <>
+                <ScrollView
+                  horizontal
+                  showsHorizontalScrollIndicator={false}
+                  style={styles.fullBleedScroll}
+                  contentContainerStyle={styles.nutrientPillRow}
                 >
-                  <Text style={[styles.pillText, days === option.value && styles.pillTextActive]}>{option.label}</Text>
-                </TouchableOpacity>
-              ))}
-            </View>
+                  {RANGE_PILLS.map((pill) => {
+                    const active = dateRangeSelection.kind !== 'custom' && rangeSelectionKey(dateRangeSelection) === pill.key;
+                    return (
+                      <TouchableOpacity
+                        key={pill.key}
+                        style={[styles.pill, active && styles.pillActive]}
+                        onPress={() => {
+                          setShowCustomPicker(false);
+                          setDateRangeSelection(pill.selection);
+                        }}
+                      >
+                        <Text style={[styles.pillText, active && styles.pillTextActive]}>{pill.label}</Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                  <TouchableOpacity
+                    style={[styles.pill, dateRangeSelection.kind === 'custom' && styles.pillActive]}
+                    onPress={() => setShowCustomPicker((current) => !current)}
+                  >
+                    <Text style={[styles.pillText, dateRangeSelection.kind === 'custom' && styles.pillTextActive]}>Custom</Text>
+                  </TouchableOpacity>
+                </ScrollView>
+
+                {showCustomPicker ? (
+                  <View style={styles.customPanel}>
+                    <View style={styles.pillRow}>
+                      <TouchableOpacity
+                        style={[styles.smallPill, !customIsRange && styles.pillActive]}
+                        onPress={() => setCustomIsRange(false)}
+                      >
+                        <Text style={[styles.pillText, !customIsRange && styles.pillTextActive]}>One day</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity style={[styles.smallPill, customIsRange && styles.pillActive]} onPress={() => setCustomIsRange(true)}>
+                        <Text style={[styles.pillText, customIsRange && styles.pillTextActive]}>Date range</Text>
+                      </TouchableOpacity>
+                    </View>
+
+                    <Text style={styles.customLabel}>{customIsRange ? 'Start date' : 'Date'}</Text>
+                    <View style={styles.dateRow}>
+                      <DateField label="Year">
+                        <PopoverSelect
+                          options={CUSTOM_YEAR_OPTIONS}
+                          selected={customStartDate?.split('-')[0] ?? null}
+                          minWidth={72}
+                          tabColor={TAB_COLOR}
+                          onSelect={(value) => commitCustomDate('start', { year: value })}
+                        />
+                      </DateField>
+                      <DateField label="Month">
+                        <PopoverSelect
+                          options={CUSTOM_MONTH_OPTIONS}
+                          selected={customStartDate ? String(Number(customStartDate.split('-')[1])) : null}
+                          minWidth={52}
+                          tabColor={TAB_COLOR}
+                          onSelect={(value) => commitCustomDate('start', { month: value })}
+                        />
+                      </DateField>
+                      <DateField label="Day">
+                        <PopoverSelect
+                          options={CUSTOM_DAY_OPTIONS}
+                          selected={customStartDate ? String(Number(customStartDate.split('-')[2])) : null}
+                          minWidth={52}
+                          tabColor={TAB_COLOR}
+                          onSelect={(value) => commitCustomDate('start', { day: value })}
+                        />
+                      </DateField>
+                    </View>
+
+                    {customIsRange ? (
+                      <>
+                        <Text style={[styles.customLabel, styles.spaced]}>Through</Text>
+                        <View style={styles.dateRow}>
+                          <DateField label="Year">
+                            <PopoverSelect
+                              options={CUSTOM_YEAR_OPTIONS}
+                              selected={customEndDate?.split('-')[0] ?? null}
+                              minWidth={72}
+                              tabColor={TAB_COLOR}
+                              onSelect={(value) => commitCustomDate('end', { year: value })}
+                            />
+                          </DateField>
+                          <DateField label="Month">
+                            <PopoverSelect
+                              options={CUSTOM_MONTH_OPTIONS}
+                              selected={customEndDate ? String(Number(customEndDate.split('-')[1])) : null}
+                              minWidth={52}
+                              tabColor={TAB_COLOR}
+                              onSelect={(value) => commitCustomDate('end', { month: value })}
+                            />
+                          </DateField>
+                          <DateField label="Day">
+                            <PopoverSelect
+                              options={CUSTOM_DAY_OPTIONS}
+                              selected={customEndDate ? String(Number(customEndDate.split('-')[2])) : null}
+                              minWidth={52}
+                              tabColor={TAB_COLOR}
+                              onSelect={(value) => commitCustomDate('end', { day: value })}
+                            />
+                          </DateField>
+                        </View>
+                      </>
+                    ) : null}
+                  </View>
+                ) : null}
+              </>
+            ) : (
+              <View style={styles.pillRow}>
+                {DAY_RANGE_OPTIONS.map((option) => (
+                  <TouchableOpacity
+                    key={option.value}
+                    style={[styles.pill, days === option.value && styles.pillActive]}
+                    onPress={() => setDays(option.value)}
+                  >
+                    <Text style={[styles.pillText, days === option.value && styles.pillTextActive]}>{option.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            )}
 
             {lens === 'nutrients' ? (
               <>
@@ -382,7 +628,7 @@ export default function TrendsScreen() {
                   horizontal
                   showsHorizontalScrollIndicator={false}
                   style={styles.fullBleedScroll}
-                  contentContainerStyle={styles.nutrientPillRow}
+                  contentContainerStyle={[styles.nutrientPillRow, styles.spaced]}
                 >
                   {CORE_NUTRIENT_CODES.map((code) => (
                     <TouchableOpacity
@@ -399,6 +645,23 @@ export default function TrendsScreen() {
 
                 {loading ? (
                   <Text style={styles.loadingText}>Loading…</Text>
+                ) : resolvedRange.isSingleDay ? (
+                  <View style={styles.chartCard}>
+                    {latestNutrientPoint ? (
+                      <>
+                        <Text style={[styles.singleDayHeading, { color: nutrientStatusColor(nutrientSeries?.latestStatus ?? null) }]}>
+                          {Math.round(latestNutrientPoint.value)}% of target
+                        </Text>
+                        <Text style={styles.caption}>
+                          {nutrientSeries?.displayName ?? selectedNutrient} · {formatDisplayDate(latestNutrientPoint.date)}
+                        </Text>
+                      </>
+                    ) : (
+                      <Text style={styles.loadingText}>
+                        {`Nothing logged or scheduled for ${formatDisplayDate(resolvedRange.startDate)} yet.`}
+                      </Text>
+                    )}
+                  </View>
                 ) : (
                   <View style={styles.chartCard}>
                     <TrendLineChart
@@ -409,17 +672,29 @@ export default function TrendsScreen() {
                       referenceLineLabel="100% target"
                       valueFormatter={(value) => `${Math.round(value)}%`}
                       lineColor={nutrientStatusColor(nutrientSeries?.latestStatus ?? null)}
-                      emptyMessage="Log a few meals on different days to see this nutrient's trend."
+                      emptyMessage="Log a few meals on different days (or schedule some ahead) to see this nutrient's trend."
                     />
-                    {latestNutrientPoint ? (
-                      <Text style={styles.caption}>Most recent: {Math.round(latestNutrientPoint.value)}% of target</Text>
-                    ) : null}
                   </View>
                 )}
               </>
             ) : lens === 'sixDs' ? (
               loading ? (
                 <Text style={styles.loadingText}>Loading…</Text>
+              ) : resolvedRange.isSingleDay ? (
+                <View style={styles.chartCard}>
+                  {sixDsSeries && sixDsSeries.length > 0 ? (
+                    <>
+                      <Text style={[styles.singleDayHeading, { color: colors.statusFlagged }]}>
+                        {Math.round(sixDsSeries[0].value)} flagged
+                      </Text>
+                      <Text style={styles.caption}>{formatDisplayDate(sixDsSeries[0].date)}</Text>
+                    </>
+                  ) : (
+                    <Text style={styles.loadingText}>
+                      {`Nothing logged or scheduled for ${formatDisplayDate(resolvedRange.startDate)} yet.`}
+                    </Text>
+                  )}
+                </View>
               ) : (
                 <View style={styles.chartCard}>
                   <TrendLineChart
@@ -428,7 +703,7 @@ export default function TrendsScreen() {
                     yMax={Math.max(4, ...(sixDsSeries ?? []).map((point) => point.value))}
                     valueFormatter={(value) => `${Math.round(value)} flagged`}
                     lineColor={colors.statusFlagged}
-                    emptyMessage="Log a few meals on different days to see flagged items trend over time."
+                    emptyMessage="Log a few meals on different days (or schedule some ahead) to see flagged items trend over time."
                   />
                 </View>
               )
@@ -667,6 +942,12 @@ export default function TrendsScreen() {
   );
 }
 
+// The real, established 1-4 severity wording from app/(tabs)/log.tsx's own
+// SeverityPicker (SEVERITY_OPTIONS) -- reused here rather than a second,
+// independently-worded scale, so a Y-axis label on the Symptoms chart says
+// the same thing the person actually tapped when logging it.
+const SEVERITY_LABELS: Record<number, string> = { 1: 'Mild', 2: 'Moderate', 3: 'Severe', 4: 'Very severe' };
+
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
@@ -680,6 +961,7 @@ const styles = StyleSheet.create({
   // chartCard, so they follow TAB_COLOR, 2026-07-27.
   sectionHeading: { ...typography.sectionTitle, color: colors.textPrimary, marginBottom: 10 },
   caption: { ...typography.body, color: TAB_COLOR, marginTop: 8, textAlign: 'center' },
+  singleDayHeading: { ...typography.sectionTitle, fontSize: 26, textAlign: 'center' },
   // Added 2026-07-27: the chart itself used to float with no surrounding
   // box at all, the one page in this family with no "info box" anywhere --
   // wraps it in the same colors.surface/TAB_COLOR-border treatment every
@@ -700,9 +982,24 @@ const styles = StyleSheet.create({
   fullBleedScroll: { marginHorizontal: -20 },
   nutrientPillRow: { flexDirection: 'row', gap: 8, marginBottom: 16, paddingHorizontal: 20 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 14, paddingVertical: 8 },
+  smallPill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 6 },
   pillActive: { backgroundColor: colors.primary, borderColor: colors.primary },
   pillText: { ...typography.caption, color: colors.textPrimary },
   pillTextActive: { color: colors.textOnPrimary },
+
+  // The custom date panel -- a plain, neutral box (matches disclaimerCard's
+  // own treatment below), tucked directly under the pill row it belongs to
+  // rather than styled like a real data card.
+  customPanel: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+  },
+  customLabel: { ...typography.eyebrow, color: colors.menuIconMuted, marginBottom: 6 },
+  dateRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  dateFieldGroup: { alignItems: 'flex-start' },
+  dateFieldLabel: { ...typography.eyebrow, color: colors.menuIconMuted, marginBottom: 4 },
 
   legendRow: { flexDirection: 'row', gap: 16, marginTop: 12, justifyContent: 'center' },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },

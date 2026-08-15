@@ -1,20 +1,27 @@
 import {
   getBodyMeasurementTrend,
-  getDailyNutrientBreakdown,
-  getDailySixDimensionsBreakdown,
+  getNutrientTotalsByDateRange,
+  getProjectedNutrientTotalsByDateRange,
+  getProjectedSixDimensionsFlagCountsByDateRange,
+  getSixDimensionsFlagCountsByDateRange,
   listCheckins,
   type CheckinType,
 } from './db';
 import { analyzeNutrientIntake, type NutrientStatus } from './nutrientAnalysis';
-import { isFlaggedTier } from './sixDimensionsReference';
 
-// The "chart it over time" layer Trends needs -- lib/db.ts's own
-// getDailyNutrientBreakdown/getDailySixDimensionsBreakdown are single-date
-// only (confirmed: no batch/range variant exists), so a multi-day series
-// means calling them once per day in a loop. Kept separate from
-// app/(tabs)/trends.tsx the same way lib/nutrientAnalysis.ts and
-// lib/sixDimensionsReference.ts already separate computation from the
-// Insights UI -- the screen should only be responsible for rendering.
+// The "chart it over time" layer Trends needs. Rebuilt 2026-08-15 -- the
+// original version of this file called lib/db.ts's single-date
+// getDailyNutrientBreakdown/getDailySixDimensionsBreakdown once per
+// calendar day in a for-loop (later "fixed" to Promise.all, which only
+// changed JS-side scheduling: expo-sqlite serializes every query against
+// one shared connection regardless, so that never actually helped).
+// Confirmed the real fix has to cut the number of underlying queries, not
+// just reorder them -- lib/db.ts now has real range-scoped functions
+// (getNutrientTotalsByDateRange, getSixDimensionsFlagCountsByDateRange, and
+// their real future-projection counterparts) that do it in ~2 queries plus
+// one lookup per DISTINCT food actually eaten in the whole range, not one
+// full query chain per day. This file's own job stays the same as before:
+// turn those raw totals into a real, chartable per-day series.
 
 // Same 'YYYY-MM-DD' local-time helper (and same reasoning) duplicated in
 // index.tsx (Home)/food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is wrong
@@ -32,11 +39,31 @@ function dateStringDaysAgo(daysAgo: number): string {
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
 }
 
-// Ascending, oldest -> today, inclusive of both ends.
-function dateRangeStrings(days: number): string[] {
+// Real, plain calendar-date arithmetic on a 'YYYY-MM-DD' string -- used for
+// both "N days back" and "N days ahead" (a negative offset), so the same
+// helper covers the past-range/future-range/Yesterday/Tomorrow picker
+// options in app/(tabs)/trends.tsx without a second, separate function.
+export function dateStringOffsetFrom(dateStr: string, offsetDays: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const next = new Date(y, m - 1, d + offsetDays);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  return `${next.getFullYear()}-${pad(next.getMonth() + 1)}-${pad(next.getDate())}`;
+}
+
+// Every real calendar date from startDate through endDate, inclusive,
+// ascending -- the (year, month, day+1) constructor form correctly rolls
+// over month/year boundaries without any DST-related surprise a repeated
+// setDate(getDate()+1) mutation could introduce.
+function dateRangeStringsBetween(startDate: string, endDate: string): string[] {
   const dates: string[] = [];
-  for (let i = days - 1; i >= 0; i--) {
-    dates.push(dateStringDaysAgo(i));
+  const [sy, sm, sd] = startDate.split('-').map(Number);
+  const [ey, em, ed] = endDate.split('-').map(Number);
+  const pad = (n: number) => String(n).padStart(2, '0');
+  let cursor = new Date(sy, sm - 1, sd);
+  const end = new Date(ey, em - 1, ed);
+  while (cursor.getTime() <= end.getTime()) {
+    dates.push(`${cursor.getFullYear()}-${pad(cursor.getMonth() + 1)}-${pad(cursor.getDate())}`);
+    cursor = new Date(cursor.getFullYear(), cursor.getMonth(), cursor.getDate() + 1);
   }
   return dates;
 }
@@ -50,36 +77,46 @@ export type NutrientTrendSeries = {
   unit: string | null;
 };
 
-// Skips any date with zero meals logged rather than plotting a false 0%
-// "deficient" point -- a day before the person started using the app (or
-// just didn't log) isn't the same thing as a day they ate nothing, and
+// The real, general range version -- handles a range sitting entirely in
+// the past (real logged data), entirely in the future (projected from what's
+// genuinely scheduled), or straddling today (both, merged -- today's own
+// point always comes from real logged data, never a projection, since
+// getNutrientTotalsByDateRange's own end never extends past today here).
+// Skips any date with no real data at all rather than plotting a false 0%
+// "deficient" point -- a day before logging started, or a day nothing is
+// scheduled for yet, isn't the same thing as a day of zero intake, and
 // charting it as such would flood the trend with noise that has nothing to
-// do with their actual intake.
-export async function getNutrientTrendSeries(nutrientCode: string, days: number): Promise<NutrientTrendSeries> {
-  const dates = dateRangeStrings(days);
+// do with real intake.
+export async function getNutrientTrendSeriesForRange(nutrientCode: string, startDate: string, endDate: string): Promise<NutrientTrendSeries> {
+  const today = todayDateString();
+  const dayTotals: Record<string, Record<string, number>> = {};
+  let driRows: Awaited<ReturnType<typeof getNutrientTotalsByDateRange>>['driRows'] = [];
+  let supplementTotals: Record<string, number> = {};
+
+  if (startDate <= today) {
+    const actual = await getNutrientTotalsByDateRange(startDate, endDate <= today ? endDate : today);
+    Object.assign(dayTotals, actual.dayTotals);
+    driRows = actual.driRows;
+    supplementTotals = actual.supplementTotals;
+  }
+  if (endDate > today) {
+    const projectedStart = startDate > today ? startDate : dateStringOffsetFrom(today, 1);
+    const projected = await getProjectedNutrientTotalsByDateRange(projectedStart, endDate);
+    Object.assign(dayTotals, projected.dayTotals);
+    if (driRows.length === 0) driRows = projected.driRows;
+    if (Object.keys(supplementTotals).length === 0) supplementTotals = projected.supplementTotals;
+  }
+
   const points: TrendPoint[] = [];
   let latestStatus: NutrientStatus | null = null;
   let displayName: string | null = null;
   let unit: string | null = null;
 
-  // Reported directly, 2026-08-15: "why does it take so long... for any
-  // time frame." getDailyNutrientBreakdown is real, but genuinely heavy --
-  // per day it queries every meal, then every meal item, then per-item
-  // getFoodNutrients/getFoodUnitWeight/getFoodCategory calls, each a real
-  // SQLite round-trip. This used to await that whole chain one day at a
-  // time in a for-loop, so a 90-day range paid for 90 fully sequential
-  // heavy queries even on a mostly-empty range. Every day's own breakdown
-  // is genuinely independent of every other day's, so there's no reason to
-  // serialize them -- fired concurrently instead, the same real Promise.all
-  // pattern this app already uses everywhere else for independent reads.
-  const breakdowns = await Promise.all(dates.map((date) => getDailyNutrientBreakdown(date)));
+  for (const date of dateRangeStringsBetween(startDate, endDate)) {
+    const totals = dayTotals[date];
+    if (!totals) continue;
 
-  for (let i = 0; i < dates.length; i++) {
-    const date = dates[i];
-    const breakdown = breakdowns[i];
-    if (breakdown.meals.length === 0) continue;
-
-    const entries = analyzeNutrientIntake(breakdown.driRows, breakdown.dayTotals, breakdown.supplementTotals);
+    const entries = analyzeNutrientIntake(driRows, totals, supplementTotals);
     const entry = entries.find((e) => e.nutrientCode === nutrientCode);
     if (!entry || !Number.isFinite(entry.percentOfTarget)) continue;
 
@@ -92,25 +129,42 @@ export async function getNutrientTrendSeries(nutrientCode: string, days: number)
   return { points, latestStatus, displayName, unit };
 }
 
-// Flagged D1-D6 tier count per day, same "skip days with no meals logged"
-// rule as the nutrient series above, for the same reason.
-export async function getSixDimensionsFlagTrendSeries(days: number): Promise<TrendPoint[]> {
-  const dates = dateRangeStrings(days);
-  const points: TrendPoint[] = [];
+// A plain "last N days ending today" convenience wrapper over the general
+// range version above -- kept so Home's own 14-day flag trend and
+// lib/reportGenerator.ts's own report window (both real, existing callers,
+// neither needing past/future picker support) don't need to change at all;
+// both get the real performance fix for free since the range version
+// underneath them is what actually got fast.
+export async function getNutrientTrendSeries(nutrientCode: string, days: number): Promise<NutrientTrendSeries> {
+  return getNutrientTrendSeriesForRange(nutrientCode, dateStringDaysAgo(days - 1), todayDateString());
+}
 
-  // Same real fix as getNutrientTrendSeries just above -- each day's own
-  // breakdown is independent, fired concurrently instead of one at a time.
-  const breakdowns = await Promise.all(dates.map((date) => getDailySixDimensionsBreakdown(date)));
+// Same real shape as getNutrientTrendSeriesForRange, for the 6-DFF flag
+// count instead of a specific nutrient's percent-of-target.
+export async function getSixDimensionsFlagTrendSeriesForRange(startDate: string, endDate: string): Promise<TrendPoint[]> {
+  const today = todayDateString();
+  let counts: Record<string, number> = {};
 
-  for (let i = 0; i < dates.length; i++) {
-    const breakdown = breakdowns[i];
-    if (breakdown.meals.length === 0) continue;
-
-    const flagCount = breakdown.day.filter((score) => score.entries.some((entry) => isFlaggedTier(entry.tier))).length;
-    points.push({ date: dates[i], value: flagCount });
+  if (startDate <= today) {
+    const actual = await getSixDimensionsFlagCountsByDateRange(startDate, endDate <= today ? endDate : today);
+    counts = { ...counts, ...actual };
+  }
+  if (endDate > today) {
+    const projectedStart = startDate > today ? startDate : dateStringOffsetFrom(today, 1);
+    const projected = await getProjectedSixDimensionsFlagCountsByDateRange(projectedStart, endDate);
+    counts = { ...counts, ...projected };
   }
 
+  const points: TrendPoint[] = [];
+  for (const date of dateRangeStringsBetween(startDate, endDate)) {
+    if (counts[date] == null) continue;
+    points.push({ date, value: counts[date] });
+  }
   return points;
+}
+
+export async function getSixDimensionsFlagTrendSeries(days: number): Promise<TrendPoint[]> {
+  return getSixDimensionsFlagTrendSeriesForRange(dateStringDaysAgo(days - 1), todayDateString());
 }
 
 // Weight's own trend series -- getBodyMeasurementTrend('weight') already
