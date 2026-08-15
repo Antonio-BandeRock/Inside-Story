@@ -67,7 +67,8 @@
           "photosPermission": "Inside Story uses your photos to let you choose a custom background image, or a photo of a meal you've made.",
           "cameraPermission": "Inside Story uses your camera to let you take a photo of a meal you've made."
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,
