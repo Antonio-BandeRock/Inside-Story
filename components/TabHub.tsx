@@ -13,7 +13,9 @@ import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
 import { useIridescentHueRotation, useThrottledHueDegrees } from '../hooks/useIridescentHueRotation';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
+import type { TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
+import { DessertBuilderIcon } from './FoodBuilderIcons';
 import { HelpSheet } from './HelpButton';
 import { IridescentRingCircle } from './IridescentRingCircle';
 import { PurpleRibbonIcon } from './PurpleRibbonIcon';
@@ -84,6 +86,23 @@ const ELEVATION_SHADOW_LAYERS: readonly { offsetY: number; opacity: number }[] =
   { offsetY: 5, opacity: 0.3 },
   { offsetY: 2, opacity: 0.4 },
 ];
+
+// A real, separate rendering path for any TabHubIconChoice backed by a
+// hand-drawn VECTOR icon (components/FoodBuilderIcons.tsx) rather than a
+// real, cropped raster asset (every other choice in TAB_HUB_ICON_SOURCES,
+// constants/tabHubIcons.ts) -- 2026-08-14, starting with Dessert Builder.
+// Checked FIRST, below, before ever falling back to the raster <Image>
+// path, so a genuinely vector-backed choice never silently renders the
+// default butterfly just because it has no entry in TAB_HUB_ICON_SOURCES.
+//
+// colors.tabFood, not an arbitrary pick -- Dessert Builder lives on the
+// Food tab, so its own identity color gives this choice real, deliberate
+// meaning (this icon came from the Food tab) rather than a color chosen
+// for no particular reason.
+const TAB_HUB_VECTOR_ICONS: Partial<Record<TabHubIconChoice, (size: number, color: string) => ReactNode>> = {
+  dessertBuilder: (size, color) => <DessertBuilderIcon size={size} color={color} />,
+};
+const DESSERT_BUILDER_TAB_HUB_COLOR = colors.tabFood;
 
 // 'ionicons', not 'Ionicons' -- the exact font family name @expo/vector-
 // icons registers this font under (see node_modules/@expo/vector-icons/
@@ -298,10 +317,16 @@ export function TabHub() {
   // defensive, never-blank fallback rather than trusting the stored value
   // unconditionally.
   const { tabHubIcon } = useVisualPreferences();
+  // Checked BEFORE the raster fallback below -- a real, vector-backed
+  // choice (see TAB_HUB_VECTOR_ICONS' own comment) has no entry in
+  // TAB_HUB_ICON_SOURCES at all, so resolving buttonIconSource first would
+  // have silently rendered the default butterfly in its place.
+  const vectorIconRenderer = TAB_HUB_VECTOR_ICONS[tabHubIcon];
   // The trailing `!` is safe, not just convenient -- TAB_HUB_ICON_SOURCES.default
   // is a real, always-present literal key in that object (never removed),
   // so this can only be undefined if the earlier lookup itself resolved to
-  // a real source, making the fallback moot either way.
+  // a real source, making the fallback moot either way. Only actually used
+  // when vectorIconRenderer above is unset.
   const buttonIconSource = TAB_HUB_ICON_SOURCES[tabHubIcon] ?? TAB_HUB_ICON_SOURCES.default!;
   // See getTabHubIconRenderSize's own header comment (constants/
   // tabHubIcons.ts) for why this is computed per-render from the chosen
@@ -464,7 +489,40 @@ export function TabHub() {
             shadowOffset are iOS-only, and elevation, its one real
             mechanism, shadows a view's rectangular bounds, not a
             transparent PNG's actual silhouette). */}
-        {open ? (
+        {vectorIconRenderer ? (
+          // A real, separate rendering path for a vector-backed choice (see
+          // TAB_HUB_VECTOR_ICONS' own comment) -- no Image/tintColor at
+          // all, since the icon function already takes color directly.
+          // Shadow copies reuse styles.butterflyRealCopy (plain position:
+          // absolute/top/left, with no tintColor key -- unlike
+          // styles.butterflyShadowCopy, which isn't a valid View style)
+          // as their own base, with opacity/offset applied the identical
+          // way the raster path applies them, just via a wrapping View
+          // instead of an Image style prop, since Svg itself takes no
+          // opacity/transform of its own here.
+          open ? (
+            <View style={[styles.butterflyOpenWrap, { width: buttonIconWidth, height: buttonIconHeight }]}>
+              {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
+                <View
+                  key={index}
+                  style={[
+                    styles.butterflyRealCopy,
+                    { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY }] },
+                  ]}
+                >
+                  {vectorIconRenderer(buttonIconWidth, '#000000')}
+                </View>
+              ))}
+              <View style={[styles.butterflyRealCopy, { transform: [{ translateX: -2 }] }]}>
+                {vectorIconRenderer(buttonIconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
+              </View>
+            </View>
+          ) : (
+            <View style={{ transform: [{ translateX: -2 }] }}>
+              {vectorIconRenderer(buttonIconWidth, DESSERT_BUILDER_TAB_HUB_COLOR)}
+            </View>
+          )
+        ) : open ? (
           <View style={[styles.butterflyOpenWrap, { width: buttonIconWidth, height: buttonIconHeight }]}>
             {ELEVATION_SHADOW_LAYERS.map((layer, index) => (
               <Image

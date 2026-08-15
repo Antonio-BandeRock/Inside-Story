@@ -306,6 +306,17 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   cardiovascularDisease: [198, 272],
   gout: [175, 263],
   prostateHealth: [175, 220],
+  // dessertBuilder, 2026-08-14 -- a real, hand-drawn vector icon (see
+  // components/FoodBuilderIcons.tsx), not a cropped raster asset, so
+  // there's no real photo to measure -- its own viewBox is a genuine,
+  // chosen 100x100 (1:1) square, registered here exactly the same way a
+  // real measured pair would be, so getTabHubIconRenderSize's own shared
+  // formula computes a correct render size for it with zero special-casing
+  // needed. See TabHub.tsx's own TAB_HUB_VECTOR_ICONS for how this choice
+  // actually gets drawn, a real, separate rendering path from every other
+  // entry in TAB_HUB_ICON_SOURCES above, which this one deliberately has
+  // no entry in.
+  dessertBuilder: [100, 100],
 };
 
 // The default butterfly's own real, established render width -- unchanged

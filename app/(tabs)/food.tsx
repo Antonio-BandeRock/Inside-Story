@@ -12,6 +12,7 @@ import { BeverageBuilder } from '../../components/BeverageBuilder';
 import { BeverageSubtypePicker, type BeverageSubtypeKey } from '../../components/BeverageSubtypePicker';
 import { DessertBuilder } from '../../components/DessertBuilder';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
+import { DessertBuilderIcon } from '../../components/FoodBuilderIcons';
 import { HandheldsBuilder } from '../../components/HandheldsBuilder';
 import { MealBuilder } from '../../components/MealBuilder';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -251,7 +252,14 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
     // zero manual adjustment required for this addition.
     key: 'dessertBuilder',
     label: 'Desserts',
+    // icon stays the required Ionicons fallback (see LensOption's own
+    // comment on renderIcon) even though renderIcon below is what actually
+    // draws every real render of this tile -- a real, hand-drawn cupcake
+    // (components/FoodBuilderIcons.tsx), 2026-08-14, the same custom-icon
+    // mechanism Purple Digest's own condition tiles already use, reused
+    // here for the first time by a Food-tab lens.
     icon: 'ice-cream-outline',
+    renderIcon: (size, color) => <DessertBuilderIcon size={size} color={color} />,
     help: [{ heading: 'Desserts', body: FOOD_LENS_COPY.dessertBuilder }],
   },
 ];

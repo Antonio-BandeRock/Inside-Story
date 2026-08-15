@@ -114,6 +114,18 @@ export type AnimalIconChoice =
   | 'badger'
   | 'iguana';
 
+// The Food tab's own builder icons, 2026-08-14 -- starting with Dessert
+// Builder (components/FoodBuilderIcons.tsx), the first hand-drawn VECTOR
+// icon this whole personalization feature has ever offered rather than a
+// real, cropped photo/artwork asset (see that file's own header comment
+// for why no reference image exists for this one yet). Deliberately its
+// own real type, not folded into GardenIconChoice/AnimalIconChoice --
+// matches the same "start as a real, if currently single-member, union"
+// precedent both of those established, leaving room for a future Food
+// builder (Meal, Side, etc.) to get its own icon here later without
+// renaming this type.
+export type FoodBuilderIconChoice = 'dessertBuilder';
+
 // The main floating TabHub button's own icon, 2026-08-09, explicitly
 // requested: "make it so each icon is available in the user profile to
 // choose to use in the TabHub menu icon position in place of... the
@@ -125,12 +137,14 @@ export type AnimalIconChoice =
 // deliberate personalization; any GardenIconChoice (added 2026-08-12) picks
 // one of the 8 real, non-condition garden/pollinator icons above; any
 // AnimalIconChoice (added 2026-08-14) picks one of the 38 real animal-head
-// portraits above. Only one choice at a time -- a plain scalar field, not a
-// set. Imported here as a type-only import (erased at compile time, so no
-// real runtime dependency on lib/digest/index.ts's own much larger
-// content-aggregation module -- the same precedent already established for
-// sixDimensionsReference.ts's own type-only import into lib/db.ts).
-export type TabHubIconChoice = 'default' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice;
+// portraits above; any FoodBuilderIconChoice (added 2026-08-14) picks one of
+// the Food tab's own builder icons. Only one choice at a time -- a plain
+// scalar field, not a set. Imported here as a type-only import (erased at
+// compile time, so no real runtime dependency on lib/digest/index.ts's own
+// much larger content-aggregation module -- the same precedent already
+// established for sixDimensionsReference.ts's own type-only import into
+// lib/db.ts).
+export type TabHubIconChoice = 'default' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
 
 // A few calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for
