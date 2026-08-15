@@ -9388,6 +9388,37 @@ export async function getMealItems(mealId: string) {
   );
 }
 
+// Every real meal_items row eaten inside a given [start, end] local-time
+// window -- built for lib/patternFinder.ts, which needs "what did this
+// person eat before this specific flare," not one meal at a time the way
+// getMealItems above already covers. Both startLocal/endLocal are expected
+// in the same plain 'YYYY-MM-DDTHH:mm' local-time shape meals.eaten_at
+// itself is always stored in (confirmed directly: every real caller of
+// recordCheckin across this app builds loggedAt the identical way, via
+// `${date}T${time24}`, never a UTC toISOString() -- so a plain lexicographic
+// BETWEEN comparison here is genuinely correct, not a timezone mismatch
+// waiting to happen). Ordered by meal, matching getMealItems' own
+// per-meal ordering, so a caller can tell which items came from the same
+// real meal if that ever matters.
+export async function getMealItemsInWindow(startLocal: string, endLocal: string) {
+  const db = await getDatabase();
+  return db.getAllAsync<MealItemRecord & { eatenAt: string }>(
+    `
+      SELECT mi.id, mi.meal_id AS mealId, mi.food_id AS foodId, mi.food_name AS foodName, mi.category,
+             mi.dish_name AS dishName, mi.side_name AS sideName, mi.dish_servings AS dishServings,
+             mi.your_share_percent AS yourSharePercent, mi.cooking_method AS cookingMethod,
+             mi.serving_size AS servingSize, mi.serving_unit AS servingUnit, mi.quantity,
+             mi.sort_order AS sortOrder, mi.notes, m.eaten_at AS eatenAt
+      FROM meal_items mi
+      JOIN meals m ON m.id = mi.meal_id
+      WHERE m.eaten_at BETWEEN ? AND ?
+      ORDER BY m.eaten_at, mi.sort_order
+    `,
+    startLocal,
+    endLocal,
+  );
+}
+
 // Meals eaten on one calendar date -- `date` is a 'YYYY-MM-DD' string;
 // eaten_at is stored as an ISO datetime truncated to the minute
 // ('YYYY-MM-DDTHH:mm'), so matching its first 10 characters is matching

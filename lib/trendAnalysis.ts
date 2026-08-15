@@ -1,4 +1,5 @@
 import {
+  getBodyMeasurementTrend,
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
   listCheckins,
@@ -93,6 +94,43 @@ export async function getSixDimensionsFlagTrendSeries(days: number): Promise<Tre
   }
 
   return points;
+}
+
+// Weight's own trend series -- getBodyMeasurementTrend('weight') already
+// returns real, chronological, one-row-per-reading history (built for
+// exactly this on 2026-08-09 alongside Profile's own Weight field, per
+// that function's own comment), never previously read by any real chart.
+// Always stored in kg (recordBodyMeasurement's own established convention,
+// same as Profile's own Weight field) -- kept that way here too, so
+// imperial-vs-metric display conversion stays the screen's own job, the
+// same split every other unit-aware value in this app already uses.
+// loggedAt is sliced to its first 10 characters so a value saved with a
+// full ISO datetime (rather than a bare 'YYYY-MM-DD') still produces a
+// real, valid date TrendLineChart's own formatShortDate can parse --
+// that function assumes exactly 3 dash-separated parts.
+export async function getWeightTrendPoints(days: number): Promise<TrendPoint[]> {
+  const rangeStart = dateStringDaysAgo(days - 1);
+  const rows = await getBodyMeasurementTrend('weight');
+  return rows
+    .map((row) => ({ date: row.loggedAt.slice(0, 10), value: row.value }))
+    .filter((point) => point.date >= rangeStart);
+}
+
+// A weight or lab-result trend genuinely benefits from an axis padded
+// tightly around the real values, not the 0-anchored range the Nutrients/
+// 6 Dimensions charts correctly use (those are real counts/percentages
+// where 0 is a meaningful floor) -- a person's own real weight or hormone
+// level pinned against a 0 floor would render as a visually flat, useless
+// line for the small, real swings that actually matter day to day. Real,
+// simple padding: 10% of the observed span on each side, with a small
+// fixed floor (2 units) for the rare case every point is identical.
+export function paddedTrendRange(values: number[]): { yMin: number; yMax: number } {
+  if (values.length === 0) return { yMin: 0, yMax: 1 };
+  const min = Math.min(...values);
+  const max = Math.max(...values);
+  const span = Math.max(max - min, 2);
+  const pad = span * 0.1;
+  return { yMin: min - pad, yMax: max + pad };
 }
 
 export type CheckinSeverityPoint = {
