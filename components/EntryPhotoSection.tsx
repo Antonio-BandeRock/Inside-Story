@@ -17,6 +17,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppActionSheet } from './AppActionSheet';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import type { DigestEntry } from '../lib/digest/types';
@@ -51,6 +52,7 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
   const target = resolvePhotoTarget(entry);
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [sheetVisible, setSheetVisible] = useState(false);
 
   useEffect(() => {
     if (!target) return;
@@ -118,11 +120,7 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
   }
 
   function openPicker() {
-    Alert.alert('Add a Photo', undefined, [
-      { text: 'Take a Photo', onPress: () => handlePick('camera') },
-      { text: 'Choose from Library', onPress: () => handlePick('library') },
-      { text: 'Cancel', style: 'cancel' },
-    ]);
+    setSheetVisible(true);
   }
 
   return (
@@ -147,6 +145,16 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
           </TouchableOpacity>
         )
       ) : null}
+      <AppActionSheet
+        visible={sheetVisible}
+        onClose={() => setSheetVisible(false)}
+        title="Add a Photo"
+        actions={[
+          { label: 'Take a Photo', onPress: () => handlePick('camera') },
+          { label: 'Choose from Library', onPress: () => handlePick('library') },
+          { label: 'Cancel', onPress: () => {} },
+        ]}
+      />
     </View>
   );
 }

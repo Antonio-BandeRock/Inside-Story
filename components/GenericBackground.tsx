@@ -19,7 +19,14 @@ import type { GenericPalette } from '../lib/visualPreferences';
 // clear that iridescence and the rest of the app's real color scheme stay
 // exactly as they are; this is a separate, opt-in "look" only for the
 // background layer itself.
-const PALETTES: Record<GenericPalette, { gradient: [string, string]; blobs: [string, string] }> = {
+//
+// Exported (not just a local const) as of 2026-08-15: this is the one real
+// per-user "color combination" Profile's Appearance & Navigation section
+// actually lets someone pick, and AppActionSheet.tsx reuses these exact
+// values directly -- a real, explicit request ("matches the app generic
+// colors combination chosen in Profile appearance and navigation"), not a
+// reach back into a component meant to stay background-only.
+export const GENERIC_BACKGROUND_PALETTES: Record<GenericPalette, { gradient: [string, string]; blobs: [string, string] }> = {
   lavender: { gradient: ['#241F38', '#3C3260'], blobs: ['#7C6BB0', '#B7A3E0'] },
   seafoam: { gradient: ['#11302B', '#1E4E46'], blobs: ['#4E9C8B', '#8ECBB9'] },
   sand: { gradient: ['#332619', '#54402B'], blobs: ['#C9A56F', '#E8CFA0'] },
@@ -27,7 +34,7 @@ const PALETTES: Record<GenericPalette, { gradient: [string, string]; blobs: [str
 };
 
 export function GenericBackground({ palette }: { palette: GenericPalette }) {
-  const scheme = PALETTES[palette];
+  const scheme = GENERIC_BACKGROUND_PALETTES[palette];
   return (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
       <LinearGradient

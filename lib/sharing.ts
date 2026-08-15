@@ -127,9 +127,103 @@ export async function buildBuilderFavoritePayload(
   };
 }
 
+// A real, zero-dependency, UTF-8-safe base64 codec, used only to make the
+// deep link's own query-string payload read as a normal, opaque-looking
+// token rather than raw JSON. 2026-08-15, direct on-device bug report:
+// putting JSON.stringify(envelope) straight into the query string meant
+// every quote/colon/comma got percent-encoded individually --
+// "%3A%22tbsp%22%3A%22cookingMethod"-style visible garbage in the plain-
+// text share message, unreadable and alarming-looking for someone without
+// the app. Base64 first means the same real payload still travels intact,
+// but what actually shows up in the message is a normal-looking run of
+// letters/digits (the same visual shape as any other app's own share
+// link), not obviously-broken text. Hand-written rather than reaching for
+// global btoa/atob (Hermes' own support for those is a relatively recent
+// addition, unconfirmed on-device in this exact build) or
+// TextEncoder/TextDecoder (historically inconsistent across RN/Hermes
+// versions without a polyfill) -- this needs nothing beyond plain string
+// character-code operations, guaranteed in any JS engine.
+const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+function utf8Bytes(str: string): number[] {
+  const bytes: number[] = [];
+  for (let i = 0; i < str.length; i++) {
+    const code = str.codePointAt(i)!;
+    if (code > 0xffff) i++; // consumed a surrogate pair
+    if (code < 0x80) {
+      bytes.push(code);
+    } else if (code < 0x800) {
+      bytes.push(0xc0 | (code >> 6), 0x80 | (code & 0x3f));
+    } else if (code < 0x10000) {
+      bytes.push(0xe0 | (code >> 12), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+    } else {
+      bytes.push(0xf0 | (code >> 18), 0x80 | ((code >> 12) & 0x3f), 0x80 | ((code >> 6) & 0x3f), 0x80 | (code & 0x3f));
+    }
+  }
+  return bytes;
+}
+
+function bytesToUtf8(bytes: number[]): string {
+  let result = '';
+  let i = 0;
+  while (i < bytes.length) {
+    const b0 = bytes[i];
+    if (b0 < 0x80) {
+      result += String.fromCharCode(b0);
+      i += 1;
+    } else if ((b0 & 0xe0) === 0xc0) {
+      result += String.fromCharCode(((b0 & 0x1f) << 6) | (bytes[i + 1] & 0x3f));
+      i += 2;
+    } else if ((b0 & 0xf0) === 0xe0) {
+      result += String.fromCharCode(((b0 & 0x0f) << 12) | ((bytes[i + 1] & 0x3f) << 6) | (bytes[i + 2] & 0x3f));
+      i += 3;
+    } else {
+      const codePoint =
+        ((b0 & 0x07) << 18) | ((bytes[i + 1] & 0x3f) << 12) | ((bytes[i + 2] & 0x3f) << 6) | (bytes[i + 3] & 0x3f);
+      result += String.fromCodePoint(codePoint);
+      i += 4;
+    }
+  }
+  return result;
+}
+
+function encodeBase64Utf8(str: string): string {
+  const bytes = utf8Bytes(str);
+  let result = '';
+  for (let i = 0; i < bytes.length; i += 3) {
+    const b0 = bytes[i];
+    const b1 = bytes[i + 1];
+    const b2 = bytes[i + 2];
+    const triplet = (b0 << 16) | ((b1 ?? 0) << 8) | (b2 ?? 0);
+    result += BASE64_CHARS[(triplet >> 18) & 0x3f];
+    result += BASE64_CHARS[(triplet >> 12) & 0x3f];
+    result += b1 === undefined ? '=' : BASE64_CHARS[(triplet >> 6) & 0x3f];
+    result += b2 === undefined ? '=' : BASE64_CHARS[triplet & 0x3f];
+  }
+  return result;
+}
+
+function decodeBase64Utf8(base64: string): string {
+  const clean = base64.replace(/=+$/, '');
+  const bytes: number[] = [];
+  let buffer = 0;
+  let bits = 0;
+  for (let i = 0; i < clean.length; i++) {
+    const value = BASE64_CHARS.indexOf(clean[i]);
+    if (value === -1) continue;
+    buffer = (buffer << 6) | value;
+    bits += 6;
+    if (bits >= 8) {
+      bits -= 8;
+      bytes.push((buffer >> bits) & 0xff);
+    }
+  }
+  return bytesToUtf8(bytes);
+}
+
 async function encodeEnvelope(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<string> {
   const envelope: ShareEnvelope = { v: 1, fromName: fromName.trim() || 'A friend', payload };
-  return Linking.createURL('/import-shared', { queryParams: { data: JSON.stringify(envelope) } });
+  return Linking.createURL('/import-shared', { queryParams: { data: encodeBase64Utf8(JSON.stringify(envelope)) } });
 }
 
 // The one real, shared place a photo gets resolved and compressed down for
@@ -201,9 +295,15 @@ export async function encodeMealShareLink(mealFavoriteId: string, fromName: stri
 // base64 string simply fails to decode later (saveSharePhotoFromBase64
 // returns null, never throws), which stageSharedItem below already treats
 // as "no photo," not a reason to reject the whole share.
+//
+// `raw` is the query string's own `data` value exactly as Expo Router/
+// expo-linking already hand it back (percent-decoded) -- since
+// encodeEnvelope now base64-encodes the JSON before it ever reaches the
+// query string (see that function's own comment), this is the one real
+// place that reverses it, before JSON.parse ever runs.
 export function decodeShareEnvelope(raw: string): ShareEnvelope | null {
   try {
-    const parsed = JSON.parse(raw) as Partial<ShareEnvelope>;
+    const parsed = JSON.parse(decodeBase64Utf8(raw)) as Partial<ShareEnvelope>;
     if (parsed.v !== 1 || typeof parsed.fromName !== 'string' || !parsed.payload) return null;
 
     if (parsed.payload.kind === 'component') {
