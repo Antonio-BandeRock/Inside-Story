@@ -48,6 +48,10 @@ import {
   getHandheldIngredients,
   getHandheldNutrientBreakdown,
   getHandheldSixDimensionsBreakdown,
+  getDessert,
+  getDessertIngredients,
+  getDessertNutrientBreakdown,
+  getDessertSixDimensionsBreakdown,
   getSoup,
   getSoupIngredients,
   getSoupNutrientBreakdown,
@@ -377,18 +381,20 @@ export default function FoodItemDetailScreen() {
 }
 
 // "side" naming kept even though this also now loads a salad, smoothie,
-// fermentation, beverage, snack, baked good, soup, sauce, or handheld --
-// SideDetail/SideIngredientDetail and SaladDetail/SaladIngredientDetail/
-// SmoothieDetail/SmoothieIngredientDetail/FermentationDetail/
-// FermentationIngredientDetail/BeverageDetail/BeverageIngredientDetail/
-// SnackDetail/SnackIngredientDetail/BakedGoodsDetail/
-// BakedGoodsIngredientDetail/SoupDetail/SoupIngredientDetail/SauceDetail/
-// SauceIngredientDetail/HandheldDetail/HandheldIngredientDetail are all
+// fermentation, beverage, snack, baked good, soup, sauce, handheld, or
+// dessert -- SideDetail/SideIngredientDetail and SaladDetail/
+// SaladIngredientDetail/SmoothieDetail/SmoothieIngredientDetail/
+// FermentationDetail/FermentationIngredientDetail/BeverageDetail/
+// BeverageIngredientDetail/SnackDetail/SnackIngredientDetail/
+// BakedGoodsDetail/BakedGoodsIngredientDetail/SoupDetail/
+// SoupIngredientDetail/SauceDetail/SauceIngredientDetail/HandheldDetail/
+// HandheldIngredientDetail/DessertDetail/DessertIngredientDetail are all
 // structurally identical shapes (see lib/db.ts's own Salad/Smoothie/
-// Fermentation/Beverage/Snack/BakedGoods/Soup/Sauce/Handheld CRUD, each a
-// deliberate mirror of Side's), so a loaded salad, smoothie, fermentation,
-// beverage, snack, baked good, soup, sauce, or handheld is assignable
-// straight into these same types with no separate union needed.
+// Fermentation/Beverage/Snack/BakedGoods/Soup/Sauce/Handheld/Dessert CRUD,
+// each a deliberate mirror of Side's), so a loaded salad, smoothie,
+// fermentation, beverage, snack, baked good, soup, sauce, handheld, or
+// dessert is assignable straight into these same types with no separate
+// union needed.
 
 // PrepView's own mealNoun prop, factored out once here rather than another
 // nested ternary in the JSX above -- grows by one more itemType per builder,
@@ -403,6 +409,7 @@ function mealNounFor(itemType: string | undefined): string {
   if (itemType === 'soup') return 'soup';
   if (itemType === 'sauce') return 'sauce';
   if (itemType === 'handheld') return 'handheld';
+  if (itemType === 'dessert') return 'dessert';
   return 'side';
 }
 
@@ -512,6 +519,17 @@ async function loadSide(
       getHandheldIngredients(id),
       getHandheldNutrientBreakdown(id),
       getHandheldSixDimensionsBreakdown(id),
+    ]);
+    if (!side) return empty;
+    return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };
+  }
+
+  if (itemType === 'dessert') {
+    const [side, ingredients, nutrientBreakdown, dimensionsBreakdown] = await Promise.all([
+      getDessert(id),
+      getDessertIngredients(id),
+      getDessertNutrientBreakdown(id),
+      getDessertSixDimensionsBreakdown(id),
     ]);
     if (!side) return empty;
     return { side, ingredients, nutrientBreakdown, dimensionsBreakdown };

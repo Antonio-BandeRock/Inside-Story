@@ -101,6 +101,7 @@ const RECIPE_BUILDER_PARAM: Record<BuilderFavoriteItemType, string> = {
   soup: 'openSoupRecipeId',
   sauce: 'openSauceRecipeId',
   handheld: 'openHandheldRecipeId',
+  dessert: 'openDessertRecipeId',
 };
 
 const DIGEST_HELP_SECTIONS: HelpSection[] = [
@@ -1174,11 +1175,118 @@ function groupHomeGardeningEntries(entries: AnyDigestEntry[]): {
   return { topics, tyingTogether };
 }
 
+// Recipes needs its own real, dedicated classifier too, 2026-08-14 -- a
+// direct report right after the category shipped: "the current sort seems
+// to be based on the condition categories," since every RECIPES_ENTRIES
+// row was falling through classifyTopicForCategory's own default branch
+// straight into classifyConditionTopic (the disease-oriented one, meant for
+// Core Science/Self-Advocacy/Whole-Body Effects, none of which mean
+// anything for a recipe). Unlike Earth Matters/Home Gardening, this one
+// doesn't need a keyword net at all -- every real recipe entry already
+// carries a genuine, structured `linkedBuilderType` field (see recipes.ts's
+// own header comment: it's what lets DigestCard's "Build This Recipe"
+// button navigate into the right builder), so classification is a direct,
+// reliable field lookup rather than an inferred guess from title text.
+type RecipeTopic =
+  | 'Sides'
+  | 'Salads & Bowls'
+  | 'Smoothies'
+  | 'Fermentation'
+  | 'Beverages'
+  | 'Snacks'
+  | 'Baked Goods'
+  | 'Soups'
+  | 'Sauces'
+  | 'Handhelds'
+  | 'Desserts'
+  | 'Other Recipes';
+
+// Same real order as Food's own FOOD_LENSES builder list (app/(tabs)/
+// food.tsx), minus Meal Builder itself -- a curated recipe is always one of
+// the ten (soon eleven, once Dessert Builder exists) direct-ingredient
+// builders' own saved output, never an assembled meal. "Other Recipes" is a
+// real, dynamic safety net for any future recipe entry that somehow arrives
+// with no linkedBuilderType at all, not a bucket any of today's 44 real
+// entries ever lands in.
+const RECIPES_TOPIC_ORDER: RecipeTopic[] = [
+  'Sides',
+  'Salads & Bowls',
+  'Smoothies',
+  'Fermentation',
+  'Beverages',
+  'Snacks',
+  'Baked Goods',
+  'Soups',
+  'Sauces',
+  'Handhelds',
+  'Desserts',
+  'Other Recipes',
+];
+
+function classifyRecipesTopic(entry: AnyDigestEntry): RecipeTopic {
+  const builderType = isProblemFoodEntry(entry) ? undefined : entry.linkedBuilderType;
+  switch (builderType) {
+    case 'side':
+      return 'Sides';
+    case 'salad':
+      return 'Salads & Bowls';
+    case 'smoothie':
+      return 'Smoothies';
+    case 'fermentation':
+      return 'Fermentation';
+    case 'beverage':
+      return 'Beverages';
+    case 'snack':
+      return 'Snacks';
+    case 'bakedGoods':
+      return 'Baked Goods';
+    case 'soup':
+      return 'Soups';
+    case 'sauce':
+      return 'Sauces';
+    case 'handheld':
+      return 'Handhelds';
+    // 'dessert' isn't a real BuilderFavoriteItemType value yet as of this
+    // comment, but a case label isn't restricted to the switched value's
+    // own type -- this branch is inert (never matched) until Dessert
+    // Builder's own curated recipes exist, then starts working with zero
+    // further changes needed here.
+    case 'dessert':
+      return 'Desserts';
+    default:
+      return 'Other Recipes';
+  }
+}
+
+// Deliberately no "tying together" pull here -- RECIPES_ENTRIES has no such
+// closing synthesis entry (44 individual recipes, nothing to summarize
+// across), but the function still returns the same real
+// {topics, tyingTogether} shape every other category's own grouping
+// function does, with tyingTogether always null, so groupEntriesForLens
+// below can dispatch to it without a special case.
+function groupRecipesEntries(entries: AnyDigestEntry[]): {
+  topics: { label: string; entries: AnyDigestEntry[] }[];
+  tyingTogether: AnyDigestEntry | null;
+} {
+  const buckets = new Map<RecipeTopic, AnyDigestEntry[]>();
+  for (const entry of entries) {
+    const topic = classifyRecipesTopic(entry);
+    if (!buckets.has(topic)) buckets.set(topic, []);
+    buckets.get(topic)!.push(entry);
+  }
+  const topics = RECIPES_TOPIC_ORDER.map((topic) => ({
+    label: topic as string,
+    entries: sortDigestEntriesLogically(buckets.get(topic) ?? []),
+  })).filter((group) => group.entries.length > 0);
+  return { topics, tyingTogether: null };
+}
+
 // A single, shared dispatcher used everywhere a lens' own entries need
-// grouping into real topic shelves -- Earth Matters and Home Gardening
-// each route to their own dedicated classifier above; every real disease
-// condition still routes to classifyConditionTopic/groupConditionEntries,
-// unchanged. Basic Health is deliberately NOT handled here -- not because
+// grouping into real topic shelves -- Earth Matters, Home Gardening, and
+// Recipes each route to their own dedicated classifier above; every real
+// disease condition still routes to classifyConditionTopic/
+// groupConditionEntries, unchanged. Basic Health is deliberately NOT
+// handled here -- not because
 // it renders differently anymore (2026-08-14: it uses the same real
 // BasicHealthShelves component as everything else), but because its own
 // real shape is genuinely different from what this dispatcher's return
@@ -1192,6 +1300,7 @@ function groupHomeGardeningEntries(entries: AnyDigestEntry[]): {
 function classifyTopicForCategory(entry: AnyDigestEntry, category: DigestCategoryKey): string {
   if (category === 'earthMatters') return classifyEarthMattersTopic(entry);
   if (category === 'homeGardening') return classifyHomeGardeningTopic(entry);
+  if (category === 'recipes') return classifyRecipesTopic(entry);
   return classifyConditionTopic(entry);
 }
 
@@ -1204,6 +1313,7 @@ function groupEntriesForLens(
 } {
   if (category === 'earthMatters') return groupEarthMattersEntries(entries);
   if (category === 'homeGardening') return groupHomeGardeningEntries(entries);
+  if (category === 'recipes') return groupRecipesEntries(entries);
   return groupConditionEntries(entries);
 }
 

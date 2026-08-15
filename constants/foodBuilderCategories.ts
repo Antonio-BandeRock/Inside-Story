@@ -123,3 +123,36 @@ export const SAUCES_BUILDER_CATEGORIES = [
 export const HANDHELDS_BUILDER_CATEGORIES = [
   'Veg', 'Fruit', 'Grain', 'PastaNoodles', 'Legume', 'NutSeed', 'Fats', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Dairy', 'Meat', 'Mushroom', 'Sprouts', 'Algae', 'Baked',
 ];
+
+// Dessert (sweets, baked treats, custards, frozen/chilled desserts,
+// 2026-08-14, the twelfth builder). Deliberately generous, same standard as
+// every other builder above: Sweets is the obvious core (sugar, chocolate,
+// candy); Baked covers pie crusts/pastry bases; Dairy covers milk/cream/
+// butter/eggs (eggs are filed under Dairy in this database, see the
+// 2026-08-02 chicken-egg-labeling work); Fats covers butter/oil where it
+// isn't already under Dairy; NutSeed covers nuts/seeds/nut butters used as
+// toppings or ground into a base; Fruit and Veg both included -- fruit is
+// obvious, but so is Veg (carrot cake, pumpkin pie, beet-based red velvet
+// are all real, common desserts built from real vegetables); Grain covers
+// flours/oats/rice used in puddings and baked bases; Herbs covers spices
+// and extracts (vanilla, cinnamon, nutmeg all live there, same category
+// convention as every other builder); PantryStaples covers gelatine/agar-
+// agar/baking powder/cornstarch, real functional-setting ingredients a
+// custard or jelly-style dessert genuinely needs; SaucesCondiments covers
+// chocolate/caramel/fruit sauces and honey used as a topping or drizzle;
+// Legume covers a real, if less obvious, dessert tradition (red bean
+// paste, chickpea-flour barfi, black bean brownies); Alcohol covers real
+// boozy desserts (rum cake, tiramisu, bourbon pecan pie, brandy-soaked
+// fruitcake) -- the reason this builder also gets the same alcohol
+// calculator/advisory every other Alcohol-including builder already has;
+// Brewing covers dry cocoa/instant-coffee/espresso powder (mocha and
+// tiramisu-style flavoring); Bev covers a real brewed-liquid ingredient
+// (coffee, tea) some of those same desserts actually call for, and is also
+// what brings the juice/coffee GeneralHealthAdvisories rules into scope
+// here the same way it does for Beverage/Fermentation/Smoothie Builder.
+// PastaNoodles/Mushroom/Sprouts/Meat/SupplementPowder/CommercialPremade are
+// all deliberately excluded -- none of them have a real, common place in a
+// dessert.
+export const DESSERT_BUILDER_CATEGORIES = [
+  'Sweets', 'Baked', 'Dairy', 'Fats', 'NutSeed', 'Fruit', 'Veg', 'Grain', 'Herbs', 'PantryStaples', 'SaucesCondiments', 'Legume', 'Alcohol', 'Brewing', 'Bev',
+];

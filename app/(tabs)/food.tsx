@@ -10,6 +10,7 @@ import { MyItemsHub, type MyItemsCategory } from '../../components/MyItemsHub';
 import { BakedGoodsBuilder } from '../../components/BakedGoodsBuilder';
 import { BeverageBuilder } from '../../components/BeverageBuilder';
 import { BeverageSubtypePicker, type BeverageSubtypeKey } from '../../components/BeverageSubtypePicker';
+import { DessertBuilder } from '../../components/DessertBuilder';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
 import { HandheldsBuilder } from '../../components/HandheldsBuilder';
 import { MealBuilder } from '../../components/MealBuilder';
@@ -25,6 +26,7 @@ import { colors } from '../../constants/colors';
 import {
   listBakedGoods,
   listBeverages,
+  listDesserts,
   listFavorites,
   listFermentations,
   listHandhelds,
@@ -71,7 +73,8 @@ type FoodLens =
   | 'bakedGoodsBuilder'
   | 'soupBuilder'
   | 'saucesBuilder'
-  | 'handheldsBuilder';
+  | 'handheldsBuilder'
+  | 'dessertBuilder';
 
 // Builder NAMES went plural 2026-08-04, explicitly requested ("I think we
 // should choose if they should all be singular or all plural... make the
@@ -120,6 +123,8 @@ const FOOD_LENS_COPY: Record<FoodLens, string> = {
     "In progress. Same builder flow as Sides, plus a 'Reduced' Cook Prep option the other builders don't have: arguably THE defining sauce-making technique (pan sauces, gravies, glazes). Covers sauces, gravies, dressings, dips, and anything else in that family. Saving as a reusable favorite isn't wired up yet, same as the others.",
   handheldsBuilder:
     "New 2026-08-04, requested alongside the plural-naming pass: \"Layers\" as a working name, renamed to \"Handhelds\" since every other builder is named after a recognizable food category, not a structural description. Same builder flow as Sides, reordered around four layers: outer casing (bread, tortilla, bun, lettuce wrap), primary protein, toppings, and condiment/spread, covering sandwiches, wraps, burgers, and tacos with one flexible tool instead of four near-identical ones. Saving as a reusable favorite isn't wired up yet, same as the others.",
+  dessertBuilder:
+    "New 2026-08-14, the twelfth builder. Same builder flow as Sides, plus a 'Chilled/Frozen' Cook Prep option the other builders don't have (a real, common state none of them covered -- mousse, panna cotta, pudding, no-bake cheesecake, and ice cream are never heated at all). Reaches further into Alcohol, Brewing, and Bev than most sides/snacks-style builders do, since real desserts genuinely draw on all three (rum cake, tiramisu, mocha-flavored bakes), so it gets the same alcohol calculator and general-health advisories Beverage/Fermentation/Soup/Sauces already have. Covers cakes, cookies, pies, custards, puddings, and frozen desserts. Saving as a reusable favorite isn't wired up yet, same as the others.",
 };
 
 // The full name shown in PageIdentityLabel's own corner box once a lens
@@ -153,6 +158,7 @@ const FOOD_LENS_FULL_NAMES: Record<FoodLens, string> = {
   soupBuilder: 'Soups\nBuilder',
   saucesBuilder: 'Sauces\nBuilder',
   handheldsBuilder: 'Handhelds\nBuilder',
+  dessertBuilder: 'Desserts\nBuilder',
 };
 
 // Per-builder Info content (LensHub's own bottom-left Info tile) -- one
@@ -228,32 +234,40 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
     help: [{ heading: 'Sauces', body: FOOD_LENS_COPY.saucesBuilder }],
   },
   {
-    // Deliberately last, 2026-08-04 -- 11 items in this grid's 3 columns
-    // leaves the final row with just two real items before Info's own
-    // centered row below it; LensHub's flexWrap layout places that
-    // trailing pair at the LEFT of its row, same reasoning Sauces' own
-    // 2026-07-28 "deliberately last" placement already established when
-    // it was the 10th and final item -- no special-case positioning logic
-    // needed either way.
     key: 'handheldsBuilder',
     label: 'Handhelds',
     icon: 'layers-outline',
     help: [{ heading: 'Handhelds', body: FOOD_LENS_COPY.handheldsBuilder }],
+  },
+  {
+    // Deliberately last, 2026-08-14 -- the newest builder, placed at the
+    // end of the list the same way every prior builder addition (Sauces,
+    // then Handhelds) has been. Unlike those two, no special-case
+    // positioning comment is needed here anymore: LensHub's own Info-
+    // centering math (blanksBeforeInfo in components/LensHub.tsx) is fully
+    // computed from options.length/columns, not a fixed assumption about
+    // exactly 10 or 11 items -- 12 items across 3 columns lands as 4 clean
+    // full rows, with Info centered on its own 5th row below them, with
+    // zero manual adjustment required for this addition.
+    key: 'dessertBuilder',
+    label: 'Desserts',
+    icon: 'ice-cream-outline',
+    help: [{ heading: 'Desserts', body: FOOD_LENS_COPY.dessertBuilder }],
   },
 ];
 
 const FOOD_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: 'The Food tab is built from one all-in-one meal builder into eleven focused builders, one per kind of thing you actually make: a full meal, a side, a salad or bowl, a smoothie, a fermented food, a beverage, a snack, a baked good, a soup, a sauce/gravy/dressing/dip, or a sandwich/wrap/burger/taco.',
+    body: 'The Food tab is built from one all-in-one meal builder into twelve focused builders, one per kind of thing you actually make: a full meal, a side, a salad or bowl, a smoothie, a fermented food, a beverage, a snack, a baked good, a soup, a sauce/gravy/dressing/dip, a sandwich/wrap/burger/taco, or a dessert.',
   },
   {
-    heading: 'The eleven builders',
-    body: 'Meal, Sides, Salads & Bowls, Smoothies, Fermentation, Beverages, Snacks, Baked Goods, Soups, Sauces, and Handhelds: pick one from the button to the left of the main navigation button, bottom of the screen.',
+    heading: 'The twelve builders',
+    body: 'Meal, Sides, Salads & Bowls, Smoothies, Fermentation, Beverages, Snacks, Baked Goods, Soups, Sauces, Handhelds, and Desserts: pick one from the button to the left of the main navigation button, bottom of the screen.',
   },
   {
     heading: 'Status',
-    body: "All eleven builders are built: Sides, Salads & Bowls, Smoothies, Fermentation, Beverages, Snacks, Baked Goods, Soups, Sauces, and Handhelds each build and save their own dish; Meal (built last, on purpose, since it assembles the other ten's own saved output) assembles a meal out of them and logs it. Saving as a reusable favorite isn't wired up yet for any of the ten sub-builders. Scheduling a Meal-Builder meal for a future date/time isn't wired up yet either; Schedule's own existing scheduling flow still covers that.",
+    body: "All twelve builders are built: Sides, Salads & Bowls, Smoothies, Fermentation, Beverages, Snacks, Baked Goods, Soups, Sauces, Handhelds, and Desserts each build and save their own dish, and can also be saved as a reusable favorite; Meal (built last, on purpose, since it assembles the other eleven's own saved output) assembles a meal out of them, logs it now, or schedules it for later.",
   },
 ];
 
@@ -291,6 +305,7 @@ export default function FoodScreen() {
     editSoupId,
     editSauceId,
     editHandheldId,
+    editDessertId,
     // Set when reached via a saved favorite's own "Use this Favorite" tap
     // (see app/food-items.tsx), 2026-08-08 -- same routing shape as
     // editSideId/etc. just above, except these never mark anything as an
@@ -307,6 +322,7 @@ export default function FoodScreen() {
     fromSoupFavoriteId,
     fromSauceFavoriteId,
     fromHandheldFavoriteId,
+    fromDessertFavoriteId,
     // Purple Digest's own new "Recipes" category, 2026-08-14 -- one
     // "Build This Recipe" button per curated-recipe card (see
     // app/(tabs)/purple-digest.tsx's own DigestCard), one param per
@@ -328,6 +344,7 @@ export default function FoodScreen() {
     openSoupRecipeId,
     openSauceRecipeId,
     openHandheldRecipeId,
+    openDessertRecipeId,
     // Set when reached via a saved MEAL favorite's own "Use this Favorite"
     // tap (see app/food-items.tsx) -- 2026-08-08. Named mealFavoriteId
     // rather than fromMealFavoriteId (unlike the ten fromXFavoriteId params
@@ -371,6 +388,7 @@ export default function FoodScreen() {
     editSoupId?: string;
     editSauceId?: string;
     editHandheldId?: string;
+    editDessertId?: string;
     fromSideFavoriteId?: string;
     fromSaladFavoriteId?: string;
     fromSmoothieFavoriteId?: string;
@@ -381,6 +399,7 @@ export default function FoodScreen() {
     fromSoupFavoriteId?: string;
     fromSauceFavoriteId?: string;
     fromHandheldFavoriteId?: string;
+    fromDessertFavoriteId?: string;
     openSideRecipeId?: string;
     openSaladRecipeId?: string;
     openSmoothieRecipeId?: string;
@@ -391,6 +410,7 @@ export default function FoodScreen() {
     openSoupRecipeId?: string;
     openSauceRecipeId?: string;
     openHandheldRecipeId?: string;
+    openDessertRecipeId?: string;
     mealFavoriteId?: string;
     scheduleItemId?: string;
     mealType?: string;
@@ -517,6 +537,11 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      if (editDessertId) {
+        setLens('dessertBuilder');
+        setRevealed(true);
+        return;
+      }
       // Favorite-reuse routing, 2026-08-08 -- same shape as the ten
       // editXId checks just above, checked after them so an edit link
       // always wins if somehow both were present (shouldn't happen in
@@ -568,6 +593,11 @@ export default function FoodScreen() {
       }
       if (fromHandheldFavoriteId) {
         setLens('handheldsBuilder');
+        setRevealed(true);
+        return;
+      }
+      if (fromDessertFavoriteId) {
+        setLens('dessertBuilder');
         setRevealed(true);
         return;
       }
@@ -627,6 +657,11 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
+      if (openDessertRecipeId) {
+        setLens('dessertBuilder');
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return handleBlur;
     }, [
@@ -643,6 +678,7 @@ export default function FoodScreen() {
       editSoupId,
       editSauceId,
       editHandheldId,
+      editDessertId,
       fromSideFavoriteId,
       fromSaladFavoriteId,
       fromSmoothieFavoriteId,
@@ -653,6 +689,7 @@ export default function FoodScreen() {
       fromSoupFavoriteId,
       fromSauceFavoriteId,
       fromHandheldFavoriteId,
+      fromDessertFavoriteId,
       openSideRecipeId,
       openSaladRecipeId,
       openSmoothieRecipeId,
@@ -663,6 +700,7 @@ export default function FoodScreen() {
       openSoupRecipeId,
       openSauceRecipeId,
       openHandheldRecipeId,
+      openDessertRecipeId,
     ]),
   );
 
@@ -676,15 +714,13 @@ export default function FoodScreen() {
   //
   // This array is the one place that grows as more builders get a real
   // save path -- Side, Salad, Smoothie, Fermentation, Beverage, Snack,
-  // Baked Goods, Soup, Sauces, and Handhelds are all ten sub-builders now
-  // built (see Status above); Meal Builder assembles from these rather
-  // than saving its own kind of record, so it never adds an entry here.
-  // Favorites filtered to 'side'/'salad'/'smoothie'/'fermentation'/
-  // 'beverage'/'snack'/'bakedGoods'/'soup'/'sauce'/'handheld' specifically,
-  // since none of the ten builders' own favoriting is wired up to
-  // actually write one yet -- see FOOD_LENS_COPY.saucesBuilder above --
-  // and this list has no use for meal favorites saved by the old, deleted
-  // meal builder.
+  // Baked Goods, Soup, Sauces, Handhelds, and Dessert are all eleven
+  // sub-builders now built (see Status above); Meal Builder assembles from
+  // these rather than saving its own kind of record, so it never adds an
+  // entry here. Favorites filtered to 'side'/'salad'/'smoothie'/
+  // 'fermentation'/'beverage'/'snack'/'bakedGoods'/'soup'/'sauce'/
+  // 'handheld'/'dessert' specifically -- this list has no use for meal
+  // favorites saved by the old, deleted meal builder.
   const [sideCount, setSideCount] = useState(0);
   const [sideFavoriteCount, setSideFavoriteCount] = useState(0);
   const [saladCount, setSaladCount] = useState(0);
@@ -705,6 +741,8 @@ export default function FoodScreen() {
   const [sauceFavoriteCount, setSauceFavoriteCount] = useState(0);
   const [handheldCount, setHandheldCount] = useState(0);
   const [handheldFavoriteCount, setHandheldFavoriteCount] = useState(0);
+  const [dessertCount, setDessertCount] = useState(0);
+  const [dessertFavoriteCount, setDessertFavoriteCount] = useState(0);
   // Meal favorites, 2026-08-08 -- no "Saved Meals" count alongside it the
   // way every sub-builder gets: Meal Builder logs a real meals row directly
   // (via createMealFromComponents), it never saves its own separate
@@ -734,6 +772,8 @@ export default function FoodScreen() {
       sauceFavorites,
       handhelds,
       handheldFavorites,
+      desserts,
+      dessertFavorites,
       mealFavorites,
     ] = await Promise.all([
       listSides(),
@@ -756,6 +796,8 @@ export default function FoodScreen() {
       listFavorites(50, 'sauce'),
       listHandhelds(),
       listFavorites(50, 'handheld'),
+      listDesserts(),
+      listFavorites(50, 'dessert'),
       listFavorites(50, 'meal'),
     ]);
     setSideCount(sides.length);
@@ -778,6 +820,8 @@ export default function FoodScreen() {
     setSauceFavoriteCount(sauceFavorites.length);
     setHandheldCount(handhelds.length);
     setHandheldFavoriteCount(handheldFavorites.length);
+    setDessertCount(desserts.length);
+    setDessertFavoriteCount(dessertFavorites.length);
     setMealFavoriteCount(mealFavorites.length);
   }
   const myFoodsCategories: MyItemsCategory[] = [
@@ -930,6 +974,23 @@ export default function FoodScreen() {
         router.push({
           pathname: '/food-items',
           params: { itemType: 'handheld', status: 'favorite', title: 'Favorite Handhelds' },
+        }),
+    },
+    {
+      id: 'dessert-saved',
+      label: 'Saved Desserts',
+      count: dessertCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'dessert', status: 'saved', title: 'Saved Desserts' } }),
+    },
+    {
+      id: 'dessert-favorite',
+      label: 'Favorite Desserts',
+      count: dessertFavoriteCount,
+      onPress: () =>
+        router.push({
+          pathname: '/food-items',
+          params: { itemType: 'dessert', status: 'favorite', title: 'Favorite Desserts' },
         }),
     },
     // No 'meal-saved' tile alongside it -- see mealFavoriteCount's own
@@ -1106,6 +1167,18 @@ export default function FoodScreen() {
               editHandheldId={editHandheldId}
               fromFavoriteId={fromHandheldFavoriteId}
               openRecipeId={openHandheldRecipeId}
+            />
+          ) : lens === 'dessertBuilder' ? (
+            // DessertBuilder is a direct adaptation of SaucesBuilder (see
+            // that file's own top comment for the full reasoning, including
+            // why -- unlike Sauces/Handhelds -- this one component stays
+            // singular throughout, matching its own singular lens key) --
+            // same layout-ownership reasoning applies here too.
+            <DessertBuilder
+              tabColor={TAB_COLOR}
+              editDessertId={editDessertId}
+              fromFavoriteId={fromDessertFavoriteId}
+              openRecipeId={openDessertRecipeId}
             />
           ) : null}
         </GatedTabContent>

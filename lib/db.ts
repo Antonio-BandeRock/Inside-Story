@@ -201,7 +201,8 @@ export type BuilderFavoriteItemType =
   | 'bakedGoods'
   | 'soup'
   | 'sauce'
-  | 'handheld';
+  | 'handheld'
+  | 'dessert';
 
 export async function saveBuilderFavorite(itemType: BuilderFavoriteItemType, payload: BuilderFavoritePayload) {
   const db = await getDatabase();
@@ -3926,6 +3927,54 @@ async function runDatabaseInitialization() {
         sort_order INTEGER NOT NULL DEFAULT 0,
         created_at TEXT NOT NULL DEFAULT (datetime('now')),
         FOREIGN KEY (handheld_id) REFERENCES handhelds(id) ON DELETE CASCADE
+      );
+
+      -- Dessert Builder's own real persistence, 2026-08-14 -- the twelfth
+      -- builder, same per-builder-table reasoning as sides/side_ingredients
+      -- through handhelds/handheld_ingredients above. Table/column names
+      -- stay singular ("desserts"/"dessert_ingredients"/"dessert_id"),
+      -- matching this builder's own singular lens key -- no Sauces/
+      -- Handhelds-style plural-key exception was needed here (see
+      -- DessertBuilder.tsx's own top comment). The 7 calculator_* columns
+      -- are declared directly here rather than added via a later ALTER
+      -- TABLE migration the way beverage_ingredients/fermentation_
+      -- ingredients/sauce_ingredients/soup_ingredients needed (this table
+      -- never existed before Dessert Builder's own category allowlist
+      -- already included Alcohol, so there's no earlier, column-less
+      -- version of this table to migrate) -- see AlcoholCalculatorPanel's
+      -- own design and the four ALTER TABLE blocks above this one for the
+      -- full reasoning behind what each column holds.
+      CREATE TABLE IF NOT EXISTS desserts (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        servings REAL NOT NULL,
+        serving_size_amount REAL NOT NULL,
+        serving_size_unit TEXT NOT NULL,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        updated_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      CREATE TABLE IF NOT EXISTS dessert_ingredients (
+        id TEXT PRIMARY KEY,
+        dessert_id TEXT NOT NULL,
+        food_id TEXT,
+        food_name TEXT NOT NULL,
+        category TEXT,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        cut_prep TEXT NOT NULL,
+        cooking_method TEXT NOT NULL,
+        prep_note TEXT,
+        sort_order INTEGER NOT NULL DEFAULT 0,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        calculator_volume_ml REAL,
+        calculator_abv_percent REAL,
+        calculator_residual_sugar_g_per_l REAL,
+        calculator_retention_id TEXT,
+        calculator_pours REAL,
+        calculator_calories REAL,
+        calculator_carbs_g REAL,
+        FOREIGN KEY (dessert_id) REFERENCES desserts(id) ON DELETE CASCADE
       );
 
       -- Home Gardening tracking, 2026-08-13 -- a real, standalone place to
@@ -8253,6 +8302,407 @@ export async function getHandheldSixDimensionsBreakdown(handheldId: string): Pro
   return { day: handheldBreakdown.bySubCriterion, meals: [mealBreakdown] };
 }
 
+// Dessert Builder's own CRUD, 2026-08-14 -- deliberate line-for-line mirror
+// of the sauces/sauce_ingredients functions directly above (see the
+// sides/side_ingredients comment further up for the full "why separate
+// tables/functions per builder" reasoning, unchanged here). Kept singular
+// ("Dessert") throughout, matching every real builder's own naming --
+// including this one's own component, since (unlike Sauces/Handhelds)
+// DessertBuilder's own lens key was chosen singular from the start, so no
+// plural-component-name exception was needed (see that file's own top
+// comment for the full reasoning).
+export type DessertIngredientInput = {
+  foodId: number;
+  source: string;
+  foodName: string;
+  category: string;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote?: string;
+  // See FermentationIngredientInput's own identical comment.
+  calculatorOverride?: AlcoholCalculatorOverride | null;
+};
+
+export async function saveDessert(input: {
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredients: DessertIngredientInput[];
+}) {
+  const db = await getDatabase();
+  const id = `dessert_${Date.now()}`;
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      INSERT INTO desserts (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    now,
+  );
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `dessert_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
+    await db.runAsync(
+      `
+        INSERT INTO dessert_ingredients
+          (id, dessert_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      id,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
+    );
+  }
+
+  return { id };
+}
+
+export async function updateDessert(
+  dessertId: string,
+  input: {
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    ingredients: DessertIngredientInput[];
+  },
+) {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+
+  await db.runAsync(
+    `
+      UPDATE desserts
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      WHERE id = ?
+    `,
+    input.name.trim(),
+    input.servings,
+    input.servingSizeAmount,
+    input.servingSizeUnit,
+    now,
+    dessertId,
+  );
+
+  await db.runAsync('DELETE FROM dessert_ingredients WHERE dessert_id = ?', dessertId);
+
+  for (const [index, ingredient] of input.ingredients.entries()) {
+    const ingredientId = `dessert_ingredient_${Date.now()}_${index}`;
+    const c = ingredient.calculatorOverride ?? null;
+    await db.runAsync(
+      `
+        INSERT INTO dessert_ingredients
+          (id, dessert_id, food_id, food_name, category, quantity, unit, cut_prep, cooking_method, prep_note, sort_order, created_at,
+           calculator_volume_ml, calculator_abv_percent, calculator_residual_sugar_g_per_l, calculator_retention_id,
+           calculator_pours, calculator_calories, calculator_carbs_g)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `,
+      ingredientId,
+      dessertId,
+      `${ingredient.foodId}|${ingredient.source}`,
+      ingredient.foodName,
+      ingredient.category,
+      ingredient.quantity,
+      ingredient.unit,
+      ingredient.cutPrep,
+      ingredient.cookingMethod,
+      ingredient.prepNote?.trim() || null,
+      index,
+      now,
+      c?.volumeMl ?? null,
+      c?.abvPercent ?? null,
+      c?.residualSugarGPerL ?? null,
+      c?.retentionId ?? null,
+      c?.pours ?? null,
+      c?.calories ?? null,
+      c?.carbsG ?? null,
+    );
+  }
+
+  return { id: dessertId };
+}
+
+// dessert_ingredients rows cascade via their own FK (ON DELETE CASCADE, see
+// initializeDatabase) -- deleting the parent desserts row is enough.
+export async function deleteDessert(dessertId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM desserts WHERE id = ?', dessertId);
+}
+
+export type DessertRecord = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  ingredientCount: number;
+  ingredientNames: string | null;
+  createdAt: string;
+};
+
+export async function listDesserts(limit = 50): Promise<DessertRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<DessertRecord>(
+    `
+      SELECT s.id, s.name, s.servings, s.serving_size_amount AS servingSizeAmount, s.serving_size_unit AS servingSizeUnit,
+             s.created_at AS createdAt, COUNT(si.id) AS ingredientCount,
+             (
+               SELECT GROUP_CONCAT(food_name, ', ')
+               FROM (SELECT food_name FROM dessert_ingredients WHERE dessert_id = s.id ORDER BY sort_order)
+             ) AS ingredientNames
+      FROM desserts s
+      LEFT JOIN dessert_ingredients si ON si.dessert_id = s.id
+      GROUP BY s.id
+      ORDER BY s.created_at DESC
+      LIMIT ?
+    `,
+    limit,
+  );
+}
+
+export type DessertDetail = {
+  id: string;
+  name: string;
+  servings: number;
+  servingSizeAmount: number;
+  servingSizeUnit: string;
+  createdAt: string;
+};
+
+export async function getDessert(dessertId: string): Promise<DessertDetail | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<DessertDetail>(
+    `
+      SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
+             created_at AS createdAt
+      FROM desserts
+      WHERE id = ?
+    `,
+    dessertId,
+  );
+}
+
+export type DessertIngredientDetail = {
+  id: string;
+  foodId: string | null;
+  foodName: string;
+  category: string | null;
+  quantity: number;
+  unit: string;
+  cutPrep: string;
+  cookingMethod: string;
+  prepNote: string | null;
+  // See BeverageIngredientDetail's own identical comment.
+  calculatorVolumeMl: number | null;
+  calculatorAbvPercent: number | null;
+  calculatorResidualSugarGPerL: number | null;
+  calculatorRetentionId: string | null;
+  calculatorPours: number | null;
+  calculatorCalories: number | null;
+  calculatorCarbsG: number | null;
+};
+
+export async function getDessertIngredients(dessertId: string): Promise<DessertIngredientDetail[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<DessertIngredientDetail>(
+    `
+      SELECT id, food_id AS foodId, food_name AS foodName, category, quantity, unit,
+             cut_prep AS cutPrep, cooking_method AS cookingMethod, prep_note AS prepNote,
+             calculator_volume_ml AS calculatorVolumeMl, calculator_abv_percent AS calculatorAbvPercent,
+             calculator_residual_sugar_g_per_l AS calculatorResidualSugarGPerL,
+             calculator_retention_id AS calculatorRetentionId, calculator_pours AS calculatorPours,
+             calculator_calories AS calculatorCalories, calculator_carbs_g AS calculatorCarbsG
+      FROM dessert_ingredients
+      WHERE dessert_id = ?
+      ORDER BY sort_order
+    `,
+    dessertId,
+  );
+}
+
+// Dessert-scoped equivalent of getSoupNutrientBreakdown -- see that
+// function's own comment for the full reasoning. mealType 'dessert' instead
+// of 'soup' is the only real difference in the shape produced.
+export async function getDessertNutrientBreakdown(dessertId: string): Promise<DailyNutrientBreakdown> {
+  const empty: DailyNutrientBreakdown = {
+    dayTotals: {},
+    meals: [],
+    driRows: [],
+    supplementTotals: {},
+    unresolvedItems: [],
+    supplementSkipped: [],
+    profileComplete: false,
+  };
+  const dessert = await getDessert(dessertId);
+  if (!dessert) return empty;
+
+  const ingredients = await getDessertIngredients(dessertId);
+  const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
+  const itemBreakdowns: DailyNutrientItemBreakdown[] = [];
+  const dessertTotals: Record<string, number> = {};
+  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) {
+      unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'not_linked_to_a_food' });
+      continue;
+    }
+
+    // See getBeverageNutrientBreakdown's own identical block for the full
+    // reasoning -- same real, tracked-value override, same two nutrients
+    // only (calories/carbs), same reason every other one is left out.
+    if (ingredient.calculatorCalories != null) {
+      const itemTotals: Record<string, number> = { energy_kcal: ingredient.calculatorCalories };
+      if (ingredient.calculatorCarbsG != null) {
+        itemTotals.carbohydrate = ingredient.calculatorCarbsG;
+      }
+      itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+      for (const [code, amount] of Object.entries(itemTotals)) {
+        dessertTotals[code] = (dessertTotals[code] ?? 0) + amount;
+      }
+      continue;
+    }
+
+    let grams: number;
+    if (ingredient.unit.trim().toLowerCase() === 'each') {
+      const unitWeight = await getFoodUnitWeight(foodId, source);
+      if (!unitWeight) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'no_unit_weight_data' });
+        continue;
+      }
+      grams = unitWeight.gramsPerUnit * ingredient.quantity;
+    } else {
+      const unit = normalizeUnitForConversion(ingredient.unit);
+      if (!unit) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: 'unsupported_unit' });
+        continue;
+      }
+      const foodCategory = !(VOLUME_UNITS as readonly string[]).includes(unit)
+        ? null
+        : ingredient.category ?? (await getFoodCategory(foodId, source));
+      const conversion = convertToGrams(ingredient.quantity, unit, { foodCategory: foodCategory ?? undefined });
+      if (!conversion.ok) {
+        unresolvedItems.push({ mealItemId: ingredient.id, foodName: ingredient.foodName, reason: conversion.reason });
+        continue;
+      }
+      grams = conversion.grams;
+    }
+
+    const cacheKey = `${foodId}|${source}`;
+    let nutrients = nutrientCache.get(cacheKey);
+    if (!nutrients) {
+      nutrients = await getFoodNutrients(foodId, source);
+      nutrientCache.set(cacheKey, nutrients);
+    }
+    const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: grams, nutrients }]);
+    itemBreakdowns.push({ foodName: ingredient.foodName, totals: itemTotals });
+    for (const [code, amount] of Object.entries(itemTotals)) {
+      dessertTotals[code] = (dessertTotals[code] ?? 0) + amount;
+    }
+  }
+
+  const [driRows, profile] = await Promise.all([getDietaryReferenceIntakesForCurrentUser(), getUserProfile()]);
+
+  const dessertBreakdown: DailyNutrientSideBreakdown = {
+    sideName: dessert.name,
+    totals: dessertTotals,
+    items: itemBreakdowns,
+  };
+  const mealBreakdown: DailyNutrientMealBreakdown = {
+    mealId: dessert.id,
+    mealName: dessert.name,
+    mealType: 'dessert',
+    totals: dessertTotals,
+    sides: [dessertBreakdown],
+  };
+
+  return {
+    dayTotals: dessertTotals,
+    meals: [mealBreakdown],
+    driRows,
+    supplementTotals: {},
+    unresolvedItems,
+    supplementSkipped: [],
+    profileComplete: profile.sex != null && profile.birthDate != null,
+  };
+}
+
+// Dessert-scoped equivalent of getSoupSixDimensionsBreakdown -- see that
+// function's own comment for the full reasoning.
+export async function getDessertSixDimensionsBreakdown(dessertId: string): Promise<DailySixDimensionsBreakdown> {
+  const dessert = await getDessert(dessertId);
+  if (!dessert) return { day: [], meals: [] };
+
+  const ingredients = await getDessertIngredients(dessertId);
+  const scoreCache = new Map<string, FoodScore[]>();
+  const foods: { foodName: string; scores: FoodScore[] }[] = [];
+
+  for (const ingredient of ingredients) {
+    if (!ingredient.foodId) continue;
+    const [foodIdStr, source] = ingredient.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+
+    const cacheKey = `${foodId}|${source}`;
+    let scores = scoreCache.get(cacheKey);
+    if (!scores) {
+      scores = await getFoodScores(foodId, source);
+      scoreCache.set(cacheKey, scores);
+    }
+    foods.push({ foodName: ingredient.foodName, scores });
+  }
+
+  const dessertBreakdown: DailyDimensionSideBreakdown = {
+    sideName: dessert.name,
+    bySubCriterion: aggregateBySubCriterion(foods),
+    items: foods.map((food) => ({ foodName: food.foodName, bySubCriterion: aggregateBySubCriterion([food]) })),
+  };
+  const mealBreakdown: DailyDimensionMealBreakdown = {
+    mealId: dessert.id,
+    mealName: dessert.name,
+    mealType: 'dessert',
+    bySubCriterion: dessertBreakdown.bySubCriterion,
+    sides: [dessertBreakdown],
+  };
+
+  return { day: dessertBreakdown.bySubCriterion, meals: [mealBreakdown] };
+}
+
 // itemType filters to just 'meal' or 'side' favorites; omit it to get both
 // mixed together (the original behavior, kept as the default since some
 // callers -- like the very first favorites list this app had -- don't care
@@ -8270,7 +8720,8 @@ export async function listFavorites(
     | 'bakedGoods'
     | 'soup'
     | 'sauce'
-    | 'handheld',
+    | 'handheld'
+    | 'dessert',
 ) {
   const db = await getDatabase();
   return db.getAllAsync<FavoriteRecord>(
@@ -8483,9 +8934,10 @@ export type MealComponentType =
   | 'bakedGoods'
   | 'soup'
   | 'sauce'
-  | 'handheld';
+  | 'handheld'
+  | 'dessert';
 
-// The one real difference between the 9 sub-builders' otherwise identical
+// The one real difference between the 10 sub-builders' otherwise identical
 // getX/getXIngredients pairs is which functions they are -- this is the
 // single place that knows the mapping, so resolveMealComponent below (and
 // anything else that ever needs "look this component up regardless of
@@ -8512,6 +8964,8 @@ function getComponentDetail(componentType: MealComponentType, componentId: strin
       return getSauce(componentId);
     case 'handheld':
       return getHandheld(componentId);
+    case 'dessert':
+      return getDessert(componentId);
   }
 }
 
@@ -8537,6 +8991,8 @@ function getComponentIngredients(componentType: MealComponentType, componentId: 
       return getSauceIngredients(componentId);
     case 'handheld':
       return getHandheldIngredients(componentId);
+    case 'dessert':
+      return getDessertIngredients(componentId);
   }
 }
 
@@ -8777,6 +9233,8 @@ export async function listMealComponentOptions(componentType: MealComponentType)
       return listSauces();
     case 'handheld':
       return listHandhelds();
+    case 'dessert':
+      return listDesserts();
   }
 }
 

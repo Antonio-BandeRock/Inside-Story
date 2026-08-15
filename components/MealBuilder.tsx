@@ -76,6 +76,12 @@ const CATEGORY_META: { type: MealComponentType; label: string; icon: keyof typeo
   // as an "Add from..." category -- 'layers-outline', matching that
   // builder's own icon in FOOD_LENSES (app/(tabs)/food.tsx).
   { type: 'handheld', label: 'Handheld', icon: 'layers-outline' },
+  // Added 2026-08-14, proactively this time rather than found as a gap
+  // after the fact -- Handhelds' own 2026-08-08 miss (see the comment
+  // right above) is exactly why Dessert Builder's own MealComponentType/
+  // listMealComponentOptions/getComponentDetail wiring (lib/db.ts) and this
+  // grid entry were added in the same pass, not left for a later report.
+  { type: 'dessert', label: 'Dessert', icon: 'ice-cream-outline' },
 ];
 
 // meals.eaten_at's own stored format ('YYYY-MM-DDTHH:mm', local time,

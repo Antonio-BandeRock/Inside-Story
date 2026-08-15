@@ -9,6 +9,7 @@ import { typography } from '../constants/typography';
 import {
   deleteBakedGoods,
   deleteBeverage,
+  deleteDessert,
   deleteFavorite,
   deleteFermentation,
   deleteHandheld,
@@ -20,6 +21,7 @@ import {
   deleteSoup,
   listBakedGoods,
   listBeverages,
+  listDesserts,
   listFavorites,
   listFermentations,
   listHandhelds,
@@ -146,7 +148,8 @@ export default function FoodItemsScreen() {
                       itemType === 'bakedGoods' ||
                       itemType === 'soup' ||
                       itemType === 'sauce' ||
-                      itemType === 'handheld')
+                      itemType === 'handheld' ||
+                      itemType === 'dessert')
                   ) {
                     router.push({ pathname: '/food-item-detail', params: { itemType, id: item.id, title: item.title } });
                     return;
@@ -193,6 +196,9 @@ export default function FoodItemsScreen() {
                     } else if (itemType === 'handheld') {
                       router.push({ pathname: '/food', params: { fromHandheldFavoriteId: item.id } });
                       return;
+                    } else if (itemType === 'dessert') {
+                      router.push({ pathname: '/food', params: { fromDessertFavoriteId: item.id } });
+                      return;
                     }
                     // 'meal' favorites (see saveMealFavorite in lib/db.ts),
                     // 2026-08-08 -- resumes Meal Builder pre-loaded with the
@@ -234,16 +240,17 @@ export default function FoodItemsScreen() {
                   style={styles.itemActionButton}
                   onPress={() => {
                     // Side/Salad/Smoothie/Fermentation/Beverage/Snack/
-                    // BakedGoods/Soup/Sauces/Handhelds each push into
+                    // BakedGoods/Soup/Sauces/Handhelds/Dessert each push into
                     // app/(tabs)/food.tsx's own builder pre-loaded via
                     // editSideId/editSaladId/editSmoothieId/
                     // editFermentationId/editBeverageId/editSnackId/
                     // editBakedGoodsId/editSoupId/editSauceId/
-                    // editHandheldId (see that file and SideBuilder.tsx/
-                    // SaladBuilder.tsx/SmoothieBuilder.tsx/
+                    // editHandheldId/editDessertId (see that file and
+                    // SideBuilder.tsx/SaladBuilder.tsx/SmoothieBuilder.tsx/
                     // FermentationBuilder.tsx/BeverageBuilder.tsx/
                     // SnackBuilder.tsx/BakedGoodsBuilder.tsx/SoupBuilder.tsx/
-                    // SaucesBuilder.tsx/HandheldsBuilder.tsx's own props).
+                    // SaucesBuilder.tsx/HandheldsBuilder.tsx/
+                    // DessertBuilder.tsx's own props).
                     // Written inline (not returned from a helper) so each
                     // route's own literal
                     // pathname/params stay visible to Expo Router's
@@ -270,6 +277,8 @@ export default function FoodItemsScreen() {
                       router.push({ pathname: '/food', params: { editSauceId: item.id } });
                     } else if (itemType === 'handheld') {
                       router.push({ pathname: '/food', params: { editHandheldId: item.id } });
+                    } else if (itemType === 'dessert') {
+                      router.push({ pathname: '/food', params: { editDessertId: item.id } });
                     }
                   }}
                   accessibilityLabel={`Edit ${item.title}`}
@@ -451,6 +460,18 @@ async function loadItems(itemType: string | undefined, status: string | undefine
       subtitle: handheld.ingredientNames || `${handheld.ingredientCount} ingredient${handheld.ingredientCount === 1 ? '' : 's'}`,
     }));
   }
+  if (itemType === 'dessert') {
+    if (status === 'favorite') {
+      const favorites = await listFavorites(50, 'dessert');
+      return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
+    }
+    const desserts = await listDesserts();
+    return desserts.map((dessert) => ({
+      id: dessert.id,
+      title: dessert.name,
+      subtitle: dessert.ingredientNames || `${dessert.ingredientCount} ingredient${dessert.ingredientCount === 1 ? '' : 's'}`,
+    }));
+  }
   // 'meal' has no 'saved' status ever reachable here (My Foods has no
   // "Saved Meals" tile -- see food.tsx's own mealFavoriteCount comment for
   // why), only 'favorite'.
@@ -465,9 +486,9 @@ async function loadItems(itemType: string | undefined, status: string | undefine
 // separate checks (rather than one) since an itemType could in principle
 // support one without the other, even though today they're the same set
 // (Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup,
-// Sauces, and Handhelds -- every sub-builder Meal Builder will eventually
-// assemble from). Grows by one case per builder as each gets a real save
-// path, same as loadItems above.
+// Sauces, Handhelds, and Dessert -- every sub-builder Meal Builder will
+// eventually assemble from). Grows by one case per builder as each gets a
+// real save path, same as loadItems above.
 function supportsEdit(itemType: string | undefined): boolean {
   return (
     itemType === 'side' ||
@@ -479,7 +500,8 @@ function supportsEdit(itemType: string | undefined): boolean {
     itemType === 'bakedGoods' ||
     itemType === 'soup' ||
     itemType === 'sauce' ||
-    itemType === 'handheld'
+    itemType === 'handheld' ||
+    itemType === 'dessert'
   );
 }
 
@@ -495,6 +517,7 @@ function supportsDelete(itemType: string | undefined): boolean {
     itemType === 'soup' ||
     itemType === 'sauce' ||
     itemType === 'handheld' ||
+    itemType === 'dessert' ||
     // 'meal' only ever reaches this screen as a favorite (see loadItems'
     // own 'meal' case above -- there's no 'saved' status for it), and
     // handleDelete's own status === 'favorite' branch always routes through
@@ -528,6 +551,8 @@ async function deleteItem(itemType: string | undefined, id: string): Promise<voi
     await deleteSauce(id);
   } else if (itemType === 'handheld') {
     await deleteHandheld(id);
+  } else if (itemType === 'dessert') {
+    await deleteDessert(id);
   }
 }
 
