@@ -281,6 +281,19 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* 2026-08-15 -- the real receiving screen for a shared
+                  item, reached via a hashimotosapp://share?... deep link
+                  (see lib/db.ts's own encodeShareLink/decodeShareLink).
+                  Themed the same as every other Stack screen. */}
+              <Stack.Screen
+                name="import-shared"
+                options={{
+                  headerShown: true,
+                  title: 'Shared With You',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
             </Stack>
             {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                 comment: the keyboard must always paint on top of an open

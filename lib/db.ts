@@ -1,5 +1,6 @@
 import * as SQLite from 'expo-sqlite';
 import { File } from 'expo-file-system';
+import * as Linking from 'expo-linking';
 import { REFERENCE_DB_VERSION } from './referenceDbVersion';
 import { ageFromBirthDate } from './profile';
 import { normalizeSupplementAmount } from './supplementUnits';
@@ -4448,6 +4449,19 @@ async function runDatabaseInitialization() {
     // check-in that isn't part of a trial.
     if (!wellbeingCheckinColumns.some((column) => column.name === 'food_trial_id')) {
       await db.execAsync('ALTER TABLE wellbeing_checkins ADD COLUMN food_trial_id TEXT;');
+    }
+
+    // shared_from_name -- 2026-08-15, the real "who sent this to me"
+    // footnote a shared item carries once imported through the new
+    // sharing feature (see importSharedItem below). Nullable, TEXT, added
+    // identically to all 11 real saved-record tables (matching
+    // COMPONENT_TABLE_BY_TYPE exactly) -- a normal, self-created record
+    // simply never sets it.
+    for (const table of Object.values(COMPONENT_TABLE_BY_TYPE)) {
+      const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+      if (!columns.some((column) => column.name === 'shared_from_name')) {
+        await db.execAsync(`ALTER TABLE ${table} ADD COLUMN shared_from_name TEXT;`);
+      }
     }
   } catch (error) {
     databasePromise = null;
@@ -8942,7 +8956,7 @@ export type MealComponentType =
 // single place that knows the mapping, so resolveMealComponent below (and
 // anything else that ever needs "look this component up regardless of
 // which builder it came from") doesn't need its own copy of this switch.
-function getComponentDetail(componentType: MealComponentType, componentId: string) {
+export function getComponentDetail(componentType: MealComponentType, componentId: string) {
   switch (componentType) {
     case 'side':
       return getSide(componentId);
@@ -8969,7 +8983,7 @@ function getComponentDetail(componentType: MealComponentType, componentId: strin
   }
 }
 
-function getComponentIngredients(componentType: MealComponentType, componentId: string) {
+export function getComponentIngredients(componentType: MealComponentType, componentId: string) {
   switch (componentType) {
     case 'side':
       return getSideIngredients(componentId);
@@ -9236,6 +9250,251 @@ export async function listMealComponentOptions(componentType: MealComponentType)
     case 'dessert':
       return listDesserts();
   }
+}
+
+// 2026-08-15 -- real, thin per-user computation shared by the two new
+// dynamic Purple Digest lenses (My Kitchen: a person's own saved builder
+// creations; My Favorites: their favorited builds + favorite meals), each
+// giving a user's own real creation the same level of computed detail
+// (nutrition highlights, condition cautions) the curated Recipes category
+// already ships (see lib/digest/recipes.ts) -- but computed live against
+// this app's own bundled reference/DRI/condition data, never bundled or
+// hand-authored, since there's no way to know ahead of time what anyone
+// will actually build.
+
+// Which real, saved-record table each component type lives in -- the one
+// small, shared lookup both the shared_from_name migration below and the
+// sharing import path (which needs to write to the right table by real
+// name) key off, rather than a switch repeated in three places.
+const COMPONENT_TABLE_BY_TYPE: Record<MealComponentType, string> = {
+  side: 'sides',
+  salad: 'salads',
+  smoothie: 'smoothies',
+  fermentation: 'fermentations',
+  beverage: 'beverages',
+  snack: 'snacks',
+  bakedGoods: 'baked_goods',
+  soup: 'soups',
+  sauce: 'sauces',
+  handheld: 'handhelds',
+  dessert: 'desserts',
+};
+
+// Reads the small, real "who shared this with me" footnote a shared item
+// carries once imported (see importSharedItem below) -- a direct column
+// read against whichever real table this component type actually lives
+// in, rather than widening all 11 getX()'s own already-established return
+// shape just for one optional, rarely-populated field.
+export async function getSharedFromName(componentType: MealComponentType, componentId: string): Promise<string | null> {
+  const db = await getDatabase();
+  const table = COMPONENT_TABLE_BY_TYPE[componentType];
+  const row = await db.getFirstAsync<{ shared_from_name: string | null }>(
+    `SELECT shared_from_name FROM ${table} WHERE id = ?`,
+    componentId,
+  );
+  return row?.shared_from_name ?? null;
+}
+
+// The real per-ingredient nutrient-summing math already proven for the
+// Trends performance rewrite (resolveIngredientNutrientTotals,
+// createIngredientResolutionCaches, addNutrientTotalsInto, all just above
+// getNutrientTotalsByDateRange) -- reused directly rather than a second,
+// separately-maintained copy of the same real unit-conversion/
+// share-fraction logic. Takes a plain MealIngredientInput[] (exactly what
+// resolveMealComponent already returns) since that's the one real,
+// already-proven way to turn ANY of the 11 saved-record types, or a
+// favorite meal's own several real components concatenated together, into
+// one flat ingredient list with no per-type branching needed here.
+export async function computeIngredientListNutrition(ingredients: MealIngredientInput[]): Promise<{
+  totals: Record<string, number>;
+  unresolvedItems: { foodName: string; reason: string }[];
+}> {
+  const caches = createIngredientResolutionCaches();
+  const totals: Record<string, number> = {};
+  const unresolvedItems: { foodName: string; reason: string }[] = [];
+
+  for (const ingredient of ingredients) {
+    const itemTotals = await resolveIngredientNutrientTotals(
+      {
+        foodId: ingredient.foodId,
+        category: ingredient.category,
+        rawAmount: ingredient.quantity,
+        rawUnit: ingredient.unit,
+        dishServings: ingredient.dishServings,
+        yourSharePercent: ingredient.yourSharePercent,
+      },
+      caches,
+    );
+    if (!itemTotals) {
+      unresolvedItems.push({
+        foodName: ingredient.foodName,
+        reason: !ingredient.foodId ? 'not_linked_to_a_food' : 'unsupported_unit_or_amount',
+      });
+      continue;
+    }
+    addNutrientTotalsInto(totals, itemTotals);
+  }
+
+  return { totals, unresolvedItems };
+}
+
+export type ComponentNutritionHighlight = { nutrient: string; note: string };
+
+// The real, general core -- 2026-08-15, split out so both a real saved
+// record (My Kitchen, resolved via getComponentNutritionHighlights below)
+// AND a favorite's own plain payload (My Favorites, which has no real
+// componentId to resolve -- its own ingredients live directly in
+// favorites.payload_json, never in one of the 11 saved-record tables) can
+// share the identical real %DV computation, the same "amount / DRI
+// target" math the curated Recipes' own one-off grounding script already
+// used (scripts/compute_recipe_data.js, per lib/digest/recipes.ts's own
+// header comment), just run live here instead of precomputed. ingredients
+// should already reflect the WHOLE dish at full share (yourSharePercent:
+// 100) -- servings is applied here, once, to get a real "per serving"
+// figure, matching curated Recipes' own established framing.
+export async function getNutritionHighlightsForIngredients(
+  ingredients: MealIngredientInput[],
+  servings: number,
+  topN = 4,
+): Promise<ComponentNutritionHighlight[]> {
+  const [{ totals }, driRows] = await Promise.all([
+    computeIngredientListNutrition(ingredients),
+    getDietaryReferenceIntakesForCurrentUser(),
+  ]);
+  const effectiveServings = servings > 0 ? servings : 1;
+
+  const scored: { nutrient: string; percent: number }[] = [];
+  const seenCodes = new Set<string>();
+  for (const dri of driRows) {
+    // A CDRR row (sodium) is a ceiling, not a floor -- "gives you 40% of a
+    // day's sodium" reads as a warning, not the positive "what this dish
+    // gives you" framing this section is built for, so it's left out here
+    // (a real sodium caution belongs in condition notes instead, not this
+    // list).
+    if (dri.valueType === 'CDRR') continue;
+    if (seenCodes.has(dri.nutrientCode)) continue; // an unset profile can return >1 real row per nutrient (both sexes/age bands) -- first one wins
+    const amount = totals[dri.nutrientCode];
+    if (!amount || amount <= 0 || !dri.amount) continue;
+    const percent = (amount / effectiveServings / dri.amount) * 100;
+    if (percent < 5) continue; // too small a share of the real target to be a meaningful highlight
+    seenCodes.add(dri.nutrientCode);
+    scored.push({ nutrient: dri.displayName, percent });
+  }
+  scored.sort((a, b) => b.percent - a.percent);
+  return scored.slice(0, topN).map(({ nutrient, percent }) => ({
+    nutrient,
+    note: `${Math.round(percent)}% of a day's ${nutrient} target, per serving.`,
+  }));
+}
+
+// Thin wrapper over the real, general core above for a genuine saved
+// record (My Kitchen) -- resolves the whole dish at full (100%) share via
+// the already-proven resolveMealComponent, since there's no "your share"
+// concept yet for a standalone saved item, only once it's actually part
+// of a real meal.
+export async function getComponentNutritionHighlights(
+  componentType: MealComponentType,
+  componentId: string,
+  topN = 4,
+): Promise<ComponentNutritionHighlight[]> {
+  const resolved = await resolveMealComponent({ componentType, componentId, yourSharePercent: 100 });
+  if (!resolved) return [];
+  return getNutritionHighlightsForIngredients(resolved.ingredients, resolved.servings, topN);
+}
+
+// Only a real, specific, actionable flag counts as worth surfacing here --
+// the exact same curation rule (and the exact same real excluded-as-noise
+// tags: Selenium & Zn synergy, Iron Presence, both near-universal
+// background signal in this app's own mineral-absorption dimension) that
+// lib/digest/recipes.ts's own header comment already documents for curated
+// Recipes, so a person's own saved creation gets held to the identical
+// standard rather than a looser or stricter one.
+function isNoteworthyConditionFlag(subCriterion: string, tier: string): boolean {
+  switch (subCriterion) {
+    case 'Gluten':
+      return tier === 'High Risk';
+    case 'Goitrogenic Load':
+      return tier === 'Goitrogenic (Raw)';
+    case 'Oxalate Load Rank':
+      return tier === 'High Risk' || tier === 'Use Carefully';
+    case 'Lectins (Legumes)':
+      return tier === 'High Risk';
+    case 'Fermentability':
+      return tier === 'Disruptive';
+    case 'Irritants':
+      return tier === 'Disruptive';
+    case 'Omega-3 vs 6':
+      return tier === 'Imbalanced';
+    case 'Iodine':
+      return tier === 'Excess Risk';
+    // The real, already-established per-condition elimination-diet trigger
+    // tag (Dairy/Nightshade/Corn/Citrus/Egg/Coffee-Caffeine) reused across
+    // Hashimoto's/RA/Psoriasis/Celiac's own advisories -- any real,
+    // specific trigger name is worth surfacing; only its own "nothing
+    // flagged" default tier is excluded.
+    case 'Common Elimination-Diet Trigger Food':
+      return tier !== 'Not a Common Trigger';
+    default:
+      return false;
+  }
+}
+
+export type ComponentConditionNote = { condition: string; note: string };
+
+// The real, general core -- 2026-08-15, split out for the same real
+// reason as getNutritionHighlightsForIngredients above: a favorite's own
+// plain ingredient list has no real componentId to resolve through
+// getComponentIngredients. Checks each real ingredient against the
+// person's own actually-selected conditions (never all 19 -- matching how
+// the rest of this app already scopes condition-aware content to what
+// someone actually tracks), reusing getFoodScoresForCondition per
+// ingredient per condition, the exact same real mechanism the curated
+// Recipes' own grounding pass already used. conditions is the caller's own
+// already-fetched listAllConditions() result (or a filtered slice of it)
+// so this can be called many times across a whole My Kitchen/My Favorites
+// screen without re-querying the small conditions table on every single
+// item.
+export async function getConditionNotesForIngredients(
+  ingredients: { foodId?: string | null; foodName: string }[],
+  conditions: { code: string; name: string }[],
+): Promise<ComponentConditionNote[]> {
+  if (conditions.length === 0 || ingredients.length === 0) return [];
+
+  const notes: ComponentConditionNote[] = [];
+  for (const condition of conditions) {
+    const flaggedFoods: string[] = [];
+    for (const ingredient of ingredients) {
+      if (!ingredient.foodId) continue;
+      const [foodIdStr, source] = ingredient.foodId.split('|');
+      const foodId = Number(foodIdStr);
+      if (!source || Number.isNaN(foodId)) continue;
+      const scores = await getFoodScoresForCondition(foodId, source, condition.code);
+      if (scores.some((score) => isNoteworthyConditionFlag(score.subCriterion, score.tier))) {
+        flaggedFoods.push(ingredient.foodName);
+      }
+    }
+    if (flaggedFoods.length > 0) {
+      const shown = flaggedFoods.slice(0, 3).join(', ');
+      const rest = flaggedFoods.length > 3 ? `, and ${flaggedFoods.length - 3} more` : '';
+      notes.push({
+        condition: condition.name,
+        note: `${shown}${rest} may be worth a closer look if you have ${condition.name}.`,
+      });
+    }
+  }
+  return notes;
+}
+
+// Thin wrapper over the real, general core above for a genuine saved
+// record (My Kitchen) -- resolves ingredients via the already-proven
+// getComponentIngredients dispatcher.
+export async function getComponentConditionNotes(
+  componentType: MealComponentType,
+  componentId: string,
+  conditions: { code: string; name: string }[],
+): Promise<ComponentConditionNote[]> {
+  const ingredients = await getComponentIngredients(componentType, componentId);
+  return getConditionNotesForIngredients(ingredients, conditions);
 }
 
 // Pools the raw-goitrogenic-load check every sub-builder already runs on
@@ -9818,6 +10077,278 @@ export async function scheduleMeal(input: {
   }
 
   return result;
+}
+
+// 2026-08-15 -- the real way a single saved/favorited item (not yet a
+// meal of its own) gets scheduled for a future date, straight from My
+// Kitchen or My Favorites. Confirmed directly by reading
+// settlePastScheduledMeals: a scheduled meal-type schedule_items row is
+// ONLY ever resolved later via its own real sourceMealId or
+// sourceFavoriteId -- scheduleMeal's own `components` param is never
+// persisted for later use, only a same-call side input to trial
+// activation. So this wraps the one real component in a genuine,
+// synthetic one-component meal favorite first (a real, already-proven
+// saveMealFavorite call, the exact shape Meal Builder itself already
+// writes when assembling from a single saved item), then schedules
+// through it via the already-proven scheduleMeal({ sourceFavoriteId })
+// path -- no new scheduling primitive needed underneath this, just the
+// one real favorite that makes the existing primitive resolvable later.
+export async function scheduleSingleComponent(input: {
+  componentType: MealComponentType;
+  componentId: string;
+  title: string;
+  mealType: string;
+  scheduledFor: string;
+}) {
+  const favorite = await saveMealFavorite({
+    name: input.title,
+    mealType: input.mealType,
+    components: [{ componentType: input.componentType, componentId: input.componentId, yourSharePercent: 100 }],
+  });
+  return scheduleMeal({
+    title: input.title,
+    mealType: input.mealType,
+    scheduledFor: input.scheduledFor,
+    sourceFavoriteId: favorite.id,
+    components: [{ componentType: input.componentType, componentId: input.componentId, yourSharePercent: 100 }],
+  });
+}
+
+// --- Sharing (2026-08-15) --------------------------------------------------
+//
+// This app has no company server and never will (see CLAUDE.md's own
+// "Local-first, no company server holding health data" architecture
+// decision) -- so sharing a real creation with someone else can't go
+// through anything this app itself hosts. Built entirely on two real,
+// already-registered pieces instead: this app's own hashimotosapp:// deep-
+// link scheme (app.json) and React Native's built-in Share API (already
+// used, zero new dependency, in app/(tabs)/reports.tsx). The actual wire
+// format is plain, human-readable JSON in the link's own query string --
+// deliberately NOT base64 (no real benefit for a plain ingredient list,
+// and this app has no base64 dependency anywhere to reuse), URL-encoded by
+// Linking.createURL (expo-linking, already a real dependency) so the exact
+// scheme/path format always matches whatever this specific project is
+// actually configured for, rather than a hand-built string risking the
+// same real dev-client-vs-production URL mismatch this app's own history
+// already documents hitting once before.
+
+export type ShareComponentPayload = {
+  kind: 'component';
+  componentType: MealComponentType;
+  builder: BuilderFavoritePayload;
+};
+
+export type ShareMealPayload = {
+  kind: 'meal';
+  name: string;
+  mealType: string;
+  components: { componentType: MealComponentType; builder: BuilderFavoritePayload }[];
+};
+
+export type ShareEnvelope = {
+  v: 1;
+  fromName: string;
+  payload: ShareComponentPayload | ShareMealPayload;
+};
+
+// Real, honest limitation carried straight over from the already-shipped
+// Favorites feature: BuilderFavoritePayload/BuilderFavoriteIngredient
+// (what a share round-trips through) has no calculatorOverride field, so a
+// beverage/fermentation/soup/sauce ingredient tracked via the Alcohol
+// Calculator loses that specific override on the far end of a share, the
+// exact same way it already does when favorited -- not a new gap this
+// feature introduces.
+async function buildBuilderFavoritePayload(
+  componentType: MealComponentType,
+  componentId: string,
+): Promise<BuilderFavoritePayload | null> {
+  const detail = await getComponentDetail(componentType, componentId);
+  if (!detail) return null;
+  const ingredients = await getComponentIngredients(componentType, componentId);
+
+  return {
+    name: detail.name,
+    servings: detail.servings,
+    servingSizeAmount: detail.servingSizeAmount,
+    servingSizeUnit: detail.servingSizeUnit,
+    ingredients: ingredients
+      .filter((ingredient): ingredient is typeof ingredient & { foodId: string } => Boolean(ingredient.foodId))
+      .map((ingredient) => {
+        const [foodIdStr, source] = ingredient.foodId.split('|');
+        return {
+          foodId: Number(foodIdStr),
+          source,
+          foodName: ingredient.foodName,
+          category: ingredient.category ?? '',
+          quantity: ingredient.quantity,
+          unit: ingredient.unit,
+          cutPrep: ingredient.cutPrep,
+          cookingMethod: ingredient.cookingMethod,
+          prepNote: ingredient.prepNote ?? undefined,
+        };
+      }),
+  };
+}
+
+export async function encodeShareLink(
+  componentType: MealComponentType,
+  componentId: string,
+  fromName: string,
+): Promise<string | null> {
+  const builder = await buildBuilderFavoritePayload(componentType, componentId);
+  if (!builder) return null;
+  const envelope: ShareEnvelope = {
+    v: 1,
+    fromName: fromName.trim() || 'A friend',
+    payload: { kind: 'component', componentType, builder },
+  };
+  return Linking.createURL('/import-shared', { queryParams: { data: JSON.stringify(envelope) } });
+}
+
+// The real, separate meal-favorite case -- a receiving device has no way
+// to reference the sender's own component ids (those only exist locally,
+// on the sender's own phone), so the payload bundles each real, resolved
+// component's own full ingredient list directly, not just a reference to
+// it.
+export async function encodeMealShareLink(mealFavoriteId: string, fromName: string): Promise<string | null> {
+  const favorite = await getMealFavorite(mealFavoriteId);
+  if (!favorite) return null;
+
+  const components: ShareMealPayload['components'] = [];
+  for (const component of favorite.components) {
+    const builder = await buildBuilderFavoritePayload(component.componentType, component.componentId);
+    if (builder) components.push({ componentType: component.componentType, builder });
+  }
+  if (components.length === 0) return null;
+
+  const envelope: ShareEnvelope = {
+    v: 1,
+    fromName: fromName.trim() || 'A friend',
+    payload: { kind: 'meal', name: favorite.name, mealType: favorite.mealType, components },
+  };
+  return Linking.createURL('/import-shared', { queryParams: { data: JSON.stringify(envelope) } });
+}
+
+// Defensive parse -- never trusts a received link's own shape blindly, the
+// same discipline every other real "external input" boundary in this app
+// already holds to. Returns null for anything genuinely malformed rather
+// than throwing, so app/import-shared.tsx can show a plain, honest "this
+// link doesn't look right" state instead of crashing.
+// The real, direct case app/import-shared.tsx actually uses -- Expo
+// Router itself already parses the incoming hashimotosapp://import-shared
+// deep link and hands the screen its own `data` query param as a plain,
+// already-decoded string (useLocalSearchParams), so decoding straight from
+// that raw JSON string avoids a second, redundant URL re-parse that could
+// subtly double-decode something Expo Router's own parsing already
+// handled.
+export function decodeShareEnvelope(raw: string): ShareEnvelope | null {
+  try {
+    const parsed = JSON.parse(raw) as Partial<ShareEnvelope>;
+    if (parsed.v !== 1 || typeof parsed.fromName !== 'string' || !parsed.payload) return null;
+
+    if (parsed.payload.kind === 'component') {
+      const p = parsed.payload;
+      if (!p.componentType || !p.builder?.name || !Array.isArray(p.builder?.ingredients)) return null;
+      return parsed as ShareEnvelope;
+    }
+    if (parsed.payload.kind === 'meal') {
+      const p = parsed.payload;
+      if (!p.name || !Array.isArray(p.components) || p.components.length === 0) return null;
+      return parsed as ShareEnvelope;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
+
+// A real, general fallback for a raw, un-parsed URL (e.g. one typed/pasted
+// somewhere Expo Router's own linking hasn't already resolved it) --
+// thin wrapper over decodeShareEnvelope above.
+export function decodeShareLink(url: string): ShareEnvelope | null {
+  try {
+    const { queryParams } = Linking.parse(url);
+    const raw = queryParams?.data;
+    if (typeof raw !== 'string') return null;
+    return decodeShareEnvelope(raw);
+  } catch {
+    return null;
+  }
+}
+
+async function saveComponentFromBuilderPayload(
+  componentType: MealComponentType,
+  builder: BuilderFavoritePayload,
+): Promise<{ id: string }> {
+  const input = {
+    name: builder.name,
+    servings: builder.servings,
+    servingSizeAmount: builder.servingSizeAmount,
+    servingSizeUnit: builder.servingSizeUnit,
+    ingredients: builder.ingredients,
+  };
+  switch (componentType) {
+    case 'side':
+      return saveSide(input);
+    case 'salad':
+      return saveSalad(input);
+    case 'smoothie':
+      return saveSmoothie(input);
+    case 'fermentation':
+      return saveFermentation(input);
+    case 'beverage':
+      return saveBeverage(input);
+    case 'snack':
+      return saveSnack(input);
+    case 'bakedGoods':
+      return saveBakedGoods(input);
+    case 'soup':
+      return saveSoup(input);
+    case 'sauce':
+      return saveSauce(input);
+    case 'handheld':
+      return saveHandheld(input);
+    case 'dessert':
+      return saveDessert(input);
+  }
+}
+
+async function setSharedFromName(componentType: MealComponentType, componentId: string, sharedFromName: string): Promise<void> {
+  const db = await getDatabase();
+  const table = COMPONENT_TABLE_BY_TYPE[componentType];
+  await db.runAsync(`UPDATE ${table} SET shared_from_name = ? WHERE id = ?`, sharedFromName, componentId);
+}
+
+// The one, real, always-last step -- only ever called after
+// app/import-shared.tsx has shown its own real preview and the person has
+// explicitly confirmed "Add to My Kitchen". Writes a genuine new, local
+// saved record (never overwrites or merges into anything the person
+// already has) via the same real saveX() every one of the 11 direct-
+// ingredient builders already uses to save their own work, then stamps
+// the real sender's name onto it -- the small, non-prominent "shared from"
+// footnote the request asked for.
+export async function importSharedItem(
+  envelope: ShareEnvelope,
+): Promise<{ componentType: MealComponentType; componentId: string } | { mealFavoriteId: string }> {
+  if (envelope.payload.kind === 'component') {
+    const { componentType, builder } = envelope.payload;
+    const { id } = await saveComponentFromBuilderPayload(componentType, builder);
+    await setSharedFromName(componentType, id, envelope.fromName);
+    return { componentType, componentId: id };
+  }
+
+  const savedComponents: MealFavoriteComponent[] = [];
+  for (const component of envelope.payload.components) {
+    const { id } = await saveComponentFromBuilderPayload(component.componentType, component.builder);
+    await setSharedFromName(component.componentType, id, envelope.fromName);
+    savedComponents.push({ componentType: component.componentType, componentId: id, yourSharePercent: 100 });
+  }
+  const favorite = await saveMealFavorite({
+    name: `${envelope.payload.name} (from ${envelope.fromName})`,
+    mealType: envelope.payload.mealType,
+    components: savedComponents,
+  });
+  return { mealFavoriteId: favorite.id };
 }
 
 // The real "make Trends honest" fix -- 2026-08-14, direct feedback:

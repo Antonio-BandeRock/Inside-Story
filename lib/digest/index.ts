@@ -387,6 +387,21 @@ export const DIGEST_CATEGORY_META: {
     icon: 'restaurant-outline',
     description: 'Pre-built starter recipes for every direct-ingredient Food builder, from a whole-wheat loaf to homemade yogurt to a Mediterranean salad, each one already assembled and ready to build, adjust, or save.',
   },
+  // 2026-08-15 -- two real, dynamic categories, computed live from the
+  // person's own local data rather than bundled content. See
+  // lib/digestDynamicEntries.ts.
+  {
+    key: 'myKitchen',
+    label: 'My Kitchen',
+    icon: 'bookmark-outline',
+    description: 'Every side, salad, soup, and everything else you’ve saved from the Food builders, with the same real, computed nutrition and condition detail Recipes gets.',
+  },
+  {
+    key: 'myFavorites',
+    label: 'My Favorites',
+    icon: 'star-outline',
+    description: 'Your favorited builds from every category, plus favorite meals, ready to build again, schedule for later, or share.',
+  },
 ];
 
 export function getEntriesForCategory(category: DigestCategoryKey): AnyDigestEntry[] {

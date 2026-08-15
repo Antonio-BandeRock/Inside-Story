@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObjec
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Linking, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
+import { Alert, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -12,6 +12,7 @@ import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
+import { PopoverSelect } from '../../components/PopoverSelect';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { colors } from '../../constants/colors';
@@ -21,8 +22,19 @@ import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
-import { getUserConditions, getVisibleFoodBaseNames, type BuilderFavoriteItemType } from '../../lib/db';
+import {
+  encodeMealShareLink,
+  encodeShareLink,
+  getUserConditions,
+  getUserProfile,
+  getVisibleFoodBaseNames,
+  scheduleMeal,
+  scheduleSingleComponent,
+  type BuilderFavoriteItemType,
+} from '../../lib/db';
+import { buildMyFavoritesEntries, buildMyKitchenEntries } from '../../lib/digestDynamicEntries';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
+import { buildTime24, formatTime12 } from '../../lib/timeOfDay';
 import {
   ALL_DIGEST_ENTRIES,
   DIGEST_CATEGORY_META,
@@ -33,6 +45,7 @@ import {
   searchEntriesScored,
   type AnyDigestEntry,
   type DigestCategoryKey,
+  type DigestEntry,
   type EvidenceTier,
   type RecipeCard,
   type SearchMatchInfo,
@@ -365,6 +378,14 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
   recipes: {
     heading: 'Recipes',
     body: 'A pre-built starting point for every direct-ingredient Food builder: sides, salads, smoothies, fermentations, beverages, snacks, baked goods, soups, sauces, and handhelds. Each card shows the real flavor profile and health benefit up front, and a "Build This Recipe" button opens the matching builder already loaded with every ingredient, quantity, and prep step, ready to adjust, save, or log as-is.',
+  },
+  myKitchen: {
+    heading: 'My Kitchen',
+    body: 'Everything you\'ve saved from any Food builder, all in one place, with the same real ingredient list, yield, and nutrition detail Recipes gets, computed live from your own tracked conditions. Schedule anything here for a future date, or share it with someone else.',
+  },
+  myFavorites: {
+    heading: 'My Favorites',
+    body: 'Your favorited builds from every category, plus favorite meals, browsable the same way as My Kitchen. Favoriting something already tells this app you\'d make it again -- this is the place to actually do that: rebuild it, schedule it, or share it.',
   },
 };
 
@@ -1282,12 +1303,63 @@ function groupRecipesEntries(entries: AnyDigestEntry[]): {
   return { topics, tyingTogether: null };
 }
 
+// My Kitchen/My Favorites (2026-08-15) group by the same real per-type
+// shelf order Recipes' own RECIPES_TOPIC_ORDER already uses, plus a real
+// "Favorite Meals" 12th group for My Favorites specifically -- but reads
+// each entry's own dynamicGroupLabel directly (set once, at build time, in
+// lib/digestDynamicEntries.ts) rather than re-deriving a topic from
+// linkedBuilderType the way classifyRecipesTopic does, since these
+// entries' real grouping is already known the moment they're built.
+const DYNAMIC_ENTRY_GROUP_ORDER = [
+  'Sides',
+  'Salads & Bowls',
+  'Smoothies',
+  'Fermentation',
+  'Beverages',
+  'Snacks',
+  'Baked Goods',
+  'Soups',
+  'Sauces',
+  'Handhelds',
+  'Desserts',
+  'Favorite Meals',
+];
+
+function classifyDynamicEntryTopic(entry: AnyDigestEntry): string {
+  return (!isProblemFoodEntry(entry) && entry.dynamicGroupLabel) || 'Other';
+}
+
+function groupDynamicEntries(entries: AnyDigestEntry[]): {
+  topics: { label: string; entries: AnyDigestEntry[] }[];
+  tyingTogether: AnyDigestEntry | null;
+} {
+  const buckets = new Map<string, AnyDigestEntry[]>();
+  for (const entry of entries) {
+    const label = classifyDynamicEntryTopic(entry);
+    if (!buckets.has(label)) buckets.set(label, []);
+    buckets.get(label)!.push(entry);
+  }
+  const ordered = DYNAMIC_ENTRY_GROUP_ORDER.filter((label) => buckets.has(label)).map((label) => ({
+    label,
+    entries: sortDigestEntriesLogically(buckets.get(label)!),
+  }));
+  // A real safety net, not expected to ever fire given
+  // digestDynamicEntries.ts only ever sets one of the labels above -- any
+  // real group outside that fixed order sorts alphabetically after it
+  // rather than silently dropping content.
+  const extra = [...buckets.keys()]
+    .filter((label) => !DYNAMIC_ENTRY_GROUP_ORDER.includes(label))
+    .sort((a, b) => a.localeCompare(b))
+    .map((label) => ({ label, entries: sortDigestEntriesLogically(buckets.get(label)!) }));
+  return { topics: [...ordered, ...extra], tyingTogether: null };
+}
+
 // A single, shared dispatcher used everywhere a lens' own entries need
-// grouping into real topic shelves -- Earth Matters, Home Gardening, and
-// Recipes each route to their own dedicated classifier above; every real
-// disease condition still routes to classifyConditionTopic/
-// groupConditionEntries, unchanged. Basic Health is deliberately NOT
-// handled here -- not because
+// grouping into real topic shelves -- Earth Matters, Home Gardening,
+// Recipes, and My Kitchen/My Favorites each route to their own dedicated
+// classifier above; every real disease condition still routes to
+// classifyConditionTopic/groupConditionEntries, unchanged. Basic Health is
+// deliberately NOT handled here -- not because
 // it renders differently anymore (2026-08-14: it uses the same real
 // BasicHealthShelves component as everything else), but because its own
 // real shape is genuinely different from what this dispatcher's return
@@ -1302,6 +1374,7 @@ function classifyTopicForCategory(entry: AnyDigestEntry, category: DigestCategor
   if (category === 'earthMatters') return classifyEarthMattersTopic(entry);
   if (category === 'homeGardening') return classifyHomeGardeningTopic(entry);
   if (category === 'recipes') return classifyRecipesTopic(entry);
+  if (category === 'myKitchen' || category === 'myFavorites') return classifyDynamicEntryTopic(entry);
   return classifyConditionTopic(entry);
 }
 
@@ -1315,6 +1388,7 @@ function groupEntriesForLens(
   if (category === 'earthMatters') return groupEarthMattersEntries(entries);
   if (category === 'homeGardening') return groupHomeGardeningEntries(entries);
   if (category === 'recipes') return groupRecipesEntries(entries);
+  if (category === 'myKitchen' || category === 'myFavorites') return groupDynamicEntries(entries);
   return groupConditionEntries(entries);
 }
 
@@ -1490,6 +1564,43 @@ export default function PurpleDigestScreen() {
       };
     }, []),
   );
+  // 2026-08-15 -- the one genuinely new architectural pattern this whole
+  // Digest introduces: My Kitchen/My Favorites' real content is the
+  // PERSON'S OWN local data, computed live via lib/digestDynamicEntries.ts,
+  // never bundled in lib/digest/*.ts the way every other category's
+  // content is. null means "not loaded (yet)", distinct from a real, empty
+  // [] (nothing saved/favorited yet) -- see the entries useMemo below for
+  // how that distinction is used. Loaded via useFocusEffect (not a plain
+  // useEffect) specifically so it refires both on a genuine tab re-focus
+  // AND on `lens` itself changing while already focused (switching from
+  // Recipes to My Kitchen via LensHub, say) -- lens is a real dependency of
+  // the memoized callback below, and useFocusEffect re-runs its own
+  // callback whenever that identity changes while the screen stays
+  // focused, not just on a focus/blur transition. This is what makes a
+  // side saved a moment ago in Side Builder show up here with no restart
+  // needed.
+  const [dynamicEntries, setDynamicEntries] = useState<{
+    myKitchen: DigestEntry[] | null;
+    myFavorites: DigestEntry[] | null;
+  }>({ myKitchen: null, myFavorites: null });
+  useFocusEffect(
+    useCallback(() => {
+      if (lens !== 'myKitchen' && lens !== 'myFavorites') return;
+      let cancelled = false;
+      const loader = lens === 'myKitchen' ? buildMyKitchenEntries() : buildMyFavoritesEntries();
+      loader
+        .then((built) => {
+          if (!cancelled) setDynamicEntries((prev) => ({ ...prev, [lens]: built }));
+        })
+        .catch((error) => {
+          console.error(`[PurpleDigest] Failed to load ${lens}`, error);
+          if (!cancelled) setDynamicEntries((prev) => ({ ...prev, [lens]: [] }));
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [lens]),
+  );
   // The Search All lens's own COMMITTED query text -- 2026-08-08, no longer
   // written to on every keystroke (see DigestSearchInput's own comment
   // below for the real, reported keyboard-lag reason why). This is now the
@@ -1642,12 +1753,19 @@ export default function PurpleDigestScreen() {
   // comment): a real, discoverable food-building tool, not a disease
   // condition.
   const recipesMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'recipes')!;
+  // 2026-08-15 -- given the same fixed, always-near-the-top treatment,
+  // right after Recipes: real, personal, computed content, not a disease
+  // condition either.
+  const myKitchenMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'myKitchen')!;
+  const myFavoritesMeta = DIGEST_CATEGORY_META.find((meta) => meta.key === 'myFavorites')!;
   const conditionMetas = DIGEST_CATEGORY_META.filter(
     (meta) =>
       meta.key !== 'basicHealth' &&
       meta.key !== 'earthMatters' &&
       meta.key !== 'homeGardening' &&
-      meta.key !== 'recipes',
+      meta.key !== 'recipes' &&
+      meta.key !== 'myKitchen' &&
+      meta.key !== 'myFavorites',
   );
   const pinnedConditionMetas = conditionMetas
     .filter((meta) => pinnedDigestKeys.has(meta.key))
@@ -1660,6 +1778,8 @@ export default function PurpleDigestScreen() {
     earthMattersMeta,
     gardeningMeta,
     recipesMeta,
+    myKitchenMeta,
+    myFavoritesMeta,
     ...pinnedConditionMetas,
     ...otherConditionMetas,
   ];
@@ -1748,6 +1868,14 @@ export default function PurpleDigestScreen() {
   // feedback tap, an unrelated state change elsewhere on screen).
   const entries = useMemo(() => {
     if (lens === 'search') return [];
+    // My Kitchen/My Favorites: real, live, per-user data, not static
+    // getEntriesForCategory content -- null (not yet loaded) reads as
+    // genuinely empty here rather than "show everything", the opposite of
+    // visibleFoodNames' own null handling below, since there's no bundled
+    // fallback content to show while this loads the way there is for a
+    // real hide-sync check.
+    if (lens === 'myKitchen') return dynamicEntries.myKitchen ?? [];
+    if (lens === 'myFavorites') return dynamicEntries.myFavorites ?? [];
     const raw = getEntriesForCategory(lens);
     // See visibleFoodNames' own comment above -- still loading (null) means
     // show everything; once resolved, drop any relatedFoodNames-tagged
@@ -1757,7 +1885,7 @@ export default function PurpleDigestScreen() {
       if (isProblemFoodEntry(entry) || !entry.relatedFoodNames || entry.relatedFoodNames.length === 0) return true;
       return entry.relatedFoodNames.some((name) => visibleFoodNames.has(name));
     });
-  }, [lens, visibleFoodNames]);
+  }, [lens, visibleFoodNames, dynamicEntries]);
   // searchQuery/categorySearchQuery are already the debounced, COMMITTED
   // values by construction now (see DigestSearchInput below) -- a real,
   // second attempt at the reported keyboard-lag fix, 2026-08-08. The first
@@ -3218,6 +3346,7 @@ function DigestCard({
             </TouchableOpacity>
           ) : null}
           {entry.recipeCard ? <RecipeCardDetail card={entry.recipeCard} /> : null}
+          {entry.dynamicAction ? <DynamicEntryActions entry={entry} /> : null}
           {entry.chart ? <DigestBarChart chart={entry.chart} color={tierColor(entry.overallTier)} /> : null}
           {entry.stageNote ? <Text style={styles.stageNoteText}>{entry.stageNote}</Text> : null}
           <CitationsBlock citations={entry.citations} />
@@ -3243,19 +3372,23 @@ function RecipeCardDetail({ card }: { card: RecipeCard }) {
       <Text style={styles.detailLabel}>Makes</Text>
       <Text style={styles.detailText}>{card.yield}</Text>
 
-      <Text style={styles.detailLabel}>Ingredients (serves 2)</Text>
+      <Text style={styles.detailLabel}>Ingredients</Text>
       {card.ingredients.map((ingredient, index) => (
         <Text key={index} style={styles.swapText}>
           {'•'} {ingredient.text}
         </Text>
       ))}
 
-      <Text style={styles.detailLabel}>How to make it</Text>
-      {card.instructions.map((step, index) => (
-        <Text key={index} style={styles.recipeStepText}>
-          {index + 1}. {step}
-        </Text>
-      ))}
+      {card.instructions ? (
+        <>
+          <Text style={styles.detailLabel}>How to make it</Text>
+          {card.instructions.map((step, index) => (
+            <Text key={index} style={styles.recipeStepText}>
+              {index + 1}. {step}
+            </Text>
+          ))}
+        </>
+      ) : null}
 
       <View style={styles.recipeNutritionBox}>
         <Text style={styles.recipeNutritionLabel}>What this dish gives you</Text>
@@ -3278,8 +3411,215 @@ function RecipeCardDetail({ card }: { card: RecipeCard }) {
         </View>
       ) : null}
 
-      <Text style={styles.detailLabel}>Flavor palette</Text>
-      <Text style={styles.detailText}>{card.flavorNotes}</Text>
+      {card.flavorNotes ? (
+        <>
+          <Text style={styles.detailLabel}>Flavor palette</Text>
+          <Text style={styles.detailText}>{card.flavorNotes}</Text>
+        </>
+      ) : null}
+    </View>
+  );
+}
+
+// 2026-08-15, real Schedule/Share actions for My Kitchen/My Favorites --
+// direct request: "All items should be available to be added to the
+// schedule from here on anytime in the future... there should be a way to
+// share the recipes... to anyone else who has this app, or in a textual
+// sort of way through messaging." Only ever rendered for an entry that
+// carries a real dynamicAction (see lib/digestDynamicEntries.ts) -- every
+// other entry in this whole Digest returns null here immediately.
+const DYNAMIC_ENTRY_MEAL_TYPES = ['breakfast', 'lunch', 'dinner', 'snack', 'beverage', 'salad', 'smoothie'];
+// Today through 2 years out -- generous enough for "anytime in the
+// future" without an unbounded list; matches Profile's own
+// BIRTH_DAY_OPTIONS convention of a flat 1-31 day list with no real
+// days-in-month validation (an invalid combination like Feb 30 rolls
+// forward via the JS Date constructor's own normal overflow behavior,
+// the same accepted quirk Profile's own date fields already carry).
+// A real, stable module-level constant, computed once at import time, not
+// a function called fresh in JSX on every render -- PopoverSelect is
+// memo()-wrapped, and this app's own history already documents in
+// exhaustive detail exactly what a fresh array identity on every render
+// does to that memo (the Nutrient Ranking freeze investigation).
+const FUTURE_YEAR_OPTIONS = Array.from({ length: 3 }, (_, index) => String(new Date().getFullYear() + index));
+const SCHEDULE_MONTH_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index + 1));
+const SCHEDULE_DAY_OPTIONS = Array.from({ length: 31 }, (_, index) => String(index + 1));
+const SCHEDULE_HOUR_OPTIONS = Array.from({ length: 12 }, (_, index) => String(index + 1));
+const SCHEDULE_MINUTE_OPTIONS = Array.from({ length: 60 }, (_, index) => String(index).padStart(2, '0'));
+
+function DynamicEntryActions({ entry }: { entry: DigestEntry }) {
+  const action = entry.dynamicAction;
+  const today = useMemo(() => new Date(), []);
+  const [schedulingOpen, setSchedulingOpen] = useState(false);
+  const [scheduleMealType, setScheduleMealType] = useState<string | null>(null);
+  const [scheduleYear, setScheduleYear] = useState(String(today.getFullYear()));
+  const [scheduleMonth, setScheduleMonth] = useState(String(today.getMonth() + 1));
+  const [scheduleDay, setScheduleDay] = useState(String(today.getDate()));
+  const [scheduleHour, setScheduleHour] = useState('');
+  const [scheduleMinute, setScheduleMinute] = useState('');
+  const [scheduleAmpm, setScheduleAmpm] = useState<'AM' | 'PM' | ''>('');
+  const [scheduling, setScheduling] = useState(false);
+  const [scheduledMessage, setScheduledMessage] = useState<string | null>(null);
+  const [sharing, setSharing] = useState(false);
+
+  if (!action) return null;
+
+  async function handleConfirmSchedule() {
+    if (!action || !scheduleMealType || !scheduleYear || !scheduleMonth || !scheduleDay) return;
+    // Hour/minute/AM-PM are optional -- a real, honest noon default rather
+    // than forcing a time nobody asked to specify. buildTime24 already
+    // returns null for an incomplete answer (see its own comment), which
+    // this deliberately treats as "no time given" rather than an error.
+    const time24 = buildTime24(scheduleHour, scheduleMinute, scheduleAmpm) ?? '12:00';
+    const pad2 = (value: string) => value.padStart(2, '0');
+    const scheduledFor = `${scheduleYear.padStart(4, '0')}-${pad2(scheduleMonth)}-${pad2(scheduleDay)}T${time24}`;
+
+    setScheduling(true);
+    try {
+      if (action.kind === 'meal') {
+        await scheduleMeal({
+          title: entry.title,
+          mealType: scheduleMealType,
+          scheduledFor,
+          sourceFavoriteId: action.mealFavoriteId,
+        });
+      } else {
+        await scheduleSingleComponent({
+          componentType: action.componentType,
+          componentId: action.componentId,
+          title: entry.title,
+          mealType: scheduleMealType,
+          scheduledFor,
+        });
+      }
+      setScheduledMessage(
+        `Scheduled for ${scheduleMonth}/${scheduleDay}/${scheduleYear}${
+          scheduleHour ? ` at ${formatTime12(time24)}` : ''
+        }. Find it on the Schedule tab's own Meals lens.`,
+      );
+      setSchedulingOpen(false);
+    } catch (error) {
+      console.error('[DynamicEntryActions] Failed to schedule', error);
+      Alert.alert('Something went wrong', "This couldn't be scheduled. Please try again.");
+    } finally {
+      setScheduling(false);
+    }
+  }
+
+  async function handleShare() {
+    if (!action) return;
+    setSharing(true);
+    try {
+      const profile = await getUserProfile();
+      const fromName = profile.firstName?.trim() || 'A friend';
+      const link =
+        action.kind === 'meal'
+          ? await encodeMealShareLink(action.mealFavoriteId, fromName)
+          : await encodeShareLink(action.componentType, action.componentId, fromName);
+      if (!link) {
+        Alert.alert('Nothing to share', "This couldn't be prepared for sharing. Try again once it's fully saved.");
+        return;
+      }
+      // A real, plain-text ingredient list -- exactly what someone WITHOUT
+      // this app can just read directly; the deep link at the end is the
+      // extra convenience for someone who does have it.
+      const ingredientLines = (entry.recipeCard?.ingredients ?? []).map((ingredient) => `- ${ingredient.text}`).join('\n');
+      const message = [
+        entry.title,
+        entry.recipeCard?.yield ?? '',
+        ingredientLines,
+        `Shared from Inside Story by ${fromName}.`,
+        link,
+      ]
+        .filter(Boolean)
+        .join('\n\n');
+      await Share.share({ message });
+    } catch (error) {
+      console.error('[DynamicEntryActions] Failed to share', error);
+      Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
+    } finally {
+      setSharing(false);
+    }
+  }
+
+  return (
+    <View>
+      <View style={styles.dynamicActionRow}>
+        <TouchableOpacity
+          style={styles.dynamicActionButton}
+          activeOpacity={0.85}
+          onPress={() => setSchedulingOpen((open) => !open)}
+        >
+          <Ionicons name="calendar-outline" size={16} color={TAB_COLOR} />
+          <Text style={styles.dynamicActionButtonText}>Schedule</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
+          <Ionicons name="share-outline" size={16} color={TAB_COLOR} />
+          <Text style={styles.dynamicActionButtonText}>{sharing ? 'Preparing…' : 'Share'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {scheduledMessage ? <Text style={styles.dynamicActionConfirm}>{scheduledMessage}</Text> : null}
+
+      {schedulingOpen ? (
+        <View style={styles.dynamicScheduleForm}>
+          <Text style={styles.detailLabel}>Meal type</Text>
+          <PopoverSelect
+            options={DYNAMIC_ENTRY_MEAL_TYPES}
+            selected={scheduleMealType}
+            onSelect={setScheduleMealType}
+            tabColor={TAB_COLOR}
+            placeholder="Choose"
+          />
+
+          <Text style={styles.detailLabel}>Date</Text>
+          <View style={styles.dynamicScheduleRow}>
+            <PopoverSelect options={FUTURE_YEAR_OPTIONS} selected={scheduleYear} onSelect={setScheduleYear} tabColor={TAB_COLOR} minWidth={64} />
+            <PopoverSelect options={SCHEDULE_MONTH_OPTIONS} selected={scheduleMonth} onSelect={setScheduleMonth} tabColor={TAB_COLOR} minWidth={44} />
+            <PopoverSelect options={SCHEDULE_DAY_OPTIONS} selected={scheduleDay} onSelect={setScheduleDay} tabColor={TAB_COLOR} minWidth={44} />
+          </View>
+
+          <Text style={styles.detailLabel}>Time (optional -- defaults to noon)</Text>
+          <View style={styles.dynamicScheduleRow}>
+            <PopoverSelect
+              options={SCHEDULE_HOUR_OPTIONS}
+              selected={scheduleHour}
+              onSelect={setScheduleHour}
+              tabColor={TAB_COLOR}
+              minWidth={44}
+              placeholder="Hr"
+            />
+            <PopoverSelect
+              options={SCHEDULE_MINUTE_OPTIONS}
+              selected={scheduleMinute}
+              onSelect={setScheduleMinute}
+              tabColor={TAB_COLOR}
+              minWidth={44}
+              placeholder="Min"
+            />
+            <View style={styles.ampmRow}>
+              {(['AM', 'PM'] as const).map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.ampmPill, scheduleAmpm === option ? styles.ampmPillActive : null]}
+                  activeOpacity={0.85}
+                  onPress={() => setScheduleAmpm(scheduleAmpm === option ? '' : option)}
+                >
+                  <Text style={[styles.ampmPillText, scheduleAmpm === option ? styles.ampmPillTextActive : null]}>{option}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+
+          <TouchableOpacity
+            style={[styles.buildRecipeButton, (!scheduleMealType || scheduling) ? styles.buildRecipeButtonDisabled : null]}
+            activeOpacity={0.85}
+            onPress={handleConfirmSchedule}
+            disabled={!scheduleMealType || scheduling}
+          >
+            <Text style={styles.buildRecipeButtonText}>{scheduling ? 'Scheduling…' : 'Confirm'}</Text>
+          </TouchableOpacity>
+        </View>
+      ) : null}
     </View>
   );
 }
@@ -3486,6 +3826,45 @@ const styles = StyleSheet.create({
     marginTop: 12,
   },
   buildRecipeButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  buildRecipeButtonDisabled: { opacity: 0.5 },
+  // DynamicEntryActions' own Schedule/Share row, 2026-08-15 -- a lighter
+  // touch than buildRecipeButton's own solid fill, since these are two
+  // co-equal secondary actions sitting side by side rather than the one
+  // unambiguous CTA a curated Recipe's own "Build This Recipe" button is.
+  dynamicActionRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
+  dynamicActionButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 6,
+    borderWidth: 1,
+    borderColor: TAB_COLOR,
+    borderRadius: 10,
+    paddingVertical: 10,
+  },
+  dynamicActionButtonText: { ...typography.bodyEmphasis, color: TAB_COLOR },
+  dynamicActionConfirm: { ...typography.caption, color: colors.accent, marginTop: 8 },
+  dynamicScheduleForm: {
+    marginTop: 12,
+    padding: 12,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+  },
+  dynamicScheduleRow: { flexDirection: 'row', gap: 8, alignItems: 'center' },
+  ampmRow: { flexDirection: 'row', gap: 6 },
+  ampmPill: {
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  ampmPillActive: { backgroundColor: TAB_COLOR, borderColor: TAB_COLOR },
+  ampmPillText: { ...typography.caption, color: colors.textSecondary },
+  ampmPillTextActive: { color: colors.background },
   stageNoteText: { ...typography.caption, color: colors.textMuted, fontStyle: 'italic', marginTop: 8 },
   // RecipeCardDetail's own numbered instruction steps -- same body/color
   // treatment as detailText, just its own style key so a slightly tighter

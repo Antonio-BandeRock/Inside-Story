@@ -253,6 +253,21 @@ export const DIGEST_CATEGORY_KEYS = [
   // building tool, not a disease condition, so grouping it alphabetically
   // among the 19 conditions would bury it.
   'recipes',
+  // 2026-08-15 -- two genuinely new categories, direct request: "when a
+  // person uses the builders to build their own creations from any of the
+  // builders, there should be a place in the Digest where their saved
+  // creations are available to see with the same level of detail that you
+  // included in the recipes just now. There should be another place that
+  // provides the same level for their favorite builds from each category as
+  // well as favorite meals." Unlike every other category, these two are NOT
+  // static, bundled content -- their real entries are computed live from
+  // the person's OWN local data (see lib/digestDynamicEntries.ts), never
+  // shipped in lib/digest/*.ts, since there's no way to know ahead of time
+  // what anyone will actually build. Given the same always-near-the-top
+  // placement as recipes above, right after it -- a real place to browse
+  // one's own work, not a disease condition.
+  'myKitchen',
+  'myFavorites',
 ] as const;
 
 // A real, simple bar-chart dataset -- 2026-08-07, direct request: "we need
@@ -325,13 +340,20 @@ export type RecipeCard = {
   // e.g. "Makes about 4 cups, serves 2 generous bowls."
   yield: string;
   ingredients: RecipeIngredientLine[];
-  // One real step per entry, numbered by the UI.
-  instructions: string[];
+  // One real step per entry, numbered by the UI. Optional, 2026-08-15 --
+  // My Kitchen/My Favorites (lib/digestDynamicEntries.ts) build a real
+  // RecipeCard for a person's OWN saved/favorited creation too, computed
+  // live against this app's own nutrient/DRI/condition data, but with no
+  // hand-authored steps or flavor description to draw on (nobody wrote
+  // those for a one-off personal creation the way curated Recipes'
+  // authors did) -- RecipeCardDetail (app/(tabs)/purple-digest.tsx) skips
+  // both sections entirely when absent rather than showing an empty one.
+  instructions?: string[];
   nutritionHighlights: RecipeNutritionHighlight[];
   // Can be a genuinely empty array -- an honest "nothing in this dish is
   // flagged for any tracked condition" result, not a forced caution.
   conditionNotes: RecipeConditionNote[];
-  flavorNotes: string;
+  flavorNotes?: string;
 };
 
 export type DigestEntryCategory = (typeof DIGEST_CATEGORY_KEYS)[number];
@@ -394,6 +416,25 @@ export type DigestEntry = {
   // recipe entries in lib/digest/recipes.ts; every other entry in this
   // whole Digest leaves it unset.
   recipeCard?: RecipeCard;
+  // 2026-08-15, built for My Kitchen/My Favorites (lib/digestDynamicEntries.ts)
+  // -- the real, plain group name (e.g. "Sides", "Salads", "Favorite
+  // Meals") a dynamic entry's own shelf-row should sort under, since the
+  // id-prefix/keyword classifiers built for static content
+  // (classifyConditionTopic etc.) have nothing real to key off for content
+  // that's computed live rather than authored. Unset for every static
+  // entry in this whole Digest.
+  dynamicGroupLabel?: string;
+  // 2026-08-15, built for the same two categories -- what a real Schedule/
+  // Share action button on this entry should actually act on. A single
+  // saved/favorited item (any of the 11 direct-ingredient/dessert
+  // builders' own work) carries componentType/componentId; a favorite
+  // MEAL carries mealFavoriteId instead, since scheduling/sharing a whole
+  // meal already goes through the real, separately-shaped
+  // scheduleMeal/encodeMealShareLink path. Unset for every other entry in
+  // this whole Digest.
+  dynamicAction?:
+    | { kind: 'component'; componentType: BuilderFavoriteItemType; componentId: string }
+    | { kind: 'meal'; mealFavoriteId: string };
 };
 
 export type ProblemFoodEntry = {
