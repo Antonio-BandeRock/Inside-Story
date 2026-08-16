@@ -97,9 +97,37 @@ function bytesToUtf8(bytes: Uint8Array): string {
   return result;
 }
 
+// How many of the 100,000 real iterations run per JS-thread turn before
+// yielding back to the event loop -- 2026-08-16, a real, on-device-
+// confirmed bug: the original version of this function ran all 100,000
+// iterations in one single, fully synchronous tight loop, which measured
+// ~390ms on the desktop test machine used to verify this file's own
+// correctness, but took up to a real, reported ~60 SECONDS on an actual
+// phone -- a genuinely much bigger desktop-vs-device gap than assumed,
+// and worse, a fully synchronous loop that long means React Native's own
+// JS thread (and therefore this whole app's UI -- no state update, no
+// touch handling, nothing) is completely frozen for the entire duration,
+// not just "slow." A person watching an apparently-dead app for a full
+// minute with zero feedback is exactly the kind of thing that makes
+// someone assume it's hung and force-close it -- a real, concrete,
+// plausible explanation for an earlier report of an export that "ran
+// through the steps" but produced no file. This constant does NOT make
+// the real computation any faster (the full 100,000-iteration protection
+// is unchanged) -- it only lets React actually paint a real "working"
+// state between chunks, so the app stays visibly alive and responsive
+// throughout, the same standard technique any CPU-heavy JS loop in a
+// React Native app needs.
+const YIELD_EVERY_N_ITERATIONS = 5_000;
+
+function yieldToEventLoop(): Promise<void> {
+  return new Promise((resolve) => setTimeout(resolve, 0));
+}
+
 // See this file's own header comment for the honest, disclosed reason
 // this is a real, hand-built construction rather than a certified KDF.
-function deriveKey(password: string, salt: Uint8Array): Uint8Array {
+// Genuinely async now (see YIELD_EVERY_N_ITERATIONS above) -- every real
+// caller has to await it.
+async function deriveKey(password: string, salt: Uint8Array): Promise<Uint8Array> {
   const passwordBytes = utf8Bytes(password);
   const seed = new Uint8Array(passwordBytes.length + salt.length);
   seed.set(passwordBytes, 0);
@@ -112,6 +140,9 @@ function deriveKey(password: string, salt: Uint8Array): Uint8Array {
   let material: Uint8Array<ArrayBufferLike> = seed;
   for (let i = 0; i < KDF_ITERATIONS; i++) {
     material = nacl.hash(material);
+    if ((i + 1) % YIELD_EVERY_N_ITERATIONS === 0) {
+      await yieldToEventLoop();
+    }
   }
   return material.slice(0, nacl.secretbox.keyLength);
 }
@@ -119,7 +150,7 @@ function deriveKey(password: string, salt: Uint8Array): Uint8Array {
 export async function encryptBackupPayload(plaintextJson: string, password: string): Promise<EncryptedBackupWire> {
   const salt = await Crypto.getRandomBytesAsync(SALT_LENGTH);
   const nonce = await Crypto.getRandomBytesAsync(nacl.secretbox.nonceLength);
-  const key = deriveKey(password, salt);
+  const key = await deriveKey(password, salt);
   const ciphertext = nacl.secretbox(utf8Bytes(plaintextJson), nonce, key);
   return {
     encrypted: true,
@@ -134,13 +165,14 @@ export async function encryptBackupPayload(plaintextJson: string, password: stri
 // causes -- a wrong password, or a genuinely corrupted/tampered file --
 // nacl.secretbox's own real authentication can't and shouldn't tell them
 // apart; that inability is exactly the point of authenticated encryption,
-// not a gap in this wrapper.
-export function decryptBackupPayload(wire: EncryptedBackupWire, password: string): string | null {
+// not a gap in this wrapper. Genuinely async now, per deriveKey's own real
+// yielding above -- every real caller has to await it.
+export async function decryptBackupPayload(wire: EncryptedBackupWire, password: string): Promise<string | null> {
   try {
     const salt = base64ToBytes(wire.salt);
     const nonce = base64ToBytes(wire.nonce);
     const ciphertext = base64ToBytes(wire.ciphertext);
-    const key = deriveKey(password, salt);
+    const key = await deriveKey(password, salt);
     const opened = nacl.secretbox.open(ciphertext, nonce, key);
     return opened ? bytesToUtf8(opened) : null;
   } catch {

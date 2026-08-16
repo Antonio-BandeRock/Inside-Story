@@ -1028,7 +1028,11 @@ export default function ProfileScreen() {
         'This backup is encrypted. Enter the password you set when you exported it.',
       );
       if (password === null) return 'cancelled';
-      const decrypted = decryptBackupPayload(raw, password);
+      // decryptBackupPayload now genuinely yields every 5,000 of its real
+      // 100,000 KDF iterations (see lib/backupEncryption.ts's own header
+      // comment) rather than freezing the whole JS thread solid -- has to
+      // be awaited now that it's genuinely async, not just a style choice.
+      const decrypted = await decryptBackupPayload(raw, password);
       if (decrypted === null) {
         // A real, honest limitation stated directly to the person too --
         // authenticated encryption genuinely can't tell a wrong password
@@ -1097,6 +1101,14 @@ export default function ProfileScreen() {
 
   async function handleRestoreMostRecent() {
     if (backupBusy) return;
+    // Deliberately stays true through the WHOLE call below (the password
+    // prompt, the real, no-longer-frozen-but-still-genuinely-slow decrypt,
+    // the destructive-confirm dialog, and the actual restore) -- a real,
+    // on-device-confirmed bug found the previous version of this function
+    // reset it back to false right before the expensive part even began,
+    // meaning the button never actually showed "Working..." (or stayed
+    // disabled against a double-tap) during the one part of this whole
+    // flow that most needed it.
     setBackupBusy(true);
     try {
       const files = await listLocalBackupFiles();
@@ -1109,7 +1121,6 @@ export default function ProfileScreen() {
         Alert.alert('Something went wrong', 'Could not read that backup file.');
         return;
       }
-      setBackupBusy(false);
       await runRestore(content);
     } finally {
       setBackupBusy(false);
@@ -1118,11 +1129,12 @@ export default function ProfileScreen() {
 
   async function handleRestoreFromFile() {
     if (backupBusy) return;
+    // Same real fix as handleRestoreMostRecent above -- stays true through
+    // the whole flow, not reset early.
     setBackupBusy(true);
     try {
       const picked = await pickAndReadBackupFile();
       if (!picked) return; // a real cancel, or a real read failure already logged
-      setBackupBusy(false);
       await runRestore(picked.content);
     } finally {
       setBackupBusy(false);
