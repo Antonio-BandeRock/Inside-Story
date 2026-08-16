@@ -127,6 +127,7 @@ const ALL_CARD_SECTION_KEYS = [
   'general-health',
   'appearance',
   'meal-schedule',
+  'connections',
   'developer',
 ] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
@@ -2109,6 +2110,27 @@ export default function ProfileScreen() {
                 </View>
               </>
             ) : null}
+          </View>
+        ) : null}
+      </View>
+
+      {/* Step 4 of the real device-pairing prerequisite list, 2026-08-15 --
+          see CLAUDE.md's own "Sharing individual recipes between two
+          people" security-requirement note. Real management for this
+          device's own paired Connections lives on its own dedicated screen
+          (app/connections.tsx), not crammed into this already-large card
+          list -- this is just the entry point. */}
+      <View style={styles.card}>
+        {renderCardHeader('connections', 'Connections')}
+        {!collapsedSections.has('connections') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Invite someone to connect directly with you in Inside Story, so you can share recipes and more with each
+              other, and see who you&apos;ve already connected with.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} onPress={() => router.push('/connections')}>
+              <Text style={styles.checkinButtonText}>Manage Connections</Text>
+            </TouchableOpacity>
           </View>
         ) : null}
       </View>

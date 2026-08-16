@@ -148,3 +148,29 @@ export async function resetDeviceIdentity(): Promise<void> {
   await SecureStore.deleteItemAsync(PRIVATE_SEED_KEY);
   identityPromise = null;
 }
+
+// Step 4, 2026-08-15 -- a real, short, human-readable "safety number"-style
+// fingerprint of a public key, the same real idea Signal's own device
+// verification already uses: nothing in this app FORCES two people to
+// compare it, but it gives them something real and honest to read out
+// loud/compare over a separate channel if they want genuine, independent
+// confidence a pairing invite really came from who it claims to -- real
+// value specifically because pairing itself has no other way to verify an
+// invite (there's nothing to check a signature against until AFTER the
+// key exchange this fingerprint is helping verify). A real SHA-512 hash
+// (nacl.hash, the same already-installed tweetnacl this whole feature is
+// built on -- no new dependency), first 8 of its 64 real bytes, rendered
+// as 4 groups of 4 hex characters for readability (e.g. "3F2A 9B10 7C44
+// E812").
+export function computeKeyFingerprint(publicKeyBase64: string): string {
+  const digest = nacl.hash(base64ToBytes(publicKeyBase64));
+  const hex = Array.from(digest.slice(0, 8))
+    .map((byte) => byte.toString(16).padStart(2, '0').toUpperCase())
+    .join('');
+  return hex.match(/.{1,4}/g)!.join(' ');
+}
+
+export async function getMyKeyFingerprint(): Promise<string> {
+  const identity = await getDeviceIdentity();
+  return computeKeyFingerprint(identity.publicKeyBase64);
+}

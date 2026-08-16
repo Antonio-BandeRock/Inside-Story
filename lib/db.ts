@@ -3518,6 +3518,31 @@ async function runDatabaseInitialization() {
         received_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- Step 3 of the real device-pairing prerequisite list (see
+      -- CLAUDE.md's own "Sharing individual recipes between two people"
+      -- security-requirement note), 2026-08-15 -- a real, standing roster
+      -- of people this device has actually paired with, kept so a later
+      -- share to the same person doesn't need to re-pair. public_key_base64
+      -- is that person's own real Ed25519 public key (the same base64
+      -- encoding lib/deviceIdentity.ts already uses for this device's own
+      -- key), UNIQUE by design -- two different named connections
+      -- legitimately sharing one real public key would mean either a
+      -- duplicate pairing or a genuine key-reuse/spoofing problem, not a
+      -- normal state to allow silently. name is a plain, trusted display
+      -- string the person themselves chose while pairing (e.g. "Lisa"),
+      -- not itself cryptographically verified -- the public key is the
+      -- real, checkable identity; the name is just how it reads in this
+      -- app's own UI. Deliberately just the table + its own direct CRUD
+      -- this pass (see lib/connections.ts) -- no real invitation/pairing
+      -- exchange writes to this yet (that's step 4 of the same list), and
+      -- no real signature verification reads from it yet (step 5).
+      CREATE TABLE IF NOT EXISTS connections (
+        id TEXT PRIMARY KEY,
+        name TEXT NOT NULL,
+        public_key_base64 TEXT NOT NULL UNIQUE,
+        paired_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- The person's own actual lab results over time. test_code matches
       -- lab_tests.code in the bundled reference database (a cross-database
       -- free-text reference, the same pattern nutrient_code already uses

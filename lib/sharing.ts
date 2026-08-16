@@ -187,7 +187,14 @@ function bytesToUtf8(bytes: number[]): string {
   return result;
 }
 
-function encodeBase64Utf8(str: string): string {
+// Exported 2026-08-15 -- lib/connections.ts's own real invite encode/
+// decode (step 4 of the device-pairing prerequisite list) needs the
+// identical real job (a UTF-8 JSON string, embeddable in a URL query
+// param) this codec already solves correctly here; reused directly rather
+// than duplicated a third time (lib/deviceIdentity.ts's own separate
+// codec is genuinely different -- byte-array-oriented, for moving raw key
+// bytes through SecureStore, not a JSON string).
+export function encodeBase64Utf8(str: string): string {
   const bytes = utf8Bytes(str);
   let result = '';
   for (let i = 0; i < bytes.length; i += 3) {
@@ -203,7 +210,7 @@ function encodeBase64Utf8(str: string): string {
   return result;
 }
 
-function decodeBase64Utf8(base64: string): string {
+export function decodeBase64Utf8(base64: string): string {
   const clean = base64.replace(/=+$/, '');
   const bytes: number[] = [];
   let buffer = 0;

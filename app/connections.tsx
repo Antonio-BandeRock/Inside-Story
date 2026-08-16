@@ -1,0 +1,217 @@
+// Step 4 of the real device-pairing prerequisite list (see CLAUDE.md's own
+// "Sharing individual recipes between two people" security-requirement
+// note), 2026-08-15 -- the real Connections management screen. Reached
+// from Profile. Lets a person invite someone new (via any real carrier --
+// text, WhatsApp, email -- through the OS share sheet, exactly like this
+// app's own existing recipe-sharing feature already works), and browse/
+// rename/remove people already paired with (see app/connect.tsx for the
+// real receiving/accept side of the same exchange).
+import { Ionicons } from '@expo/vector-icons';
+import { useFocusEffect } from 'expo-router';
+import { useCallback, useState } from 'react';
+import { Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppTextInput } from '../components/AppTextInput';
+import { colors } from '../constants/colors';
+import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
+import { typography } from '../constants/typography';
+import { buildConnectionInvite, buildConnectionInviteLink, listConnections, removeConnection, renameConnection, type Connection } from '../lib/connections';
+import { getMyKeyFingerprint } from '../lib/deviceIdentity';
+
+export default function ConnectionsScreen() {
+  const scrollPadding = useFloatingButtonScrollPadding();
+  const [connections, setConnections] = useState<Connection[]>([]);
+  const [myFingerprint, setMyFingerprint] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [inviting, setInviting] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState('');
+  const [busyId, setBusyId] = useState<string | null>(null);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    try {
+      const [list, fingerprint] = await Promise.all([listConnections(), getMyKeyFingerprint()]);
+      setConnections(list);
+      setMyFingerprint(fingerprint);
+    } catch (error) {
+      console.error('[ConnectionsScreen] Failed to load connections', error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      load();
+    }, [load]),
+  );
+
+  async function handleInvite() {
+    setInviting(true);
+    try {
+      const [invite, link] = await Promise.all([buildConnectionInvite(), buildConnectionInviteLink()]);
+      await Share.share({
+        message: `${invite.fromName} wants to connect with you in the Inside Story app, so you can share recipes and more directly and privately. If you have Inside Story installed, tap this link to accept: ${link}`,
+      });
+    } catch (error) {
+      console.error('[ConnectionsScreen] Failed to share an invite', error);
+      Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
+    } finally {
+      setInviting(false);
+    }
+  }
+
+  function startRename(connection: Connection) {
+    setEditingId(connection.id);
+    setEditingName(connection.name);
+  }
+
+  async function saveRename(id: string) {
+    const trimmed = editingName.trim();
+    setEditingId(null);
+    if (!trimmed) return;
+    await renameConnection(id, trimmed);
+    load();
+  }
+
+  function handleRemove(connection: Connection) {
+    Alert.alert('Remove connection?', `You won't be able to share directly with ${connection.name} until you connect again.`, [
+      { text: 'Cancel', style: 'cancel' },
+      {
+        text: 'Remove',
+        style: 'destructive',
+        onPress: async () => {
+          setBusyId(connection.id);
+          try {
+            await removeConnection(connection.id);
+            load();
+          } finally {
+            setBusyId(null);
+          }
+        },
+      },
+    ]);
+  }
+
+  return (
+    <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+      {myFingerprint ? (
+        <View style={styles.fingerprintCard}>
+          <Text style={styles.fingerprintLabel}>Your device ID</Text>
+          <Text style={styles.fingerprintValue}>{myFingerprint}</Text>
+          <Text style={styles.fingerprintHint}>
+            Shown here so you can read it out loud to someone you&apos;re pairing with directly, for extra confidence.
+            Never required.
+          </Text>
+        </View>
+      ) : null}
+
+      <TouchableOpacity
+        style={[styles.primaryButton, inviting ? styles.primaryButtonDisabled : null]}
+        activeOpacity={0.85}
+        onPress={handleInvite}
+        disabled={inviting}
+      >
+        <Ionicons name="person-add-outline" size={18} color={colors.background} />
+        <Text style={styles.primaryButtonText}>{inviting ? 'Preparing…' : 'Invite Someone'}</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.sectionLabel}>Your connections</Text>
+
+      {loading ? (
+        <Text style={styles.emptyText}>Loading…</Text>
+      ) : connections.length === 0 ? (
+        <Text style={styles.emptyText}>
+          No connections yet. Invite someone above, or accept an invite someone sends you to see them appear here.
+        </Text>
+      ) : (
+        connections.map((connection) => (
+          <View key={connection.id} style={styles.row}>
+            {editingId === connection.id ? (
+              <View style={styles.editRow}>
+                <AppTextInput
+                  value={editingName}
+                  onChangeText={setEditingName}
+                  style={styles.editInput}
+                  autoFocus
+                  selectAllOnMount
+                  placeholder="Name"
+                />
+                <TouchableOpacity onPress={() => saveRename(connection.id)} hitSlop={8}>
+                  <Text style={styles.rowActionText}>Save</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setEditingId(null)} hitSlop={8}>
+                  <Text style={styles.rowActionTextMuted}>Cancel</Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <>
+                <View style={styles.rowInfo}>
+                  <Text style={styles.rowName}>{connection.name}</Text>
+                  <Text style={styles.rowMeta}>Connected {new Date(connection.pairedAt).toLocaleDateString()}</Text>
+                </View>
+                <View style={styles.rowActions}>
+                  <TouchableOpacity onPress={() => startRename(connection)} hitSlop={8}>
+                    <Text style={styles.rowActionText}>Rename</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity onPress={() => handleRemove(connection)} hitSlop={8} disabled={busyId === connection.id}>
+                    <Text style={styles.rowActionTextDanger}>{busyId === connection.id ? 'Removing…' : 'Remove'}</Text>
+                  </TouchableOpacity>
+                </View>
+              </>
+            )}
+          </View>
+        ))
+      )}
+    </ScrollView>
+  );
+}
+
+const styles = StyleSheet.create({
+  screen: { flex: 1, backgroundColor: colors.background },
+  content: { padding: 20, gap: 16 },
+  fingerprintCard: {
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    gap: 6,
+  },
+  fingerprintLabel: { ...typography.caption, color: colors.textMuted },
+  fingerprintValue: { ...typography.bodyEmphasis, color: colors.textPrimary, letterSpacing: 2 },
+  fingerprintHint: { ...typography.caption, color: colors.textMuted },
+  primaryButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 8,
+    backgroundColor: colors.accent,
+    borderRadius: 10,
+    paddingVertical: 14,
+  },
+  primaryButtonDisabled: { opacity: 0.6 },
+  primaryButtonText: { ...typography.bodyEmphasis, color: colors.background },
+  sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4 },
+  emptyText: { ...typography.body, color: colors.textMuted },
+  row: {
+    padding: 14,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    gap: 8,
+  },
+  rowInfo: { flex: 1 },
+  rowName: { ...typography.bodyEmphasis, color: colors.textPrimary },
+  rowMeta: { ...typography.caption, color: colors.textMuted, marginTop: 2 },
+  rowActions: { flexDirection: 'row', gap: 16 },
+  rowActionText: { ...typography.body, color: colors.accent },
+  rowActionTextMuted: { ...typography.body, color: colors.textMuted },
+  rowActionTextDanger: { ...typography.body, color: colors.danger },
+  editRow: { flex: 1, flexDirection: 'row', alignItems: 'center', gap: 12 },
+  editInput: { flex: 1, ...typography.body, color: colors.textPrimary, borderBottomWidth: 1, borderBottomColor: colors.border, paddingVertical: 4 },
+});

@@ -295,6 +295,33 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* Step 4 of the real device-pairing prerequisite list,
+                  2026-08-15 -- reached from Profile. Themed the same as every
+                  other Stack screen. */}
+              <Stack.Screen
+                name="connections"
+                options={{
+                  headerShown: true,
+                  title: 'Connections',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
+              {/* Reached via a real hashimotosapp://connect deep link (see
+                  lib/connections.ts's own shareConnectionInvite) -- the same
+                  real shape import-shared's own Stack.Screen above already
+                  establishes for exactly this "receive an out-of-band
+                  invite, decode it, show an explicit accept/decline choice"
+                  pattern. */}
+              <Stack.Screen
+                name="connect"
+                options={{
+                  headerShown: true,
+                  title: 'Connect',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
             </Stack>
             {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                 comment: the keyboard must always paint on top of an open
