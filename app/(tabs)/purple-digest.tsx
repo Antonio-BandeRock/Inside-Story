@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObject } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { Alert, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
@@ -1533,6 +1533,19 @@ export default function PurpleDigestScreen() {
     if (autoOpenLensHub) setOpenTrigger(autoOpenLensHub);
   }, [autoOpenLensHub]);
 
+  // A deep link straight into one specific category, 2026-08-16 -- built
+  // for the Food builders' own new "Or Find a Recipe" links (My Kitchen /
+  // Recipes Shared With Me / Recipes / My Favorites all point straight
+  // here now, rather than the builder itself showing a duplicated, stripped-
+  // down recipe list -- see SideBuilder.tsx's own header comment on that
+  // section for the full reasoning). Read once here and consumed by the
+  // focus effect just below; anything other than these three real category
+  // keys is ignored, falling through to the ordinary reset. Mirrors
+  // food.tsx's own editSideId-style deep-link params exactly, including why
+  // this is safe to leave unconsumed after the fact: SwipeableTabScreen's
+  // own swipe-driven navigation never carries params at all, so a later
+  // swipe away and back always lands back on a bare, param-free route.
+  const { openDigestLens } = useLocalSearchParams<{ openDigestLens?: string }>();
   const [lens, setLens] = useState<PurpleDigestLens>('basicHealth');
   // Hide-sync for any Digest entry tagged with `relatedFoodNames` (currently
   // just the Fruits, Vegetables, Nuts & Seeds profile guide -- see
@@ -1695,6 +1708,17 @@ export default function PurpleDigestScreen() {
   // left to track.
   useFocusEffect(
     useCallback(() => {
+      // openDigestLens overrides the normal "always land on the resting
+      // picker" reset below, the same way food.tsx's own editSideId etc.
+      // already do -- without this, a real deep link from a Food builder
+      // would still show the LensHub picker for a beat (or permanently,
+      // once revealed was reset false on focus) instead of the category it
+      // was actually sent to.
+      if (openDigestLens === 'myKitchen' || openDigestLens === 'myFavorites' || openDigestLens === 'recipes') {
+        setLens(openDigestLens);
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       setSearchQuery('');
       setCategorySearchQuery('');
@@ -1707,7 +1731,7 @@ export default function PurpleDigestScreen() {
         setIsSearchActive(false);
         setSearchResetKey((key) => key + 1);
       };
-    }, []),
+    }, [openDigestLens]),
   );
 
   // Which single entry (by id) is currently expanded to its full detail,

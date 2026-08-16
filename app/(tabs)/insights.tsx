@@ -87,6 +87,7 @@ import { FoodLookup, categoryLabel, sourceLabel, type ResolvedFoodSelection } fr
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { linkifyText } from '../../components/InfoAlert';
 import type { HelpSection } from '../../components/HelpButton';
+import { IridescentRingCircle } from '../../components/IridescentRingCircle';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
@@ -1701,8 +1702,19 @@ function ScopeHub<M extends NavigableMeal>({
             own Handhelds builder icon (food.tsx/MealBuilder.tsx), which
             once read as "the Handhelds icon" showing up here by mistake.
             Funnel fits the actual mechanic too: narrowing from a whole
-            day down to one meal, side, or item. */}
-        <Ionicons name="funnel-outline" size={24} color={colors.textOnPrimary} style={textShadow} />
+            day down to one meal, side, or item.
+            Filled with TAB_COLOR (this tab's own identity color, not the
+            generic colors.primary this used before) and wrapped in
+            IridescentRingCircle's own animated ring -- the same shared
+            "this is a real, tappable thing sitting above the page" cue
+            LensHub's own corner button already uses, given a colored fill
+            here via that component's own innerColor override so the
+            button stays visually distinct from whatever table content is
+            scrolling underneath it, not just while a popup happens to be
+            open. */}
+        <IridescentRingCircle size={FLOATING_BUTTON_SIZE} innerColor={TAB_COLOR}>
+          <Ionicons name="funnel-outline" size={24} color={colors.textOnPrimary} style={textShadow} />
+        </IridescentRingCircle>
       </TouchableOpacity>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
@@ -3323,12 +3335,16 @@ const styles = StyleSheet.create({
     fontStyle: 'italic',
   },
   backdrop: { flex: 1, backgroundColor: 'rgba(15, 23, 42, 0.25)' },
+  // Positioning + drop shadow only now -- the actual circle fill (TAB_COLOR)
+  // and its iridescent ring both come from IridescentRingCircle itself,
+  // rendered as this button's own child. borderRadius is kept here anyway
+  // so Android's elevation shadow still traces a round outline rather than
+  // a square one, even though nothing visible is being clipped by it.
   scopeButton: {
     position: 'absolute',
     width: FLOATING_BUTTON_SIZE,
     height: FLOATING_BUTTON_SIZE,
     borderRadius: FLOATING_BUTTON_SIZE / 2,
-    backgroundColor: colors.primary,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: '#000',

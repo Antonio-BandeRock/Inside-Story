@@ -33,12 +33,20 @@ import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
 export function IridescentRingCircle({
   size,
   ringWidth = 2,
+  innerColor = colors.menuSurface,
   children,
 }: {
   // Outer diameter, ring included -- the icon/content passed as `children`
   // should be sized to fit inside `size - ringWidth * 2`.
   size: number;
   ringWidth?: number;
+  // The solid fill inside the ring -- defaults to the existing menuSurface
+  // every current caller (LensHub's own corner button, TabHub's tab grid)
+  // already expects, so this is purely additive. A caller that wants the
+  // ring around an already-colored button rather than a menu tile (e.g.
+  // Insights' own ScopeHub, filled with that tab's own identity color) can
+  // override it instead of the fixed neutral.
+  innerColor?: string;
   children?: ReactNode;
 }) {
   const hueRotation = useIridescentHueRotation();
@@ -64,7 +72,9 @@ export function IridescentRingCircle({
         end={{ x: 1, y: 1 }}
         style={[StyleSheet.absoluteFillObject, { borderRadius: size / 2 }]}
       />
-      <View style={[styles.inner, { width: innerSize, height: innerSize, borderRadius: innerSize / 2 }]} />
+      <View
+        style={[styles.inner, { width: innerSize, height: innerSize, borderRadius: innerSize / 2, backgroundColor: innerColor }]}
+      />
       {children}
     </View>
   );
@@ -74,5 +84,6 @@ const styles = StyleSheet.create({
   // overflow: 'hidden' + borderRadius (set inline, size-dependent) is what
   // actually clips the gradient (a rectangle by default) into a circle.
   wrap: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  inner: { position: 'absolute', backgroundColor: colors.menuSurface },
+  // backgroundColor set inline per-instance (innerColor) rather than here.
+  inner: { position: 'absolute' },
 });
