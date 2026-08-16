@@ -8,6 +8,9 @@ import { GenericBackground } from '../components/GenericBackground';
 import { IridescentRingCircle } from '../components/IridescentRingCircle';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { usePasswordPrompt } from '../components/PasswordPrompt';
+import { useBusyOverlay } from '../components/BusyOverlay';
+import { useConfirmSheet } from '../components/ConfirmSheet';
+import { useInfoAlert } from '../components/InfoAlert';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
@@ -546,6 +549,19 @@ export default function ProfileScreen() {
   // backup forever -- there is deliberately no recovery), 'enter' when
   // restoring an encrypted file.
   const [promptPassword, passwordPromptElement] = usePasswordPrompt();
+  // Real, app-styled replacements for the whole backup/restore flow's own
+  // former native Alert.alert calls -- 2026-08-16, direct request: "there
+  // needs to be some sort of communication between steps that take a
+  // little time... do we have to use all system windows or can we use the
+  // app's own colors and layout." showBusy/hideBusy drive a real, live
+  // spinner-plus-status-message overlay through the genuinely slow parts
+  // (encrypt/decrypt, the actual whole-database restore); confirmBackup
+  // replaces the native "Restore this backup? This can't be undone."
+  // dialog; showBackupAlert replaces every plain result/error message in
+  // this same flow.
+  const [showBusy, hideBusy, busyOverlayElement] = useBusyOverlay();
+  const [confirmBackup, confirmSheetElement] = useConfirmSheet();
+  const [showBackupAlert, backupAlertElement] = useInfoAlert();
 
   const refreshLocalBackups = useCallback(async () => {
     const files = await listLocalBackupFiles();
@@ -972,9 +988,18 @@ export default function ProfileScreen() {
     if (password === null) return; // a real cancel -- nothing was exported
     setBackupBusy(true);
     try {
-      const fileUri = await exportBackupToFile(password);
+      // A real, live status through the one genuinely slow step -- see
+      // components/BusyOverlay.tsx's own header comment for why this is a
+      // plain spinner-plus-message, not a second percent-estimate system.
+      showBusy('Encrypting your backup...');
+      let fileUri: string | null;
+      try {
+        fileUri = await exportBackupToFile(password);
+      } finally {
+        hideBusy();
+      }
       if (!fileUri) {
-        Alert.alert('Something went wrong', 'Could not write a backup file. Nothing was exported.');
+        showBackupAlert('Something went wrong', 'Could not write a backup file. Nothing was exported.');
         return;
       }
       const shared = await shareFileIfAvailable(fileUri, {
@@ -982,7 +1007,7 @@ export default function ProfileScreen() {
         dialogTitle: 'Save your Inside Story backup',
       });
       await refreshLocalBackups();
-      Alert.alert(
+      showBackupAlert(
         'Backup created',
         `${
           shared
@@ -991,7 +1016,7 @@ export default function ProfileScreen() {
         }A copy also stays right here, in Inside Story's own app storage:\n\n${fileUri}\n\nThat copy is what "Restore Most Recent" below reads from, but it's lost along with this device if this device is ever lost or replaced.`,
       );
     } catch (error) {
-      Alert.alert('Something went wrong', error instanceof Error ? error.message : 'Failed to export a backup.');
+      showBackupAlert('Something went wrong', error instanceof Error ? error.message : 'Failed to export a backup.');
     } finally {
       setBackupBusy(false);
     }
@@ -1032,21 +1057,24 @@ export default function ProfileScreen() {
       // 100,000 KDF iterations (see lib/backupEncryption.ts's own header
       // comment) rather than freezing the whole JS thread solid -- has to
       // be awaited now that it's genuinely async, not just a style choice.
-      const decrypted = await decryptBackupPayload(raw, password);
+      // A real, live status through this same real wait, matching the
+      // export side above.
+      showBusy('Decrypting your backup...');
+      let decrypted: string | null;
+      try {
+        decrypted = await decryptBackupPayload(raw, password);
+      } finally {
+        hideBusy();
+      }
       if (decrypted === null) {
         // A real, honest limitation stated directly to the person too --
         // authenticated encryption genuinely can't tell a wrong password
         // apart from a corrupted/tampered file, by design (see
         // lib/backupEncryption.ts's own decryptBackupPayload comment).
-        const tryAgain = await new Promise<boolean>((resolve) => {
-          Alert.alert(
-            "That password didn't work",
-            "Either the password is wrong, or this file is genuinely corrupted -- there's no way to tell which one. Try again?",
-            [
-              { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
-              { text: 'Try Again', onPress: () => resolve(true) },
-            ],
-          );
+        const tryAgain = await confirmBackup({
+          title: "That password didn't work",
+          message: "Either the password is wrong, or this file is genuinely corrupted -- there's no way to tell which one. Try again?",
+          confirmLabel: 'Try Again',
         });
         if (!tryAgain) return 'cancelled';
         continue;
@@ -1059,59 +1087,62 @@ export default function ProfileScreen() {
     const envelope = await resolveBackupEnvelope(content);
     if (envelope === 'cancelled') return;
     if (!envelope) {
-      Alert.alert(
+      showBackupAlert(
         "That doesn't look like a real backup file",
         'Nothing was changed. Try a different file, or export a fresh backup and try that one.',
       );
       return;
     }
-    Alert.alert(
-      'Restore this backup?',
-      `This will replace everything currently on this device with what's in the backup from ${new Date(envelope.exportedAt).toLocaleString()}. This can't be undone.`,
-      [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Restore',
-          style: 'destructive',
-          onPress: async () => {
-            setBackupBusy(true);
-            try {
-              const result = await restoreFromBackupEnvelope(envelope);
-              // A real, on-device-confirmed gap, 2026-08-16: restore
-              // rewrites the real database directly, which is correct and
-              // complete for everything a screen re-reads on its own (Food
-              // Allergies, confirmed on-device) -- but several real
-              // features (lib/visualPreferences.ts's own TabHub icon/
-              // background choices, at least) keep a real, live, module-
-              // level cache in memory for the rest of this app session,
-              // never touched by a raw database rewrite. A still-running
-              // app can genuinely show a stale value even though the real,
-              // underlying row is already correctly restored -- a full
-              // close-and-reopen (a fresh JS heap, every module-level
-              // cache starting empty again) is the one guaranteed way to
-              // see everything reflect the restore, not just database-
-              // backed screens. Named directly here rather than left to a
-              // second, confusing bug report.
-              Alert.alert(
-                'Restored',
-                `${result.tablesRestored} table(s) and ${result.rowsRestored} row(s) restored.${
-                  result.tablesSkipped.length > 0
-                    ? ` (${result.tablesSkipped.length} table(s) from the backup no longer exist in this version of the app and were skipped.)`
-                    : ''
-                }\n\nClose and fully reopen Inside Story now -- some settings (like the TabHub icon) are cached in memory while the app is running, and won't show the restored value until it's genuinely restarted.`,
-              );
-            } catch (error) {
-              Alert.alert(
-                'Restore failed',
-                error instanceof Error ? error.message : 'Something went wrong partway through -- nothing was changed.',
-              );
-            } finally {
-              setBackupBusy(false);
-            }
-          },
-        },
-      ],
-    );
+    const shouldRestore = await confirmBackup({
+      title: 'Restore this backup?',
+      message: `This will replace everything currently on this device with what's in the backup from ${new Date(envelope.exportedAt).toLocaleString()}. This can't be undone.`,
+      confirmLabel: 'Restore',
+      destructive: true,
+    });
+    if (!shouldRestore) return;
+
+    setBackupBusy(true);
+    try {
+      // A real, live status through the actual whole-database rewrite --
+      // the one real step in this whole flow the person has directly
+      // reported feeling the most "is this doing something?" uncertainty
+      // about, 2026-08-16.
+      showBusy('Restoring your data...');
+      let result;
+      try {
+        result = await restoreFromBackupEnvelope(envelope);
+      } finally {
+        hideBusy();
+      }
+      // A real, on-device-confirmed gap, 2026-08-16: restore rewrites the
+      // real database directly, which is correct and complete for
+      // everything a screen re-reads on its own (Food Allergies, confirmed
+      // on-device) -- but several real features (lib/visualPreferences.ts's
+      // own TabHub icon/background choices, at least) keep a real, live,
+      // module-level cache in memory for the rest of this app session,
+      // never touched by a raw database rewrite. A still-running app can
+      // genuinely show a stale value even though the real, underlying row
+      // is already correctly restored -- a full close-and-reopen (a fresh
+      // JS heap, every module-level cache starting empty again) is the one
+      // guaranteed way to see everything reflect the restore, not just
+      // database-backed screens. Named directly here rather than left to a
+      // second, confusing bug report.
+      showBackupAlert(
+        'Restored',
+        `${result.tablesRestored} table(s) and ${result.rowsRestored} row(s) restored.${
+          result.tablesSkipped.length > 0
+            ? ` (${result.tablesSkipped.length} table(s) from the backup no longer exist in this version of the app and were skipped.)`
+            : ''
+        }\n\nClose and fully reopen Inside Story now -- some settings (like the TabHub icon) are cached in memory while the app is running, and won't show the restored value until it's genuinely restarted.`,
+      );
+    } catch (error) {
+      showBackupAlert(
+        'Restore failed',
+        error instanceof Error ? error.message : 'Something went wrong partway through -- nothing was changed.',
+      );
+    } finally {
+      setBackupBusy(false);
+    }
   }
 
   async function handleRestoreMostRecent() {
@@ -1128,12 +1159,12 @@ export default function ProfileScreen() {
     try {
       const files = await listLocalBackupFiles();
       if (files.length === 0) {
-        Alert.alert('No local backups yet', 'Export a backup first, or use "Restore from a File" to pick one from elsewhere.');
+        showBackupAlert('No local backups yet', 'Export a backup first, or use "Restore from a File" to pick one from elsewhere.');
         return;
       }
       const content = await readBackupFileContent(files[0].uri);
       if (!content) {
-        Alert.alert('Something went wrong', 'Could not read that backup file.');
+        showBackupAlert('Something went wrong', 'Could not read that backup file.');
         return;
       }
       await runRestore(content);
@@ -2558,6 +2589,9 @@ export default function ProfileScreen() {
     </ScrollView>
     {closeButton}
     {passwordPromptElement}
+    {busyOverlayElement}
+    {confirmSheetElement}
+    {backupAlertElement}
     </View>
   );
 }

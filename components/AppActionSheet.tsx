@@ -48,11 +48,21 @@ export function AppActionSheet({
   visible,
   onClose,
   title,
+  message,
   actions,
 }: {
   visible: boolean;
   onClose: () => void;
   title?: string;
+  // A real, optional body of text between the title and the action rows --
+  // 2026-08-16, added specifically so a real destructive-confirm dialog
+  // ("Restore this backup? This will replace everything currently on this
+  // device... this can't be undone.") can carry its own genuinely
+  // important explanatory text before the person ever taps anything, the
+  // same way the OS's own Alert.alert already does. Optional and additive
+  // -- every existing caller (the meal-photo picker) has no message and is
+  // unaffected.
+  message?: string;
   actions: AppActionSheetAction[];
 }) {
   const { showOverlay, hideOverlay } = useOverlay();
@@ -72,6 +82,7 @@ export function AppActionSheet({
           <View style={[StyleSheet.absoluteFillObject, { backgroundColor: scheme.gradient[1] }]} pointerEvents="none" />
           <View style={[styles.glow, { backgroundColor: scheme.blobs[0] }]} pointerEvents="none" />
           {title ? <Text style={styles.title}>{title}</Text> : null}
+          {message ? <Text style={styles.message}>{message}</Text> : null}
           {actions.map((action, index) => (
             <Pressable
               key={index}
@@ -143,6 +154,14 @@ const styles = StyleSheet.create({
     ...typography.bodyEmphasis,
     color: colors.textPrimary,
     textAlign: 'center',
+    paddingHorizontal: 20,
+    paddingBottom: 14,
+  },
+  message: {
+    ...typography.body,
+    color: colors.textSecondary,
+    textAlign: 'center',
+    lineHeight: 20,
     paddingHorizontal: 20,
     paddingBottom: 14,
   },
