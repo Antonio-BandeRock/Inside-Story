@@ -114,7 +114,7 @@
         "expo-image-picker",
         {
           "photosPermission": "Inside Story uses your photos to let you choose a custom background image, or a photo of a meal you've made.",
-          "cameraPermission": "Inside Story uses your camera to let you take a photo of a meal you've made."
+          "cameraPermission": "Inside Story uses your camera to let you take a photo of a meal you've made, or of an ingredient label or price tag while scanning a product."
         }
       ],
       "expo-secure-store",
@@ -123,6 +123,19 @@
         {
           "microphonePermission": "Inside Story uses your microphone to let you search and add notes by speaking instead of typing.",
           "speechRecognitionPermission": "Inside Story uses speech recognition to turn what you say into text for search boxes and notes."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Inside Story uses your camera to scan a product's barcode while you're shopping."
+        }
+      ],
+      [
+        "rn-mlkit-ocr",
+        {
+          "ocrModels": ["latin"],
+          "ocrUseBundled": true
         }
       ]
     ],

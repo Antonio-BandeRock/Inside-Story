@@ -16,6 +16,7 @@ import {
   getStageFlagScoresForNames,
   isFallbackSource,
   listAvailableHarvests,
+  listScannedProducts,
   resolveFoodChoice,
   searchReferenceFoodNames,
   searchReferenceFoodNamesAcrossCategories,
@@ -24,6 +25,7 @@ import {
   type FoodUnitWeight,
   type GardenHarvest,
   type GlobalFoodMatch,
+  type ScannedProductRecord,
 } from '../lib/db';
 import { buildFoodNameGroups } from '../lib/foodNameGrouping';
 import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
@@ -114,6 +116,17 @@ export const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   // allowlist, same as Mixed itself.
   CommercialPremade: 'Commercial / Pre-Made',
   Dairy: 'Dairy & Eggs',
+  // 2026-08-16 -- the real barcode-scanning feature this file's own
+  // CommercialPremade comment above already named as "the still-unbuilt
+  // barcode feature." A scanned product's own real identity (see
+  // getFoodIdentity's own source==='Scanned' branch in lib/db.ts) always
+  // carries this exact category, never one of the reference database's own
+  // real codes -- it isn't a genuine getReferenceCategories() row (this
+  // whole category is a local-database-only concept), so it never appears
+  // in the ordinary Category picker at all; this label only ever shows up
+  // wherever a resolved food's own category gets displayed after the fact
+  // (e.g. a saved ingredient's own summary row).
+  MyProcessedFoods: 'My Processed Foods',
   Fruit: 'Fruits',
   Grain: 'Grains',
   Herbs: 'Herbs & Seasonings',
@@ -520,6 +533,37 @@ export function FoodLookup({
       prepMethod: identity.prepMethod,
       foodId: harvest.foodId,
       source: harvest.source,
+    });
+  }
+
+  // "From Your Scans" -- 2026-08-16, the real "My Processed Foods" quick-
+  // pick, same real shape as "From Your Harvest" just above (a small, flat,
+  // locally-sourced list resolved straight through getFoodIdentity,
+  // bypassing Category/Type/Food/Prep entirely -- a scanned product names
+  // one exact record already, nothing left to disambiguate). Reuses the
+  // identical scoping (showNutrients=false + a real onFoodResolved, i.e.
+  // every builder's own connected FoodLookup) and the same allowHarvestPick
+  // gate this file already uses for the harvest section, since the same
+  // real reason applies: the Harvest Log lens (and, symmetrically, the
+  // scan-a-product screen itself) shouldn't offer to add its own
+  // in-progress record back into itself while creating it.
+  const [availableScannedProducts, setAvailableScannedProducts] = useState<ScannedProductRecord[]>([]);
+  useEffect(() => {
+    if (onFoodResolved && !showNutrients && allowHarvestPick) {
+      listScannedProducts(20).then(setAvailableScannedProducts);
+    }
+  }, [onFoodResolved, showNutrients, allowHarvestPick]);
+
+  async function handlePickScannedProduct(product: ScannedProductRecord) {
+    const identity = await getFoodIdentity(product.id, 'Scanned');
+    if (!identity) return;
+    onFoodResolved?.({
+      category: identity.category,
+      subcategory: identity.subcategory,
+      baseName: identity.baseName,
+      prepMethod: identity.prepMethod,
+      foodId: product.id,
+      source: 'Scanned',
     });
   }
 
@@ -1122,6 +1166,22 @@ export function FoodLookup({
             <TouchableOpacity key={harvest.id} style={styles.harvestRow} onPress={() => handlePickHarvest(harvest)}>
               <Text style={styles.harvestText} numberOfLines={1}>
                 {harvest.foodName}: {harvest.quantityRemaining} {harvest.unit} left
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      ) : null}
+      {/* "From Your Scans" -- see handlePickScannedProduct's own comment
+          above. Same real "before Category, only when there's real
+          inventory to show" gating as "From Your Harvest" just above. */}
+      {allowHarvestPick && category === '' && availableScannedProducts.length > 0 ? (
+        <View style={[styles.harvestSection, { borderColor: tabColor }]}>
+          <Text style={[styles.harvestHeading, { color: tabColor }]}>From Your Scans</Text>
+          {availableScannedProducts.map((product) => (
+            <TouchableOpacity key={product.id} style={styles.harvestRow} onPress={() => handlePickScannedProduct(product)}>
+              <Text style={styles.harvestText} numberOfLines={1}>
+                {product.name}
+                {product.brand ? ` (${product.brand})` : ''}
               </Text>
             </TouchableOpacity>
           ))}

@@ -362,6 +362,18 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* 2026-08-16, the real barcode-scanning feature -- reached from
+                  Food's own "My Foods" hub. Themed the same as every other
+                  Stack screen. */}
+              <Stack.Screen
+                name="scan-product"
+                options={{
+                  headerShown: true,
+                  title: 'Scan a Product',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
             </Stack>
             {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                 comment: the keyboard must always paint on top of an open

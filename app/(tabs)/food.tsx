@@ -838,6 +838,19 @@ export default function FoodScreen() {
   }
   const myFoodsCategories: MyItemsCategory[] = [
     {
+      // 2026-08-16 -- the real barcode-scanning feature. Deliberately no
+      // `count` (this is a real action, not a browsable category) and
+      // deliberately first in the list: at the store, this is the thing
+      // someone actually reaches for. Once scanned, a product becomes real,
+      // selectable "My Processed Foods" ingredient content inside every
+      // builder's own connected FoodLookup (see that component's own "From
+      // Your Scans" quick-pick) -- a dedicated browse/manage list for past
+      // scans is real, honest follow-up work, not built in this same pass.
+      id: 'scan-product',
+      label: 'Scan a Product',
+      onPress: () => router.push('/scan-product'),
+    },
+    {
       id: 'side-saved',
       label: 'Saved Sides',
       count: sideCount,

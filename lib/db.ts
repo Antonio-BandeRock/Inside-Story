@@ -2138,6 +2138,12 @@ export async function getSaferPrepAlternative(
 // row is untouched, so this is trivially reversible and easy to refine
 // later (e.g. a smarter sibling-source preference) without a migration.
 export async function getFoodNutrients(foodId: number, source: string) {
+  // A real, local barcode-scanned product, 2026-08-16 -- see
+  // getScannedProductNutrients' own comment for why this can't just be
+  // one more branch inside the SQL below.
+  if (source === 'Scanned') {
+    return getScannedProductNutrients(foodId);
+  }
   const db = await getReferenceDatabase();
   const rows = await db.getAllAsync<{
     code: string;
@@ -4450,6 +4456,59 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (food_trial_id) REFERENCES food_trials(id) ON DELETE CASCADE
       );
 
+      -- Barcode-scanned products, 2026-08-16 -- "My Processed Foods." Every
+      -- existing builder resolves an ingredient through a (food_id, source)
+      -- pair pointing into the bundled reference database; a scanned
+      -- product genuinely isn't in there, so this reuses that same real
+      -- identity shape rather than inventing a parallel one -- a real,
+      -- unique local INTEGER id (safe against colliding with the reference
+      -- database's own real food_id range, since the two live in
+      -- completely separate SQLite files and every consumer branches on
+      -- source='Scanned' first, before ever using the id to look anywhere)
+      -- paired with source='Scanned', the same pattern this database's own
+      -- 'Derived' rows already established for real-but-not-from-one-of-
+      -- the-7-national-sources data. lookup_source is the real provenance
+      -- of the nutrient panel below (OpenFoodFacts/USDA/Manual), kept
+      -- honest and visible the same way the reference database's own
+      -- per-row source column already is.
+      CREATE TABLE IF NOT EXISTS scanned_products (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        barcode TEXT NOT NULL UNIQUE,
+        name TEXT NOT NULL,
+        brand TEXT,
+        lookup_source TEXT NOT NULL,
+        ingredients_text TEXT,
+        photo_uri TEXT,
+        scanned_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
+      -- Mirrors food_nutrients' own real (food_id, source, nutrient_code)
+      -- shape, minus the source dimension -- a scanned product has exactly
+      -- one real nutrient panel (whatever the barcode lookup reported),
+      -- never a sibling-source fallback the way a reference-database food
+      -- can have.
+      CREATE TABLE IF NOT EXISTS scanned_product_nutrients (
+        scanned_product_id INTEGER NOT NULL,
+        nutrient_code TEXT NOT NULL,
+        amount_per_100g REAL NOT NULL,
+        PRIMARY KEY (scanned_product_id, nutrient_code),
+        FOREIGN KEY (scanned_product_id) REFERENCES scanned_products(id) ON DELETE CASCADE
+      );
+
+      -- Real price-over-time tracking, one row per real "I bought this"
+      -- occasion -- photo_uri is the real price-tag/receipt photo the
+      -- price was read from (OCR-attempted, always confirmed/edited before
+      -- being saved here, never silently trusted).
+      CREATE TABLE IF NOT EXISTS scanned_product_prices (
+        id TEXT PRIMARY KEY,
+        scanned_product_id INTEGER NOT NULL,
+        price REAL NOT NULL,
+        store_name TEXT,
+        photo_uri TEXT,
+        logged_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (scanned_product_id) REFERENCES scanned_products(id) ON DELETE CASCADE
+      );
+
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
       -- 2026-08-16, a real, confirmed gap found while chasing a still-slow
       -- Cooking & Prep report even after the N+1 fix above and a genuine
@@ -4474,6 +4533,7 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_plantings_plot ON garden_plantings(plot_id);
       CREATE INDEX IF NOT EXISTS idx_garden_harvests_remaining ON garden_harvests(quantity_remaining);
       CREATE INDEX IF NOT EXISTS idx_garden_harvests_planting ON garden_harvests(planting_id);
+      CREATE INDEX IF NOT EXISTS idx_scanned_product_prices_product ON scanned_product_prices(scanned_product_id);
     `);
 
     const mealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meals)');
@@ -5107,6 +5167,16 @@ export type FoodIdentity = {
 };
 
 export async function getFoodIdentity(foodId: number, source: string): Promise<FoodIdentity | null> {
+  // A real, local barcode-scanned product, 2026-08-16 -- lives entirely
+  // outside the bundled reference database, so this branches before ever
+  // reaching it. See scanned_products' own CREATE TABLE comment for why a
+  // local INTEGER id can safely reuse this same (foodId, source) shape.
+  if (source === 'Scanned') {
+    const db = await getDatabase();
+    const row = await db.getFirstAsync<{ name: string }>('SELECT name FROM scanned_products WHERE id = ?', foodId);
+    if (!row) return null;
+    return { baseName: row.name, prepMethod: null, category: 'MyProcessedFoods', subcategory: null };
+  }
   const db = await getReferenceDatabase();
   return db.getFirstAsync<FoodIdentity>(
     'SELECT base_name AS baseName, prep_method AS prepMethod, category, subcategory FROM foods WHERE food_id = ? AND source = ?',
@@ -14353,5 +14423,251 @@ export async function listUpcomingGardenTasks(limit = 20): Promise<
     `,
     today,
     limit,
+  );
+}
+
+// Barcode-scanned products -- "My Processed Foods," 2026-08-16. See
+// scanned_products' own CREATE TABLE comment (initializeDatabase, above)
+// for the real (foodId, source='Scanned') identity design this whole
+// feature is built around.
+export type ScannedProductRecord = {
+  id: number;
+  barcode: string;
+  name: string;
+  brand: string | null;
+  lookupSource: string;
+  ingredientsText: string | null;
+  photoUri: string | null;
+  scannedAt: string;
+};
+
+const SCANNED_PRODUCT_COLUMNS = `
+  id, barcode, name, brand, lookup_source AS lookupSource, ingredients_text AS ingredientsText,
+  photo_uri AS photoUri, scanned_at AS scannedAt
+`;
+
+// A real, checked-first lookup before ever hitting the network -- scanning
+// the same product twice (a person picking up the same box again next
+// week) should reuse what's already saved, not create a duplicate real
+// "My Processed Foods" entry or re-fetch data that hasn't changed.
+export async function getScannedProductByBarcode(barcode: string): Promise<ScannedProductRecord | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<ScannedProductRecord>(
+    `SELECT ${SCANNED_PRODUCT_COLUMNS} FROM scanned_products WHERE barcode = ?`,
+    barcode,
+  );
+}
+
+export async function getScannedProduct(id: number): Promise<ScannedProductRecord | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<ScannedProductRecord>(`SELECT ${SCANNED_PRODUCT_COLUMNS} FROM scanned_products WHERE id = ?`, id);
+}
+
+// Most-recently-scanned first -- matches every other "My Foods"-style list
+// in this app (listSides, listFavorites, etc.) and is also what a
+// "Recently Scanned" quick-pick actually wants.
+export async function listScannedProducts(limit = 100): Promise<ScannedProductRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<ScannedProductRecord>(
+    `SELECT ${SCANNED_PRODUCT_COLUMNS} FROM scanned_products ORDER BY scanned_at DESC LIMIT ?`,
+    limit,
+  );
+}
+
+// Real, honest name-search for the "My Processed Foods" category step in
+// FoodLookup.tsx -- mirrors searchReferenceFoodNames' own plain substring
+// match (no ranking sophistication needed yet at this real, still-small
+// scale), scoped to name/brand together since a person is as likely to
+// remember "Nutella" as "the hazelnut spread."
+export async function searchScannedProducts(query: string, limit = 30): Promise<ScannedProductRecord[]> {
+  const trimmed = query.trim();
+  const db = await getDatabase();
+  if (!trimmed) {
+    return db.getAllAsync<ScannedProductRecord>(
+      `SELECT ${SCANNED_PRODUCT_COLUMNS} FROM scanned_products ORDER BY name COLLATE NOCASE LIMIT ?`,
+      limit,
+    );
+  }
+  return db.getAllAsync<ScannedProductRecord>(
+    `SELECT ${SCANNED_PRODUCT_COLUMNS} FROM scanned_products WHERE name LIKE ? OR brand LIKE ? ORDER BY name COLLATE NOCASE LIMIT ?`,
+    `%${trimmed}%`,
+    `%${trimmed}%`,
+    limit,
+  );
+}
+
+// Creates a real, new scanned product plus its real nutrient panel in one
+// transaction -- returns the real, new local id, which becomes this
+// product's own foodId everywhere else in the app from this point on.
+export async function saveScannedProduct(input: {
+  barcode: string;
+  name: string;
+  brand?: string | null;
+  lookupSource: string;
+  ingredientsText?: string | null;
+  photoUri?: string | null;
+  nutrients: { code: string; amountPer100g: number }[];
+}): Promise<number> {
+  const db = await getDatabase();
+  await db.execAsync('BEGIN TRANSACTION');
+  try {
+    const result = await db.runAsync(
+      `
+        INSERT INTO scanned_products (barcode, name, brand, lookup_source, ingredients_text, photo_uri)
+        VALUES (?, ?, ?, ?, ?, ?)
+      `,
+      input.barcode,
+      input.name,
+      input.brand ?? null,
+      input.lookupSource,
+      input.ingredientsText ?? null,
+      input.photoUri ?? null,
+    );
+    const id = result.lastInsertRowId;
+    for (const nutrient of input.nutrients) {
+      await db.runAsync(
+        'INSERT INTO scanned_product_nutrients (scanned_product_id, nutrient_code, amount_per_100g) VALUES (?, ?, ?)',
+        id,
+        nutrient.code,
+        nutrient.amountPer100g,
+      );
+    }
+    await db.execAsync('COMMIT');
+    return id;
+  } catch (error) {
+    await db.execAsync('ROLLBACK');
+    throw error;
+  }
+}
+
+// Real, in-place corrections after a fresh look at the label -- a person
+// re-scanning the same product later, or manually tidying up the OCR'd
+// ingredients text, updates the one real saved row rather than creating a
+// second, near-duplicate "My Processed Foods" entry.
+export async function updateScannedProduct(
+  id: number,
+  updates: { name?: string; brand?: string | null; ingredientsText?: string | null; photoUri?: string | null },
+): Promise<void> {
+  const db = await getDatabase();
+  const fields: string[] = [];
+  const params: (string | null)[] = [];
+  if (updates.name !== undefined) {
+    fields.push('name = ?');
+    params.push(updates.name);
+  }
+  if (updates.brand !== undefined) {
+    fields.push('brand = ?');
+    params.push(updates.brand);
+  }
+  if (updates.ingredientsText !== undefined) {
+    fields.push('ingredients_text = ?');
+    params.push(updates.ingredientsText);
+  }
+  if (updates.photoUri !== undefined) {
+    fields.push('photo_uri = ?');
+    params.push(updates.photoUri);
+  }
+  if (fields.length === 0) return;
+  await db.runAsync(`UPDATE scanned_products SET ${fields.join(', ')} WHERE id = ?`, ...params, id);
+}
+
+// Real cascade delete (scanned_product_nutrients, scanned_product_prices
+// both carry ON DELETE CASCADE) -- removing a scanned product cleans up
+// its own real nutrient panel and price history in the same step, nothing
+// left orphaned.
+export async function deleteScannedProduct(id: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM scanned_products WHERE id = ?', id);
+}
+
+// getFoodNutrients' own real branch for source='Scanned' -- deliberately
+// NOT one more CASE inside that function's own sibling-fallback SQL,
+// since a scanned product has no sibling-source concept at all (exactly
+// one real nutrient panel, whatever the barcode lookup reported), and
+// scanned_product_nutrients lives in the LOCAL app database while
+// nutrients' own display_name/unit/nutrient_group live in the bundled
+// reference database -- two separate SQLite connections, so this merges
+// the two in JS rather than attempting a cross-database SQL JOIN.
+async function getScannedProductNutrients(scannedProductId: number) {
+  const localDb = await getDatabase();
+  const rows = await localDb.getAllAsync<{ nutrient_code: string; amount_per_100g: number }>(
+    'SELECT nutrient_code, amount_per_100g FROM scanned_product_nutrients WHERE scanned_product_id = ?',
+    scannedProductId,
+  );
+  if (rows.length === 0) return [];
+  const referenceDb = await getReferenceDatabase();
+  const definitions = await referenceDb.getAllAsync<{ code: string; display_name: string; unit: string; nutrient_group: string }>(
+    'SELECT code, display_name, unit, nutrient_group FROM nutrients',
+  );
+  const byCode = new Map(definitions.map((definition) => [definition.code, definition]));
+  const results: {
+    code: string;
+    displayName: string;
+    unit: string;
+    group: string;
+    amountPer100g: number;
+    sourceUsed: string;
+    isSupplemented: boolean;
+  }[] = [];
+  for (const row of rows) {
+    const definition = byCode.get(row.nutrient_code);
+    if (!definition) continue;
+    results.push({
+      code: row.nutrient_code,
+      displayName: definition.display_name,
+      unit: definition.unit,
+      group: definition.nutrient_group,
+      amountPer100g: row.amount_per_100g,
+      sourceUsed: 'Scanned',
+      isSupplemented: false,
+    });
+  }
+  return results;
+}
+
+export type ScannedProductPriceRecord = {
+  id: string;
+  scannedProductId: number;
+  price: number;
+  storeName: string | null;
+  photoUri: string | null;
+  loggedAt: string;
+};
+
+// The real "Buy This" action -- always the same real, single combined
+// step as saveScannedProduct, per direct decision: deciding to buy IS
+// adding it to My Processed Foods, with today's price attached in the
+// same motion, not two separate things to remember to do later.
+export async function recordScannedProductPrice(input: {
+  scannedProductId: number;
+  price: number;
+  storeName?: string | null;
+  photoUri?: string | null;
+}): Promise<void> {
+  const db = await getDatabase();
+  const id = `scanned_price_${Date.now()}`;
+  await db.runAsync(
+    'INSERT INTO scanned_product_prices (id, scanned_product_id, price, store_name, photo_uri) VALUES (?, ?, ?, ?, ?)',
+    id,
+    input.scannedProductId,
+    input.price,
+    input.storeName ?? null,
+    input.photoUri ?? null,
+  );
+}
+
+// Oldest first -- the real, natural reading order for a price-over-time
+// trend, matching how TrendLineChart's own real point arrays are already
+// expected everywhere else in this app.
+export async function getScannedProductPriceHistory(scannedProductId: number): Promise<ScannedProductPriceRecord[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<ScannedProductPriceRecord>(
+    `
+      SELECT id, scanned_product_id AS scannedProductId, price, store_name AS storeName, photo_uri AS photoUri, logged_at AS loggedAt
+      FROM scanned_product_prices
+      WHERE scanned_product_id = ?
+      ORDER BY logged_at ASC
+    `,
+    scannedProductId,
   );
 }
