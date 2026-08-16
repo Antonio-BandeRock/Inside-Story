@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { Stack, useLocalSearchParams, useRouter } from 'expo-router';
 import { useEffect, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -32,6 +32,7 @@ import {
   listSnacks,
   listSoups,
 } from '../lib/db';
+import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 
 // A Stack push outside the (tabs) group, same shape as app/profile.tsx/
@@ -65,6 +66,7 @@ export default function FoodItemsScreen() {
   const insets = useSafeAreaInsets();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
   const { itemType, status, title } = useLocalSearchParams<{ itemType: string; status: string; title: string }>();
   const [items, setItems] = useState<FoodItemEntry[] | null>(null);
 
@@ -87,25 +89,23 @@ export default function FoodItemsScreen() {
     setItems(await loadItems(itemType, status));
   }
 
-  function handleDelete(item: FoodItemEntry) {
-    Alert.alert(`Delete "${item.title}"?`, 'This cannot be undone.', [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Delete',
-        style: 'destructive',
-        onPress: async () => {
-          // Favorites live in the one shared, generic favorites table
-          // (see lib/db.ts) regardless of itemType, so deleting one never
-          // needs the per-builder deleteItem switch below -- 2026-08-08.
-          if (status === 'favorite') {
-            await deleteFavorite(item.id);
-          } else {
-            await deleteItem(itemType, item.id);
-          }
-          await refreshItems();
-        },
-      },
-    ]);
+  async function handleDelete(item: FoodItemEntry) {
+    const ok = await confirmSheet({
+      title: `Delete "${item.title}"?`,
+      message: 'This cannot be undone.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+    // Favorites live in the one shared, generic favorites table (see
+    // lib/db.ts) regardless of itemType, so deleting one never needs the
+    // per-builder deleteItem switch below -- 2026-08-08.
+    if (status === 'favorite') {
+      await deleteFavorite(item.id);
+    } else {
+      await deleteItem(itemType, item.id);
+    }
+    await refreshItems();
   }
 
   return (
@@ -309,6 +309,7 @@ export default function FoodItemsScreen() {
         )}
       </ScrollView>
       {infoAlertElement}
+      {confirmSheetElement}
 
       {/* Same circular floating close button as profile.tsx/purple-digest.tsx's
           own -- see purple-digest.tsx's own comment for why this stays

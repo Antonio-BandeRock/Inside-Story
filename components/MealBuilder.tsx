@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
@@ -28,7 +28,9 @@ import {
 import { parseAmountValue } from '../lib/measurement';
 import { buildTime24, formatTime12, type TimeOfDayInput } from '../lib/timeOfDay';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
+import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 
@@ -206,6 +208,7 @@ export function MealBuilder({
   const activeField = useActiveField();
   const { forceClear } = useActiveInputControls();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   // Same navigation-isn't-a-real-blur fix every other Food builder already
   // needs -- see SideBuilder's own dismissKeyboard comment for why this
@@ -436,11 +439,9 @@ export function MealBuilder({
     // category is actually needed next.
   }
 
-  function removeComponent(key: string) {
-    Alert.alert('Remove this item?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => setComponents((current) => current.filter((c) => c.key !== key)) },
-    ]);
+  async function removeComponent(key: string) {
+    const ok = await confirmSheet({ title: 'Remove this item?', confirmLabel: 'Remove', destructive: true });
+    if (ok) setComponents((current) => current.filter((c) => c.key !== key));
   }
 
   const [saving, setSaving] = useState(false);
@@ -522,14 +523,13 @@ export function MealBuilder({
     const flagged = await getMealComponentsGoitrogenicFlags(components.map(toSelection));
     setSaving(false);
     if (flagged.length >= 2) {
-      Alert.alert(
-        'Several raw goitrogenic foods together',
-        `This meal combines ${flagged.length} raw goitrogenic foods (${flagged.join(', ')}) across its different parts. Eating this much of them raw at once is easy to do without realizing it when they're spread across separate sides/salads/etc. Consider cooking one first, or using less.`,
-        [
-          { text: 'Go back and adjust', style: 'cancel' },
-          { text: 'Continue anyway', onPress: () => void logMealNow() },
-        ],
-      );
+      const ok = await confirmSheet({
+        title: 'Several raw goitrogenic foods together',
+        message: `This meal combines ${flagged.length} raw goitrogenic foods (${flagged.join(', ')}) across its different parts. Eating this much of them raw at once is easy to do without realizing it when they're spread across separate sides/salads/etc. Consider cooking one first, or using less.`,
+        confirmLabel: 'Continue anyway',
+        cancelLabel: 'Go back and adjust',
+      });
+      if (ok) void logMealNow();
       return;
     }
     void logMealNow();
@@ -632,24 +632,36 @@ export function MealBuilder({
   const [correctionTimeBuffer, setCorrectionTimeBuffer] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [correcting, setCorrecting] = useState(false);
 
-  // One Alert per affected trial, chained -- matches this app's own
-  // established sequential-Alert convention (see the onboarding-review
-  // "already tested" flow this mirrors in spirit) rather than trying to
-  // cram several unrelated decisions into one dialog.
+  // One app-styled action sheet per affected trial, chained -- matches this
+  // app's own established sequential-Alert convention (see the
+  // onboarding-review "already tested" flow this mirrors in spirit) rather
+  // than trying to cram several unrelated decisions into one dialog.
+  // Genuine local state + AppActionSheet directly, not ConfirmSheet -- each
+  // of the 3 real actions here does something genuinely different and
+  // stateful (revert, open a correction sub-form, or recurse to the next
+  // item), not a plain true/false choice a single resolved Promise could
+  // represent.
+  const [reconciliationPrompt, setReconciliationPrompt] = useState<{
+    next: TrialNeedingReconciliation;
+    rest: TrialNeedingReconciliation[];
+  } | null>(null);
+
   function promptNextReconciliation(queue: TrialNeedingReconciliation[]) {
     if (queue.length === 0) {
       router.back();
       return;
     }
     const [next, ...rest] = queue;
-    Alert.alert(
-      `${next.foodName} -- no longer in this meal`,
-      "You removed it, or changed how much of it you had down to none, and a food trial is actively riding on this meal as proof it was eaten. What actually happened?",
-      [
+    setReconciliationPrompt({ next, rest });
+  }
+
+  const reconciliationActions: AppActionSheetAction[] = reconciliationPrompt
+    ? [
         {
-          text: 'Never actually happened',
-          style: 'destructive',
+          label: 'Never actually happened',
+          destructive: true,
           onPress: () => {
+            const { next, rest } = reconciliationPrompt;
             void (async () => {
               try {
                 await revertFoodTrialToWaiting(next.trial.id);
@@ -661,8 +673,9 @@ export function MealBuilder({
           },
         },
         {
-          text: 'I ate it, just a different day',
+          label: 'I ate it, just a different day',
           onPress: () => {
+            const { next, rest } = reconciliationPrompt;
             setReconciliationQueue(rest);
             setCorrectingTrial(next);
             setCorrectionDateChoice('today');
@@ -670,10 +683,22 @@ export function MealBuilder({
             setCorrectionTimeBuffer({ hour: '', minute: '', ampm: '' });
           },
         },
-        { text: 'Decide later', style: 'cancel', onPress: () => promptNextReconciliation(rest) },
-      ],
-    );
-  }
+        {
+          label: 'Decide later',
+          onPress: () => promptNextReconciliation(reconciliationPrompt.rest),
+        },
+      ]
+    : [];
+
+  const reconciliationSheetElement = (
+    <AppActionSheet
+      visible={reconciliationPrompt !== null}
+      onClose={() => setReconciliationPrompt(null)}
+      title={reconciliationPrompt ? `${reconciliationPrompt.next.foodName} -- no longer in this meal` : undefined}
+      message="You removed it, or changed how much of it you had down to none, and a food trial is actively riding on this meal as proof it was eaten. What actually happened?"
+      actions={reconciliationActions}
+    />
+  );
 
   function cancelTrialDateCorrection() {
     const rest = reconciliationQueue;
@@ -775,6 +800,8 @@ export function MealBuilder({
     return (
       <>
         {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
           {hasAnySavedComponents === false ? (
             // Confirmed (not just "still loading") that every one of the
@@ -838,6 +865,8 @@ export function MealBuilder({
     return (
       <>
         {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
           <View style={[styles.formCard, { borderColor: tabColor }]}>
             <Text style={styles.pendingName}>{pendingSelection.name}</Text>
@@ -867,6 +896,8 @@ export function MealBuilder({
     return (
       <>
         {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
           <View style={[styles.formCard, { borderColor: tabColor }]}>
             <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>
@@ -941,6 +972,8 @@ export function MealBuilder({
     return (
       <>
         {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
           <View style={[styles.formCard, { borderColor: tabColor }]}>
             <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>
@@ -1046,6 +1079,8 @@ export function MealBuilder({
     return (
       <>
         {infoAlertElement}
+        {confirmSheetElement}
+        {reconciliationSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
           <TouchableOpacity style={styles.backRow} onPress={closeCategory}>
             <Ionicons name="chevron-back" size={18} color={tabColor} />
@@ -1084,6 +1119,8 @@ export function MealBuilder({
   return (
     <>
       {infoAlertElement}
+      {confirmSheetElement}
+      {reconciliationSheetElement}
       <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
         <View style={[styles.formCard, { borderColor: tabColor }]}>
           <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>

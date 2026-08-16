@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
@@ -939,22 +939,22 @@ export default function ProfileScreen() {
           customBackgroundImages: { [scopeKey]: result.uri },
         });
       } else if (result.status === 'permission-denied') {
-        Alert.alert(
+        showBackupAlert(
           'Photo access needed',
           "Inside Story needs permission to your photos to set a custom background. You can grant this in your device's app settings.",
         );
       } else if (result.status === 'too-small') {
-        Alert.alert(
+        showBackupAlert(
           'Image too small',
           `That image is ${result.width}×${result.height}. At least ${CUSTOM_BACKGROUND_MIN_DIMENSION}px on its shorter side is needed so it doesn't look blurry stretched to fill the screen. Try a larger photo.`,
         );
       } else if (result.status === 'too-large-after-compression') {
-        Alert.alert(
+        showBackupAlert(
           'Image too large',
           `That image is still too large even after resizing and compressing it to fit under ${Math.round(CUSTOM_BACKGROUND_MAX_FILE_SIZE_BYTES / (1024 * 1024))}MB. Try a different photo.`,
         );
       } else if (result.status === 'error') {
-        Alert.alert('Something went wrong', result.message);
+        showBackupAlert('Something went wrong', result.message);
       }
       // 'canceled' -- no message, no change.
     } finally {
@@ -2547,9 +2547,9 @@ export default function ProfileScreen() {
                   setSeedingTestWeek(true);
                   try {
                     await seedTest90Days();
-                    Alert.alert('Seeded', 'A real 90-day span of test data has been created.');
+                    showBackupAlert('Seeded', 'A real 90-day span of test data has been created.');
                   } catch (error) {
-                    Alert.alert(
+                    showBackupAlert(
                       'Something went wrong',
                       error instanceof Error ? error.message : 'Failed to seed test data.',
                     );
@@ -2567,9 +2567,9 @@ export default function ProfileScreen() {
                   setClearingSeededData(true);
                   try {
                     const { deletedCount } = await clearSeededTestData();
-                    Alert.alert('Cleared', `Removed ${deletedCount} seeded record(s).`);
+                    showBackupAlert('Cleared', `Removed ${deletedCount} seeded record(s).`);
                   } catch (error) {
-                    Alert.alert(
+                    showBackupAlert(
                       'Something went wrong',
                       error instanceof Error ? error.message : 'Failed to clear seeded test data.',
                     );

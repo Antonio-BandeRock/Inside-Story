@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
@@ -36,6 +36,7 @@ import { AlcoholCalculatorPanel } from './AlcoholCalculator';
 import { DimensionFlags } from './DimensionFlags';
 import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
+import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 import type { BeverageSubtypeKey } from './BeverageSubtypePicker';
@@ -612,6 +613,7 @@ export function BeverageBuilder({
   const keyboardReserve = activeField ? KEYBOARD_HEIGHT : 0;
   const { forceClear } = useActiveInputControls();
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   // Same resolution order as profile.tsx's own measurementSystem: the
   // person's own stored preference if they've ever set one, otherwise a
@@ -1264,12 +1266,14 @@ export function BeverageBuilder({
   // pattern already used elsewhere in this app (e.g. Schedule's own
   // appointment removal) -- a real "cancel instead" now exists, rather than
   // relying on re-adding a wrongly-removed ingredient by hand.
-  function confirmRemoveIngredient(index: number) {
+  async function confirmRemoveIngredient(index: number) {
     const ingredient = ingredients[index];
-    Alert.alert(`Remove ${ingredient.resolved.baseName}?`, undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeIngredient(index) },
-    ]);
+    const ok = await confirmSheet({
+      title: `Remove ${ingredient.resolved.baseName}?`,
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (ok) removeIngredient(index);
   }
 
   // renderPillPicker lived here until 2026-07-31 -- the flat vertical pill
@@ -1476,6 +1480,7 @@ export function BeverageBuilder({
     return (
       <>
         {infoAlertElement}
+        {confirmSheetElement}
         <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
           <TouchableOpacity
             style={[styles.formCard, { borderColor: tabColor }]}
@@ -1594,6 +1599,7 @@ export function BeverageBuilder({
   return (
     <>
       {infoAlertElement}
+      {confirmSheetElement}
       <ScrollView
         ref={scrollViewRef}
         contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding + keyboardReserve }]}

@@ -16,11 +16,12 @@
 // which case this whole component renders nothing at all.
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
-import { ActivityIndicator, Alert, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet } from './AppActionSheet';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import type { DigestEntry } from '../lib/digest/types';
+import { useInfoAlert } from './InfoAlert';
 import { getPhotoForTarget, pickAndSaveMealPhoto, setPhotoForTarget, type PhotoTarget } from '../lib/mealPhotos';
 
 export function resolvePhotoTarget(entry: DigestEntry): PhotoTarget | null {
@@ -53,6 +54,7 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
   const [photoUri, setPhotoUri] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [sheetVisible, setSheetVisible] = useState(false);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   useEffect(() => {
     if (!target) return;
@@ -86,16 +88,16 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
         await setPhotoForTarget(target, result.uri);
         setPhotoUri(result.uri);
       } else if (result.status === 'permission-denied') {
-        Alert.alert(
+        showInfoAlert(
           'Permission needed',
           source === 'camera' ? 'Allow camera access in your phone settings to take a photo.' : 'Allow photo access in your phone settings to choose one.',
         );
       } else if (result.status === 'too-small') {
-        Alert.alert('Photo too small', 'Please choose a larger photo.');
+        showInfoAlert('Photo too small', 'Please choose a larger photo.');
       } else if (result.status === 'too-large-after-compression') {
-        Alert.alert('Photo too large', "This photo couldn't be made small enough to save. Please try a different one.");
+        showInfoAlert('Photo too large', "This photo couldn't be made small enough to save. Please try a different one.");
       } else if (result.status === 'error') {
-        Alert.alert(
+        showInfoAlert(
           'Something went wrong',
           source === 'camera'
             ? `${result.message} (Taking a photo needs a real camera permission this build may not have yet -- try Choose from Library instead.)`
@@ -155,6 +157,7 @@ export function EntryPhotoSection({ entry, tabColor }: { entry: DigestEntry; tab
           { label: 'Cancel', onPress: () => {} },
         ]}
       />
+      {infoAlertElement}
     </View>
   );
 }

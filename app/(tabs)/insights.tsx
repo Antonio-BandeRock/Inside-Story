@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import {
   classifyPrepStateGroup,
   classifyProteinSource,
@@ -85,7 +85,7 @@ import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, categoryLabel, sourceLabel, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
-import { linkifyText } from '../../components/InfoAlert';
+import { linkifyText, useInfoAlert } from '../../components/InfoAlert';
 import type { HelpSection } from '../../components/HelpButton';
 import { IridescentRingCircle } from '../../components/IridescentRingCircle';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -2805,6 +2805,7 @@ function LabsView({
   const [formMonth, setFormMonth] = useState(String(now.getMonth() + 1));
   const [formDay, setFormDay] = useState(String(now.getDate()));
   const [saving, setSaving] = useState(false);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const testByCode = new Map(labTests.map((test) => [test.code, test]));
   // See NutrientRankingView's own identical comment.
@@ -2833,12 +2834,12 @@ function LabsView({
 
   async function handleSave() {
     if (!formTestCode) {
-      Alert.alert('Pick a test first.');
+      showInfoAlert('Almost there', 'Pick a test first.');
       return;
     }
     const value = Number(formValue);
     if (!Number.isFinite(value)) {
-      Alert.alert('Enter a valid number for the result.');
+      showInfoAlert('Almost there', 'Enter a valid number for the result.');
       return;
     }
     const year = Number(formYear);
@@ -2858,7 +2859,7 @@ function LabsView({
       });
     } catch (error) {
       setSaving(false);
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
       return;
     }
     setSaving(false);
@@ -2869,6 +2870,7 @@ function LabsView({
 
   return (
     <>
+      {infoAlertElement}
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : recentResults.length === 0 ? (

@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObjec
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Alert, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
+import { Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
@@ -11,6 +11,7 @@ import { DIGEST_CONDITION_ICONS } from '../../components/DigestConditionIcons';
 import { EntryPhotoSection, resolvePhotoTarget } from '../../components/EntryPhotoSection';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
+import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
@@ -3568,6 +3569,7 @@ function RecipeCardDetail({ card }: { card: RecipeCard }) {
 // to "Build This Recipe."
 function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string; builderType: BuilderFavoriteItemType }) {
   const [sharing, setSharing] = useState(false);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   async function handleShare() {
     setSharing(true);
@@ -3581,7 +3583,7 @@ function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string;
       // plain now, with no embedded link at all.
       const link = await encodeShareLinkFromCuratedRecipe(recipeId, builderType, fromName);
       if (!link) {
-        Alert.alert('Nothing to share', "This couldn't be prepared for sharing.");
+        showInfoAlert('Nothing to share', "This couldn't be prepared for sharing.");
         return;
       }
       const recipe = await getCuratedRecipe(recipeId);
@@ -3620,16 +3622,19 @@ function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string;
       }
     } catch (error) {
       console.error('[CuratedRecipeShareButton] Failed to share', error);
-      Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
+      showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
     } finally {
       setSharing(false);
     }
   }
 
   return (
-    <TouchableOpacity style={styles.recipeShareButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
-      <Ionicons name="share-outline" size={18} color={TAB_COLOR} />
-    </TouchableOpacity>
+    <>
+      {infoAlertElement}
+      <TouchableOpacity style={styles.recipeShareButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
+        <Ionicons name="share-outline" size={18} color={TAB_COLOR} />
+      </TouchableOpacity>
+    </>
   );
 }
 
@@ -3688,6 +3693,7 @@ function SharedRecipeActions({
 }) {
   const [busy, setBusy] = useState<'saved' | 'favorite' | 'delete' | null>(null);
   const [message, setMessage] = useState<string | null>(null);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   async function handleSaveToRecipes() {
     setBusy('saved');
@@ -3699,7 +3705,7 @@ function SharedRecipeActions({
       }
     } catch (error) {
       console.error('[SharedRecipeActions] Failed to save', error);
-      Alert.alert('Something went wrong', "This couldn't be saved. Please try again.");
+      showInfoAlert('Something went wrong', "This couldn't be saved. Please try again.");
     } finally {
       setBusy(null);
     }
@@ -3715,7 +3721,7 @@ function SharedRecipeActions({
       }
     } catch (error) {
       console.error('[SharedRecipeActions] Failed to save as favorite', error);
-      Alert.alert('Something went wrong', "This couldn't be saved. Please try again.");
+      showInfoAlert('Something went wrong', "This couldn't be saved. Please try again.");
     } finally {
       setBusy(null);
     }
@@ -3728,13 +3734,14 @@ function SharedRecipeActions({
       onDynamicEntriesChanged?.();
     } catch (error) {
       console.error('[SharedRecipeActions] Failed to delete', error);
-      Alert.alert('Something went wrong', "This couldn't be deleted. Please try again.");
+      showInfoAlert('Something went wrong', "This couldn't be deleted. Please try again.");
       setBusy(null);
     }
   }
 
   return (
     <View>
+      {infoAlertElement}
       <View style={styles.dynamicActionRow}>
         <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleSaveToRecipes} disabled={busy !== null}>
           <Ionicons name="bookmark-outline" size={16} color={TAB_COLOR} />
@@ -3775,6 +3782,7 @@ function SavedOrFavoriteActions({
   const [scheduling, setScheduling] = useState(false);
   const [scheduledMessage, setScheduledMessage] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   async function handleConfirmSchedule() {
     if (!scheduleMealType || !scheduleYear || !scheduleMonth || !scheduleDay) return;
@@ -3812,7 +3820,7 @@ function SavedOrFavoriteActions({
       setSchedulingOpen(false);
     } catch (error) {
       console.error('[DynamicEntryActions] Failed to schedule', error);
-      Alert.alert('Something went wrong', "This couldn't be scheduled. Please try again.");
+      showInfoAlert('Something went wrong', "This couldn't be scheduled. Please try again.");
     } finally {
       setScheduling(false);
     }
@@ -3828,7 +3836,7 @@ function SavedOrFavoriteActions({
           ? await encodeMealShareLink(action.mealFavoriteId, fromName)
           : await encodeShareLink(action.componentType, action.componentId, fromName);
       if (!link) {
-        Alert.alert('Nothing to share', "This couldn't be prepared for sharing. Try again once it's fully saved.");
+        showInfoAlert('Nothing to share', "This couldn't be prepared for sharing. Try again once it's fully saved.");
         return;
       }
       // 2026-08-15, direct on-device report: embedding the deep link in
@@ -3888,7 +3896,7 @@ function SavedOrFavoriteActions({
       }
     } catch (error) {
       console.error('[DynamicEntryActions] Failed to share', error);
-      Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
+      showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
     } finally {
       setSharing(false);
     }
@@ -3896,6 +3904,7 @@ function SavedOrFavoriteActions({
 
   return (
     <View>
+      {infoAlertElement}
       <View style={styles.dynamicActionRow}>
         <TouchableOpacity
           style={styles.dynamicActionButton}

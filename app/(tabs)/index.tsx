@@ -2,7 +2,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
 import { useCallback, useRef, useState, type ComponentProps } from 'react';
-import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useAnimatedProps } from 'react-native-reanimated';
 import { AnimatedLinearGradient } from '../../components/AnimatedLinearGradient';
 import { AppTextInput } from '../../components/AppTextInput';
@@ -11,6 +11,7 @@ import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
+import { useInfoAlert } from '../../components/InfoAlert';
 import { ProgressRing } from '../../components/ProgressRing';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
@@ -475,6 +476,7 @@ export default function HomeScreen() {
   }));
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [selectedItem, setSelectedItem] = useState<ScheduleItemRecord | null>(null);
   const [quickLogModal, setQuickLogModal] = useState<'bp' | 'exercise' | null>(null);
   const [bpSystolic, setBpSystolic] = useState('');
@@ -744,7 +746,7 @@ export default function HomeScreen() {
     const sys = Number(bpSystolic);
     const dia = Number(bpDiastolic);
     if (!Number.isFinite(sys) || !Number.isFinite(dia) || sys <= 0 || dia <= 0) {
-      Alert.alert('Enter both a systolic and diastolic number.');
+      showInfoAlert('Almost there', 'Enter both a systolic and diastolic number.');
       return;
     }
     const loggedAt = `${todayDateString()}T${nowTimeString24()}`;
@@ -759,7 +761,7 @@ export default function HomeScreen() {
 
   async function handleSaveExercise() {
     if (!exerciseType.trim()) {
-      Alert.alert('Enter what kind of activity this was.');
+      showInfoAlert('Almost there', 'Enter what kind of activity this was.');
       return;
     }
     const loggedAt = `${todayDateString()}T${nowTimeString24()}`;
@@ -792,6 +794,7 @@ export default function HomeScreen() {
 
   return (
     <View style={styles.screen}>
+      {infoAlertElement}
       <SwipeableTabScreen>
         <View style={styles.contentArea}>
         <ScrollView

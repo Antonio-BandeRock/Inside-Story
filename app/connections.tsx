@@ -9,8 +9,10 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { Alert, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
+import { useConfirmSheet } from '../components/ConfirmSheet';
+import { useInfoAlert } from '../components/InfoAlert';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
@@ -26,6 +28,8 @@ export default function ConnectionsScreen() {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editingName, setEditingName] = useState('');
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -55,7 +59,7 @@ export default function ConnectionsScreen() {
       });
     } catch (error) {
       console.error('[ConnectionsScreen] Failed to share an invite', error);
-      Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
+      showInfoAlert('Something went wrong', "This couldn't be shared. Please try again.");
     } finally {
       setInviting(false);
     }
@@ -74,27 +78,27 @@ export default function ConnectionsScreen() {
     load();
   }
 
-  function handleRemove(connection: Connection) {
-    Alert.alert('Remove connection?', `You won't be able to share directly with ${connection.name} until you connect again.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          setBusyId(connection.id);
-          try {
-            await removeConnection(connection.id);
-            load();
-          } finally {
-            setBusyId(null);
-          }
-        },
-      },
-    ]);
+  async function handleRemove(connection: Connection) {
+    const ok = await confirmSheet({
+      title: 'Remove connection?',
+      message: `You won't be able to share directly with ${connection.name} until you connect again.`,
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!ok) return;
+    setBusyId(connection.id);
+    try {
+      await removeConnection(connection.id);
+      load();
+    } finally {
+      setBusyId(null);
+    }
   }
 
   return (
     <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+      {infoAlertElement}
+      {confirmSheetElement}
       {myFingerprint ? (
         <View style={styles.fingerprintCard}>
           <Text style={styles.fingerprintLabel}>Your device ID</Text>

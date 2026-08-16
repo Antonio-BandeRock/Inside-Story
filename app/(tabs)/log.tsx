@@ -1,12 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
+import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -511,6 +512,7 @@ function FlaresLens() {
   const [severity, setSeverity] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -538,11 +540,11 @@ function FlaresLens() {
   async function handleSave() {
     const loggedAt = resolveDateTime(dateChoice, customDate, time);
     if (!loggedAt) {
-      Alert.alert('Enter a valid date and time.');
+      showInfoAlert('Almost there', 'Enter a valid date and time.');
       return;
     }
     if (severity == null) {
-      Alert.alert('Select how severe this flare felt.');
+      showInfoAlert('Almost there', 'Select how severe this flare felt.');
       return;
     }
     await recordCheckin({ loggedAt, checkinType: 'flare', valence: 'negative', severity, notes, tags });
@@ -558,6 +560,7 @@ function FlaresLens() {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
           <Text style={styles.addButtonText}>+ Log a flare</Text>
@@ -609,6 +612,7 @@ function FoodReactionsLens() {
   const [severity, setSeverity] = useState<number | null>(null);
   const [tags, setTags] = useState<string[]>([]);
   const [notes, setNotes] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(() => {
     setLoading(true);
@@ -636,16 +640,16 @@ function FoodReactionsLens() {
 
   async function handleSave() {
     if (!foodName.trim()) {
-      Alert.alert('Enter what you ate or drank.');
+      showInfoAlert('Almost there', 'Enter what you ate or drank.');
       return;
     }
     const loggedAt = resolveDateTime(dateChoice, customDate, time);
     if (!loggedAt) {
-      Alert.alert('Enter a valid date and time.');
+      showInfoAlert('Almost there', 'Enter a valid date and time.');
       return;
     }
     if (severity == null) {
-      Alert.alert('Select how severe the reaction felt.');
+      showInfoAlert('Almost there', 'Select how severe the reaction felt.');
       return;
     }
     await recordCheckin({
@@ -669,6 +673,7 @@ function FoodReactionsLens() {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
           <Text style={styles.addButtonText}>+ Log a food reaction</Text>
@@ -740,6 +745,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
   const [dateChoice, setDateChoice] = useState<DateChoice>('today');
   const [customDate, setCustomDate] = useState('');
   const [observationDays, setObservationDays] = useState('3');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   // One real, live-fetched "did I already check in today" entry per active
   // trial -- undefined while not yet loaded, null once loaded and
@@ -842,7 +848,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
 
   async function handleSave() {
     if (!foodName.trim()) {
-      Alert.alert('Enter the name of the food.');
+      showInfoAlert('Almost there', 'Enter the name of the food.');
       return;
     }
     const days = Number(observationDays);
@@ -863,7 +869,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
     } else {
       const date = resolveDateChoice(dateChoice, customDate);
       if (!date) {
-        Alert.alert('Enter a valid date.');
+        showInfoAlert('Almost there', 'Enter a valid date.');
         return;
       }
       startedAt = `${date}T${nowTimeString24()}`;
@@ -947,12 +953,12 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
 
   async function handleSaveEscalation(trial: FoodTrialRecord) {
     if (escalateSeverity == null) {
-      Alert.alert('Select how severe it felt.');
+      showInfoAlert('Almost there', 'Select how severe it felt.');
       return;
     }
     const loggedAt = resolveDateTime(escalateDateChoice, escalateCustomDate, escalateTime);
     if (!loggedAt) {
-      Alert.alert('Enter a valid date and time.');
+      showInfoAlert('Almost there', 'Enter a valid date and time.');
       return;
     }
     await recordCheckin({
@@ -994,6 +1000,7 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
       {arrivedViaPrefill ? (
         // router.navigate, not router.back() -- 2026-08-14, direct report:
         // back() actually landed on Home. Confirmed why: switching tabs
@@ -1228,6 +1235,7 @@ function ExerciseSection() {
   const [intensity, setIntensity] = useState<'light' | 'moderate' | 'vigorous' | null>(null);
   const [dateChoice, setDateChoice] = useState<DateChoice>('today');
   const [customDate, setCustomDate] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(() => {
     listExerciseLogs(20).then(setLogs);
@@ -1245,12 +1253,12 @@ function ExerciseSection() {
 
   async function handleSave() {
     if (!exerciseType.trim()) {
-      Alert.alert('Enter what kind of activity this was.');
+      showInfoAlert('Almost there', 'Enter what kind of activity this was.');
       return;
     }
     const date = resolveDateChoice(dateChoice, customDate);
     if (!date) {
-      Alert.alert('Enter a valid date.');
+      showInfoAlert('Almost there', 'Enter a valid date.');
       return;
     }
     const minutes = Number(durationMinutes);
@@ -1272,6 +1280,7 @@ function ExerciseSection() {
 
   return (
     <View>
+      {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
           <Text style={styles.addButtonText}>+ Log exercise</Text>
@@ -1385,6 +1394,7 @@ function BloodPressureSection() {
   const [bpm, setBpm] = useState('');
   const [dateChoice, setDateChoice] = useState<DateChoice>('today');
   const [customDate, setCustomDate] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(() => {
     Promise.all([
@@ -1410,12 +1420,12 @@ function BloodPressureSection() {
     const sys = Number(systolic);
     const dia = Number(diastolic);
     if (!Number.isFinite(sys) || !Number.isFinite(dia) || sys <= 0 || dia <= 0) {
-      Alert.alert('Enter both a systolic and diastolic number.');
+      showInfoAlert('Almost there', 'Enter both a systolic and diastolic number.');
       return;
     }
     const date = resolveDateChoice(dateChoice, customDate);
     if (!date) {
-      Alert.alert('Enter a valid date.');
+      showInfoAlert('Almost there', 'Enter a valid date.');
       return;
     }
     const loggedAt = `${date}T${nowTimeString24()}`;
@@ -1441,6 +1451,7 @@ function BloodPressureSection() {
 
   return (
     <View>
+      {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
           <Text style={styles.addButtonText}>+ Log a blood pressure reading</Text>
@@ -1524,6 +1535,7 @@ function GeneralNoteSection() {
   const [notes, setNotes] = useState('');
   const [dateChoice, setDateChoice] = useState<DateChoice>('today');
   const [customDate, setCustomDate] = useState('');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
 
   const load = useCallback(() => {
     listCheckins({ checkinType: 'general', limit: 30 }).then(setNotesList);
@@ -1539,12 +1551,12 @@ function GeneralNoteSection() {
 
   async function handleSave() {
     if (!notes.trim()) {
-      Alert.alert('Write a quick note first.');
+      showInfoAlert('Almost there', 'Write a quick note first.');
       return;
     }
     const date = resolveDateChoice(dateChoice, customDate);
     if (!date) {
-      Alert.alert('Enter a valid date.');
+      showInfoAlert('Almost there', 'Enter a valid date.');
       return;
     }
     await recordCheckin({ loggedAt: `${date}T${nowTimeString24()}`, checkinType: 'general', valence: 'neutral', notes });
@@ -1560,6 +1572,7 @@ function GeneralNoteSection() {
 
   return (
     <View>
+      {infoAlertElement}
       {!formOpen ? (
         <TouchableOpacity style={styles.addButton} onPress={() => setFormOpen(true)}>
           <Text style={styles.addButtonText}>+ Add a note</Text>

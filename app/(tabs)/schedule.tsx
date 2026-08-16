@@ -1,9 +1,12 @@
 import { useCallback, useMemo, useState } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
-import { Alert, Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
+import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
+import { useConfirmSheet } from '../../components/ConfirmSheet';
 import type { HelpSection } from '../../components/HelpButton';
+import { useInfoAlert } from '../../components/InfoAlert';
 import {
   applyRotationSelection,
   applyRotationSelectionsToIngredients,
@@ -512,6 +515,8 @@ function MealsLens() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>(BLANK_FORM);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -604,21 +609,21 @@ function MealsLens() {
 
   async function handleSaveForm() {
     if (!form.mealType) {
-      Alert.alert('Pick a meal type first.');
+      showInfoAlert('Almost there', 'Pick a meal type first.');
       return;
     }
     if (!form.title.trim()) {
-      Alert.alert(form.mode === 'source' ? 'Pick a template or favorite first.' : 'Enter what you plan to eat.');
+      showInfoAlert('Almost there', form.mode === 'source' ? 'Pick a template or favorite first.' : 'Enter what you plan to eat.');
       return;
     }
     const time24 = buildTime24(form.time.hour, form.time.minute, form.time.ampm);
     if (!time24) {
-      Alert.alert('Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
       return;
     }
     const repeatError = form.editingId ? null : validateRepeat(form.repeat);
     if (repeatError) {
-      Alert.alert(repeatError);
+      showInfoAlert('Almost there', repeatError);
       return;
     }
 
@@ -634,7 +639,7 @@ function MealsLens() {
           : time24 >= eatingWindowStart || time24 < eatingWindowEnd;
 
       if (!withinWindow) {
-        Alert.alert(
+        showInfoAlert(
           'Outside your eating window',
           `Your eating window is ${formatTime12(eatingWindowStart)} - ${formatTime12(eatingWindowEnd)}. Pick a time inside it, or turn off fasting in Profile if this is a deliberate exception.`,
         );
@@ -660,43 +665,57 @@ function MealsLens() {
       closeForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
   function handleRemove(item: ScheduleItemRecord) {
     if (item.repeatGroupId) {
-      Alert.alert('Remove this planned meal?', `"${item.title}" repeats. Remove just this occurrence, or this and every future one?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Just this one',
-          onPress: async () => {
-            await deleteScheduledMeal(item.id);
-            load();
+      setRemovePrompt({
+        title: 'Remove this planned meal?',
+        message: `"${item.title}" repeats. Remove just this occurrence, or this and every future one?`,
+        actions: [
+          {
+            label: 'Just this one',
+            onPress: () => {
+              void (async () => {
+                await deleteScheduledMeal(item.id);
+                load();
+              })();
+            },
           },
-        },
-        {
-          text: 'This and future',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteScheduleSeries(item.repeatGroupId!);
-            load();
+          {
+            label: 'This and future',
+            destructive: true,
+            onPress: () => {
+              void (async () => {
+                await deleteScheduleSeries(item.repeatGroupId!);
+                load();
+              })();
+            },
           },
-        },
-      ]);
+          { label: 'Cancel', onPress: () => {} },
+        ],
+      });
       return;
     }
-    Alert.alert('Remove this planned meal?', `"${item.title}" will no longer show on your schedule.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteScheduledMeal(item.id);
-          load();
+    setRemovePrompt({
+      title: 'Remove this planned meal?',
+      message: `"${item.title}" will no longer show on your schedule.`,
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: () => {
+            void (async () => {
+              await deleteScheduledMeal(item.id);
+              load();
+            })();
+          },
         },
-      },
-    ]);
+        { label: 'Cancel', onPress: () => {} },
+      ],
+    });
   }
 
   async function handleToggleSkipped(item: ScheduleItemRecord) {
@@ -811,7 +830,7 @@ function MealsLens() {
       closeRotateSheet();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -821,6 +840,14 @@ function MealsLens() {
 
   return (
     <>
+    {infoAlertElement}
+    <AppActionSheet
+      visible={removePrompt !== null}
+      onClose={() => setRemovePrompt(null)}
+      title={removePrompt?.title}
+      message={removePrompt?.message}
+      actions={removePrompt?.actions ?? []}
+    />
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
       {loading ? (
           <Text style={styles.emptyText}>Loading…</Text>
@@ -1267,6 +1294,8 @@ function HydrationLens() {
   const [errorMessage, setErrorMessage] = useState('');
   const [showForm, setShowForm] = useState(false);
   const [form, setForm] = useState<FormState>({ ...BLANK_FORM, mealType: 'beverage' });
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -1335,17 +1364,17 @@ function HydrationLens() {
 
   async function handleSaveForm() {
     if (!form.title.trim()) {
-      Alert.alert(form.mode === 'source' ? 'Pick a template or favorite first.' : 'Enter what you plan to drink.');
+      showInfoAlert('Almost there', form.mode === 'source' ? 'Pick a template or favorite first.' : 'Enter what you plan to drink.');
       return;
     }
     const time24 = buildTime24(form.time.hour, form.time.minute, form.time.ampm);
     if (!time24) {
-      Alert.alert('Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
       return;
     }
     const repeatError = form.editingId ? null : validateRepeat(form.repeat);
     if (repeatError) {
-      Alert.alert(repeatError);
+      showInfoAlert('Almost there', repeatError);
       return;
     }
 
@@ -1367,43 +1396,57 @@ function HydrationLens() {
       closeForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
   function handleRemove(item: ScheduleItemRecord) {
     if (item.repeatGroupId) {
-      Alert.alert('Remove this planned drink?', `"${item.title}" repeats. Remove just this occurrence, or this and every future one?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Just this one',
-          onPress: async () => {
-            await deleteScheduledMeal(item.id);
-            load();
+      setRemovePrompt({
+        title: 'Remove this planned drink?',
+        message: `"${item.title}" repeats. Remove just this occurrence, or this and every future one?`,
+        actions: [
+          {
+            label: 'Just this one',
+            onPress: () => {
+              void (async () => {
+                await deleteScheduledMeal(item.id);
+                load();
+              })();
+            },
           },
-        },
-        {
-          text: 'This and future',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteScheduleSeries(item.repeatGroupId!);
-            load();
+          {
+            label: 'This and future',
+            destructive: true,
+            onPress: () => {
+              void (async () => {
+                await deleteScheduleSeries(item.repeatGroupId!);
+                load();
+              })();
+            },
           },
-        },
-      ]);
+          { label: 'Cancel', onPress: () => {} },
+        ],
+      });
       return;
     }
-    Alert.alert('Remove this planned drink?', `"${item.title}" will no longer show on your schedule.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteScheduledMeal(item.id);
-          load();
+    setRemovePrompt({
+      title: 'Remove this planned drink?',
+      message: `"${item.title}" will no longer show on your schedule.`,
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: () => {
+            void (async () => {
+              await deleteScheduledMeal(item.id);
+              load();
+            })();
+          },
         },
-      },
-    ]);
+        { label: 'Cancel', onPress: () => {} },
+      ],
+    });
   }
 
   async function handleToggleSkipped(item: ScheduleItemRecord) {
@@ -1451,6 +1494,14 @@ function HydrationLens() {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <AppActionSheet
+        visible={removePrompt !== null}
+        onClose={() => setRemovePrompt(null)}
+        title={removePrompt?.title}
+        message={removePrompt?.message}
+        actions={removePrompt?.actions ?? []}
+      />
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : errorMessage ? (
@@ -1749,6 +1800,8 @@ function MyMedsLens() {
   const [supplementForm, setSupplementForm] = useState<MyMedsSupplementFormState>(blankMyMedsSupplementForm());
   const [medForm, setMedForm] = useState<MedFormState>(blankMedForm('prescription'));
   const [expandedId, setExpandedId] = useState<string | null>(null);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   // Lazily loaded, cached by nutrient code -- there's no reason to fetch
   // supplement_forms/nutrient_timing for every nutrient this app tracks up
@@ -1851,21 +1904,21 @@ function MyMedsLens() {
 
   async function handleSaveSupplement() {
     if (!supplementForm.name.trim()) {
-      Alert.alert("Enter the supplement's name.");
+      showInfoAlert('Almost there', "Enter the supplement's name.");
       return;
     }
     const unitsPerDay = Number(supplementForm.unitsPerDay);
     if (!unitsPerDay || unitsPerDay <= 0) {
-      Alert.alert('Enter how many are taken per day (e.g. 1 or 2).');
+      showInfoAlert('Almost there', 'Enter how many are taken per day (e.g. 1 or 2).');
       return;
     }
     if (!supplementForm.servingUnitLabel.trim()) {
-      Alert.alert('Enter what one dose is called (e.g. capsule, tablet, scoop, powder).');
+      showInfoAlert('Almost there', 'Enter what one dose is called (e.g. capsule, tablet, scoop, powder).');
       return;
     }
     const validIngredients = supplementForm.ingredients.filter((row) => row.nutrientCode && row.amount);
     if (validIngredients.length === 0) {
-      Alert.alert('Add at least one ingredient with an amount.');
+      showInfoAlert('Almost there', 'Add at least one ingredient with an amount.');
       return;
     }
 
@@ -1897,7 +1950,7 @@ function MyMedsLens() {
       closeAddForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -1914,7 +1967,7 @@ function MyMedsLens() {
 
   async function handleSaveMed() {
     if (!medForm.name.trim()) {
-      Alert.alert('Enter a name for this medication.');
+      showInfoAlert('Almost there', 'Enter a name for this medication.');
       return;
     }
     const input = {
@@ -1940,22 +1993,20 @@ function MyMedsLens() {
       closeAddForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
-  function handleRemove(treatment: TreatmentRecord) {
-    Alert.alert('Remove this item?', `"${treatment.name}" will be permanently deleted from My Meds.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteTreatment(treatment.id);
-          load();
-        },
-      },
-    ]);
+  async function handleRemove(treatment: TreatmentRecord) {
+    const ok = await confirmSheet({
+      title: 'Remove this item?',
+      message: `"${treatment.name}" will be permanently deleted from My Meds.`,
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!ok) return;
+    await deleteTreatment(treatment.id);
+    load();
   }
 
   async function handleToggleActive(treatment: TreatmentRecord) {
@@ -2127,6 +2178,8 @@ function MyMedsLens() {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      {confirmSheetElement}
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : errorMessage ? (
@@ -2436,6 +2489,9 @@ function SupplementsLens() {
   const [doseFormTreatmentId, setDoseFormTreatmentId] = useState<string | null>(null);
   const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
+  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -2522,21 +2578,21 @@ function SupplementsLens() {
 
   async function handleSaveForm() {
     if (!form.name.trim()) {
-      Alert.alert("Enter the supplement's name.");
+      showInfoAlert('Almost there', "Enter the supplement's name.");
       return;
     }
     const unitsPerDay = Number(form.unitsPerDay);
     if (!unitsPerDay || unitsPerDay <= 0) {
-      Alert.alert('Enter how many are taken per day (e.g. 1 or 2).');
+      showInfoAlert('Almost there', 'Enter how many are taken per day (e.g. 1 or 2).');
       return;
     }
     if (!form.servingUnitLabel.trim()) {
-      Alert.alert('Enter what one dose is called (e.g. capsule, tablet, scoop).');
+      showInfoAlert('Almost there', 'Enter what one dose is called (e.g. capsule, tablet, scoop).');
       return;
     }
     const validIngredients = form.ingredients.filter((row) => row.nutrientCode && row.amount);
     if (validIngredients.length === 0) {
-      Alert.alert('Add at least one ingredient with an amount.');
+      showInfoAlert('Almost there', 'Add at least one ingredient with an amount.');
       return;
     }
 
@@ -2567,22 +2623,20 @@ function SupplementsLens() {
       closeForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
-  function handleRemove(treatment: TreatmentRecord) {
-    Alert.alert('Remove this supplement?', `"${treatment.name}" and its ingredient list will be permanently deleted.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteTreatment(treatment.id);
-          load();
-        },
-      },
-    ]);
+  async function handleRemove(treatment: TreatmentRecord) {
+    const ok = await confirmSheet({
+      title: 'Remove this supplement?',
+      message: `"${treatment.name}" and its ingredient list will be permanently deleted.`,
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!ok) return;
+    await deleteTreatment(treatment.id);
+    load();
   }
 
   async function handleToggleActive(treatment: TreatmentRecord) {
@@ -2603,12 +2657,12 @@ function SupplementsLens() {
   async function handleSaveDose(treatment: TreatmentRecord) {
     const time24 = buildTime24(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm);
     if (!time24) {
-      Alert.alert('Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
       return;
     }
     const repeatError = validateRepeat(doseFormRepeat);
     if (repeatError) {
-      Alert.alert(repeatError);
+      showInfoAlert('Almost there', repeatError);
       return;
     }
     try {
@@ -2621,7 +2675,7 @@ function SupplementsLens() {
       closeDoseForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -2637,43 +2691,65 @@ function SupplementsLens() {
 
   function handleRemoveDose(item: ScheduleItemRecord) {
     if (item.repeatGroupId) {
-      Alert.alert('Remove this reminder?', `This time repeats. Remove just today's, or this and every future one?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Just this one',
-          onPress: async () => {
-            await deleteScheduledMeal(item.id);
-            load();
+      setRemovePrompt({
+        title: 'Remove this reminder?',
+        message: `This time repeats. Remove just today's, or this and every future one?`,
+        actions: [
+          {
+            label: 'Just this one',
+            onPress: () => {
+              void (async () => {
+                await deleteScheduledMeal(item.id);
+                load();
+              })();
+            },
           },
-        },
-        {
-          text: 'This and future',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteScheduleSeries(item.repeatGroupId!);
-            load();
+          {
+            label: 'This and future',
+            destructive: true,
+            onPress: () => {
+              void (async () => {
+                await deleteScheduleSeries(item.repeatGroupId!);
+                load();
+              })();
+            },
           },
-        },
-      ]);
+          { label: 'Cancel', onPress: () => {} },
+        ],
+      });
       return;
     }
-    Alert.alert('Remove this reminder?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteScheduledMeal(item.id);
-          load();
+    setRemovePrompt({
+      title: 'Remove this reminder?',
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: () => {
+            void (async () => {
+              await deleteScheduledMeal(item.id);
+              load();
+            })();
+          },
         },
-      },
-    ]);
+        { label: 'Cancel', onPress: () => {} },
+      ],
+    });
   }
 
   const nutrientOptions: DropdownOption[] = nutrients.map((nutrient) => ({ label: nutrient.displayName, value: nutrient.code }));
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      {confirmSheetElement}
+      <AppActionSheet
+        visible={removePrompt !== null}
+        onClose={() => setRemovePrompt(null)}
+        title={removePrompt?.title}
+        message={removePrompt?.message}
+        actions={removePrompt?.actions ?? []}
+      />
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : errorMessage ? (
@@ -2966,6 +3042,9 @@ function PrescriptionsLens() {
   const [doseFormTreatmentId, setDoseFormTreatmentId] = useState<string | null>(null);
   const [doseFormTime, setDoseFormTime] = useState<TimeOfDayInput>({ hour: '', minute: '', ampm: '' });
   const [doseFormRepeat, setDoseFormRepeat] = useState<RepeatConfig>({ type: 'none' });
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
+  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -3019,7 +3098,7 @@ function PrescriptionsLens() {
 
   async function handleSaveForm() {
     if (!form.name.trim()) {
-      Alert.alert("Enter the prescription's name.");
+      showInfoAlert('Almost there', "Enter the prescription's name.");
       return;
     }
 
@@ -3040,22 +3119,20 @@ function PrescriptionsLens() {
       closeForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
-  function handleRemove(treatment: TreatmentRecord) {
-    Alert.alert('Remove this prescription?', `"${treatment.name}" will be permanently deleted.`, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteTreatment(treatment.id);
-          load();
-        },
-      },
-    ]);
+  async function handleRemove(treatment: TreatmentRecord) {
+    const ok = await confirmSheet({
+      title: 'Remove this prescription?',
+      message: `"${treatment.name}" will be permanently deleted.`,
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!ok) return;
+    await deleteTreatment(treatment.id);
+    load();
   }
 
   async function handleToggleActive(treatment: TreatmentRecord) {
@@ -3076,12 +3153,12 @@ function PrescriptionsLens() {
   async function handleSaveDose(treatment: TreatmentRecord) {
     const time24 = buildTime24(doseFormTime.hour, doseFormTime.minute, doseFormTime.ampm);
     if (!time24) {
-      Alert.alert('Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
       return;
     }
     const repeatError = validateRepeat(doseFormRepeat);
     if (repeatError) {
-      Alert.alert(repeatError);
+      showInfoAlert('Almost there', repeatError);
       return;
     }
     try {
@@ -3094,7 +3171,7 @@ function PrescriptionsLens() {
       closeDoseForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -3110,41 +3187,63 @@ function PrescriptionsLens() {
 
   function handleRemoveDose(item: ScheduleItemRecord) {
     if (item.repeatGroupId) {
-      Alert.alert('Remove this reminder?', `This time repeats. Remove just today's, or this and every future one?`, [
-        { text: 'Cancel', style: 'cancel' },
-        {
-          text: 'Just this one',
-          onPress: async () => {
-            await deleteScheduledMeal(item.id);
-            load();
+      setRemovePrompt({
+        title: 'Remove this reminder?',
+        message: `This time repeats. Remove just today's, or this and every future one?`,
+        actions: [
+          {
+            label: 'Just this one',
+            onPress: () => {
+              void (async () => {
+                await deleteScheduledMeal(item.id);
+                load();
+              })();
+            },
           },
-        },
-        {
-          text: 'This and future',
-          style: 'destructive',
-          onPress: async () => {
-            await deleteScheduleSeries(item.repeatGroupId!);
-            load();
+          {
+            label: 'This and future',
+            destructive: true,
+            onPress: () => {
+              void (async () => {
+                await deleteScheduleSeries(item.repeatGroupId!);
+                load();
+              })();
+            },
           },
-        },
-      ]);
+          { label: 'Cancel', onPress: () => {} },
+        ],
+      });
       return;
     }
-    Alert.alert('Remove this reminder?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      {
-        text: 'Remove',
-        style: 'destructive',
-        onPress: async () => {
-          await deleteScheduledMeal(item.id);
-          load();
+    setRemovePrompt({
+      title: 'Remove this reminder?',
+      actions: [
+        {
+          label: 'Remove',
+          destructive: true,
+          onPress: () => {
+            void (async () => {
+              await deleteScheduledMeal(item.id);
+              load();
+            })();
+          },
         },
-      },
-    ]);
+        { label: 'Cancel', onPress: () => {} },
+      ],
+    });
   }
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      {confirmSheetElement}
+      <AppActionSheet
+        visible={removePrompt !== null}
+        onClose={() => setRemovePrompt(null)}
+        title={removePrompt?.title}
+        message={removePrompt?.message}
+        actions={removePrompt?.actions ?? []}
+      />
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : errorMessage ? (
@@ -3441,6 +3540,8 @@ function AppointmentsLens() {
   const [showImportPicker, setShowImportPicker] = useState(false);
   const [deviceEvents, setDeviceEvents] = useState<DeviceCalendarEvent[]>([]);
   const [importLoading, setImportLoading] = useState(false);
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
 
   const load = useCallback(() => {
     setLoading(true);
@@ -3499,16 +3600,16 @@ function AppointmentsLens() {
 
   async function handleSaveForm() {
     if (!form.title.trim()) {
-      Alert.alert('Enter what this appointment is for.');
+      showInfoAlert('Almost there', 'Enter what this appointment is for.');
       return;
     }
     if (!isValidDateString(form.date)) {
-      Alert.alert('Enter a valid date (YYYY-MM-DD).');
+      showInfoAlert('Almost there', 'Enter a valid date (YYYY-MM-DD).');
       return;
     }
     const time24 = buildTime24(form.time.hour, form.time.minute, form.time.ampm);
     if (!time24) {
-      Alert.alert('Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
+      showInfoAlert('Almost there', 'Enter a valid time (hour 1-12, minute 0-59, AM or PM).');
       return;
     }
 
@@ -3538,32 +3639,41 @@ function AppointmentsLens() {
       closeForm();
       load();
     } catch (error) {
-      Alert.alert('Could not save', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
     }
   }
 
   function handleRemove(item: ScheduleItemRecord) {
-    const removeIt = async (alsoRemoveFromCalendar: boolean) => {
-      if (alsoRemoveFromCalendar && item.linkedDeviceCalendarEventId) {
-        await deleteDeviceCalendarEvent(item.linkedDeviceCalendarEventId);
-      }
-      await deleteScheduledMeal(item.id);
-      load();
+    const removeIt = (alsoRemoveFromCalendar: boolean) => {
+      void (async () => {
+        if (alsoRemoveFromCalendar && item.linkedDeviceCalendarEventId) {
+          await deleteDeviceCalendarEvent(item.linkedDeviceCalendarEventId);
+        }
+        await deleteScheduledMeal(item.id);
+        load();
+      })();
     };
 
     if (item.linkedDeviceCalendarEventId) {
-      Alert.alert('Remove this appointment?', 'This appointment is also on your phone calendar.', [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Remove here only', onPress: () => removeIt(false) },
-        { text: 'Remove from both', style: 'destructive', onPress: () => removeIt(true) },
-      ]);
+      setRemovePrompt({
+        title: 'Remove this appointment?',
+        message: 'This appointment is also on your phone calendar.',
+        actions: [
+          { label: 'Remove here only', onPress: () => removeIt(false) },
+          { label: 'Remove from both', destructive: true, onPress: () => removeIt(true) },
+          { label: 'Cancel', onPress: () => {} },
+        ],
+      });
       return;
     }
 
-    Alert.alert('Remove this appointment?', undefined, [
-      { text: 'Cancel', style: 'cancel' },
-      { text: 'Remove', style: 'destructive', onPress: () => removeIt(false) },
-    ]);
+    setRemovePrompt({
+      title: 'Remove this appointment?',
+      actions: [
+        { label: 'Remove', destructive: true, onPress: () => removeIt(false) },
+        { label: 'Cancel', onPress: () => {} },
+      ],
+    });
   }
 
   async function handleMarkCompleted(item: ScheduleItemRecord) {
@@ -3583,7 +3693,7 @@ function AppointmentsLens() {
     const granted = await requestCalendarPermission();
     setCalendarPermissionGranted(granted);
     if (!granted) {
-      Alert.alert(
+      showInfoAlert(
         'Calendar access needed',
         "Turn on calendar access for Inside Story in your phone's Settings to sync appointments with your phone calendar.",
       );
@@ -3610,13 +3720,13 @@ function AppointmentsLens() {
         notes: item.notes ?? undefined,
       });
       if (!eventId) {
-        Alert.alert('Could not add to calendar', 'No writable calendar was found on this device.');
+        showInfoAlert('Could not add to calendar', 'No writable calendar was found on this device.');
         return;
       }
       await linkAppointmentToDeviceCalendarEvent(item.id, eventId);
       load();
     } catch (error) {
-      Alert.alert('Could not add to calendar', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not add to calendar', error instanceof Error ? error.message : String(error));
     }
   }
 
@@ -3643,7 +3753,7 @@ function AppointmentsLens() {
       setDeviceEvents(events.filter((event) => !alreadyLinkedIds.has(event.id)));
       setShowImportPicker(true);
     } catch (error) {
-      Alert.alert('Could not read phone calendar', error instanceof Error ? error.message : String(error));
+      showInfoAlert('Could not read phone calendar', error instanceof Error ? error.message : String(error));
     } finally {
       setImportLoading(false);
     }
@@ -3668,6 +3778,14 @@ function AppointmentsLens() {
 
   return (
     <ScrollView style={styles.body} contentContainerStyle={[styles.bodyContent, { paddingBottom: scrollBottomPadding }]}>
+      {infoAlertElement}
+      <AppActionSheet
+        visible={removePrompt !== null}
+        onClose={() => setRemovePrompt(null)}
+        title={removePrompt?.title}
+        message={removePrompt?.message}
+        actions={removePrompt?.actions ?? []}
+      />
       {loading ? (
         <Text style={styles.emptyText}>Loading…</Text>
       ) : errorMessage ? (

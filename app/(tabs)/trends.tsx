@@ -1,10 +1,11 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
-import { Alert, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import type { HelpSection } from '../../components/HelpButton';
+import { useInfoAlert } from '../../components/InfoAlert';
 import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -278,6 +279,7 @@ export default function TrendsScreen() {
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const autoOpenLensHub = useAutoOpenLensHubSignal();
   const [lens, setLens] = useState<TrendsLens>('nutrients');
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   useFocusEffect(
@@ -425,7 +427,7 @@ export default function TrendsScreen() {
     try {
       const identity = await getFoodIdentity(candidate.foodId, candidate.source);
       if (!identity) {
-        Alert.alert('Could not start a trial', "This food's own reference entry could not be found.");
+        showInfoAlert('Could not start a trial', "This food's own reference entry could not be found.");
         return;
       }
       markPendingFoodTrialReturn();
@@ -487,6 +489,7 @@ export default function TrendsScreen() {
 
   return (
     <View style={styles.screen}>
+      {infoAlertElement}
       {/* enabled={!revealed} -- see food.tsx's own comment: swipe-to-
           change-tab only works from a lens's own picker, not once a real
           lens's content (with its own scrollable controls) is showing. */}
