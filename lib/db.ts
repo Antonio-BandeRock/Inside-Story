@@ -4154,6 +4154,18 @@ async function runDatabaseInitialization() {
       );
 
       CREATE INDEX IF NOT EXISTS idx_meals_eaten_at ON meals(eaten_at);
+      -- 2026-08-16, a real, confirmed gap found while chasing a still-slow
+      -- Cooking & Prep report even after the N+1 fix above and a genuine
+      -- clean Metro restart: meal_items has never had an index on meal_id
+      -- at all -- not just getMealItemsInWindow's own JOIN, but the much
+      -- older, still-widely-used getMealItems(mealId)'s plain
+      -- WHERE meal_id = ? too, both doing a real full-table scan of
+      -- meal_items on every single call, for as long as this table has
+      -- existed. The reference database's own food_scores/food_nutrients
+      -- tables (scripts/build_food_reference_db.py) were already properly
+      -- indexed on (food_id, source) -- checked directly, ruled out -- so
+      -- this was the one real remaining gap.
+      CREATE INDEX IF NOT EXISTS idx_meal_items_meal ON meal_items(meal_id);
       CREATE INDEX IF NOT EXISTS idx_wellbeing_checkins_logged_at ON wellbeing_checkins(logged_at);
       CREATE INDEX IF NOT EXISTS idx_checkin_tags_checkin ON checkin_tags(checkin_id);
       CREATE INDEX IF NOT EXISTS idx_exercise_logs_logged_at ON exercise_logs(logged_at);
@@ -11897,7 +11909,9 @@ export type DailyNutrientBreakdown = {
 // SELECT lists), just for the whole day in one query instead of one query
 // per meal.
 export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutrientBreakdown> {
+  const __t0 = Date.now();
   const [meals, dayItems] = await Promise.all([listMealsForDate(date), getMealItemsInWindow(date, endOfLocalDay(date))]);
+  console.log(`[PrepDiag] NutrientBreakdown: query resolved in ${Date.now() - __t0}ms, meals=${meals.length}, items=${dayItems.length}`);
   const itemsByMeal = new Map<string, typeof dayItems>();
   for (const item of dayItems) {
     if (!itemsByMeal.has(item.mealId)) itemsByMeal.set(item.mealId, []);
@@ -12008,12 +12022,14 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
       sides,
     });
   }
+  console.log(`[PrepDiag] NutrientBreakdown: per-item loop done at ${Date.now() - __t0}ms total`);
 
   const [supplementResult, driRows, profile] = await Promise.all([
     getSupplementNutrientTotals(),
     getDietaryReferenceIntakesForCurrentUser(),
     getUserProfile(),
   ]);
+  console.log(`[PrepDiag] NutrientBreakdown: FULLY DONE at ${Date.now() - __t0}ms total`);
 
   return {
     dayTotals,
@@ -12094,7 +12110,9 @@ function aggregateBySubCriterion(foods: { foodName: string; scores: FoodScore[] 
 // getMealItems call per meal, grouped by mealId afterward. Same real fields
 // either way, same per-meal processing below, completely unchanged.
 export async function getDailySixDimensionsBreakdown(date: string): Promise<DailySixDimensionsBreakdown> {
+  const __t0 = Date.now();
   const [meals, dayItems] = await Promise.all([listMealsForDate(date), getMealItemsInWindow(date, endOfLocalDay(date))]);
+  console.log(`[PrepDiag] SixDimensionsBreakdown: query resolved in ${Date.now() - __t0}ms, meals=${meals.length}, items=${dayItems.length}`);
   const itemsByMeal = new Map<string, typeof dayItems>();
   for (const item of dayItems) {
     if (!itemsByMeal.has(item.mealId)) itemsByMeal.set(item.mealId, []);
@@ -12160,6 +12178,7 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
       sides,
     });
   }
+  console.log(`[PrepDiag] SixDimensionsBreakdown: FULLY DONE at ${Date.now() - __t0}ms total`);
 
   return {
     day: aggregateBySubCriterion(Array.from(dayFoods.values())),
