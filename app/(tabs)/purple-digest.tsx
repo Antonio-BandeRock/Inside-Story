@@ -44,6 +44,9 @@ import {
   encodeShareLinkFromCuratedRecipe,
   promoteSharedRecipeToFavorite,
   promoteSharedRecipeToSaved,
+  writeIsFileForComponent,
+  writeIsFileForCuratedRecipe,
+  writeIsFileForMeal,
 } from '../../lib/sharing';
 import { buildTime24, formatTime12 } from '../../lib/timeOfDay';
 import {
@@ -3563,8 +3566,18 @@ function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string;
       const message = [recipe?.name ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
         .filter(Boolean)
         .join('\n\n');
-      const photoUri = await getPhotoForTarget({ kind: 'curatedRecipe', recipeId });
-      await Share.share(photoUri ? { message, url: photoUri } : { message });
+      // Step 6, 2026-08-15 -- a real, local .is file (the actual, real
+      // signed envelope, richer than the deep link -- see lib/sharing.ts's
+      // own writeIsFile) attached as the real url, preferred over the
+      // plain photo below since the photo already travels embedded inside
+      // the .is file's own content, matching what a deep-link share already
+      // does. Anyone without the app sees exactly the same plain message
+      // either way -- the .is file (like the deep link before it) is
+      // completely inert to them.
+      const isFileUri = await writeIsFileForCuratedRecipe(recipeId, builderType, fromName);
+      const photoUri = isFileUri ? null : await getPhotoForTarget({ kind: 'curatedRecipe', recipeId });
+      const attachmentUri = isFileUri ?? photoUri;
+      await Share.share(attachmentUri ? { message, url: attachmentUri } : { message });
     } catch (error) {
       console.error('[CuratedRecipeShareButton] Failed to share', error);
       Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
@@ -3800,14 +3813,23 @@ function SavedOrFavoriteActions({
       const message = [entry.title, entry.recipeCard?.yield ?? '', ingredientLines, `Shared from Inside Story by ${fromName}.`]
         .filter(Boolean)
         .join('\n\n');
-      // A real, local photo file, attached best-effort via Share's own
-      // `url` field -- how much (if anything) a given target messaging
-      // app actually does with it alongside `message` genuinely varies by
-      // app/OS, not a guaranteed universal thumbnail attachment, but the
-      // honest, no-new-dependency way to try.
+      // Step 6, 2026-08-15 -- the real .is file this whole comment block
+      // above already named as "the actual right fix" now exists (see
+      // lib/sharing.ts's own writeIsFile/app.json's own real
+      // android.intentFilters). Preferred over the plain photo below since
+      // the photo already travels embedded inside the .is file's own
+      // content, matching what a deep-link share already does. Anyone
+      // without the app sees exactly the same plain message either way --
+      // the .is file (like the deep link before it) is completely inert to
+      // them.
+      const isFileUri =
+        action.kind === 'meal'
+          ? await writeIsFileForMeal(action.mealFavoriteId, fromName)
+          : await writeIsFileForComponent(action.componentType, action.componentId, fromName);
       const photoTarget = resolvePhotoTarget(entry);
-      const photoUri = photoTarget ? await getPhotoForTarget(photoTarget) : null;
-      await Share.share(photoUri ? { message, url: photoUri } : { message });
+      const photoUri = !isFileUri && photoTarget ? await getPhotoForTarget(photoTarget) : null;
+      const attachmentUri = isFileUri ?? photoUri;
+      await Share.share(attachmentUri ? { message, url: attachmentUri } : { message });
     } catch (error) {
       console.error('[DynamicEntryActions] Failed to share', error);
       Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");

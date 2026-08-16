@@ -1,6 +1,7 @@
 import { Nunito_600SemiBold, useFonts } from '@expo-google-fonts/nunito';
+import * as Linking from 'expo-linking';
 import * as NavigationBar from 'expo-navigation-bar';
-import { Stack } from 'expo-router';
+import { Stack, useRouter } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -13,6 +14,7 @@ import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { colors } from '../constants/colors';
 import { IridescentHueProvider } from '../hooks/useIridescentHueRotation';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
+import { handleIncomingIsFile } from '../lib/isFileLinking';
 
 // Kept visible until the header's own branding font finishes loading (see
 // ScreenHeader.tsx) -- without this, the native splash screen hides itself
@@ -26,6 +28,7 @@ import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } fr
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
+  const router = useRouter();
   const [fontsLoaded] = useFonts({ Nunito_600SemiBold });
   const [dbReady, setDbReady] = useState(false);
   // Real reference-database readiness, 2026-08-10, separate from dbReady
@@ -143,6 +146,35 @@ export default function RootLayout() {
 
     return () => clearTimeout(timeoutId);
   }, []);
+
+  // Step 6 of the real device-pairing prerequisite list, 2026-08-15 -- a
+  // real, independent listener for a real .is file being tapped (a file
+  // manager, an email/WhatsApp attachment), running ALONGSIDE Expo
+  // Router's own hashimotosapp:// linking, not instead of it (see
+  // lib/isFileLinking.ts's own header comment for the full reasoning on
+  // why this needs its own separate listener rather than a registered
+  // route). Deliberately gated on referenceDbReady, not dbReady/
+  // fontsLoaded alone -- a cold launch via a tapped .is file still has to
+  // wait through the whole real startup sequence (fonts, local db, the
+  // reference-database import) before there's a real, mounted Stack to
+  // navigate anywhere within; by the time this effect's own dependency
+  // flips true, that's guaranteed to already be the case. Checks
+  // getInitialURL() once (the real cold-start case) and registers the
+  // live 'url' listener for as long as the app runs afterward (the real
+  // already-open-and-resumed case) -- RootLayout itself never unmounts, so
+  // one registration for the whole app lifetime is correct.
+  useEffect(() => {
+    if (!referenceDbReady) return;
+
+    Linking.getInitialURL().then((url) => {
+      if (url) handleIncomingIsFile(url, router.push);
+    });
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleIncomingIsFile(url, router.push);
+    });
+    return () => subscription.remove();
+  }, [referenceDbReady, router]);
 
   useEffect(() => {
     if (fontsLoaded && dbReady) {

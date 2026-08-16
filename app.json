@@ -11,7 +11,26 @@
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.insidestoryapp.app"
+      "bundleIdentifier": "com.insidestoryapp.app",
+      "infoPlist": {
+        "CFBundleDocumentTypes": [
+          {
+            "CFBundleTypeName": "Inside Story Share",
+            "LSHandlerRank": "Owner",
+            "LSItemContentTypes": ["com.insidestoryapp.app.is-share"]
+          }
+        ],
+        "UTExportedTypeDeclarations": [
+          {
+            "UTTypeIdentifier": "com.insidestoryapp.app.is-share",
+            "UTTypeDescription": "Inside Story Share",
+            "UTTypeConformsTo": ["public.data", "public.content"],
+            "UTTypeTagSpecification": {
+              "public.filename-extension": ["is"]
+            }
+          }
+        ]
+      }
     },
     "android": {
       "package": "com.insidestoryapp.app",
@@ -25,6 +44,16 @@
       "permissions": [
         "android.permission.READ_CALENDAR",
         "android.permission.WRITE_CALENDAR"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": ["DEFAULT", "BROWSABLE"],
+          "data": [
+            { "scheme": "content", "mimeType": "*/*", "host": "*", "pathPattern": ".*\\.is" },
+            { "scheme": "file", "mimeType": "*/*", "host": "*", "pathPattern": ".*\\.is" }
+          ]
+        }
       ]
     },
     "androidNavigationBar": {

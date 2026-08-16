@@ -36,6 +36,20 @@
 // it -- see promoteSharedRecipeToSaved/promoteSharedRecipeToFavorite/
 // deleteSharedRecipe below. The old, direct-to-permanent-save
 // importSharedItem is gone -- this staging flow replaces it entirely.
+//
+// Step 6 of the real device-pairing prerequisite list, 2026-08-15 (see
+// CLAUDE.md's own "Sharing individual recipes between two people"
+// security-requirement note) -- a real, second delivery mechanism for the
+// exact same real, signed envelope this file already builds: a genuine
+// local .is file (writeIsFile/writeIsFileForComponent/
+// writeIsFileForCuratedRecipe/writeIsFileForMeal, below), registered with
+// Android/iOS at the OS level (see app.json's own real android.
+// intentFilters, and lib/isFileLinking.ts's own receiving side) so tapping
+// a received .is file from ANY app opens it directly here, not just a
+// hashimotosapp:// deep link reached through this app's own share sheet.
+// The .is file's own real content is deliberately plain, un-base64'd JSON
+// (a file has no URL-safety constraint the way a query string does) --
+// see writeIsFile's own comment for the full reasoning.
 
 import * as Linking from 'expo-linking';
 import {
@@ -261,7 +275,13 @@ type SignedEnvelopeWire = {
 // recognizes this specific key is a separate, later step (see
 // decodeShareEnvelope below, and app/import-shared.tsx's own "Verified"
 // check), not something encoding needs to know about at all.
-async function encodeEnvelope(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<string> {
+//
+// Extracted 2026-08-15 (step 6, the real .is file) into its own real,
+// shared function -- both encodeEnvelope (the URL path) and writeIsFile
+// (the new file path) need the identical real "build the full envelope,
+// sign it, wrap it" work; only what happens to the resulting wire object
+// afterward (base64-into-a-URL vs. plain-JSON-into-a-file) differs.
+async function buildSignedWire(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<SignedEnvelopeWire> {
   const identity = await getDeviceIdentity();
   const envelope: ShareEnvelope = {
     v: 2,
@@ -271,12 +291,48 @@ async function encodeEnvelope(payload: ShareComponentPayload | ShareMealPayload,
   };
   const unsignedJson = JSON.stringify(envelope);
   const signature = await signMessage(new Uint8Array(utf8Bytes(unsignedJson)));
-  const wire: SignedEnvelopeWire = { unsignedJson, signature: bytesToBase64(signature) };
+  return { unsignedJson, signature: bytesToBase64(signature) };
+}
+
+async function encodeEnvelope(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<string> {
+  const wire = await buildSignedWire(payload, fromName);
   return Linking.createURL('/import-shared', { queryParams: { data: encodeBase64Utf8(JSON.stringify(wire)) } });
 }
 
+// Step 6, 2026-08-15, direct request: "Let's start on step 6, the .is file
+// registration." A real, local .is file -- literally the same real signed
+// wire object encodeEnvelope already builds, just written as plain,
+// readable JSON directly to a file instead of base64-encoded into a URL
+// query string (a file has no real URL-safety constraint to work around,
+// so there's no real reason to add that extra encoding layer here). This
+// is the actual "different DELIVERY mechanism for the same already-signed
+// envelope" the roadmap named directly -- reuses buildSignedWire verbatim,
+// never re-derives the signing logic a second time.
+//
+// Written into the app's own cache directory (Paths.cache, not
+// Paths.document) -- a shared .is file is a genuinely disposable, one-time
+// artifact meant to be handed straight to the OS share sheet and then
+// forgotten, not a real, standing local record the way a saved photo is;
+// letting the OS reclaim this under storage pressure is the right, honest
+// tradeoff. A real, per-call timestamped filename avoids any risk of two
+// concurrent shares colliding on the same file.
+export async function writeIsFile(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<string | null> {
+  try {
+    const wire = await buildSignedWire(payload, fromName);
+    const { Directory, File, Paths } = await import('expo-file-system');
+    const dir = new Directory(Paths.cache, 'is-shares');
+    if (!dir.exists) dir.create({ intermediates: true });
+    const file = new File(dir, `inside-story-share-${Date.now()}.is`);
+    file.write(JSON.stringify(wire));
+    return file.uri;
+  } catch (error) {
+    console.error('[sharing] Failed to write a real .is file', error);
+    return null;
+  }
+}
+
 // The one real, shared place a photo gets resolved and compressed down for
-// embedding -- every one of the three real encode entry points below calls
+// embedding -- every one of the three real payload-builders below calls
 // this the same way, so none of them can drift on how a photo actually
 // gets prepared.
 async function resolveSharePhotoBase64(
@@ -287,21 +343,40 @@ async function resolveSharePhotoBase64(
   return (await prepareSharePhoto(uri)) ?? undefined;
 }
 
-export async function encodeShareLink(componentType: MealComponentType, componentId: string, fromName: string): Promise<string | null> {
+// Extracted 2026-08-15 (step 6) into its own real, shared payload-builder
+// -- both encodeShareLink (the URL path) and writeIsFileForComponent (the
+// new file path) need the identical real "resolve this saved/favorited
+// component's own ingredients and photo into a real payload" work; only
+// the final encoding step (encodeEnvelope vs. writeIsFile) differs.
+async function buildComponentSharePayload(
+  componentType: MealComponentType,
+  componentId: string,
+): Promise<ShareComponentPayload | null> {
   const builder = await buildBuilderFavoritePayload(componentType, componentId);
   if (!builder) return null;
   const photoBase64 = await resolveSharePhotoBase64({ kind: 'component', componentType, componentId });
-  return encodeEnvelope({ kind: 'component', componentType, builder, photoBase64 }, fromName);
+  return { kind: 'component', componentType, builder, photoBase64 };
+}
+
+export async function encodeShareLink(componentType: MealComponentType, componentId: string, fromName: string): Promise<string | null> {
+  const payload = await buildComponentSharePayload(componentType, componentId);
+  return payload ? encodeEnvelope(payload, fromName) : null;
+}
+
+// Step 6's own real .is-file counterpart to encodeShareLink above.
+export async function writeIsFileForComponent(componentType: MealComponentType, componentId: string, fromName: string): Promise<string | null> {
+  const payload = await buildComponentSharePayload(componentType, componentId);
+  return payload ? writeIsFile(payload, fromName) : null;
 }
 
 // The real, separate curated-recipe case -- lets a person share one of the
 // 47 bundled recipes directly (with any personal photo override they've
-// added), not just their own saved creations/favorites.
-export async function encodeShareLinkFromCuratedRecipe(
+// added), not just their own saved creations/favorites. Extracted
+// 2026-08-15 (step 6) the same way as buildComponentSharePayload above.
+async function buildCuratedRecipeSharePayload(
   recipeId: string,
   componentType: BuilderFavoriteItemType,
-  fromName: string,
-): Promise<string | null> {
+): Promise<ShareComponentPayload | null> {
   const recipe = await getCuratedRecipe(recipeId);
   if (!recipe) return null;
   const builder: BuilderFavoritePayload = {
@@ -312,15 +387,34 @@ export async function encodeShareLinkFromCuratedRecipe(
     ingredients: recipe.ingredients,
   };
   const photoBase64 = await resolveSharePhotoBase64({ kind: 'curatedRecipe', recipeId });
-  return encodeEnvelope({ kind: 'component', componentType, builder, photoBase64 }, fromName);
+  return { kind: 'component', componentType, builder, photoBase64 };
+}
+
+export async function encodeShareLinkFromCuratedRecipe(
+  recipeId: string,
+  componentType: BuilderFavoriteItemType,
+  fromName: string,
+): Promise<string | null> {
+  const payload = await buildCuratedRecipeSharePayload(recipeId, componentType);
+  return payload ? encodeEnvelope(payload, fromName) : null;
+}
+
+// Step 6's own real .is-file counterpart to encodeShareLinkFromCuratedRecipe above.
+export async function writeIsFileForCuratedRecipe(
+  recipeId: string,
+  componentType: BuilderFavoriteItemType,
+  fromName: string,
+): Promise<string | null> {
+  const payload = await buildCuratedRecipeSharePayload(recipeId, componentType);
+  return payload ? writeIsFile(payload, fromName) : null;
 }
 
 // The real, separate meal-favorite case -- a receiving device has no way
 // to reference the sender's own component ids (those only exist locally,
 // on the sender's own phone), so the payload bundles each real, resolved
 // component's own full ingredient list directly, not just a reference to
-// it.
-export async function encodeMealShareLink(mealFavoriteId: string, fromName: string): Promise<string | null> {
+// it. Extracted 2026-08-15 (step 6) the same way as the two builders above.
+async function buildMealSharePayload(mealFavoriteId: string): Promise<ShareMealPayload | null> {
   const favorite = await getMealFavorite(mealFavoriteId);
   if (!favorite) return null;
 
@@ -332,7 +426,18 @@ export async function encodeMealShareLink(mealFavoriteId: string, fromName: stri
   if (components.length === 0) return null;
 
   const photoBase64 = await resolveSharePhotoBase64({ kind: 'favorite', favoriteId: mealFavoriteId });
-  return encodeEnvelope({ kind: 'meal', name: favorite.name, mealType: favorite.mealType, components, photoBase64 }, fromName);
+  return { kind: 'meal', name: favorite.name, mealType: favorite.mealType, components, photoBase64 };
+}
+
+export async function encodeMealShareLink(mealFavoriteId: string, fromName: string): Promise<string | null> {
+  const payload = await buildMealSharePayload(mealFavoriteId);
+  return payload ? encodeEnvelope(payload, fromName) : null;
+}
+
+// Step 6's own real .is-file counterpart to encodeMealShareLink above.
+export async function writeIsFileForMeal(mealFavoriteId: string, fromName: string): Promise<string | null> {
+  const payload = await buildMealSharePayload(mealFavoriteId);
+  return payload ? writeIsFile(payload, fromName) : null;
 }
 
 // Defensive parse AND the real verification gate -- never trusts a
