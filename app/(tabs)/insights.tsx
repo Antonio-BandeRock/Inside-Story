@@ -192,7 +192,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: 'Reading the table',
-        body: 'Each row compares one nutrient to your daily target. At "Whole Day" scope, rows are judged and colored: a flagged (colored) row is short of target, over a safe upper limit, or otherwise worth a look; an unflagged row is quietly fine and stays neutral on purpose, so color only ever draws your eye to what actually needs it.',
+        body: 'Each row compares one nutrient to your daily target. At "Whole Day" scope, rows are judged and colored: a flagged (colored) row is short of target, over a safe upper limit, or otherwise worth a look; an unflagged row is quietly fine and stays neutral on purpose, so color only ever draws your eye to what actually needs it. Tap any row to see exactly which foods (and, if any, supplements) actually produced that number, sorted biggest-contributor first.',
       },
       {
         heading: 'Drilling into a meal or ingredient',
@@ -208,7 +208,7 @@ const LENSES: LensOption<Lens>[] = [
     help: [
       {
         heading: '6 Dimensions',
-        body: 'Summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
+        body: 'Summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, and the citation behind that rating.',
       },
       DRILLING_DOWN_HELP,
     ],
@@ -461,7 +461,7 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Nutrients: reading the table',
-    body: 'Each row compares one nutrient to your daily target. At "Whole Day" scope, rows are judged and colored: a flagged (colored) row is short of target, over a safe upper limit, or otherwise worth a look; an unflagged row is quietly fine and stays neutral on purpose, so color only ever draws your eye to what actually needs it.',
+    body: 'Each row compares one nutrient to your daily target. At "Whole Day" scope, rows are judged and colored: a flagged (colored) row is short of target, over a safe upper limit, or otherwise worth a look; an unflagged row is quietly fine and stays neutral on purpose, so color only ever draws your eye to what actually needs it. Tap any row to see exactly which foods (and, if any, supplements) actually produced that number, sorted biggest-contributor first.',
   },
   {
     heading: 'Nutrients: drilling into a meal or ingredient',
@@ -469,7 +469,7 @@ const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: '6 Dimensions',
-    body: 'The 6 Dimensions scorecard summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see the tier it was rated and the citation behind that rating.',
+    body: 'The 6 Dimensions scorecard summarizes each of six research-backed factors (micronutrient density, inflammatory potential, lipid compatibility, hormonal/thyroid support, digestive tolerance, and oxalate load) for whatever scope is selected. "Clear" means nothing in that scope was flagged for that dimension; a number means that many sub-criteria were. Tap a dimension to see its sub-criteria, then tap a sub-criterion to see which specific food(s) it was rated against, the tier each was rated, and the citation behind that rating.',
   },
   {
     heading: 'Cooking & Prep',
@@ -1091,6 +1091,63 @@ export default function InsightsScreen() {
 // status judgment/coloring entirely and just show what fraction of today's
 // target that scope contributed, sorted by biggest contributor first, with
 // only nutrients this scope actually contains listed at all.
+// The raw data behind a scope's own nutrient total: which specific logged
+// foods (and, at day scope, supplements) actually produced it, sorted
+// highest-contributor first. Reuses the same resolveScopeMeal/
+// resolveScopeSide walkers already built for the scope navigator itself,
+// so this can never disagree with whatever scope is currently selected.
+// Direct fix for a real report: "the numbers don't really relate to
+// understandable usable information... it doesn't tell me what the food
+// is" -- a bare "Iron: 18%" row told a person nothing they could actually
+// act on without manually re-drilling through ScopeHub one level at a
+// time. This surfaces the same information right where the number
+// already is.
+type NutrientContributor = { label: string; amount: number };
+
+function contributorsForNutrient(
+  breakdown: DailyNutrientBreakdown,
+  scope: Scope,
+  nutrientCode: string,
+): NutrientContributor[] {
+  const contributors: NutrientContributor[] = [];
+  const addItem = (item: { foodName: string; totals: DailyNutrientScopeTotals }) => {
+    const amount = item.totals[nutrientCode] ?? 0;
+    if (amount > 0) contributors.push({ label: item.foodName, amount });
+  };
+
+  if (scope.level === 'day') {
+    for (const meal of breakdown.meals) {
+      for (const side of meal.sides) {
+        for (const item of side.items) addItem(item);
+      }
+    }
+    // Supplements aren't part of the meal/side/item tree at all -- a
+    // separate bucket already folded into entry.combinedTotal at day
+    // scope (see NutrientsTable's own analyzeNutrientIntake call below).
+    // Named explicitly here so the breakdown's own totals actually add up
+    // to what the row shows, rather than silently falling short with no
+    // explanation for the gap.
+    const supplementAmount = breakdown.supplementTotals[nutrientCode] ?? 0;
+    if (supplementAmount > 0) contributors.push({ label: 'Supplements', amount: supplementAmount });
+  } else if (scope.level === 'meal') {
+    for (const side of resolveScopeMeal(breakdown, scope)?.sides ?? []) {
+      for (const item of side.items) addItem(item);
+    }
+  } else if (scope.level === 'side') {
+    for (const item of resolveScopeSide(breakdown, scope)?.items ?? []) addItem(item);
+  } else {
+    // scope.level === 'item' -- NutrientsTable never actually calls this
+    // for that scope (see its own canExpandContributors), but handled
+    // correctly anyway rather than left silently wrong for any future
+    // caller.
+    const side = resolveScopeSide(breakdown, scope);
+    const item = side?.items[scope.itemIndex];
+    if (item) addItem(item);
+  }
+
+  return contributors.sort((a, b) => b.amount - a.amount);
+}
+
 export function NutrientsTable({
   breakdown,
   scope,
@@ -1108,6 +1165,16 @@ export function NutrientsTable({
     ? [...visibleEntries].sort((a, b) => (sortRank[a.status] ?? 3) - (sortRank[b.status] ?? 3))
     : [...visibleEntries].sort((a, b) => b.percentOfTarget - a.percentOfTarget);
 
+  // Which row (if any) is currently expanded to show its own contributing
+  // foods -- reset on every scope change so switching meals/sides never
+  // leaves a stale expansion pointing at a row that no longer means the
+  // same thing. Not offered at 'item' scope: the table is already about
+  // exactly one food there (its name is already the breadcrumb above it),
+  // so "which food contributed this" would just repeat the same name back.
+  const [expandedNutrientCode, setExpandedNutrientCode] = useState<string | null>(null);
+  useEffect(() => setExpandedNutrientCode(null), [scope]);
+  const canExpandContributors = scope.level !== 'item';
+
   return (
     <>
       {isDayScope && !breakdown.profileComplete ? (
@@ -1117,6 +1184,10 @@ export function NutrientsTable({
             rather than one tailored to you.
           </Text>
         </View>
+      ) : null}
+
+      {canExpandContributors && sorted.length > 0 ? (
+        <Text style={styles.sectionLabel}>Tap any nutrient to see which foods contributed to it.</Text>
       ) : null}
 
       {sorted.length === 0 ? (
@@ -1136,29 +1207,65 @@ export function NutrientsTable({
           </View>
           {sorted.map((entry, index) => {
             const entrySeverity = isDayScope ? nutrientStatusSeverity(entry.status) : null;
+            const rowExpanded = canExpandContributors && expandedNutrientCode === entry.nutrientCode;
+            const contributors = rowExpanded ? contributorsForNutrient(breakdown, scope, entry.nutrientCode) : [];
             return (
-              <View
-                key={`${entry.nutrientCode}_${index}`}
-                style={[styles.tableRow, entrySeverity ? severityRowStyle(entrySeverity) : null]}
-              >
-                <Text style={[styles.tableCell, styles.tableCellNutrient]} numberOfLines={1}>
-                  {entry.displayName}
-                </Text>
-                <Text style={[styles.tableCell, styles.tableCellAmount]} numberOfLines={1}>
-                  {formatAmount(entry.combinedTotal, entry.unit)} / {formatAmount(entry.target, entry.unit)}
-                </Text>
-                <Text
-                  style={[
-                    styles.tableCell,
-                    styles.tableCellStatus,
-                    entrySeverity ? severityTextStyle(entrySeverity) : styles.statusNeutralText,
-                  ]}
-                  numberOfLines={2}
+              <View key={`${entry.nutrientCode}_${index}`}>
+                <TouchableOpacity
+                  style={[styles.tableRow, entrySeverity ? severityRowStyle(entrySeverity) : null]}
+                  activeOpacity={canExpandContributors ? 0.6 : 1}
+                  disabled={!canExpandContributors}
+                  onPress={() =>
+                    setExpandedNutrientCode((prev) => (prev === entry.nutrientCode ? null : entry.nutrientCode))
+                  }
                 >
-                  {isDayScope
-                    ? `${NUTRIENT_STATUS_LABELS[entry.status] ?? entry.status} (${Math.round(entry.percentOfTarget)}%)`
-                    : `${Math.round(entry.percentOfTarget)}%`}
-                </Text>
+                  <Text
+                    style={[
+                      styles.tableCell,
+                      styles.tableCellNutrient,
+                      canExpandContributors ? styles.tableCellNutrientTappable : null,
+                    ]}
+                    numberOfLines={1}
+                  >
+                    {entry.displayName}
+                  </Text>
+                  <Text style={[styles.tableCell, styles.tableCellAmount]} numberOfLines={1}>
+                    {formatAmount(entry.combinedTotal, entry.unit)} / {formatAmount(entry.target, entry.unit)}
+                  </Text>
+                  <Text
+                    style={[
+                      styles.tableCell,
+                      styles.tableCellStatus,
+                      entrySeverity ? severityTextStyle(entrySeverity) : styles.statusNeutralText,
+                    ]}
+                    numberOfLines={2}
+                  >
+                    {isDayScope
+                      ? `${NUTRIENT_STATUS_LABELS[entry.status] ?? entry.status} (${Math.round(entry.percentOfTarget)}%)`
+                      : `${Math.round(entry.percentOfTarget)}%`}
+                  </Text>
+                </TouchableOpacity>
+                {rowExpanded ? (
+                  <View style={styles.detailBlock}>
+                    {contributors.length === 0 ? (
+                      <Text style={styles.detailText}>Nothing logged here actually contributed to this.</Text>
+                    ) : (
+                      contributors.map((contributor, contributorIndex) => (
+                        <View key={`${contributor.label}_${contributorIndex}`} style={styles.detailFoodRow}>
+                          <Text style={styles.detailFoodName} numberOfLines={1}>
+                            {contributor.label}
+                          </Text>
+                          <Text style={styles.detailFoodTier}>
+                            {formatAmount(contributor.amount, entry.unit)}
+                            {entry.combinedTotal > 0
+                              ? ` (${Math.round((contributor.amount / entry.combinedTotal) * 100)}%)`
+                              : ''}
+                          </Text>
+                        </View>
+                      ))
+                    )}
+                  </View>
+                ) : null}
               </View>
             );
           })}
@@ -1590,7 +1697,12 @@ function ScopeHub<M extends NavigableMeal>({
         activeOpacity={0.85}
         accessibilityLabel="Drill down into today's meals"
       >
-        <Ionicons name="layers-outline" size={24} color={colors.textOnPrimary} style={textShadow} />
+        {/* funnel-outline, not layers-outline -- the latter is also Food's
+            own Handhelds builder icon (food.tsx/MealBuilder.tsx), which
+            once read as "the Handhelds icon" showing up here by mistake.
+            Funnel fits the actual mechanic too: narrowing from a whole
+            day down to one meal, side, or item. */}
+        <Ionicons name="funnel-outline" size={24} color={colors.textOnPrimary} style={textShadow} />
       </TouchableOpacity>
 
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
@@ -1694,7 +1806,13 @@ export function SixDsView({
                     const key = `${group.dimension}|${item.subCriterion}`;
                     const tierExpanded = expandedTierKey === key;
                     const distinctTiers = Array.from(new Set(item.entries.map((entry) => entry.tier)));
-                    const showFoodBreakdown = item.entries.length > 1;
+                    // Used to require entries.length > 1 -- which silently
+                    // hid the food name entirely whenever exactly one food
+                    // in scope carried this sub-criterion, precisely the
+                    // single-cause case a person most needs named. Only
+                    // genuinely redundant at 'item' scope, where the food
+                    // is already the breadcrumb above this whole table.
+                    const showFoodBreakdown = scope.level !== 'item';
                     const rowSeverity = worstTierSeverity(distinctTiers);
 
                     return (
@@ -3090,6 +3208,13 @@ const styles = StyleSheet.create({
   },
   tableCellNutrient: {
     flex: 2,
+  },
+  // Signals a nutrient row is tappable to reveal which foods produced it --
+  // the same dotted-underline idiom subTableValue already uses for exactly
+  // this "tap for detail" meaning in the 6 Dimensions lens below.
+  tableCellNutrientTappable: {
+    textDecorationLine: 'underline',
+    textDecorationStyle: 'dotted',
   },
   tableCellAmount: {
     flex: 2,
