@@ -97,9 +97,10 @@ import { colors } from '../../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
   SECONDARY_HUB_CARD_LEFT_MARGIN,
+  SECONDARY_HUB_GAP,
+  useBottomLeftHubPosition,
   useFloatingButtonScrollPadding,
   useMenuCardBottom,
-  useSecondaryHubPosition,
 } from '../../constants/floatingButton';
 import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -1457,27 +1458,35 @@ function PortionsView({
 // button just shifts one slot further out to make room, same idea as the
 // swap that first put it here.
 //
-// Bumped back down to slot 0, real bug fix, not a stale-comment cleanup
-// alone -- the reasoning right above stopped being true on 2026-08-01,
-// when MyItemsHub was redesigned to sit at the real, live midpoint of the
-// gap between LensHub's own corner button and TabHub (see MyItemsHub.tsx's
-// own header comment) instead of occupying a fixed slot at all. Nobody
-// circled back to un-bump this button once that happened, so it kept
-// sitting at slot 1 -- one slot further out than it ever needed to be
-// again, and close enough to LensHub's own fixed corner position (16px
-// from the true edge) that the two buttons visibly overlap on every
-// ordinary phone width (checked directly: their unclamped left values are
-// mathematically identical, `windowWidth/2 - 174`, and LensHub's own
-// corner clamp only ever pulls it further LEFT of that, never right of
-// it -- so on anything up to a genuinely tablet-width screen the two sit
-// almost exactly on top of each other). Reported directly as "a weird
-// extra circle... stacking... translucent... off... not centered on the
-// LensHub icon button," reproducing on Nutrients/6 Dimensions/Cooking &
-// Prep -- exactly the three lenses that render this component at all.
-// Slot 0 is genuinely unclaimed again now, and re-checked at 320/360/393/
-// 412dp (the realistic device-width range) confirms a real, positive
-// clearance gap (12-28px) from LensHub's own corner at every one of them,
-// not just the common case.
+// First bumped from slot 1 to slot 0, 2026-08-15 -- a real fix, but an
+// incomplete one, corrected the same day once actually reported again:
+// "the circle thing is behind the My Insights icon." Slot 0's own
+// unclamped position (windowWidth/2 - 102) genuinely does clear LensHub's
+// corner button, which is all that got checked at the time -- but
+// MyItemsHub (the "My Insights" button, see MyItemsHub.tsx) doesn't use
+// the slot system at all; it sits at the live midpoint of the gap between
+// LensHub's own right edge and TabHub's own icon edge, which lands almost
+// exactly where slot 0 does too (both formulas are independently trying to
+// fill the same narrow strip). That's the real miss in the first fix --
+// only LensHub's own clearance was re-checked, not MyItemsHub's.
+//
+// Worked out properly this time, not guessed at a third time: at ordinary
+// phone widths the whole strip between the true left corner (16px in) and
+// TabHub's own icon edge is only around 120-150px wide, and LensHub (60px)
+// plus MyItemsHub (32px) plus a real, separate ScopeHub (60px) plus the
+// gaps between them need at least ~150-175px -- there is genuinely no
+// horizontal slot left in that strip for a third full-size button on any
+// normal phone; every position tried (slot 0, slot 1) collides with
+// whichever of LensHub/MyItemsHub it lands closest to. Fixed by moving
+// ScopeHub OUT of that strip entirely rather than trying yet another
+// position within it -- stacked directly above LensHub's own corner
+// button (same `left`, `bottom` raised by one button-height plus one gap)
+// instead of squeezed in beside it. Confirmed via direct math that nothing
+// else renders in that vertical space (PageIdentityLabel -- the "which
+// lens am I in" box -- sits on the opposite side of the screen from the
+// hub cluster on purpose, see its own header comment) and that the new
+// bottom position stays comfortably on-screen at every real device
+// height.
 function ScopeHub<M extends NavigableMeal>({
   breakdown,
   scope,
@@ -1488,7 +1497,12 @@ function ScopeHub<M extends NavigableMeal>({
   onChangeScope: (scope: Scope) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { bottom: buttonBottom, left: buttonLeft } = useSecondaryHubPosition(0);
+  const { bottom: rowBottom, left: buttonLeft } = useBottomLeftHubPosition();
+  // Stacked one full button-height plus the standard hub gap above the
+  // shared row -- directly above LensHub's own corner button, not beside
+  // it, since there's no real horizontal room left in that row (see the
+  // comment above).
+  const buttonBottom = rowBottom + FLOATING_BUTTON_SIZE + SECONDARY_HUB_GAP;
   // Independent of buttonBottom -- the button itself stays anchored inside
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
