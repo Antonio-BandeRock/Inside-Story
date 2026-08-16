@@ -1523,8 +1523,13 @@ function ScopeHub<M extends NavigableMeal>({
   // Stacked one full button-height plus the standard hub gap above the
   // shared row -- directly above LensHub's own corner button, not beside
   // it, since there's no real horizontal room left in that row (see the
-  // comment above).
-  const buttonBottom = rowBottom + FLOATING_BUTTON_SIZE + SECONDARY_HUB_GAP;
+  // comment above). +15 more, 2026-08-15, direct request for real, extra
+  // vertical clearance. Horizontal position (buttonLeft) is already shared
+  // with LensHub's own corner button via the same useBottomLeftHubPosition()
+  // call above, and both are the same real FLOATING_BUTTON_SIZE, so their
+  // horizontal centers already match exactly -- no separate alignment
+  // needed on that axis.
+  const buttonBottom = rowBottom + FLOATING_BUTTON_SIZE + SECONDARY_HUB_GAP + 15;
   // Independent of buttonBottom -- the button itself stays anchored inside
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
@@ -1532,21 +1537,35 @@ function ScopeHub<M extends NavigableMeal>({
 
   const crumbs = scopeBreadcrumbs(breakdown, scope);
 
-  let children: { label: string; scope: Scope }[] = [];
+  // 2026-08-15, a real, confirmed bug, not a test-data quirk: `key` used
+  // to be the composed display `label` itself, but two genuinely distinct
+  // meals/sides/items can share the identical label (two real "Breakfast"
+  // meals logged the same day is a completely normal, real scenario, not
+  // just something dev-seed data happens to trigger) -- React needs a
+  // real, structurally unique key, never display text. Each branch below
+  // already has a real, guaranteed-unique array index for its own level
+  // (mealIndex/sideIndex/itemIndex, from the very scope object each child
+  // already carries) -- `children` is rebuilt fresh from `breakdown` every
+  // render with no per-pill local state to preserve, so an index-based key
+  // is genuinely safe here, not the usual index-as-key risk.
+  let children: { key: string; label: string; scope: Scope }[] = [];
   if (scope.level === 'day') {
     children = breakdown.meals.map((meal, mealIndex) => ({
+      key: `meal-${mealIndex}`,
       label: `${capitalize(meal.mealType)} · ${meal.mealName}`,
       scope: { level: 'meal', mealIndex },
     }));
   } else if (scope.level === 'meal') {
     const meal = resolveScopeMeal(breakdown, scope);
     children = (meal?.sides ?? []).map((side, sideIndex) => ({
+      key: `side-${sideIndex}`,
       label: side.sideName,
       scope: { level: 'side', mealIndex: scope.mealIndex, sideIndex },
     }));
   } else if (scope.level === 'side') {
     const side = resolveScopeSide(breakdown, scope);
     children = (side?.items ?? []).map((item, itemIndex) => ({
+      key: `item-${itemIndex}`,
       label: item.foodName,
       scope: { level: 'item', mealIndex: scope.mealIndex, sideIndex: scope.sideIndex, itemIndex },
     }));
@@ -1604,7 +1623,7 @@ function ScopeHub<M extends NavigableMeal>({
             {children.length > 0 ? (
               <View style={styles.pillRow}>
                 {children.map((child) => (
-                  <TouchableOpacity key={child.label} style={styles.pill} onPress={() => choose(child.scope)}>
+                  <TouchableOpacity key={child.key} style={styles.pill} onPress={() => choose(child.scope)}>
                     <Text style={styles.pillText} numberOfLines={1}>
                       {child.label}
                     </Text>
