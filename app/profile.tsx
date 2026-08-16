@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
@@ -16,6 +16,14 @@ import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreference
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
+import {
+  exportBackupToFile,
+  listLocalBackupFiles,
+  parseBackupEnvelope,
+  pickAndReadBackupFile,
+  readBackupFileContent,
+  restoreFromBackupEnvelope,
+} from '../lib/dataBackup';
 import { clearSeededTestData, seedTest90Days } from '../lib/devSeed';
 import { ACTIVITY_LEVEL_INFO, ACTIVITY_LEVELS, type ActivityLevel } from '../lib/energyNeeds';
 import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
@@ -129,6 +137,7 @@ const ALL_CARD_SECTION_KEYS = [
   'appearance',
   'meal-schedule',
   'connections',
+  'backup',
   'developer',
 ] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
@@ -513,6 +522,13 @@ export default function ProfileScreen() {
   const [seedingTestWeek, setSeedingTestWeek] = useState(false);
   const [clearingSeededData, setClearingSeededData] = useState(false);
 
+  // Backup & Restore card, 2026-08-16 -- see lib/dataBackup.ts's own header
+  // comment for the full real design reasoning. One shared "something's
+  // in flight" flag rather than three separate ones, since export and
+  // either restore path can't sensibly run at once anyway, and this way
+  // every button in the card correctly disables together.
+  const [backupBusy, setBackupBusy] = useState(false);
+
   const [mealTimeBuffers, setMealTimeBuffers] = useState<Record<DayPart, TimeOfDayInput>>({
     breakfast: BLANK_TIME,
     lunch: BLANK_TIME,
@@ -894,6 +910,111 @@ export default function ProfileScreen() {
       // 'canceled' -- no message, no change.
     } finally {
       setPickingImageForScope(null);
+    }
+  }
+
+  // Backup & Restore, 2026-08-16 -- see lib/dataBackup.ts's own header
+  // comment for the real design reasoning (schema-driven, not hand-listed;
+  // photo files themselves aren't included, only their stored uri
+  // references). Real Share.share({url}) attachment, the exact same
+  // already-proven pattern the .is sharing feature already uses for
+  // handing a real local file to the OS share sheet.
+  async function handleExportBackup() {
+    if (backupBusy) return;
+    setBackupBusy(true);
+    try {
+      const fileUri = await exportBackupToFile();
+      if (!fileUri) {
+        Alert.alert('Something went wrong', 'Could not write a backup file. Nothing was exported.');
+        return;
+      }
+      await Share.share({
+        message: 'An Inside Story backup. Save it somewhere safe -- a cloud drive, an email to yourself -- so it can be restored later if this device is ever lost or replaced.',
+        url: fileUri,
+      });
+    } catch {
+      // A real cancelled/dismissed share sheet throws on some Android
+      // versions too -- silently ignored, the same convention every other
+      // Share.share call in this app already follows.
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  async function runRestore(content: string) {
+    const envelope = parseBackupEnvelope(content);
+    if (!envelope) {
+      Alert.alert(
+        "That doesn't look like a real backup file",
+        'Nothing was changed. Try a different file, or export a fresh backup and try that one.',
+      );
+      return;
+    }
+    Alert.alert(
+      'Restore this backup?',
+      `This will replace everything currently on this device with what's in the backup from ${new Date(envelope.exportedAt).toLocaleString()}. This can't be undone.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Restore',
+          style: 'destructive',
+          onPress: async () => {
+            setBackupBusy(true);
+            try {
+              const result = await restoreFromBackupEnvelope(envelope);
+              Alert.alert(
+                'Restored',
+                `${result.tablesRestored} table(s) and ${result.rowsRestored} row(s) restored.${
+                  result.tablesSkipped.length > 0
+                    ? ` (${result.tablesSkipped.length} table(s) from the backup no longer exist in this version of the app and were skipped.)`
+                    : ''
+                }`,
+              );
+            } catch (error) {
+              Alert.alert(
+                'Restore failed',
+                error instanceof Error ? error.message : 'Something went wrong partway through -- nothing was changed.',
+              );
+            } finally {
+              setBackupBusy(false);
+            }
+          },
+        },
+      ],
+    );
+  }
+
+  async function handleRestoreMostRecent() {
+    if (backupBusy) return;
+    setBackupBusy(true);
+    try {
+      const files = await listLocalBackupFiles();
+      if (files.length === 0) {
+        Alert.alert('No local backups yet', 'Export a backup first, or use "Restore from a File" to pick one from elsewhere.');
+        return;
+      }
+      const content = await readBackupFileContent(files[0].uri);
+      if (!content) {
+        Alert.alert('Something went wrong', 'Could not read that backup file.');
+        return;
+      }
+      setBackupBusy(false);
+      await runRestore(content);
+    } finally {
+      setBackupBusy(false);
+    }
+  }
+
+  async function handleRestoreFromFile() {
+    if (backupBusy) return;
+    setBackupBusy(true);
+    try {
+      const picked = await pickAndReadBackupFile();
+      if (!picked) return; // a real cancel, or a real read failure already logged
+      setBackupBusy(false);
+      await runRestore(picked.content);
+    } finally {
+      setBackupBusy(false);
     }
   }
 
@@ -2166,6 +2287,42 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
+      {/* Backup & Restore, 2026-08-16 -- see lib/dataBackup.ts's own header
+          comment for the full real design reasoning: schema-driven, so a
+          future new table is automatically included with zero code
+          changes; per-table structured so a future domain-split for real
+          multi-party cloud sync is an additive step, not a rewrite; this
+          device's own real signing key is correctly, automatically left
+          out, since it lives in expo-secure-store, not this database at
+          all. A real, honest boundary named directly in the card's own
+          text too: this backs up the DATA, not the actual photo files a
+          saved dish/recipe photo may reference. */}
+      <View style={styles.card}>
+        {renderCardHeader('backup', 'Backup & Restore')}
+        {!collapsedSections.has('backup') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Export everything on this device -- meals, schedule, conditions, trials, connections, and more -- into
+              one real file you can save wherever you like (a cloud drive, an email to yourself). Doesn&apos;t
+              include the actual photo files a saved dish or recipe may reference, only their stored references.
+            </Text>
+            <TouchableOpacity style={styles.checkinButton} disabled={backupBusy} onPress={handleExportBackup}>
+              <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Export a Backup'}</Text>
+            </TouchableOpacity>
+            <Text style={[styles.helpText, styles.derivedText]}>
+              Restoring replaces everything currently on this device with what&apos;s in the backup. This can&apos;t
+              be undone.
+            </Text>
+            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreMostRecent}>
+              <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore Most Recent Backup'}</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.dangerButton} disabled={backupBusy} onPress={handleRestoreFromFile}>
+              <Text style={styles.dangerButtonText}>{backupBusy ? 'Working…' : 'Restore from a File…'}</Text>
+            </TouchableOpacity>
+          </View>
+        ) : null}
+      </View>
+
       {/* Developer Tools -- 2026-08-14, gated on the real, standard React
           Native __DEV__ global directly (not just ALL_CARD_SECTION_KEYS'
           own inclusion of 'developer' above, which is harmless either way)
@@ -2575,5 +2732,23 @@ const styles = StyleSheet.create({
   checkinButtonText: {
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
+  },
+  // A real, full-width counterpart to checkinButton above, deliberately
+  // colored for a genuinely destructive action (wipe-and-replace restore)
+  // rather than reusing checkinButton's own primary-action styling --
+  // visually distinct enough that Export and Restore can't be mistaken for
+  // each other at a glance, without going as quiet/compact as clearButton
+  // (which is sized to sit inline next to a text field, not stand alone).
+  dangerButton: {
+    borderWidth: 1,
+    borderColor: colors.danger,
+    borderRadius: 12,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 10,
+  },
+  dangerButtonText: {
+    ...typography.bodyEmphasis,
+    color: colors.danger,
   },
 });
