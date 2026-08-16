@@ -1077,13 +1077,28 @@ export default function ProfileScreen() {
             setBackupBusy(true);
             try {
               const result = await restoreFromBackupEnvelope(envelope);
+              // A real, on-device-confirmed gap, 2026-08-16: restore
+              // rewrites the real database directly, which is correct and
+              // complete for everything a screen re-reads on its own (Food
+              // Allergies, confirmed on-device) -- but several real
+              // features (lib/visualPreferences.ts's own TabHub icon/
+              // background choices, at least) keep a real, live, module-
+              // level cache in memory for the rest of this app session,
+              // never touched by a raw database rewrite. A still-running
+              // app can genuinely show a stale value even though the real,
+              // underlying row is already correctly restored -- a full
+              // close-and-reopen (a fresh JS heap, every module-level
+              // cache starting empty again) is the one guaranteed way to
+              // see everything reflect the restore, not just database-
+              // backed screens. Named directly here rather than left to a
+              // second, confusing bug report.
               Alert.alert(
                 'Restored',
                 `${result.tablesRestored} table(s) and ${result.rowsRestored} row(s) restored.${
                   result.tablesSkipped.length > 0
                     ? ` (${result.tablesSkipped.length} table(s) from the backup no longer exist in this version of the app and were skipped.)`
                     : ''
-                }`,
+                }\n\nClose and fully reopen Inside Story now -- some settings (like the TabHub icon) are cached in memory while the app is running, and won't show the restored value until it's genuinely restarted.`,
               );
             } catch (error) {
               Alert.alert(
