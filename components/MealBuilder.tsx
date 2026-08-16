@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors, inputBackground } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -98,7 +98,7 @@ const CATEGORY_META: { type: MealComponentType; label: string; icon: keyof typeo
 const MEAL_BUILDER_HELP: HelpSection[] = [
   {
     heading: '"Add from...": what it actually does',
-    body: "Each button opens your own already-saved or favorited items from that one builder: a saved side, a favorited smoothie, and so on. Tap a category, pick one of your own saved items from the list, then say how much of it you actually had. It never creates anything new here; it only pulls in something you've already built and saved elsewhere.",
+    body: "Each button opens your own already-saved or favorited items from that one builder: a saved side, a favorited smoothie, and so on. Tap a category, pick one of your own saved items from the list, then say how much of it you actually had. It never creates anything new here; it only pulls in something you've already built and saved elsewhere. Once a category's own list is open, a search box lets you find one by its name or by an ingredient in it.",
   },
   {
     heading: 'What the percent under each item means',
@@ -400,11 +400,23 @@ export function MealBuilder({
   const [browsingCategory, setBrowsingCategory] = useState<MealComponentType | null>(null);
   const [categoryOptions, setCategoryOptions] = useState<MealComponentOption[]>([]);
   const [categoryOptionsLoading, setCategoryOptionsLoading] = useState(false);
+  // 2026-08-16, direct request: "there should be a search utility like in
+  // the Digest areas to search the saved side or whatever for the items
+  // they want to add." Deliberately a plain, un-debounced filter, not
+  // Purple Digest's own DigestSearchInput machinery -- that component's
+  // real complexity exists specifically to keep typing responsive against
+  // a 1,500+-entry corpus re-rendering a large screen on every keystroke
+  // (see its own header comment); a category's own saved-item list here is
+  // one person's own real, much smaller set of saved dishes, so a plain
+  // useMemo filter is genuinely fast enough without needing that same
+  // isolation architecture.
+  const [categorySearchQuery, setCategorySearchQuery] = useState('');
 
   function openCategory(type: MealComponentType) {
     dismissKeyboard();
     setBrowsingCategory(type);
     setCategoryOptionsLoading(true);
+    setCategorySearchQuery('');
     listMealComponentOptions(type).then((options) => {
       setCategoryOptions(options);
       setCategoryOptionsLoading(false);
@@ -414,7 +426,20 @@ export function MealBuilder({
   function closeCategory() {
     setBrowsingCategory(null);
     setCategoryOptions([]);
+    setCategorySearchQuery('');
   }
+
+  // Searches both the saved item's own name AND its real ingredient-name
+  // summary -- someone might remember "the side with broccoli in it" as
+  // readily as its own given name, and MealComponentOption already carries
+  // both (see lib/db.ts's own type) with no extra query needed.
+  const filteredCategoryOptions = useMemo(() => {
+    const query = categorySearchQuery.trim().toLowerCase();
+    if (!query) return categoryOptions;
+    return categoryOptions.filter(
+      (option) => option.name.toLowerCase().includes(query) || (option.ingredientNames ?? '').toLowerCase().includes(query),
+    );
+  }, [categoryOptions, categorySearchQuery]);
 
   // A saved item tapped from categoryOptions, awaiting its own "how much of
   // this did you have" answer before it actually joins `components`.
@@ -1105,7 +1130,7 @@ export function MealBuilder({
         {infoAlertElement}
         {confirmSheetElement}
         {reconciliationSheetElement}
-        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]} keyboardShouldPersistTaps="handled">
           <TouchableOpacity style={styles.backRow} onPress={closeCategory}>
             <Ionicons name="chevron-back" size={18} color={tabColor} />
             <Text style={[styles.backRowText, { color: tabColor }]}>Add from...</Text>
@@ -1118,21 +1143,36 @@ export function MealBuilder({
               {`No saved ${meta.label.toLowerCase()}s yet. Build one from the ${meta.label} Builder first, then come back here to add it.`}
             </Text>
           ) : (
-            <View style={styles.savedList}>
-              {categoryOptions.map((option) => (
-                <TouchableOpacity key={option.id} style={styles.savedRow} onPress={() => selectSavedOption(option)}>
-                  <View style={styles.savedRowText}>
-                    <Text style={styles.savedRowName} numberOfLines={1}>
-                      {option.name}
-                    </Text>
-                    <Text style={styles.savedRowDetail} numberOfLines={1}>
-                      {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
-                    </Text>
-                  </View>
-                  <Ionicons name="add-circle-outline" size={22} color={tabColor} />
-                </TouchableOpacity>
-              ))}
-            </View>
+            <>
+              <AppTextInput
+                style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
+                value={categorySearchQuery}
+                onChangeText={setCategorySearchQuery}
+                placeholder={`Search your saved ${meta.label.toLowerCase()}s...`}
+                placeholderTextColor={colors.textMuted}
+              />
+              {filteredCategoryOptions.length === 0 ? (
+                <Text style={[styles.emptyText, styles.formLabelSpaced]}>
+                  {`No saved ${meta.label.toLowerCase()}s match "${categorySearchQuery.trim()}".`}
+                </Text>
+              ) : (
+                <View style={styles.savedList}>
+                  {filteredCategoryOptions.map((option) => (
+                    <TouchableOpacity key={option.id} style={styles.savedRow} onPress={() => selectSavedOption(option)}>
+                      <View style={styles.savedRowText}>
+                        <Text style={styles.savedRowName} numberOfLines={1}>
+                          {option.name}
+                        </Text>
+                        <Text style={styles.savedRowDetail} numberOfLines={1}>
+                          {option.ingredientNames || `${option.ingredientCount} ingredient${option.ingredientCount === 1 ? '' : 's'}`}
+                        </Text>
+                      </View>
+                      <Ionicons name="add-circle-outline" size={22} color={tabColor} />
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </>
           )}
         </ScrollView>
       </>
@@ -1260,6 +1300,10 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginTop: 4,
   },
+  // 2026-08-16 -- the "Add from..." category list's own search box, right
+  // under the "Saved Xs" heading rather than inside a formCard (this
+  // screen isn't a form at this step, just a plain browsable list).
+  categorySearchInput: { marginTop: 8, marginBottom: 4 },
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
   typePill: {
     borderWidth: 1,
