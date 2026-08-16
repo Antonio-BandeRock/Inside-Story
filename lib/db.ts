@@ -11879,8 +11879,31 @@ export type DailyNutrientBreakdown = {
 // at most once per date, then scaled locally per item -- the scaling can't
 // be cached since the same food can be eaten in different amounts at
 // different points in the day.
+//
+// 2026-08-16, a real fix for the same N+1 pattern already found and fixed
+// once in getNutrientTotalsByDateRange above: this used to call
+// getMealItems(meal.id) once PER MEAL, each its own real DB round-trip
+// through the one shared, memoized SQLite connection every query in this
+// app serializes through. Someone with breakfast/lunch/dinner/a snack
+// logged was paying 4 separate item-fetch queries just to open Insights'
+// Nutrients/Cooking & Prep lens, on top of every per-ingredient nutrient
+// lookup already needed. Fixed the same way: one single
+// getMealItemsInWindow call (already proven, endOfLocalDay reused from the
+// exact same date-boundary fix that call already needs) fetches every real
+// item for the whole day at once, grouped by mealId in plain JS afterward
+// -- the rest of this function's own per-item processing is completely
+// unchanged, since getMealItemsInWindow returns the identical real fields
+// getMealItems always did (confirmed directly against both queries' own
+// SELECT lists), just for the whole day in one query instead of one query
+// per meal.
 export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutrientBreakdown> {
-  const meals = await listMealsForDate(date);
+  const [meals, dayItems] = await Promise.all([listMealsForDate(date), getMealItemsInWindow(date, endOfLocalDay(date))]);
+  const itemsByMeal = new Map<string, typeof dayItems>();
+  for (const item of dayItems) {
+    if (!itemsByMeal.has(item.mealId)) itemsByMeal.set(item.mealId, []);
+    itemsByMeal.get(item.mealId)!.push(item);
+  }
+
   const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
   const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
 
@@ -11904,7 +11927,7 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
   const dayTotals: Record<string, number> = {};
 
   for (const meal of meals) {
-    const items = await getMealItems(meal.id);
+    const items = itemsByMeal.get(meal.id) ?? [];
     const sideOrder: string[] = [];
     const sidesByKey = new Map<
       string,
@@ -12065,8 +12088,19 @@ function aggregateBySubCriterion(foods: { foodName: string; scores: FoodScore[] 
 // once (cached across the whole date, not just within one meal/side),
 // since the same food -- olive oil especially -- tends to show up
 // repeatedly across a day.
+//
+// 2026-08-16, the identical N+1 fix as getDailyNutrientBreakdown just above
+// -- one getMealItemsInWindow call for the whole day instead of one
+// getMealItems call per meal, grouped by mealId afterward. Same real fields
+// either way, same per-meal processing below, completely unchanged.
 export async function getDailySixDimensionsBreakdown(date: string): Promise<DailySixDimensionsBreakdown> {
-  const meals = await listMealsForDate(date);
+  const [meals, dayItems] = await Promise.all([listMealsForDate(date), getMealItemsInWindow(date, endOfLocalDay(date))]);
+  const itemsByMeal = new Map<string, typeof dayItems>();
+  for (const item of dayItems) {
+    if (!itemsByMeal.has(item.mealId)) itemsByMeal.set(item.mealId, []);
+    itemsByMeal.get(item.mealId)!.push(item);
+  }
+
   const scoreCache = new Map<string, FoodScore[]>();
 
   async function getScores(foodId: number, source: string): Promise<FoodScore[]> {
@@ -12083,7 +12117,7 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
   const dayFoods = new Map<string, { foodName: string; scores: FoodScore[] }>();
 
   for (const meal of meals) {
-    const items = await getMealItems(meal.id);
+    const items = itemsByMeal.get(meal.id) ?? [];
     const sideOrder: string[] = [];
     const sidesByKey = new Map<string, { sideName: string; foods: Map<string, { foodName: string; scores: FoodScore[] }> }>();
     const mealFoods = new Map<string, { foodName: string; scores: FoodScore[] }>();

@@ -804,8 +804,30 @@ export default function InsightsScreen() {
   // screen's entire lifetime. Any meal logged/changed on another tab would
   // never show up here until the app was fully restarted. This re-runs
   // every time Insights actually comes into view instead.
+  //
+  // 2026-08-16, a real, direct report: "When i open Cooking Prep it takes
+  // forever for it to load." Confirmed the actual cause reading this
+  // effect: it had NO lens gate at all -- it fired on every single Insights
+  // focus regardless of which lens was showing, paying the full cost of a
+  // whole day's nutrient AND 6-Dimensions breakdown even for someone
+  // landing on Labs, My Meds, or Cooking Impact, none of which ever read
+  // either result. nutrientBreakdown/dimensionsBreakdown are read by
+  // exactly 4 lenses (confirmed directly -- every other lens already has
+  // its own dedicated state/effect above): nutrients + hydration both need
+  // nutrientBreakdown; sixDs + prep both need dimensionsBreakdown. Gated
+  // the same established way as Portions/Safe Foods above, with `lens`
+  // genuinely in the dependency array this time -- useFocusEffect re-runs
+  // its own callback whenever the callback identity changes while the
+  // screen is still focused, not only on a real focus/blur transition, so
+  // switching INTO one of these 4 lenses now correctly triggers a fresh
+  // fetch even without leaving and returning to the tab, instead of only
+  // ever firing once per tab visit regardless of which lens started it.
+  // The other real half of the fix -- the two functions below themselves
+  // no longer doing a real query per meal -- lives in lib/db.ts.
   useFocusEffect(
     useCallback(() => {
+      if (lens !== 'nutrients' && lens !== 'hydration' && lens !== 'sixDs' && lens !== 'prep') return;
+
       let cancelled = false;
       const date = todayDateString();
       setLoading(true);
@@ -826,7 +848,7 @@ export default function InsightsScreen() {
       return () => {
         cancelled = true;
       };
-    }, []),
+    }, [lens]),
   );
 
   function changeScope(next: Scope) {
