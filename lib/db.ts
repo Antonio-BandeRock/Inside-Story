@@ -12253,9 +12253,29 @@ function addNutrientTotalsInto(target: Record<string, number>, source: Record<st
   }
 }
 
+// getMealItemsInWindow's own `m.eaten_at BETWEEN startLocal AND endLocal`
+// is a real, correct, precise primitive -- lib/patternFinder.ts calls it
+// with genuine hour-precise datetime bounds and needs that exact-string
+// behavior. But both real callers just below pass a bare 'YYYY-MM-DD'
+// endLocal meaning "through the end of that whole day," and a bare date
+// string sorts BEFORE any real, full 'YYYY-MM-DDTHH:mm' timestamp on that
+// same date -- confirmed directly (sqlite3 CLI): `eaten_at BETWEEN
+// '2026-08-02' AND '2026-08-16'` matched zero of the real rows actually
+// logged on 2026-08-16 itself, only rows from the day before. Every meal
+// on the requested range's own LAST day (including "today," for any
+// range ending today, and any single-day range where start===end) was
+// silently being dropped as a result -- a real, already-shipped bug from
+// the 2026-08-15 range rewrite, not something new. Widening just the END
+// bound to the true end of that calendar day fixes it here, at the two
+// callers that actually mean "whole days," without touching
+// getMealItemsInWindow's own correct, precise contract at all.
+function endOfLocalDay(dateOrDateTime: string): string {
+  return `${dateOrDateTime.slice(0, 10)}T23:59`;
+}
+
 export async function getNutrientTotalsByDateRange(startLocal: string, endLocal: string): Promise<NutrientTotalsByDateRange> {
   const [items, supplementResult, driRows] = await Promise.all([
-    getMealItemsInWindow(startLocal, endLocal),
+    getMealItemsInWindow(startLocal, endOfLocalDay(endLocal)),
     getSupplementNutrientTotals(),
     getDietaryReferenceIntakesForCurrentUser(),
   ]);
@@ -12413,7 +12433,7 @@ export async function getProjectedNutrientTotalsByDateRange(startDate: string, e
 // date) so the flag-count semantics can't drift from the single-date
 // version.
 export async function getSixDimensionsFlagCountsByDateRange(startLocal: string, endLocal: string): Promise<Record<string, number>> {
-  const items = await getMealItemsInWindow(startLocal, endLocal);
+  const items = await getMealItemsInWindow(startLocal, endOfLocalDay(endLocal));
   const scoreCache = new Map<string, FoodScore[]>();
 
   async function getCachedScores(foodId: number, source: string) {

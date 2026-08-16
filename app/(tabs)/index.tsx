@@ -23,8 +23,8 @@ import { useIridescentHueRotation } from '../../hooks/useIridescentHueRotation';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import {
   getCheckinForDate,
-  getDailyNutrientBreakdown,
-  getDailySixDimensionsBreakdown,
+  getNutrientTotalsByDateRange,
+  getSixDimensionsFlagCountsByDateRange,
   getUserProfile,
   listCheckins,
   listMealsForDate,
@@ -47,7 +47,6 @@ import {
   type NutrientGapEntry,
   type NutrientStatus,
 } from '../../lib/nutrientAnalysis';
-import { isFlaggedTier } from '../../lib/sixDimensionsReference';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
 
@@ -543,8 +542,25 @@ export default function HomeScreen() {
     return Promise.all([
       listMealsForDate(date),
       listScheduledMealsForDate(date),
-      getDailyNutrientBreakdown(date),
-      getDailySixDimensionsBreakdown(date),
+      // 2026-08-15: swapped from getDailyNutrientBreakdown(date)/
+      // getDailySixDimensionsBreakdown(date) -- both real, but each
+      // documented directly at its own definition in lib/db.ts as
+      // "genuinely heavy per call" (a fresh per-meal/per-item resolution
+      // pass every time, no cross-call caching between the two). Reported
+      // directly as "15 to 20 seconds for the home screen to populate."
+      // These two range-scoped functions were already built and proven
+      // fast for exactly this class of problem (Trends' own 2026-08-15
+      // rewrite, see trendAnalysis.ts's own header comment) -- called here
+      // with a trivial one-day range (today to today), they do the exact
+      // same real work in a fraction of the queries: one real,
+      // window-scoped item lookup plus one score/nutrient lookup per
+      // DISTINCT food actually eaten today, not once per meal-item with a
+      // cache reset for a whole separate call. Confirmed Home only ever
+      // read nutrientBreakdown.driRows/dayTotals/supplementTotals and
+      // dimensionsBreakdown.day (never any meal-by-meal/side-by-side
+      // detail from either), so both are safe, like-for-like swaps.
+      getNutrientTotalsByDateRange(date, date),
+      getSixDimensionsFlagCountsByDateRange(date, date),
       listCheckins({ checkinType: 'flare', limit: 60 }),
       listCheckins({ checkinType: 'post_meal', limit: 60 }),
       getUserProfile(),
@@ -558,8 +574,8 @@ export default function HomeScreen() {
       ([
         todaysMeals,
         scheduledToday,
-        nutrientBreakdown,
-        dimensionsBreakdown,
+        nutrientTotals,
+        sixDsFlagCounts,
         flareEntries,
         reactionEntries,
         profile,
@@ -568,13 +584,11 @@ export default function HomeScreen() {
       ]) => {
         setFirstName(profile.firstName);
         const nutrientEntries = analyzeNutrientIntake(
-          nutrientBreakdown.driRows,
-          nutrientBreakdown.dayTotals,
-          nutrientBreakdown.supplementTotals,
+          nutrientTotals.driRows,
+          nutrientTotals.dayTotals[date] ?? {},
+          nutrientTotals.supplementTotals,
         );
-        const sixDsFlagCount = dimensionsBreakdown.day.filter((score) =>
-          score.entries.some((entry) => isFlaggedTier(entry.tier)),
-        ).length;
+        const sixDsFlagCount = sixDsFlagCounts[date] ?? 0;
 
         const negativeEntries = [...flareEntries, ...reactionEntries];
         const hasAnyLogHistory = negativeEntries.length > 0;
