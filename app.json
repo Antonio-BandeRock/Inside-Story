@@ -17,16 +17,23 @@
           {
             "CFBundleTypeName": "Inside Story Share",
             "LSHandlerRank": "Owner",
-            "LSItemContentTypes": ["com.insidestoryapp.app.is-share"]
+            "LSItemContentTypes": [
+              "com.insidestoryapp.app.is-share"
+            ]
           }
         ],
         "UTExportedTypeDeclarations": [
           {
             "UTTypeIdentifier": "com.insidestoryapp.app.is-share",
             "UTTypeDescription": "Inside Story Share",
-            "UTTypeConformsTo": ["public.data", "public.content"],
+            "UTTypeConformsTo": [
+              "public.data",
+              "public.content"
+            ],
             "UTTypeTagSpecification": {
-              "public.filename-extension": ["is"]
+              "public.filename-extension": [
+                "is"
+              ]
             }
           }
         ]
@@ -48,10 +55,23 @@
       "intentFilters": [
         {
           "action": "VIEW",
-          "category": ["DEFAULT", "BROWSABLE"],
+          "category": [
+            "DEFAULT",
+            "BROWSABLE"
+          ],
           "data": [
-            { "scheme": "content", "mimeType": "*/*", "host": "*", "pathPattern": ".*\\.is" },
-            { "scheme": "file", "mimeType": "*/*", "host": "*", "pathPattern": ".*\\.is" }
+            {
+              "scheme": "content",
+              "mimeType": "*/*",
+              "host": "*",
+              "pathPattern": ".*\\.is"
+            },
+            {
+              "scheme": "file",
+              "mimeType": "*/*",
+              "host": "*",
+              "pathPattern": ".*\\.is"
+            }
           ]
         }
       ]
@@ -97,7 +117,14 @@
           "cameraPermission": "Inside Story uses your camera to let you take a photo of a meal you've made."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Inside Story uses your microphone to let you search and add notes by speaking instead of typing.",
+          "speechRecognitionPermission": "Inside Story uses speech recognition to turn what you say into text for search boxes and notes."
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

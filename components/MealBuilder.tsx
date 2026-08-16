@@ -34,6 +34,7 @@ import { useConfirmSheet } from './ConfirmSheet';
 import { HelpButton, type HelpSection } from './HelpButton';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import { VoiceInputButton } from './VoiceInputButton';
 
 // Deliberately last of the ten Food-tab builders, per this app's own build
 // order (see CLAUDE.md's Next steps) -- this is the only one that assembles
@@ -1144,13 +1145,16 @@ export function MealBuilder({
             </Text>
           ) : (
             <>
-              <AppTextInput
-                style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
-                value={categorySearchQuery}
-                onChangeText={setCategorySearchQuery}
-                placeholder={`Search your saved ${meta.label.toLowerCase()}s...`}
-                placeholderTextColor={colors.textMuted}
-              />
+              <View style={styles.categorySearchRow}>
+                <AppTextInput
+                  style={[styles.formInput, styles.categorySearchInput, { backgroundColor: inputBackground(tabColor) }]}
+                  value={categorySearchQuery}
+                  onChangeText={setCategorySearchQuery}
+                  placeholder={`Search your saved ${meta.label.toLowerCase()}s...`}
+                  placeholderTextColor={colors.textMuted}
+                />
+                <VoiceInputButton onResult={(transcript) => setCategorySearchQuery(transcript)} color={tabColor} />
+              </View>
               {filteredCategoryOptions.length === 0 ? (
                 <Text style={[styles.emptyText, styles.formLabelSpaced]}>
                   {`No saved ${meta.label.toLowerCase()}s match "${categorySearchQuery.trim()}".`}
@@ -1302,8 +1306,12 @@ const styles = StyleSheet.create({
   },
   // 2026-08-16 -- the "Add from..." category list's own search box, right
   // under the "Saved Xs" heading rather than inside a formCard (this
-  // screen isn't a form at this step, just a plain browsable list).
-  categorySearchInput: { marginTop: 8, marginBottom: 4 },
+  // screen isn't a form at this step, just a plain browsable list). The
+  // row wraps the input with a real mic button (VoiceInputButton, added
+  // the same day) so this list can be searched by speaking too, not just
+  // typing.
+  categorySearchRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 8, marginBottom: 4 },
+  categorySearchInput: { flex: 1 },
   pillWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
   typePill: {
     borderWidth: 1,

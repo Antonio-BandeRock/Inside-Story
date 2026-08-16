@@ -17,6 +17,7 @@ import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { PopoverSelect } from '../../components/PopoverSelect';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
@@ -2817,7 +2818,18 @@ function DigestSearchInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue]);
 
-  return <AppTextInput style={style} placeholder={placeholder} value={localValue} onChangeText={handleChangeText} />;
+  return (
+    <View style={styles.searchInputRow}>
+      <AppTextInput style={[style, styles.searchInputFlex]} placeholder={placeholder} value={localValue} onChangeText={handleChangeText} />
+      {/* Every result (partial included) replaces the query live, the
+          same real "search as you speak" feel a phone's own voice
+          search already has -- reuses handleChangeText directly, so a
+          spoken result goes through the exact same debounce/
+          active-change pipeline a typed one does, never a second,
+          competing state path. */}
+      <VoiceInputButton onResult={(transcript) => handleChangeText(transcript)} />
+    </View>
+  );
 }
 
 // A compact, unexpandable result row for the Search All lens -- tapping it
@@ -4040,6 +4052,13 @@ const styles = StyleSheet.create({
   categoryHeaderText: { ...typography.screenTitle, color: TAB_COLOR },
   categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   emptyText: { ...typography.body, color: colors.textSecondary },
+  // 2026-08-16 -- wraps the search AppTextInput with a real mic button
+  // (VoiceInputButton) beside it, added inside DigestSearchInput itself
+  // rather than at either of this screen's own two call sites, since
+  // that component deliberately owns its whole search-input experience
+  // as one self-contained unit (see its own header comment).
+  searchInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  searchInputFlex: { flex: 1 },
   searchInput: {
     ...typography.body,
     borderWidth: 1,

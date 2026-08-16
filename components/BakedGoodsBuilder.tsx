@@ -36,6 +36,8 @@ import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import { VoiceInputButton } from './VoiceInputButton';
+import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
 // scrollable-box treatment, since this is a short, fixed set (unlike
@@ -1693,7 +1695,24 @@ export function BakedGoodsBuilder({
                   fields above, tying the note field visually to the fields
                   it annotates rather than floating between them and the
                   buttons below. */}
-              <Text style={[styles.formLabel, { color: tabColor, marginTop: 7 }]}>Prep Notes (optional)</Text>
+              {/* 2026-08-16 -- a real mic button next to the label, not
+                  wrapped around the multiline field itself (which is
+                  meant to grow tall, not sit in a horizontal row).
+                  Only the FINAL transcript is used -- a partial result
+                  mid-sentence would land real, half-finished command
+                  phrases in the actual note text, so this waits for the
+                  whole utterance before running it through
+                  parseVoiceCommands and appending. */}
+              <View style={styles.prepNoteLabelRow}>
+                <Text style={[styles.formLabel, { color: tabColor, marginTop: 7 }]}>Prep Notes (optional)</Text>
+                <VoiceInputButton
+                  onResult={(transcript, isFinal) => {
+                    if (!isFinal) return;
+                    setIngredientPrepNote((current) => appendDictatedText(current, parseVoiceCommands(transcript)));
+                  }}
+                  size={16}
+                />
+              </View>
               <AppTextInput
                 style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
                 value={ingredientPrepNote}
@@ -2014,6 +2033,11 @@ const styles = StyleSheet.create({
   // Notes box, reading as one attached control group. This separates them
   // so the buttons act on the whole card rather than looking like they
   // belong to the note field.
+  // 2026-08-16 -- wraps the Prep Notes label with a real mic button
+  // beside it (see this field's own header comment above for why the
+  // button sits next to the label rather than inside the multiline
+  // field itself).
+  prepNoteLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
   // 2026-08-08 -- renderFavoriteToggle's own row.
   favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },

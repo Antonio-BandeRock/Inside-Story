@@ -12,11 +12,13 @@ import { LensHub, type LensOption } from '../../components/LensHub';
 import { MyItemsHub } from '../../components/MyItemsHub';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { getCheckinTagsByCategory, type CheckinTagDefinition } from '../../lib/checkinTags';
+import { appendDictatedText, parseVoiceCommands } from '../../lib/voiceCommandParsing';
 import {
   createFoodTrial,
   deleteBodyMeasurement,
@@ -1579,7 +1581,21 @@ function GeneralNoteSection() {
         </TouchableOpacity>
       ) : (
         <View style={styles.formCard}>
-          <Text style={styles.label}>Note</Text>
+          {/* 2026-08-16 -- a real mic button next to the label, matching
+              the same wiring every Food builder's own Prep Notes field
+              just got. Only the FINAL transcript is parsed and
+              appended -- a partial mid-sentence result would land real,
+              half-finished command phrases in the actual note text. */}
+          <View style={styles.noteLabelRow}>
+            <Text style={styles.label}>Note</Text>
+            <VoiceInputButton
+              onResult={(transcript, isFinal) => {
+                if (!isFinal) return;
+                setNotes((current) => appendDictatedText(current, parseVoiceCommands(transcript)));
+              }}
+              size={16}
+            />
+          </View>
           <AppTextInput
             style={[styles.input, styles.multilineInput]}
             placeholder="e.g. Started a new dose of vitamin D today"
@@ -1828,6 +1844,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   multilineInput: { minHeight: 70, textAlignVertical: 'top' },
+  // 2026-08-16 -- wraps GeneralNoteSection's own "Note" label with a real
+  // mic button beside it.
+  noteLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   timeRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   timeInput: { width: 56, textAlign: 'center' },
   timeSeparator: { ...typography.label, color: TAB_COLOR },

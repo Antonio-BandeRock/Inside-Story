@@ -5,6 +5,7 @@ import { AppState, Keyboard, Pressable, StyleSheet, Text, View } from 'react-nat
 import Animated, { useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { useActiveInputControls, useActiveInputValue } from './ActiveInputContext';
 import { AppTextInput } from './AppTextInput';
+import { VoiceInputButton } from './VoiceInputButton';
 import { colors } from '../constants/colors';
 import {
   ACCESSORY_BUTTON_SIZE,
@@ -316,13 +317,27 @@ export function AppKeyboard() {
       ) : null}
       <View style={styles.searchBoxSlot}>
         {searchRequest ? (
-          <AppTextInput
-            autoFocus
-            value={searchRequest.value}
-            onChangeText={searchRequest.onChangeText}
-            placeholder={searchRequest.placeholder}
-            style={styles.searchBox}
-          />
+          <View style={styles.searchBoxRow}>
+            <AppTextInput
+              autoFocus
+              value={searchRequest.value}
+              onChangeText={searchRequest.onChangeText}
+              placeholder={searchRequest.placeholder}
+              style={styles.searchBox}
+            />
+            {/* 2026-08-16 -- a real mic button, added here rather than in
+                any individual searchable list (InlineSearchSelectList,
+                Dropdown.tsx's own searchable variant), since this ONE
+                shared search row is where every one of them actually
+                renders its own search field (see this row's own header
+                comment above). One real fix point covers every
+                searchable picker in the app at once, including all 11
+                Food builders' own ingredient search and Insights' Food
+                Lookup lens. Every result (partial included) replaces
+                searchRequest's own live text, the identical thing typing
+                already does through onChangeText. */}
+            <VoiceInputButton onResult={(transcript) => searchRequest.onChangeText(transcript)} size={18} />
+          </View>
         ) : null}
       </View>
     </View>
@@ -430,6 +445,10 @@ const styles = StyleSheet.create({
   // Always rendered, with or without an actual search box inside, so
   // Next/Done never shift position depending on whether one is present.
   searchBoxSlot: { flex: 1, height: '100%' },
+  // 2026-08-16 -- wraps the search field with a real mic button beside
+  // it (see the searchRow's own header comment for why this one spot
+  // covers every searchable picker in the app).
+  searchBoxRow: { flexDirection: 'row', alignItems: 'center', gap: 4, height: '100%' },
   searchBox: {
     flex: 1,
     height: '100%',
