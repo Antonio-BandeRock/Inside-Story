@@ -285,50 +285,102 @@ export async function restoreFromBackupEnvelope(envelope: BackupEnvelope): Promi
   let tablesRestored = 0;
   let rowsRestored = 0;
 
-  await db.execAsync('BEGIN TRANSACTION');
+  // A real, on-device-confirmed bug, not theoretical: this deletes and
+  // reinserts every table's own rows in one pass, in whatever order
+  // sqlite_master happens to return them (plain alphabetical -- see
+  // getRealUserTableNames's own `ORDER BY name`), not a real dependency
+  // order. With this app's own real FOREIGN KEY constraints enforced
+  // (`PRAGMA foreign_keys = ON`, set once at startup in
+  // runDatabaseInitialization), that alphabetical order genuinely doesn't
+  // match the real parent/child relationships between tables -- confirmed
+  // via a real "FOREIGN KEY constraint failed" restore failure on-device
+  // 2026-08-16, and easy to see why: `garden_harvests` sorts alphabetically
+  // BEFORE its own real parent `garden_plantings`, so a harvest row was
+  // being reinserted before the planting it references existed again.
+  //
+  // Rather than hand-maintain a real topological table order (which would
+  // reintroduce exactly the "must remember to update this every time a
+  // table or FK changes" maintenance burden getRealUserTableNames() was
+  // built specifically to avoid -- see this file's own header comment),
+  // foreign key ENFORCEMENT is disabled for the real duration of this one
+  // restore instead -- the standard, schema-agnostic technique for exactly
+  // this bulk-reload situation, and the actual reason SQLite exposes this
+  // pragma as toggleable at all.
+  //
+  // Two real SQLite constraints this has to respect, not just style
+  // choices: `PRAGMA foreign_keys` is a real, documented no-op if changed
+  // WHILE a transaction is already open, so it has to be set before BEGIN
+  // TRANSACTION, not after; and it's connection-level state, not part of
+  // the transaction itself, so a ROLLBACK on a real failure would NOT put
+  // it back on its own -- the real try/finally below guarantees it's
+  // always turned back on before this function returns, success or
+  // failure, since the rest of this app depends on real FK enforcement
+  // (cascading deletes, etc.) staying on for ordinary use.
+  await db.execAsync('PRAGMA foreign_keys = OFF');
   try {
-    for (const [tableName, rows] of Object.entries(envelope.tables)) {
-      if (!liveTableNames.has(tableName)) {
-        // A real table the backup knows about that this app's CURRENT
-        // schema no longer has -- an older backup, taken before some
-        // future schema change. Skipped, not fatal to the rest of the
-        // restore.
-        tablesSkipped.push(tableName);
-        continue;
+    await db.execAsync('BEGIN TRANSACTION');
+    try {
+      for (const [tableName, rows] of Object.entries(envelope.tables)) {
+        if (!liveTableNames.has(tableName)) {
+          // A real table the backup knows about that this app's CURRENT
+          // schema no longer has -- an older backup, taken before some
+          // future schema change. Skipped, not fatal to the rest of the
+          // restore.
+          tablesSkipped.push(tableName);
+          continue;
+        }
+
+        const columnInfo = await db.getAllAsync<{ name: string }>(`PRAGMA table_info("${tableName}")`);
+        const liveColumns = new Set(columnInfo.map((column) => column.name));
+
+        await db.runAsync(`DELETE FROM "${tableName}"`);
+
+        for (const row of rows) {
+          // Only the real, current intersection of columns -- a column the
+          // backup has that the live schema no longer does gets dropped; a
+          // column the live schema has that this old row never carried
+          // simply isn't in the INSERT at all, and SQLite fills it with
+          // whatever real default that column's own migration already gave
+          // it (or NULL).
+          const columns = Object.keys(row).filter((column) => liveColumns.has(column));
+          if (columns.length === 0) continue;
+          const columnList = columns.map((column) => `"${column}"`).join(', ');
+          const placeholders = columns.map(() => '?').join(', ');
+          // A real column value coming out of JSON.parse is always a plain
+          // string/number/boolean/null -- JSON has no native way to
+          // represent the Uint8Array a BLOB column would otherwise need, and
+          // none of this app's own local tables store one. Safe to assert
+          // the shape SQLite's own bind params actually require.
+          const values = columns.map((column) => row[column]) as SQLiteBindValue[];
+          await db.runAsync(`INSERT INTO "${tableName}" (${columnList}) VALUES (${placeholders})`, values);
+          rowsRestored += 1;
+        }
+
+        tablesRestored += 1;
       }
 
-      const columnInfo = await db.getAllAsync<{ name: string }>(`PRAGMA table_info("${tableName}")`);
-      const liveColumns = new Set(columnInfo.map((column) => column.name));
-
-      await db.runAsync(`DELETE FROM "${tableName}"`);
-
-      for (const row of rows) {
-        // Only the real, current intersection of columns -- a column the
-        // backup has that the live schema no longer does gets dropped; a
-        // column the live schema has that this old row never carried
-        // simply isn't in the INSERT at all, and SQLite fills it with
-        // whatever real default that column's own migration already gave
-        // it (or NULL).
-        const columns = Object.keys(row).filter((column) => liveColumns.has(column));
-        if (columns.length === 0) continue;
-        const columnList = columns.map((column) => `"${column}"`).join(', ');
-        const placeholders = columns.map(() => '?').join(', ');
-        // A real column value coming out of JSON.parse is always a plain
-        // string/number/boolean/null -- JSON has no native way to
-        // represent the Uint8Array a BLOB column would otherwise need, and
-        // none of this app's own local tables store one. Safe to assert
-        // the shape SQLite's own bind params actually require.
-        const values = columns.map((column) => row[column]) as SQLiteBindValue[];
-        await db.runAsync(`INSERT INTO "${tableName}" (${columnList}) VALUES (${placeholders})`, values);
-        rowsRestored += 1;
+      // A real, direct check that the restored data is genuinely
+      // self-consistent, not just assumed so because enforcement was off
+      // during the reload -- foreign_key_check runs independent of that
+      // pragma's on/off state and reports any real orphaned reference. A
+      // backup taken from this app's own already-consistent live data
+      // should always pass this cleanly; a genuine failure here would mean
+      // the backup file itself carries real, broken references, worth
+      // failing loudly on rather than silently keeping bad data.
+      const violations = await db.getAllAsync<{ table: string }>('PRAGMA foreign_key_check');
+      if (violations.length > 0) {
+        throw new Error(
+          `Restored data failed a real foreign-key consistency check (${violations.length} violation(s), e.g. table "${violations[0].table}"). Nothing was kept.`,
+        );
       }
 
-      tablesRestored += 1;
+      await db.execAsync('COMMIT');
+    } catch (error) {
+      await db.execAsync('ROLLBACK');
+      throw error;
     }
-    await db.execAsync('COMMIT');
-  } catch (error) {
-    await db.execAsync('ROLLBACK');
-    throw error;
+  } finally {
+    await db.execAsync('PRAGMA foreign_keys = ON');
   }
 
   return { tablesRestored, rowsRestored, tablesSkipped };
