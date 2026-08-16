@@ -35,6 +35,16 @@
 //    ("route these table keys into file A, those into file B") rather than
 //    a rewrite of this same shape.
 //
+// 3. "Is a plain-JSON export actually safe?" No, and this was fixed the
+//    same day it was asked directly -- see lib/backupEncryption.ts. Every
+//    real export from exportBackupToFile() now goes out as an
+//    EncryptedBackupWire, never plain JSON, with the password chosen by
+//    the person themselves and never stored anywhere the app can read it
+//    back on its own. app/profile.tsx's own restore flow detects which
+//    real shape a given file is (isEncryptedBackupWire vs. a bare
+//    BackupEnvelope) and handles either correctly, so a genuinely older,
+//    unencrypted backup already sitting on a device stays fully openable.
+//
 // A real, honest scope boundary, stated directly rather than glossed over:
 // this backs up the DATABASE -- every real row, in every real local table
 // -- but not the actual photo FILES a person's saved builder creations or
@@ -67,6 +77,7 @@
 // file back in) real today rather than a deferred next step.
 
 import type { SQLiteBindValue } from 'expo-sqlite';
+import { encryptBackupPayload } from './backupEncryption';
 import { getDatabase } from './db';
 
 export const BACKUP_SCHEMA_VERSION = 1;
@@ -130,15 +141,27 @@ export async function buildBackupEnvelope(): Promise<BackupEnvelope> {
 // real "disposable, meant to be handed to the OS share sheet and then
 // forgotten" storage lib/sharing.ts's own writeIsFile already uses for
 // exactly this reason) and returns its own real file:// URI.
-export async function exportBackupToFile(): Promise<string | null> {
+//
+// Encryption is mandatory here, not an opt-out toggle -- 2026-08-16, a
+// direct security question surfaced that the plain-JSON export was
+// readable in any text editor or AI tool the instant it left this device,
+// and the real, agreed fix is that every NEW export goes out encrypted,
+// full stop. See lib/backupEncryption.ts's own header comment for the
+// real crypto this wraps. restoreFromBackupEnvelope's own callers still
+// handle a genuinely older, unencrypted file transparently (see
+// parseBackupEnvelope below) -- this only changes what a FUTURE export
+// produces, it never breaks reading a real backup already sitting on a
+// device from before this feature existed.
+export async function exportBackupToFile(password: string): Promise<string | null> {
   try {
     const envelope = await buildBackupEnvelope();
+    const wire = await encryptBackupPayload(JSON.stringify(envelope), password);
     const { Directory, File, Paths } = await import('expo-file-system');
     const dir = new Directory(Paths.cache, 'backups');
     if (!dir.exists) dir.create({ intermediates: true });
     const stamp = envelope.exportedAt.replace(/[:.]/g, '-');
     const file = new File(dir, `inside-story-backup-${stamp}.json`);
-    file.write(JSON.stringify(envelope));
+    file.write(JSON.stringify(wire));
     return file.uri;
   } catch (error) {
     console.error('[dataBackup] Failed to write a real backup file', error);

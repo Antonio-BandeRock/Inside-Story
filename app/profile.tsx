@@ -7,6 +7,7 @@ import { AppTextInput } from '../components/AppTextInput';
 import { GenericBackground } from '../components/GenericBackground';
 import { IridescentRingCircle } from '../components/IridescentRingCircle';
 import { PopoverSelect } from '../components/PopoverSelect';
+import { usePasswordPrompt } from '../components/PasswordPrompt';
 import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
@@ -16,6 +17,7 @@ import { useGeneralHealthPreferences } from '../hooks/useGeneralHealthPreference
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
+import { decryptBackupPayload, isEncryptedBackupWire } from '../lib/backupEncryption';
 import {
   exportBackupToFile,
   listLocalBackupFiles,
@@ -23,6 +25,7 @@ import {
   pickAndReadBackupFile,
   readBackupFileContent,
   restoreFromBackupEnvelope,
+  type BackupEnvelope,
   type LocalBackupFile,
 } from '../lib/dataBackup';
 import { clearSeededTestData, seedTest90Days } from '../lib/devSeed';
@@ -535,6 +538,14 @@ export default function ProfileScreen() {
   // cache directory fresh every time, so this always reflects what's
   // genuinely still there, not a stale one-time snapshot.
   const [localBackups, setLocalBackups] = useState<LocalBackupFile[]>([]);
+  // Real password-based encryption, 2026-08-16 -- see
+  // lib/backupEncryption.ts's own header comment for the full real
+  // reasoning. One shared prompt (components/PasswordPrompt.tsx) covers
+  // both real moments this needs to happen: 'set' when exporting (asks
+  // twice, to catch a typo before it locks someone out of their own
+  // backup forever -- there is deliberately no recovery), 'enter' when
+  // restoring an encrypted file.
+  const [promptPassword, passwordPromptElement] = usePasswordPrompt();
 
   const refreshLocalBackups = useCallback(async () => {
     const files = await listLocalBackupFiles();
@@ -953,9 +964,15 @@ export default function ProfileScreen() {
   // OS share target silently did with it.
   async function handleExportBackup() {
     if (backupBusy) return;
+    const password = await promptPassword(
+      'set',
+      'Set a Backup Password',
+      "This encrypts your backup so only someone who has this password can ever read it -- not a text editor, not an AI tool, nothing. Choose something real; there's no way to reset it later.",
+    );
+    if (password === null) return; // a real cancel -- nothing was exported
     setBackupBusy(true);
     try {
-      const fileUri = await exportBackupToFile();
+      const fileUri = await exportBackupToFile(password);
       if (!fileUri) {
         Alert.alert('Something went wrong', 'Could not write a backup file. Nothing was exported.');
         return;
@@ -980,8 +997,63 @@ export default function ProfileScreen() {
     }
   }
 
+  // Resolves whatever a real backup file's own raw content actually is
+  // into a usable BackupEnvelope -- detecting, by real shape rather than
+  // by file name or any other guess, whether it's a genuine
+  // EncryptedBackupWire (every export since 2026-08-16, see
+  // lib/backupEncryption.ts) or a genuinely older, unencrypted
+  // BackupEnvelope from before that feature existed -- both stay real,
+  // fully openable file formats. Returns 'cancelled' specifically to
+  // distinguish "the person backed out of the password prompt" from "this
+  // genuinely isn't a real backup file at all," since those two outcomes
+  // need different messages.
+  async function resolveBackupEnvelope(content: string): Promise<BackupEnvelope | null | 'cancelled'> {
+    let raw: unknown;
+    try {
+      raw = JSON.parse(content);
+    } catch {
+      return null;
+    }
+
+    if (!isEncryptedBackupWire(raw)) {
+      // A real, legacy, unencrypted file -- reuse the existing, already-
+      // proven parse/validate path directly.
+      return parseBackupEnvelope(content);
+    }
+
+    for (;;) {
+      const password = await promptPassword(
+        'enter',
+        'Enter Backup Password',
+        'This backup is encrypted. Enter the password you set when you exported it.',
+      );
+      if (password === null) return 'cancelled';
+      const decrypted = decryptBackupPayload(raw, password);
+      if (decrypted === null) {
+        // A real, honest limitation stated directly to the person too --
+        // authenticated encryption genuinely can't tell a wrong password
+        // apart from a corrupted/tampered file, by design (see
+        // lib/backupEncryption.ts's own decryptBackupPayload comment).
+        const tryAgain = await new Promise<boolean>((resolve) => {
+          Alert.alert(
+            "That password didn't work",
+            "Either the password is wrong, or this file is genuinely corrupted -- there's no way to tell which one. Try again?",
+            [
+              { text: 'Cancel', style: 'cancel', onPress: () => resolve(false) },
+              { text: 'Try Again', onPress: () => resolve(true) },
+            ],
+          );
+        });
+        if (!tryAgain) return 'cancelled';
+        continue;
+      }
+      return parseBackupEnvelope(decrypted);
+    }
+  }
+
   async function runRestore(content: string) {
-    const envelope = parseBackupEnvelope(content);
+    const envelope = await resolveBackupEnvelope(content);
+    if (envelope === 'cancelled') return;
     if (!envelope) {
       Alert.alert(
         "That doesn't look like a real backup file",
@@ -2458,6 +2530,7 @@ export default function ProfileScreen() {
       ) : null}
     </ScrollView>
     {closeButton}
+    {passwordPromptElement}
     </View>
   );
 }
