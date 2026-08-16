@@ -18,10 +18,12 @@ import {
   listAvailableHarvests,
   resolveFoodChoice,
   searchReferenceFoodNames,
+  searchReferenceFoodNamesAcrossCategories,
   type DietaryReferenceIntake,
   type FoodNutrient,
   type FoodUnitWeight,
   type GardenHarvest,
+  type GlobalFoodMatch,
 } from '../lib/db';
 import { buildFoodNameGroups } from '../lib/foodNameGrouping';
 import { getStageDeprioritizedNames } from '../lib/foodStageReordering';
@@ -32,6 +34,7 @@ import { useInfoAlert } from './InfoAlert';
 import { InlineSearchSelectList } from './InlineSearchSelectList';
 import { InlineSelectList } from './InlineSelectList';
 import { useScreenHeaderHeight } from './ScreenHeader';
+import { VoiceInputButton } from './VoiceInputButton';
 
 const NUTRIENT_GROUP_LABELS: Record<string, string> = {
   macro: 'Macronutrients',
@@ -518,6 +521,50 @@ export function FoodLookup({
       foodId: harvest.foodId,
       source: harvest.source,
     });
+  }
+
+  // "Say a food name," 2026-08-16 -- the real, direct answer to "add
+  // broccoli without having to drill down into the groupings to find
+  // where broccoli will be." null means no voice search is currently
+  // showing results (the normal Category list renders); a real array
+  // (even empty, meaning "searched, found nothing") replaces it with
+  // this instead. Deliberately never auto-jumps straight to a single
+  // match without a real tap to confirm it first -- speech recognition
+  // is imperfect enough that a misheard word silently committing to the
+  // wrong food would be a real, worse outcome than one extra tap.
+  const [globalVoiceQuery, setGlobalVoiceQuery] = useState('');
+  const [globalVoiceResults, setGlobalVoiceResults] = useState<GlobalFoodMatch[] | null>(null);
+  const [globalVoiceLoading, setGlobalVoiceLoading] = useState(false);
+
+  async function handleGlobalVoiceResult(transcript: string, isFinal: boolean) {
+    if (!isFinal || !transcript.trim()) return;
+    setGlobalVoiceQuery(transcript);
+    setGlobalVoiceLoading(true);
+    const matches = await searchReferenceFoodNamesAcrossCategories(transcript, allowedCategories);
+    setGlobalVoiceResults(matches);
+    setGlobalVoiceLoading(false);
+  }
+
+  function clearGlobalVoiceResults() {
+    setGlobalVoiceResults(null);
+    setGlobalVoiceQuery('');
+  }
+
+  // Jumps Category/Type/Food straight to an already-known answer,
+  // skipping every intermediate step a person would otherwise have to
+  // tap through by hand -- the whole point of this feature. Prep still
+  // resolves normally afterward (the existing effect keyed on
+  // [category, subcategory, baseName] fires the same way it would for a
+  // hand-picked food), so a food with real prep options still gets that
+  // one real remaining question.
+  function selectGlobalMatch(match: GlobalFoodMatch) {
+    setCategory(match.category);
+    setSubcategory(match.subcategory);
+    setFoodQuery('');
+    setBaseName(match.baseName);
+    setPrepMethod(null);
+    setNutrients(null);
+    clearGlobalVoiceResults();
   }
 
   // Category/Type are done (whether or not this category even has a Type
@@ -1012,6 +1059,57 @@ export function FoodLookup({
           <Text style={[styles.titleText, { color: tabColor }]}>{title}</Text>
         </View>
       ) : null}
+      {/* "Say a Food Name" -- 2026-08-16, the real, direct voice shortcut
+          past Category/Type entirely: speak a food name, tap the real
+          match meant, done -- no manual drilling into a category first.
+          Only shown before Category is picked, the same real gate "From
+          Your Harvest" right below it already uses, since once a category
+          is already chosen there's no genuine cross-category search left
+          to offer (the Food step's own search box, further down, already
+          covers "find something within this one category"). */}
+      {category === '' ? (
+        <View style={[styles.voiceFoodSection, { borderColor: tabColor }]}>
+          <View style={styles.voiceFoodHeaderRow}>
+            <Text style={[styles.voiceFoodHeading, { color: tabColor }]}>Say a Food Name</Text>
+            <VoiceInputButton onResult={handleGlobalVoiceResult} color={tabColor} />
+          </View>
+          {globalVoiceLoading ? (
+            <Text style={styles.voiceFoodStatus}>Searching for &quot;{globalVoiceQuery}&quot;…</Text>
+          ) : globalVoiceResults !== null ? (
+            globalVoiceResults.length > 0 ? (
+              <>
+                {globalVoiceResults.map((match, index) => (
+                  <TouchableOpacity
+                    key={`${match.category}-${match.subcategory ?? ''}-${match.baseName}-${index}`}
+                    style={styles.voiceFoodResultRow}
+                    onPress={() => selectGlobalMatch(match)}
+                  >
+                    <Text style={styles.voiceFoodResultText} numberOfLines={1}>
+                      {match.baseName}
+                    </Text>
+                    <Text style={styles.voiceFoodResultMeta} numberOfLines={1}>
+                      {categoryLabel(match.category)}
+                      {match.subcategory ? ` · ${match.subcategory}` : ''}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+                <TouchableOpacity onPress={clearGlobalVoiceResults}>
+                  <Text style={[styles.voiceFoodClear, { color: tabColor }]}>Search again</Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <>
+                <Text style={styles.voiceFoodStatus}>
+                  No matches for &quot;{globalVoiceQuery}&quot;. Try browsing below, or say it again.
+                </Text>
+                <TouchableOpacity onPress={clearGlobalVoiceResults}>
+                  <Text style={[styles.voiceFoodClear, { color: tabColor }]}>Dismiss</Text>
+                </TouchableOpacity>
+              </>
+            )
+          ) : null}
+        </View>
+      ) : null}
       {/* "From Your Harvest" -- see handlePickHarvest's own comment above.
           Only shown before Category is picked (a harvest pick bypasses
           Category/Type/Food/Prep entirely, so there's nothing left for this
@@ -1315,6 +1413,46 @@ const styles = StyleSheet.create({
   harvestText: {
     ...typography.body,
     color: colors.textPrimary,
+  },
+  // "Say a Food Name" -- see the render-time comment on this section for
+  // what it does. Same bordered-block treatment as harvestSection right
+  // below it, so the two read as a matching pair of quick-pick shortcuts
+  // rather than two differently-styled features.
+  voiceFoodSection: {
+    borderWidth: 2,
+    borderRadius: 10,
+    backgroundColor: colors.surface,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    marginBottom: 6,
+  },
+  voiceFoodHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  voiceFoodHeading: {
+    ...typography.eyebrow,
+  },
+  voiceFoodStatus: {
+    ...typography.body,
+    color: colors.textSecondary,
+    marginTop: 6,
+  },
+  voiceFoodResultRow: {
+    paddingVertical: 6,
+  },
+  voiceFoodResultText: {
+    ...typography.body,
+    color: colors.textPrimary,
+  },
+  voiceFoodResultMeta: {
+    ...typography.caption,
+    color: colors.textMuted,
+  },
+  voiceFoodClear: {
+    ...typography.captionEmphasis,
+    marginTop: 6,
   },
   emptyText: {
     ...typography.body,

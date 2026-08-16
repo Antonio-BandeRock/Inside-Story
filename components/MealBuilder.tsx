@@ -867,7 +867,16 @@ export function MealBuilder({
             </View>
           ) : null}
           <View style={[styles.formCard, { borderColor: tabColor }]}>
-            <Text style={[styles.formLabel, { color: tabColor }]}>Meal Name (optional)</Text>
+            {/* 2026-08-16 -- a real mic button beside Name too, not just the
+                "Add from..." search box above (categorySearchRow). Every
+                result replaces the field live, the same "speak and watch
+                it fill in" shape a search box already gets -- a name is
+                said whole, not built up with dictated bullet/paragraph
+                commands. */}
+            <View style={styles.nameLabelRow}>
+              <Text style={[styles.formLabel, { color: tabColor }]}>Meal Name (optional)</Text>
+              <VoiceInputButton onResult={(transcript) => setMealName(transcript)} size={16} />
+            </View>
             <AppTextInput
               style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
               value={mealName}
@@ -1294,6 +1303,12 @@ const styles = StyleSheet.create({
   // form.
   emptyStateCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 10 },
   emptyStateText: { ...typography.body, color: colors.textPrimary, flex: 1 },
+  // 2026-08-16 -- wraps the Meal Name label with its own real mic button,
+  // same plain label-plus-button layout every direct-ingredient builder's
+  // own prepNoteLabelRow already uses (this file has no ingredient card of
+  // its own to have inherited that style from, so a small local one of the
+  // identical shape lives here instead).
+  nameLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   formInput: {
     ...typography.body,
     color: colors.textPrimary,

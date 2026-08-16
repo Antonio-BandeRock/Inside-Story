@@ -1477,7 +1477,13 @@ export function SaucesBuilder({
           {/* Sauce Name, 2026-07-28 -- its own full-width field above
               Servings/Size, since it's not part of either's own row/
               column pairing and applies to the sauce as a whole. */}
-          <Text style={[styles.formLabel, { color: tabColor }]}>Sauce Name</Text>
+          {/* 2026-08-16 -- a real mic button beside Name too, not just Prep
+              Notes -- see SideBuilder.tsx's own identical block for the
+              full reasoning. */}
+          <View style={styles.prepNoteLabelRow}>
+            <Text style={[styles.formLabel, { color: tabColor }]}>Sauce Name</Text>
+            <VoiceInputButton onResult={(transcript) => handleSauceNameChange(transcript)} size={16} />
+          </View>
           <AppTextInput
             style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
             value={sauceName}

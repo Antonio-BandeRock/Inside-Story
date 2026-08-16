@@ -11,6 +11,7 @@ import { useFocusEffect } from 'expo-router';
 import { useCallback, useState } from 'react';
 import { ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../components/AppTextInput';
+import { VoiceInputButton } from '../components/VoiceInputButton';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
 import { colors } from '../constants/colors';
@@ -141,6 +142,7 @@ export default function ConnectionsScreen() {
                   selectAllOnMount
                   placeholder="Name"
                 />
+                <VoiceInputButton onResult={setEditingName} />
                 <TouchableOpacity onPress={() => saveRename(connection.id)} hitSlop={8}>
                   <Text style={styles.rowActionText}>Save</Text>
                 </TouchableOpacity>

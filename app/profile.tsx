@@ -4,6 +4,7 @@ import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacit
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
+import { VoiceInputButton } from '../components/VoiceInputButton';
 import { GenericBackground } from '../components/GenericBackground';
 import { HelpButton, type HelpSection } from '../components/HelpButton';
 import { IridescentRingCircle } from '../components/IridescentRingCircle';
@@ -1590,21 +1591,32 @@ export default function ProfileScreen() {
               collected: one reason is for reports meant to be handed to a doctor, where both
               names read naturally together.
             </Text>
+            {/* 2026-08-16 -- a real mic button per field, nested inside its
+                own small row rather than the shared dateRow itself (First
+                and Last are two separate fields, so one mic sitting
+                between them would be ambiguous about which it applies
+                to). */}
             <View style={styles.dateRow}>
-              <AppTextInput
-                style={[styles.input, styles.nameInput]}
-                placeholder="First name"
-                value={firstNameInput}
-                onChangeText={setFirstNameInput}
-                onBlur={commitFirstName}
-              />
-              <AppTextInput
-                style={[styles.input, styles.nameInput]}
-                placeholder="Last name"
-                value={lastNameInput}
-                onChangeText={setLastNameInput}
-                onBlur={commitLastName}
-              />
+              <View style={styles.nameFieldWithMic}>
+                <AppTextInput
+                  style={[styles.input, styles.nameInput]}
+                  placeholder="First name"
+                  value={firstNameInput}
+                  onChangeText={setFirstNameInput}
+                  onBlur={commitFirstName}
+                />
+                <VoiceInputButton onResult={(transcript) => setFirstNameInput(transcript)} />
+              </View>
+              <View style={styles.nameFieldWithMic}>
+                <AppTextInput
+                  style={[styles.input, styles.nameInput]}
+                  placeholder="Last name"
+                  value={lastNameInput}
+                  onChangeText={setLastNameInput}
+                  onBlur={commitLastName}
+                />
+                <VoiceInputButton onResult={(transcript) => setLastNameInput(transcript)} />
+              </View>
             </View>
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Units</Text>
@@ -2127,6 +2139,7 @@ export default function ProfileScreen() {
                 value={allergyInput}
                 onChangeText={setAllergyInput}
               />
+              <VoiceInputButton onResult={(transcript) => setAllergyInput(transcript)} />
               <TouchableOpacity style={styles.addAllergyButton} onPress={() => addAllergy(allergyInput)}>
                 <Text style={styles.addAllergyButtonText}>Add</Text>
               </TouchableOpacity>
@@ -2898,6 +2911,15 @@ const styles = StyleSheet.create({
   },
   nameInput: {
     flex: 1,
+  },
+  // 2026-08-16 -- First/Last name each get their own real mic button
+  // (see the render-time comment on that row for why one shared button
+  // between the two fields would be ambiguous).
+  nameFieldWithMic: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
   },
   dateInputSmall: {
     width: 52,

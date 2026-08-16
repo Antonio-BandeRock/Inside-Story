@@ -6,6 +6,7 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWi
 import { useAnimatedProps } from 'react-native-reanimated';
 import { AnimatedLinearGradient } from '../../components/AnimatedLinearGradient';
 import { AppTextInput } from '../../components/AppTextInput';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
@@ -1286,12 +1287,15 @@ export default function HomeScreen() {
                 <>
                   <Text style={styles.modalTitle}>Log exercise</Text>
                   <Text style={styles.modalMeta}>Right now, {formatTime12(nowTimeString24())}</Text>
-                  <AppTextInput
-                    style={[styles.quickInput, styles.quickInputFull]}
-                    placeholder="e.g. Walk, yoga, weights"
-                    value={exerciseType}
-                    onChangeText={setExerciseType}
-                  />
+                  <View style={[styles.quickInputRow, { marginTop: 12 }]}>
+                    <AppTextInput
+                      style={[styles.quickInput, { flex: 1 }]}
+                      placeholder="e.g. Walk, yoga, weights"
+                      value={exerciseType}
+                      onChangeText={setExerciseType}
+                    />
+                    <VoiceInputButton onResult={setExerciseType} />
+                  </View>
                   <View style={styles.quickInputRow}>
                     <AppTextInput
                       style={[styles.quickInput, styles.quickInputSmall]}
@@ -1683,7 +1687,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   quickInputSmall: { width: 70, textAlign: 'center' },
-  quickInputFull: { width: '100%', marginTop: 12 },
   quickInputSeparator: { ...typography.label, ...textShadow, color: colors.textPrimary },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, flexShrink: 1 },
   pill: { borderWidth: 1, borderColor: colors.border, borderRadius: 999, paddingHorizontal: 12, paddingVertical: 8 },

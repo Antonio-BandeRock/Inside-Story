@@ -1444,7 +1444,20 @@ export function SideBuilder({
           {/* Dish Name, 2026-07-28 -- its own full-width field above
               Servings/Size, since it's not part of either's own row/
               column pairing and applies to the dish as a whole. */}
-          <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
+          {/* 2026-08-16 -- a real mic button beside the Name label too, not
+              just Prep Notes. Reuses prepNoteLabelRow's own row style
+              (same plain label-plus-button layout, just a borrowed name)
+              rather than a second, near-identical style definition. Every
+              result replaces the field live, the same "speak and watch it
+              fill in" shape a search box already gets -- a name is said
+              whole, not built up with bullet/paragraph commands the way a
+              real dictated note is, so this deliberately skips
+              parseVoiceCommands/appendDictatedText and goes straight
+              through the field's own existing change handler. */}
+          <View style={styles.prepNoteLabelRow}>
+            <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
+            <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={16} />
+          </View>
           <AppTextInput
             style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
             value={dishName}

@@ -82,6 +82,7 @@ import {
   type TierSeverity,
 } from '../../lib/sixDimensionsReference';
 import { AppTextInput } from '../../components/AppTextInput';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, categoryLabel, sourceLabel, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -2935,7 +2936,10 @@ function LabsView({
             <PopoverSelect options={LAB_DATE_MONTH_OPTIONS} selected={formMonth} onSelect={setFormMonth} tabColor={tabColor} minWidth={52} />
             <PopoverSelect options={LAB_DATE_DAY_OPTIONS} selected={formDay} onSelect={setFormDay} tabColor={tabColor} minWidth={52} />
           </View>
-          <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Lab Name (optional)</Text>
+          <View style={[styles.labFieldLabelRow, styles.rankSpaced]}>
+            <Text style={[styles.sectionLabel, { color: tabColor }]}>Lab Name (optional)</Text>
+            <VoiceInputButton onResult={setFormLabName} color={tabColor} />
+          </View>
           <AppTextInput
             style={styles.labInput}
             value={formLabName}
@@ -3506,6 +3510,10 @@ const styles = StyleSheet.create({
   // decoration.
   rankFieldRow: { flexDirection: 'row', gap: 12, alignItems: 'flex-start' },
   rankFieldColumn: { flexShrink: 1 },
+  // 2026-08-16 -- wraps the Labs entry form's own "Lab Name" label with a
+  // real mic button beside it, same shape SideBuilder.tsx's own Name-field
+  // row already established.
+  labFieldLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   // Nutrient Ranking's own "By Food" mode, 2026-08-14 -- the picked food's
   // own name/category, plus the "Change food" action, sitting above its
   // real per-nutrient ranking list.

@@ -435,7 +435,10 @@ function CheckinForm({
     <View style={styles.formCard}>
       {foodNameField ? (
         <>
-          <Text style={styles.label}>What did you eat or drink?</Text>
+          <View style={styles.noteLabelRow}>
+            <Text style={styles.label}>What did you eat or drink?</Text>
+            <VoiceInputButton onResult={foodNameField.onChange} size={16} />
+          </View>
           <AppTextInput
             style={styles.input}
             placeholder="e.g. Greek yogurt with honey"
@@ -457,7 +460,23 @@ function CheckinForm({
       <SeverityPicker value={severity} onChange={onSeverityChange} />
       <Text style={styles.label}>What symptoms? (optional)</Text>
       <TagPicker selected={tags} onToggle={onToggleTag} />
-      <Text style={styles.label}>Notes (optional)</Text>
+      {/* 2026-08-16 -- same real dictation wiring as GeneralNoteSection's
+          own Note field: only the FINAL transcript is parsed and
+          appended, never a partial mid-sentence result. onNotesChange
+          here is a plain prop, not a useState setter, so the current
+          notes prop is read directly rather than via a functional
+          update -- CheckinForm re-renders on every notes change anyway,
+          so this closure always sees the real current value. */}
+      <View style={styles.noteLabelRow}>
+        <Text style={styles.label}>Notes (optional)</Text>
+        <VoiceInputButton
+          onResult={(transcript, isFinal) => {
+            if (!isFinal) return;
+            onNotesChange(appendDictatedText(notes, parseVoiceCommands(transcript)));
+          }}
+          size={16}
+        />
+      </View>
       <AppTextInput
         style={[styles.input, styles.multilineInput]}
         placeholder="Anything else worth remembering"
@@ -1025,7 +1044,10 @@ function NewFoodsLens({ prefill }: { prefill?: ResolvedFoodSelection | null }) {
         </TouchableOpacity>
       ) : (
         <View style={styles.formCard}>
-          <Text style={styles.label}>What food are you introducing?</Text>
+          <View style={styles.noteLabelRow}>
+            <Text style={styles.label}>What food are you introducing?</Text>
+            <VoiceInputButton onResult={setFoodName} size={16} />
+          </View>
           <AppTextInput style={styles.input} placeholder="e.g. Quinoa" value={foodName} onChangeText={setFoodName} />
           <TouchableOpacity style={styles.secondaryButton} onPress={() => setPickingFood(true)}>
             <Text style={styles.secondaryButtonText}>
@@ -1289,7 +1311,10 @@ function ExerciseSection() {
         </TouchableOpacity>
       ) : (
         <View style={styles.formCard}>
-          <Text style={styles.label}>What did you do?</Text>
+          <View style={styles.noteLabelRow}>
+            <Text style={styles.label}>What did you do?</Text>
+            <VoiceInputButton onResult={setExerciseType} size={16} />
+          </View>
           <AppTextInput style={styles.input} placeholder="e.g. Walk, yoga, weights" value={exerciseType} onChangeText={setExerciseType} />
           <Text style={styles.label}>How long? (minutes, optional)</Text>
           <AppTextInput

@@ -1284,6 +1284,133 @@ export async function searchReferenceFoodNames(category: string, subcategory: st
   return [...directNames, ...aliasOnlyNames].slice(0, limit);
 }
 
+// What a cross-category name match resolves to -- unlike
+// searchReferenceFoodNames' own plain base_name list (which only makes
+// sense once a category is already picked), a real global search has to
+// hand back WHICH category/subcategory a match actually lives in too,
+// since that's exactly the information FoodLookup.tsx needs to jump its
+// own Category/Type steps straight to "already answered" instead of
+// making a person pick them by hand.
+export type GlobalFoodMatch = { category: string; subcategory: string | null; baseName: string };
+
+// A real, genuinely cross-category name search, 2026-08-16 -- built
+// specifically for voice food-finding ("say broccoli, it finds it"),
+// since buildScopeClause() (the function every OTHER lookup in this file
+// goes through) hard-requires exactly one category, with no way to pass
+// through a wildcard. Mirrors searchReferenceFoodNames' own real
+// matching/ranking/alias logic (substring + whitespace-collapsed
+// substring, prefix-then-comma-clause-then-substring ranking, a real
+// food_aliases bridge for everyday names the database itself doesn't
+// use) rather than reusing that function directly, since its own
+// category-scoped WHERE clause can't be safely widened without risking a
+// regression to the picker-driven callers that already depend on it
+// staying scoped.
+export async function searchReferenceFoodNamesAcrossCategories(
+  query: string,
+  allowedCategories?: string[],
+  limit = 15,
+): Promise<GlobalFoodMatch[]> {
+  const trimmed = query.trim();
+  if (!trimmed) return [];
+  const db = await getReferenceDatabase();
+  const collapsedQuery = trimmed.replace(/\s+/g, '');
+
+  const categoryFilter = allowedCategories && allowedCategories.length > 0 ? ` AND category IN (${allowedCategories.map(() => '?').join(',')})` : '';
+  const categoryParams = allowedCategories && allowedCategories.length > 0 ? allowedCategories : [];
+
+  // getReferenceCategories() already excludes CATEGORIES_HIDDEN_FROM_
+  // BROWSING (CommercialPremade, Baked) from the picker's own Category
+  // step -- confirmed by direct query this function would otherwise leak
+  // one straight past it (a real "Broccoli casserole" surfacing from
+  // CommercialPremade for a plain "broccoli" search). Built from the same
+  // shared Set rather than a second, hand-typed copy of the category
+  // names, so this can't silently drift if that Set ever changes.
+  const hiddenCategoryList = Array.from(CATEGORIES_HIDDEN_FROM_BROWSING);
+  const hiddenCategoryFilter = ` AND category NOT IN (${hiddenCategoryList.map(() => '?').join(',')})`;
+
+  // A real, easy-to-miss trap, caught by direct query before trusting this
+  // function: several categories (Meat, Veg, Fruit, Dairy, Bev, Fats,
+  // Alcohol, NutSeed) genuinely mix rows that carry a real subcategory with
+  // rows that don't -- and buildScopeClause's own "AND subcategory = ?"
+  // filter means a null-subcategory row in one of THOSE categories is
+  // already unreachable through the normal manual Category->Type->Food
+  // flow (picking any real subcategory excludes it; the app's own
+  // categoryConfirmed gate never lets someone browse with subcategory left
+  // null once the category has real ones to choose from). Without this
+  // same guard here, voice search could resolve to a food the manual
+  // picker can never actually reach, landing selectGlobalMatch's own
+  // (category, subcategory: null) pick in a permanently-unconfirmable
+  // state. A category with NO real subcategories at all (Grain,
+  // PantryStaples, Mushroom, etc.) is untouched by this -- its own
+  // null-subcategory rows were always fully reachable.
+  const directRows = await db.getAllAsync<{ category: string; subcategory: string | null; base_name: string }>(
+    `
+      SELECT DISTINCT category, subcategory, base_name
+      FROM foods
+      WHERE hidden = 0${categoryFilter}${hiddenCategoryFilter}
+        AND base_name IS NOT NULL
+        AND (base_name LIKE ? OR name LIKE ? OR REPLACE(base_name, ' ', '') LIKE ? OR REPLACE(name, ' ', '') LIKE ?)
+        AND (
+          subcategory IS NOT NULL
+          OR category NOT IN (SELECT DISTINCT category FROM foods WHERE subcategory IS NOT NULL AND hidden = 0)
+        )
+      ORDER BY
+        CASE
+          WHEN base_name LIKE ? THEN 0
+          WHEN base_name LIKE ? THEN 1
+          ELSE 2
+        END,
+        base_name
+      LIMIT ?
+    `,
+    ...categoryParams,
+    ...hiddenCategoryList,
+    `%${trimmed}%`,
+    `%${trimmed}%`,
+    `%${collapsedQuery}%`,
+    `%${collapsedQuery}%`,
+    `${trimmed}%`,
+    `%, ${trimmed}%`,
+    limit,
+  );
+
+  // food_aliases only stores food_category, not subcategory -- a real
+  // JOIN back into foods (not just an EXISTS check the way
+  // searchReferenceFoodNames' own single-category version can get away
+  // with) is what actually recovers the real subcategory a matched alias
+  // resolves to.
+  const aliasRows = await db.getAllAsync<{ category: string; subcategory: string | null; base_name: string }>(
+    `
+      SELECT DISTINCT f.category, f.subcategory, f.base_name
+      FROM food_aliases fa
+      JOIN foods f ON f.base_name = fa.base_name COLLATE NOCASE AND f.category = fa.food_category
+      WHERE f.hidden = 0${categoryFilter.replace(/category/g, 'f.category')}${hiddenCategoryFilter.replace(/category/g, 'f.category')}
+        AND (fa.alias LIKE ? OR REPLACE(fa.alias, ' ', '') LIKE ?)
+        AND (
+          f.subcategory IS NOT NULL
+          OR f.category NOT IN (SELECT DISTINCT category FROM foods WHERE subcategory IS NOT NULL AND hidden = 0)
+        )
+      LIMIT ?
+    `,
+    ...categoryParams,
+    ...hiddenCategoryList,
+    `%${trimmed}%`,
+    `%${collapsedQuery}%`,
+    limit,
+  );
+
+  const seen = new Set<string>();
+  const results: GlobalFoodMatch[] = [];
+  for (const row of [...directRows, ...aliasRows]) {
+    const key = `${row.category}|${row.subcategory ?? ''}|${row.base_name}`;
+    if (seen.has(key)) continue;
+    seen.add(key);
+    results.push({ category: row.category, subcategory: row.subcategory, baseName: row.base_name });
+    if (results.length >= limit) break;
+  }
+  return results;
+}
+
 // Real, distinct cooking states available for one chosen food name. Returns
 // [] when there's nothing to disambiguate (the common case) -- the app
 // should skip the Preparation step entirely in that case, same pattern as

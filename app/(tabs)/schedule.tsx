@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { useRouter } from 'expo-router';
 import { Modal, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { AppActionSheet, type AppActionSheetAction } from '../../components/AppActionSheet';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
 import type { HelpSection } from '../../components/HelpButton';
@@ -933,12 +934,18 @@ function MealsLens() {
                         <Text style={styles.helperText}>
                           Didn't go as planned? Log your best guess of what you actually had (or plan to).
                         </Text>
-                        <AppTextInput
-                          style={styles.input}
-                          placeholder="e.g. Lunch out with a coworker, probably a sandwich and fries"
-                          value={form.title}
-                          onChangeText={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
-                        />
+                        <View style={styles.labelRow}>
+                          <AppTextInput
+                            style={[styles.input, { flex: 1 }]}
+                            placeholder="e.g. Lunch out with a coworker, probably a sandwich and fries"
+                            value={form.title}
+                            onChangeText={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
+                          />
+                          <VoiceInputButton
+                            onResult={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
+                            color={TAB_COLOR}
+                          />
+                        </View>
                       </>
                     )}
                   </>
@@ -946,7 +953,13 @@ function MealsLens() {
 
                 {form.editingId ? (
                   <>
-                    <Text style={styles.label}>What do you plan to eat?</Text>
+                    <View style={styles.labelRow}>
+                      <Text style={styles.label}>What do you plan to eat?</Text>
+                      <VoiceInputButton
+                        onResult={(text) => setForm((current) => ({ ...current, title: text }))}
+                        color={TAB_COLOR}
+                      />
+                    </View>
                     <AppTextInput
                       style={styles.input}
                       value={form.title}
@@ -1581,18 +1594,27 @@ function HydrationLens() {
                       <Text style={styles.helperText}>
                         Water, tea, coffee, a smoothie: whatever you plan to drink, plus anything mixed into it.
                       </Text>
-                      <AppTextInput
-                        style={styles.input}
-                        placeholder="e.g. Green tea with honey"
-                        value={form.title}
-                        onChangeText={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
-                      />
+                      <View style={styles.labelRow}>
+                        <AppTextInput
+                          style={[styles.input, { flex: 1 }]}
+                          placeholder="e.g. Green tea with honey"
+                          value={form.title}
+                          onChangeText={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
+                        />
+                        <VoiceInputButton
+                          onResult={(text) => setForm((current) => ({ ...current, title: text, sourceFavoriteId: null, sourceMealId: null }))}
+                          color={TAB_COLOR}
+                        />
+                      </View>
                     </>
                   )}
                 </>
               ) : (
                 <>
-                  <Text style={styles.label}>What do you plan to drink?</Text>
+                  <View style={styles.labelRow}>
+                    <Text style={styles.label}>What do you plan to drink?</Text>
+                    <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, title: text }))} color={TAB_COLOR} />
+                  </View>
                   <AppTextInput
                     style={styles.input}
                     value={form.title}
@@ -2204,7 +2226,13 @@ function MyMedsLens() {
             </View>
           ) : addMode === 'supplement' ? (
             <View style={styles.formCard}>
-              <Text style={styles.label}>Name</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Name</Text>
+                <VoiceInputButton
+                  onResult={(text) => setSupplementForm((current) => ({ ...current, name: text }))}
+                  color={TAB_COLOR}
+                />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Daily Multivitamin, or just Magnesium"
@@ -2296,7 +2324,13 @@ function MyMedsLens() {
                 <Text style={styles.secondaryButtonText}>+ Add ingredient</Text>
               </TouchableOpacity>
 
-              <Text style={styles.label}>Notes (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Notes (optional)</Text>
+                <VoiceInputButton
+                  onResult={(text) => setSupplementForm((current) => ({ ...current, notes: text }))}
+                  color={TAB_COLOR}
+                />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. take with food"
@@ -2365,7 +2399,10 @@ function MyMedsLens() {
                 </Text>
               ) : null}
 
-              <Text style={styles.label}>Name</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Name</Text>
+                <VoiceInputButton onResult={(text) => setMedForm((current) => ({ ...current, name: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Synthroid 75mcg"
@@ -2375,7 +2412,13 @@ function MyMedsLens() {
 
               {medForm.manualEntry ? (
                 <>
-                  <Text style={styles.label}>Generic name (optional, helps interaction checking)</Text>
+                  <View style={styles.labelRow}>
+                    <Text style={styles.label}>Generic name (optional, helps interaction checking)</Text>
+                    <VoiceInputButton
+                      onResult={(text) => setMedForm((current) => ({ ...current, genericName: text }))}
+                      color={TAB_COLOR}
+                    />
+                  </View>
                   <AppTextInput
                     style={styles.input}
                     placeholder="e.g. levothyroxine"
@@ -2402,7 +2445,13 @@ function MyMedsLens() {
                 />
               </View>
 
-              <Text style={styles.label}>Frequency (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Frequency (optional)</Text>
+                <VoiceInputButton
+                  onResult={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
+                  color={TAB_COLOR}
+                />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. once daily"
@@ -2410,7 +2459,10 @@ function MyMedsLens() {
                 onChangeText={(text) => setMedForm((current) => ({ ...current, frequency: text }))}
               />
 
-              <Text style={styles.label}>Notes (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Notes (optional)</Text>
+                <VoiceInputButton onResult={(text) => setMedForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. prescribed by Dr. …"
@@ -2766,7 +2818,10 @@ function SupplementsLens() {
             </TouchableOpacity>
           ) : (
             <View style={styles.formCard}>
-              <Text style={styles.label}>Name</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Name</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, name: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Daily Multivitamin"
@@ -2828,7 +2883,10 @@ function SupplementsLens() {
                 <Text style={styles.secondaryButtonText}>+ Add ingredient</Text>
               </TouchableOpacity>
 
-              <Text style={styles.label}>Notes (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Notes (optional)</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. take with food"
@@ -3260,7 +3318,10 @@ function PrescriptionsLens() {
             </TouchableOpacity>
           ) : (
             <View style={styles.formCard}>
-              <Text style={styles.label}>Name</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Name</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, name: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Levothyroxine"
@@ -3285,7 +3346,10 @@ function PrescriptionsLens() {
                 />
               </View>
 
-              <Text style={styles.label}>Frequency (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Frequency (optional)</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, frequency: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Once daily"
@@ -3293,7 +3357,10 @@ function PrescriptionsLens() {
                 onChangeText={(text) => setForm((current) => ({ ...current, frequency: text }))}
               />
 
-              <Text style={styles.label}>Notes (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Notes (optional)</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. take on an empty stomach"
@@ -3837,7 +3904,10 @@ function AppointmentsLens() {
 
           {showForm ? (
             <View style={styles.formCard}>
-              <Text style={styles.label}>What is this for?</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>What is this for?</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, title: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Dr. Smith - Endocrinology follow-up"
@@ -3908,7 +3978,10 @@ function AppointmentsLens() {
                 </View>
               </View>
 
-              <Text style={styles.label}>Location (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Location (optional)</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, location: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Riverside Medical, Suite 200"
@@ -3916,7 +3989,13 @@ function AppointmentsLens() {
                 onChangeText={(text) => setForm((current) => ({ ...current, location: text }))}
               />
 
-              <Text style={styles.label}>Provider (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Provider (optional)</Text>
+                <VoiceInputButton
+                  onResult={(text) => setForm((current) => ({ ...current, providerName: text }))}
+                  color={TAB_COLOR}
+                />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. Dr. Smith"
@@ -3924,7 +4003,10 @@ function AppointmentsLens() {
                 onChangeText={(text) => setForm((current) => ({ ...current, providerName: text }))}
               />
 
-              <Text style={styles.label}>Notes (optional)</Text>
+              <View style={styles.labelRow}>
+                <Text style={styles.label}>Notes (optional)</Text>
+                <VoiceInputButton onResult={(text) => setForm((current) => ({ ...current, notes: text }))} color={TAB_COLOR} />
+              </View>
               <AppTextInput
                 style={styles.input}
                 placeholder="e.g. fasting required, bring insurance card"
@@ -4145,6 +4227,12 @@ const styles = StyleSheet.create({
   // a "this option is currently picked" signal, the same convention used
   // app-wide, a different meaning than "which tab."
   label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10 },
+  // 2026-08-16 -- wraps a real free-text field's own label with a real mic
+  // button beside it, the same shape SideBuilder.tsx's own Name-field row
+  // already established. label's own marginTop/marginBottom still apply
+  // (margin on a child inside a row isn't cleared by the row itself), so
+  // no existing spacing anywhere this wraps needed to change.
+  labelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8 },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   pill: {

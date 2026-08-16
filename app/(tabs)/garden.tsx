@@ -11,6 +11,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { AppTextInput } from '../../components/AppTextInput';
 import { FoodLookup, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { PopoverSelect } from '../../components/PopoverSelect';
+import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { COUNTRIES } from '../../constants/countries';
 import { colors, popoverBackground } from '../../constants/colors';
 import { typography, textShadow } from '../../constants/typography';
@@ -706,12 +707,20 @@ function PlotsAndPlantingsLens({ scrollBottomPadding }: { scrollBottomPadding: n
       {showAddPlot ? (
         <View style={[styles.card, { borderColor: TAB_COLOR }]}>
           <Text style={[styles.cardTitle, { color: TAB_COLOR }]}>New Garden Area</Text>
-          <AppTextInput
-            style={styles.textInput}
-            placeholder="Name (e.g. Backyard raised bed)"
-            value={newAreaName}
-            onChangeText={setNewAreaName}
-          />
+          {/* 2026-08-16 -- a real mic button beside the one field here
+              with no floating label of its own (this card's title already
+              serves that role) -- placed alongside the input itself
+              instead, same "speak and watch it fill in" replace-on-every-
+              result shape the Food builders' own Name fields just got. */}
+          <View style={styles.fieldRow}>
+            <AppTextInput
+              style={[styles.textInput, { flex: 1 }]}
+              placeholder="Name (e.g. Backyard raised bed)"
+              value={newAreaName}
+              onChangeText={setNewAreaName}
+            />
+            <VoiceInputButton onResult={(transcript) => setNewAreaName(transcript)} color={TAB_COLOR} />
+          </View>
 
           <Text style={styles.fieldLabel}>Where is your garden located?</Text>
           <View style={styles.pillRow}>
@@ -1090,6 +1099,7 @@ function UpcomingTasksLens({ scrollBottomPadding }: { scrollBottomPadding: numbe
             value={taskTitle}
             onChangeText={setTaskTitle}
           />
+          <VoiceInputButton onResult={(transcript) => setTaskTitle(transcript)} color={TAB_COLOR} />
           <TouchableOpacity style={[styles.primaryButton, { backgroundColor: PRIMARY_BUTTON_BACKGROUND }]} onPress={handleAddTask}>
             <Text style={styles.primaryButtonText}>Add</Text>
           </TouchableOpacity>
