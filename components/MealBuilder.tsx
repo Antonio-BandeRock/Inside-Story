@@ -31,6 +31,7 @@ import { useActiveField, useActiveInputControls } from './ActiveInputContext';
 import { AppActionSheet, type AppActionSheetAction } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
 import { useConfirmSheet } from './ConfirmSheet';
+import { HelpButton, type HelpSection } from './HelpButton';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
 
@@ -84,6 +85,29 @@ const CATEGORY_META: { type: MealComponentType; label: string; icon: keyof typeo
   // listMealComponentOptions/getComponentDetail wiring (lib/db.ts) and this
   // grid entry were added in the same pass, not left for a later report.
   { type: 'dessert', label: 'Dessert', icon: 'ice-cream-outline' },
+];
+
+// 2026-08-16, direct report: someone landing here via Past Meals' own
+// "Adjust" link (editMealId mode) never passes through Food's own LensHub
+// at all, so its Info tile (see food.tsx's own FOOD_LENS_COPY.mealBuilder)
+// never gets a chance to explain any of this -- and even reached the normal
+// way, that text is a wall of prose read once, before ever touching the
+// screen it's describing. This is a real, second, in-context copy of the
+// same explanation, live on the one screen ("Your Meal") this actually
+// needs answering on, regardless of how someone got there.
+const MEAL_BUILDER_HELP: HelpSection[] = [
+  {
+    heading: '"Add from...": what it actually does',
+    body: "Each button opens your own already-saved or favorited items from that one builder: a saved side, a favorited smoothie, and so on. Tap a category, pick one of your own saved items from the list, then say how much of it you actually had. It never creates anything new here; it only pulls in something you've already built and saved elsewhere.",
+  },
+  {
+    heading: 'What the percent under each item means',
+    body: "That percent is how much of THAT ONE SAVED ITEM's own stated servings you're counting toward this meal, not a share of the whole meal split between people. 100% means you're counting the entire saved amount; 50% means about half of it; 0% means none of it happened, and it should probably be removed instead.",
+  },
+  {
+    heading: 'Adjusting a past meal',
+    body: "If this meal was filled in automatically from something you'd scheduled, every item starts at 100%: the honest assumption you had the full planned amount. Change any item's own percent here if you actually had more, less, or none of it, then Save Changes. If a food you're testing in a trial is affected, you'll be asked separately whether the trial happened on a different day or never really happened at all.",
+  },
 ];
 
 // meals.eaten_at's own stored format ('YYYY-MM-DDTHH:mm', local time,
@@ -1123,9 +1147,12 @@ export function MealBuilder({
       {reconciliationSheetElement}
       <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
         <View style={[styles.formCard, { borderColor: tabColor }]}>
-          <Text style={[styles.mealTitle, { color: tabColor }]} numberOfLines={2}>
-            {mealName.trim() || 'Meal'}
-          </Text>
+          <View style={styles.mealTitleRow}>
+            <Text style={[styles.mealTitle, { color: tabColor, flex: 1 }]} numberOfLines={2}>
+              {mealName.trim() || 'Meal'}
+            </Text>
+            <HelpButton pageTitle="Meal" sections={MEAL_BUILDER_HELP} />
+          </View>
           <Text style={styles.pendingSubtitle}>{mealType ? mealType[0].toUpperCase() + mealType.slice(1) : 'No meal type chosen'}</Text>
           {components.length === 0 ? (
             <Text style={[styles.emptyText, styles.formLabelSpaced]}>Nothing added yet. Pick a category below to add your first item.</Text>
@@ -1137,7 +1164,9 @@ export function MealBuilder({
                     <Text style={styles.savedRowName} numberOfLines={1}>
                       {component.name}
                     </Text>
-                    <Text style={styles.savedRowDetail}>{Math.round(component.yourSharePercent)}% of it</Text>
+                    <Text style={styles.savedRowDetail}>
+                      {Math.round(component.yourSharePercent)}% of this saved item{component.servings > 1 ? ` (its own ${component.servings} servings)` : ''}
+                    </Text>
                   </View>
                   <TouchableOpacity onPress={() => removeComponent(component.key)} hitSlop={8}>
                     <Ionicons name="close-circle-outline" size={22} color={colors.textMuted} />
@@ -1149,6 +1178,9 @@ export function MealBuilder({
         </View>
 
         <Text style={[styles.sectionHeading, styles.gridHeading, { color: tabColor }]}>Add from...</Text>
+        <Text style={styles.gridCaption}>
+          Pick from your own already-saved or favorited items in any builder below. Tap the (i) above to see exactly what this does.
+        </Text>
         <View style={styles.grid}>
           {CATEGORY_META.map((entry) => (
             <TouchableOpacity key={entry.type} style={styles.gridTile} onPress={() => openCategory(entry.type)}>
@@ -1280,6 +1312,12 @@ const styles = StyleSheet.create({
   // own overviewDishName, the same "this card's own name is the form's
   // subject" role mealTitle plays here.
   mealTitle: { ...typography.bodyEmphasis, fontSize: 18 },
+  // 2026-08-16 -- HelpButton sits beside the title rather than the title
+  // owning the whole row alone, so the (i) icon is visible the instant the
+  // Assembling view opens, regardless of how it was reached (a fresh meal,
+  // Past Meals' own "Adjust" link, or a scheduled/logged meal's own
+  // "Log now"/edit path all land here with zero shared entry-point copy).
+  mealTitleRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   backRow: { flexDirection: 'row', alignItems: 'center', gap: 2, marginBottom: 4 },
   backRowText: { ...typography.bodyEmphasis },
   // tabColor applied inline at both call sites -- matches SideBuilder's own
@@ -1288,6 +1326,7 @@ const styles = StyleSheet.create({
   // label.
   sectionHeading: { ...typography.eyebrow },
   gridHeading: { marginTop: 6 },
+  gridCaption: { ...typography.caption, color: colors.textSecondary, marginTop: 4, marginBottom: 4 },
   loadingSpinner: { marginTop: 20 },
   emptyText: { ...typography.body, color: colors.textSecondary },
   savedList: { gap: 8 },

@@ -14,7 +14,7 @@ import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { TrendLineChart } from '../../components/TrendLineChart';
 import { colors } from '../../constants/colors';
 import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
-import { typography } from '../../constants/typography';
+import { textShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import {
   getDietaryReferenceIntakesForCurrentUser,
@@ -955,7 +955,18 @@ const styles = StyleSheet.create({
   screen: { flex: 1 },
   scroll: { flex: 1 },
   content: { paddingHorizontal: 20, paddingBottom: 32 },
-  loadingText: { ...typography.body, color: colors.textSecondary, marginBottom: 16 },
+  // 2026-08-16, direct on-device report: Pattern Finder's own real, honest
+  // empty-state text ("Log a flare or food reaction in Signals first...")
+  // read as "does nothing" -- traced to this being the one real Text style
+  // on this whole page rendered bare over the shared photo background, with
+  // no textShadow, the same real legibility bug already found and fixed
+  // for Garden's/Home's own bare empty-state text. Every one of this page's
+  // five lenses shares this style for its own "loading"/"nothing yet" copy,
+  // so this fix isn't Pattern-Finder-specific -- it was always latent
+  // everywhere this style is used, just most visible here since Pattern
+  // Finder's own empty state is genuinely reachable with real, current
+  // on-device data (zero logged flares/reactions, confirmed directly).
+  loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginBottom: 16 },
   spaced: { marginTop: 12 },
 
   // sectionHeading/pillRow's own pills sit above chartCard, not inside it
