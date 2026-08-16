@@ -5,6 +5,7 @@ import { Alert, Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity
 import {
   classifyPrepStateGroup,
   classifyProteinSource,
+  getConditionStages,
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
   getDietaryReferenceIntakesForCurrentUser,
@@ -12,7 +13,9 @@ import {
   getFoodUnitWeight,
   getLabTests,
   getTodaysAdvisories,
+  getUserProfile,
   listAllActiveTreatments,
+  listBodyMeasurements,
   listLabResults,
   listSafeFoodCategories,
   listSafeFoods,
@@ -39,6 +42,7 @@ import {
   type TrackedNutrient,
   type TreatmentRecord,
   type TriggeredAdvisory,
+  type UserProfile,
 } from '../../lib/db';
 import { ALCOHOL_ADVISORY_MESSAGE, ALCOHOL_ADVISORY_TITLE } from '../../lib/alcoholAdvisory';
 import {
@@ -47,8 +51,17 @@ import {
   type CookingImpactConfidence,
 } from '../../lib/cookingImpactData';
 import { COFFEE_ADVISORY_MESSAGE, COFFEE_ADVISORY_TITLE } from '../../lib/coffeeAdvisory';
+import {
+  calculateBmr,
+  calculateMacroTargets,
+  calculateProduceTargets,
+  calculateTdee,
+  perMealShare,
+  type MacroTargets,
+} from '../../lib/energyNeeds';
 import { evaluateInteractionRules, type InteractionWarning, type ReferenceOnlyRule } from '../../lib/interactionRules';
 import { JUICE_ADVISORY_MESSAGE, JUICE_ADVISORY_TITLE } from '../../lib/juiceAdvisory';
+import { lbToKg } from '../../lib/measurement';
 import {
   analyzeNutrientIntake,
   formatAmount,
@@ -56,6 +69,7 @@ import {
   percentOfDailyTarget,
   type StatusSeverity,
 } from '../../lib/nutrientAnalysis';
+import { ageFromBirthDate } from '../../lib/profile';
 import {
   NUTRIENT_STATUS_LABELS,
   flattenItemScores,
@@ -157,7 +171,8 @@ type Lens =
   | 'hydration'
   | 'labs'
   | 'myMeds'
-  | 'advisories';
+  | 'advisories'
+  | 'portions';
 
 // Shared across all three lenses' own Info content below -- the
 // drill-down navigator (ScopeHub) is the one mechanic all three have in
@@ -337,6 +352,21 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: "What isn't covered",
         body: "This is scoped to the 3 advisories that already exist. A per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
+      },
+    ],
+  },
+  {
+    key: 'portions',
+    label: 'Energy & Portions',
+    icon: 'restaurant-outline',
+    help: [
+      {
+        heading: 'Where the numbers come from',
+        body: 'Your maintenance calories come from the Mifflin-St Jeor equation (weight, height, age, sex) times an activity-level multiplier -- the same method most clinical dietetics practice uses. Protein scales with your real body weight and activity level (or a condition-specific override, e.g. CKD); the remaining calories split between fat and carbohydrate using the midpoint of NASEM\'s own Acceptable Macronutrient Distribution Range. See the Portions & Recommended Amounts topic in Purple Digest for the full method and citations.',
+      },
+      {
+        heading: 'What this is not',
+        body: 'This is a maintenance estimate, not a prescribed target, a diagnosis, or a weight-loss plan. Set your sex, birth date, height, weight, and activity level in Profile to see it -- nothing here is guessed on your behalf.',
       },
     ],
   },
@@ -731,6 +761,42 @@ export default function InsightsScreen() {
     }, []),
   );
 
+  // Energy & Portions lens, 2026-08-15 -- profile/weight/condition stages
+  // can all change mid-session in Profile, and today's own totals grow as
+  // meals get logged, so this reloads on focus, same reasoning as Labs/My
+  // Meds/Advisories above. Gated on `lens === 'portions'` too, the same
+  // hard-learned discipline as Safe Foods above -- there's no reason to
+  // fetch a whole day's nutrient breakdown a second time on every focus
+  // change unless someone's actually looking at this lens.
+  const [portionsProfile, setPortionsProfile] = useState<UserProfile | null>(null);
+  const [portionsWeightKg, setPortionsWeightKg] = useState<number | null>(null);
+  const [portionsConditionStages, setPortionsConditionStages] = useState<Record<string, string>>({});
+  const [portionsBreakdown, setPortionsBreakdown] = useState<DailyNutrientBreakdown | null>(null);
+  const [portionsLoading, setPortionsLoading] = useState(true);
+  const loadPortions = useCallback(() => {
+    setPortionsLoading(true);
+    Promise.all([
+      getUserProfile(),
+      listBodyMeasurements('weight', 1),
+      getConditionStages(),
+      getDailyNutrientBreakdown(todayDateString()),
+    ]).then(([profileResult, weightRows, stages, breakdown]) => {
+      const latestWeight = weightRows[0];
+      setPortionsProfile(profileResult);
+      setPortionsWeightKg(
+        latestWeight ? (latestWeight.unit === 'lb' ? lbToKg(latestWeight.value) : latestWeight.value) : null,
+      );
+      setPortionsConditionStages(stages);
+      setPortionsBreakdown(breakdown);
+      setPortionsLoading(false);
+    });
+  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      if (lens === 'portions') loadPortions();
+    }, [lens, loadPortions]),
+  );
+
   // useFocusEffect (not a plain useEffect) -- Expo Router's tab screens
   // stay mounted in the background when you switch tabs, they don't
   // unmount, so a one-time useEffect only ever fetched once for this
@@ -900,6 +966,15 @@ export default function InsightsScreen() {
               />
             ) : lens === 'advisories' ? (
               <AdvisoriesView advisories={advisories} loading={advisoriesLoading} tabColor={TAB_COLOR} />
+            ) : lens === 'portions' ? (
+              <PortionsView
+                profile={portionsProfile}
+                weightKg={portionsWeightKg}
+                conditionStages={portionsConditionStages}
+                breakdown={portionsBreakdown}
+                loading={portionsLoading}
+                tabColor={TAB_COLOR}
+              />
             ) : loading ? (
               <Text style={styles.emptyText}>Loading…</Text>
             ) : errorMessage ? (
@@ -951,7 +1026,8 @@ export default function InsightsScreen() {
       lens === 'hydration' ||
       lens === 'labs' ||
       lens === 'myMeds' ||
-      lens === 'advisories'
+      lens === 'advisories' ||
+      lens === 'portions'
         ? null
         : lens === 'nutrients'
         ? nutrientBreakdown && nutrientBreakdown.meals.length > 0 && (
@@ -1133,6 +1209,227 @@ function HydrationView({ breakdown, tabColor }: { breakdown: DailyNutrientBreakd
         </View>
       ) : null}
     </View>
+  );
+}
+
+// Builds a real analyzeNutrientIntake-compatible row from a personally
+// computed target -- 'AI' rather than 'RDA', since this is a real estimate
+// meant to be met or exceeded (fuel enough for the body's own needs), not
+// an official NASEM allowance; deliberately no upperLimit, since eating
+// more than an estimated maintenance calorie/macro figure isn't a safety
+// concern the way exceeding a real UL is. sourceAgency says plainly this
+// is a computed personal estimate, never mistaken for a government DRI row.
+function buildPersonalDriRow(nutrientCode: string, displayName: string, amount: number, unit: string): DietaryReferenceIntake {
+  return {
+    nutrientCode,
+    displayName,
+    sex: 'all',
+    ageMin: 0,
+    ageMax: null,
+    valueType: 'AI',
+    amount,
+    unit,
+    upperLimit: null,
+    upperLimitType: null,
+    sourceAgency: 'Personalized estimate (Mifflin-St Jeor equation + your own activity level), not an official DRI',
+    citation: null,
+    notes: 'Computed from your own weight, height, age, and activity level in Profile -- see Purple Digest\'s Portions & Recommended Amounts topic for the full method.',
+  };
+}
+
+// Energy & Portions lens, 2026-08-15 -- Mifflin-St Jeor BMR, a real
+// activity-level PAL multiplier for TDEE, and macro targets built from
+// real body weight (protein) and NASEM's own AMDR ranges (fat/carb) -- see
+// lib/energyNeeds.ts's own header comment for the full sources. A
+// maintenance estimate, never a prescribed target: deliberately no
+// weight-loss/gain deficit or surplus layer (see that same file's own
+// comment on why that's a separate, not-yet-built feature).
+function PortionsView({
+  profile,
+  weightKg,
+  conditionStages,
+  breakdown,
+  loading,
+  tabColor,
+}: {
+  profile: UserProfile | null;
+  weightKg: number | null;
+  conditionStages: Record<string, string>;
+  breakdown: DailyNutrientBreakdown | null;
+  loading: boolean;
+  tabColor: string;
+}) {
+  const [mealsPerDay, setMealsPerDay] = useState(3);
+
+  if (loading) {
+    return <Text style={styles.emptyText}>Loading…</Text>;
+  }
+  if (!profile) {
+    return <Text style={styles.emptyText}>Loading…</Text>;
+  }
+
+  const { sex, birthDate, heightCm, activityLevel } = profile;
+  if (!sex || !birthDate || !heightCm || !activityLevel || weightKg == null) {
+    const missing: string[] = [];
+    if (!sex) missing.push('sex');
+    if (!birthDate) missing.push('birth date');
+    if (!heightCm) missing.push('height');
+    if (weightKg == null) missing.push('weight');
+    if (!activityLevel) missing.push('activity level');
+    return (
+      <View style={styles.noticeCard}>
+        <Text style={styles.noticeText}>
+          Set your {missing.join(', ')} in Profile to see your own Energy & Portions numbers. Nothing here is
+          guessed on your behalf.
+        </Text>
+      </View>
+    );
+  }
+
+  const ageYears = ageFromBirthDate(birthDate);
+  const bmr = calculateBmr(sex, weightKg, heightCm, ageYears);
+  const tdee = calculateTdee(bmr, activityLevel);
+  const macros: MacroTargets = calculateMacroTargets(tdee, activityLevel, weightKg, conditionStages);
+  const produce = calculateProduceTargets(tdee);
+  const waterRow = breakdown?.driRows.find((row) => row.nutrientCode === 'water') ?? null;
+
+  const personalRows: DietaryReferenceIntake[] = [
+    buildPersonalDriRow('energy_kcal', 'Calories', macros.calories, 'kcal'),
+    buildPersonalDriRow('protein', 'Protein', macros.proteinGrams, 'g'),
+    buildPersonalDriRow('carbohydrate', 'Carbohydrate', macros.carbGrams, 'g'),
+    buildPersonalDriRow('fat_total', 'Fat', macros.fatGrams, 'g'),
+  ];
+  const todayEntries = breakdown ? analyzeNutrientIntake(personalRows, breakdown.dayTotals, breakdown.supplementTotals) : [];
+  const somethingLoggedToday = todayEntries.some((entry) => entry.combinedTotal > 0);
+
+  const macroRows = [
+    { label: 'Protein', grams: macros.proteinGrams },
+    { label: 'Carbohydrate', grams: macros.carbGrams },
+    { label: 'Fat', grams: macros.fatGrams },
+  ];
+
+  return (
+    <>
+      <View style={styles.noticeCard}>
+        <Text style={styles.noticeText}>
+          Estimated from your own weight, height, age, and activity level -- a maintenance estimate, not a
+          prescribed target or a diagnosis. See Purple Digest&apos;s Portions & Recommended Amounts topic for the
+          full method and citations.
+        </Text>
+      </View>
+
+      {macros.proteinSource === 'condition' && macros.proteinNote ? (
+        <View style={[styles.noticeCard, { borderColor: tabColor }]}>
+          <Text style={styles.noticeText}>{macros.proteinNote}</Text>
+        </View>
+      ) : null}
+
+      <Text style={styles.portionsSectionHeading}>Maintenance calories</Text>
+      <View style={styles.statRow}>
+        <View style={styles.statBox}>
+          <Text style={styles.statValue}>{Math.round(bmr)}</Text>
+          <Text style={styles.statLabel}>BMR (resting, kcal/day)</Text>
+        </View>
+        <View style={styles.statBox}>
+          <Text style={[styles.statValue, { color: tabColor }]}>{Math.round(tdee)}</Text>
+          <Text style={styles.statLabel}>Maintenance calories (TDEE)</Text>
+        </View>
+      </View>
+
+      <Text style={styles.portionsSectionHeading}>Meals per day</Text>
+      <View style={styles.portionsPillRow}>
+        {[2, 3, 4, 5, 6].map((count) => {
+          const active = count === mealsPerDay;
+          return (
+            <TouchableOpacity
+              key={count}
+              style={[styles.portionsPill, active ? { backgroundColor: tabColor, borderColor: tabColor } : null]}
+              onPress={() => setMealsPerDay(count)}
+            >
+              <Text style={[styles.portionsPillText, active && styles.portionsPillTextActive]}>{count}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+
+      <Text style={styles.portionsSectionHeading}>Daily macro targets</Text>
+      <View style={styles.table}>
+        <View style={[styles.tableRow, styles.tableHeaderRow]}>
+          <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellNutrient]}>Target</Text>
+          <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellAmount]}>Per Day</Text>
+          <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellStatus]}>Per Meal</Text>
+        </View>
+        {macroRows.map((row) => (
+          <View key={row.label} style={styles.tableRow}>
+            <Text style={[styles.tableCell, styles.tableCellNutrient]}>{row.label}</Text>
+            <Text style={[styles.tableCell, styles.tableCellAmount]} numberOfLines={1}>
+              {formatAmount(row.grams, 'g')}
+            </Text>
+            <Text style={[styles.tableCell, styles.tableCellStatus, styles.statusNeutralText]} numberOfLines={1}>
+              {formatAmount(perMealShare(row.grams, mealsPerDay), 'g')}
+            </Text>
+          </View>
+        ))}
+      </View>
+      <Text style={styles.footerNote}>
+        Fat and carbohydrate split using the midpoint of NASEM&apos;s own Acceptable Macronutrient Distribution
+        Range, applied to whatever&apos;s left once your real, weight-based protein target above is subtracted.
+      </Text>
+
+      <Text style={styles.portionsSectionHeading}>Produce guide</Text>
+      <Text style={styles.footerNote}>USDA MyPlate&apos;s own published cup-equivalent amounts, scaled to your calorie need.</Text>
+      <View style={styles.statRow}>
+        <View style={styles.statBox}>
+          <Text style={styles.statValue}>{produce.vegetableCups.toFixed(1)}</Text>
+          <Text style={styles.statLabel}>cups vegetables/day</Text>
+        </View>
+        <View style={styles.statBox}>
+          <Text style={styles.statValue}>{produce.fruitCups.toFixed(1)}</Text>
+          <Text style={styles.statLabel}>cups fruit/day</Text>
+        </View>
+      </View>
+
+      {waterRow ? (
+        <>
+          <Text style={styles.portionsSectionHeading}>Water</Text>
+          <Text style={[styles.statValue, { textAlign: 'left' }]}>{(waterRow.amount / 1000).toFixed(1)}L / day</Text>
+          <Text style={styles.footerNote}>
+            {waterRow.sourceAgency}. Counts water-rich food too, not just drinks -- see the Hydration lens for
+            today&apos;s actual progress toward it.
+          </Text>
+        </>
+      ) : null}
+
+      <Text style={styles.portionsSectionHeading}>Today so far</Text>
+      {!somethingLoggedToday ? (
+        <Text style={styles.emptyText}>Nothing logged yet today.</Text>
+      ) : (
+        <View style={styles.table}>
+          <View style={[styles.tableRow, styles.tableHeaderRow]}>
+            <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellNutrient]}>Target</Text>
+            <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellAmount]}>Logged / Target</Text>
+            <Text style={[styles.tableCell, styles.tableHeaderCell, styles.tableCellStatus]}>Status</Text>
+          </View>
+          {todayEntries.map((entry) => {
+            const severity = nutrientStatusSeverity(entry.status);
+            return (
+              <View key={entry.nutrientCode} style={[styles.tableRow, severityRowStyle(severity)]}>
+                <Text style={[styles.tableCell, styles.tableCellNutrient]}>{entry.displayName}</Text>
+                <Text style={[styles.tableCell, styles.tableCellAmount]} numberOfLines={1}>
+                  {formatAmount(entry.combinedTotal, entry.unit)} / {formatAmount(entry.target, entry.unit)}
+                </Text>
+                <Text style={[styles.tableCell, styles.tableCellStatus, severityTextStyle(severity)]} numberOfLines={2}>
+                  {NUTRIENT_STATUS_LABELS[entry.status] ?? entry.status} ({Math.round(entry.percentOfTarget)}%)
+                </Text>
+              </View>
+            );
+          })}
+        </View>
+      )}
+      <Text style={styles.footerNote}>
+        As logged so far today -- this fills in as the day goes on, not a verdict on the whole day this early.
+      </Text>
+    </>
   );
 }
 
@@ -3073,4 +3370,29 @@ const styles = StyleSheet.create({
   // Today's Advisories lens, 2026-08-08.
   advisoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   advisoryTitle: { flex: 1 },
+  // Energy & Portions lens, 2026-08-15.
+  portionsSectionHeading: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 18, marginBottom: 8 },
+  statRow: { flexDirection: 'row', gap: 12 },
+  statBox: {
+    flex: 1,
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    backgroundColor: colors.surface,
+    paddingVertical: 12,
+  },
+  statValue: { ...typography.sectionTitle, color: colors.textPrimary },
+  statLabel: { ...typography.caption, color: colors.textMuted, textAlign: 'center', marginTop: 4 },
+  portionsPillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  portionsPill: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingVertical: 6,
+    paddingHorizontal: 16,
+    backgroundColor: colors.surface,
+  },
+  portionsPillText: { ...typography.bodyEmphasis, color: colors.textPrimary },
+  portionsPillTextActive: { color: colors.textOnPrimary },
 });

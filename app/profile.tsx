@@ -17,6 +17,7 @@ import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../lib/conditionCodeMap';
 import { CONDITION_STAGING_MODELS } from '../lib/conditionStages';
 import { clearSeededTestData, seedTest90Days } from '../lib/devSeed';
+import { ACTIVITY_LEVEL_INFO, ACTIVITY_LEVELS, type ActivityLevel } from '../lib/energyNeeds';
 import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
 import { setTopicMuted } from '../lib/generalHealthPreferences';
 import { USDA_ZONES } from '../lib/gardenZones';
@@ -303,6 +304,7 @@ export default function ProfileScreen() {
     birthDate: null,
     hasHashimotos: null,
     heightCm: null,
+    activityLevel: null,
     usualBreakfastTime: null,
     usualLunchTime: null,
     usualDinnerTime: null,
@@ -656,6 +658,10 @@ export default function ProfileScreen() {
 
   function handleSexSelect(sex: TriState<DietarySex>) {
     updateProfile({ sex });
+  }
+
+  function handleActivityLevelSelect(activityLevel: TriState<ActivityLevel>) {
+    updateProfile({ activityLevel });
   }
 
   async function toggleCondition(code: string) {
@@ -1475,6 +1481,31 @@ export default function ProfileScreen() {
                 </PickerField>
               )}
             </View>
+
+            <Text style={[styles.subLabel, { marginTop: 14 }]}>Activity Level</Text>
+            <Text style={styles.helpText}>
+              Feeds Insights&apos; own Energy &amp; Portions lens: how much you move day to day, alongside your
+              weight above, is what turns a plain calorie estimate into a target that actually fits your own body.
+            </Text>
+            <View style={styles.pillRow}>
+              {([{ value: null, label: 'Not set' }] as { value: TriState<ActivityLevel>; label: string }[])
+                .concat(ACTIVITY_LEVELS.map((level) => ({ value: level, label: ACTIVITY_LEVEL_INFO[level].label })))
+                .map((option) => {
+                  const active = option.value === profile.activityLevel;
+                  return (
+                    <TouchableOpacity
+                      key={option.label}
+                      style={[styles.pill, active && styles.pillActive]}
+                      onPress={() => handleActivityLevelSelect(option.value)}
+                    >
+                      <Text style={[styles.pillText, active && styles.pillTextActive]}>{option.label}</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+            </View>
+            {profile.activityLevel ? (
+              <Text style={styles.derivedText}>{ACTIVITY_LEVEL_INFO[profile.activityLevel].description}</Text>
+            ) : null}
 
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Growing Zone</Text>
             <Text style={styles.helpText}>

@@ -25,7 +25,7 @@ export const PORTIONS_AND_RDAS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['portion-rda-ai-ul-explained', 'portion-app-tracks-real-amounts'],
+    relatedIds: ['portion-rda-ai-ul-explained', 'portion-app-tracks-real-amounts', 'portion-calorie-needs-tdee'],
   },
   {
     id: 'portion-rda-ai-ul-explained',
@@ -56,7 +56,7 @@ export const PORTIONS_AND_RDAS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['portion-minimums-vs-optimal'],
+    relatedIds: ['portion-minimums-vs-optimal', 'portion-personalized-macro-targets'],
   },
   {
     id: 'portion-fiber-real-need',
@@ -132,5 +132,52 @@ export const PORTIONS_AND_RDAS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedIds: ['portion-overview', 'portion-minimums-vs-optimal'],
+  },
+  {
+    id: 'portion-calorie-needs-tdee',
+    category: 'basicHealth',
+    title: 'How Many Calories a Body Actually Needs Has a Real Formula Behind It',
+    teaser: 'Resting energy needs (BMR) plus an activity-level multiplier produce Total Daily Energy Expenditure, the maintenance-calorie number this app\'s own Energy & Portions lens is built around.',
+    summary: 'The Mifflin-St Jeor equation estimates Basal Metabolic Rate, the calories a body burns at complete rest, from weight, height, age, and sex, a formula published in 1990 and still the default most clinical dietitians reach for over the older Harris-Benedict equation. Resting energy alone isn\'t the full picture, an inactive day and a physically demanding one burn very different totals from the same resting baseline, so BMR gets multiplied by a Physical Activity Level factor (Sedentary at 1.2 up to Extra Active at 1.9, following the same activity-level framework FAO/WHO/UNU published in 2001) to reach Total Daily Energy Expenditure, the number this app\'s own Energy & Portions lens (see Insights) computes live from a person\'s own weight, height, age, sex, and Activity Level setting in Profile. This is a genuinely different kind of number from the RDA/AI tables in the rest of this topic: those are fixed population reference values pulled straight from NASEM\'s own tables, while TDEE recomputes as a person\'s own real weight or activity level changes. TDEE by itself is a maintenance estimate, the calorie total that keeps current weight roughly steady, not a weight-loss or weight-gain target, this app deliberately doesn\'t build a calorie deficit or surplus on top of it yet, given real research already covered elsewhere in this app around aggressive restriction and thyroid/HPA-axis stress in an autoimmune population.',
+    citations: [
+      {
+        source: 'Mifflin MD, St Jeor ST, et al. 1990, American Journal of Clinical Nutrition, "A new predictive equation for resting energy expenditure in healthy individuals"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/2305711/',
+      },
+      {
+        source: 'FAO/WHO/UNU, "Human Energy Requirements," Report of a Joint Expert Consultation, Rome, 2001',
+        url: 'https://www.fao.org/4/y5686e/y5686e.pdf',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Set sex, birth date, height, weight, and Activity Level in Profile to see your own real numbers in Insights\' Energy & Portions lens.',
+    relatedIds: ['portion-overview', 'portion-personalized-macro-targets'],
+  },
+  {
+    id: 'portion-personalized-macro-targets',
+    category: 'basicHealth',
+    title: 'Protein Scales With Real Body Weight, Fat and Carbohydrate Split the Rest',
+    teaser: 'This app\'s own macro targets set protein from actual weight and activity level, then divide whatever calories are left between fat and carbohydrate using NASEM\'s own recommended range.',
+    summary: 'Protein need scales with a person\'s own real body weight, not a flat percentage of calories, so this app\'s own Energy & Portions lens starts there: 0.8 grams per kilogram at Sedentary (the same population RDA already covered in the Protein RDA entry above), rising toward 1.0 to 1.2 grams per kilogram at Lightly to Moderately Active (the same range a position paper from the PROT-AGE Study Group found useful for preserving muscle mass), up to 1.6 grams per kilogram at Very or Extra Active (within the 1.4 to 2.0 gram range the International Society of Sports Nutrition\'s own position stand names for regularly exercising adults). Whatever calories remain once that real protein target is subtracted split between fat and carbohydrate using the midpoint of NASEM\'s own Acceptable Macronutrient Distribution Range (fat 20 to 35 percent of calories, carbohydrate 45 to 65 percent), the same 2002/2005 DRI report already cited for fiber\'s own AI figures elsewhere in this topic. A produce guide rides alongside these targets too, USDA MyPlate\'s own published cup-equivalent amounts (2 cups fruit, 2.5 cups vegetables at the 2,000-calorie reference level) scaled to a person\'s own real calorie need rather than derived from a calorie percentage, which doesn\'t hold up for foods this calorie-sparse and variable. Where a tracked condition already has real, published staging with a documented protein number attached, that number takes over from the activity-based default instead, currently just Chronic Kidney Disease\'s own pre-dialysis-versus-dialysis reversal (see that category in Purple Digest), reused here rather than re-derived.',
+    citations: [
+      {
+        source: 'Bauer J, et al. 2013, Journal of the American Medical Directors Association, "Evidence-based recommendations for optimal dietary protein intake in older people: a position paper from the PROT-AGE Study Group"',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/23867520/',
+      },
+      {
+        source: 'Jäger R, et al. 2017, Journal of the International Society of Sports Nutrition, "International Society of Sports Nutrition Position Stand: protein and exercise"',
+        url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5477153/',
+      },
+      {
+        source: 'NASEM 2002/2005 DRI Macronutrients report, Acceptable Macronutrient Distribution Range (AMDR)',
+        url: 'https://ods.od.nih.gov/HealthInformation/nutrientrecommendations.aspx',
+      },
+      {
+        source: 'USDA MyPlate Plan, official cup-equivalent food group amounts by calorie level',
+        url: 'https://www.myplate.gov/myplate-plan',
+      },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['portion-calorie-needs-tdee', 'portion-protein-real-need'],
   },
 ];

@@ -7,6 +7,7 @@ import { isAlcoholicFood } from './alcoholAdvisory';
 import { isCoffeeFood } from './coffeeAdvisory';
 import { isJuiceFood } from './juiceAdvisory';
 import { analyzeNutrientIntake, NutrientGapEntry, sumFoodNutrientTotals } from './nutrientAnalysis';
+import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 
@@ -4320,6 +4321,12 @@ async function runDatabaseInitialization() {
 
     if (!hasHeightColumn) {
       await db.execAsync('ALTER TABLE user_profile ADD COLUMN height_cm REAL;');
+    }
+
+    // Insights' own Energy & Portions lens, 2026-08-15.
+    const hasActivityLevelColumn = userProfileColumns.some((column) => column.name === 'activity_level');
+    if (!hasActivityLevelColumn) {
+      await db.execAsync('ALTER TABLE user_profile ADD COLUMN activity_level TEXT;');
     }
 
     for (const column of [
@@ -10712,6 +10719,11 @@ export type UserProfile = {
   // estimate stride length) -- optional for the same "never assume, only
   // use what the person actually gave us" reason as every other field here.
   heightCm: number | null;
+  // Insights' own Energy & Portions lens, 2026-08-15 -- the one real,
+  // condition-agnostic input Mifflin-St Jeor's own TDEE math needs beyond
+  // sex/birthDate/height/weight. See lib/energyNeeds.ts's own header
+  // comment for the real sources behind each tier's activity multiplier.
+  activityLevel: ActivityLevel | null;
   // "HH:mm", 24h, local time -- roughly when this person usually eats each
   // meal. Purely a convenience default for the Schedule tab's time picker;
   // nothing else in the app should treat these as a commitment the person
@@ -10753,6 +10765,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     birth_date: string | null;
     has_hashimotos: number | null;
     height_cm: number | null;
+    activity_level: string | null;
     usual_breakfast_time: string | null;
     usual_lunch_time: string | null;
     usual_dinner_time: string | null;
@@ -10765,7 +10778,7 @@ export async function getUserProfile(): Promise<UserProfile> {
     growing_zone_postal_code: string | null;
   }>(
     `
-      SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
+      SELECT first_name, last_name, sex, birth_date, has_hashimotos, height_cm, activity_level,
              usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
              fasting_enabled, eating_window_start, eating_window_end,
              growing_zone, growing_zone_country, growing_zone_postal_code
@@ -10781,6 +10794,7 @@ export async function getUserProfile(): Promise<UserProfile> {
       birthDate: null,
       hasHashimotos: null,
       heightCm: null,
+      activityLevel: null,
       usualBreakfastTime: null,
       usualLunchTime: null,
       usualDinnerTime: null,
@@ -10801,6 +10815,9 @@ export async function getUserProfile(): Promise<UserProfile> {
     birthDate: row.birth_date,
     hasHashimotos: row.has_hashimotos == null ? null : Boolean(row.has_hashimotos),
     heightCm: row.height_cm,
+    activityLevel: (ACTIVITY_LEVELS as string[]).includes(row.activity_level ?? '')
+      ? (row.activity_level as ActivityLevel)
+      : null,
     usualBreakfastTime: row.usual_breakfast_time,
     usualLunchTime: row.usual_lunch_time,
     usualDinnerTime: row.usual_dinner_time,
@@ -10877,12 +10894,12 @@ export async function setUserProfile(update: Partial<UserProfile>) {
     await db.runAsync(
       `
         INSERT INTO user_profile (
-          id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm,
+          id, first_name, last_name, sex, birth_date, has_hashimotos, height_cm, activity_level,
           usual_breakfast_time, usual_lunch_time, usual_dinner_time, usual_snack_time,
           fasting_enabled, eating_window_start, eating_window_end,
           growing_zone, growing_zone_country, growing_zone_postal_code, updated_at
         )
-        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ON CONFLICT(id) DO UPDATE SET
           first_name = excluded.first_name,
           last_name = excluded.last_name,
@@ -10890,6 +10907,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
           birth_date = excluded.birth_date,
           has_hashimotos = excluded.has_hashimotos,
           height_cm = excluded.height_cm,
+          activity_level = excluded.activity_level,
           usual_breakfast_time = excluded.usual_breakfast_time,
           usual_lunch_time = excluded.usual_lunch_time,
           usual_dinner_time = excluded.usual_dinner_time,
@@ -10908,6 +10926,7 @@ export async function setUserProfile(update: Partial<UserProfile>) {
       merged.birthDate,
       merged.hasHashimotos == null ? null : merged.hasHashimotos ? 1 : 0,
       merged.heightCm,
+      merged.activityLevel,
       merged.usualBreakfastTime,
       merged.usualLunchTime,
       merged.usualDinnerTime,
