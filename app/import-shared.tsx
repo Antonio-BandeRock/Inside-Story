@@ -23,19 +23,33 @@
 // Never writes anything before a real, explicit confirmation -- the same
 // discipline this app already holds every other "external, unverified
 // input" boundary to. decodeShareEnvelope is defensive by design (returns
-// null for anything genuinely malformed), so a bad/corrupted link shows a
-// plain, honest "this link doesn't look right" state instead of crashing.
-// A real photo, when the envelope carries one, previews directly from its
-// own base64 bytes (a plain data: URI -- no need to write a real file just
-// to show a preview); stageSharedItem is the one real place that decodes
-// it into a genuine local file, once the person actually confirms.
+// null for anything genuinely malformed OR whose signature doesn't check
+// out -- step 5 of the real device-pairing prerequisite list, 2026-08-15,
+// see lib/sharing.ts's own header comment), so a bad/corrupted/tampered
+// link shows one plain, honest "this link doesn't look right" state
+// instead of crashing or leaking which specific check failed. A real
+// photo, when the envelope carries one, previews directly from its own
+// base64 bytes (a plain data: URI -- no need to write a real file just to
+// show a preview); stageSharedItem is the one real place that decodes it
+// into a genuine local file, once the person actually confirms.
+//
+// A genuine, decoded/verified envelope is ALWAYS shown here regardless of
+// whether its sender is already a known Connection -- this app's own
+// core sharing feature is explicitly meant to work with anyone, not just
+// people already paired. The one real, additional thing a known
+// Connection buys: a real "Verified" badge below, computed via
+// getConnectionByPublicKey (lib/connections.ts) against the envelope's
+// own already-signature-checked senderPublicKeyBase64 -- genuine
+// cryptographic confidence this specific share really did come from that
+// specific person, not just a claimed display name.
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
+import { getConnectionByPublicKey } from '../lib/connections';
 import { decodeShareEnvelope, stageSharedItem, type ShareEnvelope } from '../lib/sharing';
 
 function previewIngredientLines(envelope: ShareEnvelope): string[] {
@@ -61,6 +75,22 @@ export default function ImportSharedScreen() {
   const envelope = useMemo(() => (typeof data === 'string' ? decodeShareEnvelope(data) : null), [data]);
   const [status, setStatus] = useState<'preview' | 'saving' | 'saved' | 'error'>('preview');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [verifiedConnectionName, setVerifiedConnectionName] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!envelope) {
+      setVerifiedConnectionName(null);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      const connection = await getConnectionByPublicKey(envelope.senderPublicKeyBase64);
+      if (!cancelled) setVerifiedConnectionName(connection?.name ?? null);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [envelope]);
 
   async function handleAdd() {
     if (!envelope) return;
@@ -119,6 +149,21 @@ export default function ImportSharedScreen() {
       <Text style={styles.fromLine}>Shared with you by {envelope.fromName}</Text>
       <Text style={styles.title}>{previewName(envelope)}</Text>
 
+      {verifiedConnectionName ? (
+        <View style={styles.verifiedRow}>
+          <Ionicons name="shield-checkmark-outline" size={16} color={colors.accent} />
+          <Text style={styles.verifiedText}>
+            Verified: this really is your connection {verifiedConnectionName}
+            {verifiedConnectionName !== envelope.fromName ? ` (shown here as "${envelope.fromName}")` : ''}
+          </Text>
+        </View>
+      ) : (
+        <Text style={styles.unverifiedText}>
+          {envelope.fromName} isn&apos;t one of your connections yet, so this can&apos;t be verified as really coming from
+          them -- it&apos;s still safe to review, since the link itself checked out fine.
+        </Text>
+      )}
+
       {photoBase64 ? (
         <Image source={{ uri: `data:image/jpeg;base64,${photoBase64}` }} style={styles.photo} resizeMode="cover" />
       ) : null}
@@ -160,6 +205,9 @@ const styles = StyleSheet.create({
   fromLine: { ...typography.caption, color: colors.textMuted, marginBottom: 4 },
   title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center' },
   text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
+  verifiedRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 10 },
+  verifiedText: { ...typography.caption, color: colors.accent, flexShrink: 1 },
+  unverifiedText: { ...typography.caption, color: colors.textMuted, marginTop: 10 },
   photo: { width: '100%', height: 200, borderRadius: 12, marginTop: 16, backgroundColor: colors.surface },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 20, marginBottom: 6 },
   ingredientLine: { ...typography.body, color: colors.textPrimary, lineHeight: 20 },

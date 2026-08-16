@@ -19,16 +19,16 @@
 //
 // Step 2, real device identity: a genuine Ed25519 signing keypair,
 // generated once per device and stored securely. Deliberately scoped to
-// IDENTITY ONLY -- no box/encryption keypair yet (NaCl's signing and
-// box/encryption keys use different curves and can't be derived from one
-// seed, so that's a real, separate generation step of its own, deferred
-// until step 5 of the same list actually decides whether encryption --
-// not just signing/verification -- is needed on top of this), and no
-// actual sign/verify helper functions yet either -- "wrap real signing
-// around the envelope" is step 5's own job, once step 4's real pairing
-// exchange exists to know WHOSE public key a signature should be checked
-// against. This file's only real job is: does this device have a real,
-// stable, securely-stored identity to eventually offer/sign with.
+// IDENTITY ONLY -- no box/encryption keypair (NaCl's signing and box/
+// encryption keys use different curves and can't be derived from one
+// seed, so that's a real, separate generation step of its own, only worth
+// adding if a future pass decides true confidentiality -- not just
+// signing/verification -- is needed on top of this; step 5, below, covers
+// signing and verification only, matching the roadmap's own explicit
+// "if true confidentiality is wanted" framing as a separate, optional
+// extension). Step 5's own real signMessage()/verifySignature() live at
+// the bottom of this file, once step 4's real pairing exchange existed to
+// know whose public key a signature should be checked against.
 //
 // Two real native modules this needs -- expo-crypto (a genuine, platform-
 // backed source of secure random bytes; tweetnacl's own internal
@@ -60,10 +60,13 @@ export type DeviceIdentity = {
 // the same reason as that other codec: no reliance on global btoa/atob
 // (Hermes' own support for those is a relatively recent addition,
 // unconfirmed on-device in this exact build) -- just plain array/string
-// operations, guaranteed in any JS engine.
+// operations, guaranteed in any JS engine. Exported 2026-08-15 (step 5) --
+// lib/sharing.ts needs the identical real job (moving raw signature bytes,
+// not a JSON string, in and out of a URL-safe form) once real signing
+// exists there, reused directly rather than duplicated a third time.
 const BASE64_CHARS = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
-function bytesToBase64(bytes: Uint8Array): string {
+export function bytesToBase64(bytes: Uint8Array): string {
   let result = '';
   for (let i = 0; i < bytes.length; i += 3) {
     const b0 = bytes[i];
@@ -78,7 +81,7 @@ function bytesToBase64(bytes: Uint8Array): string {
   return result;
 }
 
-function base64ToBytes(base64: string): Uint8Array {
+export function base64ToBytes(base64: string): Uint8Array {
   const clean = base64.replace(/=+$/, '');
   const bytes: number[] = [];
   let buffer = 0;
@@ -114,13 +117,14 @@ export async function getDeviceIdentity(): Promise<DeviceIdentity> {
   return identityPromise;
 }
 
-// Real, explicit, real-only for now: intentionally not exposed as part of
-// the public API above -- nothing outside this module has a legitimate
-// reason to hold the raw private seed yet, since no signing operation
-// exists to use it with. Kept as its own internal function so a future
-// real signing helper (step 5) has one obvious, already-proven place to
-// read it from, rather than needing to re-derive this same load/generate
-// logic a second time.
+// Deliberately still private -- the raw seed itself never leaves this
+// module, even now that step 5 (below) has a real, legitimate reason to
+// touch it. signMessage() re-derives the full keypair from this seed each
+// time it's called rather than caching it anywhere, a real, deliberate
+// security tradeoff: signing is a genuinely infrequent operation (once per
+// share, not a hot path), so the small, real cost of re-deriving from seed
+// every time is worth it to keep the raw secret key out of memory for
+// longer than one signing operation actually needs it.
 async function loadSeed(): Promise<Uint8Array> {
   const SecureStore = await import('expo-secure-store');
   const existing = await SecureStore.getItemAsync(PRIVATE_SEED_KEY);
@@ -137,6 +141,39 @@ async function loadOrCreateIdentity(): Promise<DeviceIdentity> {
   const seed = await loadSeed();
   const keyPair = nacl.sign.keyPair.fromSeed(seed);
   return { publicKey: keyPair.publicKey, publicKeyBase64: bytesToBase64(keyPair.publicKey) };
+}
+
+// Step 5, 2026-08-15, direct request: "Let's start on step 5" -- real
+// Ed25519 signing, wrapped around the ShareEnvelope shape lib/sharing.ts
+// already defines. This is the one real function anywhere in the app that
+// ever touches the full keypair/secret key -- every other module that
+// needs something signed calls this, never handles the raw secret key
+// itself, keeping the sensitive key material encapsulated in exactly one
+// place. nacl.sign.detached produces a real, standalone 64-byte signature
+// separate from the message itself (not nacl.sign's own combined
+// signature-plus-message output), the right shape here since the message
+// (the envelope's own JSON) already travels in the clear right alongside
+// it -- there's nothing to gain from bundling them into one opaque blob.
+export async function signMessage(message: Uint8Array): Promise<Uint8Array> {
+  const seed = await loadSeed();
+  const keyPair = nacl.sign.keyPair.fromSeed(seed);
+  return nacl.sign.detached(message, keyPair.secretKey);
+}
+
+// The real verification half -- a plain, synchronous, pure function (no
+// private key or async work needed at all; checking a signature only ever
+// needs the PUBLIC key, which travels with the message). Returns false for
+// a genuinely malformed base64/signature/key rather than throwing, since
+// this sits directly on the "is a received payload trustworthy" boundary
+// -- a decode error there should read exactly the same as "the signature
+// didn't check out," not crash the receiving screen.
+export function verifySignature(message: Uint8Array, signature: Uint8Array, publicKeyBase64: string): boolean {
+  try {
+    const publicKey = base64ToBytes(publicKeyBase64);
+    return nacl.sign.detached.verify(message, signature, publicKey);
+  } catch {
+    return false;
+  }
 }
 
 // A real, deliberate escape hatch -- not reachable from any UI yet (there

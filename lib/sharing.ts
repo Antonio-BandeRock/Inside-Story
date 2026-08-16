@@ -63,6 +63,7 @@ import {
   type MealComponentType,
   type MealFavoriteComponent,
 } from './db';
+import { base64ToBytes, bytesToBase64, getDeviceIdentity, signMessage, verifySignature } from './deviceIdentity';
 import { deleteMealPhotoFile, getPhotoForTarget, prepareSharePhoto, saveSharePhotoFromBase64, setPhotoForTarget } from './mealPhotos';
 
 export type ShareComponentPayload = {
@@ -82,10 +83,21 @@ export type ShareMealPayload = {
   photoBase64?: string;
 };
 
+// v2, 2026-08-15 (step 5 of the real device-pairing prerequisite list --
+// see CLAUDE.md's own "Sharing individual recipes between two people"
+// security-requirement note): every real envelope now carries the
+// sender's own real public key AND travels signed -- see encodeEnvelope/
+// decodeShareEnvelope below for the actual sign/verify mechanics. No real
+// users exist yet to migrate (this project's own standing, repeated
+// precedent for exactly this situation), so v1 (unsigned) is retired
+// outright rather than kept as a fallback -- decodeShareEnvelope treats
+// anything that isn't a genuine, valid v2 envelope as malformed, the same
+// as any other corrupted link.
 export type ShareEnvelope = {
-  v: 1;
+  v: 2;
   fromName: string;
   payload: ShareComponentPayload | ShareMealPayload;
+  senderPublicKeyBase64: string;
 };
 
 // Real, honest limitation carried straight over from the already-shipped
@@ -228,9 +240,39 @@ export function decodeBase64Utf8(base64: string): string {
   return bytesToUtf8(bytes);
 }
 
+// The real, actual thing that travels over the wire -- deliberately
+// separate from ShareEnvelope itself, which is what a caller works with
+// once decoded/verified. unsignedJson is the EXACT, verbatim
+// JSON.stringify(ShareEnvelope) text that was signed, kept as a raw string
+// rather than re-derived from a parsed object at decode time, so
+// signature verification never has to rely on JSON.stringify/JSON.parse
+// round-tripping key order identically -- it checks the signature against
+// the precise bytes that were actually signed, byte for byte.
+type SignedEnvelopeWire = {
+  unsignedJson: string;
+  signature: string;
+};
+
+// 2026-08-15, step 5 of the real device-pairing prerequisite list -- every
+// real envelope now signs itself with this device's own real identity
+// (lib/deviceIdentity.ts). Signing needs no knowledge of who will receive
+// it (a device can always sign with its own key, regardless of the
+// recipient) -- the real question of whether the RECEIVING device already
+// recognizes this specific key is a separate, later step (see
+// decodeShareEnvelope below, and app/import-shared.tsx's own "Verified"
+// check), not something encoding needs to know about at all.
 async function encodeEnvelope(payload: ShareComponentPayload | ShareMealPayload, fromName: string): Promise<string> {
-  const envelope: ShareEnvelope = { v: 1, fromName: fromName.trim() || 'A friend', payload };
-  return Linking.createURL('/import-shared', { queryParams: { data: encodeBase64Utf8(JSON.stringify(envelope)) } });
+  const identity = await getDeviceIdentity();
+  const envelope: ShareEnvelope = {
+    v: 2,
+    fromName: fromName.trim() || 'A friend',
+    payload,
+    senderPublicKeyBase64: identity.publicKeyBase64,
+  };
+  const unsignedJson = JSON.stringify(envelope);
+  const signature = await signMessage(new Uint8Array(utf8Bytes(unsignedJson)));
+  const wire: SignedEnvelopeWire = { unsignedJson, signature: bytesToBase64(signature) };
+  return Linking.createURL('/import-shared', { queryParams: { data: encodeBase64Utf8(JSON.stringify(wire)) } });
 }
 
 // The one real, shared place a photo gets resolved and compressed down for
@@ -293,37 +335,73 @@ export async function encodeMealShareLink(mealFavoriteId: string, fromName: stri
   return encodeEnvelope({ kind: 'meal', name: favorite.name, mealType: favorite.mealType, components, photoBase64 }, fromName);
 }
 
-// Defensive parse -- never trusts a received link's own shape blindly, the
-// same discipline every other real "external input" boundary in this app
-// already holds to. Returns null for anything genuinely malformed rather
-// than throwing, so app/import-shared.tsx can show a plain, honest "this
-// link doesn't look right" state instead of crashing. photoBase64 is
-// deliberately never validated beyond "is it present" -- a malformed
-// base64 string simply fails to decode later (saveSharePhotoFromBase64
-// returns null, never throws), which stageSharedItem below already treats
-// as "no photo," not a reason to reject the whole share.
+// Defensive parse AND the real verification gate -- never trusts a
+// received link's own shape (or signature) blindly, the same discipline
+// every other real "external input" boundary in this app already holds
+// to. Returns null for anything genuinely malformed OR anything whose
+// signature doesn't check out, so app/import-shared.tsx can show one
+// plain, honest "this link doesn't look right" state either way, rather
+// than leaking which specific check failed to a potential attacker.
+// photoBase64 is still deliberately never validated beyond "is it
+// present" -- a malformed base64 string simply fails to decode later
+// (saveSharePhotoFromBase64 returns null, never throws), which
+// stageSharedItem below already treats as "no photo," not a reason to
+// reject the whole share.
 //
 // `raw` is the query string's own `data` value exactly as Expo Router/
 // expo-linking already hand it back (percent-decoded) -- since
-// encodeEnvelope now base64-encodes the JSON before it ever reaches the
-// query string (see that function's own comment), this is the one real
-// place that reverses it, before JSON.parse ever runs.
+// encodeEnvelope now base64-encodes the wire JSON before it ever reaches
+// the query string (see that function's own comment), this is the one
+// real place that reverses it, before anything else runs.
+//
+// Deliberately does NOT check whether senderPublicKeyBase64 is a known
+// Connection here -- that's a separate, async, real database lookup
+// (getConnectionByPublicKey, lib/connections.ts), and this function stays
+// synchronous on purpose so its one existing caller (app/import-shared.tsx's
+// own useMemo) doesn't need a bigger restructure. A genuinely UNKNOWN
+// sender still verifies and decodes successfully here -- "not yet a
+// Connection" isn't the same thing as "the signature is wrong," and this
+// app's own core sharing feature is explicitly meant to work with anyone,
+// not just people already paired. Whether the sender is a recognized
+// Connection is checked separately, downstream, purely to decide whether
+// to show a real "Verified" badge -- never to decide whether to accept the
+// share at all.
 export function decodeShareEnvelope(raw: string): ShareEnvelope | null {
   try {
-    const parsed = JSON.parse(decodeBase64Utf8(raw)) as Partial<ShareEnvelope>;
-    if (parsed.v !== 1 || typeof parsed.fromName !== 'string' || !parsed.payload) return null;
+    const wire = JSON.parse(decodeBase64Utf8(raw)) as Partial<SignedEnvelopeWire>;
+    if (typeof wire.unsignedJson !== 'string' || typeof wire.signature !== 'string') return null;
+
+    const parsed = JSON.parse(wire.unsignedJson) as Partial<ShareEnvelope>;
+    if (
+      parsed.v !== 2 ||
+      typeof parsed.fromName !== 'string' ||
+      !parsed.payload ||
+      typeof parsed.senderPublicKeyBase64 !== 'string'
+    ) {
+      return null;
+    }
 
     if (parsed.payload.kind === 'component') {
       const p = parsed.payload;
       if (!p.componentType || !p.builder?.name || !Array.isArray(p.builder?.ingredients)) return null;
-      return parsed as ShareEnvelope;
-    }
-    if (parsed.payload.kind === 'meal') {
+    } else if (parsed.payload.kind === 'meal') {
       const p = parsed.payload;
       if (!p.name || !Array.isArray(p.components) || p.components.length === 0) return null;
-      return parsed as ShareEnvelope;
+    } else {
+      return null;
     }
-    return null;
+
+    // The real, mandatory check: verify against the exact, verbatim bytes
+    // that were originally signed (wire.unsignedJson's own raw text), not
+    // a re-serialized object. A signature that doesn't check out here
+    // means real tampering in transit or a genuinely corrupted link --
+    // either way, "if the code is wrong, it isn't accepted," rejected
+    // outright.
+    const message = new Uint8Array(utf8Bytes(wire.unsignedJson));
+    const signatureBytes = base64ToBytes(wire.signature);
+    if (!verifySignature(message, signatureBytes, parsed.senderPublicKeyBase64)) return null;
+
+    return parsed as ShareEnvelope;
   } catch {
     return null;
   }
@@ -405,22 +483,47 @@ export type SharedRecipeRow = {
   fromName: string;
   payload: ShareComponentPayload | ShareMealPayload;
   photoUri: string | null;
+  // The real, already-verified sender public key this share was signed
+  // with (step 5, 2026-08-15) -- null only for a genuinely pre-step-5
+  // staged row that predates this column existing at all; every new share
+  // staged from here on always has one, since decodeShareEnvelope now
+  // rejects anything without a real, valid signature before it ever
+  // reaches stageSharedItem.
+  senderPublicKeyBase64: string | null;
   receivedAt: string;
 };
 
-async function getSharedRecipeRow(id: string): Promise<SharedRecipeRow | null> {
-  const db = await getDatabase();
-  const row = await db.getFirstAsync<{ from_name: string; payload_json: string; photo_uri: string | null; received_at: string }>(
-    'SELECT from_name, payload_json, photo_uri, received_at FROM shared_recipes WHERE id = ?',
-    id,
-  );
-  if (!row) return null;
+type SharedRecipeDbRow = {
+  from_name: string;
+  payload_json: string;
+  photo_uri: string | null;
+  sender_public_key_base64: string | null;
+  received_at: string;
+};
+
+function sharedRecipeFromRow(id: string, row: SharedRecipeDbRow): SharedRecipeRow | null {
   try {
     const payload = JSON.parse(row.payload_json) as ShareComponentPayload | ShareMealPayload;
-    return { id, fromName: row.from_name, payload, photoUri: row.photo_uri, receivedAt: row.received_at };
+    return {
+      id,
+      fromName: row.from_name,
+      payload,
+      photoUri: row.photo_uri,
+      senderPublicKeyBase64: row.sender_public_key_base64,
+      receivedAt: row.received_at,
+    };
   } catch {
     return null;
   }
+}
+
+async function getSharedRecipeRow(id: string): Promise<SharedRecipeRow | null> {
+  const db = await getDatabase();
+  const row = await db.getFirstAsync<SharedRecipeDbRow>(
+    'SELECT from_name, payload_json, photo_uri, sender_public_key_base64, received_at FROM shared_recipes WHERE id = ?',
+    id,
+  );
+  return row ? sharedRecipeFromRow(id, row) : null;
 }
 
 // The one, real, always-last step app/import-shared.tsx's own explicit
@@ -440,8 +543,8 @@ export async function stageSharedItem(envelope: ShareEnvelope): Promise<{ id: st
 
   await db.runAsync(
     `
-      INSERT INTO shared_recipes (id, from_name, kind, component_type, payload_json, photo_uri, received_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO shared_recipes (id, from_name, kind, component_type, payload_json, photo_uri, sender_public_key_base64, received_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     envelope.fromName,
@@ -449,6 +552,7 @@ export async function stageSharedItem(envelope: ShareEnvelope): Promise<{ id: st
     componentType,
     JSON.stringify(payloadWithoutPhoto),
     photoUri,
+    envelope.senderPublicKeyBase64,
     now,
   );
 
@@ -457,21 +561,21 @@ export async function stageSharedItem(envelope: ShareEnvelope): Promise<{ id: st
 
 export async function listSharedRecipes(): Promise<SharedRecipeRow[]> {
   const db = await getDatabase();
-  const rows = await db.getAllAsync<{ id: string; from_name: string; payload_json: string; photo_uri: string | null; received_at: string }>(
-    'SELECT id, from_name, payload_json, photo_uri, received_at FROM shared_recipes ORDER BY received_at DESC',
+  const rows = await db.getAllAsync<{ id: string } & SharedRecipeDbRow>(
+    'SELECT id, from_name, payload_json, photo_uri, sender_public_key_base64, received_at FROM shared_recipes ORDER BY received_at DESC',
   );
   const results: SharedRecipeRow[] = [];
   for (const row of rows) {
-    try {
-      const payload = JSON.parse(row.payload_json) as ShareComponentPayload | ShareMealPayload;
-      results.push({ id: row.id, fromName: row.from_name, payload, photoUri: row.photo_uri, receivedAt: row.received_at });
-    } catch (error) {
+    const parsed = sharedRecipeFromRow(row.id, row);
+    if (parsed) {
+      results.push(parsed);
+    } else {
       // A corrupted staged row is skipped rather than crashing the whole
       // list -- not expected in practice, since stageSharedItem always
       // writes a real, valid JSON.stringify result, but a genuinely
       // external input boundary (a shared payload from someone else's
       // phone) is worth defending regardless.
-      console.error('[sharing] Skipping corrupted staged recipe', row.id, error);
+      console.error('[sharing] Skipping corrupted staged recipe', row.id);
     }
   }
   return results;

@@ -3507,7 +3507,18 @@ async function runDatabaseInitialization() {
       -- ever set for a real 'component' share. payload_json is the real
       -- ShareComponentPayload/ShareMealPayload, minus its own photoBase64
       -- field (decoded into photo_uri, a real local file, at stage time --
-      -- no reason to keep the same image bytes twice).
+      -- no reason to keep the same image bytes twice). sender_public_key_
+      -- base64 (step 5 of the real device-pairing prerequisite list,
+      -- 2026-08-15 -- see lib/sharing.ts's own decodeShareEnvelope/
+      -- ShareEnvelope) is the real, already-verified Ed25519 public key
+      -- the share was genuinely signed with -- stored so a staged item's
+      -- own "Verified: this is your connection X" status can be computed
+      -- LIVE, at display time, via getConnectionByPublicKey, rather than
+      -- baked in as a stale boolean the moment it's staged (a real,
+      -- deliberate choice: if the person later adds this same sender as a
+      -- Connection, an already-staged, previously-unverified share
+      -- correctly starts showing as verified too, without needing to be
+      -- re-received).
       CREATE TABLE IF NOT EXISTS shared_recipes (
         id TEXT PRIMARY KEY,
         from_name TEXT NOT NULL,
@@ -3515,6 +3526,7 @@ async function runDatabaseInitialization() {
         component_type TEXT,
         payload_json TEXT NOT NULL,
         photo_uri TEXT,
+        sender_public_key_base64 TEXT,
         received_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
@@ -4530,6 +4542,22 @@ async function runDatabaseInitialization() {
       const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
       if (!columns.some((column) => column.name === 'photo_uri')) {
         await db.execAsync(`ALTER TABLE ${table} ADD COLUMN photo_uri TEXT;`);
+      }
+    }
+
+    // shared_recipes.sender_public_key_base64 -- step 5 of the real
+    // device-pairing prerequisite list, 2026-08-15 (see this table's own
+    // CREATE TABLE comment above for the real reasoning). A device that
+    // already ran this app's own real, prior CREATE TABLE IF NOT EXISTS
+    // for shared_recipes (this table shipped, and this exact app has
+    // already been rebuilt/run on a real device, earlier the same
+    // session) needs this real, additive migration to actually gain the
+    // column -- IF NOT EXISTS alone never adds a column to an
+    // already-existing table.
+    {
+      const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(shared_recipes)`);
+      if (!columns.some((column) => column.name === 'sender_public_key_base64')) {
+        await db.execAsync(`ALTER TABLE shared_recipes ADD COLUMN sender_public_key_base64 TEXT;`);
       }
     }
   } catch (error) {

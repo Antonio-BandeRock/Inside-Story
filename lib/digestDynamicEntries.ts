@@ -48,6 +48,7 @@ import {
   type MealComponentType,
   type MealIngredientInput,
 } from './db';
+import { getConnectionByPublicKey } from './connections';
 import { getSharedFromName, listSharedRecipes, type ShareComponentPayload, type ShareMealPayload } from './sharing';
 import type { DigestEntry } from './digest/types';
 
@@ -345,6 +346,7 @@ async function buildSharedRecipeEntry(
   fromName: string,
   payload: ShareComponentPayload | ShareMealPayload,
   conditions: { code: string; name: string }[],
+  senderPublicKeyBase64: string | null,
 ): Promise<DigestEntry> {
   const isMeal = payload.kind === 'meal';
   const ingredients: MealIngredientInput[] = isMeal
@@ -355,6 +357,16 @@ async function buildSharedRecipeEntry(
   const ingredientNames = isMeal
     ? payload.components.map((component) => component.builder.name).join(', ')
     : payload.builder.ingredients.map((ingredient) => ingredient.foodName).join(', ');
+
+  // Step 5, 2026-08-15 -- a real, live "is this a known Connection" check
+  // (never baked in at stage time -- see this table's own CREATE TABLE
+  // comment in lib/db.ts for why), so this note stays accurate even if
+  // the person pairs with this same sender LATER, after already staging
+  // this share.
+  const connection = senderPublicKeyBase64 ? await getConnectionByPublicKey(senderPublicKeyBase64) : null;
+  const verifiedNote = connection
+    ? `Verified: this is genuinely from your connection ${connection.name}.`
+    : `Not yet verified -- ${fromName} isn't one of your connections yet.`;
 
   const [highlights, conditionNotes] = await Promise.all([
     getNutritionHighlightsForIngredients(ingredients, servings),
@@ -367,8 +379,8 @@ async function buildSharedRecipeEntry(
     title: name,
     teaser: `Shared with you by ${fromName}: ${ingredientNames}.`,
     summary: isMeal
-      ? `A whole meal shared by ${fromName} -- try it, then decide whether to save it to your own recipes or as a favorite.`
-      : `A ${payload.componentType.replace(/([A-Z])/g, ' $1').toLowerCase()}, shared by ${fromName}, makes ${servingsLabel(servings)} -- try it, then decide whether to save it to your own recipes or as a favorite.`,
+      ? `A whole meal shared by ${fromName} -- try it, then decide whether to save it to your own recipes or as a favorite. ${verifiedNote}`
+      : `A ${payload.componentType.replace(/([A-Z])/g, ' $1').toLowerCase()}, shared by ${fromName}, makes ${servingsLabel(servings)} -- try it, then decide whether to save it to your own recipes or as a favorite. ${verifiedNote}`,
     citations: [],
     overallTier: 'strong',
     dynamicGroupLabel: 'Recipes Shared With Me',
@@ -388,7 +400,7 @@ export async function buildSharedRecipeEntries(): Promise<DigestEntry[]> {
   const [conditions, staged] = await Promise.all([getTrackedConditions(), listSharedRecipes()]);
   const entries: DigestEntry[] = [];
   for (const row of staged) {
-    entries.push(await buildSharedRecipeEntry(row.id, row.fromName, row.payload, conditions));
+    entries.push(await buildSharedRecipeEntry(row.id, row.fromName, row.payload, conditions, row.senderPublicKeyBase64));
   }
   return entries;
 }
