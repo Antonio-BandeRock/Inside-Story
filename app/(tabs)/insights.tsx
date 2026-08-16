@@ -1456,6 +1456,28 @@ function PortionsView({
 // same shortcut every other Lens page also gets in that exact spot. This
 // button just shifts one slot further out to make room, same idea as the
 // swap that first put it here.
+//
+// Bumped back down to slot 0, real bug fix, not a stale-comment cleanup
+// alone -- the reasoning right above stopped being true on 2026-08-01,
+// when MyItemsHub was redesigned to sit at the real, live midpoint of the
+// gap between LensHub's own corner button and TabHub (see MyItemsHub.tsx's
+// own header comment) instead of occupying a fixed slot at all. Nobody
+// circled back to un-bump this button once that happened, so it kept
+// sitting at slot 1 -- one slot further out than it ever needed to be
+// again, and close enough to LensHub's own fixed corner position (16px
+// from the true edge) that the two buttons visibly overlap on every
+// ordinary phone width (checked directly: their unclamped left values are
+// mathematically identical, `windowWidth/2 - 174`, and LensHub's own
+// corner clamp only ever pulls it further LEFT of that, never right of
+// it -- so on anything up to a genuinely tablet-width screen the two sit
+// almost exactly on top of each other). Reported directly as "a weird
+// extra circle... stacking... translucent... off... not centered on the
+// LensHub icon button," reproducing on Nutrients/6 Dimensions/Cooking &
+// Prep -- exactly the three lenses that render this component at all.
+// Slot 0 is genuinely unclaimed again now, and re-checked at 320/360/393/
+// 412dp (the realistic device-width range) confirms a real, positive
+// clearance gap (12-28px) from LensHub's own corner at every one of them,
+// not just the common case.
 function ScopeHub<M extends NavigableMeal>({
   breakdown,
   scope,
@@ -1466,7 +1488,7 @@ function ScopeHub<M extends NavigableMeal>({
   onChangeScope: (scope: Scope) => void;
 }) {
   const [open, setOpen] = useState(false);
-  const { bottom: buttonBottom, left: buttonLeft } = useSecondaryHubPosition(1);
+  const { bottom: buttonBottom, left: buttonLeft } = useSecondaryHubPosition(0);
   // Independent of buttonBottom -- the button itself stays anchored inside
   // the footer band; only the popup card floats clear above it (see
   // useMenuCardBottom's own comment in constants/floatingButton.ts).
