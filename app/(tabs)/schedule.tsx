@@ -283,6 +283,10 @@ const COMING_SOON_COPY: Record<Exclude<Lens, 'meals' | 'pastMeals' | 'myMeds' | 
 
 const SCHEDULE_HELP_SECTIONS: HelpSection[] = [
   {
+    heading: 'What this page is for',
+    body: "So meals, hydration, supplements, prescriptions, and appointments actually happen when they're supposed to, instead of being remembered and then forgotten. Plan them here ahead of time, and this app reminds you and keeps a real record of whether each one actually happened.",
+  },
+  {
     heading: 'Planning vs. logging',
     body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab, either through "Log now" here or by creating a meal there directly.',
   },

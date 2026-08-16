@@ -136,6 +136,10 @@ const RECIPE_BUILDER_PARAM: Record<BuilderFavoriteItemType, string> = {
 
 const DIGEST_HELP_SECTIONS: HelpSection[] = [
   {
+    heading: 'What this tab is for',
+    body: "So you're not left researching your own condition on your own. Real, cited findings on every one of the 19 tracked conditions plus general food, body, and gut science, organized so you can actually find what applies to you, alongside your own saved kitchen, favorites, and curated recipes.",
+  },
+  {
     heading: 'A growing set of categories, one evidence standard',
     body: 'Every entry here is tiered Strong/Moderate/Weak by its own actual evidence, the same discipline as this app\'s own 6 Dimensions scoring. A gold dot means trial-level support, not just "this app trusts it." This tab is meant to keep growing; if the picker below runs past what fits on screen at once, it scrolls.',
   },

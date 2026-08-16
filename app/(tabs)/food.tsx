@@ -271,7 +271,7 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
 const FOOD_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: 'The Food tab is built from one all-in-one meal builder into twelve focused builders, one per kind of thing you actually make: a full meal, a side, a salad or bowl, a smoothie, a fermented food, a beverage, a snack, a baked good, a soup, a sauce/gravy/dressing/dip, a sandwich/wrap/burger/taco, or a dessert.',
+    body: 'So building something to eat automatically gets real nutrient and 6 Dimensions scoring as you go, instead of you having to work that out yourself afterward. The Food tab is built from one all-in-one meal builder into twelve focused builders, one per kind of thing you actually make: a full meal, a side, a salad or bowl, a smoothie, a fermented food, a beverage, a snack, a baked good, a soup, a sauce/gravy/dressing/dip, a sandwich/wrap/burger/taco, or a dessert.',
   },
   {
     heading: 'The twelve builders',

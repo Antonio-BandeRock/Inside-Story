@@ -123,8 +123,12 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
 
 const GARDEN_HELP_SECTIONS: HelpSection[] = [
   {
-    heading: 'Garden',
-    body: "Standing infrastructure for growing your own food and tracking it: your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), garden areas and what's planted in them, a harvest log that feeds straight into the Food builders as an ingredient source once anything's actually picked, and upcoming garden tasks. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row; a dedicated lens for it inside the Schedules tab itself isn't built yet).",
+    heading: 'What this tab is for',
+    body: "So growing your own food is worth the effort, not just a separate hobby log nobody else in this app ever sees. Track what you're growing, what actually gets harvested, and it becomes a real, pickable ingredient in the Food builders, the same as anything from the reference database.",
+  },
+  {
+    heading: 'What it tracks',
+    body: "Your USDA Plant Hardiness Zone (found automatically from a country + ZIP/postal code, anywhere on Earth, or set directly if you already know it), garden areas and what's planted in them, a harvest log, and upcoming garden tasks. A basic Scheduler tie-in exists too (a garden task creates a schedule_items row; a dedicated lens for it inside the Schedules tab itself isn't built yet).",
   },
 ];
 

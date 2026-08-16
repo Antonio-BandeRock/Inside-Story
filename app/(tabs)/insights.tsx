@@ -457,6 +457,10 @@ function scopeBreadcrumbs<M extends NavigableMeal>(
 
 const INSIGHTS_HELP_SECTIONS: HelpSection[] = [
   {
+    heading: 'What this page is for',
+    body: "So you don't have to work out on your own whether today's meals actually met your nutrient needs or matched what's safe for your own tracked conditions. Insights does that math for you, from the exact meals you already logged, and tells you plainly what needs attention and what doesn't.",
+  },
+  {
     heading: 'Three lenses, one day of data',
     body: 'Nutrients, 6 Dimensions, and Cooking & Prep (tap the button to the left of the main navigation button, bottom of the screen) are three different views over the same set of meals you logged today. Switching views does not reload anything, it just changes how the same data is presented.',
   },

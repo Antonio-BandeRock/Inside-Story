@@ -406,6 +406,10 @@ function findUpNext(scheduledToday: ScheduleItemRecord[]): UpNext | null {
 
 const HOME_HELP_SECTIONS: HelpSection[] = [
   {
+    heading: 'What this page is for',
+    body: "One glance at where today already stands, without opening five separate tabs to find out. This is the page you open first: your day's own schedule, whether today's nutrients are on track, and how you've been feeling, all refreshed the moment you open the app.",
+  },
+  {
     heading: 'What this page shows',
     body: "A live dashboard, not a static page: your day's arc, today's fuel gauges, and how you've been feeling, refreshed every time you open it. Tap anything to jump to the tab it summarizes.",
   },

@@ -5,6 +5,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
 import { GenericBackground } from '../components/GenericBackground';
+import { HelpButton, type HelpSection } from '../components/HelpButton';
 import { IridescentRingCircle } from '../components/IridescentRingCircle';
 import { PopoverSelect } from '../components/PopoverSelect';
 import { usePasswordPrompt } from '../components/PasswordPrompt';
@@ -103,6 +104,31 @@ const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
 ];
 
 const GENERIC_PALETTE_OPTIONS: GenericPalette[] = ['lavender', 'seafoam', 'sand', 'dusk'];
+
+// 2026-08-16, direct request: every information page should say plainly
+// what the tool is here to do for you, why you'd use it, not just how the
+// controls work. Profile had never had ANY info affordance at all, unlike
+// every one of the 9 main tabs: it's reached via TabHub's own "Profile"
+// corner tile, a real Stack push outside the Tabs navigator entirely, so
+// TabHub's floating button (and its own "info about whatever's open" tile)
+// never mounts here at all, regardless of whether help content is
+// registered for it (see components/CurrentPageHelp.tsx's own comment on
+// how that mechanism actually works). A real, standalone HelpButton, same
+// as the one added to MealBuilder for the identical reason, is the fix.
+const PROFILE_HELP_SECTIONS: HelpSection[] = [
+  {
+    heading: 'What this page is for',
+    body: "So the rest of the app can actually be personal, not one-size-fits-all. What's set here (your conditions, sex, birth date, weight, activity level, food allergies, healing/management stage) shapes real numbers elsewhere: which nutrient targets and 6 Dimensions scoring apply to you, which foods get flagged, and what a doctor report actually says about you.",
+  },
+  {
+    heading: 'Nothing here is required',
+    body: "Every field is optional. Leave something unset and you'll see recommendations for the general population instead of one tailored to you, never a guess made on your behalf.",
+  },
+  {
+    heading: 'Appearance, sharing, and backup live here too',
+    body: 'The TabHub icon, backgrounds, and generic palette are purely visual, change them for no reason other than liking it better. Connections is for real, signed sharing between your own paired devices or other people with this app. Backup & Restore is your own real safety net: everything you\'ve entered lives only on this device, so a real export (password-protected) is the only way to move it to a new phone or recover it if this one is lost.',
+  },
+];
 
 // TabHub Icon picker's own selected/unselected pill footprint -- matches
 // LensHub.tsx's own GRID_ITEM_PILL_SIZE / TabHub.tsx's own ICON_PILL_SIZE
@@ -1538,6 +1564,10 @@ export default function ProfileScreen() {
       style={[styles.screen, showGenericBackground && styles.transparentBackground]}
       contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
     >
+      <View style={styles.profileTitleRow}>
+        <Text style={styles.profileTitle}>Profile</Text>
+        <HelpButton pageTitle="Profile" sections={PROFILE_HELP_SECTIONS} />
+      </View>
       <Text style={styles.intro}>
         Everything below is optional. This app works fine with nothing set here; unset fields simply mean
         you'll see recommendations for every applicable population instead of one tailored to you. Nothing here
@@ -2653,6 +2683,12 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  // 2026-08-16 -- HelpButton sits beside a real title now, the same
+  // "info icon next to the thing it explains" placement MealBuilder's own
+  // mealTitleRow uses, and for the identical reason: Profile has no
+  // ScreenHeader/TabHub reach of its own to surface this any other way.
+  profileTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  profileTitle: { ...typography.bodyEmphasis, fontSize: 20, color: colors.textPrimary },
   intro: {
     ...typography.body,
     color: colors.textSecondary,
