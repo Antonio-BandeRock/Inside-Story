@@ -17,11 +17,9 @@ import {
   getSauceIngredients,
   getStoredMeasurementSystem,
   getConditionStages,
-  listCuratedRecipes,
   saveBuilderFavorite,
   saveSauce,
   updateSauce,
-  type CuratedRecipeSummary,
   type FoodScore,
   type SauceIngredientInput,
   type AlcoholCalculatorOverride,
@@ -723,18 +721,11 @@ export function SaucesBuilder({
   }, [fromFavoriteId]);
 
   // Curated starter recipes (2026-08-09, extended to Sauces Builder
-  // 2026-08-14) -- see SideBuilder.tsx's own identical block for the full
-  // reasoning.
-  const [curatedRecipes, setCuratedRecipes] = useState<CuratedRecipeSummary[]>([]);
-  useEffect(() => {
-    let isCurrent = true;
-    listCuratedRecipes('sauce').then((recipes) => {
-      if (isCurrent) setCuratedRecipes(recipes);
-    });
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
+  // 2026-08-14) -- see SideBuilder.tsx's own identical block: this screen
+  // no longer shows its own list of them at all, 2026-08-16 -- see "Or
+  // Find a Recipe" further down in the render return.
+  // handlePickCuratedRecipe/loadingCuratedRecipeId still exist purely for
+  // the openRecipeId deep link below.
 
   const [loadingCuratedRecipeId, setLoadingCuratedRecipeId] = useState<string | null>(null);
 
@@ -1463,33 +1454,15 @@ export function SaucesBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
-          {/* Curated Starter Recipes, 2026-08-14 -- see SideBuilder.tsx's
-              own identical block for the full reasoning. */}
-          {curatedRecipes.length > 0 && !editSauceId && !fromFavoriteId ? (
-            <View style={styles.curatedRecipesSection}>
-              <Text style={[styles.formLabel, { color: tabColor }]}>Or Start From a Recipe</Text>
-              {curatedRecipes.map((recipe) => (
-                <TouchableOpacity
-                  key={recipe.id}
-                  style={[styles.curatedRecipeCard, { borderColor: tabColor }]}
-                  onPress={() => handlePickCuratedRecipe(recipe.id)}
-                  disabled={loadingCuratedRecipeId !== null}
-                >
-                  <Text style={[styles.curatedRecipeName, { color: tabColor }]}>{recipe.name}</Text>
-                  <Text style={styles.curatedRecipeFlavor} numberOfLines={2}>
-                    {recipe.flavorProfile}
-                  </Text>
-                  <Text style={styles.curatedRecipeBenefit} numberOfLines={3}>
-                    {recipe.healthBenefit}
-                  </Text>
-                  {loadingCuratedRecipeId === recipe.id ? (
-                    <ActivityIndicator size="small" color={tabColor} style={styles.curatedRecipeSpinner} />
-                  ) : (
-                    <Text style={[styles.curatedRecipeCta, { color: tabColor }]}>Use This Recipe →</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-              <View style={[styles.curatedRecipesDivider, { borderColor: tabColor }]} />
+          {/* 2026-08-16 -- see SideBuilder.tsx's own identical comment for
+              the full reasoning: the only visible feedback left for a
+              recipe loading in via the openRecipeId deep link now that the
+              inline "Or Start From a Recipe" cards are gone, replaced by a
+              real link out to Purple Digest below. */}
+          {loadingCuratedRecipeId ? (
+            <View style={styles.loadingRecipeRow}>
+              <ActivityIndicator size="small" color={tabColor} />
+              <Text style={[styles.loadingRecipeText, { color: tabColor }]}>Loading your recipe…</Text>
             </View>
           ) : null}
 
@@ -1554,6 +1527,57 @@ export function SaucesBuilder({
           >
             <Text style={[styles.primaryButtonText, !sauceFormReady && styles.primaryButtonTextMuted]}>Continue</Text>
           </TouchableOpacity>
+
+          {/* "Or Find a Recipe" -- 2026-08-16, see SideBuilder.tsx's own
+              identical section for the full reasoning: this used to be an
+              inline list of this builder's own curated recipe cards, shown
+              ABOVE the fields/Continue button above. Recipes shouldn't be
+              duplicated here in a stripped-down form at all -- Purple
+              Digest's own Recipes/My Kitchen/My Favorites categories
+              already show the full real detail. Each row is a real deep
+              link (openDigestLens) straight into that category. */}
+          {!editSauceId && !fromFavoriteId ? (
+            <View style={styles.findRecipeSection}>
+              <View style={[styles.findRecipeDivider, { borderColor: tabColor }]} />
+              <Text style={[styles.formLabel, { color: tabColor }]}>Or Find a Recipe</Text>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  My Kitchen (your own saved sauces)
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  Recipes Shared With Me
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  Recipes (built into the app)
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.findRecipeLink}
+                onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myFavorites' } })}
+              >
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>
+                  My Favorites
+                </Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       ) : (
         <>
@@ -1884,41 +1908,40 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: 16,
   },
-  curatedRecipesSection: {
-    marginBottom: 16,
+  // Recipe-loading feedback while openRecipeId resolves, 2026-08-16 -- see
+  // that state's own comment near the top of this file.
+  loadingRecipeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginBottom: 12,
   },
-  curatedRecipeCard: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginTop: 8,
+  loadingRecipeText: {
+    ...typography.body,
   },
-  curatedRecipeName: {
-    ...typography.bodyEmphasis,
+  // "Or Find a Recipe," 2026-08-16 -- see SideBuilder.tsx's own identical
+  // section for the full reasoning. Sits below Continue now, not above the
+  // fields.
+  findRecipeSection: {
+    marginTop: 20,
   },
-  curatedRecipeFlavor: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: 2,
-    fontStyle: 'italic',
-  },
-  curatedRecipeBenefit: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: 4,
-  },
-  curatedRecipeCta: {
-    ...typography.captionEmphasis,
-    marginTop: 6,
-  },
-  curatedRecipeSpinner: {
-    marginTop: 6,
-    alignSelf: 'flex-start',
-  },
-  curatedRecipesDivider: {
+  findRecipeDivider: {
     borderBottomWidth: 1,
-    marginTop: 12,
+    marginBottom: 12,
     opacity: 0.3,
+  },
+  findRecipeLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  findRecipeLinkText: {
+    ...typography.body,
+    color: colors.textPrimary,
+    flexShrink: 1,
   },
   formLabel: {
     ...typography.eyebrow,

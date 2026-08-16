@@ -17,11 +17,9 @@ import {
   getDessertIngredients,
   getStoredMeasurementSystem,
   getConditionStages,
-  listCuratedRecipes,
   saveBuilderFavorite,
   saveDessert,
   updateDessert,
-  type CuratedRecipeSummary,
   type FoodScore,
   type DessertIngredientInput,
   type AlcoholCalculatorOverride,
@@ -739,23 +737,8 @@ export function DessertBuilder({
     };
   }, [fromFavoriteId]);
 
-  // Curated starter recipes (2026-08-09 on Salad/Smoothie, extended to
-  // every other direct-ingredient builder 2026-08-14, this one included,
-  // though no real curated dessert recipes exist in the reference database
-  // yet -- listCuratedRecipes('dessert') below just returns an empty list
-  // until some do, the same graceful "nothing to show" behavior this
-  // section already has for a builder with zero recipes) -- see
-  // SideBuilder.tsx's own identical block for the full reasoning.
-  const [curatedRecipes, setCuratedRecipes] = useState<CuratedRecipeSummary[]>([]);
-  useEffect(() => {
-    let isCurrent = true;
-    listCuratedRecipes('dessert').then((recipes) => {
-      if (isCurrent) setCuratedRecipes(recipes);
-    });
-    return () => {
-      isCurrent = false;
-    };
-  }, []);
+  // handlePickCuratedRecipe/loadingCuratedRecipeId still exist purely for
+  // the openRecipeId deep link below.
 
   const [loadingCuratedRecipeId, setLoadingCuratedRecipeId] = useState<string | null>(null);
 
@@ -1484,33 +1467,10 @@ export function DessertBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
-          {/* Curated Starter Recipes, 2026-08-14 -- see SideBuilder.tsx's
-              own identical block for the full reasoning. */}
-          {curatedRecipes.length > 0 && !editDessertId && !fromFavoriteId ? (
-            <View style={styles.curatedRecipesSection}>
-              <Text style={[styles.formLabel, { color: tabColor }]}>Or Start From a Recipe</Text>
-              {curatedRecipes.map((recipe) => (
-                <TouchableOpacity
-                  key={recipe.id}
-                  style={[styles.curatedRecipeCard, { borderColor: tabColor }]}
-                  onPress={() => handlePickCuratedRecipe(recipe.id)}
-                  disabled={loadingCuratedRecipeId !== null}
-                >
-                  <Text style={[styles.curatedRecipeName, { color: tabColor }]}>{recipe.name}</Text>
-                  <Text style={styles.curatedRecipeFlavor} numberOfLines={2}>
-                    {recipe.flavorProfile}
-                  </Text>
-                  <Text style={styles.curatedRecipeBenefit} numberOfLines={3}>
-                    {recipe.healthBenefit}
-                  </Text>
-                  {loadingCuratedRecipeId === recipe.id ? (
-                    <ActivityIndicator size="small" color={tabColor} style={styles.curatedRecipeSpinner} />
-                  ) : (
-                    <Text style={[styles.curatedRecipeCta, { color: tabColor }]}>Use This Recipe →</Text>
-                  )}
-                </TouchableOpacity>
-              ))}
-              <View style={[styles.curatedRecipesDivider, { borderColor: tabColor }]} />
+          {loadingCuratedRecipeId ? (
+            <View style={styles.loadingRecipeRow}>
+              <ActivityIndicator size="small" color={tabColor} />
+              <Text style={[styles.loadingRecipeText, { color: tabColor }]}>Loading your recipe…</Text>
             </View>
           ) : null}
 
@@ -1575,6 +1535,29 @@ export function DessertBuilder({
           >
             <Text style={[styles.primaryButtonText, !dessertFormReady && styles.primaryButtonTextMuted]}>Continue</Text>
           </TouchableOpacity>
+
+          {!editDessertId && !fromFavoriteId ? (
+            <View style={styles.findRecipeSection}>
+              <View style={[styles.findRecipeDivider, { borderColor: tabColor }]} />
+              <Text style={[styles.formLabel, { color: tabColor }]}>Or Find a Recipe</Text>
+              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}>
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>My Kitchen (your own saved desserts)</Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myKitchen' } })}>
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>Recipes Shared With Me</Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } })}>
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>Recipes (built into the app)</Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.findRecipeLink} onPress={() => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'myFavorites' } })}>
+                <Text style={styles.findRecipeLinkText} numberOfLines={1}>My Favorites</Text>
+                <Ionicons name="chevron-forward" size={16} color={tabColor} />
+              </TouchableOpacity>
+            </View>
+          ) : null}
         </View>
       ) : (
         <>
@@ -1905,42 +1888,19 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     padding: 16,
   },
-  curatedRecipesSection: {
-    marginBottom: 16,
-  },
-  curatedRecipeCard: {
-    borderWidth: 1,
-    borderRadius: 8,
-    padding: 10,
-    marginTop: 8,
-  },
-  curatedRecipeName: {
-    ...typography.bodyEmphasis,
-  },
-  curatedRecipeFlavor: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: 2,
-    fontStyle: 'italic',
-  },
-  curatedRecipeBenefit: {
-    ...typography.caption,
-    color: colors.textMuted,
-    marginTop: 4,
-  },
-  curatedRecipeCta: {
-    ...typography.captionEmphasis,
-    marginTop: 6,
-  },
-  curatedRecipeSpinner: {
-    marginTop: 6,
-    alignSelf: 'flex-start',
-  },
-  curatedRecipesDivider: {
+  loadingRecipeRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 12 },
+  loadingRecipeText: { ...typography.body },
+  findRecipeSection: { marginTop: 20 },
+  findRecipeDivider: { borderBottomWidth: 1, marginBottom: 12, opacity: 0.3 },
+  findRecipeLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: 10,
     borderBottomWidth: 1,
-    marginTop: 12,
-    opacity: 0.3,
+    borderBottomColor: colors.border,
   },
+  findRecipeLinkText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
   formLabel: {
     ...typography.eyebrow,
   },
