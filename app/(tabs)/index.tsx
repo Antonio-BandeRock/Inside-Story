@@ -21,6 +21,7 @@ import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
 import { useIridescentHueRotation } from '../../hooks/useIridescentHueRotation';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
+import { markHomeDataReady } from '../../lib/homeReadySignal';
 import {
   getCheckinForDate,
   getNutrientTotalsByDateRange,
@@ -630,6 +631,13 @@ export default function HomeScreen() {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
+        // 2026-08-16: the real fix for "the loading bar... was put in
+        // place to hide the loading time of the home screen." Signals
+        // app/_layout.tsx's own startup gate that Home's own first real
+        // load is genuinely done, so DatabaseSetupScreen can finally
+        // clear -- see lib/homeReadySignal.ts's own header comment for
+        // the full "why."
+        markHomeDataReady();
         scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
     }, [load, loadWeekTrend]),

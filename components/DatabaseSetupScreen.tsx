@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { StyleSheet, Text } from 'react-native';
 import Animated, { Easing, runOnJS, useAnimatedStyle, useSharedValue, withTiming } from 'react-native-reanimated';
 import { colors } from '../constants/colors';
@@ -33,10 +33,27 @@ import { ProgressRing } from './ProgressRing';
 // not the snap it was built to avoid. Back to the simpler, honest behavior:
 // `isComplete` jumps `percent` straight to a true 100 and moves to
 // 'finished' immediately, no animated close.
+//
+// 2026-08-16, a real, direct correction: "That was put in place to hide
+// the loading time of the home screen on the first load of the app
+// starting... It has not changed a bit since I reported it." Confirmed by
+// reading app/_layout.tsx directly -- `isComplete` had only ever reflected
+// the reference-database import, with zero connection to Home's own,
+// separate, un-gated load underneath it. `isComplete` now means "the WHOLE
+// combined startup wait is genuinely over" (see app/_layout.tsx's own
+// wiring), not just the reference-database half of it. This screen's own
+// container is now a real, absolutely-positioned, high-elevation overlay
+// (not just a flex:1 box) so it can render ON TOP of the real app --
+// mounted underneath it the moment the reference-database import itself
+// resolves, so Home can start its own real load immediately, while this
+// stays visible over it until Home genuinely finishes too. Nothing about
+// the actual percent/phase logic below changed -- only what real event
+// `isComplete` is now allowed to represent.
 export function DatabaseSetupScreen({
-  // True once the real reference-database import has genuinely resolved
-  // (see app/_layout.tsx's own referenceImportResolved wiring) -- this is
-  // the real trigger event driving the catch-up animation below.
+  // True once the WHOLE real startup wait is genuinely over -- both the
+  // reference-database import AND Home's own first real data load (see
+  // app/_layout.tsx's own wiring: referenceImportResolved && homeDataReady).
+  // This is the real trigger event driving the catch-up animation below.
   isComplete,
   onExitComplete,
 }: {
@@ -143,7 +160,21 @@ const POP_DURATION_MS = 260;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    // Absolutely positioned with a full inset, not just flex:1 -- this
+    // screen can now be rendered as a real overlay ON TOP of the already-
+    // mounted app tree (see app/_layout.tsx's own wiring), not only as the
+    // sole thing rendered. flex:1 alone would just share space with a
+    // sibling instead of covering it. A real, high elevation/zIndex, well
+    // above anything else in the app (floating hub buttons top out around
+    // 24, per this app's own already-documented Android elevation history)
+    // -- this is meant to be the one thing nothing else can render above.
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    elevation: 999,
+    zIndex: 999,
     backgroundColor: colors.background,
     alignItems: 'center',
     justifyContent: 'center',

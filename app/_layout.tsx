@@ -12,6 +12,7 @@ import { AppKeyboard } from '../components/AppKeyboard';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { colors } from '../constants/colors';
+import { useHomeDataReady } from '../hooks/useHomeDataReady';
 import { IridescentHueProvider } from '../hooks/useIridescentHueRotation';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
 import { handleIncomingIsFile } from '../lib/isFileLinking';
@@ -50,6 +51,12 @@ export default function RootLayout() {
   // the real app is never swapped in mid-animation.
   const [referenceImportResolved, setReferenceImportResolved] = useState(false);
   const [referenceDbReady, setReferenceDbReady] = useState(false);
+  // 2026-08-16 -- the real other half of the startup wait. See
+  // lib/homeReadySignal.ts's own header comment for the full "why": the
+  // loading screen used to only ever reflect referenceImportResolved,
+  // leaving Home's own separate, un-gated first load to populate on its
+  // own with nothing covering it.
+  const homeDataReady = useHomeDataReady();
 
   // getDatabase() elsewhere in the app only opens the SQLite file -- it
   // never guarantees initializeDatabase()'s CREATE TABLE/migration logic
@@ -208,30 +215,31 @@ export default function RootLayout() {
   }
 
   // The native splash screen has already hidden by this point (it only
-  // ever waited on the two checks above) -- this is the real, JS-rendered
-  // screen that covers the same real wait for the reference-database
-  // import specifically, see DatabaseSetupScreen.tsx's own header comment.
-  // A fast, already-imported launch (every launch after the first) still
-  // passes through here, just resolving close to instantly -- isComplete
-  // flips true almost immediately, and the screen's own real "Finished!"
-  // + pop-out transition plays out honestly fast rather than being
-  // artificially held open to look more consistent with a slow, real
-  // first-time import.
-  if (!referenceDbReady) {
-    return (
-      <DatabaseSetupScreen
-        isComplete={referenceImportResolved}
-        onExitComplete={() => setReferenceDbReady(true)}
-      />
-    );
-  }
-
+  // ever waited on the two checks above) -- what covers the rest of the
+  // real startup wait is DatabaseSetupScreen, rendered below as a real
+  // overlay once the reference-database import resolves, staying up until
+  // Home ALSO reports its own first load done (see lib/homeReadySignal.ts's
+  // own header comment). The real app tree only mounts once the reference
+  // import itself resolves -- Home's own load depends on it directly (real
+  // per-food lookups against the reference database) -- but that's a
+  // SEPARATE condition from whether the loading screen is still showing,
+  // which is why both are checked independently below rather than one
+  // early-returning before the other ever gets a chance to render.
+  //
+  // A fast, already-imported launch with an already-fast Home (every
+  // launch after the first) still passes through here, just resolving
+  // close to instantly -- isComplete flips true almost immediately, and
+  // the screen's own real "Finished!" + pop-out transition plays out
+  // honestly fast rather than being artificially held open to look more
+  // consistent with a slow, real first-time wait.
   return (
-    // Required by react-native-gesture-handler's Gesture Detector API (used
-    // for the tab-swipe gesture in components/SwipeableTabScreen.tsx) --
-    // without a root view of this type, gestures are silently dropped on
-    // Android.
-    <GestureHandlerRootView style={{ flex: 1 }}>
+    <>
+      {referenceImportResolved ? (
+        // Required by react-native-gesture-handler's Gesture Detector API
+        // (used for the tab-swipe gesture in
+        // components/SwipeableTabScreen.tsx) -- without a root view of
+        // this type, gestures are silently dropped on Android.
+        <GestureHandlerRootView style={{ flex: 1 }}>
       {/* Stale note from the old light "Sage & Cream" theme, kept accurate
           2026-07-25: the app is dark navy now (see constants/colors.ts),
           so "dark" icons/text here is arguably wrong too, but that's a
@@ -363,6 +371,20 @@ export default function RootLayout() {
           </OverlayProvider>
         </ActiveInputProvider>
       </IridescentHueProvider>
-    </GestureHandlerRootView>
+        </GestureHandlerRootView>
+      ) : null}
+      {/* Rendered as a real overlay ON TOP of the tree above (not instead
+          of it), for as long as the whole combined startup wait is still
+          going -- see this function's own comment further up, and
+          DatabaseSetupScreen.tsx's own header comment, for the full "why"
+          this changed from an early-returned, mutually-exclusive screen
+          into an overlay that coexists with the real app tree. */}
+      {!referenceDbReady ? (
+        <DatabaseSetupScreen
+          isComplete={referenceImportResolved && homeDataReady}
+          onExitComplete={() => setReferenceDbReady(true)}
+        />
+      ) : null}
+    </>
   );
 }
