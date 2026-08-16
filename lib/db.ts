@@ -1724,6 +1724,38 @@ export async function getFoodScores(foodId: number, source: string) {
   );
 }
 
+// A real, bulk-scoped sibling to getFoodScores above -- 2026-08-16, built
+// for the exact same reason as getPrimaryNutrientAmountsBulk below it
+// (Insights' own daily breakdown functions calling this once per DISTINCT
+// food in a plain sequential loop, confirmed via real device logs to be
+// the actual dominant cost, not the meal_items query itself). getFoodScores'
+// own query has no sibling-fallback complexity to replicate -- a single
+// bulk fetch scoped to every distinct (foodId, source) pair needed for the
+// whole day, grouped back into a real per-food map afterward.
+async function getFoodScoresBulk(pairs: { foodId: number; source: string }[]): Promise<Map<string, FoodScore[]>> {
+  const result = new Map<string, FoodScore[]>();
+  if (pairs.length === 0) return result;
+  const db = await getReferenceDatabase();
+  const placeholders = pairs.map(() => '(?, ?)').join(', ');
+  const params = pairs.flatMap((p) => [p.foodId, p.source]);
+  const rows = await db.getAllAsync<{ foodId: number; source: string; dimension: string; subCriterion: string; tier: string }>(
+    `
+      SELECT fs.food_id AS foodId, fs.source AS source, sc.dimension AS dimension, sc.sub_criterion AS subCriterion, fs.tier AS tier
+      FROM food_scores fs
+      JOIN sub_criteria sc ON sc.id = fs.sub_criterion_id
+      WHERE (fs.food_id, fs.source) IN (${placeholders})
+      ORDER BY sc.dimension, sc.sub_criterion
+    `,
+    ...params,
+  );
+  for (const row of rows) {
+    const key = `${row.foodId}|${row.source}`;
+    if (!result.has(key)) result.set(key, []);
+    result.get(key)!.push({ dimension: row.dimension, subCriterion: row.subCriterion, tier: row.tier });
+  }
+  return result;
+}
+
 // The real, small, fixed set of sub-criteria referenced by ANY condition's
 // own stage-advisory function -- built for the Healing Stages feature's own
 // REORDERING half (2026-08-09, see lib/foodStageReordering.ts), the
@@ -2070,6 +2102,144 @@ export async function getFoodNutrients(foodId: number, source: string) {
   );
 
   return rows.map((row) => ({ ...row, isSupplemented: Boolean(row.isSupplemented) }));
+}
+
+// A real, bulk-scoped resolver for exactly the two fields
+// getDailyNutrientBreakdown/getDailySixDimensionsBreakdown actually use
+// from getFoodNutrients (code + amountPer100g, confirmed via that
+// function's own nutrientCache type -- neither ever reads displayName/
+// unit/group/sourceUsed/isSupplemented) -- 2026-08-16, the actual root
+// cause behind a real, confirmed "a minute" wait, found via live device
+// logs after two earlier fixes (the meal_items N+1 loop, then a missing
+// index) both turned out NOT to be the dominant cost. The real bottleneck:
+// getDailyNutrientBreakdown/getDailySixDimensionsBreakdown were still
+// calling getFoodNutrients/getFoodScores once PER DISTINCT FOOD, in a
+// plain sequential loop -- and getFoodNutrients' own query is genuinely
+// heavy per call (a real sibling-fallback CTE: a CROSS JOIN against the
+// whole foods table by category/base_name/prep_method, a GROUP BY, a
+// window function), not a plain indexed lookup. With expo-sqlite's one
+// shared, serialized native connection (already established elsewhere in
+// this codebase as the reason Promise.all can't route around a real
+// per-call cost), several dozen distinct foods in one day meant several
+// dozen real, individually-heavy round trips -- confirmed directly via
+// [PrepDiag] timing logs showing the initial bulk item query resolving in
+// well under a second, then the per-item loop alone taking 37-41 SECONDS
+// on top of it.
+//
+// This resolves every distinct food's real nutrient rows in exactly two
+// bulk queries total (its own rows, plus every real sibling's rows across
+// the WHOLE set of distinct foods needed for the day), then replicates
+// getFoodNutrients' own exact fallback tie-break rule in plain JS: for any
+// nutrient code missing from a food's own rows, the sibling with the
+// alphabetically-first SOURCE providing that code wins, and among
+// siblings sharing that same source, the one with the lowest food_id --
+// the identical two-step rule getFoodNutrients' own fallback_source/
+// fallback_nutrients CTEs already use (MIN(source), then
+// ROW_NUMBER() OVER (PARTITION BY nutrient_code ORDER BY food_id)).
+// Verified directly against getFoodNutrients itself before trusting this,
+// not just reasoned about -- see this function's own test coverage.
+async function getPrimaryNutrientAmountsBulk(
+  pairs: { foodId: number; source: string }[],
+): Promise<Map<string, { code: string; amountPer100g: number }[]>> {
+  const result = new Map<string, { code: string; amountPer100g: number }[]>();
+  if (pairs.length === 0) return result;
+  const db = await getReferenceDatabase();
+
+  // Every target food's own real category/base_name/prep_method -- the
+  // app's own established equivalence key for "the same real food,
+  // measured by a different national source."
+  const foodKeyPlaceholders = pairs.map(() => '(?, ?)').join(', ');
+  const foodKeyParams = pairs.flatMap((p) => [p.foodId, p.source]);
+  const identityRows = await db.getAllAsync<{
+    foodId: number;
+    source: string;
+    category: string;
+    baseName: string;
+    prepMethod: string | null;
+  }>(
+    `SELECT food_id AS foodId, source, category, base_name AS baseName, prep_method AS prepMethod
+     FROM foods WHERE (food_id, source) IN (${foodKeyPlaceholders})`,
+    ...foodKeyParams,
+  );
+  const identityByKey = new Map(identityRows.map((r) => [`${r.foodId}|${r.source}`, r]));
+  const tripleKey = (category: string, baseName: string, prepMethod: string | null) =>
+    `${category} ${baseName} ${prepMethod ?? ''}`;
+
+  // Every real food anywhere in the reference database sharing one of
+  // those real identities -- the full sibling pool for the WHOLE day at
+  // once, not one food at a time.
+  const distinctTriples = Array.from(new Map(identityRows.map((r) => [tripleKey(r.category, r.baseName, r.prepMethod), r])).values());
+  const siblingFoods = distinctTriples.length
+    ? await db.getAllAsync<{ foodId: number; source: string; category: string; baseName: string; prepMethod: string | null }>(
+        `SELECT food_id AS foodId, source, category, base_name AS baseName, prep_method AS prepMethod
+         FROM foods WHERE (category, base_name, COALESCE(prep_method, '')) IN (${distinctTriples.map(() => '(?, ?, ?)').join(', ')})`,
+        ...distinctTriples.flatMap((r) => [r.category, r.baseName, r.prepMethod ?? '']),
+      )
+    : [];
+
+  // Every real nutrient row for the target foods AND every real sibling,
+  // in one more bulk fetch.
+  const allRelevantPairs = new Map<string, { foodId: number; source: string }>();
+  for (const r of identityRows) allRelevantPairs.set(`${r.foodId}|${r.source}`, r);
+  for (const r of siblingFoods) allRelevantPairs.set(`${r.foodId}|${r.source}`, r);
+  const allPairsArr = Array.from(allRelevantPairs.values());
+  const nutrientRows = allPairsArr.length
+    ? await db.getAllAsync<{ foodId: number; source: string; nutrientCode: string; amountPer100g: number }>(
+        `SELECT food_id AS foodId, source, nutrient_code AS nutrientCode, amount_per_100g AS amountPer100g
+         FROM food_nutrients WHERE (food_id, source) IN (${allPairsArr.map(() => '(?, ?)').join(', ')})`,
+        ...allPairsArr.flatMap((p) => [p.foodId, p.source]),
+      )
+    : [];
+  const nutrientsByFoodKey = new Map<string, { code: string; amountPer100g: number }[]>();
+  for (const row of nutrientRows) {
+    const key = `${row.foodId}|${row.source}`;
+    if (!nutrientsByFoodKey.has(key)) nutrientsByFoodKey.set(key, []);
+    nutrientsByFoodKey.get(key)!.push({ code: row.nutrientCode, amountPer100g: row.amountPer100g });
+  }
+
+  // Siblings grouped by their real identity triple, matching
+  // getFoodNutrients' own siblings CTE.
+  const siblingsByTriple = new Map<string, { foodId: number; source: string }[]>();
+  for (const r of siblingFoods) {
+    const triple = tripleKey(r.category, r.baseName, r.prepMethod);
+    if (!siblingsByTriple.has(triple)) siblingsByTriple.set(triple, []);
+    siblingsByTriple.get(triple)!.push({ foodId: r.foodId, source: r.source });
+  }
+
+  for (const pair of pairs) {
+    const key = `${pair.foodId}|${pair.source}`;
+    const identity = identityByKey.get(key);
+    const primary = nutrientsByFoodKey.get(key) ?? [];
+    const primaryCodes = new Set(primary.map((n) => n.code));
+    const combined = [...primary];
+
+    if (identity) {
+      const triple = tripleKey(identity.category, identity.baseName, identity.prepMethod);
+      const siblings = (siblingsByTriple.get(triple) ?? []).filter(
+        (s) => !(s.foodId === pair.foodId && s.source === pair.source),
+      );
+      const bestBySource = new Map<string, { source: string; amountPer100g: number; foodId: number }>();
+      for (const sibling of siblings) {
+        const siblingKey = `${sibling.foodId}|${sibling.source}`;
+        for (const n of nutrientsByFoodKey.get(siblingKey) ?? []) {
+          if (primaryCodes.has(n.code)) continue;
+          const existing = bestBySource.get(n.code);
+          if (
+            !existing ||
+            sibling.source < existing.source ||
+            (sibling.source === existing.source && sibling.foodId < existing.foodId)
+          ) {
+            bestBySource.set(n.code, { source: sibling.source, amountPer100g: n.amountPer100g, foodId: sibling.foodId });
+          }
+        }
+      }
+      for (const [code, best] of bestBySource) combined.push({ code, amountPer100g: best.amountPer100g });
+    }
+
+    result.set(key, combined);
+  }
+
+  return result;
 }
 
 // Insights' own Nutrient Ranking lens, 2026-08-08 -- "a lens that is used
@@ -11909,9 +12079,7 @@ export type DailyNutrientBreakdown = {
 // SELECT lists), just for the whole day in one query instead of one query
 // per meal.
 export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutrientBreakdown> {
-  const __t0 = Date.now();
   const [meals, dayItems] = await Promise.all([listMealsForDate(date), getMealItemsInWindow(date, endOfLocalDay(date))]);
-  console.log(`[PrepDiag] NutrientBreakdown: query resolved in ${Date.now() - __t0}ms, meals=${meals.length}, items=${dayItems.length}`);
   const itemsByMeal = new Map<string, typeof dayItems>();
   for (const item of dayItems) {
     if (!itemsByMeal.has(item.mealId)) itemsByMeal.set(item.mealId, []);
@@ -11919,16 +12087,25 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
   }
 
   const unresolvedItems: { mealItemId: string; foodName: string; reason: string }[] = [];
-  const nutrientCache = new Map<string, Pick<FoodNutrient, 'code' | 'amountPer100g'>[]>();
 
-  async function getCachedNutrients(foodId: number, source: string) {
-    const key = `${foodId}|${source}`;
-    let nutrients = nutrientCache.get(key);
-    if (!nutrients) {
-      nutrients = await getFoodNutrients(foodId, source);
-      nutrientCache.set(key, nutrients);
-    }
-    return nutrients;
+  // Every distinct real (foodId, source) pair across the WHOLE day,
+  // resolved in exactly two bulk queries total via
+  // getPrimaryNutrientAmountsBulk (see its own header comment for the
+  // real, device-confirmed reason this replaces one getFoodNutrients call
+  // per distinct food) rather than one real query per food. getCachedNutrients
+  // below now just looks this map up -- no DB call left in the per-item loop.
+  const distinctFoodPairs = new Map<string, { foodId: number; source: string }>();
+  for (const item of dayItems) {
+    if (!item.foodId) continue;
+    const [foodIdStr, source] = item.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+    distinctFoodPairs.set(`${foodId}|${source}`, { foodId, source });
+  }
+  const nutrientsByFood = await getPrimaryNutrientAmountsBulk(Array.from(distinctFoodPairs.values()));
+
+  function getCachedNutrients(foodId: number, source: string): Pick<FoodNutrient, 'code' | 'amountPer100g'>[] {
+    return nutrientsByFood.get(`${foodId}|${source}`) ?? [];
   }
 
   function addInto(target: Record<string, number>, source: Record<string, number>) {
@@ -11994,7 +12171,7 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
       const shareFraction = item.yourSharePercent != null ? item.yourSharePercent / 100 : 1 / (item.dishServings ?? 1);
       const gramsConsumedByThisPerson = totalGramsForDish * shareFraction;
 
-      const nutrients = await getCachedNutrients(foodId, source);
+      const nutrients = getCachedNutrients(foodId, source);
       const itemTotals = sumFoodNutrientTotals([{ gramsConsumed: gramsConsumedByThisPerson, nutrients }]);
 
       const sideKey = item.dishName || `${meal.id}_ungrouped`;
@@ -12022,14 +12199,12 @@ export async function getDailyNutrientBreakdown(date: string): Promise<DailyNutr
       sides,
     });
   }
-  console.log(`[PrepDiag] NutrientBreakdown: per-item loop done at ${Date.now() - __t0}ms total`);
 
   const [supplementResult, driRows, profile] = await Promise.all([
     getSupplementNutrientTotals(),
     getDietaryReferenceIntakesForCurrentUser(),
     getUserProfile(),
   ]);
-  console.log(`[PrepDiag] NutrientBreakdown: FULLY DONE at ${Date.now() - __t0}ms total`);
 
   return {
     dayTotals,
@@ -12110,25 +12285,29 @@ function aggregateBySubCriterion(foods: { foodName: string; scores: FoodScore[] 
 // getMealItems call per meal, grouped by mealId afterward. Same real fields
 // either way, same per-meal processing below, completely unchanged.
 export async function getDailySixDimensionsBreakdown(date: string): Promise<DailySixDimensionsBreakdown> {
-  const __t0 = Date.now();
   const [meals, dayItems] = await Promise.all([listMealsForDate(date), getMealItemsInWindow(date, endOfLocalDay(date))]);
-  console.log(`[PrepDiag] SixDimensionsBreakdown: query resolved in ${Date.now() - __t0}ms, meals=${meals.length}, items=${dayItems.length}`);
   const itemsByMeal = new Map<string, typeof dayItems>();
   for (const item of dayItems) {
     if (!itemsByMeal.has(item.mealId)) itemsByMeal.set(item.mealId, []);
     itemsByMeal.get(item.mealId)!.push(item);
   }
 
-  const scoreCache = new Map<string, FoodScore[]>();
+  // The same real fix as getDailyNutrientBreakdown just above -- every
+  // distinct real (foodId, source) pair for the WHOLE day, resolved in one
+  // bulk query via getFoodScoresBulk instead of one getFoodScores call per
+  // distinct food.
+  const distinctFoodPairs = new Map<string, { foodId: number; source: string }>();
+  for (const item of dayItems) {
+    if (!item.foodId) continue;
+    const [foodIdStr, source] = item.foodId.split('|');
+    const foodId = Number(foodIdStr);
+    if (!source || Number.isNaN(foodId)) continue;
+    distinctFoodPairs.set(`${foodId}|${source}`, { foodId, source });
+  }
+  const scoresByFood = await getFoodScoresBulk(Array.from(distinctFoodPairs.values()));
 
-  async function getScores(foodId: number, source: string): Promise<FoodScore[]> {
-    const key = `${foodId}|${source}`;
-    let scores = scoreCache.get(key);
-    if (!scores) {
-      scores = await getFoodScores(foodId, source);
-      scoreCache.set(key, scores);
-    }
-    return scores;
+  function getScores(foodId: number, source: string): FoodScore[] {
+    return scoresByFood.get(`${foodId}|${source}`) ?? [];
   }
 
   const mealBreakdowns: DailyDimensionMealBreakdown[] = [];
@@ -12146,7 +12325,7 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
       const foodId = Number(foodIdStr);
       if (!source || Number.isNaN(foodId)) continue;
 
-      const scores = await getScores(foodId, source);
+      const scores = getScores(foodId, source);
       const foodKey = `${foodId}|${source}`;
       const foodEntry = { foodName: item.foodName, scores };
 
@@ -12178,7 +12357,6 @@ export async function getDailySixDimensionsBreakdown(date: string): Promise<Dail
       sides,
     });
   }
-  console.log(`[PrepDiag] SixDimensionsBreakdown: FULLY DONE at ${Date.now() - __t0}ms total`);
 
   return {
     day: aggregateBySubCriterion(Array.from(dayFoods.values())),

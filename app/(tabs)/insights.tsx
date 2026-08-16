@@ -830,18 +830,14 @@ export default function InsightsScreen() {
 
       let cancelled = false;
       const date = todayDateString();
-      const __t0 = Date.now();
-      console.log(`[PrepDiag] effect fired for lens=${lens}`);
       setLoading(true);
       Promise.all([getDailyNutrientBreakdown(date), getDailySixDimensionsBreakdown(date)])
         .then(([nutrients, breakdown]) => {
-          console.log(`[PrepDiag] effect's own Promise.all resolved after ${Date.now() - __t0}ms (cancelled=${cancelled})`);
           if (cancelled) return;
           setNutrientBreakdown(nutrients);
           setDimensionsBreakdown(breakdown);
         })
         .catch((error) => {
-          console.log(`[PrepDiag] effect's own Promise.all REJECTED after ${Date.now() - __t0}ms: ${String(error)}`);
           if (cancelled) return;
           setErrorMessage(`Could not load today's data: ${error instanceof Error ? error.message : String(error)}`);
         })
