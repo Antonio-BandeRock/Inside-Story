@@ -88,12 +88,17 @@ const ELEVATION_SHADOW_LAYERS: readonly { offsetY: number; opacity: number }[] =
 ];
 
 // A real, separate rendering path for any TabHubIconChoice backed by a
-// hand-drawn VECTOR icon (components/FoodBuilderIcons.tsx) rather than a
-// real, cropped raster asset (every other choice in TAB_HUB_ICON_SOURCES,
-// constants/tabHubIcons.ts) -- 2026-08-14, starting with Dessert Builder.
-// Checked FIRST, below, before ever falling back to the raster <Image>
-// path, so a genuinely vector-backed choice never silently renders the
-// default butterfly just because it has no entry in TAB_HUB_ICON_SOURCES.
+// VECTOR icon (components/FoodBuilderIcons.tsx) rather than a real,
+// cropped raster asset (every other choice in TAB_HUB_ICON_SOURCES,
+// constants/tabHubIcons.ts) -- 2026-08-14, starting with Dessert Builder,
+// originally a real, hand-drawn cupcake shape; 2026-08-16 switched to
+// rendering the real Ionicons "ice-cream" glyph as SVG text instead (see
+// FoodBuilderIcons.tsx's own header comment for why), still through this
+// exact same (size, color) => ReactNode renderer shape, so nothing here
+// needed to change. Checked FIRST, below, before ever falling back to the
+// raster <Image> path, so a genuinely vector-backed choice never silently
+// renders the default butterfly just because it has no entry in
+// TAB_HUB_ICON_SOURCES.
 //
 // colors.tabFood, not an arbitrary pick -- Dessert Builder lives on the
 // Food tab, so its own identity color gives this choice real, deliberate

@@ -12,7 +12,6 @@ import { BeverageBuilder } from '../../components/BeverageBuilder';
 import { BeverageSubtypePicker, type BeverageSubtypeKey } from '../../components/BeverageSubtypePicker';
 import { DessertBuilder } from '../../components/DessertBuilder';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
-import { DessertBuilderIcon } from '../../components/FoodBuilderIcons';
 import { HandheldsBuilder } from '../../components/HandheldsBuilder';
 import { MealBuilder } from '../../components/MealBuilder';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -252,14 +251,19 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
     // zero manual adjustment required for this addition.
     key: 'dessertBuilder',
     label: 'Desserts',
-    // icon stays the required Ionicons fallback (see LensOption's own
-    // comment on renderIcon) even though renderIcon below is what actually
-    // draws every real render of this tile -- a real, hand-drawn cupcake
-    // (components/FoodBuilderIcons.tsx), 2026-08-14, the same custom-icon
-    // mechanism Purple Digest's own condition tiles already use, reused
-    // here for the first time by a Food-tab lens.
+    // A plain Ionicons glyph, like every other Food-tab lens tile -- no
+    // custom renderIcon needed here. 2026-08-14 originally shipped this
+    // as a real, hand-drawn cupcake (components/FoodBuilderIcons.tsx), the
+    // same custom-icon mechanism Purple Digest's own condition tiles use;
+    // that shape read as an ice cream cone on a real device instead of a
+    // cupcake, so 2026-08-16 dropped the custom renderer for the real
+    // thing Ionicons already ships (this exact glyph was already set here
+    // as the required fallback the whole time, just never actually shown).
+    // DessertBuilderIcon still exists, now rendering this same real
+    // ice-cream glyph as SVG text, for TabHub's own floating-button icon
+    // choice (see components/TabHub.tsx's own TAB_HUB_VECTOR_ICONS), which
+    // can't use this plain <Ionicons/> path at all.
     icon: 'ice-cream-outline',
-    renderIcon: (size, color) => <DessertBuilderIcon size={size} color={color} />,
     help: [{ heading: 'Desserts', body: FOOD_LENS_COPY.dessertBuilder }],
   },
 ];
