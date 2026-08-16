@@ -36,6 +36,7 @@ import {
 import { buildMyFavoritesEntries, buildMyKitchenEntries, buildSharedRecipeEntries } from '../../lib/digestDynamicEntries';
 import { getDigestFeedbackFor, setDigestFeedback, type DigestFeedbackValue } from '../../lib/digestFeedback';
 import { getPhotoForTarget } from '../../lib/mealPhotos';
+import { shareFileIfAvailable } from '../../lib/nativeSharing';
 import {
   buildBuilderFavoritePayload,
   deleteSharedRecipe,
@@ -3592,16 +3593,31 @@ function CuratedRecipeShareButton({ recipeId, builderType }: { recipeId: string;
         .join('\n\n');
       // Step 6, 2026-08-15 -- a real, local .is file (the actual, real
       // signed envelope, richer than the deep link -- see lib/sharing.ts's
-      // own writeIsFile) attached as the real url, preferred over the
-      // plain photo below since the photo already travels embedded inside
-      // the .is file's own content, matching what a deep-link share already
-      // does. Anyone without the app sees exactly the same plain message
-      // either way -- the .is file (like the deep link before it) is
-      // completely inert to them.
+      // own writeIsFile), preferred over the plain photo below since the
+      // photo already travels embedded inside the .is file's own content,
+      // matching what a deep-link share already does. Anyone without the
+      // app sees exactly the same plain message either way -- the .is file
+      // (like the deep link before it) is completely inert to them.
+      //
+      // Two real, separate native actions, not one combined share --
+      // 2026-08-16, see lib/nativeSharing.ts's own header comment for the
+      // full, confirmed reason: React Native's core Share module silently
+      // drops its own `url` field on Android before it ever reaches native
+      // code, so a combined `{message, url}` call was never actually
+      // attaching this file on Android at all, only ever sending the plain
+      // message. Share.share({message}) still fires first, unconditionally
+      // -- that half already worked correctly -- then shareFileIfAvailable
+      // offers the real attachment as its own, second step.
       const isFileUri = await writeIsFileForCuratedRecipe(recipeId, builderType, fromName);
       const photoUri = isFileUri ? null : await getPhotoForTarget({ kind: 'curatedRecipe', recipeId });
       const attachmentUri = isFileUri ?? photoUri;
-      await Share.share(attachmentUri ? { message, url: attachmentUri } : { message });
+      await Share.share({ message });
+      if (attachmentUri) {
+        await shareFileIfAvailable(attachmentUri, {
+          mimeType: isFileUri ? '*/*' : 'image/jpeg',
+          dialogTitle: isFileUri ? 'Share this recipe' : 'Share this photo',
+        });
+      }
     } catch (error) {
       console.error('[CuratedRecipeShareButton] Failed to share', error);
       Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");
@@ -3846,6 +3862,16 @@ function SavedOrFavoriteActions({
       // without the app sees exactly the same plain message either way --
       // the .is file (like the deep link before it) is completely inert to
       // them.
+      //
+      // Two real, separate native actions, not one combined share --
+      // 2026-08-16, see lib/nativeSharing.ts's own header comment for the
+      // full, confirmed reason: React Native's core Share module silently
+      // drops its own `url` field on Android before it ever reaches native
+      // code, so a combined `{message, url}` call was never actually
+      // attaching this file on Android at all, only ever sending the plain
+      // message. Share.share({message}) still fires first, unconditionally
+      // -- that half already worked correctly -- then shareFileIfAvailable
+      // offers the real attachment as its own, second step.
       const isFileUri =
         action.kind === 'meal'
           ? await writeIsFileForMeal(action.mealFavoriteId, fromName)
@@ -3853,7 +3879,13 @@ function SavedOrFavoriteActions({
       const photoTarget = resolvePhotoTarget(entry);
       const photoUri = !isFileUri && photoTarget ? await getPhotoForTarget(photoTarget) : null;
       const attachmentUri = isFileUri ?? photoUri;
-      await Share.share(attachmentUri ? { message, url: attachmentUri } : { message });
+      await Share.share({ message });
+      if (attachmentUri) {
+        await shareFileIfAvailable(attachmentUri, {
+          mimeType: isFileUri ? '*/*' : 'image/jpeg',
+          dialogTitle: isFileUri ? 'Share this' : 'Share this photo',
+        });
+      }
     } catch (error) {
       console.error('[DynamicEntryActions] Failed to share', error);
       Alert.alert('Something went wrong', "This couldn't be shared. Please try again.");

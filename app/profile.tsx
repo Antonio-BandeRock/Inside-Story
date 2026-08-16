@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
-import { ActivityIndicator, Alert, Image, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Alert, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useRouter } from 'expo-router';
 import { AppTextInput } from '../components/AppTextInput';
@@ -23,8 +23,10 @@ import {
   pickAndReadBackupFile,
   readBackupFileContent,
   restoreFromBackupEnvelope,
+  type LocalBackupFile,
 } from '../lib/dataBackup';
 import { clearSeededTestData, seedTest90Days } from '../lib/devSeed';
+import { shareFileIfAvailable } from '../lib/nativeSharing';
 import { ACTIVITY_LEVEL_INFO, ACTIVITY_LEVELS, type ActivityLevel } from '../lib/energyNeeds';
 import { GENERAL_HEALTH_RULES } from '../lib/generalHealthRules';
 import { setTopicMuted } from '../lib/generalHealthPreferences';
@@ -528,6 +530,26 @@ export default function ProfileScreen() {
   // either restore path can't sensibly run at once anyway, and this way
   // every button in the card correctly disables together.
   const [backupBusy, setBackupBusy] = useState(false);
+  // A real, durable "document and display the file path" record, per
+  // direct feedback -- listLocalBackupFiles() reads this device's own
+  // cache directory fresh every time, so this always reflects what's
+  // genuinely still there, not a stale one-time snapshot.
+  const [localBackups, setLocalBackups] = useState<LocalBackupFile[]>([]);
+
+  const refreshLocalBackups = useCallback(async () => {
+    const files = await listLocalBackupFiles();
+    setLocalBackups(files);
+  }, []);
+
+  useEffect(() => {
+    let isMounted = true;
+    listLocalBackupFiles().then((files) => {
+      if (isMounted) setLocalBackups(files);
+    });
+    return () => {
+      isMounted = false;
+    };
+  }, []);
 
   const [mealTimeBuffers, setMealTimeBuffers] = useState<Record<DayPart, TimeOfDayInput>>({
     breakfast: BLANK_TIME,
@@ -916,9 +938,19 @@ export default function ProfileScreen() {
   // Backup & Restore, 2026-08-16 -- see lib/dataBackup.ts's own header
   // comment for the real design reasoning (schema-driven, not hand-listed;
   // photo files themselves aren't included, only their stored uri
-  // references). Real Share.share({url}) attachment, the exact same
-  // already-proven pattern the .is sharing feature already uses for
-  // handing a real local file to the OS share sheet.
+  // references).
+  //
+  // A real, confirmed bug fixed the same day, directly reported: exporting
+  // produced a .txt file containing nothing but this function's own
+  // message text -- no real backup data at all. Traced to the actual root
+  // cause in react-native's own source, not guessed: Share.share's `url`
+  // field is silently dropped on Android before it ever reaches native
+  // code (see lib/nativeSharing.ts's own header comment for the full
+  // confirmation). Fixed by switching the real file attachment to
+  // expo-sharing's shareAsync -- the module genuinely built for this,
+  // added the same day -- and, per the direct follow-up ask, showing the
+  // real local file path directly rather than leaving it to whatever the
+  // OS share target silently did with it.
   async function handleExportBackup() {
     if (backupBusy) return;
     setBackupBusy(true);
@@ -928,14 +960,21 @@ export default function ProfileScreen() {
         Alert.alert('Something went wrong', 'Could not write a backup file. Nothing was exported.');
         return;
       }
-      await Share.share({
-        message: 'An Inside Story backup. Save it somewhere safe -- a cloud drive, an email to yourself -- so it can be restored later if this device is ever lost or replaced.',
-        url: fileUri,
+      const shared = await shareFileIfAvailable(fileUri, {
+        mimeType: 'application/json',
+        dialogTitle: 'Save your Inside Story backup',
       });
-    } catch {
-      // A real cancelled/dismissed share sheet throws on some Android
-      // versions too -- silently ignored, the same convention every other
-      // Share.share call in this app already follows.
+      await refreshLocalBackups();
+      Alert.alert(
+        'Backup created',
+        `${
+          shared
+            ? "If you just saved a copy somewhere (a cloud drive, an email to yourself), that's the real one to keep -- it survives even if this device doesn't. "
+            : ''
+        }A copy also stays right here, in Inside Story's own app storage:\n\n${fileUri}\n\nThat copy is what "Restore Most Recent" below reads from, but it's lost along with this device if this device is ever lost or replaced.`,
+      );
+    } catch (error) {
+      Alert.alert('Something went wrong', error instanceof Error ? error.message : 'Failed to export a backup.');
     } finally {
       setBackupBusy(false);
     }
@@ -2309,6 +2348,27 @@ export default function ProfileScreen() {
             <TouchableOpacity style={styles.checkinButton} disabled={backupBusy} onPress={handleExportBackup}>
               <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Export a Backup'}</Text>
             </TouchableOpacity>
+            {/* A real, durable "document and display the file path" record,
+                per direct feedback -- always reflects what's genuinely
+                still sitting in this app's own cache directory right now,
+                not a one-time toast that vanishes once dismissed. This is
+                an APP-INTERNAL copy (what "Restore Most Recent" reads
+                from), not the copy saved through the share sheet a moment
+                ago -- that one lives wherever it was actually saved, which
+                this app has no way to know or show. */}
+            {localBackups.length > 0 ? (
+              <View style={styles.concernRow}>
+                <Text style={styles.subLabel}>Local backups on this device</Text>
+                {localBackups.map((file) => (
+                  <View key={file.uri} style={styles.localBackupRow}>
+                    <Text style={styles.concernLabel}>
+                      {file.modificationTimeMs ? new Date(file.modificationTimeMs).toLocaleString() : file.name}
+                    </Text>
+                    <Text style={styles.derivedText}>{file.uri}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : null}
             <Text style={[styles.helpText, styles.derivedText]}>
               Restoring replaces everything currently on this device with what&apos;s in the backup. This can&apos;t
               be undone.
@@ -2750,5 +2810,8 @@ const styles = StyleSheet.create({
   dangerButtonText: {
     ...typography.bodyEmphasis,
     color: colors.danger,
+  },
+  localBackupRow: {
+    marginTop: 8,
   },
 });
