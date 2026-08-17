@@ -1004,6 +1004,23 @@ export default function HomeScreen() {
                   <Ionicons name="add-circle-outline" size={18} color={tabColorFor('/food')} />
                   <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Log a meal</Text>
                 </TouchableOpacity>
+                {/* "Scan a Product," 2026-08-17 -- a real shortcut to the
+                    barcode-scanning screen (app/scan-product.tsx), moved
+                    here directly per its own explicit request: "having a
+                    shortcut to it on the Home screen seems appropriate."
+                    Food-colored, same as "Log a meal" right above it --
+                    the screen it opens is reached from Food's own "My
+                    Foods" menu and lives entirely within that tab's own
+                    real identity, even though it's a standalone Stack
+                    screen, not a Food-tab lens. */}
+                <TouchableOpacity
+                  style={[styles.quickActionSecondary, { borderColor: tabColorFor('/food') }]}
+                  onPress={() => router.push('/scan-product')}
+                  activeOpacity={0.85}
+                >
+                  <Ionicons name="barcode-outline" size={18} color={tabColorFor('/food')} />
+                  <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/food') }]}>Scan a product</Text>
+                </TouchableOpacity>
                 {/* These three all write to Signals's own data (flares,
                     and blood pressure/exercise under its Other lens) --
                     explicitly requested, 2026-07-27, so a pill's own color

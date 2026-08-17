@@ -1,4 +1,5 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { useLocalSearchParams } from 'expo-router';
 import { useCallback, useMemo, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
@@ -199,6 +200,10 @@ export default function GardenScreen() {
   useRegisterScreenHelp('Garden', GARDEN_HELP_SECTIONS, '/garden');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const openLensHub = useAutoOpenLensHubSignal();
+  // 2026-08-17: mirrors purple-digest.tsx's own openDigestLens exactly --
+  // lets food.tsx's new "My Whole Foods" tile deep-link straight into
+  // Harvest Log rather than landing on this tab's own resting picker.
+  const { openGardenLens } = useLocalSearchParams<{ openGardenLens?: string }>();
   const [lens, setLens] = useState<GardenLens>('myZone');
   const activeLensLabel = GARDEN_LENS_FULL_NAMES[lens];
   const [revealed, setRevealed] = useState(false);
@@ -212,9 +217,22 @@ export default function GardenScreen() {
   const [myGardenOpen, setMyGardenOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
+      // openGardenLens overrides the normal "always land on the resting
+      // picker" reset below, the same way purple-digest.tsx's own
+      // openDigestLens already does.
+      if (
+        openGardenLens === 'myZone' ||
+        openGardenLens === 'plotsAndPlantings' ||
+        openGardenLens === 'harvestLog' ||
+        openGardenLens === 'upcomingTasks'
+      ) {
+        setLens(openGardenLens);
+        setRevealed(true);
+        return;
+      }
       setRevealed(false);
       return () => setRevealed(false);
-    }, []),
+    }, [openGardenLens]),
   );
 
   const [plotCount, setPlotCount] = useState<number | undefined>(undefined);

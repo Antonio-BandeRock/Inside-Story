@@ -453,6 +453,15 @@ export default function FoodScreen() {
   // works exactly as it always has, fully independent of this state -- see
   // that component's own open/onOpenChange comment for the full "why."
   const [myFoodsOpen, setMyFoodsOpen] = useState(false);
+  // 2026-08-17: the "Saved & Favorites" submenu -- a SECOND, hidden-trigger-
+  // button MyItemsHub instance (see that component's own hideTriggerButton
+  // comment) opened by tapping the real "Saved & Favorites" row inside the
+  // primary My Foods popup above. Composes correctly with zero extra
+  // plumbing: MyItemsHub's own row handler already calls setOpen(false) on
+  // the popup that owns the row BEFORE firing that row's own onPress, the
+  // same close-then-open sequencing LensHub's own extraTile already relies
+  // on, so the primary popup always closes itself first.
+  const [savedFavoritesOpen, setSavedFavoritesOpen] = useState(false);
   // A real food-trial round trip, 2026-08-14 -- see lib/pendingFoodTrialReturn.ts's
   // own comment for the full "why." A ref, not state, deliberately -- this
   // screen itself never unmounts on a tab switch (app/(tabs)/_layout.tsx's
@@ -858,31 +867,66 @@ export default function FoodScreen() {
     setDessertFavoriteCount(dessertFavorites.length);
     setMealFavoriteCount(mealFavorites.length);
   }
+  // 2026-08-17: restructured from one flat 24-tile list into the requested
+  // 4-tier grouping -- "the My Foods menu should list things in the
+  // following way: My Food Products... My Whole Foods... System Meals...
+  // Saved & Favorites (a sub menu appears with the choices for each
+  // builder)." The real "Scan a Product" action tile that used to lead this
+  // list is gone entirely -- moved to Home, per the same direct request
+  // ("Move the Scan a Product link to the home screen for now").
   const myFoodsCategories: MyItemsCategory[] = [
     {
-      // 2026-08-16 -- the real barcode-scanning feature. Deliberately no
-      // `count` (this is a real action, not a browsable category) and
-      // deliberately first in the list: at the store, this is the thing
-      // someone actually reaches for. Once scanned, a product becomes real,
-      // selectable "My Processed Foods" ingredient content inside every
-      // builder's own connected FoodLookup (see that component's own "From
-      // Your Scans" quick-pick) -- a dedicated browse/manage list for past
-      // scans is real, honest follow-up work, not built in this same pass.
-      id: 'scan-product',
-      label: 'Scan a Product',
-      onPress: () => router.push('/scan-product'),
-    },
-    {
-      // "My Food Products," 2026-08-16 -- see scannedProductCount's own
-      // comment above. Sits right after the action that actually creates
-      // these, since browsing what's already been scanned belongs next to
-      // scanning a new one.
+      // "My Food Products" -- unchanged from its own 2026-08-16 original
+      // (see scannedProductCount's own comment above), just promoted to a
+      // real top-level tile now that its own former sibling action tile is
+      // gone.
       id: 'scanned-products',
       label: 'My Food Products',
       count: scannedProductCount,
       onPress: () =>
         router.push({ pathname: '/food-items', params: { itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' } }),
     },
+    {
+      // "My Whole Foods" -- real home-grown harvests, tracked on the Garden
+      // tab (see lib/db.ts's own garden_harvests table). Deep-links straight
+      // into Garden's own Harvest Log lens via openGardenLens, the same real
+      // "land on the actual content, not this tab's own resting picker"
+      // pattern already established by openDigestLens on purple-digest.tsx.
+      // No count here -- a real query would need pulling in Garden's own
+      // listGardenHarvests just for this one tile, and unlike a saved
+      // side/salad/etc. a harvest's own real "worth showing" number (an
+      // unused amount still on hand) isn't just its row count -- left as a
+      // real, honest, deferred follow-up rather than a misleading count.
+      id: 'whole-foods',
+      label: 'My Whole Foods',
+      onPress: () => router.push({ pathname: '/garden', params: { openGardenLens: 'harvestLog' } }),
+    },
+    {
+      // "System Meals" -- this app's own curated Recipes library (Purple
+      // Digest's real, app-authored recipe cards), not anything the user
+      // created themselves -- the real, most plausible referent for content
+      // the SYSTEM (not the user) provides, sitting between "My Whole Foods"
+      // (the user's own harvests) and "Saved & Favorites" (the user's own
+      // creations) in the request's own ordering.
+      id: 'system-meals',
+      label: 'System Meals',
+      onPress: () => router.push({ pathname: '/purple-digest', params: { openDigestLens: 'recipes' } }),
+    },
+    {
+      // "Saved & Favorites" -- opens the second, submenu MyItemsHub instance
+      // below (savedAndFavoritesCategories), holding every builder's own
+      // real saved/favorite pair. See savedFavoritesOpen's own comment above
+      // for how this composes with zero extra plumbing.
+      id: 'saved-favorites',
+      label: 'Saved & Favorites',
+      onPress: () => setSavedFavoritesOpen(true),
+    },
+  ];
+
+  // The real submenu opened by "Saved & Favorites" above -- every builder's
+  // own saved/favorite pair, unchanged in content and order from what used
+  // to be the tail of the single flat myFoodsCategories list.
+  const savedAndFavoritesCategories: MyItemsCategory[] = [
     {
       id: 'side-saved',
       label: 'Saved Sides',
@@ -1250,6 +1294,20 @@ export default function FoodScreen() {
         onOpen={loadMyFoodsCounts}
         open={myFoodsOpen}
         onOpenChange={setMyFoodsOpen}
+      />
+      {/* "Saved & Favorites" submenu, 2026-08-17 -- see savedFavoritesOpen's
+          own comment above. No onOpen refetch of its own: the primary My
+          Foods popup already refetches the same counts every time IT opens
+          (loadMyFoodsCounts), and this submenu only ever opens as a direct
+          result of that popup opening first, so its own counts are already
+          current by the time it shows. */}
+      <MyItemsHub
+        label="Saved & Favorites"
+        tabColor={TAB_COLOR}
+        categories={savedAndFavoritesCategories}
+        open={savedFavoritesOpen}
+        onOpenChange={setSavedFavoritesOpen}
+        hideTriggerButton
       />
       <LensHub
         pageTitle="Food"

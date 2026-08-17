@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { SectionList, StyleSheet, Text, TouchableOpacity, View, useWindowDimensions } from 'react-native';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors } from '../constants/colors';
-import { useFooterBandHeight } from '../constants/floatingButton';
+import { NAVIGATION_HAND, useFooterBandHeight } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import {
   getConditionStages,
@@ -126,7 +126,13 @@ export const CATEGORY_DISPLAY_LABELS: Record<string, string> = {
   // in the ordinary Category picker at all; this label only ever shows up
   // wherever a resolved food's own category gets displayed after the fact
   // (e.g. a saved ingredient's own summary row).
-  MyProcessedFoods: 'My Processed Foods',
+  // Relabeled from "My Processed Foods" to "My Food Products," 2026-08-17,
+  // direct request to unify this with the same name Food's own My Foods hub
+  // tile and FoodLookup's own "From Your Scans" quick-pick section (renamed
+  // the same day, see that section's own comment below) both already use
+  // for the identical real concept -- one name for one real thing, not
+  // three slightly different ones.
+  MyProcessedFoods: 'My Food Products',
   Fruit: 'Fruits',
   Grain: 'Grains',
   Herbs: 'Herbs & Seasonings',
@@ -331,6 +337,7 @@ export function FoodLookup({
   allowedCategories,
   allowedSubcategories,
   allowHarvestPick = true,
+  restrictToSource,
 }: {
   tabColor: string;
   // An optional page-level heading above the Category step (e.g. Food's
@@ -399,6 +406,36 @@ export function FoodLookup({
   // general-purpose "look up any food" tool, deliberately never passes
   // this and keeps seeing the full list.
   allowedCategories?: string[];
+  // Gates this component down to exactly ONE of its three "before Category
+  // is picked" quick-start sections -- 2026-08-17, direct request: Side
+  // Builder's own new "Add Ingredients" chooser (see SideBuilder.tsx) opens
+  // this component already committed to one specific method (voice search,
+  // the My Food Products quick-pick, or ordinary Whole Foods category
+  // browsing), rather than showing all three stacked at once the way every
+  // other/default caller still does. undefined (the default) means
+  // unrestricted -- every existing caller (Insights' own Food Lookup lens,
+  // Garden's harvest logging, every builder not yet updated to use this)
+  // keeps seeing the original, unrestricted layout.
+  //
+  //   'voice'    -- only "Say a Food Name" (skips From Your Harvest/From
+  //                 Your Scans and the plain Category list entirely, until
+  //                 a real match resolves `category`, at which point the
+  //                 normal downstream Subcategory/Food/Prep steps take over
+  //                 exactly as they would for any other selection method).
+  //   'products' -- only "My Food Products" (the scanned-item quick-pick,
+  //                 formerly "From Your Scans"), shown even when empty
+  //                 (with an honest "nothing scanned yet" note) since the
+  //                 person explicitly chose this method.
+  //   'category' -- "From Your Harvest" (if any) plus the ordinary Whole
+  //                 Foods category browser -- everything the default view
+  //                 already shows MINUS the voice search and My Food
+  //                 Products sections. Harvest picking isn't its own,
+  //                 separate chooser option in Side Builder's new 3-way
+  //                 list (Say a Food Name / My Food Products / Whole
+  //                 Foods) -- a home-grown harvest is still a real whole
+  //                 food, so it stays folded into this mode rather than
+  //                 needing a fourth chooser button nobody asked for.
+  restrictToSource?: 'voice' | 'products' | 'category';
   // A real, finer-grained companion to allowedCategories -- 2026-08-13, for
   // Food's own new Beverage subtype picker (see food.tsx's own comment):
   // "Juices & Nectars" needs Bev restricted down to just its own Juice
@@ -1111,11 +1148,28 @@ export function FoodLookup({
           is already chosen there's no genuine cross-category search left
           to offer (the Food step's own search box, further down, already
           covers "find something within this one category"). */}
-      {category === '' ? (
+      {(!restrictToSource || restrictToSource === 'voice') && category === '' ? (
         <View style={[styles.voiceFoodSection, { borderColor: tabColor }]}>
+          {/* Nav-hand-aware, 2026-08-17, direct request: "The microphones
+              should always be navigation hand aware and should be on the
+              left side closest to the left hand with the left hand
+              navigation setting, and closest to the right hand for right
+              hand navigation." Same real reasoning
+              useReorderedLabeledFields already applies elsewhere in this
+              app -- the mic sits nearest wherever NAVIGATION_HAND says the
+              person's own thumb naturally rests. */}
           <View style={styles.voiceFoodHeaderRow}>
-            <Text style={[styles.voiceFoodHeading, { color: tabColor }]}>Say a Food Name</Text>
-            <VoiceInputButton onResult={handleGlobalVoiceResult} color={tabColor} />
+            {NAVIGATION_HAND === 'left' ? (
+              <>
+                <VoiceInputButton onResult={handleGlobalVoiceResult} color={tabColor} />
+                <Text style={[styles.voiceFoodHeading, { color: tabColor }]}>Say a Food Name</Text>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.voiceFoodHeading, { color: tabColor }]}>Say a Food Name</Text>
+                <VoiceInputButton onResult={handleGlobalVoiceResult} color={tabColor} />
+              </>
+            )}
           </View>
           {globalVoiceLoading ? (
             <Text style={styles.voiceFoodStatus}>Searching for &quot;{globalVoiceQuery}&quot;…</Text>
@@ -1159,7 +1213,7 @@ export function FoodLookup({
           Category/Type/Food/Prep entirely, so there's nothing left for this
           to sit "inside" once one of those steps is under way) and only
           when there's real, unused harvest inventory to show. */}
-      {allowHarvestPick && category === '' && availableHarvests.length > 0 ? (
+      {(!restrictToSource || restrictToSource === 'category') && allowHarvestPick && category === '' && availableHarvests.length > 0 ? (
         <View style={[styles.harvestSection, { borderColor: tabColor }]}>
           <Text style={[styles.harvestHeading, { color: tabColor }]}>From Your Harvest</Text>
           {availableHarvests.map((harvest) => (
@@ -1171,26 +1225,53 @@ export function FoodLookup({
           ))}
         </View>
       ) : null}
-      {/* "From Your Scans" -- see handlePickScannedProduct's own comment
-          above. Same real "before Category, only when there's real
-          inventory to show" gating as "From Your Harvest" just above. */}
-      {allowHarvestPick && category === '' && availableScannedProducts.length > 0 ? (
+      {/* "My Food Products" (renamed from "From Your Scans," 2026-08-17,
+          see CATEGORY_DISPLAY_LABELS' own comment above for the same rename
+          elsewhere) -- see handlePickScannedProduct's own comment above.
+          Same real "before Category" gating as "From Your Harvest" just
+          above, but shown even with zero real inventory while
+          restrictToSource === 'products' specifically -- a person who just
+          explicitly chose this method from Side Builder's own 3-way chooser
+          deserves an honest "nothing here yet" rather than a blank screen,
+          whereas the default unrestricted view (this section stacked among
+          others) still only shows itself when there's real content, exactly
+          as before. */}
+      {(!restrictToSource || restrictToSource === 'products') &&
+      allowHarvestPick &&
+      category === '' &&
+      (availableScannedProducts.length > 0 || restrictToSource === 'products') ? (
         <View style={[styles.harvestSection, { borderColor: tabColor }]}>
-          <Text style={[styles.harvestHeading, { color: tabColor }]}>From Your Scans</Text>
-          {availableScannedProducts.map((product) => (
-            <TouchableOpacity key={product.id} style={styles.harvestRow} onPress={() => handlePickScannedProduct(product)}>
-              <Text style={styles.harvestText} numberOfLines={1}>
-                {product.name}
-                {product.brand ? ` (${product.brand})` : ''}
-              </Text>
-            </TouchableOpacity>
-          ))}
+          <Text style={[styles.harvestHeading, { color: tabColor }]}>My Food Products</Text>
+          {availableScannedProducts.length > 0 ? (
+            availableScannedProducts.map((product) => (
+              <TouchableOpacity key={product.id} style={styles.harvestRow} onPress={() => handlePickScannedProduct(product)}>
+                <Text style={styles.harvestText} numberOfLines={1}>
+                  {product.name}
+                  {product.brand ? ` (${product.brand})` : ''}
+                </Text>
+              </TouchableOpacity>
+            ))
+          ) : (
+            <Text style={styles.emptyText}>Nothing scanned in yet.</Text>
+          )}
         </View>
       ) : null}
       {/* Category: a plain always-visible InlineSelectList until one is
           picked, then a compact summary row instead (tap Change to bring
           the list back) -- see InlineSelectList.tsx's own comment for why
-          this replaced a Dropdown here. */}
+          this replaced a Dropdown here.
+
+          Gated on restrictToSource, 2026-08-17: while restricted to 'voice'
+          or 'products', this whole block (including the still-blank
+          InlineSelectList) stays hidden until a real category actually
+          gets set by one of those other two methods -- a person who
+          explicitly chose "Say a Food Name" shouldn't also see a
+          category-browsing list sitting right below it. Once `category` IS
+          set (by any method), this always shows again, as the ordinary
+          "picked" summary row -- every downstream step (Subcategory/Food/
+          Prep) already only cares that a category exists, never how it got
+          set. */}
+      {!restrictToSource || restrictToSource === 'category' || category !== '' ? (
       <View>
         {category === '' ? (
           <InlineSelectList
@@ -1224,6 +1305,7 @@ export function FoodLookup({
           </TouchableOpacity>
         )}
       </View>
+      ) : null}
 
       {category !== '' && subcategories.length > 0 ? (
         <View style={styles.stackedField}>

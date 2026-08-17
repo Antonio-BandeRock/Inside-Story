@@ -1,7 +1,7 @@
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
+import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { KEYBOARD_HEIGHT } from '../constants/appKeyboard';
 import { colors, inputBackground } from '../constants/colors';
@@ -10,17 +10,24 @@ import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/fl
 import { typography } from '../constants/typography';
 import {
   getBuilderFavorite,
+  getConditionStages,
+  getConditionNotesForIngredients,
   getCuratedRecipe,
   getFoodIdentity,
   getFoodScores,
+  getNutritionHighlightsForIngredients,
   getSide,
   getSideIngredients,
   getStoredMeasurementSystem,
-  getConditionStages,
+  getUserConditions,
+  listAllConditions,
   saveBuilderFavorite,
   saveSide,
   updateSide,
+  type ComponentConditionNote,
+  type ComponentNutritionHighlight,
   type FoodScore,
+  type MealIngredientInput,
   type SideIngredientInput,
 } from '../lib/db';
 import { getConditionStageAdvisory } from '../lib/conditionStageAdvisory';
@@ -29,15 +36,17 @@ import { isFlaggedTier } from '../lib/sixDimensionsReference';
 import { GeneralHealthAdvisories } from './GeneralHealthAdvisories';
 import { detectMeasurementSystemFromLocale, parseAmountValue, type MeasurementSystem } from '../lib/measurement';
 import { useActiveField, useActiveInputControls } from './ActiveInputContext';
+import { AppActionSheet } from './AppActionSheet';
 import { AppTextInput } from './AppTextInput';
+import { CollapsibleOverlayCard } from './CollapsibleOverlayCard';
 import { DimensionFlags } from './DimensionFlags';
 import { SourceFallbackNote } from './SourceFallbackNote';
 import { FoodLookup, type ResolvedFoodSelection } from './FoodLookup';
 import { useConfirmSheet } from './ConfirmSheet';
 import { useInfoAlert } from './InfoAlert';
 import { PopoverSelect } from './PopoverSelect';
+import { StepsEditor } from './StepsEditor';
 import { VoiceInputButton } from './VoiceInputButton';
-import { appendDictatedText, parseVoiceCommands } from '../lib/voiceCommandParsing';
 
 // Common home-cooking units -- a plain pill row, not InlineSelectList's own
 // scrollable-box treatment, since this is a short, fixed set (unlike
@@ -255,6 +264,21 @@ function foodSummary(resolved: ResolvedFoodSelection): string {
   return resolved.prepMethod ? `${resolved.baseName} (${resolved.prepMethod})` : resolved.baseName;
 }
 
+// One real ingredient line for the final review screen (point 7,
+// 2026-08-17) -- matches RecipeCardDetail's own real ingredient-bullet
+// phrasing (app/(tabs)/purple-digest.tsx: "2 cups broccoli florets
+// (diced, steamed)") rather than the shorter "name — amount" text this
+// component's own summary card uses elsewhere: this screen is meant to
+// read like a real recipe card, per the request's own "this is when it
+// should all be displayed as the recipes are displayed in Digest."
+function formatFinalIngredientText(ingredient: SideIngredient): string {
+  const details = [ingredient.cutPrep, ingredient.cookingMethod]
+    .filter((value) => value && value !== 'N/A')
+    .map((value) => value.toLowerCase());
+  const base = `${ingredient.quantity} ${ingredient.unit} ${ingredient.resolved.baseName}`;
+  return details.length > 0 ? `${base} (${details.join(', ')})` : base;
+}
+
 type LabeledPickerField = {
   label: string;
   options: string[];
@@ -318,53 +342,26 @@ function useReorderedLabeledFields(fields: LabeledPickerField[]): LabeledPickerF
     : [...selectedInCompletionOrder, ...notYetSelected];
 }
 
-// The Dish/Ingredients summary card's own fixed footprint (see its own
-// render function below) -- estimated the same way every other fixed size
-// in this app's own FoodLookup.tsx is (SUMMARY_ROW_HEIGHT/TITLE_HEIGHT
-// there), not measured. Needs to be a real, known number for two reasons:
-// it's a `height` style (so the right column's ingredient list has a
-// fixed area to scroll within, matching "roughly 4 rows visible at a
-// time, scrollable for more"), and it's passed to the connected
-// FoodLookup below as `topReserve`, so that component's own internal
-// list-height math correctly accounts for the space this card already
-// took above it.
-// Condensed 2026-07-28 (was 12/22/20) -- explicitly requested to shrink
-// this card's own overall height, freeing more room below it for the
-// connected Category/Food picker.
-const SUMMARY_CARD_PADDING = 8;
-// 18 -> 36, 2026-08-01 -- explicitly requested after a real mis-tap: at
-// 18px, each row's remove button (see summaryRemoveButton) had no room to
-// have its own real padding-based tap target without directly touching its
-// neighbors above/below, which is exactly what let a tap meant for one
-// ingredient catch the one next to it instead. 36px comfortably fits that
-// button's own ~35px footprint (see its own comment) with a hair of real
-// separation from the row above/below, still large enough as a deliberate
-// trade against this card's own explicit compactness goal above.
-const SUMMARY_INGREDIENT_ROW_HEIGHT = 36;
-const SUMMARY_VISIBLE_INGREDIENT_ROWS = 4;
-const SUMMARY_INGREDIENT_LIST_HEIGHT = SUMMARY_INGREDIENT_ROW_HEIGHT * SUMMARY_VISIBLE_INGREDIENT_ROWS;
-const SUMMARY_DONE_ROW_HEIGHT = 16;
-const SUMMARY_CARD_BORDER_WIDTH = 2;
-const SUMMARY_CARD_HEIGHT =
-  SUMMARY_INGREDIENT_LIST_HEIGHT + SUMMARY_DONE_ROW_HEIGHT + SUMMARY_CARD_PADDING * 2 + SUMMARY_CARD_BORDER_WIDTH * 2;
-
-// Matches scrollContent/pickerScreen's own paddingHorizontal below -- both
-// the summary card and the connected picker sit inside one of those two,
-// so this is the real screen-edge margin either one actually has to work
-// with.
-const SCREEN_HORIZONTAL_PADDING = 16;
-// Matches summaryLeftColumn/summaryRightColumn's own paddingRight/
-// paddingLeft and summaryDivider's own width below.
-const SUMMARY_COLUMN_GAP = 10;
-const SUMMARY_DIVIDER_WIDTH = 1;
-// How far left of dead-center the dividing line between the two columns
-// sits, 2026-07-28 -- explicitly requested so the right (ingredients)
-// column gets more real width than the left, enough that an added
-// ingredient's own name/quantity/unit text has room to stay on one line
-// rather than wrapping. Computed from the actual screen width (not a
-// flex-ratio approximation) so this is a genuine, real 30px shift on every
-// device, not just on whichever width it happened to be eyeballed against.
-const SUMMARY_DIVIDER_SHIFT = 30;
+// The small "‹ Cancel" link's own real height, shown above the connected
+// FoodLookup once a real ingredient-source method has been chosen (see the
+// connected-picker branch below) -- passed to FoodLookup as `topReserve`
+// so its own internal list-height math correctly accounts for the real
+// space this link already takes above it, the same real reasoning the old,
+// much taller SUMMARY_CARD_HEIGHT constant existed for. Estimated, not
+// measured, the same way every other fixed size in this app's own
+// FoodLookup.tsx already is (SUMMARY_ROW_HEIGHT/TITLE_HEIGHT there).
+//
+// 2026-08-17: this whole redesign is the direct fix for a real, reported
+// bug ("Select a Food Category is scrollable but it extends below the
+// footer and you can never reach the bottom of that list to see anything
+// past Mushrooms") -- the old always-visible two-column summary card sat
+// directly above FoodLookup here, reserving a much larger real height
+// (SUMMARY_CARD_HEIGHT, since removed) that FoodLookup's own list-height
+// math never actually saw correctly accounted for once the summary card
+// itself grew past a couple of ingredients. Collapsing that card away
+// entirely (see CollapsibleOverlayCard.tsx) behind this one small link
+// frees up substantially more real screen space for the list itself.
+const SOURCE_CANCEL_ROW_HEIGHT = 40;
 
 // Builds a single side dish from one or more ingredients -- Category ->
 // Type (if needed) -> Food -> Prep (if needed) -> Quantity/Unit per
@@ -438,21 +435,6 @@ export function SideBuilder({
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const activeField = useActiveField();
-  // The summary card's own two columns' real available width -- screen
-  // width minus the screen's own edge padding, the card's own border/
-  // padding, and the divider plus its own two side gaps -- split evenly,
-  // then shifted SUMMARY_DIVIDER_SHIFT px toward the left column so the
-  // right (ingredients) column ends up that much wider. See
-  // SUMMARY_DIVIDER_SHIFT's own comment for why.
-  const { width: windowWidth } = useWindowDimensions();
-  const summaryColumnsWidth =
-    windowWidth -
-    SCREEN_HORIZONTAL_PADDING * 2 -
-    SUMMARY_CARD_BORDER_WIDTH * 2 -
-    SUMMARY_CARD_PADDING * 2 -
-    SUMMARY_COLUMN_GAP * 2 -
-    SUMMARY_DIVIDER_WIDTH;
-  const summaryLeftColumnWidth = summaryColumnsWidth / 2 - SUMMARY_DIVIDER_SHIFT;
   // Extra bottom padding while the custom keyboard is up, 2026-07-28 --
   // AppKeyboard is a floating overlay, not RN's own system keyboard, so
   // there's no automatic "shrink the scrollable area" the way a real
@@ -528,6 +510,27 @@ export function SideBuilder({
   // template too," not just this one occurrence) and off otherwise.
   const [alsoSaveAsFavorite, setAlsoSaveAsFavorite] = useState(!!fromFavoriteId);
 
+  // Real ingredient-source chooser, 2026-08-17 (points 3/5 of that day's
+  // redesign: "a list appears for the user to choose where to get the
+  // ingredient from... Say a Food Name with the microphone, My Food
+  // Products, and Whole Foods"). null means "nothing chosen yet, show the
+  // Add Ingredients button"; a real value gates FoodLookup down to exactly
+  // that one method via its own restrictToSource prop (see that file's own
+  // comment for what each mode actually shows). sourceChooserVisible drives
+  // the AppActionSheet itself, kept separate from ingredientSourceMode so
+  // dismissing the sheet without picking anything (its own built-in
+  // backdrop dismiss, or the explicit Cancel row) can't accidentally leave
+  // a stale non-null mode behind.
+  const [ingredientSourceMode, setIngredientSourceMode] = useState<'voice' | 'products' | 'category' | null>(null);
+  const [sourceChooserVisible, setSourceChooserVisible] = useState(false);
+  // Whether the collapsible dish/ingredients card (point 2) is currently
+  // expanded into its own full overlay -- see CollapsibleOverlayCard.tsx's
+  // own header comment for why this has to be real state the PARENT holds,
+  // not something that component owns internally (it needs to collapse
+  // from more than one real trigger: the card's own collapse button, and
+  // "Done adding ingredients" inside it).
+  const [summaryExpanded, setSummaryExpanded] = useState(false);
+
   // Real, hand-authored prep steps, 2026-08-17 -- direct request: "the
   // steps are part of the build of the things made from the builder in the
   // area that explains the whole process of making whatever it might be."
@@ -535,19 +538,14 @@ export function SideBuilder({
   // whole add/edit/remove/complete flow) -- included in finishSide's own
   // payload below the exact same way `ingredients` already is, whatever
   // this array happens to be at save time.
+  // The composer/edit/complete mechanics that USED to live here directly
+  // (addingStep/editingStepIndex/stepDraft/stepsComplete) moved into
+  // StepsEditor.tsx itself, 2026-08-17, once a second, genuinely separate
+  // use for the exact same shape showed up (per-ingredient Prep Steps,
+  // see ingredientPrepSteps' own comment above) -- this screen now only
+  // owns the real, committed list, the same real controlled shape both
+  // StepsEditor instances below are handed.
   const [steps, setSteps] = useState<string[]>([]);
-  // Composing a brand-new step (openAddStep) vs. editing an existing one
-  // (openEditStep, tracks which real index) -- mutually exclusive, both
-  // cleared together by cancelStepEditor/saveStepDraft.
-  const [addingStep, setAddingStep] = useState(false);
-  const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
-  const [stepDraft, setStepDraft] = useState('');
-  // Purely a "collapse the add-step controls for now" toggle, 2026-08-17,
-  // direct request ("a Steps Complete button") -- never gates Save &
-  // Finish Side/Save Changes (steps stay genuinely optional, same as
-  // RecipeCard.instructions itself), and every already-added step stays
-  // just as editable/removable whether this is true or false.
-  const [stepsComplete, setStepsComplete] = useState(false);
 
   const [ingredients, setIngredients] = useState<SideIngredient[]>([]);
   const [pendingResolved, setPendingResolved] = useState<ResolvedFoodSelection | null>(null);
@@ -569,7 +567,16 @@ export function SideBuilder({
   // quantity/unit above, ready for the next ingredient.
   const [ingredientCookingMethod, setIngredientCookingMethod] = useState<string | null>(null);
   const [ingredientCutPrep, setIngredientCutPrep] = useState<string | null>(null);
-  const [ingredientPrepNote, setIngredientPrepNote] = useState('');
+  // Real, per-ingredient prep steps, 2026-08-17 (point 6 of that day's own
+  // ingredient-adding-screen redesign: "the prep notes is where the
+  // ability to create a list, or sequence of steps to follow for prepping
+  // the identified food"). Replaces what used to be a single free-text
+  // Prep Notes field with the same real ordered-list shape the whole-dish
+  // Steps feature already uses -- see StepsEditor.tsx. Serialized to/from
+  // the unchanged SideIngredient.prepNote/SideIngredientInput.prepNote
+  // string field at save/load time (join('\n')), so no database schema
+  // change was needed for this.
+  const [ingredientPrepSteps, setIngredientPrepSteps] = useState<string[]>([]);
   // Measured on-screen width of each field's own label text, keyed by
   // label. Feeds renderLabeledPicker's minWidth so a picker box is never
   // narrower than the word above it ("make the field as wide as the label
@@ -881,6 +888,65 @@ export function SideBuilder({
     };
   }, []);
 
+  // Live nutrition/condition preview, 2026-08-17, point 7 of that day's own
+  // redesign: "this is when it should all be displayed as the recipes are
+  // displayed in Digest." Reuses the exact same real, general functions My
+  // Kitchen/My Favorites already compute this from for an already-SAVED
+  // item (see lib/digestDynamicEntries.ts's own buildMyKitchenEntryForOption)
+  // -- both genuinely work against a plain, not-yet-saved ingredient list,
+  // so no new backend function was needed for this screen to show the
+  // identical real detail before Save & Finish Side is ever tapped.
+  const [trackedConditions, setTrackedConditions] = useState<{ code: string; name: string }[]>([]);
+  const [nutritionHighlights, setNutritionHighlights] = useState<ComponentNutritionHighlight[]>([]);
+  const [conditionNotes, setConditionNotes] = useState<ComponentConditionNote[]>([]);
+
+  useEffect(() => {
+    let isMounted = true;
+    (async () => {
+      const [selectedCodes, allConditions] = await Promise.all([getUserConditions(), listAllConditions()]);
+      if (!isMounted) return;
+      const selected = new Set(selectedCodes);
+      setTrackedConditions(
+        allConditions
+          .filter((condition) => selected.has(condition.code))
+          .map((condition) => ({ code: condition.code, name: condition.name })),
+      );
+    })();
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Only actually computes once the final review screen is reached -- both
+  // real functions do a genuine per-ingredient database query, so there's
+  // no reason to pay that cost while still mid-build, only once there's
+  // real content to show it for.
+  useEffect(() => {
+    if (finishStep !== 'reviewing') return;
+    let isCurrent = true;
+    const mealIngredients: MealIngredientInput[] = ingredients.map((ingredient) => ({
+      foodId: `${ingredient.resolved.foodId}|${ingredient.resolved.source}`,
+      foodName: ingredient.resolved.baseName,
+      category: ingredient.resolved.category,
+      quantity: parseAmountValue(ingredient.quantity),
+      unit: ingredient.unit,
+      cookingMethod: ingredient.cookingMethod,
+      notes: ingredient.prepNote,
+    }));
+    const effectiveServings = servings ? parseAmountValue(servings) : 1;
+    Promise.all([
+      getNutritionHighlightsForIngredients(mealIngredients, effectiveServings),
+      getConditionNotesForIngredients(mealIngredients, trackedConditions),
+    ]).then(([highlights, notes]) => {
+      if (!isCurrent) return;
+      setNutritionHighlights(highlights);
+      setConditionNotes(notes);
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [finishStep, ingredients, servings, trackedConditions]);
+
   // 2026-07-28 -- whichever AppTextInput was last focused (Dish Name,
   // Servings, Size, Quantity) stays "active" (and AppKeyboard visible, on
   // top of everything) until something explicitly blurs it: tapping a
@@ -895,6 +961,16 @@ export function SideBuilder({
   function dismissKeyboard() {
     activeField?.blur();
     forceClear();
+  }
+
+  // Opens the real 3-way "where should this ingredient come from" chooser,
+  // 2026-08-17, point 3. Dismissing without picking anything (the sheet's
+  // own backdrop tap, or its explicit Cancel row) just leaves
+  // ingredientSourceMode at null -- the Add Ingredients button and the
+  // collapsed summary card both stay exactly as they were.
+  function openIngredientSourceChooser() {
+    dismissKeyboard();
+    setSourceChooserVisible(true);
   }
 
   // Tapping Continue always fires (see primaryButtonMuted's own comment on
@@ -942,7 +1018,11 @@ export function SideBuilder({
     setUnit(null);
     setIngredientCutPrep(null);
     setIngredientCookingMethod(null);
-    setIngredientPrepNote('');
+    setIngredientPrepSteps([]);
+    // Back to "choose where to get the next ingredient from," not still
+    // pinned on whichever method just resolved this one -- matches the
+    // collapsed Add Ingredients button's own resting state.
+    setIngredientSourceMode(null);
   }
 
   // Persists the finished side (see saveSide/the sides/side_ingredients
@@ -1045,10 +1125,11 @@ export function SideBuilder({
     setFinishStep('building');
     setNudgeDismissed(false);
     setSteps([]);
-    setAddingStep(false);
-    setEditingStepIndex(null);
-    setStepDraft('');
-    setStepsComplete(false);
+    setIngredientSourceMode(null);
+    setSourceChooserVisible(false);
+    setSummaryExpanded(false);
+    setNutritionHighlights([]);
+    setConditionNotes([]);
     showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
   }
 
@@ -1094,7 +1175,11 @@ export function SideBuilder({
       unit,
       cookingMethod: ingredientCookingMethod,
       cutPrep: ingredientCutPrep,
-      prepNote: ingredientPrepNote.trim(),
+      // Real prep steps, serialized as newline-joined text into the same
+      // real prepNote string field this record has always used -- see
+      // ingredientPrepSteps' own comment above for why no schema change
+      // was needed for this.
+      prepNote: ingredientPrepSteps.join('\n'),
       scores: pendingScores,
     };
     const allIngredients = [...ingredients, newIngredient];
@@ -1142,166 +1227,26 @@ export function SideBuilder({
     if (ok) removeIngredient(index);
   }
 
-  // --- Steps -- 2026-08-17, real, hand-authored prep steps -------------
-  //
-  // Deliberately its own small composer flow, not a plain always-visible
-  // text field the way Prep Notes is -- steps are a real, ordered LIST of
-  // discrete entries (matching RecipeCard.instructions/RecipeCardDetail's
-  // own numbered "How to make it" rendering, see app/(tabs)/
-  // purple-digest.tsx), not one freeform paragraph, so each one needs its
-  // own real add/edit/remove identity.
-  //
-  // openAddStep starts composing a brand-new step (appended on save);
-  // openEditStep starts composing an edit to an EXISTING step at that real
-  // index (replaces it in place on save, never appended as a duplicate).
-  // Both share the same stepDraft/composer UI (see renderStepsSection)
-  // since the shape of "type a step, then Save Step or Cancel" is
-  // identical either way -- only what saveStepDraft does with the result
-  // differs.
-  function openAddStep() {
-    setEditingStepIndex(null);
-    setStepDraft('');
-    setAddingStep(true);
-  }
-
-  function openEditStep(index: number) {
-    setAddingStep(false);
-    setEditingStepIndex(index);
-    setStepDraft(steps[index]);
-  }
-
-  function cancelStepEditor() {
-    dismissKeyboard();
-    setAddingStep(false);
-    setEditingStepIndex(null);
-    setStepDraft('');
-  }
-
-  // Always fires (see saveIngredient/handleContinuePress's own comments on
-  // why this app never uses a truly `disabled` button) -- a blank draft
-  // just explains what's missing rather than silently doing nothing.
-  function saveStepDraft() {
-    const text = stepDraft.trim();
-    if (!text) {
-      showInfoAlert('Almost there', 'Please describe this step before saving it.');
-      return;
-    }
-    dismissKeyboard();
-    if (editingStepIndex !== null) {
-      setSteps((current) => current.map((step, i) => (i === editingStepIndex ? text : step)));
-    } else {
-      setSteps((current) => [...current, text]);
-    }
-    setAddingStep(false);
-    setEditingStepIndex(null);
-    setStepDraft('');
-  }
-
-  function removeStep(index: number) {
-    setSteps((current) => current.filter((_, i) => i !== index));
-  }
-
-  // Same real Cancel/destructive confirm pattern confirmRemoveIngredient
-  // above already establishes for exactly this reason -- a mis-tapped
-  // remove on a real, already-written step is a worse loss than an
-  // ingredient (there's no "just re-add it," the words are gone).
-  async function confirmRemoveStep(index: number) {
-    const ok = await confirmSheet({
-      title: `Remove step ${index + 1}?`,
-      message: steps[index],
-      confirmLabel: 'Remove',
-      destructive: true,
-    });
-    if (ok) removeStep(index);
-  }
-
-  // The whole Steps block -- shared between the create-mode "ready" screen
-  // and the edit-mode overview screen below (both are real "explain the
-  // whole process of making this" finishing points, see each call site's
-  // own comment), so this is written once rather than duplicated. Entirely
-  // optional throughout: a side with zero steps saves exactly as it always
-  // has, matching RecipeCard.instructions's own optional field.
+  // Thin wrapper, 2026-08-17 -- the real add/edit/remove/complete mechanics
+  // (openAddStep, saveStepDraft, etc.) all moved into StepsEditor.tsx
+  // itself once a second, genuinely separate use for the exact same shape
+  // showed up (see ingredientPrepSteps' own comment above). Kept as a
+  // function, not inlined at each call site, since it's still shared
+  // between the create-mode "ready" screen and the edit-mode overview
+  // screen below.
   function renderStepsSection() {
-    const composing = addingStep || editingStepIndex !== null;
     return (
-      <View style={styles.stepsSection}>
-        <Text style={[styles.formLabel, { color: tabColor }]}>Steps (optional)</Text>
-        {steps.length === 0 && !composing ? (
-          <Text style={[styles.summaryEmptyText, { marginTop: 4 }]}>No steps added yet.</Text>
-        ) : (
-          steps.map((step, index) => (
-            <View key={index} style={styles.stepRow}>
-              <View style={styles.stepTextWrap}>
-                <Text style={styles.stepNumber}>{index + 1}.</Text>
-                <Text style={styles.stepText}>{step}</Text>
-              </View>
-              <View style={styles.stepActions}>
-                <TouchableOpacity style={styles.stepActionButton} onPress={() => openEditStep(index)} accessibilityLabel={`Edit step ${index + 1}`}>
-                  <Ionicons name="pencil-outline" size={18} color={tabColor} />
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.stepActionButton} onPress={() => confirmRemoveStep(index)} accessibilityLabel={`Remove step ${index + 1}`}>
-                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))
-        )}
-
-        {composing ? (
-          <View style={styles.stepComposer}>
-            <View style={styles.prepNoteLabelRow}>
-              <Text style={[styles.formLabel, { color: tabColor }]}>
-                Step {editingStepIndex !== null ? editingStepIndex + 1 : steps.length + 1}
-              </Text>
-              <VoiceInputButton
-                onResult={(transcript) => setStepDraft((current) => appendDictatedText(current, parseVoiceCommands(transcript)))}
-                size={16}
-              />
-            </View>
-            <AppTextInput
-              style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
-              value={stepDraft}
-              onChangeText={setStepDraft}
-              placeholder="e.g., Toss the broccoli with olive oil and roast at 425°F for 15 minutes."
-              multiline
-              onFocus={() => {
-                requestAnimationFrame(() => scrollViewRef.current?.scrollToEnd({ animated: true }));
-              }}
-            />
-            <View style={styles.buttonRow}>
-              <TouchableOpacity style={styles.splitButton} onPress={cancelStepEditor}>
-                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[styles.splitButton, stepDraft.trim() ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
-                onPress={saveStepDraft}
-              >
-                <Text style={[styles.primaryButtonText, !stepDraft.trim() && styles.primaryButtonTextMuted]}>Save Step</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : steps.length === 0 ? (
-          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={openAddStep}>
-            <Text style={styles.primaryButtonText}>+ Add Step 1</Text>
-          </TouchableOpacity>
-        ) : stepsComplete ? (
-          <View style={styles.stepsCompleteRow}>
-            <Text style={styles.summaryEmptyText}>Steps saved.</Text>
-            <TouchableOpacity onPress={() => setStepsComplete(false)}>
-              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add another step</Text>
-            </TouchableOpacity>
-          </View>
-        ) : (
-          <View style={styles.buttonRow}>
-            <TouchableOpacity style={styles.splitButton} onPress={openAddStep}>
-              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add Another Step</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.splitButton, { backgroundColor: tabColor }]} onPress={() => setStepsComplete(true)}>
-              <Text style={styles.primaryButtonText}>Steps Complete</Text>
-            </TouchableOpacity>
-          </View>
-        )}
-      </View>
+      <StepsEditor
+        steps={steps}
+        onChange={setSteps}
+        tabColor={tabColor}
+        label="Steps (optional)"
+        addFirstLabel="+ Add Step 1"
+        addAnotherLabel="+ Add Another Step"
+        completeLabel="Steps Complete"
+        placeholder="e.g., Toss the broccoli with olive oil and roast at 425°F for 15 minutes."
+        scrollViewRef={scrollViewRef}
+      />
     );
   }
 
@@ -1367,108 +1312,101 @@ export function SideBuilder({
     );
   }
 
-  function renderSummaryCard(squareBottom: boolean) {
+  // The collapsible dish/ingredients card's own content, 2026-08-17 (point
+  // 2). Shown inside CollapsibleOverlayCard's own overlay while resting,
+  // and reused unchanged inside the pending-ingredient card's own overlay
+  // instance too (see the pendingResolved branch further down) -- both are
+  // real "review the whole dish so far" moments. Full-width, single
+  // column now, not the old two-column summaryLeftColumn/summaryRightColumn
+  // split -- there's no fixed-height card to keep proportionate to a
+  // connected picker sitting flush beneath it anymore; CollapsibleOverlayCard's
+  // own overlay already sizes itself to its real content, up to its own
+  // real maxHeight.
+  function renderSummaryCardContent() {
     return (
-      <View
-        style={[styles.summaryCard, { borderColor: tabColor }, squareBottom ? styles.summaryCardSquareBottom : null]}
-      >
+      <>
         <TouchableOpacity
-          style={[styles.summaryLeftColumn, { width: summaryLeftColumnWidth }]}
           onPress={() => {
+            setSummaryExpanded(false);
             dismissKeyboard();
             setServingsConfirmed(false);
           }}
         >
-          <Text style={[styles.summaryDishName, { color: tabColor }]} numberOfLines={2}>
+          <Text style={[styles.overviewDishName, { color: tabColor }]} numberOfLines={2}>
             {dishName.trim() || 'Side Dish'}
           </Text>
-          <Text style={styles.summaryDetailText} numberOfLines={1}>
-            Serves {servings || '?'}
-          </Text>
-          <Text style={styles.summaryDetailText} numberOfLines={1}>
+          <Text style={styles.summaryDetailText}>Serves {servings || '?'}</Text>
+          <Text style={styles.summaryDetailText}>
             {servingSizeAmount || '?'} {servingSizeUnit ?? '?'} / serving
           </Text>
+          <Text style={[styles.secondaryButtonText, { color: tabColor, marginTop: 4 }]}>Tap to change dish details</Text>
         </TouchableOpacity>
-        <View style={styles.summaryDivider} />
-        <View style={styles.summaryRightColumn}>
-          {ingredients.length > 0 ? (
-            <ScrollView style={styles.summaryIngredientArea} showsVerticalScrollIndicator={false}>
-              {ingredients.map((ingredient, index) => (
-                <View key={index} style={styles.summaryIngredientRow}>
-                  {/* Name + amount only, 2026-07-31 -- explicitly reduced
-                      from the previous line that also spelled out cooking
-                      method and prep note inline. Those are still stored on
-                      the ingredient (and still shown at add time); they
-                      were just crowding the one place this list needs to
-                      stay scannable. What replaces them is the 6-Dimension
-                      warning flags on the right: name, how much, and
-                      whether it's a known worry, per the requested
-                      "name / amount / color coding" shape.
 
-                      No numberOfLines cap -- summaryIngredientRow's own
-                      minHeight grows to fit whichever names actually wrap,
-                      rather than clipping with "…". */}
-                  <Text style={styles.summaryIngredientText}>
+        <View style={[styles.overlayDivider, { borderColor: tabColor }]} />
+
+        <Text style={[styles.formLabel, { color: tabColor }]}>Ingredients</Text>
+        {ingredients.length === 0 ? (
+          <Text style={[styles.summaryEmptyText, { marginTop: 4 }]}>No ingredients yet.</Text>
+        ) : (
+          <ScrollView style={styles.overlayIngredientScroll} showsVerticalScrollIndicator={false}>
+            {ingredients.map((ingredient, index) => (
+              <View key={index} style={styles.overviewIngredientRow}>
+                <View style={styles.overviewIngredientTextWrap}>
+                  {/* Real padding, not hitSlop -- see overviewRemoveButton's
+                      own comment further down for why. */}
+                  <Text style={styles.overviewIngredientText}>
                     {ingredient.resolved.baseName} — {ingredient.quantity} {ingredient.unit}
                   </Text>
                   <DimensionFlags scores={ingredient.scores} onExplain={showInfoAlert} />
-                  {/* Real padding, not hitSlop, 2026-08-01 -- see
-                      summaryRemoveButton's own comment for why: hitSlop
-                      extends a button's tap area without reserving any
-                      actual layout space, so in a tightly stacked list like
-                      this one, two rows' hitSlop zones can overlap and
-                      swallow a tap meant for the neighboring row's own X --
-                      confirmed as the real cause of a reported mis-tap.
-                      Padding instead grows the row's own real height
-                      (summaryIngredientRow's minHeight was raised to
-                      match), which can't overlap a sibling row the same
-                      way. */}
-                  <TouchableOpacity style={styles.summaryRemoveButton} onPress={() => confirmRemoveIngredient(index)}>
-                    <Text style={[styles.summaryRemoveText, { color: tabColor }]}>✕</Text>
-                  </TouchableOpacity>
                 </View>
-              ))}
-            </ScrollView>
-          ) : (
-            <View style={styles.summaryIngredientArea}>
-              <Text style={styles.summaryEmptyText}>No ingredients yet</Text>
-            </View>
-          )}
-          <View style={styles.summaryDoneRow}>
-            {/* Edit mode: this card only ever shows while addingIngredient
-                is true (mid "+ Add Ingredient"), so its own escape hatch
-                goes back to the overview screen instead of create mode's
-                "reviewing" step -- that ready-screen/missingExtras flow
-                doesn't exist for edit mode at all (see the overview
-                branch's own comment), so leaving this pointed at
-                setFinishStep('reviewing') would have dropped an edit-mode
-                person into a dead-end. Shown even with zero ingredients
-                added yet in edit mode (unlike create mode's own
-                ingredients.length > 0 gate) -- a side being edited already
-                has ingredients by definition, so "back out without
-                picking a new one" should always be available here. */}
-            {editSideId ? (
-              <TouchableOpacity
-                onPress={() => {
-                  dismissKeyboard();
-                  setAddingIngredient(false);
-                }}
-              >
-                <Text style={[styles.summaryDoneText, { color: tabColor }]}>← Back to overview</Text>
-              </TouchableOpacity>
-            ) : ingredients.length > 0 && finishStep === 'building' ? (
-              <TouchableOpacity
-                onPress={() => {
-                  dismissKeyboard();
-                  setFinishStep('reviewing');
-                }}
-              >
-                <Text style={[styles.summaryDoneText, { color: tabColor }]}>Done adding ingredients →</Text>
-              </TouchableOpacity>
-            ) : null}
-          </View>
-        </View>
-      </View>
+                <TouchableOpacity
+                  style={styles.overviewRemoveButton}
+                  onPress={() => confirmRemoveIngredient(index)}
+                  accessibilityLabel={`Remove ${ingredient.resolved.baseName}`}
+                >
+                  <Ionicons name="trash-outline" size={20} color={colors.danger} />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </ScrollView>
+        )}
+
+        {/* Edit mode: this card only ever shows while addingIngredient is
+            true (mid "+ Add Ingredient"), so its own escape hatch goes
+            back to the overview screen instead of create mode's own
+            "reviewing" step -- that ready-screen/missingExtras flow
+            doesn't exist for edit mode at all (see the overview branch's
+            own comment), so leaving this pointed at
+            setFinishStep('reviewing') would have dropped an edit-mode
+            person into a dead-end. Shown even with zero ingredients added
+            yet in edit mode (unlike create mode's own ingredients.length
+            > 0 gate) -- a side being edited already has ingredients by
+            definition, so "back out without picking a new one" should
+            always be available here. */}
+        {editSideId ? (
+          <TouchableOpacity
+            style={styles.summaryDoneRow}
+            onPress={() => {
+              setSummaryExpanded(false);
+              dismissKeyboard();
+              setAddingIngredient(false);
+            }}
+          >
+            <Text style={[styles.summaryDoneText, { color: tabColor }]}>← Back to overview</Text>
+          </TouchableOpacity>
+        ) : ingredients.length > 0 && finishStep === 'building' ? (
+          <TouchableOpacity
+            style={styles.summaryDoneRow}
+            onPress={() => {
+              setSummaryExpanded(false);
+              dismissKeyboard();
+              setFinishStep('reviewing');
+            }}
+          >
+            <Text style={[styles.summaryDoneText, { color: tabColor }]}>Done adding ingredients →</Text>
+          </TouchableOpacity>
+        ) : null}
+      </>
     );
   }
 
@@ -1591,47 +1529,82 @@ export function SideBuilder({
   // Continue, and again right after each "Add to Side") -- no separate
   // "+ Add Ingredient" tap needed anymore.
   if (servingsConfirmed && finishStep === 'building' && !pendingResolved) {
-    // Collapses the summary card while the food-search keyboard is up,
-    // 2026-08-01 -- explicitly reported: with the card's own real height
-    // (raised for bigger ingredient-removal tap targets, see
-    // SUMMARY_INGREDIENT_ROW_HEIGHT's own comment) plus AppKeyboard on top
-    // of it, the food list below had barely any visible room to scroll or
-    // tap a real result. `activeField` (already tracked for this
-    // component's own keyboardReserve) is a reliable signal specifically
-    // for this branch -- the only focusable field rendered here at all is
-    // FoodLookup's own search box, so it being focused really does mean
-    // "actively searching." topReserve drops to 0 in lockstep (FoodLookup
-    // already defaults to 0 there, so this is just handing it the same
-    // value explicitly) so its own internal list-height math immediately
-    // reclaims the freed space rather than leaving a gap where the card
-    // used to be.
-    //
-    // Deliberately plain Views, not Animated.View/entering/exiting/layout
-    // transitions (tried first, reverted the same day) -- the search box
-    // that's supposed to auto-focus the instant this step is reached lives
-    // in AppKeyboard.tsx (a root-level sibling, via its own real
-    // React Native TextInput autoFocus prop), and wrapping this branch's
-    // own re-render in a Reanimated layout transition made that autoFocus
-    // stop firing reliably -- reported directly ("tap the [Type] link,
-    // list doesn't drop down and keyboard doesn't come up"). An instant
-    // snap is a smaller cost than breaking the auto-focus this whole fix
-    // depends on to be useful without an extra manual tap.
-    const searching = !!activeField;
-    return (
-      <View style={styles.pickerScreen}>
-        {searching ? null : renderSummaryCard(true)}
-        <View style={styles.connectedPickerWrap}>
+    // A real ingredient-source method has been chosen (points 3/5,
+    // 2026-08-17) -- render FoodLookup restricted to exactly that one path,
+    // with a small "‹ Cancel" link above it so there's always a real way
+    // back to the chooser ("There needs to be a cancel ability to get back
+    // to being able to choose which list again"). squareTop is false here
+    // (no card seam to match anymore, unlike the old always-visible
+    // summary card) and topReserve reflects just this link row's own real
+    // height -- freeing up meaningfully more screen space for the
+    // category/food list itself than the old, much taller summary card
+    // ever left it, the direct fix for the reported "extends below the
+    // footer, can never reach the bottom" bug (see
+    // SOURCE_CANCEL_ROW_HEIGHT's own comment).
+    if (ingredientSourceMode) {
+      return (
+        <View style={styles.pickerScreen}>
+          <TouchableOpacity
+            style={styles.sourceCancelLink}
+            onPress={() => {
+              dismissKeyboard();
+              setIngredientSourceMode(null);
+            }}
+          >
+            <Ionicons name="chevron-back" size={13} color={tabColor} />
+            <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
+          </TouchableOpacity>
           <FoodLookup
             tabColor={tabColor}
             showNutrients={false}
             onFoodResolved={handleFoodResolved}
-            squareTop={!searching}
-            topReserve={searching ? 0 : SUMMARY_CARD_HEIGHT}
+            squareTop={false}
+            topReserve={SOURCE_CANCEL_ROW_HEIGHT}
             initialCategory={lastCategory}
             initialSubcategory={lastSubcategory}
             allowedCategories={SIDE_BUILDER_CATEGORIES}
+            restrictToSource={ingredientSourceMode}
           />
         </View>
+      );
+    }
+
+    // Nothing chosen yet -- the collapsed dish/ingredients card (point 2)
+    // plus a real, NAVIGATION_HAND-aware "Add Ingredients" button (points
+    // 3/5) opening the 3-way source chooser.
+    return (
+      <View style={styles.pickerScreen}>
+        <CollapsibleOverlayCard
+          collapsedLabel={dishName.trim() || 'Side Dish'}
+          tabColor={tabColor}
+          expanded={summaryExpanded}
+          onExpand={() => setSummaryExpanded(true)}
+          onCollapse={() => setSummaryExpanded(false)}
+        >
+          {renderSummaryCardContent()}
+        </CollapsibleOverlayCard>
+        <TouchableOpacity
+          style={[
+            styles.addIngredientsButton,
+            { borderColor: tabColor },
+            NAVIGATION_HAND === 'left' ? styles.addIngredientsButtonLeft : styles.addIngredientsButtonRight,
+          ]}
+          onPress={openIngredientSourceChooser}
+        >
+          <Text style={[styles.addIngredientsButtonText, { color: tabColor }]}>Add Ingredients</Text>
+        </TouchableOpacity>
+        <AppActionSheet
+          visible={sourceChooserVisible}
+          onClose={() => setSourceChooserVisible(false)}
+          title="Add an Ingredient"
+          message="Where would you like to get this ingredient from?"
+          actions={[
+            { label: '🎤 Say a Food Name', onPress: () => setIngredientSourceMode('voice') },
+            { label: 'My Food Products', onPress: () => setIngredientSourceMode('products') },
+            { label: 'Whole Foods', onPress: () => setIngredientSourceMode('category') },
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
       </View>
     );
   }
@@ -1674,9 +1647,20 @@ export function SideBuilder({
               real dictated note is, so this deliberately skips
               parseVoiceCommands/appendDictatedText and goes straight
               through the field's own existing change handler. */}
+          {/* Nav-hand-aware, 2026-08-17 -- see FoodLookup.tsx's own "Say a
+              Food Name" mic for the same real fix and its own comment. */}
           <View style={styles.prepNoteLabelRow}>
-            <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
-            <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={16} />
+            {NAVIGATION_HAND === 'left' ? (
+              <>
+                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={16} />
+                <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
+                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={16} />
+              </>
+            )}
           </View>
           <AppTextInput
             style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
@@ -1804,7 +1788,17 @@ export function SideBuilder({
         </View>
       ) : (
         <>
-          {renderSummaryCard(false)}
+          {pendingResolved ? (
+            <CollapsibleOverlayCard
+              collapsedLabel={dishName.trim() || 'Side Dish'}
+              tabColor={tabColor}
+              expanded={summaryExpanded}
+              onExpand={() => setSummaryExpanded(true)}
+              onCollapse={() => setSummaryExpanded(false)}
+            >
+              {renderSummaryCardContent()}
+            </CollapsibleOverlayCard>
+          ) : null}
 
           {pendingResolved ? (
             <View style={[styles.formCard, { borderColor: tabColor }]}>
@@ -1960,47 +1954,27 @@ export function SideBuilder({
                   fields above, tying the note field visually to the fields
                   it annotates rather than floating between them and the
                   buttons below. */}
-              {/* 2026-08-16 -- a real mic button next to the label, not
-                  wrapped around the multiline field itself (which is
-                  meant to grow tall, not sit in a horizontal row).
-                  Only the FINAL transcript is used -- a partial result
-                  mid-sentence would land real, half-finished command
-                  phrases in the actual note text, so this waits for the
-                  whole utterance before running it through
-                  parseVoiceCommands and appending. */}
-              <View style={styles.prepNoteLabelRow}>
-                <Text style={[styles.formLabel, { color: tabColor, marginTop: 7 }]}>Prep Notes (optional)</Text>
-                <VoiceInputButton
-                  onResult={(transcript, isFinal) => {
-                    if (!isFinal) return;
-                    setIngredientPrepNote((current) => appendDictatedText(current, parseVoiceCommands(transcript)));
-                  }}
-                  size={16}
+              {/* Real, per-ingredient Prep Steps, 2026-08-17 (point 6:
+                  "the prep notes is where the ability to create a list, or
+                  sequence of steps to follow for prepping the identified
+                  food"). Replaces what used to be a single free-text field
+                  here -- committed to ingredientPrepSteps and serialized
+                  into the same real prepNote string field at "Add to
+                  Side"/"Save Ingredient" time (see saveIngredient's own
+                  comment above), same as before. */}
+              <View style={{ marginTop: 7 }}>
+                <StepsEditor
+                  steps={ingredientPrepSteps}
+                  onChange={setIngredientPrepSteps}
+                  tabColor={tabColor}
+                  label="Prep Steps (optional)"
+                  addFirstLabel="+ Add Step 1"
+                  addAnotherLabel="+ Add Another Step"
+                  completeLabel="Steps Complete"
+                  placeholder="e.g., Peel and mince finely, let sit 10 minutes"
+                  scrollViewRef={scrollViewRef}
                 />
               </View>
-              <AppTextInput
-                style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
-                value={ingredientPrepNote}
-                onChangeText={setIngredientPrepNote}
-                placeholder="e.g., 1-inch pieces, added after cooking"
-                multiline
-                // Lifts this field AND the Save buttons below it clear of
-                // the App Keyboard, 2026-07-31. The page already reserves
-                // KEYBOARD_HEIGHT of bottom padding whenever a field is
-                // focused (see keyboardReserve), so scrolling to the end
-                // puts the true bottom of the card just above the keys --
-                // padding alone only made the room, it never moved the view
-                // into it, so the note field and both buttons sat behind
-                // the keyboard.
-                //
-                // Deferred a frame rather than run inline: focus and the
-                // padding change commit in the same pass, and scrolling
-                // before that new padding exists lands short of the real
-                // bottom.
-                onFocus={() => {
-                  requestAnimationFrame(() => scrollViewRef.current?.scrollToEnd({ animated: true }));
-                }}
-              />
 
               {/* Edit mode: one "Save Ingredient" button -- 'add-new' vs.
                   'finish' no longer mean different things here (see
@@ -2017,7 +1991,6 @@ export function SideBuilder({
                   dish form's own Continue button -- a truly disabled
                   button can't explain what's missing, so these always fire
                   and the handler decides. */}
-              {editSideId ? null : renderFavoriteToggle()}
               <View style={styles.buttonRow}>
                 {editSideId ? (
                   <TouchableOpacity
@@ -2084,37 +2057,102 @@ export function SideBuilder({
               </View>
             </View>
           ) : (
-            // Reached via "Done adding ingredients" with no ingredient
-            // currently pending and the extras nudge already satisfied/
-            // dismissed -- previously a dead end (a "ready" message with no
-            // way to actually finish from here; the only working Save &
-            // Finish button lived on the pending-ingredient card above,
-            // which doesn't exist in this branch). finishSide is called
-            // directly here, not via saveIngredient('finish') -- that
-            // function's whole job is committing a NEW pending ingredient
-            // first, and there isn't one to commit at this point; every
-            // ingredient is already in `ingredients`.
+            // The real final review screen, 2026-08-17 (point 7: "this is
+            // when it should all be displayed as the recipes are displayed
+            // in Digest, with all of the various information they just
+            // created for that side, allowing them to see how it looks,
+            // and they can then edit any ingredient from there to add or
+            // remove anything they need to change"). Reached via "Done
+            // adding ingredients" with no ingredient currently pending and
+            // the extras nudge already satisfied/dismissed. finishSide is
+            // called directly here, not via saveIngredient('finish') --
+            // that function's whole job is committing a NEW pending
+            // ingredient first, and there isn't one to commit at this
+            // point; every ingredient is already in `ingredients`.
+            //
+            // In practice this branch is create-mode only: edit mode's own
+            // "+ Add Ingredient" flow always routes through the connected-
+            // picker branch above instead (finishStep never leaves
+            // 'building' for editSideId), which is why editSideId ?
+            // 'Save Changes' below is a defensive fallback, not something
+            // this branch is actually expected to render.
             <View style={[styles.formCard, { borderColor: tabColor }]}>
-              <Text style={styles.emptyText}>
-                {(dishName.trim() || 'Side Dish')} ready with {ingredients.length} ingredient
-                {ingredients.length === 1 ? '' : 's'}.
+              <Text style={[styles.overviewDishName, { color: tabColor }]}>{dishName.trim() || 'Side Dish'}</Text>
+              <Text style={styles.summaryDetailText}>
+                Makes {servings || '?'} serving{servings === '1' ? '' : 's'} ({servingSizeAmount || '?'} {servingSizeUnit ?? '?'} each)
               </Text>
-              {/* Real steps, create mode -- 2026-08-17, right where the
-                  same section sits in a real recipe card (Ingredients,
-                  then "How to make it," see RecipeCardDetail in
-                  app/(tabs)/purple-digest.tsx) -- after the ingredient
-                  count above, before saving. marginTop separates it from
-                  that text; renderStepsSection's own content carries no
-                  top margin of its own, so its edit-mode call site (its
-                  own dedicated card, nothing above it to separate from)
-                  doesn't inherit unwanted extra space. */}
+
+              <Text style={[styles.formLabel, { color: tabColor, marginTop: 14 }]}>Ingredients</Text>
+              {ingredients.map((ingredient, index) => (
+                <View key={index} style={styles.recipeIngredientRow}>
+                  <Text style={styles.recipeIngredientBullet}>•</Text>
+                  <Text style={styles.recipeIngredientText}>{formatFinalIngredientText(ingredient)}</Text>
+                  <TouchableOpacity
+                    style={styles.overviewRemoveButton}
+                    onPress={() => confirmRemoveIngredient(index)}
+                    accessibilityLabel={`Remove ${ingredient.resolved.baseName}`}
+                  >
+                    <Ionicons name="close-circle-outline" size={18} color={colors.danger} />
+                  </TouchableOpacity>
+                </View>
+              ))}
+              <TouchableOpacity
+                style={styles.secondaryButton}
+                onPress={() => {
+                  dismissKeyboard();
+                  setFinishStep('building');
+                }}
+              >
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add Another Ingredient</Text>
+              </TouchableOpacity>
+
+              {/* Real steps, create mode -- 2026-08-17, right where the same
+                  section sits in a real recipe card (Ingredients, then "How
+                  to make it," see RecipeCardDetail in
+                  app/(tabs)/purple-digest.tsx). */}
               <View style={{ marginTop: 16 }}>{renderStepsSection()}</View>
+
+              {/* Real, live-computed nutrition/condition preview, point 7 --
+                  the exact same real detail a saved side's own Digest My
+                  Kitchen card shows, computed here BEFORE this side is ever
+                  saved (see nutritionHighlights/conditionNotes' own effect
+                  above). Both silently render nothing when empty rather
+                  than an empty box -- a dish with no real standout nutrient
+                  or condition flag genuinely has nothing to show here. */}
+              {nutritionHighlights.length > 0 ? (
+                <View style={[styles.recipeNutritionBox, { borderColor: tabColor }]}>
+                  <Text style={[styles.recipeNutritionLabel, { color: tabColor }]}>What This Dish Gives You</Text>
+                  {nutritionHighlights.map((highlight, index) => (
+                    <Text key={index} style={styles.recipeNutritionText}>
+                      • <Text style={styles.recipeNutritionBold}>{highlight.nutrient}:</Text> {highlight.note}
+                    </Text>
+                  ))}
+                </View>
+              ) : null}
+
+              {conditionNotes.length > 0 ? (
+                <View style={[styles.recipeConditionBox, { borderColor: colors.danger }]}>
+                  <Text style={[styles.recipeConditionLabel, { color: colors.danger }]}>Worth Knowing If You Have...</Text>
+                  {conditionNotes.map((note, index) => (
+                    <View key={index} style={index > 0 ? { marginTop: 8 } : undefined}>
+                      <Text style={styles.recipeConditionCondition}>{note.condition}</Text>
+                      <Text style={styles.recipeNutritionText}>{note.note}</Text>
+                    </View>
+                  ))}
+                </View>
+              ) : null}
+
+              {/* "Also save as a Favorite" only appears here now, 2026-08-17
+                  (point 7) -- no longer offered on the pending-ingredient
+                  card mid-build, since the request was explicit that this
+                  choice belongs at the very end, alongside the final Save
+                  action. */}
               {renderFavoriteToggle()}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: tabColor }]}
                 onPress={() => void finishSide(ingredients)}
               >
-                <Text style={styles.primaryButtonText}>{editSideId ? 'Save Changes' : 'Save & Finish Side'}</Text>
+                <Text style={styles.primaryButtonText}>{editSideId ? 'Save Changes' : 'Complete & Save This Side'}</Text>
               </TouchableOpacity>
             </View>
           )}
@@ -2318,73 +2356,13 @@ const styles = StyleSheet.create({
   // 2026-08-08 -- renderFavoriteToggle's own row.
   favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
   favoriteToggleText: { ...typography.body, color: colors.textPrimary, flexShrink: 1 },
-  // Two columns (dish info, scrollable ingredients) divided by a thin
-  // line -- see renderSummaryCard's own comment. A fixed `height`
-  // (SUMMARY_CARD_HEIGHT), not content-sized: both so the left/right
-  // columns always look proportionate to each other regardless of how
-  // much ingredient text is in the right one, and so the connected
-  // FoodLookup below (in the picker branch) can be told exactly how much
-  // space this card already used via `topReserve`.
-  summaryCard: {
-    flexDirection: 'row',
-    borderWidth: SUMMARY_CARD_BORDER_WIDTH,
-    borderRadius: 10,
-    backgroundColor: colors.surface,
-    padding: SUMMARY_CARD_PADDING,
-    height: SUMMARY_CARD_HEIGHT,
-  },
-  // Applied only while the connected Category/Food picker sits directly
-  // beneath this card (see FoodLookup's own `squareTop` prop) -- squares
-  // off just the bottom two corners so the two boxes' borders meet as one
-  // continuous seam instead of a rounded corner poking out next to a
-  // square one.
-  summaryCardSquareBottom: {
-    borderBottomLeftRadius: 0,
-    borderBottomRightRadius: 0,
-  },
-  // `width` set inline (summaryLeftColumnWidth) -- not flex: 1, which would
-  // override that explicit width (flex's own default flexBasis: 0%
-  // otherwise wins) -- flexShrink: 0 just guarantees it never gets
-  // squeezed narrower than that computed width either.
-  //
-  // justifyContent: 'flex-start' (was 'center') + alignItems: 'center',
-  // 2026-07-28, explicitly requested -- dish name pinned to the top of
-  // this column, Serves/serving-size lines stacked below it, everything
-  // horizontally centered rather than left-aligned.
-  summaryLeftColumn: {
-    flexShrink: 0,
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingRight: SUMMARY_COLUMN_GAP,
-  },
-  summaryDivider: {
-    width: SUMMARY_DIVIDER_WIDTH,
-    backgroundColor: colors.border,
-  },
-  // flex: 1 -- fills whatever's left of the row after the left column's
-  // own explicit width and the divider, which is exactly how
-  // SUMMARY_DIVIDER_SHIFT gives this column its extra width without this
-  // column needing its own computed number.
-  summaryRightColumn: {
-    flex: 1,
-    paddingLeft: SUMMARY_COLUMN_GAP,
-    justifyContent: 'space-between',
-  },
-  // Deliberately modest, matching PageIdentityLabel's own bottom-corner
-  // box (typography.caption, not something bigger) -- explicitly asked
-  // for 2026-07-28: this card's own text shouldn't compete for space with
-  // the ingredient list it's meant to make room for.
-  //
-  // textAlign: 'center' -- pairs with numberOfLines={2} at the render
-  // site (was 1), explicitly requested so a longer dish name wraps to a
-  // second row instead of truncating with "…"; without this, a wrapped
-  // two-line name would have each line left-aligned relative to the
-  // other despite summaryLeftColumn's own alignItems: 'center' centering
-  // the wrapped block as a whole.
-  summaryDishName: {
-    ...typography.captionEmphasis,
-    textAlign: 'center',
-  },
+  // summaryCard/summaryCardSquareBottom/summaryLeftColumn/summaryDivider/
+  // summaryRightColumn/summaryDishName lived here until 2026-08-17 -- the
+  // old two-column dish-info/ingredients card (see renderSummaryCard,
+  // since removed) they belonged to. Replaced by CollapsibleOverlayCard's
+  // own real overlay chrome plus renderSummaryCardContent's single-column
+  // layout (point 2 of that day's redesign: "it should just display over
+  // the top of whatever is on the screen currently").
   summaryDetailText: {
     ...typography.caption,
     color: colors.textSecondary,
@@ -2423,64 +2401,23 @@ const styles = StyleSheet.create({
   overviewRemoveButton: {
     padding: 10,
   },
-  // Fixed height (SUMMARY_INGREDIENT_LIST_HEIGHT, ~4 rows) whether showing
-  // the real scrollable list or the empty-state placeholder -- keeps the
-  // card's own total height constant regardless of how many ingredients
-  // are in it.
-  summaryIngredientArea: {
-    height: SUMMARY_INGREDIENT_LIST_HEIGHT,
-  },
-  // minHeight, not a fixed height, 2026-07-28 -- pairs with
-  // summaryIngredientText's own dropped numberOfLines cap: an ingredient
-  // whose name/prep/quantity/unit together run past one line now wraps
-  // and grows this row taller instead of getting clipped or overlapping
-  // the row below it. Still starts at SUMMARY_INGREDIENT_ROW_HEIGHT for
-  // anything short enough to fit on one line, matching the original "~4
-  // rows visible" estimate for the common case.
-  summaryIngredientRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    minHeight: SUMMARY_INGREDIENT_ROW_HEIGHT,
-  },
-  summaryIngredientText: {
-    ...typography.caption,
-    color: colors.textPrimary,
-    flex: 1,
-    marginRight: 6,
-  },
-  // Real padding (not hitSlop) around the glyph -- see this button's own
-  // JSX comment for why. ~36x36 total tap target (glyph + padding),
-  // comfortably clear of a normal fingertip, well inside the row height
-  // below so two rows' own buttons can't overlap.
-  summaryRemoveButton: {
-    padding: 10,
-  },
-  summaryRemoveText: {
-    ...typography.captionEmphasis,
-    fontSize: 15,
-  },
+  // summaryIngredientArea/summaryIngredientRow/summaryIngredientText/
+  // summaryRemoveButton/summaryRemoveText/connectedPickerWrap/
+  // summaryFoodText lived here until 2026-08-17 -- see the comment above
+  // summaryDetailText for why (the old two-column card's own right-hand
+  // ingredient list and the old FoodLookup border-overlap trick).
   summaryEmptyText: {
     ...typography.caption,
     color: colors.textSecondary,
   },
+  // Real padding, not just a bare TouchableOpacity, 2026-08-17 -- matches
+  // this whole file's own established anti-mis-tap discipline for the
+  // last real thing tapped before a genuinely different screen shows.
   summaryDoneRow: {
-    height: SUMMARY_DONE_ROW_HEIGHT,
-    justifyContent: 'center',
+    paddingVertical: 10,
   },
   summaryDoneText: {
     ...typography.captionEmphasis,
-  },
-  // Pulls the connected FoodLookup up so its own top border overlaps
-  // (rather than sits below) the summary card's own bottom border --
-  // exactly one border width, so the two read as a single shared line
-  // instead of a doubled-up seam.
-  connectedPickerWrap: {
-    marginTop: -SUMMARY_CARD_BORDER_WIDTH,
-  },
-  summaryFoodText: {
-    ...typography.body,
-    color: colors.textPrimary,
   },
   // Food name and its warning flags on one line, flags pinned right --
   // alignItems 'flex-start' (not 'center') so the boxes stay level with
@@ -2596,63 +2533,115 @@ const styles = StyleSheet.create({
     ...typography.body,
     color: colors.textSecondary,
   },
-  // 2026-08-17 -- renderStepsSection's own container. Deliberately no
-  // marginTop here (this used to hold one, moved out to each of the two
-  // real call sites instead -- the create-mode "ready" screen genuinely
-  // needs one, to separate it from the ingredient-count text sitting right
-  // above it in the SAME card; the edit-mode overview screen gives it a
-  // fresh formCard of its own with nothing above it to separate from, so a
-  // second margin there would just be unwanted extra space).
-  stepsSection: {},
-  stepRow: {
+  // stepsSection/stepRow/stepTextWrap/stepNumber/stepText/stepActions/
+  // stepActionButton/stepComposer/stepsCompleteRow lived here until
+  // 2026-08-17 -- the whole-dish Steps feature's own add/edit/remove UI,
+  // now owned entirely by StepsEditor.tsx's own internal styles (see
+  // renderStepsSection's own comment above for why it's a thin wrapper
+  // now, once a second, genuinely separate use for the same shape --
+  // per-ingredient Prep Steps -- showed up).
+  // The small "‹ Cancel" link shown above the connected FoodLookup once a
+  // real ingredient-source method has been chosen -- see
+  // SOURCE_CANCEL_ROW_HEIGHT's own comment for why this exists and why its
+  // real height matters to FoodLookup's own layout math.
+  sourceCancelLink: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    gap: 2,
+    height: SOURCE_CANCEL_ROW_HEIGHT,
+  },
+  // "Add Ingredients," 2026-08-17 (points 3/5) -- half the width of the
+  // collapsible dish/ingredients card above it, and pinned to whichever
+  // side NAVIGATION_HAND says the person's own thumb naturally rests, the
+  // same real hand-awareness reasoning useReorderedLabeledFields already
+  // applies to the picker fields elsewhere in this file.
+  addIngredientsButton: {
+    width: '50%',
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingVertical: 12,
+    alignItems: 'center',
+    marginTop: 10,
+    backgroundColor: colors.surface,
+  },
+  addIngredientsButtonLeft: { alignSelf: 'flex-start' },
+  addIngredientsButtonRight: { alignSelf: 'flex-end' },
+  addIngredientsButtonText: { ...typography.bodyEmphasis },
+  // A plain horizontal rule inside the collapsible card's own overlay,
+  // separating the dish-info block from the Ingredients list beneath it --
+  // the old summaryDivider was a vertical line between two columns; this
+  // one is a real, different, horizontal divider for the new single-column
+  // layout.
+  overlayDivider: {
+    borderTopWidth: 1,
+    opacity: 0.3,
+    marginVertical: 10,
+  },
+  // Bounded height so a long ingredient list scrolls WITHIN the collapsible
+  // card's own overlay (itself already capped by CollapsibleOverlayCard's
+  // own real maxHeight: '100%') rather than pushing the card's whole
+  // header/collapse-button off the top of the screen.
+  overlayIngredientScroll: {
+    maxHeight: 260,
+  },
+  // The final review screen's own real recipe-card-style ingredient
+  // bullets, 2026-08-17 (point 7) -- matches RecipeCardDetail's own
+  // real bullet-list treatment (app/(tabs)/purple-digest.tsx) rather than
+  // the shorter "name — amount" rows used elsewhere in this file.
+  recipeIngredientRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    justifyContent: 'space-between',
-    minHeight: 44,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
+    marginTop: 6,
   },
-  stepTextWrap: {
-    flex: 1,
-    flexDirection: 'row',
-    marginRight: 6,
-    paddingVertical: 10,
-  },
-  stepNumber: {
-    ...typography.bodyEmphasis,
-    color: colors.textPrimary,
+  recipeIngredientBullet: {
+    ...typography.body,
+    color: colors.textSecondary,
     marginRight: 6,
   },
-  stepText: {
+  recipeIngredientText: {
     ...typography.body,
     color: colors.textPrimary,
     flex: 1,
   },
-  stepActions: {
-    flexDirection: 'row',
-    alignItems: 'center',
+  // "What This Dish Gives You" -- matches RecipeCardDetail's own real
+  // nutrition callout box shape/tinting (a bordered box in this page's own
+  // tabColor), not invented fresh for this screen.
+  recipeNutritionBox: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 14,
   },
-  // Real padding, not hitSlop, 2026-08-17 -- same reasoning as
-  // overviewRemoveButton/summaryRemoveButton's own comments elsewhere in
-  // this file: hitSlop extends a button's own tap area without reserving
-  // real layout space, so two closely-stacked step rows' own edit/remove
-  // buttons could otherwise overlap and swallow a tap meant for the
-  // neighboring row. Padding grows the real row height (stepRow's own
-  // minHeight already accounts for it) instead, which can't overlap a
-  // sibling row's own buttons the same way.
-  stepActionButton: {
-    padding: 10,
+  recipeNutritionLabel: {
+    ...typography.eyebrow,
+    marginBottom: 6,
   },
-  stepComposer: {
-    marginTop: 10,
+  recipeNutritionText: {
+    ...typography.body,
+    color: colors.textPrimary,
+    marginTop: 2,
   },
-  // The "Steps saved" collapsed state's own row -- a plain caption plus a
-  // reopen link, not a full button pair, since there's nothing left to
-  // "complete" again until the person actually taps back into it.
-  stepsCompleteRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    marginTop: 10,
+  recipeNutritionBold: {
+    ...typography.bodyEmphasis,
+    color: colors.textPrimary,
+  },
+  // "Worth Knowing If You Have..." -- a distinctly-tinted box (colors.danger
+  // border, matching RecipeCardDetail's own real condition-caution
+  // treatment) so it reads as a genuinely different kind of information
+  // than the nutrition box just above it.
+  recipeConditionBox: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 14,
+  },
+  recipeConditionLabel: {
+    ...typography.eyebrow,
+    marginBottom: 6,
+  },
+  recipeConditionCondition: {
+    ...typography.bodyEmphasis,
+    color: colors.textPrimary,
   },
 });

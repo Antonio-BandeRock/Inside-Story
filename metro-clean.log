@@ -119,3 +119,6 @@ Android Bundled 24ms node_modules\expo-file-system\src\index.ts (1 module)
  LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
  LOG  [TabHub drop-timing] +133ms: card onLayout: x=16 y=437 w=216 h=234
  LOG  [TabHub drop-timing] +166ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +144ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +176ms: Modal onShow (Android Dialog window confirmed up)

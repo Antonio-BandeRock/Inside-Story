@@ -77,6 +77,7 @@ export function MyItemsHub({
   onOpen,
   open: controlledOpen,
   onOpenChange,
+  hideTriggerButton,
 }: {
   label: string;
   tabColor: string;
@@ -102,6 +103,14 @@ export function MyItemsHub({
   // controlled (the standard React controlled/uncontrolled split).
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
+  // 2026-08-17: lets a caller reuse this same popup as a plain SUBMENU
+  // (opened by tapping a category row inside a different, real MyItemsHub
+  // instance -- see food.tsx's own "Saved & Favorites" tile) without also
+  // rendering a second, redundant floating trigger button of its own.
+  // Requires the controlled open/onOpenChange pair above to mean anything
+  // -- a hidden-button instance with no external way to open it would be
+  // permanently unreachable.
+  hideTriggerButton?: boolean;
 }) {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
@@ -158,20 +167,22 @@ export function MyItemsHub({
 
   return (
     <>
-      <TouchableOpacity
-        style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
-        onPress={() => setOpen(true)}
-        activeOpacity={0.85}
-        accessibilityLabel={`${label}, your saved items`}
-      >
-        {open ? (
-          <IridescentRingCircle size={RING_SIZE}>
+      {hideTriggerButton ? null : (
+        <TouchableOpacity
+          style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
+          onPress={() => setOpen(true)}
+          activeOpacity={0.85}
+          accessibilityLabel={`${label}, your saved items`}
+        >
+          {open ? (
+            <IridescentRingCircle size={RING_SIZE}>
+              <Ionicons name="bookmarks-outline" size={ICON_SIZE} color={tabColor} style={CORNER_ICON_SHADOW} />
+            </IridescentRingCircle>
+          ) : (
             <Ionicons name="bookmarks-outline" size={ICON_SIZE} color={tabColor} style={CORNER_ICON_SHADOW} />
-          </IridescentRingCircle>
-        ) : (
-          <Ionicons name="bookmarks-outline" size={ICON_SIZE} color={tabColor} style={CORNER_ICON_SHADOW} />
-        )}
-      </TouchableOpacity>
+          )}
+        </TouchableOpacity>
+      )}
 
       {/* statusBarTranslucent/navigationBarTranslucent + the navBarMask
           below: see the identical comment on TabHub's/LensHub's own Modal
