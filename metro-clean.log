@@ -1,0 +1,57 @@
+
+> hashimotos-app@1.0.0 start
+> node ./scripts/start-with-qr.js --clear
+
+
+Scan this in Expo Go (or tap "Enter URL manually" and type the address below):
+
+▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄▄
+█ ▄▄▄▄▄ █▀▀ ███▀  █ ▄▄▄▄▄ █
+█ █   █ █▄▀██▀█▄▄██ █   █ █
+█ █▄▄▄█ █ ▄ █ ▄▀ ██ █▄▄▄█ █
+█▄▄▄▄▄▄▄█ █ ▀▄█ ▀ █▄▄▄▄▄▄▄█
+█▄ ▀▄▀█▄ █▀█  ▄▀▄█▀  ▄▀▄▄▀█
+█▀▄ █▄ ▄ ▄▀▀  ▀ █▀▄▀ ▀▀█▄▄█
+█▄██ ▀▀▄▄▄▀▄ █  █▀█ ▄█ ██▀█
+█▄▀▀▀▄▄▄ ▀▄▄ █▀██ ▄▄ ▀▀██▄█
+█▄▄█▄█▄▄█  ██ ▀▄  ▄▄▄ █ ▄ █
+█ ▄▄▄▄▄ █▄  ▄ █▄  █▄█  ▀ ▄█
+█ █   █ █▀█▄▀▄▄▀▀▄ ▄▄ █▀▄██
+█ █▄▄▄█ █▀████  █  █▄  ▄█▄█
+█▄▄▄▄▄▄▄█▄▄███▄▄█▄███▄▄█▄▄█
+
+
+exp://192.168.68.53:8081
+
+(node:31104) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(Use `node --trace-deprecation ...` to show where the warning was created)
+Starting project at C:\Dev\hashimotos-app
+React Compiler enabled
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Waiting on http://localhost:8081
+Logs for your project will appear below.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+| (node:22896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:27348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:33788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:31400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:27116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:25332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:20404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+| (node:32564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+| (Use `node --trace-warnings ...` to show where the warning was created)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 40.1% (362/572)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.7% (685/891)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.7% ( 861/1102)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.7% (1053/1409)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 81.7% (1528/1691)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.4% (2047/2153)
+Android Bundled 22972ms node_modules\expo-router\entry.js (2303 modules)

@@ -15,13 +15,16 @@
 // LensHub lens, since this is a genuinely different, multi-step camera/
 // lookup/OCR flow, not "pick ingredients and save."
 import { Ionicons } from '@expo/vector-icons';
+import { Canvas, ColorMatrix, Image as SkiaImage, ImageFormat, useCanvasRef, useImage } from '@shopify/react-native-skia';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import * as Speech from 'expo-speech';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Dimensions, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppTextInput } from '../components/AppTextInput';
+import { DraggableCropOverlay, type CropRect } from '../components/DraggableCropOverlay';
+import { SimpleSlider } from '../components/SimpleSlider';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { colors } from '../constants/colors';
 import { useFloatingButtonScrollPadding } from '../constants/floatingButton';
@@ -44,6 +47,7 @@ import {
   type ScannedProductConditionFlag,
   type ScannedProductFlag,
 } from '../lib/scannedProductFlags';
+import { buildToneMatrix, computeContainRect, saveAdjustedIngredientsPhoto } from '../lib/toneAdjustment';
 
 type ScanStatus =
   | 'scanning'
@@ -53,6 +57,8 @@ type ScanStatus =
   | 'report'
   | 'price-capture'
   | 'photo-capture'
+  | 'photo-crop'
+  | 'photo-tone'
   | 'photo-review'
   | 'saved'
   | 'error';
@@ -61,6 +67,21 @@ type ScanStatus =
 // shared by the action sheet (which button opened it) and the in-app
 // camera step (what to do with the resulting picture).
 type PhotoTargetKind = 'ingredients' | 'price';
+
+// A real, just-captured raw camera photo, waiting to go through the new
+// crop + brightness/contrast step before it becomes a real, OCR'd
+// ingredients attempt. Deliberately scoped to the ingredients target only
+// -- see handleTakePicture below; a price photo never needs cropping the
+// way a curved/shiny can's own label does.
+type PendingAdjustPhoto = { uri: string; width: number; height: number };
+
+// Real, on-device screen bounds -- this app doesn't handle rotation
+// anywhere else in this screen either, so these are computed once, the
+// same way MAX_INGREDIENT_ANGLES/INGREDIENT_TABLE_COLUMNS below are real,
+// module-scope constants rather than recomputed every render.
+const SCREEN_SIZE = Dimensions.get('window');
+const ADJUST_BOX_WIDTH = SCREEN_SIZE.width - 48;
+const ADJUST_BOX_MAX_HEIGHT = SCREEN_SIZE.height * 0.55;
 
 // Real, multi-angle ingredients capture, 2026-08-16 -- direct request: a
 // curved can's own text is undistorted at a different spot in each frame,
@@ -150,6 +171,22 @@ export default function ScanProductScreen() {
   const [photoCaptureTarget, setPhotoCaptureTarget] = useState<PhotoTargetKind | null>(null);
   const [takingPicture, setTakingPicture] = useState(false);
 
+  // Real crop + brightness/contrast state, 2026-08-16 -- see
+  // lib/toneAdjustment.ts's own header comment for why this leans on
+  // react-native-skia. pendingAdjustPhoto is the raw camera capture
+  // waiting to go through both real steps; rawImage loads it once (a
+  // real React hook, so it has to be called unconditionally here, not
+  // inside either of the photo-crop/photo-tone render branches below).
+  // cropRect is fractional (0-1), relative to however the raw photo ends
+  // up displayed -- see DraggableCropOverlay's own header comment.
+  const [pendingAdjustPhoto, setPendingAdjustPhoto] = useState<PendingAdjustPhoto | null>(null);
+  const rawImage = useImage(pendingAdjustPhoto?.uri ?? null);
+  const [cropRect, setCropRect] = useState<CropRect>({ x: 0, y: 0, width: 1, height: 1 });
+  const [toneBrightness, setToneBrightness] = useState(0);
+  const [toneContrast, setToneContrast] = useState(0);
+  const [applyingAdjustment, setApplyingAdjustment] = useState(false);
+  const adjustCanvasRef = useCanvasRef();
+
   // Fetched once, reused for every row of the real, readable ingredient
   // table below -- see flagConditionConcernsForConditions's own header
   // comment in lib/scannedProductFlags.ts for why this stays a single
@@ -225,7 +262,27 @@ export default function ScanProductScreen() {
     setPricePhotoUri(null);
     setErrorMessage(null);
     setPhotoCaptureTarget(null);
+    setPendingAdjustPhoto(null);
+    setCropRect({ x: 0, y: 0, width: 1, height: 1 });
+    setToneBrightness(0);
+    setToneContrast(0);
     setStatus('scanning');
+  }
+
+  // The one real place a fresh angle actually becomes an OCR'd attempt on
+  // the review screen -- reused by handleFinishAdjustment below (the only
+  // real caller now that every ingredients photo goes through crop/tone
+  // first; see handleTakePicture's own ingredients branch).
+  async function addIngredientsAttempt(uri: string, width: number, height: number) {
+    setStatus('photo-review');
+    setIngredientsAttempts((prev) => [
+      ...prev,
+      { uri, width, height, recognizedText: null, recognizing: true },
+    ]);
+    const recognized = await recognizeTextFromImage(uri);
+    setIngredientsAttempts((prev) =>
+      prev.map((attempt) => (attempt.uri === uri ? { ...attempt, recognizedText: recognized, recognizing: false } : attempt)),
+    );
   }
 
   // No stale-closure risk here anymore -- every real caller of computeReport
@@ -400,24 +457,21 @@ export default function ScanProductScreen() {
       const picture = await cameraRef.current.takePictureAsync({ quality: 0.9 });
 
       if (target === 'ingredients') {
-        // Real multi-angle flow -- add this angle to the round and land on
-        // the review screen (not straight back to 'ingredients'), so the
-        // person can take another angle or use what's captured so far.
-        // Deliberately not persisted via saveCapturedPhoto yet -- see
-        // handleUseIngredientsAttempts, the one real place that actually
-        // happens, for whichever attempt is ultimately used.
+        // Real, direct request, 2026-08-16: "There definitely needs to be
+        // a crop area that can be set... Please build in the brightness
+        // and contrast adjustment ability." Every raw ingredients photo
+        // now goes through both real steps before it becomes an OCR'd
+        // attempt -- see handleFinishAdjustment, the one real place
+        // addIngredientsAttempt actually gets called now. A fresh crop
+        // rect and neutral tone every time, so a setting left over from a
+        // DIFFERENT earlier angle in this same round never silently
+        // carries over onto a brand-new photo.
         setPhotoCaptureTarget(null);
-        setStatus('photo-review');
-        setIngredientsAttempts((prev) => [
-          ...prev,
-          { uri: picture.uri, width: picture.width, height: picture.height, recognizedText: null, recognizing: true },
-        ]);
-        const recognized = await recognizeTextFromImage(picture.uri);
-        setIngredientsAttempts((prev) =>
-          prev.map((attempt) =>
-            attempt.uri === picture.uri ? { ...attempt, recognizedText: recognized, recognizing: false } : attempt,
-          ),
-        );
+        setPendingAdjustPhoto({ uri: picture.uri, width: picture.width, height: picture.height });
+        setCropRect({ x: 0, y: 0, width: 1, height: 1 });
+        setToneBrightness(0);
+        setToneContrast(0);
+        setStatus('photo-crop');
       } else {
         setPhotoCaptureTarget(null);
         setStatus('price-capture');
@@ -453,6 +507,50 @@ export default function ScanProductScreen() {
   function handleTakeAnotherAngle() {
     setPhotoCaptureTarget('ingredients');
     setStatus('photo-capture');
+  }
+
+  // Discards the raw photo entirely -- back to the camera (or the review
+  // screen, if an earlier angle this round already made it that far).
+  function handleCancelCrop() {
+    setPendingAdjustPhoto(null);
+    setStatus(ingredientsAttempts.length > 0 ? 'photo-review' : 'ingredients');
+  }
+
+  function handleConfirmCrop() {
+    setStatus('photo-tone');
+  }
+
+  // Back to crop, not a discard -- the raw photo and the crop rect both
+  // stay exactly as they were, only the screen changes.
+  function handleBackFromTone() {
+    setStatus('photo-crop');
+  }
+
+  // The one real place the crop + tone adjustment actually gets applied
+  // and exported -- reads the SAME real Canvas the tone step's own live
+  // preview already renders (see the 'photo-tone' render branch below),
+  // so there's no separate, second high-resolution render pass to keep in
+  // sync with what the person actually saw and approved.
+  async function handleFinishAdjustment() {
+    const canvas = adjustCanvasRef.current;
+    if (!canvas) return;
+    setApplyingAdjustment(true);
+    try {
+      const snapshot = canvas.makeImageSnapshot();
+      const base64 = snapshot.encodeToBase64(ImageFormat.JPEG, 90);
+      const width = snapshot.width();
+      const height = snapshot.height();
+      const uri = await saveAdjustedIngredientsPhoto(base64);
+      setPendingAdjustPhoto(null);
+      if (uri) {
+        await addIngredientsAttempt(uri, width, height);
+      } else {
+        setErrorMessage("That photo couldn't be saved. Please try again.");
+        setStatus(ingredientsAttempts.length > 0 ? 'photo-review' : 'ingredients');
+      }
+    } finally {
+      setApplyingAdjustment(false);
+    }
   }
 
   function handleSelectAttempt(index: number) {
@@ -661,6 +759,133 @@ export default function ScanProductScreen() {
           </TouchableOpacity>
         </View>
       </View>
+    );
+  }
+
+  // Real, direct-request crop step, 2026-08-16: "There definitely needs
+  // to be a crop area that can be set. Otherwise it provides information
+  // that isn't part of what we need." Shows the whole raw photo (aspect-
+  // fit within a real, bounded box -- see computeContainRect's own header
+  // comment for why the exact same math has to drive both what's drawn
+  // and where the drag handles sit), with DraggableCropOverlay on top for
+  // pulling a rectangle in from any edge.
+  if (status === 'photo-crop') {
+    if (!pendingAdjustPhoto || !rawImage) {
+      return (
+        <View style={styles.screen}>
+          <View style={styles.centerBody}>
+            <ActivityIndicator color={colors.accent} />
+          </View>
+        </View>
+      );
+    }
+    const boxHeight = Math.min(ADJUST_BOX_MAX_HEIGHT, ADJUST_BOX_WIDTH * (rawImage.height() / rawImage.width()));
+    const displayRect = computeContainRect(rawImage.width(), rawImage.height(), ADJUST_BOX_WIDTH, boxHeight);
+    return (
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <Text style={styles.title}>Set the Crop Area</Text>
+        <Text style={styles.text}>
+          Drag the corners in to keep just the ingredients text -- cutting out anything else the photo picked up helps it read more clearly.
+        </Text>
+        <View style={[styles.adjustCanvasBox, { width: ADJUST_BOX_WIDTH, height: boxHeight }]}>
+          <Canvas style={{ width: ADJUST_BOX_WIDTH, height: boxHeight }}>
+            <SkiaImage
+              image={rawImage}
+              x={displayRect.x}
+              y={displayRect.y}
+              width={displayRect.width}
+              height={displayRect.height}
+              fit="fill"
+            />
+          </Canvas>
+          <View style={{ position: 'absolute', left: displayRect.x, top: displayRect.y, width: displayRect.width, height: displayRect.height }}>
+            <DraggableCropOverlay width={displayRect.width} height={displayRect.height} value={cropRect} onChange={setCropRect} />
+          </View>
+        </View>
+        <TouchableOpacity style={styles.primaryButton} activeOpacity={0.85} onPress={handleConfirmCrop}>
+          <Text style={styles.primaryButtonText}>Next: Adjust Brightness/Contrast</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleCancelCrop}>
+          <Text style={styles.secondaryButtonText}>Retake Photo</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
+  // Real, direct-request brightness/contrast step, 2026-08-16 -- the same
+  // real Canvas rendered here is what handleFinishAdjustment snapshots and
+  // exports, so what's previewed live is exactly what gets used, never a
+  // separate render pass that could quietly disagree with it. Renders
+  // ONLY the already-cropped region, scaled to fill this canvas -- the
+  // image is drawn larger than the canvas itself, offset so the chosen
+  // crop rect lands exactly at (0,0), and the canvas's own bounds clip
+  // everything else away.
+  if (status === 'photo-tone') {
+    if (!pendingAdjustPhoto || !rawImage) {
+      return (
+        <View style={styles.screen}>
+          <View style={styles.centerBody}>
+            <ActivityIndicator color={colors.accent} />
+          </View>
+        </View>
+      );
+    }
+    const imgW = rawImage.width();
+    const imgH = rawImage.height();
+    const cropPixelX = cropRect.x * imgW;
+    const cropPixelY = cropRect.y * imgH;
+    const cropPixelW = cropRect.width * imgW;
+    const cropPixelH = cropRect.height * imgH;
+    const cropAspect = cropPixelW / cropPixelH;
+    let toneCanvasW = ADJUST_BOX_WIDTH;
+    let toneCanvasH = ADJUST_BOX_WIDTH / cropAspect;
+    if (toneCanvasH > ADJUST_BOX_MAX_HEIGHT) {
+      toneCanvasH = ADJUST_BOX_MAX_HEIGHT;
+      toneCanvasW = ADJUST_BOX_MAX_HEIGHT * cropAspect;
+    }
+    const scale = toneCanvasW / cropPixelW;
+    const toneMatrix = buildToneMatrix(toneBrightness, toneContrast);
+    return (
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <Text style={styles.title}>Adjust Brightness &amp; Contrast</Text>
+        <Text style={styles.text}>
+          A shiny or dim label often reads much better once the glare is cut down -- drag either slider to see it update live.
+        </Text>
+        <View style={[styles.adjustCanvasBox, { width: toneCanvasW, height: toneCanvasH, alignSelf: 'center' }]}>
+          <Canvas ref={adjustCanvasRef} style={{ width: toneCanvasW, height: toneCanvasH }}>
+            <SkiaImage image={rawImage} x={-cropPixelX * scale} y={-cropPixelY * scale} width={imgW * scale} height={imgH * scale}>
+              <ColorMatrix matrix={toneMatrix} />
+            </SkiaImage>
+          </Canvas>
+        </View>
+        <View style={styles.sliderRow}>
+          <SimpleSlider label="Brightness" value={toneBrightness} onChange={setToneBrightness} />
+        </View>
+        <View style={styles.sliderRow}>
+          <SimpleSlider label="Contrast" value={toneContrast} onChange={setToneContrast} />
+        </View>
+        <TouchableOpacity
+          style={styles.secondaryButton}
+          activeOpacity={0.85}
+          onPress={() => {
+            setToneBrightness(0);
+            setToneContrast(0);
+          }}
+        >
+          <Text style={styles.secondaryButtonText}>Reset</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[styles.primaryButton, applyingAdjustment ? styles.disabled : null]}
+          activeOpacity={0.85}
+          onPress={handleFinishAdjustment}
+          disabled={applyingAdjustment}
+        >
+          <Text style={styles.primaryButtonText}>{applyingAdjustment ? 'Saving…' : 'Use This Photo'}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleBackFromTone}>
+          <Text style={styles.secondaryButtonText}>Back to Crop</Text>
+        </TouchableOpacity>
+      </ScrollView>
     );
   }
 
@@ -1073,6 +1298,18 @@ const styles = StyleSheet.create({
     marginTop: 20,
   },
   shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#FFFFFF' },
+  // The real, shared box both the crop step's full-photo preview and the
+  // tone step's cropped-region preview render inside -- same real border
+  // treatment either way, sized dynamically per step (see ADJUST_BOX_
+  // WIDTH/ADJUST_BOX_MAX_HEIGHT and the two render branches above).
+  adjustCanvasBox: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 12,
+    overflow: 'hidden',
+    alignSelf: 'center',
+  },
+  sliderRow: { alignItems: 'center' },
   title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center' },
   text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4 },
