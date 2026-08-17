@@ -23,7 +23,7 @@ Scan this in Expo Go (or tap "Enter URL manually" and type the address below):
 
 exp://192.168.68.53:8081
 
-(node:13768) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(node:14300) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Starting project at C:\Dev\hashimotos-app
 React Compiler enabled
@@ -32,8 +32,9 @@ warning: Bundler cache is empty, rebuilding (this may take a minute)
 Waiting on http://localhost:8081
 Logs for your project will appear below.
 Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 51.2% (485/690)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.9% (728/923)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.9% ( 889/1216)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82.1% (1625/1942)
-Android Bundled 17657ms node_modules\expo-router\entry.js (2306 modules)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 39.0% (353/611)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓░░░░░░░░ 55.0% (585/850)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 60.5% ( 832/1137)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 64.1% (1231/1538)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 81.3% (1780/2066)
+Android Bundled 20354ms node_modules\expo-router\entry.js (2306 modules)

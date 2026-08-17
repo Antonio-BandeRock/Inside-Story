@@ -195,6 +195,90 @@ export function categoryLabel(category: string): string {
   return CATEGORY_DISPLAY_LABELS[category] ?? category;
 }
 
+// Real, named "food group" tiles for the Category step's own top-level
+// picker -- 2026-08-17, explicitly requested to read more like a grocery
+// store's own aisle layout ("Fresh Produce," "Meat, Seafood & Dairy"...)
+// than a flat list of 15-20 individual database categories. Purely a
+// display/navigation grouping layered on top of the real category codes
+// above -- nothing about how a food is actually stored, scored, or queried
+// changes; every real category code (Fruit, Veg, Meat, Dairy, etc.) stays
+// exactly as it's always been, and every already-built mechanism that keys
+// off those codes (builder allowlists, hidden-category rules, curated-
+// recipe ingredients, the audit tool, food-name grouping) needs zero
+// changes. Tapping a group tile reveals the real categories inside it as
+// the next choice (see buildTopLevelCategoryOptions/groupMemberOptions
+// below); picking one of those continues into the existing Subcategory ->
+// Food -> Prep flow completely unchanged, same as picking any category
+// always has.
+//
+// Any real category NOT listed in any group here (Alcohol, Bev, Brewing,
+// Mixed, Sweets, SupplementPowder) stays its own standalone top-level
+// tile, exactly as it already is today -- explicitly decided, not an
+// oversight: these didn't fit naturally into a grocery-aisle-style
+// grouping the way the other 12 did.
+type FoodCategoryGroup = { key: string; label: string; categories: string[] };
+const FOOD_CATEGORY_GROUPS: FoodCategoryGroup[] = [
+  { key: 'group-fresh-produce', label: 'Fresh Produce', categories: ['Fruit', 'Veg', 'Mushroom', 'Sprouts'] },
+  { key: 'group-meat-seafood-dairy', label: 'Meat, Seafood & Dairy', categories: ['Meat', 'Dairy'] },
+  { key: 'group-grains-pasta-legumes', label: 'Grains, Pasta & Legumes', categories: ['Grain', 'PastaNoodles', 'Legume'] },
+  { key: 'group-pantry-staples', label: 'Pantry & Staples', categories: ['PantryStaples', 'Fats', 'NutSeed', 'Algae'] },
+  { key: 'group-sauces-herbs-seasonings', label: 'Sauces, Herbs & Seasonings', categories: ['SaucesCondiments', 'Herbs'] },
+];
+
+function isFoodCategoryGroupKey(value: string): boolean {
+  return FOOD_CATEGORY_GROUPS.some((group) => group.key === value);
+}
+
+// The real categories a given group actually reveals -- intersected with
+// whatever `categories` a caller's own allowedCategories restriction left
+// available, since a builder that only offers a subset of the database
+// (e.g. Beverage Builder never gets Meat) shouldn't ever open a group tile
+// onto an empty or partly-missing list.
+function groupMembersPresent(groupKey: string, categories: string[]): string[] {
+  const group = FOOD_CATEGORY_GROUPS.find((g) => g.key === groupKey);
+  if (!group) return [];
+  return group.categories.filter((code) => categories.includes(code));
+}
+
+function groupLabelFor(groupKey: string): string {
+  return FOOD_CATEGORY_GROUPS.find((g) => g.key === groupKey)?.label ?? '';
+}
+
+// The Category step's own real, top-level option list -- a real group tile
+// for every group with 2+ of its own real categories actually present
+// (post allowedCategories filtering), a plain standalone tile (using that
+// category's own real, existing label) for anything left over -- a
+// category that belongs to no group at all, OR the sole survivor of a
+// group whose other members got filtered out (a real, common case: several
+// builders only allow one of "Meat, Seafood & Dairy"'s two real members,
+// and revealing a whole group tile just to show one single choice inside
+// it would be a wasted extra tap for no real benefit). Sorted alphabetized
+// by whatever label actually shows, the same single sort order this list
+// already used before groups existed -- groups and standalone categories
+// read as one coherent alphabetical list together, not "groups first."
+function buildTopLevelCategoryOptions(categories: string[]): { label: string; value: string }[] {
+  const consumed = new Set<string>();
+  const groupOptions: { label: string; value: string }[] = [];
+  for (const group of FOOD_CATEGORY_GROUPS) {
+    const present = groupMembersPresent(group.key, categories);
+    if (present.length >= 2) {
+      present.forEach((code) => consumed.add(code));
+      groupOptions.push({ label: group.label, value: group.key });
+    }
+  }
+  const standaloneOptions = categories
+    .filter((code) => !consumed.has(code))
+    .map((code) => ({ label: categoryLabel(code), value: code }));
+  return [...groupOptions, ...standaloneOptions].sort((a, b) => a.label.localeCompare(b.label));
+}
+
+// The second-level list shown once a real group tile is tapped -- just the
+// real categories that group actually revealed (see groupMembersPresent),
+// each using its own normal categoryLabel.
+function groupMemberOptions(groupKey: string, categories: string[]): { label: string; value: string }[] {
+  return groupMembersPresent(groupKey, categories).map((code) => ({ label: categoryLabel(code), value: code }));
+}
+
 // Real, human-readable labels for the reference database's own raw
 // `source` column values -- 2026-08-11, built for real source attribution
 // ("data from any of the datasets should always identify itself as being
@@ -461,6 +545,13 @@ export function FoodLookup({
   allowHarvestPick?: boolean;
 }) {
   const [categories, setCategories] = useState<string[]>([]);
+  // Which real "food group" tile (see FOOD_CATEGORY_GROUPS above) is
+  // currently opened, revealing its own real categories as the next
+  // choice -- null means "show the top-level group/category grid," never
+  // reflects a real category or subcategory itself. Purely a navigation
+  // concern for the Category step's own render below; nothing downstream
+  // of `category` being set ever reads this.
+  const [categoryGroupKey, setCategoryGroupKey] = useState<string | null>(null);
   const [category, setCategory] = useState(initialCategory);
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [subcategory, setSubcategory] = useState<string | null>(initialSubcategory);
@@ -725,6 +816,13 @@ export function FoodLookup({
     150,
     windowHeight - headerHeight - footerBandHeight - topGap - titleHeight - topReserve - precedingRowsHeight - listBottomMargin,
   );
+  // Real height of the "‹ Food Groups" back row shown above a group's own
+  // real-category list (see categoryGroupKey's own comment above) -- built
+  // from the same borderWidth/paddingVertical recipe as summaryRow, so it
+  // renders at the same real height; reused here rather than a second
+  // magic number that could quietly drift from the actual row.
+  const GROUP_BACK_ROW_HEIGHT = SUMMARY_ROW_HEIGHT + SUMMARY_ROW_GAP;
+  const groupSubListHeight = Math.max(150, categoryListHeight - GROUP_BACK_ROW_HEIGHT);
   // Food's own list specifically -- also reserves AppKeyboard's full height
   // (see this block's own comment above for why).
   const foodListHeight = Math.max(
@@ -954,6 +1052,12 @@ export function FoodLookup({
 
   function selectCategory(next: string) {
     setCategory(next);
+    // Irrelevant the moment a real category is set (see this state's own
+    // comment -- the whole group/category grid this drives is hidden once
+    // category !== ''), but reset here too for the same reason
+    // changeCategory resets it below: nothing should ever read a stale
+    // value from a previously-opened group.
+    setCategoryGroupKey(null);
     setSubcategory(null);
     setFoodQuery('');
     setBaseName('');
@@ -981,6 +1085,11 @@ export function FoodLookup({
   // would.
   function changeCategory() {
     setCategory('');
+    // "Change" is a full restart of category selection, same as everything
+    // else this function already resets -- always lands back on the
+    // top-level group/category grid, never re-opens whichever group
+    // happened to be showing the last time this step was visible.
+    setCategoryGroupKey(null);
     setSubcategory(null);
     setSubcategories([]);
     setFoodQuery('');
@@ -1332,25 +1441,52 @@ export function FoodLookup({
       {!resolvingFromVoice && (!restrictToSource || restrictToSource === 'category' || category !== '') ? (
       <View>
         {category === '' ? (
-          <InlineSelectList
-            // getReferenceCategories() orders by the raw database code
-            // (e.g. "Meat"), not the human-readable label shown here (e.g.
-            // "Animal Protein") -- sorting by that raw code left "Animal
-            // Protein" sitting between "Legume" and "Mixed Dishes" instead
-            // of up near the top with the other A's, which is what actually
-            // reads as "out of order" to a person looking at the list.
-            // Re-sorting by the displayed label here (not the query) is
-            // what makes the list alphabetical the way it's actually read.
-            options={[...categories]
-              .sort((a, b) => categoryLabel(a).localeCompare(categoryLabel(b)))
-              .map((value) => ({ label: categoryLabel(value), value }))}
-            value={category}
-            onChange={selectCategory}
-            height={categoryListHeight}
-            tabColor={tabColor}
-            header="Select a Food Category"
-            squareTop={squareTop}
-          />
+          categoryGroupKey === null ? (
+            // Top-level grid, 2026-08-17 -- a mix of real "food group"
+            // tiles (Fresh Produce, Meat/Seafood/Dairy, etc., see
+            // FOOD_CATEGORY_GROUPS above) and standalone leftover
+            // categories, alphabetized together by whatever label actually
+            // shows. Tapping a group tile opens its own real-category list
+            // below instead of picking a category directly; tapping
+            // anything else picks that real category exactly as before.
+            <InlineSelectList
+              options={buildTopLevelCategoryOptions(categories)}
+              value={category}
+              onChange={(next) => {
+                if (isFoodCategoryGroupKey(next)) {
+                  setCategoryGroupKey(next);
+                } else {
+                  selectCategory(next);
+                }
+              }}
+              height={categoryListHeight}
+              tabColor={tabColor}
+              header="Select a Food Category"
+              squareTop={squareTop}
+            />
+          ) : (
+            // A real group is open -- show just the real categories inside
+            // it, with a plain way back to the full grid above it. Picking
+            // one here calls selectCategory exactly like picking a
+            // standalone category always has; nothing downstream needs to
+            // know it came from inside a group.
+            <View>
+              <TouchableOpacity
+                style={[styles.categoryGroupBackRow, { borderColor: tabColor }, squareTop && styles.squareTop]}
+                onPress={() => setCategoryGroupKey(null)}
+              >
+                <Text style={[styles.categoryGroupBackText, { color: tabColor }]}>‹ Food Groups</Text>
+              </TouchableOpacity>
+              <InlineSelectList
+                options={groupMemberOptions(categoryGroupKey, categories)}
+                value={category}
+                onChange={selectCategory}
+                height={groupSubListHeight}
+                tabColor={tabColor}
+                header={`Select a ${groupLabelFor(categoryGroupKey)} Category`}
+              />
+            </View>
+          )
         ) : (
           <TouchableOpacity
             style={[styles.summaryRow, { borderColor: tabColor }, squareTop && styles.squareTop]}
@@ -1695,6 +1831,26 @@ const styles = StyleSheet.create({
   summaryChange: {
     ...typography.captionEmphasis,
     marginLeft: 8,
+  },
+  // The "‹ Food Groups" row shown above a group's own real-category list,
+  // 2026-08-17 -- same borderWidth/paddingVertical/backgroundColor recipe
+  // as summaryRow just above (so it reads as the same visual family, not a
+  // foreign element), with a small gap before the list underneath it
+  // (matching stackedField's own established 2px stacking gap). Its own
+  // real height is GROUP_BACK_ROW_HEIGHT above -- keep the two in sync if
+  // this ever changes.
+  categoryGroupBackRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 2,
+    borderRadius: 10,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    backgroundColor: colors.surface,
+    marginBottom: 2,
+  },
+  categoryGroupBackText: {
+    ...typography.captionEmphasis,
   },
   // Real source-attribution note, 2026-08-11 -- see this file's own
   // render-time comment for when this actually shows.
