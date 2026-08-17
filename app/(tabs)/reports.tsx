@@ -54,6 +54,13 @@ export default function ReportsScreen() {
   const [lens, setLens] = useState<ReportsLens>('overview');
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
+  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
+  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
+  // new "My Reports" top-left tile (see its extraTile prop below) open
+  // this SAME popup, at its own already-established position, after
+  // closing itself first. The standalone MyItemsHub button further down
+  // keeps working exactly as before regardless.
+  const [myReportsOpen, setMyReportsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
@@ -132,13 +139,19 @@ export default function ReportsScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Reports" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Reports" tabColor={TAB_COLOR} />
+      <MyItemsHub
+        label="My Reports"
+        tabColor={TAB_COLOR}
+        open={myReportsOpen}
+        onOpenChange={setMyReportsOpen}
+      />
       <LensHub
         pageTitle="Reports"
         options={REPORTS_LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
+        extraTile={{ label: 'My Reports', icon: 'bookmarks-outline', onPress: () => setMyReportsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

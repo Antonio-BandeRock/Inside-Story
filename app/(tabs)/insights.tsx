@@ -504,6 +504,13 @@ export default function InsightsScreen() {
   // "pick a function" prompt first, never an instant resume -- confirmed
   // product behavior, not an oversight.
   const [revealed, setRevealed] = useState(false);
+  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
+  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
+  // new "My Insights" top-left tile (see its extraTile prop below) open
+  // this SAME popup, at its own already-established position, after
+  // closing itself first. The standalone MyItemsHub button further down
+  // keeps working exactly as before regardless.
+  const [myInsightsOpen, setMyInsightsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
@@ -1068,13 +1075,19 @@ export default function InsightsScreen() {
           )}
 
       <PageIdentityLabel title="Insights" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Insights" tabColor={TAB_COLOR} />
+      <MyItemsHub
+        label="My Insights"
+        tabColor={TAB_COLOR}
+        open={myInsightsOpen}
+        onOpenChange={setMyInsightsOpen}
+      />
       <LensHub
         pageTitle="Insights"
         options={LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
+        extraTile={{ label: 'My Insights', icon: 'bookmarks-outline', onPress: () => setMyInsightsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

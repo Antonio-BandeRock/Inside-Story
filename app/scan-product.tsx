@@ -111,6 +111,46 @@ type IngredientsPhotoAttempt = {
 // person a clear moment to stop.
 const MAX_INGREDIENT_ANGLES = 3;
 
+// A real, safety-critical resize cap, 2026-08-16 -- direct, on-device
+// report right after crop/tone first shipped: "went to save the cropped
+// photo and the app restarted." Root-caused via a real adb logcat sweep,
+// not guessed: a genuine, rapid camera-hardware open/close storm followed
+// 9 seconds later by "ActivityManager: Killing... (adj 900): remove
+// task" -- Android's own real memory-reclaim killing this app while it
+// was still in active use. The most plausible real cause: a raw camera
+// capture from takePictureAsync() has NO resolution cap at all (a modern
+// phone's own sensor can easily be 20-50+ megapixels), and useImage()
+// decodes that FULL, uncapped photo straight into Skia's own native
+// memory just to show it on the crop/tone screens -- the exact same real
+// class of problem this app's own history already documents once before
+// for a much smaller static asset (moon.png/sun.png, ~500-600MB of real,
+// confirmed extra memory growth from a single 2000x2000 image). A real
+// phone camera photo is a considerably bigger risk than that already was.
+// Capped here, before the photo ever reaches pendingAdjustPhoto/useImage,
+// matching the same real discipline lib/mealPhotos.ts's own
+// MEAL_PHOTO_MAX_DIMENSION already established for every other photo in
+// this app -- deliberately a real, generous cap (well above what OCR
+// legibility actually needs) rather than the tightest possible number,
+// since the real risk here is decode memory, not display quality.
+const RAW_INGREDIENTS_PHOTO_MAX_DIMENSION = 1600;
+
+async function capIngredientsPhotoSize(uri: string, width: number, height: number): Promise<string> {
+  const longerEdge = Math.max(width, height);
+  if (!longerEdge || longerEdge <= RAW_INGREDIENTS_PHOTO_MAX_DIMENSION) return uri;
+  try {
+    const { manipulateAsync, SaveFormat } = await import('expo-image-manipulator');
+    const resize =
+      width >= height ? { width: RAW_INGREDIENTS_PHOTO_MAX_DIMENSION } : { height: RAW_INGREDIENTS_PHOTO_MAX_DIMENSION };
+    const result = await manipulateAsync(uri, [{ resize }], { compress: 0.9, format: SaveFormat.JPEG });
+    return result.uri;
+  } catch {
+    // A real, honest fallback -- if the resize itself somehow fails, the
+    // original photo is still usable; better to risk the same memory cost
+    // than to silently strand the person with no photo at all.
+    return uri;
+  }
+}
+
 const REPORTABLE_NUTRIENT_CODES = ['energy_kcal', 'fat_total', 'carbohydrate', 'sugars_total', 'protein', 'sodium'];
 
 // 2026-08-16 -- direct, explicit request after the earlier wrap-grid of
@@ -485,7 +525,8 @@ export default function ScanProductScreen() {
         // DIFFERENT earlier angle in this same round never silently
         // carries over onto a brand-new photo.
         setPhotoCaptureTarget(null);
-        setPendingAdjustPhoto({ uri: picture.uri });
+        const safeUri = await capIngredientsPhotoSize(picture.uri, picture.width, picture.height);
+        setPendingAdjustPhoto({ uri: safeUri });
         setCropRect({ x: 0, y: 0, width: 1, height: 1 });
         setToneBrightness(0);
         setToneContrast(0);

@@ -282,6 +282,13 @@ export default function TrendsScreen() {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
+  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
+  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
+  // new "My Trends" top-left tile (see its extraTile prop below) open
+  // this SAME popup, at its own already-established position, after
+  // closing itself first. The standalone MyItemsHub button further down
+  // keeps working exactly as before regardless.
+  const [myTrendsOpen, setMyTrendsOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
@@ -929,13 +936,19 @@ export default function TrendsScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Trends" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Trends" tabColor={TAB_COLOR} />
+      <MyItemsHub
+        label="My Trends"
+        tabColor={TAB_COLOR}
+        open={myTrendsOpen}
+        onOpenChange={setMyTrendsOpen}
+      />
       <LensHub
         pageTitle="Trends"
         options={TRENDS_LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
+        extraTile={{ label: 'My Trends', icon: 'bookmarks-outline', onPress: () => setMyTrendsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

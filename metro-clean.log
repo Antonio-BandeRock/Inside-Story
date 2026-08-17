@@ -73,3 +73,31 @@ Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓�
 Android Bundled 13562ms node_modules\expo-router\entry.js (2333 modules)
 Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
 Android Bundled 91ms node_modules\expo-router\entry.js (1 module)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 101ms node_modules\expo-router\entry.js (1 module)
+ LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +207ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +242ms: Modal onShow (Android Dialog window confirmed up)
+Android node_modules\expo-file-system\src\index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 538ms node_modules\expo-file-system\src\index.ts (626 modules)
+Android Bundled 274ms node_modules\rn-mlkit-ocr\lib\module\index.js (542 modules)
+Android Bundled 136ms node_modules\expo-router\entry.js (1 module)
+ LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +178ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +221ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +133ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +159ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +140ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +167ms: Modal onShow (Android Dialog window confirmed up)
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 100ms node_modules\expo-router\entry.js (1 module)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +181ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +221ms: Modal onShow (Android Dialog window confirmed up)
+Android node_modules\expo-image-manipulator\src\index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 550ms node_modules\expo-image-manipulator\src\index.ts (686 modules)
+Android node_modules\expo-file-system\src\index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android Bundled 34ms node_modules\expo-file-system\src\index.ts (1 module)
+Android Bundled 36ms node_modules\rn-mlkit-ocr\lib\module\index.js (1 module)

@@ -1,5 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -75,19 +75,59 @@ export function MyItemsHub({
   tabColor,
   categories,
   onOpen,
+  open: controlledOpen,
+  onOpenChange,
 }: {
   label: string;
   tabColor: string;
   categories?: MyItemsCategory[];
-  // Fires every time the popup opens, before anything renders -- lets the
-  // caller refetch its own data live rather than showing whatever was
-  // fetched once at mount, which could already be stale by the time this
-  // is actually opened (e.g. right after saving a new side).
+  // Fires whenever the popup genuinely OPENS (transitions from closed to
+  // open) -- lets the caller refetch its own data live rather than showing
+  // whatever was fetched once at mount, which could already be stale by
+  // the time this is actually opened (e.g. right after saving a new side).
+  // Detected via a real open-transition effect below, not just the
+  // button's own onPress -- so it fires the same way regardless of WHICH
+  // real trigger actually opened this popup (this button, or an external
+  // `open` flip, see below).
   onOpen?: () => void;
+  // 2026-08-16, both optional: lets a parent screen open this SAME popup
+  // itself, from outside the button below -- added for LensHub's own new
+  // extraTile prop (see that component), which needs to close ITSELF first
+  // and only then open this one, at its own already-established position,
+  // rather than the two popups appearing at the same instant. Every
+  // existing "My X" hub built before this keeps working exactly as it
+  // always has, fully self-contained with its own internal open/close
+  // state and no parent involvement at all -- only a caller that actually
+  // passes BOTH of these switches this instance over to being externally
+  // controlled (the standard React controlled/uncontrolled split).
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }) {
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
-  const [open, setOpen] = useState(false);
+  const [internalOpen, setInternalOpen] = useState(false);
+  // Whichever half of the controlled/uncontrolled split actually applies --
+  // decided once per render by whether the caller passed a real `open`
+  // value at all (undefined means "not controlling this," never a
+  // deliberate `false` from a caller that DOES want control -- every real
+  // controlled caller always passes a real boolean either way).
+  const isControlled = controlledOpen !== undefined;
+  const open = isControlled ? controlledOpen : internalOpen;
+  const setOpen = isControlled ? (onOpenChange ?? (() => {})) : setInternalOpen;
+  // Fires onOpen on a real false -> true transition only, regardless of
+  // which of the two paths above caused it -- a plain ref-tracked
+  // comparison (not a [open] dependency array) so an unstable `onOpen`
+  // function identity from the caller (food.tsx's own loadMyFoodsCounts is
+  // a fresh reference every render, not useCallback-wrapped) can never
+  // cause this to re-fire on an unrelated re-render; it only ever runs
+  // again once `open` itself has genuinely gone false and come back true.
+  const previousOpenRef = useRef(open);
+  useEffect(() => {
+    if (open && !previousOpenRef.current) {
+      onOpen?.();
+    }
+    previousOpenRef.current = open;
+  });
   const { left: lensHubLeft } = useBottomLeftHubPosition();
   const cardBottom = useMenuCardBottom();
   // 2026-08-09: the TabHub button's own real artwork width now depends on
@@ -120,10 +160,7 @@ export function MyItemsHub({
     <>
       <TouchableOpacity
         style={[styles.button, { bottom: buttonBottom, left: buttonLeft }]}
-        onPress={() => {
-          setOpen(true);
-          onOpen?.();
-        }}
+        onPress={() => setOpen(true)}
         activeOpacity={0.85}
         accessibilityLabel={`${label}, your saved items`}
       >

@@ -202,6 +202,14 @@ export default function GardenScreen() {
   const [lens, setLens] = useState<GardenLens>('myZone');
   const activeLensLabel = GARDEN_LENS_FULL_NAMES[lens];
   const [revealed, setRevealed] = useState(false);
+  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as Food's
+  // own identical addition (app/(tabs)/food.tsx): lets LensHub's new "My
+  // Garden" top-left tile (see its extraTile prop below) open this SAME
+  // popup, at its own already-established position, after closing itself
+  // first, rather than the two fighting for the screen at once. The
+  // standalone MyItemsHub button further down keeps working exactly as
+  // before regardless.
+  const [myGardenOpen, setMyGardenOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
@@ -260,7 +268,14 @@ export default function GardenScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Garden" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Garden" tabColor={TAB_COLOR} categories={myGardenCategories} onOpen={loadMyGardenCounts} />
+      <MyItemsHub
+        label="My Garden"
+        tabColor={TAB_COLOR}
+        categories={myGardenCategories}
+        onOpen={loadMyGardenCounts}
+        open={myGardenOpen}
+        onOpenChange={setMyGardenOpen}
+      />
       <LensHub
         pageTitle="Garden"
         headerLabel="Home Gardening"
@@ -269,6 +284,7 @@ export default function GardenScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={openLensHub}
+        extraTile={{ label: 'My Garden', icon: 'bookmarks-outline', onPress: () => setMyGardenOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

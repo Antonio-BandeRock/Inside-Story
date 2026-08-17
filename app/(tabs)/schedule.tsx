@@ -4128,6 +4128,13 @@ export default function ScheduleScreen() {
   // indefinitely; only `revealed` resets on focus, so every arrival shows
   // the resting prompt first, never an instant resume.
   const [revealed, setRevealed] = useState(false);
+  // Lifted out of MyItemsHub itself, 2026-08-16 -- same reasoning as
+  // Food's own identical addition (app/(tabs)/food.tsx): lets LensHub's
+  // new "My Schedules" top-left tile (see its extraTile prop below) open
+  // this SAME popup, at its own already-established position, after
+  // closing itself first. The standalone MyItemsHub button further down
+  // keeps working exactly as before regardless.
+  const [mySchedulesOpen, setMySchedulesOpen] = useState(false);
   useFocusEffect(
     useCallback(() => {
       setRevealed(false);
@@ -4164,13 +4171,19 @@ export default function ScheduleScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Schedules" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Schedules" tabColor={TAB_COLOR} />
+      <MyItemsHub
+        label="My Schedules"
+        tabColor={TAB_COLOR}
+        open={mySchedulesOpen}
+        onOpenChange={setMySchedulesOpen}
+      />
       <LensHub
         pageTitle="Schedules"
         options={LENSES}
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={autoOpenLensHub}
+        extraTile={{ label: 'My Schedules', icon: 'bookmarks-outline', onPress: () => setMySchedulesOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);

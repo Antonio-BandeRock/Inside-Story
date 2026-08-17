@@ -445,6 +445,13 @@ export default function FoodScreen() {
   const [beverageSubtype, setBeverageSubtype] = useState<BeverageSubtypeKey | null>(null);
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
+  // Lifted out of MyItemsHub itself, 2026-08-16 -- so LensHub's own new
+  // "My Foods" top-left tile (see its extraTile prop below) can open THIS
+  // SAME popup, at its own already-established position, after closing
+  // itself first. MyItemsHub's own floating button (further down) still
+  // works exactly as it always has, fully independent of this state -- see
+  // that component's own open/onOpenChange comment for the full "why."
+  const [myFoodsOpen, setMyFoodsOpen] = useState(false);
   // A real food-trial round trip, 2026-08-14 -- see lib/pendingFoodTrialReturn.ts's
   // own comment for the full "why." A ref, not state, deliberately -- this
   // screen itself never unmounts on a tab switch (app/(tabs)/_layout.tsx's
@@ -1210,7 +1217,14 @@ export default function FoodScreen() {
       </SwipeableTabScreen>
 
       <PageIdentityLabel title="Food" activeLensLabel={revealed ? activeLensLabel : undefined} />
-      <MyItemsHub label="My Foods" tabColor={TAB_COLOR} categories={myFoodsCategories} onOpen={loadMyFoodsCounts} />
+      <MyItemsHub
+        label="My Foods"
+        tabColor={TAB_COLOR}
+        categories={myFoodsCategories}
+        onOpen={loadMyFoodsCounts}
+        open={myFoodsOpen}
+        onOpenChange={setMyFoodsOpen}
+      />
       <LensHub
         pageTitle="Food"
         headerLabel="Nutrition Builders"
@@ -1219,6 +1233,7 @@ export default function FoodScreen() {
         selected={revealed ? lens : undefined}
         columns={3}
         autoOpenSignal={openLensHub}
+        extraTile={{ label: 'My Foods', icon: 'bookmarks-outline', onPress: () => setMyFoodsOpen(true) }}
         onSelect={(key) => {
           setLens(key);
           setRevealed(true);
