@@ -183,35 +183,45 @@ export function StepsEditor({
 
       {composing ? (
         <View style={styles.stepComposer}>
-          {/* Nav-hand-aware, 2026-08-17 -- see FoodLookup.tsx's own "Say a
-              Food Name" mic for the same real fix and its own comment. */}
-          <View style={styles.stepLabelRow}>
+          <Text style={[styles.formLabel, { color: tabColor }]}>
+            Step {editingStepIndex !== null ? editingStepIndex + 1 : steps.length + 1}
+          </Text>
+          {/* 2026-08-17 -- mirrors SideBuilder.tsx's own Dish Name field:
+              the mic lives inside the field's own bordered box (a row
+              sibling of the text input), not a separate button above it,
+              so it reads as part of the field itself. See that field's own
+              comment for the fuller reasoning behind this shape. */}
+          <View style={[styles.stepFieldWrap, { backgroundColor: inputBackground(tabColor) }]}>
             {NAVIGATION_HAND === 'left' ? (
               <>
                 <VoiceInputButton onResult={handleStepVoiceResult} size={16} />
-                <Text style={[styles.formLabel, { color: tabColor }]}>
-                  Step {editingStepIndex !== null ? editingStepIndex + 1 : steps.length + 1}
-                </Text>
+                <AppTextInput
+                  style={[styles.formInput, styles.stepInputEmbedded]}
+                  value={stepDraft}
+                  onChangeText={setStepDraft}
+                  placeholder={placeholder}
+                  multiline
+                  onFocus={() => {
+                    requestAnimationFrame(() => scrollViewRef?.current?.scrollToEnd({ animated: true }));
+                  }}
+                />
               </>
             ) : (
               <>
-                <Text style={[styles.formLabel, { color: tabColor }]}>
-                  Step {editingStepIndex !== null ? editingStepIndex + 1 : steps.length + 1}
-                </Text>
+                <AppTextInput
+                  style={[styles.formInput, styles.stepInputEmbedded]}
+                  value={stepDraft}
+                  onChangeText={setStepDraft}
+                  placeholder={placeholder}
+                  multiline
+                  onFocus={() => {
+                    requestAnimationFrame(() => scrollViewRef?.current?.scrollToEnd({ animated: true }));
+                  }}
+                />
                 <VoiceInputButton onResult={handleStepVoiceResult} size={16} />
               </>
             )}
           </View>
-          <AppTextInput
-            style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
-            value={stepDraft}
-            onChangeText={setStepDraft}
-            placeholder={placeholder}
-            multiline
-            onFocus={() => {
-              requestAnimationFrame(() => scrollViewRef?.current?.scrollToEnd({ animated: true }));
-            }}
-          />
           <View style={styles.buttonRow}>
             <TouchableOpacity style={styles.splitButton} onPress={cancelStepEditor}>
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
@@ -262,7 +272,25 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginTop: 4,
   },
-  stepLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  // Mirrors SideBuilder.tsx's own dishNameFieldWrap -- one continuous
+  // bordered box (formInput's own real border/background, stripped back off
+  // the input itself by stepInputEmbedded below) holding both the text
+  // input and its mic, so the mic reads as part of the field rather than a
+  // separate element above/beside it.
+  stepFieldWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 4,
+    marginTop: 4,
+  },
+  // Strips the border/background back off the input itself (both now live
+  // on stepFieldWrap above) so nothing doubles up visually; keeps
+  // formInput's own text size/color/internal padding, since this is
+  // layered on top of formInput, not a replacement for it.
+  stepInputEmbedded: { flex: 1, marginTop: 0, borderWidth: 0, backgroundColor: 'transparent' },
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
   splitButton: {
     flex: 1,

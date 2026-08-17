@@ -138,13 +138,23 @@ function computePopoverPositionAbove(anchor: Anchor, listHeight: number, width: 
 // naming screen: "the lists for # of Servings, Serving Size, and Units
 // should be displayed just under the field... and not horizontally
 // centered on the field and to the right of it."
+//
+// GAP_FROM_FIELD alone (6px, shared with the side-anchored/above modes)
+// read as the list still covering the field it came from, direct report,
+// 2026-08-17: "Move them down by 15 pixels" -- then, still not enough,
+// same day: "they need to come down another 15 pixels." A real, separate
+// constant (not a change to GAP_FROM_FIELD itself, which the side-
+// anchored/above modes still rely on) -- this mode's own real clearance is
+// GAP_FROM_FIELD plus this, not a replacement for it.
+const BELOW_MODE_EXTRA_GAP = 30;
+
 function computePopoverPositionBelow(anchor: Anchor, listHeight: number, width: number) {
   const screen = Dimensions.get('window');
 
   let left = anchor.x;
   left = Math.max(SCREEN_MARGIN, Math.min(left, screen.width - SCREEN_MARGIN - width));
 
-  let top = anchor.y + anchor.height + GAP_FROM_FIELD;
+  let top = anchor.y + anchor.height + GAP_FROM_FIELD + BELOW_MODE_EXTRA_GAP;
   top = Math.min(top, screen.height - SCREEN_MARGIN - listHeight);
   top = Math.max(SCREEN_MARGIN, top);
 
