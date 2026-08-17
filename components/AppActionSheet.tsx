@@ -30,7 +30,7 @@
 // specifically -- any future "pick one of a few real choices" moment that
 // currently reaches for Alert.alert's own action-sheet shape can use this
 // instead.
-import { useLayoutEffect } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
@@ -66,6 +66,14 @@ export function AppActionSheet({
   actions: AppActionSheetAction[];
 }) {
   const { showOverlay, hideOverlay } = useOverlay();
+  // A real, stable per-instance identity -- see OverlayContext.tsx's own
+  // OverlayOwner comment. Needed now that this sheet is routinely mounted
+  // as a PERMANENT sibling of another overlay owner (CollapsibleOverlayCard,
+  // SideBuilder.tsx's own ingredient-adding step) -- without it, this
+  // sheet's own routine hideOverlay() calls (fired every render while
+  // visible is false) would silently wipe out that other owner's real,
+  // active content.
+  const ownerRef = useRef({});
   const visualPrefs = useVisualPreferences();
   const scheme = GENERIC_BACKGROUND_PALETTES[visualPrefs.genericPalette];
 
@@ -106,9 +114,9 @@ export function AppActionSheet({
   // can't be deprioritized behind other scheduled work and show up late.
   useLayoutEffect(() => {
     if (visible) {
-      showOverlay(sheetNode);
+      showOverlay(ownerRef.current, sheetNode);
     } else {
-      hideOverlay();
+      hideOverlay(ownerRef.current);
     }
   });
 
@@ -116,7 +124,7 @@ export function AppActionSheet({
   // screen it's on navigates away mid-choice), don't leave the overlay
   // showing with no owner left to close it.
   useLayoutEffect(
-    () => () => hideOverlay(),
+    () => () => hideOverlay(ownerRef.current),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );

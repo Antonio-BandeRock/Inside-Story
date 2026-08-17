@@ -222,6 +222,10 @@ export const PopoverSelect = memo(function PopoverSelect({
   const [anchor, setAnchor] = useState<Anchor | null>(null);
   const [searchText, setSearchText] = useState('');
   const { showOverlay, hideOverlay } = useOverlay();
+  // A real, stable per-instance identity -- see OverlayContext.tsx's own
+  // OverlayOwner comment for why every real caller of useOverlay() now
+  // needs one.
+  const overlayOwnerRef = useRef({});
   const { setSearchRequest, forceClear } = useActiveInputControls();
   const insets = useSafeAreaInsets();
 
@@ -394,9 +398,9 @@ export const PopoverSelect = memo(function PopoverSelect({
   // one effect runs relative to paint, not what it does.
   useLayoutEffect(() => {
     if (isOpen) {
-      showOverlay(menuNode);
+      showOverlay(overlayOwnerRef.current, menuNode);
     } else {
-      hideOverlay();
+      hideOverlay(overlayOwnerRef.current);
     }
   });
 
@@ -481,7 +485,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   // with no owner left to close it.
   useEffect(
     () => () => {
-      hideOverlay();
+      hideOverlay(overlayOwnerRef.current);
       if (searchable) setSearchRequest(null);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps

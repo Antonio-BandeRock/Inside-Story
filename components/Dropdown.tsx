@@ -122,6 +122,10 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>(function Dropd
   const fieldRef = useRef<View>(null);
   const selectedOption = options.find((option) => option.value === value);
   const { showOverlay, hideOverlay } = useOverlay();
+  // A real, stable per-instance identity -- see OverlayContext.tsx's own
+  // OverlayOwner comment for why every real caller of useOverlay() now
+  // needs one.
+  const overlayOwnerRef = useRef({});
   const { setSearchRequest, forceClear } = useActiveInputControls();
   // Default, always-on filtering -- a "searchable" dropdown that never
   // actually narrowed its own list was a real gap (nothing calling
@@ -282,16 +286,16 @@ export const Dropdown = forwardRef<DropdownHandle, DropdownProps>(function Dropd
 
   useEffect(() => {
     if (isOpen) {
-      showOverlay(menuNode);
+      showOverlay(overlayOwnerRef.current, menuNode);
     } else {
-      hideOverlay();
+      hideOverlay(overlayOwnerRef.current);
     }
   });
 
   // Defensive: if this Dropdown unmounts while its own menu is open (e.g.
   // the screen it's on navigates away), make sure the overlay doesn't keep
   // showing a menu whose owner is gone.
-  useEffect(() => () => hideOverlay(), [hideOverlay]);
+  useEffect(() => () => hideOverlay(overlayOwnerRef.current), [hideOverlay]);
 
   // Feeds this dropdown's search box into AppKeyboard's own search row (see
   // ActiveInputContext.tsx's own searchRequest comment) instead of rendering

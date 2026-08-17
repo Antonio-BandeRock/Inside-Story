@@ -1159,15 +1159,37 @@ export function FoodLookup({
               app -- the mic sits nearest wherever NAVIGATION_HAND says the
               person's own thumb naturally rests. */}
           <View style={styles.voiceFoodHeaderRow}>
+            {/* autoStart, 2026-08-17, direct report: "instead of the
+                microphone being activated, it takes me to a Say a Food Name
+                text box with a microphone in it.... That's a waste of a
+                tap. It should just activate the microphone from the Say a
+                Food Name at the Add an Ingredient window." Only true when
+                restrictToSource === 'voice' -- that value is only ever set
+                the instant SideBuilder's own action sheet routes here
+                BECAUSE the person just tapped "Say a Food Name," so a fresh
+                mount of this section IS the same deliberate choice as
+                tapping the mic button by hand; every other real caller of
+                this component (Insights' general Food Lookup lens, Garden's
+                harvest logging) leaves restrictToSource unset, so this stays
+                false there -- the mic never starts listening on its own
+                without a real, explicit choice behind it. */}
             {NAVIGATION_HAND === 'left' ? (
               <>
-                <VoiceInputButton onResult={handleGlobalVoiceResult} color={tabColor} />
+                <VoiceInputButton
+                  onResult={handleGlobalVoiceResult}
+                  color={tabColor}
+                  autoStart={restrictToSource === 'voice'}
+                />
                 <Text style={[styles.voiceFoodHeading, { color: tabColor }]}>Say a Food Name</Text>
               </>
             ) : (
               <>
                 <Text style={[styles.voiceFoodHeading, { color: tabColor }]}>Say a Food Name</Text>
-                <VoiceInputButton onResult={handleGlobalVoiceResult} color={tabColor} />
+                <VoiceInputButton
+                  onResult={handleGlobalVoiceResult}
+                  color={tabColor}
+                  autoStart={restrictToSource === 'voice'}
+                />
               </>
             )}
           </View>

@@ -17,6 +17,7 @@
 //     appended to whatever's already there -- ignore isFinal === false
 //     calls entirely and only act once isFinal is true.
 import { Ionicons } from '@expo/vector-icons';
+import { useEffect } from 'react';
 import { StyleSheet, TouchableOpacity, type StyleProp, type ViewStyle } from 'react-native';
 import { colors } from '../constants/colors';
 import { useVoiceDictation, type VoiceDictationErrorKind } from '../hooks/useVoiceDictation';
@@ -27,6 +28,16 @@ export type VoiceInputButtonProps = {
   size?: number;
   color?: string;
   style?: StyleProp<ViewStyle>;
+  // [Default: false] Starts listening the moment this button MOUNTS, with
+  // no tap needed at all -- 2026-08-17, for the real case where a person
+  // already made an explicit, deliberate choice to use voice one screen
+  // earlier (e.g. tapping "Say a Food Name" in an action sheet), and
+  // landing on a screen that still makes them tap a second time just to
+  // start talking is a real, reported wasted tap. Every existing usage
+  // (every search box, every notes field) leaves this at its default
+  // false, completely unaffected -- this only ever fires once, on a fresh
+  // mount, never on an unrelated re-render.
+  autoStart?: boolean;
 };
 
 const ERROR_COPY: Record<Exclude<VoiceDictationErrorKind, 'no-speech'>, { title: string; message: string }> = {
@@ -45,7 +56,13 @@ const ERROR_COPY: Record<Exclude<VoiceDictationErrorKind, 'no-speech'>, { title:
   },
 };
 
-export function VoiceInputButton({ onResult, size = 20, color = colors.textMuted, style }: VoiceInputButtonProps) {
+export function VoiceInputButton({
+  onResult,
+  size = 20,
+  color = colors.textMuted,
+  style,
+  autoStart = false,
+}: VoiceInputButtonProps) {
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const { status, start, stop } = useVoiceDictation({
     onResult,
@@ -61,6 +78,13 @@ export function VoiceInputButton({ onResult, size = 20, color = colors.textMuted
   });
 
   const listening = status === 'listening';
+
+  // Fires exactly once, on mount -- see autoStart's own comment above for
+  // why a fresh mount is exactly the right (and only) moment for this.
+  useEffect(() => {
+    if (autoStart) start();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return (
     <>

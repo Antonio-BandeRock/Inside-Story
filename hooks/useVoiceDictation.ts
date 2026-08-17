@@ -17,7 +17,7 @@
 // event handler checks it before calling the caller's own callbacks, so
 // a hook instance that never called start() (or already stopped) simply
 // stays silent no matter what the global native stream reports.
-import { useCallback, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { ExpoSpeechRecognitionModule, useSpeechRecognitionEvent } from 'expo-speech-recognition';
 
 export type VoiceDictationStatus = 'idle' | 'listening';
@@ -108,6 +108,14 @@ export function useVoiceDictation({ onResult, onError, lang = 'en-US' }: UseVoic
     if (!isActiveRef.current) return;
     ExpoSpeechRecognitionModule.stop();
   }, []);
+
+  // Defensive: if the button/screen this hook belongs to unmounts while it
+  // was still genuinely listening (e.g. Cancel tapped mid-listen right
+  // after VoiceInputButton's own autoStart kicked one off), don't leave a
+  // real native listening session running with no owner left to stop it.
+  // A real, genuinely more likely scenario now that autoStart exists --
+  // added alongside it rather than left as a latent gap.
+  useEffect(() => stop, [stop]);
 
   return { status, start, stop };
 }

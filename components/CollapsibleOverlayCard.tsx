@@ -22,7 +22,7 @@
 // card/expand-to-overlay shape is meant to be reused by every other Food
 // builder once Side Builder's own redesign is confirmed correct.
 import { Ionicons } from '@expo/vector-icons';
-import { useLayoutEffect, type ReactNode } from 'react';
+import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
@@ -44,6 +44,15 @@ export function CollapsibleOverlayCard({
   children: ReactNode;
 }) {
   const { showOverlay, hideOverlay } = useOverlay();
+  // A real, stable per-instance identity -- see OverlayContext.tsx's own
+  // OverlayOwner comment for why this exists. Genuinely needed here, not
+  // just belt-and-suspenders: this card is now a permanent sibling of an
+  // always-mounted AppActionSheet on the same screen (SideBuilder.tsx's own
+  // ingredient-adding step), and without this, the sheet's own routine
+  // hideOverlay() calls (fired on every render while it isn't visible) would
+  // silently clobber this card's real content the instant both are mounted
+  // together -- confirmed the real, on-device cause of exactly that report.
+  const ownerRef = useRef({});
 
   const overlayNode = expanded ? (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
@@ -77,9 +86,9 @@ export function CollapsibleOverlayCard({
   // deprioritized behind other scheduled work and show up late.
   useLayoutEffect(() => {
     if (expanded) {
-      showOverlay(overlayNode);
+      showOverlay(ownerRef.current, overlayNode);
     } else {
-      hideOverlay();
+      hideOverlay(ownerRef.current);
     }
   });
 
@@ -87,7 +96,7 @@ export function CollapsibleOverlayCard({
   // screen it's on navigates away mid-expand), don't leave the overlay
   // showing with no owner left to close it.
   useLayoutEffect(
-    () => () => hideOverlay(),
+    () => () => hideOverlay(ownerRef.current),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
