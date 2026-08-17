@@ -20,6 +20,7 @@ import * as Speech from 'expo-speech';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { colors } from '../constants/colors';
@@ -82,6 +83,10 @@ function chunkIntoRows<T>(items: T[], columns: number): T[][] {
 export default function ScanProductScreen() {
   const router = useRouter();
   const scrollPadding = useFloatingButtonScrollPadding();
+  // Real, device-measured bottom/top inset -- see the photo-capture render
+  // branch below for why the shutter button needs this directly rather
+  // than a flat guessed pixel value.
+  const insets = useSafeAreaInsets();
   const [permission, requestPermission] = useCameraPermissions();
   const [status, setStatus] = useState<ScanStatus>('scanning');
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -467,8 +472,36 @@ export default function ScanProductScreen() {
     return (
       <View style={styles.screen}>
         <CameraView ref={cameraRef} style={styles.camera} facing="back" />
-        <View style={styles.captureOverlay} pointerEvents="box-none">
-          <TouchableOpacity style={styles.captureCancelButton} activeOpacity={0.8} onPress={handleCancelPhotoCapture}>
+        {/*
+          Real, direct on-device report, 2026-08-16: "At the bottom it says
+          line up the ingredients and then hit capture. I am seeing no
+          capture anywhere." This is a genuine repeat of a bug class this
+          whole app has already hit and fixed many times before -- see
+          constants/floatingButton.ts's own header comment, which exists
+          specifically because "a fixed guess would eventually undershoot
+          on some real device and silently hide content behind a [system
+          nav bar] again." This screen was the one real place that never
+          adopted that established discipline: captureOverlay used a flat,
+          hardcoded paddingBottom with no real safe-area-inset awareness at
+          all, so on a device using Android's own 3-button navigation (the
+          app's own creator's actual, already-documented preference), the
+          shutter button was very likely rendering partly or entirely
+          behind that real, opaque system nav-bar scrim -- functionally
+          invisible, exactly matching "I am seeing no capture anywhere."
+          Fixed the same way every other floating bottom control in this
+          app already is: add the real, device-measured insets.bottom/
+          insets.top on top of the same base numbers, rather than trusting
+          a flat guess a second time.
+        */}
+        <View
+          style={[styles.captureOverlay, { paddingTop: 60 + insets.top, paddingBottom: 48 + insets.bottom }]}
+          pointerEvents="box-none"
+        >
+          <TouchableOpacity
+            style={[styles.captureCancelButton, { top: 16 + insets.top }]}
+            activeOpacity={0.8}
+            onPress={handleCancelPhotoCapture}
+          >
             <Ionicons name="close" size={22} color="#FFFFFF" />
           </TouchableOpacity>
           <Text style={styles.scanHint}>
@@ -789,6 +822,11 @@ const styles = StyleSheet.create({
   scanOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   scanFrame: { width: 260, height: 160, borderWidth: 3, borderColor: colors.accent, borderRadius: 16 },
   scanHint: { ...typography.body, color: '#FFFFFF', marginTop: 16, textAlign: 'center', paddingHorizontal: 24 },
+  // paddingTop/paddingBottom (captureOverlay) and top (captureCancelButton)
+  // are deliberately NOT set here anymore -- both are always supplied at
+  // render time as insets.top/insets.bottom plus the same base numbers, so
+  // there's only ever one real, device-aware value in play, never a stale
+  // static one sitting underneath it.
   captureOverlay: {
     position: 'absolute',
     top: 0,
@@ -797,12 +835,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     alignItems: 'center',
     justifyContent: 'flex-end',
-    paddingBottom: 48,
-    paddingTop: 60,
   },
   captureCancelButton: {
     position: 'absolute',
-    top: 16,
     right: 16,
     width: 40,
     height: 40,
