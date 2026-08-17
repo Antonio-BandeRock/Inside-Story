@@ -528,6 +528,27 @@ export function SideBuilder({
   // template too," not just this one occurrence) and off otherwise.
   const [alsoSaveAsFavorite, setAlsoSaveAsFavorite] = useState(!!fromFavoriteId);
 
+  // Real, hand-authored prep steps, 2026-08-17 -- direct request: "the
+  // steps are part of the build of the things made from the builder in the
+  // area that explains the whole process of making whatever it might be."
+  // Committed steps only (see renderStepsSection's own comment for the
+  // whole add/edit/remove/complete flow) -- included in finishSide's own
+  // payload below the exact same way `ingredients` already is, whatever
+  // this array happens to be at save time.
+  const [steps, setSteps] = useState<string[]>([]);
+  // Composing a brand-new step (openAddStep) vs. editing an existing one
+  // (openEditStep, tracks which real index) -- mutually exclusive, both
+  // cleared together by cancelStepEditor/saveStepDraft.
+  const [addingStep, setAddingStep] = useState(false);
+  const [editingStepIndex, setEditingStepIndex] = useState<number | null>(null);
+  const [stepDraft, setStepDraft] = useState('');
+  // Purely a "collapse the add-step controls for now" toggle, 2026-08-17,
+  // direct request ("a Steps Complete button") -- never gates Save &
+  // Finish Side/Save Changes (steps stay genuinely optional, same as
+  // RecipeCard.instructions itself), and every already-added step stays
+  // just as editable/removable whether this is true or false.
+  const [stepsComplete, setStepsComplete] = useState(false);
+
   const [ingredients, setIngredients] = useState<SideIngredient[]>([]);
   const [pendingResolved, setPendingResolved] = useState<ResolvedFoodSelection | null>(null);
   // The pending food's own 6-Dimension scores, fetched as soon as it
@@ -620,6 +641,10 @@ export function SideBuilder({
       setServingSizeUnit(side.servingSizeUnit);
       setServingsConfirmed(true);
       setIngredients(loaded);
+      // Real steps, 2026-08-17 -- getSide always sets a real array, but the
+      // TYPE stays optional (see SideDetail's own comment), so this still
+      // guards defensively.
+      setSteps(side.instructions ?? []);
     })();
 
     return () => {
@@ -672,6 +697,9 @@ export function SideBuilder({
       setServingSizeUnit(favorite.servingSizeUnit);
       setServingsConfirmed(true);
       setIngredients(loaded);
+      // Real steps, 2026-08-17 -- undefined for any favorite saved before
+      // this existed, or from a builder that still doesn't write steps.
+      setSteps(favorite.instructions ?? []);
     })();
 
     return () => {
@@ -730,6 +758,12 @@ export function SideBuilder({
       setServingSizeUnit(recipe.servingSizeUnit);
       setServingsConfirmed(true);
       setIngredients(loaded);
+      // A curated recipe has no real hand-authored steps of its own to
+      // start from (see getCuratedRecipe's own comment -- that prose lives
+      // in lib/digest/recipes.ts instead, not this table) -- reset to
+      // empty rather than risk carrying over stale steps typed for
+      // whatever was being built before this recipe was picked.
+      setSteps([]);
     } finally {
       setLoadingCuratedRecipeId(null);
     }
@@ -950,6 +984,12 @@ export function SideBuilder({
       servingSizeAmount: parseAmountValue(servingSizeAmount),
       servingSizeUnit,
       ingredients: ingredientInputs,
+      // Whatever's actually been committed via "Save Step" so far (see
+      // renderStepsSection) -- an in-progress, unsaved draft in the step
+      // composer is deliberately not force-committed here, the same "only
+      // what was explicitly saved counts" rule Save & Finish Side already
+      // applies to ingredients.
+      instructions: steps,
     };
 
     try {
@@ -1004,6 +1044,11 @@ export function SideBuilder({
     setAlsoSaveAsFavorite(false);
     setFinishStep('building');
     setNudgeDismissed(false);
+    setSteps([]);
+    setAddingStep(false);
+    setEditingStepIndex(null);
+    setStepDraft('');
+    setStepsComplete(false);
     showInfoAlert('Side saved', `${finishedName} is saved. Starting a fresh side dish now.`);
   }
 
@@ -1095,6 +1140,169 @@ export function SideBuilder({
       destructive: true,
     });
     if (ok) removeIngredient(index);
+  }
+
+  // --- Steps -- 2026-08-17, real, hand-authored prep steps -------------
+  //
+  // Deliberately its own small composer flow, not a plain always-visible
+  // text field the way Prep Notes is -- steps are a real, ordered LIST of
+  // discrete entries (matching RecipeCard.instructions/RecipeCardDetail's
+  // own numbered "How to make it" rendering, see app/(tabs)/
+  // purple-digest.tsx), not one freeform paragraph, so each one needs its
+  // own real add/edit/remove identity.
+  //
+  // openAddStep starts composing a brand-new step (appended on save);
+  // openEditStep starts composing an edit to an EXISTING step at that real
+  // index (replaces it in place on save, never appended as a duplicate).
+  // Both share the same stepDraft/composer UI (see renderStepsSection)
+  // since the shape of "type a step, then Save Step or Cancel" is
+  // identical either way -- only what saveStepDraft does with the result
+  // differs.
+  function openAddStep() {
+    setEditingStepIndex(null);
+    setStepDraft('');
+    setAddingStep(true);
+  }
+
+  function openEditStep(index: number) {
+    setAddingStep(false);
+    setEditingStepIndex(index);
+    setStepDraft(steps[index]);
+  }
+
+  function cancelStepEditor() {
+    dismissKeyboard();
+    setAddingStep(false);
+    setEditingStepIndex(null);
+    setStepDraft('');
+  }
+
+  // Always fires (see saveIngredient/handleContinuePress's own comments on
+  // why this app never uses a truly `disabled` button) -- a blank draft
+  // just explains what's missing rather than silently doing nothing.
+  function saveStepDraft() {
+    const text = stepDraft.trim();
+    if (!text) {
+      showInfoAlert('Almost there', 'Please describe this step before saving it.');
+      return;
+    }
+    dismissKeyboard();
+    if (editingStepIndex !== null) {
+      setSteps((current) => current.map((step, i) => (i === editingStepIndex ? text : step)));
+    } else {
+      setSteps((current) => [...current, text]);
+    }
+    setAddingStep(false);
+    setEditingStepIndex(null);
+    setStepDraft('');
+  }
+
+  function removeStep(index: number) {
+    setSteps((current) => current.filter((_, i) => i !== index));
+  }
+
+  // Same real Cancel/destructive confirm pattern confirmRemoveIngredient
+  // above already establishes for exactly this reason -- a mis-tapped
+  // remove on a real, already-written step is a worse loss than an
+  // ingredient (there's no "just re-add it," the words are gone).
+  async function confirmRemoveStep(index: number) {
+    const ok = await confirmSheet({
+      title: `Remove step ${index + 1}?`,
+      message: steps[index],
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (ok) removeStep(index);
+  }
+
+  // The whole Steps block -- shared between the create-mode "ready" screen
+  // and the edit-mode overview screen below (both are real "explain the
+  // whole process of making this" finishing points, see each call site's
+  // own comment), so this is written once rather than duplicated. Entirely
+  // optional throughout: a side with zero steps saves exactly as it always
+  // has, matching RecipeCard.instructions's own optional field.
+  function renderStepsSection() {
+    const composing = addingStep || editingStepIndex !== null;
+    return (
+      <View style={styles.stepsSection}>
+        <Text style={[styles.formLabel, { color: tabColor }]}>Steps (optional)</Text>
+        {steps.length === 0 && !composing ? (
+          <Text style={[styles.summaryEmptyText, { marginTop: 4 }]}>No steps added yet.</Text>
+        ) : (
+          steps.map((step, index) => (
+            <View key={index} style={styles.stepRow}>
+              <View style={styles.stepTextWrap}>
+                <Text style={styles.stepNumber}>{index + 1}.</Text>
+                <Text style={styles.stepText}>{step}</Text>
+              </View>
+              <View style={styles.stepActions}>
+                <TouchableOpacity style={styles.stepActionButton} onPress={() => openEditStep(index)} accessibilityLabel={`Edit step ${index + 1}`}>
+                  <Ionicons name="pencil-outline" size={18} color={tabColor} />
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.stepActionButton} onPress={() => confirmRemoveStep(index)} accessibilityLabel={`Remove step ${index + 1}`}>
+                  <Ionicons name="trash-outline" size={18} color={colors.danger} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        )}
+
+        {composing ? (
+          <View style={styles.stepComposer}>
+            <View style={styles.prepNoteLabelRow}>
+              <Text style={[styles.formLabel, { color: tabColor }]}>
+                Step {editingStepIndex !== null ? editingStepIndex + 1 : steps.length + 1}
+              </Text>
+              <VoiceInputButton
+                onResult={(transcript) => setStepDraft((current) => appendDictatedText(current, parseVoiceCommands(transcript)))}
+                size={16}
+              />
+            </View>
+            <AppTextInput
+              style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
+              value={stepDraft}
+              onChangeText={setStepDraft}
+              placeholder="e.g., Toss the broccoli with olive oil and roast at 425°F for 15 minutes."
+              multiline
+              onFocus={() => {
+                requestAnimationFrame(() => scrollViewRef.current?.scrollToEnd({ animated: true }));
+              }}
+            />
+            <View style={styles.buttonRow}>
+              <TouchableOpacity style={styles.splitButton} onPress={cancelStepEditor}>
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.splitButton, stepDraft.trim() ? { backgroundColor: tabColor } : styles.primaryButtonMuted]}
+                onPress={saveStepDraft}
+              >
+                <Text style={[styles.primaryButtonText, !stepDraft.trim() && styles.primaryButtonTextMuted]}>Save Step</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : steps.length === 0 ? (
+          <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={openAddStep}>
+            <Text style={styles.primaryButtonText}>+ Add Step 1</Text>
+          </TouchableOpacity>
+        ) : stepsComplete ? (
+          <View style={styles.stepsCompleteRow}>
+            <Text style={styles.summaryEmptyText}>Steps saved.</Text>
+            <TouchableOpacity onPress={() => setStepsComplete(false)}>
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add another step</Text>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={styles.buttonRow}>
+            <TouchableOpacity style={styles.splitButton} onPress={openAddStep}>
+              <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add Another Step</Text>
+            </TouchableOpacity>
+            <TouchableOpacity style={[styles.splitButton, { backgroundColor: tabColor }]} onPress={() => setStepsComplete(true)}>
+              <Text style={styles.primaryButtonText}>Steps Complete</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+      </View>
+    );
   }
 
   // renderPillPicker lived here until 2026-07-31 -- the flat vertical pill
@@ -1302,7 +1510,12 @@ export function SideBuilder({
       <>
         {infoAlertElement}
         {confirmSheetElement}
-        <ScrollView contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
+        {/* ref={scrollViewRef}, 2026-08-17 -- shared with the create-mode
+            ScrollView further down (safe: the two are mutually exclusive
+            render branches, never mounted at once), so renderStepsSection's
+            own composer field can scroll itself into view above AppKeyboard
+            here too, not just in create mode. */}
+        <ScrollView ref={scrollViewRef} contentContainerStyle={[styles.scrollContent, { paddingBottom: scrollBottomPadding }]}>
           <TouchableOpacity
             style={[styles.formCard, { borderColor: tabColor }]}
             onPress={() => {
@@ -1354,6 +1567,13 @@ export function SideBuilder({
               <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add Ingredient</Text>
             </TouchableOpacity>
           </View>
+
+          {/* Real steps, edit mode -- 2026-08-17. Its own bordered card,
+              matching the Ingredients card just above it, since reopening a
+              saved side to fix something is exactly as much "the area that
+              explains the whole process of making this" as create mode's
+              own ready screen further down is. */}
+          <View style={[styles.formCard, { borderColor: tabColor }]}>{renderStepsSection()}</View>
 
           <TouchableOpacity style={[styles.primaryButton, { backgroundColor: tabColor }]} onPress={() => void finishSide(ingredients)}>
             <Text style={styles.primaryButtonText}>Save Changes</Text>
@@ -1879,6 +2099,16 @@ export function SideBuilder({
                 {(dishName.trim() || 'Side Dish')} ready with {ingredients.length} ingredient
                 {ingredients.length === 1 ? '' : 's'}.
               </Text>
+              {/* Real steps, create mode -- 2026-08-17, right where the
+                  same section sits in a real recipe card (Ingredients,
+                  then "How to make it," see RecipeCardDetail in
+                  app/(tabs)/purple-digest.tsx) -- after the ingredient
+                  count above, before saving. marginTop separates it from
+                  that text; renderStepsSection's own content carries no
+                  top margin of its own, so its edit-mode call site (its
+                  own dedicated card, nothing above it to separate from)
+                  doesn't inherit unwanted extra space. */}
+              <View style={{ marginTop: 16 }}>{renderStepsSection()}</View>
               {renderFavoriteToggle()}
               <TouchableOpacity
                 style={[styles.primaryButton, { backgroundColor: tabColor }]}
@@ -2365,5 +2595,64 @@ const styles = StyleSheet.create({
   emptyText: {
     ...typography.body,
     color: colors.textSecondary,
+  },
+  // 2026-08-17 -- renderStepsSection's own container. Deliberately no
+  // marginTop here (this used to hold one, moved out to each of the two
+  // real call sites instead -- the create-mode "ready" screen genuinely
+  // needs one, to separate it from the ingredient-count text sitting right
+  // above it in the SAME card; the edit-mode overview screen gives it a
+  // fresh formCard of its own with nothing above it to separate from, so a
+  // second margin there would just be unwanted extra space).
+  stepsSection: {},
+  stepRow: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    justifyContent: 'space-between',
+    minHeight: 44,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  stepTextWrap: {
+    flex: 1,
+    flexDirection: 'row',
+    marginRight: 6,
+    paddingVertical: 10,
+  },
+  stepNumber: {
+    ...typography.bodyEmphasis,
+    color: colors.textPrimary,
+    marginRight: 6,
+  },
+  stepText: {
+    ...typography.body,
+    color: colors.textPrimary,
+    flex: 1,
+  },
+  stepActions: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  // Real padding, not hitSlop, 2026-08-17 -- same reasoning as
+  // overviewRemoveButton/summaryRemoveButton's own comments elsewhere in
+  // this file: hitSlop extends a button's own tap area without reserving
+  // real layout space, so two closely-stacked step rows' own edit/remove
+  // buttons could otherwise overlap and swallow a tap meant for the
+  // neighboring row. Padding grows the real row height (stepRow's own
+  // minHeight already accounts for it) instead, which can't overlap a
+  // sibling row's own buttons the same way.
+  stepActionButton: {
+    padding: 10,
+  },
+  stepComposer: {
+    marginTop: 10,
+  },
+  // The "Steps saved" collapsed state's own row -- a plain caption plus a
+  // reopen link, not a full button pair, since there's nothing left to
+  // "complete" again until the person actually taps back into it.
+  stepsCompleteRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 10,
   },
 });

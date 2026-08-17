@@ -128,6 +128,13 @@ async function saveRecipeAsComponent(recipeId: string, componentType: MealCompon
     servingSizeAmount: recipe.servingSizeAmount,
     servingSizeUnit: recipe.servingSizeUnit,
     ingredients: recipe.ingredients,
+    // Only saveSide's own real input type actually requires this (see that
+    // function's own comment in lib/db.ts) -- a curated recipe has no real
+    // hand-authored steps to seed with (see getCuratedRecipe's own comment),
+    // and the other 10 saveX() calls below simply never read it off
+    // `payload`, harmless excess-property-wise since `payload` is a named
+    // variable, not a fresh object literal, at each call site.
+    instructions: [] as string[],
   };
 
   let id: string;

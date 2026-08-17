@@ -195,6 +195,13 @@ export type BuilderFavoritePayload = {
   // Unset for the vast majority of favorites, which never had a photo
   // attached.
   photoUri?: string;
+  // 2026-08-17 -- the same real, hand-authored prep steps a saved record's
+  // own SideDetail.instructions carries, snapshotted into the favorite the
+  // same way every other field here already is. Undefined (not an empty
+  // array) whenever nothing was authored -- matches RecipeCard.instructions'
+  // own "absent means nobody wrote steps" contract, and every builder but
+  // Side Builder still never sets this at all.
+  instructions?: string[];
 };
 
 export type BuilderFavoriteItemType =
@@ -4921,6 +4928,25 @@ async function runDatabaseInitialization() {
       }
     }
 
+    // instructions_json -- 2026-08-17, real hand-authored prep steps,
+    // direct request: "there needs to be a step able to be created on each
+    // of the builders creations as you create them." Nullable, TEXT,
+    // storing a plain JSON.stringify(string[]) (null, not '[]', for a
+    // side with zero steps -- see parseInstructionsJson below), added
+    // identically to all 11 real saved-record tables (matching
+    // COMPONENT_TABLE_BY_TYPE exactly) so every future builder's own real
+    // Steps section already has the column ready, without repeating this
+    // same migration boilerplate later -- only Side Builder actually
+    // reads/writes it for real so far (see SideBuilder.tsx's own Steps
+    // section, and this file's own SideDetail/saveSide/updateSide/getSide
+    // just below).
+    for (const table of Object.values(COMPONENT_TABLE_BY_TYPE)) {
+      const columns = await db.getAllAsync<{ name: string }>(`PRAGMA table_info(${table})`);
+      if (!columns.some((column) => column.name === 'instructions_json')) {
+        await db.execAsync(`ALTER TABLE ${table} ADD COLUMN instructions_json TEXT;`);
+      }
+    }
+
     // shared_recipes.sender_public_key_base64 -- step 5 of the real
     // device-pairing prerequisite list, 2026-08-15 (see this table's own
     // CREATE TABLE comment above for the real reasoning). A device that
@@ -5030,12 +5056,36 @@ export type SideIngredientInput = {
 // it's cheap to re-fetch live from foodId/source (see getFoodScores)
 // whenever a saved side is actually displayed, so there's no cached copy
 // here to go stale.
+// Shared by every real saved-record table's own real Steps section as it
+// gets built out (only Side Builder so far, 2026-08-17) -- a real, plain
+// JSON.stringify(string[])/JSON.parse round trip, matching the same
+// "*_json TEXT" column convention schedule_items.rotation_selections_json
+// already established. serializeInstructions stores null (not '[]') for a
+// dish with zero steps, matching RecipeCard.instructions's own "absent
+// means nothing was authored" contract (see lib/digest/types.ts) rather
+// than an empty-but-present array; parseInstructionsJson reads either back
+// as a real, honest [].
+function serializeInstructions(instructions: string[]): string | null {
+  return instructions.length > 0 ? JSON.stringify(instructions) : null;
+}
+
+function parseInstructionsJson(json: string | null | undefined): string[] {
+  if (!json) return [];
+  try {
+    const parsed = JSON.parse(json);
+    return Array.isArray(parsed) ? parsed.filter((step): step is string => typeof step === 'string') : [];
+  } catch {
+    return [];
+  }
+}
+
 export async function saveSide(input: {
   name: string;
   servings: number;
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: SideIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `side_${Date.now()}`;
@@ -5043,14 +5093,15 @@ export async function saveSide(input: {
 
   await db.runAsync(
     `
-      INSERT INTO sides (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO sides (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -5097,6 +5148,7 @@ export async function updateSide(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: SideIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -5105,13 +5157,14 @@ export async function updateSide(
   await db.runAsync(
     `
       UPDATE sides
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     sideId,
   );
@@ -5233,19 +5286,39 @@ export type SideDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section. getSide itself always sets a real array (possibly
+  // empty), never leaves this undefined -- but the FIELD stays optional,
+  // not required, so SideDetail can still structurally satisfy shared
+  // contexts (e.g. app/food-item-detail.tsx's own loadSide, whose return
+  // type is `SideDetail | null` reused for every one of the other 10
+  // builders' own XDetail too, none of which carry this field yet).
+  // Callers should still read it as `side.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getSide(sideId: string): Promise<SideDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<SideDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM sides
       WHERE id = ?
     `,
     sideId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type SideIngredientDetail = {
@@ -9511,6 +9584,13 @@ export type ResolvedMealComponent = {
   servings: number;
   yourSharePercent: number;
   ingredients: MealIngredientInput[];
+  // 2026-08-17 -- real, hand-authored prep steps, only ever populated for a
+  // 'side' component so far (see SideDetail.instructions); every other
+  // componentType's own XDetail has no such field yet, so this stays
+  // undefined for them the exact same way it does for a side with zero
+  // steps of its own -- not a gap this app is trying to hide, just not
+  // built out for the other 10 builders yet.
+  instructions?: string[];
 };
 
 // Turns one selected component into the MealIngredientInput[] slice
@@ -9521,6 +9601,14 @@ export type ResolvedMealComponent = {
 export async function resolveMealComponent(selection: MealComponentSelection): Promise<ResolvedMealComponent | null> {
   const detail = await getComponentDetail(selection.componentType, selection.componentId);
   if (!detail) return null;
+
+  // Real, narrow cast -- getComponentDetail's own inferred return type is a
+  // union across all 11 builders' own XDetail shapes, and only SideDetail
+  // actually carries `instructions` today. Widening every other XDetail
+  // with the same optional field just to avoid this cast is real, separate
+  // work for whenever those builders get their own Steps section (see
+  // SideDetail's own comment) -- not done blind here.
+  const detailInstructions = selection.componentType === 'side' ? (detail as SideDetail).instructions : undefined;
 
   const ingredients = await getComponentIngredients(selection.componentType, selection.componentId);
   const mealIngredients: MealIngredientInput[] = ingredients
@@ -9550,6 +9638,7 @@ export async function resolveMealComponent(selection: MealComponentSelection): P
     servings: detail.servings,
     yourSharePercent: selection.yourSharePercent,
     ingredients: mealIngredients,
+    instructions: detailInstructions && detailInstructions.length > 0 ? detailInstructions : undefined,
   };
 }
 

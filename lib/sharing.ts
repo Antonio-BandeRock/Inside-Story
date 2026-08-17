@@ -76,6 +76,7 @@ import {
   type BuilderFavoritePayload,
   type MealComponentType,
   type MealFavoriteComponent,
+  type SideDetail,
 } from './db';
 import { base64ToBytes, bytesToBase64, getDeviceIdentity, signMessage, verifySignature } from './deviceIdentity';
 import { deleteMealPhotoFile, getPhotoForTarget, prepareSharePhoto, saveSharePhotoFromBase64, setPhotoForTarget } from './mealPhotos';
@@ -129,6 +130,12 @@ export async function buildBuilderFavoritePayload(
   if (!detail) return null;
   const ingredients = await getComponentIngredients(componentType, componentId);
 
+  // Real, narrow cast -- getComponentDetail's own inferred return type is a
+  // union across all 11 builders' own XDetail shapes, and only SideDetail
+  // actually carries `instructions` today (see that type's own comment in
+  // lib/db.ts, and resolveMealComponent's identical cast there).
+  const instructions = componentType === 'side' ? (detail as SideDetail).instructions : undefined;
+
   return {
     name: detail.name,
     servings: detail.servings,
@@ -150,6 +157,7 @@ export async function buildBuilderFavoritePayload(
           prepNote: ingredient.prepNote ?? undefined,
         };
       }),
+    instructions: instructions && instructions.length > 0 ? instructions : undefined,
   };
 }
 
@@ -536,6 +544,12 @@ async function saveComponentFromBuilderPayload(
     servingSizeAmount: builder.servingSizeAmount,
     servingSizeUnit: builder.servingSizeUnit,
     ingredients: builder.ingredients,
+    // Only saveSide's own real input type actually requires this (see
+    // that function's own comment) -- the other 10 saveX() calls below
+    // simply never read it off `input`, harmless excess-property-wise
+    // since `input` is a named variable, not a fresh object literal, at
+    // each of those call sites.
+    instructions: builder.instructions ?? [],
   };
   switch (componentType) {
     case 'side':

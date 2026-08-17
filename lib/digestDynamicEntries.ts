@@ -27,10 +27,16 @@
 // payload, which has no real componentId to resolve through the saved-
 // record tables at all) rather than through their own thin
 // componentType/componentId wrappers, avoiding a second, redundant real
-// resolve for the same component. No instructions/flavorNotes -- nobody
-// hand-wrote prose for a one-off personal creation the way curated
-// Recipes' authors did, and RecipeCard's own two fields were made
-// optional specifically for this (see that type's own comment).
+// resolve for the same component. No flavorNotes -- nobody hand-wrote
+// prose for a one-off personal creation the way curated Recipes' authors
+// did, and RecipeCard's own flavorNotes field was made optional
+// specifically for this (see that type's own comment). instructions IS
+// now real for a one-off creation, 2026-08-17 -- Side Builder is the
+// first (see SideBuilder.tsx's own Steps section) to let a person author
+// their own real steps directly; every other builder still has nothing
+// to surface here yet, the same "undefined until wired" story
+// ResolvedMealComponent/BuilderFavoritePayload's own instructions field
+// already carries.
 
 import {
   getConditionNotesForIngredients,
@@ -181,6 +187,10 @@ async function buildMyKitchenEntryForOption(
       ingredients: ingredients
         .filter((ingredient) => ingredient.foodId)
         .map((ingredient) => ({ text: formatIngredientText(ingredient) })),
+      // resolveMealComponent already resolved this alongside `ingredients`
+      // above (only ever real for componentType 'side' so far, see that
+      // function's own comment) -- no second fetch needed.
+      instructions: resolved?.instructions,
       nutritionHighlights: highlights,
       conditionNotes,
     },
@@ -236,6 +246,10 @@ async function buildMyFavoritesComponentEntry(
     recipeCard: {
       yield: `Makes ${servingsLabel(payload.servings)}.`,
       ingredients: payload.ingredients.map((ingredient) => ({ text: formatIngredientText(ingredient) })),
+      // Real, genuinely for free the instant any builder starts writing
+      // this into a favorite's own payload_json (only Side Builder does
+      // so far) -- payload IS BuilderFavoritePayload, no extra fetch.
+      instructions: payload.instructions,
       nutritionHighlights: highlights,
       conditionNotes,
     },
@@ -390,6 +404,12 @@ async function buildSharedRecipeEntry(
     recipeCard: {
       yield: isMeal ? `One plate: ${ingredientNames}.` : `Makes ${servingsLabel(servings)}.`,
       ingredients: ingredients.filter((ingredient) => ingredient.foodId).map((ingredient) => ({ text: formatIngredientText(ingredient) })),
+      // A single shared component carries its own real steps, when the
+      // sender's own builder had any (see BuilderFavoritePayload's own
+      // comment) -- a shared MEAL bundles several real components each
+      // with their own separate steps, no honest single numbered list to
+      // combine them into, so this stays undefined for that case.
+      instructions: isMeal ? undefined : payload.builder.instructions,
       nutritionHighlights: highlights,
       conditionNotes,
     },

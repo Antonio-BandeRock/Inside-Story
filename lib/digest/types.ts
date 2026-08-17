@@ -343,11 +343,15 @@ export type RecipeCard = {
   // One real step per entry, numbered by the UI. Optional, 2026-08-15 --
   // My Kitchen/My Favorites (lib/digestDynamicEntries.ts) build a real
   // RecipeCard for a person's OWN saved/favorited creation too, computed
-  // live against this app's own nutrient/DRI/condition data, but with no
-  // hand-authored steps or flavor description to draw on (nobody wrote
-  // those for a one-off personal creation the way curated Recipes'
-  // authors did) -- RecipeCardDetail (app/(tabs)/purple-digest.tsx) skips
-  // both sections entirely when absent rather than showing an empty one.
+  // live against this app's own nutrient/DRI/condition data.
+  // Updated 2026-08-17: Side Builder now lets a person author their own
+  // real steps directly as they build a side (see SideBuilder.tsx's own
+  // Steps section, and SideDetail.instructions in lib/db.ts) -- a saved/
+  // favorited/shared side genuinely can carry these now. Every other
+  // builder still has nothing hand-written to draw on yet, so this stays
+  // undefined for them, same as flavorNotes below -- RecipeCardDetail
+  // (app/(tabs)/purple-digest.tsx) skips both sections entirely when
+  // absent rather than showing an empty one.
   instructions?: string[];
   nutritionHighlights: RecipeNutritionHighlight[];
   // Can be a genuinely empty array -- an honest "nothing in this dish is
