@@ -139,6 +139,22 @@ export function StepsEditor({
 
   const composing = addingStep || editingStepIndex !== null;
 
+  // 2026-08-17, direct on-device report: saying "wash the broccoli"
+  // produced "wash wash the wash the broccoli wash the broccoli" in the
+  // box. Root cause: this callback was missing the real isFinal guard every
+  // other dictation field in the app already has (see e.g. log.tsx's own
+  // CheckinForm/GeneralNoteSection notes fields) -- VoiceInputButton's
+  // onResult fires on every INTERIM result too, not just the one final
+  // transcript, and each interim result is the recognizer's own growing,
+  // self-correcting guess ("wash" -> "wash the" -> "wash the broccoli"),
+  // not a new word to add. Appending every one of those on top of the
+  // last is exactly what produced the repeated, garbled text. Only the
+  // one real final result should ever be appended.
+  function handleStepVoiceResult(transcript: string, isFinal: boolean) {
+    if (!isFinal) return;
+    setStepDraft((current) => appendDictatedText(current, parseVoiceCommands(transcript)));
+  }
+
   return (
     <View style={styles.stepsSection}>
       {infoAlertElement}
@@ -172,10 +188,7 @@ export function StepsEditor({
           <View style={styles.stepLabelRow}>
             {NAVIGATION_HAND === 'left' ? (
               <>
-                <VoiceInputButton
-                  onResult={(transcript) => setStepDraft((current) => appendDictatedText(current, parseVoiceCommands(transcript)))}
-                  size={16}
-                />
+                <VoiceInputButton onResult={handleStepVoiceResult} size={16} />
                 <Text style={[styles.formLabel, { color: tabColor }]}>
                   Step {editingStepIndex !== null ? editingStepIndex + 1 : steps.length + 1}
                 </Text>
@@ -185,10 +198,7 @@ export function StepsEditor({
                 <Text style={[styles.formLabel, { color: tabColor }]}>
                   Step {editingStepIndex !== null ? editingStepIndex + 1 : steps.length + 1}
                 </Text>
-                <VoiceInputButton
-                  onResult={(transcript) => setStepDraft((current) => appendDictatedText(current, parseVoiceCommands(transcript)))}
-                  size={16}
-                />
+                <VoiceInputButton onResult={handleStepVoiceResult} size={16} />
               </>
             )}
           </View>

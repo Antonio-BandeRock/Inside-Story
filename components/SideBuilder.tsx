@@ -1637,43 +1637,56 @@ export function SideBuilder({
           {/* Dish Name, 2026-07-28 -- its own full-width field above
               Servings/Size, since it's not part of either's own row/
               column pairing and applies to the dish as a whole. */}
-          {/* 2026-08-16 -- a real mic button beside the Name label too, not
-              just Prep Notes. Reuses prepNoteLabelRow's own row style
-              (same plain label-plus-button layout, just a borrowed name)
-              rather than a second, near-identical style definition. Every
-              result replaces the field live, the same "speak and watch it
-              fill in" shape a search box already gets -- a name is said
-              whole, not built up with bullet/paragraph commands the way a
-              real dictated note is, so this deliberately skips
-              parseVoiceCommands/appendDictatedText and goes straight
-              through the field's own existing change handler. */}
-          {/* Nav-hand-aware, 2026-08-17 -- see FoodLookup.tsx's own "Say a
-              Food Name" mic for the same real fix and its own comment. */}
-          <View style={styles.prepNoteLabelRow}>
+          <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
+          {/* 2026-08-17, direct on-device correction: the mic used to sit on
+              its own row ABOVE the field, next to the label -- reported
+              directly as being in the wrong spot. "Put the microphone on
+              the same row as the field itself." Rebuilt as one real row
+              (field, then mic, or the reverse -- see NAVIGATION_HAND below),
+              matching the exact same field-plus-mic-on-one-row pattern
+              schedule.tsx's own label-less title fields already use, rather
+              than the label-plus-mic row this screen used before. The field
+              takes flex: 1 so the mic (now genuinely bigger, per the same
+              report -- 24 vs. the original 16) always keeps its own fixed
+              real size regardless of how wide the field itself ends up.
+              Every result still replaces the field live, straight through
+              handleDishNameChange (unchanged, still defined far above) --
+              a name is said whole, not built up with bullet/paragraph
+              commands the way a real dictated note is, so this stays a
+              plain replace rather than parseVoiceCommands/
+              appendDictatedText's own append-only pattern. That part of
+              the original design was already correct and is unchanged. */}
+          <View style={styles.dishNameRow}>
             {NAVIGATION_HAND === 'left' ? (
               <>
-                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={16} />
-                <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
+                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={24} />
+                <AppTextInput
+                  style={[styles.formInput, styles.dishNameInput, { backgroundColor: inputBackground(tabColor) }]}
+                  value={dishName}
+                  onChangeText={handleDishNameChange}
+                  placeholder="e.g., Roasted Garlic Green Beans"
+                  // The first thing this screen asks for -- focused and
+                  // ready to type into the instant it opens (AppKeyboard
+                  // rises automatically the same way it would from a real
+                  // tap, see AppTextInput's own onFocus handling) rather
+                  // than leaving the person to notice and tap the field
+                  // themselves first.
+                  autoFocus
+                />
               </>
             ) : (
               <>
-                <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
-                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={16} />
+                <AppTextInput
+                  style={[styles.formInput, styles.dishNameInput, { backgroundColor: inputBackground(tabColor) }]}
+                  value={dishName}
+                  onChangeText={handleDishNameChange}
+                  placeholder="e.g., Roasted Garlic Green Beans"
+                  autoFocus
+                />
+                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={24} />
               </>
             )}
           </View>
-          <AppTextInput
-            style={[styles.formInput, { backgroundColor: inputBackground(tabColor) }]}
-            value={dishName}
-            onChangeText={handleDishNameChange}
-            placeholder="e.g., Roasted Garlic Green Beans"
-            // The first thing this screen asks for -- focused and ready to
-            // type into the instant it opens (AppKeyboard rises
-            // automatically the same way it would from a real tap, see
-            // AppTextInput's own onFocus handling) rather than leaving the
-            // person to notice and tap the field themselves first.
-            autoFocus
-          />
 
           {/* Converted to the same PopoverSelect fields the ingredient card
               uses (originally combination-lock wheels, 2026-07-31; wheels
@@ -2237,6 +2250,11 @@ const styles = StyleSheet.create({
     paddingVertical: 8,
     marginTop: 4,
   },
+  // 2026-08-17 -- see the Dish Name field's own comment for why this
+  // exists: the field and its mic now share one real row instead of the
+  // mic sitting on a separate label row above it.
+  dishNameRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
+  dishNameInput: { flex: 1, marginTop: 0 },
   // Two true rows, 2026-07-28 -- a label band (Servings/Size/Units) and an
   // input band (the three scrollable pill pickers themselves) directly
   // beneath it, each its own flex row with alignItems: 'flex-end' so every
@@ -2351,7 +2369,11 @@ const styles = StyleSheet.create({
   // beside it (see this field's own header comment above for why the
   // button sits next to the label rather than inside the multiline
   // field itself).
-  prepNoteLabelRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  // prepNoteLabelRow removed 2026-08-17 -- its own last real usage (the
+  // Dish Name field's own label-plus-mic row) was rebuilt into
+  // dishNameRow above, per the same day's direct on-device correction;
+  // Prep Notes itself moved to StepsEditor.tsx, which owns its own
+  // separate styles.
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
   // 2026-08-08 -- renderFavoriteToggle's own row.
   favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
