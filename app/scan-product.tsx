@@ -68,12 +68,16 @@ type ScanStatus =
 // camera step (what to do with the resulting picture).
 type PhotoTargetKind = 'ingredients' | 'price';
 
-// A real, just-captured raw camera photo, waiting to go through the new
-// crop + brightness/contrast step before it becomes a real, OCR'd
-// ingredients attempt. Deliberately scoped to the ingredients target only
-// -- see handleTakePicture below; a price photo never needs cropping the
-// way a curved/shiny can's own label does.
-type PendingAdjustPhoto = { uri: string; width: number; height: number };
+// A real, just-captured (or library-picked) raw ingredients photo, waiting
+// to go through the new crop + brightness/contrast step before it becomes
+// a real, OCR'd ingredients attempt -- see both handleTakePicture and
+// handleChooseFromLibrary below; a price photo never needs cropping the
+// way a curved/shiny can's own label does, so it's scoped to the
+// ingredients target only. Only the real uri is ever needed -- every real
+// dimension the crop/tone render branches use comes straight from the
+// Skia-loaded rawImage itself (useImage below), which is the one, real
+// source of truth for a photo's own actual pixel size either way.
+type PendingAdjustPhoto = { uri: string };
 
 // Real, on-device screen bounds -- this app doesn't handle rotation
 // anywhere else in this screen either, so these are computed once, the
@@ -383,12 +387,6 @@ export default function ScanProductScreen() {
     }
   }, []);
 
-  async function finishIngredientsPhoto(uri: string) {
-    setIngredientsPhotoUri(uri);
-    const recognized = await recognizeTextFromImage(uri);
-    if (recognized) setIngredientsText(recognized);
-  }
-
   async function finishPricePhoto(uri: string) {
     setPricePhotoUri(uri);
     const recognized = await recognizeTextFromImage(uri);
@@ -398,10 +396,23 @@ export default function ScanProductScreen() {
     }
   }
 
-  // "Choose from Library" for either photo step -- unaffected by today's
-  // fix, since a gallery/library pick never triggers a live camera preview
-  // the way "Take a Photo" used to, so it was never at risk of the same
-  // background-kill.
+  // "Choose from Library" for either photo step. 2026-08-16, direct,
+  // real, on-device report right after the crop/tone feature first
+  // shipped: "I do not see any cropping mechanism... when trying to scan
+  // the ingredients." A library-picked ingredients photo used to skip
+  // crop/tone entirely and go straight to OCR -- a real, genuine gap, not
+  // just a stale-bundle confusion, since a curved/shiny label picked from
+  // an already-taken photo needs the exact same real help reading clearly
+  // as one just captured with the camera. Now routes through the SAME
+  // real 'photo-crop'/'photo-tone' steps handleTakePicture's own
+  // ingredients branch already does. One real, accepted tradeoff, stated
+  // plainly rather than silently absorbed: pickAndSaveMealPhoto already
+  // writes a real, permanent file before this ever reaches crop/tone, and
+  // whichever attempt is eventually chosen there gets saved a SECOND time
+  // via saveCapturedPhoto -- a real, small, orphaned-file cost, not a
+  // correctness problem, and not worth a second, parallel "pick without
+  // saving" pipeline just to avoid it. A price photo is unaffected,
+  // unchanged from before.
   async function handleChooseFromLibrary(target: PhotoTargetKind) {
     const scopeKey = target === 'ingredients' ? 'scanned-product-ingredients' : 'scanned-product-price';
     const previousUri = target === 'ingredients' ? ingredientsPhotoUri : pricePhotoUri;
@@ -415,8 +426,15 @@ export default function ScanProductScreen() {
         }
         return;
       }
-      if (target === 'ingredients') await finishIngredientsPhoto(result.uri);
-      else await finishPricePhoto(result.uri);
+      if (target === 'ingredients') {
+        setPendingAdjustPhoto({ uri: result.uri });
+        setCropRect({ x: 0, y: 0, width: 1, height: 1 });
+        setToneBrightness(0);
+        setToneContrast(0);
+        setStatus('photo-crop');
+      } else {
+        await finishPricePhoto(result.uri);
+      }
     } finally {
       setBusy(false);
     }
@@ -467,7 +485,7 @@ export default function ScanProductScreen() {
         // DIFFERENT earlier angle in this same round never silently
         // carries over onto a brand-new photo.
         setPhotoCaptureTarget(null);
-        setPendingAdjustPhoto({ uri: picture.uri, width: picture.width, height: picture.height });
+        setPendingAdjustPhoto({ uri: picture.uri });
         setCropRect({ x: 0, y: 0, width: 1, height: 1 });
         setToneBrightness(0);
         setToneContrast(0);
