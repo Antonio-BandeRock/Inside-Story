@@ -62,6 +62,23 @@ type PhotoTargetKind = 'ingredients' | 'price';
 
 const REPORTABLE_NUTRIENT_CODES = ['energy_kcal', 'fat_total', 'carbohydrate', 'sugars_total', 'protein', 'sodium'];
 
+// 2026-08-16 -- direct, explicit request after the earlier wrap-grid of
+// chips: a real, fixed-column-count table, not a variable-width flowing
+// layout. A flexWrap grid lets each row hold a different number of items
+// depending on how much text fits, which is exactly why it never actually
+// read as "columns" lining up -- a genuine table needs the SAME number of
+// cells in every row, each cell the same width, so content lines up
+// vertically down every column regardless of what any one cell holds.
+const INGREDIENT_TABLE_COLUMNS = 2;
+
+function chunkIntoRows<T>(items: T[], columns: number): T[][] {
+  const rows: T[][] = [];
+  for (let i = 0; i < items.length; i += columns) {
+    rows.push(items.slice(i, i + columns));
+  }
+  return rows;
+}
+
 export default function ScanProductScreen() {
   const router = useRouter();
   const scrollPadding = useFloatingButtonScrollPadding();
@@ -552,23 +569,40 @@ export default function ScanProductScreen() {
           <View style={styles.card}>
             <Text style={styles.sectionLabel}>Ingredients We Found ({parsedIngredientRows.length})</Text>
             <Text style={styles.gridHint}>
-              Tinted ones have something worth knowing -- the full explanation shows up on the next screen.
+              Tinted cells have something worth knowing -- the full explanation shows up on the next screen.
             </Text>
-            <View style={styles.ingredientGrid}>
-              {parsedIngredientRows.map((row, index) => {
-                const hasRedFlag = row.additiveFlags.some((flag) => flag.severity === 'red');
-                const hasYellowFlag = row.conditionFlags.length > 0 || row.additiveFlags.some((flag) => flag.severity === 'yellow');
-                const hasInfoFlag = row.additiveFlags.some((flag) => flag.severity === 'info');
-                const chipTint = hasRedFlag
-                  ? { backgroundColor: colors.statusRedBg, borderColor: colors.danger }
-                  : hasYellowFlag
-                    ? { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }
-                    : hasInfoFlag
-                      ? { backgroundColor: colors.surface, borderColor: colors.textMuted }
-                      : { backgroundColor: colors.surface, borderColor: colors.border };
+            <View style={styles.dataTable}>
+              {chunkIntoRows(parsedIngredientRows, INGREDIENT_TABLE_COLUMNS).map((rowItems, rowIndex, allRows) => {
+                const isLastRow = rowIndex === allRows.length - 1;
                 return (
-                  <View key={index} style={[styles.ingredientChip, chipTint]}>
-                    <Text style={styles.ingredientChipText}>{row.label}</Text>
+                  <View key={rowIndex} style={[styles.dataTableRow, isLastRow ? styles.dataTableRowLast : null]}>
+                    {Array.from({ length: INGREDIENT_TABLE_COLUMNS }, (_, colIndex) => colIndex).map((colIndex) => {
+                      const isLastCol = colIndex === INGREDIENT_TABLE_COLUMNS - 1;
+                      const row = rowItems[colIndex];
+                      if (!row) {
+                        return <View key={colIndex} style={[styles.ingredientCell, isLastCol ? null : styles.ingredientCellDivider]} />;
+                      }
+                      const hasRedFlag = row.additiveFlags.some((flag) => flag.severity === 'red');
+                      const hasYellowFlag = row.conditionFlags.length > 0 || row.additiveFlags.some((flag) => flag.severity === 'yellow');
+                      const hasInfoFlag = row.additiveFlags.some((flag) => flag.severity === 'info');
+                      const cellTint = hasRedFlag
+                        ? { backgroundColor: colors.statusRedBg }
+                        : hasYellowFlag
+                          ? { backgroundColor: colors.statusYellowBg }
+                          : hasInfoFlag
+                            ? { backgroundColor: colors.surface }
+                            : null;
+                      return (
+                        <View
+                          key={colIndex}
+                          style={[styles.ingredientCell, isLastCol ? null : styles.ingredientCellDivider, cellTint]}
+                        >
+                          <Text style={styles.ingredientCellText} numberOfLines={2}>
+                            {row.label}
+                          </Text>
+                        </View>
+                      );
+                    })}
                   </View>
                 );
               })}
@@ -611,15 +645,24 @@ export default function ScanProductScreen() {
 
         {nutrientSummary.length > 0 ? (
           <View style={styles.card}>
-            <Text style={styles.sectionLabel}>Per 100g</Text>
-            {nutrientSummary.map((row) => (
-              <View key={row.code} style={styles.nutrientRow}>
-                <Text style={styles.text}>{row.displayName}</Text>
-                <Text style={styles.text}>
-                  {row.amountPer100g.toFixed(1)} {row.unit}
-                </Text>
+            <Text style={styles.sectionLabel}>Per 100g -- from the barcode scan</Text>
+            <View style={styles.dataTable}>
+              <View style={[styles.dataTableRow, styles.dataTableHeaderRow]}>
+                <Text style={[styles.dataTableHeaderText, styles.dataTableColNutrient]}>Nutrient</Text>
+                <Text style={[styles.dataTableHeaderText, styles.dataTableColAmount]}>Amount</Text>
+                <Text style={[styles.dataTableHeaderText, styles.dataTableColUnit]}>Unit</Text>
               </View>
-            ))}
+              {nutrientSummary.map((row, index) => (
+                <View
+                  key={row.code}
+                  style={[styles.dataTableRow, index === nutrientSummary.length - 1 ? styles.dataTableRowLast : null]}
+                >
+                  <Text style={[styles.dataTableCellText, styles.dataTableColNutrient]}>{row.displayName}</Text>
+                  <Text style={[styles.dataTableCellText, styles.dataTableColAmount]}>{row.amountPer100g.toFixed(1)}</Text>
+                  <Text style={[styles.dataTableCellText, styles.dataTableColUnit]}>{row.unit}</Text>
+                </View>
+              ))}
+            </View>
           </View>
         ) : null}
 
@@ -791,21 +834,47 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surface,
     gap: 6,
   },
-  nutrientRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  // A real, flowing wrap-grid, not a fixed column count -- a hardcoded
-  // number of columns would look right on one device and wrong on the
-  // next; letting each chip size to its own content and wrap naturally is
-  // what actually produces "multiple columns" that hold up across real
-  // screen widths, per direct, on-device feedback that the old vertical,
-  // one-per-row list didn't read as a table at all.
-  ingredientGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
-  ingredientChip: {
-    paddingVertical: 6,
-    paddingHorizontal: 10,
-    borderRadius: 8,
+  // A real, fixed-column-count grid -- 2026-08-16, direct correction of
+  // the earlier flex-wrap chip layout: "I don't want you putting every
+  // word into it's own bubble... a table of information with the correct
+  // number of columns and the correct number of rows, with everything
+  // lined up correctly." A wrap-grid lets each row hold a different
+  // number of items depending on text length, which is exactly why it
+  // never actually read as columns lining up. dataTable/dataTableRow are
+  // shared by both real tables on this screen (this one, and the Per
+  // 100g nutrient table below) -- one real table style, not two.
+  dataTable: {
     borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    overflow: 'hidden',
+    marginTop: 4,
   },
-  ingredientChipText: { ...typography.caption, color: colors.textPrimary },
+  dataTableRow: {
+    flexDirection: 'row',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  dataTableRowLast: { borderBottomWidth: 0 },
+  dataTableHeaderRow: { backgroundColor: colors.surface },
+  dataTableHeaderText: { ...typography.bodyEmphasis, color: colors.textSecondary, paddingVertical: 8, paddingHorizontal: 10 },
+  dataTableCellText: { ...typography.body, color: colors.textPrimary, paddingVertical: 8, paddingHorizontal: 10 },
+  // The Per 100g table's own real 3 columns -- fixed flex ratios, not
+  // content-sized, so every row's amount/unit land in the same horizontal
+  // position regardless of how long that row's own nutrient name is.
+  dataTableColNutrient: { flex: 2 },
+  dataTableColAmount: { flex: 1, textAlign: 'right' },
+  dataTableColUnit: { flex: 1, textAlign: 'right' },
+  // The ingredients table's own real cells -- every cell the same flex:1
+  // width, so both real columns line up down the whole table regardless
+  // of which row a given ingredient happens to land in.
+  ingredientCell: {
+    flex: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 10,
+  },
+  ingredientCellDivider: { borderRightWidth: 1, borderRightColor: colors.border },
+  ingredientCellText: { ...typography.caption, color: colors.textPrimary },
   gridHint: { ...typography.caption, color: colors.textMuted },
   flagRow: { padding: 12, borderRadius: 10, borderWidth: 1, gap: 4 },
   flagLabel: { ...typography.bodyEmphasis, color: colors.textPrimary },
