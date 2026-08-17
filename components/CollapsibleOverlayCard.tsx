@@ -6,6 +6,24 @@
 // screen... it should just display over the top of whatever is on the
 // screen currently and doesn't go away until you hit the collapse symbol").
 //
+// Two real, direct on-device corrections landed the same day, both fixed
+// together: (1) the collapsed pill used to be REMOVED from the layout while
+// expanded (`if (expanded) return null`), which visibly shifted whatever sat
+// below it (SideBuilder's own "Add Ingredients" button) up to fill the now-
+// empty gap -- fixed by always rendering the collapsed pill in its normal
+// spot, expanded or not; while expanded it's simply covered by the real
+// overlay's own opaque backdrop (painted on top, via the portal), never
+// removed from the tree, so nothing around it ever moves. (2) the expanded
+// card used to render vertically CENTERED in the middle of the whole screen
+// -- a real, direct report: "all it needed to do was expand over the top of
+// whatever is below it," not float to the middle. Fixed by anchoring it near
+// the TOP of the screen instead (below the app's own real persistent header,
+// via useScreenHeaderHeight -- the same value FoodLookup.tsx already reuses
+// for this exact "where does the screen's real content actually start"
+// question) and letting it grow downward from there, covering whatever's
+// beneath it, matching where the collapsed pill itself always visually sits
+// in real usage (the first thing on this screen).
+//
 // Built on the exact same OverlayContext portal AppActionSheet.tsx already
 // uses, for the same real reason: it escapes ScreenBackground.tsx's own
 // overflow:hidden clipping, the one proven way every other floating menu in
@@ -27,6 +45,7 @@ import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-nativ
 import { colors } from '../constants/colors';
 import { typography } from '../constants/typography';
 import { useOverlay } from './OverlayContext';
+import { useScreenHeaderHeight } from './ScreenHeader';
 
 export function CollapsibleOverlayCard({
   collapsedLabel,
@@ -53,6 +72,10 @@ export function CollapsibleOverlayCard({
   // silently clobber this card's real content the instant both are mounted
   // together -- confirmed the real, on-device cause of exactly that report.
   const ownerRef = useRef({});
+  // Where the app's own real persistent header actually ends -- see this
+  // file's own header comment. Used to anchor the expanded card just below
+  // it rather than in the middle of the screen.
+  const headerHeight = useScreenHeaderHeight();
 
   const overlayNode = expanded ? (
     <View style={StyleSheet.absoluteFillObject} pointerEvents="box-none">
@@ -61,7 +84,7 @@ export function CollapsibleOverlayCard({
           intercepts touches meant for whatever's underneath, which is the
           real point of a backdrop here. */}
       <Pressable style={styles.backdrop} />
-      <View style={styles.centerWrap} pointerEvents="box-none">
+      <View style={[styles.topWrap, { paddingTop: headerHeight + 12 }]} pointerEvents="box-none">
         <View style={[styles.card, { borderColor: tabColor }]}>
           <View style={styles.headerRow}>
             <Text style={[styles.headerLabel, { color: tabColor }]} numberOfLines={1}>
@@ -101,8 +124,13 @@ export function CollapsibleOverlayCard({
     [],
   );
 
-  if (expanded) return null;
-
+  // Always rendered, expanded or not -- see this file's own header comment
+  // for why (the old `if (expanded) return null` here is what caused
+  // "Add Ingredients" to visibly shift up). While expanded, this is simply
+  // painted over by the real overlay's own backdrop above, never actually
+  // seen or reachable, but it keeps holding its own normal space in the
+  // layout the whole time.
+  //
   // Collapsed state -- a plain, fully-rounded pill showing just the label,
   // tap to expand. "Make all four corners be rounded," explicitly requested
   // -- no squared-off edge anywhere, unlike the connected-picker seam this
@@ -134,7 +162,12 @@ const styles = StyleSheet.create({
     marginRight: 8,
   },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.55)' },
-  centerWrap: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 20, paddingVertical: 60 },
+  // Top-anchored, not centered -- paddingTop is set inline per-render (see
+  // headerHeight above), since it depends on the real device's own safe-area
+  // inset. alignItems: 'center' still centers the card HORIZONTALLY (it has
+  // its own maxWidth below); justifyContent: 'flex-start' is the actual fix
+  // -- it's what stops the card from floating to the vertical middle.
+  topWrap: { flex: 1, alignItems: 'center', justifyContent: 'flex-start', paddingHorizontal: 20, paddingBottom: 40 },
   card: {
     width: '100%',
     maxWidth: 420,
