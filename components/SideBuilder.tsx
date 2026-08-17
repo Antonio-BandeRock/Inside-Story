@@ -1287,6 +1287,14 @@ export function SideBuilder({
     options: string[],
     selected: string | null,
     onSelect: (value: string | null) => void,
+    // Opt-in, default false -- every existing caller (the pending-
+    // ingredient card's own Quantity/Units/Cut Prep/Cook Prep fields) keeps
+    // PopoverSelect's standard side-anchored positioning, unchanged. Only
+    // the dish-naming screen's own three fields (#-of-Servings/Serving
+    // Size/Units) pass true, 2026-08-17, direct report: those should open
+    // "just under the field... and not horizontally centered on the field
+    // and to the right of it."
+    openBelow = false,
   ) {
     return (
       <View style={styles.labeledPickerField}>
@@ -1306,6 +1314,7 @@ export function SideBuilder({
             onSelect={onSelect}
             tabColor={tabColor}
             minWidth={labelWidths[label] ?? 0}
+            openBelow={openBelow}
           />
         </View>
       </View>
@@ -1711,7 +1720,7 @@ export function SideBuilder({
           <View style={styles.labeledPickerRow}>
             {dishFormFields.map((field) => (
               <Animated.View key={field.label} layout={LinearTransition}>
-                {renderLabeledPicker(field.label, field.options, field.selected, field.onSelect)}
+                {renderLabeledPicker(field.label, field.options, field.selected, field.onSelect, true)}
               </Animated.View>
             ))}
           </View>

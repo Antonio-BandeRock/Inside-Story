@@ -131,6 +131,26 @@ function computePopoverPositionAbove(anchor: Anchor, listHeight: number, width: 
   return { left, top };
 }
 
+// Opens directly below the field, left-aligned to it -- the same real idea
+// as computePopoverPositionAbove, just flipped vertically, rather than the
+// side-anchored positioning the default uses. Opt-in via the `openBelow`
+// prop, 2026-08-17, explicitly requested for Side Builder's own dish-
+// naming screen: "the lists for # of Servings, Serving Size, and Units
+// should be displayed just under the field... and not horizontally
+// centered on the field and to the right of it."
+function computePopoverPositionBelow(anchor: Anchor, listHeight: number, width: number) {
+  const screen = Dimensions.get('window');
+
+  let left = anchor.x;
+  left = Math.max(SCREEN_MARGIN, Math.min(left, screen.width - SCREEN_MARGIN - width));
+
+  let top = anchor.y + anchor.height + GAP_FROM_FIELD;
+  top = Math.min(top, screen.height - SCREEN_MARGIN - listHeight);
+  top = Math.max(SCREEN_MARGIN, top);
+
+  return { left, top };
+}
+
 // memo'd for the same reason WheelPicker was: a field re-rendering on
 // every keystroke elsewhere on the same screen shouldn't force every
 // OTHER picker on that screen to re-render too. This only actually holds
@@ -151,6 +171,7 @@ export const PopoverSelect = memo(function PopoverSelect({
   width = POPOVER_WIDTH,
   tintedSurface = false,
   openAbove = false,
+  openBelow = false,
   onOpenChange,
 }: {
   options: PopoverSelectOption[];
@@ -187,6 +208,14 @@ export const PopoverSelect = memo(function PopoverSelect({
   // above the field instead -- see computePopoverPositionAbove's own
   // comment for why/where this is used.
   openAbove?: boolean;
+  // Opt-in, default false (every existing caller keeps the standard
+  // side-anchored positioning, unchanged). When true, opens directly below
+  // the field instead, left-aligned to it -- see
+  // computePopoverPositionBelow's own comment for why/where this is used.
+  // Mutually exclusive with openAbove in practice (no real caller needs
+  // both); openAbove wins if a future caller ever sets both by mistake,
+  // see menuPosition's own resolution order below.
+  openBelow?: boolean;
   // 2026-08-14, a real, new, testable hypothesis for the still-open
   // "row tap takes 1-15 real, variable seconds to register" freeze --
   // confirmed via direct question that this ONLY happens on Nutrient
@@ -277,7 +306,9 @@ export const PopoverSelect = memo(function PopoverSelect({
   const menuPosition = anchor
     ? openAbove
       ? computePopoverPositionAbove(anchor, listHeight, width)
-      : computePopoverPosition(anchor, listHeight, width, bottomReserve)
+      : openBelow
+        ? computePopoverPositionBelow(anchor, listHeight, width)
+        : computePopoverPosition(anchor, listHeight, width, bottomReserve)
     : null;
 
   // Rebuilt from this render's own live state (options/selected/searchText)

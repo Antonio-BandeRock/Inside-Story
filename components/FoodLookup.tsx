@@ -616,6 +616,22 @@ export function FoodLookup({
   const [globalVoiceQuery, setGlobalVoiceQuery] = useState('');
   const [globalVoiceResults, setGlobalVoiceResults] = useState<GlobalFoodMatch[] | null>(null);
   const [globalVoiceLoading, setGlobalVoiceLoading] = useState(false);
+  // True for the brief real gap between "a voice match was tapped" and
+  // "onFoodResolved actually fires" -- resolving still needs two more real
+  // async steps (getPreparationMethods, then resolveFoodChoice), and
+  // without this, the Category/Subcategory/Food summary rows this same
+  // tap just set would render, plainly visible, for that whole gap before
+  // vanishing again. Direct report, 2026-08-17: "these seem like something
+  // that the user shouldn't actually see during that transition" -- real,
+  // because manual step-by-step navigation builds those rows up one at a
+  // time on purpose (seeing each one is the point), but a voice pick sets
+  // all three at once, so the same rows reappearing here are just a
+  // rendering artifact of shared state, not anything meant to be shown.
+  // Scoped to the voice path specifically, not resolution in general --
+  // manual navigation's own resolving gap (after tapping a food name by
+  // hand) is untouched, since hiding a person's own just-confirmed
+  // Category/Subcategory rows there would be the real regression.
+  const [resolvingFromVoice, setResolvingFromVoice] = useState(false);
 
   async function handleGlobalVoiceResult(transcript: string, isFinal: boolean) {
     if (!isFinal || !transcript.trim()) return;
@@ -639,6 +655,7 @@ export function FoodLookup({
   // hand-picked food), so a food with real prep options still gets that
   // one real remaining question.
   function selectGlobalMatch(match: GlobalFoodMatch) {
+    setResolvingFromVoice(true);
     setCategory(match.category);
     setSubcategory(match.subcategory);
     setFoodQuery('');
@@ -888,6 +905,7 @@ export function FoodLookup({
         if (cancelled) return null;
         if (!resolved) {
           setErrorMessage("Couldn't find that food.");
+          setResolvingFromVoice(false);
           return null;
         }
         // showNutrients: false -- report the resolved selection outward
@@ -896,6 +914,7 @@ export function FoodLookup({
         // onFoodResolved's own comment), so there's nothing more for this
         // effect to do here.
         if (!showNutrients) {
+          setResolvingFromVoice(false);
           onFoodResolved?.({
             category,
             subcategory,
@@ -922,6 +941,7 @@ export function FoodLookup({
       .catch((error) => {
         if (cancelled) return;
         setErrorMessage(`Could not load nutrients: ${error instanceof Error ? error.message : String(error)}`);
+        setResolvingFromVoice(false);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -1278,6 +1298,17 @@ export function FoodLookup({
           )}
         </View>
       ) : null}
+      {/* The real, brief stand-in for the whole Category/Subcategory/Food/
+          Prep sequence below, 2026-08-17 -- see resolvingFromVoice's own
+          comment above for why. Replaces, not supplements: every block
+          from here down independently guards on !resolvingFromVoice too,
+          so exactly one of "this message" or "the normal step sequence"
+          ever shows at a time, never both. */}
+      {resolvingFromVoice ? (
+        <View style={[styles.voiceFoodSection, { borderColor: tabColor }]}>
+          <Text style={styles.voiceFoodStatus}>Finding {baseName}…</Text>
+        </View>
+      ) : null}
       {/* Category: a plain always-visible InlineSelectList until one is
           picked, then a compact summary row instead (tap Change to bring
           the list back) -- see InlineSelectList.tsx's own comment for why
@@ -1292,8 +1323,13 @@ export function FoodLookup({
           set (by any method), this always shows again, as the ordinary
           "picked" summary row -- every downstream step (Subcategory/Food/
           Prep) already only cares that a category exists, never how it got
-          set. */}
-      {!restrictToSource || restrictToSource === 'category' || category !== '' ? (
+          set.
+
+          !resolvingFromVoice, 2026-08-17: see that state's own comment --
+          this and the three blocks below it all skip rendering entirely
+          during the brief real gap right after a voice pick, replaced by
+          the single message just above instead. */}
+      {!resolvingFromVoice && (!restrictToSource || restrictToSource === 'category' || category !== '') ? (
       <View>
         {category === '' ? (
           <InlineSelectList
@@ -1329,7 +1365,7 @@ export function FoodLookup({
       </View>
       ) : null}
 
-      {category !== '' && subcategories.length > 0 ? (
+      {!resolvingFromVoice && category !== '' && subcategories.length > 0 ? (
         <View style={styles.stackedField}>
           {subcategory === null ? (
             <InlineSelectList
@@ -1351,7 +1387,7 @@ export function FoodLookup({
         </View>
       ) : null}
 
-      {categoryConfirmed ? (
+      {!resolvingFromVoice && categoryConfirmed ? (
         <View style={styles.stackedField}>
           {baseName === '' ? (
             <InlineSearchSelectList
@@ -1376,7 +1412,7 @@ export function FoodLookup({
         </View>
       ) : null}
 
-      {prepMethods.length > 0 ? (
+      {!resolvingFromVoice && prepMethods.length > 0 ? (
         <View style={styles.stackedField}>
           {prepMethod === null ? (
             <InlineSelectList
