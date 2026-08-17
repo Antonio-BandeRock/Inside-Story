@@ -196,6 +196,66 @@ export async function pickAndSaveMealPhoto(
   }
 }
 
+// Real, in-app-camera counterpart to pickAndSaveMealPhoto's own 'camera'
+// branch, added 2026-08-16 after a real, confirmed on-device crash: the
+// scan-product screen's own "photograph the ingredients" button used to go
+// through ImagePicker.launchCameraAsync, which hands the whole shot off to
+// the phone's real, separate Camera app. On a real device, adb logcat
+// showed Android killing our now-backgrounded, lowest-priority process
+// (ActivityManager: "Killing ... (adj 900): remove task") while that
+// heavier external app was active, which forced a full cold relaunch the
+// instant the person came back -- looking exactly like "the app restarted".
+// This function is called with the URI a real in-app expo-camera
+// CameraView.takePictureAsync() already produced -- the whole app process
+// never leaves the foreground, so there's nothing to kill it out from
+// under. Shares the identical real compress/persist core (compressToLimit,
+// the same size caps, the same meal-photos/ directory) pickAndSaveMealPhoto
+// already uses -- the only real difference is skipping expo-image-picker
+// entirely, since the camera-permission gate and the raw photo are both
+// already in hand by the time this is called.
+export async function saveCapturedPhoto(
+  sourceUri: string,
+  scopeKey: string,
+  sourceWidth: number,
+  sourceHeight: number,
+  previousUri?: string,
+): Promise<PickMealPhotoResult> {
+  try {
+    const [{ Directory, File, Paths }, ImageManipulator] = await Promise.all([
+      import('expo-file-system'),
+      import('expo-image-manipulator'),
+    ]);
+
+    const shorterEdge = Math.min(sourceWidth, sourceHeight);
+    if (shorterEdge > 0 && shorterEdge < MEAL_PHOTO_MIN_DIMENSION) {
+      return { status: 'too-small', width: sourceWidth, height: sourceHeight };
+    }
+
+    const compressed = await compressToLimit(
+      ImageManipulator,
+      File,
+      sourceUri,
+      MEAL_PHOTO_MAX_DIMENSION,
+      MEAL_PHOTO_MAX_FILE_SIZE_BYTES,
+    );
+    if (!compressed) {
+      return { status: 'too-large-after-compression' };
+    }
+
+    const dir = new Directory(Paths.document, 'meal-photos');
+    dir.create({ intermediates: true, idempotent: true });
+    const destFile = new File(dir, `${safeScopeFilename(scopeKey)}-${Date.now()}.jpg`);
+    new File(compressed.uri).copy(destFile);
+    safeDelete(File, compressed.uri);
+    safeDelete(File, sourceUri);
+    if (previousUri) safeDelete(File, previousUri);
+
+    return { status: 'success', uri: destFile.uri };
+  } catch (error) {
+    return { status: 'error', message: error instanceof Error ? error.message : String(error) };
+  }
+}
+
 export async function deleteMealPhotoFile(uri: string): Promise<void> {
   const { File } = await import('expo-file-system');
   safeDelete(File, uri);

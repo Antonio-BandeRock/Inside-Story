@@ -20,6 +20,7 @@ import * as Speech from 'expo-speech';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { colors } from '../constants/colors';
@@ -33,7 +34,7 @@ import {
   saveScannedProduct,
 } from '../lib/db';
 import { extractPriceGuess, recognizeTextFromImage } from '../lib/ocr';
-import { pickAndSaveMealPhoto } from '../lib/mealPhotos';
+import { pickAndSaveMealPhoto, saveCapturedPhoto } from '../lib/mealPhotos';
 import { flagAdditivesInIngredients, flagConditionConcernsInIngredients, type ScannedProductConditionFlag, type ScannedProductFlag } from '../lib/scannedProductFlags';
 
 type ScanStatus =
@@ -43,8 +44,14 @@ type ScanStatus =
   | 'ingredients'
   | 'report'
   | 'price-capture'
+  | 'photo-capture'
   | 'saved'
   | 'error';
+
+// 'ingredients' | 'price' -- which real photo step a photo action is for,
+// shared by the action sheet (which button opened it) and the in-app
+// camera step (what to do with the resulting picture).
+type PhotoTargetKind = 'ingredients' | 'price';
 
 const REPORTABLE_NUTRIENT_CODES = ['energy_kcal', 'fat_total', 'carbohydrate', 'sugars_total', 'protein', 'sodium'];
 
@@ -75,6 +82,15 @@ export default function ScanProductScreen() {
   const [pricePhotoUri, setPricePhotoUri] = useState<string | null>(null);
   const [savingPrice, setSavingPrice] = useState(false);
 
+  // Real, in-app camera capture for the ingredients/price photos -- see
+  // saveCapturedPhoto's own header comment in lib/mealPhotos.ts for the
+  // full, confirmed-on-device reason "Take a Photo" no longer hands off to
+  // the phone's separate Camera app the way it briefly did.
+  const cameraRef = useRef<CameraView>(null);
+  const [photoSheetFor, setPhotoSheetFor] = useState<PhotoTargetKind | null>(null);
+  const [photoCaptureTarget, setPhotoCaptureTarget] = useState<PhotoTargetKind | null>(null);
+  const [takingPicture, setTakingPicture] = useState(false);
+
   useEffect(() => {
     if (!permission) return;
     if (!permission.granted && permission.canAskAgain) {
@@ -98,6 +114,8 @@ export default function ScanProductScreen() {
     setPriceText('');
     setPricePhotoUri(null);
     setErrorMessage(null);
+    setPhotoSheetFor(null);
+    setPhotoCaptureTarget(null);
     setStatus('scanning');
   }
 
@@ -191,23 +209,90 @@ export default function ScanProductScreen() {
     }
   }, [computeReport]);
 
-  async function handleCaptureIngredients() {
-    setCapturingIngredients(true);
+  async function finishIngredientsPhoto(uri: string) {
+    setIngredientsPhotoUri(uri);
+    const recognized = await recognizeTextFromImage(uri);
+    if (recognized) setIngredientsText(recognized);
+  }
+
+  async function finishPricePhoto(uri: string) {
+    setPricePhotoUri(uri);
+    const recognized = await recognizeTextFromImage(uri);
+    if (recognized) {
+      const guess = extractPriceGuess(recognized);
+      if (guess != null) setPriceText(guess.toFixed(2));
+    }
+  }
+
+  // "Choose from Library" for either photo step -- unaffected by today's
+  // fix, since a gallery/library pick never triggers a live camera preview
+  // the way "Take a Photo" used to, so it was never at risk of the same
+  // background-kill.
+  async function handleChooseFromLibrary(target: PhotoTargetKind) {
+    const scopeKey = target === 'ingredients' ? 'scanned-product-ingredients' : 'scanned-product-price';
+    const previousUri = target === 'ingredients' ? ingredientsPhotoUri : pricePhotoUri;
+    const setBusy = target === 'ingredients' ? setCapturingIngredients : setCapturingPrice;
+    setBusy(true);
     try {
-      const result = await pickAndSaveMealPhoto('camera', 'scanned-product-ingredients');
+      const result = await pickAndSaveMealPhoto('library', scopeKey, previousUri ?? undefined);
       if (result.status !== 'success') {
         if (result.status === 'permission-denied') {
-          setErrorMessage("Inside Story needs camera access to photograph the ingredients list.");
+          setErrorMessage('Inside Story needs access to your photos to use an existing picture.');
         }
         return;
       }
-      setIngredientsPhotoUri(result.uri);
-      const recognized = await recognizeTextFromImage(result.uri);
-      if (recognized) {
-        setIngredientsText(recognized);
-      }
+      if (target === 'ingredients') await finishIngredientsPhoto(result.uri);
+      else await finishPricePhoto(result.uri);
     } finally {
-      setCapturingIngredients(false);
+      setBusy(false);
+    }
+  }
+
+  // "Take a Photo" now opens the app's own in-app camera step (below)
+  // rather than handing off to the phone's separate Camera app.
+  function handleOpenCamera(target: PhotoTargetKind) {
+    setPhotoCaptureTarget(target);
+    setStatus('photo-capture');
+  }
+
+  function handleCancelPhotoCapture() {
+    const target = photoCaptureTarget;
+    setPhotoCaptureTarget(null);
+    setStatus(target === 'price' ? 'price-capture' : 'ingredients');
+  }
+
+  async function handleTakePicture() {
+    if (!cameraRef.current || takingPicture) return;
+    const target = photoCaptureTarget;
+    setTakingPicture(true);
+    try {
+      const picture = await cameraRef.current.takePictureAsync({ quality: 0.9 });
+      setPhotoCaptureTarget(null);
+      setStatus(target === 'price' ? 'price-capture' : 'ingredients');
+
+      const scopeKey = target === 'ingredients' ? 'scanned-product-ingredients' : 'scanned-product-price';
+      const previousUri = target === 'ingredients' ? ingredientsPhotoUri : pricePhotoUri;
+      const setBusy = target === 'ingredients' ? setCapturingIngredients : setCapturingPrice;
+      setBusy(true);
+      try {
+        const result = await saveCapturedPhoto(picture.uri, scopeKey, picture.width, picture.height, previousUri ?? undefined);
+        if (result.status === 'success') {
+          if (target === 'ingredients') await finishIngredientsPhoto(result.uri);
+          else await finishPricePhoto(result.uri);
+        } else if (result.status === 'too-small') {
+          setErrorMessage('That photo came out too small to use. Move a little closer and try again.');
+        } else if (result.status === 'too-large-after-compression') {
+          setErrorMessage("That photo couldn't be made small enough to save. Try again.");
+        }
+      } finally {
+        setBusy(false);
+      }
+    } catch (error) {
+      console.error('[ScanProductScreen] Failed to take picture', error);
+      setPhotoCaptureTarget(null);
+      setStatus(target === 'price' ? 'price-capture' : 'ingredients');
+    } finally {
+      setTakingPicture(false);
     }
   }
 
@@ -254,22 +339,6 @@ export default function ScanProductScreen() {
       setStatus('error');
     } finally {
       setSaving(false);
-    }
-  }
-
-  async function handleCapturePrice() {
-    setCapturingPrice(true);
-    try {
-      const result = await pickAndSaveMealPhoto('camera', 'scanned-product-price');
-      if (result.status !== 'success') return;
-      setPricePhotoUri(result.uri);
-      const recognized = await recognizeTextFromImage(result.uri);
-      if (recognized) {
-        const guess = extractPriceGuess(recognized);
-        if (guess != null) setPriceText(guess.toFixed(2));
-      }
-    } finally {
-      setCapturingPrice(false);
     }
   }
 
@@ -331,6 +400,36 @@ export default function ScanProductScreen() {
     );
   }
 
+  // A real, in-app camera capture, staying inside this app's own process
+  // the whole time (see saveCapturedPhoto's own header comment in
+  // lib/mealPhotos.ts) -- used for both the ingredients photo and the
+  // price photo, driven by photoCaptureTarget.
+  if (status === 'photo-capture') {
+    return (
+      <View style={styles.screen}>
+        <CameraView ref={cameraRef} style={styles.camera} facing="back" />
+        <View style={styles.captureOverlay} pointerEvents="box-none">
+          <TouchableOpacity style={styles.captureCancelButton} activeOpacity={0.8} onPress={handleCancelPhotoCapture}>
+            <Ionicons name="close" size={22} color="#FFFFFF" />
+          </TouchableOpacity>
+          <Text style={styles.scanHint}>
+            {photoCaptureTarget === 'price'
+              ? 'Line up the price tag or receipt, then tap to capture.'
+              : 'Line up the ingredients list, then tap to capture.'}
+          </Text>
+          <TouchableOpacity
+            style={[styles.shutterButton, takingPicture ? styles.disabled : null]}
+            activeOpacity={0.8}
+            onPress={handleTakePicture}
+            disabled={takingPicture}
+          >
+            {takingPicture ? <ActivityIndicator color={colors.background} /> : <View style={styles.shutterInner} />}
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
+
   if (status === 'looking-up') {
     return (
       <View style={styles.screen}>
@@ -386,18 +485,28 @@ export default function ScanProductScreen() {
         <Text style={styles.sectionLabel}>Ingredients list</Text>
         <Text style={styles.text}>
           {ingredientsText
-            ? "We already have an ingredients list. Take a real photo of the label to refine it, or edit it directly below."
+            ? "We already have an ingredients list. Take a photo of the label to refine it, or edit it directly below."
             : "Take a photo of the ingredients list to check it for anything worth avoiding."}
         </Text>
         <TouchableOpacity
           style={[styles.primaryButton, capturingIngredients ? styles.disabled : null]}
           activeOpacity={0.85}
-          onPress={handleCaptureIngredients}
+          onPress={() => setPhotoSheetFor('ingredients')}
           disabled={capturingIngredients}
         >
           <Ionicons name="camera-outline" size={18} color={colors.background} />
-          <Text style={styles.primaryButtonText}>{capturingIngredients ? 'Reading…' : 'Take a Photo of the Ingredients'}</Text>
+          <Text style={styles.primaryButtonText}>{capturingIngredients ? 'Reading…' : 'Add a Photo of the Ingredients'}</Text>
         </TouchableOpacity>
+        <AppActionSheet
+          visible={photoSheetFor === 'ingredients'}
+          onClose={() => setPhotoSheetFor(null)}
+          title="Ingredients Photo"
+          actions={[
+            { label: 'Take a Photo', onPress: () => handleOpenCamera('ingredients') },
+            { label: 'Choose from Library', onPress: () => handleChooseFromLibrary('ingredients') },
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
         <View style={styles.textAreaRow}>
           <AppTextInput
             value={ingredientsText}
@@ -499,12 +608,22 @@ export default function ScanProductScreen() {
         <TouchableOpacity
           style={[styles.primaryButton, capturingPrice ? styles.disabled : null]}
           activeOpacity={0.85}
-          onPress={handleCapturePrice}
+          onPress={() => setPhotoSheetFor('price')}
           disabled={capturingPrice}
         >
           <Ionicons name="camera-outline" size={18} color={colors.background} />
-          <Text style={styles.primaryButtonText}>{capturingPrice ? 'Reading…' : 'Take a Photo of the Price'}</Text>
+          <Text style={styles.primaryButtonText}>{capturingPrice ? 'Reading…' : 'Add a Photo of the Price'}</Text>
         </TouchableOpacity>
+        <AppActionSheet
+          visible={photoSheetFor === 'price'}
+          onClose={() => setPhotoSheetFor(null)}
+          title="Price Photo"
+          actions={[
+            { label: 'Take a Photo', onPress: () => handleOpenCamera('price') },
+            { label: 'Choose from Library', onPress: () => handleChooseFromLibrary('price') },
+            { label: 'Cancel', onPress: () => {} },
+          ]}
+        />
         <View style={styles.textAreaRow}>
           <AppTextInput
             value={priceText}
@@ -556,6 +675,40 @@ const styles = StyleSheet.create({
   scanOverlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, alignItems: 'center', justifyContent: 'center' },
   scanFrame: { width: 260, height: 160, borderWidth: 3, borderColor: colors.accent, borderRadius: 16 },
   scanHint: { ...typography.body, color: '#FFFFFF', marginTop: 16, textAlign: 'center', paddingHorizontal: 24 },
+  captureOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingBottom: 48,
+    paddingTop: 60,
+  },
+  captureCancelButton: {
+    position: 'absolute',
+    top: 16,
+    right: 16,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(0,0,0,0.45)',
+  },
+  shutterButton: {
+    width: 72,
+    height: 72,
+    borderRadius: 36,
+    borderWidth: 4,
+    borderColor: '#FFFFFF',
+    backgroundColor: 'rgba(0,0,0,0.25)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 20,
+  },
+  shutterInner: { width: 56, height: 56, borderRadius: 28, backgroundColor: '#FFFFFF' },
   title: { ...typography.sectionTitle, color: colors.textPrimary, textAlign: 'center' },
   text: { ...typography.body, color: colors.textSecondary, textAlign: 'center' },
   sectionLabel: { ...typography.bodyEmphasis, color: colors.textPrimary, marginTop: 4 },
