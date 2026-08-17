@@ -206,7 +206,7 @@ export function categoryLabel(category: string): string {
 // off those codes (builder allowlists, hidden-category rules, curated-
 // recipe ingredients, the audit tool, food-name grouping) needs zero
 // changes. Tapping a group tile reveals the real categories inside it as
-// the next choice (see buildTopLevelCategoryOptions/groupMemberOptions
+// the next choice (see buildTopLevelCategoryOptions/buildGroupRevealOptions
 // below); picking one of those continues into the existing Subcategory ->
 // Food -> Prep flow completely unchanged, same as picking any category
 // always has.
@@ -216,14 +216,57 @@ export function categoryLabel(category: string): string {
 // tile, exactly as it already is today -- explicitly decided, not an
 // oversight: these didn't fit naturally into a grocery-aisle-style
 // grouping the way the other 12 did.
-type FoodCategoryGroup = { key: string; label: string; categories: string[] };
+type FoodCategoryGroup = {
+  key: string;
+  label: string;
+  categories: string[];
+  // 2026-08-17, direct report: "the Animal Protein is a useless step. It
+  // should just go straight to Dairy & Eggs, Fish & Seafood, and Meat &
+  // Poultry." Meat (display label "Animal Protein") is the one category
+  // in this whole app where the category's own real subcategories --
+  // confirmed directly against the database: "Fish & Seafood" and "Meat &
+  // Poultry" -- already say everything the category name itself would
+  // have, making that middle tap genuinely redundant. Any code listed
+  // here has its own real subcategories flattened directly into the
+  // group's reveal list (see buildGroupRevealOptions below) instead of
+  // showing as its own single tile -- Dairy is deliberately NOT listed:
+  // the user named "Dairy & Eggs" as one of the three real destinations,
+  // not its own four subcategories individually, so it stays a single
+  // tile exactly like every other non-flattened group member.
+  flattenSubcategoriesFor?: string[];
+};
 const FOOD_CATEGORY_GROUPS: FoodCategoryGroup[] = [
   { key: 'group-fresh-produce', label: 'Fresh Produce', categories: ['Fruit', 'Veg', 'Mushroom', 'Sprouts'] },
-  { key: 'group-meat-seafood-dairy', label: 'Meat, Seafood & Dairy', categories: ['Meat', 'Dairy'] },
+  {
+    key: 'group-meat-seafood-dairy',
+    label: 'Meat, Seafood & Dairy',
+    categories: ['Meat', 'Dairy'],
+    flattenSubcategoriesFor: ['Meat'],
+  },
   { key: 'group-grains-pasta-legumes', label: 'Grains, Pasta & Legumes', categories: ['Grain', 'PastaNoodles', 'Legume'] },
   { key: 'group-pantry-staples', label: 'Pantry & Staples', categories: ['PantryStaples', 'Fats', 'NutSeed', 'Algae'] },
   { key: 'group-sauces-herbs-seasonings', label: 'Sauces, Herbs & Seasonings', categories: ['SaucesCondiments', 'Herbs'] },
 ];
+
+// A group-reveal option can point at a plain real category (picking it
+// runs the normal Category -> Subcategory -> Food flow, unchanged) or, for
+// a flattened category (see flattenSubcategoriesFor above), at one exact
+// real (category, subcategory) pair -- picking one of those pre-answers
+// the Subcategory step too, so it never shows at all. Encoded as a single
+// string (InlineSelectList's own option `value` is always a plain string)
+// rather than a second parallel option type, using a delimiter no real
+// category/subcategory string in this database actually contains.
+const FLATTENED_OPTION_PREFIX = 'flattened::';
+function encodeFlattenedOption(category: string, subcategory: string): string {
+  return `${FLATTENED_OPTION_PREFIX}${category}::${subcategory}`;
+}
+function decodeFlattenedOption(value: string): { category: string; subcategory: string } | null {
+  if (!value.startsWith(FLATTENED_OPTION_PREFIX)) return null;
+  const rest = value.slice(FLATTENED_OPTION_PREFIX.length);
+  const separatorIndex = rest.indexOf('::');
+  if (separatorIndex === -1) return null;
+  return { category: rest.slice(0, separatorIndex), subcategory: rest.slice(separatorIndex + 2) };
+}
 
 function isFoodCategoryGroupKey(value: string): boolean {
   return FOOD_CATEGORY_GROUPS.some((group) => group.key === value);
@@ -272,12 +315,67 @@ function buildTopLevelCategoryOptions(categories: string[]): { label: string; va
   return [...groupOptions, ...standaloneOptions].sort((a, b) => a.label.localeCompare(b.label));
 }
 
-// The second-level list shown once a real group tile is tapped -- just the
-// real categories that group actually revealed (see groupMembersPresent),
-// each using its own normal categoryLabel.
-function groupMemberOptions(groupKey: string, categories: string[]): { label: string; value: string }[] {
-  return groupMembersPresent(groupKey, categories).map((code) => ({ label: categoryLabel(code), value: code }));
+// The second-level list shown once a real group tile is tapped. For most
+// group members this is just that category's own plain tile (categoryLabel,
+// unchanged); for a category listed in the group's own flattenSubcategoriesFor
+// (see that field's own comment above), its real subcategories are shown
+// directly here instead of the category itself -- each a real, pre-loaded
+// entry in flattenedSubcategories (see the mount-time fetch effect below),
+// keyed by encodeFlattenedOption so picking one can set both category and
+// subcategory at once. A flatten target whose subcategories haven't loaded
+// yet (a brief, near-instant local-query gap) falls back to its own plain
+// tile rather than showing nothing -- harmless, since the very next render
+// once the fetch resolves replaces it with the real flattened choices.
+// Sorted alphabetically by whatever label actually shows, same as every
+// other list in this file.
+function buildGroupRevealOptions(
+  groupKey: string,
+  categories: string[],
+  flattenedSubcategories: Record<string, string[]>,
+): { label: string; value: string }[] {
+  const group = FOOD_CATEGORY_GROUPS.find((g) => g.key === groupKey);
+  const options: { label: string; value: string }[] = [];
+  for (const code of groupMembersPresent(groupKey, categories)) {
+    const subcategories = group?.flattenSubcategoriesFor?.includes(code) ? flattenedSubcategories[code] : undefined;
+    if (subcategories && subcategories.length > 0) {
+      for (const subcategory of subcategories) {
+        options.push({ label: subcategory, value: encodeFlattenedOption(code, subcategory) });
+      }
+    } else {
+      options.push({ label: categoryLabel(code), value: code });
+    }
+  }
+  return options.sort((a, b) => a.label.localeCompare(b.label));
 }
+
+// 2026-08-17, direct report: "There shouldn't be a Processed & Preserved
+// appearing in Fruits, or in Vegetables... the next thing I see should be
+// raw vegetables." Confirmed directly against the reference database:
+// Veg and Fruit are the only two categories inside the new Fresh Produce
+// group with a real subcategory split at all -- every other real Veg/
+// Fruit row not caught by one of the checks below (canned/pickled/etc.
+// items like tomato ketchup, tomato paste, canned peaches, sweet potato in
+// syrup) sits in a real, separate "Processed & Preserved" subcategory
+// alongside "Whole / Fresh Vegetables"/"Whole / Fresh Fruit" -- Mushroom
+// and Sprouts, the other two Fresh Produce members, have no subcategory
+// split at all and already skip straight to their own Food list.
+//
+// Deliberately NOT removed from the database or from allowedSubcategories
+// anywhere -- these are real, useful ingredients several other builders
+// genuinely need (Sauces/Soup Builder for tomato paste/ketchup, Dessert
+// Builder for canned fruit) with no second path to reach them (confirmed
+// directly: none of this exists under SaucesCondiments too). Auto-
+// selecting the "Whole / Fresh" subcategory the instant Veg/Fruit is
+// picked -- but leaving the existing summary row's own "Change" link fully
+// in place -- gets the literal ask ("the next thing I see should be raw
+// vegetables," no extra tap needed) without breaking anyone's real ability
+// to still reach the processed/preserved variant one tap away, the exact
+// same "default to the one obviously-right choice, stay changeable"
+// precedent this file already uses for prep-method auto-selection.
+const FRESH_PRODUCE_DEFAULT_SUBCATEGORY: Record<string, string> = {
+  Veg: 'Whole / Fresh Vegetables',
+  Fruit: 'Whole / Fresh Fruit',
+};
 
 // Real, human-readable labels for the reference database's own raw
 // `source` column values -- 2026-08-11, built for real source attribution
@@ -552,6 +650,12 @@ export function FoodLookup({
   // concern for the Category step's own render below; nothing downstream
   // of `category` being set ever reads this.
   const [categoryGroupKey, setCategoryGroupKey] = useState<string | null>(null);
+  // Real subcategory lists for whichever category codes any group actually
+  // needs to flatten (see FoodCategoryGroup's own flattenSubcategoriesFor
+  // comment) -- fetched once, eagerly, alongside `categories` itself below,
+  // not lazily per-group-open, so a group's own reveal list never has to
+  // show a loading state or a temporarily-wrong option.
+  const [groupFlattenedSubcategories, setGroupFlattenedSubcategories] = useState<Record<string, string[]>>({});
   const [category, setCategory] = useState(initialCategory);
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [subcategory, setSubcategory] = useState<string | null>(initialSubcategory);
@@ -877,6 +981,32 @@ export function FoodLookup({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // See groupFlattenedSubcategories' own comment above -- fires once
+  // `categories` itself is actually populated (the effect just above),
+  // fetching real subcategories for whichever flatten-target codes are
+  // genuinely present after allowedCategories filtering (today, just
+  // 'Meat' -- a builder that doesn't offer Meat at all correctly fetches
+  // nothing extra here).
+  useEffect(() => {
+    if (categories.length === 0) return;
+    const targets = new Set<string>();
+    for (const group of FOOD_CATEGORY_GROUPS) {
+      for (const code of group.flattenSubcategoriesFor ?? []) {
+        if (categories.includes(code)) targets.add(code);
+      }
+    }
+    if (targets.size === 0) return;
+    let cancelled = false;
+    Promise.all(Array.from(targets).map((code) => getReferenceSubcategories(code).then((rows) => [code, rows] as const))).then(
+      (entries) => {
+        if (!cancelled) setGroupFlattenedSubcategories(Object.fromEntries(entries));
+      },
+    );
+    return () => {
+      cancelled = true;
+    };
+  }, [categories]);
+
   // Healing Stages reordering -- loaded once, same reasoning as
   // getReferenceCategories above: a person's own declared stages don't
   // change while this screen is open.
@@ -899,7 +1029,20 @@ export function FoodLookup({
     getReferenceSubcategories(category).then((rows) => {
       if (cancelled) return;
       const allowed = allowedSubcategories?.[category];
-      setSubcategories(allowed ? rows.filter((row) => allowed.includes(row)) : rows);
+      const effectiveRows = allowed ? rows.filter((row) => allowed.includes(row)) : rows;
+      setSubcategories(effectiveRows);
+      // See FRESH_PRODUCE_DEFAULT_SUBCATEGORY's own comment above -- only
+      // Veg/Fruit have a real default worth pre-picking. The functional
+      // updater (not a plain setSubcategory(defaultValue)) means this never
+      // clobbers an already-resolved value: a genuine edit-resume already
+      // carrying its own initialSubcategory, or a value a fast subsequent
+      // tap already set before this async response landed, both stay
+      // exactly as they are; only a genuinely still-null subcategory gets
+      // filled in.
+      const defaultSubcategory = FRESH_PRODUCE_DEFAULT_SUBCATEGORY[category];
+      if (defaultSubcategory && effectiveRows.includes(defaultSubcategory)) {
+        setSubcategory((current) => current ?? defaultSubcategory);
+      }
     });
     return () => {
       cancelled = true;
@@ -1478,9 +1621,24 @@ export function FoodLookup({
                 <Text style={[styles.categoryGroupBackText, { color: tabColor }]}>‹ Food Groups</Text>
               </TouchableOpacity>
               <InlineSelectList
-                options={groupMemberOptions(categoryGroupKey, categories)}
+                options={buildGroupRevealOptions(categoryGroupKey, categories, groupFlattenedSubcategories)}
                 value={category}
-                onChange={selectCategory}
+                onChange={(next) => {
+                  const flattened = decodeFlattenedOption(next);
+                  if (flattened) {
+                    // Picking a flattened option (e.g. "Fish & Seafood")
+                    // pre-answers the Subcategory step too -- selectCategory
+                    // already resets subcategory to null, so it's set again
+                    // right after, synchronously, to the real value this
+                    // option actually stands for. The Subcategory step's own
+                    // list never shows at all; the Food list underneath it
+                    // is what shows up next, exactly the point of this fix.
+                    selectCategory(flattened.category);
+                    setSubcategory(flattened.subcategory);
+                  } else {
+                    selectCategory(next);
+                  }
+                }}
                 height={groupSubListHeight}
                 tabColor={tabColor}
                 header={`Select a ${groupLabelFor(categoryGroupKey)} Category`}
