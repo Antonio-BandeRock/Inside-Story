@@ -153,19 +153,20 @@ export default function ScanProductScreen() {
     setStatus('scanning');
   }
 
-  // A real, explicit `productIdOverride` param, not just read from
-  // savedProductId/existingProductId state -- computeReport is sometimes
-  // called in the same synchronous handler that JUST called
-  // setExistingProductId (the re-scan-an-already-saved-product path in
-  // handleBarcodeScanned below), and React state updates aren't applied
-  // synchronously -- this function's own useCallback closure would still
-  // see the OLD (null) existingProductId at that exact moment, silently
-  // showing zero nutrients for a product that's actually already saved.
-  // Passing the real, definite id straight through as an argument sidesteps
-  // that stale-closure risk entirely rather than depending on a render that
-  // hasn't happened yet.
+  // No stale-closure risk here anymore -- every real caller of computeReport
+  // is now a genuine, separate user action (tapping "Continue" on the
+  // ingredients screen), which always happens well after any setState call
+  // that set savedProductId/existingProductId has already committed and
+  // re-rendered. See handleBarcodeScanned below: the re-scan-an-
+  // already-saved-product path used to call this synchronously, in the same
+  // tick as setExistingProductId, which is why this used to need a real
+  // productIdOverride param to sidestep a stale closure -- that call site
+  // is gone now (a repeat scan always lands on the real 'ingredients'
+  // screen too, so the person's own "Take a Photo of the Ingredients"
+  // button is never silently skipped just because a product was scanned
+  // once before), so the override was removed as genuinely dead code.
   const computeReport = useCallback(
-    async (text: string, productIdOverride?: number) => {
+    async (text: string) => {
       setComputingReport(true);
       try {
         const [additives, conditions] = await Promise.all([
@@ -174,7 +175,7 @@ export default function ScanProductScreen() {
         ]);
         setAdditiveFlags(additives);
         setConditionFlags(conditions);
-        const resolvedId = productIdOverride ?? savedProductId ?? existingProductId;
+        const resolvedId = savedProductId ?? existingProductId;
         if (resolvedId != null) {
           const nutrients = await getFoodNutrients(resolvedId, 'Scanned');
           setNutrientSummary(
@@ -211,7 +212,18 @@ export default function ScanProductScreen() {
     try {
       // Real, already-scanned reuse first -- scanning the same product a
       // second time should never re-hit the network or create a duplicate
-      // "My Processed Foods" entry.
+      // "My Processed Foods" entry. This ALWAYS lands on the real
+      // 'ingredients' screen next, even when a real ingredients_text is
+      // already on file (a real, direct-request fix, 2026-08-16 -- this
+      // used to jump straight to the report for a repeat scan, which
+      // silently skipped the whole ingredients screen -- and therefore its
+      // "Take a Photo of the Ingredients" button -- entirely, exactly
+      // matching a real, repeated on-device report that the ingredients
+      // scan step had "gone." Confirmed via a direct pull of the real
+      // on-device scanned_products table: both real test products already
+      // carried a genuine, non-empty ingredients_text from an earlier
+      // session, so every later re-scan of either one during this same
+      // testing session was silently taking this exact shortcut).
       const existing = await getScannedProductByBarcode(scanned);
       if (existing) {
         setExistingProductId(existing.id);
@@ -219,11 +231,7 @@ export default function ScanProductScreen() {
         setBrand(existing.brand);
         setIngredientsText(existing.ingredientsText ?? '');
         setSavedProductId(existing.id);
-        if (existing.ingredientsText) {
-          await computeReport(existing.ingredientsText, existing.id);
-        } else {
-          setStatus('ingredients');
-        }
+        setStatus('ingredients');
         return;
       }
       const result2 = await lookupProductByBarcode(scanned);
@@ -241,7 +249,7 @@ export default function ScanProductScreen() {
       setErrorMessage('Something went wrong looking that up. Check your connection and try again.');
       setStatus('error');
     }
-  }, [computeReport]);
+  }, []);
 
   async function finishIngredientsPhoto(uri: string) {
     setIngredientsPhotoUri(uri);
