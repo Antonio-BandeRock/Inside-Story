@@ -19,7 +19,7 @@ import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'ex
 import * as Speech from 'expo-speech';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
@@ -35,7 +35,7 @@ import {
   saveScannedProduct,
 } from '../lib/db';
 import { parseIngredientsForDisplay } from '../lib/ingredientsParsing';
-import { extractPriceGuess, recognizeTextFromImage } from '../lib/ocr';
+import { countRecognizedLetters, extractPriceGuess, recognizeTextFromImage } from '../lib/ocr';
 import { pickAndSaveMealPhoto, saveCapturedPhoto } from '../lib/mealPhotos';
 import {
   flagAdditivesInIngredients,
@@ -53,6 +53,7 @@ type ScanStatus =
   | 'report'
   | 'price-capture'
   | 'photo-capture'
+  | 'photo-review'
   | 'saved'
   | 'error';
 
@@ -60,6 +61,30 @@ type ScanStatus =
 // shared by the action sheet (which button opened it) and the in-app
 // camera step (what to do with the resulting picture).
 type PhotoTargetKind = 'ingredients' | 'price';
+
+// Real, multi-angle ingredients capture, 2026-08-16 -- direct request: a
+// curved can's own text is undistorted at a different spot in each frame,
+// and a shiny label's glare moves to a different spot too, so photographing
+// from a couple of angles and keeping whichever read the most real text is
+// one real technique that covers both problems, rather than needing two
+// separate features. Deliberately NOT persisted as a real, permanent file
+// per attempt -- only the raw camera-capture uri is used for the thumbnail/
+// OCR during review; only whichever one the person actually ends up using
+// gets saved for real (see handleUseIngredientsAttempts below), matching
+// the existing "exactly one real ingredients photo per product" invariant.
+type IngredientsPhotoAttempt = {
+  uri: string;
+  width: number;
+  height: number;
+  recognizedText: string | null;
+  recognizing: boolean;
+};
+
+// A real, bounded cap, not unlimited -- three real angles is already more
+// than enough for a curved/glossy label per the real research behind this
+// feature, and an unbounded "just keep shooting" flow would never give the
+// person a clear moment to stop.
+const MAX_INGREDIENT_ANGLES = 3;
 
 const REPORTABLE_NUTRIENT_CODES = ['energy_kcal', 'fat_total', 'carbohydrate', 'sugars_total', 'protein', 'sodium'];
 
@@ -100,6 +125,12 @@ export default function ScanProductScreen() {
   const [ingredientsText, setIngredientsText] = useState('');
   const [ingredientsPhotoUri, setIngredientsPhotoUri] = useState<string | null>(null);
   const [capturingIngredients, setCapturingIngredients] = useState(false);
+  // Real, multi-angle capture state -- see IngredientsPhotoAttempt's own
+  // header comment. selectedAttemptIndex null means "no manual override,
+  // use whichever one read the most real text" -- tapping a thumbnail on
+  // the review screen locks in an explicit choice instead.
+  const [ingredientsAttempts, setIngredientsAttempts] = useState<IngredientsPhotoAttempt[]>([]);
+  const [selectedAttemptIndex, setSelectedAttemptIndex] = useState<number | null>(null);
   const [nutrientSummary, setNutrientSummary] = useState<{ code: string; displayName: string; unit: string; amountPer100g: number }[]>([]);
   const [additiveFlags, setAdditiveFlags] = useState<ScannedProductFlag[]>([]);
   const [conditionFlags, setConditionFlags] = useState<ScannedProductConditionFlag[]>([]);
@@ -155,6 +186,26 @@ export default function ScanProductScreen() {
     [ingredientsText, selectedConditions],
   );
 
+  // Recomputed fresh from ingredientsAttempts every time it changes (each
+  // new OCR result coming in, or a new photo being added), so it always
+  // reflects the current best real read with no separate live-tracking
+  // state to keep in sync. selectedAttemptIndex, when set, always wins --
+  // a real, explicit tap on a specific photo should never get silently
+  // overridden by a later angle's own OCR result finishing.
+  const bestAttemptIndex = useMemo(() => {
+    let best = -1;
+    let bestScore = -1;
+    ingredientsAttempts.forEach((attempt, index) => {
+      const score = countRecognizedLetters(attempt.recognizedText);
+      if (score > bestScore) {
+        bestScore = score;
+        best = index;
+      }
+    });
+    return best;
+  }, [ingredientsAttempts]);
+  const effectiveAttemptIndex = selectedAttemptIndex ?? bestAttemptIndex;
+
   function resetForNewScan() {
     scanLockRef.current = false;
     setBarcode(null);
@@ -164,6 +215,8 @@ export default function ScanProductScreen() {
     setBrand(null);
     setIngredientsText('');
     setIngredientsPhotoUri(null);
+    setIngredientsAttempts([]);
+    setSelectedAttemptIndex(null);
     setNutrientSummary([]);
     setAdditiveFlags([]);
     setConditionFlags([]);
@@ -315,6 +368,13 @@ export default function ScanProductScreen() {
   // "Take a Photo" now opens the app's own in-app camera step (below)
   // rather than handing off to the phone's separate Camera app.
   function handleOpenCamera(target: PhotoTargetKind) {
+    if (target === 'ingredients') {
+      // A fresh multi-angle round every time this button is tapped --
+      // any earlier attempts from a prior round shouldn't silently keep
+      // influencing a brand-new attempt at reading the label.
+      setIngredientsAttempts([]);
+      setSelectedAttemptIndex(null);
+    }
     setPhotoCaptureTarget(target);
     setStatus('photo-capture');
   }
@@ -322,7 +382,14 @@ export default function ScanProductScreen() {
   function handleCancelPhotoCapture() {
     const target = photoCaptureTarget;
     setPhotoCaptureTarget(null);
-    setStatus(target === 'price' ? 'price-capture' : 'ingredients');
+    if (target === 'price') {
+      setStatus('price-capture');
+    } else {
+      // Back out to the review screen if at least one angle has already
+      // been captured this round (so it isn't silently thrown away), or
+      // straight back to the ingredients screen if none has yet.
+      setStatus(ingredientsAttempts.length > 0 ? 'photo-review' : 'ingredients');
+    }
   }
 
   async function handleTakePicture() {
@@ -331,32 +398,105 @@ export default function ScanProductScreen() {
     setTakingPicture(true);
     try {
       const picture = await cameraRef.current.takePictureAsync({ quality: 0.9 });
-      setPhotoCaptureTarget(null);
-      setStatus(target === 'price' ? 'price-capture' : 'ingredients');
 
-      const scopeKey = target === 'ingredients' ? 'scanned-product-ingredients' : 'scanned-product-price';
-      const previousUri = target === 'ingredients' ? ingredientsPhotoUri : pricePhotoUri;
-      const setBusy = target === 'ingredients' ? setCapturingIngredients : setCapturingPrice;
-      setBusy(true);
-      try {
-        const result = await saveCapturedPhoto(picture.uri, scopeKey, picture.width, picture.height, previousUri ?? undefined);
-        if (result.status === 'success') {
-          if (target === 'ingredients') await finishIngredientsPhoto(result.uri);
-          else await finishPricePhoto(result.uri);
-        } else if (result.status === 'too-small') {
-          setErrorMessage('That photo came out too small to use. Move a little closer and try again.');
-        } else if (result.status === 'too-large-after-compression') {
-          setErrorMessage("That photo couldn't be made small enough to save. Try again.");
+      if (target === 'ingredients') {
+        // Real multi-angle flow -- add this angle to the round and land on
+        // the review screen (not straight back to 'ingredients'), so the
+        // person can take another angle or use what's captured so far.
+        // Deliberately not persisted via saveCapturedPhoto yet -- see
+        // handleUseIngredientsAttempts, the one real place that actually
+        // happens, for whichever attempt is ultimately used.
+        setPhotoCaptureTarget(null);
+        setStatus('photo-review');
+        setIngredientsAttempts((prev) => [
+          ...prev,
+          { uri: picture.uri, width: picture.width, height: picture.height, recognizedText: null, recognizing: true },
+        ]);
+        const recognized = await recognizeTextFromImage(picture.uri);
+        setIngredientsAttempts((prev) =>
+          prev.map((attempt) =>
+            attempt.uri === picture.uri ? { ...attempt, recognizedText: recognized, recognizing: false } : attempt,
+          ),
+        );
+      } else {
+        setPhotoCaptureTarget(null);
+        setStatus('price-capture');
+        setCapturingPrice(true);
+        try {
+          const result = await saveCapturedPhoto(
+            picture.uri,
+            'scanned-product-price',
+            picture.width,
+            picture.height,
+            pricePhotoUri ?? undefined,
+          );
+          if (result.status === 'success') {
+            await finishPricePhoto(result.uri);
+          } else if (result.status === 'too-small') {
+            setErrorMessage('That photo came out too small to use. Move a little closer and try again.');
+          } else if (result.status === 'too-large-after-compression') {
+            setErrorMessage("That photo couldn't be made small enough to save. Try again.");
+          }
+        } finally {
+          setCapturingPrice(false);
         }
-      } finally {
-        setBusy(false);
       }
     } catch (error) {
       console.error('[ScanProductScreen] Failed to take picture', error);
       setPhotoCaptureTarget(null);
-      setStatus(target === 'price' ? 'price-capture' : 'ingredients');
+      setStatus(target === 'price' ? 'price-capture' : ingredientsAttempts.length > 0 ? 'photo-review' : 'ingredients');
     } finally {
       setTakingPicture(false);
+    }
+  }
+
+  function handleTakeAnotherAngle() {
+    setPhotoCaptureTarget('ingredients');
+    setStatus('photo-capture');
+  }
+
+  function handleSelectAttempt(index: number) {
+    setSelectedAttemptIndex(index);
+  }
+
+  // The one real place a multi-angle round actually persists anything --
+  // whichever attempt is currently chosen (the auto-picked best, or the
+  // person's own explicit tap) gets saved for real exactly the way a
+  // single photo always did, with the same real too-small/too-large
+  // handling. Every OTHER attempt's own raw camera-capture file is simply
+  // left alone (never a real, permanent app file to begin with).
+  async function handleUseIngredientsAttempts() {
+    const attempt = ingredientsAttempts[effectiveAttemptIndex];
+    if (!attempt) {
+      setStatus('ingredients');
+      return;
+    }
+    setCapturingIngredients(true);
+    try {
+      const result = await saveCapturedPhoto(
+        attempt.uri,
+        'scanned-product-ingredients',
+        attempt.width,
+        attempt.height,
+        ingredientsPhotoUri ?? undefined,
+      );
+      if (result.status === 'success') {
+        setIngredientsPhotoUri(result.uri);
+        if (attempt.recognizedText) setIngredientsText(attempt.recognizedText);
+      } else if (result.status === 'too-small') {
+        setErrorMessage('That photo came out too small to use. Move a little closer and try again.');
+      } else if (result.status === 'too-large-after-compression') {
+        setErrorMessage("That photo couldn't be made small enough to save. Try again.");
+      }
+    } finally {
+      setCapturingIngredients(false);
+      // Clear the other, unused angles now that a real choice has been
+      // made -- nothing else reads this state outside the review screen,
+      // and there's no reason to keep holding onto raw camera-capture
+      // files for angles that were never actually used.
+      setIngredientsAttempts([]);
+      setSelectedAttemptIndex(null);
+      setStatus('ingredients');
     }
   }
 
@@ -507,7 +647,9 @@ export default function ScanProductScreen() {
           <Text style={styles.scanHint}>
             {photoCaptureTarget === 'price'
               ? 'Line up the price tag or receipt, then tap to capture.'
-              : 'Line up the ingredients list, then tap to capture.'}
+              : ingredientsAttempts.length > 0
+                ? 'Line up another angle of the label, then tap to capture.'
+                : 'Line up the ingredients list, then tap to capture.'}
           </Text>
           <TouchableOpacity
             style={[styles.shutterButton, takingPicture ? styles.disabled : null]}
@@ -519,6 +661,79 @@ export default function ScanProductScreen() {
           </TouchableOpacity>
         </View>
       </View>
+    );
+  }
+
+  // Real, direct request, 2026-08-16: multiple photos from different
+  // angles cover both a curved can's undistorted-slice problem and a
+  // shiny label's moving-glare problem with one real technique, since
+  // this app can't send anything to a cloud OCR service without costing
+  // real cellular data in exactly the grocery-store dead zones this
+  // whole feature needs to work in. This screen is where those angles
+  // actually get compared -- whichever one read the most real, legible
+  // text is picked automatically, but every angle stays tappable so a
+  // person can pick a different one by eye if the auto-pick looks wrong.
+  // The manual-edit text field on the 'ingredients' screen is still the
+  // real fallback either way, unchanged.
+  if (status === 'photo-review') {
+    return (
+      <ScrollView style={styles.screen} contentContainerStyle={[styles.content, { paddingBottom: scrollPadding }]}>
+        <Text style={styles.title}>
+          {ingredientsAttempts.length} photo{ingredientsAttempts.length === 1 ? '' : 's'} of up to {MAX_INGREDIENT_ANGLES}
+        </Text>
+        <Text style={styles.text}>
+          {ingredientsAttempts.length > 1
+            ? "Tap a photo below if a different one reads more clearly. The one with the border is what we'll use."
+            : "Hard to read? A curved can or a shiny label often reads better from a second angle -- tap 'Take Another Angle' below."}
+        </Text>
+
+        <View style={styles.attemptRow}>
+          {ingredientsAttempts.map((attempt, index) => {
+            const isSelected = index === effectiveAttemptIndex;
+            const isBest = index === bestAttemptIndex && selectedAttemptIndex == null;
+            return (
+              <TouchableOpacity
+                key={attempt.uri}
+                style={[styles.attemptCard, isSelected ? styles.attemptCardSelected : null]}
+                activeOpacity={0.8}
+                onPress={() => handleSelectAttempt(index)}
+                disabled={attempt.recognizing}
+              >
+                <Image source={{ uri: attempt.uri }} style={styles.attemptThumbnail} resizeMode="cover" />
+                {attempt.recognizing ? (
+                  <View style={styles.attemptStatusRow}>
+                    <ActivityIndicator size="small" color={colors.accent} />
+                    <Text style={styles.attemptStatusText}>Reading…</Text>
+                  </View>
+                ) : (
+                  <Text style={styles.attemptSnippet} numberOfLines={2}>
+                    {attempt.recognizedText ? attempt.recognizedText : 'Nothing legible in this one'}
+                  </Text>
+                )}
+                {isBest ? <Text style={styles.attemptBestBadge}>Clearest read</Text> : null}
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+
+        {ingredientsAttempts.length < MAX_INGREDIENT_ANGLES ? (
+          <TouchableOpacity style={styles.secondaryButton} activeOpacity={0.85} onPress={handleTakeAnotherAngle}>
+            <Ionicons name="camera-outline" size={18} color={colors.textSecondary} />
+            <Text style={styles.secondaryButtonText}>Take Another Angle</Text>
+          </TouchableOpacity>
+        ) : null}
+
+        <TouchableOpacity
+          style={[styles.primaryButton, capturingIngredients ? styles.disabled : null]}
+          activeOpacity={0.85}
+          onPress={handleUseIngredientsAttempts}
+          disabled={capturingIngredients || ingredientsAttempts.some((attempt) => attempt.recognizing)}
+        >
+          <Text style={styles.primaryButtonText}>
+            {capturingIngredients ? 'Saving…' : ingredientsAttempts.length === 1 ? 'Use This Photo' : 'Use This One'}
+          </Text>
+        </TouchableOpacity>
+      </ScrollView>
     );
   }
 
@@ -911,6 +1126,25 @@ const styles = StyleSheet.create({
   ingredientCellDivider: { borderRightWidth: 1, borderRightColor: colors.border },
   ingredientCellText: { ...typography.caption, color: colors.textPrimary },
   gridHint: { ...typography.caption, color: colors.textMuted },
+  // The multi-angle review screen's own real thumbnail grid -- one card
+  // per captured angle, wrapping onto a new line rather than a fixed row,
+  // so this still reads fine whether there's 1 photo or the real max of 3.
+  attemptRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 4 },
+  attemptCard: {
+    width: 140,
+    padding: 8,
+    borderRadius: 10,
+    borderWidth: 2,
+    borderColor: colors.border,
+    backgroundColor: colors.surface,
+    gap: 6,
+  },
+  attemptCardSelected: { borderColor: colors.accent },
+  attemptThumbnail: { width: '100%', height: 110, borderRadius: 8, backgroundColor: colors.border },
+  attemptStatusRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  attemptStatusText: { ...typography.caption, color: colors.textSecondary },
+  attemptSnippet: { ...typography.caption, color: colors.textSecondary },
+  attemptBestBadge: { ...typography.caption, color: colors.accent, fontWeight: '600' },
   flagRow: { padding: 12, borderRadius: 10, borderWidth: 1, gap: 4 },
   flagLabel: { ...typography.bodyEmphasis, color: colors.textPrimary },
   flagDetail: { ...typography.caption, color: colors.textSecondary },

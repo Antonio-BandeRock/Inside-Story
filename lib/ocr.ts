@@ -25,6 +25,24 @@ export async function recognizeTextFromImage(imageUri: string): Promise<string |
   }
 }
 
+// A real, honest legibility score for comparing several photos of the SAME
+// label taken from different angles (see app/scan-product.tsx's own
+// multi-angle capture flow, built specifically for curved/glossy packaging
+// where a single flat photo often catches distortion or glare somewhere
+// across the text) -- counts real letters only (ignoring whitespace,
+// digits, and punctuation, and including the accented Latin letters common
+// in Spanish-language labels), since a garbled OCR read still tends to
+// produce plenty of stray digits/punctuation from misread glare or noise,
+// while a genuinely clean read produces more real, recognizable letters.
+// Not a claim of measuring "correctness," just "how much real text did
+// this one actually pull out" -- the same honest, best-effort spirit as
+// extractPriceGuess below.
+export function countRecognizedLetters(text: string | null): number {
+  if (!text) return 0;
+  const letters = text.match(/[a-zA-ZáéíóúñüÁÉÍÓÚÑÜ]/g);
+  return letters ? letters.length : 0;
+}
+
 // A real, best-effort price guess from a real price-tag/receipt photo's
 // OCR'd text -- always shown as an editable, pre-filled field for a
 // person to confirm or correct before it's ever saved, per direct
