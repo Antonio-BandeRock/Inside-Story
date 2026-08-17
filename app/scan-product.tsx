@@ -20,7 +20,6 @@ import * as Speech from 'expo-speech';
 import { useRouter } from 'expo-router';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
-import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
 import { VoiceInputButton } from '../components/VoiceInputButton';
 import { colors } from '../constants/colors';
@@ -95,7 +94,6 @@ export default function ScanProductScreen() {
   // full, confirmed-on-device reason "Take a Photo" no longer hands off to
   // the phone's separate Camera app the way it briefly did.
   const cameraRef = useRef<CameraView>(null);
-  const [photoSheetFor, setPhotoSheetFor] = useState<PhotoTargetKind | null>(null);
   const [photoCaptureTarget, setPhotoCaptureTarget] = useState<PhotoTargetKind | null>(null);
   const [takingPicture, setTakingPicture] = useState(false);
 
@@ -151,7 +149,6 @@ export default function ScanProductScreen() {
     setPriceText('');
     setPricePhotoUri(null);
     setErrorMessage(null);
-    setPhotoSheetFor(null);
     setPhotoCaptureTarget(null);
     setStatus('scanning');
   }
@@ -528,22 +525,20 @@ export default function ScanProductScreen() {
         <TouchableOpacity
           style={[styles.primaryButton, capturingIngredients ? styles.disabled : null]}
           activeOpacity={0.85}
-          onPress={() => setPhotoSheetFor('ingredients')}
+          onPress={() => handleOpenCamera('ingredients')}
           disabled={capturingIngredients}
         >
           <Ionicons name="camera-outline" size={18} color={colors.background} />
-          <Text style={styles.primaryButtonText}>{capturingIngredients ? 'Reading…' : 'Add a Photo of the Ingredients'}</Text>
+          <Text style={styles.primaryButtonText}>{capturingIngredients ? 'Reading…' : 'Take a Photo of the Ingredients'}</Text>
         </TouchableOpacity>
-        <AppActionSheet
-          visible={photoSheetFor === 'ingredients'}
-          onClose={() => setPhotoSheetFor(null)}
-          title="Ingredients Photo"
-          actions={[
-            { label: 'Take a Photo', onPress: () => handleOpenCamera('ingredients') },
-            { label: 'Choose from Library', onPress: () => handleChooseFromLibrary('ingredients') },
-            { label: 'Cancel', onPress: () => {} },
-          ]}
-        />
+        <TouchableOpacity
+          style={styles.libraryLink}
+          activeOpacity={0.7}
+          onPress={() => handleChooseFromLibrary('ingredients')}
+          disabled={capturingIngredients}
+        >
+          <Text style={styles.libraryLinkText}>or choose an existing photo</Text>
+        </TouchableOpacity>
 
         {parsedIngredientRows.length > 0 ? (
           <View style={styles.card}>
@@ -691,22 +686,20 @@ export default function ScanProductScreen() {
         <TouchableOpacity
           style={[styles.primaryButton, capturingPrice ? styles.disabled : null]}
           activeOpacity={0.85}
-          onPress={() => setPhotoSheetFor('price')}
+          onPress={() => handleOpenCamera('price')}
           disabled={capturingPrice}
         >
           <Ionicons name="camera-outline" size={18} color={colors.background} />
-          <Text style={styles.primaryButtonText}>{capturingPrice ? 'Reading…' : 'Add a Photo of the Price'}</Text>
+          <Text style={styles.primaryButtonText}>{capturingPrice ? 'Reading…' : 'Take a Photo of the Price'}</Text>
         </TouchableOpacity>
-        <AppActionSheet
-          visible={photoSheetFor === 'price'}
-          onClose={() => setPhotoSheetFor(null)}
-          title="Price Photo"
-          actions={[
-            { label: 'Take a Photo', onPress: () => handleOpenCamera('price') },
-            { label: 'Choose from Library', onPress: () => handleChooseFromLibrary('price') },
-            { label: 'Cancel', onPress: () => {} },
-          ]}
-        />
+        <TouchableOpacity
+          style={styles.libraryLink}
+          activeOpacity={0.7}
+          onPress={() => handleChooseFromLibrary('price')}
+          disabled={capturingPrice}
+        >
+          <Text style={styles.libraryLinkText}>or choose an existing photo</Text>
+        </TouchableOpacity>
         <View style={styles.textAreaRow}>
           <AppTextInput
             value={priceText}
@@ -865,4 +858,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
   },
   secondaryButtonText: { ...typography.bodyEmphasis, color: colors.textSecondary },
+  libraryLink: { alignItems: 'center', paddingVertical: 4 },
+  libraryLinkText: { ...typography.caption, color: colors.textMuted, textDecorationLine: 'underline' },
 });
