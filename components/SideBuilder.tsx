@@ -1325,6 +1325,14 @@ export function SideBuilder({
   function renderSummaryCardContent() {
     return (
       <>
+        {/* 2026-08-17, direct report: "it already has the name of the side
+            dish at the top next to the collapse/expand symbol, so it
+            doesn't need it repeated again just below it." Removed --
+            CollapsibleOverlayCard's own headerRow already shows this same
+            dishName as collapsedLabel right above this section. Serves/
+            serving-size and the "tap to change dish details" link stay --
+            neither is shown anywhere else, so they're real, non-duplicate
+            information. */}
         <TouchableOpacity
           onPress={() => {
             setSummaryExpanded(false);
@@ -1332,9 +1340,6 @@ export function SideBuilder({
             setServingsConfirmed(false);
           }}
         >
-          <Text style={[styles.overviewDishName, { color: tabColor }]} numberOfLines={2}>
-            {dishName.trim() || 'Side Dish'}
-          </Text>
           <Text style={styles.summaryDetailText}>Serves {servings || '?'}</Text>
           <Text style={styles.summaryDetailText}>
             {servingSizeAmount || '?'} {servingSizeUnit ?? '?'} / serving

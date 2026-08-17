@@ -1350,6 +1350,22 @@ export async function searchReferenceFoodNamesAcrossCategories(
   // state. A category with NO real subcategories at all (Grain,
   // PantryStaples, Mushroom, etc.) is untouched by this -- its own
   // null-subcategory rows were always fully reachable.
+  //
+  // A real, second ranking tier added 2026-08-17, confirmed directly
+  // against the live database, not guessed: "green beans" was resolving to
+  // Germany_BLS's own bare "Green beans" (Boiled/Stewed only, genuinely no
+  // Raw option) ahead of the real, richer USDA "Snap Beans (Green Beans)"
+  // entry (Raw/Boiled/Canned across many sources) -- since the bare name
+  // starts with the exact query, it won the old top ranking tier outright,
+  // while the parenthetical alias never ranked above the generic
+  // catch-all. This app's own reference-database curation already relies
+  // on a "Formal Name (Common Name)" convention specifically so a common,
+  // colloquial name stays findable (the Chicken Egg family, "(Green
+  // Beans)" itself) -- an exact match INSIDE that parenthetical is at
+  // least as strong a signal as a bare starts-with, arguably stronger,
+  // since it's the app's own deliberately-preserved common name, not an
+  // incidental prefix match. Ranked as a new top tier for exactly that
+  // reason, ahead of the plain starts-with/comma-clause tiers below it.
   const directRows = await db.getAllAsync<{ category: string; subcategory: string | null; base_name: string }>(
     `
       SELECT DISTINCT category, subcategory, base_name
@@ -1365,7 +1381,8 @@ export async function searchReferenceFoodNamesAcrossCategories(
         CASE
           WHEN base_name LIKE ? THEN 0
           WHEN base_name LIKE ? THEN 1
-          ELSE 2
+          WHEN base_name LIKE ? THEN 2
+          ELSE 3
         END,
         base_name
       LIMIT ?
@@ -1376,6 +1393,7 @@ export async function searchReferenceFoodNamesAcrossCategories(
     `%${trimmed}%`,
     `%${collapsedQuery}%`,
     `%${collapsedQuery}%`,
+    `%(${trimmed})%`,
     `${trimmed}%`,
     `%, ${trimmed}%`,
     limit,
