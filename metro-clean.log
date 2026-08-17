@@ -23,7 +23,7 @@ Scan this in Expo Go (or tap "Enter URL manually" and type the address below):
 
 exp://192.168.68.53:8081
 
-(node:31104) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(node:17088) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Starting project at C:\Dev\hashimotos-app
 React Compiler enabled
@@ -32,123 +32,9 @@ warning: Bundler cache is empty, rebuilding (this may take a minute)
 Waiting on http://localhost:8081
 Logs for your project will appear below.
 Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-| (node:22896) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:27348) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:33788) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:31400) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:27116) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:25332) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:20404) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:32564) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 40.1% (362/572)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.7% (685/891)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.7% ( 861/1102)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 67.7% (1053/1409)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 81.7% (1528/1691)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 90.4% (2047/2153)
-Android Bundled 22972ms node_modules\expo-router\entry.js (2303 modules)
- LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +155ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +188ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +135ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +162ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 119ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +193ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +228ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 34.3% (421/780)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓░░░░░░░ 59.7% (1166/1527)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 77.6% (1751/1988)
-Android Bundled 13562ms node_modules\expo-router\entry.js (2333 modules)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 91ms node_modules\expo-router\entry.js (1 module)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 101ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +207ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +242ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-file-system\src\index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 538ms node_modules\expo-file-system\src\index.ts (626 modules)
-Android Bundled 274ms node_modules\rn-mlkit-ocr\lib\module\index.js (542 modules)
-Android Bundled 136ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +178ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +221ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +133ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +159ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +140ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +167ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 100ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +181ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +221ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-image-manipulator\src\index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 550ms node_modules\expo-image-manipulator\src\index.ts (686 modules)
-Android node_modules\expo-file-system\src\index.ts ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 34ms node_modules\expo-file-system\src\index.ts (1 module)
-Android Bundled 36ms node_modules\rn-mlkit-ocr\lib\module\index.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +152ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +182ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +125ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +195ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +137ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +175ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 169ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +172ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +207ms: Modal onShow (Android Dialog window confirmed up)
-Android Bundled 24ms node_modules\expo-file-system\src\index.ts (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +133ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +166ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +144ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +176ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 2192ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +171ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +206ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 124ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +179ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +211ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 143ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +163ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +201ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 410ms node_modules\expo-router\entry.js (1 module)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 128ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +169ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +209ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 129ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +172ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +204ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +148ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +180ms: Modal onShow (Android Dialog window confirmed up)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 42.4% (375/576)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.8% (689/901)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.8% ( 862/1152)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.1% (1302/1578)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 88.1% (2025/2157)
+Android Bundled 19512ms node_modules\expo-router\entry.js (2306 modules)
