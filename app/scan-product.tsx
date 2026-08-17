@@ -18,7 +18,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { CameraView, useCameraPermissions, type BarcodeScanningResult } from 'expo-camera';
 import * as Speech from 'expo-speech';
 import { useRouter } from 'expo-router';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { ActivityIndicator, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppActionSheet } from '../components/AppActionSheet';
 import { AppTextInput } from '../components/AppTextInput';
@@ -30,12 +30,20 @@ import { lookupProductByBarcode, type LookedUpProduct } from '../lib/barcodeLook
 import {
   getFoodNutrients,
   getScannedProductByBarcode,
+  getUserConditions,
   recordScannedProductPrice,
   saveScannedProduct,
 } from '../lib/db';
+import { parseIngredientsForDisplay } from '../lib/ingredientsParsing';
 import { extractPriceGuess, recognizeTextFromImage } from '../lib/ocr';
 import { pickAndSaveMealPhoto, saveCapturedPhoto } from '../lib/mealPhotos';
-import { flagAdditivesInIngredients, flagConditionConcernsInIngredients, type ScannedProductConditionFlag, type ScannedProductFlag } from '../lib/scannedProductFlags';
+import {
+  flagAdditivesInIngredients,
+  flagConditionConcernsForConditions,
+  flagConditionConcernsInIngredients,
+  type ScannedProductConditionFlag,
+  type ScannedProductFlag,
+} from '../lib/scannedProductFlags';
 
 type ScanStatus =
   | 'scanning'
@@ -91,12 +99,41 @@ export default function ScanProductScreen() {
   const [photoCaptureTarget, setPhotoCaptureTarget] = useState<PhotoTargetKind | null>(null);
   const [takingPicture, setTakingPicture] = useState(false);
 
+  // Fetched once, reused for every row of the real, readable ingredient
+  // table below -- see flagConditionConcernsForConditions's own header
+  // comment in lib/scannedProductFlags.ts for why this stays a single
+  // fetch rather than one query per ingredient row.
+  const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
+
   useEffect(() => {
     if (!permission) return;
     if (!permission.granted && permission.canAskAgain) {
       requestPermission();
     }
   }, [permission, requestPermission]);
+
+  useEffect(() => {
+    getUserConditions().then(setSelectedConditions);
+  }, []);
+
+  // 2026-08-16 -- direct request: "the output needs to be in a readable
+  // and completely understandable format or table of information." The
+  // raw ingredientsText string (from OCR or Open Food Facts) is still the
+  // real, single source of truth -- fed into computeReport, saved as-is,
+  // and still directly editable below -- this is purely a real, derived
+  // display: one row per real ingredient, in Title Case where the source
+  // reads as straight-off-the-label ALL CAPS, each flagged inline with
+  // the exact same real additive/condition matching the report step
+  // already uses, just applied per-row instead of over the whole text.
+  const parsedIngredientRows = useMemo(
+    () =>
+      parseIngredientsForDisplay(ingredientsText).map((entry) => ({
+        ...entry,
+        additiveFlags: flagAdditivesInIngredients(entry.raw),
+        conditionFlags: flagConditionConcernsForConditions(entry.raw, selectedConditions),
+      })),
+    [ingredientsText, selectedConditions],
+  );
 
   function resetForNewScan() {
     scanLockRef.current = false;
@@ -485,8 +522,8 @@ export default function ScanProductScreen() {
         <Text style={styles.sectionLabel}>Ingredients list</Text>
         <Text style={styles.text}>
           {ingredientsText
-            ? "We already have an ingredients list. Take a photo of the label to refine it, or edit it directly below."
-            : "Take a photo of the ingredients list to check it for anything worth avoiding."}
+            ? 'We already have an ingredients list, shown as a readable list below. Take a photo of the label to refine it, or edit the text directly.'
+            : 'Take a photo of the ingredients list to check it for anything worth avoiding.'}
         </Text>
         <TouchableOpacity
           style={[styles.primaryButton, capturingIngredients ? styles.disabled : null]}
@@ -507,6 +544,52 @@ export default function ScanProductScreen() {
             { label: 'Cancel', onPress: () => {} },
           ]}
         />
+
+        {parsedIngredientRows.length > 0 ? (
+          <View style={styles.card}>
+            <Text style={styles.sectionLabel}>Ingredients We Found ({parsedIngredientRows.length})</Text>
+            {parsedIngredientRows.map((row, index) => {
+              const flagCount = row.additiveFlags.length + row.conditionFlags.length;
+              return (
+                <View key={index} style={styles.ingredientRow}>
+                  <Text style={styles.ingredientLabel}>{row.label}</Text>
+                  {flagCount > 0 ? (
+                    <View style={styles.ingredientFlagsRow}>
+                      {row.additiveFlags.map((flag, i) => (
+                        <View
+                          key={`a-${i}`}
+                          style={[
+                            styles.ingredientFlagBadge,
+                            flag.severity === 'red'
+                              ? { backgroundColor: colors.statusRedBg, borderColor: colors.danger }
+                              : flag.severity === 'yellow'
+                                ? { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }
+                                : { backgroundColor: colors.surface, borderColor: colors.border },
+                          ]}
+                        >
+                          <Text style={styles.ingredientFlagBadgeText}>{flag.label}</Text>
+                        </View>
+                      ))}
+                      {row.conditionFlags.map((flag, i) => (
+                        <View
+                          key={`c-${i}`}
+                          style={[styles.ingredientFlagBadge, { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }]}
+                        >
+                          <Text style={styles.ingredientFlagBadgeText}>{flag.label}</Text>
+                        </View>
+                      ))}
+                    </View>
+                  ) : null}
+                </View>
+              );
+            })}
+          </View>
+        ) : null}
+
+        <Text style={styles.sectionLabel}>Edit the Text Directly</Text>
+        <Text style={styles.text}>
+          If something above looks wrong or got missed, fix it here. The list above updates as you type.
+        </Text>
         <View style={styles.textAreaRow}>
           <AppTextInput
             value={ingredientsText}
@@ -721,6 +804,21 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   nutrientRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  ingredientRow: {
+    paddingVertical: 8,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+    gap: 6,
+  },
+  ingredientLabel: { ...typography.body, color: colors.textPrimary },
+  ingredientFlagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
+  ingredientFlagBadge: {
+    paddingVertical: 3,
+    paddingHorizontal: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+  },
+  ingredientFlagBadgeText: { ...typography.caption, color: colors.textPrimary },
   flagRow: { padding: 12, borderRadius: 10, borderWidth: 1, gap: 4 },
   flagLabel: { ...typography.bodyEmphasis, color: colors.textPrimary },
   flagDetail: { ...typography.caption, color: colors.textSecondary },

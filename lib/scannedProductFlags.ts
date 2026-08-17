@@ -196,14 +196,17 @@ export function flagAdditivesInIngredients(ingredientsText: string): ScannedProd
   return flags;
 }
 
-// Only checks concerns for conditions the person has actually tracked in
-// their own Profile -- a flag naming a Hashimoto's-specific concern is
-// only actually useful to someone who's told the app they have it.
-export async function flagConditionConcernsInIngredients(ingredientsText: string): Promise<ScannedProductConditionFlag[]> {
+// Real, synchronous core -- takes the person's already-known selected
+// conditions as a plain argument instead of fetching them itself, so a
+// caller checking MANY short strings at once (e.g. one row per ingredient
+// in a real parsed list) can fetch getUserConditions() a single time and
+// reuse it, rather than re-querying the database once per row.
+export function flagConditionConcernsForConditions(
+  ingredientsText: string,
+  selectedConditions: string[],
+): ScannedProductConditionFlag[] {
   const trimmed = ingredientsText.trim();
-  if (!trimmed) return [];
-  const selectedConditions = await getUserConditions();
-  if (selectedConditions.length === 0) return [];
+  if (!trimmed || selectedConditions.length === 0) return [];
   const selectedSet = new Set(selectedConditions);
   const flags: ScannedProductConditionFlag[] = [];
   for (const model of CONDITION_FOOD_CONCERNS) {
@@ -226,4 +229,14 @@ export async function flagConditionConcernsInIngredients(ingredientsText: string
     }
   }
   return flags;
+}
+
+// Only checks concerns for conditions the person has actually tracked in
+// their own Profile -- a flag naming a Hashimoto's-specific concern is
+// only actually useful to someone who's told the app they have it.
+export async function flagConditionConcernsInIngredients(ingredientsText: string): Promise<ScannedProductConditionFlag[]> {
+  const trimmed = ingredientsText.trim();
+  if (!trimmed) return [];
+  const selectedConditions = await getUserConditions();
+  return flagConditionConcernsForConditions(trimmed, selectedConditions);
 }
