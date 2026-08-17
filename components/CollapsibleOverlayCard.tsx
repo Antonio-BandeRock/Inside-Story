@@ -43,6 +43,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { useLayoutEffect, useRef, type ReactNode } from 'react';
 import { Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { colors } from '../constants/colors';
+import { NAVIGATION_HAND } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
 import { useOverlay } from './OverlayContext';
 import { useScreenHeaderHeight } from './ScreenHeader';
@@ -86,16 +87,41 @@ export function CollapsibleOverlayCard({
       <Pressable style={styles.backdrop} />
       <View style={[styles.topWrap, { paddingTop: headerHeight + 12 }]} pointerEvents="box-none">
         <View style={[styles.card, { borderColor: tabColor }]}>
-          <View style={styles.headerRow}>
-            <Text style={[styles.headerLabel, { color: tabColor }]} numberOfLines={1}>
-              {collapsedLabel}
-            </Text>
-            {/* The "obvious collapse symbol" the request itself names
-                directly -- a real, large, clearly-a-close-button chevron,
-                not a small corner glyph easy to miss. */}
-            <TouchableOpacity style={styles.collapseButton} onPress={onCollapse} accessibilityLabel="Collapse this card">
-              <Ionicons name="chevron-up-circle" size={30} color={tabColor} />
-            </TouchableOpacity>
+          {/* Nav-hand-aware, 2026-08-17, direct report: "the expand and
+              collapse symbol for the side dish name and ingredients needs
+              to be left/right navigation aware. Put it on the left for
+              left side, and right for the right side. If it is on the
+              left side, it is to the left the name of the dish. If it is
+              on the right side, it is all the way over to the right as it
+              is now." Right-hand (default) keeps the original layout
+              unchanged (label pinned left, button pinned all the way
+              right via space-between); left-hand reorders the two
+              children AND switches to flex-start so the button sits
+              directly beside the label, at the left, rather than jumping
+              to the far right edge of an otherwise-empty row. */}
+          <View style={[styles.headerRow, NAVIGATION_HAND === 'left' ? styles.headerRowLeftHand : null]}>
+            {NAVIGATION_HAND === 'left' ? (
+              <>
+                {/* The "obvious collapse symbol" the request itself names
+                    directly -- a real, large, clearly-a-close-button
+                    chevron, not a small corner glyph easy to miss. */}
+                <TouchableOpacity style={styles.collapseButton} onPress={onCollapse} accessibilityLabel="Collapse this card">
+                  <Ionicons name="chevron-up-circle" size={30} color={tabColor} />
+                </TouchableOpacity>
+                <Text style={[styles.headerLabel, { color: tabColor }]} numberOfLines={1}>
+                  {collapsedLabel}
+                </Text>
+              </>
+            ) : (
+              <>
+                <Text style={[styles.headerLabel, { color: tabColor }]} numberOfLines={1}>
+                  {collapsedLabel}
+                </Text>
+                <TouchableOpacity style={styles.collapseButton} onPress={onCollapse} accessibilityLabel="Collapse this card">
+                  <Ionicons name="chevron-up-circle" size={30} color={tabColor} />
+                </TouchableOpacity>
+              </>
+            )}
           </View>
           {children}
         </View>
@@ -135,12 +161,34 @@ export function CollapsibleOverlayCard({
   // tap to expand. "Make all four corners be rounded," explicitly requested
   // -- no squared-off edge anywhere, unlike the connected-picker seam this
   // card used to form before this redesign.
+  //
+  // Nav-hand-aware the same way as headerRow above -- right-hand (default)
+  // is the original, unchanged layout (label left, chevron all the way
+  // right); left-hand reorders to chevron-then-label and switches to
+  // flex-start so the chevron sits directly to the left of the dish name,
+  // not on its own at the far-left edge with the label pushed away to the
+  // far right.
   return (
-    <TouchableOpacity style={[styles.collapsedCard, { borderColor: tabColor }]} onPress={onExpand} activeOpacity={0.8}>
-      <Text style={[styles.collapsedLabel, { color: tabColor }]} numberOfLines={1}>
-        {collapsedLabel}
-      </Text>
-      <Ionicons name="chevron-down-circle-outline" size={22} color={tabColor} />
+    <TouchableOpacity
+      style={[styles.collapsedCard, { borderColor: tabColor }, NAVIGATION_HAND === 'left' ? styles.collapsedCardLeftHand : null]}
+      onPress={onExpand}
+      activeOpacity={0.8}
+    >
+      {NAVIGATION_HAND === 'left' ? (
+        <>
+          <Ionicons name="chevron-down-circle-outline" size={22} color={tabColor} />
+          <Text style={[styles.collapsedLabel, { color: tabColor }]} numberOfLines={1}>
+            {collapsedLabel}
+          </Text>
+        </>
+      ) : (
+        <>
+          <Text style={[styles.collapsedLabel, { color: tabColor }]} numberOfLines={1}>
+            {collapsedLabel}
+          </Text>
+          <Ionicons name="chevron-down-circle-outline" size={22} color={tabColor} />
+        </>
+      )}
     </TouchableOpacity>
   );
 }
@@ -149,17 +197,24 @@ const styles = StyleSheet.create({
   collapsedCard: {
     flexDirection: 'row',
     alignItems: 'center',
+    // Right-hand default: label pinned left, chevron pinned all the way
+    // right. gap is a real, harmless no-op here (space-between already puts
+    // far more room than 8px between two items in a wide pill) -- it only
+    // becomes the actual visible spacing once collapsedCardLeftHand below
+    // switches justifyContent to flex-start.
     justifyContent: 'space-between',
+    gap: 8,
     borderWidth: 2,
     borderRadius: 14,
     paddingHorizontal: 16,
     paddingVertical: 12,
     backgroundColor: colors.surface,
   },
+  // Left-hand override -- see this file's own render-time comment.
+  collapsedCardLeftHand: { justifyContent: 'flex-start' },
   collapsedLabel: {
     ...typography.bodyEmphasis,
     flexShrink: 1,
-    marginRight: 8,
   },
   backdrop: { ...StyleSheet.absoluteFillObject, backgroundColor: 'rgba(0,0,0,0.55)' },
   // Top-anchored, not centered -- paddingTop is set inline per-render (see
@@ -185,14 +240,18 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: 'row',
     alignItems: 'center',
+    // Same real gap/justifyContent split as collapsedCard above -- see that
+    // style's own comment.
     justifyContent: 'space-between',
+    gap: 10,
     marginBottom: 10,
   },
+  // Left-hand override -- see this file's own render-time comment.
+  headerRowLeftHand: { justifyContent: 'flex-start' },
   headerLabel: {
     ...typography.bodyEmphasis,
     fontSize: 17,
     flexShrink: 1,
-    marginRight: 10,
   },
   collapseButton: {
     padding: 2,

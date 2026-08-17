@@ -1638,30 +1638,31 @@ export function SideBuilder({
               Servings/Size, since it's not part of either's own row/
               column pairing and applies to the dish as a whole. */}
           <Text style={[styles.formLabel, { color: tabColor }]}>Dish Name</Text>
-          {/* 2026-08-17, direct on-device correction: the mic used to sit on
-              its own row ABOVE the field, next to the label -- reported
-              directly as being in the wrong spot. "Put the microphone on
-              the same row as the field itself." Rebuilt as one real row
-              (field, then mic, or the reverse -- see NAVIGATION_HAND below),
-              matching the exact same field-plus-mic-on-one-row pattern
-              schedule.tsx's own label-less title fields already use, rather
-              than the label-plus-mic row this screen used before. The field
-              takes flex: 1 so the mic (now genuinely bigger, per the same
-              report -- 24 vs. the original 16) always keeps its own fixed
-              real size regardless of how wide the field itself ends up.
-              Every result still replaces the field live, straight through
-              handleDishNameChange (unchanged, still defined far above) --
-              a name is said whole, not built up with bullet/paragraph
-              commands the way a real dictated note is, so this stays a
-              plain replace rather than parseVoiceCommands/
-              appendDictatedText's own append-only pattern. That part of
-              the original design was already correct and is unchanged. */}
-          <View style={styles.dishNameRow}>
+          {/* 2026-08-17, a second real correction the same day: "Can the
+              microphone be part of the Dish Name field so the field looks
+              like it is extended all the way from the left to the right
+              sides?" Rebuilt again -- the mic is no longer a separate
+              button sitting beside the field (that was the prior fix's own
+              design, itself already a real improvement over the mic
+              floating on its own row above); it's now embedded INSIDE one
+              continuous bordered box, the same real "icon inside a search
+              bar" shape, so the whole thing reads as a single field
+              spanning the row rather than two separate elements. The
+              border/background that used to live on AppTextInput itself
+              (via formInput) now live on the outer wrap instead;
+              dishNameInputEmbedded strips them back off the input so
+              nothing doubles up. This also makes the field's own left edge
+              genuinely constant regardless of NAVIGATION_HAND (the mic now
+              only reorders WITHIN the box, it no longer sits outside it
+              pushing the box itself over) -- so the label above no longer
+              needs its own hand-computed left offset the prior fix required;
+              it can stay flush left, always correctly over the field. */}
+          <View style={[styles.dishNameFieldWrap, { backgroundColor: inputBackground(tabColor) }]}>
             {NAVIGATION_HAND === 'left' ? (
               <>
-                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={24} />
+                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={22} />
                 <AppTextInput
-                  style={[styles.formInput, styles.dishNameInput, { backgroundColor: inputBackground(tabColor) }]}
+                  style={[styles.formInput, styles.dishNameInputEmbedded]}
                   value={dishName}
                   onChangeText={handleDishNameChange}
                   placeholder="e.g., Roasted Garlic Green Beans"
@@ -1677,13 +1678,13 @@ export function SideBuilder({
             ) : (
               <>
                 <AppTextInput
-                  style={[styles.formInput, styles.dishNameInput, { backgroundColor: inputBackground(tabColor) }]}
+                  style={[styles.formInput, styles.dishNameInputEmbedded]}
                   value={dishName}
                   onChangeText={handleDishNameChange}
                   placeholder="e.g., Roasted Garlic Green Beans"
                   autoFocus
                 />
-                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={24} />
+                <VoiceInputButton onResult={(transcript) => handleDishNameChange(transcript)} size={22} />
               </>
             )}
           </View>
@@ -2251,10 +2252,24 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
   // 2026-08-17 -- see the Dish Name field's own comment for why this
-  // exists: the field and its mic now share one real row instead of the
-  // mic sitting on a separate label row above it.
-  dishNameRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 4 },
-  dishNameInput: { flex: 1, marginTop: 0 },
+  // exists: one continuous bordered box (the field's own real border/
+  // background, previously carried by formInput itself) holding both the
+  // text input and its mic, so the mic reads as part of the field rather
+  // than a separate element beside it.
+  dishNameFieldWrap: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 4,
+    marginTop: 4,
+  },
+  // Strips the border/background back off the input itself (both now live
+  // on dishNameFieldWrap above) so nothing doubles up visually; keeps
+  // formInput's own text size/color/internal padding, which still apply
+  // since this is layered on top of formInput, not a replacement for it.
+  dishNameInputEmbedded: { flex: 1, marginTop: 0, borderWidth: 0, backgroundColor: 'transparent' },
   // Two true rows, 2026-07-28 -- a label band (Servings/Size/Units) and an
   // input band (the three scrollable pill pickers themselves) directly
   // beneath it, each its own flex row with alignItems: 'flex-end' so every
@@ -2370,10 +2385,9 @@ const styles = StyleSheet.create({
   // button sits next to the label rather than inside the multiline
   // field itself).
   // prepNoteLabelRow removed 2026-08-17 -- its own last real usage (the
-  // Dish Name field's own label-plus-mic row) was rebuilt into
-  // dishNameRow above, per the same day's direct on-device correction;
-  // Prep Notes itself moved to StepsEditor.tsx, which owns its own
-  // separate styles.
+  // Dish Name field's own label-plus-mic row) was rebuilt, twice the same
+  // day, into what's now dishNameFieldWrap above; Prep Notes itself moved
+  // to StepsEditor.tsx, which owns its own separate styles.
   buttonRow: { flexDirection: 'row', gap: 10, marginTop: 16 },
   // 2026-08-08 -- renderFavoriteToggle's own row.
   favoriteToggleRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 12 },
