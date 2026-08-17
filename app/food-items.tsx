@@ -15,6 +15,7 @@ import {
   deleteHandheld,
   deleteSalad,
   deleteSauce,
+  deleteScannedProduct,
   deleteSide,
   deleteSmoothie,
   deleteSnack,
@@ -27,6 +28,7 @@ import {
   listHandhelds,
   listSalads,
   listSauces,
+  listScannedProducts,
   listSides,
   listSmoothies,
   listSnacks,
@@ -133,6 +135,18 @@ export default function FoodItemsScreen() {
               <TouchableOpacity
                 style={styles.itemTapArea}
                 onPress={() => {
+                  // "My Food Products," 2026-08-16 -- a real, dedicated
+                  // detail screen (app/food-product-detail.tsx), genuinely
+                  // different in shape from every builder's own saved
+                  // item (one nutrient panel, one photo, real price-over-
+                  // time history, no 6-Dimensions ingredient breakdown),
+                  // so this is checked and returned first, ahead of the
+                  // big itemType OR-chain just below that food-item-
+                  // detail.tsx's own shape actually applies to.
+                  if (itemType === 'scannedProduct') {
+                    router.push({ pathname: '/food-product-detail', params: { id: item.id, title: item.title } });
+                    return;
+                  }
                   // Only a real saved item (not yet a favorite -- those are
                   // a different, JSON-payload shape with no ingredients to
                   // show yet, see lib/db.ts's own favorites table) has
@@ -480,6 +494,20 @@ async function loadItems(itemType: string | undefined, status: string | undefine
     const favorites = await listFavorites(50, 'meal');
     return favorites.map((favorite) => ({ id: favorite.id, title: favorite.name }));
   }
+  // "My Food Products," 2026-08-16 -- real barcode-scanned items, always
+  // 'saved' (there's no favorite concept for these -- a scanned product IS
+  // the real, specific thing bought, not a reusable template). id is
+  // scanned_products' own real INTEGER primary key, stringified to match
+  // FoodItemEntry's own id type -- food-product-detail.tsx converts it
+  // back to a number on the way in.
+  if (itemType === 'scannedProduct') {
+    const products = await listScannedProducts();
+    return products.map((product) => ({
+      id: String(product.id),
+      title: product.name,
+      subtitle: product.brand ?? undefined,
+    }));
+  }
   return [];
 }
 
@@ -527,7 +555,13 @@ function supportsDelete(itemType: string | undefined): boolean {
     // supportsEdit above -- "Use this Favorite" (the tap handler) already
     // covers reusing one; there's no separate "edit a meal favorite in
     // place" concept the way editSideId etc. has for a real saved record.
-    itemType === 'meal'
+    itemType === 'meal' ||
+    // 'scannedProduct' -- 2026-08-16, real "My Food Products" support.
+    // Deliberately absent from supportsEdit too, same reasoning as 'meal':
+    // this list's own row has no Edit pencil, since real editing (name,
+    // ingredients text) happens inside food-product-detail.tsx itself,
+    // reached by the row's own tap, not a second, separate quick-action.
+    itemType === 'scannedProduct'
   );
 }
 
@@ -554,6 +588,8 @@ async function deleteItem(itemType: string | undefined, id: string): Promise<voi
     await deleteHandheld(id);
   } else if (itemType === 'dessert') {
     await deleteDessert(id);
+  } else if (itemType === 'scannedProduct') {
+    await deleteScannedProduct(Number(id));
   }
 }
 

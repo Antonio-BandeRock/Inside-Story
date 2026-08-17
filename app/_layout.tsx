@@ -374,6 +374,20 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* No fixed `title` here, same reasoning as food-item-detail's
+                  own Stack.Screen above -- this screen sets its own via its
+                  own <Stack.Screen options={{title}}/> at render time, once
+                  the real scanned product it's showing has actually loaded.
+                  2026-08-16, reached from food-items.tsx's own
+                  itemType==='scannedProduct' case. */}
+              <Stack.Screen
+                name="food-product-detail"
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
             </Stack>
             {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                 comment: the keyboard must always paint on top of an open

@@ -32,6 +32,7 @@ import {
   listHandhelds,
   listSalads,
   listSauces,
+  listScannedProducts,
   listSides,
   listSmoothies,
   listSnacks,
@@ -769,8 +770,20 @@ export default function FoodScreen() {
   // browse here except favorites (see saveMealFavorite/getMealFavorite in
   // lib/db.ts).
   const [mealFavoriteCount, setMealFavoriteCount] = useState(0);
+  // "My Food Products," 2026-08-16 -- real barcode-scanned items, direct
+  // request: "add My Food Products. This is where the scanned in foods
+  // from the store should go outside of being able to use them in
+  // building some food thing." A real count, refetched the same way as
+  // every other tile above, alongside a real detail screen (see
+  // app/food-product-detail.tsx) reached via app/food-items.tsx's own new
+  // itemType==='scannedProduct' case -- not just the already-existing
+  // "From Your Scans" quick-pick inside FoodLookup, which only ever lets a
+  // scanned product be found and reused as an INGREDIENT, never browsed,
+  // renamed, priced, or deleted on its own.
+  const [scannedProductCount, setScannedProductCount] = useState(0);
   async function loadMyFoodsCounts() {
     const [
+      scannedProducts,
       sides,
       sideFavorites,
       salads,
@@ -795,6 +808,7 @@ export default function FoodScreen() {
       dessertFavorites,
       mealFavorites,
     ] = await Promise.all([
+      listScannedProducts(),
       listSides(),
       listFavorites(50, 'side'),
       listSalads(),
@@ -819,6 +833,7 @@ export default function FoodScreen() {
       listFavorites(50, 'dessert'),
       listFavorites(50, 'meal'),
     ]);
+    setScannedProductCount(scannedProducts.length);
     setSideCount(sides.length);
     setSideFavoriteCount(sideFavorites.length);
     setSaladCount(salads.length);
@@ -856,6 +871,17 @@ export default function FoodScreen() {
       id: 'scan-product',
       label: 'Scan a Product',
       onPress: () => router.push('/scan-product'),
+    },
+    {
+      // "My Food Products," 2026-08-16 -- see scannedProductCount's own
+      // comment above. Sits right after the action that actually creates
+      // these, since browsing what's already been scanned belongs next to
+      // scanning a new one.
+      id: 'scanned-products',
+      label: 'My Food Products',
+      count: scannedProductCount,
+      onPress: () =>
+        router.push({ pathname: '/food-items', params: { itemType: 'scannedProduct', status: 'saved', title: 'My Food Products' } }),
     },
     {
       id: 'side-saved',
