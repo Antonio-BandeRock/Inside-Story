@@ -551,41 +551,28 @@ export default function ScanProductScreen() {
         {parsedIngredientRows.length > 0 ? (
           <View style={styles.card}>
             <Text style={styles.sectionLabel}>Ingredients We Found ({parsedIngredientRows.length})</Text>
-            {parsedIngredientRows.map((row, index) => {
-              const flagCount = row.additiveFlags.length + row.conditionFlags.length;
-              return (
-                <View key={index} style={styles.ingredientRow}>
-                  <Text style={styles.ingredientLabel}>{row.label}</Text>
-                  {flagCount > 0 ? (
-                    <View style={styles.ingredientFlagsRow}>
-                      {row.additiveFlags.map((flag, i) => (
-                        <View
-                          key={`a-${i}`}
-                          style={[
-                            styles.ingredientFlagBadge,
-                            flag.severity === 'red'
-                              ? { backgroundColor: colors.statusRedBg, borderColor: colors.danger }
-                              : flag.severity === 'yellow'
-                                ? { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }
-                                : { backgroundColor: colors.surface, borderColor: colors.border },
-                          ]}
-                        >
-                          <Text style={styles.ingredientFlagBadgeText}>{flag.label}</Text>
-                        </View>
-                      ))}
-                      {row.conditionFlags.map((flag, i) => (
-                        <View
-                          key={`c-${i}`}
-                          style={[styles.ingredientFlagBadge, { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }]}
-                        >
-                          <Text style={styles.ingredientFlagBadgeText}>{flag.label}</Text>
-                        </View>
-                      ))}
-                    </View>
-                  ) : null}
-                </View>
-              );
-            })}
+            <Text style={styles.gridHint}>
+              Tinted ones have something worth knowing -- the full explanation shows up on the next screen.
+            </Text>
+            <View style={styles.ingredientGrid}>
+              {parsedIngredientRows.map((row, index) => {
+                const hasRedFlag = row.additiveFlags.some((flag) => flag.severity === 'red');
+                const hasYellowFlag = row.conditionFlags.length > 0 || row.additiveFlags.some((flag) => flag.severity === 'yellow');
+                const hasInfoFlag = row.additiveFlags.some((flag) => flag.severity === 'info');
+                const chipTint = hasRedFlag
+                  ? { backgroundColor: colors.statusRedBg, borderColor: colors.danger }
+                  : hasYellowFlag
+                    ? { backgroundColor: colors.statusYellowBg, borderColor: colors.statusYellow }
+                    : hasInfoFlag
+                      ? { backgroundColor: colors.surface, borderColor: colors.textMuted }
+                      : { backgroundColor: colors.surface, borderColor: colors.border };
+                return (
+                  <View key={index} style={[styles.ingredientChip, chipTint]}>
+                    <Text style={styles.ingredientChipText}>{row.label}</Text>
+                  </View>
+                );
+              })}
+            </View>
           </View>
         ) : null}
 
@@ -805,21 +792,21 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   nutrientRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  ingredientRow: {
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
-    gap: 6,
-  },
-  ingredientLabel: { ...typography.body, color: colors.textPrimary },
-  ingredientFlagsRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
-  ingredientFlagBadge: {
-    paddingVertical: 3,
-    paddingHorizontal: 8,
-    borderRadius: 999,
+  // A real, flowing wrap-grid, not a fixed column count -- a hardcoded
+  // number of columns would look right on one device and wrong on the
+  // next; letting each chip size to its own content and wrap naturally is
+  // what actually produces "multiple columns" that hold up across real
+  // screen widths, per direct, on-device feedback that the old vertical,
+  // one-per-row list didn't read as a table at all.
+  ingredientGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 4 },
+  ingredientChip: {
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    borderRadius: 8,
     borderWidth: 1,
   },
-  ingredientFlagBadgeText: { ...typography.caption, color: colors.textPrimary },
+  ingredientChipText: { ...typography.caption, color: colors.textPrimary },
+  gridHint: { ...typography.caption, color: colors.textMuted },
   flagRow: { padding: 12, borderRadius: 10, borderWidth: 1, gap: 4 },
   flagLabel: { ...typography.bodyEmphasis, color: colors.textPrimary },
   flagDetail: { ...typography.caption, color: colors.textSecondary },
