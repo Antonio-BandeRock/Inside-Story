@@ -59,6 +59,24 @@ export function formatIngredientLabel(raw: string, wholeTextIsAllCaps: boolean):
 // real sub-ingredient list like "Wheat Flour (Niacin, Reduced Iron,
 // Thiamine)" into three separate top-level entries instead of the one
 // real ingredient it actually is.
+//
+// A real newline is ALSO a split boundary here, not just a comma/semicolon
+// -- 2026-08-16, found directly against two real, on-device OCR scans of
+// actual product labels, not assumed. A raw label photo's own recognized
+// text is a messy multi-line dump (nutrition panel, address, allergen
+// warnings, and the real ingredients list all mixed together), and most of
+// that dump has NO commas at all -- without a newline boundary too, every
+// comma-free stretch (which is most of a real scan) collapsed into one
+// giant, unreadable multi-line blob, which is exactly what "still looks
+// like a wall of text" turned out to mean on a real device.
+//
+// depth is also reset at every real newline, not carried across lines --
+// a genuine parenthetical grouping is essentially always confined to one
+// physical printed/OCR'd line in real-world label text, and a stray,
+// unmatched "(" from a real OCR misread (confirmed directly against one of
+// the two real scans above) must never be allowed to suppress every later
+// split for the rest of the whole document just because its own matching
+// ")" was never recognized.
 export function parseIngredientEntries(text: string): string[] {
   const trimmed = text.trim();
   if (!trimmed) return [];
@@ -67,7 +85,13 @@ export function parseIngredientEntries(text: string): string[] {
   let current = '';
   for (const char of trimmed) {
     if (char === '(' || char === '[') depth++;
-    if (char === ')' || char === ']') depth = Math.max(0, depth - 1);
+    else if (char === ')' || char === ']') depth = Math.max(0, depth - 1);
+    if (char === '\n') {
+      entries.push(current);
+      current = '';
+      depth = 0;
+      continue;
+    }
     if ((char === ',' || char === ';') && depth === 0) {
       entries.push(current);
       current = '';
