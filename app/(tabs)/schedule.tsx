@@ -23,7 +23,7 @@ import {
   getSupplementForms,
   getTreatmentNutrients,
   getUserProfile,
-  linkAppointmentToDeviceCalendarEvent,
+  linkScheduleItemToDeviceCalendarEvent,
   listAllActiveTreatments,
   listCommonMedications,
   listFavorites,
@@ -32,6 +32,7 @@ import {
   listPastScheduledMeals,
   listPrescriptionTreatments,
   listScheduledMealsForDate,
+  listScheduledMealsForDateRange,
   listScheduledPrescriptionDosesForTreatment,
   listScheduledSupplementDosesForTreatment,
   listSupplementTreatments,
@@ -48,7 +49,7 @@ import {
   setScheduledMealSkipped,
   settlePastScheduledMeals,
   setTreatmentActive,
-  unlinkAppointmentFromDeviceCalendarEvent,
+  unlinkScheduleItemFromDeviceCalendarEvent,
   updateAppointment,
   updateOtcTreatment,
   updateScheduledMeal,
@@ -137,6 +138,14 @@ const LENSES: LensOption<Lens>[] = [
       {
         heading: 'Planning vs. logging',
         body: 'This page is for planning what you intend to do, before you do it. Meals still get logged on the Food tab, either through "Log now" here or by creating a meal there directly.',
+      },
+      {
+        heading: 'This week, at a glance',
+        body: 'The strip at the top shows the whole week: a small dot marks any day with something scheduled. Tap a day to see it below; "‹"/"›" page a whole week at once, keeping the same day of the week you had selected. "+Schedule a meal" always schedules for whichever day is currently selected, not always today.',
+      },
+      {
+        heading: 'Phone calendar sync',
+        body: 'Any one scheduled meal can sync to your phone\'s own Calendar app, the same way appointments do: "Add to calendar" pushes it out as a 30-minute block; "Unlink calendar," or removing it here, can also remove the calendar event. This is per-occurrence, not per-series. A daily repeating meal is not synced in bulk, only whichever single day you sync from here.',
       },
       {
         heading: 'From templates & favorites, or unplanned',
@@ -425,6 +434,15 @@ type FormState = {
   sourceMealId: string | null;
   time: TimeOfDayInput;
   repeat: RepeatConfig;
+  // Which real calendar day this is being scheduled for -- 2026-08-18,
+  // added alongside the Meals lens' own new week strip. Never a free-text
+  // field here (unlike Appointments' own date input): openAddForm seeds it
+  // from whichever day is currently selected in the strip, openEditForm
+  // seeds it from the item's own real scheduledFor, so it's always a
+  // real, valid 'YYYY-MM-DD' by construction -- no isValidDateString
+  // guard needed in handleSaveForm the way Appointments' own typed field
+  // needs one.
+  date: string;
 };
 
 const BLANK_FORM: FormState = {
@@ -436,6 +454,7 @@ const BLANK_FORM: FormState = {
   sourceMealId: null,
   time: { hour: '', minute: '', ampm: '' },
   repeat: { type: 'none' },
+  date: '',
 };
 
 // Recurrence is decided once, at creation time -- editing an existing
@@ -505,10 +524,70 @@ function RepeatPicker({ repeat, onChange }: { repeat: RepeatConfig; onChange: (r
   );
 }
 
+// Real week-strip navigation, 2026-08-18 -- direct request: "a way to
+// actually see a calendar where our meals are scheduled." Before this,
+// Meals only ever fetched listScheduledMealsForDate(todayDateString()),
+// so a meal scheduled for three days out was real, running data with no
+// screen anywhere that could show it. Sunday-start week, matching this
+// device's own default Date.getDay() convention (0 = Sunday) -- a real,
+// deliberate simplification, not something Profile has ever asked the
+// person to configure.
+function startOfWeekLocal(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  const date = new Date(year, month - 1, day);
+  date.setDate(date.getDate() - date.getDay());
+  const pad = (value: number) => String(value).padStart(2, '0');
+  return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+// How many real calendar days sit between two 'YYYY-MM-DD' strings --
+// used to preserve which day-of-week is selected when paging a whole week
+// at once (see shiftWeek below), rather than always snapping back to
+// Sunday.
+function daysBetweenLocal(fromDate: string, toDate: string): number {
+  const [fy, fm, fd] = fromDate.split('-').map(Number);
+  const [ty, tm, td] = toDate.split('-').map(Number);
+  const diffMs = new Date(ty, tm - 1, td).getTime() - new Date(fy, fm - 1, fd).getTime();
+  return Math.round(diffMs / 86400000);
+}
+
+function formatWeekdayShort(dateStr: string): string {
+  const [year, month, day] = dateStr.split('-').map(Number);
+  return new Date(year, month - 1, day).toLocaleDateString(undefined, { weekday: 'short' });
+}
+
+function formatDayNumber(dateStr: string): string {
+  return String(Number(dateStr.slice(8, 10)));
+}
+
+// formatShortDate/addDaysToDateStringLocal are defined further down (they
+// started life Appointments-only, see that section's own note) -- both are
+// plain function declarations, hoisted the same as every other helper in
+// this file, so calling them from up here is safe.
+function formatWeekRangeLabel(weekStartDate: string): string {
+  return `${formatShortDate(weekStartDate)} – ${formatShortDate(addDaysToDateStringLocal(weekStartDate, 6))}`;
+}
+
+// "today"/"tomorrow"/"yesterday" read far more naturally than a bare date
+// for the three days someone actually cares about most -- everything else
+// falls back to the same short Month Day format used everywhere else on
+// this page.
+function describeRelativeDate(dateStr: string): string {
+  const today = todayDateString();
+  if (dateStr === today) return 'today';
+  if (dateStr === addDaysToDateStringLocal(today, 1)) return 'tomorrow';
+  if (dateStr === addDaysToDateStringLocal(today, -1)) return 'yesterday';
+  return formatShortDate(dateStr);
+}
+
 // The Meals lens -- the one schedule type with real functionality behind
 // it. Renders just its own body content (no ScreenHeader/lens tabs of its
 // own); the outer ScheduleScreen owns those and mounts this only when the
-// Meals lens is selected.
+// Meals lens is selected. Shows a real, navigable week strip (see the
+// helpers just above) rather than only ever today, and can sync an
+// individual scheduled meal to the phone's own Calendar app the same way
+// Appointments already does (see ensureDeviceCalendarPermission/
+// handleAddToDeviceCalendar below, both reusing lib/deviceCalendar.ts).
 function MealsLens() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
@@ -522,12 +601,45 @@ function MealsLens() {
   const [form, setForm] = useState<FormState>(BLANK_FORM);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
   const [removePrompt, setRemovePrompt] = useState<{ title: string; message?: string; actions: AppActionSheetAction[] } | null>(null);
+  // weekStart/selectedDate deliberately aren't reset on focus (unlike
+  // `revealed` elsewhere in this file) -- navigating away to another tab
+  // and back should leave you looking at whichever week/day you were
+  // already on, the same "persists across a tab switch" behavior every
+  // other real picked-value state on this screen already has.
+  const [weekStart, setWeekStart] = useState<string>(() => startOfWeekLocal(todayDateString()));
+  const [selectedDate, setSelectedDate] = useState<string>(() => todayDateString());
+  const [calendarPermissionGranted, setCalendarPermissionGranted] = useState<boolean | null>(null);
+
+  const weekDates = useMemo(() => {
+    const dates: string[] = [];
+    for (let i = 0; i < 7; i++) dates.push(addDaysToDateStringLocal(weekStart, i));
+    return dates;
+  }, [weekStart]);
+
+  // The whole visible week is fetched in one real query (see load below),
+  // then grouped client-side by day -- both for the strip's own "does this
+  // day have anything on it" dot, and so switching which day is selected
+  // is a cheap, instant, local re-filter rather than a fresh network/DB
+  // round trip every tap.
+  const itemsByDate = useMemo(() => {
+    const map = new Map<string, ScheduleItemRecord[]>();
+    for (const item of items) {
+      const date = item.scheduledFor.slice(0, 10);
+      const bucket = map.get(date);
+      if (bucket) bucket.push(item);
+      else map.set(date, [item]);
+    }
+    return map;
+  }, [items]);
+
+  const selectedItems = itemsByDate.get(selectedDate) ?? [];
 
   const load = useCallback(() => {
     setLoading(true);
+    const weekEnd = addDaysToDateStringLocal(weekStart, 6);
     // settlePastScheduledMeals first, 2026-08-14 -- a real, idempotent
     // "catch anything that's lapsed since this screen was last open" pass
-    // (see its own comment in lib/db.ts), so today's own schedule and
+    // (see its own comment in lib/db.ts), so this week's own schedule and
     // every other real caller that reads meal data (Trends, Insights,
     // Home) stay accurate the moment this screen is opened, not just
     // whenever Past Meals happens to be visited.
@@ -536,23 +648,46 @@ function MealsLens() {
       .then(() => ensureScheduleSeriesGenerated())
       .then(() =>
         Promise.all([
-          listScheduledMealsForDate(todayDateString()),
+          listScheduledMealsForDateRange(weekStart, weekEnd),
           getUserProfile(),
           listFavorites(100, 'meal'),
           listMeals(100),
+          hasCalendarPermission(),
         ]),
       )
-      .then(([scheduled, loadedProfile, loadedFavorites, loadedTemplates]) => {
+      .then(([scheduled, loadedProfile, loadedFavorites, loadedTemplates, granted]) => {
         setItems(scheduled);
         setProfile(loadedProfile);
         setFavorites(loadedFavorites);
         setTemplates(loadedTemplates);
+        setCalendarPermissionGranted(granted);
       })
       .catch((error) => {
-        setErrorMessage(`Could not load today's schedule: ${error instanceof Error ? error.message : String(error)}`);
+        setErrorMessage(`Could not load this week's schedule: ${error instanceof Error ? error.message : String(error)}`);
       })
       .finally(() => setLoading(false));
-  }, []);
+    // weekStart in deps, deliberately -- this is what makes the existing
+    // useFocusEffect(useCallback(() => load(), [load])) below re-fetch the
+    // moment shiftWeek/jumpToToday change which week is visible, per that
+    // hook's own documented "re-runs when the callback identity changes
+    // while still focused" behavior, with no separate effect needed.
+  }, [weekStart]);
+
+  // Pages a whole week at once, preserving which day-of-week was selected
+  // (viewing Wednesday and paging forward should land on next Wednesday,
+  // not reset to Sunday) rather than the offset getting lost.
+  function shiftWeek(deltaWeeks: number) {
+    const offset = daysBetweenLocal(weekStart, selectedDate);
+    const newWeekStart = addDaysToDateStringLocal(weekStart, deltaWeeks * 7);
+    setWeekStart(newWeekStart);
+    setSelectedDate(addDaysToDateStringLocal(newWeekStart, offset));
+  }
+
+  function jumpToToday() {
+    const today = todayDateString();
+    setWeekStart(startOfWeekLocal(today));
+    setSelectedDate(today);
+  }
 
   // useFocusEffect, not a plain useEffect -- Expo Router keeps tab screens
   // mounted in the background on tab switch, so a one-time effect would
@@ -565,7 +700,11 @@ function MealsLens() {
   );
 
   function openAddForm() {
-    setForm(BLANK_FORM);
+    // Seeded from whichever day is currently selected in the week strip --
+    // navigate to a day first, then "+Schedule a meal" schedules for that
+    // real day, the same discoverable pattern this lens already used
+    // (implicitly, always "today") before the strip existed.
+    setForm({ ...BLANK_FORM, date: selectedDate });
     setShowForm(true);
   }
 
@@ -579,6 +718,12 @@ function MealsLens() {
       sourceMealId: item.sourceMealId,
       time: splitTime24(item.scheduledFor.split('T')[1] ?? null),
       repeat: { type: 'none' },
+      // Preserves the item's own real date -- handleSaveForm used to
+      // unconditionally rebuild scheduledFor against todayDateString(),
+      // which silently moved ANY edited meal back to today. Harmless while
+      // this lens only ever showed today's own items; a real, reachable
+      // bug the moment a week view lets you edit a meal on a different day.
+      date: item.scheduledFor.slice(0, 10),
     });
     setShowForm(true);
   }
@@ -652,7 +797,7 @@ function MealsLens() {
       }
     }
 
-    const scheduledFor = `${todayDateString()}T${time24}`;
+    const scheduledFor = `${form.date}T${time24}`;
 
     try {
       if (form.editingId) {
@@ -674,53 +819,120 @@ function MealsLens() {
     }
   }
 
+  // Real, 4-way branch, 2026-08-18 -- an occurrence can independently repeat
+  // AND be linked to the phone calendar (each occurrence carries its own
+  // real linked_device_calendar_event_id; a repeating series has no
+  // series-level device link), so every real combination gets its own
+  // honest, complete action list rather than silently dropping one.
   function handleRemove(item: ScheduleItemRecord) {
-    if (item.repeatGroupId) {
-      setRemovePrompt({
-        title: 'Remove this planned meal?',
-        message: `"${item.title}" repeats. Remove just this occurrence, or this and every future one?`,
-        actions: [
-          {
-            label: 'Just this one',
-            onPress: () => {
-              void (async () => {
-                await deleteScheduledMeal(item.id);
-                load();
-              })();
-            },
-          },
-          {
-            label: 'This and future',
-            destructive: true,
-            onPress: () => {
-              void (async () => {
-                await deleteScheduleSeries(item.repeatGroupId!);
-                load();
-              })();
-            },
-          },
-          { label: 'Cancel', onPress: () => {} },
-        ],
-      });
-      return;
-    }
-    setRemovePrompt({
-      title: 'Remove this planned meal?',
-      message: `"${item.title}" will no longer show on your schedule.`,
-      actions: [
-        {
-          label: 'Remove',
-          destructive: true,
-          onPress: () => {
-            void (async () => {
-              await deleteScheduledMeal(item.id);
-              load();
-            })();
-          },
-        },
+    const hasRepeat = Boolean(item.repeatGroupId);
+    const hasCalendarLink = Boolean(item.linkedDeviceCalendarEventId);
+
+    const removeOne = (alsoRemoveFromCalendar: boolean) => {
+      void (async () => {
+        if (alsoRemoveFromCalendar && item.linkedDeviceCalendarEventId) {
+          await deleteDeviceCalendarEvent(item.linkedDeviceCalendarEventId);
+        }
+        await deleteScheduledMeal(item.id);
+        load();
+      })();
+    };
+    const removeSeries = (alsoRemoveFromCalendar: boolean) => {
+      void (async () => {
+        if (alsoRemoveFromCalendar && item.linkedDeviceCalendarEventId) {
+          await deleteDeviceCalendarEvent(item.linkedDeviceCalendarEventId);
+        }
+        await deleteScheduleSeries(item.repeatGroupId!);
+        load();
+      })();
+    };
+
+    let actions: AppActionSheetAction[];
+    let message: string;
+    if (hasRepeat && hasCalendarLink) {
+      message = `"${item.title}" repeats and this occurrence is also on your phone calendar.`;
+      actions = [
+        { label: 'Just this one', onPress: () => removeOne(false) },
+        { label: 'Just this one, and from calendar', destructive: true, onPress: () => removeOne(true) },
+        { label: 'This and future', onPress: () => removeSeries(false) },
+        { label: 'This and future, and from calendar', destructive: true, onPress: () => removeSeries(true) },
         { label: 'Cancel', onPress: () => {} },
-      ],
-    });
+      ];
+    } else if (hasRepeat) {
+      message = `"${item.title}" repeats. Remove just this occurrence, or this and every future one?`;
+      actions = [
+        { label: 'Just this one', onPress: () => removeOne(false) },
+        { label: 'This and future', destructive: true, onPress: () => removeSeries(false) },
+        { label: 'Cancel', onPress: () => {} },
+      ];
+    } else if (hasCalendarLink) {
+      message = `"${item.title}" is also on your phone calendar.`;
+      actions = [
+        { label: 'Remove here only', onPress: () => removeOne(false) },
+        { label: 'Remove from both', destructive: true, onPress: () => removeOne(true) },
+        { label: 'Cancel', onPress: () => {} },
+      ];
+    } else {
+      message = `"${item.title}" will no longer show on your schedule.`;
+      actions = [
+        { label: 'Remove', destructive: true, onPress: () => removeOne(false) },
+        { label: 'Cancel', onPress: () => {} },
+      ];
+    }
+
+    setRemovePrompt({ title: 'Remove this planned meal?', message, actions });
+  }
+
+  // Same permission-request-plus-explain flow Appointments already uses,
+  // pulled out to a real, shared helper (see its own definition, further
+  // down alongside the other device-calendar utilities) now that Meals
+  // needs the identical thing -- not duplicated a second time with slightly
+  // different wording that could drift.
+  async function ensureCalendarPermission(): Promise<boolean> {
+    return ensureDeviceCalendarPermission(calendarPermissionGranted, setCalendarPermissionGranted, showInfoAlert, 'meals');
+  }
+
+  async function handleAddToDeviceCalendar(item: ScheduleItemRecord) {
+    const granted = await ensureCalendarPermission();
+    if (!granted) return;
+
+    const [datePart, timePart] = item.scheduledFor.split('T');
+    const [year, month, day] = datePart.split('-').map(Number);
+    const [hour, minute] = timePart.split(':').map(Number);
+    const startDate = new Date(year, month - 1, day, hour, minute);
+    // A real, shorter default than Appointments' own 1-hour guess -- a
+    // meal is realistically a 30-minute block on a calendar, not an
+    // hour-long visit.
+    const endDate = new Date(startDate.getTime() + 30 * 60 * 1000);
+
+    try {
+      const eventId = await createDeviceCalendarEvent({
+        // Meal type prefixed on, unlike Appointments' own title -- a plain
+        // dish name ("Grilled Chicken Sandwich") reads fine inside this
+        // app, where the meal-type pill/icon already gives it context, but
+        // loses that context entirely once it's sitting in the phone's own
+        // Calendar app.
+        title: item.mealType ? `${capitalize(item.mealType)}: ${item.title}` : item.title,
+        startDate,
+        endDate,
+        notes: item.notes ?? undefined,
+      });
+      if (!eventId) {
+        showInfoAlert('Could not add to calendar', 'No writable calendar was found on this device.');
+        return;
+      }
+      await linkScheduleItemToDeviceCalendarEvent(item.id, eventId);
+      load();
+    } catch (error) {
+      showInfoAlert('Could not add to calendar', error instanceof Error ? error.message : String(error));
+    }
+  }
+
+  async function handleRemoveFromDeviceCalendar(item: ScheduleItemRecord) {
+    if (!item.linkedDeviceCalendarEventId) return;
+    await deleteDeviceCalendarEvent(item.linkedDeviceCalendarEventId);
+    await unlinkScheduleItemFromDeviceCalendarEvent(item.id);
+    load();
   }
 
   async function handleToggleSkipped(item: ScheduleItemRecord) {
@@ -860,12 +1072,65 @@ function MealsLens() {
           <Text style={styles.errorText}>{errorMessage}</Text>
         ) : (
           <>
+            <View style={styles.weekStripCard}>
+              <View style={styles.weekStripNav}>
+                <TouchableOpacity
+                  style={styles.weekNavButton}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  onPress={() => shiftWeek(-1)}
+                >
+                  <Text style={styles.weekNavButtonText}>‹</Text>
+                </TouchableOpacity>
+                <Text style={styles.weekRangeLabel}>{formatWeekRangeLabel(weekStart)}</Text>
+                <TouchableOpacity
+                  style={styles.weekNavButton}
+                  hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  onPress={() => shiftWeek(1)}
+                >
+                  <Text style={styles.weekNavButtonText}>›</Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.weekDayRow}>
+                {weekDates.map((date) => {
+                  const isSelected = date === selectedDate;
+                  const isToday = date === todayDateString();
+                  const hasItems = itemsByDate.has(date);
+                  return (
+                    <TouchableOpacity
+                      key={date}
+                      style={[styles.weekDayCell, isSelected && styles.weekDayCellSelected, isToday && !isSelected && styles.weekDayCellToday]}
+                      onPress={() => setSelectedDate(date)}
+                    >
+                      <Text style={[styles.weekDayLabel, isSelected && styles.weekDayLabelSelected]}>
+                        {formatWeekdayShort(date)}
+                      </Text>
+                      <Text style={[styles.weekDayNumber, isSelected && styles.weekDayLabelSelected]}>
+                        {formatDayNumber(date)}
+                      </Text>
+                      <View
+                        style={[
+                          styles.weekDayDot,
+                          hasItems && (isSelected ? styles.weekDayDotActiveSelected : styles.weekDayDotActive),
+                        ]}
+                      />
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+              {selectedDate !== todayDateString() ? (
+                <TouchableOpacity onPress={jumpToToday}>
+                  <Text style={styles.weekTodayLink}>Jump back to today</Text>
+                </TouchableOpacity>
+              ) : null}
+            </View>
+
             {!showForm ? (
               <TouchableOpacity style={styles.addButton} onPress={openAddForm}>
                 <Text style={styles.addButtonText}>+ Schedule a meal</Text>
               </TouchableOpacity>
             ) : (
               <View style={styles.formCard}>
+                <Text style={styles.helperText}>Scheduling for {describeRelativeDate(form.date)}.</Text>
                 <Text style={styles.label}>Meal type</Text>
                 <View style={styles.pillRow}>
                   {mealTypes.map((type) => (
@@ -1022,11 +1287,11 @@ function MealsLens() {
               </View>
             )}
 
-            {items.length === 0 ? (
-              <Text style={styles.emptyText}>Nothing scheduled for today yet.</Text>
+            {selectedItems.length === 0 ? (
+              <Text style={styles.emptyText}>Nothing scheduled for {describeRelativeDate(selectedDate)} yet.</Text>
             ) : (
               <View style={styles.table}>
-                {items.map((item) => (
+                {selectedItems.map((item) => (
                   <View key={item.id} style={styles.row}>
                     <View style={styles.rowMain}>
                       <Text style={styles.rowTime}>{formatTime12(item.scheduledFor.split('T')[1] ?? '')}</Text>
@@ -1037,6 +1302,7 @@ function MealsLens() {
                           {item.sourceFavoriteId ? ' · Favorite' : item.sourceMealId ? ' · Template' : ''}
                           {item.status === 'logged' ? ' · Logged' : item.status === 'skipped' ? ' · Skipped' : ''}
                           {item.repeatGroupId ? ' · Repeats' : ''}
+                          {item.linkedDeviceCalendarEventId ? ' · On phone calendar' : ''}
                         </Text>
                       </View>
                     </View>
@@ -1064,6 +1330,15 @@ function MealsLens() {
                           <Text style={styles.actionText}>Un-skip</Text>
                         </TouchableOpacity>
                       ) : null}
+                      {item.linkedDeviceCalendarEventId ? (
+                        <TouchableOpacity onPress={() => handleRemoveFromDeviceCalendar(item)}>
+                          <Text style={styles.actionText}>Unlink calendar</Text>
+                        </TouchableOpacity>
+                      ) : (
+                        <TouchableOpacity onPress={() => handleAddToDeviceCalendar(item)}>
+                          <Text style={styles.actionText}>Add to calendar</Text>
+                        </TouchableOpacity>
+                      )}
                       <TouchableOpacity onPress={() => handleRemove(item)}>
                         <Text style={styles.actionTextRemove}>Remove</Text>
                       </TouchableOpacity>
@@ -1361,6 +1636,12 @@ function HydrationLens() {
       sourceMealId: item.sourceMealId,
       time: splitTime24(item.scheduledFor.split('T')[1] ?? null),
       repeat: { type: 'none' },
+      // Hydration stays today-only by design (see this lens' own header
+      // comment) -- unlike Meals, its own handleSaveForm still always
+      // rebuilds scheduledFor against todayDateString() directly, so this
+      // field is only ever here to satisfy FormState's own shape, never
+      // actually read.
+      date: todayDateString(),
     });
     setShowForm(true);
   }
@@ -3537,7 +3818,10 @@ function isValidDateString(value: string): boolean {
   return /^\d{4}-\d{2}-\d{2}$/.test(value);
 }
 
-function formatAppointmentDate(dateStr: string): string {
+// Named generically -- 2026-08-18 -- since MealsLens' own week strip now
+// reuses this too (formatWeekRangeLabel, defined up near that lens), not
+// just Appointments.
+function formatShortDate(dateStr: string): string {
   const [year, month, day] = dateStr.split('-').map(Number);
   const date = new Date(year, month - 1, day);
   return date.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
@@ -3562,6 +3846,32 @@ function localDatePartsFromIso(iso: string) {
     dateStr: `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`,
     timeStr: `${pad(date.getHours())}:${pad(date.getMinutes())}`,
   };
+}
+
+// Real, shared permission-request-plus-explain flow, 2026-08-18 -- both
+// AppointmentsLens and MealsLens need the identical thing (check whether
+// calendar access is already granted; if not, ask, and if that's denied,
+// explain in the same real wording either way) now that Meals also syncs
+// to the phone calendar, so this is pulled out once rather than kept as
+// two independently-maintained copies whose wording could quietly drift.
+async function ensureDeviceCalendarPermission(
+  currentlyGranted: boolean | null,
+  setGranted: (granted: boolean) => void,
+  showInfoAlert: (title: string, message: string) => void,
+  noun: string,
+): Promise<boolean> {
+  if (currentlyGranted) {
+    return true;
+  }
+  const granted = await requestCalendarPermission();
+  setGranted(granted);
+  if (!granted) {
+    showInfoAlert(
+      'Calendar access needed',
+      `Turn on calendar access for Inside Story in your phone's Settings to sync ${noun} with your phone calendar.`,
+    );
+  }
+  return granted;
 }
 
 type AppointmentFormState = {
@@ -3758,18 +4068,7 @@ function AppointmentsLens() {
   }
 
   async function ensureCalendarPermission(): Promise<boolean> {
-    if (calendarPermissionGranted) {
-      return true;
-    }
-    const granted = await requestCalendarPermission();
-    setCalendarPermissionGranted(granted);
-    if (!granted) {
-      showInfoAlert(
-        'Calendar access needed',
-        "Turn on calendar access for Inside Story in your phone's Settings to sync appointments with your phone calendar.",
-      );
-    }
-    return granted;
+    return ensureDeviceCalendarPermission(calendarPermissionGranted, setCalendarPermissionGranted, showInfoAlert, 'appointments');
   }
 
   async function handleAddToDeviceCalendar(item: ScheduleItemRecord) {
@@ -3794,7 +4093,7 @@ function AppointmentsLens() {
         showInfoAlert('Could not add to calendar', 'No writable calendar was found on this device.');
         return;
       }
-      await linkAppointmentToDeviceCalendarEvent(item.id, eventId);
+      await linkScheduleItemToDeviceCalendarEvent(item.id, eventId);
       load();
     } catch (error) {
       showInfoAlert('Could not add to calendar', error instanceof Error ? error.message : String(error));
@@ -3804,7 +4103,7 @@ function AppointmentsLens() {
   async function handleRemoveFromDeviceCalendar(item: ScheduleItemRecord) {
     if (!item.linkedDeviceCalendarEventId) return;
     await deleteDeviceCalendarEvent(item.linkedDeviceCalendarEventId);
-    await unlinkAppointmentFromDeviceCalendarEvent(item.id);
+    await unlinkScheduleItemFromDeviceCalendarEvent(item.id);
     load();
   }
 
@@ -3886,7 +4185,7 @@ function AppointmentsLens() {
                     return (
                       <TouchableOpacity key={event.id} style={styles.sourceRow} onPress={() => handleStartImport(event)}>
                         <Text style={styles.sourceRowText}>
-                          {event.title}: {formatAppointmentDate(dateStr)}
+                          {event.title}: {formatShortDate(dateStr)}
                         </Text>
                         <Text style={styles.sourceRowKind}>{event.calendarTitle}</Text>
                       </TouchableOpacity>
@@ -4050,7 +4349,7 @@ function AppointmentsLens() {
                 <View key={item.id} style={styles.row}>
                   <View style={styles.rowMain}>
                     <Text style={[styles.rowTime, styles.appointmentRowTime]}>
-                      {formatAppointmentDate(item.scheduledFor.slice(0, 10))}
+                      {formatShortDate(item.scheduledFor.slice(0, 10))}
                       {'\n'}
                       {formatTime12(item.scheduledFor.split('T')[1] ?? '')}
                     </Text>
@@ -4208,6 +4507,38 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   addButtonText: { ...typography.bodyEmphasis, color: colors.primary },
+  // Meals lens' own week strip, 2026-08-18 -- same border/color rule as
+  // every other card on this page (a TAB_COLOR border, TAB_COLOR text).
+  weekStripCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 12,
+    marginBottom: 16,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+  },
+  weekStripNav: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 10 },
+  weekNavButton: { paddingHorizontal: 14, paddingVertical: 2 },
+  weekNavButtonText: { ...typography.sectionTitle, color: TAB_COLOR },
+  weekRangeLabel: { ...typography.bodyEmphasis, color: TAB_COLOR },
+  weekDayRow: { flexDirection: 'row', justifyContent: 'space-between', gap: 4 },
+  weekDayCell: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 8,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  weekDayCellSelected: { backgroundColor: colors.primary },
+  weekDayCellToday: { borderColor: TAB_COLOR },
+  weekDayLabel: { ...typography.caption, color: TAB_COLOR },
+  weekDayNumber: { ...typography.bodyEmphasis, color: TAB_COLOR, marginTop: 2 },
+  weekDayLabelSelected: { color: colors.textOnPrimary },
+  weekDayDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: 'transparent', marginTop: 4 },
+  weekDayDotActive: { backgroundColor: TAB_COLOR },
+  weekDayDotActiveSelected: { backgroundColor: colors.textOnPrimary },
+  weekTodayLink: { ...typography.caption, color: TAB_COLOR, textAlign: 'center', marginTop: 10, textDecorationLine: 'underline' },
   // Border color/width match TAB_COLOR/Home's own TAB_BORDER_WIDTH rule,
   // 2026-07-27.
   formCard: {

@@ -4826,7 +4826,10 @@ async function runDatabaseInitialization() {
     // lab interaction rule actually evaluate, see lib/interactionRules.ts).
     // linked_device_calendar_event_id connects this row to a real event in
     // the phone's own Calendar app (see lib/deviceCalendar.ts) -- null for
-    // an appointment that only exists inside this app.
+    // an item that only exists inside this app. Lives in this same
+    // migration block for historical reasons (it shipped alongside
+    // Appointments), but it's a genuinely shared column -- Meals uses it
+    // too (2026-08-18), not just item_type='appointment' rows.
     for (const column of ['appointment_type', 'location', 'provider_name', 'linked_device_calendar_event_id']) {
       if (!scheduleItemColumns.some((existing) => existing.name === column)) {
         await db.execAsync(`ALTER TABLE schedule_items ADD COLUMN ${column} TEXT;`);
@@ -10508,6 +10511,10 @@ export type ScheduleItemRecord = {
   appointmentType: string | null;
   location: string | null;
   providerName: string | null;
+  // NOT appointment-only, despite living in this same block -- 2026-08-18,
+  // meals can link to a real phone-calendar event too (see the Meals
+  // lens' own "Add to calendar" action in schedule.tsx). Null on any real
+  // schedule_items row (of any item_type) that isn't linked to one.
   linkedDeviceCalendarEventId: string | null;
   // Raw JSON text of RotationSelection[] for this occurrence -- parsed by
   // callers (see applyRotationSelectionsToIngredients), same pattern as
@@ -10974,6 +10981,25 @@ export async function listScheduledMealsForDate(date: string) {
   );
 }
 
+// The real range version -- 2026-08-18, direct request for a week view on
+// the Meals lens (see that lens' own header comment for the full "why").
+// Same substr-based date-only comparison as listScheduledMealsForDate
+// itself, just widened to a real BETWEEN so one call can fetch a whole
+// visible week at once rather than one query per day.
+export async function listScheduledMealsForDateRange(startDate: string, endDate: string) {
+  const db = await getDatabase();
+  return db.getAllAsync<ScheduleItemRecord>(
+    `
+      SELECT ${SCHEDULE_ITEM_COLUMNS}
+      FROM schedule_items
+      WHERE item_type = 'meal' AND substr(scheduled_for, 1, 10) BETWEEN ? AND ?
+      ORDER BY scheduled_for ASC
+    `,
+    startDate,
+    endDate,
+  );
+}
+
 // The real "Past Meals" list -- 2026-08-14, the browsing side of
 // settlePastScheduledMeals just above (see that function's own comment for
 // the full "why"). By the time someone opens this, every real past
@@ -11244,11 +11270,14 @@ export async function setAppointmentCancelled(id: string, cancelled: boolean): P
   );
 }
 
-// Connects (or disconnects) this appointment to a real event in the
-// phone's own Calendar app -- see lib/deviceCalendar.ts. Purely a link;
-// this app never reads back changes made to the event on the device side
-// beyond what's stored here.
-export async function linkAppointmentToDeviceCalendarEvent(id: string, deviceCalendarEventId: string): Promise<void> {
+// Connects (or disconnects) any real schedule_items row -- an appointment
+// or a meal (2026-08-18) -- to a real event in the phone's own Calendar
+// app -- see lib/deviceCalendar.ts. Purely a link; this app never reads
+// back changes made to the event on the device side beyond what's stored
+// here. Named generically since it operates on any real id regardless of
+// item_type, not "Appointment" as the original, narrower name implied
+// before Meals gained the same real capability.
+export async function linkScheduleItemToDeviceCalendarEvent(id: string, deviceCalendarEventId: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
     `UPDATE schedule_items SET linked_device_calendar_event_id = ?, updated_at = ? WHERE id = ?`,
@@ -11258,7 +11287,7 @@ export async function linkAppointmentToDeviceCalendarEvent(id: string, deviceCal
   );
 }
 
-export async function unlinkAppointmentFromDeviceCalendarEvent(id: string): Promise<void> {
+export async function unlinkScheduleItemFromDeviceCalendarEvent(id: string): Promise<void> {
   const db = await getDatabase();
   await db.runAsync(
     `UPDATE schedule_items SET linked_device_calendar_event_id = NULL, updated_at = ? WHERE id = ?`,
