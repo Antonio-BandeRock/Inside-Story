@@ -3789,6 +3789,38 @@ async function runDatabaseInitialization() {
         added_at TEXT NOT NULL DEFAULT (datetime('now'))
       );
 
+      -- The person's own personal interaction rules, 2026-08-18 -- the
+      -- second half of the interaction rules engine named in this app's
+      -- own Architecture section from the start ("lets the individual
+      -- user encode their own discovered pattern or their own doctor's
+      -- specific instruction to them"). Local-only, unlike the bundled,
+      -- cited interaction_rules table in the reference database -- this
+      -- is the person's own content, never shared research, and must
+      -- stay visually distinct wherever it's shown (see
+      -- evaluateInteractionRules in lib/interactionRules.ts and
+      -- MyMedsView in app/(tabs)/insights.tsx). link_type is 'none'
+      -- (always shown, nothing to check), 'food' (link_value is a plain
+      -- keyword checked against today's logged food names), or
+      -- 'treatment' (link_value is a treatments.id, shown only while
+      -- that treatment is currently active). link_label is a snapshot
+      -- for display (the typed food keyword, or the treatment's own
+      -- name at the time the rule was made) so the management list can
+      -- show something meaningful even if the underlying treatment is
+      -- later renamed or removed. A deliberately simple v1 -- no timing
+      -- math the way the cited rules have; see lib/interactionRules.ts's
+      -- own matchingPersonalRules for exactly what "currently applies"
+      -- means for each link_type.
+      CREATE TABLE IF NOT EXISTS personal_rules (
+        id TEXT PRIMARY KEY,
+        description TEXT NOT NULL,
+        source TEXT NOT NULL DEFAULT 'self',
+        link_type TEXT NOT NULL DEFAULT 'none',
+        link_value TEXT,
+        link_label TEXT,
+        active INTEGER NOT NULL DEFAULT 1,
+        created_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
+
       -- Self-declared stage/phase within a real, condition-specific staged
       -- framework, 2026-08-09 -- see lib/conditionStages.ts's own
       -- CONDITION_STAGING_MODELS for the real, per-condition frameworks
@@ -12224,6 +12256,79 @@ export async function listAllActiveTreatments(): Promise<TreatmentRecord[]> {
   return [...supplements, ...prescriptions, ...otc].sort((a, b) => a.name.localeCompare(b.name));
 }
 
+// Personal rules -- the second half of the interaction rules engine, see
+// personal_rules' own table comment above for the real design. Real,
+// simple CRUD, matching the shape every other local-only table in this
+// file already uses (garden_plot_${Date.now()}-style ids, etc.) -- the
+// actual "does this rule currently apply" evaluation lives in
+// lib/interactionRules.ts, not here, since that's genuinely the same
+// engine the cited rules already run through.
+export type PersonalRule = {
+  id: string;
+  description: string;
+  source: 'self' | 'doctor';
+  linkType: 'none' | 'food' | 'treatment';
+  linkValue: string | null;
+  linkLabel: string | null;
+  active: boolean;
+  createdAt: string;
+};
+
+const PERSONAL_RULE_COLUMNS = `
+  id, description, source, link_type AS linkType, link_value AS linkValue,
+  link_label AS linkLabel, active, created_at AS createdAt
+`;
+
+// Unfiltered by default -- the "manage your rules" list needs to show a
+// paused rule too, not just the currently-active ones. Callers that only
+// want what's currently checkable (lib/interactionRules.ts) pass true.
+export async function listPersonalRules(activeOnly = false): Promise<PersonalRule[]> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<Omit<PersonalRule, 'active'> & { active: number }>(
+    `
+      SELECT ${PERSONAL_RULE_COLUMNS}
+      FROM personal_rules
+      ${activeOnly ? 'WHERE active = 1' : ''}
+      ORDER BY created_at DESC
+    `,
+  );
+  return rows.map((row) => ({ ...row, active: row.active === 1 }));
+}
+
+export async function createPersonalRule(input: {
+  description: string;
+  source: 'self' | 'doctor';
+  linkType: 'none' | 'food' | 'treatment';
+  linkValue?: string | null;
+  linkLabel?: string | null;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `personal_rule_${Date.now()}`;
+  await db.runAsync(
+    `
+      INSERT INTO personal_rules (id, description, source, link_type, link_value, link_label, active)
+      VALUES (?, ?, ?, ?, ?, ?, 1)
+    `,
+    id,
+    input.description.trim(),
+    input.source,
+    input.linkType,
+    input.linkValue?.trim() || null,
+    input.linkLabel?.trim() || null,
+  );
+  return id;
+}
+
+export async function setPersonalRuleActive(id: string, active: boolean): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE personal_rules SET active = ? WHERE id = ?', active ? 1 : 0, id);
+}
+
+export async function deletePersonalRule(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM personal_rules WHERE id = ?', id);
+}
+
 export type TrackedNutrient = {
   code: string;
   displayName: string;
@@ -13007,7 +13112,11 @@ function addNutrientTotalsInto(target: Record<string, number>, source: Record<st
 // bound to the true end of that calendar day fixes it here, at the two
 // callers that actually mean "whole days," without touching
 // getMealItemsInWindow's own correct, precise contract at all.
-function endOfLocalDay(dateOrDateTime: string): string {
+// Exported 2026-08-18 so lib/interactionRules.ts's own personal-rule
+// matching can reuse the identical end-of-day boundary rather than
+// duplicate this one-liner -- see this function's own history above for
+// why a bare date string as the end bound is wrong.
+export function endOfLocalDay(dateOrDateTime: string): string {
   return `${dateOrDateTime.slice(0, 10)}T23:59`;
 }
 

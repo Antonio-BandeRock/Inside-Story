@@ -5,6 +5,8 @@ import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View 
 import {
   classifyPrepStateGroup,
   classifyProteinSource,
+  createPersonalRule,
+  deletePersonalRule,
   getConditionStages,
   getDailyNutrientBreakdown,
   getDailySixDimensionsBreakdown,
@@ -17,6 +19,7 @@ import {
   listAllActiveTreatments,
   listBodyMeasurements,
   listLabResults,
+  listPersonalRules,
   listSafeFoodCategories,
   listSafeFoods,
   listStage1Foods,
@@ -26,6 +29,7 @@ import {
   PREP_STATE_GROUP_ORDER,
   rankFoodsByNutrient,
   recordLabResult,
+  setPersonalRuleActive,
   type DailyDimensionScore,
   type DailyNutrientBreakdown,
   type DailyNutrientScopeTotals,
@@ -34,6 +38,7 @@ import {
   type FoodNutrientRanking,
   type LabResultRecord,
   type LabTest,
+  type PersonalRule,
   type PrepStateGroup,
   type RankedFood,
   type SafeFood,
@@ -83,6 +88,7 @@ import {
 } from '../../lib/sixDimensionsReference';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
+import { useConfirmSheet } from '../../components/ConfirmSheet';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { FoodLookup, categoryLabel, sourceLabel, type ResolvedFoodSelection } from '../../components/FoodLookup';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -338,8 +344,12 @@ const LENSES: LensOption<Lens>[] = [
         body: 'A read-only view of what Schedule\'s own My Meds lens already tracks (prescriptions, OTC, supplements) plus every interaction warning currently triggered: calcium/iron/zinc timing, the fat-soluble vitamins, levothyroxine + calcium/iron, and biotin against an upcoming lab draw.',
       },
       {
+        heading: 'Your Own Rules',
+        body: "Every warning above comes from cited research. This is different: a place for something you've noticed yourself, or a specific instruction your own doctor gave you, especially one that differs from the general guidance. Add one under \"Manage Your Rules\" below, and it shows up here, clearly labeled as yours, whenever it's currently relevant, either always, only while a specific medication or supplement is active, or only on a day something you've logged contains a food keyword you chose.",
+      },
+      {
         heading: 'Adding or editing',
-        body: "This lens doesn't add or edit anything; to change what you're tracking, use Schedule's own My Meds lens. This is just a more visible, always-checked place to see what's currently flagged, without having to go looking for it.",
+        body: "Treatments themselves (prescriptions, OTC, supplements) aren't added or edited here; use Schedule's own My Meds lens for that. Your own rules are the one thing this lens does let you add, pause, resume, and delete directly, further down under \"Manage Your Rules.\"",
       },
     ],
   },
@@ -743,23 +753,35 @@ export default function InsightsScreen() {
   // My Meds & Interactions lens, 2026-08-08 -- a read-only surface over
   // real, already-changing data (active treatments + live interaction
   // checks), so this reloads on focus too, same reasoning as Labs above.
+  // 2026-08-18 -- gained the personal-rule half of the same engine:
+  // myMedsPersonalRuleMatches is whichever of the person's own rules
+  // currently apply (from the same evaluateInteractionRules call the
+  // cited warnings already come from), myMedsAllPersonalRules is every
+  // saved rule, active or paused, for the real "manage your rules"
+  // section MyMedsView also renders. Extracted to a named loadMyMeds
+  // (matching loadLabs' own shape above) so it can be passed down and
+  // called again right after a rule is added, toggled, or deleted --
+  // the exact same onSaved-style reload LabsView already uses.
   const [myMedsTreatments, setMyMedsTreatments] = useState<TreatmentRecord[]>([]);
   const [myMedsWarnings, setMyMedsWarnings] = useState<InteractionWarning[]>([]);
   const [myMedsReferenceOnly, setMyMedsReferenceOnly] = useState<ReferenceOnlyRule[]>([]);
+  const [myMedsPersonalRuleMatches, setMyMedsPersonalRuleMatches] = useState<PersonalRule[]>([]);
+  const [myMedsAllPersonalRules, setMyMedsAllPersonalRules] = useState<PersonalRule[]>([]);
   const [myMedsLoading, setMyMedsLoading] = useState(true);
-  useFocusEffect(
-    useCallback(() => {
-      setMyMedsLoading(true);
-      Promise.all([listAllActiveTreatments(), evaluateInteractionRules(todayDateString())]).then(
-        ([treatments, evaluation]) => {
-          setMyMedsTreatments(treatments);
-          setMyMedsWarnings(evaluation.warnings);
-          setMyMedsReferenceOnly(evaluation.referenceOnly);
-          setMyMedsLoading(false);
-        },
-      );
-    }, []),
-  );
+  const loadMyMeds = useCallback(() => {
+    setMyMedsLoading(true);
+    Promise.all([listAllActiveTreatments(), evaluateInteractionRules(todayDateString()), listPersonalRules()]).then(
+      ([treatments, evaluation, allPersonalRules]) => {
+        setMyMedsTreatments(treatments);
+        setMyMedsWarnings(evaluation.warnings);
+        setMyMedsReferenceOnly(evaluation.referenceOnly);
+        setMyMedsPersonalRuleMatches(evaluation.personalRules);
+        setMyMedsAllPersonalRules(allPersonalRules);
+        setMyMedsLoading(false);
+      },
+    );
+  }, []);
+  useFocusEffect(useCallback(() => loadMyMeds(), [loadMyMeds]));
 
   // Today's Advisories lens, 2026-08-08 -- today's real, changing log, so
   // this reloads on focus too, same reasoning as Labs/My Meds above.
@@ -997,6 +1019,9 @@ export default function InsightsScreen() {
                 treatments={myMedsTreatments}
                 warnings={myMedsWarnings}
                 referenceOnly={myMedsReferenceOnly}
+                personalRuleMatches={myMedsPersonalRuleMatches}
+                allPersonalRules={myMedsAllPersonalRules}
+                onPersonalRuleChanged={loadMyMeds}
                 loading={myMedsLoading}
                 tabColor={TAB_COLOR}
               />
@@ -3001,17 +3026,121 @@ function MyMedsView({
   treatments,
   warnings,
   referenceOnly,
+  personalRuleMatches,
+  allPersonalRules,
+  onPersonalRuleChanged,
   loading,
   tabColor,
 }: {
   treatments: TreatmentRecord[];
   warnings: InteractionWarning[];
   referenceOnly: ReferenceOnlyRule[];
+  personalRuleMatches: PersonalRule[];
+  allPersonalRules: PersonalRule[];
+  onPersonalRuleChanged: () => void;
   loading: boolean;
   tabColor: string;
 }) {
+  // Personal-rule half of this lens, 2026-08-18. All hooks declared
+  // unconditionally, before the loading early-return below -- this view
+  // used to have none, so that early return sat first with nothing to
+  // violate; it can't stay first now that real state/handlers exist here.
+  const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirm, confirmElement] = useConfirmSheet();
+  const [formOpen, setFormOpen] = useState(false);
+  const [formDescription, setFormDescription] = useState('');
+  const [formSource, setFormSource] = useState<'self' | 'doctor'>('self');
+  const [formLinkType, setFormLinkType] = useState<'none' | 'food' | 'treatment'>('none');
+  const [formFoodKeyword, setFormFoodKeyword] = useState('');
+  const [formTreatmentId, setFormTreatmentId] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  const treatmentOptions = useMemo(
+    () => treatments.map((treatment) => ({ label: treatment.name, value: treatment.id })),
+    [treatments],
+  );
+  const treatmentById = useMemo(() => new Map(treatments.map((treatment) => [treatment.id, treatment])), [treatments]);
+
+  function resetRuleForm() {
+    setFormDescription('');
+    setFormSource('self');
+    setFormLinkType('none');
+    setFormFoodKeyword('');
+    setFormTreatmentId(null);
+  }
+
+  async function handleSaveRule() {
+    const description = formDescription.trim();
+    if (!description) {
+      showInfoAlert('Almost there', 'Describe the rule before saving it.');
+      return;
+    }
+    if (formLinkType === 'food' && !formFoodKeyword.trim()) {
+      showInfoAlert('Almost there', 'Type the food or ingredient to watch for.');
+      return;
+    }
+    if (formLinkType === 'treatment' && !formTreatmentId) {
+      showInfoAlert('Almost there', 'Pick which medication or supplement this is about.');
+      return;
+    }
+    setSaving(true);
+    try {
+      await createPersonalRule({
+        description,
+        source: formSource,
+        linkType: formLinkType,
+        linkValue: formLinkType === 'food' ? formFoodKeyword : formLinkType === 'treatment' ? formTreatmentId : null,
+        linkLabel:
+          formLinkType === 'food'
+            ? formFoodKeyword.trim()
+            : formLinkType === 'treatment'
+              ? (treatmentById.get(formTreatmentId ?? '')?.name ?? null)
+              : null,
+      });
+    } catch (error) {
+      setSaving(false);
+      showInfoAlert('Could not save', error instanceof Error ? error.message : String(error));
+      return;
+    }
+    setSaving(false);
+    setFormOpen(false);
+    resetRuleForm();
+    onPersonalRuleChanged();
+  }
+
+  async function handleToggleRule(rule: PersonalRule) {
+    await setPersonalRuleActive(rule.id, !rule.active);
+    onPersonalRuleChanged();
+  }
+
+  async function handleDeleteRule(rule: PersonalRule) {
+    const ok = await confirm({
+      title: 'Delete this rule?',
+      message: `"${rule.description}" will be removed for good.`,
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
+    await deletePersonalRule(rule.id);
+    onPersonalRuleChanged();
+  }
+
+  function ruleSourceTag(rule: PersonalRule) {
+    return (
+      <View style={styles.ruleSourceTag}>
+        <Text style={styles.ruleSourceTagText}>{rule.source === 'doctor' ? 'Your doctor told you this' : 'You noted this'}</Text>
+      </View>
+    );
+  }
+
   if (loading) {
-    return <Text style={styles.emptyText}>Loading…</Text>;
+    return (
+      <>
+        {infoAlertElement}
+        {confirmElement}
+        <Text style={styles.emptyText}>Loading…</Text>
+      </>
+    );
   }
 
   function renderGroup(label: string, type: string) {
@@ -3043,6 +3172,9 @@ function MyMedsView({
 
   return (
     <>
+      {infoAlertElement}
+      {confirmElement}
+
       {warnings.length > 0 ? (
         <View style={styles.rankSpaced}>
           <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Things to check</Text>
@@ -3051,6 +3183,18 @@ function MyMedsView({
               <Text style={[styles.rankFoodName, { color: tabColor }]}>{warning.title}</Text>
               <Text style={styles.myMedsMessage}>{warning.message}</Text>
               <Text style={styles.myMedsCitation}>{warning.citation}</Text>
+            </View>
+          ))}
+        </View>
+      ) : null}
+
+      {personalRuleMatches.length > 0 ? (
+        <View style={styles.rankSpaced}>
+          <Text style={[styles.rankGroupHeading, { color: colors.accent }]}>Your Own Rules</Text>
+          {personalRuleMatches.map((rule) => (
+            <View key={rule.id} style={[styles.formCard, styles.rankSpaced, { borderColor: colors.accent }]}>
+              {ruleSourceTag(rule)}
+              <Text style={[styles.myMedsMessage, { marginTop: 8 }]}>{rule.description}</Text>
             </View>
           ))}
         </View>
@@ -3080,6 +3224,148 @@ function MyMedsView({
           {renderGroup('Supplements', 'supplement')}
         </>
       )}
+
+      <View style={styles.rankSpaced}>
+        <Text style={[styles.rankGroupHeading, { color: tabColor }]}>Manage Your Rules</Text>
+        {allPersonalRules.length === 0 && !formOpen ? (
+          <Text style={styles.emptyText}>
+            Nothing saved yet. Add something you&apos;ve noticed yourself, or a specific instruction your own doctor gave you.
+          </Text>
+        ) : (
+          allPersonalRules.map((rule) => (
+            <View
+              key={rule.id}
+              style={[
+                styles.formCard,
+                styles.rankSpaced,
+                { borderColor: rule.active ? colors.accent : colors.border, opacity: rule.active ? 1 : 0.6 },
+              ]}
+            >
+              {ruleSourceTag(rule)}
+              <Text style={[styles.myMedsMessage, { marginTop: 8 }]}>{rule.description}</Text>
+              {rule.linkType !== 'none' ? (
+                <Text style={styles.myMedsCitation}>
+                  {rule.linkType === 'food' ? `Watching for: ${rule.linkLabel}` : `Tied to: ${rule.linkLabel ?? 'a medication no longer tracked'}`}
+                </Text>
+              ) : null}
+              <View style={[styles.buttonRow, { marginTop: 10 }]}>
+                <TouchableOpacity style={[styles.secondaryButton, { borderWidth: 1, borderColor: tabColor }]} onPress={() => handleToggleRule(rule)}>
+                  <Text style={[styles.secondaryButtonText, { color: tabColor }]}>{rule.active ? 'Pause' : 'Resume'}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={[styles.secondaryButton, { borderWidth: 1, borderColor: colors.danger }]} onPress={() => handleDeleteRule(rule)}>
+                  <Text style={[styles.secondaryButtonText, { color: colors.danger }]}>Delete</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          ))
+        )}
+
+        {formOpen ? (
+          <View style={[styles.formCard, styles.rankSpaced, { borderColor: tabColor }]}>
+            <View style={styles.labFieldLabelRow}>
+              <Text style={[styles.sectionLabel, { color: tabColor }]}>What did you notice, or what were you told?</Text>
+              <VoiceInputButton onResult={setFormDescription} color={tabColor} />
+            </View>
+            <AppTextInput
+              style={[styles.labInput, { minHeight: 72, textAlignVertical: 'top' }]}
+              value={formDescription}
+              onChangeText={setFormDescription}
+              placeholder="e.g. Dairy seems to bring on joint pain about half a day later"
+              placeholderTextColor={colors.textMuted}
+              multiline
+            />
+
+            <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Where did this come from?</Text>
+            <View style={styles.pillWrap}>
+              {(['self', 'doctor'] as const).map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.stagePill, { borderColor: tabColor, backgroundColor: formSource === option ? tabColor : 'transparent' }]}
+                  onPress={() => setFormSource(option)}
+                >
+                  <Text style={[styles.stagePillText, formSource === option ? styles.stagePillTextActive : { color: tabColor }]}>
+                    {option === 'doctor' ? 'My doctor told me' : 'Something I noticed'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Tie this to something specific? (optional)</Text>
+            <View style={styles.pillWrap}>
+              {(['none', 'food', 'treatment'] as const).map((option) => (
+                <TouchableOpacity
+                  key={option}
+                  style={[styles.stagePill, { borderColor: tabColor, backgroundColor: formLinkType === option ? tabColor : 'transparent' }]}
+                  onPress={() => setFormLinkType(option)}
+                >
+                  <Text style={[styles.stagePillText, formLinkType === option ? styles.stagePillTextActive : { color: tabColor }]}>
+                    {option === 'none' ? 'Nothing specific' : option === 'food' ? 'A food' : 'A medication'}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {formLinkType === 'food' ? (
+              <>
+                <View style={[styles.labFieldLabelRow, styles.rankSpaced]}>
+                  <Text style={[styles.sectionLabel, { color: tabColor }]}>What food or ingredient?</Text>
+                  <VoiceInputButton onResult={setFormFoodKeyword} color={tabColor} />
+                </View>
+                <AppTextInput
+                  style={styles.labInput}
+                  value={formFoodKeyword}
+                  onChangeText={setFormFoodKeyword}
+                  placeholder="e.g. dairy"
+                  placeholderTextColor={colors.textMuted}
+                />
+                <Text style={[styles.myMedsCitation, styles.rankSpaced]}>Shown whenever something you&apos;ve logged today contains this word.</Text>
+              </>
+            ) : null}
+
+            {formLinkType === 'treatment' ? (
+              <>
+                <Text style={[styles.sectionLabel, styles.rankSpaced, { color: tabColor }]}>Which one?</Text>
+                <PopoverSelect
+                  options={treatmentOptions}
+                  selected={formTreatmentId}
+                  onSelect={setFormTreatmentId}
+                  tabColor={tabColor}
+                  searchable
+                  placeholder="Pick a medication or supplement..."
+                  minWidth={220}
+                />
+                <Text style={[styles.myMedsCitation, styles.rankSpaced]}>Shown only while this is marked active.</Text>
+              </>
+            ) : null}
+
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.secondaryButton, { flex: 1 }]}
+                onPress={() => {
+                  setFormOpen(false);
+                  resetRuleForm();
+                }}
+              >
+                <Text style={[styles.secondaryButtonText, { color: tabColor }]}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.primaryButton, { backgroundColor: tabColor, flex: 1, opacity: saving ? 0.6 : 1 }]}
+                onPress={handleSaveRule}
+                disabled={saving}
+              >
+                <Text style={styles.primaryButtonText}>{saving ? 'Saving…' : 'Save Rule'}</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        ) : (
+          <TouchableOpacity
+            style={[styles.secondaryButton, styles.rankSpaced, { borderWidth: 1, borderColor: tabColor }]}
+            onPress={() => setFormOpen(true)}
+          >
+            <Text style={[styles.secondaryButtonText, { color: tabColor }]}>+ Add a Rule of Your Own</Text>
+          </TouchableOpacity>
+        )}
+      </View>
     </>
   );
 }
@@ -3612,6 +3898,18 @@ const styles = StyleSheet.create({
   // My Meds & Interactions lens, 2026-08-08.
   myMedsMessage: { ...typography.body, color: colors.textPrimary, marginTop: 6 },
   myMedsCitation: { ...typography.caption, color: colors.textMuted, marginTop: 6 },
+  // Personal rules, 2026-08-18 -- a small, deliberately plain tag naming
+  // where a rule came from, on every rule card in both the "Your Own
+  // Rules" and "Manage Your Rules" sections, so it's never mistaken for
+  // one of the cited warnings sitting right above it.
+  ruleSourceTag: {
+    alignSelf: 'flex-start',
+    backgroundColor: `${colors.accent}33`,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  ruleSourceTagText: { ...typography.caption, color: colors.accent },
   // Today's Advisories lens, 2026-08-08.
   advisoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   advisoryTitle: { flex: 1 },

@@ -1,15 +1,19 @@
 import {
+  endOfLocalDay,
   getDailyNutrientBreakdown,
+  getMealItemsInWindow,
   getTreatmentNutrients,
   getUserConditions,
   getUserProfile,
   listInteractionRules,
   listOtcTreatments,
+  listPersonalRules,
   listPrescriptionTreatments,
   listScheduledPrescriptionsForDate,
   listScheduledSupplementsForDate,
   listSupplementTreatments,
   listUpcomingAppointments,
+  type PersonalRule,
   type ScheduleItemRecord,
   type TreatmentRecord,
 } from './db';
@@ -58,7 +62,48 @@ export type ReferenceOnlyRule = {
 export type InteractionEvaluation = {
   warnings: InteractionWarning[];
   referenceOnly: ReferenceOnlyRule[];
+  // The person's own rules, currently applying -- see personal_rules'
+  // own table comment in lib/db.ts and matchingPersonalRules below for
+  // exactly what "currently applying" means per link type. Deliberately
+  // a real PersonalRule[], not a separate summarized shape -- the caller
+  // already has everything it needs (description, source, link info) to
+  // render these distinctly from warnings/referenceOnly without a
+  // second lookup.
+  personalRules: PersonalRule[];
 };
+
+// 2026-08-18 -- the personal-rule half of this engine. Deliberately no
+// timing math the way timing_separation above has; a real, simple
+// "does this currently apply" check per link_type: 'none' rules always
+// show (nothing to check against), 'treatment' rules show only while
+// that specific treatment is active, 'food' rules show only when
+// something logged today contains the person's own typed keyword.
+// Condition-linking was considered and deliberately left out of this
+// pass -- a real, cheap future addition, not part of what was asked for.
+async function matchingPersonalRules(date: string, activeTreatmentIds: Set<string>): Promise<PersonalRule[]> {
+  const allRules = await listPersonalRules(true);
+  if (allRules.length === 0) return [];
+
+  const needsFoodLog = allRules.some((rule) => rule.linkType === 'food');
+  let todaysFoodNames: string[] = [];
+  if (needsFoodLog) {
+    const items = await getMealItemsInWindow(date, endOfLocalDay(date));
+    todaysFoodNames = items.map((item) => item.foodName.toLowerCase());
+  }
+
+  return allRules.filter((rule) => {
+    if (rule.linkType === 'none') return true;
+    if (rule.linkType === 'treatment') {
+      return rule.linkValue != null && activeTreatmentIds.has(rule.linkValue);
+    }
+    if (rule.linkType === 'food') {
+      const needle = (rule.linkValue ?? '').toLowerCase().trim();
+      if (!needle) return false;
+      return todaysFoodNames.some((name) => name.includes(needle));
+    }
+    return false;
+  });
+}
 
 function timeToHours(hhmm: string): number {
   const [hours, minutes] = hhmm.split(':').map(Number);
@@ -165,6 +210,18 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
     // change.
     prescriptionTreatments: [...activePrescriptions, ...activeOtc],
   };
+
+  // Built once here, not inside matchingPersonalRules -- these three
+  // arrays are already resolved above for the cited-rule matching this
+  // function already does, so a 'treatment'-linked personal rule reuses
+  // the identical "is this currently active" data rather than a second
+  // fetch.
+  const activeTreatmentIds = new Set([
+    ...activeSupplements.map((treatment) => treatment.id),
+    ...activePrescriptions.map((treatment) => treatment.id),
+    ...activeOtc.map((treatment) => treatment.id),
+  ]);
+  const personalRules = await matchingPersonalRules(date, activeTreatmentIds);
 
   const warnings: InteractionWarning[] = [];
   const referenceOnly: ReferenceOnlyRule[] = [];
@@ -351,5 +408,5 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
     }
   }
 
-  return { warnings, referenceOnly };
+  return { warnings, referenceOnly, personalRules };
 }

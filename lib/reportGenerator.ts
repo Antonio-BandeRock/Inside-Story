@@ -4,6 +4,7 @@ import {
   listAllConditions,
   listCheckins,
   listLabResults,
+  listPersonalRules,
   type LabResultRecord,
 } from './db';
 import { getCheckinTagDefinition } from './checkinTags';
@@ -135,6 +136,28 @@ export async function generateReport(days: number): Promise<string> {
       if (dose) parts.push(dose);
       if (treatment.frequency) parts.push(treatment.frequency);
       lines.push(`- ${parts.join(', ')} (${treatment.treatmentType})`);
+    }
+  }
+  lines.push('');
+
+  // The person's own rules -- the personal half of the interaction rules
+  // engine, 2026-08-18. Kept in a clearly separate, clearly labeled
+  // section, on purpose: this app's own architecture plan requires that
+  // a personal hunch or a doctor's own specific instruction never gets
+  // confused with the cited research elsewhere in this same report, and
+  // that requirement applies here most of all, since a report like this
+  // is likely to actually be read by a doctor. Only active rules are
+  // included -- a paused one isn't currently something the person is
+  // acting on. Each line states plainly whether it came from the person
+  // or their own doctor, never presented as verified medical fact.
+  const activePersonalRules = (await listPersonalRules(true)).filter((rule) => rule.active);
+  lines.push('YOUR OWN NOTES (not from cited research -- self-reported)');
+  if (activePersonalRules.length === 0) {
+    lines.push('None saved.');
+  } else {
+    for (const rule of activePersonalRules) {
+      const sourceLabel = rule.source === 'doctor' ? 'from your own doctor' : 'your own observation';
+      lines.push(`- ${rule.description} (${sourceLabel})`);
     }
   }
   lines.push('');
