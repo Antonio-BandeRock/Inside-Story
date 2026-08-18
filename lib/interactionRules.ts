@@ -45,12 +45,15 @@ export type InteractionWarning = {
 };
 
 // A cited rule shown as static reference content, for a rule this app
-// simply can't evaluate against real data (checkable=false in
-// scripts/add_interaction_rules.py). Every rule shipped today is
-// checkable, so this is currently always empty -- kept as a real,
-// documented path (not dead code) since a future rule may legitimately
-// need to stay reference-only, the same way the levothyroxine and biotin
-// rules did before prescriptions and appointments were built out.
+// can't evaluate against real data precisely (checkable=0 in
+// scripts/add_interaction_rules.py) -- a dose-CONSISTENCY note rather
+// than a timing gap, a symptom to watch for by name, a genuinely serious
+// caution that's worth stating plainly rather than computing exactly.
+// Real as of 2026-08-18: 17 rows in the live reference database, added
+// across many condition build-outs (Graves', Psoriasis, Gout, CVD, and
+// more). Still gated on the person's own active treatments -- see
+// evaluateInteractionRules' own handling below -- so this only ever
+// shows something that actually has to do with what they take.
 export type ReferenceOnlyRule = {
   ruleId: string;
   severity: 'caution' | 'note';
@@ -228,6 +231,30 @@ export async function evaluateInteractionRules(date: string): Promise<Interactio
 
   for (const rule of rules) {
     if (!rule.checkable) {
+      // 2026-08-18 direct correction: this used to push every checkable=0
+      // rule unconditionally, with no check for whether the person's own
+      // active treatments have anything to do with it -- confirmed via a
+      // direct query, that meant showing all 17 real reference-only rows
+      // to everyone, every time, the same as someone tracking nothing at
+      // all. Every other rule type below already gates on a real subject
+      // match before pushing anything; this one never did. Gated on
+      // subjectA only, the same one-sided precedent the checkable
+      // dietary_cofactor rules just below already use -- a real, deliberate
+      // choice over also requiring subjectB: several of these rows name a
+      // category (e.g. "another immunosuppressant") rather than one
+      // literal, matchable drug in subjectB, and gating that too would
+      // risk silently hiding a real caution rather than just under-showing
+      // one -- subjectA alone is what makes this relevant at all.
+      // Same real 'condition' handling age_threshold_caution below already
+      // uses -- none of today's 17 rows are condition-linked (confirmed
+      // directly), but activeTreatmentsForSubject only ever resolves
+      // 'nutrient'/'prescription', so a future condition-linked
+      // reference-only rule would otherwise silently never show at all.
+      const subjectAApplies =
+        rule.subjectAKind === 'condition'
+          ? conditionCodes.includes(rule.subjectA)
+          : activeTreatmentsForSubject(rule.subjectAKind, rule.subjectA, subjectContext).length > 0;
+      if (!subjectAApplies) continue;
       referenceOnly.push({
         ruleId: rule.id,
         severity: rule.severity,

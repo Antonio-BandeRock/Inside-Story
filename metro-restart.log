@@ -23,7 +23,7 @@ Scan this in Expo Go (or tap "Enter URL manually" and type the address below):
 
 exp://192.168.68.53:8081
 
-(node:14820) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(node:6588) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Starting project at C:\Dev\hashimotos-app
 React Compiler enabled
@@ -31,13 +31,3 @@ Starting Metro Bundler
 warning: Bundler cache is empty, rebuilding (this may take a minute)
 Waiting on http://localhost:8081
 Logs for your project will appear below.
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 40.1% (363/573)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.2% (705/917)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 68.2% ( 861/1123)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 79.9% (1504/1689)
-Android Bundled 17759ms node_modules\expo-router\entry.js (2299 modules)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2299/2299)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +133ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +167ms: Modal onShow (Android Dialog window confirmed up)
