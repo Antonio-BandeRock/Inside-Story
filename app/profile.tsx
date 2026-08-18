@@ -104,7 +104,15 @@ const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
   { value: 'off', label: 'Off' },
 ];
 
-const GENERIC_PALETTE_OPTIONS: GenericPalette[] = ['lavender', 'seafoam', 'sand', 'dusk'];
+// 2026-08-17: was a hand-typed 4-entry list (the original lavender/seafoam/
+// sand/dusk set), left behind unchanged when GenericPalette itself grew to
+// 12 real combinations the same day -- the picker below maps over THIS
+// array, not the full palette object, so the other 8 were silently
+// unreachable here despite existing everywhere else. Derived from
+// GENERIC_PALETTE_LABELS's own real keys instead of a second hand-typed
+// list, so a future palette addition/removal can't silently drift out of
+// sync with this picker again.
+const GENERIC_PALETTE_OPTIONS = Object.keys(GENERIC_PALETTE_LABELS) as GenericPalette[];
 
 // 2026-08-16, direct request: every information page should say plainly
 // what the tool is here to do for you, why you'd use it, not just how the
