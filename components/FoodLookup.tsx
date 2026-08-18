@@ -243,8 +243,13 @@ const FOOD_CATEGORY_GROUPS: FoodCategoryGroup[] = [
     categories: ['Meat', 'Dairy'],
     flattenSubcategoriesFor: ['Meat'],
   },
-  { key: 'group-grains-pasta-legumes', label: 'Grains, Pasta & Legumes', categories: ['Grain', 'PastaNoodles', 'Legume'] },
-  { key: 'group-pantry-staples', label: 'Pantry & Staples', categories: ['PantryStaples', 'Fats', 'NutSeed', 'Algae'] },
+  // Label dropped "& Legumes" 2026-08-17, direct request ("Move Legumes to
+  // Pantry Staples") -- the key itself (group-grains-pasta-legumes) stays
+  // as-is, a purely internal identifier nothing user-facing reads, same
+  // "internal names stay stable, only the shown label changes" precedent
+  // already used elsewhere in this app.
+  { key: 'group-grains-pasta-legumes', label: 'Grains & Pasta', categories: ['Grain', 'PastaNoodles'] },
+  { key: 'group-pantry-staples', label: 'Pantry & Staples', categories: ['PantryStaples', 'Fats', 'NutSeed', 'Algae', 'Legume'] },
   { key: 'group-sauces-herbs-seasonings', label: 'Sauces, Herbs & Seasonings', categories: ['SaucesCondiments', 'Herbs'] },
 ];
 

@@ -23,7 +23,7 @@ Scan this in Expo Go (or tap "Enter URL manually" and type the address below):
 
 exp://192.168.68.53:8081
 
-(node:27988) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
+(node:29956) [DEP0190] DeprecationWarning: Passing args to a child process with shell option true can lead to security vulnerabilities, as the arguments are not escaped, only concatenated.
 (Use `node --trace-deprecation ...` to show where the warning was created)
 Starting project at C:\Dev\hashimotos-app
 React Compiler enabled
@@ -32,100 +32,10 @@ warning: Bundler cache is empty, rebuilding (this may take a minute)
 Waiting on http://localhost:8081
 Logs for your project will appear below.
 Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-| (node:26576) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:9132) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:15804) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:22756) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:25996) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:4844) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:30948) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-| (node:31496) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
-| (Use `node --trace-warnings ...` to show where the warning was created)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓░░░░░░░░░░ 39.8% (343/544)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 70.0% (693/884)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓░░░░░ 70.0% ( 852/1114)
-Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 82.6% (1400/1540)
-Android Bundled 17315ms node_modules\expo-router\entry.js (1991 modules)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +182ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +220ms: Modal onShow (Android Dialog window confirmed up)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +153ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +188ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 3679ms node_modules\expo-router\entry.js (1 module)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
- ERROR  SyntaxError: C:\Dev\hashimotos-app\components\FermentationBuilder.tsx: Unexpected token (835:3)
-
-  833 |     // eslint-disable-next-line react-hooks/exhaustive-deps
-  834 |   }, [openRecipeId]);
-> 835 |   }, [fromFavoriteId]);
-      |    ^
-  836 |
-  837 |   function handleFoodResolved(resolved: ResolvedFoodSelection) {
-  838 |     setPendingResolved(resolved);
-    at constructor (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:365:19)
-    at TypeScriptParserMixin.raise (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6616:19)
-    at TypeScriptParserMixin.unexpected (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:6636:16)
-    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11459:22)
-    at TypeScriptParserMixin.parseExprAtom (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:4776:20)
-    at TypeScriptParserMixin.parseExprSubscripts (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11098:23)
-    at TypeScriptParserMixin.parseUpdate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11083:21)
-    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:11063:23)
-    at TypeScriptParserMixin.parseMaybeUnary (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9854:18)
-    at TypeScriptParserMixin.parseMaybeUnaryOrPrivate (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10916:61)
-    at TypeScriptParserMixin.parseExprOps (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10921:23)
-    at TypeScriptParserMixin.parseMaybeConditional (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10898:23)
-    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10848:21)
-    at TypeScriptParserMixin.parseMaybeAssign (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9803:20)
-    at TypeScriptParserMixin.parseExpressionBase (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10801:23)
-    at C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10797:39
-    at TypeScriptParserMixin.allowInAnd (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12438:16)
-    at TypeScriptParserMixin.parseExpression (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10797:17)
-    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12912:23)
-    at TypeScriptParserMixin.parseStatementContent (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:9525:18)
-    at TypeScriptParserMixin.parseStatementLike (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12784:17)
-    at TypeScriptParserMixin.parseModuleItem (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12761:17)
-    at TypeScriptParserMixin.parseBlockOrModuleBlockBody (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13333:36)
-    at TypeScriptParserMixin.parseBlockBody (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:13326:10)
-    at TypeScriptParserMixin.parseProgram (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12639:10)
-    at TypeScriptParserMixin.parseTopLevel (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:12629:25)
-    at TypeScriptParserMixin.parse (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:14505:25)
-    at TypeScriptParserMixin.parse (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:10143:18)
-    at parse (C:\Dev\hashimotos-app\node_modules\@babel\parser\lib\index.js:14518:26)
-    at parser (C:\Dev\hashimotos-app\node_modules\@babel\core\lib\parser\index.js:41:34)
-    at parser.next (<anonymous>)
-    at normalizeFile (C:\Dev\hashimotos-app\node_modules\@babel\core\lib\transformation\normalize-file.js:51:37)
-    at normalizeFile.next (<anonymous>)
-    at run (C:\Dev\hashimotos-app\node_modules\@babel\core\lib\transformation\index.js:22:50)
-    at run.next (<anonymous>)
-    at transform (C:\Dev\hashimotos-app\node_modules\@babel\core\lib\transform.js:22:33)
-    at transform.next (<anonymous>)
-    at evaluateSync (C:\Dev\hashimotos-app\node_modules\gensync\index.js:251:28)
-    at sync (C:\Dev\hashimotos-app\node_modules\gensync\index.js:89:14)
-    at stopHiding - secret - don't use this - v1 (C:\Dev\hashimotos-app\node_modules\@babel\core\lib\errors\rewrite-stack-trace.js:47:12)
-    at Object.transformSync (C:\Dev\hashimotos-app\node_modules\@babel\core\lib\transform.js:40:76)
-    at parseWithBabel (C:\Dev\hashimotos-app\node_modules\expo\node_modules\@expo\metro-config\build\transformSync.js:75:18)
-    at transformSync (C:\Dev\hashimotos-app\node_modules\expo\node_modules\@expo\metro-config\build\transformSync.js:54:16)
-    at Object.transform (C:\Dev\hashimotos-app\node_modules\expo\node_modules\@expo\metro-config\build\babel-transformer.js:127:58)
-    at transformJSWithBabel (C:\Dev\hashimotos-app\node_modules\expo\node_modules\@expo\metro-config\build\transform-worker\metro-transform-worker.js:468:47)
-    at Object.transform (C:\Dev\hashimotos-app\node_modules\expo\node_modules\@expo\metro-config\build\transform-worker\metro-transform-worker.js:583:12)
-    at Object.transform (C:\Dev\hashimotos-app\node_modules\expo\node_modules\@expo\metro-config\build\transform-worker\transform-worker.js:178:19)
-    at transformFile (C:\Dev\hashimotos-app\node_modules\metro\src\DeltaBundler\Worker.flow.js:67:36)
-    at Object.transform (C:\Dev\hashimotos-app\node_modules\metro\src\DeltaBundler\Worker.flow.js:42:10)
-    at execFunction (C:\Dev\hashimotos-app\node_modules\jest-worker\build\workers\processChild.js:149:17)
- LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +160ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +189ms: Modal onShow (Android Dialog window confirmed up)
-Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
-Android Bundled 2683ms node_modules\expo-router\entry.js (1 module)
- LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
- LOG  [TabHub drop-timing] +166ms: card onLayout: x=16 y=437 w=216 h=234
- LOG  [TabHub drop-timing] +198ms: Modal onShow (Android Dialog window confirmed up)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓░░░░░░░░░░░ 33.9% (308/529)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.6% (641/870)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.6% ( 848/1134)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.6% (1140/1507)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 81.4% (1603/1891)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.4% (2249/2279)
+Android Bundled 22167ms node_modules\expo-router\entry.js (2306 modules)

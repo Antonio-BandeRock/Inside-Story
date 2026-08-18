@@ -5540,6 +5540,7 @@ export async function saveSalad(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: SaladIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `salad_${Date.now()}`;
@@ -5547,14 +5548,15 @@ export async function saveSalad(input: {
 
   await db.runAsync(
     `
-      INSERT INTO salads (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO salads (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -5593,6 +5595,7 @@ export async function updateSalad(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: SaladIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -5601,13 +5604,14 @@ export async function updateSalad(
   await db.runAsync(
     `
       UPDATE salads
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     saladId,
   );
@@ -5685,19 +5689,34 @@ export type SaladDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `salad.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getSalad(saladId: string): Promise<SaladDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<SaladDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM salads
       WHERE id = ?
     `,
     saladId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type SaladIngredientDetail = {
@@ -5885,6 +5904,7 @@ export async function saveSmoothie(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: SmoothieIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `smoothie_${Date.now()}`;
@@ -5892,14 +5912,15 @@ export async function saveSmoothie(input: {
 
   await db.runAsync(
     `
-      INSERT INTO smoothies (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO smoothies (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -5938,6 +5959,7 @@ export async function updateSmoothie(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: SmoothieIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -5946,13 +5968,14 @@ export async function updateSmoothie(
   await db.runAsync(
     `
       UPDATE smoothies
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     smoothieId,
   );
@@ -6030,19 +6053,34 @@ export type SmoothieDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `smoothie.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getSmoothie(smoothieId: string): Promise<SmoothieDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<SmoothieDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM smoothies
       WHERE id = ?
     `,
     smoothieId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type SmoothieIngredientDetail = {
@@ -6233,6 +6271,7 @@ export async function saveFermentation(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: FermentationIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `fermentation_${Date.now()}`;
@@ -6240,14 +6279,15 @@ export async function saveFermentation(input: {
 
   await db.runAsync(
     `
-      INSERT INTO fermentations (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO fermentations (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -6296,6 +6336,7 @@ export async function updateFermentation(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: FermentationIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -6304,13 +6345,14 @@ export async function updateFermentation(
   await db.runAsync(
     `
       UPDATE fermentations
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     fermentationId,
   );
@@ -6398,19 +6440,34 @@ export type FermentationDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `fermentation.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getFermentation(fermentationId: string): Promise<FermentationDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<FermentationDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM fermentations
       WHERE id = ?
     `,
     fermentationId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type FermentationIngredientDetail = {
@@ -6644,6 +6701,7 @@ export async function saveBeverage(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: BeverageIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `beverage_${Date.now()}`;
@@ -6651,14 +6709,15 @@ export async function saveBeverage(input: {
 
   await db.runAsync(
     `
-      INSERT INTO beverages (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO beverages (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -6707,6 +6766,7 @@ export async function updateBeverage(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: BeverageIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -6715,13 +6775,14 @@ export async function updateBeverage(
   await db.runAsync(
     `
       UPDATE beverages
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     beverageId,
   );
@@ -6809,19 +6870,34 @@ export type BeverageDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `beverage.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getBeverage(beverageId: string): Promise<BeverageDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<BeverageDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM beverages
       WHERE id = ?
     `,
     beverageId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type BeverageIngredientDetail = {
@@ -7051,6 +7127,7 @@ export async function saveSnack(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: SnackIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `snack_${Date.now()}`;
@@ -7058,14 +7135,15 @@ export async function saveSnack(input: {
 
   await db.runAsync(
     `
-      INSERT INTO snacks (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO snacks (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -7104,6 +7182,7 @@ export async function updateSnack(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: SnackIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -7112,13 +7191,14 @@ export async function updateSnack(
   await db.runAsync(
     `
       UPDATE snacks
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     snackId,
   );
@@ -7196,19 +7276,36 @@ export type SnackDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. getSnack
+  // itself always sets a real array (possibly empty), never leaves this
+  // undefined -- but the FIELD stays optional, matching SideDetail's own
+  // contract exactly. Callers should still read it as `snack.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getSnack(snackId: string): Promise<SnackDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<SnackDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM snacks
       WHERE id = ?
     `,
     snackId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type SnackIngredientDetail = {
@@ -7402,6 +7499,7 @@ export async function saveBakedGoods(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: BakedGoodsIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `baked_good_${Date.now()}`;
@@ -7409,14 +7507,15 @@ export async function saveBakedGoods(input: {
 
   await db.runAsync(
     `
-      INSERT INTO baked_goods (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO baked_goods (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -7455,6 +7554,7 @@ export async function updateBakedGoods(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: BakedGoodsIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -7463,13 +7563,14 @@ export async function updateBakedGoods(
   await db.runAsync(
     `
       UPDATE baked_goods
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     bakedGoodId,
   );
@@ -7547,19 +7648,34 @@ export type BakedGoodsDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `bakedGood.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getBakedGoods(bakedGoodId: string): Promise<BakedGoodsDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<BakedGoodsDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM baked_goods
       WHERE id = ?
     `,
     bakedGoodId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type BakedGoodsIngredientDetail = {
@@ -7751,6 +7867,7 @@ export async function saveSoup(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: SoupIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `soup_${Date.now()}`;
@@ -7758,14 +7875,15 @@ export async function saveSoup(input: {
 
   await db.runAsync(
     `
-      INSERT INTO soups (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO soups (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -7814,6 +7932,7 @@ export async function updateSoup(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: SoupIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -7822,13 +7941,14 @@ export async function updateSoup(
   await db.runAsync(
     `
       UPDATE soups
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     soupId,
   );
@@ -7916,19 +8036,34 @@ export type SoupDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `soup.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getSoup(soupId: string): Promise<SoupDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<SoupDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM soups
       WHERE id = ?
     `,
     soupId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type SoupIngredientDetail = {
@@ -8150,6 +8285,7 @@ export async function saveSauce(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: SauceIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `sauce_${Date.now()}`;
@@ -8157,14 +8293,15 @@ export async function saveSauce(input: {
 
   await db.runAsync(
     `
-      INSERT INTO sauces (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO sauces (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -8213,6 +8350,7 @@ export async function updateSauce(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: SauceIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -8221,13 +8359,14 @@ export async function updateSauce(
   await db.runAsync(
     `
       UPDATE sauces
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     sauceId,
   );
@@ -8315,19 +8454,34 @@ export type SauceDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `sauce.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getSauce(sauceId: string): Promise<SauceDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<SauceDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM sauces
       WHERE id = ?
     `,
     sauceId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type SauceIngredientDetail = {
@@ -8547,6 +8701,7 @@ export async function saveHandheld(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: HandheldIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `handheld_${Date.now()}`;
@@ -8554,14 +8709,15 @@ export async function saveHandheld(input: {
 
   await db.runAsync(
     `
-      INSERT INTO handhelds (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO handhelds (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -8600,6 +8756,7 @@ export async function updateHandheld(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: HandheldIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -8608,13 +8765,14 @@ export async function updateHandheld(
   await db.runAsync(
     `
       UPDATE handhelds
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     handheldId,
   );
@@ -8692,19 +8850,34 @@ export type HandheldDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `handheld.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getHandheld(handheldId: string): Promise<HandheldDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<HandheldDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM handhelds
       WHERE id = ?
     `,
     handheldId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type HandheldIngredientDetail = {
@@ -8901,6 +9074,7 @@ export async function saveDessert(input: {
   servingSizeAmount: number;
   servingSizeUnit: string;
   ingredients: DessertIngredientInput[];
+  instructions: string[];
 }) {
   const db = await getDatabase();
   const id = `dessert_${Date.now()}`;
@@ -8908,14 +9082,15 @@ export async function saveDessert(input: {
 
   await db.runAsync(
     `
-      INSERT INTO desserts (id, name, servings, serving_size_amount, serving_size_unit, created_at, updated_at)
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO desserts (id, name, servings, serving_size_amount, serving_size_unit, instructions_json, created_at, updated_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `,
     id,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     now,
   );
@@ -8964,6 +9139,7 @@ export async function updateDessert(
     servingSizeAmount: number;
     servingSizeUnit: string;
     ingredients: DessertIngredientInput[];
+    instructions: string[];
   },
 ) {
   const db = await getDatabase();
@@ -8972,13 +9148,14 @@ export async function updateDessert(
   await db.runAsync(
     `
       UPDATE desserts
-      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, updated_at = ?
+      SET name = ?, servings = ?, serving_size_amount = ?, serving_size_unit = ?, instructions_json = ?, updated_at = ?
       WHERE id = ?
     `,
     input.name.trim(),
     input.servings,
     input.servingSizeAmount,
     input.servingSizeUnit,
+    serializeInstructions(input.instructions),
     now,
     dessertId,
   );
@@ -9066,19 +9243,34 @@ export type DessertDetail = {
   servingSizeAmount: number;
   servingSizeUnit: string;
   createdAt: string;
+  // Real, hand-authored prep steps, 2026-08-17 -- see SideBuilder.tsx's own
+  // Steps section for the original instance of this exact field. Callers
+  // should read it as `dessert.instructions ?? []`.
+  instructions?: string[];
 };
 
 export async function getDessert(dessertId: string): Promise<DessertDetail | null> {
   const db = await getDatabase();
-  return db.getFirstAsync<DessertDetail>(
+  const row = await db.getFirstAsync<{
+    id: string;
+    name: string;
+    servings: number;
+    servingSizeAmount: number;
+    servingSizeUnit: string;
+    createdAt: string;
+    instructionsJson: string | null;
+  }>(
     `
       SELECT id, name, servings, serving_size_amount AS servingSizeAmount, serving_size_unit AS servingSizeUnit,
-             created_at AS createdAt
+             created_at AS createdAt, instructions_json AS instructionsJson
       FROM desserts
       WHERE id = ?
     `,
     dessertId,
   );
+  if (!row) return null;
+  const { instructionsJson, ...rest } = row;
+  return { ...rest, instructions: parseInstructionsJson(instructionsJson) };
 }
 
 export type DessertIngredientDetail = {
