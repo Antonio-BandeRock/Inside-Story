@@ -172,6 +172,12 @@ export type HomeSkyData = {
   tempMax: number | null;
   tempMin: number | null;
   tempUnit: 'F' | 'C';
+  // 2026-08-18: added directly in response to "I don't see temp and
+  // humidity" -- humidityMean is a real daily mean (relative_humidity_2m_mean,
+  // confirmed directly against Open-Meteo's own docs before use, not
+  // guessed), the one representative number for the day rather than
+  // separately showing max/min the way temperature does.
+  humidityMean: number | null;
   uvIndexMax: number | null;
   usAqi: number | null;
   // Only ever populated with real, positive, finite values -- see this
@@ -211,7 +217,7 @@ async function fetchWeather(
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
-    daily: 'sunrise,sunset,temperature_2m_max,temperature_2m_min,uv_index_max',
+    daily: 'sunrise,sunset,temperature_2m_max,temperature_2m_min,relative_humidity_2m_mean,uv_index_max',
     forecast_days: '1',
     timezone: 'auto',
     temperature_unit: tempUnit === 'F' ? 'fahrenheit' : 'celsius',
@@ -240,6 +246,7 @@ async function fetchWeather(
         tempMax: at0(daily.temperature_2m_max),
         tempMin: at0(daily.temperature_2m_min),
         tempUnit,
+        humidityMean: at0(daily.relative_humidity_2m_mean),
         uvIndexMax: at0(daily.uv_index_max),
       },
     };

@@ -117,13 +117,16 @@ function capitalize(text: string): string {
   return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1);
 }
 
-// The greeting card's own sky-info row -- a plain 3-tone system reused for
-// both UV and AQI (each collapsed from its own real, standard 5-6 band
-// public scale down to this app's own existing good/moderate/bad chip
-// colors, rather than inventing new hex values for a wider palette). The
-// underlying band NAME shown in the chip text is still the real one; only
-// the color grouping is simplified.
-type SkyChipTone = 'good' | 'moderate' | 'bad';
+// The greeting card's own sky-info row -- a plain 4-tone system reused for
+// UV, AQI, and the high/low temperature chips (UV/AQI each collapsed from
+// their own real, standard 5-6 band public scale down to this app's own
+// existing chip colors, rather than inventing new hex values for a wider
+// palette). The underlying band NAME shown in the chip text is still the
+// real one; only the color grouping is simplified. 'cold' is its own real
+// tone, not a reuse of 'moderate' (yellow reads as caution/warm, not cold)
+// -- colors.primaryMuted/primary are this app's own real cool teal pair,
+// already used elsewhere, not a new hex value invented for this.
+type SkyChipTone = 'good' | 'moderate' | 'bad' | 'cold';
 function uvChipTone(band: ReturnType<typeof uvBandForIndex>): SkyChipTone {
   if (band === 'low') return 'good';
   if (band === 'moderate') return 'moderate';
@@ -134,21 +137,65 @@ function aqiChipTone(band: ReturnType<typeof aqiBandForIndex>): SkyChipTone {
   if (band === 'moderate') return 'moderate';
   return 'bad';
 }
-function skyChipBg(tone: SkyChipTone): string {
-  if (tone === 'moderate') return colors.statusYellowBg;
-  if (tone === 'bad') return colors.statusRedBg;
-  return colors.surfaceMuted;
-}
-function skyChipFg(tone: SkyChipTone): string {
-  if (tone === 'moderate') return colors.statusYellow;
-  if (tone === 'bad') return colors.danger;
-  return colors.textPrimary;
+function skyChipTint(tone: SkyChipTone): { bg: string; fg: string } {
+  if (tone === 'moderate') return { bg: colors.statusYellowBg, fg: colors.statusYellow };
+  if (tone === 'bad') return { bg: colors.statusRedBg, fg: colors.danger };
+  if (tone === 'cold') return { bg: colors.primaryMuted, fg: colors.primary };
+  return { bg: colors.surfaceMuted, fg: colors.textPrimary };
 }
 // Open-Meteo's own sunrise/sunset are full local ISO timestamps
 // ("2026-08-17T06:24") -- formatTime12 (lib/timeOfDay.ts) wants a bare
 // "HH:mm", so this just slices out that piece before handing it off.
 function skyTimeLabel(isoLocal: string): string {
   return formatTime12(isoLocal.slice(11, 16));
+}
+
+// The sky row's own real display shape, 2026-08-18 -- replaced a pill/chip
+// row (reported directly as "I don't like how they display all in their own
+// pills") with a plain two-column grid: no borders, no background boxes,
+// just icon-plus-label pairs sitting in two aligned columns. The emoji still
+// gets its own genuinely larger nested Text span (skyGridEmoji) -- that
+// legibility fix from the pill version stands on its own merit, the pill
+// itself was the actual complaint, not the icon size. A crossed severity
+// threshold (heat/freeze/high UV/AQI/a fetch error) still colors just the
+// label's own text, never a colored box, matching this exact layout.
+//
+// Built from one flat, ordered array (see skyGridItems below, assembled
+// right before this component's own return) rather than fixed left/right
+// column arrays -- a plain flexWrap row with each real item at 50% width
+// naturally produces the same left-right pairing a real 2-column grid would
+// (item 1 top-left, item 2 top-right, item 3 second-row-left, and so on),
+// with no special-casing needed for however many real items happen to be
+// available in a given state (loading/no-location/error each have far fewer
+// real items than a fully-loaded day with AQI and pollen both present).
+function SkyGridItem({
+  emoji,
+  label,
+  tone,
+  fullWidth,
+  onPress,
+}: {
+  emoji: string;
+  label: string;
+  tone?: SkyChipTone;
+  fullWidth?: boolean;
+  onPress?: () => void;
+}) {
+  const tint = tone ? skyChipTint(tone) : null;
+  const content = (
+    <Text style={[styles.skyGridText, tint ? { color: tint.fg } : null]}>
+      <Text style={styles.skyGridEmoji}>{emoji}</Text> {label}
+    </Text>
+  );
+  const cellStyle = [styles.skyGridCell, fullWidth ? styles.skyGridCellFull : null];
+  if (onPress) {
+    return (
+      <TouchableOpacity style={cellStyle} activeOpacity={0.7} onPress={onPress}>
+        {content}
+      </TouchableOpacity>
+    );
+  }
+  return <View style={cellStyle}>{content}</View>;
 }
 
 // The "A Few Things Worth Knowing" flip-card pool, 2026-07-27 -- used to be
@@ -458,7 +505,7 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: "Today's sky & weather",
-    body: "A row of chips under the date. Moon phase and the next equinox/solstice countdown are computed directly on your phone using standard astronomical formulas; no location or network needed, so they're always shown. Sunrise, sunset, UV index, and air quality (AQI) come from Open-Meteo, a free weather service, using the same location your Garden → My Zone already has saved, with no separate GPS permission required. A heat or freeze chip appears only when today's forecast high or low crosses a plain, disclosed threshold; this isn't an official government weather warning. Pollen is requested for any location, but only ever shows where the weather service actually has real data for it, which today means Europe; nothing is guessed or approximated for anywhere else. If a fetch genuinely fails, a chip says so directly (offline, a service error, or an unexpected response) rather than quietly showing old numbers as if they were current. Nothing shows here until you've set a growing zone in Garden → My Zone; tap the prompt chip to go straight there.",
+    body: "A row of chips under the date. Moon phase and the next equinox/solstice countdown are computed directly on your phone using standard astronomical formulas; no location or network needed, so they're always shown. Sunrise, sunset, today's high and low temperature, humidity, UV index, and air quality (AQI) come from Open-Meteo, a free weather service, using the same location your Garden → My Zone already has saved, with no separate GPS permission required. The high/low chips turn red or cool blue-teal, with a 🥵/🥶 icon, only when today's forecast actually crosses a plain, disclosed threshold; this isn't an official government weather warning. Pollen is requested for any location, but only ever shows where the weather service actually has real data for it, which today means Europe; nothing is guessed or approximated for anywhere else (the US isn't covered by the free source this app uses right now). If a fetch genuinely fails, a chip says so directly (offline, a service error, or an unexpected response) rather than quietly showing old numbers as if they were current. Nothing shows here until you've set a growing zone in Garden → My Zone; tap the prompt chip to go straight there.",
   },
   {
     heading: 'The Day Arc',
@@ -869,6 +916,80 @@ export default function HomeScreen() {
   const skyReady = skyResult?.status === 'ready' ? skyResult : null;
   const topPollenReading = skyReady?.data.pollen[0] ?? null;
 
+  // One flat, ordered array feeding the two-column grid above -- the real
+  // order here (Moon, Sunrise, Equinox, Sunset, High, Humidity, Low, UV,
+  // AQI, Pollen) is exactly the left/right pairing approved directly
+  // ("Moon | Sunrise", "Equinox | Sunset", "High | Humidity", "Low | UV").
+  // A fullWidth item (the no-location prompt, a fetch-error message) always
+  // starts a fresh row on its own via flexWrap, which is the wanted effect
+  // for a message that isn't a short paired fact.
+  type SkyGridEntry = {
+    emoji: string;
+    label: string;
+    tone?: SkyChipTone;
+    fullWidth?: boolean;
+    onPress?: () => void;
+  };
+  const skyGridItems: SkyGridEntry[] = [{ emoji: moonPhase.emoji, label: moonPhase.name }];
+  if (skyReady?.data.sunrise) {
+    skyGridItems.push({ emoji: '🌅', label: `Sunrise ${skyTimeLabel(skyReady.data.sunrise)}` });
+  }
+  skyGridItems.push({
+    emoji: upcomingSeasonalMarker.emoji,
+    label: `${upcomingSeasonalMarker.shortName} in ${upcomingSeasonalMarker.daysUntil}d`,
+  });
+  if (skyReady?.data.sunset) {
+    skyGridItems.push({ emoji: '🌇', label: `Sunset ${skyTimeLabel(skyReady.data.sunset)}` });
+  }
+  if (skyResult?.status === 'no-location') {
+    skyGridItems.push({
+      emoji: '📍',
+      label: 'Set your location for sunrise, weather & UV →',
+      fullWidth: true,
+      onPress: () => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } }),
+    });
+  }
+  if (skyReady?.data.tempMax != null) {
+    skyGridItems.push({
+      emoji: isForecastVeryHot(skyReady.data) ? '🥵' : '🌡️',
+      label: `High ${Math.round(skyReady.data.tempMax)}°${skyReady.data.tempUnit}`,
+      tone: isForecastVeryHot(skyReady.data) ? 'bad' : undefined,
+    });
+  }
+  if (skyReady?.data.humidityMean != null) {
+    skyGridItems.push({ emoji: '💧', label: `Humidity ${Math.round(skyReady.data.humidityMean)}%` });
+  }
+  if (skyReady?.data.tempMin != null) {
+    skyGridItems.push({
+      emoji: isForecastFreezing(skyReady.data) ? '🥶' : '🌡️',
+      label: `Low ${Math.round(skyReady.data.tempMin)}°${skyReady.data.tempUnit}`,
+      tone: isForecastFreezing(skyReady.data) ? 'cold' : undefined,
+    });
+  }
+  if (skyReady?.data.uvIndexMax != null) {
+    skyGridItems.push({
+      emoji: '☀️',
+      label: `UV ${skyReady.data.uvIndexMax}`,
+      tone: uvChipTone(uvBandForIndex(skyReady.data.uvIndexMax)),
+    });
+  }
+  if (skyReady?.data.usAqi != null) {
+    skyGridItems.push({
+      emoji: '🌬️',
+      label: `AQI ${skyReady.data.usAqi}`,
+      tone: aqiChipTone(aqiBandForIndex(skyReady.data.usAqi)),
+    });
+  }
+  if (topPollenReading) {
+    skyGridItems.push({
+      emoji: '🌾',
+      label: `${topPollenReading.label} pollen ${topPollenReading.grainsPerCubicMeter}/m³`,
+    });
+  }
+  if (skyResult?.status === 'error') {
+    skyGridItems.push({ emoji: '⚠️', label: skyResult.message, tone: 'moderate', fullWidth: true });
+  }
+
   return (
     <View style={styles.screen}>
       {infoAlertElement}
@@ -887,83 +1008,10 @@ export default function HomeScreen() {
             <Text style={styles.affirmationText}>{pickAffirmation()}</Text>
             <Text style={styles.dateText}>{todayLabel}</Text>
 
-            <View style={styles.skyRow}>
-              <View style={styles.skyChip}>
-                <Text style={styles.skyChipText}>
-                  {moonPhase.emoji} {moonPhase.name}
-                </Text>
-              </View>
-              <View style={styles.skyChip}>
-                <Text style={styles.skyChipText}>
-                  {upcomingSeasonalMarker.emoji} {upcomingSeasonalMarker.shortName} in {upcomingSeasonalMarker.daysUntil}d
-                </Text>
-              </View>
-
-              {skyResult?.status === 'no-location' && (
-                <TouchableOpacity
-                  style={styles.skyChip}
-                  activeOpacity={0.85}
-                  onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } })}
-                >
-                  <Text style={styles.skyChipText}>📍 Set your location for sunrise, weather & UV →</Text>
-                </TouchableOpacity>
-              )}
-
-              {skyReady && (
-                <>
-                  {skyReady.data.sunrise && (
-                    <View style={styles.skyChip}>
-                      <Text style={styles.skyChipText}>🌅 {skyTimeLabel(skyReady.data.sunrise)}</Text>
-                    </View>
-                  )}
-                  {skyReady.data.sunset && (
-                    <View style={styles.skyChip}>
-                      <Text style={styles.skyChipText}>🌇 {skyTimeLabel(skyReady.data.sunset)}</Text>
-                    </View>
-                  )}
-                  {skyReady.data.uvIndexMax != null && (
-                    <View style={[styles.skyChip, { backgroundColor: skyChipBg(uvChipTone(uvBandForIndex(skyReady.data.uvIndexMax))) }]}>
-                      <Text style={[styles.skyChipText, { color: skyChipFg(uvChipTone(uvBandForIndex(skyReady.data.uvIndexMax))) }]}>
-                        ☀️ UV {skyReady.data.uvIndexMax}
-                      </Text>
-                    </View>
-                  )}
-                  {isForecastVeryHot(skyReady.data) && (
-                    <View style={[styles.skyChip, { backgroundColor: colors.statusRedBg }]}>
-                      <Text style={[styles.skyChipText, { color: colors.danger }]}>
-                        🥵 High {skyReady.data.tempMax}°{skyReady.data.tempUnit}
-                      </Text>
-                    </View>
-                  )}
-                  {isForecastFreezing(skyReady.data) && (
-                    <View style={[styles.skyChip, { backgroundColor: colors.statusYellowBg }]}>
-                      <Text style={[styles.skyChipText, { color: colors.statusYellow }]}>
-                        🥶 Low {skyReady.data.tempMin}°{skyReady.data.tempUnit}
-                      </Text>
-                    </View>
-                  )}
-                  {skyReady.data.usAqi != null && (
-                    <View style={[styles.skyChip, { backgroundColor: skyChipBg(aqiChipTone(aqiBandForIndex(skyReady.data.usAqi))) }]}>
-                      <Text style={[styles.skyChipText, { color: skyChipFg(aqiChipTone(aqiBandForIndex(skyReady.data.usAqi))) }]}>
-                        🌬️ AQI {skyReady.data.usAqi}
-                      </Text>
-                    </View>
-                  )}
-                  {topPollenReading && (
-                    <View style={styles.skyChip}>
-                      <Text style={styles.skyChipText}>
-                        🌾 {topPollenReading.label} pollen {topPollenReading.grainsPerCubicMeter}/m³
-                      </Text>
-                    </View>
-                  )}
-                </>
-              )}
-
-              {skyResult?.status === 'error' && (
-                <View style={[styles.skyChip, { backgroundColor: colors.statusYellowBg }]}>
-                  <Text style={[styles.skyChipText, { color: colors.statusYellow }]}>⚠️ {skyResult.message}</Text>
-                </View>
-              )}
+            <View style={styles.skyGrid}>
+              {skyGridItems.map((item, index) => (
+                <SkyGridItem key={index} {...item} />
+              ))}
             </View>
           </View>
 
@@ -1593,23 +1641,22 @@ const styles = StyleSheet.create({
   affirmationText: { ...typography.body, ...textShadow, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
   dateText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 2 },
 
-  // Moon phase / equinox-solstice / sunrise-sunset / UV / heat-freeze / AQI /
-  // pollen chips, 2026-08-17 -- same pill shape as feelingTagChip below, a
-  // real, already-established neutral chip look, not a new one invented for
-  // this feature. Individual chips override backgroundColor/color inline
-  // per their own real severity tone (see skyChipBg/skyChipFg above); most
-  // chips (moon phase, equinox countdown, sunrise, sunset, pollen) have
-  // nothing to color-code and just use this plain, neutral base.
-  skyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
-  skyChip: {
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: colors.surfaceMuted,
-  },
-  skyChipText: { ...typography.caption, color: colors.textPrimary },
+  // Moon phase / equinox-solstice / sunrise-sunset / temp / humidity / UV /
+  // AQI / pollen -- two-column grid, 2026-08-18 (see the SkyGridItem
+  // component's own header comment above for the full "why" -- replaced a
+  // pill/chip row, reported directly as "I don't like how they display all
+  // in their own pills"). No borders, no background boxes here at all; a
+  // crossed severity threshold colors only the label's own text (via
+  // skyChipTint, still shared with the plain 4-tone system above).
+  skyGrid: { flexDirection: 'row', flexWrap: 'wrap', marginTop: 10 },
+  skyGridCell: { width: '50%', paddingVertical: 4, paddingRight: 8 },
+  skyGridCellFull: { width: '100%' },
+  skyGridText: { ...typography.caption, color: colors.textPrimary },
+  // 2026-08-18, directly reported: the plain caption-size emoji ("not big
+  // enough to be seen as what they are") -- a real, separate, larger nested
+  // Text span for just the icon character, not the whole label's own font
+  // size (which would make the label text itself oversized too).
+  skyGridEmoji: { fontSize: 17, lineHeight: 20 },
 
   // Used to precede every content card on this page as its own separate
   // box -- 2026-07-26, folded into each of those cards instead (see
