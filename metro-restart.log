@@ -39,3 +39,13 @@ Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░�
 Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓░░░ 81.4% (1603/1891)
 Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 97.4% (2249/2279)
 Android Bundled 22167ms node_modules\expo-router\entry.js (2306 modules)
+ LOG  [TabHub drop-timing] +1ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +169ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +201ms: Modal onShow (Android Dialog window confirmed up)
+Android Bundled 333ms node_modules\expo-file-system\src\index.ts (508 modules)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +129ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +170ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +145ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +176ms: Modal onShow (Android Dialog window confirmed up)

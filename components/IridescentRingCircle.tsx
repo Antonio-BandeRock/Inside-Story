@@ -1,35 +1,36 @@
 import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { useAnimatedProps } from 'react-native-reanimated';
-import { AnimatedLinearGradient } from './AnimatedLinearGradient';
-import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../constants/colors';
-import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
+import { colors } from '../constants/colors';
 
-// A solid colors.menuSurface circle with a thin, animated iridescent ring
-// around its own edge -- the shared "this is currently selected/this is
-// where you are" cue behind LensHub's own corner button (shown only while
-// its popup is open) and TabHub's tab-picker grid (shown on whichever tab
-// is currently active, plus the Info tile, which is always "about the
-// current page"). 2026-07-26: replaces each of those rendering its own,
-// slightly different version of "a highlighted circle" (a static border,
-// a plain gradient-filled pill) with one shared piece, so "selected" reads
-// the same way everywhere in the app instead of several similar-but-not-
-// identical treatments.
+// A solid colors.menuSurface circle with a thin ring around its own edge --
+// the shared "this is currently selected/this is where you are" cue behind
+// LensHub's own corner button (shown only while its popup is open) and
+// TabHub's tab-picker grid (shown on whichever tab is currently active,
+// plus the Info tile, which is always "about the current page"). 2026-07-26:
+// replaces each of those rendering its own, slightly different version of
+// "a highlighted circle" (a static border, a plain gradient-filled pill)
+// with one shared piece, so "selected" reads the same way everywhere in the
+// app instead of several similar-but-not-identical treatments.
 //
-// The ring itself uses rotatedIridescentPalette/useIridescentHueRotation --
-// the same real, wall-clock-driven color rotation already used for
-// ScreenHeader's app-name text and ScreenBackground's own footer line, not
-// the separate, static per-tab iridescentSheen these two components used
-// for their own fills before. Those two moments are deliberately different
-// visual language: iridescentSheen is a fixed sheen tied to one tab's own
-// color; this ring is the app's genuinely-animated "shimmer," the same one
-// everywhere it appears.
+// 2026-08-17: the ring itself used to be the app's own animated iridescent
+// rainbow (rotatedIridescentPalette/useIridescentHueRotation, the same
+// rotation ScreenHeader's app-name text and ScreenBackground's footer line
+// used) -- removed entirely, a real, confirmed continuous battery drain
+// (see constants/colors.ts's own header note). Replaced with a flat,
+// static colors.primary ring -- this app's own single already-established
+// "this is tapped/active/interactive" color (see that token's own comment
+// in constants/colors.ts), not a per-tab color, matching what the ring's
+// own real job always was: per the comment history on TabHub.tsx's own use
+// of this component, "a shape-based cue independent of color the same way
+// the pill used to be" -- the fact that it happened to be rainbow-colored
+// was decorative, not semantically tied to which tab, so a flat, single
+// accent color is a faithful, non-animated version of the same idea.
 //
-// Built as an outer gradient-filled circle with a slightly smaller solid
-// circle centered on top of it, rather than a true gradient stroke --
-// View's own border styling can't take a gradient directly in React
-// Native, and this two-circle stack is the standard way around that
-// without reaching for SVG just for one ring.
+// Also a real simplification, not just a de-animation: a gradient ring
+// needed a two-layer "gradient-filled outer circle + slightly smaller solid
+// circle on top" trick, since a plain View border can't take a gradient
+// directly in React Native. A single flat color needs none of that -- a
+// plain View with a real borderColor does the identical job in one layer.
 export function IridescentRingCircle({
   size,
   ringWidth = 2,
@@ -49,41 +50,25 @@ export function IridescentRingCircle({
   innerColor?: string;
   children?: ReactNode;
 }) {
-  const hueRotation = useIridescentHueRotation();
-  const innerSize = size - ringWidth * 2;
-  // Reads hueRotation.value on the UI thread, inside this worklet callback,
-  // rather than in the component's own render body -- see
-  // hooks/useIridescentHueRotation.ts's own history for why this no longer
-  // causes a JS-thread re-render every tick the way it used to.
-  const animatedProps = useAnimatedProps(() => ({
-    colors: rotatedIridescentPalette(hueRotation.value),
-  }));
-
   return (
-    <View style={[styles.wrap, { width: size, height: size, borderRadius: size / 2 }]}>
-      <AnimatedLinearGradient
-        // Static fallback so TypeScript's own required `colors` prop is
-        // satisfied -- animatedProps overrides this at the native level
-        // the instant it mounts, this initial value only matters for the
-        // very first paint before that.
-        colors={IRIDESCENT_PALETTE}
-        animatedProps={animatedProps}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[StyleSheet.absoluteFillObject, { borderRadius: size / 2 }]}
-      />
-      <View
-        style={[styles.inner, { width: innerSize, height: innerSize, borderRadius: innerSize / 2, backgroundColor: innerColor }]}
-      />
+    <View
+      style={[
+        styles.wrap,
+        {
+          width: size,
+          height: size,
+          borderRadius: size / 2,
+          borderWidth: ringWidth,
+          borderColor: colors.primary,
+          backgroundColor: innerColor,
+        },
+      ]}
+    >
       {children}
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  // overflow: 'hidden' + borderRadius (set inline, size-dependent) is what
-  // actually clips the gradient (a rectangle by default) into a circle.
-  wrap: { alignItems: 'center', justifyContent: 'center', overflow: 'hidden' },
-  // backgroundColor set inline per-instance (innerColor) rather than here.
-  inner: { position: 'absolute' },
+  wrap: { alignItems: 'center', justifyContent: 'center' },
 });

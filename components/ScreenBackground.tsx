@@ -1,16 +1,12 @@
 import { Image } from 'expo-image';
-import { useState, type ReactNode } from 'react';
-import { StyleSheet, View, type LayoutChangeEvent } from 'react-native';
-import { useAnimatedProps } from 'react-native-reanimated';
+import { type ReactNode } from 'react';
+import { StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../constants/colors';
+import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
-import { useIridescentHueRotation } from '../hooks/useIridescentHueRotation';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { SHARED_BACKGROUND_SCOPE_KEY } from '../lib/visualPreferences';
-import { AnimatedLinearGradient } from './AnimatedLinearGradient';
-import { AnimatedSky } from './AnimatedSky';
-import { GenericBackground } from './GenericBackground';
+import { GENERIC_BACKGROUND_PALETTES, GenericBackground } from './GenericBackground';
 
 // 2026-07-26: this used to be its own local formula (image bottom edge =
 // TabHub's own button position + a 20px margin above it), back when the
@@ -57,32 +53,25 @@ export type BackgroundVariant = keyof typeof BACKGROUNDS;
 // implementation, not seven that can quietly drift apart.
 //
 // Layering, bottom to top: the image (fixed -- it does not scroll with
-// `children`'s own content), then the animated sky overlay (Home only --
-// see `sky` below), then `children` itself (typically a ScrollView), then
-// an opaque bottomMask painted last so the area behind
+// `children`'s own content), then `children` itself (typically a
+// ScrollView), then an opaque bottomMask painted last so the area behind
 // TabHub/LensHub/ScopeHub is *guaranteed* flat colors.background no matter
 // what's scrolled underneath it, rather than relying on scroll padding
 // alone to happen to leave it empty.
 //
-// 2026-08-02: briefly tried the reverse (sky behind the image) at explicit
-// request, then reverted the same day once the real consequence was seen
-// on-device -- the wildflower photo is a single fully-opaque asset with no
-// transparency in its own sky band, so that order hid the sun/moon/stars/
-// tint completely, all the time. Back to sky-in-front, as it was before.
+// 2026-08-17: the animated sky overlay (sun/moon/stars, day/night tint;
+// components/AnimatedSky.tsx, Home-only) is removed entirely -- reported
+// as real, confirmed battery drain, alongside the app's own separate,
+// bigger iridescent header/footer/ring system (see constants/colors.ts's
+// own header note on that removal). The wildflower field photo itself
+// stays -- only the animated overlay riding on top of it is gone.
 export function ScreenBackground({
   children,
   variant = 'field',
-  sky = false,
   routeKey,
 }: {
   children?: ReactNode;
   variant?: BackgroundVariant;
-  // Home-only, opt-in (see components/AnimatedSky.tsx) -- every other
-  // screen leaves this unset, so nothing changes for them at all. Only
-  // 'field' (Home's own wildflower-field image) actually shows open sky;
-  // this isn't validated against `variant` since Home is the only caller
-  // that would ever pass it.
-  sky?: boolean;
   // 2026-08-08: which of visualPreferences' own per-tab overrides applies
   // here (a real TAB_ROUTES path, e.g. '/insights') -- passed by
   // GatedTabContent.tsx for every individually-revealed tab background.
@@ -95,25 +84,6 @@ export function ScreenBackground({
 }) {
   const bottomInset = useBackgroundBottomInset();
   const background = BACKGROUNDS[variant];
-  // Same shared Reanimated value ScreenHeader's own app-name text and
-  // divider read (see hooks/useIridescentHueRotation) -- this line shimmers
-  // in lockstep with those, not on its own separate schedule. Untouched by
-  // the visual-preferences opt-out below, per explicit direction: "the
-  // iridescence also stays."
-  const hueRotation = useIridescentHueRotation();
-  const animatedProps = useAnimatedProps(() => ({
-    colors: rotatedIridescentPalette(hueRotation.value),
-  }));
-  // The image's own real rendered size -- AnimatedSky needs this to know
-  // where its sky band actually is and how far the tint overlay should
-  // reach, and there's no way to know it in advance (varies by device),
-  // so it's measured via onLayout rather than guessed from insets.
-  const [imageSize, setImageSize] = useState<{ width: number; height: number } | null>(null);
-
-  function handleImageLayout(event: LayoutChangeEvent) {
-    const { width, height } = event.nativeEvent.layout;
-    setImageSize({ width, height });
-  }
 
   const visualPrefs = useVisualPreferences();
   const effectiveStyle = routeKey
@@ -124,12 +94,11 @@ export function ScreenBackground({
   // selected with no image actually stored (a real edge case handled
   // below, not assumed away).
   const customImageUri = visualPrefs.customBackgroundImages[routeKey ?? SHARED_BACKGROUND_SCOPE_KEY];
-  // Sky only ever pairs with the real bundled photo -- there's no matching
-  // open-sky band to animate a sun/moon/starfield over a generic gradient,
-  // a flat off state, or a person's own uploaded image (whose geometry
-  // this component has no way to know), so this is forced off the instant
-  // the bundled photo itself is.
-  const effectiveSky = sky && effectiveStyle === 'photo' && visualPrefs.skyAnimationsEnabled;
+  // Same flat accentColor ScreenHeader.tsx's own app-name text and divider
+  // use -- whichever "lighter" color belongs to the person's own currently-
+  // chosen generic color combination, so this line matches the header's
+  // exactly rather than each reading a separately-computed value.
+  const accentColor = GENERIC_BACKGROUND_PALETTES[visualPrefs.genericPalette].lighter;
 
   return (
     <View style={[styles.body, effectiveStyle === 'off' && styles.bodyFlat]}>
@@ -139,7 +108,6 @@ export function ScreenBackground({
           style={[styles.backgroundImage, { bottom: bottomInset }]}
           contentFit={background.contentFit}
           contentPosition="center"
-          onLayout={handleImageLayout}
         />
       ) : null}
       {effectiveStyle === 'custom' ? (
@@ -152,33 +120,20 @@ export function ScreenBackground({
           style={[styles.backgroundImage, { bottom: bottomInset }]}
           contentFit={customImageUri ? 'cover' : background.contentFit}
           contentPosition="center"
-          onLayout={handleImageLayout}
         />
       ) : null}
       {effectiveStyle === 'generic' ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
-      {effectiveSky && imageSize ? <AnimatedSky width={imageSize.width} height={imageSize.height} /> : null}
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
       {/* The footer's own fine line, mirroring ScreenHeader's divider --
-          same rotating palette as the header line and app-name text.
-          Base `- 4` matches the header's own line-to-edge distance: on
-          ScreenHeader, the divider sits shadowFade1 (2px) + shadowFade2
-          (2px) = 4px before the true edge where the image begins; this
-          sits that same 4px on the other side of the equivalent edge
-          (bottomInset, where the image ends and the flat mask begins).
-          The further `- 1` is a small manual nudge down, requested after
-          eye testing on-device. */}
-      <AnimatedLinearGradient
-        // Static fallback so TypeScript's own required `colors` prop is
-        // satisfied -- animatedProps overrides this at the native level
-        // the instant it mounts.
-        colors={IRIDESCENT_PALETTE}
-        animatedProps={animatedProps}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={[styles.footerLine, { bottom: bottomInset - 4 - 1 }]}
-        pointerEvents="none"
-      />
+          same flat accentColor, so the two match. Base `- 4` matches the
+          header's own line-to-edge distance: on ScreenHeader, the divider
+          sits shadowFade1 (2px) + shadowFade2 (2px) = 4px before the true
+          edge where the image begins; this sits that same 4px on the other
+          side of the equivalent edge (bottomInset, where the image ends and
+          the flat mask begins). The further `- 1` is a small manual nudge
+          down, requested after eye testing on-device. */}
+      <View style={[styles.footerLine, { backgroundColor: accentColor, bottom: bottomInset - 4 - 1 }]} pointerEvents="none" />
     </View>
   );
 }

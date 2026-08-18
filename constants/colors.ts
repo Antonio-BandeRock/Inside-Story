@@ -402,56 +402,6 @@ export function hexToRgba(hex: string, alpha: number): string {
   return `rgba(${r}, ${g}, ${b}, ${alpha})`;
 }
 
-// Rotates a hex color's hue by `degrees` (positive or negative, wraps at
-// 360), keeping its own saturation/lightness -- used to build a real
-// multi-hue iridescent sheen (LensHub's corner button) from a single tab
-// color, rather than just fading that one hue in and out. A true
-// angle-dependent shimmer isn't possible in a static image; shifting
-// through a few nearby hues across the shape is the closest static
-// approximation, the same trick real iridescent-look materials (foil,
-// some fabric prints) use.
-export function hueShift(hex: string, degrees: number): string {
-  // 2026-07-28: marked as a Reanimated worklet -- rotatedIridescentPalette
-  // below (which calls this once per stop) now runs entirely on the UI
-  // thread, driven by a Reanimated shared value instead of a JS setInterval
-  // forcing React re-renders (see hooks/useIridescentHueRotation.ts's own
-  // history for why). The 'worklet' directive is what lets Reanimated's
-  // Babel plugin generate a UI-thread-runnable copy of this function --
-  // without it, calling this from a worklet context throws at runtime.
-  'worklet';
-  const r = parseInt(hex.slice(1, 3), 16) / 255;
-  const g = parseInt(hex.slice(3, 5), 16) / 255;
-  const b = parseInt(hex.slice(5, 7), 16) / 255;
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const l = (max + min) / 2;
-  let h = 0;
-  let s = 0;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    if (max === r) h = (g - b) / d + (g < b ? 6 : 0);
-    else if (max === g) h = (b - r) / d + 2;
-    else h = (r - g) / d + 4;
-    h *= 60;
-  }
-  h = (h + degrees + 360) % 360;
-
-  const c = (1 - Math.abs(2 * l - 1)) * s;
-  const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
-  const m = l - c / 2;
-  let [r2, g2, b2] = [0, 0, 0];
-  if (h < 60) [r2, g2, b2] = [c, x, 0];
-  else if (h < 120) [r2, g2, b2] = [x, c, 0];
-  else if (h < 180) [r2, g2, b2] = [0, c, x];
-  else if (h < 240) [r2, g2, b2] = [0, x, c];
-  else if (h < 300) [r2, g2, b2] = [x, 0, c];
-  else [r2, g2, b2] = [c, 0, x];
-
-  const toHex = (v: number) => Math.round((v + m) * 255).toString(16).padStart(2, '0');
-  return `#${toHex(r2)}${toHex(g2)}${toHex(b2)}`;
-}
-
 // Lightens a hex color by mixing its own lightness toward 100% by
 // `fraction` (0-1) -- NOT adding a flat number of percentage points, which
 // would clip straight to white for most of this app's own tab colors:
@@ -498,6 +448,23 @@ export function lighten(hex: string, fraction: number): string {
   return `#${toHex2(r2)}${toHex2(g2)}${toHex2(b2)}`;
 }
 
+// 2026-08-17: the whole iridescent system that used to live here
+// (hueShift, IRIDESCENT_PALETTE, rotatedIridescentPalette, iridescentSheen)
+// is removed entirely -- a real, confirmed, continuous battery drain, not
+// just a visual choice. ScreenHeader.tsx's own app-name text needed the
+// rotating rainbow driven through a real JS-thread bridge (react-native-svg's
+// <Stop> can't be animated purely on the native thread), which fired up to
+// 10 times a second, the whole time the app was open on any tab -- reported
+// directly, investigated, and root-caused, not guessed at. What replaces it:
+// every screen's header/footer text and lines, TabHub's popup card border,
+// and the app's floating hub icon (Home included) are now flat, static
+// colors -- see components/GenericBackground.tsx's own GENERIC_BACKGROUND_
+// PALETTES (each combination now carries an explicit `lighter` accent used
+// for exactly this) and components/IridescentRingCircle.tsx (the "this is
+// selected" ring, now a flat colors.primary border, no animation, no
+// gradient trick needed since it's one color). "Features that stay active
+// but not animated" -- the explicit direction this replacement follows.
+
 // How much lighter than a tab's own identity color an entry/input box's
 // background tint is, and at what fixed alpha over whatever sits behind
 // it (colors.surface, normally) -- one shared recipe, so that when this
@@ -525,78 +492,4 @@ export function popoverBackground(tabColor: string): string {
 
 export function inputBackground(tabColor: string): string {
   return hexToRgba(lighten(tabColor, INPUT_BACKGROUND_LIGHTEN_FRACTION), INPUT_BACKGROUND_ALPHA);
-}
-
-// The 5-stop diagonal gradient recipe behind every "iridescent" tab-color
-// sheen in the app -- LensHub's corner button and TabHub's own active-item
-// pill both call this rather than each keeping their own copy, so "the
-// same coloration" is actually guaranteed identical, not just similar and
-// liable to drift the next time one of the two gets tweaked.
-//
-// 2026-07-25: narrowed considerably (was hue-shifted -45/0/+45/+90 degrees,
-// a 135-degree sweep) after real on-device testing found the tabs had
-// become hard to tell apart by color -- at the small size these actually
-// render at (TabHub's 34px pill), a sweep that wide shows more of the
-// *shifted* hues than the tab's own true color, and since the 7 tabs' base
-// hues are only ~20-55 degrees apart to begin with, their wide sweeps
-// overlapped enough to all read as a similar rainbow shimmer. Narrowed to
-// +/-15 degrees and the true tabColor now anchors both the start and the
-// end of the gradient (not just the middle), so most of the visible area
-// is unambiguously that tab's own color, with a genuine but subtle shimmer
-// at the edges rather than a wide hue sweep competing with it.
-export function iridescentSheen(tabColor: string): readonly [string, string, string, string, string] {
-  return [
-    hexToRgba('#FFFFFF', 0.2),
-    hexToRgba(tabColor, 0.55),
-    hexToRgba(hueShift(tabColor, 15), 0.4),
-    hexToRgba(tabColor, 0.55),
-    hexToRgba(hueShift(tabColor, -15), 0.35),
-  ];
-}
-
-// Every tab's real identity color (constants/tabs.ts's TAB_ROUTES, sampled
-// from the butterfly artwork), swept in hue order -- warm gold, green,
-// teal, periwinkle, sky blue, purple (Purple Digest, added 2026-08-05 when
-// it was promoted from a Stack-push screen to a real tab -- see
-// constants/tabs.ts), grayscale Reports, warm terracotta, Forest Green
-// (Garden, added 2026-08-13, then changed to a deliberate real-world green
-// -- see tabGarden's own comment above -- the one real, deliberate break
-// from the rest of this palette's own computed-pastel hue-spread system).
-// The one shared
-// base palette for every iridescent element in the app (the header's own
-// app-name text, its divider line, and the footer's divider line above
-// TabHub) so all of them cycle through the exact same colors rather than
-// each defining its own separate set that could drift apart.
-export const IRIDESCENT_PALETTE: readonly [
-  string, string, string, string, string, string, string, string, string,
-] = [
-  colors.tabHome,
-  colors.tabFood,
-  colors.tabInsights,
-  colors.tabSchedules,
-  colors.tabTrends,
-  colors.tabPurpleDigest,
-  colors.tabReports,
-  colors.tabBioCompass,
-  colors.tabGarden,
-];
-
-// IRIDESCENT_PALETTE, hue-rotated by the same amount for every stop --
-// pass a value from useIridescentHueRotation (hooks/useIridescentHueRotation.ts)
-// to get every iridescent element's colors at the current moment, all in
-// lockstep since that hook derives its value from the wall clock rather
-// than a per-component counter.
-//
-// Note: every real consumer of this function (ScreenHeader, ScreenBackground,
-// IridescentRingCircle) hands the whole returned array straight to a
-// LinearGradient's own `colors` prop -- none of them destructure by a fixed
-// position -- so widening this array's own length (as just happened for
-// Garden, above) is always safe without touching any consumer.
-export function rotatedIridescentPalette(
-  hueRotation: number,
-): readonly [string, string, string, string, string, string, string, string, string] {
-  'worklet';
-  return IRIDESCENT_PALETTE.map((color) => hueShift(color, hueRotation)) as [
-    string, string, string, string, string, string, string, string, string,
-  ];
 }

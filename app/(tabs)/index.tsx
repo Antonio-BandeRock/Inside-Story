@@ -2,26 +2,25 @@ import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 import { useRouter, type Href } from 'expo-router';
 import { useCallback, useRef, useState, type ComponentProps } from 'react';
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, useWindowDimensions, View } from 'react-native';
-import { useAnimatedProps } from 'react-native-reanimated';
-import { AnimatedLinearGradient } from '../../components/AnimatedLinearGradient';
+import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
+import { GENERIC_BACKGROUND_PALETTES } from '../../components/GenericBackground';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ProgressRing } from '../../components/ProgressRing';
 import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { useBackgroundBottomInset } from '../../components/ScreenBackground';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
-import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../../constants/colors';
+import { colors } from '../../constants/colors';
 import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
-import { useIridescentHueRotation } from '../../hooks/useIridescentHueRotation';
+import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
 import {
@@ -464,21 +463,21 @@ export default function HomeScreen() {
   useRegisterScreenHelp('Home', HOME_HELP_SECTIONS, '/');
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
-  const { height: windowHeight } = useWindowDimensions();
   const bottomInset = useBackgroundBottomInset();
   // The Purple Digest corner shortcut's own position -- same hook LensHub
   // uses internally, called here directly since this button is now a plain
   // TouchableOpacity rather than a LensHub instance (see that button's own
   // render/comment below).
   const purpleDigestShortcutPosition = useBottomLeftHubPosition();
-  // Feeds Home's own footerLine below -- same shared Reanimated value every
-  // other iridescent element in the app reads (ScreenHeader's own divider/
-  // app-name text, ScreenBackground.tsx's own footer line for every other
-  // tab), so this stays in lockstep with them.
-  const hueRotation = useIridescentHueRotation();
-  const footerLineAnimatedProps = useAnimatedProps(() => ({
-    colors: rotatedIridescentPalette(hueRotation.value),
-  }));
+  // Feeds Home's own footerLine below -- same flat accentColor
+  // ScreenHeader.tsx's own app-name text/divider and ScreenBackground.tsx's
+  // own footer line (for every other tab) use, so this always matches
+  // them. 2026-08-17: this used to be a shared, continuously-animated
+  // Reanimated value (the app's own iridescent rainbow) -- removed
+  // entirely as a real, confirmed battery drain (see constants/colors.ts's
+  // own header note).
+  const { genericPalette } = useVisualPreferences();
+  const footerAccentColor = GENERIC_BACKGROUND_PALETTES[genericPalette].lighter;
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -1161,14 +1160,6 @@ export default function HomeScreen() {
             ) : null}
           </ScrollView>
 
-          {/* Temporary diagnostic spacer -- scrolling all the way down
-              pushes every real card above the viewport, leaving nothing
-              covering the shared fixed background (app/(tabs)/_layout.tsx's
-              image doesn't scroll with this content), so the whole sky --
-              including the sky band up top where AnimatedSky's sun/moon
-              render -- is visible unobstructed for a clean look while
-              tuning that. Remove once no longer needed for that. */}
-          <View style={{ height: windowHeight }} />
         </ScrollView>
 
         {/* Painted after (on top of) the ScrollView above, so the area
@@ -1191,15 +1182,8 @@ export default function HomeScreen() {
             ScreenBackground.tsx's own footerLine exactly (down to the -4-1
             offset math -- see that file's own comment for where those
             numbers come from). */}
-        <AnimatedLinearGradient
-          // Static fallback so TypeScript's own required `colors` prop is
-          // satisfied -- animatedProps overrides this at the native level
-          // the instant it mounts.
-          colors={IRIDESCENT_PALETTE}
-          animatedProps={footerLineAnimatedProps}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[styles.footerLine, { bottom: bottomInset - 4 - 1 }]}
+        <View
+          style={[styles.footerLine, { backgroundColor: footerAccentColor, bottom: bottomInset - 4 - 1 }]}
           pointerEvents="none"
         />
         </View>

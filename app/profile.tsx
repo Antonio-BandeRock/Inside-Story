@@ -198,21 +198,31 @@ type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
 // TabHub Icon appearance and navigation selection and the next selection
 // picker below that, and so-on after that one to tell where one ends and
 // the next begins. Is it possible to make each of them, and the things
-// they control to be collapsable, too?" Every one of the 5 real
-// sub-sections this card has always shown (TabHub Icon, Shared background,
-// Animated sky, Individual tab backgrounds, Generic color combination) now
-// gets its own real, independent collapse -- see collapsedAppearanceSubsections/
+// they control to be collapsable, too?" Every one of the 4 real
+// sub-sections this card shows (TabHub Icon, Shared background, Individual
+// tab backgrounds, Generic color combination) now gets its own real,
+// independent collapse -- see collapsedAppearanceSubsections/
 // renderAppearanceSubsectionHeader below, which also adds a real, visible
 // divider line above every one but the first specifically to answer the
 // "definition of space... where one ends and the next begins" half of the
 // request, not just the collapsing half. Deliberately its own third
 // separate key space/state, not folded into CardSectionKey or
-// TabHubIconGroupKey -- these 5 sit one level ABOVE TabHubIconGroupKey's
-// own 3 (TabHub Icon is itself one of these 5, containing all 3 of those).
+// TabHubIconGroupKey -- these 4 sit one level ABOVE TabHubIconGroupKey's
+// own 3 (TabHub Icon is itself one of these 4, containing all 3 of those).
+//
+// 2026-08-17: 'animatedSky' removed from this list entirely -- the whole
+// Animated Sky feature (sun, moon, starfield, day/night tint) is gone,
+// reported as real, confirmed continuous battery drain. See
+// ScreenBackground.tsx's own header note and constants/colors.ts's own
+// removal comment for the full story. What used to be this section's own
+// header/footer/ring accent job (previously the app-wide iridescent hue
+// rotation) is now carried by the Generic color combination picker itself
+// -- its own 12 real, named combinations each carry a "lighter" color used
+// for the header text, the header/footer divider lines, and every ring,
+// all flat and static, no animation anywhere.
 const ALL_APPEARANCE_SUBSECTION_KEYS = [
   'tabHubIcon',
   'sharedBackground',
-  'animatedSky',
   'individualTabBackgrounds',
   'genericPalette',
 ] as const;
@@ -2344,10 +2354,17 @@ export default function ProfileScreen() {
 
       {/* Appearance & Navigation -- 2026-08-09, regrouped from 3 separate
           cards (TabHub Icon, Shared background, Individual tab
-          backgrounds) explicitly requested together. Header/footer colors,
-          box/font/line colors, and the iridescent shimmer are deliberately
-          untouched by any setting here -- this only ever affects the
-          background layer and the main navigation button's own icon. */}
+          backgrounds) explicitly requested together.
+          2026-08-17: the app used to carry a separate, always-animated
+          "iridescent" hue-rotation system driving the header/footer lines
+          and every selection ring, deliberately untouched by anything on
+          this card -- that whole system is now gone (real, confirmed
+          continuous battery drain; see ScreenBackground.tsx's own header
+          note). Those same accents are now driven directly by the Generic
+          color combination picker below, flat and static, so this card's
+          own settings do reach further than the background layer and the
+          navigation button's icon now -- box/plain-text colors elsewhere in
+          the app are still untouched. */}
       <View style={styles.card}>
         {renderCardHeader('appearance', 'Appearance & Navigation')}
         {!collapsedSections.has('appearance') ? (
@@ -2393,41 +2410,6 @@ export default function ProfileScreen() {
               </>
             ) : null}
 
-            {renderAppearanceSubsectionHeader('animatedSky', 'Animated sky (sun, moon, stars, day/night)', false)}
-            {!collapsedAppearanceSubsections.has('animatedSky') ? (
-              <>
-                <Text style={styles.helpText}>
-                  Only shows while the shared background above is set to &ldquo;Photo.&rdquo; Turning it off stops
-                  the continuously-running animation, the actual thing to disable if battery use matters more
-                  than the visual.
-                </Text>
-                <View style={styles.pillRow}>
-                  {([
-                    { value: true, label: 'Animated' },
-                    { value: false, label: 'Off' },
-                  ]).map((option) => (
-                    <TouchableOpacity
-                      key={option.label}
-                      style={[
-                        styles.pillSmall,
-                        visualPrefs.skyAnimationsEnabled === option.value && styles.pillActive,
-                      ]}
-                      onPress={() => setVisualPreferences({ skyAnimationsEnabled: option.value })}
-                    >
-                      <Text
-                        style={[
-                          styles.pillTextSmall,
-                          visualPrefs.skyAnimationsEnabled === option.value && styles.pillTextActive,
-                        ]}
-                      >
-                        {option.label}
-                      </Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </>
-            ) : null}
-
             {renderAppearanceSubsectionHeader('individualTabBackgrounds', 'Individual tab backgrounds', false)}
             {!collapsedAppearanceSubsections.has('individualTabBackgrounds') ? (
               <>
@@ -2453,8 +2435,11 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('genericPalette') ? (
               <>
                 <Text style={styles.helpText}>
-                  Used anywhere above (or the shared background) set to &ldquo;Generic.&rdquo; One shared choice,
-                  not a separate pick per tab.
+                  Used anywhere above (or the shared background) set to &ldquo;Generic,&rdquo; and, as of
+                  2026-08-17, everywhere else too: the app&apos;s own name at the top of every screen, the fine
+                  divider lines in the header and footer, and every colored ring around a selected item all take
+                  their color from this same choice&apos;s own lighter shade. One shared pick, not a separate one
+                  per tab, and always flat and static now, never animated.
                 </Text>
                 <View style={styles.pillRow}>
                   {GENERIC_PALETTE_OPTIONS.map((palette) => {

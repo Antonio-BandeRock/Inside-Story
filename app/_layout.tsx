@@ -13,7 +13,6 @@ import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
 import { colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
-import { IridescentHueProvider } from '../hooks/useIridescentHueRotation';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
 import { handleIncomingIsFile } from '../lib/isFileLinking';
 
@@ -255,16 +254,19 @@ export default function RootLayout() {
           -- Dropdown.tsx's open menu needs to escape ScreenBackground.tsx's
           own `overflow: 'hidden'` body, which a plain in-tree absolute View
           can't do on its own. */}
-      {/* IridescentHueProvider: one shared Reanimated value driving every
-          shimmering element in the app (ScreenHeader/ScreenBackground/
-          TabHub/IridescentRingCircle/Home's own footer line) -- wrapped
-          around the whole tree, same level as ActiveInputProvider, since
-          this app's own top-level stack screens (profile.tsx, etc.) could
-          in principle use it too, not just the (tabs) group. See
-          hooks/useIridescentHueRotation.ts's own history for why this
-          replaced a plain JS setInterval. */}
-      <IridescentHueProvider>
-        <ActiveInputProvider>
+      {/* 2026-08-17: the IridescentHueProvider that used to wrap here --
+          one shared Reanimated value driving a continuously-animated
+          rainbow across ScreenHeader/ScreenBackground/TabHub/
+          IridescentRingCircle/Home's own footer line -- is removed
+          entirely. Reported as real, confirmed battery drain: it forced a
+          real JS-thread update up to 10 times a second, the whole time the
+          app was open on any tab (react-native-svg's <Stop>, used by
+          ScreenHeader's app-name text, can't be driven purely on the
+          native thread). See constants/colors.ts's own header note for the
+          full replacement -- every one of those elements is now a flat,
+          static color instead ("features that stay active but not
+          animated"), with no shared animation value left to provide. */}
+      <ActiveInputProvider>
           <OverlayProvider>
             <Stack screenOptions={{ headerShown: false }}>
               <Stack.Screen name="(tabs)" />
@@ -396,7 +398,6 @@ export default function RootLayout() {
             <AppKeyboard />
           </OverlayProvider>
         </ActiveInputProvider>
-      </IridescentHueProvider>
         </GestureHandlerRootView>
       ) : null}
       {/* Rendered as a real overlay ON TOP of the tree above (not instead

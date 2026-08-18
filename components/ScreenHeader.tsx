@@ -1,13 +1,12 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback, useState } from 'react';
 import { StyleSheet, useWindowDimensions, View } from 'react-native';
-import { useAnimatedProps } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { colors, IRIDESCENT_PALETTE, rotatedIridescentPalette } from '../constants/colors';
-import { useIridescentHueRotation, useThrottledHueDegrees } from '../hooks/useIridescentHueRotation';
+import Svg, { Text as SvgText } from 'react-native-svg';
+import { colors } from '../constants/colors';
+import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
+import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { getUserProfile } from '../lib/db';
-import { AnimatedLinearGradient } from './AnimatedLinearGradient';
 
 // The "hard stop" from the true screen edge -- deliberately just a few
 // pixels rather than a real gutter, so the font gets as much width as
@@ -115,7 +114,6 @@ export function useScreenHeaderHeight(): number {
 // twice.
 export function ScreenHeader() {
   const [firstName, setFirstName] = useState<string | null>(null);
-  const hueRotation = useIridescentHueRotation();
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   // Matches `row`'s own paddingHorizontal below.
@@ -145,17 +143,20 @@ export function ScreenHeader() {
   // for a given name -- a fixed offset approximation tuned for one size
   // would drift off-center as the size changes.
   const textCenterY = HEADER_TEXT_HEIGHT / 2;
-  // The gradient text's stops can't be driven straight off the UI thread
-  // (see useThrottledHueDegrees's own comment above) -- this is the one
-  // throttled JS-thread bridge in the whole rewrite, feeding just this one
-  // array of plain colors.
-  const animatedGradientColors = rotatedIridescentPalette(useThrottledHueDegrees(hueRotation));
-  // The divider line just below, in contrast, is a real host LinearGradient
-  // and reads hueRotation.value directly inside this worklet callback, with
-  // no JS-thread bridge at all.
-  const dividerAnimatedProps = useAnimatedProps(() => ({
-    colors: rotatedIridescentPalette(hueRotation.value),
-  }));
+  // 2026-08-17: this text and the divider line just below it used to cycle
+  // through a continuously-animated rainbow gradient (see this file's own
+  // now-removed useThrottledHueDegrees/rotatedIridescentPalette usage) --
+  // that was a real, confirmed, continuous battery drain (a JS-thread
+  // update up to 10 times a second, the whole time the app was open on any
+  // tab; see constants/colors.ts's own header note). Replaced with a flat,
+  // static accent -- whichever "lighter" color belongs to the person's own
+  // currently-chosen generic color combination (Profile's own Appearance &
+  // Navigation section), the same real setting that already drives the
+  // Generic background option, now doing double duty. Direct request: "the
+  // font be the lighter color in each of the generic color combinations, as
+  // well as the line in the header and footer."
+  const { genericPalette } = useVisualPreferences();
+  const accentColor = GENERIC_BACKGROUND_PALETTES[genericPalette].lighter;
 
   // Refetched on every focus of the (tabs) group as a whole (not just once
   // on mount) so editing your name in Profile -- a separate stack screen
@@ -201,14 +202,6 @@ export function ScreenHeader() {
                 string guarantees that rather than depending on there being
                 enough width for two separate ones to land next to each other. */}
             <Svg width={textAreaWidth} height={HEADER_TEXT_HEIGHT}>
-              <Defs>
-                <SvgLinearGradient id="appNameGradient" x1="0" y1="0" x2="1" y2="0">
-                  {animatedGradientColors.map((color, index) => (
-                    <Stop key={index} offset={index / (animatedGradientColors.length - 1)} stopColor={color} />
-                  ))}
-                </SvgLinearGradient>
-              </Defs>
-
             {/* Stacked shadow copies, furthest/faintest first so each
                 nearer one paints cleanly over it -- see SHADOW_LAYERS. */}
             {SHADOW_LAYERS.slice().reverse().map((layer) => {
@@ -250,7 +243,7 @@ export function ScreenHeader() {
               y={textCenterY}
               fontFamily="Nunito_600SemiBold"
               fontSize={fontSize}
-              fill="url(#appNameGradient)"
+              fill={accentColor}
               textAnchor="middle"
               alignmentBaseline="middle"
             >
@@ -259,21 +252,11 @@ export function ScreenHeader() {
           </Svg>
         </View>
       </View>
-      {/* Same rotating palette as the app-name text above (same
-          hueRotation value, same underlying IRIDESCENT_PALETTE), so this
-          line and the footer's own divider (ScreenBackground.tsx) shimmer
-          in lockstep with the header text rather than each drifting on
-          its own schedule. */}
-      <AnimatedLinearGradient
-        // Static fallback so TypeScript's own required `colors` prop is
-        // satisfied -- animatedProps overrides this at the native level
-        // the instant it mounts.
-        colors={IRIDESCENT_PALETTE}
-        animatedProps={dividerAnimatedProps}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 0 }}
-        style={styles.divider}
-      />
+      {/* Same flat accentColor as the app-name text above, so this line and
+          the footer's own divider (ScreenBackground.tsx) always match --
+          both static, both reading whichever generic color combination is
+          currently chosen. */}
+      <View style={[styles.divider, { backgroundColor: accentColor }]} />
       <View style={styles.shadowFade1} />
       <View style={styles.shadowFade2} />
     </View>
@@ -305,8 +288,8 @@ const styles = StyleSheet.create({
   nameStack: {
     alignItems: 'center',
   },
-  // backgroundColor intentionally absent -- painted by the LinearGradient
-  // component itself now, not a flat style color.
+  // backgroundColor set inline (accentColor) -- a flat, static color now,
+  // not an animated gradient.
   divider: {
     height: 1,
   },

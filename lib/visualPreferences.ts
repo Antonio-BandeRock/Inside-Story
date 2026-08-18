@@ -1,14 +1,22 @@
 // Visual preferences -- 2026-08-08, explicitly requested as a Profile-area
-// preference: the ability to turn off the shared flowery background and its
-// animated sky overlay (sun/moon/stars, day/night tint), to turn off or
-// swap each individual tab's own background image independently rather than
-// all-or-nothing, and to pick a calmer, generic alternative (a few color
-// combinations) instead of the photo. Framed directly by the person as "for
-// the few men who would have this app and have a problem with all the
-// colors and flowers" plus a real, named battery/resource concern about the
-// animated sky running continuously -- this is purely an opt-out appearance
-// preference, not a redesign: header/footer colors, box/font/line colors,
-// and the iridescent shimmer are explicitly untouched by any of this.
+// preference: the ability to turn off the shared flowery background, to
+// turn off or swap each individual tab's own background image independently
+// rather than all-or-nothing, and to pick a calmer, generic alternative (a
+// few color combinations) instead of the photo. Framed directly by the
+// person as "for the few men who would have this app and have a problem
+// with all the colors and flowers."
+//
+// 2026-08-17: the animated sky overlay (sun/moon/stars, day/night tint) is
+// removed entirely, not just toggleable -- reported as real, confirmed
+// battery drain (a continuously-running animation, on top of a separate,
+// bigger, real cause found the same day: see constants/colors.ts's own
+// header note on the app's whole iridescent header/footer/ring system,
+// which is also removed for the identical reason). skyAnimationsEnabled is
+// gone from this type as a direct result -- there's nothing left to toggle.
+// genericPalette below now does double duty: the same 12 combinations that
+// already stood in for the photo background now also drive the app's
+// header/footer text and lines and TabHub's popup card border, statically
+// (see GenericBackground.tsx's own header comment).
 //
 // Stored the same way getStoredMeasurementSystem already does (lib/db.ts) --
 // a single JSON blob under one `app_meta` key, not a dedicated table, since
@@ -146,26 +154,45 @@ export type FoodBuilderIconChoice = 'dessertBuilder';
 // lib/db.ts).
 export type TabHubIconChoice = 'default' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
 
-// A few calming color combinations -- not meant to compete with the real
+// A set of calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for
 // anyone who wants the background gone without going fully flat. See
 // components/GenericBackground.tsx for how each renders.
-export type GenericPalette = 'lavender' | 'seafoam' | 'sand' | 'dusk';
+//
+// 2026-08-17: grown from 4 to 12, explicitly requested alongside removing
+// the app's own animated iridescent header/footer/ring system -- these 12
+// are now also what drives that same header/footer/ring accent, statically
+// (see GenericBackground.tsx's own header comment for the full reasoning).
+export type GenericPalette =
+  | 'lavender'
+  | 'seafoam'
+  | 'sand'
+  | 'dusk'
+  | 'ocean'
+  | 'forest'
+  | 'wine'
+  | 'slate'
+  | 'copper'
+  | 'midnight'
+  | 'moss'
+  | 'plum';
 
 export const GENERIC_PALETTE_LABELS: Record<GenericPalette, string> = {
   lavender: 'Lavender dusk',
   seafoam: 'Seafoam calm',
   sand: 'Warm sand',
   dusk: 'Twilight rose',
+  ocean: 'Ocean deep',
+  forest: 'Forest hush',
+  wine: 'Wine cellar',
+  slate: 'Slate quiet',
+  copper: 'Copper glow',
+  midnight: 'Midnight calm',
+  moss: 'Moss hollow',
+  plum: 'Plum shade',
 };
 
 export type VisualPreferences = {
-  // The sun/moon/starfield/day-night tint riding on top of the shared
-  // resting background (components/AnimatedSky.tsx) -- Home's own
-  // continuously-running animation, the real "power hog" named directly.
-  // Only has any effect while homeBackgroundStyle is 'photo' -- there's no
-  // sky band to animate over a generic or off background.
-  skyAnimationsEnabled: boolean;
   // The shared flowery background behind every tab at rest, and behind Home
   // at all times (app/(tabs)/_layout.tsx's own single, permanently-mounted
   // ScreenBackground). This is "the flowery shared background" the person
@@ -213,7 +240,6 @@ export type VisualPreferences = {
 };
 
 const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
-  skyAnimationsEnabled: true,
   homeBackgroundStyle: 'photo',
   tabBackgroundStyle: {},
   customBackgroundImages: {},

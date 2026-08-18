@@ -1,38 +1,32 @@
 import { Ionicons } from '@expo/vector-icons';
-import { LinearGradient } from 'expo-linear-gradient';
 import * as NavigationBar from 'expo-navigation-bar';
 import { usePathname, useRouter, type Href } from 'expo-router';
 import { useRef, useState, type ReactNode } from 'react';
 import { Image, Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import Svg, { Defs, LinearGradient as SvgLinearGradient, Stop, Text as SvgText } from 'react-native-svg';
-import { colors, rotatedIridescentPalette } from '../constants/colors';
+import { colors } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom } from '../constants/floatingButton';
 import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
 import { textShadow, typography } from '../constants/typography';
-import { useIridescentHueRotation, useThrottledHueDegrees } from '../hooks/useIridescentHueRotation';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import type { TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
 import { DessertBuilderIcon } from './FoodBuilderIcons';
+import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 import { HelpSheet } from './HelpButton';
 import { IridescentRingCircle } from './IridescentRingCircle';
 import { PurpleRibbonIcon } from './PurpleRibbonIcon';
 
-// Thickness of the iridescent line around the popup menu card, below --
-// same two-layer "gradient-filled outer shape + slightly inset solid inner
-// shape" trick as IridescentRingCircle.tsx (a plain View border can't take
-// a gradient directly in React Native), just around a rounded rectangle
-// instead of a circle. Matches the old card's own borderWidth (1, replaced
-// by this ring) exactly, not just visually close -- the ring's padding
-// adds to the card's total footprint the same way a border would have,
-// and since the whole card is bottom-anchored (see cardBottom below) with
-// no fixed height, any extra footprint here pushes its top edge upward.
-// A first pass at 2 (double the old border's 1) made the card visibly sit
-// a couple pixels higher than its correct static position once opened --
-// this value is what actually fixed that, not just a coincidentally close
-// number.
+// Thickness of the line around the popup menu card, below -- matches the
+// old card's own borderWidth (1) exactly, not just visually close -- the
+// ring's padding adds to the card's total footprint the same way a border
+// would have, and since the whole card is bottom-anchored (see cardBottom
+// below) with no fixed height, any extra footprint here pushes its top
+// edge upward. A first pass at 2 (double the old border's 1) made the card
+// visibly sit a couple pixels higher than its correct static position once
+// opened -- this value is what actually fixed that, not just a
+// coincidentally close number.
 const CARD_RING_WIDTH = 1;
 
 const BUTTON_SIZE = FLOATING_BUTTON_SIZE;
@@ -109,80 +103,11 @@ const TAB_HUB_VECTOR_ICONS: Partial<Record<TabHubIconChoice, (size: number, colo
 };
 const DESSERT_BUILDER_TAB_HUB_COLOR = colors.tabFood;
 
-// 'ionicons', not 'Ionicons' -- the exact font family name @expo/vector-
-// icons registers this font under (see node_modules/@expo/vector-icons/
-// build/Ionicons.js: createIconSet(glyphMap, 'ionicons', font)), which SVG
-// text needs to match exactly to find the right glyph shapes.
-const IONICONS_FONT_FAMILY = 'ionicons';
-// Read directly from node_modules/@expo/vector-icons/build/vendor/
-// react-native-vector-icons/glyphmaps/Ionicons.json -- SVG text has no
-// "look up this icon by name" helper of its own the way <Ionicons name=.../>
-// does, so the raw codepoint for each name this file needs stands in for it.
-const HOME_GLYPH_CODEPOINT = 0xf382; // "home"
-const INFORMATION_CIRCLE_GLYPH_CODEPOINT = 0xf398; // "information-circle"
-
-// Renders one Ionicons glyph as real SVG text with a gradient fill, using
-// the IDENTICAL rotatedIridescentPalette values IridescentRingCircle's own
-// ring uses, rather than a single hue-shifted color -- a plain Text/
-// Ionicons `color` prop can only ever be one flat color, which can't look
-// like the multi-stop-gradient ring around it no matter how that one color
-// is animated (two earlier passes on Home's own icon proved that: a full
-// 0-360 hue sweep, then a narrowed +/-15-degree wobble, both still read as
-// the icon slowly turning into another tab's own color). Rendering the
-// glyph as SVG text with a real gradient fill instead is the same
-// technique ScreenHeader.tsx's own app-name text already uses, for the same
-// underlying reason. react-native-svg's <Stop> can't be driven straight off
-// the UI thread (see ScreenHeader.tsx's own history for why) -- this reuses
-// that same throttled useThrottledHueDegrees bridge rather than inventing a
-// second one. `gradientId` just needs to be unique among whichever of these
-// happen to be on screen at once (currently at most two: Home's own grid
-// icon, and Info's, when Home is the active route -- see TabInfoIcon below).
-function IridescentGlyphIcon({ glyphCodepoint, size, gradientId }: { glyphCodepoint: number; size: number; gradientId: string }) {
-  const hueRotation = useIridescentHueRotation();
-  const gradientColors = rotatedIridescentPalette(useThrottledHueDegrees(hueRotation));
-  return (
-    <Svg width={size} height={size}>
-      <Defs>
-        <SvgLinearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          {gradientColors.map((stopColor, index) => (
-            <Stop key={index} offset={index / (gradientColors.length - 1)} stopColor={stopColor} />
-          ))}
-        </SvgLinearGradient>
-      </Defs>
-      <SvgText
-        x={size / 2}
-        y={size / 2}
-        fontFamily={IONICONS_FONT_FAMILY}
-        fontSize={size}
-        fill={`url(#${gradientId})`}
-        textAnchor="middle"
-        alignmentBaseline="central"
-      >
-        {String.fromCodePoint(glyphCodepoint)}
-      </SvgText>
-    </Svg>
-  );
-}
-
-function TabHomeIcon({ size }: { size: number }) {
-  return <IridescentGlyphIcon glyphCodepoint={HOME_GLYPH_CODEPOINT} size={size} gradientId="tabHomeIconGradient" />;
-}
-
-// The Info tile (see its own render below) pairs with whichever tab item is
-// currently active, in that same tab's own color -- when Home is active,
-// "that same color" is now a gradient, not a flat one, so Info's own icon
-// needs the identical gradient treatment to actually match, 2026-07-28
-// (explicitly requested). Every other tab still pairs with Info via a flat
-// color, unchanged.
-function TabInfoIcon({ size }: { size: number }) {
-  return <IridescentGlyphIcon glyphCodepoint={INFORMATION_CIRCLE_GLYPH_CODEPOINT} size={size} gradientId="tabInfoIconGradient" />;
-}
-
-// Centralizes the "Home gets a different color treatment" check in one
+// Centralizes the "Purple Digest gets its own custom mark" check in one
 // place so the grid's own active/inactive branches below don't each need
 // their own copy of it.
 //
-// 2026-08-05: also special-cases Purple Digest, now that it's a real tab in
+// 2026-08-05: special-cases Purple Digest, now that it's a real tab in
 // TAB_ROUTES (previously rendered from its own hardcoded 4th-row block,
 // which called PurpleRibbonIcon directly at PURPLE_RIBBON_SIZE rather than
 // through this shared helper). A bare Ionicons "ribbon" glyph (what
@@ -195,45 +120,37 @@ function TabInfoIcon({ size }: { size: number }) {
 // match a 20px Ionicons glyph's footprint (see its own comment), so
 // preserving it here keeps that same calibration rather than silently
 // changing it.
+//
+// 2026-08-17: Home used to get its own special-cased gradient-text render
+// here too (a real, animated, iridescent glyph, IridescentGlyphIcon/
+// TabHomeIcon/TabInfoIcon, since removed -- see this file's own history in
+// CLAUDE.md for the two earlier flat-color attempts that motivated it: a
+// plain colored Home icon "read as the icon slowly turning into another
+// tab's own color" once it was animated). With the animation gone entirely
+// (real, confirmed battery drain -- see constants/colors.ts's own header
+// note), that whole problem disappears too: Home now falls through to the
+// same plain, flat-colored Ionicons render every other tab already uses,
+// same as it would have all along if the icon were never animated.
 function TabRouteIcon({ route, size }: { route: TabRoute; size: number }) {
-  if (route.path === '/') {
-    return <TabHomeIcon size={size} />;
-  }
   if (route.path === '/purple-digest') {
     return <PurpleRibbonIcon size={PURPLE_RIBBON_SIZE} color={route.color} />;
   }
   return <Ionicons name={route.icon} size={size} color={route.color} style={textShadow} />;
 }
 
-// The popup menu card's own iridescent border -- the same shared Reanimated
-// value already used for ScreenHeader's app-name text, ScreenBackground's
-// footer line, and every IridescentRingCircle in this same menu, rather
-// than a separately invented animation for this one card. A plain
-// LinearGradient can't be driven straight off the UI thread the way the
-// other consumers are (see this card's own history: two theories about
-// *how* it was driven were tried and ruled out), so it uses the same
-// throttled JS-bridge as ScreenHeader's gradient text.
-//
-// 2026-07-28: this hook call used to live at TabHub's own top level, which
-// meant its ~10-times-a-second state update re-rendered the ENTIRE modal
-// (every grid item, all 10 of them) the whole time the menu was open, not
-// just this ring -- LensHub.tsx's own card has zero such churn (a flat,
-// unanimated border). Isolating it in this own small wrapper means only
-// THIS component re-renders that often; `children` (the actual grid)
-// keeps the same element reference across those re-renders since TabHub
-// itself no longer re-renders to produce a new one, so React bails out of
-// reconciling it entirely -- the actual fix for the "drops in a few
-// pixels except the very first open" bug, if the re-render churn itself
-// (not any one specific technique) was the real cause all along.
+// The popup menu card's own accent border -- 2026-08-17: used to be the
+// app's own animated iridescent rainbow (the same rotation ScreenHeader's
+// app-name text and ScreenBackground's footer line used), removed entirely
+// as a real, confirmed, continuous battery drain (see constants/colors.ts's
+// own header note). Replaced with a flat, static border in whichever
+// "lighter" color belongs to the person's own currently-chosen generic
+// color combination -- the same accent ScreenHeader/ScreenBackground now
+// use, so this card's own edge matches the header/footer lines rather than
+// being a separately-computed color.
 function TabHubCardRing({ children }: { children: ReactNode }) {
-  const hueRotation = useIridescentHueRotation();
-  const cardRingColors = rotatedIridescentPalette(useThrottledHueDegrees(hueRotation));
-  return (
-    <View style={styles.cardRing}>
-      <LinearGradient colors={cardRingColors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 1 }} style={StyleSheet.absoluteFillObject} />
-      {children}
-    </View>
-  );
+  const { genericPalette } = useVisualPreferences();
+  const accentColor = GENERIC_BACKGROUND_PALETTES[genericPalette].lighter;
+  return <View style={[styles.cardRing, { borderColor: accentColor }]}>{children}</View>;
 }
 
 // 3 columns -- room for up to 9 icons across 3 rows before a 4th row would
@@ -723,11 +640,7 @@ export function TabHub() {
             <TouchableOpacity style={styles.item} onPress={openHelpForCurrentPage} activeOpacity={0.7}>
               {activeRoute ? (
                 <IridescentRingCircle size={ICON_PILL_SIZE}>
-                  {activeRoute.path === '/' ? (
-                    <TabInfoIcon size={20} />
-                  ) : (
-                    <Ionicons name="information-circle" size={20} color={activeRoute.color} style={textShadow} />
-                  )}
+                  <Ionicons name="information-circle" size={20} color={activeRoute.color} style={textShadow} />
                 </IridescentRingCircle>
               ) : (
                 <View style={styles.iconPillPlain}>
@@ -874,15 +787,14 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 4 },
     elevation: 8,
   },
-  // The gradient-filled outer layer of the card's iridescent border --
-  // padding: CARD_RING_WIDTH is what actually gives the line its
-  // thickness, leaving that much of the gradient showing around `card`
-  // below rather than being fully covered by it. overflow: 'hidden' clips
-  // the gradient (a rectangle by default) to this box's own rounded
-  // corners, same trick as IridescentRingCircle.tsx.
+  // The card's own accent border -- 2026-08-17: a real, flat borderWidth/
+  // borderColor (borderColor set inline, the currently-chosen generic
+  // palette's own accent) now that this is one static color rather than an
+  // animated gradient that needed the padding-plus-filled-background trick
+  // to render as a ring.
   cardRing: {
     borderRadius: 14,
-    padding: CARD_RING_WIDTH,
+    borderWidth: CARD_RING_WIDTH,
     overflow: 'hidden',
   },
   // A compact card anchored to the left edge -- same small icon/label

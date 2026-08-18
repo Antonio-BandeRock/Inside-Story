@@ -23,18 +23,19 @@ import { TabHub } from '../../components/TabHub';
 // screen keeps behaving exactly as it did -- still mounted in the
 // background on switch, still relying on useFocusEffect to refresh data.
 //
-// 2026-07-26: a single `<ScreenBackground variant="field" sky />` renders
-// here, once, permanently mounted behind everything -- the fix for "the
-// shared resting background should be one truly static canvas that never
-// slides, resizes, or remounts between tabs," including the AnimatedSky
-// critters riding on top of it, which need one continuous, uninterrupted
-// animation loop that nothing else in the app ever touches. An earlier
-// attempt had each tab's own GatedTabContent render its own separate copy
-// of this image, which then moved along with that screen's own
-// SwipeableTabScreen drag/slide, betraying the "everything else slides on
-// top of a fixed backdrop" illusion -- moving it here instead, above/behind
-// <Tabs> and never inside any per-screen or animated wrapper, is what
-// actually makes it immovable.
+// 2026-07-26: a single `<ScreenBackground variant="field" />` renders here,
+// once, permanently mounted behind everything -- the fix for "the shared
+// resting background should be one truly static canvas that never slides,
+// resizes, or remounts between tabs." An earlier attempt had each tab's own
+// GatedTabContent render its own separate copy of this image, which then
+// moved along with that screen's own SwipeableTabScreen drag/slide,
+// betraying the "everything else slides on top of a fixed backdrop"
+// illusion -- moving it here instead, above/behind <Tabs> and never inside
+// any per-screen or animated wrapper, is what actually makes it immovable.
+//
+// 2026-08-17: the `sky` prop (the animated sun/moon/starfield overlay that
+// used to ride on top of this image) is removed -- reported as real,
+// confirmed battery drain, see ScreenBackground.tsx's own header note.
 //
 // 2026-07-27: both the background and <Tabs> now live inside their own
 // nested flex:1 View, placed *after* <ScreenHeader/> in normal document
@@ -51,7 +52,7 @@ export default function TabLayout() {
         <ScreenHeader />
         <View style={{ flex: 1 }}>
           <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-            <ScreenBackground variant="field" sky />
+            <ScreenBackground variant="field" />
           </View>
           <Tabs
             screenOptions={{
