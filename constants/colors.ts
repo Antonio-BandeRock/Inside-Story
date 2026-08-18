@@ -199,6 +199,27 @@ export const colors = {
   statusRedBg: '#4A2A22',
   statusYellow: '#7A5215',
   statusYellowBg: '#4A3A1E',
+  // A second, standalone-legible amber, added 2026-08-18 -- reported
+  // directly ("AQI font color is difficult to see") once Home's own sky/
+  // weather row moved from colored pills to plain text-only labels (see
+  // app/(tabs)/index.tsx's own SkyGridItem). statusYellow above was never
+  // meant to work alone: it's a dark olive (#7A5215, ~28% lightness)
+  // deliberately built to sit as TEXT on top of its own matching
+  // statusYellowBg pill, exactly as DimensionFlags.tsx's own comment already
+  // states ("a solid-filled box in it would be close to invisible against
+  // this app's dark navy surface") -- and with no pill behind it at all,
+  // that's precisely what happens: measured at only ~1.7:1 against
+  // colors.background, well under the 3:1 floor every other color in this
+  // file is held to. This is the same hue (36 degrees) lifted to a genuinely
+  // legible lightness/saturation instead (HSL 36/70%/65%) -- the same "same
+  // color family, stronger version" fix already proven on tabSchedules and
+  // tabPurpleDigest above -- verified at ~6.1:1 against colors.background,
+  // clearing AA text contrast with real room to spare. Scoped as its own
+  // token rather than changing statusYellow itself, which every other real
+  // caller (DimensionFlags' own boxYellow, the Nutrients table, 6
+  // Dimensions scorecard) already pairs correctly with statusYellowBg and
+  // hasn't been individually re-verified against a bare-text use.
+  statusYellowStandalone: '#E4B267',
 
   // Notice -- a heads-up/in-progress state, distinct from both a
   // flagged/needs-attention state and the brand color.

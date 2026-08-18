@@ -137,11 +137,24 @@ function aqiChipTone(band: ReturnType<typeof aqiBandForIndex>): SkyChipTone {
   if (band === 'moderate') return 'moderate';
   return 'bad';
 }
-function skyChipTint(tone: SkyChipTone): { bg: string; fg: string } {
-  if (tone === 'moderate') return { bg: colors.statusYellowBg, fg: colors.statusYellow };
-  if (tone === 'bad') return { bg: colors.statusRedBg, fg: colors.danger };
-  if (tone === 'cold') return { bg: colors.primaryMuted, fg: colors.primary };
-  return { bg: colors.surfaceMuted, fg: colors.textPrimary };
+// Returns just the text color -- the pill-chip version of this row also
+// carried a matching background per tone, but SkyGridItem (the current,
+// text-only grid layout) never draws one, so there's nothing real left to
+// return there.
+//
+// 'moderate' deliberately does NOT reuse colors.statusYellow -- that token
+// is a dark olive built to sit as text on top of its own statusYellowBg
+// pill (see DimensionFlags.tsx's own comment), and reads as almost
+// invisible without one (~1.7:1 against the dark navy background,
+// confirmed directly after a real report: "AQI font color is difficult to
+// see"). statusYellowStandalone is the same amber hue, lifted to a
+// lightness that actually clears contrast on its own -- see
+// constants/colors.ts's own comment on that token for the real numbers.
+function skyChipTint(tone: SkyChipTone): string {
+  if (tone === 'moderate') return colors.statusYellowStandalone;
+  if (tone === 'bad') return colors.danger;
+  if (tone === 'cold') return colors.primary;
+  return colors.textPrimary;
 }
 // Open-Meteo's own sunrise/sunset are full local ISO timestamps
 // ("2026-08-17T06:24") -- formatTime12 (lib/timeOfDay.ts) wants a bare
@@ -181,9 +194,9 @@ function SkyGridItem({
   fullWidth?: boolean;
   onPress?: () => void;
 }) {
-  const tint = tone ? skyChipTint(tone) : null;
+  const tintColor = tone ? skyChipTint(tone) : null;
   const content = (
-    <Text style={[styles.skyGridText, tint ? { color: tint.fg } : null]}>
+    <Text style={[styles.skyGridText, tintColor ? { color: tintColor } : null]}>
       <Text style={styles.skyGridEmoji}>{emoji}</Text> {label}
     </Text>
   );

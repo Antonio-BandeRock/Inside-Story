@@ -66,6 +66,24 @@ import { getDatabase, getStoredMeasurementSystem, getUserProfile } from './db';
 const LOCATION_CACHE_KEY = 'home_sky_location';
 const WEATHER_CACHE_KEY = 'home_sky_weather';
 
+// The weather cache only ever expired by CALENDAR DATE (see
+// getHomeSkyData's own cache check below), not by whether HomeSkyData's own
+// real shape had changed -- so a same-day cache written before a new field
+// existed (humidityMean, added 2026-08-18) kept being served verbatim,
+// missing that field, until the date happened to roll over. Confirmed
+// directly on-device, not guessed: a real cached blob was pulled and
+// genuinely had no humidityMean key at all, reported as "still no humidity
+// being reported." Bump this whenever HomeSkyData's own real fields change
+// -- a version mismatch forces a fresh fetch instead of trusting a
+// possibly-stale-shaped cache, the same real problem this fixes for any
+// future field too, not just this one.
+const WEATHER_CACHE_SCHEMA_VERSION = 2;
+
+type CachedWeatherEnvelope = {
+  schemaVersion: number;
+  data: HomeSkyData;
+};
+
 type CachedLocation = {
   country: string;
   postalCode: string;
@@ -315,9 +333,9 @@ export async function getHomeSkyData(): Promise<HomeSkyResult> {
   if (!location) return { status: 'no-location' };
 
   const today = todayLocalDateString();
-  const cached = await readAppMeta<HomeSkyData>(WEATHER_CACHE_KEY);
-  if (cached && cached.fetchedForDate === today) {
-    return { status: 'ready', data: cached };
+  const cached = await readAppMeta<CachedWeatherEnvelope>(WEATHER_CACHE_KEY);
+  if (cached && cached.schemaVersion === WEATHER_CACHE_SCHEMA_VERSION && cached.data.fetchedForDate === today) {
+    return { status: 'ready', data: cached.data };
   }
 
   const system = await getStoredMeasurementSystem();
@@ -335,7 +353,7 @@ export async function getHomeSkyData(): Promise<HomeSkyResult> {
     return {
       status: 'error',
       reason: weatherAttempt.reason,
-      message: failureMessage(weatherAttempt.reason, weatherAttempt.detail, cached?.fetchedForDate ?? null),
+      message: failureMessage(weatherAttempt.reason, weatherAttempt.detail, cached?.data.fetchedForDate ?? null),
     };
   }
 
@@ -345,7 +363,8 @@ export async function getHomeSkyData(): Promise<HomeSkyResult> {
     usAqi: airQuality.usAqi,
     pollen: airQuality.pollen,
   };
-  await writeAppMeta(WEATHER_CACHE_KEY, fresh);
+  const freshEnvelope: CachedWeatherEnvelope = { schemaVersion: WEATHER_CACHE_SCHEMA_VERSION, data: fresh };
+  await writeAppMeta(WEATHER_CACHE_KEY, freshEnvelope);
   return { status: 'ready', data: fresh };
 }
 
