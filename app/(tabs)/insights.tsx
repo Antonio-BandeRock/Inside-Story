@@ -3125,14 +3125,6 @@ function MyMedsView({
     onPersonalRuleChanged();
   }
 
-  function ruleSourceTag(rule: PersonalRule) {
-    return (
-      <View style={styles.ruleSourceTag}>
-        <Text style={styles.ruleSourceTagText}>{rule.source === 'doctor' ? 'Your doctor told you this' : 'You noted this'}</Text>
-      </View>
-    );
-  }
-
   if (loading) {
     return (
       <>
@@ -3191,12 +3183,32 @@ function MyMedsView({
       {personalRuleMatches.length > 0 ? (
         <View style={styles.rankSpaced}>
           <Text style={[styles.rankGroupHeading, { color: colors.accent }]}>Your Own Rules</Text>
-          {personalRuleMatches.map((rule) => (
-            <View key={rule.id} style={[styles.formCard, styles.rankSpaced, { borderColor: colors.accent }]}>
-              {ruleSourceTag(rule)}
-              <Text style={[styles.myMedsMessage, { marginTop: 8 }]}>{rule.description}</Text>
-            </View>
-          ))}
+          {/* Compact rows, not full description cards -- 2026-08-18, direct
+              correction: full paragraphs and citations belong in Purple
+              Digest, tool screens like this one show compact data and only
+              reach the fuller text on tap. Same real "pop up when they want
+              it to pop up" shape the alcohol/coffee/juice/raw-meat advisory
+              rows already established in the Food builders (see the
+              feedback_digest_owns_full_content memory). */}
+          <View style={styles.table}>
+            {personalRuleMatches.map((rule) => (
+              <TouchableOpacity
+                key={rule.id}
+                style={styles.rankRow}
+                onPress={() => showInfoAlert(rule.source === 'doctor' ? 'Your doctor told you this' : 'You noted this', rule.description)}
+              >
+                <View style={styles.rankTextWrap}>
+                  <Text style={styles.rankFoodName} numberOfLines={1}>
+                    {rule.description}
+                  </Text>
+                  <Text style={styles.rankFoodCategory}>
+                    {rule.source === 'doctor' ? 'Your doctor told you this' : 'You noted this'} · tap for details
+                  </Text>
+                </View>
+                <Ionicons name="chevron-forward" size={16} color={colors.textMuted} />
+              </TouchableOpacity>
+            ))}
+          </View>
         </View>
       ) : null}
 
@@ -3232,32 +3244,44 @@ function MyMedsView({
             Nothing saved yet. Add something you&apos;ve noticed yourself, or a specific instruction your own doctor gave you.
           </Text>
         ) : (
-          allPersonalRules.map((rule) => (
-            <View
-              key={rule.id}
-              style={[
-                styles.formCard,
-                styles.rankSpaced,
-                { borderColor: rule.active ? colors.accent : colors.border, opacity: rule.active ? 1 : 0.6 },
-              ]}
-            >
-              {ruleSourceTag(rule)}
-              <Text style={[styles.myMedsMessage, { marginTop: 8 }]}>{rule.description}</Text>
-              {rule.linkType !== 'none' ? (
-                <Text style={styles.myMedsCitation}>
-                  {rule.linkType === 'food' ? `Watching for: ${rule.linkLabel}` : `Tied to: ${rule.linkLabel ?? 'a medication no longer tracked'}`}
-                </Text>
-              ) : null}
-              <View style={[styles.buttonRow, { marginTop: 10 }]}>
-                <TouchableOpacity style={[styles.secondaryButton, { borderWidth: 1, borderColor: tabColor }]} onPress={() => handleToggleRule(rule)}>
-                  <Text style={[styles.secondaryButtonText, { color: tabColor }]}>{rule.active ? 'Pause' : 'Resume'}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={[styles.secondaryButton, { borderWidth: 1, borderColor: colors.danger }]} onPress={() => handleDeleteRule(rule)}>
-                  <Text style={[styles.secondaryButtonText, { color: colors.danger }]}>Delete</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          ))
+          <View style={styles.table}>
+            {allPersonalRules.map((rule) => {
+              const linkSummary =
+                rule.linkType === 'food'
+                  ? `watches for ${rule.linkLabel}`
+                  : rule.linkType === 'treatment'
+                    ? `tied to ${rule.linkLabel ?? 'a removed treatment'}`
+                    : null;
+              return (
+                <View key={rule.id} style={[styles.rankRow, { opacity: rule.active ? 1 : 0.55 }]}>
+                  <TouchableOpacity
+                    style={styles.rankTextWrap}
+                    onPress={() =>
+                      showInfoAlert(
+                        rule.source === 'doctor' ? 'Your doctor told you this' : 'You noted this',
+                        linkSummary ? `${rule.description}\n\n${linkSummary}` : rule.description,
+                      )
+                    }
+                  >
+                    <Text style={styles.rankFoodName} numberOfLines={1}>
+                      {rule.description}
+                    </Text>
+                    <Text style={styles.rankFoodCategory} numberOfLines={1}>
+                      {rule.active ? '' : 'Paused · '}
+                      {rule.source === 'doctor' ? 'Your doctor told you this' : 'You noted this'}
+                      {linkSummary ? ` · ${linkSummary}` : ''}
+                    </Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.rankActionButton} onPress={() => handleToggleRule(rule)}>
+                    <Text style={[styles.rankActionText, { color: tabColor }]}>{rule.active ? 'Pause' : 'Resume'}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity style={styles.rankActionButton} onPress={() => handleDeleteRule(rule)}>
+                    <Text style={[styles.rankActionText, { color: colors.danger }]}>Delete</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+          </View>
         )}
 
         {formOpen ? (
@@ -3902,14 +3926,13 @@ const styles = StyleSheet.create({
   // where a rule came from, on every rule card in both the "Your Own
   // Rules" and "Manage Your Rules" sections, so it's never mistaken for
   // one of the cited warnings sitting right above it.
-  ruleSourceTag: {
-    alignSelf: 'flex-start',
-    backgroundColor: `${colors.accent}33`,
-    borderRadius: 999,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-  },
-  ruleSourceTagText: { ...typography.caption, color: colors.accent },
+  // Compact row-action text, 2026-08-18 -- Your Own Rules/Manage Your
+  // Rules both moved from full description cards to plain rankRow-shaped
+  // rows (matching the treatments list right below them on this same
+  // lens); these two are the small Pause/Resume/Delete touch targets that
+  // sit at a row's trailing end now instead of a full-width button row.
+  rankActionButton: { paddingVertical: 4, paddingHorizontal: 6 },
+  rankActionText: { ...typography.captionEmphasis },
   // Today's Advisories lens, 2026-08-08.
   advisoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   advisoryTitle: { flex: 1 },
