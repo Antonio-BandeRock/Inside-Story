@@ -1,6 +1,6 @@
 import { Ionicons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
-import { useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
+import { Fragment, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { colors } from '../constants/colors';
@@ -50,6 +50,17 @@ export type LensOption<T extends string> = {
   // fallback for any option that doesn't set this, and stays what every
   // other page's own options render unchanged.
   renderIcon?: (size: number, color: string) => ReactNode;
+  // Real, plain-text section label shown once, above the first option of
+  // its own kind -- 2026-08-18, added for Insights specifically (13
+  // options had grown into one undifferentiated grid, reported directly:
+  // "it is hard to know which lenses are for what"). Purely additive:
+  // undefined for every existing page's own options, which render exactly
+  // as before, one flat grid with no headers at all. When set on ANY
+  // option, the grid groups consecutively-same-group options under one
+  // real header each (see the render below) -- options must already sit
+  // in the right order in the array for this to read correctly; nothing
+  // here re-sorts them.
+  group?: string;
 };
 
 // 2026-07-26: widened from 260 -- that size was tuned against Insights/
@@ -625,7 +636,18 @@ export function LensHub<T extends string>({
   const effectiveItemCount = options.length + (extraTile ? 1 : 0);
   const itemsInPartialRow = effectiveItemCount % columns;
   const rowPadding = itemsInPartialRow === 0 ? 0 : columns - itemsInPartialRow;
-  const blanksBeforeInfo = columns % 2 === 0 ? 0 : rowPadding + Math.floor(columns / 2);
+  // Real group headers (below) force a fresh row at every group boundary,
+  // 2026-08-18 -- which means the trailing row's own real item count no
+  // longer matches effectiveItemCount % columns the way this centering
+  // math assumes (it's derived from the FLAT item count, blind to where
+  // headers actually broke rows). Rather than recompute this per group,
+  // Info just renders as a plain trailing tile whenever groups are in
+  // play, wherever that naturally falls right after the last group's own
+  // last row -- simpler and safe, at the real cost of not being perfectly
+  // centered-alone the way it is on an ungrouped page. Every page without
+  // groups keeps the exact same centered placement, unchanged.
+  const hasGroups = options.some((option) => option.group !== undefined);
+  const blanksBeforeInfo = hasGroups ? 0 : columns % 2 === 0 ? 0 : rowPadding + Math.floor(columns / 2);
 
   return (
     <>
@@ -817,60 +839,82 @@ export function LensHub<T extends string>({
                   </Text>
                 </TouchableOpacity>
               ) : null}
-              {options.map((option) => {
-                const active = option.key === selected;
-                // 2026-07-26: icon color no longer varies with `active` --
-                // matching TabHub's own grid (its icons are always shown
-                // in full color, never muted; the ring alone is what
-                // signals "selected"). The label still dims when inactive,
-                // unchanged -- only the icon's own treatment was asked to
-                // match the butterfly menu's.
-                //
-                // Explicitly corrected, same day: uses `tabColor` (this
-                // page's own identity color, already computed above for
-                // the corner trigger button) instead of the flat brand
-                // colors.primary -- every option inside a given page's
-                // menu should read as belonging to that page, the same
-                // color as its own icon in the corner and in the butterfly
-                // menu's own grid, not a generic shared teal.
-                const labelColor = active ? colors.primary : colors.textMuted;
-                return (
-                  <TouchableOpacity
-                    key={option.key}
-                    style={[styles.item, { width: `${itemWidthPercent}%` }]}
-                    onPress={() => choose(option.key)}
-                    activeOpacity={0.7}
-                  >
-                    {active ? (
-                      <IridescentRingCircle size={gridPillSize}>
-                        {option.renderIcon ? (
-                          option.renderIcon(gridCustomIconSize, tabColor)
+              {(() => {
+                // Tracks which group's own header has already been shown,
+                // mutated as the map below runs -- a plain closure
+                // variable is enough here since .map runs its callback
+                // synchronously, in array order, exactly once per item.
+                // 2026-08-18, added for Insights specifically -- see
+                // LensOption's own `group` field comment. Every other
+                // page's options never set `group`, so showGroupHeader is
+                // always false there and this renders exactly as it always
+                // did, just wrapped in one extra Fragment per item.
+                let lastGroupShown: string | undefined;
+                return options.map((option) => {
+                  const showGroupHeader = option.group !== undefined && option.group !== lastGroupShown;
+                  if (option.group !== undefined) lastGroupShown = option.group;
+                  const active = option.key === selected;
+                  // 2026-07-26: icon color no longer varies with `active` --
+                  // matching TabHub's own grid (its icons are always shown
+                  // in full color, never muted; the ring alone is what
+                  // signals "selected"). The label still dims when inactive,
+                  // unchanged -- only the icon's own treatment was asked to
+                  // match the butterfly menu's.
+                  //
+                  // Explicitly corrected, same day: uses `tabColor` (this
+                  // page's own identity color, already computed above for
+                  // the corner trigger button) instead of the flat brand
+                  // colors.primary -- every option inside a given page's
+                  // menu should read as belonging to that page, the same
+                  // color as its own icon in the corner and in the butterfly
+                  // menu's own grid, not a generic shared teal.
+                  const labelColor = active ? colors.primary : colors.textMuted;
+                  return (
+                    <Fragment key={option.key}>
+                      {showGroupHeader ? (
+                        <View style={styles.groupHeaderRow}>
+                          <Text style={[styles.groupHeaderText, { color: tabColor }]} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
+                            {option.group}
+                          </Text>
+                        </View>
+                      ) : null}
+                      <TouchableOpacity
+                        style={[styles.item, { width: `${itemWidthPercent}%` }]}
+                        onPress={() => choose(option.key)}
+                        activeOpacity={0.7}
+                      >
+                        {active ? (
+                          <IridescentRingCircle size={gridPillSize}>
+                            {option.renderIcon ? (
+                              option.renderIcon(gridCustomIconSize, tabColor)
+                            ) : (
+                              <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
+                            )}
+                          </IridescentRingCircle>
                         ) : (
-                          <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
-                        )}
-                      </IridescentRingCircle>
-                    ) : (
-                      <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
-                        {option.renderIcon ? (
-                          <View style={styles.conditionIconInactive}>
-                            {option.renderIcon(gridCustomIconSize, tabColor)}
+                          <View style={[styles.itemIconPillPlain, { width: gridPillSize, height: gridPillSize }]}>
+                            {option.renderIcon ? (
+                              <View style={styles.conditionIconInactive}>
+                                {option.renderIcon(gridCustomIconSize, tabColor)}
+                              </View>
+                            ) : (
+                              <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
+                            )}
                           </View>
-                        ) : (
-                          <Ionicons name={option.icon} size={gridIconSize} color={tabColor} style={textShadow} />
                         )}
-                      </View>
-                    )}
-                    <Text
-                      style={[styles.itemLabel, { color: labelColor }]}
-                      numberOfLines={itemLabelLines}
-                      ellipsizeMode="tail"
-                      maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
-                    >
-                      {option.gridLabel ?? option.label}
-                    </Text>
-                  </TouchableOpacity>
-                );
-              })}
+                        <Text
+                          style={[styles.itemLabel, { color: labelColor }]}
+                          numberOfLines={itemLabelLines}
+                          ellipsizeMode="tail"
+                          maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
+                        >
+                          {option.gridLabel ?? option.label}
+                        </Text>
+                      </TouchableOpacity>
+                    </Fragment>
+                  );
+                });
+              })()}
               {/* Info as a real grid item, centered on its own row, only
                   for pages that asked for this (see showInfoInGrid's own
                   comment) -- every other page keeps the floating
@@ -1106,6 +1150,21 @@ const styles = StyleSheet.create({
   gridWrapper: { flex: 1 },
   gridScroll: { flex: 1 },
   grid: { flexDirection: 'row', flexWrap: 'wrap' },
+  // 2026-08-18, added for Insights specifically -- see LensOption's own
+  // `group` field comment. `grid`'s own contentContainerStyle is
+  // `flexDirection: 'row', flexWrap: 'wrap'`, so a plain width: '100%'
+  // here is what actually forces every group header onto its own row,
+  // pushing whatever follows it down to a fresh line the same way a
+  // too-wide item naturally would -- no separate row-break logic needed.
+  groupHeaderRow: {
+    width: '100%',
+    paddingTop: 10,
+    paddingBottom: 2,
+    paddingHorizontal: 4,
+  },
+  groupHeaderText: {
+    ...typography.eyebrow,
+  },
   // Pinned to gridWrapper's own top/bottom edge -- see the JSX's own
   // comment for why these exist and why each is conditional on its own
   // canScrollUp/canScrollDown. Short (18px) on purpose: just enough for

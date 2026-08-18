@@ -192,11 +192,21 @@ const DRILLING_DOWN_HELP: HelpSection = {
   body: 'The third floating button, to the left of the view picker, opens the same navigator every lens shares: Whole Day -> a specific meal -> a side within it -> a single ingredient. Tap any crumb to jump straight back to that level, or tap one of the pills below it to go one level deeper.',
 };
 
+// 2026-08-18, real, direct request: "it is hard to know which lenses are
+// for what. Can we group them somehow. I mean, insights is a pretty broad
+// term." Grouped into 3 real sections rather than one flat 13-item grid:
+// "Today" (this exact day's own logged data), "Explore & Look Up"
+// (independent of today's log -- browse/search the reference database
+// itself), and "Your Regimen & Targets" (what's tracked/scheduled and
+// what your own numbers should be). Order below matches group order, not
+// alphabetical or original build order, since LensHub renders a group
+// header the first time a new `group` value appears in array order.
 const LENSES: LensOption<Lens>[] = [
   {
     key: 'nutrients',
     label: 'Nutrients',
     icon: 'nutrition-outline',
+    group: 'Today',
     help: [
       {
         heading: 'Reading the table',
@@ -213,6 +223,7 @@ const LENSES: LensOption<Lens>[] = [
     key: 'sixDs',
     label: '6 Dimensions',
     icon: 'analytics-outline',
+    group: 'Today',
     help: [
       {
         heading: '6 Dimensions',
@@ -225,6 +236,7 @@ const LENSES: LensOption<Lens>[] = [
     key: 'prep',
     label: 'Cooking & Prep',
     icon: 'flame-outline',
+    group: 'Today',
     help: [
       {
         heading: 'Cooking & Prep',
@@ -234,9 +246,38 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
+    key: 'hydration',
+    label: 'Hydration',
+    icon: 'water-outline',
+    group: 'Today',
+    help: [
+      {
+        heading: 'Hydration',
+        body: "Today's total water intake against your own target: a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table; this is just its own dedicated view.",
+      },
+    ],
+  },
+  {
+    key: 'advisories',
+    label: "Today's Advisories",
+    icon: 'information-circle-outline',
+    group: 'Today',
+    help: [
+      {
+        heading: "Today's Advisories",
+        body: 'Every cited advisory this app already has (alcohol, coffee, fruit juice) checked across your whole day at once, instead of only appearing one item at a time buried inside a Food builder.',
+      },
+      {
+        heading: "What isn't covered",
+        body: "This is scoped to the 3 advisories that already exist. A per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
+      },
+    ],
+  },
+  {
     key: 'foodLookup',
     label: 'Food Lookup',
     icon: 'search-outline',
+    group: 'Explore & Look Up',
     help: [
       {
         heading: 'Food Lookup',
@@ -248,6 +289,7 @@ const LENSES: LensOption<Lens>[] = [
     key: 'nutrientRanking',
     label: 'Nutrient Ranking',
     icon: 'bar-chart-outline',
+    group: 'Explore & Look Up',
     help: [
       {
         heading: 'Nutrient Ranking',
@@ -263,6 +305,7 @@ const LENSES: LensOption<Lens>[] = [
     key: 'cookingImpact',
     label: 'Cooking Impact',
     icon: 'thermometer-outline',
+    group: 'Explore & Look Up',
     help: [
       {
         heading: 'Cooking Impact',
@@ -278,6 +321,7 @@ const LENSES: LensOption<Lens>[] = [
     key: 'safeFoods',
     label: 'Safe Foods',
     icon: 'shield-checkmark-outline',
+    group: 'Explore & Look Up',
     help: [
       {
         heading: 'Safe Foods',
@@ -293,6 +337,7 @@ const LENSES: LensOption<Lens>[] = [
     key: 'healingStage',
     label: 'Healing Stage',
     icon: 'leaf-outline',
+    group: 'Explore & Look Up',
     help: [
       {
         heading: 'Stage 1: Getting Started',
@@ -309,20 +354,10 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
-    key: 'hydration',
-    label: 'Hydration',
-    icon: 'water-outline',
-    help: [
-      {
-        heading: 'Hydration',
-        body: "Today's total water intake against your own target: a true sum across everything logged today, food and drink alike (water-rich foods like soup or watermelon count too, not just what you drank). Same underlying nutrient data as the Nutrients table; this is just its own dedicated view.",
-      },
-    ],
-  },
-  {
     key: 'labs',
     label: 'Labs',
     icon: 'flask-outline',
+    group: 'Your Regimen & Targets',
     help: [
       {
         heading: 'Labs',
@@ -338,6 +373,7 @@ const LENSES: LensOption<Lens>[] = [
     key: 'myMeds',
     label: 'My Meds & Interactions',
     icon: 'medkit-outline',
+    group: 'Your Regimen & Targets',
     help: [
       {
         heading: 'My Meds & Interactions',
@@ -354,24 +390,10 @@ const LENSES: LensOption<Lens>[] = [
     ],
   },
   {
-    key: 'advisories',
-    label: "Today's Advisories",
-    icon: 'information-circle-outline',
-    help: [
-      {
-        heading: "Today's Advisories",
-        body: 'Every cited advisory this app already has (alcohol, coffee, fruit juice) checked across your whole day at once, instead of only appearing one item at a time buried inside a Food builder.',
-      },
-      {
-        heading: "What isn't covered",
-        body: "This is scoped to the 3 advisories that already exist. A per-food additive-detection system (naming which specific additives are in a given food) would need reference data this app doesn't have yet, so it isn't guessed at here.",
-      },
-    ],
-  },
-  {
     key: 'portions',
     label: 'Energy & Portions',
     icon: 'restaurant-outline',
+    group: 'Your Regimen & Targets',
     help: [
       {
         heading: 'Where the numbers come from',
