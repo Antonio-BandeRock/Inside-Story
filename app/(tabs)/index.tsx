@@ -458,7 +458,7 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: "Today's sky & weather",
-    body: "A row of chips under the date. Moon phase and the next equinox/solstice countdown are computed directly on your phone using standard astronomical formulas; no location or network needed, so they're always shown. Sunrise, sunset, UV index, and air quality (AQI) come from Open-Meteo, a free weather service, using the same location your Garden → My Zone already has saved, with no separate GPS permission required. A heat or freeze chip appears only when today's forecast high or low crosses a plain, disclosed threshold; this isn't an official government weather warning. Pollen only appears where data exists for it, which today means Europe, and nothing is guessed or approximated for anywhere else. Nothing shows here until you've set a growing zone in Garden → My Zone; tap the prompt chip to go straight there.",
+    body: "A row of chips under the date. Moon phase and the next equinox/solstice countdown are computed directly on your phone using standard astronomical formulas; no location or network needed, so they're always shown. Sunrise, sunset, UV index, and air quality (AQI) come from Open-Meteo, a free weather service, using the same location your Garden → My Zone already has saved, with no separate GPS permission required. A heat or freeze chip appears only when today's forecast high or low crosses a plain, disclosed threshold; this isn't an official government weather warning. Pollen is requested for any location, but only ever shows where the weather service actually has real data for it, which today means Europe; nothing is guessed or approximated for anywhere else. If a fetch genuinely fails, a chip says so directly (offline, a service error, or an unexpected response) rather than quietly showing old numbers as if they were current. Nothing shows here until you've set a growing zone in Garden → My Zone; tap the prompt chip to go straight there.",
   },
   {
     heading: 'The Day Arc',
@@ -956,10 +956,13 @@ export default function HomeScreen() {
                       </Text>
                     </View>
                   )}
-                  {skyReady.stale && (
-                    <Text style={styles.skyStaleNote}>Weather as of {skyReady.data.fetchedForDate}</Text>
-                  )}
                 </>
+              )}
+
+              {skyResult?.status === 'error' && (
+                <View style={[styles.skyChip, { backgroundColor: colors.statusYellowBg }]}>
+                  <Text style={[styles.skyChipText, { color: colors.statusYellow }]}>⚠️ {skyResult.message}</Text>
+                </View>
               )}
             </View>
           </View>
@@ -1607,7 +1610,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.surfaceMuted,
   },
   skyChipText: { ...typography.caption, color: colors.textPrimary },
-  skyStaleNote: { ...typography.caption, color: colors.textMuted, alignSelf: 'center' },
 
   // Used to precede every content card on this page as its own separate
   // box -- 2026-07-26, folded into each of those cards instead (see

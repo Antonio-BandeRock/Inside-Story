@@ -28,24 +28,37 @@
 //   indices (CAMS global model, ~45km resolution outside Europe, finer
 //   inside it) -- but the six named pollen fields (alder/birch/grass/
 //   mugwort/olive/ragweed) are confirmed EUROPE-ONLY (the CAMS European
-//   regional model specifically). This is not guessed or assumed -- it's
-//   what Open-Meteo's own documentation states directly. Rather than fake
-//   pollen data for anywhere else, or maintain a hand-drawn "is this in
-//   Europe" bounding box, the real API response itself is the honest
-//   signal: a genuinely present, finite, positive value for at least one
-//   pollen type means real coverage exists there; anything else (null,
-//   missing, non-finite) means it doesn't, and the pollen section simply
-//   never appears for that location.
+//   regional model specifically). This was checked a second time,
+//   2026-08-17, directly in response to being asked whether that was
+//   really true -- it is: no other genuinely free, keyless, verified-
+//   reliable pollen source with real US coverage was found (Achoo is real
+//   and keyless but Germany-only; Atmospore claims global coverage but
+//   requires a real account/API key for anything past a limited demo, with
+//   no verifiable rate-limit or coverage detail; the one credible global
+//   option, Google's own Pollen API, needs a real Google Cloud API key tied
+//   to a billing account, a genuinely different kind of dependency than
+//   anything else this app uses -- named as a real, open follow-up, not
+//   silently built in). This is not a limitation baked into this app's own
+//   code -- pollen is requested and shown for ANY resolved location; it
+//   only ever appears where the real API response itself actually has
+//   something to report, not where a hand-drawn "is this Europe" check
+//   allows it to.
 //
 // Both the resolved location AND the day's own weather/AQI result are
 // cached locally (the same single-JSON-blob-under-one-app_meta-key pattern
 // visualPreferences.ts already established) so Home never re-geocodes or
 // re-fetches on every focus -- only once per real change to the saved zone,
-// and once per real calendar day for the weather/AQI itself. A network
-// failure with an existing (even stale) cache still shows that cached data,
-// honestly labeled with its own real date, rather than nothing at all --
-// this app is local-first, and a dashboard card shouldn't go blank just
-// because the phone is offline for a moment.
+// and once per real calendar day for the weather/AQI itself.
+//
+// 2026-08-17, direct correction: a failed fetch used to silently fall back
+// to whatever was cached from a prior day, with only a small "as of..."
+// caption -- reported directly as dishonest, and it was. A failed fetch now
+// produces a real, distinct 'error' result naming what actually happened
+// (no network reachable vs. the service itself returning an error vs. an
+// unexpected response), never quietly dressed up as today's real reading.
+// Any stale cached data is still surfaced, but only as an explicitly-labeled
+// "last successful check was X" note inside that same honest error message,
+// never rendered as if it were today's live numbers.
 
 import { geocodePostalCode } from './gardenZoneLookup';
 import { getDatabase, getStoredMeasurementSystem, getUserProfile } from './db';
@@ -167,7 +180,34 @@ export type HomeSkyData = {
   pollen: PollenReading[];
 };
 
-async function fetchWeather(lat: number, lon: number, tempUnit: 'F' | 'C'): Promise<Omit<HomeSkyData, 'placeLabel' | 'pollen' | 'usAqi'> | null> {
+// A real, honest classification of why a fetch didn't produce data --
+// distinguished by what actually happened at the network layer, not
+// guessed. React Native's own fetch throws a real TypeError (its message
+// includes "Network request failed") when the request can't even be
+// dispatched -- no DNS, no route, airplane mode, etc. -- which is the
+// closest honest signal to "you appear to be offline" available without
+// adding a new native dependency (NetInfo) just for this. A response that
+// comes back but isn't ok is the weather service itself reporting a
+// problem (rate limit, outage); anything else unexpected (bad JSON,
+// missing fields) is reported as exactly that rather than folded into
+// either of the other two.
+export type SkyFetchFailureReason = 'offline' | 'service-error' | 'unexpected';
+
+type FetchAttempt<T> = { ok: true; data: T } | { ok: false; reason: SkyFetchFailureReason; detail: string };
+
+function classifyFetchError(error: unknown): { reason: SkyFetchFailureReason; detail: string } {
+  const message = error instanceof Error ? error.message : String(error);
+  if (/network request failed/i.test(message) || /failed to fetch/i.test(message)) {
+    return { reason: 'offline', detail: message };
+  }
+  return { reason: 'unexpected', detail: message };
+}
+
+async function fetchWeather(
+  lat: number,
+  lon: number,
+  tempUnit: 'F' | 'C',
+): Promise<FetchAttempt<Omit<HomeSkyData, 'placeLabel' | 'pollen' | 'usAqi'>>> {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
@@ -176,28 +216,44 @@ async function fetchWeather(lat: number, lon: number, tempUnit: 'F' | 'C'): Prom
     timezone: 'auto',
     temperature_unit: tempUnit === 'F' ? 'fahrenheit' : 'celsius',
   });
+  let response: Response;
   try {
-    const response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
-    if (!response.ok) return null;
+    response = await fetch(`https://api.open-meteo.com/v1/forecast?${params.toString()}`);
+  } catch (error) {
+    return { ok: false, ...classifyFetchError(error) };
+  }
+  if (!response.ok) {
+    return { ok: false, reason: 'service-error', detail: `HTTP ${response.status}` };
+  }
+  try {
     const data = await response.json();
     const daily = data?.daily;
-    if (!daily) return null;
+    if (!daily) return { ok: false, reason: 'unexpected', detail: 'no daily forecast in the response' };
     const at0 = (arr: unknown): number | null => (Array.isArray(arr) && typeof arr[0] === 'number' && Number.isFinite(arr[0]) ? arr[0] : null);
     const stringAt0 = (arr: unknown): string | null => (Array.isArray(arr) && typeof arr[0] === 'string' ? arr[0] : null);
     return {
-      fetchedForDate: todayLocalDateString(),
-      sunrise: stringAt0(daily.sunrise),
-      sunset: stringAt0(daily.sunset),
-      tempMax: at0(daily.temperature_2m_max),
-      tempMin: at0(daily.temperature_2m_min),
-      tempUnit,
-      uvIndexMax: at0(daily.uv_index_max),
+      ok: true,
+      data: {
+        fetchedForDate: todayLocalDateString(),
+        sunrise: stringAt0(daily.sunrise),
+        sunset: stringAt0(daily.sunset),
+        tempMax: at0(daily.temperature_2m_max),
+        tempMin: at0(daily.temperature_2m_min),
+        tempUnit,
+        uvIndexMax: at0(daily.uv_index_max),
+      },
     };
-  } catch {
-    return null;
+  } catch (error) {
+    return { ok: false, ...classifyFetchError(error) };
   }
 }
 
+// Air quality/pollen is treated as a real, secondary layer on top of the
+// core weather fetch above -- its own failure (or the honest absence of
+// pollen data outside Europe) never blocks showing sunrise/sunset/UV, and
+// isn't reported through the same 'error' state as a genuine weather-fetch
+// failure. A missing AQI number reads the same honest way every other
+// optional value in this app already does: absent, not shown, not guessed.
 async function fetchAirQuality(lat: number, lon: number): Promise<{ usAqi: number | null; pollen: PollenReading[] }> {
   const hourlyFields = POLLEN_FIELDS.map((p) => p.field).join(',');
   const params = new URLSearchParams({
@@ -232,8 +288,20 @@ async function fetchAirQuality(lat: number, lon: number): Promise<{ usAqi: numbe
 
 export type HomeSkyResult =
   | { status: 'no-location' }
-  | { status: 'unavailable' }
-  | { status: 'ready'; data: HomeSkyData; stale: boolean };
+  | { status: 'error'; reason: SkyFetchFailureReason; message: string }
+  | { status: 'ready'; data: HomeSkyData };
+
+function failureMessage(reason: SkyFetchFailureReason, detail: string, lastKnownDate: string | null): string {
+  let base: string;
+  if (reason === 'offline') {
+    base = "Couldn't reach the weather service. You may be offline.";
+  } else if (reason === 'service-error') {
+    base = `The weather service returned an error (${detail}).`;
+  } else {
+    base = "Got an unexpected response from the weather service.";
+  }
+  return lastKnownDate ? `${base} Last successful check was ${lastKnownDate}.` : base;
+}
 
 export async function getHomeSkyData(): Promise<HomeSkyResult> {
   const location = await resolveHomeLocation();
@@ -242,32 +310,36 @@ export async function getHomeSkyData(): Promise<HomeSkyResult> {
   const today = todayLocalDateString();
   const cached = await readAppMeta<HomeSkyData>(WEATHER_CACHE_KEY);
   if (cached && cached.fetchedForDate === today) {
-    return { status: 'ready', data: cached, stale: false };
+    return { status: 'ready', data: cached };
   }
 
   const system = await getStoredMeasurementSystem();
   const tempUnit: 'F' | 'C' = system === 'metric' ? 'C' : 'F';
 
-  const [weather, airQuality] = await Promise.all([
+  const [weatherAttempt, airQuality] = await Promise.all([
     fetchWeather(location.lat, location.lon, tempUnit),
     fetchAirQuality(location.lat, location.lon),
   ]);
 
-  if (!weather) {
-    // A real network failure -- fall back to whatever's cached, even if it's
-    // from a prior day, rather than showing nothing at all.
-    if (cached) return { status: 'ready', data: cached, stale: true };
-    return { status: 'unavailable' };
+  if (!weatherAttempt.ok) {
+    // Honest, not silent: names what actually went wrong, and -- only as an
+    // explicitly-labeled note inside that same message, never as if it were
+    // today's live reading -- when the last real successful check was.
+    return {
+      status: 'error',
+      reason: weatherAttempt.reason,
+      message: failureMessage(weatherAttempt.reason, weatherAttempt.detail, cached?.fetchedForDate ?? null),
+    };
   }
 
   const fresh: HomeSkyData = {
     placeLabel: location.placeLabel,
-    ...weather,
+    ...weatherAttempt.data,
     usAqi: airQuality.usAqi,
     pollen: airQuality.pollen,
   };
   await writeAppMeta(WEATHER_CACHE_KEY, fresh);
-  return { status: 'ready', data: fresh, stale: false };
+  return { status: 'ready', data: fresh };
 }
 
 // Real, deliberately simple heat/freeze flags -- NOT official government
