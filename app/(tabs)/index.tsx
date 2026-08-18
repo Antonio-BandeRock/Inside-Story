@@ -22,7 +22,16 @@ import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
 import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
+import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
+import {
+  aqiBandForIndex,
+  getHomeSkyData,
+  isForecastFreezing,
+  isForecastVeryHot,
+  uvBandForIndex,
+  type HomeSkyResult,
+} from '../../lib/homeSky';
 import {
   getCheckinForDate,
   getNutrientTotalsByDateRange,
@@ -106,6 +115,40 @@ function pickAffirmation(): string {
 
 function capitalize(text: string): string {
   return text.length === 0 ? text : text[0].toUpperCase() + text.slice(1);
+}
+
+// The greeting card's own sky-info row -- a plain 3-tone system reused for
+// both UV and AQI (each collapsed from its own real, standard 5-6 band
+// public scale down to this app's own existing good/moderate/bad chip
+// colors, rather than inventing new hex values for a wider palette). The
+// underlying band NAME shown in the chip text is still the real one; only
+// the color grouping is simplified.
+type SkyChipTone = 'good' | 'moderate' | 'bad';
+function uvChipTone(band: ReturnType<typeof uvBandForIndex>): SkyChipTone {
+  if (band === 'low') return 'good';
+  if (band === 'moderate') return 'moderate';
+  return 'bad';
+}
+function aqiChipTone(band: ReturnType<typeof aqiBandForIndex>): SkyChipTone {
+  if (band === 'good') return 'good';
+  if (band === 'moderate') return 'moderate';
+  return 'bad';
+}
+function skyChipBg(tone: SkyChipTone): string {
+  if (tone === 'moderate') return colors.statusYellowBg;
+  if (tone === 'bad') return colors.statusRedBg;
+  return colors.surfaceMuted;
+}
+function skyChipFg(tone: SkyChipTone): string {
+  if (tone === 'moderate') return colors.statusYellow;
+  if (tone === 'bad') return colors.danger;
+  return colors.textPrimary;
+}
+// Open-Meteo's own sunrise/sunset are full local ISO timestamps
+// ("2026-08-17T06:24") -- formatTime12 (lib/timeOfDay.ts) wants a bare
+// "HH:mm", so this just slices out that piece before handing it off.
+function skyTimeLabel(isoLocal: string): string {
+  return formatTime12(isoLocal.slice(11, 16));
 }
 
 // The "A Few Things Worth Knowing" flip-card pool, 2026-07-27 -- used to be
@@ -414,6 +457,10 @@ const HOME_HELP_SECTIONS: HelpSection[] = [
     body: "A live dashboard, not a static page: your day's arc, today's fuel gauges, and how you've been feeling, refreshed every time you open it. Tap anything to jump to the tab it summarizes.",
   },
   {
+    heading: "Today's sky & weather",
+    body: "A row of chips under the date. Moon phase and the next equinox/solstice countdown are computed directly on your phone using standard astronomical formulas; no location or network needed, so they're always shown. Sunrise, sunset, UV index, and air quality (AQI) come from Open-Meteo, a free weather service, using the same location your Garden → My Zone already has saved, with no separate GPS permission required. A heat or freeze chip appears only when today's forecast high or low crosses a plain, disclosed threshold; this isn't an official government weather warning. Pollen only appears where data exists for it, which today means Europe, and nothing is guessed or approximated for anywhere else. Nothing shows here until you've set a growing zone in Garden → My Zone; tap the prompt chip to go straight there.",
+  },
+  {
     heading: 'The Day Arc',
     body: 'A visual line across your day (6 AM to 10 PM by default) with a dot for each scheduled item, plus a glowing marker for right now. Tap a dot for details and quick actions.',
   },
@@ -503,6 +550,12 @@ export default function HomeScreen() {
   // undefined = not fetched yet, null = fetched but no logged days this
   // week (nothing worth showing), object = real comparison.
   const [weekTrend, setWeekTrend] = useState<WeekTrend | null | undefined>(undefined);
+  // undefined = not fetched yet this session. See lib/homeSky.ts's own
+  // header comment for the real "no-location"/"unavailable"/"ready" states
+  // this can settle into. Moon phase and the next equinox/solstice are
+  // deliberately NOT state at all -- both are pure, synchronous, offline
+  // math (lib/celestialEvents.ts), computed directly in the render below.
+  const [skyResult, setSkyResult] = useState<HomeSkyResult | undefined>(undefined);
   // How many of FLIP_CARD_POOL's own today-shuffled order are currently
   // shown -- starts at 4 (the original fixed count), grows via the "show
   // more" card at the end. Intentionally NOT reset on focus/day change --
@@ -540,6 +593,15 @@ export default function HomeScreen() {
       const lastWeekCount = lastWeekPoints.length > 0 ? lastWeekPoints.reduce((sum, point) => sum + point.value, 0) : null;
       setWeekTrend({ thisWeekCount, lastWeekCount });
     });
+  }, []);
+
+  // Also kept separate from `load` -- this one makes a real network call
+  // (Open-Meteo) the first time it runs each day, and load() itself stays a
+  // pure local-database read. getHomeSkyData() already caches its own
+  // result per real calendar day, so every focus after the first on a given
+  // day resolves this from the local cache with no network at all.
+  const loadSkyData = useCallback(() => {
+    return getHomeSkyData().then(setSkyResult);
   }, []);
 
   const load = useCallback(() => {
@@ -633,7 +695,7 @@ export default function HomeScreen() {
     useCallback(() => {
       const isFirstLoad = !hasLoadedOnceRef.current;
       if (isFirstLoad) setLoading(true);
-      Promise.all([load(), loadWeekTrend()]).then(() => {
+      Promise.all([load(), loadWeekTrend(), loadSkyData()]).then(() => {
         if (!isFirstLoad) return;
         hasLoadedOnceRef.current = true;
         setLoading(false);
@@ -646,7 +708,7 @@ export default function HomeScreen() {
         markHomeDataReady();
         scrollRef.current?.scrollTo({ y: 0, animated: false });
       });
-    }, [load, loadWeekTrend]),
+    }, [load, loadWeekTrend, loadSkyData]),
   );
 
   // --- Today's Check-In (2026-08-08) -------------------------------------
@@ -796,6 +858,17 @@ export default function HomeScreen() {
   const visibleFlipCards = dailyFlipCardOrder.slice(0, visibleFlipCardCount).map((index) => FLIP_CARD_POOL[index]);
   const hasMoreFlipCards = visibleFlipCardCount < FLIP_CARD_POOL.length;
 
+  // Moon phase + the next equinox/solstice countdown: pure, synchronous,
+  // offline math (lib/celestialEvents.ts) -- always available, computed
+  // fresh on every render the same cheap way dailyFlipCardOrder etc.
+  // already are above, no loading state needed. Everything else in the sky
+  // row below (sunrise/sunset/UV/heat-freeze/AQI/pollen) depends on
+  // skyResult, which does need a real fetch -- see loadSkyData above.
+  const moonPhase = getMoonPhase();
+  const upcomingSeasonalMarker = getUpcomingSeasonalMarker();
+  const skyReady = skyResult?.status === 'ready' ? skyResult : null;
+  const topPollenReading = skyReady?.data.pollen[0] ?? null;
+
   return (
     <View style={styles.screen}>
       {infoAlertElement}
@@ -813,6 +886,82 @@ export default function HomeScreen() {
             </Text>
             <Text style={styles.affirmationText}>{pickAffirmation()}</Text>
             <Text style={styles.dateText}>{todayLabel}</Text>
+
+            <View style={styles.skyRow}>
+              <View style={styles.skyChip}>
+                <Text style={styles.skyChipText}>
+                  {moonPhase.emoji} {moonPhase.name}
+                </Text>
+              </View>
+              <View style={styles.skyChip}>
+                <Text style={styles.skyChipText}>
+                  {upcomingSeasonalMarker.emoji} {upcomingSeasonalMarker.shortName} in {upcomingSeasonalMarker.daysUntil}d
+                </Text>
+              </View>
+
+              {skyResult?.status === 'no-location' && (
+                <TouchableOpacity
+                  style={styles.skyChip}
+                  activeOpacity={0.85}
+                  onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } })}
+                >
+                  <Text style={styles.skyChipText}>📍 Set your location for sunrise, weather & UV →</Text>
+                </TouchableOpacity>
+              )}
+
+              {skyReady && (
+                <>
+                  {skyReady.data.sunrise && (
+                    <View style={styles.skyChip}>
+                      <Text style={styles.skyChipText}>🌅 {skyTimeLabel(skyReady.data.sunrise)}</Text>
+                    </View>
+                  )}
+                  {skyReady.data.sunset && (
+                    <View style={styles.skyChip}>
+                      <Text style={styles.skyChipText}>🌇 {skyTimeLabel(skyReady.data.sunset)}</Text>
+                    </View>
+                  )}
+                  {skyReady.data.uvIndexMax != null && (
+                    <View style={[styles.skyChip, { backgroundColor: skyChipBg(uvChipTone(uvBandForIndex(skyReady.data.uvIndexMax))) }]}>
+                      <Text style={[styles.skyChipText, { color: skyChipFg(uvChipTone(uvBandForIndex(skyReady.data.uvIndexMax))) }]}>
+                        ☀️ UV {skyReady.data.uvIndexMax}
+                      </Text>
+                    </View>
+                  )}
+                  {isForecastVeryHot(skyReady.data) && (
+                    <View style={[styles.skyChip, { backgroundColor: colors.statusRedBg }]}>
+                      <Text style={[styles.skyChipText, { color: colors.danger }]}>
+                        🥵 High {skyReady.data.tempMax}°{skyReady.data.tempUnit}
+                      </Text>
+                    </View>
+                  )}
+                  {isForecastFreezing(skyReady.data) && (
+                    <View style={[styles.skyChip, { backgroundColor: colors.statusYellowBg }]}>
+                      <Text style={[styles.skyChipText, { color: colors.statusYellow }]}>
+                        🥶 Low {skyReady.data.tempMin}°{skyReady.data.tempUnit}
+                      </Text>
+                    </View>
+                  )}
+                  {skyReady.data.usAqi != null && (
+                    <View style={[styles.skyChip, { backgroundColor: skyChipBg(aqiChipTone(aqiBandForIndex(skyReady.data.usAqi))) }]}>
+                      <Text style={[styles.skyChipText, { color: skyChipFg(aqiChipTone(aqiBandForIndex(skyReady.data.usAqi))) }]}>
+                        🌬️ AQI {skyReady.data.usAqi}
+                      </Text>
+                    </View>
+                  )}
+                  {topPollenReading && (
+                    <View style={styles.skyChip}>
+                      <Text style={styles.skyChipText}>
+                        🌾 {topPollenReading.label} pollen {topPollenReading.grainsPerCubicMeter}/m³
+                      </Text>
+                    </View>
+                  )}
+                  {skyReady.stale && (
+                    <Text style={styles.skyStaleNote}>Weather as of {skyReady.data.fetchedForDate}</Text>
+                  )}
+                </>
+              )}
+            </View>
           </View>
 
           {loading ? (
@@ -1440,6 +1589,25 @@ const styles = StyleSheet.create({
   greetingText: { ...typography.screenTitle, ...textShadow, color: colors.textPrimary },
   affirmationText: { ...typography.body, ...textShadow, color: colors.primary, marginTop: 2, fontStyle: 'italic' },
   dateText: { ...typography.body, ...textShadow, color: colors.textSecondary, marginTop: 2 },
+
+  // Moon phase / equinox-solstice / sunrise-sunset / UV / heat-freeze / AQI /
+  // pollen chips, 2026-08-17 -- same pill shape as feelingTagChip below, a
+  // real, already-established neutral chip look, not a new one invented for
+  // this feature. Individual chips override backgroundColor/color inline
+  // per their own real severity tone (see skyChipBg/skyChipFg above); most
+  // chips (moon phase, equinox countdown, sunrise, sunset, pollen) have
+  // nothing to color-code and just use this plain, neutral base.
+  skyRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 10 },
+  skyChip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    backgroundColor: colors.surfaceMuted,
+  },
+  skyChipText: { ...typography.caption, color: colors.textPrimary },
+  skyStaleNote: { ...typography.caption, color: colors.textMuted, alignSelf: 'center' },
 
   // Used to precede every content card on this page as its own separate
   // box -- 2026-07-26, folded into each of those cards instead (see
