@@ -54,6 +54,20 @@ import type { TabHubIconChoice } from '../lib/visualPreferences';
 // needed to change once this became Partial.
 export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourcePropType>> = {
   default: require('../assets/branding/butterfly-transparent.png'),
+  // 'seed', 2026-08-19 -- the app's own new real default (see
+  // TabHubIconChoice's own comment in lib/visualPreferences.ts). Cropped
+  // and background-removed from a real, user-approved seed illustration via
+  // the same isolated jimp scratchpad methodology as every other icon in
+  // this file: a real flood-fill from the navy background (the source
+  // image had no genuine alpha channel of its own -- its "transparent"
+  // panel was a baked opaque checkerboard, confirmed via direct pixel
+  // sampling, not assumed), a real connected-component pass to drop one
+  // small stray UI artifact (a leftover sparkle icon from the generation
+  // tool's own interface, 870px vs. the real seed's 209,047px), then
+  // downsized to 212x312 -- a real 4x safety margin above
+  // TAB_HUB_ICON_FIXED_HEIGHT's own 78px render ceiling, the same
+  // precedent every other cropped-icon batch in this file already follows.
+  seed: require('../assets/branding/seed-transparent.png'),
   honeybee: require('../assets/branding/garden-icons/honeybee.png'),
   bumblebee: require('../assets/branding/garden-icons/bumblebee.png'),
   dragonfly: require('../assets/branding/garden-icons/dragonfly.png'),
@@ -187,9 +201,14 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // 'default' -- the plain butterfly, relabeled "Graves' / Hashimoto's" in
   // Profile's own picker 2026-08-14 and no longer the app's own actual
   // out-of-the-box choice (DEFAULT_VISUAL_PREFERENCES.tabHubIcon is now
-  // 'honeybee', see lib/visualPreferences.ts) -- the key/asset/dimensions
-  // themselves are unchanged, only which choice a fresh install starts on.
+  // 'seed', 2026-08-19, see lib/visualPreferences.ts) -- the key/asset/
+  // dimensions themselves are unchanged, only which choice a fresh install
+  // starts on.
   default: [464, 312],
+  // 'seed' -- the app's own new real default, 2026-08-19. Real, individually
+  // measured off the actual final cropped file (see TAB_HUB_ICON_SOURCES's
+  // own comment above for the real crop/background-removal process).
+  seed: [212, 312],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
   // same jimp-based methodology as every other entry in this table, not

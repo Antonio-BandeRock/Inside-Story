@@ -146,13 +146,20 @@ export type FoodBuilderIconChoice = 'dessertBuilder';
 // one of the 8 real, non-condition garden/pollinator icons above; any
 // AnimalIconChoice (added 2026-08-14) picks one of the 38 real animal-head
 // portraits above; any FoodBuilderIconChoice (added 2026-08-14) picks one of
-// the Food tab's own builder icons. Only one choice at a time -- a plain
-// scalar field, not a set. Imported here as a type-only import (erased at
-// compile time, so no real runtime dependency on lib/digest/index.ts's own
-// much larger content-aggregation module -- the same precedent already
-// established for sixDimensionsReference.ts's own type-only import into
-// lib/db.ts).
-export type TabHubIconChoice = 'default' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
+// the Food tab's own builder icons. 'seed' (added 2026-08-19) is the app's
+// own new real default -- a single sprouting seed, chosen deliberately over
+// re-using any one tracked condition's icon or the original butterfly,
+// since the app's real scope reaches well past the 19 conditions (food,
+// garden, the gut/soil microbiome research thread) and a seed/sprout reads
+// as "something small taking root and growing" for the whole app, not any
+// one part of it -- see the real, verified asset at
+// assets/branding/seed-transparent.png and CLAUDE.md's own dated entry for
+// the full reasoning. Only one choice at a time -- a plain scalar field,
+// not a set. Imported here as a type-only import (erased at compile time,
+// so no real runtime dependency on lib/digest/index.ts's own much larger
+// content-aggregation module -- the same precedent already established for
+// sixDimensionsReference.ts's own type-only import into lib/db.ts).
+export type TabHubIconChoice = 'default' | 'seed' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
 
 // A set of calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for
@@ -244,7 +251,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   tabBackgroundStyle: {},
   customBackgroundImages: {},
   genericPalette: 'lavender',
-  tabHubIcon: 'honeybee',
+  tabHubIcon: 'seed',
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
