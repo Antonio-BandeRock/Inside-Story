@@ -230,6 +230,48 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     relatedIds: ['vitamina-overview'],
   },
   {
+    // 2026-08-19, direct request to cover chickpeas' resistant starch
+    // content and its role in butyrate production, plus the "gas is
+    // temporary" adaptation point. A first-pass search claimed a real
+    // 3-week canned-chickpea human trial found a non-significant decrease
+    // in fecal acetate/butyrate, contradicted by a second, more careful
+    // search of the same underlying paper (PMID 21831757). Re-verified
+    // directly via a third, targeted search that returned the paper's own
+    // real, positive finding (increased Faecalibacterium prausnitzii, a
+    // known butyrate producer) and the correct author list, resolving the
+    // discrepancy before either version was trusted, the same discipline
+    // already used repeatedly elsewhere in this Digest's build.
+    id: 'produce-chickpeas',
+    category: 'basicHealth',
+    title: 'Chickpeas: A Resistant Starch That Reaches the Colon Intact, and the Temporary Gas That Comes With It',
+    teaser: "The same undigested starch that can cause gas early on is what gut bacteria ferment into butyrate, the short-chain fatty acid research finds does the most for the gut lining and for calming inflammation.",
+    summary:
+      "Chickpeas carry a meaningful amount of resistant starch, the fraction of a food's starch that resists breakdown in the small intestine and reaches the colon largely intact. That's the practical reason chickpeas can cause noticeable gas: the same starch a typical meal would otherwise digest and absorb higher up in the gut instead becomes food for the trillions of bacteria living in the colon. What those bacteria do with it is the point. Fermenting resistant starch is one of the most reliable ways to produce short-chain fatty acids, and butyrate specifically stands out among them, the primary fuel source for the cells lining the colon, and, per a recent narrative review, the most potent of the three main short-chain fatty acids at inhibiting an enzyme (HDAC) tied to calming inflammatory gene activity, directly building on the Treg-induction mechanism this app's own Gut & Microbiome research already covers. How chickpeas are prepared changes how much resistant starch actually reaches the colon: a controlled trial in 12 healthy adults found cooking chickpea pasta and then cooling it for 24 hours before reheating roughly doubled its resistant starch content, from 1.83 to 3.65 grams per 100 grams, and produced a measurably lower blood sugar response than eating it freshly cooked. A separate randomized trial in 12 healthy adults giving 200 grams of canned chickpeas a day for three weeks found it increased the abundance of Faecalibacterium prausnitzii, a specific, efficient, well-studied butyrate-producing gut bacterium, while reducing a group of putrefactive and pathogenic bacteria at the same time. And the gas itself does tend to ease. Research on a different, well-studied fiber found symptoms peaked in the first few weeks of a higher intake and returned to baseline by the end of a six-week trial, with the degree of that adaptation tied to a person's own starting gut bacteria, the same general pattern behind the common advice to increase fiber intake gradually rather than all at once.",
+    citations: [
+      {
+        source: 'Bojarczuk A, Kęszycka P, Marszałek K, Gajewska D. 2024, Metabolites: cooking and cooling chickpea pasta, resistant starch content, and glycemic response in healthy adults',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11596303/',
+      },
+      {
+        source: 'Fernando WMU, Hill JE, Zello GA, Tyler RT, Dahl WJ, Van Kessel AG. 2010, Beneficial Microbes: diets supplemented with chickpea or its main oligosaccharide component raffinose modify faecal microbial composition in healthy adults',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/21831757/',
+      },
+      {
+        source: "Kalkan AE, et al. 2025, Nutrients: Beyond the Gut, unveiling butyrate's global health impact through gut health and dysbiosis-related conditions, a narrative review",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/40284169/',
+      },
+      {
+        source: 'Deehan EC, et al. 2024, Gut Microbes: adaptation to tolerate high doses of arabinoxylan is associated with fecal levels of Bifidobacterium longum',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/38860973/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote:
+      'The cooking-and-cooling and Faecalibacterium prausnitzii findings both come from controlled human trials on chickpeas specifically. The gas-adaptation citation studied a different fiber (arabinoxylan, not chickpea resistant starch) to illustrate the same general pattern, not a chickpea-specific trial of that exact question.',
+    relatedFoodNames: ['Chickpeas (garbanzo beans, bengal gram)'],
+    relatedIds: ['gut-scfa-treg', 'carbfiber-intake-gap'],
+  },
+  {
     id: 'produce-almonds',
     category: 'basicHealth',
     title: 'Almonds: A Concentrated Vitamin E and Healthy-Fat Source, and a Tree Nut Allergen',
@@ -263,19 +305,36 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     relatedIds: ['omega36-overview'],
   },
   {
+    // 2026-08-19, direct request to check whether whole vs. ground chia
+    // seeds affects digestion/absorption the same way this file's own
+    // adjacent flaxseed entry already covers. Both new citations
+    // independently verified via WebSearch, with consistent design/results
+    // across multiple independent aggregations before being trusted, given
+    // both PubMed and the journal hosts blocked a direct fetch (the same
+    // fallback already used elsewhere in this Digest's build).
     id: 'produce-chia-seeds',
     category: 'basicHealth',
-    title: 'Chia Seeds: A Fiber-and-Omega-3 Combination, and a Choking Caution When Eaten Dry',
-    teaser: 'Chia seeds carry a substantial soluble fiber content that expands dramatically in liquid, exactly the mechanism behind a documented choking hazard when eaten dry.',
-    summary: 'Chia seeds carry meaningful fiber (mostly soluble), plant-based ALA omega-3, and calcium content for their size, and their soluble fiber has a distinctive property: it absorbs many times its own weight in liquid, forming a gel, which is both the mechanism behind the popular chia pudding texture and a documented safety consideration. Swallowing dry chia seeds followed immediately by liquid, or swallowing them without adequately chewing or pre-soaking, has documented case reports of the seeds expanding in the esophagus and causing a choking or blockage hazard, the practical, well-established fix is simply soaking chia seeds in liquid for at least several minutes before eating them, which is already how they\'re used in the Smoothie Builder and similar recipes, not a reason to avoid them.',
+    title: "Chia Seeds: A Choking Caution When Dry, and Why Whole Doesn't Absorb Like Ground",
+    teaser: "Chia's soluble fiber expands dramatically in liquid, a documented choking hazard when eaten dry, and the same tough outer coat behind that hazard also means whole seeds don't raise blood omega-3 levels the way ground seeds do.",
+    summary:
+      "Chia seeds carry meaningful fiber (mostly soluble), plant-based ALA omega-3, and calcium content for their size, and their soluble fiber has a distinctive property: it absorbs many times its own weight in liquid, forming a gel, which is both the mechanism behind the popular chia pudding texture and a documented safety consideration. Swallowing dry chia seeds followed immediately by liquid, or swallowing them without adequately chewing or pre-soaking, has documented case reports of the seeds expanding in the esophagus and causing a choking or blockage hazard, the practical, well-established fix is simply soaking chia seeds in liquid for at least several minutes before eating them, which is already how they're used in the Smoothie Builder and similar recipes, not a reason to avoid them. Whether whole or ground makes an absorption difference has an actual controlled answer: a randomized trial in 62 postmenopausal women gave whole chia, milled (ground) chia, or a placebo seed, 25 grams a day for 10 weeks, and found milled chia significantly raised plasma ALA and EPA, the two omega-3 compounds chia actually delivers, while the whole-chia group showed no significant change from placebo. A separate, smaller trial giving 25 grams a day of milled chia specifically found plasma ALA climbing 138% above baseline and EPA 30% above baseline within seven weeks, a concrete, quantified sense of how much a milled dose can actually move blood omega-3 levels. Chia's own outer seed coat appears to be the limiting factor: swallowed intact, much of what's packed inside a chia seed likely never gets broken down enough for the body to absorb it, the same reasoning already established for flaxseed. Soaking a whole chia seed until it forms its own gel coat softens it, but a blender or spice grinder is the more reliable way to actually access its omega-3 content, not just its fiber.",
     citations: [
       {
         source: 'Bulman et al. 2016, Case Reports in Emergency Medicine: esophageal obstruction from dry chia seed ingestion',
         url: 'https://pubmed.ncbi.nlm.nih.gov/27110409/',
       },
+      {
+        source: 'Nieman DC, Shanely RA, et al. 2012, Journal of Alternative and Complementary Medicine: chia seed supplementation (whole vs. milled) and disease risk factors in overweight women',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/22830971/',
+      },
+      {
+        source: 'Jin F, Nieman DC, et al. 2012, Plant Foods for Human Nutrition: supplementation of milled chia seeds increases plasma ALA and EPA in postmenopausal women',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/22538527/',
+      },
     ],
     overallTier: 'moderate',
     relatedFoodNames: ['Chia seeds'],
+    relatedIds: ['produce-flaxseed'],
   },
   {
     id: 'produce-flaxseed',
@@ -292,7 +351,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     relatedFoodNames: ['Flaxseed Seeds', 'Seed, linseed or flaxseed'],
-    relatedIds: ['choline-overview'],
+    relatedIds: ['choline-overview', 'produce-chia-seeds'],
   },
   {
     id: 'produce-closing',

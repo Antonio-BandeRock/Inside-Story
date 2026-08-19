@@ -215,7 +215,31 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['lifestyle-chronic-stress-hpa', 'organ-liver-t4t3-conversion', 'sleep-inflammation-cytokine-mechanism', 'mito-sugar-visceral-fat-cytokine-chain'],
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'organ-liver-t4t3-conversion', 'sleep-inflammation-cytokine-mechanism', 'mito-sugar-visceral-fat-cytokine-chain', 'lifestyle-synbiotic-il6-vijay-2025'],
+  },
+  {
+    // 2026-08-19, direct request to research Vijay A et al. 2025, Journal
+    // of Translational Medicine, DOI 10.1186/s12967-025-07167-x. PubMed
+    // itself and the journal's own Springer-hosted page both blocked a
+    // direct fetch; verified instead via the article's own PMC mirror
+    // (PMC12529832), quoting the abstract, the exact IL-6 effect size and
+    // p-value, and the butyrate correlation verbatim.
+    id: 'lifestyle-synbiotic-il6-vijay-2025',
+    category: 'hashimotos',
+    title: 'A Direct Answer to What Actually Lowers IL-6: Kefir Plus Fiber Beat Fiber or Omega-3 Alone',
+    teaser: "The entry above this one covers what elevated IL-6 does to thyroid hormone. A 2025 randomized trial gives a food-first, quantified answer to what actually brings it down.",
+    summary:
+      "This category already covers what IL-6 does once it's elevated: it directly suppresses the enzymes that convert inactive T4 into active T3. A 2025 randomized trial from the University of Nottingham gives a direct, quantified answer to what actually lowers it. A hundred and four adults were split into four groups for six weeks: a synbiotic (170 milliliters of fermented kefir plus 10 grams of a prebiotic fiber blend daily), omega-3 (500 milligrams daily), inulin fiber alone (20 grams daily), or no supplement at all. Serum was profiled across 96 different inflammatory proteins. All three interventions lowered inflammation compared to no supplement, but the kefir-plus-fiber synbiotic produced the broadest and largest reductions of the three, including a statistically significant drop in IL-6 itself (Cohen's d = -0.88, p = 0.01) that neither omega-3 nor fiber alone reached on its own. The trial's own researchers traced a specific mechanism behind it: the rise in a short-chain fatty acid called butyric acid (butyrate) tracked directly with the IL-6 drop (r = -0.57, p = 0.01), the same butyrate-driven immune-signaling mechanism this app's own gut-microbiome research already names as the most food-controllable lever available. Kefir supplies live bacteria, the prebiotic fiber feeds them, and together they appear to produce more of the actual metabolite doing the work than either ingredient manages alone.",
+    citations: [
+      {
+        source: "Vijay A, Simpson L, Tooley M, et al. 2025, Journal of Translational Medicine: the anti-inflammatory effects of three different dietary supplement interventions",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/41094562/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote:
+      "A single, well-designed trial with FDR-corrected statistical significance, not yet independently replicated. Group sizes ran 20 to 33 people each, meaningful but modest, the kind of finding worth tracking as more research accumulates rather than treating as a settled, universal recommendation yet.",
+    relatedIds: ['lifestyle-il6-deiodinase', 'gut-scfa-treg', 'fermented-milk-kefir'],
   },
   {
     id: 'lifestyle-smoking-paradox',

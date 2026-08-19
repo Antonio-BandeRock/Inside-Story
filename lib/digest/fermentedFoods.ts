@@ -173,6 +173,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
+    relatedIds: ['lifestyle-synbiotic-il6-vijay-2025'],
   },
   {
     id: 'fermented-beet-kvass',
