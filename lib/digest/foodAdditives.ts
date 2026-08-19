@@ -1,6 +1,6 @@
 import type { DigestEntry } from './types';
 
-// Food Additives -- 18 entries, the most consumer-legible category to start
+// Food Additives -- 19 entries, the most consumer-legible category to start
 // with (dose/mechanism specifics exist for most of these, not just a
 // vague "avoid processed food" gesture). Deliberately includes both
 // genuine concerns AND at least one honest "generally fine" entry
@@ -263,7 +263,42 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A large-scale synthesis of already-published meta-analyses, not new primary research, and the paper itself states no outcome reached "convincing" quality anywhere in the review.',
-    relatedIds: ['additive-hfcs', 'mito-sugar-visceral-fat-cytokine-chain', 'gout-fructose-sugar-drinks', 'problem-sugar-sweetened-beverages'],
+    relatedIds: ['additive-hfcs', 'mito-sugar-visceral-fat-cytokine-chain', 'gout-fructose-sugar-drinks', 'problem-sugar-sweetened-beverages', 'additive-upf-convincing-evidence-class-i'],
+  },
+  {
+    // 2026-08-19, direct request to research Lane et al. 2024, BMJ (PMID
+    // 38418082) as a real Digest source, and check whether its specific
+    // cardiovascular-mortality/type-2-diabetes numbers were already covered.
+    // They weren't: the existing citations of this same paper (in this file's
+    // own additive-tying-together entry, problem-commercial-premade in
+    // problemFoods.ts, lifestyle-ultra-processed-food in
+    // lifestyleEnvironment.ts, and diet-anti-processed in popularDiets.ts)
+    // all only ever state the vague "32 outcomes, ~10 million people"
+    // headline, never the paper's own actual "class I convincing" tier
+    // findings or their exact numbers. This entry adds that real depth
+    // rather than duplicating the existing, correctly-worded framing.
+    // Deliberately paired right after the sugar-review entry above it: two
+    // 2023/2024 umbrella reviews, side by side, landing on genuinely
+    // different evidence-quality verdicts, a useful direct contrast.
+    id: 'additive-upf-convincing-evidence-class-i',
+    category: 'basicHealth',
+    title: 'Ultra-Processed Food\'s Own Umbrella Review: Four Outcomes Reached the Top Evidence Tier',
+    teaser: 'Unlike the sugar review sitting right above this one, four ultra-processed-food outcomes reached the top "convincing" tier, including cardiovascular mortality and type 2 diabetes, each with a specific, checkable number attached.',
+    summary:
+      "The already-cited 2024 umbrella review behind this app's own repeated \"nearly 10 million people, 32 outcomes\" framing has more specific numbers worth knowing than that headline alone conveys. It pooled 45 separate meta-analyses covering 9,888,373 people, and found a statistically significant direct association between ultra-processed food exposure and 32 of those 45 outcomes (71%). Of those 32, four reached the review's own top classification, \"convincing\" (class I) evidence: cardiovascular disease-related mortality (risk ratio 1.50, 95% confidence interval 1.37 to 1.63), type 2 diabetes in a dose-response analysis (risk ratio 1.12, 1.11 to 1.13), anxiety (odds ratio 1.48, 1.37 to 1.59), and common mental disorder outcomes combined (odds ratio 1.53, 1.43 to 1.63). Seven more reached a second tier, \"highly suggestive\" (class II), including all-cause mortality (risk ratio 1.21), heart disease-related mortality (hazard ratio 1.66), type 2 diabetes without the dose-response requirement (odds ratio 1.40), depression (hazard ratio 1.22), adverse sleep outcomes (odds ratio 1.41), wheezing (risk ratio 1.40), and obesity (odds ratio 1.55). Worth being precise about what \"class I convincing\" actually measures here: it's a rating of how strong and consistent an association is across the underlying meta-analyses (sample size, statistical significance, freedom from small-study bias), a different axis from GRADE certainty, which rates how trustworthy the underlying evidence itself is. Type 2 diabetes's own class I finding still carried only \"moderate\" GRADE certainty, and anxiety's only \"low.\" Independent reviewers reacting to the same paper made this point directly: even the top-tier findings here rest on observational data with residual confounding still in play, exactly the concern the paper's own authors raise too. \"Convincing\" and \"proven\" aren't the same claim.",
+    citations: [
+      {
+        source: 'Lane et al. 2024, BMJ: ultra-processed food exposure and adverse health outcomes, umbrella review',
+        url: 'https://doi.org/10.1136/bmj-2023-077310',
+      },
+      {
+        source: 'Science Media Centre, expert reaction to the Lane et al. 2024 umbrella review on ultra-processed food and adverse health outcomes',
+        url: 'https://www.sciencemediacentre.org/expert-reaction-to-umbrella-review-looking-at-ultra-processed-food-exposure-and-adverse-health-outcomes/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The review\'s own "class I convincing" label describes the strength and consistency of an association across many pooled studies, not a guarantee of high-certainty proof. Even its top-tier outcomes carried only moderate or low GRADE evidence quality individually, and observational data of this kind cannot fully rule out residual confounding, a limitation the paper\'s own authors state directly.',
+    relatedIds: ['additive-sugar-umbrella-review-45-outcomes', 'problem-commercial-premade', 'lifestyle-ultra-processed-food', 'diet-anti-processed'],
   },
   {
     id: 'additive-azodicarbonamide',
@@ -327,9 +362,9 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-tying-together',
     category: 'basicHealth',
-    title: 'Tying It All Together: One Pattern Across These 18',
-    teaser: 'Read individually these look like 18 separate dangers. Read together, one pattern explains most of them.',
-    summary: "Read one at a time, these 18 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what the longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
+    title: 'Tying It All Together: One Pattern Across These 19',
+    teaser: 'Read individually these look like 19 separate dangers. Read together, one pattern explains most of them.',
+    summary: "Read one at a time, these 19 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what the longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
     citations: [
       {
         source: 'Lane et al. 2024, BMJ: ultra-processed food exposure and adverse health outcomes, umbrella review',
@@ -337,6 +372,6 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['problem-commercial-premade', 'lifestyle-ultra-processed-food'],
+    relatedIds: ['problem-commercial-premade', 'lifestyle-ultra-processed-food', 'additive-upf-convincing-evidence-class-i'],
   },
 ];

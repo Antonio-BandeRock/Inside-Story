@@ -96,7 +96,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'MetALD: New Perspectives on an Old Overlooked Disease', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC11967760/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-alcohol-advisory'],
+    relatedIds: ['lifestyle-alcohol-advisory', 'lifestyle-alcohol-gbd-no-safe-level'],
   },
   {
     id: 'masld-resmetirom',

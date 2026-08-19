@@ -254,6 +254,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         url: 'https://doi.org/10.1136/bmj-2023-077310',
       },
     ],
+    relatedIds: ['additive-upf-convincing-evidence-class-i'],
   },
   {
     id: 'problem-conventional-high-pesticide-produce',

@@ -56,7 +56,32 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['lifestyle-chronic-stress-hpa', 'masld-metald-alcohol-threshold', 'lifestyle-alcohol-liver-metabolism'],
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'masld-metald-alcohol-threshold', 'lifestyle-alcohol-liver-metabolism', 'lifestyle-alcohol-gbd-no-safe-level'],
+  },
+  {
+    // 2026-08-19, direct request to research Griswold et al. 2018 (the GBD
+    // 2016 Alcohol Collaborators, Lancet, PMID 30146330) as a real Digest
+    // source. Every figure below verified directly against the paper's own
+    // PMC full text, not a search summary. Deliberately basicHealth, not
+    // hashimotos: this is a whole-population, all-cause/all-disease burden
+    // analysis, a genuinely different question from lifestyle-alcohol-advisory's
+    // own Hashimoto's-specific antibody-development finding right above it,
+    // cross-linked both directions so neither reads as contradicting the other.
+    id: 'lifestyle-alcohol-gbd-no-safe-level',
+    category: 'basicHealth',
+    title: 'At a Population Level, the Alcohol Amount That Minimizes Harm Is Zero',
+    teaser: 'The largest global alcohol-burden study ever done found risk rising with every additional drink for nearly every outcome measured, including all cancers, outweighing alcohol\'s own small protective effect on heart disease.',
+    summary:
+      "The Global Burden of Disease Study's 2018 alcohol analysis remains the largest and most cited study of its kind: 694 studies to estimate how common drinking actually is, and 592 studies covering 28 million people to measure its health effects, across 195 countries from 1990 to 2016. Its own stated conclusion is blunt: the level of alcohol consumption that minimized harm across every health outcome measured was zero standard drinks per week (95% uncertainty interval 0.0 to 0.8). In 2016 alone, 2.8 million deaths worldwide (95% UI 2.4 to 3.3 million) were attributed to alcohol use, accounting for 2.2% of age-standardized female deaths and 6.8% of age-standardized male deaths. Among people aged 15 to 49, alcohol use was the single leading risk factor for death and disability worldwide that year, ahead of every other cause the study measured. The mechanism behind the \"zero\" conclusion is worth understanding on its own, not just the headline number: for nearly every outcome studied, including all cancers, relative risk rose steadily with each additional drink, with no threshold below which risk stopped climbing. Ischaemic heart disease was the one confirmed exception, showing a small protective effect around 0.8 to 0.9 drinks a day, but that modest cardiac benefit was outweighed once summed against the rising cancer and other risks across the population as a whole, which is exactly how a study can find a small individual benefit for one disease and still land on zero as the aggregate answer.",
+    citations: [
+      {
+        source: 'Griswold MG, et al. 2018 (GBD 2016 Alcohol Collaborators), The Lancet: Alcohol use and burden for 195 countries and territories, 1990-2016',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/30146330/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A population-level finding about aggregate risk summed across every disease outcome studied at once, not a claim that any single moderate drink carries meaningful risk in isolation. It answers a different question from the Hashimoto\'s-specific finding covered elsewhere in this Digest, which looked at antibody development and progression to overt hypothyroidism specifically, not all-cause mortality or cancer risk across a whole population.',
+    relatedIds: ['lifestyle-alcohol-advisory', 'lifestyle-alcohol-liver-metabolism', 'masld-metald-alcohol-threshold'],
   },
   {
     id: 'lifestyle-coffee-milk-antioxidants',
@@ -149,7 +174,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['problem-commercial-premade'],
+    relatedIds: ['problem-commercial-premade', 'additive-upf-convincing-evidence-class-i'],
   },
   {
     id: 'lifestyle-sleep-circadian',
@@ -347,7 +372,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       ],
       sourceNote: 'Siler et al. 1999, American Journal of Clinical Nutrition',
     },
-    relatedIds: ['lifestyle-alcohol-advisory', 'masld-metald-alcohol-threshold'],
+    relatedIds: ['lifestyle-alcohol-advisory', 'masld-metald-alcohol-threshold', 'lifestyle-alcohol-gbd-no-safe-level'],
   },
   {
     id: 'lifestyle-tying-together',
