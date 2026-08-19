@@ -144,7 +144,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedFoodNames: ['Broccoli', 'Cabbage'],
-    relatedIds: ['problem-raw-cruciferous', 'produce-broccoli-sprouts-sulforaphane', 'cvd-legumes-cruciferous-sex-specific-young-adults'],
+    relatedIds: ['problem-raw-cruciferous', 'produce-broccoli-sprouts-sulforaphane', 'cvd-legumes-cruciferous-sex-specific-young-adults', 'produce-mustard-powder-myrosinase-restoration'],
   },
   {
     // 2026-08-19, direct request to cover sulforaphane and broccoli
@@ -178,7 +178,42 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     stageNote:
       'The foundational sprout-concentration finding and its underlying Keap1-Nrf2 mechanism are both well-established and widely replicated. The clinical asthma trial adds an honest, quantified example of how that mechanism plays out in actual patients, including its own honest limit: the benefit only showed up in six of every ten participants tested, not all of them.',
     relatedFoodNames: ['Broccoli Sprouts (Raw)', 'Broccoli'],
-    relatedIds: ['produce-cruciferous', 'prostate-cruciferous-sulforaphane', 'problem-raw-cruciferous'],
+    relatedIds: ['produce-cruciferous', 'prostate-cruciferous-sulforaphane', 'problem-raw-cruciferous', 'produce-mustard-powder-myrosinase-restoration'],
+  },
+  {
+    // 2026-08-19, direct question: is adding mustard powder back to boiled
+    // cruciferous vegetables a real way to add back what boiling took out,
+    // or not a real thing. Confirmed real via a randomized, controlled human
+    // trial (Okunade et al. 2018) that this app's own existing Digest
+    // content had never covered. The primary PubMed/institutional-repository
+    // pages were consistently blocked (a cookie wall, an anti-bot service,
+    // and a paywall in turn), so the trial's own exact numbers were verified
+    // by requiring two independent search aggregations to converge on the
+    // identical specific figures before trusting them. The Fahey 2015 PLOS
+    // ONE bioavailability paper cited alongside it was fetched directly and
+    // confirmed a different specific claim (a real ~37%/3.4% raw-vs-cooked
+    // figure) had never actually been confirmed and was left out.
+    id: 'produce-mustard-powder-myrosinase-restoration',
+    category: 'basicHealth',
+    title: 'Mustard Powder Sprinkled on Cooked Broccoli Restores Most of What Boiling Took Away',
+    teaser: "Cooking deactivates the enzyme cruciferous vegetables need to unlock their own sulforaphane. A small, controlled human trial found sprinkling powdered mustard seed onto already-cooked broccoli restored most of that lost activity, more than quadrupling how much sulforaphane the body actually absorbed.",
+    summary:
+      "The Problem Foods research already covers why cooking cruciferous vegetables cuts their goitrogenic effect: heat deactivates myrosinase, the enzyme that unlocks glucosinolates once a plant's tissue is damaged. The same deactivation cuts both ways, not just a benefit, since myrosinase is also what converts glucoraphanin into sulforaphane, the compound behind most of broccoli's own cancer-prevention research. A randomized crossover trial run at the University of Reading tested a direct fix: twelve healthy adults ate 200 grams of cooked broccoli either alone or with 1 gram of powdered brown mustard seed sprinkled on afterward. Mean urinary sulforaphane metabolite excretion was 9.8 ± 5.1 μmol per gram of creatinine with cooked broccoli alone, and 44.7 ± 33.9 μmol per gram of creatinine with the added mustard powder, over four times greater. Mustard seed is itself a rich, unheated source of active myrosinase, and sprinkling it onto food that's already been cooked (rather than mixing it in before boiling, which would just deactivate the added enzyme too) lets it do the same job the vegetable's own enzyme would have done raw. Gut bacteria can perform a similar conversion on their own even with no myrosinase added at all, but nowhere near as efficiently: a separate study from the same Johns Hopkins lab behind the original broccoli-sprout discovery found sulforaphane bioavailability from glucoraphanin ran around 10% without active myrosinase present, compared with roughly 35 to 40% when active myrosinase was there to do the conversion directly, a range consistent with what the mustard trial itself found. Jed Fahey, the same researcher behind that Johns Hopkins work, has separately described daikon radish as another myrosinase source worth adding this same way, and one with an advantage of its own: daikon lacks the enzymes broccoli itself carries that can redirect the reaction toward less useful nitrile byproducts instead of sulforaphane. That daikon-specific claim comes from Fahey's own stated professional practice, not a separate controlled trial the way the mustard-and-broccoli finding is, worth keeping in mind as a difference in how solidly each is established.",
+    citations: [
+      {
+        source: "Okunade O, Niranjan K, Ghawi SK, Kuhnle G, Methven L. 2018, Molecular Nutrition & Food Research: Supplementation of the Diet by Exogenous Myrosinase via Mustard Seeds to Increase the Bioavailability of Sulforaphane in Healthy Human Subjects after the Consumption of Cooked Broccoli",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/29806738/',
+      },
+      {
+        source: 'Fahey JW, Holtzclaw WD, Wehage SL, Wade KL, Stephenson KK, Talalay P. 2015, PLOS ONE: Sulforaphane Bioavailability from Glucoraphanin-Rich Broccoli: Control by Active Endogenous Myrosinase',
+        url: 'https://journals.plos.org/plosone/article?id=10.1371%2Fjournal.pone.0140963',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote:
+      "The mustard-and-broccoli finding comes from a randomized, controlled human trial, small at twelve participants, the honest reason this sits at moderate rather than strong. The daikon-radish alternative is Fahey's own stated professional practice from building broccoli-sprout extracts, not itself a separate controlled trial, and is presented here at that lower confidence level rather than treated as equally settled.",
+    relatedFoodNames: ['Broccoli', 'Spices, mustard seed, ground'],
+    relatedIds: ['produce-broccoli-sprouts-sulforaphane', 'produce-cruciferous', 'problem-raw-cruciferous'],
   },
   {
     id: 'produce-garlic-onion',
