@@ -142,6 +142,7 @@ export const NEUROGENESIS_ENTRIES: DigestEntry[] = [
       'cvd-myocardial-ischemia-neurogenesis-impairment',
       'ms-hippocampal-neurogenesis-demyelination-distinct-remyelination',
       'ibd-gut-inflammation-hippocampal-neurogenesis',
+      'body-brain-processed-meat-dementia-uk-biobank',
     ],
   },
 ];

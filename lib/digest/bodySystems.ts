@@ -176,7 +176,46 @@ export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     stageNote: 'Both the DHA/brain-lipid composition and the iodine/neurodevelopment findings are well-established, widely replicated science, not preliminary or contested.',
-    relatedIds: ['omega36-tying-together', 'iodine-deficiency-global-real-data', 'body-tying-together'],
+    relatedIds: ['omega36-tying-together', 'iodine-deficiency-global-real-data', 'body-tying-together', 'body-brain-processed-meat-dementia-uk-biobank'],
+  },
+  {
+    // 2026-08-19, direct request to research UK Biobank as a real Digest
+    // source for processed meat specifically. Both hazard ratios below
+    // independently corroborated across two separately-fetched sources
+    // (Neuroscience News' own direct coverage and an aggregated search
+    // summary) after PubMed, PMC, and the journal's own page all blocked a
+    // direct fetch this session -- the pattern this app already documents
+    // and works around elsewhere, not treated as a reason to guess.
+    id: 'body-brain-processed-meat-dementia-uk-biobank',
+    category: 'basicHealth',
+    title: 'A Single Cohort, Two Directions: Processed Meat and Unprocessed Red Meat Moved Dementia Risk Oppositely',
+    teaser: 'One rasher of bacon a day tracked with a 44% higher dementia risk. The same cohort found unprocessed red meat tracking with lower risk, in the opposite direction.',
+    summary:
+      "The same UK Biobank cohort that put a number on processed meat and colorectal cancer (see the Food Additives entry on nitrates and nitrites) has also been used to study dementia directly, and the result draws a clean line between two foods often lumped together as \"meat.\" Following 493,888 UK adults for a mean of about 8 years, researchers identified 2,896 incident cases of all-cause dementia. Each additional 25 grams a day of processed meat, about one rasher of bacon, tracked with a 44% higher risk of all-cause dementia (hazard ratio 1.44, 95% CI 1.24 to 1.67) and a 52% higher risk of Alzheimer's disease specifically (hazard ratio 1.52, 95% CI 1.18 to 1.96). Unprocessed red meat moved the opposite way in the same cohort: each additional 50 grams a day tracked with a 19% lower risk of all-cause dementia (hazard ratio 0.81, 95% CI 0.69 to 0.95) and a 30% lower risk of Alzheimer's disease (hazard ratio 0.70, 95% CI 0.53 to 0.92). Worth stating plainly: this is one large observational cohort, built on self-reported diet and diagnosis codes pulled from health records, not a controlled trial, so it can show a measured association without proving processed meat itself causes dementia. What it does establish cleanly is that \"meat\" isn't one category for this purpose. Processing, not the animal protein itself, is the variable moving in both directions at once.",
+    citations: [
+      {
+        source: "Zhang et al. 2021, American Journal of Clinical Nutrition: Meat consumption and risk of incident dementia, cohort study of 493,888 UK Biobank participants",
+        url: 'https://pubmed.ncbi.nlm.nih.gov/33748832/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A single, very large, well-powered observational cohort, directly relevant here, but observational data of this kind still can\'t establish that processed meat itself causes dementia, only that the two tracked together in this population.',
+    chart: {
+      title: 'Same Cohort, Same 25 g/Day Increment: Dementia Risk Increase for Processed Meat',
+      unit: '%',
+      data: [
+        { label: 'All-cause dementia', value: 44 },
+        { label: "Alzheimer's disease specifically", value: 52 },
+      ],
+      sourceNote: 'Zhang et al. 2021, AJCN, UK Biobank (n=493,888). Unprocessed red meat moved the opposite direction in the same cohort (see summary above) and isn\'t charted here, since a chart built for comparable magnitudes would misrepresent a protective effect as if it were a smaller risk.',
+    },
+    relatedIds: [
+      'additive-processed-meat-colorectal-cancer-uk-biobank',
+      'additive-nitrates-nitrites',
+      'body-brain-nervous-system',
+      'neurogenesis-tying-together',
+      'body-tying-together',
+    ],
   },
   {
     id: 'body-skin-integumentary',
@@ -436,6 +475,7 @@ export const BODY_SYSTEMS_ENTRIES: DigestEntry[] = [
       'body-endocrine-crosstalk',
       'body-skin-integumentary',
       'vitamind-overview',
+      'body-brain-processed-meat-dementia-uk-biobank',
     ],
   },
 ];

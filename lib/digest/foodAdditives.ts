@@ -1,6 +1,6 @@
 import type { DigestEntry } from './types';
 
-// Food Additives -- 16 entries, the most consumer-legible category to start
+// Food Additives -- 17 entries, the most consumer-legible category to start
 // with (dose/mechanism specifics exist for most of these, not just a
 // vague "avoid processed food" gesture). Deliberately includes both
 // genuine concerns AND at least one honest "generally fine" entry
@@ -47,7 +47,28 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['nutrient-iodine'],
+    relatedIds: ['nutrient-iodine', 'additive-processed-meat-colorectal-cancer-uk-biobank'],
+  },
+  {
+    // 2026-08-19, direct request to research UK Biobank as a real Digest
+    // source for processed meat specifically. Every figure below verified
+    // directly against the primary paper's own Oxford Academic page (a
+    // real, successful fetch, unlike PubMed/PMC, which served a cookie/
+    // CAPTCHA wall this same session) before being written in.
+    id: 'additive-processed-meat-colorectal-cancer-uk-biobank',
+    category: 'basicHealth',
+    title: 'UK Biobank Puts an Actual Per-Gram Number on the Cancer Classification',
+    teaser: 'A single cohort of nearly half a million UK adults turned the classification above into a dose-response figure: 18% higher colorectal cancer risk for every 20 grams a day.',
+    summary:
+      "The nitrates-nitrites entry above cites IARC's global monograph, which weighs evidence gathered from dozens of studies worldwide and lands on a category, Group 1 carcinogen, not a number anyone can act on day to day. UK Biobank gives that category an actual shape. Tracking 474,996 UK adults for a mean of 6.9 years, researchers found each additional 20 grams a day of processed meat, roughly two-thirds of a standard bacon rasher, tracked with an 18% higher risk of colorectal cancer (hazard ratio 1.18, 95% CI 1.03 to 1.31). Worth stating the honest limit directly: this study tested meat intake against several cancer types at once, and after correcting for that many comparisons, colorectal cancer was the one association that held up cleanly. A weaker link between red meat and prostate cancer, and between processed meat and rectal cancer specifically, didn't survive that same correction. One large, well-run cohort study still sits a tier below a meta-analysis pooling many of them, so this adds a concrete, quantified data point to the existing classification above rather than replacing it.",
+    citations: [
+      {
+        source: 'Knuppel et al. 2020, International Journal of Epidemiology: Meat intake and cancer risk, prospective analyses in UK Biobank',
+        url: 'https://academic.oup.com/ije/article/49/5/1540/5894731',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['additive-nitrates-nitrites', 'body-brain-processed-meat-dementia-uk-biobank'],
   },
   {
     id: 'additive-potassium-bromate',
@@ -279,9 +300,9 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-tying-together',
     category: 'basicHealth',
-    title: 'Tying It All Together: One Pattern Across These 16',
-    teaser: 'Read individually these look like 16 separate dangers. Read together, one pattern explains most of them.',
-    summary: "Read one at a time, these 16 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what the longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
+    title: 'Tying It All Together: One Pattern Across These 17',
+    teaser: 'Read individually these look like 17 separate dangers. Read together, one pattern explains most of them.',
+    summary: "Read one at a time, these 17 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what the longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
     citations: [
       {
         source: 'Lane et al. 2024, BMJ: ultra-processed food exposure and adverse health outcomes, umbrella review',

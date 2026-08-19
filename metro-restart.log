@@ -31,3 +31,36 @@ Starting Metro Bundler
 warning: Bundler cache is empty, rebuilding (this may take a minute)
 Waiting on http://localhost:8081
 Logs for your project will appear below.
+Android node_modules\expo-router\entry.js ░░░░░░░░░░░░░░░░  0.0% (0/1)
+Android node_modules\expo-router\entry.js ▓▓▓▓░░░░░░░░░░░░ 30.4% (257/466)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.5% (651/869)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.5% ( 843/1059)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓░░░░░░ 66.5% (1007/1312)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓░░░░ 81.2% (1574/1796)
+Android node_modules\expo-router\entry.js ▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓░ 99.9% (2296/2297)
+Android Bundled 21588ms node_modules\expo-router\entry.js (2299 modules)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +142ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +173ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +100ms: card onLayout: x=16 y=403 w=216 h=234
+ LOG  [TabHub drop-timing] +142ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +152ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +137ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +153ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +115ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +140ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +100ms: card onLayout: x=16 y=403 w=216 h=234
+ LOG  [TabHub drop-timing] +147ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +157ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +92ms: card onLayout: x=16 y=403 w=216 h=234
+ LOG  [TabHub drop-timing] +151ms: Modal onShow (Android Dialog window confirmed up)
+ LOG  [TabHub drop-timing] +152ms: card onLayout: x=16 y=437 w=216 h=234
+Android Bundled 326ms node_modules\expo-file-system\src\index.ts (521 modules)
+ LOG  [TabHub drop-timing] +0ms: tap (setOpen(true) about to run)
+ LOG  [TabHub drop-timing] +113ms: card onLayout: x=16 y=437 w=216 h=234
+ LOG  [TabHub drop-timing] +136ms: Modal onShow (Android Dialog window confirmed up)
