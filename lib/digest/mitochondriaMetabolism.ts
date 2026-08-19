@@ -1,6 +1,6 @@
 import type { DigestEntry } from './types';
 
-// Mitochondria & Metabolism -- 13 entries, drawn from this session's own
+// Mitochondria & Metabolism -- 14 entries, drawn from this session's own
 // research into mitochondrial dysfunction, autophagy, visceral fat, and
 // exercise in Hashimoto's specifically (not just borrowed general
 // metabolic/sports-science literature) -- each entry tagged with whether
@@ -108,6 +108,48 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     stageNote: 'Worth discussing with a doctor before combining any extended fast with existing thyroid medication.',
   },
   {
+    // 2026-08-19, direct request to research the mechanism chain behind
+    // dietary sugar's link to chronic inflammation: how it drives insulin
+    // resistance, pushes visceral fat, and raises inflammatory cytokines.
+    // Two real, independently-verified sources chain together into one
+    // complete, textbook-grade metabolic story -- Stanhope et al. 2009
+    // isolates fructose specifically as the driver of visceral fat and
+    // insulin resistance, and Zatterale et al. 2020 picks up from there,
+    // explaining what visceral fat does once it's there. Deliberately
+    // tagged 'basicHealth', not 'hashimotos' -- this is the general
+    // mechanism BEHIND the Hashimoto's-specific Treg-depletion finding two
+    // entries below, not itself a Hashimoto's-specific claim.
+    id: 'mito-sugar-visceral-fat-cytokine-chain',
+    category: 'basicHealth',
+    title: 'The Chain From Sugar to Chronic Inflammation, Link by Link',
+    teaser: 'A randomized trial isolated fructose, not sugar in general, as the driver of visceral fat and insulin resistance. A separate review picks up from there and explains what that fat then does.',
+    summary:
+      "The path from a sugary drink to chronic, body-wide inflammation runs through several distinct, well-documented steps, not one vague \"sugar is bad\" mechanism. A randomized trial isolated the first step precisely: 32 overweight or obese adults drank either glucose- or fructose-sweetened beverages, providing a quarter of daily calories, for 10 weeks. Both groups gained the same amount of weight. Only the fructose group showed a measurable increase in visceral fat volume on MRI, a measurable rise in the liver's own fat-manufacturing process (postprandial de novo lipogenesis, up from 11.4% to 16.9%), and a 17% drop in insulin sensitivity. The glucose group showed none of it. Fructose, almost uniquely among sugars, is processed nearly entirely by the liver, which is what routes it toward fat storage and insulin resistance in a way glucose doesn't. The next step happens inside the fat itself. As visceral fat expands, it recruits immune cells, mostly macrophages, which can make up as much as 40% of all cells in obese adipose tissue, and those macrophages shift from a calming to an inflammatory phenotype. They secrete TNF-alpha, IL-6, IL-1beta, and MCP-1 directly into the tissue and, from there, into general circulation. Those cytokines activate two specific signaling pathways, JNK and NF-kB, that interfere with insulin's own signaling machinery by chemically modifying a protein called IRS-1 in a way that blocks it from working. That's how insulin resistance spreads: the same cytokines travel through the bloodstream and trigger the identical JNK/NF-kB disruption inside the liver and skeletal muscle, turning a local problem in fat tissue into a body-wide one. Put together: dietary fructose drives visceral fat formation directly, and visceral fat, once formed, becomes an active source of the exact inflammatory signals that spread insulin resistance and chronic low-grade inflammation well beyond the fat tissue itself.",
+    citations: [
+      {
+        source: 'Stanhope KL, et al. 2009, Journal of Clinical Investigation: Consuming fructose-sweetened, not glucose-sweetened, beverages increases visceral adiposity and lipids and decreases insulin sensitivity in overweight/obese humans',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC2673878/',
+      },
+      {
+        source: 'Zatterale F, et al. 2020, Frontiers in Physiology: Chronic Adipose Tissue Inflammation Linking Obesity to Insulin Resistance and Type 2 Diabetes',
+        url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7000657/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'A randomized controlled trial for the fructose-to-visceral-fat step, and a well-established, widely-replicated mechanism for the visceral-fat-to-cytokine step. Together they tell a well-supported, textbook-level story, though the trial itself was 10 weeks in one specific population, not a lifetime of ordinary eating.',
+    relatedIds: [
+      'additive-sugar-umbrella-review-45-outcomes',
+      'additive-hfcs',
+      'masld-hfcs-fructose',
+      'problem-sugar-sweetened-beverages',
+      'mito-visceral-fat-treg-depletion',
+      'mito-visceral-fat-endotoxin-barrier',
+      'glossary-visceral-fat',
+      'lifestyle-il6-deiodinase',
+      'mito-tying-together',
+    ],
+  },
+  {
     id: 'mito-visceral-fat-treg-depletion',
     category: 'hashimotos',
     title: "Visceral Fat: Depleted of Regulatory T Cells in Hashimoto's",
@@ -120,7 +162,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-scfa-treg'],
+    relatedIds: ['gut-scfa-treg', 'mito-sugar-visceral-fat-cytokine-chain'],
   },
   {
     id: 'mito-visceral-fat-treg-reinfusion',
@@ -161,7 +203,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       { source: 'Reappraisal of Adipose Tissue Inflammation in Obesity (2024)', url: 'https://pubmed.ncbi.nlm.nih.gov/39287856/' },
     ],
     overallTier: 'weak',
-    relatedIds: ['gut-leaky-gut-contested'],
+    relatedIds: ['gut-leaky-gut-contested', 'mito-sugar-visceral-fat-cytokine-chain'],
   },
   {
     id: 'mito-exercise-intensity-inflammation',
@@ -211,7 +253,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     id: 'mito-tying-together',
     category: 'hashimotos',
     title: 'Tying It All Together: Two Tensions, Not a Clean Story',
-    teaser: 'Twelve entries in cellular biology, and the honest takeaway is two tradeoffs, not a simple "do more of this" answer.',
+    teaser: 'Thirteen entries in cellular biology, and the honest takeaway is two tradeoffs, not a simple "do more of this" answer.',
     summary:
       "This category doesn't resolve into one clean recommendation, and that's deliberate. Fasting is the most potent known trigger of the exact autophagy process IL-23 was shown suppressing in Hashimoto's thyroid tissue, but fasting also measurably suppresses active thyroid hormone, so the two effects have to be weighed against each other, not treated as a free win. Visceral fat is linked to Treg depletion and insulin resistance in Hashimoto's-specific research, but a 2024 reappraisal suggests some of that same fat may be defending against a leaky gut rather than simply causing harm, meaning gut repair and fat reduction likely need pursuing together, not as substitutes. The one uncomplicated finding in the whole category: moderate, consistent, low-intensity exercise triggers autophagy of its own, through a completely different pathway than fasting, without fasting's own thyroid-hormone tradeoff, the closest thing to a clean answer this category actually has.",
     citations: [
@@ -221,6 +263,6 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mito-fasting-autophagy-tension', 'mito-visceral-fat-endotoxin-barrier', 'mito-exercise-autophagy-pgc1a'],
+    relatedIds: ['mito-fasting-autophagy-tension', 'mito-visceral-fat-endotoxin-barrier', 'mito-exercise-autophagy-pgc1a', 'mito-sugar-visceral-fat-cytokine-chain'],
   },
 ];

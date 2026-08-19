@@ -55,6 +55,7 @@ export const GOUT_ENTRIES: DigestEntry[] = [
       { source: 'Soft Drinks, Fructose Consumption, and the Risk of Gout in Men: Prospective Cohort Study, PMID 18244959', url: 'https://pubmed.ncbi.nlm.nih.gov/18244959/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['additive-sugar-umbrella-review-45-outcomes'],
   },
   {
     id: 'gout-alcohol-beer-vs-wine',

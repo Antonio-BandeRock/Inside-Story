@@ -190,7 +190,7 @@ export const LIFESTYLE_ENVIRONMENT_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['lifestyle-chronic-stress-hpa', 'organ-liver-t4t3-conversion', 'sleep-inflammation-cytokine-mechanism'],
+    relatedIds: ['lifestyle-chronic-stress-hpa', 'organ-liver-t4t3-conversion', 'sleep-inflammation-cytokine-mechanism', 'mito-sugar-visceral-fat-cytokine-chain'],
   },
   {
     id: 'lifestyle-smoking-paradox',

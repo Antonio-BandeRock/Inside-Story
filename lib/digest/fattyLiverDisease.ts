@@ -83,7 +83,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Softic S, et al., Critical Reviews in Clinical Laboratory Sciences, 2020, "Fructose and hepatic insulin resistance"', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7774304/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['additive-hfcs'],
+    relatedIds: ['additive-hfcs', 'mito-sugar-visceral-fat-cytokine-chain'],
   },
   {
     id: 'masld-metald-alcohol-threshold',

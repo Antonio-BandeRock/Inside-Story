@@ -759,6 +759,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
       'Fat stored deep in the abdomen, around the internal organs (distinct from fat stored just under the skin), active, hormone-producing tissue, not passive padding. Research finds it does complicated things: it drives metabolic risk in excess, but a 2024 reappraisal suggests some of that same fat\'s own inflammation may actually be defending against a leaky gut, rather than simply causing harm on its own. A recurring, specific factor across several of this Digest\'s own condition-specific findings.',
     citations: [],
     overallTier: 'moderate',
+    relatedIds: ['mito-sugar-visceral-fat-cytokine-chain'],
   },
   {
     id: 'glossary-wolff-chaikoff',

@@ -191,6 +191,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         url: 'https://pubmed.ncbi.nlm.nih.gov/23990623/',
       },
     ],
+    relatedIds: ['additive-sugar-umbrella-review-45-outcomes', 'mito-sugar-visceral-fat-cytokine-chain'],
   },
   {
     id: 'problem-soy',

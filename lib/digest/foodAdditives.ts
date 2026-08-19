@@ -1,6 +1,6 @@
 import type { DigestEntry } from './types';
 
-// Food Additives -- 17 entries, the most consumer-legible category to start
+// Food Additives -- 18 entries, the most consumer-legible category to start
 // with (dose/mechanism specifics exist for most of these, not just a
 // vague "avoid processed food" gesture). Deliberately includes both
 // genuine concerns AND at least one honest "generally fine" entry
@@ -236,7 +236,34 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['organ-liver-t4t3-conversion', 'masld-hfcs-fructose'],
+    relatedIds: ['organ-liver-t4t3-conversion', 'masld-hfcs-fructose', 'additive-sugar-umbrella-review-45-outcomes', 'mito-sugar-visceral-fat-cytokine-chain'],
+  },
+  {
+    // 2026-08-19, direct request to research Huang et al. 2023, BMJ (PMID
+    // 37019448) as a real Digest source. Every figure below verified
+    // directly against the paper's own PMC page -- a real, deliberately
+    // searched check for "inflammation"/"cytokine"/"CRP"/"visceral" found
+    // zero matches anywhere in the full text, confirming this is a review
+    // of disease-diagnosis outcomes, not a mechanism paper. The actual
+    // mechanism chain the person asked about (insulin resistance, visceral
+    // fat, inflammatory cytokines) lives in a separate, new entry
+    // (mito-sugar-visceral-fat-cytokine-chain, mitochondriaMetabolism.ts),
+    // built from a genuinely different set of sources, cross-linked below.
+    id: 'additive-sugar-umbrella-review-45-outcomes',
+    category: 'basicHealth',
+    title: 'The Largest Single Sugar-and-Health Review Ever Published Found 45 Harms and Zero Convincing Proof',
+    teaser: 'A 2023 review of 73 meta-analyses across 8,601 studies found sugar linked to 45 harmful outcomes, and not one of them reached the top tier of evidence quality.',
+    summary:
+      "A 2023 umbrella review, a review of reviews, pulled together every meta-analysis on dietary sugar and health that existed at the time: 73 meta-analyses, 8,601 unique underlying articles, 83 distinct outcomes tested. Of those, 45 showed a statistically significant harmful association with sugar intake: 18 endocrine and metabolic outcomes, 10 cardiovascular outcomes, 7 cancers, and 10 others spanning neuropsychiatric, dental, liver, bone, and allergic conditions. A few of the actual numbers: each daily serving of a sugar-sweetened drink tracked with a 27% higher risk of type 2 diabetes, each 250 mL/day tracked with a 17% higher risk of coronary heart disease, and each weekly serving tracked with a 4% higher risk of gout. Worth stating plainly, since it's the honest headline of the whole review: not one of the 45 associations reached the top GRADE evidence tier. Every single one was rated low or very low quality, meaning the underlying studies have their own limitations, mostly observational designs prone to confounding, not that the associations are false. Breadth this large, across a body of evidence this consistently modest in quality, is worth noting on its own: sugar's harms show up nearly everywhere researchers have looked, but the case for any one specific number rests on imperfect ground. The review's own practical recommendation: keep free sugar under 25 grams a day, and sugar-sweetened drinks under one serving a week.",
+    citations: [
+      {
+        source: 'Huang Y, et al. 2023, BMJ: Dietary sugar consumption and health, umbrella review',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/37019448/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A large-scale synthesis of already-published meta-analyses, not new primary research, and the paper itself states no outcome reached "convincing" quality anywhere in the review.',
+    relatedIds: ['additive-hfcs', 'mito-sugar-visceral-fat-cytokine-chain', 'gout-fructose-sugar-drinks', 'problem-sugar-sweetened-beverages'],
   },
   {
     id: 'additive-azodicarbonamide',
@@ -300,9 +327,9 @@ export const FOOD_ADDITIVES_ENTRIES: DigestEntry[] = [
   {
     id: 'additive-tying-together',
     category: 'basicHealth',
-    title: 'Tying It All Together: One Pattern Across These 17',
-    teaser: 'Read individually these look like 17 separate dangers. Read together, one pattern explains most of them.',
-    summary: "Read one at a time, these 17 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what the longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
+    title: 'Tying It All Together: One Pattern Across These 18',
+    teaser: 'Read individually these look like 18 separate dangers. Read together, one pattern explains most of them.',
+    summary: "Read one at a time, these 18 entries can look like an intimidating list of unrelated dangers. Read together, a pattern emerges: nearly every documented risk here is a chronic, cumulative-exposure finding (a 12-week mouse trial, a multi-year cohort, a 5-year sweetener threshold), not a single-serving danger. The more useful question isn't \"is this dangerous in one meal,\" it's \"how often does this actually show up across my ongoing diet,\" which is exactly what the longitudinal tracking is built to help notice, not a reason to fear any one ingredient in isolation. The two entries deliberately included as counterexamples (MSG, xanthan/guar gum) are part of the same point: not everything on a typical \"avoid\" list holds up under scrutiny. Knowing which concerns are actually worth watching, and which aren't, is itself a form of food literacy this whole category is built to teach.",
     citations: [
       {
         source: 'Lane et al. 2024, BMJ: ultra-processed food exposure and adverse health outcomes, umbrella review',
