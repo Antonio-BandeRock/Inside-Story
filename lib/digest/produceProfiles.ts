@@ -144,7 +144,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedFoodNames: ['Broccoli', 'Cabbage'],
-    relatedIds: ['problem-raw-cruciferous', 'produce-broccoli-sprouts-sulforaphane'],
+    relatedIds: ['problem-raw-cruciferous', 'produce-broccoli-sprouts-sulforaphane', 'cvd-legumes-cruciferous-sex-specific-young-adults'],
   },
   {
     // 2026-08-19, direct request to cover sulforaphane and broccoli
@@ -269,7 +269,7 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     stageNote:
       'The cooking-and-cooling and Faecalibacterium prausnitzii findings both come from controlled human trials on chickpeas specifically. The gas-adaptation citation studied a different fiber (arabinoxylan, not chickpea resistant starch) to illustrate the same general pattern, not a chickpea-specific trial of that exact question.',
     relatedFoodNames: ['Chickpeas (garbanzo beans, bengal gram)'],
-    relatedIds: ['gut-scfa-treg', 'carbfiber-intake-gap'],
+    relatedIds: ['gut-scfa-treg', 'carbfiber-intake-gap', 'cvd-legumes-cruciferous-sex-specific-young-adults'],
   },
   {
     id: 'produce-almonds',

@@ -567,7 +567,37 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Gut microbiota-dependent trimethylamine N-oxide in acute coronary syndromes: a prognostic marker for incident cardiovascular events beyond traditional risk factors, European Heart Journal', url: 'https://academic.oup.com/eurheartj/article/38/11/814/2889390' },
     ],
     overallTier: 'strong',
-    relatedIds: ['cvd-lipoprotein-a-underrecognized', 'gut-scfa-treg'],
+    relatedIds: ['cvd-lipoprotein-a-underrecognized', 'gut-scfa-treg', 'cvd-legumes-cruciferous-sex-specific-young-adults'],
+  },
+  {
+    // 2026-08-19, direct request following a Gut Insiders podcast mention:
+    // find the actual study behind "beans for men, broccoli for women,"
+    // check whether male and female gut microbiomes are actually different,
+    // and explain why young adults specifically should care. The primary
+    // finding was independently confirmed verbatim via a direct fetch of the
+    // Edith Cowan University repository's own abstract page for the paper
+    // itself (the ScienceDirect journal page was not directly fetchable).
+    // The sex-hormone-and-microbiome claim deliberately stays limited to the
+    // one specific, directly-verified finding (the postmenopausal shift) from
+    // a real peer-reviewed review, rather than more granular taxonomic claims
+    // that turned up only in a single aggregated search summary and could not
+    // be independently confirmed against a primary source, the same
+    // discipline already used to catch and discard an inaccurate claim about
+    // chickpeas and butyrate earlier in this same research pass.
+    id: 'cvd-legumes-cruciferous-sex-specific-young-adults',
+    category: 'cardiovascularDisease',
+    title: 'Legumes for Men, Cruciferous Vegetables for Women? A Young-Adult Study Found a Sex-Specific Pattern, With a Wide Confidence Interval Worth Knowing',
+    teaser: "A Western Australian cohort tracked since before birth found legume intake tracking with lower cardiometabolic risk specifically in men at age 22, and cruciferous vegetable intake tracking with lower risk specifically in women. Neither food group was shown to do nothing for the other sex, only that this particular study lacked the statistical power to prove a matching effect there too.",
+    summary:
+      "The Raine Study is a Western Australian cohort followed since before birth, and this analysis drew on 638 of its participants at the 22-year follow-up (53% female, mean age 22.1), using a food-frequency questionnaire to sort vegetable groups (allium, cruciferous, green leafy, legumes, and yellow-orange-red) against an International Diabetes Federation cardiometabolic-risk classification. After adjusting for income, physical activity, smoking, education, other vegetable intake, total energy, and saturated fat, one added daily 75-gram serving of legumes (peas, green beans, baked beans, soybeans, and other beans) tracked with about 72% lower odds of cardiometabolic risk in men specifically (OR 0.278, 95% CI 0.088-0.883, p=0.030), while one added serving of cruciferous vegetables (cabbage, cauliflower, broccoli) tracked with about 85% lower odds of cardiometabolic risk in women specifically (OR 0.151, 95% CI 0.023-0.999, p=0.049). Worth stating plainly about that second figure: its own confidence interval runs from 0.023 all the way to 0.999, essentially touching the point where an effect disappears entirely, an unusually wide range for a finding built on a fairly small subgroup. Green leafy vegetables showed an initial difference between low- and high-risk women too, but that association didn't survive the full statistical adjustment, while the cruciferous one did. None of this means legumes do nothing for women or cruciferous vegetables do nothing for men; a cross-sectional study splitting 638 people by sex has limited power to detect a matching effect in either smaller subgroup, and not reaching statistical significance there is a different claim from disproving a benefit. The study's own researchers floated a hormone-linked explanation without treating it as settled: compounds in legumes may interact more strongly with testosterone, while compounds in cruciferous vegetables may interact more with estrogen and progesterone. That speculation lines up with a separate, already-established body of research: a review of the gut-microbiota-sex-hormone relationship found urinary estrogen levels tracking closely with gut microbiota richness and diversity in men and in postmenopausal women, but not in premenopausal women, and that after menopause, a woman's own gut microbiota composition shifts to resemble a man's more closely than it resembles her own pre-menopause profile, confirming sex hormones do shape the gut microbiome in a measurable way, even though this particular cardiometabolic study never tested microbiome composition directly. The age of this cohort is itself part of the point: the researchers stated plainly that risk factors typically associated with much older age are already appearing at this life stage, in a population still generally considered healthy, meaning the food pattern someone settles into by their early 20s is already measurably connected to cardiometabolic risk, not something to defer thinking about until later in life. Both food groups also respond directly to preparation, a point this app's own research on cruciferous vegetables and on chickpeas already covers: cooking reduces the raw compounds in crucifers that can interfere with thyroid function while the cancer-related benefits largely survive, and cooking legumes and then cooling them before eating measurably raises their resistant-starch content, the same fraction gut bacteria ferment into butyrate.",
+    citations: [
+      { source: 'Higher legume and cruciferous vegetable intakes are associated with lower cardiometabolic risk in young adults: a cross-sectional study, McNamara N, Blekkenhorst LC, Mori TA, Beilin LJ, O’Sullivan TA, Nutrition, Metabolism and Cardiovascular Diseases, 2026', url: 'https://ro.ecu.edu.au/ecuworks2022-2026/8106/' },
+      { source: 'Beans for blokes, broccoli for women: Which veggies protect young hearts?, Edith Cowan University press release via EurekAlert, 2026', url: 'https://www.eurekalert.org/news-releases/1136157' },
+      { source: 'Interaction between gut microbiota and sex hormones and their relation to sexual dimorphism in metabolic diseases, Santos-Marcos JA et al., Biology of Sex Differences, 2023, PMC9903633', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC9903633/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'This is a single cross-sectional study, an association, not proof that eating one food group will lower any one person’s own risk. The female-and-cruciferous finding’s own confidence interval runs from 0.023 to 0.999, wide enough to treat as suggestive rather than settled. The hormone-based explanation is the study authors’ own proposed reasoning, not something this analysis tested directly, and the gut-microbiome-and-sex-hormones citation here comes from a separate body of research, included to show that sex-linked biological differences relevant to diet response are already established elsewhere, not because this study measured microbiome composition itself.',
+    relatedIds: ['gut-scfa-treg', 'produce-cruciferous', 'produce-chickpeas', 'problem-raw-cruciferous', 'cvd-tmao-gut-microbiome-real-data'],
   },
   {
     id: 'cvd-myocardial-ischemia-neurogenesis-impairment',

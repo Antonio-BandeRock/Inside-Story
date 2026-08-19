@@ -128,7 +128,7 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
         url: 'https://pubmed.ncbi.nlm.nih.gov/17011103/',
       },
     ],
-    relatedIds: ['produce-broccoli-sprouts-sulforaphane'],
+    relatedIds: ['produce-broccoli-sprouts-sulforaphane', 'cvd-legumes-cruciferous-sex-specific-young-adults'],
   },
   {
     id: 'problem-nightshades',
