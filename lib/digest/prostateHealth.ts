@@ -140,7 +140,7 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Phytochemicals from cruciferous vegetables, epigenetics, and prostate cancer prevention', url: 'https://pubmed.ncbi.nlm.nih.gov/23800833/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['prostate-lycopene-food-sources-bioavailability'],
+    relatedIds: ['prostate-lycopene-food-sources-bioavailability', 'produce-broccoli-sprouts-sulforaphane'],
   },
   {
     id: 'prostate-choline-tmao',

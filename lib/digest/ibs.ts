@@ -135,6 +135,37 @@ export const IBS_ENTRIES: DigestEntry[] = [
       { source: 'Linaclotide for irritable bowel syndrome with constipation: a 26-week, randomized, double-blind, placebo-controlled trial to evaluate efficacy and safety, PMID 22986437', url: 'https://pubmed.ncbi.nlm.nih.gov/22986437/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['ibs-kiwifruit-prunes-psyllium-constipation-trial'],
+  },
+  {
+    // 2026-08-19, direct request to research Chey WD et al. 2021, American
+    // Journal of Gastroenterology 116(6):1304-1312 (PMID 34074830), a
+    // three-way trial of kiwifruit, prunes, and psyllium for chronic
+    // constipation. Both figures verified directly via WebFetch, including a
+    // real, caught discrepancy: an initial WebSearch summary of the follow-up
+    // Gearry et al. 2023 trial claimed a sample size of over 1,600, quoted
+    // with real-looking numbers per subgroup that turned out fabricated once
+    // checked against the paper's own actual PMC page directly, the real
+    // total is 184. Every number below traces to that direct, verbatim check.
+    id: 'ibs-kiwifruit-prunes-psyllium-constipation-trial',
+    category: 'ibs',
+    title: 'Kiwifruit, Prunes, or Psyllium for Constipation: A Direct, Head-to-Head Comparison',
+    teaser: 'A dedicated US trial found all three worked about the same on the main measure, but kiwifruit came out ahead on tolerability, and a larger, later trial found it edging out psyllium directly.',
+    summary:
+      "A four-week, US-based exploratory trial gave a direct, practical answer to a common question: for someone with chronic constipation, does it actually matter which of these three common remedies they reach for? Seventy-nine adults with chronic constipation (three or fewer complete spontaneous bowel movements a week) were assigned to green kiwifruit (two a day), prunes (100 grams a day), or psyllium (12 grams a day), with 75 completing the full trial. On the primary measure, the proportion of people whose bowel-movement frequency responded to treatment, all three performed similarly, no single option pulled clearly ahead. Weekly bowel-movement frequency rose significantly with all three compared to before treatment, straining improved significantly with all three, and stool consistency improved significantly with kiwifruit and prunes specifically. Kiwifruit did separate from the other two on two points: it produced significantly better bloating scores, and adverse events were least common in the kiwifruit group and most common in the psyllium group, leading the trial's own authors to conclude that all three worked, but kiwifruit carried the lowest rate of side effects and the lowest rate of patient dissatisfaction. A larger, later trial sharpens the kiwifruit-vs-psyllium comparison specifically: a 184-person, three-country crossover trial (New Zealand, Italy, and Japan) tested people with functional constipation and people with IBS-C as separate groups, and found kiwifruit produced a significant increase in weekly bowel movements in both groups on its own, while psyllium only reached significance in the IBS-C group. In a direct combined comparison across both groups together, kiwifruit's overall effect on bowel-movement frequency significantly outperformed psyllium's (p=0.038). Kiwifruit's own specific effect traces to a physical property of its cell walls, which show a pronounced capacity to swell and hold water once inside the colon, helping soften stool and speed transit in a way plain fiber content alone doesn't fully explain.",
+    citations: [
+      {
+        source: 'Chey WD, et al. 2021, American Journal of Gastroenterology: Exploratory Comparative Effectiveness Trial of Green Kiwifruit, Psyllium, or Prunes in US Patients With Chronic Constipation',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/34074830/',
+      },
+      {
+        source: 'Gearry RB, et al. 2023, American Journal of Gastroenterology: Consumption of 2 Green Kiwifruits Daily Improves Constipation and Abdominal Comfort',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/36537785/',
+      },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The first trial is small (79 randomized) and explicitly described by its own authors as exploratory, worth reading as an early, honest comparison rather than a definitive verdict. The second trial is larger and multi-country, adding meaningful weight specifically to the kiwifruit-vs-psyllium result, though neither is a large-scale trial on the order of the medication trials covered elsewhere in this category.',
+    relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-linaclotide-real-quantified-response-rates', 'ibs-rome-iv-subtypes', 'ibs-bloating-distension-real-mechanism', 'carbfiber-intake-gap'],
   },
   {
     id: 'ibs-tying-together',
@@ -146,7 +177,7 @@ export const IBS_ENTRIES: DigestEntry[] = [
       { source: 'Irritable Bowel Syndrome, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/irritablebowelsyndrome.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibs-low-fodmap-diet', 'ibs-peppermint-oil', 'ibs-gut-directed-hypnotherapy', 'ibs-post-infectious-mechanism', 'ibs-red-flags-workup'],
+    relatedIds: ['ibs-low-fodmap-diet', 'ibs-peppermint-oil', 'ibs-gut-directed-hypnotherapy', 'ibs-post-infectious-mechanism', 'ibs-red-flags-workup', 'ibs-kiwifruit-prunes-psyllium-constipation-trial'],
   },
 
   // -- Full-depth parity additions, 2026-08-08. Every citation
@@ -161,7 +192,7 @@ export const IBS_ENTRIES: DigestEntry[] = [
       { source: 'Rome IV Criteria, The Rome Foundation', url: 'https://theromefoundation.org/rome-iv/rome-iv-criteria/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibs-medications-rifaximin-linaclotide'],
+    relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-kiwifruit-prunes-psyllium-constipation-trial'],
   },
   {
     id: 'ibs-fibromyalgia-real-bidirectional',
@@ -461,7 +492,7 @@ export const IBS_ENTRIES: DigestEntry[] = [
       { source: 'Abdominal Bloating: Pathophysiology and Treatment, PMC3816178', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3816178/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibs-visceral-hypersensitivity-mechanism', 'ibs-sibo-real-connection-caveat'],
+    relatedIds: ['ibs-visceral-hypersensitivity-mechanism', 'ibs-sibo-real-connection-caveat', 'ibs-kiwifruit-prunes-psyllium-constipation-trial'],
   },
   {
     id: 'ibs-economic-work-productivity-burden',
@@ -503,7 +534,7 @@ export const IBS_ENTRIES: DigestEntry[] = [
       { source: 'Linaclotide in irritable bowel syndrome with constipation: A Phase 3 randomized trial in China and other regions, PMID 29319191', url: 'https://pubmed.ncbi.nlm.nih.gov/29319191/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-rome-iv-subtypes'],
+    relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-rome-iv-subtypes', 'ibs-kiwifruit-prunes-psyllium-constipation-trial'],
   },
   {
     id: 'ibs-quality-of-life-comparable-serious-conditions',

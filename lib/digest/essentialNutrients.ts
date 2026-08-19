@@ -2192,6 +2192,7 @@ export const ESSENTIAL_NUTRIENTS_ENTRIES: DigestEntry[] = [
       { source: 'The Role of Dietary Fiber in Health Promotion and Disease Prevention: A Practical Guide for Clinicians, StatPearls', url: 'https://www.ncbi.nlm.nih.gov/books/NBK559033/' },
     ],
     overallTier: 'strong',
+    relatedIds: ['ibs-kiwifruit-prunes-psyllium-constipation-trial'],
   },
   {
     id: 'carbfiber-tying-together',

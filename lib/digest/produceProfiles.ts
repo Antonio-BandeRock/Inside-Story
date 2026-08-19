@@ -144,7 +144,41 @@ export const PRODUCE_PROFILES_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
     relatedFoodNames: ['Broccoli', 'Cabbage'],
-    relatedIds: ['problem-raw-cruciferous'],
+    relatedIds: ['problem-raw-cruciferous', 'produce-broccoli-sprouts-sulforaphane'],
+  },
+  {
+    // 2026-08-19, direct request to cover sulforaphane and broccoli
+    // sprouts, naming the Fahey/Zhang/Talalay Johns Hopkins research
+    // program specifically. The foundational 1997 PNAS paper (PMID
+    // 9294217) was verified directly via its own PMC mirror (PMC23369),
+    // confirming the abstract, the 10-100x glucoraphanin figure, the
+    // 3-day sprout age, and the author affiliations verbatim. The 2015
+    // clinical follow-up from the same Johns Hopkins group (PMID
+    // 26369337) was independently confirmed via a search-engine
+    // extraction of the indexed abstract, since both PubMed and the
+    // paywalled journal host blocked a direct fetch, the same fallback
+    // already used elsewhere in this Digest's build.
+    id: 'produce-broccoli-sprouts-sulforaphane',
+    category: 'basicHealth',
+    title: 'Broccoli Sprouts: The Johns Hopkins Discovery Behind Why a Small Amount Goes So Far',
+    teaser: "A landmark 1997 Johns Hopkins study found three-day-old broccoli sprouts pack ten to one hundred times more of sulforaphane's own precursor than mature broccoli ever does, and later work from the same lab traced what that compound actually does once it's in the body.",
+    summary:
+      "Sulforaphane isn't sitting in broccoli waiting to be eaten. The plant stores a stable precursor, glucoraphanin, and only converts it into sulforaphane once the tissue is damaged (chewed, cut, or crushed) and a paired enzyme called myrosinase gets the chance to react with it. A landmark 1997 study from the Brassica Chemoprotection Laboratory at Johns Hopkins University School of Medicine, led by Jed Fahey, Yuesheng Zhang, and Paul Talalay, found that three-day-old broccoli and cauliflower sprouts contain ten to one hundred times more glucoraphanin per gram than the corresponding mature plants. The same study fed extracts of those young sprouts to rats exposed to a chemical carcinogen and found a measurable reduction in the incidence, number, and speed of tumor development, tied directly to the same compound. The mechanism behind that protection has since been mapped in detail: sulforaphane binds a protein called Keap1, freeing a second protein, Nrf2, to move into the cell's nucleus and switch on a set of genes for Phase 2 detoxification enzymes, the same enzyme family this app's own Problem Foods research already names as the target of cooking's own goitrogen-reducing effect. Those enzymes speed up how the body clears damaging molecules and reactive oxygen before they can do harm, the mechanism behind sulforaphane's own cancer-prevention research. A 2015 clinical trial from the same Johns Hopkins group tested sulforaphane directly in forty-five moderate asthma patients over two weeks, giving an honest look at how that mechanism plays out in the body: sixty percent of participants showed a measurable twenty-one percent improvement in a lung-function response to a bronchial trigger, but the response wasn't universal. Twenty percent showed no change, and another twenty percent got worse, a documented reminder that a working biological mechanism doesn't always translate into the same benefit for everyone.",
+    citations: [
+      {
+        source: 'Fahey JW, Zhang Y, Talalay P. 1997, Proceedings of the National Academy of Sciences: Broccoli Sprouts: An Exceptionally Rich Source of Inducers of Enzymes That Protect Against Chemical Carcinogens',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/9294217/',
+      },
+      {
+        source: 'Brown RH, Reynolds C, Brooker A, Talalay P, Fahey JW. 2015, Respiratory Research: Sulforaphane Improves the Bronchoprotective Response in Asthmatics Through Nrf2-Mediated Gene Pathways',
+        url: 'https://pubmed.ncbi.nlm.nih.gov/26369337/',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote:
+      'The foundational sprout-concentration finding and its underlying Keap1-Nrf2 mechanism are both well-established and widely replicated. The clinical asthma trial adds an honest, quantified example of how that mechanism plays out in actual patients, including its own honest limit: the benefit only showed up in six of every ten participants tested, not all of them.',
+    relatedFoodNames: ['Broccoli Sprouts (Raw)', 'Broccoli'],
+    relatedIds: ['produce-cruciferous', 'prostate-cruciferous-sulforaphane', 'problem-raw-cruciferous'],
   },
   {
     id: 'produce-garlic-onion',
