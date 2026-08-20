@@ -106,3 +106,6 @@ tsc_check*.txt
 
 # Generated data for the Purple Digest depth-push tracker (see scripts/digest-tracker/README.md)
 scripts/digest-tracker/digest-tracker-data.json
+
+# Pre-trim backup of the oversized CLAUDE.md (full history is versioned at docs/CLAUDE-ARCHIVE.md)
+CLAUDE.md.bak
