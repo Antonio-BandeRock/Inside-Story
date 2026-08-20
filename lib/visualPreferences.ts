@@ -156,12 +156,16 @@ export type FoodBuilderIconChoice = 'dessertBuilder';
 // as "something small taking root and growing" for the whole app, not any
 // one part of it -- see the real, verified asset at
 // assets/branding/seed-transparent.png and CLAUDE.md's own dated entry for
-// the full reasoning. Only one choice at a time -- a plain scalar field,
-// not a set. Imported here as a type-only import (erased at compile time,
-// so no real runtime dependency on lib/digest/index.ts's own much larger
-// content-aggregation module -- the same precedent already established for
+// the full reasoning. 'seedTall' (added 2026-08-21) is a second seed option
+// with a taller stem and no fixed render height -- see its own comment in
+// constants/tabHubIcons.ts (TAB_HUB_ICON_HEIGHT_OVERRIDE) for the deliberate
+// exception this makes to the shared-height rule every other icon follows.
+// Only one choice at a time -- a plain scalar field, not a set. Imported
+// here as a type-only import (erased at compile time, so no real runtime
+// dependency on lib/digest/index.ts's own much larger content-aggregation
+// module -- the same precedent already established for
 // sixDimensionsReference.ts's own type-only import into lib/db.ts).
-export type TabHubIconChoice = 'default' | 'seed' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
+export type TabHubIconChoice = 'default' | 'seed' | 'seedTall' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
 
 // A set of calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for

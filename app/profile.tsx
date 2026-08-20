@@ -1606,6 +1606,10 @@ export default function ProfileScreen() {
   // condition names.
   const appIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'seed', label: 'Seed (App Default)' },
+    // 2026-08-21: a second, taller-stemmed seed -- deliberately renders
+    // above the shared button height every other icon uses, see
+    // TAB_HUB_ICON_HEIGHT_OVERRIDE in constants/tabHubIcons.ts.
+    { key: 'seedTall', label: 'Seed (Tall Sprout)' },
   ];
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from

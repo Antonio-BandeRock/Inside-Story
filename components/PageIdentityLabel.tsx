@@ -78,8 +78,15 @@ export function PageIdentityLabel({ title, activeLensLabel }: { title: string; a
   // reflect the default butterfly. Called unconditionally, before the
   // early return below, per the Rules of Hooks.
   const { tabHubIcon } = useVisualPreferences();
-  const { width: buttonIconWidth, height: buttonIconHeight } = getTabHubIconRenderSize(tabHubIcon);
-  const buttonIconOverhangY = Math.max(0, Math.ceil((buttonIconHeight - FLOATING_BUTTON_SIZE) / 2));
+  // 2026-08-21: reads bottomOverhang directly rather than deriving it from
+  // height/2 -- see getTabHubIconRenderSize's own comment. Every icon
+  // except 'seedTall' still has bottomOverhang === (height-FLOATING_BUTTON_
+  // SIZE)/2, so this is byte-for-byte the same value as before for them;
+  // 'seedTall' alone has a smaller, pinned bottomOverhang (its extra height
+  // goes up, not down), and this box needs that real number, not the
+  // symmetric one, to clear the nav bar by the right amount.
+  const { width: buttonIconWidth, bottomOverhang } = getTabHubIconRenderSize(tabHubIcon);
+  const buttonIconOverhangY = Math.max(0, Math.ceil(bottomOverhang));
 
   // Nothing to show at all until a real lens is picked, 2026-08-08 -- see
   // this file's own 2026-08-08 comment above for why the box no longer

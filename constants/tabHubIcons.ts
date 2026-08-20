@@ -1,4 +1,5 @@
 import type { ImageSourcePropType } from 'react-native';
+import { FLOATING_BUTTON_SIZE } from './floatingButton';
 import type { TabHubIconChoice } from '../lib/visualPreferences';
 
 // A real, raw (require()'d, not wrapped in a component) image source per
@@ -68,6 +69,12 @@ export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourceP
   // TAB_HUB_ICON_FIXED_HEIGHT's own 78px render ceiling, the same
   // precedent every other cropped-icon batch in this file already follows.
   seed: require('../assets/branding/seed-transparent.png'),
+  // 'seedTall' -- added 2026-08-21, a second seed option with a longer stem
+  // rising well above the leaf cluster the plain 'seed' has. See
+  // TAB_HUB_ICON_HEIGHT_OVERRIDE's own comment below for why this one
+  // choice, uniquely, doesn't render at the shared TAB_HUB_ICON_FIXED_HEIGHT
+  // every other icon uses.
+  seedTall: require('../assets/branding/seed-tall-transparent.png'),
   honeybee: require('../assets/branding/garden-icons/honeybee.png'),
   bumblebee: require('../assets/branding/garden-icons/bumblebee.png'),
   dragonfly: require('../assets/branding/garden-icons/dragonfly.png'),
@@ -216,6 +223,12 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // 212x312, then 288x312, now 350x406), so this has to move with the
   // file or the button renders the art squeezed into a stale ratio.
   seed: [350, 406],
+  // 'seedTall' -- added 2026-08-21. Individually measured off the actual
+  // final cropped file, same process as 'seed' above. This choice does NOT
+  // use these dimensions to derive its render HEIGHT the way every other
+  // icon does -- see TAB_HUB_ICON_HEIGHT_OVERRIDE below -- only its aspect
+  // ratio (361:491) is read from this pair.
+  seedTall: [361, 491],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
   // same jimp-based methodology as every other entry in this table, not
@@ -392,6 +405,33 @@ const DEFAULT_ICON_ASPECT_RATIO = 464 / 312;
 // clearance for every icon) rules out the alternative.
 const TAB_HUB_ICON_FIXED_HEIGHT = TAB_HUB_ICON_TARGET_WIDTH / DEFAULT_ICON_ASPECT_RATIO;
 
+// The overhang every ordinary icon has today, above AND below the 60px
+// button box, purely as a side effect of centering a 78px-tall image inside
+// it. 'seedTall' below reuses this same number as its own BOTTOM overhang
+// (see TAB_HUB_ICON_HEIGHT_OVERRIDE), so its pit sits exactly where every
+// other icon's own bottom edge already sits -- only its top grows past that.
+const TAB_HUB_ICON_STANDARD_OVERHANG = (TAB_HUB_ICON_FIXED_HEIGHT - FLOATING_BUTTON_SIZE) / 2;
+
+// 2026-08-21, a deliberate, narrow exception to the 2026-08-09 rule
+// documented on TAB_HUB_ICON_FIXED_HEIGHT above ("every icon shares the
+// exact same height... poking above the footer's own top line" was
+// explicitly rejected then). Direct request this time, for this one icon
+// specifically: "It will require for the plant to partially be above the
+// top edge of the footer. I want it to go ahead and do that." Only a
+// choice listed here ever renders taller than TAB_HUB_ICON_FIXED_HEIGHT --
+// every other icon is completely unaffected, so the 2026-08-09 guarantee
+// (identical clearance for every OTHER icon) still holds. 112 was chosen,
+// not measured off a device screenshot: at TAB_HUB_ICON_STANDARD_OVERHANG's
+// own real geometry (see constants/floatingButton.ts's FLOATING_BUTTON_
+// BOTTOM_OFFSET/FOOTER_BAND_HEIGHT), the button's own top edge sits 20px
+// below the footer band's real top edge, so 112 puts this icon's own top
+// about 23px above that edge -- clearly visible, not just a hairline
+// crossing. Adjust this one number if that turns out too much or too
+// little once actually seen on-device.
+const TAB_HUB_ICON_HEIGHT_OVERRIDE: Partial<Record<TabHubIconChoice, number>> = {
+  seedTall: 112,
+};
+
 // A real, shared, pure function -- not duplicated per consumer. Three real
 // components each need this exact same "how big does the CURRENTLY chosen
 // icon actually render" answer: TabHub.tsx itself (the button's own real
@@ -401,15 +441,38 @@ const TAB_HUB_ICON_FIXED_HEIGHT = TAB_HUB_ICON_TARGET_WIDTH / DEFAULT_ICON_ASPEC
 // wing/silhouette tip) -- all three call this directly rather than each
 // re-deriving the same math, or trusting a static constant that stops
 // being accurate the moment someone picks a non-default icon.
-export function getTabHubIconRenderSize(choice: TabHubIconChoice): { width: number; height: number } {
+//
+// 2026-08-21: widened to also return topOverhang/bottomOverhang/
+// verticalShift, not just width/height, for TAB_HUB_ICON_HEIGHT_OVERRIDE's
+// sake -- every icon NOT in that override still gets a symmetric overhang
+// (topOverhang === bottomOverhang, verticalShift 0, byte-for-byte the same
+// behavior as before this existed) and only 'seedTall' gets an asymmetric
+// one, its bottomOverhang pinned to TAB_HUB_ICON_STANDARD_OVERHANG so its
+// pit doesn't move, its extra height going entirely into topOverhang
+// instead. verticalShift is the one number TabHub.tsx's own render actually
+// needs: how far to nudge the icon up from where plain center-alignment
+// would otherwise put it, to realize that asymmetric split.
+export function getTabHubIconRenderSize(choice: TabHubIconChoice): {
+  width: number;
+  height: number;
+  topOverhang: number;
+  bottomOverhang: number;
+  verticalShift: number;
+} {
   const dims = TAB_HUB_ICON_PIXEL_DIMENSIONS[choice] ?? TAB_HUB_ICON_PIXEL_DIMENSIONS.default!;
   const [pixelWidth, pixelHeight] = dims;
   const ratio = pixelWidth / pixelHeight;
-  // Every icon shares the exact same height -- see TAB_HUB_ICON_FIXED_HEIGHT's
-  // own comment for why. Width follows that fixed height at the icon's own
-  // real, undistorted ratio, capped at TAB_HUB_ICON_TARGET_WIDTH as a real
-  // (if currently never-hit) safety ceiling in case a future icon is ever
-  // wider than the butterfly's own 1.487 ratio.
-  const width = Math.min(TAB_HUB_ICON_TARGET_WIDTH, TAB_HUB_ICON_FIXED_HEIGHT * ratio);
-  return { width, height: TAB_HUB_ICON_FIXED_HEIGHT };
+  // Every icon shares the exact same height unless overridden above -- see
+  // TAB_HUB_ICON_FIXED_HEIGHT's own comment for why that's the rule, and
+  // TAB_HUB_ICON_HEIGHT_OVERRIDE's own comment for the one deliberate
+  // exception. Width follows that height at the icon's own real,
+  // undistorted ratio, capped at TAB_HUB_ICON_TARGET_WIDTH as a real (if
+  // currently never-hit for any non-overridden icon) safety ceiling.
+  const height = TAB_HUB_ICON_HEIGHT_OVERRIDE[choice] ?? TAB_HUB_ICON_FIXED_HEIGHT;
+  const width = Math.min(TAB_HUB_ICON_TARGET_WIDTH, height * ratio);
+  const naturalOverhang = (height - FLOATING_BUTTON_SIZE) / 2;
+  const bottomOverhang = choice in TAB_HUB_ICON_HEIGHT_OVERRIDE ? TAB_HUB_ICON_STANDARD_OVERHANG : naturalOverhang;
+  const topOverhang = height - FLOATING_BUTTON_SIZE - bottomOverhang;
+  const verticalShift = bottomOverhang - naturalOverhang;
+  return { width, height, topOverhang, bottomOverhang, verticalShift };
 }

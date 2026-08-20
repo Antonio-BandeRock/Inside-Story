@@ -259,9 +259,16 @@ export function TabHub() {
   // now, so the touch target (hitSlop, below) always covers the real,
   // currently-visible artwork rather than staying calibrated to the
   // butterfly's own shape regardless of what's chosen.
-  const { width: buttonIconWidth, height: buttonIconHeight } = getTabHubIconRenderSize(tabHubIcon);
+  // 2026-08-21: topOverhang/bottomOverhang/verticalShift added alongside
+  // width/height -- see that function's own comment. For every icon except
+  // 'seedTall' these two overhangs are identical and verticalShift is 0,
+  // so hitSlop/the icon's own position below are byte-for-byte unchanged
+  // from before this existed.
+  const { width: buttonIconWidth, height: buttonIconHeight, topOverhang, bottomOverhang, verticalShift } =
+    getTabHubIconRenderSize(tabHubIcon);
   const buttonIconOverhangX = Math.max(0, Math.ceil((buttonIconWidth - BUTTON_SIZE) / 2));
-  const buttonIconOverhangY = Math.max(0, Math.ceil((buttonIconHeight - BUTTON_SIZE) / 2));
+  const buttonIconOverhangTopY = Math.max(0, Math.ceil(topOverhang));
+  const buttonIconOverhangBottomY = Math.max(0, Math.ceil(bottomOverhang));
 
   // TEMPORARY diagnostic instrumentation, 2026-08-01 -- for the still-
   // unresolved "card drops in from above" bug (see this file's own long
@@ -391,7 +398,7 @@ export function TabHub() {
         }}
         activeOpacity={0.85}
         accessibilityLabel="Open navigation menu"
-        hitSlop={{ left: buttonIconOverhangX, right: buttonIconOverhangX, top: buttonIconOverhangY, bottom: buttonIconOverhangY }}
+        hitSlop={{ left: buttonIconOverhangX, right: buttonIconOverhangX, top: buttonIconOverhangTopY, bottom: buttonIconOverhangBottomY }}
       >
         {/* No circle, no fill, no border at rest -- the artwork itself is
             the button. Its own background was removed (see
@@ -454,21 +461,30 @@ export function TabHub() {
                   styles.butterflyImage,
                   { width: buttonIconWidth, height: buttonIconHeight },
                   styles.butterflyShadowCopy,
-                  { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY }] },
+                  { opacity: layer.opacity, transform: [{ translateX: -2 }, { translateY: layer.offsetY + verticalShift }] },
                 ]}
                 resizeMode="contain"
               />
             ))}
             <Image
               source={buttonIconSource}
-              style={[styles.butterflyImage, { width: buttonIconWidth, height: buttonIconHeight }, styles.butterflyRealCopy]}
+              style={[
+                styles.butterflyImage,
+                { width: buttonIconWidth, height: buttonIconHeight },
+                styles.butterflyRealCopy,
+                { transform: [{ translateX: -2 }, { translateY: verticalShift }] },
+              ]}
               resizeMode="contain"
             />
           </View>
         ) : (
           <Image
             source={buttonIconSource}
-            style={[styles.butterflyImage, { width: buttonIconWidth, height: buttonIconHeight }]}
+            style={[
+              styles.butterflyImage,
+              { width: buttonIconWidth, height: buttonIconHeight },
+              { transform: [{ translateX: -2 }, { translateY: verticalShift }] },
+            ]}
             resizeMode="contain"
           />
         )}
