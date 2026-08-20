@@ -21,9 +21,11 @@ This file is the standing brief a new session reads automatically: current statu
 
 **Keep this file lean.** When a session finishes work, update the Status snapshot below in place and put the long-form account in the Notion log. Do not append to this file. That append-only habit is what grew the original to 2.05M characters and stopped Claude Code from responding at all.
 
-## Status snapshot (2026-08-20)
+## Status snapshot (2026-08-21)
 
 The app is under active development and substantially built. Current state:
+
+**Most recent (2026-08-21):** `app.json`'s Android launcher-icon background was still hardcoded to the old Navy (`#2B3753`) even though Deep Teal became the shipped ground-theme default on 2026-08-19/20 (`plugins/withWindowBackground.js` already had the correct value; the launcher icon itself was the one spot that never got updated), now fixed to `#244147`. Also swapped in a new source photo for the sprouting-seed artwork across all four places it appears (`icon.png`, `android-icon-foreground.png`, `android-icon-monochrome.png`, and the in-app TabHub button's `assets/branding/seed-transparent.png`), composited at the same content-fill proportions the previous artwork used. `constants/tabHubIcons.ts`'s seed dimensions updated to match the new file. The launcher icon only takes effect on the next native build (`eas build`); the in-app TabHub button updates on a normal Metro reload. **Not yet confirmed on-device.**
 
 **Shipped and working:** eleven Food builders (Meal, Side, Salad, Smoothie, Fermentation, Beverage, Snack, Baked Goods, Soup, Sauces, Handhelds), each saving a standalone record from raw reference-database ingredients, with favoriting throughout. Insights with its full lens set (Food Lookup, Nutrient Ranking, Safe Foods, Labs, My Meds & Interactions, Today's Advisories, Hydration, Healing Stage Food Finder). Trends (Nutrients, 6 Dimensions, Symptoms & Flares, Weight, Labs, Pattern Finder). Reports generating a plain-text on-device report with Share. Schedules across Meals, Hydration, Supplements, Prescriptions, Doctor Appointments, and Exercise. Bio-Compass. Purple Digest as a full 8th tab with a search bar, category trees, TL;DR boxes, reading-time estimates, and cross-condition tags. Healing Stages (advisory and reordering) across 6 staged conditions. Barcode and product scanning with OCR and price tracking. Local password-encrypted backup and restore. Device-to-device pairing and signed recipe sharing (Ed25519, Connections roster, `.is` file type).
 
