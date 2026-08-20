@@ -11,6 +11,11 @@
 // same source image. This is a deliberate, requested app-wide re-theme, not
 // an incremental tweak -- every screen that reads from this file changes
 // look as a result.
+// Not `as const` -- background/surface/surfaceMuted/border/textMuted/
+// keySurface below need to be genuinely reassignable at runtime (see
+// applyGroundTheme further down), which `as const`'s literal-type/readonly
+// inference would reject. Every value is still a plain string, so nothing
+// that reads colors.X as a CSS-color-shaped string is affected.
 export const colors = {
   // Brand -- primary is used for every interactive/active element (buttons,
   // selected pills, checkboxes, links) so there is exactly one "this is the
@@ -423,7 +428,133 @@ export const colors = {
   // against `menuSurface` rises from ~1.6:1 to ~3.3:1, clearing the same
   // 3:1 floor every other tab color here is held to.
   tabGarden: '#50C878',
-} as const;
+};
+
+// Ground themes -- 2026-08-19, the Profile-area picker letting someone
+// replace the whole navy/teal/etc. "ground" family (background, surface,
+// surfaceMuted, border, textMuted, keySurface) at once, rather than editing
+// this file by hand every time. Built the same day Deep Navy was actually
+// replaced with Deep Teal as the shipped default (see `background`'s own
+// comment above for that full story) -- the direct request that followed
+// immediately after confirming Teal on-device: "add several additional
+// colors... about the same darkness as this one [and] put them in the
+// Profile area."
+//
+// Every family below (Teal included) is generated at the exact same
+// relative saturation/lightness offsets from its own background that the
+// original Navy family's real, individually-verified values measured out
+// to -- surface: S-9/L+10, surfaceMuted: S-1/L+7, border: S-9/L+22,
+// textMuted: S-8/L+38, keySurface: S+5/L+38 (all measured from Navy's own
+// real shipped hex values, not guessed) -- so a new theme's internal
+// contrast relationships start from the same place Navy's own
+// individually-tuned ones did, rather than each needing its own from-
+// scratch verification pass. Burgundy's own saturation (40 vs the 30-32 the
+// others share) is one deliberate exception -- red hues read as muddy brown
+// at this same darkness/saturation everyone else uses; same "same color
+// family, stronger version" fix already proven repeatedly on the tab-
+// identity colors below (see e.g. tabSchedules' own comment).
+//
+// primary/accent/textPrimary/textOnPrimary/status colors/tab-identity
+// colors are NOT part of any ground theme -- scoped deliberately to the
+// neutral "ground" family only, matching the original request.
+//
+// menuSurface is also deliberately excluded -- see its own comment above:
+// it's intentionally desaturated toward neutral specifically so it doesn't
+// compete with whichever hue is active, and that reasoning holds regardless
+// of which ground theme is selected.
+export type GroundTheme = 'navy' | 'teal' | 'purple' | 'charcoal' | 'burgundy';
+
+export const GROUND_THEME_LABELS: Record<GroundTheme, string> = {
+  navy: 'Deep Navy',
+  teal: 'Deep Teal',
+  purple: 'Deep Purple',
+  charcoal: 'Deep Charcoal',
+  burgundy: 'Deep Burgundy',
+};
+
+type GroundFamily = {
+  background: string;
+  surface: string;
+  surfaceMuted: string;
+  border: string;
+  textMuted: string;
+  keySurface: string;
+};
+
+export const GROUND_THEMES: Record<GroundTheme, GroundFamily> = {
+  // The app's original ground, sampled from the commissioned butterfly
+  // artwork -- kept as a real, selectable option (not just deleted) so
+  // switching back is always a two-tap Profile action, never a code change.
+  navy: {
+    background: '#2B3753',
+    surface: 'rgba(69, 84, 111, 0.85)',
+    surfaceMuted: 'rgba(56, 69, 106, 0.85)',
+    border: '#5C6F94',
+    textMuted: '#8B9BB8',
+    keySurface: '#7E97C4',
+  },
+  // The new shipped default as of 2026-08-19. Landed on via the Ground
+  // Color Lab explorer artifact: started from a "Deep Teal" preset (H190
+  // S32 L25, Navy's own S/L exactly) and settled a touch darker (H190 S32
+  // L21) after seeing it live on-device.
+  teal: {
+    background: '#244147',
+    surface: 'rgba(61, 91, 97, 0.85)',
+    surfaceMuted: 'rgba(49, 86, 94, 0.85)',
+    border: '#547F87',
+    textMuted: '#7DA7B0',
+    keySurface: '#70B0BD',
+  },
+  // H280 S30 L21 -- kept a real distance from tabPurpleDigest's own hue
+  // (262) and tabProfile's (330) so this ground is never confusable with
+  // either of those identity colors; also deliberately clear of the
+  // 275-280 "reads as pink, not purple" boundary tabPurpleDigest's own
+  // comment documents, which only actually bit at that color's much higher
+  // saturation/lightness -- at this dark a ground, that boundary doesn't
+  // apply the same way.
+  purple: {
+    background: '#3B2546',
+    surface: 'rgba(85, 62, 96, 0.85)',
+    surfaceMuted: 'rgba(78, 51, 92, 0.85)',
+    border: '#755785',
+    textMuted: '#9E7FAD',
+    keySurface: '#A372BB',
+  },
+  // H222 S6 L20 -- Navy's own hue at near-zero saturation, so this reads as
+  // a true neutral gray rather than a colored dark, the one ground option
+  // that isn't a hue choice at all.
+  charcoal: {
+    background: '#303236',
+    surface: 'rgba(77, 77, 77, 0.85)',
+    surfaceMuted: 'rgba(65, 67, 72, 0.85)',
+    border: '#6B6B6B',
+    textMuted: '#949494',
+    keySurface: '#888FA0',
+  },
+  // H350 S40 L20 -- see this const's own header comment for why the
+  // saturation bump over the 30-32 every other hued theme uses.
+  burgundy: {
+    background: '#471F25',
+    surface: 'rgba(100, 53, 61, 0.85)',
+    surfaceMuted: 'rgba(96, 42, 51, 0.85)',
+    border: '#8C4A55',
+    textMuted: '#B6727D',
+    keySurface: '#C46474',
+  },
+};
+
+// Mutates the shared `colors` object in place. Deliberately NOT reactive
+// mid-session -- colors.background/surface/etc. are read by ~60 files'
+// worth of module-scope StyleSheet.create() calls, each baked in once at
+// import time, the same way genericPalette's very different (per-render,
+// subscribed) reactivity model doesn't apply here. Called exactly once, in
+// app/_layout.tsx's own startup gate, before the Stack (and therefore any
+// screen's own module code) ever mounts -- see that file's own comment.
+// Picking a new theme in Profile takes effect the next time the app opens,
+// not instantly; the picker says so directly rather than implying otherwise.
+export function applyGroundTheme(theme: GroundTheme): void {
+  Object.assign(colors, GROUND_THEMES[theme]);
+}
 
 // "#RRGGBB" -> "rgba(r, g, b, alpha)" -- used anywhere a tab's own identity
 // color needs to appear as a translucent tint rather than a flat fill (the

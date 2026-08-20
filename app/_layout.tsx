@@ -11,10 +11,11 @@ import { ActiveInputProvider } from '../components/ActiveInputContext';
 import { AppKeyboard } from '../components/AppKeyboard';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
-import { colors } from '../constants/colors';
+import { applyGroundTheme, colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
 import { handleIncomingIsFile } from '../lib/isFileLinking';
+import { getVisualPreferences } from '../lib/visualPreferences';
 
 // Kept visible until the header's own branding font finishes loading (see
 // ScreenHeader.tsx) -- without this, the native splash screen hides itself
@@ -65,9 +66,22 @@ export default function RootLayout() {
   // the profile) -- on a brand-new install with no prior database file,
   // that screen hits "no such table" instead. Doing it here once, before
   // any screen mounts, removes the ordering dependency entirely.
+  // 2026-08-19: also resolves and applies the person's chosen ground theme
+  // (constants/colors.ts's applyGroundTheme) here, alongside dbReady, not
+  // as its own separate gate -- it has to happen before this returns
+  // (see the `if (!fontsLoaded || !dbReady) return null` below), which is
+  // what keeps the Stack (and therefore every screen's own module-scope
+  // StyleSheet.create() calls, each of which bakes in colors.background/
+  // surface/etc. once at import time) from ever mounting before the right
+  // colors are in place. A real preference-load failure here still falls
+  // back to whatever colors.ts already shipped with (Deep Teal) rather than
+  // blocking startup on it.
   useEffect(() => {
-    initializeDatabase()
-      .catch((error) => console.error('initializeDatabase failed', error))
+    Promise.all([
+      initializeDatabase(),
+      getVisualPreferences().then((prefs) => applyGroundTheme(prefs.groundTheme)),
+    ])
+      .catch((error) => console.error('startup init failed', error))
       .finally(() => setDbReady(true));
   }, []);
 

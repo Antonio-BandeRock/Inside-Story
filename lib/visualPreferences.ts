@@ -30,6 +30,7 @@
 // mounted once, permanently, above every tab, so a toggle flipped on the
 // Profile screen has to reach it without a full app restart.
 
+import type { GroundTheme } from '../constants/colors';
 import type { DigestCategoryKey } from './digest';
 import { getDatabase } from './db';
 
@@ -244,6 +245,13 @@ export type VisualPreferences = {
   // like any other, sorted alphabetically among the condition icons rather
   // than always leading the list.
   tabHubIcon: TabHubIconChoice;
+  // Which of constants/colors.ts's GROUND_THEMES is applied to the app's
+  // whole neutral "ground" family (background/surface/border/textMuted/
+  // etc.), added 2026-08-19 alongside Deep Navy being replaced by Deep Teal
+  // as the shipped default. See applyGroundTheme's own comment there for
+  // why this is the one visual preference that does NOT take effect live --
+  // it's read once, at startup, before any screen mounts.
+  groundTheme: GroundTheme;
 };
 
 const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
@@ -252,6 +260,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   customBackgroundImages: {},
   genericPalette: 'lavender',
   tabHubIcon: 'seed',
+  groundTheme: 'teal',
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';

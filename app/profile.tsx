@@ -13,7 +13,7 @@ import { usePasswordPrompt } from '../components/PasswordPrompt';
 import { useBusyOverlay } from '../components/BusyOverlay';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
-import { colors } from '../constants/colors';
+import { colors, GROUND_THEME_LABELS, type GroundTheme } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
@@ -113,6 +113,11 @@ const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
 // list, so a future palette addition/removal can't silently drift out of
 // sync with this picker again.
 const GENERIC_PALETTE_OPTIONS = Object.keys(GENERIC_PALETTE_LABELS) as GenericPalette[];
+
+// Same "derive from the labels object's own keys" precedent as
+// GENERIC_PALETTE_OPTIONS just above, same reasoning: a future ground theme
+// added to constants/colors.ts's GROUND_THEMES shows up here automatically.
+const GROUND_THEME_OPTIONS = Object.keys(GROUND_THEME_LABELS) as GroundTheme[];
 
 // 2026-08-16, direct request: every information page should say plainly
 // what the tool is here to do for you, why you'd use it, not just how the
@@ -241,6 +246,7 @@ const ALL_APPEARANCE_SUBSECTION_KEYS = [
   'sharedBackground',
   'individualTabBackgrounds',
   'genericPalette',
+  'groundColor',
 ] as const;
 type AppearanceSubsectionKey = (typeof ALL_APPEARANCE_SUBSECTION_KEYS)[number];
 
@@ -2482,6 +2488,40 @@ export default function ProfileScreen() {
                       >
                         <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
                           {GENERIC_PALETTE_LABELS[palette]}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
+                </View>
+              </>
+            ) : null}
+
+            {/* Ground color, 2026-08-19 -- see constants/colors.ts's own
+                GROUND_THEMES/applyGroundTheme comments for the full
+                reasoning and how each theme's family is derived. Direct
+                request, the same day Deep Navy was replaced with Deep Teal
+                as the shipped default: "add several additional colors...
+                about the same darkness as this one [and] put them in the
+                Profile area." */}
+            {renderAppearanceSubsectionHeader('groundColor', 'Ground color', false)}
+            {!collapsedAppearanceSubsections.has('groundColor') ? (
+              <>
+                <Text style={styles.helpText}>
+                  The app&apos;s own dark base color -- every card, border, and muted label everywhere reads from
+                  this one choice. Takes effect the next time you open the app, not instantly, since it touches
+                  nearly every screen.
+                </Text>
+                <View style={styles.pillRow}>
+                  {GROUND_THEME_OPTIONS.map((theme) => {
+                    const active = theme === visualPrefs.groundTheme;
+                    return (
+                      <TouchableOpacity
+                        key={theme}
+                        style={[styles.pillSmall, active && styles.pillActive]}
+                        onPress={() => setVisualPreferences({ groundTheme: theme })}
+                      >
+                        <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
+                          {GROUND_THEME_LABELS[theme]}
                         </Text>
                       </TouchableOpacity>
                     );
