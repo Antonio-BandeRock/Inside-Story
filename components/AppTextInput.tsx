@@ -82,6 +82,30 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
   const selectionRef = useRef(selection);
   selectionRef.current = selection;
 
+  // 2026-08-21, a real, reported bug, distinct from the stale-ref race the
+  // registration effect below already closes: "the cursor goes backward
+  // one position after a few letters, growing worse with each further
+  // keystroke." Root cause traced to a second, independent path writing
+  // the same `selection` state -- the native <TextInput> below fires its
+  // OWN onSelectionChange event whenever Android's underlying EditText
+  // settles after the controlled `value` prop changes, entirely separate
+  // from AppKeyboard's own explicit insertText/backspace call (which
+  // already sets the correct cursor position through focusField's own
+  // onSelectionChange closure, a few lines down). That native echo
+  // reports a stale position (Android's own async recalculation, not this
+  // component's controlled `selection` prop) and silently overwrites the
+  // just-set correct one -- each keystroke's own insertion point then
+  // computes from that now-wrong position, one further off than the last,
+  // exactly the reported "keeps being pushed farther" symptom. This ref
+  // marks the one native onSelectionChange event expected to follow each
+  // programmatic set as a known echo to swallow, not a real user action --
+  // set true right where the programmatic selection is set below, cleared
+  // by the very next native event (whichever fires first), so a genuine
+  // native-originated change (an actual tap to reposition the cursor) is
+  // never suppressed, only the one spurious echo that follows an
+  // AppKeyboard-driven change.
+  const suppressNextNativeSelectionEventRef = useRef(false);
+
   const resolvedKeyboardType: AppKeyboardType =
     keyboardType === 'number-pad' || keyboardType === 'decimal-pad' ? keyboardType : 'default';
 
@@ -149,6 +173,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
       onSelectionChange: (nextSelection: { start: number; end: number }) => {
         selectionRef.current = nextSelection;
         setSelection(nextSelection);
+        suppressNextNativeSelectionEventRef.current = true;
       },
       blur: () => innerRef.current?.blur(),
       infoPress: onInfoPress,
@@ -268,7 +293,17 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
       contextMenuHidden
       selection={selection}
       onSelectionChange={(event) => {
+        // Swallow the one native echo expected right after a programmatic
+        // AppKeyboard-driven selection set -- see
+        // suppressNextNativeSelectionEventRef's own comment above. Any
+        // OTHER native selection event (a real tap to reposition the
+        // cursor, none of which sets this flag) is processed normally.
+        if (suppressNextNativeSelectionEventRef.current) {
+          suppressNextNativeSelectionEventRef.current = false;
+          return;
+        }
         setSelection(event.nativeEvent.selection);
+        selectionRef.current = event.nativeEvent.selection;
         onSelectionChange?.(event);
       }}
       onFocus={(event) => {
