@@ -2557,7 +2557,7 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('groundColor') ? (
               <>
                 <Text style={styles.helpText}>
-                  The app&apos;s own dark base color -- every card, border, and muted label everywhere reads from
+                  The app&apos;s own dark base color: every card, border, and muted label everywhere reads from
                   this one choice. Picking a new one restarts the app for a moment to apply it everywhere.
                 </Text>
                 <View style={styles.groundThemeGrid}>

@@ -19,7 +19,7 @@ import { PurpleRibbonIcon } from '../../components/PurpleRibbonIcon';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { colors } from '../../constants/colors';
-import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
 import { typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
@@ -2818,16 +2818,36 @@ function DigestSearchInput({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [debouncedValue]);
 
+  // 2026-08-19, direct request: the mic moved from a separate button beside
+  // the field to actually sitting inside it, on whichever side
+  // NAVIGATION_HAND currently favors -- the same shared flag
+  // constants/floatingButton.ts already established for "which side are the
+  // buttons on" (see that file's own comment), read here rather than a
+  // second, Digest-only notion of handedness. An interactive control this
+  // gets tapped/held while dictating belongs on the hand's own side, the
+  // same reasoning the floating hubs already cluster that way; when a real
+  // handedness setting eventually exists, NAVIGATION_HAND flipping to
+  // 'right' moves this too, with no change needed here.
+  const micOnLeft = NAVIGATION_HAND === 'left';
+
   return (
-    <View style={styles.searchInputRow}>
-      <AppTextInput style={[style, styles.searchInputFlex]} placeholder={placeholder} value={localValue} onChangeText={handleChangeText} />
+    <View style={styles.searchInputWrap}>
+      <AppTextInput
+        style={[style, micOnLeft ? styles.searchInputPadLeft : styles.searchInputPadRight]}
+        placeholder={placeholder}
+        value={localValue}
+        onChangeText={handleChangeText}
+      />
       {/* Every result (partial included) replaces the query live, the
           same real "search as you speak" feel a phone's own voice
           search already has -- reuses handleChangeText directly, so a
           spoken result goes through the exact same debounce/
           active-change pipeline a typed one does, never a second,
           competing state path. */}
-      <VoiceInputButton onResult={(transcript) => handleChangeText(transcript)} />
+      <VoiceInputButton
+        onResult={(transcript) => handleChangeText(transcript)}
+        style={[styles.searchInputMicButton, micOnLeft ? styles.searchInputMicButtonLeft : styles.searchInputMicButtonRight]}
+      />
     </View>
   );
 }
@@ -4053,12 +4073,33 @@ const styles = StyleSheet.create({
   categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   emptyText: { ...typography.body, color: colors.textSecondary },
   // 2026-08-16 -- wraps the search AppTextInput with a real mic button
-  // (VoiceInputButton) beside it, added inside DigestSearchInput itself
-  // rather than at either of this screen's own two call sites, since
-  // that component deliberately owns its whole search-input experience
-  // as one self-contained unit (see its own header comment).
-  searchInputRow: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  searchInputFlex: { flex: 1 },
+  // (VoiceInputButton), added inside DigestSearchInput itself rather than
+  // at either of this screen's own two call sites, since that component
+  // deliberately owns its whole search-input experience as one
+  // self-contained unit (see its own header comment).
+  // 2026-08-19: the mic moved from sitting beside the field to actually
+  // inside it -- this wrap only needs `position: relative` now so the
+  // mic button (searchInputMicButton below) can anchor to it; the field
+  // itself is the wrap's only normal-flow child, so it already fills the
+  // full width with no separate flex style needed.
+  searchInputWrap: { position: 'relative' },
+  // Leaves room for the mic icon on whichever side it's actually on
+  // (searchInputMicButtonLeft/Right below), so typed text never runs
+  // under it -- overrides only that one side; searchInput's own
+  // paddingHorizontal still applies to the other side untouched (Yoga
+  // resolves the specific paddingLeft/paddingRight edge over the
+  // shorthand regardless of style array order).
+  searchInputPadLeft: { paddingLeft: 40 },
+  searchInputPadRight: { paddingRight: 40 },
+  // top/bottom rather than a plain vertical-center-of-wrap -- searchInput's
+  // own marginBottom (14, see below) is trailing space AFTER the field's
+  // visible box, not part of it; centering across the wrap's full height
+  // (field + that trailing gap) would sit the icon a few px too high.
+  // `bottom: 14` excludes exactly that gap, so this centers against the
+  // field's own visible box instead.
+  searchInputMicButton: { position: 'absolute', top: 0, bottom: 14, justifyContent: 'center' },
+  searchInputMicButtonLeft: { left: 6 },
+  searchInputMicButtonRight: { right: 6 },
   searchInput: {
     ...typography.body,
     borderWidth: 1,

@@ -255,11 +255,20 @@ export type VisualPreferences = {
   groundTheme: GroundTheme;
 };
 
+// homeBackgroundStyle/genericPalette changed 2026-08-19, direct request:
+// "make ocean deep the default shared background for as the app would
+// ship." Ocean Deep (GENERIC_PALETTE_LABELS.ocean, see GenericBackground.tsx
+// for the actual gradient/blob values) replaces the wildflower photo as
+// what a fresh install shows -- a deliberate pairing with groundTheme's own
+// new default (Deep Teal, same day): both land in the same blue-green
+// family, so the shared background and the app's own ground read as one
+// coherent look out of the box rather than two unrelated choices that
+// happen to coexist.
 const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
-  homeBackgroundStyle: 'photo',
+  homeBackgroundStyle: 'generic',
   tabBackgroundStyle: {},
   customBackgroundImages: {},
-  genericPalette: 'lavender',
+  genericPalette: 'ocean',
   tabHubIcon: 'seed',
   groundTheme: 'teal',
 };

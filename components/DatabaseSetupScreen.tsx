@@ -128,13 +128,18 @@ export function DatabaseSetupScreen({
       {/* A real, separate Text below the ring rather than ProgressRing's
           own sublabel slot -- 2026-08-10, direct report: that slot lives
           inside a fixed 78px-wide container built for Home's own compact
-          multi-ring row, and "Setting up your food database for the
-          first time" genuinely doesn't fit there, showing as a clipped
-          "Setting up..." with the rest of the sentence lost. This screen
-          is a real, standalone full-screen use, not a compact row, so it
-          gets its own, real, full-width, wrapping text instead of
-          touching that shared component's own existing narrow layout. */}
-      <Text style={styles.message}>{'Setting up your food database\nfor the first time'}</Text>
+          multi-ring row, too narrow for real sentence-length copy. This
+          screen is a real, standalone full-screen use, not a compact row,
+          so it gets its own, real, full-width, wrapping text instead of
+          touching that shared component's own existing narrow layout.
+          Copy itself changed 2026-08-19, direct request -- "Setting up
+          your food database for the first time" was also just literally
+          inaccurate past the very first launch (this screen appears every
+          time, per this file's own header comment, just resolving near-
+          instantly on every launch after the first), where "Loading Your
+          Inside Story" reads correctly regardless of which launch this
+          is. */}
+      <Text style={styles.message}>Loading Your Inside Story</Text>
     </Animated.View>
   );
 }
