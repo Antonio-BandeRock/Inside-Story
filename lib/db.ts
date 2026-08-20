@@ -4155,6 +4155,60 @@ async function runDatabaseInitialization() {
         FOREIGN KEY (fermentation_id) REFERENCES fermentations(id) ON DELETE CASCADE
       );
 
+      -- The Fermentation Tracker, 2026-08-20 -- fermentations above is a
+      -- saved RECIPE (ingredients, nutrition), not a physical jar actually
+      -- in progress on someone's counter. This is the real, separate thing
+      -- that needed its own table: one row per real jar, moving through
+      -- real stages from the day it's started to the day it's ready to
+      -- drink. Mirrors the precedent garden_harvests/garden_task_links and
+      -- food_trial_task_links already set (see their own comments further
+      -- up) rather than inventing a new pattern -- a schedule_items row per
+      -- reminder (item_type='fermentation'), linked back here the same way
+      -- a garden task links back to its own plot/planting.
+      CREATE TABLE IF NOT EXISTS fermentation_batches (
+        id TEXT PRIMARY KEY,
+        fermentation_id TEXT NOT NULL,
+        stage TEXT NOT NULL,
+        started_at TEXT NOT NULL,
+        stage_changed_at TEXT NOT NULL,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (fermentation_id) REFERENCES fermentations(id) ON DELETE CASCADE
+      );
+
+      -- Same real, basic Scheduler tie-in as garden_task_links/
+      -- food_trial_task_links -- one row per reminder SERIES (only the
+      -- first occurrence gets linked, the same honest Phase-1 scope limit
+      -- those two tables already carry), traced back to the batch it's
+      -- actually about.
+      CREATE TABLE IF NOT EXISTS fermentation_task_links (
+        schedule_item_id TEXT PRIMARY KEY,
+        fermentation_batch_id TEXT NOT NULL,
+        FOREIGN KEY (schedule_item_id) REFERENCES schedule_items(id) ON DELETE CASCADE,
+        FOREIGN KEY (fermentation_batch_id) REFERENCES fermentation_batches(id) ON DELETE CASCADE
+      );
+
+      -- "My Fermented Drinks" -- mirrors garden_harvests exactly (see its
+      -- own comment further up for the full reasoning): something made, on
+      -- hand in a real quantity, drawn down as it's actually drunk, until
+      -- the person tells the app it's gone. quantity_remaining always
+      -- starts equal to quantity, same authoritative-single-number
+      -- reasoning as garden_harvests.
+      CREATE TABLE IF NOT EXISTS fermentation_harvests (
+        id TEXT PRIMARY KEY,
+        fermentation_batch_id TEXT,
+        fermentation_id TEXT NOT NULL,
+        drink_name TEXT NOT NULL,
+        ready_at TEXT NOT NULL,
+        quantity REAL NOT NULL,
+        unit TEXT NOT NULL,
+        quantity_remaining REAL NOT NULL,
+        notes TEXT,
+        created_at TEXT NOT NULL DEFAULT (datetime('now')),
+        FOREIGN KEY (fermentation_batch_id) REFERENCES fermentation_batches(id) ON DELETE SET NULL,
+        FOREIGN KEY (fermentation_id) REFERENCES fermentations(id) ON DELETE CASCADE
+      );
+
       -- Beverage Builder's own real persistence, 2026-08-02 -- same
       -- per-builder-table reasoning as sides/side_ingredients,
       -- salads/salad_ingredients, smoothies/smoothie_ingredients, and
@@ -4578,6 +4632,9 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_garden_harvests_remaining ON garden_harvests(quantity_remaining);
       CREATE INDEX IF NOT EXISTS idx_garden_harvests_planting ON garden_harvests(planting_id);
       CREATE INDEX IF NOT EXISTS idx_scanned_product_prices_product ON scanned_product_prices(scanned_product_id);
+      CREATE INDEX IF NOT EXISTS idx_fermentation_batches_stage ON fermentation_batches(stage);
+      CREATE INDEX IF NOT EXISTS idx_fermentation_harvests_remaining ON fermentation_harvests(quantity_remaining);
+      CREATE INDEX IF NOT EXISTS idx_fermentation_harvests_batch ON fermentation_harvests(fermentation_batch_id);
     `);
 
     const mealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meals)');
@@ -10641,7 +10698,12 @@ async function insertScheduleSeries(input: {
   // 2026-08-14, the identical reasoning for the structured food-testing
   // feature's own daily during-a-trial check-in reminders (see
   // scheduleFoodTrialCheckins below).
-  itemType: 'meal' | 'supplement' | 'prescription' | 'appointment' | 'garden' | 'foodTest';
+  // 'fermentation' added 2026-08-20, the identical reasoning as 'garden'/
+  // 'foodTest' above -- the Fermentation Tracker's own real reminder
+  // series (see startFermentationBatch/advanceFermentationBatch below)
+  // reuses this same repeat/rolling-window machinery rather than a third,
+  // parallel one.
+  itemType: 'meal' | 'supplement' | 'prescription' | 'appointment' | 'garden' | 'foodTest' | 'fermentation';
   mealType: string | null;
   title: string;
   scheduledFor: string;
@@ -14827,6 +14889,293 @@ async function cancelFoodTrialCheckins(foodTrialId: string): Promise<void> {
   if (link?.repeat_group_id) {
     await deleteScheduleSeries(link.repeat_group_id);
   }
+}
+
+// The Fermentation Tracker, 2026-08-20 -- a real physical jar's own
+// progress from the day it's started to the day it's ready to drink,
+// distinct from `fermentations` (a saved RECIPE) the same way a garden
+// harvest is distinct from a garden planting. See fermentation_batches'
+// own CREATE TABLE comment for the full reasoning.
+export type FermentationBatchStage = 'primary' | 'carbonating' | 'refrigerated' | 'finished';
+
+export type FermentationBatch = {
+  id: string;
+  fermentationId: string;
+  stage: FermentationBatchStage;
+  startedAt: string;
+  stageChangedAt: string;
+  notes: string | null;
+  createdAt: string;
+};
+
+const FERMENTATION_BATCH_COLUMNS = `
+  id, fermentation_id AS fermentationId, stage, started_at AS startedAt,
+  stage_changed_at AS stageChangedAt, notes, created_at AS createdAt
+`;
+
+// Cancels a batch's own currently-scheduled, not-yet-happened reminders --
+// the same repeat_group_id lookup-and-delete approach as
+// cancelFoodTrialCheckins just above, except a batch can carry more than
+// one active series at once (a daily stir/burp reminder plus a separate
+// one-time stage-transition prompt), so every link row is walked rather
+// than assuming just one.
+async function cancelFermentationBatchReminders(fermentationBatchId: string): Promise<void> {
+  const db = await getDatabase();
+  const links = await db.getAllAsync<{ repeat_group_id: string | null }>(
+    `
+      SELECT si.repeat_group_id
+      FROM fermentation_task_links l
+      JOIN schedule_items si ON si.id = l.schedule_item_id
+      WHERE l.fermentation_batch_id = ?
+    `,
+    fermentationBatchId,
+  );
+  for (const link of links) {
+    if (link.repeat_group_id) {
+      await deleteScheduleSeries(link.repeat_group_id);
+    }
+  }
+}
+
+// Schedules the real reminder series for whichever stage a batch just
+// entered -- called from both startFermentationBatch and
+// advanceFermentationBatch below. Deliberately time-based defaults (this
+// app has no per-recipe "typical fermentation window" field to key off
+// yet): a daily stir/burp reminder for the stage's own typical length,
+// plus one separate one-time "ready to move on?" prompt near the end of
+// that window. The person confirms every real transition themselves --
+// same honest Phase-1 scope limit already established for Garden's own
+// task reminders, not sensor-driven.
+async function scheduleFermentationStageReminders(
+  fermentationBatchId: string,
+  fermentationName: string,
+  stage: FermentationBatchStage,
+): Promise<void> {
+  if (stage === 'refrigerated' || stage === 'finished') {
+    return;
+  }
+
+  const pad = (value: number) => String(value).padStart(2, '0');
+  const toDateString = (date: Date) => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+  const reminderTime = '09:00';
+
+  const tomorrow = new Date();
+  tomorrow.setDate(tomorrow.getDate() + 1);
+  const stageDurationDays = stage === 'primary' ? 5 : 3;
+
+  const dailyTitle =
+    stage === 'primary' ? `Stir/check your ${fermentationName}` : `Burp/check your ${fermentationName}'s bottle`;
+  const dailyId = await insertScheduleSeries({
+    itemType: 'fermentation',
+    mealType: null,
+    title: dailyTitle,
+    scheduledFor: `${toDateString(tomorrow)}T${reminderTime}`,
+    repeat: { type: 'daily', endType: 'count', count: stageDurationDays },
+  });
+
+  const db = await getDatabase();
+  await db.runAsync(
+    'INSERT INTO fermentation_task_links (schedule_item_id, fermentation_batch_id) VALUES (?, ?)',
+    dailyId,
+    fermentationBatchId,
+  );
+
+  const followUpDate = new Date(tomorrow);
+  followUpDate.setDate(followUpDate.getDate() + stageDurationDays - 2);
+  const followUpTitle =
+    stage === 'primary'
+      ? `Taste test: is your ${fermentationName} ready to strain and bottle?`
+      : `Check carbonation: is your ${fermentationName} ready to move to the fridge?`;
+  const followUpId = await insertScheduleSeries({
+    itemType: 'fermentation',
+    mealType: null,
+    title: followUpTitle,
+    scheduledFor: `${toDateString(followUpDate)}T${reminderTime}`,
+    repeat: { type: 'none' },
+  });
+  await db.runAsync(
+    'INSERT INTO fermentation_task_links (schedule_item_id, fermentation_batch_id) VALUES (?, ?)',
+    followUpId,
+    fermentationBatchId,
+  );
+}
+
+// Starts tracking a real jar built from an already-saved fermentation
+// recipe (fermentationId) -- the "Track this batch" action on
+// FermentationBuilder's own save/detail screen. Schedules the first
+// stage's real reminder series immediately.
+export async function startFermentationBatch(input: {
+  fermentationId: string;
+  fermentationName: string;
+  notes?: string | null;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `fermentation_batch_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO fermentation_batches (id, fermentation_id, stage, started_at, stage_changed_at, notes, created_at)
+      VALUES (?, ?, 'primary', ?, ?, ?, ?)
+    `,
+    id,
+    input.fermentationId,
+    now,
+    now,
+    input.notes?.trim() || null,
+    now,
+  );
+  await scheduleFermentationStageReminders(id, input.fermentationName, 'primary');
+  return id;
+}
+
+// Moves a batch to its next real stage -- cancels that stage's remaining
+// reminders and schedules the next stage's own series, the same
+// cancel-then-reschedule pattern already established elsewhere in this
+// file for a series that's genuinely done.
+export async function advanceFermentationBatch(input: {
+  fermentationBatchId: string;
+  fermentationName: string;
+  nextStage: FermentationBatchStage;
+}): Promise<void> {
+  const db = await getDatabase();
+  const now = new Date().toISOString();
+  await cancelFermentationBatchReminders(input.fermentationBatchId);
+  await db.runAsync(
+    'UPDATE fermentation_batches SET stage = ?, stage_changed_at = ? WHERE id = ?',
+    input.nextStage,
+    now,
+    input.fermentationBatchId,
+  );
+  await scheduleFermentationStageReminders(input.fermentationBatchId, input.fermentationName, input.nextStage);
+}
+
+// Every batch still actively being tracked, most recently started first --
+// 'finished' batches drop off this list once their own contents become a
+// real fermentation_harvests entry (see recordFermentationHarvest below).
+export async function listFermentationBatches(): Promise<FermentationBatch[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<FermentationBatch>(
+    `SELECT ${FERMENTATION_BATCH_COLUMNS} FROM fermentation_batches WHERE stage != 'finished' ORDER BY started_at DESC`,
+  );
+}
+
+export async function deleteFermentationBatch(id: string): Promise<void> {
+  await cancelFermentationBatchReminders(id);
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM fermentation_batches WHERE id = ?', id);
+}
+
+// "My Fermented Drinks" -- mirrors garden_harvests' own
+// recordGardenHarvest/listAvailableHarvests/recordHarvestUsage/
+// deleteGardenHarvest exactly (see those functions' own comments further
+// up for the full reasoning): something made, on hand in a real quantity,
+// drawn down as it's actually drunk, until the person tells the app it's
+// gone, just like a garden harvest running out.
+export type FermentationHarvest = {
+  id: string;
+  fermentationBatchId: string | null;
+  fermentationId: string;
+  drinkName: string;
+  readyAt: string;
+  quantity: number;
+  unit: string;
+  quantityRemaining: number;
+  notes: string | null;
+  createdAt: string;
+};
+
+const FERMENTATION_HARVEST_COLUMNS = `
+  id, fermentation_batch_id AS fermentationBatchId, fermentation_id AS fermentationId, drink_name AS drinkName,
+  ready_at AS readyAt, quantity, unit, quantity_remaining AS quantityRemaining, notes, created_at AS createdAt
+`;
+
+// quantity_remaining always starts equal to quantity, same
+// authoritative-single-number reasoning as recordGardenHarvest. Moving a
+// batch to 'refrigerated' is the real moment it becomes drinkable, so
+// recording its harvest here also retires the batch itself to 'finished'
+// -- the jar stops being something to track once its contents have become
+// a real harvest entry instead.
+export async function recordFermentationHarvest(input: {
+  fermentationBatchId?: string | null;
+  fermentationId: string;
+  drinkName: string;
+  readyAt: string;
+  quantity: number;
+  unit: string;
+  notes?: string | null;
+}): Promise<string> {
+  const db = await getDatabase();
+  const id = `fermentation_harvest_${Date.now()}`;
+  const now = new Date().toISOString();
+  await db.runAsync(
+    `
+      INSERT INTO fermentation_harvests
+        (id, fermentation_batch_id, fermentation_id, drink_name, ready_at, quantity, unit, quantity_remaining, notes, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+    `,
+    id,
+    input.fermentationBatchId ?? null,
+    input.fermentationId,
+    input.drinkName,
+    input.readyAt,
+    input.quantity,
+    input.unit,
+    input.quantity,
+    input.notes?.trim() || null,
+    now,
+  );
+
+  if (input.fermentationBatchId) {
+    await cancelFermentationBatchReminders(input.fermentationBatchId);
+    await db.runAsync(
+      "UPDATE fermentation_batches SET stage = 'finished', stage_changed_at = ? WHERE id = ?",
+      now,
+      input.fermentationBatchId,
+    );
+  }
+
+  return id;
+}
+
+export async function listAvailableFermentationHarvests(): Promise<FermentationHarvest[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<FermentationHarvest>(
+    `SELECT ${FERMENTATION_HARVEST_COLUMNS} FROM fermentation_harvests WHERE quantity_remaining > 0 ORDER BY ready_at DESC`,
+  );
+}
+
+export async function listAllFermentationHarvests(limit = 50): Promise<FermentationHarvest[]> {
+  const db = await getDatabase();
+  return db.getAllAsync<FermentationHarvest>(
+    `SELECT ${FERMENTATION_HARVEST_COLUMNS} FROM fermentation_harvests ORDER BY ready_at DESC LIMIT ?`,
+    limit,
+  );
+}
+
+// Draws down a harvest's own remaining inventory by amountUsed (a real
+// "log a glass" action) -- clamped at 0, never negative, the same
+// defensive floor as recordHarvestUsage (garden's own equivalent).
+export async function recordFermentationHarvestUsage(harvestId: string, amountUsed: number): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync(
+    'UPDATE fermentation_harvests SET quantity_remaining = MAX(0, quantity_remaining - ?) WHERE id = ?',
+    amountUsed,
+    harvestId,
+  );
+}
+
+// The plain "mark finished/empty" action -- zeroes out remaining inventory
+// directly rather than requiring someone to log glass-by-glass until it
+// hits zero naturally, matching "they let the app know when it is gone,"
+// the same framing already established for a garden harvest running out.
+export async function markFermentationHarvestFinished(harvestId: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('UPDATE fermentation_harvests SET quantity_remaining = 0 WHERE id = ?', harvestId);
+}
+
+export async function deleteFermentationHarvest(id: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('DELETE FROM fermentation_harvests WHERE id = ?', id);
 }
 
 // Every planned, not-yet-happened real garden task from today onward, most

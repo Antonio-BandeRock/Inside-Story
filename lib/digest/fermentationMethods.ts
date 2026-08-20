@@ -130,4 +130,35 @@ export const FERMENTATION_METHODS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['fermentmethod-overview', 'fermented-tying-together', 'fermented-sourcing-starters', 'garden-preserving-the-harvest'],
   },
+  {
+    id: 'fermentmethod-wild-tonics',
+    category: 'basicHealth',
+    title: 'Wild-Fermented Fruit Tonics (Tepache-Style): No Starter Culture Required',
+    teaser: 'Raw ginger and turmeric skins carry their own wild yeast, enough to seed a fermenting tonic from almost any fruit, no SCOBY or kefir grains needed.',
+    summary: 'Tepache, the traditional Mexican pineapple ferment, works without any separate starter culture because pineapple rind carries an unusually heavy load of wild yeast on its own skin. Most other fruit doesn\'t carry that much, and frozen fruit carries almost none at all, since freezing kills or stuns the surface microbes that would otherwise start the ferment. Raw, organic, unpeeled ginger and turmeric solve both problems: their skins carry their own wild yeast and lactic acid bacteria, strong enough to seed a batch built from fresh, frozen, or otherwise low-yeast fruit. The method stays the same across nearly any fruit: roughly 2 cups of crushed or chopped fruit, 1-2 tablespoons of unpeeled ginger and turmeric, 1/4 to 1/3 cup of raw honey or sugar, and 4 cups of filtered water, left covered with a breathable cloth and stirred twice a day (keeping the fruit submerged prevents mold) for 3-5 days until tangy and lightly carbonated. This app\'s own Recipes category carries this method built out across ten separate fruit and flower variations, each with its own condition-specific framing.',
+    citations: [
+      {
+        source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview',
+        url: 'https://nchfp.uga.edu/how/can_ferment.html',
+      },
+    ],
+    overallTier: 'strong',
+    stageNote: 'Maps to Fermentation Builder\'s Fruit and Veg ingredient categories.',
+    relatedIds: ['fermentmethod-lacto-fermented-vegetables', 'fermented-sauerkraut-succession', 'interaction-curcumin-piperine'],
+  },
+  {
+    id: 'fermentmethod-dairy-free-gluten-free-survey',
+    category: 'basicHealth',
+    title: 'Which Traditional Fermented Drinks Fit a Dairy-Free, Gluten-Free Diet',
+    teaser: 'From Mauby bark to Sobia\'s barley, a world tour of fermented drinks sorted by what they\'re actually made from before a name alone tells you whether one fits your own diet.',
+    summary: 'Traditional fermented drinks span a wide range of base ingredients, and a name alone doesn\'t reveal whether one carries dairy or gluten. Dairy-based: Milk Kefir and Calpis (a Japanese cultured milk drink) both rely on casein and lactose, which fermentation reduces but doesn\'t eliminate. Ayran and Lassi are yogurt-based drinks from Turkey/Central Asia and India respectively, thinned with water and sometimes salt or fruit. Tarag, a traditional Mongolian ferment, uses mare\'s or camel\'s milk, neither of which this app\'s own reference database carries. Grain-based, often carrying gluten: Sobia (Saudi Arabian, traditionally made from oats or barley, with a contamination risk unless certified gluten-free grain is used specifically), Burdock and Dandelion Ale (a British herbal ferment traditionally using barley malt as its fermentable sugar source), Boza (a thick Balkan/Turkish millet or wheat ferment), rye Kvass (Russian/Ukrainian, distinct from beet kvass, built on rye bread), Sake and Makgeolli (Japanese and Korean rice ferments, gluten-free by ingredient but alcoholic), and Rejuvelac (traditionally sprouted wheat berries, though a gluten-free grain like quinoa or millet works as a direct substitute). Corn-based: Pozol, a Mesoamerican fermented corn dough drink; corn itself is gluten-free but a known cross-reactive grain for some gluten-sensitive people. Amazake, a Japanese fermented rice drink made with koji mold, is gluten-free but carries a high glycemic load from the maltose fermentation produces. Sap and bark-based, generally outside what a home kitchen can source: Palm Wine (fermented palm sap), Pulque (fermented agave sap), Chicha (fermented maize, traditionally with a saliva-based starter in some regional versions), Mauby (fermented soldierwood tree bark), and Pine Needle Cheong (a Korean fresh pine needle and sugar ferment). Tea-based, dairy-free and gluten-free throughout: Pu-erh (a post-fermented Chinese tea, distinct from kombucha\'s live-culture fermentation) alongside this app\'s own already-built Kombucha and Jun Tea. Every drink in this app\'s own Recipes category was chosen specifically because it clears both the dairy and gluten bar without needing a substitution.',
+    citations: [
+      {
+        source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview',
+        url: 'https://nchfp.uga.edu/how/can_ferment.html',
+      },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['fermentmethod-wild-tonics', 'fermentmethod-milk-kefir-and-yogurt'],
+  },
 ];
