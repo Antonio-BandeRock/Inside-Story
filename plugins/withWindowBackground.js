@@ -3,7 +3,8 @@ const { withAndroidStyles, AndroidConfig } = require('expo/config-plugins');
 // Plain Node require() can't parse constants/colors.ts's TypeScript syntax
 // (config plugins run outside Metro/Babel), so this is a literal copy of
 // colors.background -- keep it in sync if that value ever changes.
-const WINDOW_BACKGROUND_COLOR = '#2B3753';
+// Updated 2026-08-19 alongside colors.background's own Navy -> Teal change.
+const WINDOW_BACKGROUND_COLOR = '#244147';
 
 // The nav-bar area still showed solid black even after disabling Android's
 // enforced-contrast scrim (app.json's androidNavigationBar.enforceContrast)

@@ -30,10 +30,24 @@ export const colors = {
   accentDark: '#A87E55',
   accentTint: '#3A3020',
 
-  // Neutrals -- Deep Navy base, sampled from the wings. Surface sits
-  // *lighter* than the background (an elevated-card feel) rather than
-  // darker, since the background itself is already quite dark.
-  background: '#2B3753',
+  // Neutrals -- Deep Teal ground, chosen 2026-08-19 to replace the original
+  // Deep Navy base (still sampled from the wings; see the archived comment
+  // history below this block for that value's own reasoning and every
+  // surface/border/textMuted tuning pass that was verified against it).
+  // Landed on via a live hue/saturation/lightness explorer built specifically
+  // for this decision (Ground Color Lab artifact, 2026-08-19): started from a
+  // "Deep Teal" preset (H190 S32 L25, matching Deep Navy's own S/L exactly)
+  // and settled on a touch darker (H190 S32 L21) after seeing it live.
+  // Surface/border/textMuted/keySurface below are recomputed at the *same
+  // relative* saturation/lightness offsets from this new base that they
+  // already sat at from the old one (surface: S-9/L+10, border: S-9/L+22,
+  // textMuted: S-8/L+38, keySurface: S+5/L+38 -- each measured from the old
+  // values, not guessed), so the whole neutral family moves together rather
+  // than drifting apart. menuSurface is deliberately left alone -- see its
+  // own comment below for why it's intentionally desaturated/hue-independent.
+  // primary/accent/textPrimary/status/tab-identity colors are all untouched:
+  // this was scoped to the ground only, not a full re-theme.
+  background: '#244147',
   // Translucent, not flat, 2026-07-26: every tab now has its own photo
   // background behind its content (ScreenBackground.tsx), and a fully
   // opaque card was hiding all of it rather than letting the screen feel
@@ -74,7 +88,7 @@ export const colors = {
   // (photo much more visible than in the screenshots the earlier passes
   // were judged against), the wildflower background was still showing
   // through Home's cards and every tab's resting-prompt box too strongly.
-  surface: 'rgba(69, 84, 111, 0.85)',
+  surface: 'rgba(61, 91, 97, 0.85)',
   // Translucent as of 2026-07-26, same reasoning as `surface` above --
   // this is the background behind actual typed TextInput fields
   // (styles.input across the form-heavy screens), which was still a flat
@@ -94,8 +108,8 @@ export const colors = {
   // Bigger jump alongside `surface`'s own, same day (0.45 -> 0.65).
   // One more small nudge alongside `surface`'s own, same day (0.65 -> 0.75).
   // Nudged again alongside `surface`'s own, 2026-07-27 (0.75 -> 0.85).
-  surfaceMuted: 'rgba(56, 69, 106, 0.85)',
-  border: '#5C6F94',
+  surfaceMuted: 'rgba(49, 86, 94, 0.85)',
+  border: '#547F87',
 
   // AppKeyboard's own letter/digit keycap color, added 2026-07-27 -- a
   // lighter blue than `border` above so the keys read as raised/tappable
@@ -104,7 +118,7 @@ export const colors = {
   // comment). Same ~221-degree blue hue as `background`/`border`, just
   // lighter, rather than an unrelated color, so the keyboard still reads as
   // part of this app's palette instead of a generic gray keypad.
-  keySurface: '#7E97C4',
+  keySurface: '#70B0BD',
 
   // TabHub's popup menu background specifically -- deliberately its own
   // token rather than reusing `surface`, added 2026-07-26. `surface` is a
@@ -165,7 +179,7 @@ export const colors = {
   // re-verified every time the surface color changes.
   textPrimary: '#E4D5C5',
   textSecondary: '#E4D5C5',
-  textMuted: '#8B9BB8',
+  textMuted: '#7DA7B0',
   textOnPrimary: '#0F2E2B',
 
   danger: '#E0917A',
