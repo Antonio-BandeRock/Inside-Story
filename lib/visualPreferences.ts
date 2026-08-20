@@ -294,8 +294,9 @@ const VISUAL_PREFERENCES_KEY = 'visual_preferences';
 // that throws a plain "no such table" error, caught below, same fallback
 // (Deep Teal) as every other not-yet-loaded case in this file.
 export function getGroundThemeSync(): GroundTheme {
+  let db: SQLite.SQLiteDatabase | null = null;
   try {
-    const db = SQLite.openDatabaseSync(DB_NAME);
+    db = SQLite.openDatabaseSync(DB_NAME);
     const row = db.getFirstSync<{ value: string }>(
       'SELECT value FROM app_meta WHERE key = ?',
       VISUAL_PREFERENCES_KEY,
@@ -308,6 +309,23 @@ export function getGroundThemeSync(): GroundTheme {
     // No app_meta table yet (first-ever launch, before initializeDatabase()
     // has run) or a corrupted blob -- fall back below, same as the async
     // path already does.
+  } finally {
+    // Real, reported bug, 2026-08-19: leaving this connection open caused
+    // getDatabase()'s own async connection (opened moments later, same
+    // file, from lib/db.ts) to fail with "Call to function
+    // 'NativeDatabase.prepareAsync' has been rejected... NullPointerException"
+    // the instant Profile ran its first real query -- two live connections
+    // to the same file, one sync and one async, tripped up expo-sqlite's
+    // native layer. This function only ever needs the one value, so close
+    // immediately rather than holding the connection for the app's whole
+    // lifetime.
+    try {
+      db?.closeSync();
+    } catch {
+      // Closing is real cleanup, not part of the actual result -- a close
+      // failure here must never propagate and take down this function's
+      // caller, since colors.ts calls this uncaught at module-load time.
+    }
   }
   return DEFAULT_VISUAL_PREFERENCES.groundTheme;
 }

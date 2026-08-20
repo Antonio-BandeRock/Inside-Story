@@ -1,4 +1,5 @@
 import { Ionicons } from '@expo/vector-icons';
+import * as Updates from 'expo-updates';
 import { useCallback, useEffect, useState, type ReactNode } from 'react';
 import { ActivityIndicator, Image, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -621,6 +622,30 @@ export default function ProfileScreen() {
   const [showBusy, hideBusy, busyOverlayElement] = useBusyOverlay();
   const [confirmBackup, confirmSheetElement] = useConfirmSheet();
   const [showBackupAlert, backupAlertElement] = useInfoAlert();
+
+  // Ground color picker's own handler, 2026-08-19 -- see the Ground color
+  // sub-section's own comment below for the full "why this needs a reload
+  // at all" reasoning. showBusy gives instant feedback for the brief gap
+  // between the tap and reloadAsync() actually tearing the JS context
+  // down; there's no matching hideBusy because that moment never arrives
+  // on the success path -- the whole app (this overlay included) is gone
+  // by then, replaced by a fresh launch. Only the catch path needs to
+  // clear it, for the rare case reloadAsync() itself rejects rather than
+  // just not resolving before the reload happens.
+  async function handleSelectGroundTheme(theme: GroundTheme) {
+    showBusy('Applying...');
+    await setVisualPreferences({ groundTheme: theme });
+    try {
+      await Updates.reloadAsync();
+    } catch (error) {
+      console.error('Updates.reloadAsync failed after ground theme change', error);
+      hideBusy();
+      showBackupAlert(
+        'Saved',
+        'Your new ground color is saved, but this device could not restart the app automatically. Close and reopen Inside Story to see it everywhere.',
+      );
+    }
+  }
 
   const refreshLocalBackups = useCallback(async () => {
     const files = await listLocalBackupFiles();
@@ -2497,19 +2522,32 @@ export default function ProfileScreen() {
             ) : null}
 
             {/* Ground color, 2026-08-19 -- see constants/colors.ts's own
-                GROUND_THEMES/applyGroundTheme comments for the full
-                reasoning and how each theme's family is derived. Direct
-                request, the same day Deep Navy was replaced with Deep Teal
-                as the shipped default: "add several additional colors...
-                about the same darkness as this one [and] put them in the
-                Profile area." */}
+                GROUND_THEMES/initialGround comments for the full reasoning
+                and how each theme's family is derived. Direct request, the
+                same day Deep Navy was replaced with Deep Teal as the
+                shipped default: "add several additional colors... about
+                the same darkness as this one [and] put them in the
+                Profile area."
+                colors.background/surface/etc. only resolve to the right
+                theme once, synchronously, at the moment
+                constants/colors.ts's own module code first runs (see that
+                file's own comment on why) -- so picking a new one here has
+                to actually restart the JS runtime for it to reach every
+                screen, not just re-render this one. First shipped without
+                that restart automated, requiring a manual force-close and
+                reopen -- reported directly as not what was expected
+                ("they need to happen instantly"). handleSelectGroundTheme
+                below is the fix: reloadAsync() restarts the JS bundle
+                immediately after the pick is saved, so the same correct
+                synchronous resolution just runs again automatically,
+                without anyone needing to know a restart is involved at
+                all. */}
             {renderAppearanceSubsectionHeader('groundColor', 'Ground color', false)}
             {!collapsedAppearanceSubsections.has('groundColor') ? (
               <>
                 <Text style={styles.helpText}>
                   The app&apos;s own dark base color -- every card, border, and muted label everywhere reads from
-                  this one choice. Takes effect the next time you open the app, not instantly, since it touches
-                  nearly every screen.
+                  this one choice. Applying it restarts the app for a moment.
                 </Text>
                 <View style={styles.pillRow}>
                   {GROUND_THEME_OPTIONS.map((theme) => {
@@ -2518,7 +2556,7 @@ export default function ProfileScreen() {
                       <TouchableOpacity
                         key={theme}
                         style={[styles.pillSmall, active && styles.pillActive]}
-                        onPress={() => setVisualPreferences({ groundTheme: theme })}
+                        onPress={() => handleSelectGroundTheme(theme)}
                       >
                         <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
                           {GROUND_THEME_LABELS[theme]}
