@@ -24,13 +24,17 @@ import {
   getStoredMeasurementSystem,
   getUserConditions,
   listAllConditions,
+  listCuratedRecipes,
   listFermentationStrains,
   saveBuilderFavorite,
   saveFermentation,
+  scheduleFermentationRecipeReminder,
   setFermentationBatchStrains,
+  startFermentationBatch,
   updateFermentation,
   type ComponentConditionNote,
   type ComponentNutritionHighlight,
+  type CuratedRecipeSummary,
   type FoodScore,
   type FermentationIngredientInput,
   type FermentationStrain,
@@ -472,12 +476,98 @@ const SOURCE_CANCEL_ROW_HEIGHT = 40;
 // kefir grains, wild yeast on a fruit skin) isn't one of this app's own 7
 // catalogued single-organism strains, so showing the picker there would
 // misrepresent what's actually fermenting.
+// 2026-08-21, same day, real follow-up correction: "I think the types of
+// fermentations need to be first divided by if they are a drink or not,
+// and then by the type of fermentation inside of the group they chose."
+// See FermentationSubtypePicker.tsx's own header comment for the full
+// story -- the flat 5-option version below was replaced by a real
+// two-step Drink/Food split, 10 real leaf keys total. Cultures &
+// Probiotics is now gated to 'yogurt' specifically, not any broader
+// dairy grouping -- milk kefir's own culture (kefir grains, a multi-
+// species community) was never one of this app's 7 catalogued single-
+// organism strains either, the same honest "leave it unlinked" precedent
+// this whole recipe set already established, so showing the picker for
+// milk kefir would misrepresent what's actually fermenting the same way
+// showing it for kombucha would.
 const FERMENTATION_SUBTYPE_CONFIG: Record<FermentationSubtypeKey, { allowedCategories: string[] }> = {
-  fruitVegTonics: { allowedCategories: ['Fruit', 'Veg', 'Herbs', 'Bev', 'Sweets', 'PantryStaples', 'SaucesCondiments'] },
-  kombuchaGrainDrinks: { allowedCategories: ['Brewing', 'Bev', 'Grain', 'PastaNoodles', 'Sweets', 'PantryStaples'] },
+  fruitHerbalTonics: { allowedCategories: ['Fruit', 'Herbs', 'Bev', 'Sweets', 'PantryStaples', 'SaucesCondiments'] },
+  vegetableRootFerments: { allowedCategories: ['Veg', 'Herbs', 'Sweets', 'PantryStaples'] },
+  kombuchaTeaGrainDrinks: { allowedCategories: ['Brewing', 'Bev', 'Grain', 'PastaNoodles', 'Sweets', 'PantryStaples'] },
   waterCoconutKefir: { allowedCategories: ['Bev', 'Sweets', 'Fruit'] },
-  milkKefirYogurt: { allowedCategories: ['Dairy', 'Fruit', 'Herbs', 'Sweets'] },
-  somethingElse: { allowedCategories: FERMENTATION_BUILDER_CATEGORIES },
+  milkKefirCulturedDairyDrinks: { allowedCategories: ['Dairy', 'Fruit', 'Herbs', 'Sweets'] },
+  somethingElseDrink: { allowedCategories: FERMENTATION_BUILDER_CATEGORIES },
+  fermentedVegetables: { allowedCategories: ['Veg', 'Herbs', 'PantryStaples'] },
+  yogurt: { allowedCategories: ['Dairy'] },
+  syrupsSpoonableTonics: { allowedCategories: ['Herbs', 'Sweets', 'Fruit'] },
+  somethingElseFood: { allowedCategories: FERMENTATION_BUILDER_CATEGORIES },
+};
+
+// Which of this session's own 45 curated fermentation recipes (plus the 4
+// that predate them) belongs to each of the 10 leaf subtypes above --
+// used by the "Pick a Premade Recipe" menu below. A real, individually
+// assigned mapping, not inferred from ingredient category at runtime:
+// two recipes named "Tonic" (Fermented Garlic Honey Tonic, Rosemary
+// Cheong) are genuinely NOT drinks by their own recipe text ("taken by
+// the spoonful," "meant to be diluted... not drunk straight"), so a
+// category-based guess would have misclassified both. somethingElseDrink/
+// somethingElseFood deliberately have no entries here -- there's no real
+// "which of the 45 belongs to a catch-all" answer, so that menu shows
+// every curated fermentation recipe unfiltered instead (see
+// curatedRecipesForSubtype below).
+const CURATED_RECIPE_IDS_BY_SUBTYPE: Partial<Record<FermentationSubtypeKey, string[]>> = {
+  fruitHerbalTonics: [
+    'curated_ferment_tonic_tart_cherry_ginger_turmeric',
+    'curated_ferment_tonic_blueberry_ginger_turmeric',
+    'curated_ferment_tonic_pomegranate_ginger_turmeric',
+    'curated_ferment_tonic_cranberry_ginger_turmeric',
+    'curated_ferment_tonic_red_grape_ginger_turmeric',
+    'curated_ferment_tonic_hibiscus_ginger_turmeric',
+    'curated_ferment_tonic_blackberry_raspberry_ginger_turmeric',
+    'curated_ferment_tonic_elderberry_ginger_turmeric',
+    'curated_ferment_tonic_apple_pear',
+    'curated_ferment_tonic_lemon_lime',
+    'curated_ferment_ginger_bug_soda',
+    'curated_ferment_ginger_beer_traditional',
+    'curated_ferment_turmeric_drink',
+    'curated_ferment_tepache',
+    'curated_ferment_shrub',
+    'curated_ferment_switchel',
+  ],
+  vegetableRootFerments: [
+    'curated_ferment_beet_kvass',
+    'curated_ferment_kanji',
+    'curated_ferment_mauby_burdock_tonic',
+    'curated_ferment_burdock_dandelion_ale',
+  ],
+  kombuchaTeaGrainDrinks: [
+    'curated_ferment_kombucha',
+    'curated_ferment_jun_tea',
+    'curated_ferment_puerh_style_tea',
+    'curated_ferment_amazake',
+    'curated_ferment_boza',
+    'curated_ferment_sake_style_rice_wine',
+    'curated_ferment_makgeolli',
+    'curated_ferment_rejuvelac',
+    'curated_ferment_rye_style_kvass_quinoa',
+    'curated_ferment_chicha',
+    'curated_ferment_pozol',
+  ],
+  waterCoconutKefir: [
+    'curated_ferment_water_kefir',
+    'curated_ferment_coconut_kefir',
+    'curated_ferment_coconut_palm_wine_style',
+    'curated_ferment_maple_pulque_style',
+  ],
+  milkKefirCulturedDairyDrinks: [
+    'curated_ferment_milk_kefir',
+    'curated_ferment_ayran',
+    'curated_ferment_mango_lassi',
+    'curated_ferment_tarag_style',
+    'curated_ferment_sobia',
+  ],
+  fermentedVegetables: ['curated_ferment_sauerkraut'],
+  yogurt: ['curated_ferment_plain_yogurt', 'curated_ferment_probiotic_yogurt'],
+  syrupsSpoonableTonics: ['curated_ferment_garlic_honey_tonic', 'curated_ferment_rosemary_cheong'],
 };
 export function FermentationBuilder({
   tabColor,
@@ -523,7 +613,7 @@ export function FermentationBuilder({
   // this builder always had when subtype is undefined (every edit/
   // favorite/curated-recipe arrival).
   const allowedFermentationCategories = subtype ? FERMENTATION_SUBTYPE_CONFIG[subtype].allowedCategories : FERMENTATION_BUILDER_CATEGORIES;
-  const showCulturesSection = !subtype || subtype === 'milkKefirYogurt';
+  const showCulturesSection = !subtype || subtype === 'yogurt';
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const activeField = useActiveField();
@@ -844,6 +934,107 @@ export function FermentationBuilder({
   // pattern, since only this builder has a strain picker at all (Phase 1,
   // 2026-08-14).
   const [loadingCuratedRecipeId, setLoadingCuratedRecipeId] = useState<string | null>(null);
+
+  // "Pick a Premade Recipe," 2026-08-21 -- real, direct request, same day
+  // as the Drink/Food subtype split above: "this is where we have a menu
+  // available for them to just select a premade recipe that they can
+  // then add to their schedule for today or the future. If they choose
+  // to add their own specific fermentation, this is where our normal
+  // path will be normal again." Shown only on a fresh arrival via
+  // FermentationSubtypePicker (subtype set, not editing/reusing/
+  // opened-from-Digest, all three of which already have their own
+  // ingredients and skip this entirely) -- dismissible via its own "Or
+  // Build Your Own Fermentation" button below, which just hides this
+  // section rather than restructuring the existing Name/Servings form
+  // beneath it, so "the normal path" stays untouched either way.
+  const [showRecipeMenu, setShowRecipeMenu] = useState(() => Boolean(subtype && !editFermentationId && !fromFavoriteId && !openRecipeId));
+  const [curatedRecipesForSubtype, setCuratedRecipesForSubtype] = useState<CuratedRecipeSummary[]>([]);
+  useEffect(() => {
+    if (!showRecipeMenu || !subtype) return;
+    let isCurrent = true;
+    listCuratedRecipes('fermentation').then((all) => {
+      if (!isCurrent) return;
+      const ids = CURATED_RECIPE_IDS_BY_SUBTYPE[subtype];
+      setCuratedRecipesForSubtype(ids ? all.filter((recipe) => ids.includes(recipe.id)) : all);
+    });
+    return () => {
+      isCurrent = false;
+    };
+  }, [showRecipeMenu, subtype]);
+
+  // Which recipe's own "Schedule for Later" date field is currently open
+  // -- at most one at a time, matching this app's own single-open-thing
+  // convention elsewhere (an accordion, a popover).
+  const [schedulingRecipeId, setSchedulingRecipeId] = useState<string | null>(null);
+  const [scheduleDateText, setScheduleDateText] = useState('');
+  const [startingRecipeId, setStartingRecipeId] = useState<string | null>(null);
+  const [schedulingInProgress, setSchedulingInProgress] = useState(false);
+
+  // "Start Today" -- saves the curated recipe's own real ingredients as a
+  // genuine new fermentation (the same real save this app's own Continue
+  // button eventually does, just skipping the review/edit step since a
+  // curated recipe's own ingredients are already real and correct) and
+  // immediately starts tracking it (startFermentationBatch, the same
+  // function the Fermentation Tracker's own "Start Tracking" button
+  // calls), landing directly on the Tracker so the first real reminder
+  // is visible right away. Deliberately a plain getCuratedRecipe call,
+  // not handlePickCuratedRecipe -- that one also resolves each
+  // ingredient's own live scores for on-screen review/editing, real work
+  // this path has no use for since nothing here is being shown or edited
+  // before saving.
+  async function handleStartCuratedRecipeToday(recipeId: string, recipeName: string) {
+    setStartingRecipeId(recipeId);
+    try {
+      const recipe = await getCuratedRecipe(recipeId);
+      if (!recipe) {
+        showInfoAlert('Something went wrong', 'Could not load that recipe. Please try again.');
+        return;
+      }
+      const saved = await saveFermentation({
+        name: recipe.name,
+        servings: recipe.servings,
+        servingSizeAmount: recipe.servingSizeAmount,
+        servingSizeUnit: recipe.servingSizeUnit,
+        ingredients: recipe.ingredients,
+        instructions: recipe.instructions ?? [],
+      });
+      const strainIds = await getCuratedRecipeStrainIds(recipeId);
+      if (strainIds.length > 0) {
+        await setFermentationBatchStrains(saved.id, strainIds);
+      }
+      await startFermentationBatch({ fermentationId: saved.id, fermentationName: recipe.name });
+      router.push({ pathname: '/fermentation-tracker', params: { fermentationId: saved.id, fermentationName: recipe.name } });
+    } catch (error) {
+      console.error('[FermentationBuilder] Failed to start curated recipe today', error);
+      showInfoAlert('Something went wrong', 'Could not start that fermentation. Please try again.');
+    } finally {
+      setStartingRecipeId(null);
+    }
+  }
+
+  // "Schedule for Later" -- a real, one-time reminder for a chosen future
+  // date (see lib/db.ts's own scheduleFermentationRecipeReminder), not an
+  // automatic future batch start -- the person still has to actually go
+  // gather real ingredients and start it that day.
+  async function handleScheduleCuratedRecipe(recipeName: string) {
+    const parsed = scheduleDateText.trim();
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(parsed)) {
+      showInfoAlert('Enter a valid date', 'Type the date as YYYY-MM-DD before scheduling a reminder.');
+      return;
+    }
+    setSchedulingInProgress(true);
+    try {
+      await scheduleFermentationRecipeReminder({ recipeName, scheduledFor: `${parsed}T09:00` });
+      setSchedulingRecipeId(null);
+      setScheduleDateText('');
+      showInfoAlert('Reminder set', `You’ll get a reminder to start ${recipeName} on ${parsed}.`);
+    } catch (error) {
+      console.error('[FermentationBuilder] Failed to schedule curated recipe reminder', error);
+      showInfoAlert('Something went wrong', 'Could not set that reminder. Please try again.');
+    } finally {
+      setSchedulingInProgress(false);
+    }
+  }
 
   async function handlePickCuratedRecipe(id: string) {
     setLoadingCuratedRecipeId(id);
@@ -1759,6 +1950,74 @@ export function FermentationBuilder({
       >
       {!servingsConfirmed ? (
         <View style={[styles.formCard, { borderColor: tabColor }]}>
+          {/* Pick a Premade Recipe -- see showRecipeMenu's own comment
+              above. Its own separate bordered block, sitting above the
+              plain Name/Servings form rather than replacing it, so
+              dismissing it ("Or Build Your Own Fermentation") never has
+              to restructure the form beneath -- the normal path really is
+              untouched, exactly as asked. */}
+          {showRecipeMenu ? (
+            <View style={[styles.recipeMenuBlock, { borderColor: tabColor }]}>
+              <Text style={[styles.formLabel, { color: tabColor }]}>Pick a Premade Recipe</Text>
+              <Text style={styles.recipeMenuSubtext}>
+                Start one of these today, schedule a reminder to start it later, or build your own below.
+              </Text>
+              {curatedRecipesForSubtype.map((recipe) => (
+                <View key={recipe.id} style={styles.recipeMenuCard}>
+                  <Text style={[styles.recipeMenuCardTitle, { color: tabColor }]}>{recipe.name}</Text>
+                  <Text style={styles.recipeMenuCardTeaser}>{recipe.flavorProfile}</Text>
+                  <View style={styles.recipeMenuActionRow}>
+                    <TouchableOpacity
+                      style={[styles.recipeMenuActionButton, { backgroundColor: tabColor }, startingRecipeId === recipe.id ? styles.disabled : null]}
+                      onPress={() => handleStartCuratedRecipeToday(recipe.id, recipe.name)}
+                      disabled={startingRecipeId === recipe.id}
+                    >
+                      <Text style={styles.recipeMenuActionButtonText}>{startingRecipeId === recipe.id ? 'Starting…' : 'Start Today'}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[styles.recipeMenuActionButtonOutline, { borderColor: tabColor }]}
+                      onPress={() => {
+                        setSchedulingRecipeId((current) => (current === recipe.id ? null : recipe.id));
+                        setScheduleDateText('');
+                      }}
+                    >
+                      <Text style={[styles.recipeMenuActionButtonOutlineText, { color: tabColor }]}>Schedule for Later</Text>
+                    </TouchableOpacity>
+                  </View>
+                  <TouchableOpacity
+                    onPress={() => {
+                      setShowRecipeMenu(false);
+                      handlePickCuratedRecipe(recipe.id);
+                    }}
+                  >
+                    <Text style={[styles.recipeMenuCustomizeLink, { color: tabColor }]}>Customize the ingredients first</Text>
+                  </TouchableOpacity>
+                  {schedulingRecipeId === recipe.id ? (
+                    <View style={styles.recipeMenuScheduleRow}>
+                      <AppTextInput
+                        style={styles.recipeMenuDateInput}
+                        value={scheduleDateText}
+                        onChangeText={setScheduleDateText}
+                        placeholder="YYYY-MM-DD"
+                        placeholderTextColor={colors.textMuted}
+                      />
+                      <TouchableOpacity
+                        style={[styles.recipeMenuActionButton, styles.recipeMenuScheduleConfirm, { backgroundColor: tabColor }, schedulingInProgress ? styles.disabled : null]}
+                        onPress={() => handleScheduleCuratedRecipe(recipe.name)}
+                        disabled={schedulingInProgress}
+                      >
+                        <Text style={styles.recipeMenuActionButtonText}>{schedulingInProgress ? 'Saving…' : 'Set Reminder'}</Text>
+                      </TouchableOpacity>
+                    </View>
+                  ) : null}
+                </View>
+              ))}
+              <TouchableOpacity style={styles.recipeMenuDismiss} onPress={() => setShowRecipeMenu(false)}>
+                <Text style={[styles.recipeMenuDismissText, { color: tabColor }]}>Or Build Your Own Fermentation</Text>
+              </TouchableOpacity>
+            </View>
+          ) : null}
+
           {/* 2026-08-16 -- see SideBuilder.tsx's own identical comment for
               the full reasoning: the only visible feedback left for a
               recipe loading in via the openRecipeId deep link (still real
@@ -2390,6 +2649,96 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: colors.surface,
     padding: 16,
+  },
+  // "Pick a Premade Recipe," 2026-08-21 -- see showRecipeMenu's own
+  // comment near the top of this file.
+  recipeMenuBlock: {
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginBottom: 14,
+    gap: 10,
+  },
+  recipeMenuSubtext: {
+    ...typography.body,
+    color: colors.textMuted,
+    marginTop: -4,
+  },
+  recipeMenuCard: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    padding: 10,
+    gap: 4,
+  },
+  recipeMenuCardTitle: {
+    ...typography.label,
+  },
+  recipeMenuCardTeaser: {
+    ...typography.body,
+    color: colors.textMuted,
+  },
+  recipeMenuActionRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+  recipeMenuActionButton: {
+    borderRadius: 8,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    flex: 1,
+  },
+  recipeMenuActionButtonText: {
+    ...typography.bodyEmphasis,
+    color: '#FFFFFF',
+  },
+  recipeMenuActionButtonOutline: {
+    borderRadius: 8,
+    borderWidth: 1,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    alignItems: 'center',
+    flex: 1,
+  },
+  recipeMenuActionButtonOutlineText: {
+    ...typography.bodyEmphasis,
+  },
+  recipeMenuCustomizeLink: {
+    ...typography.body,
+    textDecorationLine: 'underline',
+    marginTop: 2,
+  },
+  recipeMenuScheduleRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 6,
+    alignItems: 'center',
+  },
+  recipeMenuDateInput: {
+    ...typography.body,
+    color: colors.textPrimary,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    flex: 1,
+  },
+  recipeMenuScheduleConfirm: {
+    flex: 0,
+  },
+  recipeMenuDismiss: {
+    alignItems: 'center',
+    paddingTop: 4,
+  },
+  recipeMenuDismissText: {
+    ...typography.bodyEmphasis,
+    textDecorationLine: 'underline',
+  },
+  disabled: {
+    opacity: 0.5,
   },
   // Recipe-loading feedback while openRecipeId resolves, 2026-08-16 -- see
   // that state's own comment near the top of this file.

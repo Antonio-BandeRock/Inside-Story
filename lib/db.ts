@@ -15033,6 +15033,27 @@ export async function startFermentationBatch(input: {
   return id;
 }
 
+// A real, one-time "start this on a chosen day" reminder, 2026-08-21 --
+// the "schedule for the future" half of the Fermentation Builder's own
+// new "Pick a Premade Recipe" menu (see FermentationBuilder.tsx's own
+// CURATED_RECIPE_IDS_BY_SUBTYPE comment for the request behind this).
+// Deliberately a plain reminder, not an automatic future
+// startFermentationBatch call -- the person still needs to actually go
+// buy/prep the real ingredients and physically start the batch that day,
+// so this schedules the PROMPT to do that, not the batch itself. Reuses
+// the same reminder machinery (insertScheduleSeries, item_type
+// 'fermentation') every other real fermentation reminder already goes
+// through, a single non-repeating occurrence on the chosen date.
+export async function scheduleFermentationRecipeReminder(input: { recipeName: string; scheduledFor: string }): Promise<string> {
+  return insertScheduleSeries({
+    itemType: 'fermentation',
+    mealType: null,
+    title: `Start fermenting ${input.recipeName}`,
+    scheduledFor: input.scheduledFor,
+    repeat: { type: 'none' },
+  });
+}
+
 // Moves a batch to its next real stage -- cancels that stage's remaining
 // reminders and schedules the next stage's own series, the same
 // cancel-then-reschedule pattern already established elsewhere in this
