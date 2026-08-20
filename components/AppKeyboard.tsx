@@ -21,10 +21,22 @@ import { NAVIGATION_HAND, useFooterBandHeight } from '../constants/floatingButto
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
 import { typography } from '../constants/typography';
 
+// 2026-08-21, a real, reported gap: there was no way to type an apostrophe
+// anywhere on this keyboard at all -- not in this letters layout, not in
+// NUMBER_ROWS (which only ever carried a period), not in ACCENT_ROWS. A
+// basic, everyday character missing entirely -- any possessive, any
+// contraction, and any of this app's own condition names that carry one
+// (Hashimoto's, Graves', Sjögren's, among others) couldn't be typed in
+// full. Added at the end of the letters layout's own third row, the
+// same position (right after "m," before backspace) most phone keyboards
+// already place it -- LETTER_ROWS' own generic row-rendering below needs
+// no special-casing to pick this up, it renders exactly like any other
+// letter key, and shiftActive's own .toUpperCase() call is a harmless
+// no-op on a character with no case.
 const LETTER_ROWS = [
   ['q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'],
   ['a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'],
-  ['z', 'x', 'c', 'v', 'b', 'n', 'm'],
+  ['z', 'x', 'c', 'v', 'b', 'n', 'm', "'"],
 ];
 const NUMBER_ROWS = [
   ['1', '2', '3', '4', '5'],

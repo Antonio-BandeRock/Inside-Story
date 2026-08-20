@@ -3113,6 +3113,52 @@ function BasicHealthShelves({
   // promoted/deleted. A harmless no-op prop everywhere else in this Digest.
   onDynamicEntriesChanged?: () => void;
 }) {
+  // 2026-08-21, a real, repeatedly-reported bug: "the title box was
+  // scrolled way to the right of the data card that is supposed to be
+  // associated with it... I see this all the time happening." The row's
+  // own horizontal ScrollView below had no ref and no scroll-into-view
+  // logic at all -- tapping a tab correctly swapped which entry's detail
+  // shows in the panel underneath, but nothing ever moved the row itself,
+  // so however it happened to be scrolled (from earlier browsing, or a
+  // fresh render after a search/category change) stayed exactly where it
+  // was, however far the newly-selected tab's own gold-bordered highlight
+  // now sat from view. The row deliberately not auto-following selection
+  // was the original 2026-08-08 design (its own comment above: "so
+  // scrolling left/right through the row never loses track of which one
+  // is actually open," relying on the `selected` highlight alone) -- real
+  // usage shows that's not enough on its own. This keeps that original
+  // freedom to scroll left/right and browse once a tab's open (nothing
+  // here fights an in-progress manual scroll), it only adds the one thing
+  // that was missing: the instant a DIFFERENT tab actually gets selected,
+  // the row scrolls to bring that tab back near view, the same "selecting
+  // something scrolls it into view" behavior a tab strip anywhere else
+  // would already have. rowScrollRefs/cardOffsetsByGroup are keyed by
+  // group.label, the same real per-group key groupRefs above already
+  // uses, so each group's own row scrolls independently of every other
+  // group's.
+  const rowScrollRefs = useRef<Record<string, ScrollView | null>>({});
+  const cardOffsetsByGroup = useRef<Record<string, Record<string, number>>>({});
+
+  useEffect(() => {
+    if (!expandedId) return;
+    const group = groups.find((g) => g.entries.some((entry) => entry.id === expandedId));
+    if (!group) return;
+    const scrollNode = rowScrollRefs.current[group.label];
+    const x = cardOffsetsByGroup.current[group.label]?.[expandedId];
+    if (scrollNode && typeof x === 'number') {
+      // A small left margin so the newly-selected tab isn't flush against
+      // the screen edge -- matches this row's own existing left padding
+      // (see styles.shelfRow).
+      scrollNode.scrollTo({ x: Math.max(0, x - 16), animated: true });
+    }
+    // groups.length as a stand-in for "did the actual set of groups
+    // change" -- the group objects themselves are rebuilt every render
+    // (groupConditionEntries/BasicHealthTopicLeafView both return fresh
+    // arrays), so depending on `groups` directly would refire this every
+    // single render, including ones with no real selection change at all.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [expandedId, groups.length]);
+
   return (
     <>
       {groups.map((group) => {
@@ -3146,15 +3192,25 @@ function BasicHealthShelves({
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.shelfRow}
+              ref={(node) => {
+                rowScrollRefs.current[group.label] = node;
+              }}
             >
               {group.entries.map((entry) => (
-                <ShelfTabCard
+                <View
                   key={entry.id}
-                  entry={entry}
-                  selected={expandedId === entry.id}
-                  onPress={() => onToggleEntry(entry.id)}
-                  match={matchInfoById?.get(entry.id)}
-                />
+                  onLayout={(event) => {
+                    if (!cardOffsetsByGroup.current[group.label]) cardOffsetsByGroup.current[group.label] = {};
+                    cardOffsetsByGroup.current[group.label][entry.id] = event.nativeEvent.layout.x;
+                  }}
+                >
+                  <ShelfTabCard
+                    entry={entry}
+                    selected={expandedId === entry.id}
+                    onPress={() => onToggleEntry(entry.id)}
+                    match={matchInfoById?.get(entry.id)}
+                  />
+                </View>
               ))}
             </ScrollView>
             {expandedEntry ? (
