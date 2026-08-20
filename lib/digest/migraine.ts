@@ -527,4 +527,16 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['migraine-anxiety-depression-bidirectional-real-data', 'migraine-episodic-chronic-real-debate'],
   },
+  {
+    id: 'migraine-fermented-drinks',
+    category: 'migraine',
+    title: 'Fermented Drinks and Foods for Migraine',
+    teaser: 'Histamine, not any specific ingredient, is the thing to watch here, and every fermented drink in this app accumulates more of it the longer it sits.',
+    summary: 'Fermented foods and drinks are a well-documented histamine source, and histamine is a well-established migraine trigger for people sensitive to it, a mechanism worth taking seriously here specifically, more than for almost any other condition this app tracks food for. The practical guidance already built into this app\'s own wild-fermented tonic recipes (taste for tang before bottling, and a fully soured batch has generally converted more of its own histamine-feeding sugars) is a starting point, not a guarantee: a person\'s own histamine tolerance varies, and the only way to know is trying a small amount and watching for a flush, headache, or other reaction within a few hours. Shorter ferments (Water Kefir, ready in 24-48 hours) carry meaningfully less accumulated histamine than a longer one (Sake-Style, fermented 1-2 weeks); starting with the shorter end of this app\'s own recipe range is the more cautious approach if migraine is the reason you\'re here.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-water-kefir', 'fermentmethod-dairy-free-gluten-free-survey'],
+  },
 ];

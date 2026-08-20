@@ -596,4 +596,21 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['psoriasis-advocacy-systemic-med-monitoring', 'psoriasis-alcohol-treatment-response-real-data'],
   },
+  {
+    id: 'psoriasis-fermented-drinks',
+    category: 'psoriasis',
+    title: 'Fermented Drinks and Foods for Psoriasis',
+    teaser: 'The turmeric-forward fermented tonics in this app fit psoriasis\'s own anti-inflammatory, gut-skin-axis framing well, but several fermented drinks in this same collection carry alcohol content worth knowing before reaching for one.',
+    summary: 'This app\'s own Fermented Turmeric Drink and the Wild-Fermented Fruit Tonic family (all in Recipes) lean on curcumin and anthocyanins, both with documented anti-inflammatory activity relevant to the same inflammatory pathways psoriasis flares run on, and gut microbiome diversity work more broadly is an active area of gut-skin-axis research. The more important thing to know plainly here is the opposite direction: several drinks in this same collection (Sake-Style Rice Wine, Makgeolli, Coconut Palm Wine-Style, Maple "Pulque-Style") are actually alcoholic once fully fermented, and this app\'s own already-cited research found alcohol misuse doesn\'t just worsen psoriasis severity, it measurably blunts how well prescribed systemic treatment actually works. Stick to the wild-fermented tonics and short-ferment drinks (finished in a day or two, not weeks) if psoriasis is the reason you\'re here.',
+    citations: [
+      { source: 'Shoba et al. 1998, Planta Medica: piperine\'s effect on curcumin bioavailability', url: 'https://pubmed.ncbi.nlm.nih.gov/9619120/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: [
+      'psoriasis-alcohol-treatment-response-real-data',
+      'recipe-ferment-turmeric-drink',
+      'fermentmethod-wild-tonics',
+      'lifestyle-alcohol-advisory',
+    ],
+  },
 ];

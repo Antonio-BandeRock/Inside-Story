@@ -563,4 +563,16 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ibs-medications-rifaximin-linaclotide', 'ibs-linaclotide-real-quantified-response-rates'],
   },
+  {
+    id: 'ibs-fermented-drinks',
+    category: 'ibs',
+    title: 'Fermented Drinks and Foods for IBS',
+    teaser: 'A honey-sweetened tonic and a dairy-based one can both trip up IBS through the same FODMAP mechanism, from two completely different ingredients.',
+    summary: 'Honey, the sweetener behind most of this app\'s own Wild-Fermented Fruit Tonic family, carries fructans, one of the FODMAP sugar groups IBS\'s own established low-FODMAP framework flags as a common trigger, though a fully fermented batch has had more of its own residual sugar consumed by the culture than a short one. Dairy-based drinks (Milk Kefir, Ayran, Mango Lassi, Tarag-Style) carry lactose, a different FODMAP category entirely, worth knowing since both can cause the same bloating and discomfort through entirely different mechanisms. Carbonation itself is worth watching too, a bloating-prone gut doesn\'t always tolerate a fizzy drink well regardless of what\'s fermenting inside it, so a still, well-strained ferment like Beet Kvass is a gentler starting point than a bottle-conditioned soda-style tonic.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-beet-kvass', 'fermentmethod-dairy-free-gluten-free-survey'],
+  },
 ];

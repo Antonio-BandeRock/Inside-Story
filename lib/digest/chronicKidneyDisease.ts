@@ -559,4 +559,16 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['ckd-nsaid-kidney-injury-real-data', 'ckd-egfr-acr-monitoring'],
   },
+  {
+    id: 'ckd-fermented-drinks',
+    category: 'chronicKidneyDisease',
+    title: 'Fermented Drinks and Foods for Chronic Kidney Disease',
+    teaser: 'This is the most caution-heavy condition in this app\'s whole fermented-drinks collection: most of these recipes lean on fruit, vegetables, or coconut water, all meaningful potassium sources a damaged kidney may not clear well.',
+    summary: 'Beet Kvass, every drink in the Wild-Fermented Fruit Tonic family, and both coconut water-based drinks (Coconut Kefir, Coconut Palm Wine-Style) all carry meaningful potassium, a mineral advanced CKD often requires restricting since a damaged kidney can\'t clear it as reliably. Ayran and Sobia both carry deliberate added salt or a naturally sodium-bearing base. None of this means these drinks are automatically off-limits, kidney diets vary enormously by stage and lab values, but it does mean this is the one condition in this app where checking your own current potassium, sodium, and fluid targets with your care team before adding any of these matters more than any specific health claim a recipe makes. Water Kefir, built on plain sugar water rather than a mineral-dense base, is the lowest-risk starting point to ask about.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-water-kefir', 'recipe-ferment-beet-kvass', 'ckd-egfr-acr-monitoring'],
+  },
 ];

@@ -559,4 +559,16 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['type1-periodontal-disease-bidirectional-real-data', 'type1-long-term-complications-real-data'],
   },
+  {
+    id: 'type1-fermented-drinks',
+    category: 'type1Diabetes',
+    title: 'Fermented Drinks and Foods for Type 1 Diabetes',
+    teaser: 'A wild-fermented drink\'s own sugar content drops the longer it ferments, since the microbes are consuming that sugar themselves, but that also means the same recipe can carry a meaningfully different carb count batch to batch.',
+    summary: 'This app\'s own Water Kefir and Beet Kvass carry the lowest residual sugar of the drinks in Recipes once fully fermented, both worth reaching for over Amazake or Sobia, which lean on koji-converted maltose and coconut milk\'s own natural sugars respectively and stay meaningfully sweeter even fully fermented. A wild-fermented tonic\'s own carb count isn\'t fixed the way a packaged food\'s nutrition label is: a shorter ferment leaves more residual sugar behind, a longer one leaves less, so the same recipe made two different times can carry a different carb count. Taste is the practical guide, tangier and less sweet means more of the sugar has already been consumed by the fermentation itself, worth factoring into insulin dosing until you\'ve built a feel for how your own batches typically finish.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-water-kefir', 'recipe-ferment-beet-kvass', 'recipe-ferment-amazake'],
+  },
 ];

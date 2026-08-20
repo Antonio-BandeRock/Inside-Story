@@ -534,4 +534,16 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-weight-loss-thresholds', 'horizon-masld'],
   },
+  {
+    id: 'masld-fermented-drinks',
+    category: 'fattyLiverDisease',
+    title: 'Fermented Drinks and Foods for Fatty Liver Disease',
+    teaser: 'Pu-erh tea has strong human trial evidence for improving cholesterol and liver fat specifically, the single best-matched claim in this app\'s whole fermented-drinks collection for this one condition.',
+    summary: 'This app\'s own Pu-erh-Style Fermented Tea (in Recipes, a home kombucha-style ferment built on black tea since true pu-erh leaf isn\'t something this database carries) is named after true pu-erh, whose own active compound (theabrownin) has documented human and mouse trial data for lowering cholesterol and reducing liver fat, working through gut microbiota and bile acid metabolism, worth knowing plainly this home version doesn\'t reproduce that specific research, since it\'s built on a different tea entirely. The more directly actionable thing for MASLD is what to avoid: several drinks in this collection (Sake-Style, Makgeolli, Coconut Palm Wine-Style, Maple "Pulque-Style") are actually alcoholic once fully fermented, and alcohol is a direct, well-established driver of liver damage, doubly relevant when the liver is already under metabolic stress from fatty liver disease itself. Skip those entirely; the wild-fermented tonics and short lacto-ferments carry no meaningful alcohol.',
+    citations: [
+      { source: 'Huang et al. 2019, Nature Communications: theabrownin from Pu-erh tea attenuates hypercholesterolemia via gut microbiota and bile acid metabolism, human and mouse data', url: 'https://pubmed.ncbi.nlm.nih.gov/31672964/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-puerh-style-tea', 'fermentmethod-kombucha', 'lifestyle-alcohol-advisory'],
+  },
 ];

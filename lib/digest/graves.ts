@@ -669,4 +669,16 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['graves-overview', 'graves-subclinical-hyperthyroidism'],
   },
+  {
+    id: 'graves-fermented-drinks',
+    category: 'graves',
+    title: 'Fermented Drinks and Foods for Graves\' Disease',
+    teaser: 'Graves\' own dietary flashpoint is iodine, not fermentation itself, and none of this app\'s own fermented drinks lean on iodine-rich ingredients.',
+    summary: 'Every drink in this app\'s own Recipes category uses plain (non-iodized) salt in only the small amounts a handful of savory ferments call for, so none of them meaningfully intersect with Graves\' own need to avoid excess iodine intake. The Wild-Fermented Fruit Tonic family and Beet Kvass are reasonable, gut-supportive everyday choices for the same general reason they suit any autoimmune thyroid condition: dairy-free, low-sugar once fully fermented, and built around anti-inflammatory ginger and turmeric. The same casein caution named for Hashimoto\'s applies here too, autoimmune thyroid disease broadly, not one direction of it specifically, so Coconut Kefir or Water Kefir are the more cautious everyday probiotic choice over Milk Kefir or Ayran if dairy is a concern.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-beet-kvass', 'recipe-ferment-coconut-kefir', 'fermentmethod-wild-tonics'],
+  },
 ];

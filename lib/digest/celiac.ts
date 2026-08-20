@@ -563,4 +563,16 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['celiac-hypertension-paradox-real-data', 'celiac-systemic-effects-real-data'],
   },
+  {
+    id: 'celiac-fermented-drinks',
+    category: 'celiac',
+    title: 'Fermented Drinks and Foods for Celiac Disease',
+    teaser: 'Two traditional grain ferments (Rejuvelac and rye-style Kvass) were deliberately rebuilt on quinoa instead of wheat or rye, so the recipe itself is gluten-free rather than something to modify.',
+    summary: 'This app\'s own Rejuvelac and Rye-Style Kvass (both in Recipes) use sprouted or toasted quinoa in place of the sprouted wheat berries and rye bread their traditional versions call for, so they\'re buildable here without any substitution on your own end. Every other recipe in this collection was independently verified gluten-free by ingredient. Worth knowing plainly, since celiac disease carries a much higher stake than general gluten sensitivity: a shared kitchen where wheat flour, rye bread, or barley malt has recently been handled (cutting boards, wooden spoons, flour dust in the air) is a cross-contact risk for any of these ferments, not just the grain-based ones, since an open fermentation jar sits uncovered by anything but a breathable cloth for days. Dedicate separate equipment if celiac disease, not just gluten sensitivity, is the reason you\'re fermenting gluten-free.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['recipe-ferment-rejuvelac', 'recipe-ferment-rye-style-kvass-quinoa', 'fermentmethod-dairy-free-gluten-free-survey'],
+  },
 ];

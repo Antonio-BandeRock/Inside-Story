@@ -546,4 +546,16 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ibd-depression-anxiety-bidirectional-real-data', 'neurogenesis-tying-together', 'gut-scfa-treg'],
   },
+  {
+    id: 'ibd-fermented-drinks',
+    category: 'ibd',
+    title: 'Fermented Drinks and Foods for IBD',
+    teaser: 'Timing matters here more than for almost any other condition in this app: a fermented drink that\'s helpful during remission can still be the wrong thing to reach for during an active flare.',
+    summary: 'This app\'s own Beet Kvass is traditionally taken as a 1-2 ounce shot, not a full glass, a practical fit for IBD\'s own "start low, go slow" approach to reintroducing fermented foods. During an active flare, carbonated drinks and anything still carrying meaningful fiber can worsen gas and bloating on an already inflamed gut, so a short, well-strained ferment (the liquid poured off, no pulp) is the safer choice over a longer-fermented, fizzier one. A compromised gut lining also produces less DAO, the enzyme that breaks down histamine, so long-fermented drinks (which accumulate more histamine the longer they sit) are worth watching closely for a flush, headache, or worsening symptoms; pulling back to shorter ferments if that happens is a useful signal, not something to push through.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-beet-kvass', 'fermentmethod-lacto-fermented-vegetables'],
+  },
 ];

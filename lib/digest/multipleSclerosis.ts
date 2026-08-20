@@ -546,4 +546,16 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['ms-cognitive-impairment-brain-atrophy', 'neurogenesis-tying-together'],
   },
+  {
+    id: 'ms-fermented-drinks',
+    category: 'multipleSclerosis',
+    title: 'Fermented Drinks and Foods for Multiple Sclerosis',
+    teaser: 'Nothing in this app\'s own fermented-drink collection targets MS directly, its own strongest driver is EBV, not diet, but general gut-microbiome diversity is an active area of MS research worth supporting either way.',
+    summary: 'This app\'s own Wild-Fermented Fruit Tonic family and Water Kefir are reasonable everyday choices for general gut-microbiome diversity, an active area of MS research given the gut-brain axis\'s own broader relevance to neurological disease, though no single fermented drink here has MS-specific trial evidence behind it the way tart cherry does for sleep or beet kvass does for blood pressure. The one caution worth naming: several drinks in this collection (Sake-Style, Makgeolli, Coconut Palm Wine-Style, Maple "Pulque-Style") carry alcohol content once fully fermented, worth moderating given alcohol\'s own documented interaction with MS fatigue and balance.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['fermentmethod-wild-tonics', 'recipe-ferment-water-kefir', 'lifestyle-alcohol-advisory'],
+  },
 ];

@@ -557,4 +557,16 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['neurogenesis-tying-together', 'type2-cognitive-liver-real-data'],
   },
+  {
+    id: 'type2-fermented-drinks',
+    category: 'type2Diabetes',
+    title: 'Fermented Drinks and Foods for Type 2 Diabetes',
+    teaser: 'Beet Kvass earns a double role here: low residual sugar once fully fermented, plus a separately well-documented blood-pressure benefit relevant to Type 2 Diabetes\'s own cardiovascular risk overlap.',
+    summary: 'This app\'s own Beet Kvass and Water Kefir carry the lowest residual sugar once fully fermented, worth favoring over Amazake or Sobia, both meaningfully sweeter drinks throughout the ferment given their own koji- and coconut-milk-based sweetness. Beet kvass\'s own dietary nitrate content has systematic-review-level human trial evidence for lowering blood pressure, worth knowing given how often Type 2 Diabetes and cardiovascular risk travel together. A wild-fermented tonic\'s own sugar content measurably drops the longer it ferments; tasting for tang rather than sweetness before drinking is the practical way to judge how much of a given batch\'s own sugar the fermentation has already consumed.',
+    citations: [
+      { source: 'Dietary Nitrate from Beetroot Juice for Hypertension: A Systematic Review, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/30400267/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['recipe-ferment-beet-kvass', 'recipe-ferment-water-kefir', 'recipe-ferment-amazake'],
+  },
 ];

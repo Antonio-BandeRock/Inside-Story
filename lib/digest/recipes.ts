@@ -1860,7 +1860,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_tonic_tart_cherry_ginger_turmeric',
     linkedBuilderType: 'fermentation',
     stageNote: 'Most relevant once gluten and dairy are already ruled out as triggers, since the tonic is built specifically to avoid both.',
-    relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine', 'sleep-melatonin-real-dosing'],
+    relatedIds: [
+      'fermentmethod-wild-tonics',
+      'interaction-curcumin-piperine',
+      'sleep-melatonin-real-dosing',
+      'nutrients-fermented-drinks-hashimotos',
+      'ra-fermented-drinks',
+      'gout-fermented-drinks',
+    ],
     recipeCard: {
       yield: 'Makes about 4 cups of finished tonic. A jar this size covers two people a 4-6 ounce evening pour for several nights.',
       ingredients: [
@@ -1946,7 +1953,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_tonic_pomegranate_ginger_turmeric',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics'],
+    relatedIds: ['fermentmethod-wild-tonics', 'prostate-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
       ingredients: [
@@ -2028,7 +2035,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_tonic_red_grape_ginger_turmeric',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics'],
+    relatedIds: ['fermentmethod-wild-tonics', 'pcos-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
       ingredients: [
@@ -2068,7 +2075,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_tonic_hibiscus_ginger_turmeric',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics'],
+    relatedIds: ['fermentmethod-wild-tonics', 'cvd-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
       ingredients: [
@@ -2148,7 +2155,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_tonic_elderberry_ginger_turmeric',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics'],
+    relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 4 cups of finished tonic, enough for two people across several days.',
       ingredients: [
@@ -2261,7 +2268,16 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_beet_kvass',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-lacto-fermented-vegetables', 'fermented-leuconostoc-mesenteroides'],
+    relatedIds: [
+      'fermentmethod-lacto-fermented-vegetables',
+      'fermented-leuconostoc-mesenteroides',
+      'nutrients-fermented-drinks-hashimotos',
+      'ibd-fermented-drinks',
+      'ckd-fermented-drinks',
+      'type2-fermented-drinks',
+      'cvd-fermented-drinks',
+      'ibs-fermented-drinks',
+    ],
     recipeCard: {
       yield: 'Makes about 6 cups. Traditionally taken as a 1-2 ounce shot rather than a full glass, so this batch lasts a good while.',
       ingredients: [
@@ -2334,7 +2350,14 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_ferment_water_kefir',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-water-kefir', 'fermented-water-kefir'],
+    relatedIds: [
+      'fermentmethod-water-kefir',
+      'fermented-water-kefir',
+      'type1-fermented-drinks',
+      'pcos-fermented-drinks',
+      'type2-fermented-drinks',
+      'migraine-fermented-drinks',
+    ],
     recipeCard: {
       yield: 'Makes about 4 cups. A batch this size restarts easily every 1-2 days once the grains are active.',
       ingredients: [
@@ -2369,7 +2392,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_coconut_kefir',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-water-kefir'],
+    relatedIds: ['fermentmethod-water-kefir', 'nutrients-fermented-drinks-hashimotos', 'graves-fermented-drinks', 'sjogrens-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 4 cups. Restarts easily every 24-48 hours once the grains are active.',
       ingredients: [
@@ -2475,7 +2498,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_ferment_turmeric_drink',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine'],
+    relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine', 'ra-fermented-drinks', 'psoriasis-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 4 cups, enough for two people across a few days.',
       ingredients: [
@@ -2544,7 +2567,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_shrub',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics'],
+    relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 2 cups of concentrated syrup, enough for many diluted glasses (1-2 tablespoons of syrup per glass of water).',
       ingredients: [
@@ -2576,7 +2599,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_switchel',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics'],
+    relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 6 cups, enough for two people across several days.',
       ingredients: [
@@ -2643,7 +2666,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_garlic_honey_tonic',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-wild-tonics'],
+    relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 1 1/2 cups of finished tonic, taken by the spoonful rather than as a drink.',
       ingredients: [
@@ -2733,7 +2756,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_amazake',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'type1-fermented-drinks', 'type2-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 4 cups, enough for two people across several days.',
       ingredients: [
@@ -2769,7 +2792,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_rejuvelac',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'celiac-fermented-drinks', 'lupus-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 6 cups, enough for two people across several days.',
       ingredients: [
@@ -3052,7 +3075,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_rye_style_kvass_quinoa',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-beet-kvass'],
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-beet-kvass', 'celiac-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 6 cups, enough for two people across several days.',
       ingredients: [
@@ -3259,12 +3282,12 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     teaser: 'A kombucha-style home ferment built to evoke pu-erh\'s own fermented-tea tradition, since true pu-erh leaf isn\'t something this database carries.',
     summary: 'This database carries no true pu-erh tea leaf, so this version uses brewed black tea as the fermentable base for a home SCOBY ferment instead. Worth knowing plainly: true pu-erh is aged and fermented by microbes directly on the tea leaf over months or years, a process a quick home ferment doesn\'t actually replicate either way, so this is a home-kitchen homage to the idea, not a claim of authenticity. Pu-erh itself has separate, strong human trial evidence for improving cholesterol and liver fat, worth knowing about even though this home version doesn\'t reproduce that specific research.',
     citations: [
-      { source: 'Xu et al. 2019, Nature Communications: theabrownin from Pu-erh tea attenuates hypercholesterolemia via gut microbiota and bile acid metabolism, human and mouse data', url: 'https://pubmed.ncbi.nlm.nih.gov/31672964/' },
+      { source: 'Huang et al. 2019, Nature Communications: theabrownin from Pu-erh tea attenuates hypercholesterolemia via gut microbiota and bile acid metabolism, human and mouse data', url: 'https://pubmed.ncbi.nlm.nih.gov/31672964/' },
     ],
     overallTier: 'moderate',
     linkedCuratedRecipeId: 'curated_ferment_puerh_style_tea',
     linkedBuilderType: 'fermentation',
-    relatedIds: ['fermentmethod-kombucha', 'fermentmethod-dairy-free-gluten-free-survey'],
+    relatedIds: ['fermentmethod-kombucha', 'fermentmethod-dairy-free-gluten-free-survey', 'masld-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
       yield: 'Makes about 8 cups, enough for two people across a week or more.',
       ingredients: [

@@ -545,4 +545,16 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['sjogrens-lymphoma-risk', 'sjogrens-parotid-swelling-lymphoma-predictor'],
   },
+  {
+    id: 'sjogrens-fermented-drinks',
+    category: 'sjogrens',
+    title: 'Fermented Drinks and Foods for Sjögren\'s',
+    teaser: 'Sjögren\'s own reduced saliva already raises dental caries risk on its own, and dental guidance for this condition specifically names acidic drinks as something to actively watch.',
+    summary: 'Reduced saliva flow means less of the buffering and rinsing action that normally protects teeth from acid, so dental guidance written specifically for Sjögren\'s patients names acidic and carbonated drinks as an elevated caries risk, not just a general dental-hygiene footnote. This app\'s own vinegar-forward drinks (Shrub, Switchel) and any of the wild-fermented tonics are worth diluting further than the recipe calls for, drinking alongside a meal rather than sipping slowly throughout the day, and following with a plain water rinse. Hydrating, low-acid choices like Coconut Kefir or a fully diluted Water Kefir are gentler everyday options if dry mouth is a bigger daily concern than any specific health claim a given drink carries.',
+    citations: [
+      { source: 'Colgate Professional: Managing Caries Risk for Patients with Sjögren\'s Syndrome, dental guidance', url: 'https://www.colgateprofessional.com/hygienist-resources/tools-resources/managing-caries-risk-sjorgen' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['recipe-ferment-shrub', 'recipe-ferment-switchel', 'recipe-ferment-coconut-kefir'],
+  },
 ];

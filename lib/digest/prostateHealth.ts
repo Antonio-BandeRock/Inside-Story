@@ -793,4 +793,17 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['prostate-active-surveillance-real-longterm-data', 'prostate-real-staging-systems'],
   },
+  {
+    id: 'prostate-fermented-drinks',
+    category: 'prostateHealth',
+    title: 'Fermented Drinks and Foods for Prostate Health',
+    teaser: 'An early UCLA trial found pomegranate juice nearly quadrupled how long PSA levels stayed stable after prostate cancer treatment, an exciting result that larger follow-up trials didn\'t manage to confirm.',
+    summary: 'This app\'s own Wild-Fermented Pomegranate, Ginger & Turmeric Tonic connects to a notable, if ultimately mixed, research story: a small early UCLA trial in men with a rising PSA after prostate cancer treatment found pomegranate juice extended the average PSA doubling time from about 15 months to 54 months, a striking result. A larger, randomized, placebo-controlled follow-up trial using pomegranate extract found a smaller, not statistically significant difference between the treatment and placebo groups. This is worth knowing honestly as an early, promising finding that bigger, more rigorous trials haven\'t replicated at the same size, not a confirmed benefit, the same pattern this app\'s own research holds every claim to. Ellagitannins, the compound behind pomegranate\'s own documented interest here, are the same ones this app\'s Digest already covers for Urolithin A and mitochondrial health more broadly.',
+    citations: [
+      { source: 'Phase II Study of Pomegranate Juice for Men with Rising Prostate-Specific Antigen following Surgery or Radiation for Prostate Cancer, Clinical Cancer Research', url: 'https://aacrjournals.org/clincancerres/article/12/13/4018/284703/Phase-II-Study-of-Pomegranate-Juice-for-Men-with' },
+      { source: 'Daily Pomegranate Intake Has No Impact on PSA Levels in Patients with Advanced Prostate Cancer: Phase IIb Randomized Controlled Trial, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/24069070/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['recipe-ferment-tonic-pomegranate-ginger-turmeric'],
+  },
 ];

@@ -550,4 +550,16 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['pcos-dairy-igf1-hyperandrogenism', 'pcos-insulin-resistance-mechanism', 'pcos-lean-phenotype-real-data'],
   },
+  {
+    id: 'pcos-fermented-drinks',
+    category: 'pcos',
+    title: 'Fermented Drinks and Foods for PCOS',
+    teaser: 'The same fully-fermented, low-residual-sugar principle that matters for blood sugar in Type 2 Diabetes matters here too, PCOS is centrally an insulin-resistance condition even without a diabetes diagnosis attached.',
+    summary: 'This app\'s own Water Kefir and Beet Kvass carry the lowest residual sugar once fully fermented, worth favoring over Amazake or Sobia, both meaningfully sweeter drinks even at their most fermented. The Wild-Fermented Red Grape, Ginger & Turmeric Tonic carries resveratrol, an antioxidant with early, mostly animal-study evidence for supporting Akkermansia muciniphila, a gut bacterium linked to healthy insulin signaling, an interesting thread given PCOS\'s own central insulin-resistance mechanism, but still early evidence, not something to expect a measurable result from. The already-established caution against dairy\'s own IGF-1 content applies to this app\'s dairy-based drinks (Milk Kefir, Ayran, Mango Lassi, Tarag-Style) the same way it does to dairy generally.',
+    citations: [
+      { source: 'Resveratrol as a promising nutraceutical: gut microbiota modulation review, MDPI', url: 'https://www.mdpi.com/1422-0067/25/6/3370' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['recipe-ferment-water-kefir', 'recipe-ferment-beet-kvass', 'recipe-ferment-tonic-red-grape-ginger-turmeric', 'pcos-dairy-igf1-hyperandrogenism'],
+  },
 ];
