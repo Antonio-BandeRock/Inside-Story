@@ -42,7 +42,7 @@
     "android": {
       "package": "com.insidestoryapp.app",
       "adaptiveIcon": {
-        "backgroundColor": "#2B3753",
+        "backgroundColor": "#244147",
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },

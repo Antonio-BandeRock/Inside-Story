@@ -205,16 +205,17 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // dimensions themselves are unchanged, only which choice a fresh install
   // starts on.
   default: [464, 312],
-  // 'seed' -- the app's own new real default, 2026-08-19. Real, individually
-  // measured off the actual final cropped file (see TAB_HUB_ICON_SOURCES's
-  // own comment above for the real crop/background-removal process).
-  // Updated 2026-08-20 alongside seed-transparent.png's own replacement
-  // (a rounder, avocado-pit-like seed with a fuller, leafier sprout,
-  // matching the app's own launcher icon update the same day) -- the new
-  // file's real aspect ratio is meaningfully less tall/narrow than the
-  // original (288x312 vs 212x312), so this has to move with it or the
-  // button would render the new art squeezed into the old file's ratio.
-  seed: [288, 312],
+  // 'seed' -- the app's own new default, 2026-08-19. Individually measured
+  // off the actual final cropped file (see TAB_HUB_ICON_SOURCES's own
+  // comment above for the crop/background-removal process). Updated
+  // 2026-08-20 alongside seed-transparent.png's own replacement (a rounder,
+  // avocado-pit-like seed with a fuller, leafier sprout, matching the
+  // app's own launcher icon update the same day), then again 2026-08-21
+  // for a second replacement image, matching the launcher icon's own same-
+  // day swap -- measured off the new final cropped file each time (was
+  // 212x312, then 288x312, now 350x406), so this has to move with the
+  // file or the button renders the art squeezed into a stale ratio.
+  seed: [350, 406],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
   // same jimp-based methodology as every other entry in this table, not
