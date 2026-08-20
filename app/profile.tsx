@@ -14,7 +14,7 @@ import { usePasswordPrompt } from '../components/PasswordPrompt';
 import { useBusyOverlay } from '../components/BusyOverlay';
 import { useConfirmSheet } from '../components/ConfirmSheet';
 import { useInfoAlert } from '../components/InfoAlert';
-import { colors, GROUND_THEME_LABELS, type GroundTheme } from '../constants/colors';
+import { colors, GROUND_THEME_LABELS, GROUND_THEMES, type GroundTheme } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES } from '../constants/tabs';
@@ -119,6 +119,17 @@ const GENERIC_PALETTE_OPTIONS = Object.keys(GENERIC_PALETTE_LABELS) as GenericPa
 // GENERIC_PALETTE_OPTIONS just above, same reasoning: a future ground theme
 // added to constants/colors.ts's GROUND_THEMES shows up here automatically.
 const GROUND_THEME_OPTIONS = Object.keys(GROUND_THEME_LABELS) as GroundTheme[];
+
+// Which of GroundFamily's own 6 fields actually render as swatches, 2026-08-19
+// -- direct request, choosing a color needs to actually show the color, the
+// same reasoning the TabHub Icon picker's own grid already established
+// (see iconGridRow's comment). `surface`/`surfaceMuted` are left out on
+// purpose: both are translucent rgba strings meant to sit blended over
+// `background`, not flat colors of their own, so a bare isolated swatch of
+// either would just read as a washed-out, slightly confusing near-duplicate
+// of the background swatch rather than showing anything real about the
+// theme. The 4 kept here are the ones with a real, distinct flat hex value.
+const GROUND_THEME_SWATCH_KEYS = ['background', 'border', 'textMuted', 'keySurface'] as const;
 
 // 2026-08-16, direct request: every information page should say plainly
 // what the tool is here to do for you, why you'd use it, not just how the
@@ -2547,18 +2558,27 @@ export default function ProfileScreen() {
               <>
                 <Text style={styles.helpText}>
                   The app&apos;s own dark base color -- every card, border, and muted label everywhere reads from
-                  this one choice. Applying it restarts the app for a moment.
+                  this one choice. Picking a new one restarts the app for a moment to apply it everywhere.
                 </Text>
-                <View style={styles.pillRow}>
+                <View style={styles.groundThemeGrid}>
                   {GROUND_THEME_OPTIONS.map((theme) => {
                     const active = theme === visualPrefs.groundTheme;
+                    const family = GROUND_THEMES[theme];
                     return (
                       <TouchableOpacity
                         key={theme}
-                        style={[styles.pillSmall, active && styles.pillActive]}
+                        style={[styles.groundThemeCard, active && styles.groundThemeCardActive]}
                         onPress={() => handleSelectGroundTheme(theme)}
                       >
-                        <Text style={[styles.pillTextSmall, active && styles.pillTextActive]}>
+                        <View style={styles.groundThemeSwatchRow}>
+                          {GROUND_THEME_SWATCH_KEYS.map((swatchKey) => (
+                            <View
+                              key={swatchKey}
+                              style={[styles.groundThemeSwatch, { backgroundColor: family[swatchKey] }]}
+                            />
+                          ))}
+                        </View>
+                        <Text style={[styles.groundThemeLabel, active && styles.groundThemeLabelActive]}>
                           {GROUND_THEME_LABELS[theme]}
                         </Text>
                       </TouchableOpacity>
@@ -2962,6 +2982,54 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   iconGridLabelActive: {
+    color: colors.primary,
+    fontWeight: '600',
+  },
+  // Ground color picker, 2026-08-19 -- same "show the actual thing being
+  // chosen" reasoning as iconGridRow/iconGridItem just above, adapted for a
+  // color family rather than a single icon: a small cluster of that theme's
+  // own real swatches (see GROUND_THEME_SWATCH_KEYS' own comment) inside a
+  // card, rather than a plain text pill.
+  groundThemeGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 10,
+  },
+  groundThemeCard: {
+    alignItems: 'center',
+    gap: 6,
+    paddingVertical: 10,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.surfaceMuted,
+  },
+  groundThemeCardActive: {
+    borderColor: colors.primary,
+    borderWidth: 2,
+  },
+  groundThemeSwatchRow: {
+    flexDirection: 'row',
+    gap: 4,
+  },
+  // A hairline border of its own on every swatch, not just the card's --
+  // without it, Charcoal's own 4 swatches (all close, muted grays by
+  // design) visually run together into one blob instead of reading as 4
+  // distinct steps.
+  groundThemeSwatch: {
+    width: 18,
+    height: 18,
+    borderRadius: 4,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 0, 0, 0.25)',
+  },
+  groundThemeLabel: {
+    ...typography.caption,
+    fontSize: 11,
+    color: colors.textSecondary,
+  },
+  groundThemeLabelActive: {
     color: colors.primary,
     fontWeight: '600',
   },
