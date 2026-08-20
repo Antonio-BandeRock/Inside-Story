@@ -560,7 +560,7 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     id: 'gout-fermented-drinks',
     category: 'gout',
     title: 'Fermented Drinks and Foods for Gout',
-    teaser: 'Tart cherry\'s own uric-acid-lowering reputation is the single most gout-specific claim across this app\'s whole fermented-drinks collection, and it\'s also the one where trial results actually disagree with each other.',
+    teaser: 'Tart cherry\'s own uric-acid-lowering reputation is the single most gout-specific claim across this app\'s whole fermentation collection, and it\'s also the one where trial results actually disagree with each other.',
     summary: 'This app\'s own Wild-Fermented Tart Cherry, Ginger & Turmeric Tonic is worth naming directly for gout: a randomized trial found that 100% tart cherry juice measurably reduced serum urate in overweight and obese adults, while a separate, more recent crossover trial found no significant acute effect on uric acid at all, and a dose-response trial (not cited here directly) found no clear effect on flare frequency either. The honest read is that the evidence is inconsistent across trials, worth trying as a pleasant addition to a gout-conscious diet, not something to rely on in place of urate-lowering medication. The clearer caution in this same collection: several drinks (Sake-Style, Makgeolli, Coconut Palm Wine-Style, Maple "Pulque-Style") are actually alcoholic once fully fermented, and alcohol, beer especially, is one of the best-established dietary gout triggers there is, worth avoiding those specifically if gout flares are a concern.',
     citations: [
       { source: 'Consumption of 100% Tart Cherry Juice Reduces Serum Urate in Overweight and Obese Adults, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/31037275/' },

@@ -555,7 +555,7 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     id: 'lupus-fermented-drinks',
     category: 'lupus',
     title: 'Fermented Drinks and Foods for Lupus',
-    teaser: 'Rejuvelac is sprouted, the same word used for lupus\'s own well-documented alfalfa sprout trigger, worth a direct reassurance rather than leaving the connection unaddressed.',
+    teaser: 'Rejuvelac\'s own sprouted-grain fermentation shares its name with lupus\'s own well-documented alfalfa sprout trigger, worth a direct reassurance rather than leaving the connection unaddressed.',
     summary: 'This app\'s own Rejuvelac (in Recipes) sprouts quinoa, not alfalfa, and quinoa doesn\'t carry L-canavanine, the specific amino acid documented to trigger lupus flares by mimicking arginine and overstimulating the immune system. That mechanism is well-established at the lab and case-report level, though rigorous human trial data specifically linking alfalfa ingestion to flares is still thin. Beyond that one direct reassurance, the general caution already named elsewhere in this app for immune-stimulating ferments applies here too: the Wild-Fermented Elderberry Tonic and Fermented Garlic Honey Tonic both lean on compounds with a traditional reputation for stimulating immune activity, worth mentioning to your care team before regular use if you\'re on an immunosuppressant.',
     citations: [
       { source: 'Malinow et al. 1982, Science: systemic lupus erythematosus-like syndrome in monkeys fed alfalfa sprouts, role of L-canavanine', url: 'https://www.science.org/doi/10.1126/science.7071589' },

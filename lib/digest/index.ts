@@ -428,32 +428,46 @@ export function findDigestEntriesByIds(ids: string[]): AnyDigestEntry[] {
 //
 // A plain, in-memory, every-term-must-match-somewhere substring search --
 // no SQL involved (this content lives in TS arrays, not the SQLite
-// reference database), and with only a few hundred entries total, no
-// indexing or debouncing is needed for this to feel instant. Matches
-// against everything a person would actually recognize a topic by: the
-// title/food name and one-line teaser (what shows on the collapsed card),
-// the full summary/problem/mechanism/swaps text (so a search for a specific
-// mechanism like "zonulin" or "deiodinase" finds entries that discuss it
-// without naming it in the title), and each citation's own source text (so
-// a remembered author/journal name works too).
-function digestSearchHaystack(entry: AnyDigestEntry): string {
-  const citationText = entry.citations.map((citation) => citation.source).join(' ');
-  if (isProblemFoodEntry(entry)) {
-    return [entry.foodName, entry.teaser, entry.problem, entry.mechanism, entry.swaps.join(' '), citationText]
-      .join(' ')
-      .toLowerCase();
-  }
-  return [entry.title, entry.teaser, entry.summary, citationText].join(' ').toLowerCase();
-}
+// reference database). Matches against everything a person would actually
+// recognize a topic by: the title/food name and one-line teaser (what
+// shows on the collapsed card), the full summary/problem/mechanism/swaps
+// text (so a search for a specific mechanism like "zonulin" or
+// "deiodinase" finds entries that discuss it without naming it in the
+// title), and each citation's own source text (so a remembered author/
+// journal name works too).
+//
+// 2026-08-21, found and fixed directly: the comment this replaced claimed
+// "with only a few hundred entries total, no indexing or debouncing is
+// needed for this to feel instant" -- true when written, no longer true.
+// ALL_DIGEST_ENTRIES is built from 40 separate source arrays now, and one
+// single session (the fermented-drinks workstream: 45 recipes, 19
+// condition entries, several Basic Health entries) added roughly 68 more,
+// several genuinely long. Search All's own debounce (useDebouncedValue,
+// already built once before for exactly this class of complaint) still
+// only lets the expensive part run after typing pauses, but that
+// expensive part itself was redoing real, wasted work every single time:
+// every entry's own title/citation/summary text got rejoined and
+// re-lowercased from scratch on every debounced search call, even though
+// ALL_DIGEST_ENTRIES is a static module-level constant that never
+// changes at runtime. A WeakMap keyed by the entry object itself computes
+// each entry's own searchable text exactly once (lazily, on first use),
+// so every search after the first reuses it instead of repeating the same
+// string work over an entry pool that's only grown.
+const digestSearchTextCache = new WeakMap<AnyDigestEntry, { haystack: string; title: string }>();
 
-// Just the title/food name, lowercased -- used by searchEntries below to
-// weight a real title match higher than an incidental mention buried in a
-// citation or a long paragraph. Not part of digestSearchHaystack's own
-// return value -- kept as a separate, smaller function since it's already
-// a substring of that larger haystack, and computing it twice from scratch
-// would be wasteful.
-function digestSearchTitle(entry: AnyDigestEntry): string {
-  return (isProblemFoodEntry(entry) ? entry.foodName : entry.title).toLowerCase();
+function digestSearchText(entry: AnyDigestEntry): { haystack: string; title: string } {
+  const cached = digestSearchTextCache.get(entry);
+  if (cached) return cached;
+
+  const citationText = entry.citations.map((citation) => citation.source).join(' ');
+  const title = (isProblemFoodEntry(entry) ? entry.foodName : entry.title).toLowerCase();
+  const haystack = isProblemFoodEntry(entry)
+    ? [entry.foodName, entry.teaser, entry.problem, entry.mechanism, entry.swaps.join(' '), citationText].join(' ').toLowerCase()
+    : [entry.title, entry.teaser, entry.summary, citationText].join(' ').toLowerCase();
+
+  const computed = { haystack, title };
+  digestSearchTextCache.set(entry, computed);
+  return computed;
 }
 
 // Stripped out of a query before matching -- 2026-08-08, built specifically
@@ -677,8 +691,7 @@ export function searchEntriesScored(pool: AnyDigestEntry[], query: string, limit
 
   const scored: ScoredDigestEntry[] = [];
   for (const entry of pool) {
-    const haystack = digestSearchHaystack(entry);
-    const title = digestSearchTitle(entry);
+    const { haystack, title } = digestSearchText(entry);
     let score = 0;
     let matchedTermCount = 0;
     const termMatchList: SearchTermMatch[] = terms.map((term) => {
