@@ -3139,18 +3139,37 @@ function BasicHealthShelves({
   const rowScrollRefs = useRef<Record<string, ScrollView | null>>({});
   const cardOffsetsByGroup = useRef<Record<string, Record<string, number>>>({});
 
-  useEffect(() => {
-    if (!expandedId) return;
-    const group = groups.find((g) => g.entries.some((entry) => entry.id === expandedId));
-    if (!group) return;
-    const scrollNode = rowScrollRefs.current[group.label];
-    const x = cardOffsetsByGroup.current[group.label]?.[expandedId];
+  // Attempts the actual scroll -- shared by the effect below AND each
+  // card's own onLayout (see the .map() further down), because either one
+  // alone has a real, confirmed gap. 2026-08-21, reported directly after
+  // the scroll-into-view fix above genuinely shipped but still landed on
+  // the wrong card two positions off: arriving at this group fresh (a
+  // search result jumping straight here, this group's own row never
+  // rendered before) means the effect below can run BEFORE any card has
+  // actually reported its own x position through onLayout -- the effect
+  // fires on `expandedId` changing, but a brand-new row's layout pass
+  // hasn't necessarily finished by then, so cardOffsetsByGroup has
+  // nothing yet to scroll to, and the attempt silently does nothing. This
+  // same function also runs from each card's own onLayout the instant
+  // that card's real x position becomes known, so whichever happens
+  // second -- expandedId changing, or this specific card's own layout
+  // resolving -- is the one that actually performs the scroll.
+  function tryScrollSelectedIntoView(groupLabel: string, entryId: string) {
+    const scrollNode = rowScrollRefs.current[groupLabel];
+    const x = cardOffsetsByGroup.current[groupLabel]?.[entryId];
     if (scrollNode && typeof x === 'number') {
       // A small left margin so the newly-selected tab isn't flush against
       // the screen edge -- matches this row's own existing left padding
       // (see styles.shelfRow).
       scrollNode.scrollTo({ x: Math.max(0, x - 16), animated: true });
     }
+  }
+
+  useEffect(() => {
+    if (!expandedId) return;
+    const group = groups.find((g) => g.entries.some((entry) => entry.id === expandedId));
+    if (!group) return;
+    tryScrollSelectedIntoView(group.label, expandedId);
     // groups.length as a stand-in for "did the actual set of groups
     // change" -- the group objects themselves are rebuilt every render
     // (groupConditionEntries/BasicHealthTopicLeafView both return fresh
@@ -3202,6 +3221,14 @@ function BasicHealthShelves({
                   onLayout={(event) => {
                     if (!cardOffsetsByGroup.current[group.label]) cardOffsetsByGroup.current[group.label] = {};
                     cardOffsetsByGroup.current[group.label][entry.id] = event.nativeEvent.layout.x;
+                    // Covers the real race tryScrollSelectedIntoView's own
+                    // comment names: this card's own x position may only
+                    // just now have become known, after expandedId already
+                    // changed to it -- if so, this is the scroll that
+                    // actually happens, not a redundant second one (the
+                    // effect above already tried and found nothing to
+                    // scroll to yet).
+                    if (entry.id === expandedId) tryScrollSelectedIntoView(group.label, entry.id);
                   }}
                 >
                   <ShelfTabCard

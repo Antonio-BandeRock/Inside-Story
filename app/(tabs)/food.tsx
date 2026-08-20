@@ -12,6 +12,7 @@ import { BeverageBuilder } from '../../components/BeverageBuilder';
 import { BeverageSubtypePicker, type BeverageSubtypeKey } from '../../components/BeverageSubtypePicker';
 import { DessertBuilder } from '../../components/DessertBuilder';
 import { FermentationBuilder } from '../../components/FermentationBuilder';
+import { FermentationSubtypePicker, type FermentationSubtypeKey } from '../../components/FermentationSubtypePicker';
 import { HandheldsBuilder } from '../../components/HandheldsBuilder';
 import { MealBuilder } from '../../components/MealBuilder';
 import { PageIdentityLabel } from '../../components/PageIdentityLabel';
@@ -444,6 +445,10 @@ export default function FoodScreen() {
   // instant resume of whatever was last open" convention (Purple Digest's
   // Basic Health tree does the identical reset on its own fresh arrival).
   const [beverageSubtype, setBeverageSubtype] = useState<BeverageSubtypeKey | null>(null);
+  // Same pattern, same reasoning, 2026-08-21 -- see
+  // FermentationSubtypePicker.tsx's own header comment for the request
+  // behind this one.
+  const [fermentationSubtype, setFermentationSubtype] = useState<FermentationSubtypeKey | null>(null);
   // Same pattern as app/(tabs)/insights.tsx -- see that file's own comment.
   const [revealed, setRevealed] = useState(false);
   // Lifted out of MyItemsHub itself, 2026-08-16 -- so LensHub's own new
@@ -1170,12 +1175,26 @@ export default function FoodScreen() {
             // FermentationBuilder is a direct adaptation of SideBuilder
             // (see that file's own top comment for why Side, not Salad/
             // Smoothie) -- same layout-ownership reasoning applies here too.
-            <FermentationBuilder
-              tabColor={TAB_COLOR}
-              editFermentationId={editFermentationId}
-              fromFavoriteId={fromFermentationFavoriteId}
-              openRecipeId={openFermentationRecipeId}
-            />
+            //
+            // 2026-08-21: a real "what kind of fermentation" question, via
+            // FermentationSubtypePicker, sits in front of this builder now
+            // -- same bypass logic as Beverage's own identical picker just
+            // below: editFermentationId/fromFermentationFavoriteId/
+            // openFermentationRecipeId (editing or reusing something that
+            // already has its own real ingredients) skip it outright,
+            // since there's no real "what kind" question left to ask.
+            editFermentationId || fromFermentationFavoriteId || openFermentationRecipeId ? (
+              <FermentationBuilder
+                tabColor={TAB_COLOR}
+                editFermentationId={editFermentationId}
+                fromFavoriteId={fromFermentationFavoriteId}
+                openRecipeId={openFermentationRecipeId}
+              />
+            ) : fermentationSubtype ? (
+              <FermentationBuilder tabColor={TAB_COLOR} subtype={fermentationSubtype} />
+            ) : (
+              <FermentationSubtypePicker tabColor={TAB_COLOR} onPick={setFermentationSubtype} />
+            )
           ) : lens === 'beverageBuilder' ? (
             // BeverageBuilder is a direct adaptation of SideBuilder (see
             // that file's own top comment for why Side, not Salad/Smoothie)
@@ -1327,6 +1346,9 @@ export default function FoodScreen() {
           // simplest way to guarantee it's never stale the next time this
           // lens IS picked again.
           setBeverageSubtype(null);
+          // Same reasoning, same unconditional reset, 2026-08-21 -- see
+          // fermentationSubtype's own comment above.
+          setFermentationSubtype(null);
         }}
       />
     </View>

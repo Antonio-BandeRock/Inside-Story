@@ -8,6 +8,7 @@ import { colors, inputBackground } from '../constants/colors';
 import { FERMENTATION_BUILDER_CATEGORIES } from '../constants/foodBuilderCategories';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../constants/floatingButton';
 import { typography } from '../constants/typography';
+import type { FermentationSubtypeKey } from './FermentationSubtypePicker';
 import {
   getBuilderFavorite,
   getConditionNotesForIngredients,
@@ -454,6 +455,30 @@ const SOURCE_CANCEL_ROW_HEIGHT = 40;
 // constant's own comment) so the prep step that actually defines a
 // fermented food has a real answer to select, which the inherited list
 // didn't have at all.
+//
+// 2026-08-21, real, direct correction: "Fermentation should ask what type
+// of fermentation they want to build before moving on to any part of the
+// rest of the builder... The bacterias and probiotics selections do not
+// belong here at all. Those are ingredients for a yogurt fermentation,
+// and that is how they should be treated." FermentationSubtypePicker.tsx
+// (a direct mirror of BeverageSubtypePicker.tsx's own already-shipped
+// pattern) now runs before this builder ever mounts for a genuinely fresh
+// arrival -- app/(tabs)/food.tsx's own render switch handles that, same
+// bypass logic as Beverage for editing/reusing something with its own
+// already-real ingredients. `subtype` below narrows allowedCategories to
+// match, and gates the Cultures & Probiotics section (still built exactly
+// as it was) to milkKefirYogurt only, the one real subtype that section
+// actually describes -- every other subtype's own real culture (a SCOBY,
+// kefir grains, wild yeast on a fruit skin) isn't one of this app's own 7
+// catalogued single-organism strains, so showing the picker there would
+// misrepresent what's actually fermenting.
+const FERMENTATION_SUBTYPE_CONFIG: Record<FermentationSubtypeKey, { allowedCategories: string[] }> = {
+  fruitVegTonics: { allowedCategories: ['Fruit', 'Veg', 'Herbs', 'Bev', 'Sweets', 'PantryStaples', 'SaucesCondiments'] },
+  kombuchaGrainDrinks: { allowedCategories: ['Brewing', 'Bev', 'Grain', 'PastaNoodles', 'Sweets', 'PantryStaples'] },
+  waterCoconutKefir: { allowedCategories: ['Bev', 'Sweets', 'Fruit'] },
+  milkKefirYogurt: { allowedCategories: ['Dairy', 'Fruit', 'Herbs', 'Sweets'] },
+  somethingElse: { allowedCategories: FERMENTATION_BUILDER_CATEGORIES },
+};
 export function FermentationBuilder({
   tabColor,
   // Set when reached via the Edit button on an already-saved fermentation (see
@@ -475,12 +500,30 @@ export function FermentationBuilder({
   // recipe entry, 2026-08-14 -- see SideBuilder.tsx's own identical
   // openRecipeId for the full reasoning.
   openRecipeId,
+  // Set by FermentationSubtypePicker's own real answer, 2026-08-21 --
+  // undefined for every editFermentationId/fromFavoriteId/openRecipeId
+  // arrival (all three already have their own real ingredients, so
+  // app/(tabs)/food.tsx's own render switch skips the picker outright for
+  // them, same as Beverage), in which case allowedCategories falls all
+  // the way back to the full, unfiltered FERMENTATION_BUILDER_CATEGORIES
+  // and the Cultures & Probiotics section stays available -- an existing
+  // fermentation someone's editing shouldn't lose reach to an ingredient
+  // category, or a strain it may already carry, just because this prop
+  // wasn't threaded through for that path.
+  subtype,
 }: {
   tabColor: string;
   editFermentationId?: string;
   fromFavoriteId?: string;
   openRecipeId?: string;
+  subtype?: FermentationSubtypeKey;
 }) {
+  // See FERMENTATION_SUBTYPE_CONFIG's own comment above for the full
+  // reasoning -- both fall back to the unfiltered/always-shown behavior
+  // this builder always had when subtype is undefined (every edit/
+  // favorite/curated-recipe arrival).
+  const allowedFermentationCategories = subtype ? FERMENTATION_SUBTYPE_CONFIG[subtype].allowedCategories : FERMENTATION_BUILDER_CATEGORIES;
+  const showCulturesSection = !subtype || subtype === 'milkKefirYogurt';
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const activeField = useActiveField();
@@ -1659,7 +1702,7 @@ export function FermentationBuilder({
             topReserve={SOURCE_CANCEL_ROW_HEIGHT}
             initialCategory={lastCategory}
             initialSubcategory={lastSubcategory}
-            allowedCategories={FERMENTATION_BUILDER_CATEGORIES}
+            allowedCategories={allowedFermentationCategories}
             restrictToSource={ingredientSourceMode}
           />
         </View>
@@ -1815,7 +1858,7 @@ export function FermentationBuilder({
               Builder's own oil/seasoning nudge (a soft suggestion, never a
               block). Same tappable-pill multi-select shape as Profile's own
               Food Allergies field. */}
-          {fermentationStrains.length > 0 ? (
+          {showCulturesSection && fermentationStrains.length > 0 ? (
             <>
               <Text style={[styles.formLabel, styles.formLabelSpaced, { color: tabColor }]}>
                 Cultures &amp; Probiotics (optional)
