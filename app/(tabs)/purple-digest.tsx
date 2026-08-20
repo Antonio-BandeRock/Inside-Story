@@ -860,6 +860,19 @@ function classifyConditionTopic(entry: AnyDigestEntry): ConditionTopic {
   if (id.includes('-global-')) return 'Around the World';
   if (id.includes('pregnan')) return 'Pregnancy & Family Planning';
   if (id.includes('history') || id.includes('milestone')) return 'History & Milestones';
+  // 2026-08-21, found and fixed directly: every one of the 19 "Fermented
+  // Drinks and Foods for [Condition]" entries (one per tracked condition,
+  // built 2026-08-20/21) was silently landing in the Core Science
+  // fallback bucket instead of Diet & Food -- the keyword fallback below
+  // checks `\bfood\b`, which never matches the plural "Foods" every one
+  // of these titles actually uses (no word boundary between "food" and
+  // its own trailing "s"), and none of them mention "diet," "dairy," or
+  // any of the fallback's other literal words in the title either. A
+  // real, deliberate id-based check, the same reliability reason every
+  // other id-substring check above already exists for, rather than
+  // patching the regex and hoping some future title still happens to
+  // trip it.
+  if (id.includes('fermented-drinks')) return 'Diet & Food';
 
   if (id.startsWith('gut-')) return 'Gut & Microbiome';
   if (id.startsWith('mito-')) return 'Mitochondria & Metabolism';
