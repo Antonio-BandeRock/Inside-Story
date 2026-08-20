@@ -301,6 +301,23 @@ export default function FoodItemsScreen() {
                   <Ionicons name="pencil-outline" size={19} color={colors.textSecondary} />
                 </TouchableOpacity>
               ) : null}
+              {/* Track, 2026-08-20 -- the Fermentation Tracker's own real
+                  entry point from a saved fermentation. Scoped to
+                  itemType==='fermentation' && status==='saved' only, the
+                  same real "editable saved item" scope Edit above already
+                  uses -- a favorite has nothing to track yet (see the tap
+                  handler's own "Use this Favorite" comment above), and no
+                  other itemType has a Tracker to open. */}
+              {status === 'saved' && itemType === 'fermentation' ? (
+                <TouchableOpacity
+                  style={styles.itemActionButton}
+                  onPress={() => router.push({ pathname: '/fermentation-tracker', params: { fermentationId: item.id, fermentationName: item.title } })}
+                  accessibilityLabel={`Track ${item.title}`}
+                  hitSlop={8}
+                >
+                  <Ionicons name="flask-outline" size={19} color={colors.textSecondary} />
+                </TouchableOpacity>
+              ) : null}
               {/* Favorites are deletable too, 2026-08-08 -- the same generic
                   favorites table every itemType shares (see handleDelete's
                   own comment above), so this reuses supportsDelete's

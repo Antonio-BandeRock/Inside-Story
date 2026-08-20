@@ -14901,6 +14901,11 @@ export type FermentationBatchStage = 'primary' | 'carbonating' | 'refrigerated' 
 export type FermentationBatch = {
   id: string;
   fermentationId: string;
+  // Denormalized in from `fermentations` at read time (see
+  // listFermentationBatches' own JOIN below) -- the Tracker screen always
+  // needs this to render a real batch row, and a plain per-batch lookup
+  // would mean an N+1 query for every batch in the list.
+  fermentationName: string;
   stage: FermentationBatchStage;
   startedAt: string;
   stageChangedAt: string;
@@ -14909,8 +14914,8 @@ export type FermentationBatch = {
 };
 
 const FERMENTATION_BATCH_COLUMNS = `
-  id, fermentation_id AS fermentationId, stage, started_at AS startedAt,
-  stage_changed_at AS stageChangedAt, notes, created_at AS createdAt
+  b.id, b.fermentation_id AS fermentationId, f.name AS fermentationName, b.stage, b.started_at AS startedAt,
+  b.stage_changed_at AS stageChangedAt, b.notes, b.created_at AS createdAt
 `;
 
 // Cancels a batch's own currently-scheduled, not-yet-happened reminders --
@@ -15055,7 +15060,26 @@ export async function advanceFermentationBatch(input: {
 export async function listFermentationBatches(): Promise<FermentationBatch[]> {
   const db = await getDatabase();
   return db.getAllAsync<FermentationBatch>(
-    `SELECT ${FERMENTATION_BATCH_COLUMNS} FROM fermentation_batches WHERE stage != 'finished' ORDER BY started_at DESC`,
+    `
+      SELECT ${FERMENTATION_BATCH_COLUMNS}
+      FROM fermentation_batches b
+      JOIN fermentations f ON f.id = b.fermentation_id
+      WHERE b.stage != 'finished'
+      ORDER BY b.started_at DESC
+    `,
+  );
+}
+
+export async function getFermentationBatch(id: string): Promise<FermentationBatch | null> {
+  const db = await getDatabase();
+  return db.getFirstAsync<FermentationBatch>(
+    `
+      SELECT ${FERMENTATION_BATCH_COLUMNS}
+      FROM fermentation_batches b
+      JOIN fermentations f ON f.id = b.fermentation_id
+      WHERE b.id = ?
+    `,
+    id,
   );
 }
 

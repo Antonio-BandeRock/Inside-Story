@@ -2665,5 +2665,694 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       flavorNotes: 'Pungent and sweet-hot, syrupy in texture, traditionally taken by the spoonful rather than diluted into a drink.',
     },
   },
+
+  // -------------------------------------------------------------------
+  // Fermented Drinks -- Wave 2, 2026-08-20, same session, direct request:
+  // "Finish the 19... this is no longer ONLY for people with these
+  // conditions... if it is a healthy thing for an average nonconditional
+  // person then it needs to be here, and if there are warnings that need
+  // to be in place due to a condition, that also needs to be here." These
+  // 19 entries are written for a general reader first, with genuine,
+  // specific condition cautions layered in as conditionNotes rather than
+  // as a reason to leave a drink out. Several needed a named ingredient
+  // substitution (this database has no row for soldierwood bark, agave
+  // sap, palm sap, pine needles, or mare's/camel's milk, and its only
+  // plain dairy yogurt and agave syrup rows are entirely audit-hidden) --
+  // every substitution is named directly in its own summary, never
+  // presented as the authentic traditional ingredient. Every claim below
+  // was independently checked via WebSearch before being written in, the
+  // same discipline as Wave 1. Full reasoning for every substitution
+  // lives in scripts/add_fermented_drink_recipes_wave2.py's own header
+  // comment.
+  // -------------------------------------------------------------------
+  {
+    id: 'recipe-ferment-milk-kefir',
+    category: 'recipes',
+    title: 'Milk Kefir',
+    teaser: 'A tangy, effervescent dairy ferment with a broader live culture than yogurt, a good everyday probiotic for anyone who tolerates dairy well.',
+    summary: 'Milk kefir grains carry a more varied community of bacteria and yeast species than yogurt\'s own two-strain starter culture, fermenting at ordinary room temperature rather than yogurt\'s held warm temperature. For most people, this makes it one of the more microbially diverse fermented dairy options available at home.',
+    citations: [
+      { source: 'Microbiome and Metabiotic Properties of Kefir Grains and Kefirs Based on Them, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/35967129/' },
+    ],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_ferment_milk_kefir',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-coconut-kefir'],
+    recipeCard: {
+      yield: 'Makes about 4 cups. Restarts easily every 24 hours once the grains are active.',
+      ingredients: [
+        { text: '4 cups (1 liter) whole milk' },
+        { text: '1/4 cup (about 60g) active milk kefir grains' },
+      ],
+      instructions: [
+        'Put the milk kefir grains in a clean quart jar and pour the milk over them.',
+        'Cover with a breathable cloth secured by a rubber band, not a sealed lid.',
+        'Let it sit at room temperature for 24 hours, until thickened and lightly tangy.',
+        'Strain out the grains (save them to start the next batch) and refrigerate the liquid.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Live cultures', note: 'A broader, more varied bacteria-and-yeast community than yogurt\'s own required two-strain starter.' },
+        { nutrient: 'Calcium', note: 'Carries whole milk\'s own calcium content, worth knowing given calcium can interfere with thyroid medication absorption if taken too close together.' },
+      ],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment: casein and lactose are both present, though fermentation reduces the lactose. If dairy is a trigger, Coconut Kefir (also in this app) gives a similar live-culture drink without it.' },
+        { condition: 'Anyone taking levothyroxine', note: 'Its calcium content can block thyroid medication absorption if taken within about 4 hours of a dose; space this out from your morning pill.' },
+      ],
+      flavorNotes: 'Thin, tangy, and lightly effervescent, more sour and less thick than yogurt.',
+    },
+  },
+  {
+    id: 'recipe-ferment-amazake',
+    category: 'recipes',
+    title: 'Amazake',
+    teaser: 'A naturally sweet Japanese rice ferment with no added sugar at all, its sweetness comes entirely from the fermentation itself.',
+    summary: 'Koji mold breaks rice starch down into maltose as it ferments, which is where every bit of amazake\'s own sweetness comes from, not an added sweetener. A pleasant everyday drink for most people, though its natural sugar content is concentrated enough to matter for anyone watching blood sugar.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_amazake',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 4 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '1 cup (200g) rice, rinsed well' },
+        { text: '3 1/3 cups (800ml) water' },
+        { text: 'Koji rice culture, per package instructions (available from a fermentation or Japanese grocery supplier)' },
+      ],
+      instructions: [
+        'Cook the rice with the water until soft, then let it cool to around 140°F (60°C), warm but not hot enough to kill the koji culture.',
+        'Stir in the koji culture per its own package instructions.',
+        'Keep the mixture at a steady 130-140°F (54-60°C) for 8-10 hours, using a yogurt maker, rice cooker on "keep warm," or a warm oven with the door cracked.',
+        'It\'s ready once noticeably sweet. Blend smooth if you prefer a thinner drink, or thin with a little extra water.',
+        'Refrigerate. Keeps about a week.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Natural maltose', note: 'The entire sweetness of this drink, produced by koji breaking down the rice\'s own starch, no added sugar involved.' },
+      ],
+      conditionNotes: [
+        { condition: 'Type 2 Diabetes / PCOS', note: 'Amazake\'s natural sugar content is concentrated; treat it more like a dessert drink than an everyday beverage if blood sugar is a concern.' },
+      ],
+      flavorNotes: 'Thick, naturally sweet, and lightly tangy, closer to a rice pudding you drink than a soda.',
+    },
+  },
+  {
+    id: 'recipe-ferment-rejuvelac',
+    category: 'recipes',
+    title: 'Rejuvelac (Sprouted Quinoa)',
+    teaser: 'A tart, mild sprouted-grain ferment, built gluten-free from the start rather than adapted from a wheat recipe afterward.',
+    summary: 'Traditional rejuvelac uses sprouted wheat berries. This version uses quinoa instead, so it\'s gluten-free by design, not a wheat-based drink someone had to work around. Sprouting activates enzymes already present in the grain, and the wild fermentation that follows adds live bacteria on top of that.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_rejuvelac',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '1 cup (200g) quinoa, sprouted (rinse and soak 8 hours, then drain and rinse twice daily for 2 days until small tails appear)' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Once the quinoa has sprouted small tails, put it in a clean half-gallon jar.',
+        'Add the water and cover with a breathable cloth secured by a rubber band.',
+        'Let it ferment at room temperature for 2-3 days, until cloudy and pleasantly tart, with a lemony smell.',
+        'Strain out the quinoa and refrigerate the liquid. Keeps about a week.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Live wild cultures', note: 'Sprouting first activates enzymes already present in the grain, and the fermentation that follows adds bacteria on top of that.' },
+      ],
+      conditionNotes: [],
+      flavorNotes: 'Tart, lightly cloudy, and mild, closer to a very light lemon water than a fruit soda.',
+    },
+  },
+  {
+    id: 'recipe-ferment-mauby-burdock-tonic',
+    category: 'recipes',
+    title: 'Burdock Bark-Style Mauby Tonic',
+    teaser: 'A bittersweet, warmly spiced digestive tonic, built from a bitter, available root instead of an unavailable tree bark.',
+    summary: 'Traditional Mauby ferments the bark of the soldierwood tree, an ingredient this app\'s own reference database has no matching row for at all. Burdock root fills the same bitter-tonic role and is a bitter root in its own right, paired here with the same warming spices (cinnamon, cloves) traditional Mauby uses. Bitter tonics have a long traditional reputation for stimulating digestion before a meal, though that specific traditional use hasn\'t been rigorously trial-tested the way many other claims in this app have been.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'weak',
+    linkedCuratedRecipeId: 'curated_ferment_mauby_burdock_tonic',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 6 cups. Traditionally taken as a small glass rather than a full pitcher serving.',
+      ingredients: [
+        { text: '1/2 cup (100g) burdock root, sliced' },
+        { text: '1 teaspoon (3g) cinnamon' },
+        { text: '1/4 teaspoon (1g) ground cloves' },
+        { text: '1/3 cup (about 65g) raw honey' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Combine the sliced burdock root, cinnamon, and cloves in a clean half-gallon jar.',
+        'Dissolve the honey in the water and pour it over everything.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Ferment at room temperature for 3-5 days, tasting daily until bittersweet and lightly tangy.',
+        'Strain and refrigerate. Keeps about 1-2 weeks.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Bitter root compounds', note: 'Burdock root carries its own bitter compounds, the same traditional bitter-tonic role soldierwood bark plays in authentic Mauby.' },
+      ],
+      conditionNotes: [
+        { condition: 'Gallbladder or bile duct conditions', note: 'Bitter tonics traditionally work by stimulating bile flow; check with your care team before making this a regular habit if you have a gallbladder or bile duct condition.' },
+        { condition: 'Pregnancy', note: 'Concentrated bitter herbal ferments like this one are generally best discussed with your care provider before regular use during pregnancy.' },
+      ],
+      flavorNotes: 'Bittersweet and warmly spiced, an acquired taste, traditionally sipped rather than gulped.',
+    },
+  },
+  {
+    id: 'recipe-ferment-burdock-dandelion-ale',
+    category: 'recipes',
+    title: 'Burdock and Dandelion Ale',
+    teaser: 'An earthy, bitter, lightly fizzy herbal ferment, built gluten-free by using honey instead of barley malt.',
+    summary: 'Traditional versions use barley malt as the fermentable sugar for the yeast, which brings gluten along with it. This version uses honey instead, sidestepping the grain entirely rather than hunting for a malted gluten-free substitute. Dandelion has documented diuretic activity in one small human study, worth knowing if fluid balance matters to you.',
+    citations: [
+      { source: 'Clare et al. 2009, Journal of Alternative and Complementary Medicine: diuretic effect of dandelion leaf extract in human subjects', url: 'https://pubmed.ncbi.nlm.nih.gov/19678785/' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_burdock_dandelion_ale',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '1/3 cup (80g) burdock root, sliced' },
+        { text: '1 cup (60g) dandelion greens, chopped' },
+        { text: '1/3 cup plus 1 tablespoon (about 85g) raw honey' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Combine the burdock root and dandelion greens in a clean half-gallon jar.',
+        'Dissolve the honey in the water and pour it over everything.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Ferment at room temperature for 3-5 days, tasting daily.',
+        'Strain and refrigerate once bitter, earthy, and lightly fizzy. Keeps about 1-2 weeks.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Inulin', note: 'Both burdock and dandelion root carry this prebiotic fiber, feeding beneficial gut bacteria.' },
+      ],
+      conditionNotes: [
+        { condition: 'Chronic Kidney Disease / blood pressure medication', note: 'Dandelion has a documented diuretic effect; check with your care team before regular use if you take a diuretic medication or have kidney concerns.' },
+      ],
+      flavorNotes: 'Earthy and bitter with a lightly fizzy finish, closer to a craft root beer without the sweetness than an actual ale.',
+    },
+  },
+  {
+    id: 'recipe-ferment-pozol',
+    category: 'recipes',
+    title: 'Pozol',
+    teaser: 'A tangy, filling Mesoamerican fermented corn drink, built on the same alkaline corn preparation that prevents pellagra.',
+    summary: 'Pozol is built from nixtamalized corn, corn that\'s been soaked in an alkaline solution, the same preparation used to make tortillas and hominy. That process makes the corn\'s own niacin dramatically more bioavailable than untreated corn, historically the difference between populations that relied on corn as a staple without developing pellagra (a niacin-deficiency disease) and those that didn\'t nixtamalize it at all.',
+    citations: [
+      { source: 'Nixtamalization: an overview, ScienceDirect Topics (compiling peer-reviewed food science literature)', url: 'https://www.sciencedirect.com/topics/food-science/nixtamalization' },
+    ],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_ferment_pozol',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '2 1/2 cups (400g) hominy (nixtamalized corn)' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Blend the hominy with about a third of the water until it forms a thick, coarse paste.',
+        'Shape into a ball or thick disc and wrap in a clean cloth.',
+        'Let it ferment at room temperature for 3-5 days, until noticeably tangy and slightly bubbly when broken open.',
+        'Whisk the fermented dough with the remaining water to your preferred consistency.',
+        'Refrigerate. Drink within a few days, this ferments quickly once mixed with water.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Niacin (B3)', note: 'The alkaline nixtamalization process makes corn\'s own niacin dramatically more absorbable than untreated corn.' },
+      ],
+      conditionNotes: [
+        { condition: 'AIP / corn sensitivity', note: 'Corn is gluten-free but a known cross-reactive grain for some gluten-sensitive people, and is excluded from the strict Autoimmune Protocol elimination diet.' },
+      ],
+      flavorNotes: 'Tangy, thick, and filling, traditionally drunk cold as a hydrating, energizing field drink.',
+    },
+  },
+  {
+    id: 'recipe-ferment-sobia',
+    category: 'recipes',
+    title: 'Sobia (Dairy-Free)',
+    teaser: 'A creamy, cardamom-spiced Saudi Arabian rice ferment, built dairy-free using coconut milk in place of traditional dairy.',
+    summary: 'Traditional Sobia is often made with dairy milk. This version uses coconut milk instead, keeping the same creamy texture without dairy\'s own casein and lactose, a pleasant everyday drink for most people either way. A traditional dairy-milk version is equally valid if dairy isn\'t a concern for you, just swap in whole milk for the coconut milk here.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_sobia',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '2/3 cup (150g) rice, soaked several hours then blended smooth with a little water' },
+        { text: '1 3/4 cups (400ml) coconut milk' },
+        { text: '1/2 teaspoon (2g) ground cardamom' },
+        { text: '2 1/2 tablespoons (about 50g) raw honey' },
+        { text: '3 1/3 cups (800ml) filtered water' },
+      ],
+      instructions: [
+        'Combine the blended rice, coconut milk, cardamom, and water in a clean half-gallon jar.',
+        'Dissolve the honey in and stir well.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Let it ferment at room temperature for 1-2 days, tasting periodically.',
+        'Strain if you prefer a smoother texture, then refrigerate. Keeps about a week.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Lauric acid', note: 'From the coconut milk, a documented antimicrobial fatty acid, on top of whatever live culture develops during the short ferment.' },
+      ],
+      conditionNotes: [],
+      flavorNotes: 'Creamy, spiced, and lightly sweet, closer to a chilled rice horchata than a tangy soda.',
+    },
+  },
+  {
+    id: 'recipe-ferment-rosemary-cheong',
+    category: 'recipes',
+    title: 'Rosemary Cheong (Pine Needle-Style)',
+    teaser: 'A concentrated herbal sugar syrup-ferment, built from a confirmed edible herb instead of foraged pine needles, since not every pine species is safe to eat.',
+    summary: 'Traditional Korean Pine Needle Cheong uses fresh pine needles. Not every pine species is actually safe to eat: ponderosa pine can act as an abortifacient in livestock, and yew trees, a toxic look-alike, get mistaken for pine by inexperienced foragers with serious consequences. Since this app has no way to confirm which conifer is growing in any one person\'s yard, this version uses rosemary instead, a confirmed culinary herb with a similar resinous character, rather than asking anyone to forage and identify a wild conifer themselves.',
+    citations: [
+      { source: 'Missouri Poison Center: Pine Needles safety guidance', url: 'https://missouripoisoncenter.org/is-this-a-poison/pine-needles/' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_rosemary_cheong',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 1 cup of finished syrup, used a spoonful at a time in water or tea.',
+      ingredients: [
+        { text: '1 cup (100g) fresh rosemary, roughly chopped' },
+        { text: '1/2 cup (100g) sugar' },
+      ],
+      instructions: [
+        'Layer the chopped rosemary and sugar in a clean pint jar, pressing down lightly as you go.',
+        'Cover loosely (not fully airtight) and let it sit at room temperature.',
+        'Shake or stir gently once a day. Osmotic pressure from the sugar draws liquid out of the rosemary over several days.',
+        'Once a syrupy liquid has pooled at the bottom (about 5-7 days), strain out the rosemary.',
+        'Store the syrup in the refrigerator. Use a spoonful stirred into water or tea.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Rosmarinic acid', note: 'Rosemary\'s own signature polyphenol, with a traditional reputation for antioxidant activity.' },
+      ],
+      conditionNotes: [],
+      flavorNotes: 'Herbal, resinous, and sweet, closer to a rosemary simple syrup than a fizzy drink, meant to be diluted rather than drunk straight.',
+    },
+  },
+  {
+    id: 'recipe-ferment-boza',
+    category: 'recipes',
+    title: 'Boza',
+    teaser: 'A thick, tangy, mildly sweet Balkan and Turkish grain ferment, built on millet, one of its own traditional grains.',
+    summary: 'Boza is traditionally made from millet, wheat, or corn. This version uses millet, naturally gluten-free, so no substitution was actually needed here, just a choice among Boza\'s own traditional options.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_boza',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '2 cups (200g) puffed millet' },
+        { text: '1/3 cup (80g) sugar' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Simmer the puffed millet in the water for 15-20 minutes, until it breaks down into a thick, porridge-like consistency.',
+        'Stir in the sugar and let it cool completely to room temperature.',
+        'Transfer to a clean half-gallon jar, cover with a breathable cloth secured by a rubber band.',
+        'Ferment at room temperature for 1-2 days, until tangy with a few visible bubbles.',
+        'Refrigerate. Drink within a few days, stirring before serving since it settles.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Whole-grain fiber', note: 'A thicker, more filling drink than most other ferments here, from the millet\'s own intact starch and fiber.' },
+      ],
+      conditionNotes: [],
+      flavorNotes: 'Thick and tangy with a mild sweetness, closer to a drinkable porridge than a clear soda.',
+    },
+  },
+  {
+    id: 'recipe-ferment-chicha-de-jora',
+    category: 'recipes',
+    title: 'Chicha de Jora',
+    teaser: 'A tangy, lightly fizzy Andean fermented corn drink, made the malted-corn way rather than the older saliva-started method.',
+    summary: 'Chicha de Jora is built by sprouting corn before fermenting it (the \"jora\" malting step), the more common traditional method across the Andes today, distinct from the older saliva-started method some regional versions historically used. Sprouting develops natural enzymes that help convert the corn\'s own starch into fermentable sugar.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_chicha',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '2 1/2 cups (400g) hominy, sprouted (soak 24 hours, drain, and let sit covered until small sprouts appear, 2-3 days)' },
+        { text: '1/4 cup (60g) sugar' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Simmer the sprouted hominy in the water for 30-40 minutes, until softened.',
+        'Stir in the sugar and let cool completely to room temperature.',
+        'Strain, reserving the liquid, and transfer to a clean half-gallon jar.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Ferment at room temperature for 2-4 days, tasting daily, until tangy and lightly fizzy.',
+        'Refrigerate. Drink within a few days.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Resistant starch', note: 'Sprouting and fermenting the corn changes its own starch structure, generally making it gentler on digestion than unsprouted corn.' },
+      ],
+      conditionNotes: [
+        { condition: 'AIP / corn sensitivity', note: 'Corn is gluten-free but a known cross-reactive grain for some gluten-sensitive people, and this ferment can develop meaningful alcohol content if left fermenting several days.' },
+      ],
+      flavorNotes: 'Tangy and lightly effervescent, mildly sweet, traditionally served slightly chilled.',
+    },
+  },
+  {
+    id: 'recipe-ferment-rye-style-kvass-quinoa',
+    category: 'recipes',
+    title: 'Rye-Style Kvass (Toasted Quinoa)',
+    teaser: 'A tangy, bready Russian and Ukrainian ferment tradition, built gluten-free with toasted quinoa standing in for rye bread.',
+    summary: 'Traditional kvass ferments rye bread, distinct from this app\'s own Beet Kvass (a root-vegetable ferment sharing only the name). This version toasts quinoa to develop a similar roasted, bready flavor without the gluten, the same substitution logic as this app\'s own Rejuvelac recipe above.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_rye_style_kvass_quinoa',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-beet-kvass'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, enough for two people across several days.',
+      ingredients: [
+        { text: '1 cup (200g) quinoa, toasted in a dry pan until fragrant and lightly browned' },
+        { text: '1/3 cup (about 65g) raw honey' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Toast the quinoa in a dry skillet over medium heat, stirring often, until fragrant and lightly browned, about 5-8 minutes.',
+        'Let it cool, then put it in a clean half-gallon jar.',
+        'Dissolve the honey in the water and pour it over the quinoa.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Ferment at room temperature for 2-3 days, tasting daily, until tangy and lightly fizzy.',
+        'Strain and refrigerate. Keeps about a week.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Live wild cultures', note: 'Wild yeast and bacteria already present on the quinoa and in the air do the fermenting, the same wild-ferment principle as this app\'s own tonic family.' },
+      ],
+      conditionNotes: [],
+      flavorNotes: 'Tangy and bready with a toasted, nutty background, closer to a light beer than a fruit soda.',
+    },
+  },
+  {
+    id: 'recipe-ferment-sake-style-rice-wine',
+    category: 'recipes',
+    title: 'Home-Style Rice Wine (Sake-Style)',
+    teaser: 'A traditional Japanese rice ferment, actually alcoholic once fully fermented, worth knowing plainly before trying it.',
+    summary: 'Traditional sake production uses koji mold to convert rice starch into sugar before yeast converts that sugar into alcohol, a different two-step process from a beer or wine ferment, which starts from sugar that\'s already there. A simple home batch like this one stays comparatively low in alcohol, but it is an alcoholic ferment, not a soda.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_sake_style_rice_wine',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
+    recipeCard: {
+      yield: 'Makes about 8 cups, meant to be sipped in small amounts given its alcohol content.',
+      ingredients: [
+        { text: '2 cups (400g) rice, rinsed well' },
+        { text: '6 cups (1.5 liters) water' },
+        { text: 'Koji rice culture and sake yeast, per package instructions (available from a fermentation supplier)' },
+      ],
+      instructions: [
+        'Cook the rice with the water until soft, then let it cool to room temperature.',
+        'Stir in the koji culture per its own package instructions and let it sit 1-2 days until noticeably sweet, this is the starch-to-sugar step.',
+        'Add the sake yeast and transfer to a clean half-gallon jar, cover loosely (not fully airtight, since gas builds up).',
+        'Ferment at room temperature for 1-2 weeks, stirring daily, until fermentation activity slows and it tastes distinctly alcoholic rather than sweet.',
+        'Strain through a cloth, pressing to extract the liquid, and refrigerate.',
+      ],
+      nutritionHighlights: [],
+      conditionNotes: [
+        { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment, not a low-alcohol soda the way this app\'s wild-fermented tonics are. Skip it entirely if you avoid alcohol for any reason.' },
+      ],
+      flavorNotes: 'Cloudy, mildly sweet, and warming, with alcohol content that builds the longer it ferments.',
+    },
+  },
+  {
+    id: 'recipe-ferment-makgeolli',
+    category: 'recipes',
+    title: 'Makgeolli',
+    teaser: 'A milky, lightly sparkling Korean rice wine, left unfiltered so it carries live lactic acid bacteria alongside its alcohol content.',
+    summary: 'Unlike sake, which is typically strained clear, makgeolli is left unfiltered, so live lactic acid bacteria stay in the finished drink at levels comparable to yogurt, alongside the yeast doing the alcoholic fermentation. It\'s a different drink from sake for that reason, not just a cloudier version of it, though it\'s still an alcoholic beverage.',
+    citations: [
+      { source: 'Nile & Park 2015, Journal of the Institute of Brewing: nutritional, biochemical and health effects of makgeolli', url: 'https://onlinelibrary.wiley.com/doi/full/10.1002/jib.264' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_makgeolli',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
+    recipeCard: {
+      yield: 'Makes about 8 cups, meant to be sipped in small amounts given its alcohol content.',
+      ingredients: [
+        { text: '2 cups (400g) rice, rinsed well' },
+        { text: '6 cups (1.5 liters) water' },
+        { text: 'Nuruk (Korean fermentation starter), per package instructions (available from a Korean grocery or fermentation supplier)' },
+      ],
+      instructions: [
+        'Cook the rice with the water until soft, then let it cool to room temperature.',
+        'Crumble in the nuruk per its own package instructions and mix well.',
+        'Transfer to a clean half-gallon jar, cover loosely (not fully airtight).',
+        'Ferment at room temperature for 5-7 days, stirring daily, until it separates into a cloudy liquid layer and settled solids.',
+        'Stir the whole batch together, strain through a cloth for a smoother drink or leave it thick and unstrained, and refrigerate.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Live lactic acid bacteria', note: 'Left in the drink specifically because it isn\'t filtered clear, at levels the cited research compares directly to yogurt.' },
+      ],
+      conditionNotes: [
+        { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment. Skip it entirely if you avoid alcohol for any reason.' },
+      ],
+      flavorNotes: 'Milky, tangy, and lightly sparkling, thicker and cloudier than sake, with a mild natural sweetness.',
+    },
+  },
+  {
+    id: 'recipe-ferment-ayran',
+    category: 'recipes',
+    title: 'Ayran',
+    teaser: 'A salty, tangy, refreshing Turkish yogurt drink, about as simple as a fermented drink gets.',
+    summary: 'Ayran is yogurt thinned with water and lightly salted, nothing more, keeping the same live cultures as the yogurt itself while lowering its overall calorie density. A traditionally savory drink rather than a sweet one, closer to a savory electrolyte drink than a smoothie.',
+    citations: [
+      { source: 'Codex Alimentarius (FAO/WHO) Standard for Fermented Milks, yogurt starter-culture requirement', url: 'https://www.fao.org/fao-who-codexalimentarius/sh-proxy/en/?lnk=1&url=https%253A%252F%252Fworkspace.fao.org%252Fsites%252Fcodex%252FStandards%252FCXS%2B243-2003%252FCXS_243e.pdf' },
+    ],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_ferment_ayran',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-milk-kefir-and-yogurt'],
+    recipeCard: {
+      yield: 'Makes about 4 cups, enough for two people.',
+      ingredients: [
+        { text: '1 1/4 cups (300g) plain yogurt' },
+        { text: '3 cups (700ml) cold water' },
+        { text: '1/2 teaspoon (3g) salt' },
+        { text: 'A few fresh mint leaves, torn, optional garnish' },
+      ],
+      instructions: [
+        'Whisk the yogurt and water together until smooth and frothy.',
+        'Stir in the salt.',
+        'Serve cold, garnished with torn mint if using.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Live cultures', note: 'Carries the same live yogurt cultures as the yogurt it\'s made from, just diluted.' },
+        { nutrient: 'Sodium', note: 'Genuinely salty by design, traditionally drunk to help replace electrolytes lost to sweat in hot weather.' },
+      ],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a dairy drink; if dairy is a trigger, this one isn\'t easily made without it the way some other ferments here are.' },
+        { condition: 'Chronic Kidney Disease / sodium-restricted diets', note: 'Its salt content is deliberate; adjust or skip if you\'re on a sodium-restricted diet.' },
+      ],
+      flavorNotes: 'Salty, tangy, and refreshing, savory rather than sweet, traditionally served ice-cold.',
+    },
+  },
+  {
+    id: 'recipe-ferment-mango-lassi',
+    category: 'recipes',
+    title: 'Mango Lassi',
+    teaser: 'A creamy, fragrant Indian yogurt drink, the most familiar lassi variation, sweetened with whole fruit rather than syrup.',
+    summary: 'Lassi can be sweet or savory; this is the mango version, the most widely recognized outside India. Built with whole mango and a small amount of honey rather than a sweetened syrup or artificial flavoring, so most of its sweetness comes from whole fruit.',
+    citations: [
+      { source: 'Codex Alimentarius (FAO/WHO) Standard for Fermented Milks, yogurt starter-culture requirement', url: 'https://www.fao.org/fao-who-codexalimentarius/sh-proxy/en/?lnk=1&url=https%253A%252F%252Fworkspace.fao.org%252Fsites%252Fcodex%252FStandards%252FCXS%2B243-2003%252FCXS_243e.pdf' },
+    ],
+    overallTier: 'strong',
+    linkedCuratedRecipeId: 'curated_ferment_mango_lassi',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-ayran'],
+    recipeCard: {
+      yield: 'Makes about 4 cups, enough for two people.',
+      ingredients: [
+        { text: '1 1/4 cups (300g) plain yogurt' },
+        { text: '1 1/3 cups (200g) mango, diced' },
+        { text: 'A pinch (1g) ground cardamom' },
+        { text: '4 teaspoons (20g) raw honey' },
+        { text: '3/4 cup (200ml) cold water' },
+      ],
+      instructions: [
+        'Blend the yogurt, mango, cardamom, honey, and water together until smooth.',
+        'Adjust thickness with a little more water if you prefer it thinner.',
+        'Serve cold.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Vitamin C', note: 'From the whole mango, alongside the live cultures already present in the yogurt.' },
+        { nutrient: 'Live cultures', note: 'Carries the same live yogurt cultures the ayran recipe above does, in a sweeter, fruitier form.' },
+      ],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a dairy drink, worth knowing if dairy is a trigger for you.' },
+        { condition: 'Type 2 Diabetes / PCOS', note: 'Mango is a naturally sweet fruit; this is more of an occasional treat than an everyday drink if blood sugar is a concern.' },
+      ],
+      flavorNotes: 'Creamy, sweet, and fragrant with cardamom, a dessert-like drink rather than a tart one.',
+    },
+  },
+  {
+    id: 'recipe-ferment-tarag-style',
+    category: 'recipes',
+    title: 'Tarag-Style Fermented Milk',
+    teaser: 'A tangy, effervescent Mongolian-style fermented milk drink, built with cow\'s milk since this app has no way to source mare\'s or camel\'s milk.',
+    summary: 'Traditional Tarag ferments mare\'s or camel\'s milk, neither of which this app\'s own reference database carries at all. This version uses cow\'s milk instead, the nearest available analogue, worth knowing plainly: traditional Tarag\'s own higher lactose content and different fat profile from mare\'s milk aren\'t reproduced here, this is a cow\'s-milk-kefir-style approximation of the idea, not the traditional drink itself.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'weak',
+    linkedCuratedRecipeId: 'curated_ferment_tarag_style',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-milk-kefir'],
+    recipeCard: {
+      yield: 'Makes about 4 cups. Restarts easily every 24 hours once active.',
+      ingredients: [
+        { text: '4 cups (1 liter) whole milk' },
+        { text: '1/4 cup (about 60g) active milk kefir grains, or 2 tablespoons plain live-culture yogurt as a starter' },
+      ],
+      instructions: [
+        'Put the milk and starter in a clean quart jar.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Let it sit at room temperature for 24-48 hours, until thickened, tangy, and lightly effervescent.',
+        'Strain out any kefir grains if used, and refrigerate the liquid.',
+      ],
+      nutritionHighlights: [],
+      conditionNotes: [
+        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment, worth knowing if dairy is a trigger for you.' },
+      ],
+      flavorNotes: 'Tangy and slightly effervescent, thinner than yogurt, similar in spirit to milk kefir.',
+    },
+  },
+  {
+    id: 'recipe-ferment-puerh-style-tea',
+    category: 'recipes',
+    title: 'Pu-erh-Style Fermented Tea',
+    teaser: 'A kombucha-style home ferment built to evoke pu-erh\'s own fermented-tea tradition, since true pu-erh leaf isn\'t something this database carries.',
+    summary: 'This database carries no true pu-erh tea leaf, so this version uses brewed black tea as the fermentable base for a home SCOBY ferment instead. Worth knowing plainly: true pu-erh is aged and fermented by microbes directly on the tea leaf over months or years, a process a quick home ferment doesn\'t actually replicate either way, so this is a home-kitchen homage to the idea, not a claim of authenticity. Pu-erh itself has separate, strong human trial evidence for improving cholesterol and liver fat, worth knowing about even though this home version doesn\'t reproduce that specific research.',
+    citations: [
+      { source: 'Xu et al. 2019, Nature Communications: theabrownin from Pu-erh tea attenuates hypercholesterolemia via gut microbiota and bile acid metabolism, human and mouse data', url: 'https://pubmed.ncbi.nlm.nih.gov/31672964/' },
+    ],
+    overallTier: 'moderate',
+    linkedCuratedRecipeId: 'curated_ferment_puerh_style_tea',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-kombucha', 'fermentmethod-dairy-free-gluten-free-survey'],
+    recipeCard: {
+      yield: 'Makes about 8 cups, enough for two people across a week or more.',
+      ingredients: [
+        { text: '8 cups (2 liters) brewed black tea, cooled to room temperature' },
+        { text: '1 cup (200g) sugar' },
+        { text: '1 SCOBY plus 1 cup starter liquid from a previous kombucha batch' },
+      ],
+      instructions: [
+        'Brew the black tea strong and let it cool completely to room temperature.',
+        'Stir in the sugar until dissolved.',
+        'Pour into a clean half-gallon jar and add the SCOBY and starter liquid.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Ferment at room temperature for 7-14 days, tasting periodically, until tart.',
+        'Remove the SCOBY, bottle the liquid, and refrigerate.',
+      ],
+      nutritionHighlights: [],
+      conditionNotes: [],
+      flavorNotes: 'Tangy and lightly effervescent, deep and malty from the black tea base, closer to standard kombucha than to true aged pu-erh.',
+    },
+  },
+  {
+    id: 'recipe-ferment-coconut-palm-wine-style',
+    category: 'recipes',
+    title: 'Coconut Palm Wine-Style Ferment',
+    teaser: 'A wild-fermented coconut water drink built to evoke traditional palm wine, mildly alcoholic once fully fermented.',
+    summary: 'Traditional palm wine ferments sap tapped directly from a palm tree, which this database has no ingredient for. Coconut water (itself a palm-tree product, just not tapped sap) stands in instead, fermented longer than this app\'s own Coconut Kefir to develop meaningfully more alcohol content, a different drink from that shorter, milder ferment.',
+    citations: [
+      { source: 'Biomedical Applications of Lauric Acid: A Narrative Review, PubMed', url: 'https://pubmed.ncbi.nlm.nih.gov/39036266/' },
+    ],
+    overallTier: 'weak',
+    linkedCuratedRecipeId: 'curated_ferment_coconut_palm_wine_style',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-coconut-kefir', 'lifestyle-alcohol-advisory'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, meant to be sipped in small amounts given its alcohol content.',
+      ingredients: [
+        { text: '6 cups (1.5 liters) unsweetened coconut water' },
+        { text: '1/2 cup (100g) sugar' },
+      ],
+      instructions: [
+        'Combine the coconut water and sugar in a clean half-gallon jar, stirring to dissolve.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Let it ferment at room temperature for 5-7 days, tasting periodically, until it develops a noticeably winy, less sweet flavor.',
+        'Strain if needed, and refrigerate, or bottle sealed for another day or two to build carbonation first.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Lauric acid', note: 'From the coconut itself, a documented antimicrobial fatty acid, alongside whatever alcohol content the fermentation develops.' },
+      ],
+      conditionNotes: [
+        { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment once fully fermented, distinct from this app\'s milder Coconut Kefir. Skip it entirely if you avoid alcohol for any reason.' },
+        { condition: 'Chronic Kidney Disease', note: 'Coconut water is high in potassium; check with your care team before making this a regular drink if potassium is restricted.' },
+      ],
+      flavorNotes: 'Tangy and winy, less sweet than fresh coconut water, with alcohol content that builds the longer it ferments.',
+    },
+  },
+  {
+    id: 'recipe-ferment-maple-pulque-style',
+    category: 'recipes',
+    title: 'Maple "Pulque-Style" Wild Ferment',
+    teaser: 'A wild-fermented maple syrup drink built to evoke traditional pulque, mildly alcoholic once fully fermented.',
+    summary: 'Traditional pulque ferments fresh agave sap (aguamiel). This database\'s own agave syrup rows are entirely hidden as a data-quality decision, so this version uses maple syrup instead, the nearest available pure plant syrup, different in flavor from traditional pulque\'s own distinctive tang.',
+    citations: [
+      { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
+    ],
+    overallTier: 'weak',
+    linkedCuratedRecipeId: 'curated_ferment_maple_pulque_style',
+    linkedBuilderType: 'fermentation',
+    relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
+    recipeCard: {
+      yield: 'Makes about 6 cups, meant to be sipped in small amounts given its alcohol content.',
+      ingredients: [
+        { text: '2/3 cup (150g) pure maple syrup' },
+        { text: '6 cups (1.5 liters) filtered, unchlorinated water' },
+      ],
+      instructions: [
+        'Dissolve the maple syrup in the water in a clean half-gallon jar.',
+        'Cover with a breathable cloth secured by a rubber band.',
+        'Let it ferment at room temperature for 5-7 days, tasting periodically, until noticeably less sweet and tangy.',
+        'Strain if needed, and refrigerate.',
+      ],
+      nutritionHighlights: [
+        { nutrient: 'Manganese', note: 'Maple syrup is a well-known whole-food source, though fermentation and dilution both reduce the final concentration in this drink.' },
+      ],
+      conditionNotes: [
+        { condition: 'Pregnancy / liver conditions / alcohol-avoidant', note: 'This is an alcoholic ferment once fully fermented. Skip it entirely if you avoid alcohol for any reason.' },
+      ],
+      flavorNotes: 'Tangy and less sweet than plain maple water, with alcohol content that builds the longer it ferments.',
+    },
+  },
 ];
 

@@ -409,6 +409,19 @@ export default function RootLayout() {
                   headerTintColor: colors.textPrimary,
                 }}
               />
+              {/* The Fermentation Tracker, 2026-08-20 -- reached from
+                  food-items.tsx's own "Saved Fermentations" list (a new
+                  "Track" action button) or opened bare. Sets its own fixed
+                  title at render (see app/fermentation-tracker.tsx), same
+                  themed-header treatment as every other Stack screen. */}
+              <Stack.Screen
+                name="fermentation-tracker"
+                options={{
+                  headerShown: true,
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
             </Stack>
             {/* Before AppKeyboard, deliberately -- see OverlayContext.tsx's own
                 comment: the keyboard must always paint on top of an open
