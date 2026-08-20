@@ -30,9 +30,10 @@
 // mounted once, permanently, above every tab, so a toggle flipped on the
 // Profile screen has to reach it without a full app restart.
 
+import * as SQLite from 'expo-sqlite';
 import type { GroundTheme } from '../constants/colors';
 import type { DigestCategoryKey } from './digest';
-import { getDatabase } from './db';
+import { DB_NAME, getDatabase } from './db';
 
 // 2026-08-09: gained 'custom' -- a real, user-uploaded image, added
 // explicitly alongside the existing three. See customBackgroundImages
@@ -264,6 +265,52 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
+
+// A real, synchronous read, 2026-08-19 -- deliberately NOT going through
+// getVisualPreferences()/the cache above. First shipped version of the
+// ground-theme picker used that normal async path from app/_layout.tsx's
+// own startup effect, and it didn't work: reported directly ("It only
+// changes the color of the profile header and only after I restart the
+// app"). Root cause, confirmed by that exact symptom -- expo-router's
+// file-based routing requires every screen file to build its route table,
+// which runs every one of their module-scope StyleSheet.create() calls
+// (each baking in whatever constants/colors.ts's `colors.background` etc.
+// already were) before RootLayout's own effects ever get a chance to fire.
+// By the time the old async applyGroundTheme() call ran, it was already too
+// late for anything but a JSX value read at render time (which is exactly
+// why only the header, which reads colors.background directly rather than
+// through a pre-built StyleSheet object, ever picked up the change).
+//
+// The only ordering that's actually early enough is inside
+// constants/colors.ts's own module-top-level code, before it exports
+// `colors` at all -- and since ES module evaluation is synchronous, that
+// has to be a synchronous read. expo-sqlite's sync API (openDatabaseSync/
+// getFirstSync, backed by JSI, not the async bridge) exists for exactly
+// this "need a real persisted value before first render" case. Opening a
+// second, synchronous connection to the same file getDatabase() already
+// holds asynchronously is safe -- SQLite supports multiple connections to
+// one file by design. The one real edge case is a brand-new install, where
+// this runs before initializeDatabase() has ever created app_meta at all;
+// that throws a plain "no such table" error, caught below, same fallback
+// (Deep Teal) as every other not-yet-loaded case in this file.
+export function getGroundThemeSync(): GroundTheme {
+  try {
+    const db = SQLite.openDatabaseSync(DB_NAME);
+    const row = db.getFirstSync<{ value: string }>(
+      'SELECT value FROM app_meta WHERE key = ?',
+      VISUAL_PREFERENCES_KEY,
+    );
+    if (row?.value) {
+      const parsed = JSON.parse(row.value) as Partial<VisualPreferences>;
+      if (parsed.groundTheme) return parsed.groundTheme;
+    }
+  } catch {
+    // No app_meta table yet (first-ever launch, before initializeDatabase()
+    // has run) or a corrupted blob -- fall back below, same as the async
+    // path already does.
+  }
+  return DEFAULT_VISUAL_PREFERENCES.groundTheme;
+}
 
 let cached: VisualPreferences | null = null;
 let loadingPromise: Promise<VisualPreferences> | null = null;

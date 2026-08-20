@@ -11,7 +11,12 @@ import { ACTIVITY_LEVELS, ActivityLevel } from './energyNeeds';
 import { isFlaggedTier } from './sixDimensionsReference';
 import { convertToGrams, MASS_UNITS, MeasurementUnit, VOLUME_UNITS } from './unitConversion';
 
-const DB_NAME = 'inside_story.db';
+// Exported as of 2026-08-19 -- lib/visualPreferences.ts's own
+// getGroundThemeSync() needs to open this exact same file (by name, via
+// expo-sqlite's openDatabaseSync) for a real, synchronous, startup-time
+// read. See that function's own comment for why the read has to be
+// synchronous at all.
+export const DB_NAME = 'inside_story.db';
 const REFERENCE_DB_NAME = 'foods_reference.db';
 const REFERENCE_DB_VERSION_KEY = 'reference_db_version';
 let databasePromise: Promise<SQLite.SQLiteDatabase> | null = null;
