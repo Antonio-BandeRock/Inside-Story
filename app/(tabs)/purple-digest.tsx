@@ -5,6 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
+import { useConfirmSheet } from '../../components/ConfirmSheet';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
 import { DIGEST_CONDITION_ICONS } from '../../components/DigestConditionIcons';
@@ -26,6 +27,7 @@ import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
 import {
+  deleteFavorite,
   getCuratedRecipe,
   getUserConditions,
   getUserProfile,
@@ -1899,24 +1901,25 @@ export default function PurpleDigestScreen() {
     },
     ...orderedCategoryMetas.map((meta) => ({
       key: meta.key,
-      // A leading star marks a condition the person has actually told the
-      // app they have -- a real, visible reason it's sorted to the top,
-      // not just an unexplained reorder. Applied to the grid tile's own
-      // label only (via LensOption.label, what the tile falls back to
-      // rendering when gridLabel is unset) -- every other place this
-      // name appears (the page header, the Info sheet heading,
-      // activeLensLabel) reads straight from DIGEST_CATEGORY_META itself,
-      // untouched by this screen-local reorder.
-      //
-      // Hashimoto's is excluded from the star too, 2026-08-09, explicit
-      // request -- it's the one condition already built out to full depth
-      // and this document's own flagship focus, so marking it "you told
-      // the app you have this" the same way a newly-selected condition
-      // gets marked reads as redundant rather than informative.
-      label:
-        pinnedDigestKeys.has(meta.key) && meta.key !== 'basicHealth' && meta.key !== 'hashimotos'
-          ? `★ ${meta.label}`
-          : meta.label,
+      // A leading star used to mark a condition the person had actually
+      // told the app they have -- removed entirely, 2026-08-21, direct
+      // report: selecting Hashimoto's and IBS in Profile put both above
+      // the divider as expected, but only IBS showed a star, since
+      // Hashimoto's was explicitly excluded from it back on 2026-08-09
+      // (it's the one condition already built out to full depth, so
+      // marking it "you told the app you have this" read as redundant).
+      // That inconsistency read as a real bug from the grid's own
+      // perspective (two pinned conditions, two different looks) rather
+      // than a deliberate distinction, so instead of special-casing every
+      // other condition the same way Hashimoto's already was, the star is
+      // gone for all of them -- being pinned above the divider (see
+      // dividerBefore/pinnedConditionMetas above) is already the real,
+      // visible signal that a condition is selected, without a second,
+      // inconsistently-applied marker on top of it. `label` now reads
+      // straight from DIGEST_CATEGORY_META for every option, same as
+      // every other place this name appears (the page header, the Info
+      // sheet heading, activeLensLabel) already did.
+      label: meta.label,
       gridLabel: DIGEST_GRID_LABEL_BREAKS[meta.key],
       icon: meta.icon,
       // 2026-08-09, real per-condition vector icons -- see
@@ -3821,7 +3824,7 @@ function DynamicEntryActions({ entry, onDynamicEntriesChanged }: { entry: Digest
   if (action.kind === 'shared') {
     return <SharedRecipeActions sharedRecipeId={action.sharedRecipeId} onDynamicEntriesChanged={onDynamicEntriesChanged} />;
   }
-  return <SavedOrFavoriteActions entry={entry} action={action} />;
+  return <SavedOrFavoriteActions entry={entry} action={action} onDynamicEntriesChanged={onDynamicEntriesChanged} />;
 }
 
 // "Try it, then decide" -- 2026-08-15 direct request: "It stays there
@@ -3912,9 +3915,11 @@ function SharedRecipeActions({
 function SavedOrFavoriteActions({
   entry,
   action,
+  onDynamicEntriesChanged,
 }: {
   entry: DigestEntry;
   action: { kind: 'component'; componentType: BuilderFavoriteItemType; componentId: string } | { kind: 'meal'; mealFavoriteId: string };
+  onDynamicEntriesChanged?: () => void;
 }) {
   const today = useMemo(() => new Date(), []);
   const [schedulingOpen, setSchedulingOpen] = useState(false);
@@ -3928,7 +3933,9 @@ function SavedOrFavoriteActions({
   const [scheduling, setScheduling] = useState(false);
   const [scheduledMessage, setScheduledMessage] = useState<string | null>(null);
   const [sharing, setSharing] = useState(false);
+  const [removing, setRemoving] = useState(false);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
+  const [confirmSheet, confirmSheetElement] = useConfirmSheet();
 
   async function handleConfirmSchedule() {
     if (!scheduleMealType || !scheduleYear || !scheduleMonth || !scheduleDay) return;
@@ -4048,22 +4055,64 @@ function SavedOrFavoriteActions({
     }
   }
 
+  // 2026-08-21, direct report: "Once I add a prebuilt item... it ends up
+  // in My Favorites, there doesn't appear to be a way to remove it from
+  // my favorites for any reason I might have to do that. There should
+  // always be a way to do that." This component (SavedOrFavoriteActions)
+  // is shared by both My Kitchen and My Favorites entries -- Schedule/
+  // Share made sense for either, but this third button only makes sense
+  // for a real favorite (see the `entry.category === 'myFavorites'` guard
+  // on the button itself below), not a saved builder record. Same
+  // confirmSheet pattern food-items.tsx's own favorite-delete flow already
+  // uses, for the same "this cannot be undone" reason -- a favorite's own
+  // ingredient list lives only in its own payload_json (see
+  // lib/digestDynamicEntries.ts's own header comment), not tied to a
+  // still-existing saved record elsewhere that could rebuild it.
+  async function handleRemoveFavorite() {
+    const ok = await confirmSheet({
+      title: `Remove "${entry.title}" from Favorites?`,
+      message: 'This cannot be undone.',
+      confirmLabel: 'Remove',
+      destructive: true,
+    });
+    if (!ok) return;
+    setRemoving(true);
+    try {
+      await deleteFavorite(action.kind === 'meal' ? action.mealFavoriteId : action.componentId);
+      onDynamicEntriesChanged?.();
+    } catch (error) {
+      console.error('[DynamicEntryActions] Failed to remove favorite', error);
+      showInfoAlert('Something went wrong', "This couldn't be removed. Please try again.");
+      setRemoving(false);
+    }
+  }
+
   return (
     <View>
       {infoAlertElement}
+      {confirmSheetElement}
       <View style={styles.dynamicActionRow}>
         <TouchableOpacity
           style={styles.dynamicActionButton}
           activeOpacity={0.85}
           onPress={() => setSchedulingOpen((open) => !open)}
+          disabled={removing}
         >
           <Ionicons name="calendar-outline" size={16} color={TAB_COLOR} />
           <Text style={styles.dynamicActionButtonText}>Schedule</Text>
         </TouchableOpacity>
-        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing}>
+        <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleShare} disabled={sharing || removing}>
           <Ionicons name="share-outline" size={16} color={TAB_COLOR} />
           <Text style={styles.dynamicActionButtonText}>{sharing ? 'Preparing…' : 'Share'}</Text>
         </TouchableOpacity>
+        {entry.category === 'myFavorites' ? (
+          <TouchableOpacity style={styles.dynamicActionButton} activeOpacity={0.85} onPress={handleRemoveFavorite} disabled={removing}>
+            <Ionicons name="heart-dislike-outline" size={16} color={colors.danger} />
+            <Text style={[styles.dynamicActionButtonText, styles.dynamicActionButtonTextDanger]}>
+              {removing ? 'Removing…' : 'Remove from Favorites'}
+            </Text>
+          </TouchableOpacity>
+        ) : null}
       </View>
 
       {scheduledMessage ? <Text style={styles.dynamicActionConfirm}>{scheduledMessage}</Text> : null}
