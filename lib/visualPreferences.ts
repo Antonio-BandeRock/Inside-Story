@@ -148,24 +148,27 @@ export type FoodBuilderIconChoice = 'dessertBuilder';
 // one of the 8 real, non-condition garden/pollinator icons above; any
 // AnimalIconChoice (added 2026-08-14) picks one of the 38 real animal-head
 // portraits above; any FoodBuilderIconChoice (added 2026-08-14) picks one of
-// the Food tab's own builder icons. 'seed' (added 2026-08-19) is the app's
-// own new real default -- a single sprouting seed, chosen deliberately over
-// re-using any one tracked condition's icon or the original butterfly,
-// since the app's real scope reaches well past the 19 conditions (food,
-// garden, the gut/soil microbiome research thread) and a seed/sprout reads
-// as "something small taking root and growing" for the whole app, not any
-// one part of it -- see the real, verified asset at
-// assets/branding/seed-transparent.png and CLAUDE.md's own dated entry for
-// the full reasoning. 'seedTall' (added 2026-08-21) is a second seed option
-// with a taller stem and no fixed render height -- see its own comment in
-// constants/tabHubIcons.ts (TAB_HUB_ICON_HEIGHT_OVERRIDE) for the deliberate
-// exception this makes to the shared-height rule every other icon follows.
+// the Food tab's own builder icons. 'seedTall' (added 2026-08-21, the app's
+// own out-of-the-box default since that same day) is a single sprouting
+// seed with a tall stem, chosen deliberately over re-using any one tracked
+// condition's icon or the original butterfly, since the app's scope reaches
+// well past the 19 conditions (food, garden, the gut/soil microbiome
+// research thread) and a seed/sprout reads as "something small taking root
+// and growing" for the whole app, not any one part of it. A plain, shorter-
+// stemmed 'seed' choice existed briefly (2026-08-19 through 2026-08-21) and
+// was removed outright, not deprecated -- direct instruction: "remove the
+// other seed icon from the app entirely, make the new seed icon the
+// default." The key stays 'seedTall' rather than being renamed to plain
+// 'seed', deliberately: this phone's own already-saved preference reads
+// 'seedTall' right now, and renaming the key would silently fall back to
+// the butterfly default on this exact device until manually re-picked --
+// a real, avoidable regression for a purely cosmetic identifier match.
 // Only one choice at a time -- a plain scalar field, not a set. Imported
 // here as a type-only import (erased at compile time, so no real runtime
 // dependency on lib/digest/index.ts's own much larger content-aggregation
 // module -- the same precedent already established for
 // sixDimensionsReference.ts's own type-only import into lib/db.ts).
-export type TabHubIconChoice = 'default' | 'seed' | 'seedTall' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
+export type TabHubIconChoice = 'default' | 'seedTall' | DigestCategoryKey | GardenIconChoice | AnimalIconChoice | FoodBuilderIconChoice;
 
 // A set of calming color combinations -- not meant to compete with the real
 // wildflower/produce/etc. photography, just a quieter alternative for
@@ -273,7 +276,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   tabBackgroundStyle: {},
   customBackgroundImages: {},
   genericPalette: 'ocean',
-  tabHubIcon: 'seed',
+  tabHubIcon: 'seedTall',
   groundTheme: 'teal',
 };
 

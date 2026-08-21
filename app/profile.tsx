@@ -1596,20 +1596,20 @@ export default function ProfileScreen() {
   const foodBuilderIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'dessertBuilder', label: 'Dessert Builder (Cupcake)' },
   ];
-  // 2026-08-19: a real, new, 5th group -- just the one real seed icon, the
-  // app's own new actual out-of-the-box default (see TabHubIconChoice's own
+  // 2026-08-19: a real, new, 5th group -- just the one seed icon, the
+  // app's own actual out-of-the-box default (see TabHubIconChoice's own
   // comment in lib/visualPreferences.ts). Deliberately its own group, not
   // folded into conditionIconOptions the way the old 'default' butterfly
   // entry is -- the seed isn't a stand-in for any tracked condition the way
-  // the butterfly still is, it's the app's own real identity, so it gets
-  // real, top billing of its own rather than sitting alphabetized among 19
-  // condition names.
+  // the butterfly still is, it's the app's own identity, so it gets top
+  // billing of its own rather than sitting alphabetized among 19 condition
+  // names. A second, shorter-stemmed 'seed' entry existed here briefly
+  // (2026-08-19 through 2026-08-21) alongside this one; removed outright,
+  // direct instruction: "remove the other seed icon from the app entirely,
+  // make the new seed icon the default." The key stays 'seedTall' (not
+  // renamed to 'seed') -- see TabHubIconChoice's own comment for why.
   const appIconOptions: { key: TabHubIconChoice; label: string }[] = [
-    { key: 'seed', label: 'Seed (App Default)' },
-    // 2026-08-21: a second, taller-stemmed seed -- deliberately renders
-    // above the shared button height every other icon uses, see
-    // TAB_HUB_ICON_HEIGHT_OVERRIDE in constants/tabHubIcons.ts.
-    { key: 'seedTall', label: 'Seed (Tall Sprout)' },
+    { key: 'seedTall', label: 'Seed (App Default)' },
   ];
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from

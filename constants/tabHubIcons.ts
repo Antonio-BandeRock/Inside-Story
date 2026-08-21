@@ -55,22 +55,11 @@ import type { TabHubIconChoice } from '../lib/visualPreferences';
 // needed to change once this became Partial.
 export const TAB_HUB_ICON_SOURCES: Partial<Record<TabHubIconChoice, ImageSourcePropType>> = {
   default: require('../assets/branding/butterfly-transparent.png'),
-  // 'seed', 2026-08-19 -- the app's own new real default (see
-  // TabHubIconChoice's own comment in lib/visualPreferences.ts). Cropped
-  // and background-removed from a real, user-approved seed illustration via
-  // the same isolated jimp scratchpad methodology as every other icon in
-  // this file: a real flood-fill from the navy background (the source
-  // image had no genuine alpha channel of its own -- its "transparent"
-  // panel was a baked opaque checkerboard, confirmed via direct pixel
-  // sampling, not assumed), a real connected-component pass to drop one
-  // small stray UI artifact (a leftover sparkle icon from the generation
-  // tool's own interface, 870px vs. the real seed's 209,047px), then
-  // downsized to 212x312 -- a real 4x safety margin above
-  // TAB_HUB_ICON_FIXED_HEIGHT's own 78px render ceiling, the same
-  // precedent every other cropped-icon batch in this file already follows.
-  seed: require('../assets/branding/seed-transparent.png'),
-  // 'seedTall' -- added 2026-08-21, a second seed option with a longer stem
-  // rising well above the leaf cluster the plain 'seed' has. See
+  // 'seedTall' -- the app's own out-of-the-box default since 2026-08-21
+  // (see TabHubIconChoice's own comment in lib/visualPreferences.ts). A
+  // plain, shorter-stemmed 'seed' choice existed briefly (2026-08-19
+  // through 2026-08-21) and was removed outright, direct instruction:
+  // "remove the other seed icon from the app entirely." See
   // TAB_HUB_ICON_HEIGHT_OVERRIDE's own comment below for why this one
   // choice, uniquely, doesn't render at the shared TAB_HUB_ICON_FIXED_HEIGHT
   // every other icon uses.
@@ -208,26 +197,19 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // 'default' -- the plain butterfly, relabeled "Graves' / Hashimoto's" in
   // Profile's own picker 2026-08-14 and no longer the app's own actual
   // out-of-the-box choice (DEFAULT_VISUAL_PREFERENCES.tabHubIcon is now
-  // 'seed', 2026-08-19, see lib/visualPreferences.ts) -- the key/asset/
+  // 'seedTall', 2026-08-21, see lib/visualPreferences.ts) -- the key/asset/
   // dimensions themselves are unchanged, only which choice a fresh install
   // starts on.
   default: [464, 312],
-  // 'seed' -- the app's own new default, 2026-08-19. Individually measured
-  // off the actual final cropped file (see TAB_HUB_ICON_SOURCES's own
-  // comment above for the crop/background-removal process). Updated
-  // 2026-08-20 alongside seed-transparent.png's own replacement (a rounder,
-  // avocado-pit-like seed with a fuller, leafier sprout, matching the
-  // app's own launcher icon update the same day), then again 2026-08-21
-  // for a second replacement image, matching the launcher icon's own same-
-  // day swap -- measured off the new final cropped file each time (was
-  // 212x312, then 288x312, now 350x406), so this has to move with the
-  // file or the button renders the art squeezed into a stale ratio.
-  seed: [350, 406],
-  // 'seedTall' -- added 2026-08-21. Individually measured off the actual
-  // final cropped file, same process as 'seed' above. This choice does NOT
-  // use these dimensions to derive its render HEIGHT the way every other
-  // icon does -- see TAB_HUB_ICON_HEIGHT_OVERRIDE below -- only its aspect
-  // ratio (361:491) is read from this pair.
+  // 'seedTall' -- the app's own default since 2026-08-21. Individually
+  // measured off the actual final cropped file. A plain, shorter-stemmed
+  // 'seed' entry existed here briefly (2026-08-19 through 2026-08-21,
+  // 212x312 then 288x312 then 350x406 across its own three art swaps) and
+  // was removed outright alongside its asset, direct instruction: "remove
+  // the other seed icon from the app entirely." This choice does NOT use
+  // these dimensions to derive its render HEIGHT the way every other icon
+  // does -- see TAB_HUB_ICON_HEIGHT_OVERRIDE below -- only its aspect ratio
+  // (361:491) is read from this pair.
   seedTall: [361, 491],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
