@@ -93,10 +93,10 @@ import {
 } from '../lib/visualPreferences';
 
 // Every tab that gets its own revealed background image (see
-// GatedTabContent.tsx) -- Home is deliberately excluded, since it has no
-// background of its own to individually toggle; it always shows the shared
-// resting layer (see the "Shared background" card below), never a
-// GatedTabContent reveal.
+// GatedTabContent.tsx). Home is deliberately excluded, since it has no
+// background to individually toggle; it always shows the shared resting
+// layer (see the "Shared background" card below), never a GatedTabContent
+// reveal.
 const BACKGROUND_TAB_ROUTES = TAB_ROUTES.filter((route) => route.path !== '/');
 
 const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
@@ -107,44 +107,43 @@ const BACKGROUND_STYLE_OPTIONS: { value: BackgroundStyle; label: string }[] = [
 
 // 2026-08-17: was a hand-typed 4-entry list (the original lavender/seafoam/
 // sand/dusk set), left behind unchanged when GenericPalette itself grew to
-// 12 real combinations the same day -- the picker below maps over THIS
-// array, not the full palette object, so the other 8 were silently
-// unreachable here despite existing everywhere else. Derived from
-// GENERIC_PALETTE_LABELS's own real keys instead of a second hand-typed
-// list, so a future palette addition/removal can't silently drift out of
-// sync with this picker again.
+// 12 combinations the same day. The picker below maps over this array, not
+// the full palette object, so the other 8 were silently unreachable
+// despite existing everywhere else. Derived from GENERIC_PALETTE_LABELS's
+// keys instead of a second hand-typed list, so a future palette addition
+// or removal can't silently drift out of sync with this picker again.
 const GENERIC_PALETTE_OPTIONS = Object.keys(GENERIC_PALETTE_LABELS) as GenericPalette[];
 
-// Same "derive from the labels object's own keys" precedent as
+// Same "derive from the labels object's keys" precedent as
 // GENERIC_PALETTE_OPTIONS just above, same reasoning: a future ground theme
 // added to constants/colors.ts's GROUND_THEMES shows up here automatically.
 const GROUND_THEME_OPTIONS = Object.keys(GROUND_THEME_LABELS) as GroundTheme[];
 
-// Which of GroundFamily's own 6 fields actually render as swatches, 2026-08-19
-// -- direct request, choosing a color needs to actually show the color, the
-// same reasoning the TabHub Icon picker's own grid already established
-// (see iconGridRow's comment). `surface`/`surfaceMuted` are left out on
-// purpose: both are translucent rgba strings meant to sit blended over
-// `background`, not flat colors of their own, so a bare isolated swatch of
-// either would just read as a washed-out, slightly confusing near-duplicate
-// of the background swatch rather than showing anything real about the
-// theme. The 4 kept here are the ones with a real, distinct flat hex value.
+// Which of GroundFamily's 6 fields actually render as swatches, 2026-08-19,
+// direct request: choosing a color needs to actually show the color, the
+// same reasoning the TabHub Icon picker's grid already established (see
+// iconGridRow's comment). `surface`/`surfaceMuted` are left out on purpose:
+// both are translucent rgba strings meant to sit blended over `background`,
+// not flat colors of their own, so a bare isolated swatch of either would
+// just read as a washed-out, slightly confusing near-duplicate of the
+// background swatch rather than showing anything about the theme. The 4
+// kept here are the ones with a distinct flat hex value.
 const GROUND_THEME_SWATCH_KEYS = ['background', 'border', 'textMuted', 'keySurface'] as const;
 
 // 2026-08-16, direct request: every information page should say plainly
 // what the tool is here to do for you, why you'd use it, not just how the
-// controls work. Profile had never had ANY info affordance at all, unlike
-// every one of the 9 main tabs: it's reached via TabHub's own "Profile"
-// corner tile, a real Stack push outside the Tabs navigator entirely, so
-// TabHub's floating button (and its own "info about whatever's open" tile)
-// never mounts here at all, regardless of whether help content is
-// registered for it (see components/CurrentPageHelp.tsx's own comment on
-// how that mechanism actually works). A real, standalone HelpButton, same
-// as the one added to MealBuilder for the identical reason, is the fix.
+// controls work. Profile had never had any info affordance at all, unlike
+// every one of the 9 main tabs: it's reached via TabHub's "Profile" corner
+// tile, a Stack push outside the Tabs navigator entirely, so TabHub's
+// floating button (and its "info about whatever's open" tile) never mounts
+// here at all, regardless of whether help content is registered for it
+// (see components/CurrentPageHelp.tsx's comment on how that mechanism
+// works). A standalone HelpButton, same as the one added to MealBuilder for
+// the identical reason, is the fix.
 const PROFILE_HELP_SECTIONS: HelpSection[] = [
   {
     heading: 'What this page is for',
-    body: "So the rest of the app can actually be personal, not one-size-fits-all. What's set here (your conditions, sex, birth date, weight, activity level, food allergies, healing/management stage) shapes real numbers elsewhere: which nutrient targets and 6 Dimensions scoring apply to you, which foods get flagged, and what a doctor report actually says about you.",
+    body: "So the rest of the app can actually be personal, not one-size-fits-all. What's set here (your conditions, sex, birth date, weight, activity level, food allergies, healing/management stage) shapes numbers elsewhere: which nutrient targets and 6 Dimensions scoring apply to you, which foods get flagged, and what a doctor report actually says about you.",
   },
   {
     heading: 'Nothing here is required',
@@ -152,44 +151,44 @@ const PROFILE_HELP_SECTIONS: HelpSection[] = [
   },
   {
     heading: 'Appearance, sharing, and backup live here too',
-    body: 'The TabHub icon, backgrounds, and generic palette are purely visual, change them for no reason other than liking it better. Connections is for real, signed sharing between your own paired devices or other people with this app. Backup & Restore is your own real safety net: everything you\'ve entered lives only on this device, so a real export (password-protected) is the only way to move it to a new phone or recover it if this one is lost.',
+    body: "The TabHub icon, backgrounds, and generic palette are purely visual, change them for no reason other than liking it better. Connections is for signed sharing between your own paired devices or other people with this app. Backup & Restore is your own safety net: everything you've entered lives only on this device, so an export (password-protected) is the only way to move it to a new phone or recover it if this one is lost.",
   },
 ];
 
-// TabHub Icon picker's own selected/unselected pill footprint -- matches
-// LensHub.tsx's own GRID_ITEM_PILL_SIZE / TabHub.tsx's own ICON_PILL_SIZE
-// convention (a real icon-grid selection pill), sized a bit larger since
-// this card has real, open room to work with, unlike either of those two
-// tight in-app grids.
+// TabHub Icon picker's selected/unselected pill footprint. Matches
+// LensHub.tsx's GRID_ITEM_PILL_SIZE and TabHub.tsx's ICON_PILL_SIZE
+// convention (an icon-grid selection pill), sized a bit larger since this
+// card has open room to work with, unlike either of those two tight in-app
+// grids.
 const ICON_GRID_PILL_SIZE = 52;
 
-// One real key per collapsible card section on this screen -- see
-// collapsedSections'/renderCardHeader's own comment above for the full
-// feature. Order here doesn't matter (it's a Set, not a display order).
+// One key per collapsible card section on this screen. See
+// collapsedSections/renderCardHeader's comment above for the full feature.
+// Order here doesn't matter (it's a Set, not a display order).
 //
 // 2026-08-09, regrouped from 12 individually-collapsible cards down to 4,
 // explicitly requested: "Group Your name, units, sex, birth date, height,
 // and weight. Group Your conditions and where you're at together...
 // group the TabHub icon, shared background, and individual tab
 // backgrounds in one section. Group Usual meal times and fasting/eating
-// windows." Every former section's own label is kept as a real, plain
-// `subLabel` heading WITHIN its new group's own body (the same in-body
-// sub-heading convention Fasting's own "Eating window starts"/"Eating
-// window ends" already used before this regrouping), not a second layer
-// of independently-collapsible sub-cards -- tapping one of these 4
-// headers is meant to reveal everything inside it at once.
+// windows." Every former section's label is kept as a plain `subLabel`
+// heading within its new group's body (the same in-body sub-heading
+// convention Fasting's "Eating window starts"/"Eating window ends" already
+// used before this regrouping), not a second layer of
+// independently-collapsible sub-cards. Tapping one of these 4 headers is
+// meant to reveal everything inside it at once.
 //
-// 2026-08-14, a real, later, narrower exception -- since generalized to
-// the whole 'appearance' card, see AppearanceSubsectionKey's own comment
-// below for the fuller, current story. Originally just the TabHub Icon
-// picker's own 3 groups (TabHubIconGroupKey below): "Is there a way to
-// collapse each of the sections of TabHub Icons inside of the already
-// collapsable section they are a part of?" A real, deliberate carve-out
-// from the "no nested sub-cards" rule stated above, not a reversal of it.
-// 'developer' added 2026-08-14 -- a real 6th card, always in this list
-// (harmless to include even in a real production build, since nothing
-// renders it there -- see the actual JSX below, gated on the real __DEV__
-// global directly, not on this key's own presence here).
+// 2026-08-14, a later, narrower exception, since generalized to the whole
+// 'appearance' card (see AppearanceSubsectionKey's comment below for the
+// fuller, current story). Originally just the TabHub Icon picker's 3
+// groups (TabHubIconGroupKey below): "Is there a way to collapse each of
+// the sections of TabHub Icons inside of the already collapsable section
+// they are a part of?" A deliberate carve-out from the "no nested
+// sub-cards" rule stated above, not a reversal of it. 'developer' added
+// 2026-08-14, a 6th card, always in this list (harmless to include even in
+// a production build, since nothing renders it there: see the actual JSX
+// below, gated on the __DEV__ global directly, not on this key's presence
+// here).
 const ALL_CARD_SECTION_KEYS = [
   'personal-info',
   'conditions',
@@ -202,57 +201,57 @@ const ALL_CARD_SECTION_KEYS = [
 ] as const;
 type CardSectionKey = (typeof ALL_CARD_SECTION_KEYS)[number];
 
-// See ALL_CARD_SECTION_KEYS's own comment above for why this one area gets
-// its own, second, independent collapse layer. Deliberately its own
-// separate key space/state (collapsedIconGroups below), not folded into
-// CardSectionKey/collapsedSections -- these 3 groups only ever exist
-// nested inside the 'appearance' card's own "TabHub Icon" sub-section (see
+// See ALL_CARD_SECTION_KEYS's comment above for why this one area gets its
+// own, second, independent collapse layer. Deliberately its own separate
+// key space/state (collapsedIconGroups below), not folded into
+// CardSectionKey/collapsedSections: these 3 groups only ever exist nested
+// inside the 'appearance' card's "TabHub Icon" sub-section (see
 // AppearanceSubsectionKey right below), never as a top-level card of their
-// own -- a real THIRD level of nesting: card -> sub-section -> group.
-// 'tabHubFoodBuilders' added 2026-08-14, same day -- Dessert Builder's own
-// new icon (components/FoodBuilderIcons.tsx) is real, but neither a
-// tracked condition, an insect/pollinator, nor an animal, so it gets its
-// own real 4th group rather than being folded into any of the existing
-// three for a fit that isn't quite honest.
+// own. A third level of nesting: card, sub-section, group. 'tabHubFoodBuilders'
+// added 2026-08-14, same day: Dessert Builder's new icon
+// (components/FoodBuilderIcons.tsx) is neither a tracked condition, an
+// insect/pollinator, nor an animal, so it gets its own 4th group rather
+// than being folded into any of the existing three for a fit that isn't
+// quite honest.
 //
-// 'tabHubAppIcon' added 2026-08-19 -- the app's own real new default icon
-// (the seed, see TabHubIconChoice's own comment in
-// lib/visualPreferences.ts) isn't a condition, an insect/wildlife icon, an
-// animal, or a Food builder icon either -- it's the app's own real identity
-// mark. Given its own real, standalone 5th group, deliberately placed FIRST
-// in the render order below (see the JSX further down), since it's the one
-// choice most people will actually see without ever opening this picker.
+// 'tabHubAppIcon' added 2026-08-19: the app's new default icon (the seed,
+// see TabHubIconChoice's comment in lib/visualPreferences.ts) isn't a
+// condition, an insect/wildlife icon, an animal, or a Food builder icon
+// either. It's the app's identity mark. Given its own standalone 5th
+// group, deliberately placed first in the render order below (see the JSX
+// further down), since it's the one choice most people will actually see
+// without ever opening this picker.
 const ALL_TAB_HUB_ICON_GROUP_KEYS = ['tabHubAppIcon', 'tabHubConditions', 'tabHubInsects', 'tabHubAnimals', 'tabHubFoodBuilders'] as const;
 type TabHubIconGroupKey = (typeof ALL_TAB_HUB_ICON_GROUP_KEYS)[number];
 
-// 2026-08-14, same day, a real, direct follow-up that generalizes the
-// exception above from "just TabHub Icon's own 3 groups" to the WHOLE
-// 'appearance' card: "There isn't much definition of space between the
-// TabHub Icon appearance and navigation selection and the next selection
-// picker below that, and so-on after that one to tell where one ends and
-// the next begins. Is it possible to make each of them, and the things
-// they control to be collapsable, too?" Every one of the 4 real
-// sub-sections this card shows (TabHub Icon, Shared background, Individual
-// tab backgrounds, Generic color combination) now gets its own real,
-// independent collapse -- see collapsedAppearanceSubsections/
-// renderAppearanceSubsectionHeader below, which also adds a real, visible
-// divider line above every one but the first specifically to answer the
-// "definition of space... where one ends and the next begins" half of the
-// request, not just the collapsing half. Deliberately its own third
-// separate key space/state, not folded into CardSectionKey or
-// TabHubIconGroupKey -- these 4 sit one level ABOVE TabHubIconGroupKey's
-// own 3 (TabHub Icon is itself one of these 4, containing all 3 of those).
+// 2026-08-14, same day, a direct follow-up that generalizes the exception
+// above from "just TabHub Icon's 3 groups" to the whole 'appearance' card:
+// "There isn't much definition of space between the TabHub Icon appearance
+// and navigation selection and the next selection picker below that, and
+// so-on after that one to tell where one ends and the next begins. Is it
+// possible to make each of them, and the things they control to be
+// collapsable, too?" Every one of the 4 sub-sections this card shows
+// (TabHub Icon, Shared background, Individual tab backgrounds, Generic
+// color combination) now gets its own independent collapse. See
+// collapsedAppearanceSubsections/renderAppearanceSubsectionHeader below,
+// which also adds a visible divider line above every one but the first,
+// specifically to answer the "definition of space... where one ends and
+// the next begins" half of the request, not just the collapsing half.
+// Deliberately its own third separate key space/state, not folded into
+// CardSectionKey or TabHubIconGroupKey: these 4 sit one level above
+// TabHubIconGroupKey's 3 (TabHub Icon is itself one of these 4,
+// containing all 3 of those).
 //
-// 2026-08-17: 'animatedSky' removed from this list entirely -- the whole
+// 2026-08-17: 'animatedSky' removed from this list entirely. The whole
 // Animated Sky feature (sun, moon, starfield, day/night tint) is gone,
-// reported as real, confirmed continuous battery drain. See
-// ScreenBackground.tsx's own header note and constants/colors.ts's own
-// removal comment for the full story. What used to be this section's own
+// reported as confirmed continuous battery drain. See
+// ScreenBackground.tsx's header note and constants/colors.ts's removal
+// comment for the full story. What used to be this section's
 // header/footer/ring accent job (previously the app-wide iridescent hue
-// rotation) is now carried by the Generic color combination picker itself
-// -- its own 12 real, named combinations each carry a "lighter" color used
-// for the header text, the header/footer divider lines, and every ring,
-// all flat and static, no animation anywhere.
+// rotation) is now carried by the Generic color combination picker itself:
+// its 12 named combinations each carry a "lighter" color used for the
+// header text, the header/footer divider lines, and every ring, all flat
+// and static, no animation anywhere.
 const ALL_APPEARANCE_SUBSECTION_KEYS = [
   'tabHubIcon',
   'sharedBackground',
@@ -268,56 +267,55 @@ const BLANK_TIME: TimeOfDayInput = { hour: '', minute: '', ampm: '' };
 
 // 2026-08-08, explicitly requested: every Profile field that meant typing
 // a number (birth date, height, meal times) gets the same tap-a-list
-// pattern Side Builder's own Dish Name page already uses for its Servings/
-// Serving Size fields (PopoverSelect -- see that component's own header
-// comment for why it replaced free typing/dragging there), leaving only
-// First/Last name as real text entry. Every option list below is a module-
-// level constant, not built inline in the component -- PopoverSelect is
-// memoized against referentially-stable props, the same contract Side
-// Builder's own SERVINGS_PICKER_VALUES etc. already follow.
+// pattern Side Builder's Dish Name page already uses for its Servings/
+// Serving Size fields (PopoverSelect: see that component's header comment
+// for why it replaced free typing/dragging there), leaving only
+// First/Last name as text entry. Every option list below is a
+// module-level constant, not built inline in the component: PopoverSelect
+// is memoized against referentially-stable props, the same contract Side
+// Builder's SERVINGS_PICKER_VALUES etc. already follow.
 //
-// Birth year: every real year from 1900 through this year (matches
-// isValidIsoDate's own existing bound), newest first -- someone tapping a
+// Birth year: every year from 1900 through this year (matches
+// isValidIsoDate's existing bound), newest first, since someone tapping a
 // still-blank field is scrolling from "today" backward, not from 1900
 // forward. Month/day stay plain, unpadded numbers ("1".."12"/"1".."31"),
 // matching how birthMonth/birthDay were already stored (String(Number(m))
-// when loading a saved profile) -- day intentionally isn't narrowed by
-// month/year here, the same "any 1-31, real validity checked on commit"
+// when loading a saved profile). Day intentionally isn't narrowed by
+// month/year here, the same "any 1-31, validity checked on commit"
 // looseness the original free-text fields already had.
 const CURRENT_YEAR = new Date().getFullYear();
 const BIRTH_YEAR_OPTIONS = Array.from({ length: CURRENT_YEAR - 1900 + 1 }, (_, i) => String(CURRENT_YEAR - i));
 const BIRTH_MONTH_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
 const BIRTH_DAY_OPTIONS = Array.from({ length: 31 }, (_, i) => String(i + 1));
 
-// Height: a generous but real human range either system, matching what the
-// old free-text maxLength implicitly allowed. Feet/inches split rather than
+// Height: a generous human range either system, matching what the old
+// free-text maxLength implicitly allowed. Feet/inches split rather than
 // one combined list, same two-field shape the original had.
 const HEIGHT_CM_OPTIONS = Array.from({ length: 151 }, (_, i) => String(100 + i)); // 100-250 cm
 const HEIGHT_FEET_OPTIONS = Array.from({ length: 6 }, (_, i) => String(3 + i)); // 3-8 ft
 const HEIGHT_INCHES_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i)); // 0-11 in
 
-// 2026-08-09, Weight -- same real, generous-range PopoverSelect approach
-// as height above, a plain whole-unit picker (no decimal precision, same
-// precision level height already uses).
+// 2026-08-09, Weight: same generous-range PopoverSelect approach as height
+// above, a plain whole-unit picker (no decimal precision, same precision
+// level height already uses).
 const WEIGHT_KG_OPTIONS = Array.from({ length: 221 }, (_, i) => String(30 + i)); // 30-250 kg
 const WEIGHT_LB_OPTIONS = Array.from({ length: 485 }, (_, i) => String(66 + i)); // 66-550 lb
 
-// 2026-08-09, Food allergies -- the FDA's own real, legally-recognized
-// "Big 9" major food allergens (the same list this app's own Reading
-// Labels Digest content already covers, including sesame's real 2023
-// addition as the 9th) as quick-toggle suggestions; anything else is a
-// real, free-text add via allergyInput, not limited to this list.
-// Alphabetical, 2026-08-09 -- explicitly requested for every pill row on
-// this screen. Was originally in FDA major-allergen disclosure order;
-// re-sorted here since display order, not the underlying list, is what was
-// actually asked for.
+// 2026-08-09, Food allergies: the FDA's legally-recognized "Big 9" major
+// food allergens (the same list this app's Reading Labels Digest content
+// already covers, including sesame's 2023 addition as the 9th) as
+// quick-toggle suggestions; anything else is a free-text add via
+// allergyInput, not limited to this list. Alphabetical, 2026-08-09,
+// explicitly requested for every pill row on this screen. Was originally
+// in FDA major-allergen disclosure order, re-sorted here since display
+// order, not the underlying list, is what was actually asked for.
 const COMMON_ALLERGENS = ['Eggs', 'Fish', 'Milk', 'Peanuts', 'Sesame', 'Shellfish', 'Soybeans', 'Tree Nuts', 'Wheat'];
 
 // Meal/eating-window times: hour stays plain ("1".."12", matching
-// buildTime24's own expected shape); minute is zero-padded ("00".."59") to
-// match splitTime24's own output for an already-saved time, so a saved
-// "05" minute value shows up already selected rather than failing to match
-// an unpadded "5" in this list. AM/PM stays the existing pill row -- that
+// buildTime24's expected shape); minute is zero-padded ("00".."59") to
+// match splitTime24's output for an already-saved time, so a saved "05"
+// minute value shows up already selected rather than failing to match an
+// unpadded "5" in this list. AM/PM stays the existing pill row, since that
 // was never a text box to begin with.
 const HOUR_OPTIONS = Array.from({ length: 12 }, (_, i) => String(i + 1));
 const MINUTE_OPTIONS = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, '0'));
@@ -351,7 +349,7 @@ function isValidIsoDate(year: number, month: number, day: number): boolean {
   if (day < 1 || day > 31) return false;
 
   const date = new Date(year, month - 1, day);
-  // Date rolls invalid days (e.g. Feb 30) forward into the next month --
+  // Date rolls invalid days (e.g. Feb 30) forward into the next month;
   // catching that here rejects it instead of silently storing the wrong date.
   const isRealDate = date.getFullYear() === year && date.getMonth() === month - 1 && date.getDate() === day;
   return isRealDate && date.getTime() <= Date.now();
@@ -363,14 +361,14 @@ function toIsoDate(year: number, month: number, day: number): string {
   return `${year}-${mm}-${dd}`;
 }
 
-// A small label above a single PopoverSelect field -- 2026-08-08, explicitly
+// A small label above a single PopoverSelect field, 2026-08-08, explicitly
 // requested ("put labels above the list box scrollable selectors... for
-// each field"), matching Side Builder's own renderLabeledPicker pattern
-// (a Text above a PopoverSelect, same file/field shape, just without that
-// version's own measured-minWidth stretching, which these fixed-width
-// fields don't need). A plain function, not a wrapped component, would
-// have worked too, but a real component reads more clearly at each call
-// site than a function returning JSX.
+// each field"), matching Side Builder's renderLabeledPicker pattern (a
+// Text above a PopoverSelect, same file/field shape, just without that
+// version's measured-minWidth stretching, which these fixed-width fields
+// don't need). A plain function, not a wrapped component, would have
+// worked too, but a component reads more clearly at each call site than a
+// function returning JSX.
 function PickerField({ label, children }: { label: string; children: ReactNode }) {
   return (
     <View style={styles.pickerFieldGroup}>
@@ -409,14 +407,14 @@ export default function ProfileScreen() {
   const [lastAssessment, setLastAssessment] = useState<SymptomAssessmentRecord | null>(null);
   // 2026-08-09, explicitly requested: "allow it to be collapsable so it is
   // quicker to find and set whatever I need to in there. Leave just the
-  // header to see of each." Every one of this screen's 12 real card
-  // sections now starts collapsed (this Set holds every real key -- see
-  // ALL_CARD_SECTION_KEYS -- membership means "collapsed," matching
-  // `collapsedSections.has(key)` at each card's own header/body split
-  // below), showing only its own header until tapped open. Plain local
-  // component state, not persisted -- reopening Profile always starts
-  // fresh with everything collapsed again, the same "just headers first"
-  // state the request asked for, not a remembered per-visit layout.
+  // header to see of each." Every one of this screen's card sections now
+  // starts collapsed (this Set holds every key: see ALL_CARD_SECTION_KEYS;
+  // membership means "collapsed," matching `collapsedSections.has(key)` at
+  // each card's header/body split below), showing only its header until
+  // tapped open. Plain local component state, not persisted: reopening
+  // Profile always starts fresh with everything collapsed again, the same
+  // "just headers first" state the request asked for, not a remembered
+  // per-visit layout.
   const [collapsedSections, setCollapsedSections] = useState<Set<CardSectionKey>>(
     () => new Set(ALL_CARD_SECTION_KEYS),
   );
@@ -428,10 +426,10 @@ export default function ProfileScreen() {
       return next;
     });
   }
-  // Shared by every card below -- a tappable header (title + chevron)
+  // Shared by every card below: a tappable header (title + chevron)
   // replacing the old plain `<Text style={styles.label}>` line, so the
-  // whole header row (not just the text) is the real tap target. Every
-  // card's own body (help text, fields) is then wrapped in a matching
+  // whole header row (not just the text) is the tap target. Every card's
+  // body (help text, fields) is then wrapped in a matching
   // `{!collapsedSections.has(key) ? (...) : null}` right where the header
   // used to sit alone.
   function renderCardHeader(key: CardSectionKey, title: string) {
@@ -446,13 +444,13 @@ export default function ProfileScreen() {
   // 2026-08-14, direct request: "Is there a way to collapse each of the
   // sections of TabHub Icons inside of the already collapsable section
   // they are a part of?" A second, independent collapse layer scoped only
-  // to the TabHub Icon picker's own 3 groups (see TabHubIconGroupKey's own
-  // comment above for why this one area is exempt from the "no nested
-  // sub-cards" rule the rest of this screen holds to). Starts every group
-  // collapsed, same "just headers first" default as the top-level cards --
-  // with 65 real tiles across the 3 groups combined, showing all of them
-  // the instant the outer Appearance & Navigation card opens would defeat
-  // the whole point of collapsing that card in the first place.
+  // to the TabHub Icon picker's 3 groups (see TabHubIconGroupKey's comment
+  // above for why this one area is exempt from the "no nested sub-cards"
+  // rule the rest of this screen holds to). Starts every group collapsed,
+  // same "just headers first" default as the top-level cards: with 65
+  // tiles across the 3 groups combined, showing all of them the instant
+  // the outer Appearance & Navigation card opens would defeat the whole
+  // point of collapsing that card in the first place.
   const [collapsedIconGroups, setCollapsedIconGroups] = useState<Set<TabHubIconGroupKey>>(
     () => new Set(ALL_TAB_HUB_ICON_GROUP_KEYS),
   );
@@ -465,9 +463,9 @@ export default function ProfileScreen() {
     });
   }
   // Same tappable-header shape as renderCardHeader above, just using
-  // subLabel's own smaller/lighter styling (matching every other in-card
+  // subLabel's smaller/lighter styling (matching every other in-card
   // sub-heading on this screen) and a slightly smaller chevron, since this
-  // is a sub-level header nested one layer deeper than a real card header.
+  // is a sub-level header nested one layer deeper than a card header.
   function renderIconGroupHeader(key: TabHubIconGroupKey, title: string, marginTop: number) {
     const collapsed = collapsedIconGroups.has(key);
     return (
@@ -482,11 +480,11 @@ export default function ProfileScreen() {
     );
   }
   // 2026-08-14, direct follow-up: "Is it possible to make each of them,
-  // and the things they control to be collapsable, too?" -- see
-  // AppearanceSubsectionKey's own comment above for the full request. All
-  // 5 real sub-sections of the Appearance & Navigation card start
-  // collapsed, the same "just headers first" default every other
-  // collapsible layer on this screen already uses.
+  // and the things they control to be collapsable, too?" See
+  // AppearanceSubsectionKey's comment above for the full request. All 5
+  // sub-sections of the Appearance & Navigation card start collapsed, the
+  // same "just headers first" default every other collapsible layer on
+  // this screen already uses.
   const [collapsedAppearanceSubsections, setCollapsedAppearanceSubsections] = useState<Set<AppearanceSubsectionKey>>(
     () => new Set(ALL_APPEARANCE_SUBSECTION_KEYS),
   );
@@ -499,13 +497,12 @@ export default function ProfileScreen() {
     });
   }
   // Same tappable-header shape as renderCardHeader/renderIconGroupHeader
-  // above, plus a real, visible divider line above every sub-section but
-  // the first (styles.appearanceSubsectionHeaderFirst zeroes that border/
+  // above, plus a visible divider line above every sub-section but the
+  // first (styles.appearanceSubsectionHeaderFirst zeroes that border/
   // spacing out for TabHub Icon, which already sits directly under the
-  // card's own real header with nothing else above it to separate from) --
-  // this is the direct answer to "there isn't much definition of space...
-  // to tell where one ends and the next begins," not just the collapsing
-  // itself.
+  // card's header with nothing else above it to separate from). This is
+  // the direct answer to "there isn't much definition of space... to tell
+  // where one ends and the next begins," not just the collapsing itself.
   function renderAppearanceSubsectionHeader(key: AppearanceSubsectionKey, title: string, isFirst: boolean) {
     const collapsed = collapsedAppearanceSubsections.has(key);
     return (
@@ -519,30 +516,30 @@ export default function ProfileScreen() {
       </TouchableOpacity>
     );
   }
-  // Multi-condition model, 2026-08-08 -- replaces the old single
+  // Multi-condition model, 2026-08-08, replaces the old single
   // Hashimoto's-only pill row. allConditions is the full reference roster
   // (built/in_progress/planned); selectedConditions is this person's own
-  // real picks, local-only, backed by user_conditions.
+  // picks, local-only, backed by user_conditions.
   const [allConditions, setAllConditions] = useState<ConditionReference[]>([]);
   const [selectedConditions, setSelectedConditions] = useState<string[]>([]);
-  // Live, app-wide (lib/visualPreferences.ts) -- reading it via the same
-  // hook every consumer uses means this screen's own pills always reflect
+  // Live, app-wide (lib/visualPreferences.ts): reading it via the same
+  // hook every consumer uses means this screen's pills always reflect
   // whatever's really stored, and every edit here reaches the shared
-  // background / each tab's own revealed background immediately, with no
+  // background and each tab's own revealed background immediately, with no
   // extra local state to keep in sync.
   const visualPrefs = useVisualPreferences();
 
-  // Live, app-wide (lib/generalHealthPreferences.ts) -- 2026-08-14, direct
+  // Live, app-wide (lib/generalHealthPreferences.ts), 2026-08-14, direct
   // requirement: "Make the muting granular, per topic, not sweeping." One
-  // real toggle per lib/generalHealthRules.ts topic, not a single on/off
-  // switch -- setTopicMuted only ever touches the one topic tapped,
-  // leaving every other topic's own current preference untouched.
+  // toggle per lib/generalHealthRules.ts topic, not a single on/off
+  // switch: setTopicMuted only ever touches the one topic tapped, leaving
+  // every other topic's current preference untouched.
   const generalHealthPrefs = useGeneralHealthPreferences();
   function toggleGeneralHealthTopic(topicId: string) {
     setTopicMuted(topicId, !generalHealthPrefs.mutedTopics[topicId]);
   }
 
-  // Local text-field buffers -- kept separate from `profile` so the person
+  // Local text-field buffers, kept separate from `profile` so the person
   // can type a partial value (e.g. just a year) without it being parsed/
   // saved mid-keystroke. Committed to the DB on blur.
   const [firstNameInput, setFirstNameInput] = useState('');
@@ -557,74 +554,72 @@ export default function ProfileScreen() {
   const [heightFeetInput, setHeightFeetInput] = useState('');
   const [heightInchesInput, setHeightInchesInput] = useState('');
 
-  // Weight, 2026-08-09 -- unlike height (a single, overwritable field on
-  // user_profile), weight lives in the real, already-existing
-  // body_measurements time-series table (see lib/db.ts's own
-  // recordBodyMeasurement) -- every commit here inserts a genuinely new
-  // reading, the same "just log it" behavior Home's own quick blood-
-  // pressure/heart-rate log already uses, not an update-in-place. Always
-  // stored in kg internally (mirroring heightCm's own always-cm
-  // convention), converted for display only.
+  // Weight, 2026-08-09, unlike height (a single, overwritable field on
+  // user_profile), weight lives in the already-existing body_measurements
+  // time-series table (see lib/db.ts's recordBodyMeasurement). Every
+  // commit here inserts a new reading, the same "just log it" behavior
+  // Home's quick blood-pressure/heart-rate log already uses, not an
+  // update-in-place. Always stored in kg internally (mirroring heightCm's
+  // always-cm convention), converted for display only.
   const [weightKgInput, setWeightKgInput] = useState('');
   const [weightLbInput, setWeightLbInput] = useState('');
 
   // Food allergies, 2026-08-09, explicitly requested inside the conditions
-  // area -- a real, local list (lib/db.ts's own user_food_allergies),
-  // genuinely supporting more than one. allergyInput is the free-text
-  // "add a new one" field; foodAllergies is the loaded/committed list.
+  // area: a local list (lib/db.ts's user_food_allergies), supporting more
+  // than one. allergyInput is the free-text "add a new one" field;
+  // foodAllergies is the loaded/committed list.
   const [foodAllergies, setFoodAllergies] = useState<string[]>([]);
   const [allergyInput, setAllergyInput] = useState('');
 
-  // Condition stages, 2026-08-09 -- the generalized, multi-condition
+  // Condition stages, 2026-08-09, the generalized, multi-condition
   // replacement for the old Hashimoto's-only healingStage profile column
-  // (see lib/conditionStages.ts's own header comment). One real row per
-  // condition in user_condition_stages, keyed by condition code.
+  // (see lib/conditionStages.ts's header comment). One row per condition
+  // in user_condition_stages, keyed by condition code.
   const [conditionStageMap, setConditionStageMap] = useState<Record<string, string>>({});
 
-  // Already-tested-foods onboarding review, 2026-08-14 -- one real trial
-  // array per condition that actually has a curated concern list (see
-  // lib/conditionFoodConcerns.ts's own top comment). Keyed by condition
-  // code, loaded/refreshed by the effect below.
+  // Already-tested-foods onboarding review, 2026-08-14, one trial array
+  // per condition that actually has a curated concern list (see
+  // lib/conditionFoodConcerns.ts's top comment). Keyed by condition code,
+  // loaded/refreshed by the effect below.
   const [conditionFoodConcernTrials, setConditionFoodConcernTrials] = useState<Record<string, FoodTrialRecord[]>>({});
 
-  // Custom background image upload, 2026-08-09 -- which scope (see
+  // Custom background image upload, 2026-08-09, which scope (see
   // SHARED_BACKGROUND_SCOPE_KEY / lib/customBackgroundImage.ts) currently
-  // has a picker in flight, null when none. Disables that one scope's own
+  // has a picker in flight, null when none. Disables that one scope's
   // pills while busy and shows a small spinner in place of its "Custom
-  // image" label -- deliberately scoped to one scope at a time rather than
-  // a single flat boolean, so picking for one tab doesn't visually disable
+  // image" label, deliberately scoped to one scope at a time rather than a
+  // single flat boolean, so picking for one tab doesn't visually disable
   // every other tab's row too.
   const [pickingImageForScope, setPickingImageForScope] = useState<string | null>(null);
 
-  // Developer Tools card, 2026-08-14 -- __DEV__-gated, see that card's own
-  // JSX below for the real "never in a production build" reasoning.
+  // Developer Tools card, 2026-08-14, __DEV__-gated, see that card's JSX
+  // below for the "never in a production build" reasoning.
   const [seedingTestWeek, setSeedingTestWeek] = useState(false);
   const [clearingSeededData, setClearingSeededData] = useState(false);
 
-  // Backup & Restore card, 2026-08-16 -- see lib/dataBackup.ts's own header
-  // comment for the full real design reasoning. One shared "something's
-  // in flight" flag rather than three separate ones, since export and
-  // either restore path can't sensibly run at once anyway, and this way
-  // every button in the card correctly disables together.
+  // Backup & Restore card, 2026-08-16, see lib/dataBackup.ts's header
+  // comment for the full design reasoning. One shared "something's in
+  // flight" flag rather than three separate ones, since export and either
+  // restore path can't sensibly run at once anyway, and this way every
+  // button in the card correctly disables together.
   const [backupBusy, setBackupBusy] = useState(false);
-  // A real, durable "document and display the file path" record, per
-  // direct feedback -- listLocalBackupFiles() reads this device's own
-  // cache directory fresh every time, so this always reflects what's
-  // genuinely still there, not a stale one-time snapshot.
+  // A durable "document and display the file path" record, per direct
+  // feedback: listLocalBackupFiles() reads this device's cache directory
+  // fresh every time, so this always reflects what's genuinely still
+  // there, not a stale one-time snapshot.
   const [localBackups, setLocalBackups] = useState<LocalBackupFile[]>([]);
-  // Real password-based encryption, 2026-08-16 -- see
-  // lib/backupEncryption.ts's own header comment for the full real
-  // reasoning. One shared prompt (components/PasswordPrompt.tsx) covers
-  // both real moments this needs to happen: 'set' when exporting (asks
-  // twice, to catch a typo before it locks someone out of their own
-  // backup forever -- there is deliberately no recovery), 'enter' when
-  // restoring an encrypted file.
+  // Password-based encryption, 2026-08-16, see lib/backupEncryption.ts's
+  // header comment for the full reasoning. One shared prompt
+  // (components/PasswordPrompt.tsx) covers both moments this needs to
+  // happen: 'set' when exporting (asks twice, to catch a typo before it
+  // locks someone out of their own backup forever, since there is
+  // deliberately no recovery), 'enter' when restoring an encrypted file.
   const [promptPassword, passwordPromptElement] = usePasswordPrompt();
-  // Real, app-styled replacements for the whole backup/restore flow's own
-  // former native Alert.alert calls -- 2026-08-16, direct request: "there
-  // needs to be some sort of communication between steps that take a
-  // little time... do we have to use all system windows or can we use the
-  // app's own colors and layout." showBusy/hideBusy drive a real, live
+  // App-styled replacements for the whole backup/restore flow's former
+  // native Alert.alert calls, 2026-08-16, direct request: "there needs to
+  // be some sort of communication between steps that take a little
+  // time... do we have to use all system windows or can we use the app's
+  // own colors and layout." showBusy/hideBusy drive a live
   // spinner-plus-status-message overlay through the genuinely slow parts
   // (encrypt/decrypt, the actual whole-database restore); confirmBackup
   // replaces the native "Restore this backup? This can't be undone."
@@ -634,13 +629,13 @@ export default function ProfileScreen() {
   const [confirmBackup, confirmSheetElement] = useConfirmSheet();
   const [showBackupAlert, backupAlertElement] = useInfoAlert();
 
-  // Ground color picker's own handler, 2026-08-19 -- see the Ground color
-  // sub-section's own comment below for the full "why this needs a reload
-  // at all" reasoning. showBusy gives instant feedback for the brief gap
+  // Ground color picker's handler, 2026-08-19, see the Ground color
+  // sub-section's comment below for the full "why this needs a reload at
+  // all" reasoning. showBusy gives instant feedback for the brief gap
   // between the tap and reloadAsync() actually tearing the JS context
   // down; there's no matching hideBusy because that moment never arrives
-  // on the success path -- the whole app (this overlay included) is gone
-  // by then, replaced by a fresh launch. Only the catch path needs to
+  // on the success path, since the whole app (this overlay included) is
+  // gone by then, replaced by a fresh launch. Only the catch path needs to
   // clear it, for the rare case reloadAsync() itself rejects rather than
   // just not resolving before the reload happens.
   async function handleSelectGroundTheme(theme: GroundTheme) {
@@ -739,7 +734,7 @@ export default function ProfileScreen() {
       const latestWeight = weightReadings[0];
       if (latestWeight) {
         // Defensively handles either stored unit even though commitWeight
-        // below always writes 'kg' -- see that function's own comment.
+        // below always writes 'kg', see that function's comment.
         const kgValue = latestWeight.unit === 'lb' ? lbToKg(latestWeight.value) : latestWeight.value;
         if (system === 'imperial') {
           setWeightLbInput(String(Math.round(kgToLb(kgValue))));
@@ -765,11 +760,11 @@ export default function ProfileScreen() {
     };
   }, []);
 
-  // Loads/refreshes real trial data for the already-tested-foods review,
-  // scoped to only the selected conditions that actually have a curated
-  // concern list -- re-fires whenever a condition gets toggled, so newly
-  // selecting a condition with real concerns picks this up live rather
-  // than needing a screen reload.
+  // Loads/refreshes trial data for the already-tested-foods review, scoped
+  // to only the selected conditions that actually have a curated concern
+  // list. Re-fires whenever a condition gets toggled, so newly selecting a
+  // condition with concerns picks this up live rather than needing a
+  // screen reload.
   useEffect(() => {
     let isMounted = true;
     const relevantCodes = selectedConditions.filter((code) => getConditionFoodConcerns(code) !== null);
@@ -830,15 +825,15 @@ export default function ProfileScreen() {
       nowSelected ? [...current, code] : current.filter((c) => c !== code),
     );
     await setUserConditionSelected(code, nowSelected);
-    // Deselecting a condition also clears its own declared stage, 2026-08-09
-    // -- a real gap found and fixed while building the Healing Stages
-    // reordering feature: without this, an orphaned user_condition_stages
-    // row would keep silently driving both the tap-to-explain advisory and
-    // the new picker reordering even after the condition itself no longer
-    // shows here to edit or clear it (this same screen's own stage-picker
-    // section only renders for a currently-selected condition), a real,
-    // confusing "why is this still happening" gap this closes at the
-    // source rather than leaving stale.
+    // Deselecting a condition also clears its declared stage, 2026-08-09,
+    // a gap found and fixed while building the Healing Stages reordering
+    // feature: without this, an orphaned user_condition_stages row would
+    // keep silently driving both the tap-to-explain advisory and the new
+    // picker reordering even after the condition itself no longer shows
+    // here to edit or clear it (this same screen's stage-picker section
+    // only renders for a currently-selected condition), a confusing "why
+    // is this still happening" gap this closes at the source rather than
+    // leaving stale.
     if (!nowSelected && conditionStageMap[code] !== undefined) {
       await setConditionStage(code, null);
       setConditionStageMap((current) => {
@@ -851,12 +846,12 @@ export default function ProfileScreen() {
   }
 
   // overrides, same reason commitMealTime/commitEatingWindow already take
-  // one: a PopoverSelect onSelect both updates the field's own state AND
-  // needs to commit immediately, in the same synchronous tap -- reading
+  // one: a PopoverSelect onSelect both updates the field's state and needs
+  // to commit immediately, in the same synchronous tap. Reading
   // birthYear/birthMonth/birthDay from closure here would still see the
-  // PRE-update value, since React state updates aren't applied
-  // synchronously. Passing the just-picked value straight through sidesteps
-  // that stale-closure gap entirely.
+  // pre-update value, since React state updates aren't applied
+  // synchronously. Passing the just-picked value straight through
+  // sidesteps that stale-closure gap entirely.
   function commitBirthDate(overrides?: { year?: string; month?: string; day?: string }) {
     setDateError(null);
 
@@ -889,7 +884,7 @@ export default function ProfileScreen() {
     if (profile.birthDate) updateProfile({ birthDate: null });
   }
 
-  // overrides -- same stale-closure reason as commitBirthDate above.
+  // overrides: same stale-closure reason as commitBirthDate above.
   function commitHeight(overrides?: { feet?: string; inches?: string; cm?: string }) {
     if (measurementSystem === 'imperial') {
       const feetValue = overrides?.feet ?? heightFeetInput;
@@ -922,14 +917,13 @@ export default function ProfileScreen() {
   }
 
   // Always stores in kg, regardless of which unit the person is currently
-  // typing in (mirroring heightCm's own always-cm convention) -- inserts a
-  // genuinely NEW body_measurements reading every time, the same "just log
-  // it" behavior Home's own quick blood-pressure/heart-rate log already
-  // uses. No "clear" here, unlike height -- there's no single field to
-  // null out; a real historical reading, once logged, stays logged the
-  // same way a logged blood-pressure reading isn't erased from Home
-  // either. overrides mirrors commitHeight's own same-tap stale-closure
-  // fix.
+  // typing in (mirroring heightCm's always-cm convention). Inserts a new
+  // body_measurements reading every time, the same "just log it" behavior
+  // Home's quick blood-pressure/heart-rate log already uses. No
+  // "clear" here, unlike height, since there's no single field to null
+  // out; a historical reading, once logged, stays logged the same way a
+  // logged blood-pressure reading isn't erased from Home either. overrides
+  // mirrors commitHeight's same-tap stale-closure fix.
   async function commitWeight(overrides?: { kg?: string; lb?: string }) {
     let kgValue: number;
     if (measurementSystem === 'imperial') {
@@ -954,9 +948,9 @@ export default function ProfileScreen() {
     flashSaved();
   }
 
-  // Food allergies -- addAllergy also clears the free-text input on
-  // success, so the field is ready for the next one immediately (matches
-  // how the Food tab's own ingredient-add flow resets after each add).
+  // Food allergies: addAllergy also clears the free-text input on success,
+  // so the field is ready for the next one immediately (matches how the
+  // Food tab's ingredient-add flow resets after each add).
   async function addAllergy(rawName: string) {
     const trimmed = rawName.trim();
     if (!trimmed) return;
@@ -972,8 +966,8 @@ export default function ProfileScreen() {
     setFoodAllergies((current) => current.filter((allergy) => allergy !== name));
   }
 
-  // Condition stages -- one real row per condition; passing null clears
-  // that condition's own declaration back to "not declared."
+  // Condition stages: one row per condition; passing null clears that
+  // condition's declaration back to "not declared."
   async function handleSetConditionStage(conditionCode: string, stageCode: string | null) {
     await setConditionStage(conditionCode, stageCode);
     setConditionStageMap((current) => {
@@ -988,10 +982,10 @@ export default function ProfileScreen() {
     flashSaved();
   }
 
-  // Already-tested-foods review, 2026-08-14 -- marking a concern creates a
-  // real, already-resolved food_trials row (see markConcernAlreadyTested's
-  // own comment in lib/db.ts for why it never schedules a reminder
-  // series), then refreshes just that one condition's own trial list.
+  // Already-tested-foods review, 2026-08-14: marking a concern creates an
+  // already-resolved food_trials row (see markConcernAlreadyTested's
+  // comment in lib/db.ts for why it never schedules a reminder series),
+  // then refreshes just that one condition's trial list.
   async function handleMarkConcern(
     concern: ConditionFoodConcern,
     conditionCode: string,
@@ -1003,9 +997,9 @@ export default function ProfileScreen() {
     flashSaved();
   }
 
-  // "Not sure anymore?" -- reopenFoodTrial itself now reschedules a real,
-  // fresh reminder series (see its own comment in lib/db.ts); this just
-  // needs to call it and refresh this one condition's own trial list.
+  // "Not sure anymore?" reopenFoodTrial itself now reschedules a fresh
+  // reminder series (see its comment in lib/db.ts); this just needs to
+  // call it and refresh this one condition's trial list.
   async function handleReopenConcernTrial(trialId: string, conditionCode: string) {
     await reopenFoodTrial(trialId);
     const trials = await getFoodTrialsForCondition(conditionCode);
@@ -1013,12 +1007,12 @@ export default function ProfileScreen() {
     flashSaved();
   }
 
-  // Custom background image, 2026-08-09 -- explicitly requested: "Add the
+  // Custom background image, 2026-08-09, explicitly requested: "Add the
   // ability to upload an image to be the background for the shared
   // background, and for each of the individual tabs." isShared picks
   // which half of VisualPreferences actually needs updating on success
   // (homeBackgroundStyle, a plain scalar, vs. tabBackgroundStyle, a
-  // per-path record) -- both scopes otherwise go through the exact same
+  // per-path record); both scopes otherwise go through the exact same
   // pick/validate/save pipeline (lib/customBackgroundImage.ts).
   async function handlePickCustomBackground(scopeKey: string, isShared: boolean) {
     if (pickingImageForScope) return; // one picker in flight at a time
@@ -1051,40 +1045,38 @@ export default function ProfileScreen() {
       } else if (result.status === 'error') {
         showBackupAlert('Something went wrong', result.message);
       }
-      // 'canceled' -- no message, no change.
+      // 'canceled': no message, no change.
     } finally {
       setPickingImageForScope(null);
     }
   }
 
-  // Backup & Restore, 2026-08-16 -- see lib/dataBackup.ts's own header
-  // comment for the real design reasoning (schema-driven, not hand-listed;
-  // photo files themselves aren't included, only their stored uri
-  // references).
+  // Backup & Restore, 2026-08-16, see lib/dataBackup.ts's header comment
+  // for the design reasoning (schema-driven, not hand-listed; photo files
+  // themselves aren't included, only their stored uri references).
   //
-  // A real, confirmed bug fixed the same day, directly reported: exporting
+  // A confirmed bug fixed the same day, directly reported: exporting
   // produced a .txt file containing nothing but this function's own
-  // message text -- no real backup data at all. Traced to the actual root
-  // cause in react-native's own source, not guessed: Share.share's `url`
-  // field is silently dropped on Android before it ever reaches native
-  // code (see lib/nativeSharing.ts's own header comment for the full
-  // confirmation). Fixed by switching the real file attachment to
-  // expo-sharing's shareAsync -- the module genuinely built for this,
-  // added the same day -- and, per the direct follow-up ask, showing the
-  // real local file path directly rather than leaving it to whatever the
-  // OS share target silently did with it.
+  // message text, no backup data at all. Traced to the actual root cause
+  // in react-native's source, not guessed: Share.share's `url` field is
+  // silently dropped on Android before it ever reaches native code (see
+  // lib/nativeSharing.ts's header comment for the full confirmation).
+  // Fixed by switching the file attachment to expo-sharing's shareAsync
+  // (the module built for this, added the same day) and, per the direct
+  // follow-up ask, showing the local file path directly rather than
+  // leaving it to whatever the OS share target silently did with it.
   async function handleExportBackup() {
     if (backupBusy) return;
     const password = await promptPassword(
       'set',
       'Set a Backup Password',
-      "This encrypts your backup so only someone who has this password can ever read it -- not a text editor, not an AI tool, nothing. Choose something real; there's no way to reset it later.",
+      "This encrypts your backup so only someone who has this password can ever read it: not a text editor, not an AI tool, nothing. Choose something you'll remember; there's no way to reset it later.",
     );
-    if (password === null) return; // a real cancel -- nothing was exported
+    if (password === null) return; // a cancel: nothing was exported
     setBackupBusy(true);
     try {
-      // A real, live status through the one genuinely slow step -- see
-      // components/BusyOverlay.tsx's own header comment for why this is a
+      // A live status through the one genuinely slow step. See
+      // components/BusyOverlay.tsx's header comment for why this is a
       // plain spinner-plus-message, not a second percent-estimate system.
       showBusy('Encrypting your backup...');
       let fileUri: string | null;
@@ -1106,9 +1098,9 @@ export default function ProfileScreen() {
         'Backup created',
         `${
           shared
-            ? "If you just saved a copy somewhere (a cloud drive, an email to yourself), that's the real one to keep -- it survives even if this device doesn't. "
+            ? "If you just saved a copy somewhere (a cloud drive, an email to yourself), that's the one to keep: it survives even if this device doesn't. "
             : ''
-        }A copy also stays right here, in Inside Story's own app storage:\n\n${fileUri}\n\nThat copy is what "Restore Most Recent" below reads from, but it's lost along with this device if this device is ever lost or replaced.`,
+        }A copy also stays right here, in Inside Story's app storage:\n\n${fileUri}\n\nThat copy is what "Restore Most Recent" below reads from, but it's lost along with this device if this device is ever lost or replaced.`,
       );
     } catch (error) {
       showBackupAlert('Something went wrong', error instanceof Error ? error.message : 'Failed to export a backup.');
@@ -1117,16 +1109,15 @@ export default function ProfileScreen() {
     }
   }
 
-  // Resolves whatever a real backup file's own raw content actually is
-  // into a usable BackupEnvelope -- detecting, by real shape rather than
-  // by file name or any other guess, whether it's a genuine
-  // EncryptedBackupWire (every export since 2026-08-16, see
-  // lib/backupEncryption.ts) or a genuinely older, unencrypted
-  // BackupEnvelope from before that feature existed -- both stay real,
+  // Resolves whatever a backup file's raw content actually is into a
+  // usable BackupEnvelope, detecting by shape rather than by file name or
+  // any other guess, whether it's an EncryptedBackupWire (every export
+  // since 2026-08-16, see lib/backupEncryption.ts) or an older,
+  // unencrypted BackupEnvelope from before that feature existed. Both stay
   // fully openable file formats. Returns 'cancelled' specifically to
   // distinguish "the person backed out of the password prompt" from "this
-  // genuinely isn't a real backup file at all," since those two outcomes
-  // need different messages.
+  // isn't a backup file at all," since those two outcomes need different
+  // messages.
   async function resolveBackupEnvelope(content: string): Promise<BackupEnvelope | null | 'cancelled'> {
     let raw: unknown;
     try {
@@ -1136,8 +1127,8 @@ export default function ProfileScreen() {
     }
 
     if (!isEncryptedBackupWire(raw)) {
-      // A real, legacy, unencrypted file -- reuse the existing, already-
-      // proven parse/validate path directly.
+      // A legacy, unencrypted file: reuse the existing, already-proven
+      // parse/validate path directly.
       return parseBackupEnvelope(content);
     }
 
@@ -1148,12 +1139,11 @@ export default function ProfileScreen() {
         'This backup is encrypted. Enter the password you set when you exported it.',
       );
       if (password === null) return 'cancelled';
-      // decryptBackupPayload now genuinely yields every 5,000 of its real
-      // 100,000 KDF iterations (see lib/backupEncryption.ts's own header
-      // comment) rather than freezing the whole JS thread solid -- has to
-      // be awaited now that it's genuinely async, not just a style choice.
-      // A real, live status through this same real wait, matching the
-      // export side above.
+      // decryptBackupPayload now yields every 5,000 of its 100,000 KDF
+      // iterations (see lib/backupEncryption.ts's header comment) rather
+      // than freezing the whole JS thread solid. It has to be awaited now
+      // that it's genuinely async, not just a style choice. A live status
+      // through this same wait, matching the export side above.
       showBusy('Decrypting your backup...');
       let decrypted: string | null;
       try {
@@ -1162,13 +1152,13 @@ export default function ProfileScreen() {
         hideBusy();
       }
       if (decrypted === null) {
-        // A real, honest limitation stated directly to the person too --
-        // authenticated encryption genuinely can't tell a wrong password
-        // apart from a corrupted/tampered file, by design (see
-        // lib/backupEncryption.ts's own decryptBackupPayload comment).
+        // An honest limitation stated directly to the person too:
+        // authenticated encryption can't tell a wrong password apart from
+        // a corrupted/tampered file, by design (see lib/backupEncryption.ts's
+        // decryptBackupPayload comment).
         const tryAgain = await confirmBackup({
           title: "That password didn't work",
-          message: "Either the password is wrong, or this file is genuinely corrupted -- there's no way to tell which one. Try again?",
+          message: "Either the password is wrong, or this file is corrupted; there's no way to tell which one. Try again?",
           confirmLabel: 'Try Again',
         });
         if (!tryAgain) return 'cancelled';
@@ -1183,7 +1173,7 @@ export default function ProfileScreen() {
     if (envelope === 'cancelled') return;
     if (!envelope) {
       showBackupAlert(
-        "That doesn't look like a real backup file",
+        "That doesn't look like a backup file",
         'Nothing was changed. Try a different file, or export a fresh backup and try that one.',
       );
       return;
@@ -1198,10 +1188,9 @@ export default function ProfileScreen() {
 
     setBackupBusy(true);
     try {
-      // A real, live status through the actual whole-database rewrite --
-      // the one real step in this whole flow the person has directly
-      // reported feeling the most "is this doing something?" uncertainty
-      // about, 2026-08-16.
+      // A live status through the actual whole-database rewrite, the one
+      // step in this whole flow the person has directly reported feeling
+      // the most "is this doing something?" uncertainty about, 2026-08-16.
       showBusy('Restoring your data...');
       let result;
       try {
@@ -1209,31 +1198,30 @@ export default function ProfileScreen() {
       } finally {
         hideBusy();
       }
-      // A real, on-device-confirmed gap, 2026-08-16: restore rewrites the
-      // real database directly, which is correct and complete for
-      // everything a screen re-reads on its own (Food Allergies, confirmed
-      // on-device) -- but several real features (lib/visualPreferences.ts's
-      // own TabHub icon/background choices, at least) keep a real, live,
-      // module-level cache in memory for the rest of this app session,
-      // never touched by a raw database rewrite. A still-running app can
-      // genuinely show a stale value even though the real, underlying row
-      // is already correctly restored -- a full close-and-reopen (a fresh
-      // JS heap, every module-level cache starting empty again) is the one
-      // guaranteed way to see everything reflect the restore, not just
-      // database-backed screens. Named directly here rather than left to a
-      // second, confusing bug report.
+      // An on-device-confirmed gap, 2026-08-16: restore rewrites the
+      // database directly, which is correct and complete for everything a
+      // screen re-reads on its own (Food Allergies, confirmed on-device),
+      // but several features (lib/visualPreferences.ts's TabHub
+      // icon/background choices, at least) keep a live, module-level cache
+      // in memory for the rest of this app session, never touched by a raw
+      // database rewrite. A still-running app can show a stale value even
+      // though the underlying row is already correctly restored. A full
+      // close-and-reopen (a fresh JS heap, every module-level cache
+      // starting empty again) is the one guaranteed way to see everything
+      // reflect the restore, not just database-backed screens. Named
+      // directly here rather than left to a second, confusing bug report.
       showBackupAlert(
         'Restored',
         `${result.tablesRestored} table(s) and ${result.rowsRestored} row(s) restored.${
           result.tablesSkipped.length > 0
             ? ` (${result.tablesSkipped.length} table(s) from the backup no longer exist in this version of the app and were skipped.)`
             : ''
-        }\n\nClose and fully reopen Inside Story now -- some settings (like the TabHub icon) are cached in memory while the app is running, and won't show the restored value until it's genuinely restarted.`,
+        }\n\nClose and fully reopen Inside Story now: some settings (like the TabHub icon) are cached in memory while the app is running, and won't show the restored value until it's restarted.`,
       );
     } catch (error) {
       showBackupAlert(
         'Restore failed',
-        error instanceof Error ? error.message : 'Something went wrong partway through -- nothing was changed.',
+        error instanceof Error ? error.message : 'Something went wrong partway through. Nothing was changed.',
       );
     } finally {
       setBackupBusy(false);
@@ -1242,9 +1230,9 @@ export default function ProfileScreen() {
 
   async function handleRestoreMostRecent() {
     if (backupBusy) return;
-    // Deliberately stays true through the WHOLE call below (the password
-    // prompt, the real, no-longer-frozen-but-still-genuinely-slow decrypt,
-    // the destructive-confirm dialog, and the actual restore) -- a real,
+    // Deliberately stays true through the whole call below (the password
+    // prompt, the no-longer-frozen-but-still-slow decrypt, the
+    // destructive-confirm dialog, and the actual restore). An
     // on-device-confirmed bug found the previous version of this function
     // reset it back to false right before the expensive part even began,
     // meaning the button never actually showed "Working..." (or stayed
@@ -1270,12 +1258,12 @@ export default function ProfileScreen() {
 
   async function handleRestoreFromFile() {
     if (backupBusy) return;
-    // Same real fix as handleRestoreMostRecent above -- stays true through
-    // the whole flow, not reset early.
+    // Same fix as handleRestoreMostRecent above: stays true through the
+    // whole flow, not reset early.
     setBackupBusy(true);
     try {
       const picked = await pickAndReadBackupFile();
-      if (!picked) return; // a real cancel, or a real read failure already logged
+      if (!picked) return; // a cancel, or a read failure already logged
       await runRestore(picked.content);
     } finally {
       setBackupBusy(false);
@@ -1292,11 +1280,11 @@ export default function ProfileScreen() {
   }
 
   // Shared by both the "Shared background" row and each row inside
-  // "Individual tab backgrounds" -- one real implementation of the
+  // "Individual tab backgrounds": one implementation of the
   // Photo/Generic/Off/Custom picker rather than two copies that could
-  // quietly drift apart. Custom's own pill deliberately doesn't use the
-  // same instant-toggle onPress as the other three (it opens a real async
-  // picker instead), and only Custom shows the "Remove custom image" link.
+  // quietly drift apart. Custom's pill deliberately doesn't use the same
+  // instant-toggle onPress as the other three (it opens an async picker
+  // instead), and only Custom shows the "Remove custom image" link.
   function renderBackgroundOptionsRow(scopeKey: string, isShared: boolean, current: BackgroundStyle) {
     const busy = pickingImageForScope === scopeKey;
     return (
@@ -1344,14 +1332,14 @@ export default function ProfileScreen() {
     );
   }
 
-  // 2026-08-14: one real, shared render for a single TabHub Icon group's own
-  // grid row -- reused 3 times (Conditions / Insects & Other Wildlife /
-  // Animals) rather than tripling the same JSX, directly answering
-  // "separate the conditions from the insects and others... and place all
-  // of these new ones into their own group, too." Each group renders under
-  // its own real subLabel heading in the JSX below; this function is just
-  // the tappable-tile grid itself, identical logic to what the old single
-  // flat tabHubIconOptions.map() already did.
+  // 2026-08-14: one shared render for a single TabHub Icon group's grid
+  // row, reused 3 times (Conditions / Insects & Other Wildlife / Animals)
+  // rather than tripling the same JSX, directly answering "separate the
+  // conditions from the insects and others... and place all of these new
+  // ones into their own group, too." Each group renders under its own
+  // subLabel heading in the JSX below; this function is just the
+  // tappable-tile grid itself, identical logic to what the old single flat
+  // tabHubIconOptions.map() already did.
   function renderTabHubIconGroup(options: { key: TabHubIconChoice; label: string }[]) {
     return (
       <View style={styles.iconGridRow}>
@@ -1386,7 +1374,7 @@ export default function ProfileScreen() {
   }
 
   // overrides lets a caller commit a value it just set via setMealTimeBuffers
-  // in the same event handler -- React state updates aren't applied
+  // in the same event handler. React state updates aren't applied
   // synchronously, so reading mealTimeBuffers[dayPart] right after calling
   // setMealTimeBuffers would still see the pre-update buffer (the AM/PM
   // pill press below does exactly this: it sets ampm and commits in the
@@ -1415,7 +1403,7 @@ export default function ProfileScreen() {
     updateProfile({ fastingEnabled: enabled });
   }
 
-  // See commitMealTime's comment -- same stale-closure hazard, same fix.
+  // See commitMealTime's comment: same stale-closure hazard, same fix.
   function commitEatingWindow(overrides?: { start?: Partial<TimeOfDayInput>; end?: Partial<TimeOfDayInput> }) {
     const startBuffer = { ...eatingWindowStartBuffer, ...overrides?.start };
     const endBuffer = { ...eatingWindowEndBuffer, ...overrides?.end };
@@ -1432,9 +1420,9 @@ export default function ProfileScreen() {
       return;
     }
 
-    // Only commits once both ends are valid -- a half-entered window (e.g.
-    // start typed, end not yet) would otherwise briefly become a real,
-    // enforced constraint that blocks every single Schedule save.
+    // Only commits once both ends are valid: a half-entered window (e.g.
+    // start typed, end not yet) would otherwise briefly become an enforced
+    // constraint that blocks every single Schedule save.
     if (!start || !end) return;
     updateProfile({ eatingWindowStart: start, eatingWindowEnd: end });
   }
@@ -1465,10 +1453,10 @@ export default function ProfileScreen() {
   }
 
   // Profile has no TabHub of its own (it's a Stack push outside the (tabs)
-  // group entirely -- see app/_layout.tsx), so this is its only way back,
-  // on both the loading and loaded states. Bottom-center, the exact spot
-  // TabHub's own button would occupy on a tab screen, so it lands in the
-  // same "reach here with your thumb" zone as everywhere else in the app.
+  // group entirely, see app/_layout.tsx), so this is its only way back, on
+  // both the loading and loaded states. Bottom-center, the exact spot
+  // TabHub's button would occupy on a tab screen, so it lands in the same
+  // "reach here with your thumb" zone as everywhere else in the app.
   const closeButton = (
     <TouchableOpacity
       style={[styles.closeButton, { bottom: insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET }]}
@@ -1480,55 +1468,54 @@ export default function ProfileScreen() {
     </TouchableOpacity>
   );
 
-  // 2026-08-08, explicitly requested: Profile's own background should
-  // follow the shared "Generic" background choice (see the Shared
-  // background card below) when that's what's selected, rather than always
-  // staying the plain flat colors.background it always has -- otherwise
-  // (Photo or Off) it stays exactly that same flat color, matching the
+  // 2026-08-08, explicitly requested: Profile's background should follow
+  // the shared "Generic" background choice (see the Shared background
+  // card below) when that's what's selected, rather than always staying
+  // the plain flat colors.background it always has. Otherwise (Photo or
+  // Off) it stays exactly that same flat color, matching the
   // header/footer, same as before. Profile never shows the Photo option
   // itself (it has no background image of its own, and isn't one of the
-  // per-tab GatedTabContent screens) -- only Generic is followed here.
+  // per-tab GatedTabContent screens); only Generic is followed here.
   const showGenericBackground = visualPrefs.homeBackgroundStyle === 'generic';
 
-  // TabHub's own personalizable icon, 2026-08-09 -- "make it so each icon
-  // is available in the user profile to choose to use in the TabHub menu
-  // icon position." Originally: the default butterfly always led the list;
-  // every real built/in_progress condition followed, reusing the exact
-  // same "Your conditions" filter (status !== 'planned') and
-  // CONDITION_CODE_TO_DIGEST_KEY lookup that card already uses just below
-  // -- not a second, separately derived condition list. The
-  // TAB_HUB_ICON_SOURCES truthiness check is a real, defensive guard, not
-  // just belt-and-suspenders: it's what keeps a future condition added to
-  // the `conditions` table but without its own icon yet from silently
-  // showing a broken/blank option here.
+  // TabHub's personalizable icon, 2026-08-09: "make it so each icon is
+  // available in the user profile to choose to use in the TabHub menu icon
+  // position." Originally: the default butterfly always led the list;
+  // every built/in_progress condition followed, reusing the exact same
+  // "Your conditions" filter (status !== 'planned') and
+  // CONDITION_CODE_TO_DIGEST_KEY lookup that card already uses just below,
+  // not a second, separately derived condition list. The
+  // TAB_HUB_ICON_SOURCES truthiness check is a defensive guard, not just
+  // belt-and-suspenders: it's what keeps a future condition added to the
+  // `conditions` table but without its own icon yet from silently showing
+  // a broken/blank option here.
   //
-  // 2026-08-14, direct follow-up to the same day's own 8-garden-icon
-  // addition: "Make the Default TabHub icon be the Honeybee, and rename the
-  // Default to Graves' / Hashimoto's and put it within the condition icons
-  // in alphabetical order." The plain butterfly's own real `'default'` key
-  // is unchanged (still `TAB_HUB_ICON_SOURCES.default`, still the same real
-  // artwork) -- only its LABEL and its position in this picker changed: it
-  // no longer leads the list on its own, it's a real, explicitly labeled
-  // "Graves' / Hashimoto's" entry sorted alphabetically among the real
-  // condition options below (matching the app's own already-established
+  // 2026-08-14, direct follow-up to the same day's 8-garden-icon addition:
+  // "Make the Default TabHub icon be the Honeybee, and rename the Default
+  // to Graves' / Hashimoto's and put it within the condition icons in
+  // alphabetical order." The plain butterfly's `'default'` key is
+  // unchanged (still `TAB_HUB_ICON_SOURCES.default`, still the same
+  // artwork); only its label and its position in this picker changed: it
+  // no longer leads the list on its own, it's an explicitly labeled
+  // "Graves' / Hashimoto's" entry sorted alphabetically among the
+  // condition options below (matching the app's already-established
   // "generically representing either Hashimoto's or Graves'" framing for
-  // this specific artwork). The app's own actual out-of-the-box choice
+  // this specific artwork). The app's actual out-of-the-box choice
   // (DEFAULT_VISUAL_PREFERENCES.tabHubIcon, lib/visualPreferences.ts) moved
-  // to 'honeybee' the same day -- a first-ever launch now shows the
+  // to 'honeybee' the same day, so a first-ever launch now shows the
   // Honeybee, not the butterfly.
   // 2026-08-14: split from one flat, concatenated tabHubIconOptions array
-  // into 3 real, separately-rendered groups, direct request alongside the
+  // into 3 separately-rendered groups, direct request alongside the
   // 38-animal addition below: "separate the [conditions] from the insects
   // and others that [are] not part of the conditions, and place all of
   // these new ones into their own group, too." Each group keeps its own
-  // real, independently-sorted array -- rendered as 3 distinct labeled
-  // sections in the picker below, not merged into one list the way this
-  // used to work.
+  // independently-sorted array, rendered as 3 distinct labeled sections in
+  // the picker below, not merged into one list the way this used to work.
   //
   // 2026-08-12, direct request: "Create new TabHub menu icons from these 8
-  // new images... available to be selected to be the TabHub icon." Real
-  // garden/pollinator wildlife, not tied to any tracked condition -- the
-  // app's own real out-of-the-box choice, Honeybee, lives in here.
+  // new images... available to be selected to be the TabHub icon." Garden
+  // and pollinator wildlife, not tied to any tracked condition; the app's
+  // out-of-the-box choice, Honeybee, lives in here.
   const gardenIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'honeybee', label: 'Honeybee' },
     { key: 'bumblebee', label: 'Bumblebee' },
@@ -1540,11 +1527,11 @@ export default function ProfileScreen() {
     { key: 'prayingMantis', label: 'Praying Mantis' },
   ];
   gardenIconOptions.sort((a, b) => a.label.localeCompare(b.label));
-  // 2026-08-14: 38 real, individually cropped animal-head portraits, its
-  // own distinct third group -- deliberately separate from the 8 insects/
-  // pollinators above, per the same direct request. Hand-listed (not
-  // derived from anything, since none of these map to a tracked condition
-  // or a Digest category the way the group below does), sorted
+  // 2026-08-14: 38 individually cropped animal-head portraits, its own
+  // distinct third group, deliberately separate from the 8
+  // insects/pollinators above, per the same direct request. Hand-listed
+  // (not derived from anything, since none of these map to a tracked
+  // condition or a Digest category the way the group below does), sorted
   // alphabetically the same way every other group here already is.
   const animalIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'badger', label: 'Badger' },
@@ -1587,36 +1574,36 @@ export default function ProfileScreen() {
     { key: 'wolf', label: 'Wolf' },
   ];
   animalIconOptions.sort((a, b) => a.label.localeCompare(b.label));
-  // 2026-08-14: a real, new, 4th group -- Food tab builder icons, starting
-  // with Dessert Builder (components/FoodBuilderIcons.tsx), the first
-  // hand-drawn VECTOR icon this picker has ever offered rather than a real,
-  // cropped photo (see that file's own header comment). Neither a tracked
+  // 2026-08-14: a new 4th group, Food tab builder icons, starting with
+  // Dessert Builder (components/FoodBuilderIcons.tsx), the first
+  // hand-drawn vector icon this picker has ever offered rather than a
+  // cropped photo (see that file's header comment). Neither a tracked
   // condition, a pollinator, nor an animal, so it doesn't belong in any of
-  // the three groups above -- a real, honest 4th group of its own.
+  // the three groups above; an honest 4th group of its own.
   const foodBuilderIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'dessertBuilder', label: 'Dessert Builder (Cupcake)' },
   ];
-  // 2026-08-19: a real, new, 5th group -- just the one seed icon, the
-  // app's own actual out-of-the-box default (see TabHubIconChoice's own
-  // comment in lib/visualPreferences.ts). Deliberately its own group, not
-  // folded into conditionIconOptions the way the old 'default' butterfly
-  // entry is -- the seed isn't a stand-in for any tracked condition the way
-  // the butterfly still is, it's the app's own identity, so it gets top
-  // billing of its own rather than sitting alphabetized among 19 condition
-  // names. A second, shorter-stemmed 'seed' entry existed here briefly
-  // (2026-08-19 through 2026-08-21) alongside this one; removed outright,
-  // direct instruction: "remove the other seed icon from the app entirely,
-  // make the new seed icon the default." The key stays 'seedTall' (not
-  // renamed to 'seed') -- see TabHubIconChoice's own comment for why.
+  // 2026-08-19: a new 5th group, just the one seed icon, the app's actual
+  // out-of-the-box default (see TabHubIconChoice's comment in
+  // lib/visualPreferences.ts). Deliberately its own group, not folded into
+  // conditionIconOptions the way the old 'default' butterfly entry is: the
+  // seed isn't a stand-in for any tracked condition the way the butterfly
+  // still is, it's the app's identity, so it gets top billing of its own
+  // rather than sitting alphabetized among 19 condition names. A second,
+  // shorter-stemmed 'seed' entry existed here briefly (2026-08-19 through
+  // 2026-08-21) alongside this one; removed outright, direct instruction:
+  // "remove the other seed icon from the app entirely, make the new seed
+  // icon the default." The key stays 'seedTall' (not renamed to 'seed'),
+  // see TabHubIconChoice's comment for why.
   const appIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'seedTall', label: 'Seed (App Default)' },
   ];
   // 2026-08-14: the renamed former "Default" entry (the plain butterfly, key
   // unchanged at 'default') is seeded in here by hand, not derived from
-  // allConditions the way every other entry below it is -- it doesn't map
-  // to any single real tracked condition, it's a real, permanent, generic
-  // "either one" option, and it sorts alphabetically alongside the real
-  // condition options rather than needing its own special leading slot.
+  // allConditions the way every other entry below it is: it doesn't map to
+  // any single tracked condition, it's a permanent, generic "either one"
+  // option, and it sorts alphabetically alongside the condition options
+  // rather than needing its own special leading slot.
   const conditionIconOptions: { key: TabHubIconChoice; label: string }[] = [
     { key: 'default', label: "Graves' / Hashimoto's" },
   ];
@@ -1650,25 +1637,25 @@ export default function ProfileScreen() {
         app/_layout.tsx) and reported as not fixing it. This is the second,
         more direct attempt: an unconditional, always-opaque colors.background
         layer, painted first, before GenericBackground and before anything
-        else in this screen's own tree -- not gated by showGenericBackground
-        the way wrapper/screen's own backgrounds are, so there's no code
-        path in THIS component where nothing opaque has painted yet. If
-        this still doesn't fix it, the leak isn't coming from anywhere in
-        Profile's own render tree at all, and points at something at the
-        native navigation-container level this app's own code can't reach. */}
+        else in this screen's tree, not gated by showGenericBackground the
+        way wrapper/screen's backgrounds are, so there's no code path in
+        this component where nothing opaque has painted yet. If this still
+        doesn't fix it, the leak isn't coming from anywhere in Profile's
+        render tree at all, and points at something at the native
+        navigation-container level this app's code can't reach. */}
     <View style={styles.opaqueBase} pointerEvents="none" />
     {showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
     {/* 2026-08-21, direct request: the native header (with its own back
-        arrow) is gone (see app/_layout.tsx's own profile Stack.Screen
-        comment) -- this bar takes over both jobs that header used to do:
-        reserving the safe-area top inset, and keeping "Profile" plus its
-        info button always visible. Sitting as a plain, non-absolute sibling
-        BEFORE the ScrollView (not overlaid on top of it) is what makes the
-        rest of the page "scroll up under it": the ScrollView below only
-        gets whatever height remains once this bar's own space is taken, so
-        scrolled content's top edge simply disappears at this bar's own
-        bottom edge, the same visual effect an overlaid sticky header would
-        give, without needing one. */}
+        arrow) is gone (see app/_layout.tsx's profile Stack.Screen comment).
+        This bar takes over both jobs that header used to do: reserving the
+        safe-area top inset, and keeping "Profile" plus its info button
+        always visible. Sitting as a plain, non-absolute sibling before the
+        ScrollView (not overlaid on top of it) is what makes the rest of
+        the page "scroll up under it": the ScrollView below only gets
+        whatever height remains once this bar's own space is taken, so
+        scrolled content's top edge simply disappears at this bar's bottom
+        edge, the same visual effect an overlaid sticky header would give,
+        without needing one. */}
     <View style={[styles.stickyTitleBar, { paddingTop: insets.top + 12 }, showGenericBackground && styles.transparentBackground]}>
       <View style={styles.profileTitleRow}>
         <Text style={styles.profileTitle}>Profile</Text>
@@ -1686,11 +1673,11 @@ export default function ProfileScreen() {
       </Text>
       {savedFlash ? <Text style={styles.savedFlash}>Saved</Text> : null}
 
-      {/* Personal Info -- 2026-08-09, regrouped from 5 separate cards
+      {/* Personal Info, 2026-08-09, regrouped from 5 separate cards
           (Your name, Units, Sex, Birth date, Height) plus a new Weight
           field, all explicitly requested together. Every former card's
-          own label is kept as a real subLabel heading within this one
-          group's body. */}
+          label is kept as a subLabel heading within this one group's
+          body. */}
       <View style={styles.card}>
         {renderCardHeader('personal-info', 'Personal Info')}
         {!collapsedSections.has('personal-info') ? (
@@ -1701,11 +1688,10 @@ export default function ProfileScreen() {
               collected: one reason is for reports meant to be handed to a doctor, where both
               names read naturally together.
             </Text>
-            {/* 2026-08-16 -- a real mic button per field, nested inside its
-                own small row rather than the shared dateRow itself (First
-                and Last are two separate fields, so one mic sitting
-                between them would be ambiguous about which it applies
-                to). */}
+            {/* 2026-08-16, a mic button per field, nested inside its own
+                small row rather than the shared dateRow itself (First and
+                Last are two separate fields, so one mic sitting between
+                them would be ambiguous about which it applies to). */}
             <View style={styles.dateRow}>
               <View style={styles.nameFieldWithMic}>
                 <AppTextInput
@@ -1729,7 +1715,7 @@ export default function ProfileScreen() {
               </View>
             </View>
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Units</Text>
+            <Text style={styles.subLabelDivided}>Units</Text>
             <Text style={styles.helpText}>
               Used across the app for quantities and measurements: meal ingredient amounts, height, weight,
               and body measurements.
@@ -1752,7 +1738,7 @@ export default function ProfileScreen() {
               })}
             </View>
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Sex</Text>
+            <Text style={styles.subLabelDivided}>Sex</Text>
             <Text style={styles.helpText}>
               Used only to show sex-specific nutrient targets (RDAs) where they differ. This app is
               otherwise gender-neutral by design.
@@ -1776,7 +1762,7 @@ export default function ProfileScreen() {
               })}
             </View>
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Birth date</Text>
+            <Text style={styles.subLabelDivided}>Birth date</Text>
             <Text style={styles.helpText}>
               Used to show age-appropriate nutrient targets (some, like iron and calcium, change meaningfully with
               age). Stored as a date rather than a fixed age so it stays accurate over time.
@@ -1828,7 +1814,7 @@ export default function ProfileScreen() {
             {dateError ? <Text style={styles.errorText}>{dateError}</Text> : null}
             {currentAge != null ? <Text style={styles.derivedText}>Current age: {currentAge}</Text> : null}
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Height</Text>
+            <Text style={styles.subLabelDivided}>Height</Text>
             <Text style={styles.helpText}>
               Used for the step-counter's distance estimate, and useful alongside the rest of this section for a
               doctor report. Follows your Units setting above.
@@ -1883,7 +1869,7 @@ export default function ProfileScreen() {
               </TouchableOpacity>
             </View>
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Weight</Text>
+            <Text style={styles.subLabelDivided}>Weight</Text>
             <Text style={styles.helpText}>
               Your current weight, also useful for a doctor report. Each time you set it here, it&apos;s logged as
               a new reading (the same way a weight-tracking history works), not just overwritten; a full
@@ -1924,9 +1910,9 @@ export default function ProfileScreen() {
               )}
             </View>
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Activity Level</Text>
+            <Text style={styles.subLabelDivided}>Activity Level</Text>
             <Text style={styles.helpText}>
-              Feeds Insights&apos; own Energy &amp; Portions lens: how much you move day to day, alongside your
+              Feeds Insights&apos; Energy &amp; Portions lens: how much you move day to day, alongside your
               weight above, is what turns a plain calorie estimate into a target that actually fits your own body.
             </Text>
             <View style={styles.pillRow}>
@@ -1949,12 +1935,12 @@ export default function ProfileScreen() {
               <Text style={styles.derivedText}>{ACTIVITY_LEVEL_INFO[profile.activityLevel].description}</Text>
             ) : null}
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Growing Zone</Text>
+            <Text style={styles.subLabelDivided}>Growing Zone</Text>
             <Text style={styles.helpText}>
-              Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;): powers the Garden tab&apos;s own
+              Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;): powers the Garden tab&apos;s
               cited crop guidance for your climate. Picking it here only sets the zone letter itself, not a
               location, so Home&apos;s weather/sunrise/sunset section stays off until you set your postal code
-              in Garden&apos;s own My Zone lens, which sets both at once.
+              in Garden&apos;s My Zone lens, which sets both at once.
             </Text>
             <View style={styles.dateRow}>
               <PickerField label="Zone">
@@ -1981,7 +1967,7 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Meal Timing -- 2026-08-09, regrouped from 2 separate cards (Usual
+      {/* Meal Timing, 2026-08-09, regrouped from 2 separate cards (Usual
           meal times, Fasting/eating window), explicitly requested
           together. */}
       <View style={styles.card}>
@@ -2047,7 +2033,7 @@ export default function ProfileScreen() {
               </View>
             ))}
 
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Fasting / eating window</Text>
+            <Text style={styles.subLabelDivided}>Fasting / eating window</Text>
             <Text style={styles.helpText}>
               If you do intermittent fasting, set the window you actually eat within. Once both times are set here,
               the Schedule tab won't let you schedule a meal outside that window.
@@ -2181,7 +2167,7 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Conditions & Check-In -- 2026-08-09, regrouped from 3 separate
+      {/* Conditions & Check-In, 2026-08-09, regrouped from 3 separate
           cards (Your conditions, Where you're at, plus a brand-new Food
           Allergies sub-section) explicitly requested together. */}
       <View style={styles.card}>
@@ -2194,23 +2180,23 @@ export default function ProfileScreen() {
               scoring, and medications are relevant to you personally. Multiple selections are fully supported;
               having more than one is common.
             </Text>
-            {/* A real, even 2-column grid, 2026-08-21 -- direct report:
-                the plain pillRow every other picker on this screen uses
-                (flexWrap with content-sized pills) reads fine for a
-                shorter list, but with 19 real condition names of wildly
-                different lengths ("Gout" next to "Inflammatory Bowel
-                Disease"), the pills packed left-to-right and wrapped
-                wherever they happened to fit, never lining up into real
-                rows or columns. Scoped to just this one list
-                (conditionGrid/conditionGridItem/conditionPill below) rather
-                than changing pillRow itself, which every other picker on
-                this screen still uses unchanged -- those lists are shorter
-                and more even, and weren't part of this report. Still the
-                same pill look/colors (styles.pill/pillActive/pillText/
-                pillTextActive, reused directly), just each one now sits in
-                a fixed-width half-card cell instead of sizing to its own
-                text, so two per row always line up with the row below
-                regardless of how long either name is. */}
+            {/* An even 2-column grid, 2026-08-21, direct report: the plain
+                pillRow every other picker on this screen uses (flexWrap
+                with content-sized pills) reads fine for a shorter list,
+                but with 19 condition names of wildly different lengths
+                ("Gout" next to "Inflammatory Bowel Disease"), the pills
+                packed left-to-right and wrapped wherever they happened to
+                fit, never lining up into rows or columns. Scoped to just
+                this one list (conditionGrid/conditionGridItem/conditionPill
+                below) rather than changing pillRow itself, which every
+                other picker on this screen still uses unchanged: those
+                lists are shorter and more even, and weren't part of this
+                report. Still the same pill look/colors
+                (styles.pill/pillActive/pillText/pillTextActive, reused
+                directly), just each one now sits in a fixed-width
+                half-card cell instead of sizing to its own text, so two
+                per row always line up with the row below regardless of
+                how long either name is. */}
             <View style={styles.conditionGrid}>
               {allConditions
                 .filter((condition) => condition.status !== 'planned')
@@ -2242,12 +2228,12 @@ export default function ProfileScreen() {
               </Text>
             ) : null}
 
-            {/* Food allergies -- 2026-08-09, explicitly requested: "Add to
+            {/* Food allergies, 2026-08-09, explicitly requested: "Add to
                 conditions area an ability to provide food allergies. They
-                might have multiple." A real, separate `user_food_allergies`
-                table (lib/db.ts) -- deliberately not folded into
+                might have multiple." A separate `user_food_allergies`
+                table (lib/db.ts), deliberately not folded into
                 user_conditions, since an allergy isn't a tracked disease. */}
-            <Text style={[styles.subLabel, { marginTop: 14 }]}>Food allergies</Text>
+            <Text style={styles.subLabelDivided}>Food allergies</Text>
             <Text style={styles.helpText}>
               Separate from the condition-based food scoring above: an allergy or intolerance, not a
               preference. Multiple are fully supported. Tap a common allergen below, or add your own.
@@ -2298,7 +2284,7 @@ export default function ProfileScreen() {
 
             {selectedConditions.includes('hashimotos') ? (
               <>
-                <Text style={[styles.subLabel, { marginTop: 14 }]}>Where you're at</Text>
+                <Text style={styles.subLabelDivided}>Where you're at</Text>
                 <Text style={styles.helpText}>
                   A short check-in covering hypothyroid symptoms, digestive/IBS symptoms, and overall wellbeing.
                   Early on, day-to-day change can feel invisible because everything is happening at once; this
@@ -2317,30 +2303,29 @@ export default function ProfileScreen() {
               </>
             ) : null}
 
-            {/* Condition stages -- 2026-08-09, generalized from the
+            {/* Condition stages, 2026-08-09, generalized from the
                 original Hashimoto's-only "Healing stage" section
                 (decided 2026-07-31) after direct instruction: "Healing
                 stages for all 18 others need to have theirs built in
-                too." A real, honest registry (lib/conditionStages.ts) --
-                only conditions with an actual, citable staged-food
-                framework get an entry here (Hashimoto's own five-stage
-                Wentz framework, IBS's own real low-FODMAP elimination/
-                reintroduction/personalization protocol as of this date) --
-                most of the other 16 don't have one yet and are correctly
-                absent, not force-fit. Each real advisory function (lib/
-                healingStageAdvisory.ts, lib/ibsPhaseAdvisory.ts) is
-                combined by the shared dispatcher (lib/
-                conditionStageAdvisory.ts), wired into every real
-                direct-ingredient Food builder. Advisory + reordering
-                only, never gating -- tap an already-selected stage again
-                to clear it back to "not declared." */}
+                too." An honest registry (lib/conditionStages.ts): only
+                conditions with an actual, citable staged-food framework
+                get an entry here (Hashimoto's five-stage Wentz framework,
+                IBS's low-FODMAP elimination/reintroduction/personalization
+                protocol as of this date). Most of the other 16 don't have
+                one yet and are correctly absent, not force-fit. Each
+                advisory function (lib/healingStageAdvisory.ts,
+                lib/ibsPhaseAdvisory.ts) is combined by the shared
+                dispatcher (lib/conditionStageAdvisory.ts), wired into
+                every direct-ingredient Food builder. Advisory and
+                reordering only, never gating: tap an already-selected
+                stage again to clear it back to "not declared." */}
             {CONDITION_STAGING_MODELS.filter((model) => selectedConditions.includes(model.conditionCode)).map(
               (model) => {
                 const currentStageCode = conditionStageMap[model.conditionCode] ?? null;
                 const currentStageDef = model.stages.find((stage) => stage.code === currentStageCode) ?? null;
                 return (
                   <View key={model.conditionCode}>
-                    <Text style={[styles.subLabel, { marginTop: 14 }]}>{model.conditionLabel} stage</Text>
+                    <Text style={styles.subLabelDivided}>{model.conditionLabel} stage</Text>
                     <Text style={styles.helpText}>
                       {model.frameworkName}. {model.frameworkNote} Purely advisory: your food builders will start
                       surfacing a tappable note on foods worth a second look for your current stage;
@@ -2371,19 +2356,18 @@ export default function ProfileScreen() {
               },
             )}
 
-            {/* Already-tested-foods review, 2026-08-14 -- direct request:
-                someone with real, established experience for a condition
+            {/* Already-tested-foods review, 2026-08-14, direct request:
+                someone with established experience for a condition
                 shouldn't have to re-run the full testing loop for
                 something they already know the answer to. Only shows for
-                a selected condition with a real, curated concern list (see
-                lib/conditionFoodConcerns.ts -- Hashimoto's only, as of
-                this date; every other condition is correctly absent until
-                its own list is researched, not force-fit). "Already
-                tolerate"/"Already avoid" write a real, already-resolved
+                a selected condition with a curated concern list (see
+                lib/conditionFoodConcerns.ts: Hashimoto's only, as of this
+                date; every other condition is correctly absent until its
+                own list is researched, not force-fit). "Already
+                tolerate"/"Already avoid" write an already-resolved
                 food_trials row with no reminder series attached; "put back
-                into testing" reopens it for real, with a fresh reminder
-                series -- the same real reopen mechanism Signals' own New
-                Foods lens uses. */}
+                into testing" reopens it, with a fresh reminder series, the
+                same reopen mechanism Signals' New Foods lens uses. */}
             {selectedConditions
               .map((code) => ({ code, concerns: getConditionFoodConcerns(code) }))
               .filter((entry): entry is { code: string; concerns: ConditionFoodConcern[] } => entry.concerns !== null)
@@ -2392,11 +2376,11 @@ export default function ProfileScreen() {
                 const trials = conditionFoodConcernTrials[code] ?? [];
                 return (
                   <View key={`concerns-${code}`}>
-                    <Text style={[styles.subLabel, { marginTop: 18 }]}>Already tested foods -- {conditionLabel}</Text>
+                    <Text style={styles.subLabelDivided}>Already tested foods: {conditionLabel}</Text>
                     <Text style={styles.helpText}>
-                      Real, known foods worth a second look for this condition. If you already know from real
+                      Known foods worth a second look for this condition. If you already know from
                       experience whether you tolerate one, mark it here instead of running the full testing loop
-                      again -- you can always put it back into testing later.
+                      again. You can always put it back into testing later.
                     </Text>
                     {concerns.map((concern) => {
                       const trial = trials.find((t) => t.foodName === concern.label);
@@ -2441,11 +2425,11 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* General Health Guidance -- 2026-08-14, the general-health gradient's
-          own per-topic mute list (lib/generalHealthRules.ts/
+      {/* General Health Guidance, 2026-08-14, the general-health gradient's
+          per-topic mute list (lib/generalHealthRules.ts/
           generalHealthPreferences.ts). Every topic starts shown (not
           muted); turning one off only hides it while actively building a
-          meal -- it never affects what Trends or a doctor-facing Report
+          meal. It never affects what Trends or a doctor-facing Report
           shows, since neither ever reads this preference, only the
           builders themselves do. */}
       <View style={styles.card}>
@@ -2455,8 +2439,8 @@ export default function ProfileScreen() {
             <Text style={styles.helpText}>
               These are condition-agnostic notes (glycemic impact, cooking method, portion size, and similar) that
               can show up while building a meal, regardless of which conditions you track. Turn any one off below if
-              it&apos;s not useful to you -- your Trends and any report you generate still show the full picture
-              either way, this only affects what appears while you&apos;re actively cooking.
+              it&apos;s not useful to you. Your Trends and any report you generate still show the full picture
+              either way; this only affects what appears while you&apos;re actively cooking.
             </Text>
             <View style={styles.pillRow}>
               {GENERAL_HEALTH_RULES.map((rule) => {
@@ -2476,18 +2460,18 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Appearance & Navigation -- 2026-08-09, regrouped from 3 separate
+      {/* Appearance & Navigation, 2026-08-09, regrouped from 3 separate
           cards (TabHub Icon, Shared background, Individual tab
           backgrounds) explicitly requested together.
           2026-08-17: the app used to carry a separate, always-animated
           "iridescent" hue-rotation system driving the header/footer lines
           and every selection ring, deliberately untouched by anything on
-          this card -- that whole system is now gone (real, confirmed
-          continuous battery drain; see ScreenBackground.tsx's own header
-          note). Those same accents are now driven directly by the Generic
-          color combination picker below, flat and static, so this card's
-          own settings do reach further than the background layer and the
-          navigation button's icon now -- box/plain-text colors elsewhere in
+          this card. That whole system is now gone (confirmed continuous
+          battery drain; see ScreenBackground.tsx's header note). Those
+          same accents are now driven directly by the Generic color
+          combination picker below, flat and static, so this card's own
+          settings do reach further than the background layer and the
+          navigation button's icon now; box/plain-text colors elsewhere in
           the app are still untouched. */}
       <View style={styles.card}>
         {renderCardHeader('appearance', 'Appearance & Navigation')}
@@ -2498,8 +2482,8 @@ export default function ProfileScreen() {
               <>
                 <Text style={styles.helpText}>
                   The main floating button used to open the app&apos;s navigation menu. Shows the seed by
-                  default. Pick any tracked condition&apos;s own icon, any insect/pollinator icon, any of the 38
-                  real animal portraits, or a Food tab builder icon below to personalize it instead -- only one
+                  default. Pick any tracked condition&apos;s icon, any insect/pollinator icon, any of the 38
+                  animal portraits, or a Food tab builder icon below to personalize it instead. Only one
                   can be active at a time.
                 </Text>
 
@@ -2587,7 +2571,7 @@ export default function ProfileScreen() {
               </>
             ) : null}
 
-            {/* Ground color, 2026-08-19 -- see constants/colors.ts's own
+            {/* Ground color, 2026-08-19, see constants/colors.ts's
                 GROUND_THEMES/initialGround comments for the full reasoning
                 and how each theme's family is derived. Direct request, the
                 same day Deep Navy was replaced with Deep Teal as the
@@ -2596,14 +2580,14 @@ export default function ProfileScreen() {
                 Profile area."
                 colors.background/surface/etc. only resolve to the right
                 theme once, synchronously, at the moment
-                constants/colors.ts's own module code first runs (see that
-                file's own comment on why) -- so picking a new one here has
-                to actually restart the JS runtime for it to reach every
+                constants/colors.ts's module code first runs (see that
+                file's comment on why), so picking a new one here has to
+                actually restart the JS runtime for it to reach every
                 screen, not just re-render this one. First shipped without
                 that restart automated, requiring a manual force-close and
-                reopen -- reported directly as not what was expected
-                ("they need to happen instantly"). handleSelectGroundTheme
-                below is the fix: reloadAsync() restarts the JS bundle
+                reopen, reported directly as not what was expected ("they
+                need to happen instantly"). handleSelectGroundTheme below
+                is the fix: reloadAsync() restarts the JS bundle
                 immediately after the pick is saved, so the same correct
                 synchronous resolution just runs again automatically,
                 without anyone needing to know a restart is involved at
@@ -2612,7 +2596,7 @@ export default function ProfileScreen() {
             {!collapsedAppearanceSubsections.has('groundColor') ? (
               <>
                 <Text style={styles.helpText}>
-                  The app&apos;s own dark base color: every card, border, and muted label everywhere reads from
+                  The app&apos;s dark base color: every card, border, and muted label everywhere reads from
                   this one choice. Picking a new one restarts the app for a moment to apply it everywhere.
                 </Text>
                 <View style={styles.groundThemeGrid}>
@@ -2646,12 +2630,12 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Step 4 of the real device-pairing prerequisite list, 2026-08-15 --
-          see CLAUDE.md's own "Sharing individual recipes between two
-          people" security-requirement note. Real management for this
-          device's own paired Connections lives on its own dedicated screen
+      {/* Step 4 of the device-pairing prerequisite list, 2026-08-15, see
+          CLAUDE.md's "Sharing individual recipes between two people"
+          security-requirement note. Management for this device's paired
+          Connections lives on its own dedicated screen
           (app/connections.tsx), not crammed into this already-large card
-          list -- this is just the entry point. */}
+          list; this is just the entry point. */}
       <View style={styles.card}>
         {renderCardHeader('connections', 'Connections')}
         {!collapsedSections.has('connections') ? (
@@ -2667,36 +2651,36 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Backup & Restore, 2026-08-16 -- see lib/dataBackup.ts's own header
-          comment for the full real design reasoning: schema-driven, so a
-          future new table is automatically included with zero code
-          changes; per-table structured so a future domain-split for real
-          multi-party cloud sync is an additive step, not a rewrite; this
-          device's own real signing key is correctly, automatically left
-          out, since it lives in expo-secure-store, not this database at
-          all. A real, honest boundary named directly in the card's own
-          text too: this backs up the DATA, not the actual photo files a
-          saved dish/recipe photo may reference. */}
+      {/* Backup & Restore, 2026-08-16, see lib/dataBackup.ts's header
+          comment for the full design reasoning: schema-driven, so a future
+          new table is automatically included with zero code changes;
+          per-table structured so a future domain-split for multi-party
+          cloud sync is an additive step, not a rewrite; this device's own
+          signing key is correctly, automatically left out, since it lives
+          in expo-secure-store, not this database at all. An honest
+          boundary named directly in the card's own text too: this backs up
+          the data, not the actual photo files a saved dish/recipe photo
+          may reference. */}
       <View style={styles.card}>
         {renderCardHeader('backup', 'Backup & Restore')}
         {!collapsedSections.has('backup') ? (
           <View style={styles.cardBody}>
             <Text style={styles.helpText}>
-              Export everything on this device -- meals, schedule, conditions, trials, connections, and more -- into
-              one real file you can save wherever you like (a cloud drive, an email to yourself). Doesn&apos;t
+              Export everything on this device (meals, schedule, conditions, trials, connections, and more) into
+              one file you can save wherever you like (a cloud drive, an email to yourself). Doesn&apos;t
               include the actual photo files a saved dish or recipe may reference, only their stored references.
             </Text>
             <TouchableOpacity style={styles.checkinButton} disabled={backupBusy} onPress={handleExportBackup}>
               <Text style={styles.checkinButtonText}>{backupBusy ? 'Working…' : 'Export a Backup'}</Text>
             </TouchableOpacity>
-            {/* A real, durable "document and display the file path" record,
-                per direct feedback -- always reflects what's genuinely
-                still sitting in this app's own cache directory right now,
-                not a one-time toast that vanishes once dismissed. This is
-                an APP-INTERNAL copy (what "Restore Most Recent" reads
-                from), not the copy saved through the share sheet a moment
-                ago -- that one lives wherever it was actually saved, which
-                this app has no way to know or show. */}
+            {/* A durable "document and display the file path" record, per
+                direct feedback: always reflects what's genuinely still
+                sitting in this app's cache directory right now, not a
+                one-time toast that vanishes once dismissed. This is an
+                app-internal copy (what "Restore Most Recent" reads from),
+                not the copy saved through the share sheet a moment ago;
+                that one lives wherever it was actually saved, which this
+                app has no way to know or show. */}
             {localBackups.length > 0 ? (
               <View style={styles.concernRow}>
                 <Text style={styles.subLabel}>Local backups on this device</Text>
@@ -2724,31 +2708,30 @@ export default function ProfileScreen() {
         ) : null}
       </View>
 
-      {/* Developer Tools -- 2026-08-14, gated on the real, standard React
-          Native __DEV__ global directly (not just ALL_CARD_SECTION_KEYS'
-          own inclusion of 'developer' above, which is harmless either way)
-          -- this whole card, including its header, renders nothing at all
-          in a real production build. Seeds/clears lib/devSeed.ts's own
+      {/* Developer Tools, 2026-08-14, gated on the standard React Native
+          __DEV__ global directly (not just ALL_CARD_SECTION_KEYS' inclusion
+          of 'developer' above, which is harmless either way): this whole
+          card, including its header, renders nothing at all in a
+          production build. Seeds/clears lib/devSeed.ts's
           seedTest90Days()/clearSeededTestData(), built purely so Past
-          Meals, Trends, and Signals have real, genuine content to test
-          against on a fresh dev build -- see that file's own header
-          comment for the full "why." Rebuilt 2026-08-15 from a real 9-day
-          seed into a real 90-day one (60 past, 30 future), cycling through
-          several real breakfast/lunch/dinner/snack combinations instead of
-          repeating one fixed set every day -- see devSeed.ts's own
-          *_TEMPLATES arrays for the real rotation. */}
+          Meals, Trends, and Signals have genuine content to test against
+          on a fresh dev build. See that file's header comment for the full
+          "why." Rebuilt 2026-08-15 from a 9-day seed into a 90-day one (60
+          past, 30 future), cycling through several breakfast/lunch/dinner/
+          snack combinations instead of repeating one fixed set every day.
+          See devSeed.ts's *_TEMPLATES arrays for the rotation. */}
       {__DEV__ ? (
         <View style={styles.card}>
           {renderCardHeader('developer', 'Developer Tools')}
           {!collapsedSections.has('developer') ? (
             <View style={styles.cardBody}>
               <Text style={styles.helpText}>
-                Only ever shown in a dev build, never a real release. Seeds a real, [TEST]-prefixed 90-day
+                Only ever shown in a dev build, never a release build. Seeds a [TEST]-prefixed 90-day
                 span (60 past days already logged, today&apos;s breakfast/lunch/snack, 30 upcoming days
-                still planned, cycling through several real breakfast/lunch/dinner/snack combinations
+                still planned, cycling through several breakfast/lunch/dinner/snack combinations
                 rather than repeating one fixed set, plus a handful of saved sides/salads/etc. and a few
                 food trials in different states) so Past Meals, Trends, and Signals all have something
-                genuine to look at. This can take a real while to finish given the real scale. Clear
+                to look at. This can take a while to finish given the scale. Clear
                 removes exactly what this tool itself created, nothing else.
               </Text>
               <TouchableOpacity
@@ -2758,7 +2741,7 @@ export default function ProfileScreen() {
                   setSeedingTestWeek(true);
                   try {
                     await seedTest90Days();
-                    showBackupAlert('Seeded', 'A real 90-day span of test data has been created.');
+                    showBackupAlert('Seeded', 'A 90-day span of test data has been created.');
                   } catch (error) {
                     showBackupAlert(
                       'Something went wrong',
@@ -2813,35 +2796,35 @@ const styles = StyleSheet.create({
     backgroundColor: colors.background,
     position: 'relative',
   },
-  // 2026-08-21 -- see this style's own usage for why it exists. Unlike
-  // `wrapper`'s own backgroundColor (which this screen's own layout can
-  // still leave gaps in, e.g. around the absolutely-positioned close
-  // button, once `transparentBackground` is applied for the Generic-
-  // palette case), this is a real, unconditional, always-opaque fill
-  // covering the screen's full bounds, painted before anything else.
+  // 2026-08-21, see this style's usage for why it exists. Unlike
+  // `wrapper`'s backgroundColor (which this screen's layout can still
+  // leave gaps in, e.g. around the absolutely-positioned close button,
+  // once `transparentBackground` is applied for the Generic-palette case),
+  // this is an unconditional, always-opaque fill covering the screen's
+  // full bounds, painted before anything else.
   opaqueBase: {
     ...StyleSheet.absoluteFillObject,
     backgroundColor: colors.background,
   },
-  // Applied alongside `wrapper`/`screen`/`loadingContainer`'s own flat
+  // Applied alongside `wrapper`/`screen`/`loadingContainer`'s flat
   // colors.background, only when the shared "Generic" background is
-  // selected -- lets GenericBackground (rendered as an absolute-fill
+  // selected. Lets GenericBackground (rendered as an absolute-fill
   // sibling, first in the tree so it paints behind everything else) show
   // through instead of being covered by this screen's own normally-opaque
-  // background. Same "make the real content layer transparent so a shared
+  // background. Same "make the content layer transparent so a shared
   // backdrop shows through" approach ScreenBackground.tsx/app/(tabs)/
   // _layout.tsx already use for every tab screen's own scene.
   transparentBackground: {
     backgroundColor: 'transparent',
   },
   // Same circular floating-button footprint/position/color as every other
-  // close ("X") button in the app -- HelpSheet's own close button
-  // (components/HelpButton.tsx) and TabHub's own button both use
+  // close ("X") button in the app: HelpSheet's close button
+  // (components/HelpButton.tsx) and TabHub's button both use
   // colors.primary, so every one of these floating circular controls reads
   // as the same family of control. Originally used colors.tabProfile
   // (Profile's own identity color, pink) to match the new Profile tile in
   // TabHub's picker, but that made this one close button visibly
-  // inconsistent with every other close button in the app -- reverted to
+  // inconsistent with every other close button in the app, reverted to
   // the shared primary color per explicit request. Profile has no TabHub
   // of its own, so nothing else occupies this spot here.
   closeButton: {
@@ -2874,24 +2857,24 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
-  // 2026-08-21 -- the sticky bar profileTitleRow now sits inside, replacing
-  // the native header removed the same day (see app/_layout.tsx's own
-  // profile Stack.Screen comment and this bar's own usage above for the
-  // full "why"). A plain opaque colors.background matches wrapper/screen's
-  // own color exactly, so the boundary where scrolled content disappears
-  // underneath reads as one continuous surface, not a visibly separate
-  // panel. horizontal/bottom padding matches `container`'s own padding: 20
-  // so "Profile" lines up exactly above whatever card content sits below
-  // it once scrolled to the top.
+  // 2026-08-21, the sticky bar profileTitleRow now sits inside, replacing
+  // the native header removed the same day (see app/_layout.tsx's profile
+  // Stack.Screen comment and this bar's usage above for the full "why").
+  // A plain opaque colors.background matches wrapper/screen's color
+  // exactly, so the boundary where scrolled content disappears underneath
+  // reads as one continuous surface, not a visibly separate panel.
+  // horizontal/bottom padding matches `container`'s padding: 20 so
+  // "Profile" lines up exactly above whatever card content sits below it
+  // once scrolled to the top.
   stickyTitleBar: {
     backgroundColor: colors.background,
     paddingHorizontal: 20,
     paddingBottom: 12,
   },
-  // 2026-08-16 -- HelpButton sits beside a real title now, the same
-  // "info icon next to the thing it explains" placement MealBuilder's own
-  // mealTitleRow uses, and for the identical reason: Profile has no
-  // ScreenHeader/TabHub reach of its own to surface this any other way.
+  // 2026-08-16, HelpButton sits beside a title now, the same "info icon
+  // next to the thing it explains" placement MealBuilder's mealTitleRow
+  // uses, and for the identical reason: Profile has no ScreenHeader/TabHub
+  // reach of its own to surface this any other way.
   profileTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   profileTitle: { ...typography.bodyEmphasis, fontSize: 20, color: colors.textPrimary },
   intro: {
@@ -2900,10 +2883,10 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     lineHeight: 20,
   },
-  // A brief, isolated confirmation flash -- unlike a dense table full of
+  // A brief, isolated confirmation flash: unlike a dense table full of
   // status rows, there's nothing else on screen competing for attention in
-  // this moment, so a real positive color still reads as a signal rather
-  // than noise.
+  // this moment, so a positive color still reads as a signal rather than
+  // noise.
   savedFlash: {
     ...typography.captionEmphasis,
     color: colors.primary,
@@ -2918,51 +2901,28 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
-    // borderTopWidth/borderTopColor, 2026-08-21, direct report: "when I am
-    // scrolling through the different [expandable sections]... it is sort
-    // of difficult to recognise where one ends and another begins." The
-    // surface-color/shadow contrast alone (this card sitting on the
-    // screen's own ground color) apparently wasn't enough to register at a
-    // glance while scrolling -- a real, visible line at each card's own
-    // top edge is the "physical line between them" asked for directly,
-    // same real mechanism (borderTopWidth/borderTopColor) the Appearance &
-    // Navigation card's own 5 sub-sections already used for the identical
-    // complaint on 2026-08-14 (see appearanceSubsectionHeader below), just
-    // applied one level up, to every top-level card rather than one card's
-    // own internal sub-sections.
-    borderTopWidth: 1,
-    borderTopColor: colors.border,
   },
   label: {
     ...typography.sectionTitle,
-    // fontSize 18, not sectionTitle's own 17 -- same 2026-08-21 report,
-    // "make the headers of each larger." Deliberately short of 20
-    // (typography.screenTitle, and profileTitle's own real size just above
-    // in this file) so a card header still reads as clearly one step below
-    // the actual "Profile" page title in the sticky bar, not competing
-    // with it -- a modest, real bump over the previous 17, not a jump to
-    // the biggest tier this type scale has.
-    fontSize: 18,
     // 2026-08-08, explicitly requested: these card headers ("Birth date,"
-    // "Height," etc.) had no color set at all before this -- defaulting to
-    // React Native's own plain black -- and needed to be "a lighter color
-    // of grey, maybe like the color of the icon." colors.menuLabelMuted is
+    // "Height," etc.) had no color set at all before this, defaulting to
+    // React Native's plain black, and needed to be "a lighter color of
+    // grey, maybe like the color of the icon." colors.menuLabelMuted is
     // exactly that: the same grey-blue family as colors.menuIconMuted (the
-    // Profile icon's own real, muted color -- see the picker fields'
-    // tabColor below), just deliberately lighter, since it was already
-    // split off from that darker token specifically to stay legible as
-    // real word-shaped text (see that token's own comment in
-    // constants/colors.ts).
+    // Profile icon's own muted color: see the picker fields' tabColor
+    // below), just deliberately lighter, since it was already split off
+    // from that darker token specifically to stay legible as word-shaped
+    // text (see that token's comment in constants/colors.ts).
     color: colors.menuLabelMuted,
     marginBottom: 4,
   },
-  // Collapsible-card header row (icon 2026-08-09) -- the same `label` Text
-  // above now sits alongside a chevron, both inside one real tap target
+  // Collapsible-card header row (icon 2026-08-09): the same `label` Text
+  // above now sits alongside a chevron, both inside one tap target
   // (renderCardHeader), rather than the plain standalone Text every card
-  // used to open with. `label`'s own marginBottom (4) still applies to the
-  // Text itself; cardBody's own marginTop below is what actually spaces
-  // the header row from the real content underneath it, only while a
-  // section is expanded (a collapsed card has no body to space against).
+  // used to open with. `label`'s marginBottom (4) still applies to the
+  // Text itself; cardBody's marginTop below is what actually spaces the
+  // header row from the content underneath it, only while a section is
+  // expanded (a collapsed card has no body to space against).
   cardHeaderRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -2972,13 +2932,13 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   // 2026-08-14, direct request: "there isn't much definition of space...
-  // to tell where one ends and the next begins" -- a real, visible divider
-  // line above each of the Appearance & Navigation card's own 5
-  // sub-sections (see renderAppearanceSubsectionHeader), on top of making
-  // each one independently collapsible. appearanceSubsectionHeaderFirst
-  // zeroes the border/spacing out for the very first sub-section (TabHub
-  // Icon), which already sits directly under the card's own real header
-  // with nothing above it to visually separate from.
+  // to tell where one ends and the next begins." A visible divider line
+  // above each of the Appearance & Navigation card's 5 sub-sections (see
+  // renderAppearanceSubsectionHeader), on top of making each one
+  // independently collapsible. appearanceSubsectionHeaderFirst zeroes the
+  // border/spacing out for the very first sub-section (TabHub Icon), which
+  // already sits directly under the card's header with nothing above it
+  // to visually separate from.
   appearanceSubsectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -3004,6 +2964,40 @@ const styles = StyleSheet.create({
     color: colors.textPrimary,
     marginTop: 10,
     marginBottom: 6,
+  },
+  // 2026-08-21, direct correction after a first, wrong-target attempt (a
+  // line between the top-level collapsible cards themselves, reverted; see
+  // `card`'s git history): "I'm not talking about putting a line on the
+  // collapsable expandable sections themselves... I'm talking about inside
+  // of all of those sections." The complaint is the several separate
+  // fields/groups within one open card (Personal Info's "Units," "Sex,"
+  // "Birth date," "Height"... one after another with nothing but a little
+  // vertical gap between them). Reuses the exact same mechanism (and the
+  // same marginTop/paddingTop/borderTopWidth numbers)
+  // appearanceSubsectionHeader above already established for this
+  // identical complaint on 2026-08-14, just applied to subLabel's other
+  // call sites throughout this screen: every subLabel that already carried
+  // its own `{ marginTop: 14 }`/`{ marginTop: 18 }` inline override (a
+  // signal, already in the code, that this one starts a new separate
+  // field/group rather than continuing the one above it) now uses this
+  // instead of that ad hoc override. A subLabel with no override at all
+  // (the first one in its own card, or a tightly-paired sub-part like
+  // "Eating window starts"/"Eating window ends" under one "Fasting" group)
+  // is deliberately left as plain subLabel, same reasoning
+  // appearanceSubsectionHeaderFirst already carries for its own first
+  // sub-section. fontSize 16 (up from subLabel's own 14), "make the
+  // headers of each larger," a visible step up now that this text is
+  // doing double duty as a section-within-a-section header, not just a
+  // field label.
+  subLabelDivided: {
+    ...typography.label,
+    color: colors.textPrimary,
+    fontSize: 16,
+    marginTop: 18,
+    marginBottom: 6,
+    paddingTop: 14,
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   mealTimeRow: {
     marginBottom: 10,
@@ -3047,15 +3041,15 @@ const styles = StyleSheet.create({
   pillTextActive: {
     color: colors.textOnPrimary,
   },
-  // The Conditions & Check-In condition picker's own even 2-column grid,
-  // 2026-08-21 -- see the JSX's own comment above for why this list needed
-  // a real grid instead of the plain pillRow every other picker on this
-  // screen keeps using. -4/4 (marginHorizontal on the row, paddingHorizontal
-  // on each cell) is the standard RN "gap via padding" trick: pillRow's own
+  // The Conditions & Check-In condition picker's even 2-column grid,
+  // 2026-08-21, see the JSX's comment above for why this list needed a
+  // grid instead of the plain pillRow every other picker on this screen
+  // keeps using. -4/4 (marginHorizontal on the row, paddingHorizontal on
+  // each cell) is the standard RN "gap via padding" trick: pillRow's own
   // `gap` isn't used here since two 50%-width cells plus a gap would push
-  // the row past 100% width -- the negative outer margin cancels the
-  // cells' own padding back out so the grid's left/right edges still line
-  // up with every other element on this card.
+  // the row past 100% width. The negative outer margin cancels the cells'
+  // own padding back out so the grid's left/right edges still line up with
+  // every other element on this card.
   conditionGrid: {
     flexDirection: 'row',
     flexWrap: 'wrap',
@@ -3066,8 +3060,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: 4,
     paddingVertical: 4,
   },
-  // Stretches the pill to fill its own grid cell (styles.pill's own width
-  // is normally content-sized) and centers its content within that fixed
+  // Stretches the pill to fill its own grid cell (styles.pill's width is
+  // normally content-sized) and centers its content within that fixed
   // width, so a short name ("Gout") and a long one ("Chronic Kidney
   // Disease") both read as the same-size button in the same grid position.
   conditionPill: {
@@ -3075,17 +3069,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  // textAlign: 'center', not just alignItems on the pill above -- alignItems
+  // textAlign: 'center', not just alignItems on the pill above: alignItems
   // only centers the text block as a whole; a name long enough to wrap to a
   // second line still needs this so each individual line centers too,
   // rather than the block centering while each line left-aligns within it.
   conditionPillText: {
     textAlign: 'center',
   },
-  // TabHub Icon picker -- a wrapping grid of tappable icon tiles, one per
-  // TabHubIconChoice, mirroring TabHub.tsx's/LensHub.tsx's own grid-item
+  // TabHub Icon picker: a wrapping grid of tappable icon tiles, one per
+  // TabHubIconChoice, mirroring TabHub.tsx's/LensHub.tsx's grid-item
   // shape (icon in a pill, caption below) rather than this screen's usual
-  // text-only pillRow, since choosing an ICON needs to actually show the
+  // text-only pillRow, since choosing an icon needs to actually show the
   // icon.
   iconGridRow: {
     flexDirection: 'row',
@@ -3097,9 +3091,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
   },
-  // The inactive/plain state -- same footprint as IridescentRingCircle's
-  // own `size` (ICON_GRID_PILL_SIZE), just centering the icon with no
-  // ring, matching the identical iconPillPlain/itemIconPillPlain pattern
+  // The inactive/plain state, same footprint as IridescentRingCircle's
+  // `size` (ICON_GRID_PILL_SIZE), just centering the icon with no ring,
+  // matching the identical iconPillPlain/itemIconPillPlain pattern
   // TabHub.tsx/LensHub.tsx already use for their own grid items.
   iconGridPillPlain: {
     width: ICON_GRID_PILL_SIZE,
@@ -3121,10 +3115,10 @@ const styles = StyleSheet.create({
     color: colors.primary,
     fontWeight: '600',
   },
-  // Ground color picker, 2026-08-19 -- same "show the actual thing being
+  // Ground color picker, 2026-08-19, same "show the actual thing being
   // chosen" reasoning as iconGridRow/iconGridItem just above, adapted for a
-  // color family rather than a single icon: a small cluster of that theme's
-  // own real swatches (see GROUND_THEME_SWATCH_KEYS' own comment) inside a
+  // color family rather than a single icon: a small cluster of that
+  // theme's own swatches (see GROUND_THEME_SWATCH_KEYS' comment) inside a
   // card, rather than a plain text pill.
   groundThemeGrid: {
     flexDirection: 'row',
@@ -3149,10 +3143,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     gap: 4,
   },
-  // A hairline border of its own on every swatch, not just the card's --
-  // without it, Charcoal's own 4 swatches (all close, muted grays by
-  // design) visually run together into one blob instead of reading as 4
-  // distinct steps.
+  // A hairline border of its own on every swatch, not just the card's:
+  // without it, Charcoal's 4 swatches (all close, muted grays by design)
+  // visually run together into one blob instead of reading as 4 distinct
+  // steps.
   groundThemeSwatch: {
     width: 18,
     height: 18,
@@ -3175,7 +3169,7 @@ const styles = StyleSheet.create({
     gap: 8,
     marginTop: 12,
   },
-  // 2026-08-21 -- the Growing Zone row's own link to Garden's My Zone lens,
+  // 2026-08-21, the Growing Zone row's link to Garden's My Zone lens,
   // direct correction after a first pass placed this as a full-width
   // checkinButton-style block beneath the row instead: "that is a sloppy
   // button. Move the button to the right of the spot to put it in
@@ -3190,8 +3184,8 @@ const styles = StyleSheet.create({
     color: colors.primary,
     textDecorationLine: 'underline',
   },
-  // Wraps a PickerField's own label + PopoverSelect -- same shape as Side
-  // Builder's own labeledPickerField/formLabel pair.
+  // Wraps a PickerField's label and PopoverSelect: same shape as Side
+  // Builder's labeledPickerField/formLabel pair.
   pickerFieldGroup: {
     alignItems: 'flex-start',
   },
@@ -3207,13 +3201,13 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
     paddingVertical: 10,
     backgroundColor: colors.surfaceMuted,
-    // 2026-08-08, explicitly requested: First/Last name's own typed text
-    // had no color set, defaulting to plain black -- unreadable against
-    // this dark input background once real text (not just the muted
-    // placeholder) was actually there. colors.textPrimary is this app's
-    // own standard light, readable body-text color, used everywhere else
-    // real content text appears. Only affects the two AppTextInputs left
-    // in this file (First/Last name -- every other field here is a
+    // 2026-08-08, explicitly requested: First/Last name's typed text
+    // had no color set, defaulting to plain black, unreadable against
+    // this dark input background once actual text (not just the muted
+    // placeholder) was there. colors.textPrimary is this app's standard
+    // light, readable body-text color, used everywhere else actual
+    // content text appears. Only affects the two AppTextInputs left in
+    // this file (First/Last name; every other field here is a
     // PopoverSelect now) since `input` is this file's own local style, not
     // a shared token other screens also depend on.
     color: colors.textPrimary,
@@ -3224,9 +3218,9 @@ const styles = StyleSheet.create({
   nameInput: {
     flex: 1,
   },
-  // 2026-08-16 -- First/Last name each get their own real mic button
-  // (see the render-time comment on that row for why one shared button
-  // between the two fields would be ambiguous).
+  // 2026-08-16, First/Last name each get their own mic button (see the
+  // render-time comment on that row for why one shared button between
+  // the two fields would be ambiguous).
   nameFieldWithMic: {
     flex: 1,
     flexDirection: 'row',
@@ -3244,10 +3238,10 @@ const styles = StyleSheet.create({
     ...typography.captionEmphasis,
     color: colors.danger,
   },
-  // A real, positive-action counterpart to clearButton above -- same
-  // compact footprint (fits inline next to a text input, unlike
-  // checkinButton's own full-width style), colors.primary instead of
-  // colors.danger since "Add a food allergy" isn't a destructive action.
+  // A positive-action counterpart to clearButton above: same compact
+  // footprint (fits inline next to a text input, unlike checkinButton's
+  // full-width style), colors.primary instead of colors.danger since "Add
+  // a food allergy" isn't a destructive action.
   addAllergyButton: {
     paddingHorizontal: 14,
     paddingVertical: 10,
@@ -3269,8 +3263,8 @@ const styles = StyleSheet.create({
     color: colors.textSecondary,
     marginTop: 8,
   },
-  // Already-tested-foods review, 2026-08-14 -- one row per real concern
-  // under a condition's own curated list (see lib/conditionFoodConcerns.ts).
+  // Already-tested-foods review, 2026-08-14, one row per concern under a
+  // condition's curated list (see lib/conditionFoodConcerns.ts).
   concernRow: {
     marginTop: 12,
     paddingTop: 10,
@@ -3297,12 +3291,12 @@ const styles = StyleSheet.create({
     ...typography.bodyEmphasis,
     color: colors.textOnPrimary,
   },
-  // A real, full-width counterpart to checkinButton above, deliberately
-  // colored for a genuinely destructive action (wipe-and-replace restore)
-  // rather than reusing checkinButton's own primary-action styling --
-  // visually distinct enough that Export and Restore can't be mistaken for
-  // each other at a glance, without going as quiet/compact as clearButton
-  // (which is sized to sit inline next to a text field, not stand alone).
+  // A full-width counterpart to checkinButton above, deliberately colored
+  // for a destructive action (wipe-and-replace restore) rather than
+  // reusing checkinButton's primary-action styling, visually distinct
+  // enough that Export and Restore can't be mistaken for each other at a
+  // glance, without going as quiet/compact as clearButton (which is sized
+  // to sit inline next to a text field, not stand alone).
   dangerButton: {
     borderWidth: 1,
     borderColor: colors.danger,
