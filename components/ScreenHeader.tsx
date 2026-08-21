@@ -4,6 +4,7 @@ import { StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
+import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { getUserProfile } from '../lib/db';
@@ -57,13 +58,14 @@ const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [
 const HIGHLIGHT_OFFSET = -1.5;
 
 // row's own paddingVertical (6+6) + the text SVG's own height + the
-// shadow strip below it -- every piece of this header's fixed vertical
-// footprint, added up once here instead of re-measured. The title text's
-// width auto-shrinks (see fontSize above) but its height never does, so
-// this is a true constant per device, not an estimate. The `+ 1` for the
-// divider line's own height is gone, 2026-08-21, now that the divider
-// itself is (see this file's own render-time comment for why).
-const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + 2 + 2;
+// rounded-edge shadow strip below it (EdgeShadow, see its own header
+// comment) -- every piece of this header's fixed vertical footprint, added
+// up once here instead of re-measured. The title text's width auto-shrinks
+// (see fontSize above) but its height never does, so this is a true
+// constant per device, not an estimate. 2026-08-21: the flat divider line
+// (1px) and its two shadow-fade bars (2px+2px, 5px total) are gone,
+// replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
+const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + EDGE_SHADOW_HEIGHT;
 
 // Every screen wraps its own <ScreenHeader/> in a `{ paddingTop: 12 }` box
 // (see e.g. app/(tabs)/insights.tsx's own `styles.header`) -- included here
@@ -254,15 +256,14 @@ export function ScreenHeader() {
           </Svg>
         </View>
       </View>
-      {/* The divider line that used to render here (matching
-          ScreenBackground.tsx's own footer divider, same accentColor) is
-          removed outright, 2026-08-21, direct instruction after that
-          footer counterpart kept showing through Profile despite four
-          separate fix attempts -- see ScreenBackground.tsx's own comment
-          for the full account. The two shadow-fade bars stay; they're a
-          soft shadow effect, not a line. */}
-      <View style={styles.shadowFade2} />
-      <View style={styles.shadowFade1} />
+      {/* The flat divider line + two shadow-fade bars that used to render
+          here are replaced outright, 2026-08-21, direct request: "the
+          bottom edge of the header... to look shaded for depth so it
+          looks like the edge sort of lifts and curls over toward the
+          main screen area, like the edge of a kitchen counter that is
+          rounded." See EdgeShadow.tsx's own header comment for the full
+          design. */}
+      <EdgeShadow direction="down" />
     </View>
     </View>
   );
@@ -291,15 +292,5 @@ const styles = StyleSheet.create({
   },
   nameStack: {
     alignItems: 'center',
-  },
-  // Two fading bars stand in for a soft drop shadow -- flat colors instead
-  // of a shadow/elevation prop, so it never wraps around the sides or top.
-  shadowFade1: {
-    height: 2,
-    backgroundColor: 'rgba(43, 43, 40, 0.06)',
-  },
-  shadowFade2: {
-    height: 2,
-    backgroundColor: 'rgba(43, 43, 40, 0.025)',
   },
 });

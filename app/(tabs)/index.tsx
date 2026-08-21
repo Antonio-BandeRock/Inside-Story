@@ -7,6 +7,7 @@ import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayArc } from '../../components/DayArc';
+import { EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
@@ -1373,12 +1374,13 @@ export default function HomeScreen() {
             needs its own copy of the same fix. Without this, scrolled
             content shows straight through to TabHub's own floating corner. */}
         <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
-        {/* Home's own copy of the footer accent line lived here, matching
-            ScreenBackground.tsx's own -- removed outright, 2026-08-21,
-            alongside that file's own copy, direct instruction after it
-            kept showing through Profile despite four separate fix
-            attempts across two sessions. See ScreenBackground.tsx's own
-            comment for the full account. */}
+        {/* Home's own copy of ScreenBackground.tsx's own EdgeShadow -- same
+            reason Home needs its own copy of bottomMask above: it shows
+            content immediately with no risen ScreenBackground instance to
+            carry one for free. See EdgeShadow.tsx's own header comment for
+            the design and ScreenBackground.tsx's own comment for why this
+            replaced Home's former flat footer-line copy. */}
+        <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset }} />
         </View>
       </SwipeableTabScreen>
 

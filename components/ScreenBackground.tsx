@@ -6,6 +6,7 @@ import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { SHARED_BACKGROUND_SCOPE_KEY } from '../lib/visualPreferences';
+import { EdgeShadow } from './EdgeShadow';
 import { GenericBackground } from './GenericBackground';
 
 // 2026-07-26: this used to be its own local formula (image bottom edge =
@@ -119,17 +120,16 @@ export function ScreenBackground({
       {effectiveStyle === 'generic' ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
-      {/* footerLine (the footer's own fine accent-colored divider) removed
-          outright, 2026-08-21, direct instruction: after four separate
-          attempts across two sessions (repositioning it, an explicit
-          contentStyle on the root Stack, an unconditional opaque layer
-          painted first in Profile's own render tree, and unmounting this
-          whole component via useIsFocused whenever the tab group isn't
-          focused) all failed to stop it showing through Profile, a
-          Stack-pushed screen it should never have been visible on in the
-          first place. Removing it outright is the one fix guaranteed to
-          work regardless of whatever native-level mechanism was letting
-          it leak through -- there's nothing left to leak. */}
+      {/* footerLine (the footer's own former flat 1px divider) was removed
+          outright, 2026-08-21 -- the real leak turned out to be a
+          completely different, unrelated component (see AppKeyboard.tsx's
+          own comment for that full account), not this one. Replaced the
+          same day, direct request, with EdgeShadow instead of the plain
+          line: "the top edge of the footer to look shaded for depth...
+          like the edge of a kitchen counter that is rounded." Positioned
+          with its own bottom at bottomInset, same real edge the old line
+          sat on, extending upward into the content above it. */}
+      <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset }} />
     </View>
   );
 }
