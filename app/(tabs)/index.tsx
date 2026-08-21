@@ -59,6 +59,8 @@ import {
 } from '../../lib/nutrientAnalysis';
 import { formatTime12 } from '../../lib/timeOfDay';
 import { getSixDimensionsFlagTrendSeries } from '../../lib/trendAnalysis';
+import { ALL_HOME_SECTION_KEYS, isHomeSectionVisible } from '../../lib/visualPreferences';
+import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 
 // 'YYYY-MM-DD' in LOCAL time -- same helper (and same reasoning) duplicated
 // in food.tsx/insights.tsx/schedule.tsx/log.tsx: UTC's calendar date is
@@ -575,6 +577,12 @@ export default function HomeScreen() {
   // TouchableOpacity rather than a LensHub instance (see that button's own
   // render/comment below).
   const purpleDigestShortcutPosition = useBottomLeftHubPosition();
+  // Which of this screen's own content sections the person has chosen to
+  // keep visible -- see HomeSectionKey's own comment in
+  // lib/visualPreferences.ts for the full "let them dial in what they
+  // want" reasoning. Read the same live way every other visual preference
+  // already is, so a toggle flipped on Profile reaches Home immediately.
+  const visualPrefs = useVisualPreferences();
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -1011,11 +1019,13 @@ export default function HomeScreen() {
             <Text style={styles.affirmationText}>{pickAffirmation()}</Text>
             <Text style={styles.dateText}>{todayLabel}</Text>
 
-            <View style={styles.skyGrid}>
-              {skyGridItems.map((item, index) => (
-                <SkyGridItem key={index} {...item} />
-              ))}
-            </View>
+            {isHomeSectionVisible(visualPrefs, 'weather') ? (
+              <View style={styles.skyGrid}>
+                {skyGridItems.map((item, index) => (
+                  <SkyGridItem key={index} {...item} />
+                ))}
+              </View>
+            ) : null}
           </View>
 
           {loading ? (
@@ -1034,7 +1044,7 @@ export default function HomeScreen() {
                   the quick-actions row's own "Symptom check-in" pill
                   further down (which stays available regardless, for
                   taking it early/again any time). */}
-              {assessmentDue ? (
+              {assessmentDue && isHomeSectionVisible(visualPrefs, 'symptomCheckinReminder') ? (
                 <TouchableOpacity style={styles.assessmentDueBanner} onPress={() => router.push('/assessment')} activeOpacity={0.85}>
                   <Ionicons name="pulse-outline" size={20} color={colors.primary} />
                   <View style={styles.assessmentDueTextCol}>
@@ -1061,6 +1071,7 @@ export default function HomeScreen() {
                   (openFeelingPicker/toggleFeelingTag/saveFeelingCheckin)
                   for the full reasoning, including how valence is derived
                   rather than asked as its own separate question. */}
+              {isHomeSectionVisible(visualPrefs, 'todaysCheckin') ? (
               <View style={[styles.feelingCard, { borderColor: tabColorFor('/log') }]}>
                 <CardLabel tabPath="/log" text="Today's Check-In" />
                 {feelingPickerOpen ? (
@@ -1126,7 +1137,9 @@ export default function HomeScreen() {
                   </TouchableOpacity>
                 )}
               </View>
+              ) : null}
 
+              {isHomeSectionVisible(visualPrefs, 'yourDay') ? (
               <View style={[styles.arcCard, { borderColor: tabColorFor('/schedule') }]}>
                 <CardLabel tabPath="/schedule" text="Your Day" />
                 <DayArc items={data?.scheduledToday ?? []} onPressItem={setSelectedItem} labelColor={tabColorFor('/schedule')} />
@@ -1138,7 +1151,9 @@ export default function HomeScreen() {
                     : 'Nothing scheduled yet today.'}
                 </Text>
               </View>
+              ) : null}
 
+              {isHomeSectionVisible(visualPrefs, 'statTiles') ? (
               <View style={styles.statRow}>
                 <TouchableOpacity
                   style={[styles.statTile, { borderColor: tabColorFor('/food') }]}
@@ -1165,7 +1180,9 @@ export default function HomeScreen() {
                   </Text>
                 </TouchableOpacity>
               </View>
+              ) : null}
 
+              {isHomeSectionVisible(visualPrefs, 'quickActions') ? (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
@@ -1256,6 +1273,7 @@ export default function HomeScreen() {
                   <Text style={[styles.quickActionSecondaryText, { color: tabColorFor('/log') }]}>Log exercise</Text>
                 </TouchableOpacity>
               </ScrollView>
+              ) : null}
 
               {/* "How You're Feeling" (Signals, a warm peach) now comes
                   before "Today's Fuel Gauges" (Insights, a cool teal-green)
@@ -1271,6 +1289,7 @@ export default function HomeScreen() {
                   that up; see TAB_BORDER_WIDTH's own comment for the other
                   half of this fix (a thicker border makes each individual
                   color easier to read regardless of ordering). */}
+              {isHomeSectionVisible(visualPrefs, 'howYoureFeeling') ? (
               <View style={[styles.orbCard, { borderColor: tabColorFor('/log') }]}>
                 <CardLabel tabPath="/log" text="How You're Feeling" />
                 <EnergyOrb
@@ -1280,8 +1299,10 @@ export default function HomeScreen() {
                   textColor={tabColorFor('/log')}
                 />
               </View>
+              ) : null}
 
-              {mealsLoggedToday === 0 ? (
+              {isHomeSectionVisible(visualPrefs, 'fuelGauges') ? (
+              mealsLoggedToday === 0 ? (
                 <View style={[styles.emptyCard, { borderColor: tabColorFor('/insights') }]}>
                   <CardLabel tabPath="/insights" text="Today's Fuel Gauges" />
                   <Text style={[styles.emptyText, { color: tabColorFor('/insights') }]}>Log a meal to see today's fuel gauges fill in.</Text>
@@ -1302,9 +1323,10 @@ export default function HomeScreen() {
                     ))}
                   </ScrollView>
                 </View>
-              )}
+              )
+              ) : null}
 
-              {weekTrend ? (
+              {weekTrend && isHomeSectionVisible(visualPrefs, 'weekTrend') ? (
                 <TouchableOpacity
                   style={[styles.trendCard, { borderColor: tabColorFor('/trends') }]}
                   onPress={() => router.navigate('/trends')}
@@ -1336,6 +1358,7 @@ export default function HomeScreen() {
               change this is part of: a real rotating pool instead of 4
               fixed cards, reshuffled daily, with more revealed on tap
               rather than shown all at once. */}
+          {isHomeSectionVisible(visualPrefs, 'digestCards') ? (
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
@@ -1362,6 +1385,25 @@ export default function HomeScreen() {
               </TouchableOpacity>
             ) : null}
           </ScrollView>
+          ) : null}
+
+          {/* 2026-08-21, direct request alongside the section toggles
+              above: "they may end up wanting everything, or even
+              nothing." A person who has genuinely turned every real
+              content section off (not just the current loading/empty
+              states any individual section already handles on its own)
+              gets a plain, honest explanation here instead of a mostly-
+              blank screen that reads as broken. Only checks the 10 real
+              toggleable keys -- the greeting/date text above always
+              stays, so this never fires on a technically-empty-but-not-
+              really-empty page. */}
+          {!loading && ALL_HOME_SECTION_KEYS.every((key) => !isHomeSectionVisible(visualPrefs, key)) ? (
+            <View style={styles.allSectionsHiddenCard}>
+              <Text style={styles.allSectionsHiddenText}>
+                Every section here is turned off. Head to Profile → Home Screen to turn any of them back on.
+              </Text>
+            </View>
+          ) : null}
 
         </ScrollView>
 
@@ -1615,6 +1657,19 @@ const styles = StyleSheet.create({
     borderColor: colors.border,
   },
   loadingText: { ...typography.body, ...textShadow, color: colors.textSecondary },
+
+  // Same card treatment as loadingCard above (plain surface/border, no
+  // per-tab color -- this isn't about any one tab), shown only once every
+  // real Home section has been individually turned off from Profile.
+  allSectionsHiddenCard: {
+    backgroundColor: colors.surface,
+    borderRadius: 16,
+    padding: 16,
+    borderWidth: 1,
+    borderColor: colors.border,
+    marginTop: 12,
+  },
+  allSectionsHiddenText: { ...typography.body, ...textShadow, color: colors.textSecondary },
 
   greetingCard: {
     backgroundColor: colors.surface,

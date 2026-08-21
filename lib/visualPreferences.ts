@@ -208,6 +208,56 @@ export const GENERIC_PALETTE_LABELS: Record<GenericPalette, string> = {
   plum: 'Plum shade',
 };
 
+// 2026-08-21, direct request: "make [Home] capable of turning on and off
+// whatever the user wants to from the home screen so they are able to
+// dial in on what they want to have available, and not whatever we
+// decide to make them have all the time." Every real, nameable content
+// block on Home that isn't just page chrome (the plain greeting/date text
+// stays fixed; there has to be some minimal identity left even with
+// everything else off) gets its own key here. Order matches the order
+// each section actually renders in on Home.
+export type HomeSectionKey =
+  | 'weather'
+  | 'symptomCheckinReminder'
+  | 'todaysCheckin'
+  | 'yourDay'
+  | 'statTiles'
+  | 'quickActions'
+  | 'howYoureFeeling'
+  | 'fuelGauges'
+  | 'weekTrend'
+  | 'digestCards';
+
+export const ALL_HOME_SECTION_KEYS: HomeSectionKey[] = [
+  'weather',
+  'symptomCheckinReminder',
+  'todaysCheckin',
+  'yourDay',
+  'statTiles',
+  'quickActions',
+  'howYoureFeeling',
+  'fuelGauges',
+  'weekTrend',
+  'digestCards',
+];
+
+// The label Profile's own toggle grid shows for each section -- kept here,
+// next to the key list itself, so a future section added to Home only
+// ever needs one new entry in both places, not a separate lookup built at
+// the call site.
+export const HOME_SECTION_LABELS: Record<HomeSectionKey, string> = {
+  weather: 'Weather & Sunrise/Sunset',
+  symptomCheckinReminder: 'Symptom Check-In Reminder',
+  todaysCheckin: "Today's Check-In",
+  yourDay: 'Your Day (Schedule)',
+  statTiles: 'Meals & Worth-a-Look Tiles',
+  quickActions: 'Quick Action Shortcuts',
+  howYoureFeeling: "How You're Feeling",
+  fuelGauges: "Today's Fuel Gauges",
+  weekTrend: "This Week's Trend",
+  digestCards: 'Digest Cards',
+};
+
 export type VisualPreferences = {
   // The shared flowery background behind every tab at rest, and behind Home
   // at all times (app/(tabs)/_layout.tsx's own single, permanently-mounted
@@ -260,7 +310,24 @@ export type VisualPreferences = {
   // why this is the one visual preference that does NOT take effect live --
   // it's read once, at startup, before any screen mounts.
   groundTheme: GroundTheme;
+  // See HomeSectionKey's own comment above. Absence of a key here means
+  // "visible" (true), the same "missing means default, not off" contract
+  // tabBackgroundStyle above already uses -- a future section added to
+  // Home shows up for every existing user automatically, with no
+  // migration step, rather than silently disappearing for everyone until
+  // they individually re-enable it. Use isHomeSectionVisible() below
+  // rather than reading this object directly, so that contract lives in
+  // one place.
+  homeSectionVisibility: Partial<Record<HomeSectionKey, boolean>>;
 };
+
+// Absence of `key` in `prefs.homeSectionVisibility` means visible -- see
+// that field's own comment for why. Every Home render check and Profile's
+// own toggle grid both read through this one function rather than
+// inlining `!== false` at each call site.
+export function isHomeSectionVisible(prefs: VisualPreferences, key: HomeSectionKey): boolean {
+  return prefs.homeSectionVisibility[key] !== false;
+}
 
 // homeBackgroundStyle/genericPalette changed 2026-08-19, direct request:
 // "make ocean deep the default shared background for as the app would
@@ -278,6 +345,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   genericPalette: 'ocean',
   tabHubIcon: 'seedTall',
   groundTheme: 'teal',
+  homeSectionVisibility: {},
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';
@@ -385,6 +453,7 @@ export async function getVisualPreferences(): Promise<VisualPreferences> {
           ...parsed,
           tabBackgroundStyle: { ...(parsed.tabBackgroundStyle ?? {}) },
           customBackgroundImages: { ...(parsed.customBackgroundImages ?? {}) },
+          homeSectionVisibility: { ...(parsed.homeSectionVisibility ?? {}) },
         };
       } catch {
         // A corrupted/unparseable blob falls back to defaults rather than
@@ -417,6 +486,11 @@ export async function setVisualPreferences(update: Partial<VisualPreferences>): 
     customBackgroundImages: update.customBackgroundImages
       ? { ...current.customBackgroundImages, ...update.customBackgroundImages }
       : current.customBackgroundImages,
+    // Same reasoning -- toggling one Home section shouldn't erase every
+    // other section's own already-chosen on/off state.
+    homeSectionVisibility: update.homeSectionVisibility
+      ? { ...current.homeSectionVisibility, ...update.homeSectionVisibility }
+      : current.homeSectionVisibility,
   };
 
   cached = merged;

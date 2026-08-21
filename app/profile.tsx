@@ -84,7 +84,10 @@ import {
 } from '../lib/measurement';
 import { buildTime24, formatTime12, splitTime24, type TimeOfDayInput } from '../lib/timeOfDay';
 import {
+  ALL_HOME_SECTION_KEYS,
   GENERIC_PALETTE_LABELS,
+  HOME_SECTION_LABELS,
+  isHomeSectionVisible,
   setVisualPreferences,
   SHARED_BACKGROUND_SCOPE_KEY,
   type BackgroundStyle,
@@ -193,6 +196,7 @@ const ALL_CARD_SECTION_KEYS = [
   'personal-info',
   'conditions',
   'general-health',
+  'home-screen',
   'appearance',
   'meal-schedule',
   'connections',
@@ -537,6 +541,16 @@ export default function ProfileScreen() {
   const generalHealthPrefs = useGeneralHealthPreferences();
   function toggleGeneralHealthTopic(topicId: string) {
     setTopicMuted(topicId, !generalHealthPrefs.mutedTopics[topicId]);
+  }
+
+  // Home Screen section toggles, 2026-08-21, direct request: "make it
+  // capable of turning on and off whatever the user wants to from the
+  // home screen." Same one-key-at-a-time pattern as
+  // toggleGeneralHealthTopic above, through setVisualPreferences's own
+  // per-key merge for homeSectionVisibility (see that function's comment
+  // in lib/visualPreferences.ts) rather than replacing the whole map.
+  function toggleHomeSection(key: (typeof ALL_HOME_SECTION_KEYS)[number]) {
+    setVisualPreferences({ homeSectionVisibility: { [key]: !isHomeSectionVisible(visualPrefs, key) } });
   }
 
   // Local text-field buffers, kept separate from `profile` so the person
@@ -2452,6 +2466,46 @@ export default function ProfileScreen() {
                     onPress={() => toggleGeneralHealthTopic(rule.topicId)}
                   >
                     <Text style={[styles.pillText, shown && styles.pillTextActive]}>{rule.title}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Home Screen, 2026-08-21, direct request: "make it capable of
+          turning on and off whatever the user wants to from the home
+          screen so they are able to dial in on what they want to have
+          available, and not whatever we decide to make them have all the
+          time... they may end up wanting everything, or even nothing."
+          Same per-topic toggle pattern as General Health Guidance right
+          above, applied to Home's own real content sections instead of
+          builder notes (see HomeSectionKey/HOME_SECTION_LABELS in
+          lib/visualPreferences.ts for the full list and why absence of a
+          key there means visible, not hidden -- the part of this design
+          that lets a section added to Home later show up for everyone
+          automatically). Home itself shows an honest message instead of a
+          blank page if every one of these ends up off. */}
+      <View style={styles.card}>
+        {renderCardHeader('home-screen', 'Home Screen')}
+        {!collapsedSections.has('home-screen') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              Choose which of these show up on your Home tab. Turn off anything you don&apos;t use, this only
+              changes what Home displays; nothing here is deleted, and any section can be turned back on any
+              time.
+            </Text>
+            <View style={styles.pillRow}>
+              {ALL_HOME_SECTION_KEYS.map((key) => {
+                const shown = isHomeSectionVisible(visualPrefs, key);
+                return (
+                  <TouchableOpacity
+                    key={key}
+                    style={[styles.pill, shown && styles.pillActive]}
+                    onPress={() => toggleHomeSection(key)}
+                  >
+                    <Text style={[styles.pillText, shown && styles.pillTextActive]}>{HOME_SECTION_LABELS[key]}</Text>
                   </TouchableOpacity>
                 );
               })}
