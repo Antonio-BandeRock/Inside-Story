@@ -1632,6 +1632,7 @@ export default function ProfileScreen() {
   if (loading) {
     return (
       <View style={[styles.loadingContainer, showGenericBackground && styles.transparentBackground]}>
+        <View style={styles.opaqueBase} pointerEvents="none" />
         {showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
         <ActivityIndicator />
         {closeButton}
@@ -1643,6 +1644,19 @@ export default function ProfileScreen() {
 
   return (
     <View style={[styles.wrapper, showGenericBackground && styles.transparentBackground]}>
+    {/* 2026-08-21, direct report (twice) that the shared background behind
+        Profile, including its footer divider line, was visibly showing
+        through here. `contentStyle` on the root Stack was tried first (see
+        app/_layout.tsx) and reported as not fixing it. This is the second,
+        more direct attempt: an unconditional, always-opaque colors.background
+        layer, painted first, before GenericBackground and before anything
+        else in this screen's own tree -- not gated by showGenericBackground
+        the way wrapper/screen's own backgrounds are, so there's no code
+        path in THIS component where nothing opaque has painted yet. If
+        this still doesn't fix it, the leak isn't coming from anywhere in
+        Profile's own render tree at all, and points at something at the
+        native navigation-container level this app's own code can't reach. */}
+    <View style={styles.opaqueBase} pointerEvents="none" />
     {showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
     <ScrollView
       style={[styles.screen, showGenericBackground && styles.transparentBackground]}
@@ -2768,6 +2782,16 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: colors.background,
     position: 'relative',
+  },
+  // 2026-08-21 -- see this style's own usage for why it exists. Unlike
+  // `wrapper`'s own backgroundColor (which this screen's own layout can
+  // still leave gaps in, e.g. around the absolutely-positioned close
+  // button, once `transparentBackground` is applied for the Generic-
+  // palette case), this is a real, unconditional, always-opaque fill
+  // covering the screen's full bounds, painted before anything else.
+  opaqueBase: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: colors.background,
   },
   // Applied alongside `wrapper`/`screen`/`loadingContainer`'s own flat
   // colors.background, only when the shared "Generic" background is

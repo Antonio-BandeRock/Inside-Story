@@ -1392,11 +1392,20 @@ export default function HomeScreen() {
             instance carries its bottomMask and footerLine together as one
             unit, so this never showed up there. Same fix: draw Home's own
             copy of that line on top of its own mask, matching
-            ScreenBackground.tsx's own footerLine exactly (down to the -4-1
-            offset math -- see that file's own comment for where those
-            numbers come from). */}
+            ScreenBackground.tsx's own footerLine exactly.
+            2026-08-21: this copy was missed when that file's own footerLine
+            moved from `bottomInset - 4 - 1` to plain `bottomInset` -- since
+            that shifted the shared instance's own line just outside
+            Home's bottomMask (no longer covered/hidden by it the way it
+            used to be), Home ended up showing BOTH lines at once, a few
+            pixels apart: the shared instance's own (now correctly
+            positioned) line, and this file's own stale copy underneath
+            it. Direct report matches exactly: "one line slightly below
+            the edge of the footer and another line sort of on the edge."
+            Updated to `bottomInset` too so both copies land on the exact
+            same pixel and read as one line again. */}
         <View
-          style={[styles.footerLine, { backgroundColor: footerAccentColor, bottom: bottomInset - 4 - 1 }]}
+          style={[styles.footerLine, { backgroundColor: footerAccentColor, bottom: bottomInset }]}
           pointerEvents="none"
         />
         </View>
@@ -1605,7 +1614,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: 1,
-    // `bottom` set inline (bottomInset - 4 - 1) -- see where this renders.
+    // `bottom` set inline (bottomInset) -- see where this renders.
   },
   // paddingTop: a little separation between the header and the greeting
   // card below it, present from the start (not just something scrolling
