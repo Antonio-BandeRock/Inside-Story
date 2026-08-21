@@ -170,8 +170,24 @@ export function AppKeyboard() {
   // ever disappear upward into nothing within a window that never leaves
   // its resting spot above the footer -- no geometry left to race the
   // paint order over.
+  // 2026-08-21, direct report (traced through a long investigation that
+  // ruled out every other real candidate first): `container`'s own
+  // borderTopWidth was persistently visible as a faint line at the top
+  // of clipWrap's own window, on every screen, even fully closed
+  // (progress === 0, translateY at its own full resting KEYBOARD_HEIGHT
+  // offset -- container should be entirely below clipWrap's own visible
+  // bounds at that point, per the comment above). The translateY math and
+  // activeField/progress state both check out correctly on paper; this
+  // reads as overflow: 'hidden' not reliably clipping a Reanimated-
+  // transformed child at the Android compositor level, a real, known
+  // category of platform quirk, not a logic error in this file. Fixed by
+  // also animating opacity to 0 alongside translateY -- a genuinely
+  // independent mechanism from the transform-based clip, so the border
+  // (and everything else in `container`) is truly invisible once closed
+  // regardless of whether the clip itself is being honored.
   const risenStyle = useAnimatedStyle(() => ({
     transform: [{ translateY: (1 - progress.value) * KEYBOARD_HEIGHT }],
+    opacity: progress.value,
   }));
 
   // Reads activeField.getValue()/getSelection() at press-time, 2026-08-02 --
