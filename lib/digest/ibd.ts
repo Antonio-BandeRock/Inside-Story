@@ -558,4 +558,24 @@ export const IBD_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-beet-kvass', 'fermentmethod-lacto-fermented-vegetables'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary review, independently verified via
+  // WebSearch. A distinct fat-tissue finding from every other
+  // condition touched by this same fact-check: not a circulating hormone
+  // level, a physically distinct tissue change unique to this disease.
+  {
+    id: 'ibd-creeping-fat-crohns',
+    category: 'ibd',
+    title: '"Creeping Fat": A Fat-Tissue Change Specific to Crohn\'s Disease, Wrapping Around the Inflamed Bowel',
+    teaser: 'Crohn\'s disease has a distinctive fat-tissue finding of its own: mesenteric fat physically expands and wraps around inflamed sections of intestine, tracking with inflammation, fibrosis, and stricture formation.',
+    summary: 'Every other condition covered in this fat-biology research involves a circulating hormone level running higher or lower than expected. Crohn\'s disease (one of the two diseases under the IBD umbrella covered in this category) has a different, more physical fat-tissue finding of its own, called "creeping fat": mesenteric fat, the fatty tissue that supports the intestine, expands and wraps around the inflamed segments of bowel, a finding specific enough to Crohn\'s that it helps distinguish it from ulcerative colitis on imaging and in surgery. Creeping fat correlates with transmural inflammation, fibrosis, and stricture formation, the complications this category\'s own research already covers as distinctly Crohn\'s-specific risks. Researchers are still working out whether creeping fat is mainly a harmful driver of inflammation or partly a protective, walling-off response by the body, described directly as an open question rather than settled either way, and recent research has identified specific immune cell types involved in how it forms.',
+    citations: [
+      { source: 'Bilski J et al. 2019, Biomolecules: Role of Obesity, Mesenteric Adipose Tissue, and Adipokines in Inflammatory Bowel Diseases (PMID 31779136)', url: 'https://pubmed.ncbi.nlm.nih.gov/31779136/' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The existence and correlation of creeping fat with disease severity is well documented; whether it is primarily harmful or partly protective is an open research question, not yet settled.',
+    relatedIds: ['adiponectin-overview'],
+  },
 ];

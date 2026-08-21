@@ -681,4 +681,24 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-beet-kvass', 'recipe-ferment-coconut-kefir', 'fermentmethod-wild-tonics'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary study, independently verified via
+  // WebSearch. Deliberately paired with Hashimoto's own leptin entry
+  // (mitochondriaMetabolism.ts): same study, same hormone, opposite
+  // direction, since Graves' and Hashimoto's are opposite-direction
+  // autoimmune thyroid diseases.
+  {
+    id: 'graves-leptin-lower-than-controls',
+    category: 'graves',
+    title: "Leptin Runs Lower in Graves' Disease, and Rises Once Treated, the Opposite of Hashimoto's",
+    teaser: 'A direct comparison found leptin significantly lower in untreated Graves\' than in healthy controls, rising after treatment, a mirror image of what the same study found in Hashimoto\'s.',
+    summary: "A direct comparison of leptin levels across Graves' disease, Hashimoto's thyroiditis, and healthy controls found a striking, opposite-direction pattern between the two autoimmune thyroid diseases. In untreated Graves' (hyperthyroid), leptin ran significantly lower than in healthy controls, and rose after treatment restored normal thyroid function. This fits the broader physiology already established: hyperthyroidism raises metabolic rate and tends to reduce fat mass, and leptin, produced by fat tissue, tracks with fat mass. Worth reading alongside Hashimoto's matching leptin finding (in the mitochondria & metabolism research), the same study measured both conditions and found leptin moving in the opposite direction there, elevated rather than reduced, a direct contrast between two diseases that attack the same organ from opposite metabolic directions.",
+    citations: [
+      { source: 'Alterations of Serum Leptin Levels in Patients with Autoimmune Thyroid Disorders (PMID 35505829)', url: 'https://pubmed.ncbi.nlm.nih.gov/35505829/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['leptin-discovery-ob-mice', 'mito-visceral-fat-treg-depletion'],
+  },
 ];

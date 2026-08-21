@@ -655,4 +655,22 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-tonic-tart-cherry-ginger-turmeric', 'recipe-ferment-turmeric-drink', 'interaction-curcumin-piperine'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary meta-analysis, independently verified via
+  // WebSearch.
+  {
+    id: 'ra-leptin-disease-activity-correlation',
+    category: 'rheumatoidArthritis',
+    title: 'Leptin Correlates With RA Disease Activity, a Modest but Consistently Replicated Signal',
+    teaser: 'A meta-analysis pooling multiple studies found a modest but statistically significant positive correlation between circulating leptin and RA disease-activity scores.',
+    summary: "The Basic Health hormones research covers leptin's documented role in promoting the Th17 immune response and suppressing regulatory T cells, the same immune pathway that keeps the body from attacking its own tissue. Rheumatoid arthritis is one of the three conditions that same research names as most directly studied for this connection, and a meta-analysis pooling multiple individual studies found a statistically significant, positive correlation between circulating leptin levels and the DAS28 disease-activity score used to track RA. The correlation itself is modest, not the dominant driver of a flare, and at least one individual study found no significant relationship at all, an inconsistency worth stating honestly rather than smoothing over. Still, the direction is consistent across most of the individual studies pooled, worth knowing as one hormonal thread among the several already covered in this category's own research on RA flares and management.",
+    citations: [
+      { source: 'Circulating leptin and its correlation with rheumatoid arthritis activity, a meta-analysis (PMID 37483475)', url: 'https://pubmed.ncbi.nlm.nih.gov/37483475/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A meta-analysis found a consistent but modest positive correlation; at least one individual study found none, an honest inconsistency rather than a uniform finding.',
+    relatedIds: ['leptin-autoimmune-inflammation', 'mito-visceral-fat-treg-depletion'],
+  },
 ];

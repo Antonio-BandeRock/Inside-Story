@@ -180,6 +180,26 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['mito-visceral-fat-treg-depletion'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary study, independently verified via
+  // WebSearch. Deliberately paired with Graves' own leptin entry
+  // (graves.ts): same study, same hormone, opposite direction, since
+  // Graves' and Hashimoto's are opposite-direction autoimmune thyroid
+  // diseases.
+  {
+    id: 'mito-hashimotos-leptin-elevated',
+    category: 'hashimotos',
+    title: "Leptin Runs Higher in Hashimoto's Than in Healthy Controls, and Falls With Treatment",
+    teaser: 'A direct comparison found leptin significantly elevated in untreated Hashimoto\'s, dropping after treatment restored normal thyroid function, a mirror image of the opposite finding in Graves\' disease.',
+    summary: "A direct comparison of leptin levels across Hashimoto's thyroiditis, Graves' disease, and healthy controls found leptin running significantly higher in untreated Hashimoto's than in healthy controls, then decreasing measurably once treatment restored normal thyroid function. This sits alongside the visceral-fat Treg-depletion research above rather than replacing it: it's a second, independent hormonal signal (leptin itself, not just the immune cells it acts on) pointing to the same disruption in how this condition's fat tissue signals to the rest of the body. It also directly connects to the humbling levothyroxine finding just below: leptin measurably improving with treatment doesn't necessarily mean body fat itself measurably improves, two different things that don't automatically move together. The same study found the identical hormone moving in the opposite direction in Graves' disease (see that category's matching entry), a direct contrast between two autoimmune diseases attacking the same organ from opposite metabolic directions.",
+    citations: [
+      { source: 'Alterations of Serum Leptin Levels in Patients with Autoimmune Thyroid Disorders (PMID 35505829)', url: 'https://pubmed.ncbi.nlm.nih.gov/35505829/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['leptin-discovery-ob-mice', 'mito-levothyroxine-body-fat-null'],
+  },
   {
     id: 'mito-levothyroxine-body-fat-null',
     category: 'hashimotos',

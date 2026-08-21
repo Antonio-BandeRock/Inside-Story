@@ -557,4 +557,24 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['recipe-ferment-shrub', 'recipe-ferment-switchel', 'recipe-ferment-coconut-kefir'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source.
+  // Included specifically because the honest answer here is "the
+  // research exists but conflicts," not because it clearly generalizes
+  // the way it does for RA, lupus, and MS, checked directly via WebSearch
+  // rather than assumed.
+  {
+    id: 'sjogrens-leptin-mixed-inconclusive',
+    category: 'sjogrens',
+    title: "Leptin's Role in Sjögren's Is Studied but Genuinely Inconclusive, Worth Stating Honestly",
+    teaser: "Unlike rheumatoid arthritis, lupus, and multiple sclerosis, where leptin's immune-signaling role is fairly consistently documented, Sjögren's leptin research is smaller and directly conflicting from one study to the next.",
+    summary: "Rheumatoid arthritis, lupus, and multiple sclerosis are the three conditions the Basic Health hormones research names as most directly studied for leptin's pro-inflammatory role in autoimmune disease. Sjögren's has its own small body of leptin research too, but it does not point the same clear direction: one study measuring leptin and its receptor directly in minor salivary glands found levels no higher in Sjögren's patients than in controls, while separate laboratory studies found leptin signaling could promote inflammatory changes in salivary gland cells and influence immune cell distribution in the glands. Rather than force this into the same confident framing as the other three conditions, the honest summary is that Sjögren's-specific leptin research is ongoing and not yet conclusive, worth knowing exists without overstating what it currently shows.",
+    citations: [
+      { source: "The role of leptin in primary Sjögren syndrome: a clinical and histopathological assessment study", url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10381225/' },
+    ],
+    overallTier: 'weak',
+    stageNote: 'Genuinely conflicting small studies, not a consistent finding; included for honesty about what is and isn\'t yet established, not as a confirmed mechanism.',
+    relatedIds: ['leptin-autoimmune-inflammation'],
+  },
 ];

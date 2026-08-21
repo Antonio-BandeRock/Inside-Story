@@ -569,4 +569,24 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-tonic-tart-cherry-ginger-turmeric', 'lifestyle-alcohol-advisory'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary studies, independently verified via
+  // WebSearch. A genuinely honest, correlation-versus-causation finding,
+  // the kind this app's own evidence-tiering discipline exists for.
+  {
+    id: 'gout-adiponectin-correlation-not-causation',
+    category: 'gout',
+    title: 'Low Adiponectin Tracks With High Uric Acid, but a Causal Test Found No Direct Effect',
+    teaser: 'Adiponectin and uric acid move in opposite directions in observational studies, a tempting story, but the one study designed to test causality directly found adiponectin itself does not appear to cause gout risk.',
+    summary: "Adiponectin, the fat-derived hormone covered in the Basic Health hormones research, correlates inversely with uric acid in observational studies: people with lower adiponectin tend to have higher uric acid, fitting neatly alongside gout's documented overlap with metabolic syndrome (already covered in this category's dedicated cross-link entry). A 2022 Mendelian randomization study, a method specifically designed to test whether an association is likely causal rather than coincidental, put that story to a direct test and found adiponectin concentration was not significantly associated with gout risk when analyzed this way. This is worth including precisely because it complicates a tidy narrative rather than confirming one: the observational correlation is documented, but the strongest causal-inference method available found no independent effect of adiponectin itself on gout, a reminder that a documented correlation between two hormones or lab values isn't automatically evidence that one causes the other.",
+    citations: [
+      { source: 'Simão AN et al. 2012, Journal of Nutrition and Metabolism: Adiponectinemia Is Associated with Uricemia but Not with Proinflammatory Status in Women with Metabolic Syndrome', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC3146990/' },
+      { source: 'Assessing the Causal Effects of Adipokines on Uric Acid and Gout, a Two-Sample Mendelian Randomization Study (PMID 35268067)', url: 'https://pubmed.ncbi.nlm.nih.gov/35268067/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'The causal (Mendelian randomization) evidence is the stronger of the two citations here; the observational correlation citation is included for the honest contrast, not as independent proof.',
+    relatedIds: ['gout-metabolic-cluster-connection', 'adiponectin-overview'],
+  },
 ];

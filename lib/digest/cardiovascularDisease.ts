@@ -630,4 +630,21 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
       'lifestyle-alcohol-advisory',
     ],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary study, independently verified via
+  // WebSearch.
+  {
+    id: 'cvd-hypoadiponectinemia-independent-risk',
+    category: 'cardiovascularDisease',
+    title: 'Low Adiponectin Is an Independent Risk Factor for Coronary Artery Disease',
+    teaser: 'Men with low adiponectin had double the rate of coronary artery disease in a landmark study, a risk factor that showed up independently of the standard risk factors already tracked.',
+    summary: "Adiponectin, the fat-derived hormone covered in the Basic Health hormones research, is directly cardioprotective: it improves insulin sensitivity and has documented anti-atherosclerotic and anti-inflammatory effects on blood vessels. A landmark study found that men with low adiponectin (below 4.0 micrograms per milliliter) had roughly double the rate of coronary artery disease compared to men with higher levels, and this held up as an independent risk factor even after accounting for the standard risk factors (blood pressure, cholesterol, smoking, diabetes) already covered elsewhere in this category. Later studies extended this to acute coronary events and stroke risk as well. This is a measurable hormonal thread running underneath cardiovascular risk, worth reading alongside the existing lipid-panel and inflammation research rather than as a separate, unrelated finding.",
+    citations: [
+      { source: 'Kumada M et al. 2003, Arteriosclerosis, Thrombosis, and Vascular Biology: Association of hypoadiponectinemia with coronary artery disease in men (PMID 12524229)', url: 'https://pubmed.ncbi.nlm.nih.gov/12524229/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['cvd-overview', 'cvd-lipid-panel-self-advocacy', 'adiponectin-overview', 'bodyfat-hadza-cardiovascular-health'],
+  },
 ];

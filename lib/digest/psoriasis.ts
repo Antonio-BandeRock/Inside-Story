@@ -613,4 +613,22 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
       'lifestyle-alcohol-advisory',
     ],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary studies, independently verified via
+  // WebSearch.
+  {
+    id: 'psoriasis-adipokine-shift-mixed-evidence',
+    category: 'psoriasis',
+    title: "Psoriasis Shows a Documented Adipokine Shift, but the Details Are Genuinely Inconsistent Across Studies",
+    teaser: 'Adiponectin drops as psoriasis severity rises fairly consistently across studies, but findings on leptin specifically conflict from one study to the next, an honest gap rather than a settled picture.',
+    summary: "Psoriasis has a well-documented association with obesity and metabolic syndrome, already relevant given the visceral-fat and adiponectin research covered elsewhere in this app. The adipokine-specific evidence is honestly mixed rather than uniform: several studies found serum adiponectin decreasing and leptin decreasing as psoriasis severity (measured by the PASI score) increased, while other studies found no significant correlation between either hormone and PASI, and at least one more recent study found leptin positively correlated with PASI specifically in female patients. This is worth reporting honestly rather than picking the single cleanest-sounding result: the adiponectin-severity relationship is the more consistently replicated finding across studies, while the leptin-severity relationship specifically remains unsettled, an active area still being worked out rather than a confirmed clinical marker.",
+    citations: [
+      { source: 'Effect of psoriasis activity on serum adiponectin and leptin levels (PMID 26015779)', url: 'https://pubmed.ncbi.nlm.nih.gov/26015779/' },
+    ],
+    overallTier: 'weak',
+    stageNote: 'Adiponectin-severity findings are more consistently replicated; leptin-severity findings conflict directly across studies, included here for that honest inconsistency.',
+    relatedIds: ['leptin-autoimmune-inflammation', 'adiponectin-overview'],
+  },
 ];

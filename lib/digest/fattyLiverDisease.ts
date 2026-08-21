@@ -546,4 +546,21 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-puerh-style-tea', 'fermentmethod-kombucha', 'lifestyle-alcohol-advisory'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary review, independently verified via
+  // WebSearch.
+  {
+    id: 'masld-adiponectin-hepatoprotective',
+    category: 'fattyLiverDisease',
+    title: 'Adiponectin Directly Protects the Liver, and Levels Drop as MASLD Gets Worse',
+    teaser: 'Lower adiponectin tracks with more severe liver disease, from simple fat buildup through to NASH, and the same hormone counters the fat-storage-and-inflammation mechanism already covered here.',
+    summary: "Adiponectin, the fat-derived hormone covered in the Basic Health hormones research, has a direct, documented role in the liver specifically: it works against excess fat storage in liver cells and protects against inflammation and fibrosis there. Serum adiponectin is consistently lower in people with MASLD than in people without it, and lower still in NASH (the more advanced, inflamed stage) than in simple fatty liver, tracking with disease severity rather than just its presence or absence. This connects directly to the lipodystrophy research in the hormones category: the same fat-tissue signaling that goes wrong when fat can't be stored anywhere also goes wrong, in a milder form, when fat backs up specifically in the liver, adiponectin being one of the hormonal signals that's supposed to prevent exactly that.",
+    citations: [
+      { source: 'Buechler C et al. 2011: Adiponectin, a key adipokine in obesity related liver diseases (PMID 21734787)', url: 'https://pubmed.ncbi.nlm.nih.gov/21734787/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['masld-overview', 'adiponectin-overview', 'lipodystrophy-fat-necessity'],
+  },
 ];

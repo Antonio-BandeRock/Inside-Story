@@ -563,4 +563,22 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-rejuvelac', 'recipe-ferment-tonic-elderberry-ginger-turmeric', 'recipe-ferment-garlic-honey-tonic'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary study, independently verified via
+  // WebSearch.
+  {
+    id: 'lupus-leptin-t-cell-autoimmunity',
+    category: 'lupus',
+    title: 'Leptin Directly Promotes the T-Cell Autoimmunity Behind Lupus, in a Lab Study',
+    teaser: 'In lupus-prone mice, leptin promoted the survival of self-attacking T cells and suppressed the regulatory cells meant to keep them in check, one of the most direct mechanistic demonstrations of this pathway in any single condition.',
+    summary: "Lupus is one of the three autoimmune conditions the Basic Health hormones research names as most directly studied for leptin's pro-inflammatory role, and this is the specific study behind that. Leptin is documented as abnormally elevated in lupus, and in a study using lupus-prone mice, leptin directly promoted the survival and proliferation of autoreactive T cells (the ones that attack the body's own tissue) while suppressing regulatory T-cell activity, the same Th17-promoting, Treg-suppressing mechanism covered in the shared hormones research, demonstrated here specifically in a lupus disease model rather than just observed as a correlation. This doesn't mean body fat causes lupus, lupus is an autoimmune disease with its own genetic and environmental triggers already covered elsewhere in this category, only that leptin is one mechanistically demonstrated input into how aggressively an already-present lupus immune response runs.",
+    citations: [
+      { source: 'Amarilyo G et al. 2013, Clinical Immunology: Leptin promotes lupus T-cell autoimmunity (PMID 23566768)', url: 'https://pubmed.ncbi.nlm.nih.gov/23566768/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Direct mechanistic evidence in a mouse model of lupus, the strongest kind of evidence in this specific study, though a mouse model result, not a human clinical trial.',
+    relatedIds: ['leptin-autoimmune-inflammation', 'mito-visceral-fat-treg-depletion'],
+  },
 ];

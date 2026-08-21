@@ -571,4 +571,22 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-water-kefir', 'recipe-ferment-beet-kvass', 'ckd-egfr-acr-monitoring'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary meta-analysis, independently verified via
+  // WebSearch.
+  {
+    id: 'ckd-adiponectin-paradox',
+    category: 'chronicKidneyDisease',
+    title: 'The Adiponectin Paradox: A Hormone That Protects Elsewhere Predicts Worse Outcomes in CKD',
+    teaser: 'Adiponectin is cardioprotective everywhere else in this app\'s research, but in CKD, higher levels are paradoxically linked to higher mortality, mainly because the kidneys can\'t clear it normally.',
+    summary: 'The hormones research and the cardiovascular disease research both cover adiponectin as a protective hormone, higher levels linked to better insulin sensitivity and lower cardiovascular risk. Chronic kidney disease breaks that pattern in a well-documented way: CKD patients typically run 2 to 3 times normal adiponectin levels, mainly because the kidneys, which normally help clear it, no longer do so effectively, and a systematic review found that higher adiponectin was paradoxically associated with higher, not lower, all-cause mortality in this population. The most-supported explanation isn\'t that adiponectin itself turns harmful, it\'s that elevated adiponectin in CKD is likely a marker of an underlying process called protein-energy wasting (muscle and fat loss from illness), not a hormone actively causing harm. Worth knowing directly: a lab value that reads as reassuring in most other contexts in this app doesn\'t carry the same meaning here, one of several places general metabolic advice needs a CKD-specific adjustment.',
+    citations: [
+      { source: 'Yang HS et al. 2025, Metabolites: Adiponectin and All-Cause Mortality in Patients with Chronic Kidney Disease, a Systematic Review and Meta-Analysis (PMID 40278358)', url: 'https://pubmed.ncbi.nlm.nih.gov/40278358/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Meta-analysis level evidence for the association itself; the protein-energy-wasting explanation is the leading proposed mechanism, not yet fully settled.',
+    relatedIds: ['ckd-overview', 'adiponectin-overview', 'cvd-hypoadiponectinemia-independent-risk'],
+  },
 ];

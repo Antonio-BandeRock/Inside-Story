@@ -558,4 +558,23 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['fermentmethod-wild-tonics', 'recipe-ferment-water-kefir', 'lifestyle-alcohol-advisory'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary studies, independently verified via
+  // WebSearch.
+  {
+    id: 'ms-leptin-activity-marker-conflicting',
+    category: 'multipleSclerosis',
+    title: 'Leptin Rose Before MS Relapses in One Study, but a Later Study Found No Link at All',
+    teaser: 'MS is one of the three conditions where leptin\'s pro-inflammatory role is most directly studied, but the specific evidence for leptin tracking with relapses is honestly mixed, not settled.',
+    summary: "MS is one of the three autoimmune conditions the Basic Health hormones research names as most directly studied for leptin's Th17-promoting, Treg-suppressing role. The specific human evidence for leptin as a usable marker of MS activity is honestly mixed. One earlier study, following patients on interferon-beta treatment, found leptin rose in the weeks before a clinical relapse and fell in patients who stayed relapse-free. A more recent study, however, found no significant association between leptin (or adiponectin) and either disease activity or treatment response. This is worth stating plainly rather than picking whichever study fits a cleaner narrative: leptin's broader immune-signaling mechanism is well-documented (see the shared hormones research), but whether it reliably predicts or tracks individual MS relapses specifically is not yet a settled question, an honest gap rather than a confirmed clinical marker.",
+    citations: [
+      { source: 'Leptin as a marker of multiple sclerosis activity in patients treated with interferon-beta (PMID 12799033)', url: 'https://pubmed.ncbi.nlm.nih.gov/12799033/' },
+      { source: 'Leptin and Leptin Signaling in Multiple Sclerosis: A Narrative Review', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11870953/' },
+    ],
+    overallTier: 'weak',
+    stageNote: 'Directly conflicting findings between an earlier and a more recent study; included specifically for that honest inconsistency rather than presented as a settled marker.',
+    relatedIds: ['leptin-autoimmune-inflammation', 'mito-visceral-fat-treg-depletion'],
+  },
 ];

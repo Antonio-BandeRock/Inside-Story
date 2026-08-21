@@ -562,4 +562,21 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['recipe-ferment-water-kefir', 'recipe-ferment-beet-kvass', 'recipe-ferment-tonic-red-grape-ginger-turmeric', 'pcos-dairy-igf1-hyperandrogenism'],
   },
+  // 2026-08-21, added after fact-checking NOVA's "The Truth About Fat"
+  // (2020) documentary against the peer-reviewed literature, direct
+  // request. The documentary itself is not treated as a citable source;
+  // this traces to the primary study, independently verified via
+  // WebSearch.
+  {
+    id: 'pcos-adiponectin-leptin-imbalance',
+    category: 'pcos',
+    title: 'PCOS Carries a Documented Adipokine Imbalance: High Leptin, Low Adiponectin',
+    teaser: 'PCOS cases are over three times more likely to have low adiponectin than matched controls, independent of insulin resistance, a distinct hormonal signature on top of the insulin-resistance story already covered.',
+    summary: "The Basic Health hormones research covers leptin and adiponectin as two fat-derived hormones that normally run in opposite directions from each other. PCOS shows a documented, specific version of that imbalance: leptin runs measurably higher and adiponectin measurably lower than in matched controls, and PCOS cases were found to be 3.2 times more likely to have low adiponectin even after adjusting for age, BMI, and insulin resistance, meaning the adiponectin drop isn't just a side effect of carrying more weight. Adiponectin also directly suppresses androgen production in ovarian theca cells in laboratory studies, giving this a plausible direct link to PCOS's hyperandrogenism, not just an incidental correlation. Worth reading alongside the existing insulin-resistance research rather than instead of it: this is a second, adipokine-specific piece of the same hormonal picture.",
+    citations: [
+      { source: 'Association between circulating adiponectin levels and polycystic ovarian syndrome (PMID 24502610)', url: 'https://pubmed.ncbi.nlm.nih.gov/24502610/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'adiponectin-overview', 'leptin-reproductive-axis'],
+  },
 ];
