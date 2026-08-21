@@ -615,6 +615,26 @@ export function lighten(hex: string, fraction: number): string {
   return `#${toHex2(r2)}${toHex2(g2)}${toHex2(b2)}`;
 }
 
+// How much lighter a TabHub/LensHub grid label's own font color reads than
+// its underlying source color (a tab's own identity color, or the shared
+// muted token for an inactive item) -- 2026-08-21, direct request: "make
+// the font color be a little bit lighter colored... so the words are more
+// clear and easy to read." A fraction of `lighten`'s own remaining-headroom
+// mix, same mechanism as INPUT_BACKGROUND_LIGHTEN_FRACTION above, not a
+// flat token swap -- both files' label colors are computed per-item at
+// render time (a different hex per tab/condition), so there's no single
+// fixed color to just replace. Deliberately NOT a change to the underlying
+// tokens themselves (colors.primary, colors.menuLabelMuted, each tab's own
+// route.color) -- those are shared far beyond just these two menus' own
+// label text (icons, borders, other screens entirely), so lightening them
+// directly would ripple into places never asked to change. This only
+// touches the label TEXT color at its two call sites.
+// Raised from 0.25 to 0.45, same day, direct follow-up: "I think they
+// need... still a lighter color of font" once seen against the first
+// pass. See menuLabelShadow's own comment in constants/typography.ts for
+// the matching drop-shadow follow-up.
+export const MENU_LABEL_LIGHTEN_FRACTION = 0.45;
+
 // 2026-08-17: the whole iridescent system that used to live here
 // (hueShift, IRIDESCENT_PALETTE, rotatedIridescentPalette, iridescentSheen)
 // is removed entirely -- a real, confirmed, continuous battery drain, not

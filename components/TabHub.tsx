@@ -4,11 +4,11 @@ import { usePathname, useRouter, type Href } from 'expo-router';
 import { useRef, useState, type ReactNode } from 'react';
 import { Image, Modal, Platform, Pressable, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../constants/colors';
+import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
 import { FLOATING_BUTTON_BOTTOM_OFFSET, FLOATING_BUTTON_SIZE, useMenuCardBottom } from '../constants/floatingButton';
 import { getTabHubIconRenderSize, TAB_HUB_ICON_SOURCES } from '../constants/tabHubIcons';
 import { TAB_ROUTES, type TabRoute } from '../constants/tabs';
-import { textShadow, typography } from '../constants/typography';
+import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import type { TabHubIconChoice } from '../lib/visualPreferences';
 import { useCurrentPageHelp } from './CurrentPageHelp';
@@ -573,7 +573,11 @@ export function TabHub() {
               // real "you are here" signal, a shape-based cue independent
               // of color the same way the pill used to be, just a ring
               // instead of a filled circle.
-              const labelColor = active ? route.color : colors.menuLabelMuted;
+              // lighten(): 2026-08-21, direct request -- see
+              // MENU_LABEL_LIGHTEN_FRACTION's own comment for why this
+              // wraps the color at the point of use rather than touching
+              // route.color/menuLabelMuted themselves.
+              const labelColor = lighten(active ? route.color : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION);
               return (
                 <TouchableOpacity
                   key={route.title}
@@ -620,7 +624,7 @@ export function TabHub() {
                 </View>
               )}
               <Text
-                style={[styles.itemLabel, { color: profileActive ? colors.tabProfile : colors.menuLabelMuted }]}
+                style={[styles.itemLabel, { color: lighten(profileActive ? colors.tabProfile : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                 numberOfLines={1}
               >
                 Profile
@@ -664,7 +668,7 @@ export function TabHub() {
                 </View>
               )}
               <Text
-                style={[styles.itemLabel, { color: activeRoute ? activeRoute.color : colors.menuLabelMuted }]}
+                style={[styles.itemLabel, { color: lighten(activeRoute ? activeRoute.color : colors.menuLabelMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                 numberOfLines={1}
               >
                 Info
@@ -847,5 +851,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  itemLabel: { ...typography.caption, fontSize: 10 },
+  // ...textShadow, 2026-08-21, direct request alongside the lighter
+  // labelColor above -- see textShadow's own comment in
+  // constants/typography.ts for what it does; every grid label here (tab
+  // names, Profile, Info) now gets the same drop shadow this app's own
+  // icons in this exact menu already use, for the same reason.
+  // menuLabelShadow, not the plain textShadow every icon in this file still
+  // uses -- see that constant's own comment in constants/typography.ts for
+  // why this needed its own, stronger shadow.
+  itemLabel: { ...typography.caption, fontSize: 10, ...menuLabelShadow },
 });

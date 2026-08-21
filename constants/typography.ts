@@ -50,3 +50,20 @@ export const textShadow = {
   textShadowOffset: { width: 0, height: 1 },
   textShadowRadius: 2.5,
 } as const;
+
+// A stronger version of textShadow above, 2026-08-21 -- direct follow-up
+// on TabHub/LensHub's own grid labels ("I think they need a little more
+// shadow, and still a lighter color of font"), after the first pass
+// (plain textShadow) read as still not enough against colors.menuSurface.
+// Deliberately its own constant rather than just turning up textShadow
+// itself, which several other, already-tuned call sites (icons sitting on
+// photographic backgrounds) share -- strengthening it in place would have
+// changed those too, unasked. Darker color, taller offset, wider radius
+// than textShadow, short of CORNER_ICON_SHADOW's own even-heavier
+// treatment (tuned for TabHub/LensHub's large 32px corner-button icon,
+// not small caption text).
+export const menuLabelShadow = {
+  textShadowColor: 'rgba(0, 0, 0, 0.85)',
+  textShadowOffset: { width: 0, height: 1.5 },
+  textShadowRadius: 4,
+} as const;

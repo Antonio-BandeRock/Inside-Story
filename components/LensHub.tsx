@@ -3,7 +3,7 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { Fragment, useEffect, useRef, useState, type ComponentProps, type ReactNode } from 'react';
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
-import { colors } from '../constants/colors';
+import { colors, lighten, MENU_LABEL_LIGHTEN_FRACTION } from '../constants/colors';
 import {
   FLOATING_BUTTON_SIZE,
   SECONDARY_HUB_CARD_LEFT_MARGIN,
@@ -12,7 +12,7 @@ import {
 } from '../constants/floatingButton';
 import { TAB_ROUTES } from '../constants/tabs';
 import { TAB_REVEAL_DURATION_MS } from '../constants/tabReveal';
-import { textShadow, typography } from '../constants/typography';
+import { menuLabelShadow, textShadow, typography } from '../constants/typography';
 import { HelpSheet, type HelpSection } from './HelpButton';
 import { IridescentRingCircle } from './IridescentRingCircle';
 
@@ -728,7 +728,7 @@ export function LensHub<T extends string>({
             popup, reads too faint against the same flat dark footer strip
             this sits directly on). */}
         <Text
-          style={[styles.buttonLabel, { color: tabColor }]}
+          style={[styles.buttonLabel, { color: lighten(tabColor, MENU_LABEL_LIGHTEN_FRACTION) }]}
           numberOfLines={1}
           maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
         >
@@ -848,7 +848,7 @@ export function LensHub<T extends string>({
                     <Ionicons name={extraTile.icon} size={gridIconSize} color={tabColor} style={textShadow} />
                   </View>
                   <Text
-                    style={[styles.itemLabel, { color: colors.textMuted }]}
+                    style={[styles.itemLabel, { color: lighten(colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                     numberOfLines={itemLabelLines}
                     ellipsizeMode="tail"
                     maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
@@ -883,14 +883,21 @@ export function LensHub<T extends string>({
                   // unchanged -- only the icon's own treatment was asked to
                   // match the butterfly menu's.
                   //
-                  // Explicitly corrected, same day: uses `tabColor` (this
-                  // page's own identity color, already computed above for
-                  // the corner trigger button) instead of the flat brand
-                  // colors.primary -- every option inside a given page's
-                  // menu should read as belonging to that page, the same
-                  // color as its own icon in the corner and in the butterfly
-                  // menu's own grid, not a generic shared teal.
-                  const labelColor = active ? colors.primary : colors.textMuted;
+                  // lighten(): 2026-08-21, direct request -- see
+                  // MENU_LABEL_LIGHTEN_FRACTION's own comment in
+                  // constants/colors.ts for why this wraps the color here
+                  // rather than touching tabColor/textMuted themselves.
+                  // Uses `tabColor` (this page's own identity color) when
+                  // active, not the flat brand colors.primary -- a same-day
+                  // follow-up correction, 2026-08-21: "The TabHub icons
+                  // retain their own tab color for the font when they are
+                  // selected. In each LensHub menu, when a lens is
+                  // selected, the color of the font of that icon's label
+                  // should be the LensHub color." Matches this same option's
+                  // own icon just below, which already used tabColor when
+                  // active -- the label was the one piece still reading
+                  // colors.primary regardless of which page's menu it was.
+                  const labelColor = lighten(active ? tabColor : colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION);
                   return (
                     <Fragment key={option.key}>
                       {option.dividerBefore ? (
@@ -975,7 +982,7 @@ export function LensHub<T extends string>({
                       </View>
                     )}
                     <Text
-                      style={[styles.itemLabel, { color: selectedOption ? colors.primary : colors.textMuted }]}
+                      style={[styles.itemLabel, { color: lighten(selectedOption ? tabColor : colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                       numberOfLines={1}
                       maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
                     >
@@ -1063,7 +1070,13 @@ export function LensHub<T extends string>({
                   </View>
                 )}
                 <Text
-                  style={[styles.itemLabel, { color: selectedOption ? colors.primary : colors.textMuted }]}
+                  // tabColor, not colors.primary -- see the main option
+                  // grid's own `labelColor` comment above for why. This
+                  // second Info-tile copy (the floating-corner variant, used
+                  // by every page except Digest -- see showInfoInGrid's own
+                  // comment) was missed in the first lighten() pass; fixed
+                  // alongside the same-day tabColor correction.
+                  style={[styles.itemLabel, { color: lighten(selectedOption ? tabColor : colors.textMuted, MENU_LABEL_LIGHTEN_FRACTION) }]}
                   numberOfLines={1}
                   maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}
                 >
@@ -1276,5 +1289,11 @@ const styles = StyleSheet.create({
   // centered underneath its icon. Harmless for every single-line label
   // (this app's existing majority) -- centering a one-line block that
   // already sizes to its own text content changes nothing visible.
-  itemLabel: { ...typography.caption, fontSize: 11, textAlign: 'center' },
+  // ...textShadow, 2026-08-21, direct request alongside the lighter
+  // labelColor above -- same drop shadow this file's own icons (option
+  // glyphs, Info, extraTile) already carry via their own `style={textShadow}`.
+  // menuLabelShadow, not the plain textShadow every icon in this file still
+  // uses -- see that constant's own comment in constants/typography.ts for
+  // why this needed its own, stronger shadow.
+  itemLabel: { ...typography.caption, fontSize: 11, textAlign: 'center', ...menuLabelShadow },
 });
