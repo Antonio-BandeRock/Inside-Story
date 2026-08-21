@@ -61,6 +61,20 @@ export type LensOption<T extends string> = {
   // in the right order in the array for this to read correctly; nothing
   // here re-sorts them.
   group?: string;
+  // A thin horizontal rule rendered above this option, forcing it (and
+  // everything after it) onto a fresh row -- 2026-08-21, added for Digest
+  // specifically: "separate the conditions from the rest of the icons by
+  // making a separation line below the rest of the icons... if the user
+  // selects that they have any of the conditions then the icon for the
+  // conditions they say they have can move up to above the line, after
+  // the other icons." Deliberately a separate, simpler mechanism from
+  // `group` above, not a reuse of it -- `group` always renders a real
+  // text header (Insights' "Today"/"Explore & Look Up"/etc.), which isn't
+  // wanted here; this is just a plain visual divider with no label of its
+  // own. Like `group`, set this on the single option that should have the
+  // line above it (the first item below the boundary) -- the grid doesn't
+  // infer boundaries on its own.
+  dividerBefore?: boolean;
 };
 
 // 2026-07-26: widened from 260 -- that size was tuned against Insights/
@@ -646,7 +660,11 @@ export function LensHub<T extends string>({
   // last row -- simpler and safe, at the real cost of not being perfectly
   // centered-alone the way it is on an ungrouped page. Every page without
   // groups keeps the exact same centered placement, unchanged.
-  const hasGroups = options.some((option) => option.group !== undefined);
+  // dividerBefore (2026-08-21) forces the exact same kind of fresh-row
+  // break a group header does, so it has to disable this centering math
+  // the same way -- otherwise Digest's own divider line would silently
+  // throw off where Info lands.
+  const hasGroups = options.some((option) => option.group !== undefined || option.dividerBefore);
   const blanksBeforeInfo = hasGroups ? 0 : columns % 2 === 0 ? 0 : rowPadding + Math.floor(columns / 2);
 
   return (
@@ -854,6 +872,10 @@ export function LensHub<T extends string>({
                   const showGroupHeader = option.group !== undefined && option.group !== lastGroupShown;
                   if (option.group !== undefined) lastGroupShown = option.group;
                   const active = option.key === selected;
+                  // 2026-08-21 -- see LensOption's own `dividerBefore`
+                  // comment. `width: '100%'` on dividerRow (styles below)
+                  // is the same "force a fresh row" trick groupHeaderRow
+                  // already uses, just with a plain line instead of text.
                   // 2026-07-26: icon color no longer varies with `active` --
                   // matching TabHub's own grid (its icons are always shown
                   // in full color, never muted; the ring alone is what
@@ -871,6 +893,11 @@ export function LensHub<T extends string>({
                   const labelColor = active ? colors.primary : colors.textMuted;
                   return (
                     <Fragment key={option.key}>
+                      {option.dividerBefore ? (
+                        <View style={styles.dividerRow}>
+                          <View style={[styles.dividerLine, { backgroundColor: tabColor }]} />
+                        </View>
+                      ) : null}
                       {showGroupHeader ? (
                         <View style={styles.groupHeaderRow}>
                           <Text style={[styles.groupHeaderText, { color: tabColor }]} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
@@ -1164,6 +1191,24 @@ const styles = StyleSheet.create({
   },
   groupHeaderText: {
     ...typography.eyebrow,
+  },
+  // See LensOption's own `dividerBefore` comment -- same `width: '100%'`
+  // fresh-row trick as groupHeaderRow above, just wrapping a plain line
+  // instead of text. Padding top/bottom gives the line its own breathing
+  // room from the row above and below, rather than sitting flush against
+  // either.
+  dividerRow: {
+    width: '100%',
+    paddingTop: 8,
+    paddingBottom: 4,
+  },
+  // backgroundColor is set inline per render to `tabColor` (matching every
+  // other identity-colored element in this popup) -- opacity here, not a
+  // separate rgba computation, is what keeps it reading as a soft divider
+  // rather than a solid, attention-grabbing bar.
+  dividerLine: {
+    height: 1,
+    opacity: 0.3,
   },
   // Pinned to gridWrapper's own top/bottom edge -- see the JSX's own
   // comment for why these exist and why each is conditional on its own

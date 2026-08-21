@@ -411,24 +411,27 @@ const DIGEST_LENS_HELP: Record<DigestCategoryKey, HelpSection> = {
 };
 
 // A deliberate line-break point for each category name that's long enough
-// to wrap at 2 columns (see LensHub's own itemLabelLines), so the grid
-// item's own auto-wrap never has to guess where to break -- 2026-08-07,
-// explicitly requested: "Make sure the names of the icons have a forced
-// carriage return at a logical spot." Every entry here breaks after a
-// natural phrase boundary (usually right after an "&") so both halves
-// still read as coherent pieces on their own, rather than wherever plain
-// word-wrap happens to land. Short names that already fit comfortably on
-// one line (Food Additives, Gut & Microbiome, Fermented Foods, Healing
-// Stages) are deliberately left out -- forcing an unnecessary break on a
-// name that already fits would just leave the second line looking sparse.
+// to need one (see LensHub's own itemLabelLines), so the grid item's own
+// auto-wrap never has to guess where to break -- 2026-08-07, explicitly
+// requested: "Make sure the names of the icons have a forced carriage
+// return at a logical spot." Every entry here breaks after a natural
+// phrase boundary (usually right after an "&") so both halves still read
+// as coherent pieces on their own, rather than wherever plain word-wrap
+// happens to land. Short names that already fit comfortably on one line
+// (Food Additives, Gut & Microbiome, Fermented Foods, Healing Stages) are
+// deliberately left out -- forcing an unnecessary break on a name that
+// already fits would just leave the second line looking sparse.
 // Only affects the grid tile's own label (LensOption.gridLabel) -- the
 // plain, unbroken `label` is still what's used everywhere else this name
 // appears (the Info sheet's own heading, activeLensLabel, etc.).
-// Empty as of the 2026-08-08 restructure -- all 4 real category labels
-// (Basic Health, Hashimoto's, Rheumatoid Arthritis, Psoriasis) are short
-// enough to fit on one line without a forced break. Kept as a real,
-// live mechanism (not deleted) since a future condition with a longer name
-// may need it again.
+// Empty as of the 2026-08-08 restructure to real per-condition names --
+// checked again 2026-08-21 against the grid's real column width at the
+// 3-column layout above, and every current label (Basic Health,
+// Hashimoto's Disease, Rheumatoid Arthritis, Psoriasis, and all 15 other
+// real conditions) still wraps cleanly to 2 lines on its own via plain
+// word-wrap, with no ugly mid-phrase break to correct. Kept as a real,
+// live mechanism (not deleted) since a future, longer condition name may
+// still need it.
 const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 
 // Basic Health's own real, 2-level TREE, 2026-08-08 -- replacing the
@@ -1928,6 +1931,20 @@ export default function PurpleDigestScreen() {
           }
         : undefined,
       help: [DIGEST_LENS_HELP[meta.key], DIGEST_READING_HELP],
+      // A plain divider line, 2026-08-21, direct request: "separate the
+      // conditions from the rest of the icons... If the user in their
+      // profile selects that they have any of the conditions then the
+      // icon for the conditions they say they have can move up to above
+      // the line, after the other icons." orderedCategoryMetas already
+      // puts the non-condition tiles first, then pinnedConditionMetas
+      // (the person's own selected conditions), then otherConditionMetas
+      // (everything else) -- see that array's own comment above. The
+      // line just needs to land on the first tile of that last group, so
+      // it reads as "your conditions and everything else" above it,
+      // "every other condition" below. Guarded on otherConditionMetas
+      // actually having a first entry -- if the person has selected every
+      // real condition, there's nothing left below the line to separate.
+      dividerBefore: otherConditionMetas.length > 0 && meta.key === otherConditionMetas[0].key,
     })),
   ];
 
@@ -2628,28 +2645,25 @@ export default function PurpleDigestScreen() {
         buttonLabel="Digest"
         options={LENSES}
         selected={revealed ? lens : undefined}
-        columns={2}
-        // 2 columns, not the original 3 -- switched 2026-08-07 alongside
-        // itemLabelLines below, explicitly requested: "we need to make the
-        // names of the digest lenses be on two rows so they can be read, or
-        // we need shorter names for them." Real category names here
-        // ("Mitochondria & Metabolism", "Other Autoimmune Diseases") are
-        // meaningfully longer than any other page's lens labels, and even
-        // wrapped to 2 lines, 3 columns' own ~95px-wide column was still
-        // too narrow for several of them not to need a 3rd line. 2 columns
-        // (~142px wide) comfortably fits every real category name at 2
-        // lines without shortening any of them.
+        columns={3}
+        // Back to 3 columns, 2026-08-21, direct request. Was dropped to 2
+        // on 2026-08-07 (see git history) because the category set at the
+        // time still had the old "Mitochondria & Metabolism"/"Other
+        // Autoimmune Diseases" style names, which genuinely didn't fit 2
+        // lines at 3 columns' ~95px width. The 2026-08-08 restructure to
+        // real per-condition names (Rheumatoid Arthritis, Celiac Disease,
+        // Chronic Kidney Disease, etc.) changed that: every current label
+        // is 1-3 short words that RN's own greedy word-wrap already breaks
+        // cleanly across 2 lines within ~95px (checked word-by-word against
+        // the live DIGEST_CATEGORY_META list), so DIGEST_GRID_LABEL_BREAKS
+        // stays empty rather than needing forced breaks reintroduced.
         itemLabelLines={2}
-        // Explicit `true`, same day, immediate follow-up: switching to 2
-        // columns above defaulted Info back to its usual floating
-        // bottom-right corner (LensHub's own `infoInGrid` default is
-        // `columns !== 2`) -- reported directly as "gets in the way being
-        // on top of the rest" once Digest's own grid grew tall
-        // enough to scroll (the floating-corner trick assumes that corner
-        // is always blank, which stops being true the moment real content
-        // scrolls underneath it). Forcing this true keeps Info as a real
-        // grid tile -- right after the last category, filling the empty
-        // half of the final row -- regardless of the 2-column layout.
+        // Still explicit `true` -- unrelated to the column count. Info
+        // needs to stay a real grid tile (not the floating bottom-right
+        // corner) any time this grid scrolls, which Digest's real
+        // category count already does regardless of 2 vs. 3 columns. See
+        // infoInGrid's own comment in LensHub.tsx for why the floating
+        // corner assumes a non-scrolling grid.
         infoInGrid={true}
         // 2026-08-09, direct request: "The iridescnt circle that is
         // supposed to go around the tapped icon in Digest isn't big
