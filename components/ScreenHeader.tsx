@@ -252,13 +252,22 @@ export function ScreenHeader() {
           </Svg>
         </View>
       </View>
-      {/* Same flat accentColor as the app-name text above, so this line and
-          the footer's own divider (ScreenBackground.tsx) always match --
-          both static, both reading whichever generic color combination is
-          currently chosen. */}
-      <View style={[styles.divider, { backgroundColor: accentColor }]} />
-      <View style={styles.shadowFade1} />
+      {/* 2026-08-21, direct correction (matching the same fix just made to
+          ScreenBackground.tsx's own footer divider): this line used to
+          render BEFORE the two shadow-fade bars, sitting 4px above the
+          header's own true bottom edge, not on it. Reordered so the fade
+          bars (fainter one first, since they're standing in for a shadow
+          that should read as weakest furthest from the edge) come before
+          the divider instead, putting the divider itself -- same flat
+          accentColor as the app-name text above, so this line and the
+          footer's own divider (ScreenBackground.tsx) always match -- last,
+          exactly at the true edge where the shared background begins. The
+          three heights (1+2+2) are unchanged and still sum to the same
+          total HEADER_ROW_HEIGHT above, so useScreenHeaderHeight() needed
+          no change. */}
       <View style={styles.shadowFade2} />
+      <View style={styles.shadowFade1} />
+      <View style={[styles.divider, { backgroundColor: accentColor }]} />
     </View>
     </View>
   );

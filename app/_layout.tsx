@@ -287,7 +287,21 @@ export default function RootLayout() {
           animated"), with no shared animation value left to provide. */}
       <ActiveInputProvider>
           <OverlayProvider>
-            <Stack screenOptions={{ headerShown: false }}>
+            {/* contentStyle, 2026-08-21: without an explicit background here,
+                a Stack.Screen's own NATIVE container has no guaranteed
+                opaque backing of its own -- it relies entirely on whatever
+                its JS content happens to paint, at the React Navigation/
+                react-native-screens level, one layer below anything this
+                app's own code controls. Added directly in response to a
+                real, confirmed report and screenshot: the (tabs) group's
+                own persistently-mounted background (including
+                ScreenBackground.tsx's footer divider) was visibly showing
+                through profile.tsx, a Stack-pushed screen that should be
+                fully opaque over whatever's mounted behind it. This gives
+                every screen a guaranteed solid backing at the native
+                container level itself, not just wherever this app's own
+                Views happen to paint one. */}
+            <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
               <Stack.Screen name="(tabs)" />
               {/* headerStyle/headerTintColor: the native header defaults to a
                   plain white bar with black text, which stood out as a bright
