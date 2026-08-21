@@ -303,19 +303,19 @@ export default function RootLayout() {
                 Views happen to paint one. */}
             <Stack screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.background } }}>
               <Stack.Screen name="(tabs)" />
-              {/* headerStyle/headerTintColor: the native header defaults to a
-                  plain white bar with black text, which stood out as a bright
-                  seam against every other screen's dark navy background. Matched
-                  to the app's own palette instead -- profile.tsx's own
-                  ScrollView background already used colors.background, so this
-                  was purely the native chrome above it, not the page itself. */}
+              {/* 2026-08-21 -- the native header (with its own back arrow) is
+                  removed by direct request: Profile is reached only via
+                  TabHub's own corner tile and closes via its own blue circle
+                  X (see profile.tsx's own closeButton), so a second, redundant
+                  way back was never needed. profile.tsx now renders its own
+                  "Profile" title row as a sticky, non-scrolling bar instead,
+                  taking over the safe-area top inset this native header used
+                  to reserve. */}
               <Stack.Screen
                 name="profile"
                 options={{
-                  headerShown: true,
+                  headerShown: false,
                   title: 'Profile',
-                  headerStyle: { backgroundColor: colors.background },
-                  headerTintColor: colors.textPrimary,
                 }}
               />
               {/* headerStyle/headerTintColor added 2026-08-08 -- this native

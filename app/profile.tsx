@@ -1658,14 +1658,27 @@ export default function ProfileScreen() {
         native navigation-container level this app's own code can't reach. */}
     <View style={styles.opaqueBase} pointerEvents="none" />
     {showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
-    <ScrollView
-      style={[styles.screen, showGenericBackground && styles.transparentBackground]}
-      contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
-    >
+    {/* 2026-08-21, direct request: the native header (with its own back
+        arrow) is gone (see app/_layout.tsx's own profile Stack.Screen
+        comment) -- this bar takes over both jobs that header used to do:
+        reserving the safe-area top inset, and keeping "Profile" plus its
+        info button always visible. Sitting as a plain, non-absolute sibling
+        BEFORE the ScrollView (not overlaid on top of it) is what makes the
+        rest of the page "scroll up under it": the ScrollView below only
+        gets whatever height remains once this bar's own space is taken, so
+        scrolled content's top edge simply disappears at this bar's own
+        bottom edge, the same visual effect an overlaid sticky header would
+        give, without needing one. */}
+    <View style={[styles.stickyTitleBar, { paddingTop: insets.top + 12 }, showGenericBackground && styles.transparentBackground]}>
       <View style={styles.profileTitleRow}>
         <Text style={styles.profileTitle}>Profile</Text>
         <HelpButton pageTitle="Profile" sections={PROFILE_HELP_SECTIONS} />
       </View>
+    </View>
+    <ScrollView
+      style={[styles.screen, showGenericBackground && styles.transparentBackground]}
+      contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
+    >
       <Text style={styles.intro}>
         Everything below is optional. This app works fine with nothing set here; unset fields simply mean
         you'll see recommendations for every applicable population instead of one tailored to you. Nothing here
@@ -2844,11 +2857,25 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingBottom: 40,
   },
+  // 2026-08-21 -- the sticky bar profileTitleRow now sits inside, replacing
+  // the native header removed the same day (see app/_layout.tsx's own
+  // profile Stack.Screen comment and this bar's own usage above for the
+  // full "why"). A plain opaque colors.background matches wrapper/screen's
+  // own color exactly, so the boundary where scrolled content disappears
+  // underneath reads as one continuous surface, not a visibly separate
+  // panel. horizontal/bottom padding matches `container`'s own padding: 20
+  // so "Profile" lines up exactly above whatever card content sits below
+  // it once scrolled to the top.
+  stickyTitleBar: {
+    backgroundColor: colors.background,
+    paddingHorizontal: 20,
+    paddingBottom: 12,
+  },
   // 2026-08-16 -- HelpButton sits beside a real title now, the same
   // "info icon next to the thing it explains" placement MealBuilder's own
   // mealTitleRow uses, and for the identical reason: Profile has no
   // ScreenHeader/TabHub reach of its own to surface this any other way.
-  profileTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 6 },
+  profileTitleRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
   profileTitle: { ...typography.bodyEmphasis, fontSize: 20, color: colors.textPrimary },
   intro: {
     ...typography.body,
