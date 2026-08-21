@@ -1925,8 +1925,9 @@ export default function ProfileScreen() {
             <Text style={[styles.subLabel, { marginTop: 14 }]}>Growing Zone</Text>
             <Text style={styles.helpText}>
               Your USDA Plant Hardiness Zone (e.g. &quot;7a&quot;): powers the Garden tab&apos;s own
-              cited crop guidance for your climate. The Garden tab&apos;s own My Zone lens sets this exact same
-              value too; either place works.
+              cited crop guidance for your climate. Picking it here only sets the zone letter itself, not a
+              location, so Home&apos;s weather/sunrise/sunset section stays off until you set your postal code
+              in Garden&apos;s own My Zone lens, which sets both at once.
             </Text>
             <View style={styles.dateRow}>
               <PickerField label="Zone">
@@ -1943,6 +1944,12 @@ export default function ProfileScreen() {
                 />
               </PickerField>
             </View>
+            <TouchableOpacity
+              style={styles.checkinButton}
+              onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } })}
+            >
+              <Text style={styles.checkinButtonText}>Set your postal code in Garden&apos;s My Zone →</Text>
+            </TouchableOpacity>
           </View>
         ) : null}
       </View>
