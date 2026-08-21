@@ -116,6 +116,85 @@ export const HORMONES_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['leptin-ghrelin-overview', 'mito-visceral-fat-treg-depletion'],
   },
+  // 2026-08-21, five entries added after fact-checking NOVA's "The Truth
+  // About Fat" (2020) documentary against the peer-reviewed literature
+  // its own segments draw on, direct request. None of the documentary's
+  // own footage or narration is treated as a citable source itself; every
+  // claim below traces to the primary study or a review of that study,
+  // independently verified via WebSearch, the same discipline every other
+  // entry in this file already follows. One claim from the documentary,
+  // the specific ratio of visceral to subcutaneous fat in sumo wrestlers,
+  // could not be traced to a dedicated peer-reviewed study (a search for
+  // one came back empty), so it appears below explicitly labeled as
+  // an illustrative example from the documentary and secondary science
+  // journalism, kept separate from the well-established general visceral-
+  // fat science it's illustrating.
+  {
+    id: 'leptin-discovery-ob-mice',
+    category: 'basicHealth',
+    title: 'Leptin Was Found by Studying Mice That Never Felt Full',
+    teaser: 'A strain of mice discovered in 1950, three times the normal weight with an insatiable appetite, led to the 1994 discovery that fat itself sends a hormone signal to the brain.',
+    summary: "A strain of mice with a spontaneous mutation, first identified at the Jackson Laboratory in 1950, grew to roughly three times normal body weight and never stopped eating. It took until 1994 for Jeffrey Friedman's lab at Rockefeller University to identify the actual gene behind it, cloning the mouse \"obese\" (ob) gene and its human counterpart. The gene's product, a hormone made by fat tissue itself and named leptin, is the signal that tells the hypothalamus how much stored energy the body already has. This is the finding the documentary's framing rests on: fat isn't passive storage tissue, it's an organ that actively produces hormones and communicates with the brain, on par with any gland in the body.",
+    citations: [
+      { source: 'Zhang Y et al. 1994, Nature: Positional cloning of the mouse obese gene and its human homologue', url: 'https://pubmed.ncbi.nlm.nih.gov/7984236/' },
+      { source: 'Kershaw EE, Flier JS. 2004, J Clin Endocrinol Metab: Adipose tissue as an endocrine organ', url: 'https://pubmed.ncbi.nlm.nih.gov/15181022/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['leptin-ghrelin-overview', 'leptin-resistance-obesity-paradox'],
+  },
+  {
+    id: 'lipodystrophy-fat-necessity',
+    category: 'basicHealth',
+    title: 'A Rare Condition Shows What Happens When the Body Cannot Store Fat At All',
+    teaser: 'Lipodystrophy, an inability to store fat in the usual places, causes severe insulin resistance, dangerously high triglycerides, and a fatty liver, the opposite of what "less fat" would predict.',
+    summary: 'Lipodystrophy is a group of rare genetic or acquired disorders in which the body cannot store fat normally, either across most of the body or in specific regions. Someone with lipodystrophy typically has very little visible body fat, yet develops severe insulin resistance, dangerously elevated triglycerides, and a fatty liver, the same metabolic complications usually blamed on carrying too much fat. The explanation is that fat tissue has a storage job to do: without a place to safely deposit extra energy, fat instead accumulates in the liver, muscle, and pancreas, where it disrupts those organs directly. A landmark small trial (9 patients) found that replacing the missing leptin hormone with a recombinant version, metreleptin, dropped average triglycerides by 60% and shrank liver volume by an average of 28% within four months, with several patients able to stop or sharply reduce diabetes medication. The lesson generalizes past this one rare disease: fat tissue, in the right amount and place, is doing necessary metabolic work, not simply adding risk.',
+    citations: [
+      { source: 'Garg A. 2011, J Clin Endocrinol Metab: Lipodystrophies, Genetic and Acquired Body Fat Disorders', url: 'https://pubmed.ncbi.nlm.nih.gov/21865368/' },
+      { source: 'Oral EA et al. 2002, New England Journal of Medicine: Leptin-Replacement Therapy for Lipodystrophy', url: 'https://pubmed.ncbi.nlm.nih.gov/11856796/' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The leptin-replacement trial itself was small (9 patients); the underlying lipodystrophy syndrome and its metabolic consequences are well characterized across a larger body of research.',
+    relatedIds: ['leptin-discovery-ob-mice', 'masld-overview', 'insulin-resistance-real-cluster'],
+  },
+  {
+    id: 'leptin-reproductive-axis',
+    category: 'basicHealth',
+    title: "Leptin Also Signals to the Body's Reproductive System, Not Just Appetite",
+    teaser: 'A small trial gave leptin to women whose periods had stopped from very low body fat, and their reproductive hormones measurably recovered.',
+    summary: "Leptin's reach goes past hunger: it also signals to the hypothalamic-pituitary-gonadal axis, the hormonal chain that governs puberty, ovulation, and menstrual cycling. Hypothalamic amenorrhea, when periods stop from very low body fat or energy availability (seen in some athletes and in low-calorie dieting), tracks closely with low leptin levels. A small trial (8 women) tested giving these women recombinant leptin directly and found measurable improvement in reproductive hormone levels and ovarian function within weeks. This is the same hormone covered above, and it means body fat isn't only a metabolic-health question, it's directly tied to fertility signaling too, worth knowing for anyone whose periods have become irregular alongside a significant, sustained drop in body fat or calorie intake.",
+    citations: [
+      { source: 'Welt CK et al. 2004, New England Journal of Medicine: Recombinant Human Leptin in Women with Hypothalamic Amenorrhea', url: 'https://pubmed.ncbi.nlm.nih.gov/15342807/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A small trial (8 women); directly measured, but not yet the basis of an approved treatment for hypothalamic amenorrhea outside a research setting.',
+    relatedIds: ['leptin-discovery-ob-mice', 'pcos-overview'],
+  },
+  {
+    id: 'adiponectin-overview',
+    category: 'basicHealth',
+    title: "Adiponectin: The Fat Hormone That Runs Backward From Leptin",
+    teaser: "Unlike leptin, adiponectin levels go down as body fat goes up, and higher levels are consistently linked to better insulin sensitivity and less inflammation.",
+    summary: "Adiponectin is another hormone made by fat tissue, but it behaves in the opposite direction from leptin: rather than rising with body fat, adiponectin levels tend to fall as fat mass, especially visceral fat, increases. Higher adiponectin is consistently associated with better insulin sensitivity, lower inflammation, and a protective effect on blood vessels, through receptors (AdipoR1 and AdipoR2) that activate an energy-sensing enzyme (AMPK) in muscle and liver tissue. Regular exercise is independently documented to raise adiponectin levels. This is the hormone behind the documentary's sumo-wrestler segment: active wrestlers, despite very high total body fat, were reported to carry higher adiponectin than their size alone would predict, illustrating why fat amount and fat function aren't the same measurement, though that specific sumo comparison traces to the documentary and secondary science journalism rather than a dedicated peer-reviewed study, kept distinct here from the well-established general adiponectin science above.",
+    citations: [
+      { source: 'Kadowaki T, Yamauchi T. 2005, Endocrine Reviews: Adiponectin and Adiponectin Receptors', url: 'https://pubmed.ncbi.nlm.nih.gov/15897298/' },
+    ],
+    overallTier: 'strong',
+    stageNote: 'The adiponectin mechanism itself is well established; the sumo-wrestler illustration specifically is weak, documentary-sourced, and not independently verified here in a dedicated peer-reviewed study.',
+    relatedIds: ['mito-sugar-visceral-fat-cytokine-chain', 'glossary-visceral-fat', 'type2-metabolic-syndrome-cluster', 'gout-metabolic-cluster-connection'],
+  },
+  {
+    id: 'leptin-autoimmune-inflammation',
+    category: 'basicHealth',
+    title: 'Leptin Tilts the Immune System Toward Inflammation, With Direct Relevance Across Several Tracked Conditions',
+    teaser: 'The same hormone that signals fullness also promotes the Th17 immune response and suppresses the regulatory T cells that keep the immune system from attacking the body, a documented mechanistic link to autoimmune disease activity.',
+    summary: "Beyond appetite and reproduction, leptin also directly signals to immune cells: it promotes Th1 and Th17 immune responses (both implicated in autoimmune tissue damage) and suppresses regulatory T cells, the immune cells that normally keep the immune system from attacking the body's own tissue. A 2017 review in a major rheumatology journal traces this mechanism specifically through rheumatoid arthritis, lupus, and multiple sclerosis, the three autoimmune conditions where the leptin-immune connection is most directly studied so far. This is the same regulatory-T-cell mechanism the Hashimoto's research already documents separately, depleted specifically in visceral fat and restorable through a reinfusion experiment (see the linked entry). The honest caveat: this is a mechanistically grounded and active area of research, not yet a settled treatment target, and it is not evidence that body fat itself causes autoimmune disease, only that the hormones fat tissue produces are one input into how active an already-present autoimmune condition runs. Worth knowing directly across every autoimmune condition tracked in this app, not just the three named above, since Th17/regulatory-T-cell balance is shared underlying immune biology, not a mechanism unique to any single disease.",
+    citations: [
+      { source: 'Abella V et al. 2017, Nature Reviews Rheumatology: Leptin in the interplay of inflammation, metabolism and immune system disorders', url: 'https://pubmed.ncbi.nlm.nih.gov/28053336/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Most directly documented in rheumatoid arthritis, lupus, and multiple sclerosis specifically; extension to every other tracked autoimmune condition is a reasonable mechanistic inference from shared Th17/regulatory-T-cell biology, not yet individually confirmed disease-by-disease.',
+    relatedIds: ['mito-visceral-fat-treg-depletion', 'mito-visceral-fat-treg-reinfusion', 'leptin-resistance-obesity-paradox'],
+  },
   {
     id: 'estrogen-progesterone-cycle',
     category: 'basicHealth',

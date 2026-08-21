@@ -162,7 +162,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'moderate',
-    relatedIds: ['gut-scfa-treg', 'mito-sugar-visceral-fat-cytokine-chain'],
+    relatedIds: ['gut-scfa-treg', 'mito-sugar-visceral-fat-cytokine-chain', 'leptin-autoimmune-inflammation'],
   },
   {
     id: 'mito-visceral-fat-treg-reinfusion',

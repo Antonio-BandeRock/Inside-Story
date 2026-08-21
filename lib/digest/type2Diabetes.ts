@@ -127,7 +127,7 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Type 2 Diabetes, MedlinePlus, U.S. National Library of Medicine', url: 'https://medlineplus.gov/diabetestype2.html' },
     ],
     overallTier: 'strong',
-    relatedIds: ['pcos-insulin-resistance-mechanism', 'masld-overview', 'ckd-overview', 'gout-metabolic-cluster-connection', 'foodhistory-cholesterol-real-drivers', 'magnesium-insulin-glucose', 'chromium-insulin-sensitivity-honest', 'prostate-metabolic-syndrome-bph-link'],
+    relatedIds: ['pcos-insulin-resistance-mechanism', 'masld-overview', 'ckd-overview', 'gout-metabolic-cluster-connection', 'foodhistory-cholesterol-real-drivers', 'magnesium-insulin-glucose', 'chromium-insulin-sensitivity-honest', 'prostate-metabolic-syndrome-bph-link', 'bodyfat-visceral-vs-subcutaneous', 'adiponectin-overview'],
   },
   {
     id: 'type2-tying-together',

@@ -2,6 +2,7 @@ import type { Ionicons } from '@expo/vector-icons';
 import type { ComponentProps } from 'react';
 import { APP_HELPS_ENTRIES } from './appHelps';
 import { BIG_PICTURE_ENTRIES } from './bigPicture';
+import { BODY_FAT_BIOLOGY_ENTRIES } from './bodyFatBiology';
 import { BODY_SYSTEMS_ENTRIES } from './bodySystems';
 import { CARDIOVASCULAR_DISEASE_ENTRIES } from './cardiovascularDisease';
 import { CELIAC_ENTRIES } from './celiac';
@@ -127,6 +128,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...MENTAL_HEALTH_ENTRIES,
   ...HOME_GARDENING_ENTRIES,
   ...BODY_SYSTEMS_ENTRIES,
+  ...BODY_FAT_BIOLOGY_ENTRIES,
   ...RECIPES_ENTRIES,
 ];
 
