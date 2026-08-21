@@ -9,7 +9,6 @@ import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayArc } from '../../components/DayArc';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
-import { GENERIC_BACKGROUND_PALETTES } from '../../components/GenericBackground';
 import type { HelpSection } from '../../components/HelpButton';
 import { useInfoAlert } from '../../components/InfoAlert';
 import { ProgressRing } from '../../components/ProgressRing';
@@ -20,7 +19,6 @@ import { colors } from '../../constants/colors';
 import { FLOATING_BUTTON_SIZE, useBottomLeftHubPosition, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_ROUTES } from '../../constants/tabs';
 import { textShadow, typography } from '../../constants/typography';
-import { useVisualPreferences } from '../../hooks/useVisualPreferences';
 import { getCheckinTagDefinition, getCheckinTagsByCategory } from '../../lib/checkinTags';
 import { getMoonPhase, getUpcomingSeasonalMarker } from '../../lib/celestialEvents';
 import { markHomeDataReady } from '../../lib/homeReadySignal';
@@ -576,15 +574,6 @@ export default function HomeScreen() {
   // TouchableOpacity rather than a LensHub instance (see that button's own
   // render/comment below).
   const purpleDigestShortcutPosition = useBottomLeftHubPosition();
-  // Feeds Home's own footerLine below -- same flat accentColor
-  // ScreenHeader.tsx's own app-name text/divider and ScreenBackground.tsx's
-  // own footer line (for every other tab) use, so this always matches
-  // them. 2026-08-17: this used to be a shared, continuously-animated
-  // Reanimated value (the app's own iridescent rainbow) -- removed
-  // entirely as a real, confirmed battery drain (see constants/colors.ts's
-  // own header note).
-  const { genericPalette } = useVisualPreferences();
-  const footerAccentColor = GENERIC_BACKGROUND_PALETTES[genericPalette].lighter;
   const [data, setData] = useState<DashboardData | null>(null);
   const [loading, setLoading] = useState(true);
   const [showInfoAlert, infoAlertElement] = useInfoAlert();
@@ -1384,30 +1373,12 @@ export default function HomeScreen() {
             needs its own copy of the same fix. Without this, scrolled
             content shows straight through to TabHub's own floating corner. */}
         <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
-        {/* This mask painting flat colors.background over the shared
-            background's own footer line (rendered underneath it, as part
-            of the one persistent ScreenBackground instance mounted in
-            app/(tabs)/_layout.tsx) was quietly erasing that line on Home
-            specifically -- every other tab's own risen ScreenBackground
-            instance carries its bottomMask and footerLine together as one
-            unit, so this never showed up there. Same fix: draw Home's own
-            copy of that line on top of its own mask, matching
-            ScreenBackground.tsx's own footerLine exactly.
-            2026-08-21: this copy was missed when that file's own footerLine
-            moved from `bottomInset - 4 - 1` to plain `bottomInset` -- since
-            that shifted the shared instance's own line just outside
-            Home's bottomMask (no longer covered/hidden by it the way it
-            used to be), Home ended up showing BOTH lines at once, a few
-            pixels apart: the shared instance's own (now correctly
-            positioned) line, and this file's own stale copy underneath
-            it. Direct report matches exactly: "one line slightly below
-            the edge of the footer and another line sort of on the edge."
-            Updated to `bottomInset` too so both copies land on the exact
-            same pixel and read as one line again. */}
-        <View
-          style={[styles.footerLine, { backgroundColor: footerAccentColor, bottom: bottomInset }]}
-          pointerEvents="none"
-        />
+        {/* Home's own copy of the footer accent line lived here, matching
+            ScreenBackground.tsx's own -- removed outright, 2026-08-21,
+            alongside that file's own copy, direct instruction after it
+            kept showing through Profile despite four separate fix
+            attempts across two sessions. See ScreenBackground.tsx's own
+            comment for the full account. */}
         </View>
       </SwipeableTabScreen>
 
@@ -1608,13 +1579,6 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.background,
     // `height` set inline (bottomInset) -- varies by device safe-area inset.
-  },
-  footerLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 1,
-    // `bottom` set inline (bottomInset) -- see where this renders.
   },
   // paddingTop: a little separation between the header and the greeting
   // card below it, present from the start (not just something scrolling

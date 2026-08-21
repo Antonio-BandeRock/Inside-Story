@@ -57,11 +57,13 @@ const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [
 const HIGHLIGHT_OFFSET = -1.5;
 
 // row's own paddingVertical (6+6) + the text SVG's own height + the
-// divider/shadow strip below it -- every piece of this header's fixed
-// vertical footprint, added up once here instead of re-measured. The
-// title text's width auto-shrinks (see fontSize above) but its height
-// never does, so this is a true constant per device, not an estimate.
-const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + 1 + 2 + 2;
+// shadow strip below it -- every piece of this header's fixed vertical
+// footprint, added up once here instead of re-measured. The title text's
+// width auto-shrinks (see fontSize above) but its height never does, so
+// this is a true constant per device, not an estimate. The `+ 1` for the
+// divider line's own height is gone, 2026-08-21, now that the divider
+// itself is (see this file's own render-time comment for why).
+const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + 2 + 2;
 
 // Every screen wraps its own <ScreenHeader/> in a `{ paddingTop: 12 }` box
 // (see e.g. app/(tabs)/insights.tsx's own `styles.header`) -- included here
@@ -252,22 +254,15 @@ export function ScreenHeader() {
           </Svg>
         </View>
       </View>
-      {/* 2026-08-21, direct correction (matching the same fix just made to
-          ScreenBackground.tsx's own footer divider): this line used to
-          render BEFORE the two shadow-fade bars, sitting 4px above the
-          header's own true bottom edge, not on it. Reordered so the fade
-          bars (fainter one first, since they're standing in for a shadow
-          that should read as weakest furthest from the edge) come before
-          the divider instead, putting the divider itself -- same flat
-          accentColor as the app-name text above, so this line and the
-          footer's own divider (ScreenBackground.tsx) always match -- last,
-          exactly at the true edge where the shared background begins. The
-          three heights (1+2+2) are unchanged and still sum to the same
-          total HEADER_ROW_HEIGHT above, so useScreenHeaderHeight() needed
-          no change. */}
+      {/* The divider line that used to render here (matching
+          ScreenBackground.tsx's own footer divider, same accentColor) is
+          removed outright, 2026-08-21, direct instruction after that
+          footer counterpart kept showing through Profile despite four
+          separate fix attempts -- see ScreenBackground.tsx's own comment
+          for the full account. The two shadow-fade bars stay; they're a
+          soft shadow effect, not a line. */}
       <View style={styles.shadowFade2} />
       <View style={styles.shadowFade1} />
-      <View style={[styles.divider, { backgroundColor: accentColor }]} />
     </View>
     </View>
   );
@@ -297,14 +292,8 @@ const styles = StyleSheet.create({
   nameStack: {
     alignItems: 'center',
   },
-  // backgroundColor set inline (accentColor) -- a flat, static color now,
-  // not an animated gradient.
-  divider: {
-    height: 1,
-  },
-  // Two fading bars stand in for a soft drop shadow, confined to strictly
-  // below the divider -- flat colors instead of a shadow/elevation prop, so
-  // it never wraps around the sides or top.
+  // Two fading bars stand in for a soft drop shadow -- flat colors instead
+  // of a shadow/elevation prop, so it never wraps around the sides or top.
   shadowFade1: {
     height: 2,
     backgroundColor: 'rgba(43, 43, 40, 0.06)',

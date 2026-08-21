@@ -1,4 +1,3 @@
-import { useIsFocused } from '@react-navigation/native';
 import { Tabs } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { CurrentPageHelpProvider } from '../../components/CurrentPageHelp';
@@ -47,35 +46,25 @@ import { TabHub } from '../../components/TabHub';
 // automatically confined to the right region without this file needing to
 // know the header's own pixel height at all.
 export default function TabLayout() {
-  // 2026-08-21, direct report: the shared background here (specifically
-  // its own footer divider line) was visibly showing through Profile, a
-  // Stack-pushed screen that this whole group sits BEHIND once open, and
-  // two attempts at making Profile's own render tree more opaque (an
-  // explicit contentStyle on the root Stack, then an unconditional opaque
-  // View painted first in Profile's own component) both failed to block
-  // it -- conclusive proof the leak isn't coming from Profile's own code
-  // at all, since nothing Profile paints can matter if whatever's leaking
-  // renders on top of it regardless. This is the source-side fix instead:
-  // stop rendering ScreenBackground/TabHub entirely whenever this group
-  // isn't the focused screen, rather than trusting React Navigation to
-  // fully hide them on its own. `useIsFocused` (not useFocusEffect, which
-  // only fires on gain/lose, not a live boolean) reflects this Stack.
-  // Screen's own real focus state -- true while showing, false the moment
-  // Profile/Assessment/etc. push on top. Deliberately does NOT also gate
-  // ScreenHeader -- that's a single persistent instance specifically to
-  // avoid a real flash-of-placeholder-name bug (see its own header
-  // comment), and isn't implicated in this leak.
-  const isFocused = useIsFocused();
+  // 2026-08-21: a real, direct report traced the shared background here
+  // (specifically its own footer divider line) visibly showing through
+  // Profile, a Stack-pushed screen this whole group sits behind once
+  // open. Tried gating ScreenBackground/TabHub on useIsFocused() so
+  // neither would even render while some other screen was on top --
+  // reported as still not fixing it, on top of two earlier attempts at
+  // making Profile's own render tree more opaque instead. Reverted: with
+  // the footer line removed outright (see ScreenBackground.tsx's own
+  // comment), there's nothing left for either component to leak, so the
+  // extra unmount/remount cycle (a real, if minor, flash risk on
+  // returning to a tab) isn't earning its own complexity anymore.
   return (
     <CurrentPageHelpProvider>
       <View style={{ flex: 1 }}>
         <ScreenHeader />
         <View style={{ flex: 1 }}>
-          {isFocused ? (
-            <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-              <ScreenBackground variant="field" />
-            </View>
-          ) : null}
+          <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+            <ScreenBackground variant="field" />
+          </View>
           <Tabs
             screenOptions={{
               headerShown: false,
@@ -121,7 +110,7 @@ export default function TabLayout() {
             <Tabs.Screen name="garden" options={{ title: 'Garden' }} />
           </Tabs>
         </View>
-        {isFocused ? <TabHub /> : null}
+        <TabHub />
       </View>
     </CurrentPageHelpProvider>
   );

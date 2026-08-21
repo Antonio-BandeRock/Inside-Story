@@ -6,7 +6,7 @@ import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { SHARED_BACKGROUND_SCOPE_KEY } from '../lib/visualPreferences';
-import { GENERIC_BACKGROUND_PALETTES, GenericBackground } from './GenericBackground';
+import { GenericBackground } from './GenericBackground';
 
 // 2026-07-26: this used to be its own local formula (image bottom edge =
 // TabHub's own button position + a 20px margin above it), back when the
@@ -94,12 +94,6 @@ export function ScreenBackground({
   // selected with no image actually stored (a real edge case handled
   // below, not assumed away).
   const customImageUri = visualPrefs.customBackgroundImages[routeKey ?? SHARED_BACKGROUND_SCOPE_KEY];
-  // Same flat accentColor ScreenHeader.tsx's own app-name text and divider
-  // use -- whichever "lighter" color belongs to the person's own currently-
-  // chosen generic color combination, so this line matches the header's
-  // exactly rather than each reading a separately-computed value.
-  const accentColor = GENERIC_BACKGROUND_PALETTES[visualPrefs.genericPalette].lighter;
-
   return (
     <View style={[styles.body, effectiveStyle === 'off' && styles.bodyFlat]}>
       {effectiveStyle === 'photo' ? (
@@ -125,16 +119,17 @@ export function ScreenBackground({
       {effectiveStyle === 'generic' ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
-      {/* The footer's own fine line, mirroring ScreenHeader's divider --
-          same flat accentColor, so the two match. Used to sit at
-          `bottomInset - 4 - 1` (a header-line-to-edge-distance mirror, plus
-          a later manual nudge down, both from earlier on-device rounds) --
-          2026-08-21, direct correction: "the line on the footer area...
-          isn't on the top of the footer, but is actually several pixels
-          below the top edge." Both offsets removed; this now sits exactly
-          at bottomInset, the mask's own true top edge, superseding both
-          earlier tuning passes rather than layering a third on top. */}
-      <View style={[styles.footerLine, { backgroundColor: accentColor, bottom: bottomInset }]} pointerEvents="none" />
+      {/* footerLine (the footer's own fine accent-colored divider) removed
+          outright, 2026-08-21, direct instruction: after four separate
+          attempts across two sessions (repositioning it, an explicit
+          contentStyle on the root Stack, an unconditional opaque layer
+          painted first in Profile's own render tree, and unmounting this
+          whole component via useIsFocused whenever the tab group isn't
+          focused) all failed to stop it showing through Profile, a
+          Stack-pushed screen it should never have been visible on in the
+          first place. Removing it outright is the one fix guaranteed to
+          work regardless of whatever native-level mechanism was letting
+          it leak through -- there's nothing left to leak. */}
     </View>
   );
 }
@@ -163,13 +158,5 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: colors.background,
     // `height` set inline, same value as backgroundImage's own `bottom`.
-  },
-  footerLine: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    height: 1,
-    // `bottom` set inline (bottomInset) -- same y as backgroundImage's own
-    // `bottom` / bottomMask's own top edge.
   },
 });
