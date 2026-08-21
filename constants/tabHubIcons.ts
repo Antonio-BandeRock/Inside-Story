@@ -209,8 +209,19 @@ const TAB_HUB_ICON_PIXEL_DIMENSIONS: Partial<Record<TabHubIconChoice, readonly [
   // the other seed icon from the app entirely." This choice does NOT use
   // these dimensions to derive its render HEIGHT the way every other icon
   // does -- see TAB_HUB_ICON_HEIGHT_OVERRIDE below -- only its aspect ratio
-  // (361:491) is read from this pair.
-  seedTall: [361, 491],
+  // is read from this pair. Widened from 361x491 to 412x491 the same day,
+  // after a device screenshot of the launcher icon showed the pit sitting
+  // noticeably left of center -- the pit's own true center measured ~26px
+  // right of the raw trimmed file's own geometric center (a stray leaf/
+  // tendril pixel had pushed the trim's right boundary out further than
+  // the pit itself), so every consumer that centers the whole file on
+  // itself inherited that same left-shifted look. Fixed at the source by
+  // padding 51px of transparent space onto the right edge (measured, not
+  // guessed: left margin to the pit was 53px, right margin was 2px before
+  // this), so the pit's own true center now matches the file's own
+  // geometric center and every consumer is correct without needing its
+  // own compensating offset.
+  seedTall: [412, 491],
   // The 8 garden/pollinator icons, 2026-08-12 -- real, individually
   // measured pairs off the actual final (already-downsized) files, the
   // same jimp-based methodology as every other entry in this table, not
