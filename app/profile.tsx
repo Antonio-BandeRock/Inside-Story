@@ -1657,7 +1657,13 @@ export default function ProfileScreen() {
         Profile's own render tree at all, and points at something at the
         native navigation-container level this app's own code can't reach. */}
     <View style={styles.opaqueBase} pointerEvents="none" />
-    {showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
+    {/* TEMP DIAGNOSTIC, 2026-08-21: GenericBackground disabled here on
+        purpose to test whether the persistent faint line comes from its
+        own gradient/blob rendering or from somewhere else in this
+        screen's own tree. Restore this to `showGenericBackground ?
+        <GenericBackground palette={visualPrefs.genericPalette} /> : null`
+        once the test result is in -- do not ship with it off. */}
+    {false && showGenericBackground ? <GenericBackground palette={visualPrefs.genericPalette} /> : null}
     <ScrollView
       style={[styles.screen, showGenericBackground && styles.transparentBackground]}
       contentContainerStyle={[styles.container, { paddingBottom: scrollBottomPadding }]}
