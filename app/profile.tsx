@@ -2194,7 +2194,24 @@ export default function ProfileScreen() {
               scoring, and medications are relevant to you personally. Multiple selections are fully supported;
               having more than one is common.
             </Text>
-            <View style={styles.pillRow}>
+            {/* A real, even 2-column grid, 2026-08-21 -- direct report:
+                the plain pillRow every other picker on this screen uses
+                (flexWrap with content-sized pills) reads fine for a
+                shorter list, but with 19 real condition names of wildly
+                different lengths ("Gout" next to "Inflammatory Bowel
+                Disease"), the pills packed left-to-right and wrapped
+                wherever they happened to fit, never lining up into real
+                rows or columns. Scoped to just this one list
+                (conditionGrid/conditionGridItem/conditionPill below) rather
+                than changing pillRow itself, which every other picker on
+                this screen still uses unchanged -- those lists are shorter
+                and more even, and weren't part of this report. Still the
+                same pill look/colors (styles.pill/pillActive/pillText/
+                pillTextActive, reused directly), just each one now sits in
+                a fixed-width half-card cell instead of sizing to its own
+                text, so two per row always line up with the row below
+                regardless of how long either name is. */}
+            <View style={styles.conditionGrid}>
               {allConditions
                 .filter((condition) => condition.status !== 'planned')
                 .slice()
@@ -2202,16 +2219,16 @@ export default function ProfileScreen() {
                 .map((condition) => {
                   const active = selectedConditions.includes(condition.code);
                   return (
-                    <TouchableOpacity
-                      key={condition.code}
-                      style={[styles.pill, active && styles.pillActive]}
-                      onPress={() => toggleCondition(condition.code)}
-                    >
-                      <Text style={[styles.pillText, active && styles.pillTextActive]}>
-                        {condition.name}
-                        {condition.status === 'in_progress' ? ' (early access)' : ''}
-                      </Text>
-                    </TouchableOpacity>
+                    <View key={condition.code} style={styles.conditionGridItem}>
+                      <TouchableOpacity
+                        style={[styles.pill, styles.conditionPill, active && styles.pillActive]}
+                        onPress={() => toggleCondition(condition.code)}
+                      >
+                        <Text style={[styles.pillText, styles.conditionPillText, active && styles.pillTextActive]}>
+                          {condition.name}
+                        </Text>
+                      </TouchableOpacity>
+                    </View>
                   );
                 })}
             </View>
@@ -2901,9 +2918,31 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 1 },
     shadowOpacity: 0.08,
     shadowRadius: 4,
+    // borderTopWidth/borderTopColor, 2026-08-21, direct report: "when I am
+    // scrolling through the different [expandable sections]... it is sort
+    // of difficult to recognise where one ends and another begins." The
+    // surface-color/shadow contrast alone (this card sitting on the
+    // screen's own ground color) apparently wasn't enough to register at a
+    // glance while scrolling -- a real, visible line at each card's own
+    // top edge is the "physical line between them" asked for directly,
+    // same real mechanism (borderTopWidth/borderTopColor) the Appearance &
+    // Navigation card's own 5 sub-sections already used for the identical
+    // complaint on 2026-08-14 (see appearanceSubsectionHeader below), just
+    // applied one level up, to every top-level card rather than one card's
+    // own internal sub-sections.
+    borderTopWidth: 1,
+    borderTopColor: colors.border,
   },
   label: {
     ...typography.sectionTitle,
+    // fontSize 18, not sectionTitle's own 17 -- same 2026-08-21 report,
+    // "make the headers of each larger." Deliberately short of 20
+    // (typography.screenTitle, and profileTitle's own real size just above
+    // in this file) so a card header still reads as clearly one step below
+    // the actual "Profile" page title in the sticky bar, not competing
+    // with it -- a modest, real bump over the previous 17, not a jump to
+    // the biggest tier this type scale has.
+    fontSize: 18,
     // 2026-08-08, explicitly requested: these card headers ("Birth date,"
     // "Height," etc.) had no color set at all before this -- defaulting to
     // React Native's own plain black -- and needed to be "a lighter color
@@ -3007,6 +3046,41 @@ const styles = StyleSheet.create({
   },
   pillTextActive: {
     color: colors.textOnPrimary,
+  },
+  // The Conditions & Check-In condition picker's own even 2-column grid,
+  // 2026-08-21 -- see the JSX's own comment above for why this list needed
+  // a real grid instead of the plain pillRow every other picker on this
+  // screen keeps using. -4/4 (marginHorizontal on the row, paddingHorizontal
+  // on each cell) is the standard RN "gap via padding" trick: pillRow's own
+  // `gap` isn't used here since two 50%-width cells plus a gap would push
+  // the row past 100% width -- the negative outer margin cancels the
+  // cells' own padding back out so the grid's left/right edges still line
+  // up with every other element on this card.
+  conditionGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginHorizontal: -4,
+  },
+  conditionGridItem: {
+    width: '50%',
+    paddingHorizontal: 4,
+    paddingVertical: 4,
+  },
+  // Stretches the pill to fill its own grid cell (styles.pill's own width
+  // is normally content-sized) and centers its content within that fixed
+  // width, so a short name ("Gout") and a long one ("Chronic Kidney
+  // Disease") both read as the same-size button in the same grid position.
+  conditionPill: {
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // textAlign: 'center', not just alignItems on the pill above -- alignItems
+  // only centers the text block as a whole; a name long enough to wrap to a
+  // second line still needs this so each individual line centers too,
+  // rather than the block centering while each line left-aligns within it.
+  conditionPillText: {
+    textAlign: 'center',
   },
   // TabHub Icon picker -- a wrapping grid of tappable icon tiles, one per
   // TabHubIconChoice, mirroring TabHub.tsx's/LensHub.tsx's own grid-item
