@@ -1943,13 +1943,13 @@ export default function ProfileScreen() {
                   }}
                 />
               </PickerField>
+              <TouchableOpacity
+                style={styles.growingZoneLinkButton}
+                onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } })}
+              >
+                <Text style={styles.growingZoneLinkText}>Find My Zone →</Text>
+              </TouchableOpacity>
             </View>
-            <TouchableOpacity
-              style={styles.checkinButton}
-              onPress={() => router.push({ pathname: '/garden', params: { openGardenLens: 'myZone' } })}
-            >
-              <Text style={styles.checkinButtonText}>Set your postal code in Garden&apos;s My Zone →</Text>
-            </TouchableOpacity>
           </View>
         ) : null}
       </View>
@@ -3049,6 +3049,21 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
     marginTop: 12,
+  },
+  // 2026-08-21 -- the Growing Zone row's own link to Garden's My Zone lens,
+  // direct correction after a first pass placed this as a full-width
+  // checkinButton-style block beneath the row instead: "that is a sloppy
+  // button. Move the button to the right of the spot to put it in
+  // manually." Sits inline in dateRow next to the Zone PickerField now, a
+  // plain underlined link scaled to the row rather than a bold primary-
+  // colored block competing with a small dropdown.
+  growingZoneLinkButton: {
+    justifyContent: 'center',
+  },
+  growingZoneLinkText: {
+    ...typography.body,
+    color: colors.primary,
+    textDecorationLine: 'underline',
   },
   // Wraps a PickerField's own label + PopoverSelect -- same shape as Side
   // Builder's own labeledPickerField/formLabel pair.

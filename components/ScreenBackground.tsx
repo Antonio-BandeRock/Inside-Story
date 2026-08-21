@@ -126,14 +126,15 @@ export function ScreenBackground({
       {children}
       <View style={[styles.bottomMask, { height: bottomInset }]} pointerEvents="none" />
       {/* The footer's own fine line, mirroring ScreenHeader's divider --
-          same flat accentColor, so the two match. Base `- 4` matches the
-          header's own line-to-edge distance: on ScreenHeader, the divider
-          sits shadowFade1 (2px) + shadowFade2 (2px) = 4px before the true
-          edge where the image begins; this sits that same 4px on the other
-          side of the equivalent edge (bottomInset, where the image ends and
-          the flat mask begins). The further `- 1` is a small manual nudge
-          down, requested after eye testing on-device. */}
-      <View style={[styles.footerLine, { backgroundColor: accentColor, bottom: bottomInset - 4 - 1 }]} pointerEvents="none" />
+          same flat accentColor, so the two match. Used to sit at
+          `bottomInset - 4 - 1` (a header-line-to-edge-distance mirror, plus
+          a later manual nudge down, both from earlier on-device rounds) --
+          2026-08-21, direct correction: "the line on the footer area...
+          isn't on the top of the footer, but is actually several pixels
+          below the top edge." Both offsets removed; this now sits exactly
+          at bottomInset, the mask's own true top edge, superseding both
+          earlier tuning passes rather than layering a third on top. */}
+      <View style={[styles.footerLine, { backgroundColor: accentColor, bottom: bottomInset }]} pointerEvents="none" />
     </View>
   );
 }
