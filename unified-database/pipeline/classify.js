@@ -1475,7 +1475,7 @@ const OIL_DISQUALIFIERS = [
 // because of the expansion of who this app is for, and the free tier
 // should be able to have that available... which we will filter out for
 // them based on their condition criteria if they want us to" (that
-// condition-based filtering is real, existing Purple Digest/Healing-
+// condition-based filtering is real, existing Digest/Healing-
 // Stages machinery already built into the live app -- e.g. Celiac's own
 // gluten flag -- carried over during the later Phase 5 merge, not
 // something this pipeline needs to build itself). Built directly

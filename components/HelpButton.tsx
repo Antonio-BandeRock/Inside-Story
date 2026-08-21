@@ -33,7 +33,7 @@ export function HelpSheet({
   pageTitle: string;
   sections: HelpSection[];
   // Optional, additive, real JSX rendered after the plain-text sections
-  // above -- 2026-08-09, added for Purple Digest's own "About Search
+  // above -- 2026-08-09, added for Digest's own "About Search
   // Matching" sheet, which needs to show real, colored dot/pill mockups
   // alongside its prose, not just plain heading/body text. Every existing
   // caller that doesn't pass this renders exactly as before -- this is a

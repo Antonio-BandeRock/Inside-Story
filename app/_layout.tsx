@@ -337,7 +337,7 @@ export default function RootLayout() {
                   own <Stack.Screen options={{title}}/> at render time (see
                   app/food-items.tsx), since it covers every builder's every
                   saved/favorited category, not one fixed thing the way
-                  Profile/Check-In/The Purple Digest each are. */}
+                  Profile/Check-In/The Digest each are. */}
               <Stack.Screen
                 name="food-items"
                 options={{

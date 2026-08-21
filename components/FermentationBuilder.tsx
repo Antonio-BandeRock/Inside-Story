@@ -586,7 +586,7 @@ export function FermentationBuilder({
   // except this never marks anything as an edit -- finishFermentation
   // always creates a genuinely NEW fermentation from a favorite.
   fromFavoriteId,
-  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // Set when reached via a "Build This Recipe" button on a Digest
   // recipe entry, 2026-08-14 -- see SideBuilder.tsx's own identical
   // openRecipeId for the full reasoning.
   openRecipeId,
@@ -2023,7 +2023,7 @@ export function FermentationBuilder({
               recipe loading in via the openRecipeId deep link (still real
               feedback here for the strain picker it also pre-fills, not
               just the fields) now that the inline "Or Start From a Recipe"
-              cards are gone, replaced by a real link out to Purple Digest
+              cards are gone, replaced by a real link out to Digest
               below. */}
           {loadingCuratedRecipeId ? (
             <View style={styles.loadingRecipeRow}>

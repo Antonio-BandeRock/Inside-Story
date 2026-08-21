@@ -471,7 +471,7 @@ export function HandheldsBuilder({
   // this never marks anything as an edit -- finishHandheld always creates a
   // genuinely NEW handheld from a favorite.
   fromFavoriteId,
-  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // Set when reached via a "Build This Recipe" button on a Digest
   // recipe entry, 2026-08-14 -- see SideBuilder.tsx's own identical
   // openRecipeId for the full reasoning.
   openRecipeId,

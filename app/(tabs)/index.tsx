@@ -214,7 +214,7 @@ function SkyGridItem({
 // 4 hardcoded cards, always the same 4, every single day. Explicitly asked
 // to feel alive instead: a much bigger pool (16 real, cited-in-spirit
 // tidbits spanning Hashimoto's specifically and autoimmune disease more
-// broadly, matching The Purple Digest's own broadened scope), a different
+// broadly, matching The Digest's own broadened scope), a different
 // stable subset shown each day, and a "show more" card at the end that
 // reveals further cards from the same pool rather than an infinite/AI-
 // generated feed -- this app's whole ethos is curated and cited, not
@@ -468,10 +468,10 @@ function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
   );
 }
 
-// The Purple Digest's own corner shortcut, 2026-07-27 -- explicitly
+// The Digest's own corner shortcut, 2026-07-27 -- explicitly
 // requested: Home is the one page with no LensHub of its own (nothing to
 // switch between), so its own bottom-left corner sits unused; this gives
-// Home a direct, always-visible way into The Purple Digest, "just like the
+// Home a direct, always-visible way into The Digest, "just like the
 // other main tabs" have for their own lenses, rather than only being
 // reachable through the butterfly menu's own grid (TabHub.tsx, added
 // earlier the same day).
@@ -479,7 +479,7 @@ function CardLabel({ tabPath, text }: { tabPath: Href; text: string }) {
 // 2026-08-05: simplified from its own 3-option LensHub (MedlinePlus/ATA/
 // Autoimmune Association -- the original external-source plan named in the
 // old app/purple-digest.tsx's own header comment) down to a single plain
-// button, once Purple Digest was promoted to a real tab (see
+// button, once Digest was promoted to a real tab (see
 // constants/tabs.ts) with its own real 9-category LensHub of its own. "The
 // icon on the Home page can stay a shortcut to that Hub," per the request
 // that prompted this -- a single tap into the real tab, not a second,
@@ -570,7 +570,7 @@ export default function HomeScreen() {
   const router = useRouter();
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   const bottomInset = useBackgroundBottomInset();
-  // The Purple Digest corner shortcut's own position -- same hook LensHub
+  // The Digest corner shortcut's own position -- same hook LensHub
   // uses internally, called here directly since this button is now a plain
   // TouchableOpacity rather than a LensHub instance (see that button's own
   // render/comment below).
@@ -1330,7 +1330,7 @@ export default function HomeScreen() {
           {/* Explicitly requested, 2026-07-27: no header above this row
               anymore ("A Few Things Worth Knowing" is gone) -- the ribbon
               icon/purple coloring on the cards themselves, plus the "More
-              from The Purple Digest" card at the end, already say what
+              from The Digest" card at the end, already say what
               this is without a label spelling it out too. See
               FLIP_CARD_POOL's own comment (top of file) for the bigger
               change this is part of: a real rotating pool instead of 4
@@ -1358,7 +1358,7 @@ export default function HomeScreen() {
                 activeOpacity={0.85}
               >
                 <Ionicons name="add-circle-outline" size={32} color={colors.tabPurpleDigest} />
-                <Text style={[styles.moreFlipCardText, { color: colors.tabPurpleDigest }]}>More from{'\n'}The Purple Digest</Text>
+                <Text style={[styles.moreFlipCardText, { color: colors.tabPurpleDigest }]}>More from{'\n'}The Digest</Text>
               </TouchableOpacity>
             ) : null}
           </ScrollView>
@@ -1389,11 +1389,11 @@ export default function HomeScreen() {
         style={[styles.purpleDigestShortcut, purpleDigestShortcutPosition]}
         // openLensHub query param, 2026-08-08 -- same mechanism TabHub's
         // own go() now uses (see that file's comment), so this shortcut
-        // lands on Purple Digest with its own LensHub already open too,
-        // exactly like tapping "Purple Digest" from TabHub itself would.
+        // lands on Digest with its own LensHub already open too,
+        // exactly like tapping "Digest" from TabHub itself would.
         onPress={() => router.push(`/purple-digest?openLensHub=${Date.now()}` as Href)}
         activeOpacity={0.85}
-        accessibilityLabel="Open The Purple Digest"
+        accessibilityLabel="Open The Digest"
       >
         <PurpleRibbonIcon size={32} color={colors.tabPurpleDigest} />
         <Text style={[styles.purpleDigestShortcutLabel, { color: colors.tabPurpleDigest }]} numberOfLines={1}>

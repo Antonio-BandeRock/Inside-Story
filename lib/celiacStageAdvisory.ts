@@ -110,6 +110,6 @@ export function getCeliacStageAdvisory(scores: FoodScore[], stage: CeliacStage |
     title: 'Celiac Stage: Newly Diagnosed / Actively Healing',
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Celiac Disease category in Purple Digest for the full, cited healing timeline.",
+      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Celiac Disease category in Digest for the full, cited healing timeline.",
   };
 }

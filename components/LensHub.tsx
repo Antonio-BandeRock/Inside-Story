@@ -29,7 +29,7 @@ export type LensOption<T extends string> = {
   // Overrides just the grid item's own label text, independent of `label`
   // (still used everywhere else this option's name appears -- the Info
   // sheet's own heading, activeLensLabel, etc.) -- 2026-08-07, added for
-  // Purple Digest's own longer category names. A label left to wrap on its
+  // Digest's own longer category names. A label left to wrap on its
   // own (see itemLabelLines) breaks wherever plain word-wrap happens to
   // land, which isn't always the most readable split ("Other Autoimmune" /
   // "Diseases" reads fine; a name that wrapped mid-phrase wouldn't).
@@ -41,10 +41,10 @@ export type LensOption<T extends string> = {
   gridLabel?: string;
   // Overrides just this ONE grid item's own icon with a real, custom
   // component (react-native-svg or otherwise) instead of the plain
-  // `icon` Ionicons glyph -- 2026-08-09, added for Purple Digest's own 19
+  // `icon` Ionicons glyph -- 2026-08-09, added for Digest's own 19
   // condition-specific vector icons (see components/DigestConditionIcons.tsx),
   // the same real "swap one icon for a custom component" pattern this app
-  // already uses for the Purple Digest TAB icon itself (TabHub.tsx's own
+  // already uses for the Digest TAB icon itself (TabHub.tsx's own
   // renderIcon special-case), just applied per grid item instead of per
   // page. `icon` above is still required regardless -- it's the real
   // fallback for any option that doesn't set this, and stays what every
@@ -147,7 +147,7 @@ const CORNER_ICON_SHADOW = {
 // its grid doesn't jump around as the active item changes.
 const GRID_ITEM_PILL_SIZE = 34;
 const GRID_ITEM_ICON_SIZE = 20;
-// 2026-08-09, custom option.renderIcon icons (Purple Digest's own 19 real
+// 2026-08-09, custom option.renderIcon icons (Digest's own 19 real
 // condition-artwork icons, the only current caller) get a real, bigger
 // render size than the plain Ionicons glyphs every other page's grid uses
 // -- reported directly as reading too small. Deliberately NOT a change to
@@ -305,7 +305,7 @@ export function LensHub<T extends string>({
   selected: T | undefined;
   onSelect: (key: T) => void;
   // Explicit override for the trigger button's icon/color, 2026-07-27 --
-  // added for Home's own new corner button into The Purple Digest, which
+  // added for Home's own new corner button into The Digest, which
   // (like Profile) is deliberately NOT in TAB_ROUTES (a Stack push, not a
   // swipeable tab), so the usual pageTitle -> TAB_ROUTES lookup below has
   // nothing to find. Optional: every existing call site keeps working
@@ -313,7 +313,7 @@ export function LensHub<T extends string>({
   // TAB_ROUTES as before.
   icon?: ComponentProps<typeof Ionicons>['name'];
   // Replaces the corner button's icon with fully custom content instead of
-  // an Ionicons glyph, 2026-07-28 -- added for Home's own Purple Digest
+  // an Ionicons glyph, 2026-07-28 -- added for Home's own Digest
   // button, whose vector "ribbon" glyph read as a race/award rosette
   // rather than an actual awareness ribbon (see PurpleRibbonIcon.tsx's own
   // history -- a raw photo was tried and reverted first, for not standing
@@ -339,8 +339,8 @@ export function LensHub<T extends string>({
   // icon, 2026-07-27) -- independent of headerLabel, since the two don't
   // always want the same text. Food's own popup header reads "Nutrition
   // Builders" (headerLabel), but its corner button just says "Food"
-  // (this); Home's own Purple Digest corner button says "Digest" (this)
-  // while its popup keeps the full "The Purple Digest" (pageTitle, no
+  // (this); Home's own Digest corner button says "Digest" (this)
+  // while its popup keeps the full "The Digest" (pageTitle, no
   // headerLabel override needed there). Falls back to headerLabel, then
   // pageTitle, same as the popup's own header does -- most callers don't
   // need this at all.
@@ -381,7 +381,7 @@ export function LensHub<T extends string>({
   // floating corner, matching the behavior this prop replaces.
   //
   // 2026-08-07: made independently settable, not just implied by column
-  // count -- Purple Digest needed 2 columns for its own long category
+  // count -- Digest needed 2 columns for its own long category
   // labels to read comfortably (see itemLabelLines/gridLabel below), but
   // the floating corner Info tile it fell back to under the old `columns
   // !== 2` rule was then reported as sitting on top of/getting in the way
@@ -396,7 +396,7 @@ export function LensHub<T extends string>({
   //
   // When true and `columns` is odd (Food's 3), Info still centers on its
   // own fresh row exactly as before. When true and `columns` is even
-  // (Purple Digest's 2), there's no true middle column to center on, so
+  // (Digest's 2), there's no true middle column to center on, so
   // Info simply renders as the next tile after the last real option --
   // filling whatever slot that naturally is (the empty half of an
   // otherwise-odd last row, or alone on a fresh row if the last row was
@@ -422,7 +422,7 @@ export function LensHub<T extends string>({
   // TabHub" signal, unlike the two earlier, reverted attempts named just
   // below). A screen that never wants this can simply omit the prop.
   autoOpenSignal?: string;
-  // 2026-08-09, explicitly requested for Purple Digest specifically: "the
+  // 2026-08-09, explicitly requested for Digest specifically: "the
   // iridescnt circle that is supposed to go around the tapped icon in
   // Digest isn't big enough on any of them, and... they appear to be
   // smaller than the ones used in the other LensHub menus." True even
@@ -443,7 +443,7 @@ export function LensHub<T extends string>({
   // CARD_HEIGHT (both stay fixed, shared module constants sized off the
   // DEFAULT pill -- `item`'s own style has no fixed height, so a bigger
   // pill here just makes that one page's own rows taller in the natural
-  // content flow, which Purple Digest's grid already scrolls past its
+  // content flow, which Digest's grid already scrolls past its
   // one shared CARD_HEIGHT window regardless).
   gridPillSize?: number;
   gridCustomIconSize?: number;
@@ -468,7 +468,7 @@ export function LensHub<T extends string>({
   // 2026-08-08: reintroduced a third time, this time via `autoOpenSignal`
   // above -- the real mitigation this comment asked for. Unlike both
   // earlier attempts, the signal driving this one is sourced from a real,
-  // narrow event (a genuine TabHub tap or Home's Purple Digest shortcut,
+  // narrow event (a genuine TabHub tap or Home's Digest shortcut,
   // see useAutoOpenLensHubSignal's own comment) that a horizontal swipe
   // between tabs never produces, so the exact swipe-through friction named
   // above can't recur through this path.
@@ -488,7 +488,7 @@ export function LensHub<T extends string>({
   // Whether the grid has real content below/above the visible window --
   // drives the fade-plus-chevron scroll hints below. 2026-08-07: added
   // alongside the ScrollView itself (see gridScroll's own comment), once
-  // Purple Digest's real category count made scrolling genuinely necessary
+  // Digest's real category count made scrolling genuinely necessary
   // -- "since the digest LensHub menu scrolls, it should have some
   // characteristic that tells people to scroll it," explicitly requested.
   // Split into two independent booleans (was a single canScrollMore) the
@@ -539,7 +539,7 @@ export function LensHub<T extends string>({
       lastAutoOpenSignal.current = autoOpenSignal;
       // 2026-08-08, a real, root-caused fix for a real, on-device-confirmed
       // "popup drops in from above" report -- reproducible specifically via
-      // Purple Digest's own new "Back to Digest" breadcrumb (which drives
+      // Digest's own new "Back to Digest" breadcrumb (which drives
       // this same autoOpenSignal path a second, third, etc. time within one
       // screen visit), never via a direct corner-button tap. Traced
       // directly, not guessed: the corner button's own onPress (below)
@@ -757,7 +757,7 @@ export function LensHub<T extends string>({
             <Text style={styles.cardHeader} maxFontSizeMultiplier={LABEL_MAX_FONT_SCALE}>
               {headerLabel ?? pageTitle}
             </Text>
-            {/* ScrollView, not a plain View, 2026-08-07 -- Purple Digest
+            {/* ScrollView, not a plain View, 2026-08-07 -- Digest
                 grew past what CARD_HEIGHT's own shared row budget (sized to
                 Food's 9-option worst case) can show at once, and explicitly
                 "let's set that up" was the direction rather than growing

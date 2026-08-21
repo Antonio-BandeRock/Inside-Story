@@ -96,6 +96,6 @@ export function getIbsPhaseAdvisory(scores: FoodScore[], phase: IbsPhase | null)
     title: 'IBS Phase: Elimination',
     message:
       reasons.join('\n\n') +
-      "\n\nThis app doesn't tag FODMAP content directly, so this is a general digestive-tolerance flag, not a confirmed FODMAP hit. This is advisory only -- nothing in Inside Story hides or blocks a food based on your phase. See the IBS category in Purple Digest for the full, cited low-FODMAP protocol.",
+      "\n\nThis app doesn't tag FODMAP content directly, so this is a general digestive-tolerance flag, not a confirmed FODMAP hit. This is advisory only -- nothing in Inside Story hides or blocks a food based on your phase. See the IBS category in Digest for the full, cited low-FODMAP protocol.",
   };
 }

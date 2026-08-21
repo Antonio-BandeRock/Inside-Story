@@ -256,7 +256,7 @@ const FOOD_LENSES: LensOption<FoodLens>[] = [
     // A plain Ionicons glyph, like every other Food-tab lens tile -- no
     // custom renderIcon needed here. 2026-08-14 originally shipped this
     // as a real, hand-drawn cupcake (components/FoodBuilderIcons.tsx), the
-    // same custom-icon mechanism Purple Digest's own condition tiles use;
+    // same custom-icon mechanism Digest's own condition tiles use;
     // that shape read as an ice cream cone on a real device instead of a
     // cupcake, so 2026-08-16 dropped the custom renderer for the real
     // thing Ionicons already ships (this exact glyph was already set here
@@ -337,7 +337,7 @@ export default function FoodScreen() {
     fromSauceFavoriteId,
     fromHandheldFavoriteId,
     fromDessertFavoriteId,
-    // Purple Digest's own new "Recipes" category, 2026-08-14 -- one
+    // Digest's own new "Recipes" category, 2026-08-14 -- one
     // "Build This Recipe" button per curated-recipe card (see
     // app/(tabs)/purple-digest.tsx's own DigestCard), one param per
     // builder, same shape as the fromXFavoriteId params just above: opens
@@ -442,7 +442,7 @@ export default function FoodScreen() {
   // onSelect handler below, same as every other piece of "which lens am I
   // really in" state on this screen -- a fresh pick of Beverages from the
   // menu always asks again, matching this whole app's own "never an
-  // instant resume of whatever was last open" convention (Purple Digest's
+  // instant resume of whatever was last open" convention (Digest's
   // Basic Health tree does the identical reset on its own fresh arrival).
   const [beverageSubtype, setBeverageSubtype] = useState<BeverageSubtypeKey | null>(null);
   // Same pattern, same reasoning, 2026-08-21 -- see
@@ -635,7 +635,7 @@ export default function FoodScreen() {
         setRevealed(true);
         return;
       }
-      // Purple Digest's own "Build This Recipe" routing, 2026-08-14 -- same
+      // Digest's own "Build This Recipe" routing, 2026-08-14 -- same
       // shape as the fromXFavoriteId checks just above, checked right after
       // them so an edit or favorite-reuse link always wins if somehow more
       // than one of these were present at once (shouldn't happen in
@@ -1206,7 +1206,7 @@ export default function FoodScreen() {
             // lens. editBeverageId/fromBeverageFavoriteId (editing or
             // reusing something that already exists) skip it outright,
             // matching every other builder's own identical deep-link
-            // convention -- openBeverageRecipeId (Purple Digest's own
+            // convention -- openBeverageRecipeId (Digest's own
             // "Build This Recipe" button, 2026-08-14) does the same, for
             // the identical reason: a curated recipe already names its own
             // real ingredients, so there's no real "what kind" question

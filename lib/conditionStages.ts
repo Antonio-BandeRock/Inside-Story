@@ -4,7 +4,7 @@
 // need to have theirs built in too."
 //
 // A real, honest audit of all 18 non-Hashimoto's conditions (checking each
-// condition's own already-published Purple Digest content, and the real
+// condition's own already-published Digest content, and the real
 // underlying literature via WebSearch/WebFetch where the Digest didn't
 // already settle it) found genuine, citable staged-food frameworks are NOT
 // evenly distributed. Hashimoto's own five-stage Wentz framework is a real,
@@ -68,7 +68,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'hashimotos',
     conditionLabel: "Hashimoto's Disease",
     frameworkName: 'The Healing/Regression Stages (Dr. Izabella Wentz)',
-    frameworkNote: 'A real, named practitioner framework -- not mainstream endocrinology consensus. See Purple Digest\'s own Healing Stages category for the full, cited guide.',
+    frameworkNote: 'A real, named practitioner framework -- not mainstream endocrinology consensus. See Digest\'s own Healing Stages category for the full, cited guide.',
     stages: HEALING_STAGES.map((code) => ({
       code,
       label: HEALING_STAGE_INFO[code].label,
@@ -80,7 +80,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'ibs',
     conditionLabel: 'Irritable Bowel Syndrome',
     frameworkName: 'The Low-FODMAP Elimination / Reintroduction / Personalization Protocol',
-    frameworkNote: 'A real, standard clinical protocol (Halmos & Gibson 2019, PMID 30945376) -- not specific to this app. See Purple Digest\'s own IBS category for the full, cited evidence.',
+    frameworkNote: 'A real, standard clinical protocol (Halmos & Gibson 2019, PMID 30945376) -- not specific to this app. See Digest\'s own IBS category for the full, cited evidence.',
     stages: IBS_PHASES.map((code) => ({
       code,
       label: IBS_PHASE_INFO[code].label,
@@ -92,7 +92,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'celiac',
     conditionLabel: 'Celiac Disease',
     frameworkName: "The Real, Age-Dependent Villi-Healing Timeline",
-    frameworkNote: 'A real, cited healing window (not the diagnostic Marsh biopsy scale) -- see Purple Digest\'s own Celiac Disease category for the full evidence, including why healing can take up to 2 years.',
+    frameworkNote: 'A real, cited healing window (not the diagnostic Marsh biopsy scale) -- see Digest\'s own Celiac Disease category for the full evidence, including why healing can take up to 2 years.',
     stages: CELIAC_STAGES.map((code) => ({
       code,
       label: CELIAC_STAGE_INFO[code].label,
@@ -104,7 +104,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'ibd',
     conditionLabel: 'Inflammatory Bowel Disease',
     frameworkName: 'The Real, Clinical Flare / Remission Distinction',
-    frameworkNote: 'A real, standard clinical distinction (not the diagnostic Montreal classification, which is static) -- see Purple Digest\'s own Inflammatory Bowel Disease category for the full evidence.',
+    frameworkNote: 'A real, standard clinical distinction (not the diagnostic Montreal classification, which is static) -- see Digest\'s own Inflammatory Bowel Disease category for the full evidence.',
     stages: IBD_STAGES.map((code) => ({
       code,
       label: IBD_STAGE_INFO[code].label,
@@ -122,7 +122,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'chronic_kidney_disease',
     conditionLabel: 'Chronic Kidney Disease',
     frameworkName: 'The Real Pre-Dialysis / On-Dialysis Dietary Reversal',
-    frameworkNote: 'A real, cited clinical reversal (not the diagnostic KDIGO G/A staging grid, which is static) -- see Purple Digest\'s own Chronic Kidney Disease category for the full evidence.',
+    frameworkNote: 'A real, cited clinical reversal (not the diagnostic KDIGO G/A staging grid, which is static) -- see Digest\'s own Chronic Kidney Disease category for the full evidence.',
     stages: CKD_STAGES.map((code) => ({
       code,
       label: CKD_STAGE_INFO[code].label,
@@ -134,7 +134,7 @@ export const CONDITION_STAGING_MODELS: ConditionStagingModel[] = [
     conditionCode: 'gout',
     conditionLabel: 'Gout',
     frameworkName: "Gout's Own Real, Four-Stage Natural History",
-    frameworkNote: 'A real, well-characterized clinical progression (StatPearls) -- see Purple Digest\'s own Gout category for the full, cited evidence.',
+    frameworkNote: 'A real, well-characterized clinical progression (StatPearls) -- see Digest\'s own Gout category for the full, cited evidence.',
     stages: GOUT_STAGES.map((code) => ({
       code,
       label: GOUT_STAGE_INFO[code].label,

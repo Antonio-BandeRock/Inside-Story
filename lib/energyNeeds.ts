@@ -38,7 +38,7 @@
 //
 // Every condition-specific override lives in CONDITION_PROTEIN_OVERRIDES
 // below, reusing figures already published and cited in this app's own
-// Purple Digest content (lib/ckdStageAdvisory.ts,
+// Digest content (lib/ckdStageAdvisory.ts,
 // lib/digest/chronicKidneyDisease.ts) rather than re-deriving them --
 // currently just CKD's own pre-dialysis/on-dialysis reversal, the one
 // condition this app has already built real, food-relevant staging for
@@ -134,7 +134,7 @@ export const CONDITION_PROTEIN_OVERRIDES: ConditionProteinOverride[] = [
     conditionCode: 'chronic_kidney_disease',
     stageCode: 'on_dialysis',
     gramsPerKg: 1.2,
-    note: 'Using 1.2 g/kg. Dialysis itself removes protein that needs replacing, so the pre-dialysis ceiling above no longer applies once dialysis starts. See the Chronic Kidney Disease category in Purple Digest for the full reversal.',
+    note: 'Using 1.2 g/kg. Dialysis itself removes protein that needs replacing, so the pre-dialysis ceiling above no longer applies once dialysis starts. See the Chronic Kidney Disease category in Digest for the full reversal.',
   },
 ];
 

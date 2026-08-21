@@ -822,7 +822,7 @@
 // Vegetable Soup) actually need to cook themselves -- fixed by using the
 // real base_name with both a Raw and a Grilled variant instead.
 //
-// A new Purple Digest "Recipes" category (lib/digest/recipes.ts, 44 real
+// A new Digest "Recipes" category (lib/digest/recipes.ts, 44 real
 // entries, one per curated recipe, reusing each recipe's own real
 // name/flavor-profile/health-benefit text rather than new prose) surfaces
 // all of this as real, browsable, "Build This Recipe" content -- tapping

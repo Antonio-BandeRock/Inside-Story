@@ -1,5 +1,5 @@
 // A real, editable photo slot on any Digest card that actually resolves to
-// something a person can attach a photo to -- Purple Digest's Recipes, My
+// something a person can attach a photo to -- Digest's Recipes, My
 // Kitchen, and My Favorites, 2026-08-15 direct request: "provide a way to
 // take a picture using the app of the meal and upload it to the recipe."
 //

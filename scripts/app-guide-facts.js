@@ -65,7 +65,7 @@ try {
   facts.referenceDatabase = { error: String(e.message || e) };
 }
 
-// --- Purple Digest: total entries + categories ---
+// --- Digest: total entries + categories ---
 try {
   const digestDir = path.join(REPO_ROOT, 'lib', 'digest');
   const files = fs.readdirSync(digestDir).filter((f) => f.endsWith('.ts') && f !== 'index.ts' && f !== 'types.ts');

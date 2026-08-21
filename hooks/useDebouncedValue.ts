@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 // A plain, standard debounce -- returns `value` itself, but only updates
 // its own returned copy `delayMs` after `value` stops changing. 2026-08-08,
-// built for Purple Digest's own reported keyboard lag: typing into either
+// built for Digest's own reported keyboard lag: typing into either
 // search box updates the box's own raw, controlled state instantly (so the
 // characters themselves always appear right away, completely unaffected by
 // this hook), but the EXPENSIVE derived work driven by that state --

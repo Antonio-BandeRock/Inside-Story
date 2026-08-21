@@ -19,7 +19,7 @@
 // machine-translated ones. This mirrors the exact same discipline this
 // whole project already holds every other unverified-but-useful signal
 // to (the Wentz healing-stages framework labeled as a practitioner
-// framework, not consensus; the Purple Digest's own AI-opinion entries
+// framework, not consensus; the Digest's own AI-opinion entries
 // labeled distinctly from cited research).
 //
 // A SECOND HONEST LIMITATION: this is an UNOFFICIAL, undocumented

@@ -1,6 +1,6 @@
 // Meal/dish photos -- 2026-08-15, direct request: "provide a way to take a
 // picture using the app of the meal and upload it to the recipe" for
-// Purple Digest's Recipes/My Kitchen/My Favorites cards. A real, separate
+// Digest's Recipes/My Kitchen/My Favorites cards. A real, separate
 // leaf module (not folded into lib/db.ts), following the exact same
 // dynamic-import pattern lib/customBackgroundImage.ts already proved for
 // expo-image-picker/expo-image-manipulator/expo-file-system -- a plain

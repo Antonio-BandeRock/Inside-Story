@@ -16,7 +16,7 @@
 // security-requirement note exists) before anything gets written at all --
 // stageSharedItem writes a real staging row (lib/sharing.ts's own
 // shared_recipes table), never a permanent saved record directly. The
-// "try it, then decide" half lives on the resulting Purple Digest card
+// "try it, then decide" half lives on the resulting Digest card
 // itself (see DynamicEntryActions' own 'shared' branch in
 // app/(tabs)/purple-digest.tsx).
 //

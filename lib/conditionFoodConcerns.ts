@@ -3,7 +3,7 @@
 // lib/conditionStages.ts's own CONDITION_STAGING_MODELS registry shape
 // rather than inventing a new pattern: a small, hand-curated list of real,
 // named foods/food-groups per condition, each linked to a real, already-
-// cited Purple Digest entry rather than a new, unverified claim.
+// cited Digest entry rather than a new, unverified claim.
 //
 // Deliberately NOT a bulk scan of every flagged food in the reference
 // database -- confirmed directly with the app's own creator, since a raw
@@ -33,7 +33,7 @@ export type ConditionFoodConcern = {
   id: string;
   label: string;
   shortNote: string;
-  // Optional link to the real, already-cited Purple Digest entry covering
+  // Optional link to the real, already-cited Digest entry covering
   // this concern in full depth -- every id below was independently
   // confirmed to exist in the live lib/digest/*.ts source before being
   // written in here, not guessed.

@@ -424,7 +424,7 @@ export function BakedGoodsBuilder({
   // except this never marks anything as an edit -- finishBakedGoods
   // always creates a genuinely NEW baked good from a favorite.
   fromFavoriteId,
-  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // Set when reached via a "Build This Recipe" button on a Digest
   // recipe entry, 2026-08-14 -- see SideBuilder.tsx's own identical
   // openRecipeId for the full reasoning.
   openRecipeId,
@@ -1569,7 +1569,7 @@ export function BakedGoodsBuilder({
               the full reasoning: the only visible feedback left for a
               recipe loading in via the openRecipeId deep link now that the
               inline "Or Start From a Recipe" cards are gone, replaced by a
-              real link out to Purple Digest below. */}
+              real link out to Digest below. */}
           {loadingCuratedRecipeId ? (
             <View style={styles.loadingRecipeRow}>
               <ActivityIndicator size="small" color={tabColor} />

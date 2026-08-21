@@ -404,7 +404,7 @@ export function MealBuilder({
   // 2026-08-16, direct request: "there should be a search utility like in
   // the Digest areas to search the saved side or whatever for the items
   // they want to add." Deliberately a plain, un-debounced filter, not
-  // Purple Digest's own DigestSearchInput machinery -- that component's
+  // Digest's own DigestSearchInput machinery -- that component's
   // real complexity exists specifically to keep typing responsive against
   // a 1,500+-entry corpus re-rendering a large screen on every keystroke
   // (see its own header comment); a category's own saved-item list here is

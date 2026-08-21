@@ -103,7 +103,7 @@ export default function TabLayout() {
                 group entirely) to a real tab, 2026-08-05 -- see
                 constants/tabs.ts's own TAB_ROUTES entry for the full
                 reasoning. */}
-            <Tabs.Screen name="purple-digest" options={{ title: 'Purple Digest' }} />
+            <Tabs.Screen name="purple-digest" options={{ title: 'Digest' }} />
             {/* The 9th real tab, added 2026-08-13 -- see
                 constants/tabs.ts's own TAB_ROUTES entry for the full
                 reasoning. */}

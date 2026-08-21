@@ -84,7 +84,7 @@ const GARDEN_LENSES: LensOption<GardenLens>[] = [
     help: [
       {
         heading: 'My Zone',
-        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your own climate band from Purple Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
+        body: 'Look up your USDA Plant Hardiness Zone by country + ZIP/postal code. It works anywhere on Earth, not just the US: a US ZIP gets the official USDA zone directly, everywhere else gets an estimate from that location’s own historical temperature data. Or set it directly if you already know it, here or in Profile; both write to the same one saved value. Once set, this shows cited crop guidance for your own climate band from Digest’s own Home Gardening research, and points you at the fuller entry to read there.',
       },
     ],
   },
@@ -269,7 +269,7 @@ export default function GardenScreen() {
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed}>
         {/* variant="field" -- Garden has no commissioned background artwork
-            of its own yet (a real, named gap, same as Purple Digest before
+            of its own yet (a real, named gap, same as Digest before
             it), so this falls back to the shared wildflower scene every
             tab rests on before its own art exists. */}
         <GatedTabContent pageTitle="Garden" variant="field" revealed={revealed}>
@@ -450,7 +450,7 @@ function MyZoneLens({ scrollBottomPadding }: { scrollBottomPadding: number }) {
             </Text>
           ) : null}
           <Text style={styles.cardBody}>
-            Cited guidance for your climate band lives in Purple Digest&apos;s own Home Gardening research. Open the Garden
+            Cited guidance for your climate band lives in Digest&apos;s own Home Gardening research. Open the Garden
             topic there and look for:
           </Text>
           {bandInfo.digestTopics.map((topic) => (

@@ -111,7 +111,7 @@ type Measurable = {
 // Insights/Schedule/Trends/Bio-Compass/Reports, each with their own
 // commissioned image) -- variant="field" falls back to the same shared
 // wildflower scene every tab rests on before its own art is picked, same
-// as Home's own background. Worth commissioning real Purple Digest art
+// as Home's own background. Worth commissioning real Digest art
 // later; not a blocker for shipping real content.
 const TAB_COLOR = colors.tabPurpleDigest;
 
@@ -1485,7 +1485,7 @@ function tierLabel(tier: EvidenceTier): string {
 }
 
 export default function PurpleDigestScreen() {
-  useRegisterScreenHelp('Purple Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
+  useRegisterScreenHelp('Digest', DIGEST_HELP_SECTIONS, '/purple-digest');
   const scrollBottomPadding = useFloatingButtonScrollPadding();
   // 2026-08-09, real, direct report, reproduced with exact steps: "scroll
   // farther down below the one I had opened and open another a few down
@@ -1680,7 +1680,7 @@ export default function PurpleDigestScreen() {
   // below for the real, reported keyboard-lag reason why). This is now the
   // already-debounced value, updated only once per real pause in typing.
   // Still reset whenever the tab loses/regains focus below, same as
-  // `revealed`, so returning to Purple Digest never resumes a stale search.
+  // `revealed`, so returning to Digest never resumes a stale search.
   const [searchQuery, setSearchQuery] = useState('');
   // Same reset-on-focus-change pattern as Insights/Schedule/Food -- arriving
   // or re-arriving at this tab always shows the resting "pick a category"
@@ -2296,7 +2296,7 @@ export default function PurpleDigestScreen() {
   return (
     <View style={styles.screen}>
       <SwipeableTabScreen enabled={!revealed}>
-        <GatedTabContent pageTitle="Purple Digest" variant="field" revealed={revealed}>
+        <GatedTabContent pageTitle="Digest" variant="field" revealed={revealed}>
           <View style={styles.screenColumn}>
             {/* A real, fixed (non-scrolling) header strip -- 2026-08-08,
                 direct request: "move the internal search utility to the
@@ -2615,9 +2615,9 @@ export default function PurpleDigestScreen() {
         </GatedTabContent>
       </SwipeableTabScreen>
 
-      <PageIdentityLabel title="Purple Digest" activeLensLabel={revealed ? activeLensLabel : undefined} />
+      <PageIdentityLabel title="Digest" activeLensLabel={revealed ? activeLensLabel : undefined} />
       <LensHub
-        pageTitle="Purple Digest"
+        pageTitle="Digest"
         // Corner trigger button reads just "Digest", 2026-08-07, explicitly
         // requested -- same buttonLabel-vs-pageTitle split Food's own corner
         // button already uses (that one says "Food" while its popup header
@@ -2644,7 +2644,7 @@ export default function PurpleDigestScreen() {
         // columns above defaulted Info back to its usual floating
         // bottom-right corner (LensHub's own `infoInGrid` default is
         // `columns !== 2`) -- reported directly as "gets in the way being
-        // on top of the rest" once Purple Digest's own grid grew tall
+        // on top of the rest" once Digest's own grid grew tall
         // enough to scroll (the floating-corner trick assumes that corner
         // is always blank, which stops being true the moment real content
         // scrolls underneath it). Forcing this true keeps Info as a real

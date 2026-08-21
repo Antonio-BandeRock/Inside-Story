@@ -134,7 +134,7 @@ export const AppTextInput = forwardRef<TextInputType, AppTextInputProps>(functio
       // Wrapped, not the raw onChangeText prop directly -- 2026-08-09, a
       // real, latent race finally exposed once a screen's own render cost
       // per keystroke got fast enough for it to matter (see this app's own
-      // Purple Digest search-box history for exactly how that played out).
+      // Digest search-box history for exactly how that played out).
       // valueRef above is only ever refreshed by the render-body assignment
       // a few lines up, which needs a REAL re-render of this component to
       // run -- React batches the state update AppKeyboard.tsx's insertText/

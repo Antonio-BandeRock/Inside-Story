@@ -1,4 +1,4 @@
-// 2026-08-15 -- the real content behind Purple Digest's My Kitchen/My
+// 2026-08-15 -- the real content behind Digest's My Kitchen/My
 // Favorites categories, direct request: "when a person uses the builders
 // to build their own creations from any of the builders, there should be
 // a place in the Digest where their saved creations are available to see

@@ -529,7 +529,7 @@ export async function getReferenceCategories() {
   return rows.map((row) => row.category).filter((category) => !CATEGORIES_HIDDEN_FROM_BROWSING.has(category));
 }
 
-// Hide-sync for Purple Digest's per-food profile entries (the Fruits,
+// Hide-sync for Digest's per-food profile entries (the Fruits,
 // Vegetables, Nuts & Seeds guide), 2026-08-09 -- direct request: "if any of
 // them get hidden in the database so they are not viewable within the app,
 // then their information should also disappear." A Digest entry about a
@@ -540,7 +540,7 @@ export async function getReferenceCategories() {
 // CATEGORIES_HIDDEN_FROM_BROWSING above), an entry that still talks about it
 // as if it were browsable would be actively misleading, not just stale.
 //
-// One bulk query rather than one call per entry -- Purple Digest tags each
+// One bulk query rather than one call per entry -- Digest tags each
 // profile entry with the real base_name(s) it's about (see
 // lib/digest/produceProfiles.ts's own `relatedFoodNames` field) and asks
 // once, up front, which of the full set across every profile entry are
@@ -1721,7 +1721,7 @@ export async function getCuratedRecipeStrainIds(recipeId: string): Promise<strin
 // fermentation_batch_strains, the local-only half): fermentation_strains
 // is a real, small, bundled reference catalog (scripts/add_fermentation_
 // strains.py -- 7 real strains, every one reused directly from already-
-// published, already-cited Purple Digest content, zero new research done
+// published, already-cited Digest content, zero new research done
 // here), and fermentation_batch_strains links a real, saved fermentation
 // batch to whichever of those real strains a person actually used.
 export type FermentationStrain = {
@@ -10114,7 +10114,7 @@ export async function listMealComponentOptions(componentType: MealComponentType)
 }
 
 // 2026-08-15 -- real, thin per-user computation shared by the two new
-// dynamic Purple Digest lenses (My Kitchen: a person's own saved builder
+// dynamic Digest lenses (My Kitchen: a person's own saved builder
 // creations; My Favorites: their favorited builds + favorite meals), each
 // giving a user's own real creation the same level of computed detail
 // (nutrition highlights, condition cautions) the curated Recipes category
@@ -11770,7 +11770,7 @@ function mapConditionRow(row: {
 
 // Every condition this app knows about, `built`/`in_progress` first (the
 // ones actually worth showing as selectable today) -- `planned` entries
-// are included too, since Insights/Purple Digest may still want the full
+// are included too, since Insights/Digest may still want the full
 // roster for "coming soon" messaging, but a picker UI should filter to
 // non-`planned` itself rather than assume this function already did.
 export async function listAllConditions(): Promise<ConditionReference[]> {

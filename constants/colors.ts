@@ -463,7 +463,7 @@ export const colors = {
   // ~4.04:1.
   tabBioCompass: '#F4B990',
   // Deliberately NOT part of the hued pastel set above, 2026-07-27 --
-  // Reports' old purple (hue 280) was reassigned to the new Purple Digest
+  // Reports' old purple (hue 280) was reassigned to the new Digest
   // area (tabPurpleDigest below), which needed that specific hue for its
   // own real-world meaning (the purple awareness ribbon). Rather than pick
   // yet another hue for Reports, this leans into what Reports actually is: a
@@ -488,7 +488,7 @@ export const colors = {
   // middle of that gap, a rose/pink no other tab is using. Verified at
   // ~3.23:1 against `menuSurface`, in line with the rest of the set.
   tabProfile: '#E29CBF',
-  // The Purple Digest's own identity color -- the new autoimmune learning/
+  // The Digest's own identity color -- the new autoimmune learning/
   // news area (see the 2026-07-27 conversation this was named and designed
   // in -- "Field Notes" and "Autoimmune Intelligence"/AI and "Autoimmune
   // Inside Story"/AIS were all considered and rejected first, the latter

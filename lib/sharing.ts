@@ -30,7 +30,7 @@
 // Receiving a share, 2026-08-15 direct request, changed from an immediate
 // permanent import into a real staging area: a shared item now lands in
 // shared_recipes (a genuine local table, distinct from both the 11 saved-
-// record tables and favorites) and shows up under Purple Digest's My
+// record tables and favorites) and shows up under Digest's My
 // Kitchen as "Recipes Shared With Me" until the person explicitly decides
 // to save it to their own recipes, save it as a favorite, or just delete
 // it -- see promoteSharedRecipeToSaved/promoteSharedRecipeToFavorite/

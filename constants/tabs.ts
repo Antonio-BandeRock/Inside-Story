@@ -40,7 +40,7 @@ export const TAB_ROUTES: TabRoute[] = [
   // the real PurpleRibbonIcon instead, since a bare Ionicons "ribbon" glyph
   // was already tried and rejected once (see LensHub.tsx's own history: it
   // read as a race/award rosette, not an awareness ribbon).
-  { path: '/purple-digest', title: 'Purple Digest', icon: 'ribbon', color: colors.tabPurpleDigest },
+  { path: '/purple-digest', title: 'Digest', icon: 'ribbon', color: colors.tabPurpleDigest },
   // The 9th real tab, added 2026-08-13 for home-gardening tracking (a real
   // Growing Zone lookup, plots/plantings/harvests, and harvest-as-ingredient
   // sourcing into the Food builders) -- same "append last" precedent Purple

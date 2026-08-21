@@ -1,4 +1,4 @@
-// Builds the JSON data blob for the Purple Digest progress-tracker Artifact.
+// Builds the JSON data blob for the Digest progress-tracker Artifact.
 // Run from the repo root: node <path-to-this-file>
 // Add --mark-published after a successful Artifact publish to update the
 // committed baseline (see below) for next time.

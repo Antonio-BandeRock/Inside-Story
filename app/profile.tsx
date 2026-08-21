@@ -2327,7 +2327,7 @@ export default function ProfileScreen() {
                     <Text style={styles.helpText}>
                       {model.frameworkName}. {model.frameworkNote} Purely advisory: your food builders will start
                       surfacing a tappable note on foods worth a second look for your current stage;
-                      nothing is ever hidden or blocked based on this. See the matching category in Purple Digest
+                      nothing is ever hidden or blocked based on this. See the matching category in Digest
                       for the full, cited detail.
                     </Text>
                     <View style={styles.pillRow}>

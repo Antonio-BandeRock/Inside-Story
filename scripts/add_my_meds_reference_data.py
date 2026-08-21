@@ -118,7 +118,7 @@ NEW_SUPPLEMENT_FORMS = [
      "Generally well tolerated at studied doses; mild GI upset (bloating, loose stool) has been "
      "reported at high doses in some trials.",
      "established",
-     "See this app's own Purple Digest Nutrients & Micronutrients category (myo-inositol + selenium "
+     "See this app's own Digest Nutrients & Micronutrients category (myo-inositol + selenium "
      "finding) for the Hashimoto's-specific trial evidence.",
      None),
     ("inositol", "Myo-inositol + D-chiro-inositol (40:1 blend)",
@@ -282,7 +282,7 @@ NUTRIENT_TIMING = [
      "nutrient.",
      "Selenium, but only after iodine status is already adequate, not before -- see the selenium row "
      "above.",
-     "See this app's own Purple Digest research on iodine and the Wolff-Chaikoff effect.",
+     "See this app's own Digest research on iodine and the Wolff-Chaikoff effect.",
      None),
     ("potassium", "mineral",
      "With food or fluids reduces GI irritation.",
@@ -301,7 +301,7 @@ NUTRIENT_TIMING = [
      "Nothing significant documented.",
      "Selenium (the real, cited Hashimoto's-specific combination already covered elsewhere in this "
      "app).",
-     "See this app's own Purple Digest myo-inositol + selenium research for the underlying citation.",
+     "See this app's own Digest myo-inositol + selenium research for the underlying citation.",
      None),
     ("glycine", "water_soluble",
      "Before bedtime is the best-documented timing, specifically for sleep quality -- the effect is "
@@ -322,10 +322,10 @@ NUTRIENT_TIMING = [
      "With food and fluids, same as any electrolyte. Extra intake around exercise or heavy sweating "
      "is a real, legitimate use case, not a red flag on its own.",
      "Nothing at a same-day timing level -- the real, well-documented caution is total daily intake "
-     "and blood pressure, already covered in this app's own Purple Digest research.",
+     "and blood pressure, already covered in this app's own Digest research.",
      "Potassium (the two are actively balanced against each other by the same cellular pump, covered "
      "in this app's own Nutrient Interactions research).",
-     "See this app's own Purple Digest and Nutrient Interactions research on sodium.",
+     "See this app's own Digest and Nutrient Interactions research on sodium.",
      None),
 ]
 
@@ -346,7 +346,7 @@ COMMON_MEDICATIONS = [
      "Generally well tolerated at a correctly titrated dose; symptoms of too high or too low a dose "
      "mirror hyper/hypothyroid symptoms themselves.",
      "strong",
-     "See this app's own Labs & Medication Timing Purple Digest category for the full citation list.",
+     "See this app's own Labs & Medication Timing Digest category for the full citation list.",
      None),
     ("liothyronine", "Liothyronine (T3)", "Cytomel", "thyroid hormone replacement",
      "prescription", "Synthetic T3, sometimes added to levothyroxine (T4) as combination therapy.",
@@ -358,7 +358,7 @@ COMMON_MEDICATIONS = [
      "Shorter half-life than T4, so levels can swing more within a day; some people notice this as "
      "energy fluctuation.",
      "moderate",
-     "See this app's own Labs & Medication Timing Purple Digest category (labs-combination-t3-ndt) for "
+     "See this app's own Labs & Medication Timing Digest category (labs-combination-t3-ndt) for "
      "the full citation list.",
      None),
     ("metformin", "Metformin", "Glucophage, Fortamet, Glumetza", "biguanide (diabetes)",

@@ -1863,7 +1863,7 @@ const styles = StyleSheet.create({
   label: { ...typography.label, color: TAB_COLOR, marginBottom: 6, marginTop: 10 },
   helperText: { ...typography.caption, color: TAB_COLOR, marginTop: 4, marginBottom: 8 },
   // The "‹ Back to what you were building" link, 2026-08-14 -- same real
-  // treatment as Purple Digest's own already-established "‹ Back to
+  // treatment as Digest's own already-established "‹ Back to
   // Digest" link (backToHomeText), not a new visual language.
   backLink: { ...typography.body, color: TAB_COLOR, fontWeight: '600', marginBottom: 12 },
   pillRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, alignItems: 'center' },

@@ -464,7 +464,7 @@ export function DessertBuilder({
   // this never marks anything as an edit -- finishDessert always creates a
   // genuinely NEW dessert from a favorite.
   fromFavoriteId,
-  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // Set when reached via a "Build This Recipe" button on a Digest
   // recipe entry, 2026-08-14 -- see SideBuilder.tsx's own identical
   // openRecipeId for the full reasoning.
   openRecipeId,

@@ -1,4 +1,4 @@
-// Purple Digest's "Recipes" category -- one real DigestEntry per curated
+// Digest's "Recipes" category -- one real DigestEntry per curated
 // recipe (curated_recipes/curated_recipe_ingredients in the bundled
 // reference database), each linking back to the real builder that can
 // actually assemble it (linkedCuratedRecipeId/linkedBuilderType) via a

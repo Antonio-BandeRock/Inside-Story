@@ -103,11 +103,11 @@ const TAB_HUB_VECTOR_ICONS: Partial<Record<TabHubIconChoice, (size: number, colo
 };
 const DESSERT_BUILDER_TAB_HUB_COLOR = colors.tabFood;
 
-// Centralizes the "Purple Digest gets its own custom mark" check in one
+// Centralizes the "Digest gets its own custom mark" check in one
 // place so the grid's own active/inactive branches below don't each need
 // their own copy of it.
 //
-// 2026-08-05: special-cases Purple Digest, now that it's a real tab in
+// 2026-08-05: special-cases Digest, now that it's a real tab in
 // TAB_ROUTES (previously rendered from its own hardcoded 4th-row block,
 // which called PurpleRibbonIcon directly at PURPLE_RIBBON_SIZE rather than
 // through this shared helper). A bare Ionicons "ribbon" glyph (what
@@ -367,7 +367,7 @@ export function TabHub() {
     router.push('/profile');
   }
 
-  // The Purple Digest used to be a Stack-push exception here too (like
+  // The Digest used to be a Stack-push exception here too (like
   // Profile, above) -- promoted to a real tab 2026-08-05 (see
   // constants/tabs.ts), so it now flows through the ordinary TAB_ROUTES.map()
   // loop and go() below like every other tab; no special handling left here.

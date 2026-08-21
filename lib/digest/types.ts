@@ -1,4 +1,4 @@
-// The Purple Digest's own content types -- built 2026-08-05 alongside its
+// The Digest's own content types -- built 2026-08-05 alongside its
 // promotion from a placeholder Stack-push screen to a real tab (see
 // app/(tabs)/purple-digest.tsx's own header comment). Two shapes, not one:
 // most of this tab's content is DigestEntry (a citation-backed finding,

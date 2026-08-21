@@ -8,7 +8,7 @@ import type { TabHubIconChoice } from '../lib/visualPreferences';
 // lib/visualPreferences.ts). Kept separate from components/
 // DigestConditionIcons.tsx's own already-built icon COMPONENTS (each
 // wraps exactly one fixed <Image>, styled for its own single use in
-// LensHub's grid or Purple Digest's header card) because TabHub.tsx's own
+// LensHub's grid or Digest's header card) because TabHub.tsx's own
 // button needs the raw source directly: it renders the SAME image up to
 // four times per frame while open (one real copy plus several tinted,
 // offset copies for its own hand-rolled drop-shadow trick -- see

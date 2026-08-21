@@ -1,4 +1,4 @@
-# Purple Digest depth-push tracker
+# Digest depth-push tracker
 
 Regenerates the live Artifact tracking real progress across the 18
 non-Hashimoto's conditions climbing toward Hashimoto's own Digest depth

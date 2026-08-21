@@ -3,8 +3,8 @@ import type { DigestEntry } from './types';
 // Built 2026-08-07, folding in the standalone Artifact "What Happened to
 // Food: A Correlational History of Industry, Soil & Autoimmune Disease"
 // (researched the same day, https://claude.ai/code/artifact/6d28e2b6-ea1f-4798-b0d9-e6486c5223b8)
-// as its own real Purple Digest category, per explicit request: "Fold the
-// food-history artifact into Purple Digest as its own category, but leave
+// as its own real Digest category, per explicit request: "Fold the
+// food-history artifact into Digest as its own category, but leave
 // no stone unturned for information."
 //
 // Every citation already verified in that Artifact (Soil, Pesticides,

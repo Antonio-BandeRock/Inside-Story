@@ -419,7 +419,7 @@ export function SideBuilder({
   // be pointing at (favorites don't point at a live record at all; see
   // lib/db.ts's own BuilderFavoritePayload comment for why).
   fromFavoriteId,
-  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // Set when reached via a "Build This Recipe" button on a Digest
   // recipe entry (see app/(tabs)/purple-digest.tsx / app/(tabs)/food.tsx),
   // 2026-08-14 -- auto-fires the identical handlePickCuratedRecipe() flow
   // the in-screen "Or Start From a Recipe" cards already use, so arriving
@@ -720,7 +720,7 @@ export function SideBuilder({
   // 2026-08-16 (see "Or Find a Recipe" further down in the render return) --
   // handlePickCuratedRecipe/loadingCuratedRecipeId still exist purely for
   // the openRecipeId deep link below, fired when someone taps "Build This
-  // Recipe" on a real Purple Digest Recipe card.
+  // Recipe" on a real Digest Recipe card.
   const [loadingCuratedRecipeId, setLoadingCuratedRecipeId] = useState<string | null>(null);
 
   // Same reconstruction shape as the fromFavoriteId effect just above
@@ -776,7 +776,7 @@ export function SideBuilder({
     }
   }
 
-  // Auto-fires the identical flow above when arriving from a Purple Digest
+  // Auto-fires the identical flow above when arriving from a Digest
   // "Build This Recipe" button (see openRecipeId's own comment) -- the same
   // !editSideId/!fromFavoriteId guard the manual picker cards use, so a
   // genuine edit/favorite-resume in progress is never silently discarded.
@@ -1754,7 +1754,7 @@ export function SideBuilder({
               separate fixes at once: the fields are the actual point of
               this screen and belong first, not buried below a scrollable
               card list; and recipes shouldn't be duplicated here in a
-              second, stripped-down form at all -- Purple Digest's own
+              second, stripped-down form at all -- Digest's own
               Recipes/My Kitchen/My Favorites categories already show the
               full real detail (ingredients, instructions, computed
               nutrition, condition cautions) this list never did. Each row

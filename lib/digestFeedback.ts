@@ -1,4 +1,4 @@
-// Purple Digest thumbs-up/down feedback -- 2026-08-08, one of the real,
+// Digest thumbs-up/down feedback -- 2026-08-08, one of the real,
 // contained wins named in the original knowledge-base-design discussion
 // ("thumbs-up/down feedback" on an article). Deliberately local-only, no
 // server, no aggregation -- this is a personal "did this land for me" mark
@@ -11,9 +11,9 @@
 // Stored the same single-JSON-blob-under-one-key pattern already
 // established by lib/visualPreferences.ts (itself modeled on
 // getStoredMeasurementSystem in lib/db.ts) -- one small, cohesive map
-// rather than a dedicated table, since Purple Digest is the only real
+// rather than a dedicated table, since Digest is the only real
 // consumer and there's no cross-screen live-reactivity need the way
-// visual preferences has (only one Purple Digest screen instance is ever
+// visual preferences has (only one Digest screen instance is ever
 // mounted at a time), so this stays simpler: plain async get/set, no
 // subscriber list.
 

@@ -97,6 +97,6 @@ export function getCkdStageAdvisory(scores: FoodScore[], stage: CkdStage | null)
     title: `CKD Stage: ${stage === 'pre_dialysis' ? 'Pre-Dialysis' : 'On Dialysis'}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Chronic Kidney Disease category in Purple Digest for the full, cited evidence.",
+      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Chronic Kidney Disease category in Digest for the full, cited evidence.",
   };
 }

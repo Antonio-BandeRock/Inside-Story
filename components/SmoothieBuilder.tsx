@@ -445,7 +445,7 @@ export function SmoothieBuilder({
   // except this never marks anything as an edit -- finishSmoothie always
   // creates a genuinely NEW smoothie from a favorite.
   fromFavoriteId,
-  // Set when reached via a "Build This Recipe" button on a Purple Digest
+  // Set when reached via a "Build This Recipe" button on a Digest
   // recipe entry, 2026-08-14 -- see SaladBuilder.tsx's own identical
   // openRecipeId for the full reasoning.
   openRecipeId,
@@ -772,7 +772,7 @@ export function SmoothieBuilder({
     }
   }
 
-  // Auto-fires the flow above when arriving from a Purple Digest "Build
+  // Auto-fires the flow above when arriving from a Digest "Build
   // This Recipe" button (see openRecipeId's own comment) -- the same
   // !editSmoothieId/!fromFavoriteId guard the manual picker cards use, so a
   // genuine edit/favorite-resume in progress is never silently discarded.
@@ -1646,7 +1646,7 @@ export function SmoothieBuilder({
               the full reasoning: the only visible feedback left for a
               recipe loading in via the openRecipeId deep link now that the
               inline "Or Start From a Recipe" cards are gone, replaced by a
-              real link out to Purple Digest below. */}
+              real link out to Digest below. */}
           {loadingCuratedRecipeId ? (
             <View style={styles.loadingRecipeRow}>
               <ActivityIndicator size="small" color={tabColor} />

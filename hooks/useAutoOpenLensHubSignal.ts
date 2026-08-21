@@ -5,7 +5,7 @@ import { useLocalSearchParams } from 'expo-router';
 // between -- see constants/tabs.ts) -- 2026-08-08, explicitly requested:
 // "whenever a different tab is selected from the TabHub menu, cause...
 // the LensHub menu to be open for the selected tab." TabHub's own go()
-// (components/TabHub.tsx) and Home's Purple Digest shortcut
+// (components/TabHub.tsx) and Home's Digest shortcut
 // (app/(tabs)/index.tsx) both attach a fresh, ever-changing `openLensHub`
 // query param whenever they navigate to one of these tabs -- this hook
 // just reads it back out, so LensHub.tsx's own `autoOpenSignal` prop can

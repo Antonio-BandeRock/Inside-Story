@@ -3,7 +3,7 @@
 // advisory/reordering, decided 2026-07-31, researched in full via a real,
 // separate staged food guide, never wired into the app until now -- see
 // CLAUDE.md's own "Healing-journey stages" section, and the Healing Stages
-// category already published in Purple Digest).
+// category already published in Digest).
 //
 // Deliberately a real, dynamic, PURE function reading the same FoodScore[]
 // every builder's own pending-ingredient card already fetches for
@@ -102,7 +102,7 @@ export function getHealingStageAdvisory(
   }
 
   if (findTier(scores, 'Additives') === 'High Risk') {
-    reasons.push("Carries a flagged additive -- see this app's own Food Additives research (Purple Digest) for the specific concern.");
+    reasons.push("Carries a flagged additive -- see this app's own Food Additives research (Digest) for the specific concern.");
   }
 
   if (findTier(scores, 'Processing') === 'High Risk') {
@@ -115,6 +115,6 @@ export function getHealingStageAdvisory(
     title: `Healing Stage: ${stageLabel}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Healing Stages category in Purple Digest for the full, cited guide.",
+      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Healing Stages category in Digest for the full, cited guide.",
   };
 }

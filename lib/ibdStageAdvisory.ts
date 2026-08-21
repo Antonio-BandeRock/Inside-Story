@@ -108,6 +108,6 @@ export function getIbdStageAdvisory(scores: FoodScore[], stage: IbdStage | null)
     title: `IBD Stage: ${stage === 'flare' ? 'Flare / Active Disease' : 'Remission'}`,
     message:
       reasons.join('\n\n') +
-      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Inflammatory Bowel Disease category in Purple Digest for the full, cited evidence.",
+      "\n\nThis is advisory only -- nothing in Inside Story hides or blocks a food based on your stage. See the Inflammatory Bowel Disease category in Digest for the full, cited evidence.",
   };
 }

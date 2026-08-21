@@ -1,4 +1,4 @@
-// One-off, real data-grounding script for the Purple Digest "Recipes"
+// One-off, real data-grounding script for the Digest "Recipes"
 // category's own detail pass (2026-08-15). Pulls real ingredient/nutrient/
 // DRI/condition-flag data directly from the bundled reference database via
 // sqlite3.exe (no Python available in this environment, matching this
