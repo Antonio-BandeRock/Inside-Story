@@ -1,3 +1,4 @@
+import { useIsFocused } from '@react-navigation/native';
 import { Tabs } from 'expo-router';
 import { StyleSheet, View } from 'react-native';
 import { CurrentPageHelpProvider } from '../../components/CurrentPageHelp';
@@ -46,14 +47,35 @@ import { TabHub } from '../../components/TabHub';
 // automatically confined to the right region without this file needing to
 // know the header's own pixel height at all.
 export default function TabLayout() {
+  // 2026-08-21, direct report: the shared background here (specifically
+  // its own footer divider line) was visibly showing through Profile, a
+  // Stack-pushed screen that this whole group sits BEHIND once open, and
+  // two attempts at making Profile's own render tree more opaque (an
+  // explicit contentStyle on the root Stack, then an unconditional opaque
+  // View painted first in Profile's own component) both failed to block
+  // it -- conclusive proof the leak isn't coming from Profile's own code
+  // at all, since nothing Profile paints can matter if whatever's leaking
+  // renders on top of it regardless. This is the source-side fix instead:
+  // stop rendering ScreenBackground/TabHub entirely whenever this group
+  // isn't the focused screen, rather than trusting React Navigation to
+  // fully hide them on its own. `useIsFocused` (not useFocusEffect, which
+  // only fires on gain/lose, not a live boolean) reflects this Stack.
+  // Screen's own real focus state -- true while showing, false the moment
+  // Profile/Assessment/etc. push on top. Deliberately does NOT also gate
+  // ScreenHeader -- that's a single persistent instance specifically to
+  // avoid a real flash-of-placeholder-name bug (see its own header
+  // comment), and isn't implicated in this leak.
+  const isFocused = useIsFocused();
   return (
     <CurrentPageHelpProvider>
       <View style={{ flex: 1 }}>
         <ScreenHeader />
         <View style={{ flex: 1 }}>
-          <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
-            <ScreenBackground variant="field" />
-          </View>
+          {isFocused ? (
+            <View style={StyleSheet.absoluteFillObject} pointerEvents="none">
+              <ScreenBackground variant="field" />
+            </View>
+          ) : null}
           <Tabs
             screenOptions={{
               headerShown: false,
@@ -99,7 +121,7 @@ export default function TabLayout() {
             <Tabs.Screen name="garden" options={{ title: 'Garden' }} />
           </Tabs>
         </View>
-        <TabHub />
+        {isFocused ? <TabHub /> : null}
       </View>
     </CurrentPageHelpProvider>
   );
