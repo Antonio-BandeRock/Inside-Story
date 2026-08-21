@@ -6,7 +6,7 @@ import { colors } from '../constants/colors';
 import { useFooterBandHeight } from '../constants/floatingButton';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { SHARED_BACKGROUND_SCOPE_KEY } from '../lib/visualPreferences';
-import { EdgeShadow } from './EdgeShadow';
+import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GenericBackground } from './GenericBackground';
 
 // 2026-07-26: this used to be its own local formula (image bottom edge =
@@ -127,9 +127,12 @@ export function ScreenBackground({
           same day, direct request, with EdgeShadow instead of the plain
           line: "the top edge of the footer to look shaded for depth...
           like the edge of a kitchen counter that is rounded." Positioned
-          with its own bottom at bottomInset, same real edge the old line
-          sat on, extending upward into the content above it. */}
-      <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset }} />
+          so its own TOP sits at bottomInset, the real edge, extending
+          downward into the footer's own existing space -- not its bottom
+          at bottomInset extending upward into the content above, which
+          the first version got wrong ("the shadows appear to extend
+          beyond the edges... they shouldn't do that"). */}
+      <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset - EDGE_SHADOW_HEIGHT }} />
     </View>
   );
 }

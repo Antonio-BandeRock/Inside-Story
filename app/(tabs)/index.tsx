@@ -7,7 +7,7 @@ import { AppTextInput } from '../../components/AppTextInput';
 import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DayArc } from '../../components/DayArc';
-import { EdgeShadow } from '../../components/EdgeShadow';
+import { EDGE_SHADOW_HEIGHT, EdgeShadow } from '../../components/EdgeShadow';
 import { EnergyOrb } from '../../components/EnergyOrb';
 import { FlipCard } from '../../components/FlipCard';
 import type { HelpSection } from '../../components/HelpButton';
@@ -1379,8 +1379,9 @@ export default function HomeScreen() {
             content immediately with no risen ScreenBackground instance to
             carry one for free. See EdgeShadow.tsx's own header comment for
             the design and ScreenBackground.tsx's own comment for why this
-            replaced Home's former flat footer-line copy. */}
-        <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset }} />
+            replaced Home's former flat footer-line copy, and for why its
+            own top (not bottom) sits at bottomInset. */}
+        <EdgeShadow direction="up" style={{ position: 'absolute', bottom: bottomInset - EDGE_SHADOW_HEIGHT }} />
         </View>
       </SwipeableTabScreen>
 
