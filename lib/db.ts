@@ -4635,6 +4635,22 @@ async function runDatabaseInitialization() {
       CREATE INDEX IF NOT EXISTS idx_fermentation_batches_stage ON fermentation_batches(stage);
       CREATE INDEX IF NOT EXISTS idx_fermentation_harvests_remaining ON fermentation_harvests(quantity_remaining);
       CREATE INDEX IF NOT EXISTS idx_fermentation_harvests_batch ON fermentation_harvests(fermentation_batch_id);
+
+      -- Phase 1 of the header growth vine/Timeline plan (2026-08-21, see
+      -- the Notion App Development Log). One row per achievement criterion
+      -- the moment it's first detected true (never re-inserted once
+      -- present -- see recordAchievementCriterionMet in this file, an
+      -- INSERT OR IGNORE), the shared source of truth both the future vine
+      -- (Phase 2) and self-created goal linking (Phase 4) will read from.
+      -- criterion_key matches AchievementCriterionKey in
+      -- lib/achievementCriteria.ts, not enforced at the SQL level (SQLite
+      -- has no real enum type), kept in sync by hand the same way every
+      -- other free-text vocabulary column in this file already is
+      -- (schedule_items.item_type, garden_plantings.status, etc.).
+      CREATE TABLE IF NOT EXISTS achievement_criteria_progress (
+        criterion_key TEXT PRIMARY KEY,
+        achieved_at TEXT NOT NULL DEFAULT (datetime('now'))
+      );
     `);
 
     const mealColumns = await db.getAllAsync<{ name: string }>('PRAGMA table_info(meals)');
@@ -15488,4 +15504,31 @@ export async function getScannedProductPriceHistory(scannedProductId: number): P
     `,
     scannedProductId,
   );
+}
+
+// Phase 1 of the header growth vine/Timeline plan (2026-08-21) -- the two
+// real accessors for achievement_criteria_progress (see that table's own
+// CREATE TABLE comment above). The actual list of criteria and the logic
+// that decides which ones to check lives in lib/achievementCriteria.ts,
+// deliberately kept out of this already-15,000-line file; these two
+// functions are just this table's own plain read/write, same shape as
+// every other table's accessors here.
+
+// Every criterion ever detected true, keyed for a fast lookup rather than
+// a list a caller has to search -- both real callers (the evaluate loop
+// below and, eventually, the vine's own render) want "is key X already
+// met," not "give me everything."
+export async function getAchievedCriteriaKeys(): Promise<Set<string>> {
+  const db = await getDatabase();
+  const rows = await db.getAllAsync<{ criterion_key: string }>('SELECT criterion_key FROM achievement_criteria_progress');
+  return new Set(rows.map((row) => row.criterion_key));
+}
+
+// INSERT OR IGNORE, not INSERT -- a criterion already met stays met at its
+// real first-achieved timestamp forever; re-detecting the same criterion
+// true on a later check (which will happen constantly, e.g. someone who's
+// already saved a Meal saves another one) must never overwrite that date.
+export async function recordAchievementCriterionMet(criterionKey: string): Promise<void> {
+  const db = await getDatabase();
+  await db.runAsync('INSERT OR IGNORE INTO achievement_criteria_progress (criterion_key) VALUES (?)', criterionKey);
 }
