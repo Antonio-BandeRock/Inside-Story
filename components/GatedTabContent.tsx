@@ -24,13 +24,33 @@ import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 // tab's resting state the *same* image sidesteps that class of bug
 // entirely -- there's no longer a second, different image to match.
 //
+// 2026-08-22: direct correction, this component used to also gate its own
+// `<ScreenBackground variant={variant}>` behind `revealed` -- so a tab's
+// own distinct background (Food's avocado scene, and whichever of the
+// other 6 tabs get their own scene next) never showed until a lens/builder
+// was actually picked, the tab sat on the shared resting scene underneath
+// until then. Direct correction: "We are placing it directly on the
+// background of the tab itself before any of the lenses are being
+// selected and passing it through to the lenses when they are chosen."
+// `ScreenBackground` now renders unconditionally -- `revealed` only gates
+// the children (the actual lens/builder content) rendering on top of it,
+// not the background's own visibility. Real, known consequence, not
+// silently absorbed: the earlier design (every tab's resting state
+// showing the *same* shared image) existed specifically to sidestep a
+// hard swipe-transition "peek" bug (see this file's own 2026-07-26/
+// 2026-07-27 history above) -- giving each tab its own distinct resting
+// background again means a swipe between two different ones will show the
+// existing brief flat-navy transition gap (SwipeableTabScreen's own
+// styles.clip) followed by the new background populating, rather than
+// looking identical the whole way through. Worth confirming that reads
+// fine on-device, not something this change can verify on its own.
+//
 // This component does NOT render the shared resting background itself --
 // that's a single, genuinely constant `<ScreenBackground variant="field"
-// sky />` mounted once in app/(tabs)/_layout.tsx, behind every screen. This
-// component only owns the REVEALED state: a real `<ScreenBackground
-// variant={variant}>` (image, content, its own footer mask/line, all
-// together), swapped in for the resting prompt the instant `revealed`
-// turns true.
+// sky />` mounted once in app/(tabs)/_layout.tsx, behind every screen,
+// still the very first frame shown before this component's own real
+// background (potentially the same 'field' image today, for the tabs that
+// don't have their own scene yet) has a chance to mount.
 //
 // 2026-07-27: used to slide this layer up from below the screen
 // (Reanimated, translateY, over TAB_REVEAL_DURATION_MS), rather than just
@@ -77,9 +97,7 @@ export function GatedTabContent({
 
   return (
     <View style={styles.body}>
-      {revealed ? (
-        <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
-      ) : null}
+      <ScreenBackground variant={variant} routeKey={routeKey}>{revealed ? children : null}</ScreenBackground>
     </View>
   );
 }
