@@ -33,7 +33,13 @@ export function useBackgroundBottomInset(): number {
 // image.
 const BACKGROUNDS = {
   field: { source: require('../assets/backgrounds/App_Background_Image.png'), contentFit: 'cover' as const },
-  produce: { source: require('../assets/backgrounds/Fruits_Vegetables.png'), contentFit: 'cover' as const },
+  // 2026-08-22: replaced with the growth-vine's own Food/Avocado scene
+  // (a cut avocado on a small table, a whole, laden avocado tree behind
+  // it) -- the same species locked in as Food's own vine fruit, and the
+  // first of the per-tab background scenes described directly: harvested
+  // fruit in the foreground, the source plant growing behind it, tracked
+  // as its own idea separate from the vine icons themselves (Phase 3).
+  produce: { source: require('../assets/backgrounds/Food_Avocado.png'), contentFit: 'cover' as const },
   insights: { source: require('../assets/backgrounds/Insights_Background_2.png'), contentFit: 'cover' as const },
   schedule: { source: require('../assets/backgrounds/Scheduler_Background.png'), contentFit: 'cover' as const },
   trends: { source: require('../assets/backgrounds/Trends_Background_2.png'), contentFit: 'cover' as const },
