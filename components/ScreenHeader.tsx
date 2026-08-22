@@ -1,11 +1,13 @@
 import { useFocusEffect } from '@react-navigation/native';
+import { useRouter } from 'expo-router';
 import { useCallback, useState } from 'react';
-import { StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Svg, { Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
+import { TabPositionDots } from './TabPositionDots';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { getUserProfile } from '../lib/db';
 
@@ -16,7 +18,14 @@ import { getUserProfile } from '../lib/db';
 // can't drift out of sync.
 const ROW_HORIZONTAL_PADDING = 4;
 
-const HEADER_TEXT_HEIGHT = 60;
+// 2026-08-21, Phase 0 of the header growth vine/Timeline plan: the tab-
+// position dots row (TabPositionDots) needs real vertical space, carved
+// out of the title text's own existing budget rather than added on top --
+// see HEADER_ROW_HEIGHT's own comment below for why the total must stay
+// exactly what it was before this. Declared first since HEADER_TEXT_HEIGHT
+// is now defined in terms of it.
+const TAB_DOTS_ROW_HEIGHT = 16;
+const HEADER_TEXT_HEIGHT = 60 - TAB_DOTS_ROW_HEIGHT;
 // The *maximum* size -- a long first name (e.g. "Alexandria's Inside
 // Story") shrinks down from here to actually fit, same idea as native
 // Text's adjustsFontSizeToFit, just done by hand since SVG text has no
@@ -57,15 +66,19 @@ const SHADOW_LAYERS: readonly { offset: number; opacity: number }[] = [
 ];
 const HIGHLIGHT_OFFSET = -1.5;
 
-// row's own paddingVertical (6+6) + the text SVG's own height + the
-// rounded-edge shadow strip below it (EdgeShadow, see its own header
-// comment) -- every piece of this header's fixed vertical footprint, added
-// up once here instead of re-measured. The title text's width auto-shrinks
-// (see fontSize above) but its height never does, so this is a true
-// constant per device, not an estimate. 2026-08-21: the flat divider line
-// (1px) and its two shadow-fade bars (2px+2px, 5px total) are gone,
-// replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
-const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + EDGE_SHADOW_HEIGHT;
+// row's own paddingVertical (6+6) + the text SVG's own height + the tab-
+// position dots row + the rounded-edge shadow strip below it (EdgeShadow,
+// see its own header comment) -- every piece of this header's fixed
+// vertical footprint, added up once here instead of re-measured. The title
+// text's width auto-shrinks (see fontSize above) but its height never
+// does, so this is a true constant per device, not an estimate. 2026-08-21:
+// the flat divider line (1px) and its two shadow-fade bars (2px+2px, 5px
+// total) are gone, replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
+// Same day: TAB_DOTS_ROW_HEIGHT joins this sum, but HEADER_TEXT_HEIGHT was
+// shrunk by that exact same amount above, so this total is unchanged from
+// before Phase 0 -- direct requirement: "the header area is not to become
+// bigger than it is."
+const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + TAB_DOTS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
 
 // Every screen wraps its own <ScreenHeader/> in a `{ paddingTop: 12 }` box
 // (see e.g. app/(tabs)/insights.tsx's own `styles.header`) -- included here
@@ -118,6 +131,7 @@ export function useScreenHeaderHeight(): number {
 // twice.
 export function ScreenHeader() {
   const [firstName, setFirstName] = useState<string | null>(null);
+  const router = useRouter();
   const insets = useSafeAreaInsets();
   const { width: windowWidth } = useWindowDimensions();
   // Matches `row`'s own paddingHorizontal below.
@@ -196,7 +210,15 @@ export function ScreenHeader() {
     // had to come out of `row`'s own padding.
     <View style={styles.wrapper}>
       <View style={{ paddingTop: insets.top }}>
-        <View style={styles.row}>
+        {/* 2026-08-21, Phase 0 of the header growth vine/Timeline plan:
+            the title itself becomes the door into the Timeline -- direct
+            request: "they should need to tap their (name of person)'s
+            Inside Story and it unfolds before them." Routes to a stub
+            screen for now (Phase 6 builds the real thing); the words stop
+            being passive branding and become a literal door in, with zero
+            new navigation to learn since this text is already on every
+            screen. */}
+        <Pressable style={styles.row} onPress={() => router.push('/timeline')}>
           <View style={styles.nameStack}>
             {/* "MY" is a placeholder for when no first name is set in
                 Profile -- same slot, same style as the real possessive, so
@@ -254,8 +276,14 @@ export function ScreenHeader() {
               {appNameText}
             </SvgText>
           </Svg>
-        </View>
-      </View>
+          </View>
+        </Pressable>
+        {/* Always-on "you are here" indicator, one dot per real tab --
+            see TabPositionDots.tsx's own header comment for why this is
+            a discrete snap to the current route rather than a live
+            drag-follow, and for the second job this same component gains
+            once the Timeline (Phase 6) exists. */}
+        <TabPositionDots />
       {/* The flat divider line + two shadow-fade bars that used to render
           here are replaced outright, 2026-08-21, direct request: "the
           bottom edge of the header... to look shaded for depth so it

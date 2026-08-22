@@ -319,6 +319,16 @@ export type VisualPreferences = {
   // rather than reading this object directly, so that contract lives in
   // one place.
   homeSectionVisibility: Partial<Record<HomeSectionKey, boolean>>;
+  // 2026-08-21, Phase 0 of the header growth vine/Timeline plan (see the
+  // Notion App Development Log, same date): whether the header's own
+  // growth vine renders at all. Scaffolded here ahead of the vine itself
+  // (which doesn't exist yet -- see later phases), a plain on/off rather
+  // than homeSectionVisibility's per-key shape, since there's only ever
+  // one vine, not a list of independently-toggleable pieces. Defaults to
+  // true (ON) -- unlike homeSectionVisibility's "absence means visible"
+  // contract, this field is always present once DEFAULT_VISUAL_PREFERENCES
+  // is spread in, so it's read directly rather than through a helper.
+  growthVineEnabled: boolean;
 };
 
 // Absence of `key` in `prefs.homeSectionVisibility` means visible -- see
@@ -346,6 +356,7 @@ const DEFAULT_VISUAL_PREFERENCES: VisualPreferences = {
   tabHubIcon: 'seedTall',
   groundTheme: 'teal',
   homeSectionVisibility: {},
+  growthVineEnabled: true,
 };
 
 const VISUAL_PREFERENCES_KEY = 'visual_preferences';

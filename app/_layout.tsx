@@ -318,6 +318,22 @@ export default function RootLayout() {
                   title: 'Profile',
                 }}
               />
+              {/* 2026-08-21, Phase 0 of the header growth vine/Timeline
+                  plan -- the header's own title is now a real tappable
+                  route into this screen (see ScreenHeader.tsx's own
+                  comment). A plain themed native header for now, same
+                  pattern as "assessment" below; this screen is a
+                  deliberate stub, the real Timeline UI is Phase 6, not
+                  built here. */}
+              <Stack.Screen
+                name="timeline"
+                options={{
+                  headerShown: true,
+                  title: 'Your Inside Story',
+                  headerStyle: { backgroundColor: colors.background },
+                  headerTintColor: colors.textPrimary,
+                }}
+              />
               {/* headerStyle/headerTintColor added 2026-08-08 -- this native
                   header was the one Stack.Screen left out when every other
                   one (profile, purple-digest, food-items, food-item-detail)

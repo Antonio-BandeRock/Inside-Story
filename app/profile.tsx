@@ -197,6 +197,7 @@ const ALL_CARD_SECTION_KEYS = [
   'conditions',
   'general-health',
   'home-screen',
+  'header-growth',
   'appearance',
   'meal-schedule',
   'connections',
@@ -551,6 +552,13 @@ export default function ProfileScreen() {
   // in lib/visualPreferences.ts) rather than replacing the whole map.
   function toggleHomeSection(key: (typeof ALL_HOME_SECTION_KEYS)[number]) {
     setVisualPreferences({ homeSectionVisibility: { [key]: !isHomeSectionVisible(visualPrefs, key) } });
+  }
+
+  // Header growth vine toggle, 2026-08-21, Phase 0 of the header growth
+  // vine/Timeline plan -- a plain boolean flip, unlike toggleHomeSection
+  // above there's only ever one vine, not a per-key map to merge into.
+  function toggleGrowthVine() {
+    setVisualPreferences({ growthVineEnabled: !visualPrefs.growthVineEnabled });
   }
 
   // Local text-field buffers, kept separate from `profile` so the person
@@ -2509,6 +2517,34 @@ export default function ProfileScreen() {
                   </TouchableOpacity>
                 );
               })}
+            </View>
+          </View>
+        ) : null}
+      </View>
+
+      {/* Header Growth, 2026-08-21, Phase 0 of the header growth
+          vine/Timeline plan (see the Notion App Development Log and the
+          "Header Vine, Timeline & Life" phased build plan, same date). The
+          vine itself doesn't exist yet -- this is the toggle scaffold
+          only, so the preference and its Profile control are in place
+          before Phase 2 gives it anything to actually turn on or off. */}
+      <View style={styles.card}>
+        {renderCardHeader('header-growth', 'Header Growth')}
+        {!collapsedSections.has('header-growth') ? (
+          <View style={styles.cardBody}>
+            <Text style={styles.helpText}>
+              A small plant grows in the header over time as you use the app and reach your own goals. Turn
+              it off if you&apos;d rather the header stay plain.
+            </Text>
+            <View style={styles.pillRow}>
+              <TouchableOpacity
+                style={[styles.pill, visualPrefs.growthVineEnabled && styles.pillActive]}
+                onPress={toggleGrowthVine}
+              >
+                <Text style={[styles.pillText, visualPrefs.growthVineEnabled && styles.pillTextActive]}>
+                  {visualPrefs.growthVineEnabled ? 'On' : 'Off'}
+                </Text>
+              </TouchableOpacity>
             </View>
           </View>
         ) : null}
