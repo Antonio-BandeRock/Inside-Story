@@ -41,10 +41,10 @@ export type AchievementCriterionKey =
   | 'healing_stage_declared'
   | 'lab_result_logged'
   | 'symptom_assessment_completed'
-  | 'schedule_meal_planned'
-  | 'schedule_supplement_planned'
-  | 'schedule_prescription_planned'
-  | 'schedule_appointment_planned'
+  | 'meal_logged'
+  | 'supplement_dose_logged'
+  | 'prescription_dose_logged'
+  | 'appointment_completed'
   | 'hydration_logged'
   | 'exercise_logged'
   | 'treatment_added'
@@ -138,28 +138,44 @@ const OTHER_CRITERIA: CriterionDefinition[] = [
     existsQuery: 'SELECT 1 FROM symptom_assessments LIMIT 1',
   },
   {
-    key: 'schedule_meal_planned',
-    label: 'Scheduled a meal',
+    // 2026-08-21, aligned with hydration_logged/exercise_logged below,
+    // direct request: "align them the same way, check the actual logged
+    // event." meals.meal_type's own real, confirmed vocabulary
+    // (app/(tabs)/schedule.tsx's and MealBuilder.tsx's own mealTypes
+    // arrays) is 'beverage' | 'breakfast' | 'lunch' | 'dinner' | 'snack' |
+    // 'salad' | 'smoothie' -- excluding 'beverage' keeps this criterion
+    // meaningfully distinct from hydration_logged rather than the two
+    // always triggering together on someone's very first beverage.
+    key: 'meal_logged',
+    label: 'Logged a meal',
     tab: '/schedule',
-    existsQuery: "SELECT 1 FROM schedule_items WHERE item_type = 'meal' LIMIT 1",
+    existsQuery: "SELECT 1 FROM meals WHERE meal_type != 'beverage' LIMIT 1",
   },
   {
-    key: 'schedule_supplement_planned',
-    label: 'Scheduled a supplement',
+    // markScheduledDoseTaken (lib/db.ts) sets status='logged' generically
+    // across item_type for a real, confirmed dose-taken event -- there's
+    // no richer table for an individual dose the way meals has for actual
+    // eating events, schedule_items' own status is the authoritative
+    // record here.
+    key: 'supplement_dose_logged',
+    label: 'Logged a supplement dose taken',
     tab: '/schedule',
-    existsQuery: "SELECT 1 FROM schedule_items WHERE item_type = 'supplement' LIMIT 1",
+    existsQuery: "SELECT 1 FROM schedule_items WHERE item_type = 'supplement' AND status = 'logged' LIMIT 1",
   },
   {
-    key: 'schedule_prescription_planned',
-    label: 'Scheduled a prescription',
+    key: 'prescription_dose_logged',
+    label: 'Logged a prescription dose taken',
     tab: '/schedule',
-    existsQuery: "SELECT 1 FROM schedule_items WHERE item_type = 'prescription' LIMIT 1",
+    existsQuery: "SELECT 1 FROM schedule_items WHERE item_type = 'prescription' AND status = 'logged' LIMIT 1",
   },
   {
-    key: 'schedule_appointment_planned',
-    label: 'Scheduled a doctor appointment',
+    // markAppointmentCompleted (lib/db.ts) uses its own distinct status
+    // value, 'completed', not 'logged' -- confirmed directly rather than
+    // assumed to match the dose-taken pattern above.
+    key: 'appointment_completed',
+    label: 'Completed a doctor appointment',
     tab: '/schedule',
-    existsQuery: "SELECT 1 FROM schedule_items WHERE item_type = 'appointment' LIMIT 1",
+    existsQuery: "SELECT 1 FROM schedule_items WHERE item_type = 'appointment' AND status = 'completed' LIMIT 1",
   },
   {
     // Not a separate item_type -- confirmed directly against
