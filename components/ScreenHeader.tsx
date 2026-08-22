@@ -7,6 +7,7 @@ import Svg, { Text as SvgText } from 'react-native-svg';
 import { colors } from '../constants/colors';
 import { EDGE_SHADOW_HEIGHT, EdgeShadow } from './EdgeShadow';
 import { GENERIC_BACKGROUND_PALETTES } from './GenericBackground';
+import { GrowthMarksRow } from './GrowthMarksRow';
 import { TabPositionDots } from './TabPositionDots';
 import { useVisualPreferences } from '../hooks/useVisualPreferences';
 import { getUserProfile } from '../lib/db';
@@ -213,7 +214,7 @@ export function ScreenHeader() {
   // Generic background option, now doing double duty. Direct request: "the
   // font be the lighter color in each of the generic color combinations, as
   // well as the line in the header and footer."
-  const { genericPalette } = useVisualPreferences();
+  const { genericPalette, growthVineEnabled } = useVisualPreferences();
   const accentColor = GENERIC_BACKGROUND_PALETTES[genericPalette].lighter;
 
   // Refetched on every focus of the (tabs) group as a whole (not just once
@@ -324,11 +325,15 @@ export function ScreenHeader() {
             drag-follow, and for the second job this same component gains
             once the Timeline (Phase 6) exists. */}
         <TabPositionDots />
-        {/* Reserved, empty for now -- each tab's own small growing mark
-            (a leaf/flower) lands here once Phase 2 onward actually builds
-            the vine. Height only, no content yet, so the space this needs
-            is real and visible today rather than assumed. */}
-        <View style={{ height: GROWTH_MARKS_ROW_HEIGHT }} />
+        {/* 2026-08-21, Phase 2: the reserved band above now renders real,
+            data-backed marks (placeholder geometry, real leaf/fruit art is
+            Phase 3) instead of staying empty. Height still comes from
+            GROWTH_MARKS_ROW_HEIGHT regardless of whether growthVineEnabled
+            is on, so toggling it in Profile never shifts the header's own
+            layout. */}
+        <View style={{ height: GROWTH_MARKS_ROW_HEIGHT }}>
+          <GrowthMarksRow enabled={growthVineEnabled} />
+        </View>
       {/* The flat divider line + two shadow-fade bars that used to render
           here are replaced outright, 2026-08-21, direct request: "the
           bottom edge of the header... to look shaded for depth so it

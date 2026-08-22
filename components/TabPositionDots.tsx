@@ -30,7 +30,10 @@ import { TAB_ROUTES } from '../constants/tabs';
 // original brainstorm's own scope too, which only ever named the 8
 // non-Home tabs (Food/Insights/Schedules/Trends/Signals/Reports/Digest/
 // Garden) as the ones needing this kind of treatment.
-const DOT_ROUTES = TAB_ROUTES.filter((route) => route.path.toString() !== '/');
+// Exported (2026-08-21, Phase 2) so GrowthMarksRow can align its own
+// per-tab marks directly under these same dots -- one shared list and one
+// shared edge padding, not two copies that could quietly drift apart.
+export const DOT_ROUTES = TAB_ROUTES.filter((route) => route.path.toString() !== '/');
 
 export function TabPositionDots() {
   const pathname = usePathname();
@@ -59,7 +62,7 @@ export function TabPositionDots() {
 // accessibility minimum) is that same phase's job, not this one --
 // pointerEvents stays 'none' here, this pass is spacing/size only.
 const DOT_SIZE = 12;
-const ROW_EDGE_PADDING = 20;
+export const ROW_EDGE_PADDING = 20;
 
 const styles = StyleSheet.create({
   row: {
