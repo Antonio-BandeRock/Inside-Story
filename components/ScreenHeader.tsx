@@ -34,19 +34,37 @@ const TAB_DOTS_ROW_HEIGHT = 16;
 // below is a plain reserved placeholder, not real content yet) -- the
 // layout is real today even though what fills it isn't.
 const GROWTH_MARKS_ROW_HEIGHT = 14;
-const HEADER_TEXT_HEIGHT = 60 - TAB_DOTS_ROW_HEIGHT - GROWTH_MARKS_ROW_HEIGHT;
+// 2026-08-21, same-day on-device correction: the previous pass carved the
+// dots/growth rows entirely out of the title's own box and left the
+// header's outer padding untouched, which made the title read as too
+// small -- direct report: "we need to add size back to it again as it is
+// too small now." The actual fix is a different lever: `row`'s own
+// paddingVertical (6+6=12, already the "biggest lever available" per this
+// file's own 2026-07-25 history) drops to 0, and the wrapper's own
+// paddingTop drops from 12 to 4 (kept as a small residual margin, not
+// zeroed, rather than guess that touching the very top edge reads well
+// without seeing it on-device) -- see `styles.wrapper`/`styles.row` below,
+// and SCREEN_HEADER_WRAPPER_TOP_PADDING's own comment for why that
+// constant has to move in lockstep with `styles.wrapper.paddingTop`. That
+// reclaims 20px (12 + 8) that was previously just padding, handed back to
+// the title's own box instead of the dots/growth rows, which already have
+// what they need. Direct instruction: "let's move the Title up as far as
+// we can. Then, we need to add size back to it" -- reclaiming dead padding
+// rather than the header growing is what makes both true at once.
+const HEADER_TEXT_HEIGHT = 60 + 20 - TAB_DOTS_ROW_HEIGHT - GROWTH_MARKS_ROW_HEIGHT;
 // The *maximum* size -- a long first name (e.g. "Alexandria's Inside
 // Story") shrinks down from here to actually fit, same idea as native
 // Text's adjustsFontSizeToFit, just done by hand since SVG text has no
 // such prop. Never scales past this for short names either.
 //
-// 2026-08-21: scaled down from the original 34/18 to fit the smaller box
-// above, proportionally (34/18 kept roughly the same ratio) rather than
-// picked freehand. This is a real, visible size drop for the app's own
-// branding text, worth confirming on-device reads fine rather than
-// assuming the math alone settles it.
-const HEADER_TEXT_MAX_FONT_SIZE = 17;
-const HEADER_TEXT_MIN_FONT_SIZE = 10;
+// 2026-08-21: scaled proportionally to HEADER_TEXT_HEIGHT's own value each
+// time that's changed (not picked freehand) -- first down to fit the
+// dots/growth rows, now back up again once the reclaimed padding above
+// gave the box more room. Still smaller than the original 34 (there's
+// genuinely more in this header now than there was before today), but a
+// real, felt increase from the too-small 17 it dropped to for one pass.
+const HEADER_TEXT_MAX_FONT_SIZE = 28;
+const HEADER_TEXT_MIN_FONT_SIZE = 15;
 // Deliberately tight -- just enough that the shadow layers (see
 // SHADOW_LAYERS below) don't clip against the SVG canvas's own edge
 // (Svg defaults to overflow: hidden, same as a root SVG element on the
@@ -89,20 +107,26 @@ const HIGHLIGHT_OFFSET = -1.5;
 // does, so this is a true constant per device, not an estimate. 2026-08-21:
 // the flat divider line (1px) and its two shadow-fade bars (2px+2px, 5px
 // total) are gone, replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
-// Same day: TAB_DOTS_ROW_HEIGHT and (a later same-day follow-up)
-// GROWTH_MARKS_ROW_HEIGHT both join this sum, but HEADER_TEXT_HEIGHT was
-// shrunk by that same combined amount above, so this total is still
-// unchanged from before Phase 0 -- direct requirement, twice now: "the
-// header area is not to become bigger than it is."
-const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + TAB_DOTS_ROW_HEIGHT + GROWTH_MARKS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
+// Same day: TAB_DOTS_ROW_HEIGHT and GROWTH_MARKS_ROW_HEIGHT both joined
+// this sum during Phase 0, carved out of HEADER_TEXT_HEIGHT so the total
+// stayed unchanged -- direct requirement at the time: "the header area is
+// not to become bigger than it is." A later same-day pass (see
+// HEADER_TEXT_HEIGHT's own comment) reclaims real outer padding instead
+// (row's own paddingVertical, previously the leading `12` here, is now 0)
+// and hands it to the title's box rather than growing the header -- so
+// this constant is no longer literally identical to before Phase 0, it's
+// actually a little smaller, which is the direct point of "move the title
+// up as far as we can," not a violation of the "don't grow" rule, growing
+// was never asked for, only shrinking the dead space was.
+const HEADER_ROW_HEIGHT = HEADER_TEXT_HEIGHT + TAB_DOTS_ROW_HEIGHT + GROWTH_MARKS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
 
-// Every screen wraps its own <ScreenHeader/> in a `{ paddingTop: 12 }` box
-// (see e.g. app/(tabs)/insights.tsx's own `styles.header`) -- included here
-// so the one shared persistent background layer (app/(tabs)/_layout.tsx)
-// can start exactly where a screen's real, rendered header ends, without
-// duplicating this number a second place it could quietly drift out of
-// sync with.
-const SCREEN_HEADER_WRAPPER_TOP_PADDING = 12;
+// Mirrors `styles.wrapper.paddingTop` below (they have to move together --
+// both were 12, both are now 4, see that style's own 2026-08-21 comment
+// for why) -- included here so the one shared persistent background layer
+// (app/(tabs)/_layout.tsx) can start exactly where a screen's real,
+// rendered header ends, without duplicating this number a second place it
+// could quietly drift out of sync with.
+const SCREEN_HEADER_WRAPPER_TOP_PADDING = 4;
 
 // The true on-screen height of "a screen's own header," top of device to
 // where the header's divider line ends -- safe-area inset plus this
@@ -322,8 +346,15 @@ const styles = StyleSheet.create({
   // Previously each screen's own `styles.header` box (paddingTop: 12,
   // backgroundColor: colors.background) -- folded in here now that this
   // is the one place that box is ever needed.
+  //
+  // 2026-08-21: dropped from 12 to 4, direct request ("move the title up
+  // as far as we can"), a small residual margin kept rather than zeroed --
+  // this sits above insets.top's own real safe-area clearance, so it's
+  // genuinely trimmable, but going all the way to 0 without seeing it
+  // on-device risked the title reading as flush against the status bar.
+  // Must stay in sync with SCREEN_HEADER_WRAPPER_TOP_PADDING above.
   wrapper: {
-    paddingTop: 12,
+    paddingTop: 4,
     backgroundColor: colors.background,
   },
   // 2026-07-25: reduced roughly a quarter overall, now that this text is
@@ -333,11 +364,17 @@ const styles = StyleSheet.create({
   // alignItems/justifyContent: 'center' re-centers automatically as this
   // shrinks -- flexbox centering doesn't need manual re-tuning when the
   // box around it changes size, only when the *alignment rule* changes.
+  //
+  // 2026-08-21: cut again, 6 to 0 -- see HEADER_TEXT_HEIGHT's own comment
+  // for the full reasoning (this was the other half of the 20px reclaimed
+  // and handed back to the title's own box). The title's SVG box itself
+  // (HEADER_TEXT_HEIGHT, comfortably above typical touch-target minimums)
+  // is still a real tap target on its own with zero padding around it.
   row: {
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: ROW_HORIZONTAL_PADDING,
-    paddingVertical: 6,
+    paddingVertical: 0,
   },
   nameStack: {
     alignItems: 'center',

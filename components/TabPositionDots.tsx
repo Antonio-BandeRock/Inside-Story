@@ -23,12 +23,21 @@ import { TAB_ROUTES } from '../constants/tabs';
 // when that phase starts, not assumed here. Outside the Timeline, a dot
 // staying purely informational (not a second way to switch tabs, alongside
 // TabHub and swiping) was the deliberate call in the original brainstorm.
+//
+// 2026-08-21, on-device follow-up: Home excluded, direct request -- "Home
+// doesn't need to be represented in the top. Home is sort of a completely
+// different screen. It tracks the day to day for things." Matches the
+// original brainstorm's own scope too, which only ever named the 8
+// non-Home tabs (Food/Insights/Schedules/Trends/Signals/Reports/Digest/
+// Garden) as the ones needing this kind of treatment.
+const DOT_ROUTES = TAB_ROUTES.filter((route) => route.path.toString() !== '/');
+
 export function TabPositionDots() {
   const pathname = usePathname();
 
   return (
     <View style={styles.row} pointerEvents="none">
-      {TAB_ROUTES.map((route) => {
+      {DOT_ROUTES.map((route) => {
         const active = route.path.toString() === pathname;
         return (
           <View
