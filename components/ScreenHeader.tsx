@@ -25,13 +25,28 @@ const ROW_HORIZONTAL_PADDING = 4;
 // exactly what it was before this. Declared first since HEADER_TEXT_HEIGHT
 // is now defined in terms of it.
 const TAB_DOTS_ROW_HEIGHT = 16;
-const HEADER_TEXT_HEIGHT = 60 - TAB_DOTS_ROW_HEIGHT;
+// Same day, on-device follow-up: a second reserved band, directly below
+// the dots, for each tab's own small growing mark (a leaf/flower, not
+// built yet -- see the phased plan's Phase 2 onward). Direct request:
+// "the header text and dots need to move up to make room" for this,
+// explicitly choosing to carve the space out of the title's own budget
+// again rather than let the header grow. Empty for now (GrowthMarksRow
+// below is a plain reserved placeholder, not real content yet) -- the
+// layout is real today even though what fills it isn't.
+const GROWTH_MARKS_ROW_HEIGHT = 14;
+const HEADER_TEXT_HEIGHT = 60 - TAB_DOTS_ROW_HEIGHT - GROWTH_MARKS_ROW_HEIGHT;
 // The *maximum* size -- a long first name (e.g. "Alexandria's Inside
 // Story") shrinks down from here to actually fit, same idea as native
 // Text's adjustsFontSizeToFit, just done by hand since SVG text has no
 // such prop. Never scales past this for short names either.
-const HEADER_TEXT_MAX_FONT_SIZE = 34;
-const HEADER_TEXT_MIN_FONT_SIZE = 18;
+//
+// 2026-08-21: scaled down from the original 34/18 to fit the smaller box
+// above, proportionally (34/18 kept roughly the same ratio) rather than
+// picked freehand. This is a real, visible size drop for the app's own
+// branding text, worth confirming on-device reads fine rather than
+// assuming the math alone settles it.
+const HEADER_TEXT_MAX_FONT_SIZE = 17;
+const HEADER_TEXT_MIN_FONT_SIZE = 10;
 // Deliberately tight -- just enough that the shadow layers (see
 // SHADOW_LAYERS below) don't clip against the SVG canvas's own edge
 // (Svg defaults to overflow: hidden, same as a root SVG element on the
@@ -74,11 +89,12 @@ const HIGHLIGHT_OFFSET = -1.5;
 // does, so this is a true constant per device, not an estimate. 2026-08-21:
 // the flat divider line (1px) and its two shadow-fade bars (2px+2px, 5px
 // total) are gone, replaced by EdgeShadow's own taller EDGE_SHADOW_HEIGHT.
-// Same day: TAB_DOTS_ROW_HEIGHT joins this sum, but HEADER_TEXT_HEIGHT was
-// shrunk by that exact same amount above, so this total is unchanged from
-// before Phase 0 -- direct requirement: "the header area is not to become
-// bigger than it is."
-const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + TAB_DOTS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
+// Same day: TAB_DOTS_ROW_HEIGHT and (a later same-day follow-up)
+// GROWTH_MARKS_ROW_HEIGHT both join this sum, but HEADER_TEXT_HEIGHT was
+// shrunk by that same combined amount above, so this total is still
+// unchanged from before Phase 0 -- direct requirement, twice now: "the
+// header area is not to become bigger than it is."
+const HEADER_ROW_HEIGHT = 12 + HEADER_TEXT_HEIGHT + TAB_DOTS_ROW_HEIGHT + GROWTH_MARKS_ROW_HEIGHT + EDGE_SHADOW_HEIGHT;
 
 // Every screen wraps its own <ScreenHeader/> in a `{ paddingTop: 12 }` box
 // (see e.g. app/(tabs)/insights.tsx's own `styles.header`) -- included here
@@ -284,6 +300,11 @@ export function ScreenHeader() {
             drag-follow, and for the second job this same component gains
             once the Timeline (Phase 6) exists. */}
         <TabPositionDots />
+        {/* Reserved, empty for now -- each tab's own small growing mark
+            (a leaf/flower) lands here once Phase 2 onward actually builds
+            the vine. Height only, no content yet, so the space this needs
+            is real and visible today rather than assumed. */}
+        <View style={{ height: GROWTH_MARKS_ROW_HEIGHT }} />
       {/* The flat divider line + two shadow-fade bars that used to render
           here are replaced outright, 2026-08-21, direct request: "the
           bottom edge of the header... to look shaded for depth so it

@@ -41,14 +41,24 @@ export function TabPositionDots() {
   );
 }
 
-const DOT_SIZE = 6;
+// 2026-08-21, on-device follow-up: doubled from 6, and the row now spreads
+// across the header's full width (space-between + real edge padding)
+// instead of clustering tightly in the center -- direct request, so the
+// two outermost dots aren't crowded up against each other or the screen
+// edge once these become real tap targets in Phase 6. Real touch-target
+// sizing (a tap area larger than this visual dot, the usual mobile
+// accessibility minimum) is that same phase's job, not this one --
+// pointerEvents stays 'none' here, this pass is spacing/size only.
+const DOT_SIZE = 12;
+const ROW_EDGE_PADDING = 20;
 
 const styles = StyleSheet.create({
   row: {
+    width: '100%',
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    gap: 6,
+    paddingHorizontal: ROW_EDGE_PADDING,
   },
   dot: {
     width: DOT_SIZE,
