@@ -710,6 +710,16 @@ function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: stri
 // prettier "Topic › Subtopic" string) -- see BasicHealthShelves' own
 // comment for why the ref/scroll-key and the display text have to stay the
 // same underlying value.
+//
+// 2026-08-23: this function's own output is unchanged, still every leaf
+// group at once -- Basic Health's own scoped search (categorySearchGroups)
+// still renders all of it through BasicHealthShelves exactly as described
+// above. Plain, non-search browsing no longer does: 479 entries across ~21
+// shelves mounting at once turned out to be a direct cause of a
+// multi-second display delay, so that ONE call site (see
+// selectedBasicHealthGroup, in the main component) now shows a topic menu
+// first and renders only the picked group's own shelf through this same
+// data. No other category's own browsing view changed.
 function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
   const groups: { label: string; entries: AnyDigestEntry[] }[] = [];
   for (const topic of BASIC_HEALTH_TOPICS) {
@@ -1736,6 +1746,19 @@ export default function PurpleDigestScreen() {
   // own visibility and the empty/results branching below -- see
   // DigestSearchInput's own comment for the fuller reasoning.
   const [isSearchActive, setIsSearchActive] = useState(false);
+  // 2026-08-23: Basic Health's own plain-browsing landing view, direct
+  // request after the FlatList virtualization fix still left a delay
+  // -- rendering all ~21 groups' own shelves at once (479 entries total)
+  // is itself the cost, not just how each shelf renders internally. Null
+  // shows a topic menu (BasicHealthTopicMenu, below) instead of every
+  // shelf at once; picking one sets this to that group's own label (the
+  // same key basicHealthAllGroups/shelfGroupKeyForEntry already use), which
+  // then renders that ONE group through the same, unchanged BasicHealthShelves
+  // component every other category still uses in full. Search bypasses this
+  // entirely (categorySearchGroups' own branch, above, already narrows what's
+  // shown, so an extra menu step would be redundant), and no other category's
+  // own browsing view is touched by this at all.
+  const [selectedBasicHealthGroup, setSelectedBasicHealthGroup] = useState<string | null>(null);
   // A real, deliberate remount trigger for DigestSearchInput (used as its
   // own `key` in the JSX below) -- 2026-08-08. Since that component now
   // owns its own local, per-keystroke text state (the whole point of this
@@ -2252,17 +2275,22 @@ export default function PurpleDigestScreen() {
   // Jumping to a related entry: switch category (if it's a different one),
   // expand that entry, and collapse whatever was open before -- a related
   // chip always lands you looking at exactly that entry, wherever it
-  // actually sits. Every one of Basic Health's own shelves is already
-  // mounted at once (2026-08-14, see basicHealthAllGroups' own comment),
-  // so no drill-down state needs driving here anymore -- the same real
-  // scroll-to-group step below already reaches it directly. The same real
-  // function a shelf card's own tap, a Related chip, and a search result
-  // (Search All or any category's own scoped search) all use.
+  // actually sits. The same function a shelf card's own tap, a
+  // Related chip, and a search result (Search All or any category's own
+  // scoped search) all use.
+  //
+  // 2026-08-23: Basic Health's own plain-browsing view no longer keeps
+  // every shelf mounted at once (see selectedBasicHealthGroup's own
+  // comment) -- when the target lives there, this now also drills straight
+  // into its own group before scrolling, otherwise scrollGroupIntoView
+  // would be reaching for a ref that was never mounted (the topic menu
+  // would still be showing instead).
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     const category = target.category as DigestCategoryKey;
     setLens(category);
+    if (category === 'basicHealth') setSelectedBasicHealthGroup(shelfGroupKeyForEntry(id, category));
     // A previous category's own shelf refs (Basic Health topic paths, or a
     // condition's own topic labels -- both real, plain strings that can
     // legitimately repeat across different categories, e.g. every
@@ -2604,14 +2632,35 @@ export default function PurpleDigestScreen() {
                 // Basic Health's own scoped search already proved this
                 // shape works for, reused directly rather than a second,
                 // parallel grouping mechanism.
-                <BasicHealthShelves
-                  groups={basicHealthGroups}
-                  expandedId={expandedId}
-                  groupRefs={groupRefs}
-                  onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
-                  onJumpToRelated={jumpToRelated}
-                  onDynamicEntriesChanged={refreshDynamicEntries}
-                />
+                //
+                // 2026-08-23, direct correction: showing all ~21 shelves
+                // (479 entries) at once was itself the slowness, not
+                // fixed by virtualizing each shelf alone. Basic Health's
+                // plain-browsing view is now menu-first (BasicHealthTopicMenu,
+                // below) -- only ONE group's own shelf mounts at a time,
+                // via the exact same BasicHealthShelves component and
+                // interaction as before, unchanged, once a topic is picked.
+                // No other category's own browsing view is touched by this.
+                selectedBasicHealthGroup === null ? (
+                  <BasicHealthTopicMenu groups={basicHealthGroups} onSelectGroup={setSelectedBasicHealthGroup} />
+                ) : (
+                  <>
+                    <TouchableOpacity
+                      onPress={() => setSelectedBasicHealthGroup(null)}
+                      style={styles.basicHealthBackLink}
+                    >
+                      <Text style={styles.backToHomeText}>‹ All Basic Health Topics</Text>
+                    </TouchableOpacity>
+                    <BasicHealthShelves
+                      groups={basicHealthGroups.filter((group) => group.label === selectedBasicHealthGroup)}
+                      expandedId={expandedId}
+                      groupRefs={groupRefs}
+                      onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
+                      onJumpToRelated={jumpToRelated}
+                      onDynamicEntriesChanged={refreshDynamicEntries}
+                    />
+                  </>
+                )
               ) : entries.length === 0 ? (
                 <Text style={styles.emptyText}>Nothing here yet.</Text>
               ) : (
@@ -3137,6 +3186,40 @@ function SearchResultCard({
 function shelfGroupDisplayLabel(label: string): string {
   if (label === TYING_TOGETHER_GROUP_KEY) return 'Putting It Together';
   return label.split('::').join(' › ');
+}
+
+// Basic Health's own plain-browsing landing view, 2026-08-23, direct
+// request: rendering all ~21 groups' shelves at once (479 entries) was
+// itself the delay, not fixed by virtualizing each shelf alone. A
+// plain, tappable list of topic names instead -- picking one drills into
+// that single group through the unchanged BasicHealthShelves component
+// below, same shelf-row-plus-detail-panel interaction as always. Every
+// other category's own browsing view still shows all its groups at once,
+// untouched by this.
+function BasicHealthTopicMenu({
+  groups,
+  onSelectGroup,
+}: {
+  groups: { label: string; entries: AnyDigestEntry[] }[];
+  onSelectGroup: (label: string) => void;
+}) {
+  return (
+    <View style={styles.basicHealthMenuList}>
+      {groups.map((group) => (
+        <TouchableOpacity
+          key={group.label}
+          style={styles.basicHealthMenuItem}
+          onPress={() => onSelectGroup(group.label)}
+          activeOpacity={0.85}
+        >
+          <Text style={styles.basicHealthMenuItemLabel}>{shelfGroupDisplayLabel(group.label)}</Text>
+          <Text style={styles.basicHealthMenuItemCount}>
+            {group.entries.length} {group.entries.length === 1 ? 'entry' : 'entries'}
+          </Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
 }
 
 function BasicHealthShelves({
@@ -4297,26 +4380,43 @@ const styles = StyleSheet.create({
   // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
   // own comment, above this file's grouping functions.
   shelfSection: { marginBottom: 18 },
+  // 2026-08-23, Basic Health's own topic menu (BasicHealthTopicMenu, above)
+  // and its drill-down back link -- the same card look (colors.surface fill,
+  // TAB_COLOR border) every other card on this screen already uses, not a
+  // new treatment invented just for this.
+  basicHealthMenuList: { gap: 10 },
+  basicHealthMenuItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 12,
+    padding: 14,
+  },
+  basicHealthMenuItemLabel: { ...typography.label, color: TAB_COLOR, flex: 1, marginRight: 8 },
+  basicHealthMenuItemCount: { ...typography.caption, color: colors.textSecondary },
+  basicHealthBackLink: { marginBottom: 14, alignSelf: 'flex-start' },
   // 2026-08-23, direct report: this text floats directly over the real
   // photo background now that GatedTabContent actually reveals one, with
-  // nothing behind it at all, no card, not even categoryHeaderText's own
-  // headerCard wrapper. A shadow-only first attempt at this was reported
-  // as still unreadable after a full reinstall -- against a bright patch
-  // of photo a shadow alone genuinely isn't enough, since there's no card
-  // underneath for it to add contrast against. Now carries a real solid
-  // background chip directly (same rgba(0,0,0,0.55) fill used throughout
-  // this app for exactly this job), alignSelf: 'flex-start' so the chip
-  // hugs the heading text itself rather than stretching edge to edge.
+  // nothing behind it at all. A shadow-only first attempt, then a plain
+  // dark chip, both missed what was actually asked for: the same
+  // colors.surface fill and TAB_COLOR border every card in this screen
+  // already uses (see `card`/`shelfCard`, above/below), not a one-off
+  // black overlay. alignSelf: 'flex-start' so it hugs the heading text
+  // rather than stretching edge to edge.
   shelfHeading: {
     ...typography.label,
-    ...menuLabelShadow,
     color: TAB_COLOR,
     marginBottom: 8,
     alignSelf: 'flex-start',
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 6,
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
   },
   // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
   // gap between cards and a little trailing padding so the last card in a
@@ -4349,24 +4449,12 @@ const styles = StyleSheet.create({
     borderColor: colors.accent,
     borderWidth: 3,
   },
-  // Direct background chip on the text itself, same rgba(0,0,0,0.55) fill
-  // already used throughout this app for exactly this job (InfoAlert,
-  // PasswordPrompt, PageIdentityLabel) -- real insurance now that
-  // shelfCardSelected's own near-transparent fill (above) turned out to be
-  // a genuine second bug, not just the shadow-only fix reported as still
-  // insufficient. React Native Text accepts backgroundColor/padding
-  // directly, no extra wrapping View needed.
-  shelfCardTitle: {
-    ...typography.label,
-    ...menuLabelShadow,
-    color: TAB_COLOR,
-    flex: 1,
-    fontSize: 14,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 4,
-  },
+  // 2026-08-23, direct correction: a solid background chip was added here
+  // too, but that was never asked for -- shelfCardSelected's own near-
+  // transparent fill (above) was the actual bug on this specific card, now
+  // fixed at its own source. This card's title stays as it was, the shadow
+  // alone, same as any entry title inside an already-opaque card.
+  shelfCardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, flex: 1, fontSize: 14 },
   shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
   // 2026-08-09, ShelfTabCard's own compact per-term match indicator, shown
   // only while this card is part of a category's own scoped search
@@ -4393,29 +4481,13 @@ const styles = StyleSheet.create({
   },
   cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   tierDot: { width: 10, height: 10, borderRadius: 5 },
-  // 2026-08-23, direct report: "Essential Nutrients: Magnesium" (an
-  // ordinary card title) unreadable against the real photo background.
-  // colors.surface (this card's own backgroundColor, above) is only 85%
-  // opaque by design (rgba(...,0.85), constants/colors.ts) -- reads as
-  // solid against the app's own dark ground theme, but a bright patch of
-  // photo still bleeds through that remaining 15%. The menuLabelShadow-only
-  // first attempt at this was reported as still not enough after a full
-  // reinstall; the real, bigger culprit turned out to be shelfCardSelected's
-  // own near-transparent fill (see that style's own 2026-08-23 comment,
-  // above) plus shelfHeading (below) having no background at all. This
-  // text now also carries its own solid background chip directly, not just
-  // a shadow, so it stays readable regardless of what's behind whichever
-  // card it sits in.
-  cardTitle: {
-    ...typography.label,
-    ...menuLabelShadow,
-    color: TAB_COLOR,
-    flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.55)',
-    paddingHorizontal: 4,
-    paddingVertical: 1,
-    borderRadius: 4,
-  },
+  // 2026-08-23: a background chip was briefly added here too, direct
+  // correction that it wasn't asked for and shouldn't apply inside an
+  // already-opaque card. The actual culprit for "Essential Nutrients:
+  // Magnesium" staying unreadable was shelfCardSelected's own near-
+  // transparent fill (see that style's own 2026-08-23 comment), fixed at
+  // its own source. This title stays as it was, the shadow alone.
+  cardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, flex: 1 },
   cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17 },
   // 2026-08-09, SearchResultCard's own real per-term match display -- see
   // MatchSummaryRow's own comment for the full reasoning. matchBlock sits
