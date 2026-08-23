@@ -820,7 +820,7 @@ function basicHealthEntriesForPrefixes(entries: AnyDigestEntry[], prefixes: stri
 // above. Plain, non-search browsing no longer does: 479 entries across ~21
 // shelves mounting at once turned out to be a direct cause of a
 // multi-second display delay, so that ONE call site (see
-// selectedBasicHealthGroup, in the main component) now shows a topic menu
+// selectedTopicGroup, in the main component) now shows a topic menu
 // first and renders only the picked group's own shelf through this same
 // data. No other category's own browsing view changed.
 function basicHealthAllGroups(entries: AnyDigestEntry[]): { label: string; entries: AnyDigestEntry[] }[] {
@@ -1853,22 +1853,31 @@ export default function PurpleDigestScreen() {
   // request after the FlatList virtualization fix still left a delay
   // -- rendering all ~21 groups' own shelves at once (479 entries total)
   // is itself the cost, not just how each shelf renders internally. Null
-  // shows a topic menu (BasicHealthTopicMenu, below) instead of every
-  // shelf at once. This holds a TOP-LEVEL topic label (basicHealthMenuGroups'
-  // own key, the part of a leaf group's '::'-joined label before the first
-  // '::', e.g. "Essential Nutrients", not "Essential Nutrients::Magnesium")
-  // rather than one single leaf group -- 2026-08-23, direct follow-up
-  // request: Essential Nutrients' own 22 individual nutrient/hormone
-  // subtopics fold back under their one shared parent row in the menu,
-  // rather than each showing as its own separate row, and picking that one
-  // row shows every one of them together, the same multi-shelf continuous
-  // view every condition category already uses. Every other (subtopic-free)
-  // top-level topic still resolves to exactly one leaf group, same as
-  // before. Search bypasses this entirely (categorySearchGroups' own
-  // branch, above, already narrows what's shown, so an extra menu step
-  // would be redundant), and no other category's own browsing view is
-  // touched by this at all.
-  const [selectedBasicHealthGroup, setSelectedBasicHealthGroup] = useState<string | null>(null);
+  // shows a topic menu (DigestTopicMenu, below) instead of every shelf at
+  // once. For Basic Health, this holds a TOP-LEVEL topic label
+  // (basicHealthMenuGroups' own key, the part of a leaf group's
+  // '::'-joined label before the first '::', e.g. "Essential Nutrients",
+  // not "Essential Nutrients::Magnesium") rather than one single leaf
+  // group -- direct follow-up request: Essential Nutrients' own 22
+  // individual nutrient/hormone subtopics fold back under their one shared
+  // parent row in the menu, rather than each showing as its own separate
+  // row, and picking that one row shows every one of them together, the
+  // same multi-shelf continuous view every condition category already
+  // uses. Every other (subtopic-free) top-level topic still resolves to
+  // exactly one leaf group, same as before.
+  //
+  // Direct follow-up, same day: "do the same for the other sections of the
+  // Digest." Every non-Basic-Health category's own topics are already flat,
+  // single-level labels (no '::' nesting, no Essential-Nutrients-style
+  // clustering needed), so this same state directly holds that category's
+  // own picked topic label with no splitting required -- see the generic
+  // (non-basicHealth) render branch, below, and jumpToRelated's own
+  // generalized drill-in logic.
+  //
+  // Search bypasses this entirely at every level (categorySearchGroups'
+  // own branch, above, already narrows what's shown once a topic is
+  // picked, so an extra menu step would be redundant).
+  const [selectedTopicGroup, setSelectedTopicGroup] = useState<string | null>(null);
   // A real, deliberate remount trigger for DigestSearchInput (used as its
   // own `key` in the JSX below) -- 2026-08-08. Since that component now
   // owns its own local, per-keystroke text state (the whole point of this
@@ -1895,6 +1904,12 @@ export default function PurpleDigestScreen() {
       // was actually sent to.
       if (openDigestLens === 'myKitchen' || openDigestLens === 'myFavorites' || openDigestLens === 'recipes') {
         setLens(openDigestLens);
+        // 2026-08-23: a fresh deep-link arrival lands on that category's
+        // own top-level menu, same as picking it from LensHub would --
+        // without this, a stale selectedTopicGroup left over from a
+        // previous visit could show that category already drilled into a
+        // topic instead of its own menu.
+        setSelectedTopicGroup(null);
         setRevealed(true);
         return;
       }
@@ -2115,20 +2130,30 @@ export default function PurpleDigestScreen() {
   // top-level menu, where every one of Basic Health's own groups is
   // actually listed -- once a subgroup is picked, the header card below
   // switches to that subgroup's own name instead.
-  const basicHealthDrilldownLabel =
-    lens === 'basicHealth' && selectedBasicHealthGroup !== null ? shelfGroupDisplayLabel(selectedBasicHealthGroup) : null;
+  //
+  // Direct follow-up, same day: generalized to every other category once
+  // the menu-first browsing pattern itself was extended to all of them
+  // (see selectedTopicGroup's own comment) -- drilling into any topic, in
+  // any lens, shows that topic's own name here instead of the category's
+  // own name, not just Basic Health's.
+  const drilldownTopicLabel =
+    lens !== 'search' && selectedTopicGroup !== null ? shelfGroupDisplayLabel(selectedTopicGroup) : null;
   // 2026-08-23, direct follow-up: an empty header once drilled in still
   // left nothing explaining what the subgroup actually covers or how it
   // connects to basic health generally -- each BASIC_HEALTH_TOPICS entry's
   // own `description` (BASIC_HEALTH_MORE_TOPIC_DESCRIPTION for the dynamic
   // 'More' catch-all, which isn't a real BASIC_HEALTH_TOPICS entry) fills
   // that in, specific to the picked subgroup rather than a repeat of Basic
-  // Health's own shared blurb.
-  const basicHealthDrilldownDescription =
-    selectedBasicHealthGroup === null
-      ? null
-      : (BASIC_HEALTH_TOPICS.find((topic) => topic.label === selectedBasicHealthGroup)?.description ??
-        BASIC_HEALTH_MORE_TOPIC_DESCRIPTION);
+  // Health's own shared blurb. Only Basic Health's own topics carry an
+  // authored description at all -- no condition, Earth Matters, or Home
+  // Gardening topic has one yet, so this stays null for every other
+  // category's own drilled-in view (just the topic name above, no
+  // paragraph under it), an honest gap rather than an invented blurb.
+  const drilldownTopicDescription =
+    lens === 'basicHealth' && selectedTopicGroup !== null
+      ? (BASIC_HEALTH_TOPICS.find((topic) => topic.label === selectedTopicGroup)?.description ??
+        BASIC_HEALTH_MORE_TOPIC_DESCRIPTION)
+      : null;
   // 2026-08-23, direct follow-up: "Search within Basic Health" stayed
   // showing at every drilled-in level too, direct report that it should
   // instead search "the area where they are, filtered." Whatever the
@@ -2136,7 +2161,7 @@ export default function PurpleDigestScreen() {
   // -- the drilled-in subgroup's own name once inside one, the ordinary
   // lens name otherwise. categorySearchGroups (below) does the matching
   // scoping on the actual results.
-  const searchScopeLabel = basicHealthDrilldownLabel ?? activeLensLabel;
+  const searchScopeLabel = drilldownTopicLabel ?? activeLensLabel;
   // The header card's own icon, 2026-08-09, direct request: "instead of
   // the digest icon, use a bigger version of the icon for that condition."
   // A real per-condition icon here, not the generic PurpleRibbonIcon --
@@ -2225,18 +2250,30 @@ export default function PurpleDigestScreen() {
   // subgroup is picked, both the scoring pool below and categorySearchGroups'
   // own base groups (below) narrow to just that subgroup's own entries, the
   // same real efficiency win the earlier virtualization fix made for
-  // ordinary browsing (scoring ~15-20 entries instead of all 479). Every
-  // other lens is unaffected -- conditions have no drill-down concept at
-  // all, and Basic Health's own top-level menu (selectedBasicHealthGroup
-  // === null) still searches everything, unchanged.
+  // ordinary browsing.
+  //
+  // Direct follow-up, same day: generalized to every other category once
+  // the menu-first browsing pattern itself was extended to all of them.
+  // Basic Health alone needs the '::'-prefix clustering (Essential
+  // Nutrients' own 22 subtopics); every other category's own topics are
+  // already flat, single-level labels, so an exact match against
+  // groupEntriesForLens' own topics is enough. lens === 'search' (the
+  // whole-Digest search lens) never reaches the second branch in practice
+  // -- selectedTopicGroup has no meaning there and stays null -- but the
+  // null check above short-circuits before the type-narrowing cast below
+  // would matter either way.
   const categorySearchScopeEntries = useMemo(() => {
-    if (lens !== 'basicHealth' || selectedBasicHealthGroup === null) return entries;
-    const scoped: AnyDigestEntry[] = [];
-    for (const group of basicHealthGroups) {
-      if (group.label.split('::')[0] === selectedBasicHealthGroup) scoped.push(...group.entries);
+    if (selectedTopicGroup === null) return entries;
+    if (lens === 'basicHealth') {
+      const scoped: AnyDigestEntry[] = [];
+      for (const group of basicHealthGroups) {
+        if (group.label.split('::')[0] === selectedTopicGroup) scoped.push(...group.entries);
+      }
+      return scoped;
     }
-    return scoped;
-  }, [entries, lens, selectedBasicHealthGroup, basicHealthGroups]);
+    const { topics } = groupEntriesForLens(lens as DigestCategoryKey, entries);
+    return topics.find((topic) => topic.label === selectedTopicGroup)?.entries ?? entries;
+  }, [entries, lens, selectedTopicGroup, basicHealthGroups]);
   // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
   // Set -- the same "which terms actually matched, title or just body"
   // detail Search All's own results already carry, threaded through to
@@ -2251,12 +2288,13 @@ export default function PurpleDigestScreen() {
   const categorySearchGroups = useMemo(() => {
     const baseGroups =
       lens === 'basicHealth'
-        ? selectedBasicHealthGroup === null
+        ? selectedTopicGroup === null
           ? basicHealthGroups
-          : basicHealthGroups.filter((group) => group.label.split('::')[0] === selectedBasicHealthGroup)
+          : basicHealthGroups.filter((group) => group.label.split('::')[0] === selectedTopicGroup)
         : (() => {
             const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
-            return tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
+            const allTopics = tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
+            return selectedTopicGroup === null ? allTopics : allTopics.filter((topic) => topic.label === selectedTopicGroup);
           })();
     return baseGroups
       .map((group) => ({
@@ -2264,7 +2302,7 @@ export default function PurpleDigestScreen() {
         entries: group.entries.filter((entry) => categorySearchMatchInfo.has(entry.id)),
       }))
       .filter((group) => group.entries.length > 0);
-  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedBasicHealthGroup]);
+  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedTopicGroup]);
   const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
   // Basic Health's own topic MENU rows, 2026-08-23, direct follow-up
   // request: folds every leaf group in basicHealthGroups back under its own
@@ -2464,20 +2502,31 @@ export default function PurpleDigestScreen() {
   // Related chip, and a search result (Search All or any category's own
   // scoped search) all use.
   //
-  // 2026-08-23: Basic Health's own plain-browsing view no longer keeps
-  // every shelf mounted at once (see selectedBasicHealthGroup's own
-  // comment) -- when the target lives there, this now also drills straight
-  // into its own TOP-LEVEL topic (just the part before the first '::', so
-  // a Magnesium-related jump drills into the whole "Essential Nutrients"
-  // row, same as tapping it from the menu directly) before scrolling,
-  // otherwise scrollGroupIntoView would be reaching for a ref that was
-  // never mounted (the topic menu would still be showing instead).
+  // 2026-08-23: no category's own plain-browsing view keeps every shelf
+  // mounted at once anymore (see selectedTopicGroup's own comment) -- when
+  // the target lives in a topic that isn't currently mounted, this now
+  // also drills straight into it before scrolling, otherwise
+  // scrollGroupIntoView would be reaching for a ref that was never mounted
+  // (the topic menu would still be showing instead). Basic Health drills
+  // into just the TOP-LEVEL part (before the first '::', so a
+  // Magnesium-related jump drills into the whole "Essential Nutrients"
+  // row, same as tapping it from the menu directly); every other
+  // category's own topics are already flat, so the key itself is the
+  // target. A tying-together entry is the one real exception -- it only
+  // ever renders on that category's own top-level menu (see the main
+  // render branch, below), so jumping to one resets to the menu (null)
+  // instead of trying to drill into a topic it was deliberately pulled
+  // out of.
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     const category = target.category as DigestCategoryKey;
     setLens(category);
-    if (category === 'basicHealth') setSelectedBasicHealthGroup(shelfGroupKeyForEntry(id, category).split('::')[0]);
+    if (category === 'basicHealth') {
+      setSelectedTopicGroup(shelfGroupKeyForEntry(id, category).split('::')[0]);
+    } else {
+      setSelectedTopicGroup(isTyingTogetherEntry(target) ? null : shelfGroupKeyForEntry(id, category));
+    }
     // A previous category's own shelf refs (Basic Health topic paths, or a
     // condition's own topic labels -- both real, plain strings that can
     // legitimately repeat across different categories, e.g. every
@@ -2644,21 +2693,29 @@ export default function PurpleDigestScreen() {
                   >
                     <Text style={styles.backToHomeText}>‹ Clear search</Text>
                   </TouchableOpacity>
-                ) : basicHealthDrilldownLabel ? (
+                ) : drilldownTopicLabel ? (
                   // 2026-08-23, direct correction: drilled into a Basic
                   // Health subgroup, this link used to still say "‹ Back to
                   // Digest" and exit straight out to the LensHub picker,
                   // skipping right past the Basic Health menu itself. One
                   // step back at a time now, the same breadcrumb depth every
                   // other back link in this app respects -- this steps back
-                  // to the Basic Health menu; from there, the branch below
-                  // steps back out to Digest, same as it always has.
+                  // to the current category's own menu; from there, the
+                  // branch below steps back out to Digest, same as it
+                  // always has.
+                  //
+                  // Direct follow-up, same day: generalized from "‹ Back to
+                  // Basic Health" specifically to "‹ Back to {activeLensLabel}"
+                  // once every category (not just Basic Health) gained the
+                  // same menu-first drill-down, so a Hashimoto's topic reads
+                  // "‹ Back to Hashimoto's Disease," a Recipes topic reads
+                  // "‹ Back to Recipes," and so on.
                   <TouchableOpacity
-                    onPress={() => setSelectedBasicHealthGroup(null)}
+                    onPress={() => setSelectedTopicGroup(null)}
                     accessibilityRole="button"
-                    accessibilityLabel="Back to Basic Health, choose another topic"
+                    accessibilityLabel={`Back to ${activeLensLabel}, choose another topic`}
                   >
-                    <Text style={styles.backToHomeText}>‹ Back to Basic Health</Text>
+                    <Text style={styles.backToHomeText}>‹ Back to {activeLensLabel}</Text>
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
@@ -2748,21 +2805,30 @@ export default function PurpleDigestScreen() {
                     ) : (
                       <PurpleRibbonIcon size={22} color={TAB_COLOR} />
                     )}
-                    <Text style={styles.categoryHeaderText}>{basicHealthDrilldownLabel ?? activeLensLabel}</Text>
+                    <Text style={styles.categoryHeaderText}>{drilldownTopicLabel ?? activeLensLabel}</Text>
                   </View>
-                  {/* 2026-08-23: the generic "Food, vitamins, minerals..."
-                      blurb belongs to Basic Health as a whole, not to
-                      whichever one subgroup is currently showing --
-                      basicHealthDrilldownDescription (that subgroup's own
-                      BASIC_HEALTH_TOPICS description) replaces it instead,
-                      direct follow-up after an empty header here left
-                      nothing explaining what the subgroup actually covers. */}
-                  <Text style={styles.categoryDescription}>
-                    {basicHealthDrilldownDescription ??
-                      (lens === 'search'
+                  {/* 2026-08-23: the generic category-wide blurb ("Food,
+                      vitamins, minerals..." for Basic Health, or any other
+                      category's own DIGEST_CATEGORY_META description)
+                      belongs to that category as a whole, not to whichever
+                      one topic is currently drilled into -- shown only on
+                      the top-level menu (drilldownTopicLabel === null).
+                      Once a topic is picked, drilldownTopicDescription
+                      (Basic Health topics only, see that variable's own
+                      comment) takes its place if one exists; every other
+                      category's own drilled-in topic renders no
+                      description at all rather than incorrectly falling
+                      back to the whole category's own blurb, the same real
+                      bug this fixed for Basic Health originally, now
+                      avoided everywhere else too. */}
+                  {(() => {
+                    const description = drilldownTopicLabel
+                      ? drilldownTopicDescription
+                      : lens === 'search'
                         ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
-                        : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description)}
-                  </Text>
+                        : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description;
+                    return description ? <Text style={styles.categoryDescription}>{description}</Text> : null;
+                  })()}
                 </View>
               )}
 
@@ -2830,7 +2896,12 @@ export default function PurpleDigestScreen() {
                       onJumpToRelated={jumpToRelated}
                       matchInfoById={categorySearchMatchInfo}
                       onDynamicEntriesChanged={refreshDynamicEntries}
-                      hideTopLevelLabel={lens === 'basicHealth' ? (selectedBasicHealthGroup ?? undefined) : undefined}
+                      // 2026-08-23: was basicHealth-only; simplified once the
+                      // menu-first pattern generalized to every category --
+                      // harmless for the rest of them anyway, since none of
+                      // their own topic labels contain '::' for this to
+                      // match against.
+                      hideTopLevelLabel={selectedTopicGroup ?? undefined}
                     />
                   </>
                 )
@@ -2849,7 +2920,7 @@ export default function PurpleDigestScreen() {
                 // 2026-08-23, direct correction: showing all ~21 shelves
                 // (479 entries) at once was itself the slowness, not
                 // fixed by virtualizing each shelf alone. Basic Health's
-                // plain-browsing view is now menu-first (BasicHealthTopicMenu,
+                // plain-browsing view is now menu-first (DigestTopicMenu,
                 // below) -- only the picked TOP-LEVEL topic's own shelf(es)
                 // mount at a time, via the exact same BasicHealthShelves
                 // component and interaction as before, unchanged. Same-day
@@ -2868,52 +2939,80 @@ export default function PurpleDigestScreen() {
                 //
                 // 2026-08-23, direct correction: the back link that used to
                 // sit here, in the scrolling body, is gone -- the fixed
-                // breadcrumb row above (basicHealthDrilldownLabel's own
+                // breadcrumb row above (drilldownTopicLabel's own
                 // branch) already reads "‹ Back to Basic Health" whenever a
                 // subgroup is picked, and having a second back-to-the-same-
                 // place link in the body duplicated it for no reason.
-                selectedBasicHealthGroup === null ? (
-                  <BasicHealthTopicMenu groups={basicHealthMenuGroups} onSelectGroup={setSelectedBasicHealthGroup} />
+                selectedTopicGroup === null ? (
+                  <DigestTopicMenu groups={basicHealthMenuGroups} onSelectGroup={setSelectedTopicGroup} />
                 ) : (
                   <BasicHealthShelves
                     groups={basicHealthGroups
-                      .filter((group) => group.label.split('::')[0] === selectedBasicHealthGroup)
+                      .filter((group) => group.label.split('::')[0] === selectedTopicGroup)
                       .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))}
                     expandedId={expandedId}
                     groupRefs={groupRefs}
                     onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
                     onJumpToRelated={jumpToRelated}
                     onDynamicEntriesChanged={refreshDynamicEntries}
-                    hideTopLevelLabel={selectedBasicHealthGroup}
+                    hideTopLevelLabel={selectedTopicGroup}
                   />
                 )
               ) : entries.length === 0 ? (
                 <Text style={styles.emptyText}>Nothing here yet.</Text>
               ) : (
-                // Every real condition category, plus Earth Matters and
-                // Home Gardening -- 2026-08-08, the same shelf-row-plus-
-                // detail-panel shape Basic Health's own leaf level uses,
-                // grouped into many real topics (see groupConditionEntries'
-                // own comment above, its 2026-08-12 rebuild from a fixed
-                // 4-pillar version, and groupEntriesForLens' own comment
-                // for why Earth Matters/Home Gardening each need their own
-                // dedicated classifier rather than sharing this one,
-                // 2026-08-13). The category's own closing "tying together"
-                // synthesis, if it has one, is pulled out of the shelves
-                // and shown as its own standalone card below them, always
-                // visible, never nested inside a topic it doesn't really
-                // belong to.
+                // Every real condition category, plus Earth Matters, Home
+                // Gardening, Recipes, and My Kitchen/My Favorites -- 2026-08-08,
+                // the same shelf-row-plus-detail-panel shape Basic Health's
+                // own leaf level uses, grouped into many real topics (see
+                // groupConditionEntries' own comment above, its 2026-08-12
+                // rebuild from a fixed 4-pillar version, and
+                // groupEntriesForLens' own comment for why Earth Matters/
+                // Home Gardening each need their own dedicated classifier
+                // rather than sharing this one, 2026-08-13).
+                //
+                // 2026-08-23, direct request: "do the same for the other
+                // sections of the Digest," extending Basic Health's own
+                // menu-first browsing pattern here too, rather than every
+                // one of a category's own topic shelves mounting at once.
+                // Reuses selectedTopicGroup and DigestTopicMenu directly --
+                // no clustering step is needed the way Basic Health's own
+                // Essential Nutrients required, since every one of these
+                // categories' own topics is already a single flat level, no
+                // '::'-nested subtopics. Topic ORDER is left exactly as each
+                // category's own dedicated classifier already curates it
+                // (CONDITION_TOPIC_ORDER, EARTH_MATTERS_TOPIC_ORDER, etc.) --
+                // asked directly, the call was to keep that reasoned
+                // narrative sequencing, not alphabetize it the way Basic
+                // Health's own topic-free menu was.
+                //
+                // The category's own closing "tying together" synthesis, if
+                // it has one, now shows on the top-level menu screen only,
+                // alongside the topic list -- it's a whole-category
+                // synthesis, not content belonging to any one topic, so it
+                // doesn't make sense nested inside a single drilled-in
+                // topic's own shelf. jumpToRelated resets back to the menu
+                // (selectedTopicGroup null) before scrolling to it if
+                // something was drilled in when a Related chip pointed here.
                 (() => {
                   const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
-                  return (
-                    <>
+                  if (selectedTopicGroup !== null) {
+                    return (
                       <BasicHealthShelves
-                        groups={topics}
+                        groups={topics.filter((topic) => topic.label === selectedTopicGroup)}
                         expandedId={expandedId}
                         groupRefs={groupRefs}
                         onToggleEntry={(id) => toggleEntry(id, lens as DigestCategoryKey)}
                         onJumpToRelated={jumpToRelated}
                         onDynamicEntriesChanged={refreshDynamicEntries}
+                      />
+                    );
+                  }
+                  return (
+                    <>
+                      <DigestTopicMenu
+                        groups={topics.map((topic) => ({ label: topic.label, entryCount: topic.entries.length }))}
+                        onSelectGroup={setSelectedTopicGroup}
                       />
                       {tyingTogether ? (
                         <View
@@ -3013,6 +3112,11 @@ export default function PurpleDigestScreen() {
           // linger long enough to be scrolled to by mistake.
           groupRefs.current = {};
           setLens(key);
+          // 2026-08-23: same "fresh arrival" reasoning as the reset just
+          // above -- picking a category from this picker always lands on
+          // its own top-level menu, never mid-drilled into whatever topic
+          // a previous visit happened to leave selected.
+          setSelectedTopicGroup(null);
           setExpandedId(null);
           // 2026-08-12, direct report: picking a different lens from this
           // popup left the ScrollView sitting at whatever offset the
@@ -3427,18 +3531,26 @@ function shelfHeadingLabel(label: string, hideTopLevelLabel?: string): string {
   return shelfGroupDisplayLabel(label);
 }
 
-// Basic Health's own plain-browsing landing view, 2026-08-23, direct
-// request: rendering all ~21 groups' shelves at once (479 entries) was
-// itself the delay, not fixed by virtualizing each shelf alone. A
-// plain, tappable list of top-level topic names instead -- picking one
-// drills into that topic's own group(s) through the unchanged
-// BasicHealthShelves component below, same shelf-row-plus-detail-panel
-// interaction as always. `groups` is basicHealthMenuGroups (already folded
-// to one row per top-level topic, Essential Nutrients' own 22 subtopics
-// summed into one row and one combined count), not the raw leaf groups.
-// Every other category's own browsing view still shows all its groups at
-// once, untouched by this.
-function BasicHealthTopicMenu({
+// Every category's own plain-browsing landing view, 2026-08-23, direct
+// request, first built for Basic Health: rendering all of a category's own
+// groups' shelves at once (479 entries for Basic Health alone) was itself
+// the delay, not fixed by virtualizing each shelf alone. A plain, tappable
+// list of top-level topic names instead -- picking one drills into that
+// topic's own group(s) through the unchanged BasicHealthShelves component
+// below, same shelf-row-plus-detail-panel interaction as always.
+//
+// Direct follow-up, same day: "do the same for the other sections of the
+// Digest" -- this component itself needed no change to extend beyond Basic
+// Health, it was already generic (`{label, entryCount}[]` in, a label back
+// out); only the CALLER differs per category. Basic Health's own caller
+// passes basicHealthMenuGroups (already folded to one row per top-level
+// topic, Essential Nutrients' own 22 subtopics summed into one row and one
+// combined count, sorted alphabetically); every other category's own
+// caller passes its topics straight from groupEntriesForLens, in that
+// category's own deliberately curated order, left alone rather than
+// alphabetized (a direct, separate decision -- see the main render
+// branch's own comment).
+function DigestTopicMenu({
   groups,
   onSelectGroup,
 }: {
@@ -3446,16 +3558,16 @@ function BasicHealthTopicMenu({
   onSelectGroup: (label: string) => void;
 }) {
   return (
-    <View style={styles.basicHealthMenuList}>
+    <View style={styles.digestTopicMenuList}>
       {groups.map((group) => (
         <TouchableOpacity
           key={group.label}
-          style={styles.basicHealthMenuItem}
+          style={styles.digestTopicMenuItem}
           onPress={() => onSelectGroup(group.label)}
           activeOpacity={0.85}
         >
-          <Text style={styles.basicHealthMenuItemLabel}>{shelfGroupDisplayLabel(group.label)}</Text>
-          <Text style={styles.basicHealthMenuItemCount}>
+          <Text style={styles.digestTopicMenuItemLabel}>{shelfGroupDisplayLabel(group.label)}</Text>
+          <Text style={styles.digestTopicMenuItemCount}>
             {group.entryCount} {group.entryCount === 1 ? 'entry' : 'entries'}
           </Text>
         </TouchableOpacity>
@@ -3491,9 +3603,9 @@ function BasicHealthShelves({
   // 2026-08-23, direct report: drilled into Essential Nutrients, every one
   // of its own 22 shelves still read "Essential Nutrients › Magnesium,"
   // "Essential Nutrients › Vitamin D," and so on -- redundant once the
-  // header above (basicHealthDrilldownLabel) and the back link already say
+  // header above (drilldownTopicLabel) and the back link already say
   // exactly which subgroup this is. Set only by Basic Health's own
-  // drilled-in view (selectedBasicHealthGroup), to that same top-level
+  // drilled-in view (selectedTopicGroup), to that same top-level
   // label -- a group whose own label starts with `${hideTopLevelLabel}::`
   // shows just its remainder ("Magnesium") instead of the full path.
   // Search results and every condition category's own topic shelves don't
@@ -4657,12 +4769,13 @@ const styles = StyleSheet.create({
   // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
   // own comment, above this file's grouping functions.
   shelfSection: { marginBottom: 18 },
-  // 2026-08-23, Basic Health's own topic menu (BasicHealthTopicMenu, above)
-  // and its drill-down back link -- the same card look (colors.surface fill,
-  // TAB_COLOR border) every other card on this screen already uses, not a
-  // new treatment invented just for this.
-  basicHealthMenuList: { gap: 10 },
-  basicHealthMenuItem: {
+  // 2026-08-23, every category's own topic menu (DigestTopicMenu, above),
+  // first built for Basic Health, then extended to every other category
+  // the same day -- the same card look (colors.surface fill, TAB_COLOR
+  // border) every other card on this screen already uses, not a new
+  // treatment invented just for this.
+  digestTopicMenuList: { gap: 10 },
+  digestTopicMenuItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
@@ -4672,8 +4785,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 14,
   },
-  basicHealthMenuItemLabel: { ...typography.label, color: TAB_COLOR, flex: 1, marginRight: 8 },
-  basicHealthMenuItemCount: { ...typography.caption, color: colors.textSecondary },
+  digestTopicMenuItemLabel: { ...typography.label, color: TAB_COLOR, flex: 1, marginRight: 8 },
+  digestTopicMenuItemCount: { ...typography.caption, color: colors.textSecondary },
   // 2026-08-23, direct report: this text floats directly over the real
   // photo background now that GatedTabContent actually reveals one, with
   // nothing behind it at all. A shadow-only first attempt, then a plain

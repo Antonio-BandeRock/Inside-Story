@@ -1946,7 +1946,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Wild-Fermented Pomegranate, Ginger & Turmeric Tonic',
     teaser: 'A tart, dry wild ferment built on pomegranate\'s own ellagitannins, with an honest caveat about what fermenting one actually delivers.',
-    summary: 'Pomegranate carries ellagitannins, which certain gut bacteria convert into Urolithin A, a compound with double-blind human trial data for improving mitochondrial and muscle function. Worth knowing plainly: those trials dosed purified Urolithin A directly (1000mg/day), not fermented pomegranate juice, and not everyone\'s own gut bacteria are even capable of producing Urolithin A from ellagitannins at all. This tonic is a worthwhile antioxidant-rich drink either way, just not a guaranteed way to reach the dose those trials used.',
+    summary: 'Pomegranate carries ellagitannins, which certain gut bacteria convert into Urolithin A, a compound with double-blind human trial data for improving mitochondrial and muscle function. Those trials dosed purified Urolithin A directly (1000mg/day), not fermented pomegranate juice, and not everyone\'s own gut bacteria are even capable of producing Urolithin A from ellagitannins at all. This tonic is a worthwhile antioxidant-rich drink either way, just not a guaranteed way to reach the dose those trials used.',
     citations: [
       { source: 'Andreux et al. 2019, Nature Metabolism: Urolithin A randomized controlled trial in humans', url: 'https://www.nature.com/articles/s42255-019-0073-4' },
     ],
@@ -3248,7 +3248,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Tarag-Style Fermented Milk',
     teaser: 'A tangy, effervescent Mongolian-style fermented milk drink, built with cow\'s milk since this app has no way to source mare\'s or camel\'s milk.',
-    summary: 'Traditional Tarag ferments mare\'s or camel\'s milk, neither of which this app\'s own reference database carries at all. This version uses cow\'s milk instead, the nearest available analogue, worth knowing plainly: traditional Tarag\'s own higher lactose content and different fat profile from mare\'s milk aren\'t reproduced here, this is a cow\'s-milk-kefir-style approximation of the idea, not the traditional drink itself.',
+    summary: 'Traditional Tarag ferments mare\'s or camel\'s milk, neither of which this app\'s own reference database carries at all. This version uses cow\'s milk instead, the nearest available analogue: traditional Tarag\'s own higher lactose content and different fat profile from mare\'s milk aren\'t reproduced here, this is a cow\'s-milk-kefir-style approximation of the idea, not the traditional drink itself.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
     ],
@@ -3280,7 +3280,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pu-erh-Style Fermented Tea',
     teaser: 'A kombucha-style home ferment built to evoke pu-erh\'s own fermented-tea tradition, since true pu-erh leaf isn\'t something this database carries.',
-    summary: 'This database carries no true pu-erh tea leaf, so this version uses brewed black tea as the fermentable base for a home SCOBY ferment instead. Worth knowing plainly: true pu-erh is aged and fermented by microbes directly on the tea leaf over months or years, a process a quick home ferment doesn\'t actually replicate either way, so this is a home-kitchen homage to the idea, not a claim of authenticity. Pu-erh itself has separate, strong human trial evidence for improving cholesterol and liver fat, worth knowing about even though this home version doesn\'t reproduce that specific research.',
+    summary: 'This database carries no true pu-erh tea leaf, so this version uses brewed black tea as the fermentable base for a home SCOBY ferment instead. True pu-erh is aged and fermented by microbes directly on the tea leaf over months or years, a process a quick home ferment doesn\'t actually replicate either way, so this is a home-kitchen homage to the idea, not a claim of authenticity. Pu-erh itself has separate, strong human trial evidence for improving cholesterol and liver fat, worth knowing about even though this home version doesn\'t reproduce that specific research.',
     citations: [
       { source: 'Huang et al. 2019, Nature Communications: theabrownin from Pu-erh tea attenuates hypercholesterolemia via gut microbiota and bile acid metabolism, human and mouse data', url: 'https://pubmed.ncbi.nlm.nih.gov/31672964/' },
     ],
