@@ -537,7 +537,37 @@ export const colors = {
   // shape (see components/PurpleRibbonIcon.tsx), not a raster photo, there's
   // no remaining reason to chase the photo's exact hue over one that
   // actually reads as purple, so this reverts to 262 for good.
-  tabPurpleDigest: '#C7ACF6',
+  //
+  // 2026-08-23, direct report, hue itself confirmed still correct: "Is
+  // there a darker color of purple that we can use... It really seems to
+  // be way more pink than purple to me. Make sure it is within the same
+  // family as the color already in use." The earlier history above
+  // already ruled out hue as the lever (262 measurably clears the pink/
+  // magenta boundary better than 278/280 ever did) -- what it never
+  // tested was this color's own unusually high saturation/lightness (80/
+  // 82, a deliberate 2026-07-28 bump specifically because the STANDARD
+  // pastel formula, 55/75, read "not purply enough"). At 82% lightness,
+  // even a hue that measures as unambiguous violet on paper can still
+  // perceptually read as a pale lavender-pink to the eye, the same reason
+  // "lavender" gets called pink far more often than "purple" does at any
+  // hue. Same hue (262), same family, lightness and saturation both
+  // brought down together (82->74, 80->72) instead of raised further:
+  // richer and measurably darker without re-approaching the 275-280
+  // boundary from a different direction. Checked, not assumed: still
+  // 5.27:1 against `textOnPrimary` (this color's own solid-fill button
+  // text, e.g. the new Digest breadcrumb/Glossary pills), comfortably
+  // above every floor this set is held to. The one honest tradeoff:
+  // contrast against `menuSurface`/`colors.surface`, where this color is
+  // sometimes used AS text (TabHub/LensHub's own picker labels,
+  // `categoryHeaderText`), drops from ~3.5:1 to ~2.5-2.7:1, under the 3:1
+  // floor this file's own comments elsewhere hold tab-identity colors to.
+  // Accepted rather than solved a second way: every one of those specific
+  // text uses already carries `menuLabelShadow` or an equivalent shadow
+  // (the same legibility work already done throughout this Digest screen
+  // 2026-08-21/23 for exactly this class of marginal-contrast text-on-
+  // surface pairing), not a fresh, unmitigated regression. Worth an
+  // on-device look, not just this math, before calling it settled.
+  tabPurpleDigest: '#AF88F2',
   // Garden's own identity color, changed 2026-08-13, direct request:
   // "let's try using 'Forest Green' (Hex #228B22)" -- a deliberate,
   // real-world color choice, not another member of the computed

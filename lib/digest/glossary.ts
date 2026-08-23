@@ -1281,4 +1281,171 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['vitamink-supplement-forms-compared'],
   },
+  // 2026-08-23, second expansion pass, direct report: "The Glossary of
+  // each section is nowhere near close to providing the amount of
+  // definitions to words and concepts as they should be." Same discipline
+  // as the original 43-term batch: every candidate here confirmed by
+  // actual usage across the Digest content base first (not guessed
+  // generically), cross-linked via relatedIds to the entry where each
+  // term actually does its work. 14 terms, still not exhaustive, the same "ongoing,
+  // multi-session" shape this whole Digest's own depth work already
+  // follows everywhere else. Appended rather than hand-spliced into
+  // alphabetical position, same reasoning as the original batch: display
+  // order is resolved at render time regardless of source order.
+  {
+    id: 'glossary-dash-diet',
+    category: 'basicHealth',
+    title: 'DASH Diet',
+    teaser: 'A specific, sodium-numbered eating pattern developed and studied directly for blood pressure, not a vague "eat less salt" suggestion.',
+    summary:
+      "DASH (Dietary Approaches to Stop Hypertension) is a specific eating pattern built around vegetables, fruits, whole grains, and low-fat dairy, with reduced saturated fat and sodium. Current guidance sets a specific sodium target of under 2,300mg a day, with a lower 1,500mg target for anyone with existing high blood pressure. Distinct from the Mediterranean diet, though both are whole-food, plant-forward patterns with independent cardiovascular trial support rather than competing approaches, covered directly in this Digest's own Cardiovascular Disease research.",
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['cvd-dash-sodium'],
+  },
+  {
+    id: 'glossary-scoby',
+    category: 'basicHealth',
+    title: 'SCOBY',
+    teaser: 'The mixed bacteria-and-yeast starter culture behind kombucha, a literal description rather than a brand or marketing term.',
+    summary:
+      'SCOBY stands for Symbiotic Culture Of Bacteria and Yeast, the starter culture used to ferment sweetened tea into kombucha. The community typically includes Acetobacter species, various yeasts, and often Gluconobacter, a mixed community rather than the single-strain focus of most other fermented-food entries in this Digest. Because yeast fermentation of sugar always produces some ethanol as a byproduct, this is also why kombucha carries a documented, if usually small, alcohol content, covered directly in this Digest\'s own Recipes research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['fermented-kombucha'],
+  },
+  {
+    id: 'glossary-nova-classification',
+    category: 'basicHealth',
+    title: 'NOVA Classification',
+    teaser: 'The four-group food-classification system behind "ultra-processed food," grouping by how a food was made rather than by its nutrient content alone.',
+    summary:
+      'NOVA is a food-classification system that sorts foods into four groups by the extent and purpose of industrial processing, not by nutrient content alone. Group 4, "ultra-processed food," covers industrially formulated products with ingredients rarely used in home cooking. Research finds this level of processing independently associated with higher all-cause mortality and cardiometabolic risk even after adjusting for the specific nutrients involved, evidence that the level of processing itself, not just individual ingredients, may matter on its own, covered directly in this Digest\'s own Lifestyle & Environment research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['lifestyle-ultra-processed-food'],
+  },
+  {
+    id: 'glossary-car-t',
+    category: 'basicHealth',
+    title: 'CAR-T Cell Therapy',
+    teaser: 'Engineering a patient\'s own immune cells to target and reset the immune process driving their disease, an emerging approach for the hardest-to-treat autoimmune cases.',
+    summary:
+      "CAR-T (Chimeric Antigen Receptor T-cell) therapy engineers a patient's own T cells, a type of immune cell, to specifically target and reset the immune process driving their disease. Originally developed for certain cancers, it's now in early human testing for autoimmune rheumatic disease, including rheumatoid arthritis and lupus. Data across this whole approach for autoimmune disease remains overwhelmingly early-stage (roughly 64% of trials still Phase 1), covered directly in this Digest's own Rheumatoid Arthritis research.",
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['horizon-ra'],
+  },
+  {
+    id: 'glossary-pnpla3',
+    category: 'basicHealth',
+    title: 'PNPLA3',
+    teaser: 'A gene variant linked to fatty liver disease risk, a textbook example of gene-environment interaction: carrying it alone raises risk, but combining it with alcohol, obesity, or diabetes amplifies that risk further.',
+    summary:
+      'PNPLA3 is a specific gene variant linked to MASLD (fatty liver disease) risk. Carrying the variant alone measurably raises risk, but combining it with alcohol, obesity, or diabetes amplifies that risk considerably further, a documented example of gene-environment interaction rather than genetics alone determining outcome. Research finds diet interventions (Mediterranean or low-fat) work similarly well regardless of PNPLA3 genotype, covered directly in this Digest\'s own Fatty Liver Disease research.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['masld-pnpla3-genetic-risk'],
+  },
+  {
+    id: 'glossary-cgm',
+    category: 'basicHealth',
+    title: 'CGM (Continuous Glucose Monitor)',
+    teaser: 'A device measuring glucose constantly rather than at a single blood draw, making Time in Range trackable in a way a standard HbA1c test alone can\'t.',
+    summary:
+      'A continuous glucose monitor (CGM) measures blood glucose constantly throughout the day, rather than at a single blood draw or lab test. This makes Time in Range (TIR), the percentage of a day spent within a safe glucose window, practical to track, a newer, complementary metric that catches dangerous swings a three-month HbA1c average alone can hide. Current guidance targets at least 70% time in range, corresponding to roughly the same control an HbA1c of 7% represents, covered directly in this Digest\'s own Type 1 Diabetes research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['type1-hba1c-time-in-range'],
+  },
+  {
+    id: 'glossary-trab-tsi',
+    category: 'basicHealth',
+    title: 'TRAb & TSI (Thyroid-Stimulating Antibodies)',
+    teaser: 'The antibodies behind Graves\' disease, which bind to and stimulate the same receptor TSH normally uses, driving the thyroid to overproduce hormone rather than attacking and destroying tissue.',
+    summary:
+      "TRAb (TSH-receptor antibody) and TSI (thyroid-stimulating immunoglobulin) are antibodies that bind to and stimulate the same receptor TSH normally uses, driving the thyroid to overproduce hormone. That's a structurally different mechanism from TPO antibodies, which attack and gradually destroy thyroid tissue, which is why Graves' disease behaves so differently from Hashimoto's despite both being autoimmune thyroid conditions. Testing levels over time helps predict remission and relapse, covered directly in this Digest's own Graves' Disease research.",
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['graves-trab-tsi-testing'],
+  },
+  {
+    id: 'glossary-ddt',
+    category: 'basicHealth',
+    title: 'DDT',
+    teaser: 'A once-widespread pesticide, banned in the US in 1972 after well-documented ecological harm, whose own historical arc (adopted, trusted, later reversed) recurs as a pattern throughout food-industry history.',
+    summary:
+      'DDT is a pesticide developed for wartime disease control that moved into mainstream agriculture after 1945, then was banned in the US in 1972 following well-documented ecological harm (Rachel Carson\'s Silent Spring, 1962). Its own historical arc, widely adopted and trusted, then later reversed once harm became clear, recurs as a pattern this Digest\'s own Food Industry & History research draws on directly when discussing other food-industry ingredients and practices with a similar shape.',
+    citations: [
+      { source: 'EPA: DDT: A Brief History and Status', url: 'https://www.epa.gov/ingredients-used-pesticide-products/ddt-brief-history-and-status' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['foodhistory-pesticides-ddt'],
+  },
+  {
+    id: 'glossary-das28-cdai',
+    category: 'basicHealth',
+    title: 'DAS28 & CDAI (Disease Activity Scores)',
+    teaser: 'The two most common tools for scoring how active RA is, not interchangeable: they can disagree on which activity category the same patient falls into.',
+    summary:
+      "DAS28 and CDAI are the two most commonly used tools for scoring rheumatoid arthritis disease activity. CDAI is a pure clinical count (joint exam plus patient/doctor global assessments) needing no lab work, while DAS28 also factors in an ESR or CRP blood-inflammation marker. A large validation study found both tools valid and strongly correlated overall, but disagreeing on which specific activity category (remission, low, moderate, high) the same patient falls into a meaningful share of the time, covered directly in this Digest's own Rheumatoid Arthritis research.",
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ra-das28-cdai-scoring'],
+  },
+  {
+    id: 'glossary-confidence-interval',
+    category: 'basicHealth',
+    title: 'Confidence Interval (CI)',
+    teaser: 'The range a study\'s own true effect likely falls within, not just its single headline number, and how wide that range is says a lot about how much to trust it.',
+    summary:
+      'A confidence interval (CI) is the range a study\'s own true effect likely falls within, reported alongside a single headline number (e.g. "72% lower odds, 95% CI 0.088-0.883") rather than instead of it. A narrow interval signals a more precise estimate; a wide one, especially one that stretches close to the point where an effect would disappear entirely, signals a finding built on a smaller or noisier sample, worth treating as suggestive rather than settled. This Digest names a study\'s own confidence interval directly wherever it materially changes how confidently a finding should be read.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['cvd-tavr-vs-surgery-low-risk-partner3'],
+  },
+  {
+    id: 'glossary-cbc',
+    category: 'basicHealth',
+    title: 'CBC (Complete Blood Count)',
+    teaser: 'A general-purpose blood test measuring red cells, white cells, and platelets, worth having on file even outside a specific diagnosis.',
+    summary:
+      "A complete blood count (CBC) measures red blood cells, white blood cells, and platelets, a general-purpose panel rather than one built for any single condition. It can catch anemia, infection, or a medication side effect that a condition-specific lab panel alone would miss, covered directly in this Digest's own Self Advocacy research as one of the tests worth having on a regular baseline schedule.",
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-cbc'],
+  },
+  {
+    id: 'glossary-hif-vegf',
+    category: 'basicHealth',
+    title: 'HIF & VEGF (Hypoxia and Blood Vessel Growth)',
+    teaser: 'The signaling pathway low-oxygen tissue uses to trigger new blood vessel growth, shared by ordinary tissue repair and, in a more amplified form, tumor growth.',
+    summary:
+      'HIF (hypoxia-inducible factor) is a signaling protein that activates when tissue oxygen runs low, triggering VEGF (vascular endothelial growth factor), which drives the growth of new blood vessels toward that oxygen-starved tissue. The same pathway is active in ordinary tissue repair and, in a more amplified form, in tumor growth, which is why it shows up as a shared mechanism between benign and cancerous tissue growth in this Digest\'s own Prostate Health research.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-hif-vegf-angiogenesis-shared-pathway'],
+  },
+  {
+    id: 'glossary-jc-virus',
+    category: 'basicHealth',
+    title: 'JC Virus',
+    teaser: 'A common virus most people carry without ever knowing it, whose reactivation risk is specifically monitored for anyone on certain MS medications.',
+    summary:
+      "The JC virus is a common virus most people carry without ever knowing it. Its reactivation is the cause of PML (progressive multifocal leukoencephalopathy), a rare but potentially fatal brain infection that's a known risk of natalizumab, a highly effective MS medication. The anti-JC virus antibody index is the established tool for tracking this risk over time, with current guidance recommending testing every six months, covered directly in this Digest's own Multiple Sclerosis research.",
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ms-jc-virus-testing'],
+  },
+  {
+    id: 'glossary-mri-ct',
+    category: 'basicHealth',
+    title: 'MRI & CT (Imaging)',
+    teaser: 'Two common imaging tools with different strengths: MRI uses magnetic fields and shows soft tissue detail well, CT uses X-rays and is faster, each with its own role in confirming a diagnosis or tracking progression.',
+    summary:
+      'MRI (magnetic resonance imaging) uses magnetic fields and radio waves to produce detailed images, particularly strong for soft tissue, joints, and the nervous system, without the radiation exposure a CT (computed tomography) scan carries. CT scans use X-rays and are faster, often preferred for urgent or structural imaging. Which one a specific finding in this Digest relies on usually reflects that same tradeoff, covered directly in the imaging research within this Digest\'s own Rheumatoid Arthritis research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ra-mri-ultrasound-early-erosion'],
+  },
 ];

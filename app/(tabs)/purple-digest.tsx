@@ -118,6 +118,12 @@ type Measurable = {
 // later; not a blocker for shipping real content.
 const TAB_COLOR = colors.tabPurpleDigest;
 
+// fixedHeader's own horizontal padding, pulled out into a named constant
+// so the EdgeShadow bar below it (see edgeShadowFullWidth) can cancel
+// exactly that much back out with a negative margin, rather than a
+// second, separately-typed "16" that could drift out of sync with it.
+const FIXED_HEADER_HORIZONTAL_PADDING = 16;
+
 // 2026-08-23, direct report: "why does it take so long for Basic Health to
 // display?" The real cause -- confirmed by actually reading the render
 // path, not re-guessed -- was never the grouping computation (already
@@ -1878,6 +1884,28 @@ export default function PurpleDigestScreen() {
   // own branch, above, already narrows what's shown once a topic is
   // picked, so an extra menu step would be redundant).
   const [selectedTopicGroup, setSelectedTopicGroup] = useState<string | null>(null);
+  // The new fixed-header Glossary shortcut, 2026-08-23 -- see
+  // basicHealthMenuGroups' own comment for why Glossary no longer shows as
+  // a normal Basic Health menu row. A real, separate boolean rather than
+  // routing through lens/selectedTopicGroup: glossary- prefixed entries
+  // are individually categorized across 14 different real categories (only
+  // 55 of 100 are 'basicHealth', the rest scattered under Hashimoto's and
+  // every other condition, whichever one each term's own deeper content
+  // actually ties to), so "the Glossary" a person expects from this button
+  // has to pull every one of them at once regardless of category, not just
+  // the Basic-Health-categorized fraction Basic Health's own topic system
+  // alone could ever show. Deliberately doesn't touch lens/selectedTopicGroup
+  // at all when opening -- whatever category/topic was showing underneath
+  // stays exactly as it was, ready to resume the instant Glossary closes.
+  const [glossaryOpen, setGlossaryOpen] = useState(false);
+  // Every glossary- prefixed entry across every real category, flattened
+  // into the one flat list Glossary's own view needs -- ALL_DIGEST_ENTRIES
+  // is static app content, never changes at runtime, so this only ever
+  // computes once.
+  const allGlossaryEntries = useMemo(
+    () => sortDigestEntriesLogically(ALL_DIGEST_ENTRIES.filter((entry) => entry.id.startsWith('glossary-'))),
+    [],
+  );
   // A real, deliberate remount trigger for DigestSearchInput (used as its
   // own `key` in the JSX below) -- 2026-08-08. Since that component now
   // owns its own local, per-keystroke text state (the whole point of this
@@ -2316,10 +2344,19 @@ export default function PurpleDigestScreen() {
   // basicHealthGroups' own BASIC_HEALTH_TOPICS declared order -- "More",
   // the catch-all bucket, sorts in place with everything else rather than
   // being pinned last.
+  // 2026-08-23, direct instruction: "The Glossary isn't a topic though
+  // that should be listed in alphabetical order within the list of all
+  // of the topics. It should have it's own button." Glossary stays a
+  // real BASIC_HEALTH_TOPICS entry (basicHealthGroups/basicHealthAllGroups
+  // still need it there to group glossary- entries correctly, the same
+  // as any other topic), it's only excluded from this MENU list -- the
+  // new fixed-header Glossary button (see openGlossary below) reaches the
+  // exact same drilled-in view directly, bypassing this menu entirely.
   const basicHealthMenuGroups = useMemo(() => {
     const menu: { label: string; entryCount: number }[] = [];
     for (const group of basicHealthGroups) {
       const topLabel = group.label.split('::')[0];
+      if (topLabel === 'Glossary') continue;
       const existing = menu.find((row) => row.label === topLabel);
       if (existing) existing.entryCount += group.entries.length;
       else menu.push({ label: topLabel, entryCount: group.entries.length });
@@ -2520,6 +2557,11 @@ export default function PurpleDigestScreen() {
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
+    // 2026-08-23: a Related chip tapped from inside the Glossary view
+    // (glossaryOpen) needs to actually land on the target's own real
+    // category/topic, not stay stuck showing Glossary's own unrelated
+    // flat list underneath an already-changed lens.
+    setGlossaryOpen(false);
     const category = target.category as DigestCategoryKey;
     setLens(category);
     if (category === 'basicHealth') {
@@ -2551,6 +2593,34 @@ export default function PurpleDigestScreen() {
     setSearchResetKey((key) => key + 1);
     setExpandedId(id);
     scrollGroupIntoView(shelfGroupKeyForEntry(id, category));
+  }
+
+  // Opens the fixed-header Glossary shortcut's own view -- see
+  // glossaryOpen's own comment above for why this is a separate boolean
+  // rather than routing through lens/selectedTopicGroup. Clears a stale
+  // search the same way jumpToRelated does (a lingering search shouldn't
+  // survive the jump), but deliberately leaves lens/selectedTopicGroup
+  // completely untouched -- there's nothing to drill into here, and
+  // whatever was showing underneath needs to still be there, unchanged,
+  // the instant Glossary closes again.
+  function openGlossary() {
+    setGlossaryOpen(true);
+    setSearchQuery('');
+    setCategorySearchQuery('');
+    setIsSearchActive(false);
+    setSearchResetKey((key) => key + 1);
+    setExpandedId(null);
+  }
+
+  // Glossary's own single flat shelf has no per-topic groups to resolve a
+  // real scroll target from the way toggleEntry's shared version needs
+  // (shelfGroupKeyForEntry expects a real DigestCategoryKey, and glossary
+  // entries span 14 different ones) -- there's only ever the one group,
+  // so this scrolls to its own fixed label directly instead.
+  function toggleGlossaryEntry(id: string) {
+    const wasExpanded = expandedId === id;
+    setExpandedId(wasExpanded ? null : id);
+    if (!wasExpanded) scrollGroupIntoView('Glossary');
   }
 
   // Commits DigestSearchInput's own debounced text up to this screen's
@@ -2685,7 +2755,20 @@ export default function PurpleDigestScreen() {
                   SECTIONS/searchMatchHelpVisible above own the actual
                   content and open state. */}
               <View style={styles.breadcrumbRow}>
-                {isSearchActive ? (
+                {glossaryOpen ? (
+                  // 2026-08-23: closing Glossary just flips this one
+                  // boolean back off -- lens/selectedTopicGroup were never
+                  // touched opening it (see openGlossary's own comment),
+                  // so whatever was showing underneath is still exactly
+                  // there, unchanged.
+                  <TouchableOpacity
+                    onPress={() => setGlossaryOpen(false)}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Back to ${activeLensLabel}`}
+                  >
+                    <Text style={styles.backToHomeText}>‹ Back to {activeLensLabel}</Text>
+                  </TouchableOpacity>
+                ) : isSearchActive ? (
                   <TouchableOpacity
                     onPress={clearSearch}
                     accessibilityRole="button"
@@ -2730,14 +2813,22 @@ export default function PurpleDigestScreen() {
                   </TouchableOpacity>
                 )}
 
-                <Pressable
-                  onPress={() => setSearchMatchHelpVisible(true)}
-                  hitSlop={10}
+                {/* 2026-08-23, direct instruction: Glossary gets its own
+                    button "above the search bar to the right of the Back
+                    to (place) button," in the exact slot the match-help
+                    (i) icon used to sit -- that icon moved into the
+                    search field itself instead (see DigestSearchInput's
+                    own onPressInfo below). Same solid-fill pill treatment
+                    backToHomeText already established on the left side of
+                    this same row, not a separate style invented for one
+                    more button. */}
+                <TouchableOpacity
+                  onPress={openGlossary}
                   accessibilityRole="button"
-                  accessibilityLabel="How search matching and the match dots work"
+                  accessibilityLabel="Open the Glossary"
                 >
-                  <Ionicons name="information-circle-outline" size={22} color={TAB_COLOR} />
-                </Pressable>
+                  <Text style={styles.backToHomeText}>Glossary</Text>
+                </TouchableOpacity>
               </View>
 
               <DigestSearchInput
@@ -2746,8 +2837,9 @@ export default function PurpleDigestScreen() {
                 placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${searchScopeLabel}...`}
                 onDebouncedChange={handleDebouncedSearchChange}
                 onActiveChange={handleSearchActiveChange}
+                onPressInfo={() => setSearchMatchHelpVisible(true)}
               />
-              <EdgeShadow direction="down" />
+              <EdgeShadow direction="down" style={styles.edgeShadowFullWidth} />
             </View>
 
             <HelpSheet
@@ -2800,12 +2892,19 @@ export default function PurpleDigestScreen() {
               {isSearchActive ? null : (
                 <View style={styles.headerCard}>
                   <View style={styles.categoryHeaderRow}>
-                    {ActiveConditionIcon ? (
+                    {/* 2026-08-23: Glossary always gets the plain ribbon
+                        icon, same as Basic Health's own generic header --
+                        it isn't any one condition, so ActiveConditionIcon
+                        (whichever condition `lens` currently is) would be
+                        wrong here regardless of what's showing underneath. */}
+                    {glossaryOpen ? (
+                      <PurpleRibbonIcon size={22} color={TAB_COLOR} />
+                    ) : ActiveConditionIcon ? (
                       <ActiveConditionIcon size={36} color={TAB_COLOR} />
                     ) : (
                       <PurpleRibbonIcon size={22} color={TAB_COLOR} />
                     )}
-                    <Text style={styles.categoryHeaderText}>{drilldownTopicLabel ?? activeLensLabel}</Text>
+                    <Text style={styles.categoryHeaderText}>{glossaryOpen ? 'Glossary' : (drilldownTopicLabel ?? activeLensLabel)}</Text>
                   </View>
                   {/* 2026-08-23: the generic category-wide blurb ("Food,
                       vitamins, minerals..." for Basic Health, or any other
@@ -2820,19 +2919,39 @@ export default function PurpleDigestScreen() {
                       description at all rather than incorrectly falling
                       back to the whole category's own blurb, the same real
                       bug this fixed for Basic Health originally, now
-                      avoided everywhere else too. */}
+                      avoided everywhere else too. Glossary reuses its own
+                      already-written BASIC_HEALTH_TOPICS description
+                      directly (single source), not a second copy of the
+                      same sentence. */}
                   {(() => {
-                    const description = drilldownTopicLabel
-                      ? drilldownTopicDescription
-                      : lens === 'search'
-                        ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
-                        : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description;
+                    const description = glossaryOpen
+                      ? BASIC_HEALTH_TOPICS.find((topic) => topic.label === 'Glossary')?.description
+                      : drilldownTopicLabel
+                        ? drilldownTopicDescription
+                        : lens === 'search'
+                          ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
+                          : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description;
                     return description ? <Text style={styles.categoryDescription}>{description}</Text> : null;
                   })()}
                 </View>
               )}
 
-              {lens === 'search' ? (
+              {glossaryOpen ? (
+                // The one flat shelf every glossary- prefixed entry lives
+                // in, regardless of which of the 14 real categories each
+                // one is individually assigned to -- see glossaryOpen's own
+                // comment above. Same BasicHealthShelves component (and
+                // its own real tap-to-expand/scroll-into-view behavior)
+                // every other category's own topic shelves already use,
+                // just handed exactly one group instead of several.
+                <BasicHealthShelves
+                  groups={[{ label: 'Glossary', entries: allGlossaryEntries }]}
+                  expandedId={expandedId}
+                  groupRefs={groupRefs}
+                  onToggleEntry={toggleGlossaryEntry}
+                  onJumpToRelated={jumpToRelated}
+                />
+              ) : lens === 'search' ? (
                 !isSearchActive ? (
                   <Text style={styles.emptyText}>
                     Type a word or phrase to search every category at once, a mechanism, a food, an
@@ -3219,11 +3338,17 @@ function DigestSearchInput({
   style,
   onDebouncedChange,
   onActiveChange,
+  onPressInfo,
 }: {
   placeholder: string;
   style: TextStyle;
   onDebouncedChange: (text: string) => void;
   onActiveChange: (active: boolean) => void;
+  // 2026-08-23, direct request: the match-help (i) icon moved from its
+  // own separate spot above the field (breadcrumbRow) to sitting inside
+  // the field itself, on the right. Owned by the caller (opens a real
+  // HelpSheet there), this component only renders the tap target.
+  onPressInfo: () => void;
 }) {
   const [localValue, setLocalValue] = useState('');
   const wasActive = useRef(false);
@@ -3274,12 +3399,17 @@ function DigestSearchInput({
 
   return (
     <View style={styles.searchInputWrap}>
-      <AppTextInput
-        style={[style, micOnLeft ? styles.searchInputPadLeft : styles.searchInputPadRight]}
-        placeholder={placeholder}
-        value={localValue}
-        onChangeText={handleChangeText}
-      />
+      {/* 2026-08-23: both sides now always need clearance, not just
+          whichever one the mic happens to be on -- the match-help (i)
+          icon (below) is deliberately pinned to the right regardless of
+          NAVIGATION_HAND (a plain informational tap target, not something
+          that needs to track hand preference the way the mic does), so as
+          long as the mic sits on the left (true today), text needs room
+          on both sides at once. If NAVIGATION_HAND ever really becomes
+          'right', the mic would land on the same side as this icon --
+          a real gap to revisit then, not solved preemptively for a
+          setting that doesn't exist yet (see that flag's own comment). */}
+      <AppTextInput style={[style, styles.searchInputPadBoth]} placeholder={placeholder} value={localValue} onChangeText={handleChangeText} />
       {/* Every result (partial included) replaces the query live, the
           same real "search as you speak" feel a phone's own voice
           search already has -- reuses handleChangeText directly, so a
@@ -3290,6 +3420,18 @@ function DigestSearchInput({
         onResult={(transcript) => handleChangeText(transcript)}
         style={[styles.searchInputMicButton, micOnLeft ? styles.searchInputMicButtonLeft : styles.searchInputMicButtonRight]}
       />
+      {/* 2026-08-23, direct request: "move the Information icon into the
+          right hand side of the search field itself." Fixed right,
+          unconditionally -- see this component's own header comment. */}
+      <Pressable
+        onPress={onPressInfo}
+        hitSlop={10}
+        style={styles.searchInputInfoButton}
+        accessibilityRole="button"
+        accessibilityLabel="How search matching and the match dots work"
+      >
+        <Ionicons name="information-circle-outline" size={20} color={TAB_COLOR} />
+      </Pressable>
     </View>
   );
 }
@@ -4680,9 +4822,20 @@ const styles = StyleSheet.create({
   // right where the shadow itself ends, sliding under its own soft fade,
   // rather than under an extra few px of plain background first.
   fixedHeader: {
-    paddingHorizontal: 16,
+    paddingHorizontal: FIXED_HEADER_HORIZONTAL_PADDING,
     paddingTop: 12,
   },
+  // 2026-08-23, direct report: "that same shadowy bar needs to extend
+  // all the way left and right to the edges of the screen." EdgeShadow's
+  // own `wrap` style has no explicit width of its own -- as a plain flex
+  // child of fixedHeader (a column container, default alignItems:
+  // 'stretch'), it was stretching to fill fixedHeader's own PADDED
+  // content box, not the screen's true edges. A negative horizontal
+  // margin exactly canceling that padding pulls it back out to the real
+  // screen edges without touching fixedHeader's own padding at all (the
+  // search field, breadcrumb row, and Glossary button all still need
+  // it).
+  edgeShadowFullWidth: { marginHorizontal: -FIXED_HEADER_HORIZONTAL_PADDING },
   // The row the "‹ Back to Digest"/"‹ Clear search" link and the new (i)
   // match-help icon share -- 2026-08-09, the link used to BE this whole
   // row on its own; now it's the left side, with the icon as a second,
@@ -4743,23 +4896,26 @@ const styles = StyleSheet.create({
   // itself is the wrap's only normal-flow child, so it already fills the
   // full width with no separate flex style needed.
   searchInputWrap: { position: 'relative' },
-  // Leaves room for the mic icon on whichever side it's actually on
-  // (searchInputMicButtonLeft/Right below), so typed text never runs
-  // under it -- overrides only that one side; searchInput's own
-  // paddingHorizontal still applies to the other side untouched (Yoga
-  // resolves the specific paddingLeft/paddingRight edge over the
-  // shorthand regardless of style array order).
-  searchInputPadLeft: { paddingLeft: 40 },
-  searchInputPadRight: { paddingRight: 40 },
+  // Leaves room for both the mic icon (left, today) and the match-help
+  // (i) icon (right, always -- see DigestSearchInput's own comment) so
+  // typed text never runs under either one. Used to be a conditional
+  // single-side pad, back when the mic was the only icon actually living
+  // inside the field; now both sides always need clearance.
+  searchInputPadBoth: { paddingLeft: 40, paddingRight: 40 },
   // top/bottom rather than a plain vertical-center-of-wrap -- searchInput's
-  // own marginBottom (14, see below) is trailing space AFTER the field's
+  // own marginBottom (4, see below) is trailing space AFTER the field's
   // visible box, not part of it; centering across the wrap's full height
   // (field + that trailing gap) would sit the icon a few px too high.
-  // `bottom: 14` excludes exactly that gap, so this centers against the
+  // `bottom: 4` excludes exactly that gap, so this centers against the
   // field's own visible box instead.
-  searchInputMicButton: { position: 'absolute', top: 0, bottom: 14, justifyContent: 'center' },
+  searchInputMicButton: { position: 'absolute', top: 0, bottom: 4, justifyContent: 'center' },
   searchInputMicButtonLeft: { left: 6 },
   searchInputMicButtonRight: { right: 6 },
+  // 2026-08-23: same vertical centering as the mic button above, fixed to
+  // the right regardless of NAVIGATION_HAND (see DigestSearchInput's own
+  // comment on why this one icon doesn't track hand preference the mic
+  // does).
+  searchInputInfoButton: { position: 'absolute', top: 0, bottom: 4, right: 6, justifyContent: 'center' },
   searchInput: {
     ...typography.body,
     borderWidth: 1,
