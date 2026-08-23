@@ -37,6 +37,17 @@ import { ScreenBackground, type BackgroundVariant } from './ScreenBackground';
 // including the swipe-transition "peek" bug this gating exists to
 // sidestep (see the 2026-07-26 history above) staying avoided.
 //
+// 2026-08-23: gained an optional `restingContent` -- a tab's own real
+// "Desktop" (see food.tsx, the first caller), shown in the resting branch
+// below INSTEAD of rendering nothing. Deliberately NOT wrapped in its own
+// ScreenBackground the way the revealed branch is: the shared resting
+// scene (mounted once in app/(tabs)/_layout.tsx, see the next paragraph)
+// is already visible behind this component at rest, and restingContent is
+// meant to layer directly on top of THAT image, not introduce a second,
+// competing one. Every other screen's own `revealed` behavior (nothing
+// shown at rest) is unchanged -- this prop is optional and undefined
+// everywhere except food.tsx for now.
+//
 // This component does NOT render the shared resting background itself --
 // that's a single, genuinely constant `<ScreenBackground variant="field"
 // sky />` mounted once in app/(tabs)/_layout.tsx, behind every screen. This
@@ -62,6 +73,7 @@ export function GatedTabContent({
   variant,
   revealed,
   children,
+  restingContent,
 }: {
   // Still required, even though this component no longer reads it itself
   // (used to feed the on-page resting prompt this component owned --
@@ -80,6 +92,11 @@ export function GatedTabContent({
   // ScopeHub gating.
   revealed: boolean;
   children?: ReactNode;
+  // Shown at rest (see this component's own 2026-08-23 comment above),
+  // layered directly over the already-visible shared background rather
+  // than a new ScreenBackground of its own. Optional and unused unless a
+  // caller actually passes it.
+  restingContent?: ReactNode;
 }) {
   // 2026-08-08: which per-tab visual-preferences override (if any) applies
   // to this screen's own revealed background -- resolved from pageTitle via
@@ -92,7 +109,9 @@ export function GatedTabContent({
     <View style={styles.body}>
       {revealed ? (
         <ScreenBackground variant={variant} routeKey={routeKey}>{children}</ScreenBackground>
-      ) : null}
+      ) : (
+        restingContent ?? null
+      )}
     </View>
   );
 }

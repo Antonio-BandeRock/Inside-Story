@@ -1,7 +1,7 @@
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { useCallback, useRef, useState } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import type { HelpSection } from '../../components/HelpButton';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { GatedTabContent } from '../../components/GatedTabContent';
@@ -23,7 +23,10 @@ import { SnackBuilder } from '../../components/SnackBuilder';
 import { SaucesBuilder } from '../../components/SaucesBuilder';
 import { SoupBuilder } from '../../components/SoupBuilder';
 import { SwipeableTabScreen } from '../../components/SwipeableTabScreen';
+import { TabDesktopMenu } from '../../components/TabDesktopMenu';
 import { colors } from '../../constants/colors';
+import { useFloatingButtonScrollPadding } from '../../constants/floatingButton';
+import { menuLabelShadow, typography } from '../../constants/typography';
 import {
   listBakedGoods,
   listBeverages,
@@ -467,6 +470,22 @@ export default function FoodScreen() {
   // same close-then-open sequencing LensHub's own extraTile already relies
   // on, so the primary popup always closes itself first.
   const [savedFavoritesOpen, setSavedFavoritesOpen] = useState(false);
+  // 2026-08-23: the Food tab's own resting-screen "Desktop" -- everything
+  // My Foods' popup above already knows how to show (myFoodsCategories/
+  // savedAndFavoritesCategories, both already computed further down), now
+  // ALSO shown as the tab's own default resting content instead of a
+  // small, easy-to-miss corner icon, direct request: "an area where their
+  // things that they create through their use of that Tab's lenses...
+  // accessed by using a menu system just like the Digest uses." Reuses
+  // the same data My Foods' popup already computes, drilled in-place
+  // (Digest's own topic-menu pattern: tap a row, the same content area
+  // swaps to that row's own list, a back link returns to the top level)
+  // rather than opening a Modal the way the popup's own submenu does --
+  // the popup itself is untouched, still available as a quick shortcut
+  // even once a builder is open, since this Desktop only ever shows at
+  // rest (see GatedTabContent's own restingContent, passed below).
+  const [desktopSubmenu, setDesktopSubmenu] = useState<'saved-favorites' | null>(null);
+  const desktopScrollPadding = useFloatingButtonScrollPadding();
   // A real food-trial round trip, 2026-08-14 -- see lib/pendingFoodTrialReturn.ts's
   // own comment for the full "why." A ref, not state, deliberately -- this
   // screen itself never unmounts on a tab switch (app/(tabs)/_layout.tsx's
@@ -872,6 +891,30 @@ export default function FoodScreen() {
     setDessertFavoriteCount(dessertFavorites.length);
     setMealFavoriteCount(mealFavorites.length);
   }
+  // 2026-08-23: the Desktop (see desktopSubmenu's own comment above) has
+  // no popup "onOpen" moment of its own to hook a refetch onto the way My
+  // Foods' popup does -- it's just always there at rest. useFocusEffect
+  // fires on the screen's initial mount too, not only later focus events,
+  // so this alone covers both "counts are fresh the first time the
+  // Desktop ever shows" and "counts are fresh again after saving
+  // something elsewhere and coming back." Deliberately its own small
+  // effect rather than folded into the large useFocusEffect above, which
+  // already has enough real, deep-link-driven branches of its own.
+  useFocusEffect(
+    useCallback(() => {
+      loadMyFoodsCounts();
+    }, []),
+  );
+  // Always land back on the Desktop's own top level once a lens is
+  // actually revealed, 2026-08-23 -- so returning to rest after using a
+  // builder never leaves someone stuck inside "Saved & Favorites" with no
+  // memory of how they got there. Watches `revealed` itself rather than
+  // hooking into every individual setRevealed(true) call site above (the
+  // large useFocusEffect alone has a dozen of them), so this stays correct
+  // regardless of which path actually reveals a lens.
+  useEffect(() => {
+    if (revealed) setDesktopSubmenu(null);
+  }, [revealed]);
   // 2026-08-17: restructured from one flat 24-tile list into the requested
   // 4-tier grouping -- "the My Foods menu should list things in the
   // following way: My Food Products... My Whole Foods... System Meals...
@@ -927,6 +970,16 @@ export default function FoodScreen() {
       onPress: () => setSavedFavoritesOpen(true),
     },
   ];
+
+  // The Desktop's own top-level list, 2026-08-23 -- byte-for-byte
+  // myFoodsCategories above, except "Saved & Favorites" drills in place
+  // (setDesktopSubmenu) instead of opening the popup's own Modal. A
+  // one-line .map() rather than a second hand-written array, so the other
+  // three rows (My Food Products/My Whole Foods/System Meals) can never
+  // silently drift out of sync between the popup and the Desktop.
+  const desktopMyFoodsCategories: MyItemsCategory[] = myFoodsCategories.map((category) =>
+    category.id === 'saved-favorites' ? { ...category, onPress: () => setDesktopSubmenu('saved-favorites') } : category,
+  );
 
   // The real submenu opened by "Saved & Favorites" above -- every builder's
   // own saved/favorite pair, unchanged in content and order from what used
@@ -1112,6 +1165,35 @@ export default function FoodScreen() {
     },
   ];
 
+  // The Desktop's own scrollable body, 2026-08-23 -- see desktopSubmenu's
+  // own comment above for the full "why." A plain heading (no per-topic
+  // description the way Digest's own topic menu gets, this tab has
+  // nothing written for that yet) plus a breadcrumb back link once
+  // drilled into "Saved & Favorites," the same shape Digest's own
+  // drilldown header already established. contentContainerStyle reads
+  // useFloatingButtonScrollPadding() the same way every other scrollable
+  // screen in this app already does, so the last row always clears the
+  // floating hub buttons rather than sitting behind them.
+  const foodDesktopContent = (
+    <ScrollView contentContainerStyle={[styles.desktopContent, { paddingBottom: desktopScrollPadding }]} showsVerticalScrollIndicator={false}>
+      {desktopSubmenu === 'saved-favorites' ? (
+        <TouchableOpacity onPress={() => setDesktopSubmenu(null)} activeOpacity={0.7}>
+          <Text style={styles.desktopBackLink}>‹ Back to My Foods</Text>
+        </TouchableOpacity>
+      ) : null}
+      <Text style={styles.desktopHeading}>{desktopSubmenu === 'saved-favorites' ? 'Saved & Favorites' : 'My Foods'}</Text>
+      {desktopSubmenu === 'saved-favorites' ? null : (
+        <Text style={styles.desktopSubheading}>
+          {"Everything you've built, saved, and favorited in Food, all in one place."}
+        </Text>
+      )}
+      <TabDesktopMenu
+        categories={desktopSubmenu === 'saved-favorites' ? savedAndFavoritesCategories : desktopMyFoodsCategories}
+        tabColor={TAB_COLOR}
+      />
+    </ScrollView>
+  );
+
   return (
     <View style={styles.screen}>
       {/* enabled={!revealed} -- 2026-07-28, explicitly requested: with a
@@ -1123,7 +1205,7 @@ export default function FoodScreen() {
           revealed yet) -- once a real builder is open, only its own
           LensHub corner button can back out of it. */}
       <SwipeableTabScreen enabled={!revealed}>
-        <GatedTabContent pageTitle="Food" variant="produce" revealed={revealed}>
+        <GatedTabContent pageTitle="Food" variant="produce" revealed={revealed} restingContent={foodDesktopContent}>
           {lens === 'mealBuilder' ? (
             // MealBuilder owns its own layout entirely, same reasoning as
             // every other builder below -- but never sits behind a
@@ -1357,4 +1439,22 @@ export default function FoodScreen() {
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
+  // Same conventions as Digest's own topic-menu header (categoryHeaderText/
+  // categoryDescription/backToHomeText in purple-digest.tsx) -- this
+  // Desktop is explicitly meant to read as "the same menu system," not a
+  // one-off invented separately, so it borrows those exact styles rather
+  // than a second, similar-but-not-identical set.
+  desktopContent: { padding: 16, gap: 12 },
+  desktopHeading: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR },
+  desktopSubheading: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
+  desktopBackLink: {
+    ...typography.body,
+    color: colors.textOnPrimary,
+    fontWeight: '600',
+    alignSelf: 'flex-start',
+    backgroundColor: TAB_COLOR,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+  },
 });
