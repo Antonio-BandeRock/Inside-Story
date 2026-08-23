@@ -1751,13 +1751,20 @@ export default function PurpleDigestScreen() {
   // -- rendering all ~21 groups' own shelves at once (479 entries total)
   // is itself the cost, not just how each shelf renders internally. Null
   // shows a topic menu (BasicHealthTopicMenu, below) instead of every
-  // shelf at once; picking one sets this to that group's own label (the
-  // same key basicHealthAllGroups/shelfGroupKeyForEntry already use), which
-  // then renders that ONE group through the same, unchanged BasicHealthShelves
-  // component every other category still uses in full. Search bypasses this
-  // entirely (categorySearchGroups' own branch, above, already narrows what's
-  // shown, so an extra menu step would be redundant), and no other category's
-  // own browsing view is touched by this at all.
+  // shelf at once. This holds a TOP-LEVEL topic label (basicHealthMenuGroups'
+  // own key, the part of a leaf group's '::'-joined label before the first
+  // '::', e.g. "Essential Nutrients", not "Essential Nutrients::Magnesium")
+  // rather than one single leaf group -- 2026-08-23, direct follow-up
+  // request: Essential Nutrients' own 22 individual nutrient/hormone
+  // subtopics fold back under their one shared parent row in the menu,
+  // rather than each showing as its own separate row, and picking that one
+  // row shows every one of them together, the same multi-shelf continuous
+  // view every condition category already uses. Every other (subtopic-free)
+  // top-level topic still resolves to exactly one leaf group, same as
+  // before. Search bypasses this entirely (categorySearchGroups' own
+  // branch, above, already narrows what's shown, so an extra menu step
+  // would be redundant), and no other category's own browsing view is
+  // touched by this at all.
   const [selectedBasicHealthGroup, setSelectedBasicHealthGroup] = useState<string | null>(null);
   // A real, deliberate remount trigger for DigestSearchInput (used as its
   // own `key` in the JSX below) -- 2026-08-08. Since that component now
@@ -1997,6 +2004,19 @@ export default function PurpleDigestScreen() {
 
   const activeLensLabel =
     lens === 'search' ? 'Search All' : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.label;
+  // 2026-08-23, direct report: drilling into a Basic Health subgroup (say
+  // Essential Nutrients) still showed the generic "Basic Health" title and
+  // its own "Food, vitamins, minerals..." description above the shelves,
+  // reading as if you were still on the topic-wide overview rather than
+  // looking at one specific subgroup. That description belongs only on the
+  // top-level menu, where every one of Basic Health's own groups is
+  // actually listed -- once a subgroup is picked, the header card below
+  // switches to that subgroup's own name instead (no separate description
+  // written per subgroup; the shelves and their own entries speak for
+  // themselves the same way every other category's topic shelves already
+  // do without a paragraph above them).
+  const basicHealthDrilldownLabel =
+    lens === 'basicHealth' && selectedBasicHealthGroup !== null ? shelfGroupDisplayLabel(selectedBasicHealthGroup) : null;
   // The header card's own icon, 2026-08-09, direct request: "instead of
   // the digest icon, use a bigger version of the icon for that condition."
   // A real per-condition icon here, not the generic PurpleRibbonIcon --
@@ -2103,6 +2123,28 @@ export default function PurpleDigestScreen() {
   // already gets this right (a real useMemo); this is the same fix applied
   // to the plain, non-search browsing path.
   const basicHealthGroups = useMemo(() => basicHealthAllGroups(entries), [entries]);
+  // Basic Health's own topic MENU rows, 2026-08-23, direct follow-up
+  // request: folds every leaf group in basicHealthGroups back under its own
+  // top-level topic (the part of a '::'-joined label before the first
+  // '::') -- Essential Nutrients' own 22 individual nutrient/hormone leaf
+  // groups collapse into one "Essential Nutrients" row here, summed to one
+  // combined entry count, rather than showing as 22 separate rows. Every
+  // other top-level topic (no subtopics of its own) still resolves to
+  // exactly one row, same count as its own single leaf group. Sorted
+  // alphabetically by display label (direct request), not
+  // basicHealthGroups' own BASIC_HEALTH_TOPICS declared order -- "More",
+  // the catch-all bucket, sorts in place with everything else rather than
+  // being pinned last.
+  const basicHealthMenuGroups = useMemo(() => {
+    const menu: { label: string; entryCount: number }[] = [];
+    for (const group of basicHealthGroups) {
+      const topLabel = group.label.split('::')[0];
+      const existing = menu.find((row) => row.label === topLabel);
+      if (existing) existing.entryCount += group.entries.length;
+      else menu.push({ label: topLabel, entryCount: group.entries.length });
+    }
+    return menu.sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)));
+  }, [basicHealthGroups]);
 
   // Scrolls the ScrollView so the named card's own top edge lands exactly
   // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- on
@@ -2282,15 +2324,17 @@ export default function PurpleDigestScreen() {
   // 2026-08-23: Basic Health's own plain-browsing view no longer keeps
   // every shelf mounted at once (see selectedBasicHealthGroup's own
   // comment) -- when the target lives there, this now also drills straight
-  // into its own group before scrolling, otherwise scrollGroupIntoView
-  // would be reaching for a ref that was never mounted (the topic menu
-  // would still be showing instead).
+  // into its own TOP-LEVEL topic (just the part before the first '::', so
+  // a Magnesium-related jump drills into the whole "Essential Nutrients"
+  // row, same as tapping it from the menu directly) before scrolling,
+  // otherwise scrollGroupIntoView would be reaching for a ref that was
+  // never mounted (the topic menu would still be showing instead).
   function jumpToRelated(id: string) {
     const target = findDigestEntryById(id);
     if (!target) return;
     const category = target.category as DigestCategoryKey;
     setLens(category);
-    if (category === 'basicHealth') setSelectedBasicHealthGroup(shelfGroupKeyForEntry(id, category));
+    if (category === 'basicHealth') setSelectedBasicHealthGroup(shelfGroupKeyForEntry(id, category).split('::')[0]);
     // A previous category's own shelf refs (Basic Health topic paths, or a
     // condition's own topic labels -- both real, plain strings that can
     // legitimately repeat across different categories, e.g. every
@@ -2544,13 +2588,19 @@ export default function PurpleDigestScreen() {
                     ) : (
                       <PurpleRibbonIcon size={22} color={TAB_COLOR} />
                     )}
-                    <Text style={styles.categoryHeaderText}>{activeLensLabel}</Text>
+                    <Text style={styles.categoryHeaderText}>{basicHealthDrilldownLabel ?? activeLensLabel}</Text>
                   </View>
-                  <Text style={styles.categoryDescription}>
-                    {lens === 'search'
-                      ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
-                      : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
-                  </Text>
+                  {/* 2026-08-23: no description once drilled into a Basic
+                      Health subgroup -- the generic "Food, vitamins,
+                      minerals..." blurb belongs to Basic Health as a whole,
+                      not to whichever one subgroup is currently showing. */}
+                  {basicHealthDrilldownLabel ? null : (
+                    <Text style={styles.categoryDescription}>
+                      {lens === 'search'
+                        ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
+                        : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
+                    </Text>
+                  )}
                 </View>
               )}
 
@@ -2637,27 +2687,46 @@ export default function PurpleDigestScreen() {
                 // (479 entries) at once was itself the slowness, not
                 // fixed by virtualizing each shelf alone. Basic Health's
                 // plain-browsing view is now menu-first (BasicHealthTopicMenu,
-                // below) -- only ONE group's own shelf mounts at a time,
-                // via the exact same BasicHealthShelves component and
-                // interaction as before, unchanged, once a topic is picked.
-                // No other category's own browsing view is touched by this.
+                // below) -- only the picked TOP-LEVEL topic's own shelf(es)
+                // mount at a time, via the exact same BasicHealthShelves
+                // component and interaction as before, unchanged. Same-day
+                // follow-up: Essential Nutrients' own 22 individual leaf
+                // groups are picked as ONE combined menu row
+                // (basicHealthMenuGroups, above) and rendered TOGETHER here
+                // (every leaf group whose own top-level part matches), the
+                // same multi-shelf continuous view every condition category
+                // already uses, not drilled one nutrient at a time. No other
+                // category's own browsing view is touched by this.
+                //
+                // Direct follow-up: alphabetized (basicHealthMenuGroups'
+                // own sort, and this drill-in view's own sort below, both by
+                // shelfGroupDisplayLabel rather than BASIC_HEALTH_TOPICS'
+                // declared order), and this drill-in's own back link renamed
+                // "‹ Back to Basic Health" to match "‹ Back to Digest"'s own
+                // naming (was "‹ All Basic Health Topics") -- both links
+                // share backToHomeText, now carrying the same colors.surface/
+                // TAB_COLOR card look as shelfHeading, so every one of
+                // these "topic header"-type elements reads consistently.
                 selectedBasicHealthGroup === null ? (
-                  <BasicHealthTopicMenu groups={basicHealthGroups} onSelectGroup={setSelectedBasicHealthGroup} />
+                  <BasicHealthTopicMenu groups={basicHealthMenuGroups} onSelectGroup={setSelectedBasicHealthGroup} />
                 ) : (
                   <>
                     <TouchableOpacity
                       onPress={() => setSelectedBasicHealthGroup(null)}
                       style={styles.basicHealthBackLink}
                     >
-                      <Text style={styles.backToHomeText}>‹ All Basic Health Topics</Text>
+                      <Text style={styles.backToHomeText}>‹ Back to Basic Health</Text>
                     </TouchableOpacity>
                     <BasicHealthShelves
-                      groups={basicHealthGroups.filter((group) => group.label === selectedBasicHealthGroup)}
+                      groups={basicHealthGroups
+                        .filter((group) => group.label.split('::')[0] === selectedBasicHealthGroup)
+                        .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))}
                       expandedId={expandedId}
                       groupRefs={groupRefs}
                       onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
                       onJumpToRelated={jumpToRelated}
                       onDynamicEntriesChanged={refreshDynamicEntries}
+                      hideTopLevelLabel={selectedBasicHealthGroup}
                     />
                   </>
                 )
@@ -3188,19 +3257,35 @@ function shelfGroupDisplayLabel(label: string): string {
   return label.split('::').join(' › ');
 }
 
+// A shelf's own heading, with its leading top-level segment dropped when
+// already viewing that exact top-level topic (BasicHealthShelves' own
+// hideTopLevelLabel prop, see that prop's own comment) -- "Essential
+// Nutrients › Magnesium" becomes plain "Magnesium" once the page itself
+// already says Essential Nutrients. Falls back to the ordinary full label
+// whenever hideTopLevelLabel isn't set or doesn't match this group.
+function shelfHeadingLabel(label: string, hideTopLevelLabel?: string): string {
+  if (hideTopLevelLabel && label.startsWith(`${hideTopLevelLabel}::`)) {
+    return shelfGroupDisplayLabel(label.slice(hideTopLevelLabel.length + 2));
+  }
+  return shelfGroupDisplayLabel(label);
+}
+
 // Basic Health's own plain-browsing landing view, 2026-08-23, direct
 // request: rendering all ~21 groups' shelves at once (479 entries) was
 // itself the delay, not fixed by virtualizing each shelf alone. A
-// plain, tappable list of topic names instead -- picking one drills into
-// that single group through the unchanged BasicHealthShelves component
-// below, same shelf-row-plus-detail-panel interaction as always. Every
-// other category's own browsing view still shows all its groups at once,
-// untouched by this.
+// plain, tappable list of top-level topic names instead -- picking one
+// drills into that topic's own group(s) through the unchanged
+// BasicHealthShelves component below, same shelf-row-plus-detail-panel
+// interaction as always. `groups` is basicHealthMenuGroups (already folded
+// to one row per top-level topic, Essential Nutrients' own 22 subtopics
+// summed into one row and one combined count), not the raw leaf groups.
+// Every other category's own browsing view still shows all its groups at
+// once, untouched by this.
 function BasicHealthTopicMenu({
   groups,
   onSelectGroup,
 }: {
-  groups: { label: string; entries: AnyDigestEntry[] }[];
+  groups: { label: string; entryCount: number }[];
   onSelectGroup: (label: string) => void;
 }) {
   return (
@@ -3214,7 +3299,7 @@ function BasicHealthTopicMenu({
         >
           <Text style={styles.basicHealthMenuItemLabel}>{shelfGroupDisplayLabel(group.label)}</Text>
           <Text style={styles.basicHealthMenuItemCount}>
-            {group.entries.length} {group.entries.length === 1 ? 'entry' : 'entries'}
+            {group.entryCount} {group.entryCount === 1 ? 'entry' : 'entries'}
           </Text>
         </TouchableOpacity>
       ))}
@@ -3230,6 +3315,7 @@ function BasicHealthShelves({
   onJumpToRelated,
   matchInfoById,
   onDynamicEntriesChanged,
+  hideTopLevelLabel,
 }: {
   groups: { label: string; entries: AnyDigestEntry[] }[];
   expandedId: string | null;
@@ -3245,6 +3331,17 @@ function BasicHealthShelves({
   // a photo save, a thumbs-up favorite-add, or a staged share getting
   // promoted/deleted. A harmless no-op prop everywhere else in this Digest.
   onDynamicEntriesChanged?: () => void;
+  // 2026-08-23, direct report: drilled into Essential Nutrients, every one
+  // of its own 22 shelves still read "Essential Nutrients › Magnesium,"
+  // "Essential Nutrients › Vitamin D," and so on -- redundant once the
+  // header above (basicHealthDrilldownLabel) and the back link already say
+  // exactly which subgroup this is. Set only by Basic Health's own
+  // drilled-in view (selectedBasicHealthGroup), to that same top-level
+  // label -- a group whose own label starts with `${hideTopLevelLabel}::`
+  // shows just its remainder ("Magnesium") instead of the full path.
+  // Search results and every condition category's own topic shelves don't
+  // pass this at all, so they're unaffected.
+  hideTopLevelLabel?: string;
 }) {
   // 2026-08-21, a real, repeatedly-reported bug: "the title box was
   // scrolled way to the right of the data card that is supposed to be
@@ -3335,7 +3432,7 @@ function BasicHealthShelves({
                 filtered-search view below), so it's converted to a plain,
                 readable display string only here, at render time. See
                 shelfGroupDisplayLabel's own comment. */}
-            <Text style={styles.shelfHeading}>{shelfGroupDisplayLabel(group.label)}</Text>
+            <Text style={styles.shelfHeading}>{shelfHeadingLabel(group.label, hideTopLevelLabel)}</Text>
             <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -4308,10 +4405,26 @@ const styles = StyleSheet.create({
   // row on its own; now it's the left side, with the icon as a second,
   // separate tap target on the right.
   breadcrumbRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  // Plain text, not another bordered card, so it reads as a lightweight
-  // navigation control rather than competing with headerCard's own real
-  // page-identity content directly below it.
-  backToHomeText: { ...typography.body, color: TAB_COLOR, fontWeight: '600' },
+  // 2026-08-23, direct instruction: the same colors.surface/TAB_COLOR-
+  // border "topic header" card treatment shelfHeading carries now also
+  // applies here, covering "‹ Back to Digest," "‹ Clear search," and
+  // Basic Health's own drill-in "‹ Back to Basic Health" link all at once
+  // (all three share this one style). Used to be plain text on purpose, so
+  // it wouldn't compete with headerCard's own content directly below it --
+  // superseded by the same legibility-against-a-photo-background need
+  // driving every other header-type element on this screen.
+  backToHomeText: {
+    ...typography.body,
+    color: TAB_COLOR,
+    fontWeight: '600',
+    alignSelf: 'flex-start',
+    backgroundColor: colors.surface,
+    borderWidth: 2,
+    borderColor: TAB_COLOR,
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+  },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
   // An opaque card, same surface every DigestCard below already sits on --
