@@ -11,6 +11,7 @@ import { ActiveInputProvider } from '../components/ActiveInputContext';
 import { AppKeyboard } from '../components/AppKeyboard';
 import { DatabaseSetupScreen } from '../components/DatabaseSetupScreen';
 import { OverlayProvider, OverlayRoot } from '../components/OverlayContext';
+import { VersionLabel } from '../components/VersionLabel';
 import { colors } from '../constants/colors';
 import { useHomeDataReady } from '../hooks/useHomeDataReady';
 import { getReferenceDatabase, initializeDatabase, settlePastScheduledMeals } from '../lib/db';
@@ -458,6 +459,7 @@ export default function RootLayout() {
                 dropdown's backdrop/menu, never the other way around. */}
             <OverlayRoot />
             <AppKeyboard />
+            <VersionLabel />
           </OverlayProvider>
         </ActiveInputProvider>
         </GestureHandlerRootView>
