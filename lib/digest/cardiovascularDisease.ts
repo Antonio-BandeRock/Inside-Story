@@ -647,4 +647,24 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['cvd-overview', 'cvd-lipid-panel-self-advocacy', 'adiponectin-overview', 'bodyfat-hadza-cardiovascular-health'],
   },
+  // 2026-08-23, added after fact-checking the "How Not to Die" documentary
+  // (2025) against the peer-reviewed literature, direct request. The
+  // documentary itself is not treated as a citable source; this traces to
+  // the primary trial data, independently verified via WebSearch. The full
+  // trial descriptions live in plantBasedNutrition.ts (Basic Health); this
+  // entry is the condition-specific application for someone who already
+  // has diagnosed coronary artery disease.
+  {
+    id: 'cvd-plant-based-diet-existing-disease',
+    category: 'cardiovascularDisease',
+    title: 'For Someone Already Diagnosed, Two Real Trials Tested Whether a Plant-Based Diet Could Reverse It, Not Just Slow It',
+    teaser: 'Most of this category\'s own dietary evidence is about preventing cardiovascular disease. Two separate bodies of research specifically tested people who already had it.',
+    summary:
+      "Everything else in this category's own dietary research (the Mediterranean-diet trial, DASH) is built around preventing cardiovascular disease or lowering risk in people who don't yet have a diagnosis. A different, smaller body of research specifically tested people who already had angiographically-confirmed coronary artery disease, asking whether intensive dietary change could reverse it, not just slow its progression. A randomized trial (the Lifestyle Heart Trial) found real, measured coronary regression in the intervention group against real progression in the control group over one year, and a long-term, though uncontrolled, case series found disease arrest and partial reversal sustained over more than a decade in a group of severely-diseased patients nothing else had worked for. Both are covered in full, including their real design strengths and limitations, in the Basic Health research on plant-based nutrition and heart disease. Worth reading directly rather than assumed: this is a real, separate question from general prevention, worth raising with a cardiologist specifically in the context of existing, diagnosed disease, not a substitute for the statin and blood-pressure evidence already covered in this same category.",
+    citations: [
+      { source: 'Can lifestyle changes reverse coronary heart disease? The Lifestyle Heart Trial, Ornish D et al., The Lancet, 1990, PMID 1973470', url: 'https://pubmed.ncbi.nlm.nih.gov/1973470/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['pbn-ornish-lifestyle-heart-trial', 'pbn-esselstyn-cohort-longterm', 'cvd-mediterranean-diet-predimed', 'cvd-statin-evidence'],
+  },
 ];

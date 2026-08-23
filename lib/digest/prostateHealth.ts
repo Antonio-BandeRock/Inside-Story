@@ -806,4 +806,24 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     overallTier: 'weak',
     relatedIds: ['recipe-ferment-tonic-pomegranate-ginger-turmeric'],
   },
+  // 2026-08-23, added after fact-checking the "How Not to Die" documentary
+  // (2025) against the peer-reviewed literature, direct request. Not
+  // duplicating this category's own already-substantial plant-based
+  // coverage (lycopene, cruciferous vegetables, the diet-pattern entry, the
+  // choline/TMAO entry) -- this is a genuinely different study type, a real
+  // randomized intervention trial rather than an observational diet-pattern
+  // finding.
+  {
+    id: 'prostate-ornish-lifestyle-trial',
+    category: 'prostateHealth',
+    title: 'A Randomized Trial Found Intensive Lifestyle Change Slowed Early Prostate Cancer Markers, With a Real Limitation',
+    teaser: '93 men with early, untreated prostate cancer were randomized to intensive lifestyle change or usual care. PSA fell in one group and rose in the other, though PSA alone can\'t confirm the disease itself was actually slowed.',
+    summary:
+      "A randomized trial led by Dean Ornish enrolled 93 men with early, biopsy-confirmed prostate cancer (PSA 4-10 ng/mL, Gleason score under 7) who had chosen active surveillance rather than immediate surgery or radiation, then randomized them to an intensive lifestyle-change program (a low-fat, whole-food, plant-based diet, moderate exercise, stress management, and group support) or usual care. After one year, PSA fell by about 4% in the lifestyle-change group and rose by about 6% in the control group, and none of the lifestyle-change patients needed to move on to conventional treatment during the study, compared with 6 patients in the control group whose PSA rise or imaging changes forced that decision. A laboratory follow-up added a real mechanistic detail: blood serum drawn from the lifestyle-change group suppressed the growth of prostate cancer cells in a dish roughly eight times more effectively than serum from the control group (70% inhibition versus 9%). Worth stating the honest limitation plainly, the same discipline this category's own lycopene research already applies: this trial relied on PSA and a lab-dish growth assay, not on confirmed biopsy progression or survival, real, meaningful signals, but surrogate ones, and the trial's own authors stated directly that larger, longer studies were needed to confirm the finding matters for actual disease outcomes, not just these intermediate markers.",
+    citations: [
+      { source: 'Intensive lifestyle changes may affect the progression of prostate cancer, Ornish D et al., Journal of Urology, 2005, PMID 16094059', url: 'https://pubmed.ncbi.nlm.nih.gov/16094059/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['prostate-diet-pattern', 'prostate-choline-tmao', 'pbn-ornish-lifestyle-heart-trial'],
+  },
 ];

@@ -40,6 +40,7 @@ import { ORGAN_SYSTEMS_ENTRIES } from './organSystems';
 import { OTHER_AUTOIMMUNE_ENTRIES } from './otherAutoimmune';
 import { PCOS_ENTRIES } from './pcos';
 import { PEDIATRIC_NUTRITION_ENTRIES } from './pediatricNutrition';
+import { PLANT_BASED_NUTRITION_ENTRIES } from './plantBasedNutrition';
 import { POPULAR_DIETS_ENTRIES } from './popularDiets';
 import { PORTIONS_AND_RDAS_ENTRIES } from './portionsAndRDAs';
 import { PREGNANCY_FAMILY_PLANNING_ENTRIES } from './pregnancyFamilyPlanning';
@@ -124,6 +125,7 @@ export const ALL_DIGEST_ENTRIES: AnyDigestEntry[] = [
   ...READING_LABELS_ENTRIES,
   ...MEDICATION_DEPLETION_ENTRIES,
   ...PEDIATRIC_NUTRITION_ENTRIES,
+  ...PLANT_BASED_NUTRITION_ENTRIES,
   ...SLEEP_HEALTH_ENTRIES,
   ...MENTAL_HEALTH_ENTRIES,
   ...HOME_GARDENING_ENTRIES,
