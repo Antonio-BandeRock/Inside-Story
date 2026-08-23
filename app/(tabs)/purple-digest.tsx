@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState, type MutableRefObjec
 import { useFocusEffect } from '@react-navigation/native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
+import { FlatList, Linking, Pressable, ScrollView, Share, StyleSheet, Text, TouchableOpacity, View, type TextStyle } from 'react-native';
 import Animated, { LinearTransition } from 'react-native-reanimated';
 import { AppTextInput } from '../../components/AppTextInput';
 import { useConfirmSheet } from '../../components/ConfirmSheet';
@@ -116,6 +116,27 @@ type Measurable = {
 // as Home's own background. Worth commissioning real Digest art
 // later; not a blocker for shipping real content.
 const TAB_COLOR = colors.tabPurpleDigest;
+
+// 2026-08-23, direct report: "why does it take so long for Basic Health to
+// display?" The real cause -- confirmed by actually reading the render
+// path, not re-guessed -- was never the grouping computation (already
+// fixed once, correctly, but for a different problem: repeated
+// recomputation on re-render, not this). BasicHealthShelves rendered
+// every entry in every group eagerly, all at once, with no virtualization
+// at all; Basic Health alone has 479 real entries (confirmed by count),
+// far more than any single condition's own handful of groups, so it was
+// the one place mounting hundreds of real ShelfTabCard view hierarchies
+// synchronously ever became visible as a real, multi-second stall. Fixed
+// by converting each shelf row from a plain ScrollView + .map() to a real
+// FlatList, so only the cards actually near the visible window ever
+// mount. SHELF_CARD_WIDTH/GAP exist so the FlatList's own getItemLayout
+// (below, in BasicHealthShelves) can compute every card's exact scroll
+// position up front without waiting for it to render first -- the same
+// two numbers styles.shelfCard/shelfRow use themselves, one real source,
+// not two that could quietly drift apart.
+const SHELF_CARD_WIDTH = 200;
+const SHELF_CARD_GAP = 10;
+const SHELF_CARD_STRIDE = SHELF_CARD_WIDTH + SHELF_CARD_GAP;
 
 // A recipe entry's own linkedBuilderType (see lib/digest/recipes.ts) maps
 // onto one real param per builder in app/(tabs)/food.tsx -- openSideRecipeId,
@@ -3161,44 +3182,40 @@ function BasicHealthShelves({
   // that was missing: the instant a DIFFERENT tab actually gets selected,
   // the row scrolls to bring that tab back near view, the same "selecting
   // something scrolls it into view" behavior a tab strip anywhere else
-  // would already have. rowScrollRefs/cardOffsetsByGroup are keyed by
-  // group.label, the same real per-group key groupRefs above already
-  // uses, so each group's own row scrolls independently of every other
-  // group's.
-  const rowScrollRefs = useRef<Record<string, ScrollView | null>>({});
-  const cardOffsetsByGroup = useRef<Record<string, Record<string, number>>>({});
+  // would already have. rowScrollRefs is keyed by group.label, the same
+  // real per-group key groupRefs above already uses, so each group's own
+  // row scrolls independently of every other group's. (2026-08-23: the
+  // mechanism below changed from ScrollView+onLayout/measure to FlatList+
+  // getItemLayout, see that change's own comment further down -- the
+  // problem this paragraph describes, and the fix, are unchanged.)
+  // 2026-08-23: rebuilt around FlatList's own getItemLayout instead of the
+  // old ScrollView + onLayout/measure approach (see git history for the
+  // full prior version) -- that approach needed two real rounds of bug
+  // fixing to get right (2026-08-21's own comment, preserved in git
+  // history, covered both), and both problems were symptoms of the same
+  // root issue: not knowing a card's real x position until it had already
+  // rendered. getItemLayout sidesteps that entirely -- every card's exact
+  // position is a known formula (SHELF_CARD_STRIDE * index) computed up
+  // front, so FlatList can scroll to any entry reliably whether or not
+  // it's ever been on screen yet, no race condition possible. This also
+  // happens to be the actual fix for "why does it take so long for Basic
+  // Health to display" -- FlatList only mounts the cards actually near the
+  // visible window, where the old ScrollView + .map() mounted every single
+  // one of a group's entries immediately, and Basic Health's own 479 real
+  // entries made that the one place it became a real, multi-second stall.
+  const rowScrollRefs = useRef<Record<string, FlatList<AnyDigestEntry> | null>>({});
 
-  // Attempts the actual scroll -- shared by the effect below AND each
-  // card's own onLayout (see the .map() further down), because either one
-  // alone has a real, confirmed gap. 2026-08-21, reported directly after
-  // the scroll-into-view fix above genuinely shipped but still landed on
-  // the wrong card two positions off: arriving at this group fresh (a
-  // search result jumping straight here, this group's own row never
-  // rendered before) means the effect below can run BEFORE any card has
-  // actually reported its own x position through onLayout -- the effect
-  // fires on `expandedId` changing, but a brand-new row's layout pass
-  // hasn't necessarily finished by then, so cardOffsetsByGroup has
-  // nothing yet to scroll to, and the attempt silently does nothing. This
-  // same function also runs from each card's own onLayout the instant
-  // that card's real x position becomes known, so whichever happens
-  // second -- expandedId changing, or this specific card's own layout
-  // resolving -- is the one that actually performs the scroll.
-  function tryScrollSelectedIntoView(groupLabel: string, entryId: string) {
-    const scrollNode = rowScrollRefs.current[groupLabel];
-    const x = cardOffsetsByGroup.current[groupLabel]?.[entryId];
-    if (scrollNode && typeof x === 'number') {
-      // A small left margin so the newly-selected tab isn't flush against
-      // the screen edge -- matches this row's own existing left padding
-      // (see styles.shelfRow).
-      scrollNode.scrollTo({ x: Math.max(0, x - 16), animated: true });
-    }
+  function tryScrollSelectedIntoView(groupLabel: string, entryId: string, entries: AnyDigestEntry[]) {
+    const list = rowScrollRefs.current[groupLabel];
+    const index = entries.findIndex((entry) => entry.id === entryId);
+    if (list && index !== -1) list.scrollToIndex({ index, animated: true, viewPosition: 0 });
   }
 
   useEffect(() => {
     if (!expandedId) return;
     const group = groups.find((g) => g.entries.some((entry) => entry.id === expandedId));
     if (!group) return;
-    tryScrollSelectedIntoView(group.label, expandedId);
+    tryScrollSelectedIntoView(group.label, expandedId, group.entries);
     // groups.length as a stand-in for "did the actual set of groups
     // change" -- the group objects themselves are rebuilt every render
     // (groupConditionEntries/BasicHealthTopicLeafView both return fresh
@@ -3236,39 +3253,25 @@ function BasicHealthShelves({
                 readable display string only here, at render time. See
                 shelfGroupDisplayLabel's own comment. */}
             <Text style={styles.shelfHeading}>{shelfGroupDisplayLabel(group.label)}</Text>
-            <ScrollView
+            <FlatList
               horizontal
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.shelfRow}
+              data={group.entries}
+              keyExtractor={(entry) => entry.id}
+              getItemLayout={(_, index) => ({ length: SHELF_CARD_STRIDE, offset: SHELF_CARD_STRIDE * index, index })}
               ref={(node) => {
                 rowScrollRefs.current[group.label] = node;
               }}
-            >
-              {group.entries.map((entry) => (
-                <View
-                  key={entry.id}
-                  onLayout={(event) => {
-                    if (!cardOffsetsByGroup.current[group.label]) cardOffsetsByGroup.current[group.label] = {};
-                    cardOffsetsByGroup.current[group.label][entry.id] = event.nativeEvent.layout.x;
-                    // Covers the real race tryScrollSelectedIntoView's own
-                    // comment names: this card's own x position may only
-                    // just now have become known, after expandedId already
-                    // changed to it -- if so, this is the scroll that
-                    // actually happens, not a redundant second one (the
-                    // effect above already tried and found nothing to
-                    // scroll to yet).
-                    if (entry.id === expandedId) tryScrollSelectedIntoView(group.label, entry.id);
-                  }}
-                >
-                  <ShelfTabCard
-                    entry={entry}
-                    selected={expandedId === entry.id}
-                    onPress={() => onToggleEntry(entry.id)}
-                    match={matchInfoById?.get(entry.id)}
-                  />
-                </View>
-              ))}
-            </ScrollView>
+              renderItem={({ item: entry }) => (
+                <ShelfTabCard
+                  entry={entry}
+                  selected={expandedId === entry.id}
+                  onPress={() => onToggleEntry(entry.id)}
+                  match={matchInfoById?.get(entry.id)}
+                />
+              )}
+            />
             {expandedEntry ? (
               <Animated.View layout={LinearTransition.duration(CARD_LAYOUT_TRANSITION_MS)} style={styles.shelfDetailPanel}>
                 <DigestCard
@@ -4294,21 +4297,34 @@ const styles = StyleSheet.create({
   // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
   // own comment, above this file's grouping functions.
   shelfSection: { marginBottom: 18 },
-  // 2026-08-23, direct report: this text (and categoryHeaderText's own
-  // sibling headers elsewhere in this screen) floats directly over the
-  // real photo background now that GatedTabContent actually reveals one,
-  // with nothing behind it, no card, no shadow -- unreadable wherever the
-  // photo happens to be bright. Reuses menuLabelShadow (constants/
-  // typography.ts), the same shadow already tuned for TabHub/LensHub's own
-  // labels against a busy surface, rather than inventing a new one.
-  shelfHeading: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, marginBottom: 8 },
+  // 2026-08-23, direct report: this text floats directly over the real
+  // photo background now that GatedTabContent actually reveals one, with
+  // nothing behind it at all, no card, not even categoryHeaderText's own
+  // headerCard wrapper. A shadow-only first attempt at this was reported
+  // as still unreadable after a full reinstall -- against a bright patch
+  // of photo a shadow alone genuinely isn't enough, since there's no card
+  // underneath for it to add contrast against. Now carries a real solid
+  // background chip directly (same rgba(0,0,0,0.55) fill used throughout
+  // this app for exactly this job), alignSelf: 'flex-start' so the chip
+  // hugs the heading text itself rather than stretching edge to edge.
+  shelfHeading: {
+    ...typography.label,
+    ...menuLabelShadow,
+    color: TAB_COLOR,
+    marginBottom: 8,
+    alignSelf: 'flex-start',
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 6,
+  },
   // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
   // gap between cards and a little trailing padding so the last card in a
   // row doesn't sit flush against the screen edge once scrolled all the
   // way over.
-  shelfRow: { flexDirection: 'row', gap: 10, paddingRight: 16 },
+  shelfRow: { flexDirection: 'row', gap: SHELF_CARD_GAP, paddingRight: 16 },
   shelfCard: {
-    width: 200,
+    width: SHELF_CARD_WIDTH,
     minHeight: 128,
     borderWidth: 2,
     borderColor: TAB_COLOR,
@@ -4319,15 +4335,38 @@ const styles = StyleSheet.create({
   // The one tab in a row whose own entry the detail panel below is
   // currently showing -- a visibly thicker, filled highlight so scrolling
   // left/right through the row never loses track of which one is open.
+  // 2026-08-23: this used to override shelfCard's own colors.surface
+  // (85% opaque) with `${TAB_COLOR}22`, roughly 13% opaque -- the real
+  // reason "Essential Nutrients: Magnesium" (a shelf card's own title,
+  // read while that card sits selected/open, the normal way anyone reads
+  // one) stayed unreadable against the photo background even after the
+  // menuLabelShadow fix below: a shadow has nothing solid to sit against
+  // once its own card is nearly see-through. Border alone (thicker,
+  // accent-colored) already marks the selected card; backgroundColor now
+  // stays whatever shelfCard's own base style set, same as every
+  // unselected sibling.
   shelfCardSelected: {
     borderColor: colors.accent,
     borderWidth: 3,
-    backgroundColor: `${TAB_COLOR}22`,
   },
-  // 2026-08-23: same colors.surface-isn't-fully-opaque issue as cardTitle's
-  // own comment explains, and this one's own selected state (shelfCardSelected,
-  // above) is even more exposed, a ${TAB_COLOR}22 fill, roughly 13% opaque.
-  shelfCardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, flex: 1, fontSize: 14 },
+  // Direct background chip on the text itself, same rgba(0,0,0,0.55) fill
+  // already used throughout this app for exactly this job (InfoAlert,
+  // PasswordPrompt, PageIdentityLabel) -- real insurance now that
+  // shelfCardSelected's own near-transparent fill (above) turned out to be
+  // a genuine second bug, not just the shadow-only fix reported as still
+  // insufficient. React Native Text accepts backgroundColor/padding
+  // directly, no extra wrapping View needed.
+  shelfCardTitle: {
+    ...typography.label,
+    ...menuLabelShadow,
+    color: TAB_COLOR,
+    flex: 1,
+    fontSize: 14,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
   shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
   // 2026-08-09, ShelfTabCard's own compact per-term match indicator, shown
   // only while this card is part of a category's own scoped search
@@ -4359,10 +4398,24 @@ const styles = StyleSheet.create({
   // colors.surface (this card's own backgroundColor, above) is only 85%
   // opaque by design (rgba(...,0.85), constants/colors.ts) -- reads as
   // solid against the app's own dark ground theme, but a bright patch of
-  // photo still bleeds through that remaining 15%, and this text carried
-  // no shadow of its own to fall back on. Same menuLabelShadow fix as
-  // shelfHeading above.
-  cardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, flex: 1 },
+  // photo still bleeds through that remaining 15%. The menuLabelShadow-only
+  // first attempt at this was reported as still not enough after a full
+  // reinstall; the real, bigger culprit turned out to be shelfCardSelected's
+  // own near-transparent fill (see that style's own 2026-08-23 comment,
+  // above) plus shelfHeading (below) having no background at all. This
+  // text now also carries its own solid background chip directly, not just
+  // a shadow, so it stays readable regardless of what's behind whichever
+  // card it sits in.
+  cardTitle: {
+    ...typography.label,
+    ...menuLabelShadow,
+    color: TAB_COLOR,
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
   cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17 },
   // 2026-08-09, SearchResultCard's own real per-term match display -- see
   // MatchSummaryRow's own comment for the full reasoning. matchBlock sits
