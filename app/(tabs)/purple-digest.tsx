@@ -4669,10 +4669,19 @@ const styles = StyleSheet.create({
   // too. Border removed; EdgeShadow (below, in the JSX) takes its place,
   // the same soft, direction="down" shaded edge ScreenHeader's own bottom
   // edge already uses, not a new treatment invented here.
+  // 2026-08-23, direct report: this box's own paddingBottom used to leave
+  // a plain, un-shaded strip of its own background sitting below the
+  // EdgeShadow (the box's own last child, see the JSX), so the subheader's
+  // own bottom edge sat a few px past where the shadow itself actually
+  // ends. Dropped to 0 so this box's own bottom edge now lands exactly at
+  // the shadow's own bottom edge, "the bottom edge of that subheader
+  // needs to move up to the bottom edge of the shadowy bar, and then the
+  // page can scroll under it" -- scrolled content now starts appearing
+  // right where the shadow itself ends, sliding under its own soft fade,
+  // rather than under an extra few px of plain background first.
   fixedHeader: {
     paddingHorizontal: 16,
     paddingTop: 12,
-    paddingBottom: 4,
   },
   // The row the "‹ Back to Digest"/"‹ Clear search" link and the new (i)
   // match-help icon share -- 2026-08-09, the link used to BE this whole
@@ -4760,7 +4769,12 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     backgroundColor: colors.surface,
     color: colors.textPrimary,
-    marginBottom: 14,
+    // 2026-08-23, direct report: the EdgeShadow bar directly below this
+    // field (see the JSX, `<EdgeShadow direction="down" />` right after
+    // DigestSearchInput) sat too far below it -- moved 10px closer by
+    // shrinking this gap alone, same as fixedHeader's own paddingBottom
+    // below getting the matching other half of the same report.
+    marginBottom: 4,
   },
   searchResultCount: { ...typography.eyebrow, color: colors.textMuted, marginBottom: 8 },
   searchResultCategory: { ...typography.caption, color: TAB_COLOR, marginBottom: 4 },
