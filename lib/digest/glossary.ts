@@ -788,4 +788,497 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'strong',
   },
+  // 2026-08-23, direct request: "evaluate the Glossary for lots of things
+  // that are missing... we have a heel of a lot more info in there now."
+  // Found by tallying every capitalized acronym-like token across every
+  // real Digest content file, dropping condition names already in the
+  // category picker, organization/journal names, and units, then keeping
+  // only the medical, pharmacological, and biological terms that actually
+  // appear used substantively, verified directly against the real content
+  // rather than guessed generically. Same terse, dictionary-style format
+  // as the 57 entries above, `citations: []` for the same reason most of
+  // those already use it: standard, settled medical/pharmacological
+  // vocabulary, not a new claim of its own. Appended here rather than
+  // hand-spliced into the alphabetical position above -- this file's
+  // author-facing sort claim is a convenience for anyone editing it, not a
+  // functional requirement; BasicHealthShelves already re-sorts the whole
+  // Glossary shelf by title at render time (sortDigestEntriesLogically),
+  // so display order is unaffected either way. A real, honest gap named
+  // directly rather than implied complete: this batch (43 terms) is
+  // substantial, not exhaustive -- more medical/biology vocabulary almost
+  // certainly still needs adding across the other 18 conditions' own
+  // deepest research, the same "ongoing, multi-session" shape this
+  // Digest's own depth work already follows elsewhere.
+  {
+    id: 'glossary-ace-arb',
+    category: 'basicHealth',
+    title: 'ACE Inhibitors & ARBs',
+    teaser: 'Two related classes of blood-pressure medication that also directly protect the kidneys, independent of blood pressure alone.',
+    summary:
+      'ACE inhibitors (drug names typically ending in "-pril") and ARBs, angiotensin receptor blockers (typically ending in "-sartan"), both block the same blood-pressure-raising hormone pathway at two different points. Beyond lowering blood pressure, both classes carry a separate, kidney-protective effect, especially for anyone with protein in their urine, which is why they are commonly first-line medications for chronic kidney disease specifically, not just high blood pressure generally. Both can raise blood potassium and cause a modest, expected drop in kidney function when first started or increased, a known, monitored effect rather than a reason to avoid them outright.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ckd-ace-arb-potassium-monitoring'],
+  },
+  {
+    id: 'glossary-ana',
+    category: 'lupus',
+    title: 'ANA (Antinuclear Antibody)',
+    teaser: 'A common first screening blood test for lupus and other autoimmune diseases, positive in most people who have lupus but also in some healthy people.',
+    summary:
+      'ANA testing looks for antibodies that mistakenly target structures inside the body\'s own cell nuclei, the broad signature of several autoimmune diseases including lupus. A positive ANA result is present in the large majority of people with lupus, making it a useful first screening test, but a positive result alone does not confirm lupus: a meaningful share of healthy people, more with age, also test positive, which is why a positive ANA is followed by more specific antibody testing and a clinical evaluation, not treated as a diagnosis on its own.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['lupus-discoid-vs-systemic'],
+  },
+  {
+    id: 'glossary-aps-antiphospholipid',
+    category: 'lupus',
+    title: 'APS (Antiphospholipid Syndrome)',
+    teaser: 'A separate, treatable clotting disorder that commonly overlaps with lupus, not the same thing as this glossary\'s own APS-2 (Autoimmune Polyglandular Syndrome Type 2) entry.',
+    summary:
+      'Antiphospholipid syndrome is an autoimmune clotting disorder where the immune system produces antibodies that raise the risk of blood clots and pregnancy complications, including recurrent miscarriage. It commonly overlaps with lupus, though it can also occur on its own. Worth stating directly since the two share an acronym: APS (Antiphospholipid Syndrome) is a different condition from APS-2 (Autoimmune Polyglandular Syndrome Type 2, this glossary\'s own separate entry), unrelated beyond the coincidence of the same short name.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['lupus-cardiovascular-risk'],
+  },
+  {
+    id: 'glossary-atp',
+    category: 'basicHealth',
+    title: 'ATP (Adenosine Triphosphate)',
+    teaser: 'The molecule every cell actually spends as usable energy, made mostly inside mitochondria.',
+    summary:
+      'ATP is the molecule cells use as their direct, spendable form of energy for essentially everything they do, muscle contraction, nerve signaling, building new proteins, and more. Mitochondria, the cell\'s own energy-producing structures, generate the large majority of the body\'s ATP by converting food and oxygen into it, which is why mitochondrial health and ATP production are treated as the same underlying story throughout this Digest\'s own Mitochondria & Metabolism research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['mito-mots-c'],
+  },
+  {
+    id: 'glossary-bdnf',
+    category: 'basicHealth',
+    title: 'BDNF (Brain-Derived Neurotrophic Factor)',
+    teaser: 'A protein that supports the growth and survival of new brain cells, measurably raised by exercise.',
+    summary:
+      'BDNF is a protein the brain produces that supports the growth, survival, and connection of neurons, including the new ones created through neurogenesis. Exercise is one of the most consistently documented ways to raise BDNF levels, part of the direct mechanistic link between physical activity and brain health covered in this Digest\'s own Neurogenesis research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['neurogenesis-bdnf-exercise'],
+  },
+  {
+    id: 'glossary-bph',
+    category: 'prostateHealth',
+    title: 'BPH (Benign Prostatic Hyperplasia)',
+    teaser: 'Non-cancerous prostate enlargement, extremely common with age and a completely separate condition from prostate cancer.',
+    summary:
+      'BPH is a non-cancerous enlargement of the prostate gland that becomes increasingly common with age, causing urinary symptoms (frequent urination, weak stream, nighttime bathroom trips) by pressing on the urethra. It is a separate condition from prostate cancer, though the two can coexist and some of the same lab values (like PSA) can be affected by either one, a common source of confusion covered directly in this Digest\'s own Prostate Health research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['prostate-gut-microbiome-bph'],
+  },
+  {
+    id: 'glossary-brca2',
+    category: 'prostateHealth',
+    title: 'BRCA2',
+    teaser: 'A gene best known for breast and ovarian cancer risk that also measurably raises prostate cancer risk in men who carry it.',
+    summary:
+      'BRCA2 is a gene that normally helps repair damaged DNA; an inherited mutation in it is best known for raising breast and ovarian cancer risk, but it also measurably raises prostate cancer risk, and is associated with more aggressive disease, in men who carry it. This is why a family history of BRCA2-related cancer on either side of the family is relevant self-advocacy information for prostate health specifically, not only for the relatives more commonly associated with the gene.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['prostate-family-history-genetic-risk'],
+  },
+  {
+    id: 'glossary-cbt',
+    category: 'basicHealth',
+    title: 'CBT (Cognitive Behavioral Therapy)',
+    teaser: 'A structured, evidence-based talk therapy that identifies and changes unhelpful thought and behavior patterns, first-line treatment for chronic insomnia.',
+    summary:
+      'CBT is a structured form of talk therapy that works by identifying and changing unhelpful thought patterns and behaviors. A specific version, CBT-I (for insomnia), is the current first-line, guideline-recommended treatment for chronic insomnia, ahead of sleep medication, covered directly in this Digest\'s own Sleep & Health research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['sleep-cbti-first-line'],
+  },
+  {
+    id: 'glossary-ccp-anti-ccp',
+    category: 'rheumatoidArthritis',
+    title: 'CCP / Anti-CCP Antibody',
+    teaser: 'A blood test more specific to rheumatoid arthritis than the older rheumatoid factor test, often positive years before symptoms start.',
+    summary:
+      'Anti-CCP (anti-cyclic citrullinated peptide) antibody testing looks for a specific immune marker that is more specific to rheumatoid arthritis than the older rheumatoid factor (RF) test, meaning a positive result is less likely to come from an unrelated cause. It can turn positive years before joint symptoms ever appear, making it a real, useful piece of self-advocacy information for anyone with a family history of RA or unexplained joint symptoms.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ra-advocacy-rf-anti-ccp'],
+  },
+  {
+    id: 'glossary-cgrp',
+    category: 'migraine',
+    title: 'CGRP (Calcitonin Gene-Related Peptide)',
+    teaser: 'A signaling molecule directly involved in triggering migraine pain, and the specific target of a newer class of migraine medication.',
+    summary:
+      'CGRP is a signaling molecule released around blood vessels and nerves that plays a direct, documented role in triggering migraine attacks. Newer migraine medications (CGRP inhibitors, including "gepants" and injectable monoclonal antibodies) work by blocking CGRP or its receptor directly, a more targeted mechanism than older, broader migraine treatments, covered in this Digest\'s own Migraine research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['migraine-cgrp-inhibitors'],
+  },
+  {
+    id: 'glossary-cmp',
+    category: 'basicHealth',
+    title: 'CMP (Comprehensive Metabolic Panel)',
+    teaser: 'A standard blood panel checking kidney function, liver function, blood sugar, and electrolytes all at once.',
+    summary:
+      'A CMP is a standard blood panel measuring roughly 14 markers at once, including kidney function (creatinine, eGFR), liver enzymes, blood sugar, and electrolytes like potassium and sodium. It is a common baseline test for monitoring overall organ function, and specific values on it can be affected by conditions or medications that might not seem directly related to the kidneys or liver at first glance, covered directly in this Digest\'s own self-advocacy research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['advocacy-cmp'],
+  },
+  {
+    id: 'glossary-cpap',
+    category: 'basicHealth',
+    title: 'CPAP (Continuous Positive Airway Pressure)',
+    teaser: 'The standard treatment device for obstructive sleep apnea, delivering steady air pressure through a mask to keep the airway open overnight.',
+    summary:
+      'CPAP is a machine that delivers a steady stream of pressurized air through a mask worn during sleep, keeping the airway from collapsing, the standard, first-line treatment for obstructive sleep apnea. Sleep apnea itself has documented bidirectional links to several conditions tracked across this Digest, including fatty liver disease, covered directly in that category\'s own research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['masld-sleep-apnea-bidirectional'],
+  },
+  {
+    id: 'glossary-dka',
+    category: 'type1Diabetes',
+    title: 'DKA (Diabetic Ketoacidosis)',
+    teaser: 'A dangerous, fast-developing complication of insufficient insulin, most relevant to Type 1 Diabetes, that needs urgent medical attention.',
+    summary:
+      'DKA is a dangerous, potentially life-threatening complication that develops when the body has too little insulin to use blood sugar for energy and starts breaking down fat instead, producing a buildup of acidic ketones in the blood. It can develop over hours, most often in Type 1 Diabetes, and specific "sick day rules" exist precisely to catch and prevent it during illness, covered directly in this Digest\'s own Type 1 Diabetes research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['type1-dka-sick-day-rules'],
+  },
+  {
+    id: 'glossary-dmard',
+    category: 'rheumatoidArthritis',
+    title: 'DMARD (Disease-Modifying Antirheumatic Drug)',
+    teaser: 'A class of medication that slows or changes the underlying disease process in rheumatoid arthritis, not just the pain it causes.',
+    summary:
+      'DMARDs are a class of medication that work on the underlying immune process driving rheumatoid arthritis, slowing or preventing joint damage, rather than just easing pain or inflammation the way an over-the-counter pain reliever would. Starting a DMARD early, within the first few months of symptoms, is documented to produce measurably better long-term outcomes than starting the same treatment later, the "window of opportunity" covered directly in this Digest\'s own Rheumatoid Arthritis research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ra-window-of-opportunity-early-treatment'],
+  },
+  {
+    id: 'glossary-ebv',
+    category: 'basicHealth',
+    title: 'EBV (Epstein-Barr Virus)',
+    teaser: 'An extremely common virus (the cause of mononucleosis) linked to triggering several autoimmune diseases through molecular mimicry.',
+    summary:
+      'EBV is an extremely common virus, the cause of infectious mononucleosis, that the large majority of adults have been infected with at some point. Research has found a specific molecular resemblance between certain EBV proteins and the body\'s own tissues, a documented example of molecular mimicry, one proposed trigger mechanism for several autoimmune diseases including multiple sclerosis, covered directly in this Digest\'s own Multiple Sclerosis research.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['ms-ebna1-glialcam-mimicry', 'glossary-molecular-mimicry'],
+  },
+  {
+    id: 'glossary-fib4',
+    category: 'fattyLiverDisease',
+    title: 'FIB-4 (Fibrosis-4 Index)',
+    teaser: 'A free, calculator-based screening score estimating liver scarring risk from routine lab values and age, no biopsy required.',
+    summary:
+      'FIB-4 is a calculated score (using age plus three routine liver-related lab values already on a standard panel) that estimates the likelihood of significant liver scarring, or fibrosis, without needing a biopsy. Clinical guidance recommends it as a first-line screening step for fatty liver disease specifically because it is low-cost and uses labs many people already have, though its own accuracy has shown inconsistency in some studies, an honest limitation covered directly in this Digest\'s own Fatty Liver Disease research.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['masld-fib4-fibrosis-screening'],
+  },
+  {
+    id: 'glossary-fmt',
+    category: 'basicHealth',
+    title: 'FMT (Fecal Microbiota Transplant)',
+    teaser: 'Transferring a screened, healthy donor\'s gut bacteria into someone else\'s gut, an established treatment for one infection and an active research direction for several conditions.',
+    summary:
+      'FMT transfers processed stool from a screened, healthy donor into someone else\'s digestive tract, intended to reshape their gut microbiome. It is already a well-established, FDA-recognized treatment for recurrent C. difficile infection, and is being actively studied, with mixed results depending on the condition, for several others covered across this Digest, including encouraging trial data for ulcerative colitis and inconclusive results for IBS.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['ibd-fecal-microbiota-transplant'],
+  },
+  {
+    id: 'glossary-gi',
+    category: 'basicHealth',
+    title: 'GI (Gastrointestinal)',
+    teaser: 'The everyday shorthand for the digestive tract, stomach through intestines, used throughout this Digest\'s own gut-related research.',
+    summary:
+      'GI is standard shorthand for the gastrointestinal tract, the whole digestive system from the stomach through the intestines. It appears constantly across this Digest\'s own gut-health, microbiome, and per-condition research (a "GI symptom," "GI tract," or "GI bleed") as a plain abbreviation for the digestive system, not a distinct medical concept of its own.',
+    citations: [],
+    overallTier: 'strong',
+  },
+  {
+    id: 'glossary-glp1',
+    category: 'type2Diabetes',
+    title: 'GLP-1 (Receptor Agonist)',
+    teaser: 'A newer class of medication, now first-line for many with Type 2 Diabetes, that lowers blood sugar and drives significant weight loss by mimicking a natural gut hormone.',
+    summary:
+      'GLP-1 receptor agonists (semaglutide and similar drugs) work by mimicking a natural gut hormone that increases insulin release, slows digestion, and reduces appetite. Current guidance now recommends this class, alongside SGLT2 inhibitors, as first-line pharmacotherapy for many people with Type 2 Diabetes, especially those with existing heart or kidney disease, specifically because of documented organ-protective benefits independent of blood sugar control alone.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['type2-glp1-sglt2-paradigm-shift'],
+  },
+  {
+    id: 'glossary-hla',
+    category: 'basicHealth',
+    title: 'HLA (Human Leukocyte Antigen)',
+    teaser: 'A group of genes that teach the immune system to tell "self" from "foreign," and the single biggest inherited risk factor across most of the autoimmune conditions this Digest tracks.',
+    summary:
+      'HLA genes produce proteins on the surface of cells that the immune system uses to distinguish the body\'s own tissue from foreign invaders. Specific inherited HLA variants are the single largest known genetic risk factor for developing celiac disease, Graves\' disease, and several other autoimmune conditions covered across this Digest, though carrying the variant alone does not guarantee developing the disease, since most people who carry it never do.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['celiac-global-hla-dq2-gradient'],
+  },
+  {
+    id: 'glossary-homa-ir',
+    category: 'basicHealth',
+    title: 'HOMA-IR',
+    teaser: 'A calculated score estimating insulin resistance from two ordinary lab values, fasting glucose and fasting insulin.',
+    summary:
+      'HOMA-IR is a score calculated from two routine fasting lab values, glucose and insulin, used mostly in research to estimate how insulin-resistant someone\'s body is. It appears throughout this Digest\'s own research on magnesium, chromium, vitamin D, and PCOS as a measured outcome in supplementation trials, worth knowing as a research tool rather than a routine clinical diagnosis on its own.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['magnesium-insulin-glucose'],
+  },
+  {
+    id: 'glossary-igf1',
+    category: 'basicHealth',
+    title: 'IGF-1 (Insulin-Like Growth Factor 1)',
+    teaser: 'A growth-signaling hormone, raised by dairy intake among other things, tied to both PCOS symptoms and prostate cancer risk in this Digest\'s own research.',
+    summary:
+      'IGF-1 is a hormone that signals cell growth throughout the body, structurally similar to insulin, hence the name. Dairy intake measurably raises circulating IGF-1 levels, a documented mechanism this Digest connects to worsened androgen-driven PCOS symptoms and, separately, to prostate cancer risk, covered in each condition\'s own research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['pcos-dairy-igf1-hyperandrogenism'],
+  },
+  {
+    id: 'glossary-ivf',
+    category: 'pcos',
+    title: 'IVF (In Vitro Fertilization)',
+    teaser: 'A fertility treatment where an egg is fertilized outside the body, relevant to this Digest\'s own PCOS research on real-world fertility outcomes.',
+    summary:
+      'IVF fertilizes an egg with sperm outside the body, then transfers the resulting embryo into the uterus, one of several fertility treatment options. PCOS is a leading cause of infertility, and this Digest\'s own research covers real-world IVF outcomes specifically for people with PCOS, not just fertility treatment in general.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['pcos-ivf-real-outcomes'],
+  },
+  {
+    id: 'glossary-jak-inhibitors',
+    category: 'rheumatoidArthritis',
+    title: 'JAK Inhibitors',
+    teaser: 'A newer class of oral rheumatoid arthritis medication carrying a serious, FDA-mandated safety warning worth knowing by name.',
+    summary:
+      'JAK inhibitors (tofacitinib, baricitinib, upadacitinib) are a newer class of oral medication for rheumatoid arthritis and other inflammatory conditions. A dedicated safety trial found increased risk of heart attack, stroke, cancer, blood clots, serious infection, and death compared with an older medication class in an at-risk population, leading the FDA to require a class-wide boxed warning, its strongest warning label, covered directly in this Digest\'s own Rheumatoid Arthritis research.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['ra-jak-inhibitors-oral-surveillance'],
+  },
+  {
+    id: 'glossary-ldl-hdl',
+    category: 'cardiovascularDisease',
+    title: 'LDL & HDL (Cholesterol)',
+    teaser: 'The two cholesterol types tracked on a standard lipid panel, one that drives artery damage and one that helps clear it.',
+    summary:
+      'LDL and HDL are two types of lipoprotein that carry cholesterol through the blood. LDL ("bad" cholesterol) contributes directly to artery-clogging plaque when levels run high, while HDL ("good" cholesterol) helps carry cholesterol away from artery walls for disposal. Both are standard values on a lipid panel, and this Digest\'s own Cardiovascular Disease research covers a large, pooled trial base showing measured LDL reduction directly tracking with reduced heart attack and stroke risk.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['cvd-statin-evidence'],
+  },
+  {
+    id: 'glossary-mash-nash',
+    category: 'fattyLiverDisease',
+    title: 'MASH & NASH (Fatty Liver Terminology)',
+    teaser: 'Two names for essentially the same thing, the more advanced, inflamed stage of fatty liver disease, with NASH the older term MASH is replacing.',
+    summary:
+      'NASH (non-alcoholic steatohepatitis) was the established name for the more advanced, inflamed stage of fatty liver disease. The field has been transitioning to MASH (metabolic dysfunction-associated steatohepatitis), a renaming meant to describe the condition by its actual metabolic cause rather than by what it isn\'t, without changing the underlying disease itself, covered throughout this Digest\'s own Fatty Liver Disease research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['masld-resmetirom'],
+  },
+  {
+    id: 'glossary-ndt',
+    category: 'hashimotos',
+    title: 'NDT (Natural Desiccated Thyroid)',
+    teaser: 'A thyroid hormone medication made from dried animal thyroid gland, an alternative to synthetic levothyroxine with a mixed evidence picture.',
+    summary:
+      'NDT is a thyroid hormone replacement medication made from dried, processed animal (typically pig) thyroid gland, containing both T4 and T3 in a fixed ratio, unlike synthetic levothyroxine, which is T4 alone. This Digest\'s own labs and medication research covers the real, ongoing debate over NDT and combination T3/T4 therapy directly, including the batch-to-batch consistency concerns that come with a biological rather than synthetic source.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['labs-combination-t3-ndt'],
+  },
+  {
+    id: 'glossary-nsaid',
+    category: 'basicHealth',
+    title: 'NSAID',
+    teaser: 'The drug class behind common over-the-counter pain relievers like ibuprofen and naproxen, with real, condition-specific risks worth knowing.',
+    summary:
+      'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s own research covers real, condition-specific risks worth knowing directly, including documented kidney injury risk in chronic kidney disease, covered in that category\'s own research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ckd-nsaid-kidney-injury-real-data'],
+  },
+  {
+    id: 'glossary-ogtt',
+    category: 'pcos',
+    title: 'OGTT (Oral Glucose Tolerance Test)',
+    teaser: 'A more thorough diabetes-screening test than fasting glucose alone, drinking a glucose solution then rechecking blood sugar two hours later.',
+    summary:
+      'An OGTT measures blood sugar at a baseline, then again two hours after drinking a standardized glucose solution, catching impaired glucose handling that a fasting glucose test alone can miss. This Digest\'s own PCOS research covers direct evidence that fasting glucose alone missed glucose intolerance in a majority of PCOS cases that a full OGTT correctly caught, one reason it\'s specifically recommended over fasting glucose alone for that condition.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['pcos-ogtt-screening'],
+  },
+  {
+    id: 'glossary-omega3-types',
+    category: 'basicHealth',
+    title: 'Omega-3 Fatty Acid Types (ALA, EPA & DHA)',
+    teaser: 'Three different omega-3 fats, one plant-based and two marine-based, and the well-documented bottleneck converting the plant version into the more active two.',
+    summary:
+      'ALA (alpha-linolenic acid) is the plant-based omega-3, found in flaxseed and walnuts; EPA and DHA are the two marine-based omega-3s, found in fatty fish and algae, and generally considered the more biologically active forms. The body can convert ALA into EPA and DHA, but only inefficiently, a well-documented conversion bottleneck covered directly in this Digest\'s own Essential Nutrients research, one reason a plant-only omega-3 source doesn\'t automatically deliver the same effect as a marine one.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['omega3-ala-conversion-bottleneck'],
+  },
+  {
+    id: 'glossary-pad',
+    category: 'cardiovascularDisease',
+    title: 'PAD (Peripheral Artery Disease)',
+    teaser: 'Narrowed arteries in the legs, the same underlying atherosclerosis process as coronary artery disease, just in a different location.',
+    summary:
+      'PAD is narrowing of the arteries supplying the legs (and sometimes other organs), caused by the same underlying atherosclerosis process that causes coronary artery disease, just affecting a different part of the body. Its presence is a marker of broader cardiovascular risk, covered directly in this Digest\'s own Cardiovascular Disease research alongside its kidney- and brain-related counterparts.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['cvd-kidney-brain-pad-real-data'],
+  },
+  {
+    id: 'glossary-pasi',
+    category: 'psoriasis',
+    title: 'PASI (Psoriasis Area and Severity Index)',
+    teaser: 'The standard scoring tool researchers and dermatologists use to measure how much psoriasis has actually improved, the same bar most drug trials use to define success.',
+    summary:
+      'PASI is a standardized score combining how much of the body psoriasis covers with how severe it looks (redness, thickness, scaling), used to track disease severity and treatment response. "PASI75," a 75% improvement in this score, is the bar most psoriasis drug and lifestyle trials use to define a successful result, covered directly in this Digest\'s own Psoriasis research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['psoriasis-weight-loss'],
+  },
+  {
+    id: 'glossary-psa',
+    category: 'prostateHealth',
+    title: 'PSA (Prostate-Specific Antigen)',
+    teaser: 'The standard prostate-cancer screening blood test, with a more complicated benefit-versus-harm picture than "more screening is always better."',
+    summary:
+      'PSA is a protein made by the prostate, measured by a standard blood test as a screening tool for prostate cancer. It can also rise from BPH, prostatitis, or normal variation, not just cancer, which is why current guidance treats the screening decision as an individual, doctor-guided one rather than a routine recommendation for everyone, covered directly and honestly in this Digest\'s own Prostate Health research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['prostate-psa-screening'],
+  },
+  {
+    id: 'glossary-psc',
+    category: 'ibd',
+    title: 'PSC (Primary Sclerosing Cholangitis)',
+    teaser: 'A rare but serious liver condition affecting the bile ducts, one of the extraintestinal complications IBD can carry beyond the gut itself.',
+    summary:
+      'PSC is a condition causing progressive scarring and narrowing of the bile ducts inside and outside the liver, which can lead to serious liver damage over time. It occurs at a notably higher rate in people with IBD, particularly ulcerative colitis, than in the general population, one of several extraintestinal complications, effects reaching beyond the gut itself, covered directly in this Digest\'s own IBD research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ibd-extraintestinal-manifestations'],
+  },
+  {
+    id: 'glossary-psma',
+    category: 'prostateHealth',
+    title: 'PSMA (Prostate-Specific Membrane Antigen)',
+    teaser: 'A protein prostate cancer cells make far more of than healthy tissue, now the target of both a precision imaging technique and an approved radiation therapy.',
+    summary:
+      'PSMA is a protein that prostate cancer cells express at much higher levels than healthy tissue does. That difference is now used two ways: as a more sensitive imaging tool for locating exactly where prostate cancer has spread, and as the target of an FDA-approved radioligand therapy that binds to PSMA before releasing its radiation dose directly at the cancer, a more precise approach than a broad external beam, covered directly in this Digest\'s own Prostate Health research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['horizon-prostate'],
+  },
+  {
+    id: 'glossary-ptu',
+    category: 'graves',
+    title: 'PTU (Propylthiouracil)',
+    teaser: 'An antithyroid medication that slows an overactive thyroid, used for Graves\' disease, needing regular monitoring for a rare but serious liver risk.',
+    summary:
+      'PTU is a medication that reduces thyroid hormone production, used to manage an overactive thyroid, most often from Graves\' disease. It carries a rare but serious risk of liver injury, which is why regular monitoring is part of standard care while taking it, covered directly in this Digest\'s own Graves\' disease research on antithyroid drug monitoring.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['graves-antithyroid-drug-monitoring'],
+  },
+  {
+    id: 'glossary-rem-sleep',
+    category: 'basicHealth',
+    title: 'REM Sleep',
+    teaser: 'The dream-heavy sleep stage tied to memory consolidation and emotional processing, one part of the larger sleep-architecture cycle this Digest covers.',
+    summary:
+      'REM (rapid eye movement) sleep is one of the major stages the body cycles through overnight, marked by vivid dreaming, and is specifically tied to memory consolidation and emotional processing. It sits alongside the deeper, non-REM stages as part of the full sleep architecture cycle, covered directly in this Digest\'s own Sleep & Health research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['sleep-architecture'],
+  },
+  {
+    id: 'glossary-sglt2',
+    category: 'type2Diabetes',
+    title: 'SGLT2 Inhibitors',
+    teaser: 'A medication class originally built for Type 2 Diabetes that turned out to independently protect the kidneys and heart too.',
+    summary:
+      'SGLT2 inhibitors (empagliflozin and similar drugs) lower blood sugar by causing the kidneys to remove more glucose through urine. Beyond blood sugar control, the class carries documented, independent protective benefits for the kidneys and heart, which is why current guidance recommends it for chronic kidney disease and heart failure specifically, not only for diabetes, covered directly in this Digest\'s own Chronic Kidney Disease research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ckd-sglt2-inhibitors'],
+  },
+  {
+    id: 'glossary-sledai',
+    category: 'lupus',
+    title: 'SLEDAI',
+    teaser: 'The formal scoring tool turning "feeling worse" into a specific number for lupus, with a defined point rise counting as an official flare.',
+    summary:
+      'SLEDAI (and its updated version, SLEDAI-2K) is a formal instrument scoring lupus disease activity across several organ systems, producing a specific number rather than a subjective impression. A rise of 4 or more points from the previous visit is the formal, standard definition of a flare, covered directly in this Digest\'s own Lupus research alongside its own remission and low-disease-activity thresholds.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['lupus-sledai-disease-activity'],
+  },
+  {
+    id: 'glossary-tmao',
+    category: 'cardiovascularDisease',
+    title: 'TMAO (Trimethylamine N-Oxide)',
+    teaser: 'A compound gut bacteria produce from certain foods (notably red meat and eggs) that independently raises cardiovascular risk.',
+    summary:
+      'TMAO is a compound produced when gut bacteria metabolize choline and carnitine, nutrients found notably in red meat and eggs, which the liver then converts into TMAO. Research finds elevated TMAO levels independently associated with cardiovascular risk, a documented gut-microbiome connection to heart disease covered directly in this Digest\'s own Cardiovascular Disease research.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['cvd-tmao-gut-microbiome-real-data'],
+  },
+  {
+    id: 'glossary-tpmt',
+    category: 'ibd',
+    title: 'TPMT (Thiopurine Methyltransferase)',
+    teaser: 'An enzyme whose activity is tested before starting a common IBD medication class, since low activity raises the risk of serious, dose-related side effects.',
+    summary:
+      'TPMT is an enzyme that helps the body break down thiopurine medications (azathioprine and similar drugs), commonly used for IBD. People with naturally low TPMT activity, a genetic trait, process these drugs more slowly, raising the risk of serious, dose-related side effects, which is why testing TPMT activity before starting treatment is standard practice, covered directly in this Digest\'s own IBD research.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ibd-azathioprine-tpmt'],
+  },
+  {
+    id: 'glossary-uc-crohns',
+    category: 'ibd',
+    title: "UC & Crohn's Disease",
+    teaser: 'The two distinct diseases grouped under "IBD," different enough that several findings run in opposite directions depending on which one someone actually has.',
+    summary:
+      'Inflammatory bowel disease is an umbrella term for two different autoimmune conditions. Ulcerative colitis (UC) causes continuous inflammation limited to the colon and rectum; Crohn\'s disease can affect any part of the digestive tract from mouth to anus, often in patchy patterns, and can penetrate deeper into the intestinal wall. The distinction matters directly, since several findings covered in this Digest\'s own IBD research, most strikingly how smoking affects each disease, run in different, even opposite, directions depending on which one someone actually has.',
+    citations: [],
+    overallTier: 'strong',
+    relatedIds: ['ibd-overview'],
+  },
+  {
+    id: 'glossary-vitamin-k2-mk',
+    category: 'basicHealth',
+    title: 'Vitamin K2 (MK-4 & MK-7)',
+    teaser: 'Two structurally different forms of vitamin K2, one closer to plant-based K1 with faster clearance, the other longer-acting with more available trial evidence at realistic doses.',
+    summary:
+      'MK-4 and MK-7 are two structurally different forms of vitamin K2, distinct from the plant-based vitamin K1 most people get from leafy greens. MK-4 is structurally closer to K1, with a much shorter half-life in the body, while MK-7 stays active longer and has more supporting trial evidence at doses realistic for a supplement, both covered directly in this Digest\'s own Essential Nutrients research comparing the two forms.',
+    citations: [],
+    overallTier: 'moderate',
+    relatedIds: ['vitamink-supplement-forms-compared'],
+  },
 ];
