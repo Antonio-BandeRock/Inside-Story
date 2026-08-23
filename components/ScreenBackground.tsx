@@ -32,7 +32,18 @@ export function useBackgroundBottomInset(): number {
 // other tab does -- consistent sizing won out over showing 100% of the
 // image.
 const BACKGROUNDS = {
-  field: { source: require('../assets/backgrounds/App_Background_Image.png'), contentFit: 'cover' as const },
+  // 2026-08-23: replaced -- the original carried the same visible AI-
+  // generation watermark badge found across most of this app's background
+  // set (bottom-right corner, confirmed directly rather than assumed).
+  // New source: a wide, deliberately oversized generation (real wildlife
+  // requested by name -- the 8 garden/pollinator icons already offered
+  // elsewhere in this app, honeybee/bumblebee/dragonfly/hummingbird/tree
+  // frog/monarch butterfly/ladybug/praying mantis, not a generic "some
+  // bugs" guess), cropped down to portrait and away from the watermark's
+  // corner entirely. Real, accepted tradeoff: no single portrait crop
+  // could fit every creature from that wide source in frame at once, this
+  // one keeps the monarch, the bumblebee, and the hummingbird.
+  field: { source: require('../assets/backgrounds/Wildflower_Field.png'), contentFit: 'cover' as const },
   // 2026-08-22: replaced with the growth-vine's own Food/Avocado scene
   // (a cut avocado on a small table, a whole, laden avocado tree behind
   // it) -- the same species locked in as Food's own vine fruit, and the
