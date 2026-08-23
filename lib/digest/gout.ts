@@ -589,4 +589,23 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     stageNote: 'The causal (Mendelian randomization) evidence is the stronger of the two citations here; the observational correlation citation is included for the honest contrast, not as independent proof.',
     relatedIds: ['gout-metabolic-cluster-connection', 'adiponectin-overview'],
   },
+  // 2026-08-23, added after fact-checking the "How Not to Die" documentary
+  // (2025) against the peer-reviewed literature, direct request, second
+  // pass for full breadth. The documentary itself is not treated as a
+  // citable source; this traces to the primary trial, independently
+  // verified via WebSearch.
+  {
+    id: 'gout-whole-food-plant-based-pilot-rct',
+    category: 'gout',
+    title: 'A Small Randomized Trial Found a Plant-Based Diet Lowered Uric Acid and Eased Gout Pain',
+    teaser: 'A 16-week pilot trial randomized people with gout to dietitian-supported plant-based eating or usual care. Uric acid, pain, and disease-activity scores all improved more in the diet group.',
+    summary:
+      "A pilot randomized controlled trial enrolled 33 people with gout and abdominal obesity, randomizing 18 to a Mediterranean-inspired, whole-food, plant-based diet (no meat, fish, eggs, or dairy) with five dietitian consultations over 16 weeks, and 15 to a wait-list control group receiving standard care. After adjusting for age, sex, and BMI, the diet group showed a real, statistically significant drop in uric acid (0.05 mmol/L lower than control, p=0.004), along with meaningful improvements in gout severity and pain, both measured on a standard visual analog scale (p=0.01 and p=0.04). The diet group also lost substantial weight and improved LDL cholesterol. This lines up with a broader, separate body of research: multiple studies comparing vegetarians to non-vegetarians consistently find lower average uric acid levels in vegetarians. Worth stating the honest limitation directly: this is a small pilot trial (33 people total), the kind of result that calls for a larger confirmatory trial before being treated as settled, not a reason to dismiss a real, randomized, statistically significant finding in the meantime.",
+    citations: [
+      { source: 'Effect of a Whole Food Plant-Based Diet in Patients with Gout: A Pilot Randomized Controlled Trial, ACR Meeting Abstracts', url: 'https://acrabstracts.org/abstract/effect-of-a-whole-food-plant-based-diet-in-patients-with-gout-a-pilot-randomized-controlled-trial/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real randomized pilot trial, but a small one (33 people); a good candidate for a larger confirmatory trial, not yet strong enough to treat as a settled, first-line recommendation on its own.',
+    relatedIds: ['gout-metabolic-cluster-connection', 'pbn-ornish-lifestyle-heart-trial'],
+  },
 ];

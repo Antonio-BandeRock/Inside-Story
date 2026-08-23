@@ -21,19 +21,29 @@ import type { DigestEntry } from './types';
 // Esselstyn, testing whether a plant-based diet can measurably reverse
 // existing coronary artery disease, not just correlate with lower risk.
 //
-// Checked directly against the 19 tracked conditions, not force-fit onto
-// every one: this material connects most directly to Cardiovascular
-// Disease (its own real home) and, via Ornish's own separate prostate-
-// cancer trial, to Prostate Health (both cross-linked below). Type 2
-// Diabetes, Chronic Kidney Disease, and MASLD/Fatty Liver Disease each
-// already carry their own independently-built plant-forward dietary
-// evidence; a dedicated documentary-specific entry for each is a real,
-// separate research pass, not completed in this one, and is not claimed
-// here. The remaining conditions (the autoimmune group, Migraine, IBS,
-// Celiac, Sjögren's, Gout, PCOS, Type 1 Diabetes) were considered and
-// correctly left without an entry here, since no direct, citable
-// connection to this specific documentary's central claim (coronary
-// disease reversal) turned up for them.
+// Checked directly against all 19 tracked conditions, in two passes, not
+// force-fit onto every one. First pass (same day): Cardiovascular Disease
+// (its own real home, see cardiovascularDisease.ts's own cvd-plant-based-
+// diet-existing-disease entry) and, via Ornish's own separate prostate-
+// cancer trial, Prostate Health (prostateHealth.ts's own prostate-ornish-
+// lifestyle-trial entry). Second pass, same day, for full breadth: real,
+// independently-verified condition-specific evidence also found for Type 2
+// Diabetes (type2Diabetes.ts's own type2-low-fat-vegan-diet-rct), Chronic
+// Kidney Disease (chronicKidneyDisease.ts's own ckd-plant-based-diet-
+// incidence-risk, a genuinely different angle -- incidence risk -- from
+// that category's own pre-existing protein-source-management entry), MASLD/
+// Fatty Liver Disease (fattyLiverDisease.ts's own masld-vegetarian-diet-rct-
+// weight-loss-mechanism, deliberately including a second trial that
+// complicates the headline result rather than hiding it), and Gout (gout.ts's
+// own gout-whole-food-plant-based-pilot-rct). The remaining conditions (the
+// full autoimmune group -- Hashimoto's, Graves', RA, lupus, MS, psoriasis,
+// Sjögren's, IBD -- plus Migraine, IBS, Celiac, PCOS, and Type 1 Diabetes)
+// were checked and correctly left without an entry: this documentary's
+// central claims run through cardiometabolic mechanisms (insulin
+// resistance, dietary acid load, TMAO, saturated fat), not the autoimmune-
+// trigger or single-nutrient mechanisms those conditions' own research is
+// actually built on, and no direct, citable connection to this specific
+// documentary's own content turned up for any of them.
 export const PLANT_BASED_NUTRITION_ENTRIES: DigestEntry[] = [
   {
     id: 'pbn-ornish-lifestyle-heart-trial',
@@ -47,7 +57,7 @@ export const PLANT_BASED_NUTRITION_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     stageNote: 'A real randomized design with hard, objectively-measured angiographic outcomes, genuinely stronger evidence than an observational diet-pattern study. Tiered moderate rather than strong specifically because of its small size (48 people total, 28 in the experimental group), a real limitation on how confidently this one trial\'s exact numbers generalize, even though the direction and mechanism are well-supported elsewhere.',
-    relatedIds: ['cvd-tmao-gut-microbiome-real-data', 'cvd-mediterranean-diet-predimed', 'pbn-esselstyn-cohort-longterm'],
+    relatedIds: ['cvd-tmao-gut-microbiome-real-data', 'cvd-mediterranean-diet-predimed', 'pbn-esselstyn-cohort-longterm', 'cvd-plant-based-diet-existing-disease', 'prostate-ornish-lifestyle-trial', 'type2-low-fat-vegan-diet-rct', 'ckd-plant-based-diet-incidence-risk', 'masld-vegetarian-diet-rct-weight-loss-mechanism', 'gout-whole-food-plant-based-pilot-rct'],
   },
   {
     id: 'pbn-esselstyn-cohort-longterm',

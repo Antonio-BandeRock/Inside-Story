@@ -569,4 +569,23 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-beet-kvass', 'recipe-ferment-water-kefir', 'recipe-ferment-amazake'],
   },
+  // 2026-08-23, added after fact-checking the "How Not to Die" documentary
+  // (2025) against the peer-reviewed literature, direct request, second
+  // pass for full breadth. The documentary itself is not treated as a
+  // citable source; this traces to the primary trial, independently
+  // verified via WebSearch.
+  {
+    id: 'type2-low-fat-vegan-diet-rct',
+    category: 'type2Diabetes',
+    title: 'A Randomized Trial Tested a Low-Fat Vegan Diet Directly Against Standard ADA Guidance',
+    teaser: 'Both diets improved blood sugar control over 22 weeks. The vegan group improved more, though the headline comparison between groups fell just short of standard statistical significance.',
+    summary:
+      "A randomized clinical trial assigned 99 people with type 2 diabetes to either a low-fat vegan diet or a diet following standard American Diabetes Association guidelines, then measured outcomes at 22 weeks. Both diets worked: A1C (average blood sugar over roughly 3 months) fell in both groups, and body weight dropped further in the vegan group (6.5 kg) than the ADA group (3.1 kg). The direct, honest number worth stating plainly: A1C fell by 0.96 points in the vegan group versus 0.56 in the ADA group, a real difference, but one that fell just short of the standard 0.05 significance threshold (p=0.089) when comparing the two groups as originally assigned. A secondary analysis excluding participants who changed their diabetes medications during the trial (which can independently move A1C regardless of diet) found a larger, statistically significant gap, 1.23 points versus 0.38 (p=0.01). Worth reading both numbers together rather than only the more favorable one: this is real, genuine trial evidence that a low-fat vegan diet can meaningfully help glycemic control, honestly reported as a result that needed a secondary adjustment to clear significance in its primary comparison, not a clean, uncomplicated win on the first analysis.",
+    citations: [
+      { source: 'A Low-Fat Vegan Diet Improves Glycemic Control and Cardiovascular Risk Factors in a Randomized Clinical Trial in Individuals With Type 2 Diabetes, Barnard ND et al., Diabetes Care, 2006, PMID 16873779', url: 'https://pubmed.ncbi.nlm.nih.gov/16873779/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'A real randomized trial with a real, honestly-reported statistical nuance: the primary between-group comparison did not reach standard significance, only a secondary analysis excluding those who changed medications did.',
+    relatedIds: ['pbn-ornish-lifestyle-heart-trial'],
+  },
 ];

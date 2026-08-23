@@ -563,4 +563,26 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['masld-overview', 'adiponectin-overview', 'lipodystrophy-fat-necessity'],
   },
+  // 2026-08-23, added after fact-checking the "How Not to Die" documentary
+  // (2025) against the peer-reviewed literature, direct request, second
+  // pass for full breadth. The documentary itself is not treated as a
+  // citable source; this traces to the primary trial, independently
+  // verified via WebSearch, alongside a separate, more recent trial that
+  // complicates the "plant-based specifically" framing, kept in on purpose
+  // rather than left out for being less flattering to the headline claim.
+  {
+    id: 'masld-vegetarian-diet-rct-weight-loss-mechanism',
+    category: 'fattyLiverDisease',
+    title: 'A Vegetarian Diet Improved Fatty Liver in a Real Trial, and a Separate Trial Found Weight Loss Was Likely the Actual Driver',
+    teaser: '220 people with MASLD were randomized to a vegetarian diet or a standard diet. The vegetarian group improved more, largely because they lost more weight, not necessarily because the food was vegetarian specifically.',
+    summary:
+      "A randomized controlled trial in China assigned 220 adults with MASLD to either a lacto-ovo-vegetarian diet or a standard omnivore diet for 6 months, both groups following dietitian-supervised meal plans. The vegetarian group achieved significantly more weight loss (1.40 kg more, on average) and a significantly higher rate of the trial's own combined success measure, at least 5% weight loss plus measurable improvement in liver fat, by two different measurement methods (33.3% vs. 16.1% by ultrasound, 37.6% vs. 21.5% by a specialized liver-fat measurement called CAP). Cholesterol and blood pressure improved significantly only in the vegetarian group. Worth reading directly alongside a separate, honest complication rather than as the whole story: a different, more recent randomized trial specifically tested whether diet type or weight loss and reduced ultra-processed food intake was the real driver of liver-fat improvement in MASLD, and found the latter, reductions in BMI and in ultra-processed food consumption independently predicted improvement, while the specific dietary pattern itself did not. Read together, the honest, non-oversimplified takeaway is that a vegetarian or plant-based pattern is a genuinely effective real-world path to the weight loss and processed-food reduction that actually drive liver-fat improvement, not that plant-based eating carries some separate, additional liver-specific effect beyond that.",
+    citations: [
+      { source: 'A vegetarian diet improves hepatic steatosis in MASLD patients through weight loss: a randomized controlled trial in China, Mao X et al., Food & Function, 2025', url: 'https://pubs.rsc.org/en/content/articlelanding/2025/fo/d5fo02970h' },
+      { source: 'Impact of weight loss and reduction of ultra-processed foods on liver fat content in MASLD: a randomized controlled trial, JHEP Reports, PMID 42331287', url: 'https://pubmed.ncbi.nlm.nih.gov/42331287/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Both are real randomized trials. Included together deliberately: the second trial\'s finding (weight loss and food processing, not diet label, as the likely mechanism) is a genuine complication of the first trial\'s own headline result, not a reason to hide it.',
+    relatedIds: ['masld-overview', 'pbn-ornish-lifestyle-heart-trial'],
+  },
 ];

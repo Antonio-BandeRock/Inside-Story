@@ -589,4 +589,27 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     stageNote: 'Meta-analysis level evidence for the association itself; the protein-energy-wasting explanation is the leading proposed mechanism, not yet fully settled.',
     relatedIds: ['ckd-overview', 'adiponectin-overview', 'cvd-hypoadiponectinemia-independent-risk'],
   },
+  // 2026-08-23, added after fact-checking the "How Not to Die" documentary
+  // (2025) against the peer-reviewed literature, direct request, second
+  // pass for full breadth. The documentary itself is not treated as a
+  // citable source; this traces to the primary meta-analysis, independently
+  // verified via WebSearch. A genuinely different angle from this
+  // category's own existing ckd-protein-restriction-plant-based entry:
+  // that one is about managing protein source once CKD is already
+  // diagnosed; this one is about the risk of developing CKD in the first
+  // place.
+  {
+    id: 'ckd-plant-based-diet-incidence-risk',
+    category: 'chronicKidneyDisease',
+    title: "A Large Meta-Analysis Found Plant-Based Eating Tracked With Lower Odds of Developing CKD at All",
+    teaser: 'Pooled data on nearly 122,000 people, followed for over a decade on average, found a real, meaningful reduction in the odds of ever developing chronic kidney disease.',
+    summary:
+      "A 2025 systematic review and meta-analysis pooled data on 121,927 people aged 18 to 74, followed for a weighted average of 11.2 years, and found that adopting a plant-based diet tracked with significantly lower odds of developing CKD at all (odds ratio 0.75, 95% confidence interval 0.65 to 0.86), meaning the people eating the most plant-based diets had roughly a quarter lower odds of ever being diagnosed. This is a prevention-focused finding, a different question from this category's own existing research on managing protein source once CKD is already diagnosed. The proposed mechanism runs through several already-familiar pathways: a lower dietary acid load, reduced production of the uremic toxins gut bacteria generate from animal protein, and better blood pressure and glycemic control, all of which reduce the ongoing strain on kidney filtration over time. Worth stating plainly: this is observational, pooled cohort data, real and large, but not a randomized trial, so it shows a strong association rather than definitive proof that diet alone determines who develops CKD.",
+    citations: [
+      { source: 'Plant-Based Diet and Chronic Kidney Disease: A Systematic Review and Meta-Analysis, Dang Z et al., Journal of Renal Nutrition, 2025, PMID 40081608', url: 'https://pubmed.ncbi.nlm.nih.gov/40081608/' },
+    ],
+    overallTier: 'moderate',
+    stageNote: 'Large, pooled observational cohort data, not a randomized trial, a strong association rather than proof of direct causation.',
+    relatedIds: ['ckd-protein-restriction-plant-based', 'pbn-ornish-lifestyle-heart-trial'],
+  },
 ];
