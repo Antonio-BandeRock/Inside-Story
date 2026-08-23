@@ -743,7 +743,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'TSH (Thyroid-Stimulating Hormone)',
     teaser: 'The hormone that tells the thyroid how hard to work, and the single most commonly ordered thyroid lab value.',
     summary:
-      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, in anyone\'s own endocrine system. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time, general lab-testing practice worth knowing regardless of the reason for the test.',
+      'A hormone released by the pituitary gland that tells the thyroid gland how much hormone to produce, rising when thyroid hormone runs low, in anyone\'s own endocrine system. TSH follows a daily rhythm (higher overnight, lower in the afternoon), which is exactly why a consistent, morning, fasting draw matters for tracking a trend over time, general lab-testing practice regardless of the reason for the test.',
     citations: [
       { source: 'Circadian and 30 minutes variations in serum TSH and thyroid hormones in normal subjects', url: 'https://pubmed.ncbi.nlm.nih.gov/716774/' },
     ],
@@ -782,7 +782,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Zonulin',
     teaser: 'The named protein responsible for how "leaky" the gut lining actually is, discovered by the same researcher who coined the term.',
-    summary: 'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. The physical mechanism behind "leaky gut", worth understanding as general gut-barrier physiology, whatever the reason someone\'s reading about it.',
+    summary: 'A specific protein that regulates how tightly the junctions between gut lining cells stay sealed, in anyone\'s gut. Gliadin (from gluten) triggers its release; once released, it reversibly opens those junctions, a measurable and reversible effect, not a permanent one. This is the physical mechanism behind "leaky gut", general gut-barrier physiology whatever the reason someone\'s reading about it.',
     citations: [
       { source: 'Fasano 2011, Physiological Reviews: zonulin and intestinal barrier function', url: 'https://pubmed.ncbi.nlm.nih.gov/21248165/' },
     ],
@@ -1034,7 +1034,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'HOMA-IR',
     teaser: 'A calculated score estimating insulin resistance from two ordinary lab values, fasting glucose and fasting insulin.',
     summary:
-      'HOMA-IR is a score calculated from two routine fasting lab values, glucose and insulin, used mostly in research to estimate how insulin-resistant someone\'s body is. It appears throughout this Digest\'s own research on magnesium, chromium, vitamin D, and PCOS as a measured outcome in supplementation trials, worth knowing as a research tool rather than a routine clinical diagnosis on its own.',
+      'HOMA-IR is a score calculated from two routine fasting lab values, glucose and insulin, used mostly in research to estimate how insulin-resistant someone\'s body is. It appears throughout this Digest\'s own research on magnesium, chromium, vitamin D, and PCOS as a measured outcome in supplementation trials, a research tool rather than a routine clinical diagnosis on its own.',
     citations: [],
     overallTier: 'moderate',
     relatedIds: ['magnesium-insulin-glucose'],
@@ -1065,7 +1065,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-jak-inhibitors',
     category: 'rheumatoidArthritis',
     title: 'JAK Inhibitors',
-    teaser: 'A newer class of oral rheumatoid arthritis medication carrying a serious, FDA-mandated safety warning worth knowing by name.',
+    teaser: 'A newer class of oral rheumatoid arthritis medication carrying a serious, FDA-mandated safety warning.',
     summary:
       'JAK inhibitors (tofacitinib, baricitinib, upadacitinib) are a newer class of oral medication for rheumatoid arthritis and other inflammatory conditions. A dedicated safety trial found increased risk of heart attack, stroke, cancer, blood clots, serious infection, and death compared with an older medication class in an at-risk population, leading the FDA to require a class-wide boxed warning, its strongest warning label, covered directly in this Digest\'s own Rheumatoid Arthritis research.',
     citations: [],
@@ -1109,7 +1109,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     id: 'glossary-nsaid',
     category: 'basicHealth',
     title: 'NSAID',
-    teaser: 'The drug class behind common over-the-counter pain relievers like ibuprofen and naproxen, with real, condition-specific risks worth knowing.',
+    teaser: 'The drug class behind common over-the-counter pain relievers like ibuprofen and naproxen, with real, condition-specific risks.',
     summary:
       'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s own research covers real, condition-specific risks, including documented kidney injury risk in chronic kidney disease, covered in that category\'s own research.',
     citations: [],

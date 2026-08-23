@@ -105,7 +105,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
     title: 'Saccharomyces boulardii: Not a Bacterium At All, a Probiotic Yeast With Strong Clinical Trial Support',
     teaser: 'Every other entry on this list is a bacterium. This one is a yeast, isolated from tropical fruit, with some of the strongest trial evidence here.',
     summary:
-      "Every strain covered so far on this list is a bacterium. This entry breaks that pattern entirely. Isolated from lychee and mangosteen fruit, S. Boulardii is a tropical yeast, not a bacterium, meaning it survives antibiotic courses that would wipe out every bacterial probiotic strain on this list, since antibiotics don't target yeast. It has strong RCT evidence, multiple meta-analyses, for preventing antibiotic-associated diarrhea and reducing C. Difficile recurrence. It isn't naturally present in a home ferment. It's taken as a standalone supplement, included here because \"probiotic\" doesn't only mean bacteria, and this is a different but tool worth knowing about, especially right after a course of antibiotics.",
+      "Every strain covered so far on this list is a bacterium. This entry breaks that pattern entirely. Isolated from lychee and mangosteen fruit, S. Boulardii is a tropical yeast, not a bacterium, meaning it survives antibiotic courses that would wipe out every bacterial probiotic strain on this list, since antibiotics don't target yeast. It has strong RCT evidence, multiple meta-analyses, for preventing antibiotic-associated diarrhea and reducing C. Difficile recurrence. It isn't naturally present in a home ferment. It's taken as a standalone supplement, included here because \"probiotic\" doesn't only mean bacteria, and this is a different, useful tool, especially right after a course of antibiotics.",
     citations: [
       {
         source: 'McFarland 2010, World Journal of Gastroenterology (meta-analysis)',
@@ -133,7 +133,7 @@ export const FERMENTED_FOODS_ENTRIES: DigestEntry[] = [
   {
     id: 'fermented-kombucha',
     category: 'basicHealth',
-    title: 'Kombucha (SCOBY): A Symbiotic Culture of Bacteria AND Yeast, Plus a Trace-Alcohol Content Worth Knowing',
+    title: 'Kombucha (SCOBY): A Symbiotic Culture of Bacteria AND Yeast, Plus a Trace-Alcohol Content',
     teaser: 'Not one organism, and not entirely alcohol-free either: two facts about kombucha that rarely make it onto the label.',
     summary: "Kombucha's own name for its starter culture, SCOBY, symbiotic culture of bacteria and yeast, is a literal description, not marketing language. The community fermenting sweetened tea typically includes Acetobacter species, various yeasts, and often Gluconobacter, a mixed community, distinct from the single-strain focus of most other entries here. Because yeast fermentation of sugar always produces some ethanol as a byproduct, commercially sold kombucha is capped at under 0.5% ABV to stay classified as non-alcoholic in most markets, but home-brewed batches, especially longer-fermented ones or a \"second ferment,\" can measurably exceed that. A practical caveat, not a reason to avoid kombucha outright. See the alcohol advisory for the fuller context on why moderate alcohol isn't the simple villain it's often assumed to be.",
     citations: [

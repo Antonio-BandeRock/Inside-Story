@@ -79,7 +79,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Simple Whole Wheat Bread',
     teaser: 'A dense, honest homemade loaf, crust and all.',
-    summary: 'Whole-grain flour keeps fiber intact that white flour strips out during milling, worth knowing before reaching for a store loaf.',
+    summary: 'Whole-grain flour keeps fiber intact that white flour strips out during milling, useful to know before reaching for a store loaf.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_baked_whole_wheat_bread',
@@ -628,7 +628,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Grilled Chicken Sandwich',
     teaser: 'A grilled chicken breast on whole-grain bread.',
-    summary: 'Grilling chicken breast at high, dry heat produces measurably more advanced glycation end-products than gentler cooking methods, worth knowing if you eat grilled meat often, without meaning you need to avoid grilling altogether.',
+    summary: 'Grilling chicken breast at high, dry heat produces measurably more advanced glycation end-products than gentler cooking methods, relevant if you eat grilled meat often, without meaning you need to avoid grilling altogether.',
     citations: [],
     overallTier: 'strong',
     linkedCuratedRecipeId: 'curated_handheld_grilled_chicken_sandwich',
@@ -1892,7 +1892,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Curcumin (from turmeric)', note: 'The added black pepper measurably increases how much of this gets absorbed, a documented pairing rather than a folk habit.' },
       ],
       conditionNotes: [
-        { condition: 'Gout', note: 'Tart cherry has its own separate evidence for lowering uric acid, worth knowing on top of the sleep/joint framing here if gout is a factor.' },
+        { condition: 'Gout', note: 'Tart cherry has its own separate evidence for lowering uric acid, on top of the sleep/joint framing here, relevant if gout is a factor.' },
         { condition: 'Migraine', note: 'A fully fermented batch (tart, not sweet) keeps histamine buildup lower than a short ferment, worth watching if fermented foods have triggered symptoms before.' },
       ],
       flavorNotes: 'Tart and lightly fizzy, with cherry\'s own fruitiness upfront and a warm, earthy ginger-turmeric finish. Closer to a shrub than a soda: sip it, don\'t chug it.',
@@ -1932,7 +1932,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Anthocyanins', note: 'Fermentation breaks down blueberry\'s own cell walls, a documented mechanism for improving how bioavailable this antioxidant becomes.' },
-        { nutrient: 'Vitamin K', note: 'Blueberries are a meaningful whole-food source, worth knowing if you take a blood thinner and track vitamin K intake.' },
+        { nutrient: 'Vitamin K', note: 'Blueberries are a meaningful whole-food source, relevant if you take a blood thinner and track vitamin K intake.' },
         { nutrient: 'Curcumin (from turmeric)', note: 'Boosted by the added black pepper, the same pairing already documented in this app\'s own Nutrient Interactions research.' },
       ],
       conditionNotes: [
@@ -2562,7 +2562,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Shrub (Colonial Drinking Vinegar)',
     teaser: 'A sharply tart, sweet-and-sour fruit-and-vinegar syrup that predates refrigeration, meant to be diluted rather than drunk straight.',
-    summary: 'A shrub is an acetic-acid-forward syrup, fruit and sugar macerated together with vinegar rather than a live culture doing the fermenting. This acetic-acid style of drink supports stomach acid production, worth knowing given how common low stomach acid is alongside hypothyroidism\'s own effect on digestion. Traditionally diluted with still or sparkling water rather than drunk straight, given its intensity.',
+    summary: 'A shrub is an acetic-acid-forward syrup, fruit and sugar macerated together with vinegar rather than a live culture doing the fermenting. This acetic-acid style of drink supports stomach acid production, relevant given how common low stomach acid is alongside hypothyroidism\'s own effect on digestion. Traditionally diluted with still or sparkling water rather than drunk straight, given its intensity.',
     citations: [],
     overallTier: 'weak',
     linkedCuratedRecipeId: 'curated_ferment_shrub',
@@ -2735,7 +2735,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [
         { nutrient: 'Live cultures', note: 'A broader, more varied bacteria-and-yeast community than yogurt\'s own required two-strain starter.' },
-        { nutrient: 'Calcium', note: 'Carries whole milk\'s own calcium content, worth knowing given calcium can interfere with thyroid medication absorption if taken too close together.' },
+        { nutrient: 'Calcium', note: 'Carries whole milk\'s own calcium content, relevant given calcium can interfere with thyroid medication absorption if taken too close together.' },
       ],
       conditionNotes: [
         { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment: casein and lactose are both present, though fermentation reduces the lactose. If dairy is a trigger, Coconut Kefir (also in this app) gives a similar live-culture drink without it.' },
@@ -2856,7 +2856,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Burdock and Dandelion Ale',
     teaser: 'An earthy, bitter, lightly fizzy herbal ferment, built gluten-free by using honey instead of barley malt.',
-    summary: 'Traditional versions use barley malt as the fermentable sugar for the yeast, which brings gluten along with it. This version uses honey instead, sidestepping the grain entirely rather than hunting for a malted gluten-free substitute. Dandelion has documented diuretic activity in one small human study, worth knowing if fluid balance matters to you.',
+    summary: 'Traditional versions use barley malt as the fermentable sugar for the yeast, which brings gluten along with it. This version uses honey instead, sidestepping the grain entirely rather than hunting for a malted gluten-free substitute. Dandelion has documented diuretic activity in one small human study, relevant if fluid balance matters to you.',
     citations: [
       { source: 'Clare et al. 2009, Journal of Alternative and Complementary Medicine: diuretic effect of dandelion leaf extract in human subjects', url: 'https://pubmed.ncbi.nlm.nih.gov/19678785/' },
     ],
@@ -3102,7 +3102,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     id: 'recipe-ferment-sake-style-rice-wine',
     category: 'recipes',
     title: 'Home-Style Rice Wine (Sake-Style)',
-    teaser: 'A traditional Japanese rice ferment, actually alcoholic once fully fermented, worth knowing plainly before trying it.',
+    teaser: 'A traditional Japanese rice ferment, actually alcoholic once fully fermented, good to know before trying it.',
     summary: 'Traditional sake production uses koji mold to convert rice starch into sugar before yeast converts that sugar into alcohol, a different two-step process from a beer or wine ferment, which starts from sugar that\'s already there. A simple home batch like this one stays comparatively low in alcohol, but it is an alcoholic ferment, not a soda.',
     citations: [
       { source: 'National Center for Home Food Preservation (University of Georgia) fermentation overview', url: 'https://nchfp.uga.edu/how/can_ferment.html' },
@@ -3237,7 +3237,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
         { nutrient: 'Live cultures', note: 'Carries the same live yogurt cultures the ayran recipe above does, in a sweeter, fruitier form.' },
       ],
       conditionNotes: [
-        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a dairy drink, worth knowing if dairy is a trigger for you.' },
+        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a dairy drink, relevant if dairy is a trigger for you.' },
         { condition: 'Type 2 Diabetes / PCOS', note: 'Mango is a naturally sweet fruit; this is more of an occasional treat than an everyday drink if blood sugar is a concern.' },
       ],
       flavorNotes: 'Creamy, sweet, and fragrant with cardamom, a dessert-like drink rather than a tart one.',
@@ -3270,7 +3270,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       ],
       nutritionHighlights: [],
       conditionNotes: [
-        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment, worth knowing if dairy is a trigger for you.' },
+        { condition: 'Hashimoto\'s / Celiac / dairy sensitivity', note: 'This is a full dairy ferment, relevant if dairy is a trigger for you.' },
       ],
       flavorNotes: 'Tangy and slightly effervescent, thinner than yogurt, similar in spirit to milk kefir.',
     },
@@ -3280,7 +3280,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     category: 'recipes',
     title: 'Pu-erh-Style Fermented Tea',
     teaser: 'A kombucha-style home ferment built to evoke pu-erh\'s own fermented-tea tradition, since true pu-erh leaf isn\'t something this database carries.',
-    summary: 'This database carries no true pu-erh tea leaf, so this version uses brewed black tea as the fermentable base for a home SCOBY ferment instead. True pu-erh is aged and fermented by microbes directly on the tea leaf over months or years, a process a quick home ferment doesn\'t actually replicate either way, so this is a home-kitchen homage to the idea, not a claim of authenticity. Pu-erh itself has separate, strong human trial evidence for improving cholesterol and liver fat, worth knowing about even though this home version doesn\'t reproduce that specific research.',
+    summary: 'This database carries no true pu-erh tea leaf, so this version uses brewed black tea as the fermentable base for a home SCOBY ferment instead. True pu-erh is aged and fermented by microbes directly on the tea leaf over months or years, a process a quick home ferment doesn\'t actually replicate either way, so this is a home-kitchen homage to the idea, not a claim of authenticity. Pu-erh itself has separate, strong human trial evidence for improving cholesterol and liver fat, though this home version doesn\'t reproduce that specific research.',
     citations: [
       { source: 'Huang et al. 2019, Nature Communications: theabrownin from Pu-erh tea attenuates hypercholesterolemia via gut microbiota and bile acid metabolism, human and mouse data', url: 'https://pubmed.ncbi.nlm.nih.gov/31672964/' },
     ],

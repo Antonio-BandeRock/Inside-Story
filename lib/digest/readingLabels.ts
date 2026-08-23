@@ -44,7 +44,7 @@ export const READING_LABELS_ENTRIES: DigestEntry[] = [
     id: 'label-ingredient-order-by-weight',
     category: 'basicHealth',
     title: 'Ingredients Are Always Listed by Weight, Heaviest First, With One Exception',
-    teaser: 'The first ingredient on any US food label is always the one that weighs the most in the actual product, a fixed rule worth reading the label by.',
+    teaser: 'The first ingredient on any US food label is always the one that weighs the most in the actual product, a fixed rule for reading any label.',
     summary:
       'Federal regulation requires every ingredient on a US food label to be listed by its common name in descending order of predominance by weight, the heaviest ingredient in the product always comes first, the lightest always comes last, with no exception for how a manufacturer might prefer the list to read. This is a useful, fast way to read any product: if sugar (in any of its names) appears in the first two or three ingredients, sugar makes up a meaningful share of that product\'s actual weight. The one exception: ingredients present at 2% or less of the product\'s total weight can be grouped at the end of the list, following a phrase like "contains 2% or less of," without needing to follow strict descending order among themselves, a legitimate reason a small-quantity spice or preservative might not appear in exact weight order relative to its neighbors.',
     citations: [

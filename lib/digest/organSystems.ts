@@ -89,7 +89,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
     title: 'When the Same Autoimmune Process Attacks the Liver Directly',
     teaser: 'An uncommon but direct autoimmune attack on the liver itself, not just a downstream metabolic effect.',
     summary:
-      "Everything in this liver sequence so far has been about hypothyroidism's indirect, metabolic effects on the liver. There's a separate, more direct possibility. Hashimoto's thyroiditis co-occurs more often than chance with autoimmune liver diseases, primary biliary cholangitis (PBC) and autoimmune hepatitis (AIH) specifically, sometimes as an \"overlap syndrome\" combining features of both. This reflects the same underlying autoimmune susceptibility rather than one disease causing the other. Worth knowing specifically for anyone with Hashimoto's and unexplained liver-related symptoms. A separate autoimmune process, not just thyroid-driven metabolic stress, is a possibility worth ruling out with a doctor.",
+      "Everything in this liver sequence so far has been about hypothyroidism's indirect, metabolic effects on the liver. There's a separate, more direct possibility. Hashimoto's thyroiditis co-occurs more often than chance with autoimmune liver diseases, primary biliary cholangitis (PBC) and autoimmune hepatitis (AIH) specifically, sometimes as an \"overlap syndrome\" combining features of both. This reflects the same underlying autoimmune susceptibility rather than one disease causing the other. This especially matters for anyone with Hashimoto's and unexplained liver-related symptoms. A separate autoimmune process, not just thyroid-driven metabolic stress, is a possibility worth ruling out with a doctor.",
     citations: [
       { source: 'Thyroid Dysfunction in Primary Biliary Cholangitis: A Comparative Study at Two European Centers', url: 'https://pubmed.ncbi.nlm.nih.gov/27779196/' },
     ],
@@ -232,7 +232,7 @@ export const ORGAN_SYSTEMS_ENTRIES: DigestEntry[] = [
   {
     id: 'organ-primary-thyroid-lymphoma',
     category: 'hashimotos',
-    title: 'A Rare Complication Worth Knowing the One Warning Sign For',
+    title: 'A Rare Complication and Its One Warning Sign',
     teaser: 'Rare. Worth knowing about anyway, because the one warning sign is easy to notice and easy to act on.',
     summary:
       "This is one entry included specifically because it's rare enough to never come up in casual conversation, yet serious enough that recognizing its one warning sign matters. Long-standing Hashimoto's thyroiditis carries a documented, if small, elevated risk of primary thyroid lymphoma, a distinct condition from ordinary Hashimoto's or the more common thyroid cancers. Research describes a significantly increased incidence specifically in people with Hashimoto's compared to the general population, strongly suggesting a biological link, not coincidence, though the actual absolute risk stays low: one analysis put transformation from Hashimoto's thyroiditis to primary thyroid lymphoma at roughly 0.5% of cases, and primary thyroid lymphoma itself accounts for under 5% of all thyroid cancers overall. The practical takeaway: a thyroid or goiter that's been stable for years and then starts enlarging rapidly (over weeks, not the slow, gradual changes Hashimoto's itself typically produces) is worth mentioning to a doctor, not something to wait out. Not a reason for alarm about ordinary Hashimoto's. A reason to know the one red flag that's different from everything else this disease normally does.",

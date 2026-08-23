@@ -155,11 +155,11 @@ export const PROBLEM_FOODS_ENTRIES: ProblemFoodEntry[] = [
     id: 'problem-high-histamine',
     category: 'hashimotos',
     foodName: 'High-Histamine Foods (aged cheese, cured meat, most ferments, leftovers)',
-    teaser: "A honest tension with the fermented-food research, worth naming plainly.",
+    teaser: "An honest tension with the fermented-food research.",
     problem:
       "Aged cheese, cured or smoked meat, most fermented foods, and even fresh food that's sat in the fridge a bit too long all build up histamine as bacteria and protein naturally break down over time. For the subset of people with histamine intolerance, which shows up disproportionately alongside autoimmune conditions, that's a recognizable trigger.",
     mechanism:
-      'Your gut clears dietary histamine mainly through an enzyme called DAO, and gut inflammation itself can reduce how much of that enzyme you have on hand. So someone already dealing with autoimmune gut trouble may have less capacity to clear histamine than usual, which becomes its own small feedback loop worth knowing about.',
+      'Your gut clears dietary histamine mainly through an enzyme called DAO, and gut inflammation itself can reduce how much of that enzyme you have on hand. So someone already dealing with autoimmune gut trouble may have less capacity to clear histamine than usual, which becomes its own small feedback loop.',
     swaps: [
       'Fresh over aged, wherever you can: fresh mozzarella instead of aged cheddar, freshly cooked meat instead of cured or smoked.',
       "Freeze leftovers right away instead of letting them sit in the fridge for days. Histamine buildup is time-dependent.",

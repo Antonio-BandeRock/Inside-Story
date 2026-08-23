@@ -32,7 +32,7 @@ export const PORTIONS_AND_RDAS_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'RDA, AI, and UL Aren\'t the Same Kind of Number',
     teaser: 'A Recommended Dietary Allowance, an Adequate Intake, and a Tolerable Upper Limit each answer a different question.',
-    summary: 'The Recommended Dietary Allowance (RDA) is set high on purpose: NASEM builds it from the Estimated Average Requirement (the amount that covers half of a healthy population) plus a statistical safety margin, so the RDA itself covers roughly 97 to 98 percent of healthy people, not just the average person. When the underlying research isn\'t solid enough to calculate that full statistical picture, NASEM sets an Adequate Intake (AI) instead, a reasonable, evidence-based estimate rather than a formally derived allowance, fiber, potassium, and choline are all AI-based in the reference tables, not RDA. A Tolerable Upper Limit (UL) is a third, separate number: the highest daily amount unlikely to cause harm in almost anyone, not a target to aim for. Several ULs in the data apply only to concentrated supplement or fortified-food sources, not the same nutrient occurring naturally in whole food (vitamin E and magnesium both work this way), worth checking before assuming a UL rules out eating a nutrient-rich food freely.',
+    summary: 'The Recommended Dietary Allowance (RDA) is set high on purpose: NASEM builds it from the Estimated Average Requirement (the amount that covers half of a healthy population) plus a statistical safety margin, so the RDA itself covers roughly 97 to 98 percent of healthy people, not just the average person. When the underlying research isn\'t solid enough to calculate that full statistical picture, NASEM sets an Adequate Intake (AI) instead, a reasonable, evidence-based estimate rather than a formally derived allowance, fiber, potassium, and choline are all AI-based in the reference tables, not RDA. A Tolerable Upper Limit (UL) is a third, separate number: the highest daily amount unlikely to cause harm in almost anyone, not a target to aim for. Several ULs in the data apply only to concentrated supplement or fortified-food sources, not the same nutrient occurring naturally in whole food (vitamin E and magnesium both work this way), so a UL does not rule out eating a nutrient-rich food freely.',
     citations: [
       {
         source: 'NASEM 2005 DRI Macronutrients report, as summarized by NIH Office of Dietary Supplements (ODS)',
@@ -40,7 +40,7 @@ export const PORTIONS_AND_RDAS_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    stageNote: 'Worth reading once, then treating the DRI-percentage display in Insights as the practical version of this same math.',
+    stageNote: 'Read this once, then the DRI-percentage display in Insights is the practical version of this same math.',
     relatedIds: ['portion-overview', 'glossary-tsh'],
   },
   {
@@ -63,7 +63,7 @@ export const PORTIONS_AND_RDAS_ENTRIES: DigestEntry[] = [
     category: 'basicHealth',
     title: 'Fiber Has an Adequate Intake, Not a Formally Derived RDA, and Almost Everyone Falls Short of It',
     teaser: 'The target is 38 grams a day for younger men and 25 for younger women, and the research already found most Americans land well under half that.',
-    summary: 'Fiber\'s daily target is set as an Adequate Intake (AI), not a full RDA, because NASEM concluded the evidence wasn\'t sufficient to calculate the formal statistical requirement the RDA method needs, 38 grams a day for men age 19 to 50, dropping to 30 grams past 50, and 25 grams a day for women 19 to 50, dropping to 21 grams past 50, tracking the general decline in calorie intake with age that fiber need is calculated against. The already-cited research found intake running well below this line for most people (see the Carbohydrates & Fiber entry in Essential Nutrients), worth naming here specifically because the gap between the target and what a typical plate actually delivers is one of the largest of any nutrient in this whole table.',
+    summary: 'Fiber\'s daily target is set as an Adequate Intake (AI), not a full RDA, because NASEM concluded the evidence wasn\'t sufficient to calculate the formal statistical requirement the RDA method needs, 38 grams a day for men age 19 to 50, dropping to 30 grams past 50, and 25 grams a day for women 19 to 50, dropping to 21 grams past 50, tracking the general decline in calorie intake with age that fiber need is calculated against. The already-cited research found intake running well below this line for most people (see the Carbohydrates & Fiber entry in Essential Nutrients): the gap between the target and what a typical plate actually delivers is one of the largest of any nutrient in this whole table.',
     citations: [
       {
         source: 'NASEM 2005 DRI Macronutrients report',
