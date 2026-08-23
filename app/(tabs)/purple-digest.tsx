@@ -22,7 +22,7 @@ import { VoiceInputButton } from '../../components/VoiceInputButton';
 import { colors } from '../../constants/colors';
 import { NAVIGATION_HAND, useFloatingButtonScrollPadding } from '../../constants/floatingButton';
 import { TAB_REVEAL_DURATION_MS } from '../../constants/tabReveal';
-import { typography } from '../../constants/typography';
+import { menuLabelShadow, typography } from '../../constants/typography';
 import { useAutoOpenLensHubSignal } from '../../hooks/useAutoOpenLensHubSignal';
 import { useDebouncedValue } from '../../hooks/useDebouncedValue';
 import { CONDITION_CODE_TO_DIGEST_KEY } from '../../lib/conditionCodeMap';
@@ -4277,7 +4277,14 @@ const styles = StyleSheet.create({
   // 2026-08-14 alongside BasicHealthTree/TopicCard -- see that removal's
   // own comment, above this file's grouping functions.
   shelfSection: { marginBottom: 18 },
-  shelfHeading: { ...typography.label, color: TAB_COLOR, marginBottom: 8 },
+  // 2026-08-23, direct report: this text (and categoryHeaderText's own
+  // sibling headers elsewhere in this screen) floats directly over the
+  // real photo background now that GatedTabContent actually reveals one,
+  // with nothing behind it, no card, no shadow -- unreadable wherever the
+  // photo happens to be bright. Reuses menuLabelShadow (constants/
+  // typography.ts), the same shadow already tuned for TabHub/LensHub's own
+  // labels against a busy surface, rather than inventing a new one.
+  shelfHeading: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, marginBottom: 8 },
   // Horizontal ScrollView's own contentContainerStyle -- a plain row with a
   // gap between cards and a little trailing padding so the last card in a
   // row doesn't sit flush against the screen edge once scrolled all the

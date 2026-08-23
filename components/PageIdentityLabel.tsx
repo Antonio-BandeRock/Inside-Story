@@ -145,6 +145,18 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 8,
+    // 2026-08-23, direct report: this box was deliberately fill-less from
+    // the start ("no fill, so whatever's already behind it shows straight
+    // through," see this file's own 2026-07-28 comment above), a real
+    // assumption that whatever sat behind it would always be calm enough
+    // to read against. Now that GatedTabContent actually reveals each
+    // tab's own real photo background, that assumption breaks wherever the
+    // photo happens to be bright -- this box is shown on every tab, so the
+    // gap reached everywhere at once. Same rgba(0,0,0,0.55) value already
+    // used throughout this app for exactly this job (InfoAlert,
+    // PasswordPrompt, BusyOverlay, AppActionSheet), not a new one invented
+    // here.
+    backgroundColor: 'rgba(0,0,0,0.55)',
   },
   // Deliberately typography.caption, not .eyebrow -- eyebrow's own
   // uppercase transform read fine for a short label ("6 DIMENSIONS") but
