@@ -206,7 +206,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
     title: "A Humbling Counter-Finding: Levothyroxine Alone Doesn't Fix Body Fat",
     teaser: "The well-established Hashimoto's/weight-gain link doesn't resolve just by treating the hormone.",
     summary:
-      "It would be reasonable to assume that once the thyroid hormone deficit is corrected, the weight gain so often associated with Hashimoto's would simply resolve along with it. Studies say that assumption doesn't hold. Despite the well-established association between Hashimoto's and weight/body fat, correcting hypothyroidism itself with levothyroxine alone appears to have little effect on body fat in studies. A humbling finding worth stating plainly, since it complicates a very commonly assumed cause-and-effect story. The relationship isn't simply \"low thyroid hormone causes fat gain, treat the hormone and it resolves.\"",
+      "It would be reasonable to assume that once the thyroid hormone deficit is corrected, the weight gain so often associated with Hashimoto's would simply resolve along with it. Studies say that assumption doesn't hold. Despite the well-established association between Hashimoto's and weight/body fat, correcting hypothyroidism itself with levothyroxine alone appears to have little effect on body fat in studies. A humbling finding, since it complicates a very commonly assumed cause-and-effect story. The relationship isn't simply \"low thyroid hormone causes fat gain, treat the hormone and it resolves.\"",
     citations: [
       { source: 'Changes in body weight after treatment of primary hypothyroidism with levothyroxine', url: 'https://pubmed.ncbi.nlm.nih.gov/24936556/' },
     ],

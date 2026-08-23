@@ -837,7 +837,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'APS (Antiphospholipid Syndrome)',
     teaser: 'A separate, treatable clotting disorder that commonly overlaps with lupus, not the same thing as this glossary\'s own APS-2 (Autoimmune Polyglandular Syndrome Type 2) entry.',
     summary:
-      'Antiphospholipid syndrome is an autoimmune clotting disorder where the immune system produces antibodies that raise the risk of blood clots and pregnancy complications, including recurrent miscarriage. It commonly overlaps with lupus, though it can also occur on its own. Worth stating directly since the two share an acronym: APS (Antiphospholipid Syndrome) is a different condition from APS-2 (Autoimmune Polyglandular Syndrome Type 2, this glossary\'s own separate entry), unrelated beyond the coincidence of the same short name.',
+      'Antiphospholipid syndrome is an autoimmune clotting disorder where the immune system produces antibodies that raise the risk of blood clots and pregnancy complications, including recurrent miscarriage. It commonly overlaps with lupus, though it can also occur on its own. Since the two share an acronym, APS (Antiphospholipid Syndrome) is a different condition from APS-2 (Autoimmune Polyglandular Syndrome Type 2, this glossary\'s own separate entry), unrelated beyond the coincidence of the same short name.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['lupus-cardiovascular-risk'],
@@ -1111,7 +1111,7 @@ export const GLOSSARY_ENTRIES: DigestEntry[] = [
     title: 'NSAID',
     teaser: 'The drug class behind common over-the-counter pain relievers like ibuprofen and naproxen, with real, condition-specific risks worth knowing.',
     summary:
-      'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s own research covers real, condition-specific risks worth knowing directly, including documented kidney injury risk in chronic kidney disease, covered in that category\'s own research.',
+      'NSAIDs (nonsteroidal anti-inflammatory drugs) are a common class of pain and inflammation reliever including ibuprofen and naproxen, available both over the counter and by prescription. This Digest\'s own research covers real, condition-specific risks, including documented kidney injury risk in chronic kidney disease, covered in that category\'s own research.',
     citations: [],
     overallTier: 'strong',
     relatedIds: ['ckd-nsaid-kidney-injury-real-data'],
