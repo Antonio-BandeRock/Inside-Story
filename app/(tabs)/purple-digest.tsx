@@ -9,6 +9,7 @@ import { useConfirmSheet } from '../../components/ConfirmSheet';
 import { useRegisterScreenHelp } from '../../components/CurrentPageHelp';
 import { DigestBarChart } from '../../components/DigestChart';
 import { DIGEST_CONDITION_ICONS } from '../../components/DigestConditionIcons';
+import { EdgeShadow } from '../../components/EdgeShadow';
 import { EntryPhotoSection, resolvePhotoTarget } from '../../components/EntryPhotoSection';
 import { GatedTabContent } from '../../components/GatedTabContent';
 import { HelpSheet, type HelpSection } from '../../components/HelpButton';
@@ -474,11 +475,19 @@ const DIGEST_GRID_LABEL_BREAKS: Partial<Record<DigestCategoryKey, string>> = {};
 // new field added to every entry, the same reasoning that design choice
 // already carried.
 type BasicHealthSubtopic = { label: string; prefixes: string[] };
-type BasicHealthTopic = { label: string; prefixes?: string[]; subtopics?: BasicHealthSubtopic[] };
+// 2026-08-23: `description` added, direct report that drilling into a
+// subgroup (Essential Nutrients named directly) left its own header with
+// nothing explaining what that subgroup actually covers or how it fits
+// into Basic Health as a whole, once the generic "Food, vitamins,
+// minerals..." Basic Health description stopped showing there. One short,
+// specific line per topic, not a repeat of that shared blurb.
+type BasicHealthTopic = { label: string; description: string; prefixes?: string[]; subtopics?: BasicHealthSubtopic[] };
 
 const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   {
     label: 'Essential Nutrients',
+    description:
+      'The vitamins, minerals, macronutrients, and hormones your body needs to function, from magnesium and vitamin D to protein and dietary fat. Each entry below covers what it does, how much you need, and what happens when you get too little or too much, the foundation any deeper look at basic health starts from.',
     subtopics: [
       { label: 'Magnesium', prefixes: ['magnesium-'] },
       { label: 'Vitamin D', prefixes: ['vitamind-'] },
@@ -530,7 +539,12 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // Nutrients above (which already carries deep, nutrient-centered
   // deficiency/toxicity coverage this new topic cross-links to rather than
   // repeats). See lib/digest/bodySystems.ts's own header comment.
-  { label: 'How Your Body Works: Organs & Systems', prefixes: ['body-'] },
+  {
+    label: 'How Your Body Works: Organs & Systems',
+    description:
+      "How your organs and body systems work, and how food and nutrient levels affect each one, independent of any specific condition. The foundation every condition-specific finding in this Digest builds on.",
+    prefixes: ['body-'],
+  },
   // 2026-08-13, direct request: "Neurogenesis needs to be represented in
   // the Basic Health section." A real, general, condition-agnostic
   // topic -- see lib/digest/neurogenesis.ts's own header comment. Where
@@ -538,44 +552,84 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // as its own entry in that condition's own file (Hashimoto's, Type 2
   // Diabetes, Cardiovascular Disease, Multiple Sclerosis, IBD), per the
   // same request's own direct follow-up.
-  { label: 'Neurogenesis', prefixes: ['neurogenesis-'] },
-  { label: 'Glossary', prefixes: ['glossary-'] },
+  {
+    label: 'Neurogenesis',
+    description: 'How your brain grows new neurons throughout life, and which diet, exercise, and lifestyle factors support or suppress that process.',
+    prefixes: ['neurogenesis-'],
+  },
+  {
+    label: 'Glossary',
+    description: 'Plain definitions for medical, nutrition, and lab terminology used throughout this Digest.',
+    prefixes: ['glossary-'],
+  },
   // 2026-08-09, direct request: "information about portions, and
   // recommended daily allowances and minimum amounts of anything." See
   // lib/digest/portionsAndRDAs.ts's own header comment -- every number
   // reused directly from this app's own bundled DRI reference table.
-  { label: 'Portions & Recommended Amounts', prefixes: ['portion-'] },
+  {
+    label: 'Portions & Recommended Amounts',
+    description: "How much of each nutrient you need, and what a serving size actually looks like, drawn from this app's own bundled dietary reference intake data.",
+    prefixes: ['portion-'],
+  },
   // 2026-08-09, direct request: "how to choose the right kinds of
   // products... so they aren't fooled and purchase the wrong things." See
   // lib/digest/choosingQualityProducts.ts's own header comment.
-  { label: 'Choosing the Real Thing', prefixes: ['quality-'] },
+  {
+    label: 'Choosing the Real Thing',
+    description: "How to tell whether a product actually is what it claims to be, so a misleading label doesn't fool you into buying the wrong thing.",
+    prefixes: ['quality-'],
+  },
   // 2026-08-09, same day, direct continuation of the same request: a real,
   // deliberate companion to "Choosing the Real Thing" -- that one covers
   // whether a product IS what it claims; this covers how to actually read
   // the label once you're holding a genuine one. See
   // lib/digest/readingLabels.ts's own header comment.
-  { label: 'Reading Labels & Ingredient Lists', prefixes: ['label-'] },
+  {
+    label: 'Reading Labels & Ingredient Lists',
+    description: 'How to read a nutrition label and ingredient list once you actually have a product in hand, from serving sizes to less familiar names hiding a familiar ingredient.',
+    prefixes: ['label-'],
+  },
   // 2026-08-09, same day: a real, systematized companion to this app's own
   // per-condition medication research -- which common medication CLASSES
   // measurably lower which nutrients over sustained use, regardless of
   // condition. See lib/digest/medicationDepletion.ts's own header comment.
-  { label: 'Medications & Nutrient Depletion', prefixes: ['depletion-'] },
+  {
+    label: 'Medications & Nutrient Depletion',
+    description: "Which common medication classes lower which nutrients over sustained use, regardless of the condition they're prescribed for.",
+    prefixes: ['depletion-'],
+  },
   // 2026-08-09, same day, continuing directly off the same "what's missing"
   // conversation, in the same order named there: pediatric nutrition, a
   // real gap confirmed directly against the bundled reference database's
   // own dietary_reference_intakes table (zero rows under age 19). See
   // lib/digest/pediatricNutrition.ts's own header comment.
-  { label: 'Pediatric Nutrition', prefixes: ['pediatric-'] },
+  {
+    label: 'Pediatric Nutrition',
+    description: 'How nutrient needs differ for children, since most recommended-intake data is built around adults.',
+    prefixes: ['pediatric-'],
+  },
   // A real, general Sleep deep-dive -- this Digest only ever touched sleep
   // incidentally before (lifestyle-sleep-circadian, lifestyle-sleep-apnea,
   // and several condition-specific entries). See
   // lib/digest/sleepHealth.ts's own header comment.
-  { label: 'Sleep & Health', prefixes: ['sleep-'] },
+  {
+    label: 'Sleep & Health',
+    description: 'How sleep affects your metabolism, hormones, and long-term health, and how diet affects your sleep in turn.',
+    prefixes: ['sleep-'],
+  },
   // A real, general Mental Health deep-dive, the same "scattered across
   // conditions, never its own topic" gap as Sleep above. See
   // lib/digest/mentalHealth.ts's own header comment.
-  { label: 'Mental Health & Food', prefixes: ['mentalhealth-'] },
-  { label: 'Prevention & Lifestyle by Condition', prefixes: ['prevention-', 'apphelps-'] },
+  {
+    label: 'Mental Health & Food',
+    description: 'How diet and specific nutrients affect mood, cognition, and mental health.',
+    prefixes: ['mentalhealth-'],
+  },
+  {
+    label: 'Prevention & Lifestyle by Condition',
+    description: 'What to eat and which lifestyle habits help prevent or manage each of the 19 conditions this app tracks, organized by condition.',
+    prefixes: ['prevention-', 'apphelps-'],
+  },
   // 2026-08-09, direct request: "an honest medical science evidence based
   // perspective on the popular types of diets out there." A real, distinct
   // topic from "Prevention & Lifestyle by Condition" above -- that one is
@@ -583,29 +637,73 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
   // this one is scoped per-DIET-PHILOSOPHY, condition-agnostic, and closes
   // with a real, honest entry on how this app helps track any of them.
   // See lib/digest/popularDiets.ts's own header comment.
-  { label: 'Popular Diets & Eating Styles', prefixes: ['diet-'] },
-  { label: 'Problem Foods & Swaps', prefixes: ['problem-'] },
-  { label: 'Food Additives', prefixes: ['additive-'] },
-  { label: 'Nutrient Interactions', prefixes: ['interaction-'] },
-  { label: 'Fermented Foods', prefixes: ['fermented-'] },
+  {
+    label: 'Popular Diets & Eating Styles',
+    description: 'An evidence-based look at popular diets, keto, paleo, intermittent fasting, and more, organized by philosophy rather than by condition.',
+    prefixes: ['diet-'],
+  },
+  {
+    label: 'Problem Foods & Swaps',
+    description: 'Foods worth watching for common problems, and practical swaps for each one.',
+    prefixes: ['problem-'],
+  },
+  {
+    label: 'Food Additives',
+    description: 'What common food additives and preservatives actually do, and what the evidence says about their effects.',
+    prefixes: ['additive-'],
+  },
+  {
+    label: 'Nutrient Interactions',
+    description: "Which nutrients help or block each other's absorption, and how to time meals and supplements to work with your body instead of against it.",
+    prefixes: ['interaction-'],
+  },
+  {
+    label: 'Fermented Foods',
+    description: 'The health benefits of fermented foods, organized by the specific bacterial strains and cultures behind them.',
+    prefixes: ['fermented-'],
+  },
   // 2026-08-09, direct request: "talk about the different ways of making
   // fermentations for drinks and foods... how they are generally made and
   // where to look for more information." A real, deliberate companion to
   // "Fermented Foods" above, not a merge into it -- see
   // lib/digest/fermentationMethods.ts's own header comment for why the two
   // stay separate (organized by strain vs. organized by method).
-  { label: 'Fermentation Methods', prefixes: ['fermentmethod-'] },
+  {
+    label: 'Fermentation Methods',
+    description: 'How different fermentation methods work, and where to learn more about making your own.',
+    prefixes: ['fermentmethod-'],
+  },
   // 2026-08-09, direct request: "a group that has information about every
   // fruit and vegetable and their health benefits and types of problems...
   // This should also include nuts and seeds." See
   // lib/digest/produceProfiles.ts's own header comment, including the real,
   // new hide-sync mechanism this topic's own entries use (see
   // basicHealthEntriesForPrefixes below for where that filter is applied).
-  { label: 'Fruits, Vegetables, Nuts & Seeds', prefixes: ['produce-'] },
-  { label: 'Lifestyle & Environment', prefixes: ['lifestyle-'] },
-  { label: 'Mitochondria & Metabolism', prefixes: ['mito-'] },
-  { label: 'Self Advocacy', prefixes: ['advocacy-'] },
-  { label: 'Food Industry & History', prefixes: ['foodhistory-'] },
+  {
+    label: 'Fruits, Vegetables, Nuts & Seeds',
+    description: 'The health benefits, and things worth knowing, about specific fruits, vegetables, nuts, and seeds.',
+    prefixes: ['produce-'],
+  },
+  {
+    label: 'Lifestyle & Environment',
+    description: 'How everyday lifestyle and environmental factors, beyond diet alone, affect your health.',
+    prefixes: ['lifestyle-'],
+  },
+  {
+    label: 'Mitochondria & Metabolism',
+    description: 'How your cells produce energy, and how diet and lifestyle affect that process.',
+    prefixes: ['mito-'],
+  },
+  {
+    label: 'Self Advocacy',
+    description: 'How to advocate for yourself with doctors and the healthcare system, and get the care and answers you need.',
+    prefixes: ['advocacy-'],
+  },
+  {
+    label: 'Food Industry & History',
+    description: "How the food industry and food history shape what's on your plate today.",
+    prefixes: ['foodhistory-'],
+  },
 ];
 
 // A real, dynamic safety net, not a hardcoded 32nd topic -- only ever
@@ -613,6 +711,11 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
 // above, the same "unmatched catch-all, not an expected real bucket" role
 // the old flat list's own 'More' bucket already played.
 const BASIC_HEALTH_MORE_TOPIC_LABEL = 'More';
+// A short description for the same dynamic catch-all, 2026-08-23 -- not
+// stored on a BasicHealthTopic entry, since 'More' never has one, but
+// needed by the same drilled-in header every real topic's own description
+// feeds.
+const BASIC_HEALTH_MORE_TOPIC_DESCRIPTION = "Entries that cover general health topics without fitting neatly into one of Basic Health's other groups.";
 
 function basicHealthTopicPathForEntryId(id: string): string[] {
   for (const topic of BASIC_HEALTH_TOPICS) {
@@ -2011,12 +2114,29 @@ export default function PurpleDigestScreen() {
   // looking at one specific subgroup. That description belongs only on the
   // top-level menu, where every one of Basic Health's own groups is
   // actually listed -- once a subgroup is picked, the header card below
-  // switches to that subgroup's own name instead (no separate description
-  // written per subgroup; the shelves and their own entries speak for
-  // themselves the same way every other category's topic shelves already
-  // do without a paragraph above them).
+  // switches to that subgroup's own name instead.
   const basicHealthDrilldownLabel =
     lens === 'basicHealth' && selectedBasicHealthGroup !== null ? shelfGroupDisplayLabel(selectedBasicHealthGroup) : null;
+  // 2026-08-23, direct follow-up: an empty header once drilled in still
+  // left nothing explaining what the subgroup actually covers or how it
+  // connects to basic health generally -- each BASIC_HEALTH_TOPICS entry's
+  // own `description` (BASIC_HEALTH_MORE_TOPIC_DESCRIPTION for the dynamic
+  // 'More' catch-all, which isn't a real BASIC_HEALTH_TOPICS entry) fills
+  // that in, specific to the picked subgroup rather than a repeat of Basic
+  // Health's own shared blurb.
+  const basicHealthDrilldownDescription =
+    selectedBasicHealthGroup === null
+      ? null
+      : (BASIC_HEALTH_TOPICS.find((topic) => topic.label === selectedBasicHealthGroup)?.description ??
+        BASIC_HEALTH_MORE_TOPIC_DESCRIPTION);
+  // 2026-08-23, direct follow-up: "Search within Basic Health" stayed
+  // showing at every drilled-in level too, direct report that it should
+  // instead search "the area where they are, filtered." Whatever the
+  // search box's placeholder and empty-state text call the current scope
+  // -- the drilled-in subgroup's own name once inside one, the ordinary
+  // lens name otherwise. categorySearchGroups (below) does the matching
+  // scoping on the actual results.
+  const searchScopeLabel = basicHealthDrilldownLabel ?? activeLensLabel;
   // The header card's own icon, 2026-08-09, direct request: "instead of
   // the digest icon, use a bigger version of the icon for that condition."
   // A real per-condition icon here, not the generic PurpleRibbonIcon --
@@ -2084,33 +2204,6 @@ export default function PurpleDigestScreen() {
   // searchResults above, rather than left as an inline IIFE recomputed on
   // every render regardless of whether the query (or the category itself)
   // actually changed.
-  // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
-  // Set -- the same "which terms actually matched, title or just body"
-  // detail Search All's own results already carry, threaded through to
-  // ShelfTabCard below so a category's own scoped search shows the same
-  // real relevance signal, not just a filtered list with no visible reason
-  // why each card is there.
-  const categorySearchMatchInfo = useMemo(() => {
-    const map = new Map<string, SearchMatchInfo>();
-    for (const result of searchEntriesScored(entries, categorySearchQuery)) map.set(result.entry.id, result.match);
-    return map;
-  }, [entries, categorySearchQuery]);
-  const categorySearchGroups = useMemo(() => {
-    const baseGroups =
-      lens === 'basicHealth'
-        ? basicHealthAllGroups(entries)
-        : (() => {
-            const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
-            return tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
-          })();
-    return baseGroups
-      .map((group) => ({
-        label: group.label,
-        entries: group.entries.filter((entry) => categorySearchMatchInfo.has(entry.id)),
-      }))
-      .filter((group) => group.entries.length > 0);
-  }, [entries, categorySearchMatchInfo, lens]);
-  const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
   // 2026-08-23, direct report: "why does it take so long for Basic Health
   // to display after selecting it from the Digest menu?" Root cause:
   // basicHealthAllGroups(entries) was called directly inline in this
@@ -2121,8 +2214,58 @@ export default function PurpleDigestScreen() {
   // on every render of this whole screen while Basic Health was open, not
   // just once when it was first selected. categorySearchGroups just above
   // already gets this right (a real useMemo); this is the same fix applied
-  // to the plain, non-search browsing path.
+  // to the plain, non-search browsing path. Moved above
+  // categorySearchScopeEntries (below), which now reads it too, so it's
+  // declared before its own first use.
   const basicHealthGroups = useMemo(() => basicHealthAllGroups(entries), [entries]);
+  // 2026-08-23, direct report: search stayed scoped to the whole Basic
+  // Health category at every drilled-in level too ("search within Basic
+  // Health should only be on the Basic Health page... the search on top
+  // should change to search the area where they are, filtered") -- once a
+  // subgroup is picked, both the scoring pool below and categorySearchGroups'
+  // own base groups (below) narrow to just that subgroup's own entries, the
+  // same real efficiency win the earlier virtualization fix made for
+  // ordinary browsing (scoring ~15-20 entries instead of all 479). Every
+  // other lens is unaffected -- conditions have no drill-down concept at
+  // all, and Basic Health's own top-level menu (selectedBasicHealthGroup
+  // === null) still searches everything, unchanged.
+  const categorySearchScopeEntries = useMemo(() => {
+    if (lens !== 'basicHealth' || selectedBasicHealthGroup === null) return entries;
+    const scoped: AnyDigestEntry[] = [];
+    for (const group of basicHealthGroups) {
+      if (group.label.split('::')[0] === selectedBasicHealthGroup) scoped.push(...group.entries);
+    }
+    return scoped;
+  }, [entries, lens, selectedBasicHealthGroup, basicHealthGroups]);
+  // 2026-08-09, keyed by id to a real SearchMatchInfo now, not just a plain
+  // Set -- the same "which terms actually matched, title or just body"
+  // detail Search All's own results already carry, threaded through to
+  // ShelfTabCard below so a category's own scoped search shows the same
+  // real relevance signal, not just a filtered list with no visible reason
+  // why each card is there.
+  const categorySearchMatchInfo = useMemo(() => {
+    const map = new Map<string, SearchMatchInfo>();
+    for (const result of searchEntriesScored(categorySearchScopeEntries, categorySearchQuery)) map.set(result.entry.id, result.match);
+    return map;
+  }, [categorySearchScopeEntries, categorySearchQuery]);
+  const categorySearchGroups = useMemo(() => {
+    const baseGroups =
+      lens === 'basicHealth'
+        ? selectedBasicHealthGroup === null
+          ? basicHealthGroups
+          : basicHealthGroups.filter((group) => group.label.split('::')[0] === selectedBasicHealthGroup)
+        : (() => {
+            const { topics, tyingTogether } = groupEntriesForLens(lens as DigestCategoryKey, entries);
+            return tyingTogether ? [...topics, { label: TYING_TOGETHER_GROUP_KEY, entries: [tyingTogether] }] : topics;
+          })();
+    return baseGroups
+      .map((group) => ({
+        label: group.label,
+        entries: group.entries.filter((entry) => categorySearchMatchInfo.has(entry.id)),
+      }))
+      .filter((group) => group.entries.length > 0);
+  }, [entries, categorySearchMatchInfo, lens, basicHealthGroups, selectedBasicHealthGroup]);
+  const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
   // Basic Health's own topic MENU rows, 2026-08-23, direct follow-up
   // request: folds every leaf group in basicHealthGroups back under its own
   // top-level topic (the part of a '::'-joined label before the first
@@ -2497,9 +2640,25 @@ export default function PurpleDigestScreen() {
                   <TouchableOpacity
                     onPress={clearSearch}
                     accessibilityRole="button"
-                    accessibilityLabel={`Clear search, back to ${activeLensLabel}`}
+                    accessibilityLabel={`Clear search, back to ${searchScopeLabel}`}
                   >
                     <Text style={styles.backToHomeText}>‹ Clear search</Text>
+                  </TouchableOpacity>
+                ) : basicHealthDrilldownLabel ? (
+                  // 2026-08-23, direct correction: drilled into a Basic
+                  // Health subgroup, this link used to still say "‹ Back to
+                  // Digest" and exit straight out to the LensHub picker,
+                  // skipping right past the Basic Health menu itself. One
+                  // step back at a time now, the same breadcrumb depth every
+                  // other back link in this app respects -- this steps back
+                  // to the Basic Health menu; from there, the branch below
+                  // steps back out to Digest, same as it always has.
+                  <TouchableOpacity
+                    onPress={() => setSelectedBasicHealthGroup(null)}
+                    accessibilityRole="button"
+                    accessibilityLabel="Back to Basic Health, choose another topic"
+                  >
+                    <Text style={styles.backToHomeText}>‹ Back to Basic Health</Text>
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
@@ -2527,10 +2686,11 @@ export default function PurpleDigestScreen() {
               <DigestSearchInput
                 key={searchResetKey}
                 style={styles.searchInput}
-                placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${activeLensLabel}...`}
+                placeholder={lens === 'search' ? 'Search the whole Digest...' : `Search within ${searchScopeLabel}...`}
                 onDebouncedChange={handleDebouncedSearchChange}
                 onActiveChange={handleSearchActiveChange}
               />
+              <EdgeShadow direction="down" />
             </View>
 
             <HelpSheet
@@ -2590,17 +2750,19 @@ export default function PurpleDigestScreen() {
                     )}
                     <Text style={styles.categoryHeaderText}>{basicHealthDrilldownLabel ?? activeLensLabel}</Text>
                   </View>
-                  {/* 2026-08-23: no description once drilled into a Basic
-                      Health subgroup -- the generic "Food, vitamins,
-                      minerals..." blurb belongs to Basic Health as a whole,
-                      not to whichever one subgroup is currently showing. */}
-                  {basicHealthDrilldownLabel ? null : (
-                    <Text style={styles.categoryDescription}>
-                      {lens === 'search'
+                  {/* 2026-08-23: the generic "Food, vitamins, minerals..."
+                      blurb belongs to Basic Health as a whole, not to
+                      whichever one subgroup is currently showing --
+                      basicHealthDrilldownDescription (that subgroup's own
+                      BASIC_HEALTH_TOPICS description) replaces it instead,
+                      direct follow-up after an empty header here left
+                      nothing explaining what the subgroup actually covers. */}
+                  <Text style={styles.categoryDescription}>
+                    {basicHealthDrilldownDescription ??
+                      (lens === 'search'
                         ? `Search across all ${ALL_DIGEST_ENTRIES.length} entries in this Digest at once, not just one category.`
-                        : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description}
-                    </Text>
-                  )}
+                        : DIGEST_CATEGORY_META.find((meta) => meta.key === lens)?.description)}
+                  </Text>
                 </View>
               )}
 
@@ -2653,7 +2815,7 @@ export default function PurpleDigestScreen() {
                 // debounced categorySearchQuery itself catches up.
                 categorySearchQuery.trim().length === 0 ? null : categorySearchTotalMatches === 0 ? (
                   <Text style={styles.emptyText}>
-                    No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {activeLensLabel}.
+                    No matches for &ldquo;{categorySearchQuery.trim()}&rdquo; in {searchScopeLabel}.
                   </Text>
                 ) : (
                   <>
@@ -2668,6 +2830,7 @@ export default function PurpleDigestScreen() {
                       onJumpToRelated={jumpToRelated}
                       matchInfoById={categorySearchMatchInfo}
                       onDynamicEntriesChanged={refreshDynamicEntries}
+                      hideTopLevelLabel={lens === 'basicHealth' ? (selectedBasicHealthGroup ?? undefined) : undefined}
                     />
                   </>
                 )
@@ -2701,34 +2864,28 @@ export default function PurpleDigestScreen() {
                 // Direct follow-up: alphabetized (basicHealthMenuGroups'
                 // own sort, and this drill-in view's own sort below, both by
                 // shelfGroupDisplayLabel rather than BASIC_HEALTH_TOPICS'
-                // declared order), and this drill-in's own back link renamed
-                // "‹ Back to Basic Health" to match "‹ Back to Digest"'s own
-                // naming (was "‹ All Basic Health Topics") -- both links
-                // share backToHomeText, now carrying the same colors.surface/
-                // TAB_COLOR card look as shelfHeading, so every one of
-                // these "topic header"-type elements reads consistently.
+                // declared order).
+                //
+                // 2026-08-23, direct correction: the back link that used to
+                // sit here, in the scrolling body, is gone -- the fixed
+                // breadcrumb row above (basicHealthDrilldownLabel's own
+                // branch) already reads "‹ Back to Basic Health" whenever a
+                // subgroup is picked, and having a second back-to-the-same-
+                // place link in the body duplicated it for no reason.
                 selectedBasicHealthGroup === null ? (
                   <BasicHealthTopicMenu groups={basicHealthMenuGroups} onSelectGroup={setSelectedBasicHealthGroup} />
                 ) : (
-                  <>
-                    <TouchableOpacity
-                      onPress={() => setSelectedBasicHealthGroup(null)}
-                      style={styles.basicHealthBackLink}
-                    >
-                      <Text style={styles.backToHomeText}>‹ Back to Basic Health</Text>
-                    </TouchableOpacity>
-                    <BasicHealthShelves
-                      groups={basicHealthGroups
-                        .filter((group) => group.label.split('::')[0] === selectedBasicHealthGroup)
-                        .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))}
-                      expandedId={expandedId}
-                      groupRefs={groupRefs}
-                      onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
-                      onJumpToRelated={jumpToRelated}
-                      onDynamicEntriesChanged={refreshDynamicEntries}
-                      hideTopLevelLabel={selectedBasicHealthGroup}
-                    />
-                  </>
+                  <BasicHealthShelves
+                    groups={basicHealthGroups
+                      .filter((group) => group.label.split('::')[0] === selectedBasicHealthGroup)
+                      .sort((a, b) => shelfGroupDisplayLabel(a.label).localeCompare(shelfGroupDisplayLabel(b.label)))}
+                    expandedId={expandedId}
+                    groupRefs={groupRefs}
+                    onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
+                    onJumpToRelated={jumpToRelated}
+                    onDynamicEntriesChanged={refreshDynamicEntries}
+                    hideTopLevelLabel={selectedBasicHealthGroup}
+                  />
                 )
               ) : entries.length === 0 ? (
                 <Text style={styles.emptyText}>Nothing here yet.</Text>
@@ -4390,40 +4547,47 @@ const styles = StyleSheet.create({
   // everything else); now a real sibling above it, so the back link, this
   // category's own header, and its search box stay visible the whole time
   // someone scrolls the hierarchical content underneath. Same horizontal
-  // padding as bodyContent below so both areas line up, plus a real
-  // bottom border marking where the fixed strip ends and the scrollable
-  // area begins.
+  // padding as bodyContent below so both areas line up.
+  //
+  // 2026-08-23, direct report: with the shared photo background actually
+  // showing behind this scrolling screen, the flat 1px bottom border this
+  // used to carry read as a hard line sitting mid-screen, with scrolled
+  // content visibly sliding behind it -- the same class of bug the footer's
+  // own flat divider line was replaced for, 2026-08-21, never applied here
+  // too. Border removed; EdgeShadow (below, in the JSX) takes its place,
+  // the same soft, direction="down" shaded edge ScreenHeader's own bottom
+  // edge already uses, not a new treatment invented here.
   fixedHeader: {
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 4,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.border,
   },
   // The row the "‹ Back to Digest"/"‹ Clear search" link and the new (i)
   // match-help icon share -- 2026-08-09, the link used to BE this whole
   // row on its own; now it's the left side, with the icon as a second,
   // separate tap target on the right.
   breadcrumbRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 10 },
-  // 2026-08-23, direct instruction: the same colors.surface/TAB_COLOR-
-  // border "topic header" card treatment shelfHeading carries now also
-  // applies here, covering "‹ Back to Digest," "‹ Clear search," and
-  // Basic Health's own drill-in "‹ Back to Basic Health" link all at once
-  // (all three share this one style). Used to be plain text on purpose, so
-  // it wouldn't compete with headerCard's own content directly below it --
-  // superseded by the same legibility-against-a-photo-background need
-  // driving every other header-type element on this screen.
+  // 2026-08-23: given the same colors.surface/TAB_COLOR-border treatment
+  // shelfHeading carries, then a moderate ${TAB_COLOR}33 tint, in two
+  // earlier passes -- direct correction on both: "must be filled in with
+  // the color of the tab they are a family of, not just have an outline
+  // around them." A solid TAB_COLOR fill now, the same real filled-button
+  // convention every builder's own primaryButton already uses (solid
+  // tabColor background, colors.textOnPrimary text -- that token exists
+  // specifically because every one of this app's tab-identity colors is a
+  // light pastel, dark text is what actually reads on top of it, TAB_COLOR
+  // text on a TAB_COLOR fill would vanish). No border needed once the fill
+  // itself IS the tab's own color, a border in the same color would be
+  // invisible anyway.
   backToHomeText: {
     ...typography.body,
-    color: TAB_COLOR,
+    color: colors.textOnPrimary,
     fontWeight: '600',
     alignSelf: 'flex-start',
-    backgroundColor: colors.surface,
-    borderWidth: 2,
-    borderColor: TAB_COLOR,
-    borderRadius: 12,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
+    backgroundColor: TAB_COLOR,
+    borderRadius: 20,
+    paddingHorizontal: 14,
+    paddingVertical: 8,
   },
   body: { flex: 1 },
   bodyContent: { padding: 16, paddingBottom: 32 },
@@ -4510,7 +4674,6 @@ const styles = StyleSheet.create({
   },
   basicHealthMenuItemLabel: { ...typography.label, color: TAB_COLOR, flex: 1, marginRight: 8 },
   basicHealthMenuItemCount: { ...typography.caption, color: colors.textSecondary },
-  basicHealthBackLink: { marginBottom: 14, alignSelf: 'flex-start' },
   // 2026-08-23, direct report: this text floats directly over the real
   // photo background now that GatedTabContent actually reveals one, with
   // nothing behind it at all. A shadow-only first attempt, then a plain
