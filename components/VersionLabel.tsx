@@ -23,10 +23,16 @@ import { APP_VERSION } from '../constants/version';
 // sync with a future adjustment to that shared offset.
 const GAP_BELOW_BUTTON = 4;
 const LABEL_LINE_HEIGHT = 14;
+// 2026-08-23, direct request, confirmed working on-device first: "move
+// the app version down by about 10 pixels." Kept as its own named
+// adjustment rather than folded into GAP_BELOW_BUTTON, so this specific
+// ask stays legible in the math rather than silently changing what that
+// constant means.
+const MOVE_DOWN_ADJUSTMENT = 10;
 
 export function VersionLabel() {
   const insets = useSafeAreaInsets();
-  const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET - GAP_BELOW_BUTTON - LABEL_LINE_HEIGHT;
+  const bottom = insets.bottom + FLOATING_BUTTON_BOTTOM_OFFSET - GAP_BELOW_BUTTON - LABEL_LINE_HEIGHT - MOVE_DOWN_ADJUSTMENT;
 
   return (
     <Text style={[styles.text, { bottom, left: SECONDARY_HUB_CARD_LEFT_MARGIN }]} pointerEvents="none">
