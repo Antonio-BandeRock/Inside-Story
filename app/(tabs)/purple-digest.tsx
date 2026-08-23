@@ -2047,6 +2047,18 @@ export default function PurpleDigestScreen() {
       .filter((group) => group.entries.length > 0);
   }, [entries, categorySearchMatchInfo, lens]);
   const categorySearchTotalMatches = categorySearchGroups.reduce((sum, group) => sum + group.entries.length, 0);
+  // 2026-08-23, direct report: "why does it take so long for Basic Health
+  // to display after selecting it from the Digest menu?" Root cause:
+  // basicHealthAllGroups(entries) was called directly inline in this
+  // screen's own JSX (below, at the real BasicHealthShelves render), not
+  // memoized -- it walks all ~21 real Basic Health topics (Essential
+  // Nutrients' own subtopics flattened among them) and filters the full
+  // entries list once per topic, real, non-trivial work that was re-running
+  // on every render of this whole screen while Basic Health was open, not
+  // just once when it was first selected. categorySearchGroups just above
+  // already gets this right (a real useMemo); this is the same fix applied
+  // to the plain, non-search browsing path.
+  const basicHealthGroups = useMemo(() => basicHealthAllGroups(entries), [entries]);
 
   // Scrolls the ScrollView so the named card's own top edge lands exactly
   // ENTRY_SCROLL_TOP_MARGIN below the top of the visible screen -- on
@@ -2572,7 +2584,7 @@ export default function PurpleDigestScreen() {
                 // shape works for, reused directly rather than a second,
                 // parallel grouping mechanism.
                 <BasicHealthShelves
-                  groups={basicHealthAllGroups(entries)}
+                  groups={basicHealthGroups}
                   expandedId={expandedId}
                   groupRefs={groupRefs}
                   onToggleEntry={(id) => toggleEntry(id, 'basicHealth')}
@@ -4228,7 +4240,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   categoryHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
-  categoryHeaderText: { ...typography.screenTitle, color: TAB_COLOR },
+  // 2026-08-23: reconsidered, not actually safe just for sitting inside
+  // headerCard -- that card's own backgroundColor is colors.surface, the
+  // same 85%-opaque value cardTitle's own comment explains, not a fully
+  // solid fill. Same menuLabelShadow fix applied here for real, not just
+  // assumed-safe, protection.
+  categoryHeaderText: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_COLOR },
   categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
   emptyText: { ...typography.body, color: colors.textSecondary },
   // 2026-08-16 -- wraps the search AppTextInput with a real mic button
@@ -4307,7 +4324,10 @@ const styles = StyleSheet.create({
     borderWidth: 3,
     backgroundColor: `${TAB_COLOR}22`,
   },
-  shelfCardTitle: { ...typography.label, color: TAB_COLOR, flex: 1, fontSize: 14 },
+  // 2026-08-23: same colors.surface-isn't-fully-opaque issue as cardTitle's
+  // own comment explains, and this one's own selected state (shelfCardSelected,
+  // above) is even more exposed, a ${TAB_COLOR}22 fill, roughly 13% opaque.
+  shelfCardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, flex: 1, fontSize: 14 },
   shelfCardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 16, marginTop: 4 },
   // 2026-08-09, ShelfTabCard's own compact per-term match indicator, shown
   // only while this card is part of a category's own scoped search
@@ -4334,7 +4354,15 @@ const styles = StyleSheet.create({
   },
   cardHeaderRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
   tierDot: { width: 10, height: 10, borderRadius: 5 },
-  cardTitle: { ...typography.label, color: TAB_COLOR, flex: 1 },
+  // 2026-08-23, direct report: "Essential Nutrients: Magnesium" (an
+  // ordinary card title) unreadable against the real photo background.
+  // colors.surface (this card's own backgroundColor, above) is only 85%
+  // opaque by design (rgba(...,0.85), constants/colors.ts) -- reads as
+  // solid against the app's own dark ground theme, but a bright patch of
+  // photo still bleeds through that remaining 15%, and this text carried
+  // no shadow of its own to fall back on. Same menuLabelShadow fix as
+  // shelfHeading above.
+  cardTitle: { ...typography.label, ...menuLabelShadow, color: TAB_COLOR, flex: 1 },
   cardTeaser: { ...typography.caption, color: colors.textSecondary, lineHeight: 17 },
   // 2026-08-09, SearchResultCard's own real per-term match display -- see
   // MatchSummaryRow's own comment for the full reasoning. matchBlock sits
