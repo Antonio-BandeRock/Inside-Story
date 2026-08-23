@@ -7,17 +7,31 @@
 //
 // 2026-08-23: introduced by direct request, "a way to be sure I am looking
 // at the correct version that definitely includes the latest updates."
-// Format is 1.0.X, matching app.json/package.json's own existing "1.0.0"
-// baseline -- still pre-1.0-launch in scope, so the major/minor stay
-// pinned at 1.0, and X is a plain incrementing build/checkpoint counter,
-// bumped by hand at each user-visible checkpoint going forward.
+// Confirmed on-device the same day, with one addition: a fourth segment,
+// 1.0.<day>.<same-day update>, since a single day of work can (and does)
+// ship several distinct updates worth being able to tell apart.
 //
-// The starting value, 24, isn't arbitrary: it's the count of distinct
-// calendar days with committed development work between this app's
-// first commit (2026-07-25) and the day this version system was built
-// (2026-08-23), a checkable number (`git log --format=%ad --date=
-// short | sort -u | wc -l`) rather than a guess, chosen specifically
-// because the raw git commit count (680, mostly fine-grained auto-
-// checkpoints rather than meaningful releases) would have read as noise,
-// not a version history.
-export const APP_VERSION = '1.0.24';
+// Format is 1.0.DAY.UPDATE. Still pre-1.0-launch in scope, so the major/
+// minor stay pinned at 1.0. DAY is the count of distinct calendar days
+// with committed development work since this app's first commit
+// (2026-07-25), a checkable number (`git log --format=%ad --date=short |
+// sort -u | wc -l`) rather than a guess, chosen specifically because the
+// raw git commit count (680 as of 2026-08-23, mostly fine-grained
+// auto-checkpoints rather than meaningful releases) would have read as
+// noise, not a version history. DAY increments by exactly 1 the first
+// time a version bump happens on a new calendar day of work, never
+// mid-day. UPDATE resets to 1 whenever DAY increments, and increments by
+// 1 for every further user-visible checkpoint shipped that same day.
+//
+// Bump this by hand at each user-visible checkpoint going forward (the
+// same discipline already applied to tsc/eslint/git push/Notion sync)
+// -- there's no mechanical trigger for it.
+//
+// A known limitation, not yet a live problem: this exact 4-segment string
+// isn't strict semver (package.json/app.json's own "version" fields are
+// kept in sync with it anyway, for one consistent number app-wide), and
+// Apple's own App Store guidance prefers a 3-segment CFBundleShortVersion
+// String. Irrelevant today (no App Store submission exists yet, iPhone
+// is still a planned platform, not a shipped one), worth revisiting only
+// once that actually applies.
+export const APP_VERSION = '1.0.24.1';
