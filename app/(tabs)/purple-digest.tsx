@@ -68,6 +68,7 @@ import {
   type DigestEntry,
   type EvidenceTier,
   type RecipeCard,
+  type RecipeDietTag,
   type SearchMatchInfo,
 } from '../../lib/digest';
 
@@ -1481,6 +1482,27 @@ type RecipeTopic =
 // real, dynamic safety net for any future recipe entry that somehow arrives
 // with no linkedBuilderType at all, not a bucket any of today's 44 real
 // entries ever lands in.
+// 2026-08-24, direct request: recipes "grouped so they can be
+// identified" by real diet compatibility, not just badged individually --
+// this is the actual grouping/filter control, sitting above the Recipes
+// topic menu and every shelf underneath it. 'All Diets' is the plain
+// "no filter" option, not a real RecipeDietTag itself. The base tier
+// leads (matching RecipeDietTagRow's own ordering), then every
+// philosophy tag in the same order RecipeDietTag itself declares them.
+const RECIPE_DIET_FILTER_OPTIONS: string[] = [
+  'All Diets',
+  'Vegan',
+  'Vegetarian',
+  'Omnivore',
+  'Plant-Based/Flexitarian',
+  'Mediterranean',
+  'Gluten-Free',
+  'Dairy-Free',
+  'Paleo',
+  'AIP',
+  'High-Protein',
+];
+
 const RECIPES_TOPIC_ORDER: RecipeTopic[] = [
   'Sides',
   'Salads & Bowls',
@@ -1963,6 +1985,15 @@ export default function PurpleDigestScreen() {
   // own branch, above, already narrows what's shown once a topic is
   // picked, so an extra menu step would be redundant).
   const [selectedTopicGroup, setSelectedTopicGroup] = useState<string | null>(null);
+  // 2026-08-24, direct request: recipes "grouped so they can be
+  // identified" by real diet compatibility, not just badged individually.
+  // Only meaningful on the Recipes lens (see the entries useMemo below,
+  // where this actually narrows what's shown) -- left set on other
+  // lenses is harmless since nothing else reads it, but it's still reset
+  // alongside selectedTopicGroup at every "fresh arrival" site so
+  // returning to Recipes later never silently carries over a stale
+  // filter from a much earlier visit.
+  const [recipeDietFilter, setRecipeDietFilter] = useState<RecipeDietTag | null>(null);
   // 2026-08-24, direct report: "when I go into Essential Nutrients, I
   // should only see the subsections of that section... not yet specific
   // stories... until I select one of the subsection header links." Basic
@@ -2359,12 +2390,25 @@ export default function PurpleDigestScreen() {
     // See visibleFoodNames' own comment above -- still loading (null) means
     // show everything; once resolved, drop any relatedFoodNames-tagged
     // entry whose every real food name has since been hidden.
-    if (visibleFoodNames === null) return raw;
-    return raw.filter((entry) => {
-      if (isProblemFoodEntry(entry) || !entry.relatedFoodNames || entry.relatedFoodNames.length === 0) return true;
-      return entry.relatedFoodNames.some((name) => visibleFoodNames.has(name));
+    const foodVisible =
+      visibleFoodNames === null
+        ? raw
+        : raw.filter((entry) => {
+            if (isProblemFoodEntry(entry) || !entry.relatedFoodNames || entry.relatedFoodNames.length === 0) return true;
+            return entry.relatedFoodNames.some((name) => visibleFoodNames.has(name));
+          });
+    // 2026-08-24, direct request: recipes "grouped so they can be
+    // identified" by real diet compatibility -- picking a diet from the
+    // filter below narrows Recipes down to just the entries that real,
+    // computed dietTags say fit it, reusing every downstream mechanism
+    // (search, topic menu, shelves) unchanged since they all just consume
+    // this same `entries` value.
+    if (lens !== 'recipes' || !recipeDietFilter) return foodVisible;
+    return foodVisible.filter((entry) => {
+      if (isProblemFoodEntry(entry)) return false;
+      return entry.recipeCard?.dietTags?.includes(recipeDietFilter) ?? false;
     });
-  }, [lens, visibleFoodNames, dynamicEntries]);
+  }, [lens, visibleFoodNames, dynamicEntries, recipeDietFilter]);
   // searchQuery/categorySearchQuery are already the debounced, COMMITTED
   // values by construction now (see DigestSearchInput below) -- a real,
   // second attempt at the reported keyboard-lag fix, 2026-08-08. The first
@@ -3118,6 +3162,28 @@ export default function PurpleDigestScreen() {
                 </View>
               )}
 
+              {/* 2026-08-24, direct request: "recipes need to be grouped
+                  so they can be identified" by real diet compatibility --
+                  the actual filter control, deliberately kept visible
+                  through search too (unlike headerCard above) since
+                  narrowing which recipes are even in play is exactly as
+                  useful while searching within Recipes as while browsing.
+                  Filters `entries` itself (see that useMemo), so every
+                  downstream view -- the topic menu, a drilled-in shelf,
+                  category-scoped search results -- all narrow together
+                  with no separate wiring needed in any of them. */}
+              {lens === 'recipes' ? (
+                <View style={styles.recipeDietFilterRow}>
+                  <Text style={styles.detailLabel}>Filter by diet</Text>
+                  <PopoverSelect
+                    options={RECIPE_DIET_FILTER_OPTIONS}
+                    selected={recipeDietFilter ?? 'All Diets'}
+                    onSelect={(value) => setRecipeDietFilter(value === 'All Diets' ? null : (value as RecipeDietTag))}
+                    tabColor={TAB_COLOR}
+                  />
+                </View>
+              ) : null}
+
               {glossaryOpen ? (
                 // The one flat shelf every glossary- prefixed entry lives
                 // in, regardless of which of the 14 real categories each
@@ -3472,6 +3538,7 @@ export default function PurpleDigestScreen() {
           // a previous visit happened to leave selected.
           setSelectedTopicGroup(null);
           setSelectedBasicHealthSubgroup(null);
+          setRecipeDietFilter(null);
           setExpandedId(null);
           // 2026-08-12, direct report: picking a different lens from this
           // popup left the ScrollView sitting at whatever offset the
@@ -4519,9 +4586,32 @@ function DigestCard({
 // every other card already uses (see DigestCard's own ProblemFoodEntry
 // branch above), rather than a separate visual language just for this one
 // field -- only entry.recipeCard's own real, computed content differs.
+// 2026-08-24, direct request: every recipe "identified" as omnivore,
+// vegetarian, or vegan, plus whichever named popular diet philosophies it
+// fits (Mediterranean, Paleo, AIP, and so on) -- see RecipeDietTag's own
+// comment in types.ts for the full tag vocabulary and
+// scripts/compute_recipe_diet_tags.js for the real, auditable rule
+// behind every tag. The base tier (Vegan/Vegetarian/Omnivore) always
+// leads the row since it's the one distinction every recipe carries;
+// the rest are unordered, whichever apply.
+function RecipeDietTagRow({ tags }: { tags: RecipeDietTag[] }) {
+  if (tags.length === 0) return null;
+  return (
+    <View style={styles.dietTagRow}>
+      {tags.map((tag) => (
+        <View key={tag} style={styles.dietTagPill}>
+          <Text style={styles.dietTagPillText}>{tag}</Text>
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function RecipeCardDetail({ card }: { card: RecipeCard }) {
   return (
     <View>
+      {card.dietTags ? <RecipeDietTagRow tags={card.dietTags} /> : null}
+
       <Text style={styles.detailLabel}>Makes</Text>
       <Text style={styles.detailText}>{card.yield}</Text>
 
@@ -5146,6 +5236,11 @@ const styles = StyleSheet.create({
   // assumed-safe, protection.
   categoryHeaderText: { ...typography.screenTitle, ...menuLabelShadow, color: TAB_TEXT_COLOR },
   categoryDescription: { ...typography.body, color: colors.textSecondary, lineHeight: 19 },
+  // The Recipes lens's own real diet-filter control -- see its JSX
+  // comment above. detailLabel already carries menuLabelShadow, so the
+  // "Filter by diet" caption stays legible the same way every other
+  // eyebrow label on this screen does.
+  recipeDietFilterRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginBottom: 12 },
   emptyText: { ...typography.body, color: colors.textSecondary },
   // 2026-08-16 -- wraps the search AppTextInput with a real mic button
   // (VoiceInputButton), added inside DigestSearchInput itself rather than
@@ -5373,6 +5468,18 @@ const styles = StyleSheet.create({
     maxWidth: 160,
   },
   crossConditionPillText: { ...typography.caption, ...menuLabelShadow, color: TAB_TEXT_COLOR, fontSize: 11 },
+  // RecipeDietTagRow's own pills, same filled-pill shape as
+  // matchTermPillTitle above, sitting right at the top of a recipe's own
+  // detail view since "which diets this fits" is meant to be identifiable
+  // at a glance, not buried under the ingredient list.
+  dietTagRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginBottom: 8 },
+  dietTagPill: {
+    backgroundColor: TAB_COLOR,
+    borderRadius: 10,
+    paddingVertical: 3,
+    paddingHorizontal: 9,
+  },
+  dietTagPillText: { ...typography.caption, ...menuLabelShadow, color: colors.background, fontSize: 11, fontWeight: '700' },
   detailLabel: { ...typography.eyebrow, ...menuLabelShadow, color: TAB_TEXT_COLOR, marginTop: 8, marginBottom: 2 },
   detailText: { ...typography.body, color: colors.textPrimary, lineHeight: 19 },
   detailTextBold: { fontWeight: '700' },

@@ -1,0 +1,2173 @@
+{
+  "curated_baked_banana_oat_cookies": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_baked_buttermilk_biscuits": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian"
+  ],
+  "curated_baked_oatmeal_cup_banana_cinnamon": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_baked_wheat_tortillas": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_baked_whole_wheat_bread": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_bev_electrolyte_water": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_ginger_turmeric_tonic": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_bev_golden_milk": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_bev_iced_green_tea_mint": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_dessert_baked_cinnamon_apples": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_dessert_mixed_berry_chia_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_ferment_amazake": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_ayran": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_ferment_beet_kvass": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_boza": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_burdock_dandelion_ale": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_chicha": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_coconut_kefir": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_coconut_palm_wine_style": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_garlic_honey_tonic": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_ginger_beer_traditional": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_ginger_bug_soda": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_jun_tea": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_kanji": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_kombucha": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_makgeolli": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_mango_lassi": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_ferment_maple_pulque_style": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_mauby_burdock_tonic": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_milk_kefir": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_ferment_plain_yogurt": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_ferment_pozol": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_probiotic_yogurt": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_ferment_puerh_style_tea": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_rejuvelac": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_rosemary_cheong": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_rye_style_kvass_quinoa": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_sake_style_rice_wine": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_sauerkraut": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_shrub": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_sobia": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_ferment_switchel": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tarag_style": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free"
+  ],
+  "curated_ferment_tepache": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_apple_pear": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_blackberry_raspberry_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_blueberry_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_cranberry_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_elderberry_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_hibiscus_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_lemon_lime": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_pomegranate_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_red_grape_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_tonic_tart_cherry_ginger_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_turmeric_drink": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_ferment_water_kefir": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_handheld_bison_roasted_vegetable_wrap": [
+    "Omnivore",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_handheld_black_bean_sweet_potato_tacos": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_handheld_breakfast_burrito_eggs_black_beans": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "High-Protein"
+  ],
+  "curated_handheld_egg_salad_lettuce_wraps": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_handheld_grilled_chicken_sandwich": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_handheld_hummus_roasted_vegetable_wrap": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_handheld_turkey_avocado_wrap": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_handheld_turkey_hummus_collard_wrap": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_salad_beet_walnut_arugula": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_salad_bulgur_tabbouleh_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_salad_crab_avocado_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_salad_crab_mango_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_salad_grilled_halibut_greens": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_salad_kale_citrus_iron": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_salad_kidney_bean_roasted_vegetable_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_salad_lima_bean_roasted_vegetable_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_salad_mackerel_radish_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_salad_mediterranean_chickpea_feta": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_salad_pinto_bean_roasted_vegetable_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_salad_roasted_artichoke_white_bean_salad": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_salad_sardine_roasted_pepper_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_salad_sesame_ginger_slaw": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_salad_shrimp_watermelon_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_salad_southwest_quinoa_black_bean": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_salad_spelt_roasted_vegetable_salad": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "High-Protein"
+  ],
+  "curated_salad_spinach_strawberry_almond": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_salad_trout_cucumber_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_salad_tuna_artichoke_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_salad_tuna_white_bean_salad": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_sauce_basic_tomato": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_sauce_garlic_herb_vinaigrette": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_sauce_simple_pesto": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_sauce_tahini_lemon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_side_baked_chicken_thighs_brussels_sweet_potato": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_baked_cod_fennel_orange": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_baked_cod_paprika_lemon": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_side_baked_salmon_lemon_dill": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_baked_trout_parsnip_mash": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_baked_turkey_breast_zucchini_tomatoes": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_side_beef_mushroom_stir_fry_rice": [
+    "Omnivore",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_bison_meatballs_herb_tomato_sauce": [
+    "Omnivore",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_side_bison_root_vegetable_bowl": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_braised_beef_kohlrabi_carrot": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_chicken_breast_artichoke_lemon": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_chicken_breast_snow_peas_carrots": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_chicken_okra_tomato_skillet": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_side_chicken_thighs_kohlrabi_apple": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_chickpea_spinach_curry_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_duck_beets_orange": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_duck_cherry_wild_rice": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_edamame_brown_rice_sesame_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_egg_vegetable_fried_rice": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "High-Protein"
+  ],
+  "curated_side_garlic_mashed_cauliflower": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_side_ginger_soy_chicken_thighs": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_halibut_leeks_peas": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_herb_crusted_pork_tenderloin": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_herb_roasted_potatoes": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_side_lamb_chops_roasted_eggplant": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_side_lamb_fennel_orange": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_lamb_skewers_couscous": [
+    "Omnivore",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_lemon_garlic_broccoli": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_side_lentil_roasted_vegetable_tahini_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_one_pan_shrimp_asparagus_rice": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_pork_chop_brussels_apple": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_pork_loin_radish_carrot": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_pork_loin_turnip_kale": [
+    "Omnivore",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_rainbow_stir_fry": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free"
+  ],
+  "curated_side_roast_chicken_fennel_leeks": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_salmon_leeks_lemon": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_salmon_wild_rice_asparagus": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_sardine_white_bean_bowl": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_sauteed_spinach_garlic": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_side_scallops_asparagus_lemon": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_shrimp_snow_pea_stir_fry_rice": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_sole_bok_choy_ginger": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_teriyaki_baked_tofu": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_trout_radish_dill": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_turkey_meatballs_tomato_sauce": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_side_turkey_meatloaf_parsnip_carrot": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_side_turkey_thigh_turnip_carrot": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_side_turkey_wild_rice_cranberries": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_side_white_bean_roasted_vegetable_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_smoothie_berry_antioxidant": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_smoothie_brazil_nut_selenium": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_smoothie_golden_turmeric": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_smoothie_green_glow": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_smoothie_iron_vitamin_c": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_smoothie_tropical_ginger": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_apple_almond_butter": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_snack_apricot_cashew_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_apricot_coconut_overnight_oats": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_berries_yogurt": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_blackberry_almond_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_buckwheat_porridge_blueberries_walnuts": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_cantaloupe_cottage_cheese_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_clementine_almond_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_clementine_pistachio_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_cottage_cheese_fig_honey": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_cottage_cheese_pineapple_walnuts": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_date_cashew_breakfast_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_date_walnut_breakfast_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_fig_cashew_overnight_oats": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_fig_pistachio_overnight_oats": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_fig_walnut_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_grapefruit_pistachio_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_grapefruit_yogurt_honey": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_kiwi_coconut_chia_pudding": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_kiwi_pistachio_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mango_coconut_chia_pudding": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_mango_pistachio_chia_pudding": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_millet_porridge_apricots": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_nectarine_chia_pudding_cashews": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_overnight_oats_chia_berries": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_papaya_cottage_cheese_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_papaya_lime_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_peach_almond_overnight_oats": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_pear_almond_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_pear_walnut_yogurt_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_plum_walnut_overnight_oats": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_roasted_chickpeas": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_snack_savory_quinoa_bowl_fried_egg": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_soft_boiled_eggs_avocado_tomato": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_trail_mix": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_snack_veggie_cheddar_scramble_potatoes": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_snack_watermelon_feta_bowl": [
+    "Vegetarian",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "High-Protein"
+  ],
+  "curated_soup_butternut_squash": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_soup_chicken_vegetable": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP",
+    "High-Protein"
+  ],
+  "curated_soup_crab_corn_chowder": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_soup_green_lentil_vegetable_stew": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_soup_lentil_kale_soup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_soup_mussels_tomato_fennel_broth": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_soup_mussels_tomato_garlic_broth": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "High-Protein"
+  ],
+  "curated_soup_red_lentil": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_soup_tomato_basil": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_soup_turkey_black_bean_chili": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_soup_turkey_white_bean_soup": [
+    "Omnivore",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_soup_white_bean_kale_soup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_soup_white_bean_swiss_chard_soup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_apricot_cashew_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_apricot_coconut_overnight_oats": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_baked_oatmeal_cup_banana_cinnamon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_berries_silken_tofu_cream": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_blackberry_almond_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_breakfast_burrito_tofu_black_beans": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_buckwheat_porridge_blueberries_walnuts": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_cantaloupe_tofu_maple": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_cashew_cream_pineapple_walnuts": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_cashew_ricotta_fig_maple": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_clementine_almond_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_clementine_pistachio_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_date_cashew_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_date_walnut_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_fig_cashew_overnight_oats": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_fig_pistachio_overnight_oats": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_fig_walnut_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_grapefruit_pistachio_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_grapefruit_tofu_maple": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_handheld_chickpea_avocado_wrap": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_handheld_chickpea_egg_salad_lettuce_wraps": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_handheld_grilled_tempeh_sandwich": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_handheld_seitan_roasted_vegetable_wrap": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_handheld_tempeh_hummus_collard_wrap": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_kiwi_almond_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_kiwi_coconut_chia_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_vegan_mango_coconut_chia_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_vegan_mango_pistachio_chia_pudding": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_millet_porridge_apricots": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_nectarine_chia_pudding_cashews": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_overnight_oats_chia_berries": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_papaya_cashew_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_papaya_lime_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_peach_almond_overnight_oats": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_pear_almond_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_pear_walnut_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_plum_walnut_overnight_oats": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_salad_beet_walnut_arugula_tofu": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_chickpea_white_bean_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_grilled_tofu_greens_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_hearts_of_palm_avocado_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_vegan_salad_hearts_of_palm_mango_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_vegan_salad_king_oyster_watermelon_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_mediterranean_chickpea_tofu": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_roasted_artichoke_white_bean_tofu": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_smoky_tempeh_radish_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_spelt_roasted_vegetable_tofu": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_tofu_cucumber_dill_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_white_bean_artichoke_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_salad_white_bean_roasted_pepper_salad": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_savory_quinoa_bowl_tofu_scramble": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_baked_seitan_zucchini_tomatoes": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_baked_tempeh_brussels_sweet_potato": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_baked_tempeh_parsnip_mash": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_baked_tofu_fennel_orange": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_baked_tofu_lemon_dill": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_baked_tofu_paprika_lemon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_braised_chickpea_fennel_orange": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_braised_seitan_kohlrabi_carrot": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_chickpea_okra_tomato_skillet": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_chickpea_walnut_meatballs_tomato_sauce": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_ginger_soy_tempeh": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_herb_crusted_seitan_roast": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_king_oyster_scallops_asparagus_lemon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_vegan_side_king_oyster_snow_pea_stir_fry_rice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_lemon_tofu_artichoke": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_lentil_meatloaf_parsnip_carrot": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_lentil_walnut_meatballs_tomato_sauce": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_mushroom_walnut_stir_fry_rice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_one_pan_king_oyster_asparagus_rice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_portobello_beets_orange": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo",
+    "AIP"
+  ],
+  "curated_vegan_side_roast_tempeh_fennel_leeks": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_seitan_chop_brussels_apple": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_seitan_chops_roasted_eggplant": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_seitan_turnip_kale": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free"
+  ],
+  "curated_vegan_side_tempeh_cherry_wild_rice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tempeh_kohlrabi_apple": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tempeh_radish_carrot": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tempeh_radish_dill": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tempeh_root_vegetable_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tempeh_snow_peas_carrots": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tempeh_turnip_carrot": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tempeh_wild_rice_cranberries": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tofu_bok_choy_ginger": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tofu_leeks_lemon": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tofu_leeks_peas": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tofu_skewers_couscous": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tofu_vegetable_fried_rice": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_tofu_wild_rice_asparagus": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_side_white_bean_tomato_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_smoothie_berry_antioxidant": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_smoothie_brazil_nut_selenium": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_smoothie_golden_turmeric": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_smoothie_green_glow": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_smoothie_iron_vitamin_c": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_smoothie_tropical_ginger": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_soup_hearts_of_palm_corn_chowder": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "Paleo"
+  ],
+  "curated_vegan_soup_lentil_black_bean_chili": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_soup_mushroom_white_bean_soup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_soup_white_bean_tomato_fennel_broth": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_soup_white_bean_tomato_garlic_broth": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_soup_white_bean_vegetable_soup": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_tofu_avocado_tomato": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_tofu_scramble_potatoes": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ],
+  "curated_vegan_watermelon_tofu_bowl": [
+    "Vegan",
+    "Plant-Based/Flexitarian",
+    "Mediterranean",
+    "Gluten-Free",
+    "Dairy-Free",
+    "High-Protein"
+  ]
+}

@@ -336,9 +336,41 @@ export type RecipeConditionNote = {
   note: string;
 };
 
+// The full real tag vocabulary a recipe can carry, computed directly from
+// its own real curated_recipe_ingredients rows -- see
+// scripts/compute_recipe_diet_tags.js for the exact, auditable rule behind
+// every one of these. Exactly one of the first three always applies
+// (vegan implies vegetarian-safe, so a vegan dish is tagged Vegan only,
+// never both); the rest are independent and a recipe can carry any
+// number of them, including none.
+export type RecipeDietTag =
+  | 'Vegan'
+  | 'Vegetarian'
+  | 'Omnivore'
+  | 'Plant-Based/Flexitarian'
+  | 'Mediterranean'
+  | 'Gluten-Free'
+  | 'Dairy-Free'
+  | 'Paleo'
+  | 'AIP'
+  | 'High-Protein';
+
 export type RecipeCard = {
   // e.g. "Makes about 4 cups, serves 2 generous bowls."
   yield: string;
+  // 2026-08-24, direct request: every recipe grouped/identified by real
+  // diet compatibility (omnivore/vegetarian/vegan) and by whether it fits
+  // several named popular diet philosophies. Computed once, directly from
+  // the recipe's own real ingredient categories in the reference
+  // database, not eyeballed -- see scripts/compute_recipe_diet_tags.js
+  // for the full, auditable rule set and RecipeDietTag's own comment for
+  // what "exactly one of the first three" means. Optional only because
+  // dynamically-built RecipeCards (a person's own saved/favorited
+  // creation, lib/digestDynamicEntries.ts) don't run through that offline
+  // classification script -- RecipeCardDetail skips the badge row
+  // entirely when absent, the same convention flavorNotes/instructions
+  // already use.
+  dietTags?: RecipeDietTag[];
   ingredients: RecipeIngredientLine[];
   // One real step per entry, numbered by the UI. Optional, 2026-08-15 --
   // My Kitchen/My Favorites (lib/digestDynamicEntries.ts) build a real

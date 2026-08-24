@@ -99,6 +99,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_whole_wheat_bread',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes one small 4-slice loaf. A loaf this size comfortably keeps one person in bread for several days.',
       ingredients: [
         { text: '250g (about 2 cups) whole-grain wheat flour' },
@@ -140,6 +141,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_wheat_tortillas',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 4 tortillas. One person can get through these across a couple of days of wraps and tacos.',
       ingredients: [
         { text: '125g (about 1 cup) white flour tortilla mix (or all-purpose flour)' },
@@ -178,6 +180,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_buttermilk_biscuits',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian'],
       yield: 'Makes 4 biscuits. One person can eat 1-2 over breakfast and still have a couple left for later.',
       ingredients: [
         { text: '125g (about 1 cup) whole-grain wheat flour' },
@@ -217,6 +220,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_banana_oat_cookies',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 6 cookies. One person can eat a couple and still have breakfast covered for a few more days.',
       ingredients: [
         { text: '75g (about ¾ cup) rolled oats' },
@@ -262,6 +266,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_ginger_turmeric_tonic',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. This is a pitcher-style drink, so brew the whole batch and keep it in the fridge, plenty for 1 person across a couple of days.',
       ingredients: [
         { text: '7.5g (about ½ tablespoon) fresh ginger root, grated' },
@@ -297,6 +302,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_electrolyte_water',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups (500ml), one glass for one person.',
       ingredients: [
         { text: '500ml water' },
@@ -327,6 +333,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_iced_green_tea_mint',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. A pitcher-style drink: brew it once, keep it cold, and it\'ll cover 1 person for a couple of days.',
       ingredients: [
         { text: '500ml brewed green tea, cooled' },
@@ -357,6 +364,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_bev_golden_milk',
     linkedBuilderType: 'beverage',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 1¼ cups, one mug for one person.',
       ingredients: [
         { text: '300ml whole milk' },
@@ -397,6 +405,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_baked_cinnamon_apples',
     linkedBuilderType: 'dessert',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 baked apple\'s worth (about 150g apple total), 1 serving for 1 person.',
       ingredients: [
         { text: '150g (about 1 medium) apple, cored and sliced' },
@@ -434,6 +443,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_dessert_mixed_berry_chia_pudding',
     linkedBuilderType: 'dessert',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about ½ cup, 1 serving for 1 person.',
       ingredients: [
         { text: '15g (about 1 tablespoon) chia seeds' },
@@ -481,6 +491,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_plain_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge, the way a jar of yogurt would.',
       ingredients: [
         { text: '500ml whole milk, plus 1 tablespoon of a plain live-culture yogurt as your starter' },
@@ -512,6 +523,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_probiotic_yogurt',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 4 cups. A batch meant to last 1 person a week or more in the fridge.',
       ingredients: [
         { text: '500ml whole milk, plus a starter culture blend containing S. thermophilus, L. bulgaricus, L. acidophilus, and Bifidobacterium species (a probiotic-labeled starter yogurt or a powdered starter blend both work, at about half the package\'s stated amount for this smaller batch)' },
@@ -543,6 +555,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_sauerkraut',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups. A fermented batch, kept in the fridge, easily lasts 1 person several weeks as a regular side.',
       ingredients: [
         { text: '500g (about ½ medium head) cabbage, shredded' },
@@ -578,6 +591,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_ferment_kombucha',
     linkedBuilderType: 'fermentation',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups. A batch meant to be brewed once and last 1 person a week or more.',
       ingredients: [
         { text: '1000ml brewed black tea, cooled to room temperature' },
@@ -613,6 +627,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_turkey_avocado_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '1 large flour tortilla' },
@@ -648,6 +663,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_grilled_chicken_sandwich',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 sandwich, for 1 person.',
       ingredients: [
         { text: '2 slices whole-grain bread' },
@@ -685,6 +701,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_black_bean_sweet_potato_tacos',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 taco, for 1 person.',
       ingredients: [
         { text: '1 small flour tortilla' },
@@ -724,6 +741,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_egg_salad_lettuce_wraps',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '2 eggs, hard-boiled' },
@@ -765,6 +783,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_mediterranean_chickpea_feta',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '½ cup chickpeas, whole' },
@@ -805,6 +824,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_kale_citrus_iron',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups kale, chopped' },
@@ -843,6 +863,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_sesame_ginger_slaw',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups cabbage, shredded' },
@@ -882,6 +903,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_beet_walnut_arugula',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '¾ cup beets, diced and roasted' },
@@ -921,6 +943,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_southwest_quinoa_black_bean',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '¾ cup quinoa, cooked' },
@@ -962,6 +985,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_spinach_strawberry_almond',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups spinach, whole' },
@@ -1005,6 +1029,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_basic_tomato',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1½ cups. A batch condiment meant to cover 1 person over multiple meals.',
       ingredients: [
         { text: '300g (about 2 cups) tomatoes, chopped' },
@@ -1041,6 +1066,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_garlic_herb_vinaigrette',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about ½ cup. A batch dressing meant to cover 1 person\'s salads for a week or more.',
       ingredients: [
         { text: '30ml (about 2 tablespoons) olive oil' },
@@ -1074,6 +1100,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_simple_pesto',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about ½ cup. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
         { text: '20g (about 1 cup packed) fresh basil' },
@@ -1111,6 +1138,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_sauce_tahini_lemon',
     linkedBuilderType: 'sauce',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 6 tablespoons. A batch sauce meant to cover 1 person\'s meals for a week or more.',
       ingredients: [
         { text: '30g (about 2 tablespoons) tahini' },
@@ -1149,6 +1177,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_herb_roasted_potatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '75g (about ½ medium) potato, diced' },
@@ -1188,6 +1217,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lemon_garlic_broccoli',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '50g (about ¾ cup) broccoli, chopped' },
@@ -1227,6 +1257,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_garlic_mashed_cauliflower',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '75g (about 1 cup) cauliflower, chopped' },
@@ -1261,6 +1292,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sauteed_spinach_garlic',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about ½ cup, 1 ½-cup serving.',
       ingredients: [
         { text: '50g (about 1¾ cups) fresh spinach, whole' },
@@ -1298,6 +1330,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_rainbow_stir_fry',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free'],
       yield: 'Makes about 1 cup, 1 1-cup serving.',
       ingredients: [
         { text: '37.5g (about ½ cup) broccoli, chopped into florets' },
@@ -1346,6 +1379,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_green_glow',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups spinach, whole' },
@@ -1381,6 +1415,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_golden_turmeric',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '½ teaspoon ground turmeric' },
@@ -1415,6 +1450,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_brazil_nut_selenium',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '2 Brazil nuts, whole' },
@@ -1449,6 +1485,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_berry_antioxidant',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup blueberries, whole' },
@@ -1482,6 +1519,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_iron_vitamin_c',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup spinach, whole' },
@@ -1517,6 +1555,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_smoothie_tropical_ginger',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups pineapple, diced' },
@@ -1556,6 +1595,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_roasted_chickpeas',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1 cup. A batch snack meant to last 1 person several days.',
       ingredients: [
         { text: '100g (about ¾ cup) chickpeas, drained' },
@@ -1591,6 +1631,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_trail_mix',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about ¾ cup. A batch snack meant to last 1 person several days.',
       ingredients: [
         { text: '20g (about 2 tablespoons) almonds' },
@@ -1625,6 +1666,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apple_almond_butter',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 serving, 1 apple\'s worth for 1 person.',
       ingredients: [
         { text: '150g (about 1 medium) apple, sliced' },
@@ -1658,6 +1700,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_berries_yogurt',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '200g (about ¾ cup) Greek yogurt, plain' },
@@ -1695,6 +1738,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_chicken_vegetable',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '50g (about ⅓ cup) chicken breast, skinless and boneless, diced' },
@@ -1735,6 +1779,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_butternut_squash',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '125g (about 1 cup) butternut squash, cubed' },
@@ -1774,6 +1819,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_red_lentil',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '50g (about ¼ cup) red lentils' },
@@ -1813,6 +1859,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_tomato_basil',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes about 1½ cups, 1 1½-cup serving.',
       ingredients: [
         { text: '150g (about 1 cup) tomatoes, chopped' },
@@ -1886,6 +1933,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'gout-fermented-drinks',
     ],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic. A jar this size covers one person a 4-6 ounce evening pour for a few nights.',
       ingredients: [
         { text: '1 cup (about 150g) tart cherries, fresh or thawed frozen, pitted and lightly crushed' },
@@ -1930,6 +1978,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1 cup (about 150g) blueberries, fresh or frozen (no need to thaw first)' },
@@ -1972,6 +2021,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'prostate-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '2/3 cup (150ml) unsweetened pure pomegranate juice, or fresh arils pulsed in a food processor and strained' },
@@ -2013,6 +2063,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '7/8 cup (about 125g) cranberries, fresh or frozen, pulsed in a food processor to break the skins' },
@@ -2054,6 +2105,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'pcos-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1 cup (about 150g) red or purple grapes, halved' },
@@ -2094,6 +2146,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'cvd-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1/4 cup dried hibiscus flowers (Flor de Jamaica)' },
@@ -2134,6 +2187,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1/2 cup (about 75g) blackberries, fresh or frozen, lightly crushed' },
@@ -2174,6 +2228,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '7/8 cup (about 125g) elderberries, stems removed, lightly crushed (fresh or frozen)' },
@@ -2214,6 +2269,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1 small apple (about 100g), unpeeled, grated' },
@@ -2249,6 +2305,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups of finished tonic, enough for one person across a few days.',
       ingredients: [
         { text: '1/2 large lemon (about 75g), unpeeled, sliced' },
@@ -2296,6 +2353,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'ibs-fermented-drinks',
     ],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups. Traditionally taken as a 1-2 ounce shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
         { text: '1/2 pound (about 250g) beets, peeled and chopped into chunks' },
@@ -2334,6 +2392,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-lacto-fermented-vegetables', 'fermented-leuconostoc-mesenteroides'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups. Traditionally taken as a small shot rather than a full glass, so this batch lasts a good while for one person.',
       ingredients: [
         { text: '1/2 pound (about 250g) carrots, peeled and sliced into batons' },
@@ -2376,6 +2435,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
       'migraine-fermented-drinks',
     ],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person. A batch this size restarts easily every 1-2 days once the grains are active.',
       ingredients: [
         { text: '2 tablespoons (about 30g) active water kefir grains' },
@@ -2411,6 +2471,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-water-kefir', 'nutrients-fermented-drinks-hashimotos', 'graves-fermented-drinks', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24-48 hours once the grains are active.',
       ingredients: [
         { text: '2 tablespoons (about 30g) active water kefir grains (dairy-free, the same grains used for water kefir)' },
@@ -2446,6 +2507,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes a reusable starter culture plus about 2 cups of drinkable soda once active, enough for one person.',
       ingredients: [
         { text: '2 tablespoons (about 30g) fresh organic ginger, grated, unpeeled, plus 1 tablespoon more added daily' },
@@ -2480,6 +2542,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
         { text: '3 tablespoons (about 40g) fresh ginger, grated, unpeeled' },
@@ -2517,6 +2580,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'interaction-curcumin-piperine', 'ra-fermented-drinks', 'psoriasis-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 2 cups, enough for one person across a few days.',
       ingredients: [
         { text: '1 tablespoon (about 15g) fresh turmeric, grated, unpeeled' },
@@ -2553,6 +2617,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: 'Rind and core of 1/2 pineapple (about 300g), roughly chopped' },
@@ -2586,6 +2651,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups of concentrated syrup, enough for many diluted glasses (1-2 tablespoons of syrup per glass of water).',
       ingredients: [
         { text: '2 cups (about 250g) blackberries, crushed' },
@@ -2618,6 +2684,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'sjogrens-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 tablespoon (about 15g) fresh ginger, grated, unpeeled' },
@@ -2652,6 +2719,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
         { text: '4 cups (1 liter) brewed green tea, cooled to room temperature' },
@@ -2685,6 +2753,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-wild-tonics', 'lupus-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 1 1/2 cups of finished tonic, taken by the spoonful rather than as a drink.',
       ingredients: [
         { text: '1 cup (about 150g) garlic cloves, peeled and left whole' },
@@ -2739,6 +2808,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-coconut-kefir'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once the grains are active.',
       ingredients: [
         { text: '2 cups (500ml) whole milk' },
@@ -2775,6 +2845,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'type1-fermented-drinks', 'type2-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 2 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/2 cup (100g) rice, rinsed well' },
@@ -2811,6 +2882,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'celiac-fermented-drinks', 'lupus-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/2 cup (100g) quinoa, sprouted (rinse and soak 8 hours, then drain and rinse twice daily for 2 days until small tails appear)' },
@@ -2843,6 +2915,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person. Traditionally taken as a small glass rather than a full pitcher serving.',
       ingredients: [
         { text: '1/4 cup (50g) burdock root, sliced' },
@@ -2882,6 +2955,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '3 tablespoons (40g) burdock root, sliced' },
@@ -2919,6 +2993,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 1/4 cups (200g) hominy (nixtamalized corn)' },
@@ -2954,6 +3029,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/3 cup (75g) rice, soaked several hours then blended smooth with a little water' },
@@ -2990,6 +3066,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 1 cup of finished syrup, used a spoonful at a time in water or tea.',
       ingredients: [
         { text: '1 cup (100g) fresh rosemary, roughly chopped' },
@@ -3023,6 +3100,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 cup (100g) puffed millet' },
@@ -3057,6 +3135,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1 1/4 cups (200g) hominy, sprouted (soak 24 hours, drain, and let sit covered until small sprouts appear, 2-3 days)' },
@@ -3094,6 +3173,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-beet-kvass', 'celiac-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, enough for one person across several days.',
       ingredients: [
         { text: '1/2 cup (100g) quinoa, toasted in a dry pan until fragrant and lightly browned' },
@@ -3129,6 +3209,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1 cup (200g) rice, rinsed well' },
@@ -3163,6 +3244,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1 cup (200g) rice, rinsed well' },
@@ -3199,6 +3281,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
         { text: '2/3 cup (150g) plain yogurt' },
@@ -3236,6 +3319,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-milk-kefir-and-yogurt', 'recipe-ferment-ayran'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, enough for one person.',
       ingredients: [
         { text: '2/3 cup (150g) plain yogurt' },
@@ -3274,6 +3358,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-milk-kefir'],
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free'],
       yield: 'Makes about 2 cups, enough for one person. Restarts easily every 24 hours once active.',
       ingredients: [
         { text: '2 cups (500ml) whole milk' },
@@ -3306,6 +3391,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-kombucha', 'fermentmethod-dairy-free-gluten-free-survey', 'masld-fermented-drinks', 'cvd-fermented-drinks'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 4 cups, enough for one person across a week or more.',
       ingredients: [
         { text: '4 cups (1 liter) brewed black tea, cooled to room temperature' },
@@ -3339,6 +3425,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'recipe-ferment-coconut-kefir', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '3 cups (750ml) unsweetened coconut water' },
@@ -3374,6 +3461,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedBuilderType: 'fermentation',
     relatedIds: ['fermentmethod-dairy-free-gluten-free-survey', 'lifestyle-alcohol-advisory'],
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes about 3 cups, meant to be sipped in small amounts given its alcohol content.',
       ingredients: [
         { text: '1/3 cup (75g) pure maple syrup' },
@@ -3422,6 +3510,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_veggie_cheddar_scramble_potatoes',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) potato, diced' },
@@ -3460,6 +3549,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_overnight_oats_chia_berries',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -3494,6 +3584,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_soft_boiled_eggs_avocado_tomato',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '2 eggs' },
@@ -3529,6 +3620,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_savory_quinoa_bowl_fried_egg',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '75g (about ½ cup) quinoa, cooked' },
@@ -3567,6 +3659,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_pineapple_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -3601,6 +3694,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_breakfast_burrito_eggs_black_beans',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'High-Protein'],
       yield: 'Makes 1 burrito, for 1 person.',
       ingredients: [
         { text: '1 flour tortilla' },
@@ -3642,6 +3736,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_baked_oatmeal_cup_banana_cinnamon',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 cup, for 1 person.',
       ingredients: [
         { text: '50g (about ½ cup) rolled oats' },
@@ -3678,6 +3773,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_ginger_soy_chicken_thighs',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 thigh) chicken thigh, skinless and boneless' },
@@ -3714,6 +3810,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_white_bean_roasted_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) white beans' },
@@ -3754,6 +3851,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_egg_vegetable_fried_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) brown rice, cooked' },
@@ -3792,6 +3890,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_salmon_lemon_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 fillet, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) salmon' },
@@ -3827,6 +3926,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_herb_crusted_pork_tenderloin',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g pork tenderloin' },
@@ -3864,6 +3964,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_cod_paprika_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 fillet, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) cod' },
@@ -3899,6 +4000,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g ground turkey' },
@@ -3938,6 +4040,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_teriyaki_baked_tofu',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g (about ½ block) tofu, cubed' },
@@ -3974,6 +4077,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_one_pan_shrimp_asparagus_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g shrimp, peeled and deveined' },
@@ -4011,6 +4115,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_beef_mushroom_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g beef top sirloin, sliced thin' },
@@ -4050,6 +4155,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_chicken_thighs_brussels_sweet_potato',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 thigh) chicken thigh, skinless and boneless' },
@@ -4089,6 +4195,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_green_lentil_vegetable_stew',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '75g (about ⅓ cup) green lentils' },
@@ -4130,6 +4237,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_turkey_breast_zucchini_tomatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g turkey breast' },
@@ -4167,6 +4275,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_hummus_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '1 flour tortilla' },
@@ -4210,6 +4319,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_kiwi_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -4242,6 +4352,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_grilled_halibut_greens',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) halibut' },
@@ -4279,6 +4390,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_roast_chicken_fennel_leeks',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 breast) chicken breast, skinless and boneless' },
@@ -4315,6 +4427,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_peach_almond_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -4349,6 +4462,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_turkey_hummus_collard_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '100g (about 3½oz) turkey breast, sliced' },
@@ -4388,6 +4502,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_trout_parsnip_mash',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) trout' },
@@ -4424,6 +4539,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_papaya_cottage_cheese_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -4456,6 +4572,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_spelt_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '75g (about ½ cup) spelt grains, cooked' },
@@ -4492,6 +4609,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_skewers_couscous',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '130g lamb fillet, cubed' },
@@ -4531,6 +4649,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_buckwheat_porridge_blueberries_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '45g (about ¼ cup) buckwheat groats, cooked' },
@@ -4566,6 +4685,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_tuna_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g tuna, grilled' },
@@ -4604,6 +4724,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_chop_brussels_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g pork chop' },
@@ -4642,6 +4763,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_millet_porridge_apricots',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '45g (about ¼ cup) millet, cooked' },
@@ -4676,6 +4798,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_shrimp_watermelon_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g shrimp, peeled and deveined, grilled' },
@@ -4711,6 +4834,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_scallops_asparagus_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g scallops' },
@@ -4746,6 +4870,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_grapefruit_yogurt_honey',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -4778,6 +4903,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chickpea_spinach_curry_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g (about ⅔ cup) chickpeas' },
@@ -4820,6 +4946,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_duck_beets_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g duck breast' },
@@ -4856,6 +4983,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_walnut_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -4888,6 +5016,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_bulgur_tabbouleh_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '60g (about ⅓ cup) bulgur, cooked' },
@@ -4925,6 +5054,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_thigh_turnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g turkey thigh' },
@@ -4961,6 +5091,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_date_cashew_breakfast_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -4995,6 +5126,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_mackerel_radish_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g mackerel, grilled' },
@@ -5030,6 +5162,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_okra_tomato_skillet',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g chicken thigh, cubed' },
@@ -5067,6 +5200,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_nectarine_chia_pudding_cashews',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -5101,6 +5235,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sardine_white_bean_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g sardines' },
@@ -5138,6 +5273,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_braised_beef_kohlrabi_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '150g beef top sirloin, cubed' },
@@ -5176,6 +5312,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_clementine_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -5208,6 +5345,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_roasted_artichoke_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) artichoke hearts, quartered' },
@@ -5245,6 +5383,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_sole_bok_choy_ginger',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g sole fillet' },
@@ -5280,6 +5419,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_plum_walnut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -5313,6 +5453,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_crab_avocado_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g crab meat' },
@@ -5347,6 +5488,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_bison_root_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g bison, sliced' },
@@ -5382,6 +5524,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_watermelon_feta_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about 1 cup) watermelon, cubed' },
@@ -5414,6 +5557,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_edamame_brown_rice_sesame_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ⅔ cup) edamame, shelled' },
@@ -5449,6 +5593,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_mussels_tomato_garlic_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '200g mussels, cleaned' },
@@ -5487,6 +5632,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cantaloupe_cottage_cheese_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -5518,6 +5664,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_pinto_bean_roasted_vegetable_bowl',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) pinto beans' },
@@ -5555,6 +5702,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_breast_snow_peas_carrots',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 breast) chicken breast, skinless and boneless' },
@@ -5589,6 +5737,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_pear_walnut_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -5621,6 +5770,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_lima_bean_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) lima beans' },
@@ -5658,6 +5808,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_loin_turnip_kale',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g pork loin' },
@@ -5694,6 +5845,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_pistachio_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -5727,6 +5879,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_trout_cucumber_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '130g trout, baked' },
@@ -5763,6 +5916,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_meatloaf_parsnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g ground turkey' },
@@ -5800,6 +5954,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apricot_cashew_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -5832,6 +5987,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_white_bean_kale_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) white beans' },
@@ -5872,6 +6028,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_salmon_leeks_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) salmon' },
@@ -5906,6 +6063,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_date_walnut_breakfast_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -5940,6 +6098,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_lentil_kale_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '75g (about ⅓ cup) red lentils' },
@@ -5979,6 +6138,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_chops_roasted_eggplant',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g lamb chops' },
@@ -6014,6 +6174,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_mango_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -6048,6 +6209,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_crab_corn_chowder',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '120g crab meat' },
@@ -6085,6 +6247,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_thighs_kohlrabi_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g chicken thigh' },
@@ -6119,6 +6282,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_cottage_cheese_fig_honey',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) cottage cheese' },
@@ -6150,6 +6314,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_shrimp_snow_pea_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g shrimp, peeled and deveined' },
@@ -6187,6 +6352,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_baked_cod_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) cod' },
@@ -6221,6 +6387,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_pear_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6253,6 +6420,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_handheld_bison_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Omnivore', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap, for 1 person.',
       ingredients: [
         { text: '120g bison, sliced' },
@@ -6291,6 +6459,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_duck_cherry_wild_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g duck breast' },
@@ -6325,6 +6494,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_kiwi_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -6359,6 +6529,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_white_bean_swiss_chard_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) white beans' },
@@ -6400,6 +6571,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_pork_loin_radish_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g pork loin' },
@@ -6434,6 +6606,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_papaya_lime_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6465,6 +6638,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_tuna_artichoke_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g tuna, grilled' },
@@ -6500,6 +6674,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_turkey_wild_rice_cranberries',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g turkey breast' },
@@ -6534,6 +6709,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_blackberry_almond_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6566,6 +6742,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_mussels_tomato_fennel_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '200g mussels, cleaned' },
@@ -6603,6 +6780,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_halibut_leeks_peas',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) halibut' },
@@ -6637,6 +6815,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_clementine_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -6669,6 +6848,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lentil_roasted_vegetable_tahini_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '75g (about ½ cup) green lentils, cooked' },
@@ -6707,6 +6887,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_bison_meatballs_herb_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 serving, for 1 person.',
       ingredients: [
         { text: '150g bison' },
@@ -6745,6 +6926,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_apricot_coconut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -6778,6 +6960,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_sardine_roasted_pepper_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g sardines' },
@@ -6813,6 +6996,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_chicken_breast_artichoke_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 breast) chicken breast, skinless and boneless' },
@@ -6848,6 +7032,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_fig_cashew_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '40g (about ⅓ cup) rolled oats' },
@@ -6881,6 +7066,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_kidney_bean_roasted_vegetable_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '100g (about ½ cup) kidney beans' },
@@ -6918,6 +7104,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_trout_radish_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) trout' },
@@ -6953,6 +7140,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_mango_pistachio_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '30g (about 2 tablespoons) chia seeds' },
@@ -6987,6 +7175,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_turkey_white_bean_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '120g ground turkey' },
@@ -7027,6 +7216,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_lamb_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g lamb fillet' },
@@ -7061,6 +7251,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_snack_grapefruit_pistachio_yogurt_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegetarian', 'Plant-Based/Flexitarian', 'Gluten-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '150g (about ⅔ cup) Greek yogurt, plain' },
@@ -7095,6 +7286,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_salad_crab_mango_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP', 'High-Protein'],
       yield: 'Makes 1 bowl, for 1 person.',
       ingredients: [
         { text: '120g crab meat' },
@@ -7129,6 +7321,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_side_salmon_wild_rice_asparagus',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate, for 1 person.',
       ingredients: [
         { text: '150g (about 1 fillet) salmon' },
@@ -7165,6 +7358,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_soup_turkey_black_bean_chili',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Omnivore', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 1½ cups, 1 serving for 1 person.',
       ingredients: [
         { text: '130g ground turkey' },
@@ -7222,6 +7416,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_green_glow',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups spinach, whole' },
@@ -7257,6 +7452,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_golden_turmeric',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '½ teaspoon ground turmeric' },
@@ -7291,6 +7487,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_brazil_nut_selenium',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '2 Brazil nuts, whole' },
@@ -7324,6 +7521,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_berry_antioxidant',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup blueberries, whole' },
@@ -7357,6 +7555,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_iron_vitamin_c',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1 cup spinach, whole' },
@@ -7390,6 +7589,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_smoothie_tropical_ginger',
     linkedBuilderType: 'smoothie',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes about 2 cups, 1 2-cup serving.',
       ingredients: [
         { text: '1½ cups pineapple, diced' },
@@ -7423,6 +7623,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_berries_silken_tofu_cream',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, about 1½ cups.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -7457,6 +7658,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_tofu_scramble_potatoes',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '100g potato, diced, roasted' },
@@ -7495,6 +7697,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_overnight_oats_chia_berries',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -7530,6 +7733,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_tofu_avocado_tomato',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, cubed' },
@@ -7564,6 +7768,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_savory_quinoa_bowl_tofu_scramble',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '75g quinoa, cooked' },
@@ -7600,6 +7805,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cashew_cream_pineapple_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -7633,6 +7839,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_breakfast_burrito_tofu_black_beans',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 burrito.',
       ingredients: [
         { text: '1 flour tortilla (about 60g)' },
@@ -7674,6 +7881,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_baked_oatmeal_cup_banana_cinnamon',
     linkedBuilderType: 'bakedGoods',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 large baked oatmeal cup.',
       ingredients: [
         { text: '50g rolled oats' },
@@ -7710,6 +7918,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_kiwi_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g silken tofu, blended smooth' },
@@ -7742,6 +7951,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_peach_almond_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -7776,6 +7986,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_papaya_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g silken tofu, blended smooth' },
@@ -7808,6 +8019,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_buckwheat_porridge_blueberries_walnuts',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '45g buckwheat groats, cooked' },
@@ -7843,6 +8055,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_millet_porridge_apricots',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '45g millet, cooked' },
@@ -7877,6 +8090,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_tofu_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -7908,6 +8122,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -7940,6 +8155,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_date_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -7971,6 +8187,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_nectarine_chia_pudding_cashews',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -8004,6 +8221,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_clementine_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8036,6 +8254,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_plum_walnut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -8069,6 +8288,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_watermelon_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g watermelon, cubed' },
@@ -8103,6 +8323,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cantaloupe_tofu_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8134,6 +8355,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_pear_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8165,6 +8387,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_pistachio_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -8198,6 +8421,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_apricot_cashew_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8229,6 +8453,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_date_walnut_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8260,6 +8485,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_mango_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -8293,6 +8519,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_cashew_ricotta_fig_maple',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8324,6 +8551,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_pear_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8356,6 +8584,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_kiwi_coconut_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -8389,6 +8618,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_papaya_lime_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8420,6 +8650,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_blackberry_almond_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8452,6 +8683,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_clementine_pistachio_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8483,6 +8715,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_apricot_coconut_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -8516,6 +8749,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_fig_cashew_overnight_oats',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '40g rolled oats' },
@@ -8549,6 +8783,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_mango_pistachio_chia_pudding',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '30g chia seeds' },
@@ -8583,6 +8818,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_grapefruit_pistachio_tofu_bowl',
     linkedBuilderType: 'snack',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g silken tofu, blended smooth' },
@@ -8626,6 +8862,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_seitan_roasted_vegetable_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '120g seitan, sliced' },
@@ -8662,6 +8899,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_grilled_tempeh_sandwich',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 sandwich.',
       ingredients: [
         { text: '2 slices whole-grain bread' },
@@ -8694,6 +8932,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_avocado_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '1 flour tortilla (about 60g)' },
@@ -8726,6 +8965,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_tempeh_hummus_collard_wrap',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '100g tempeh, sliced, sauteed' },
@@ -8761,6 +9001,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_handheld_chickpea_egg_salad_lettuce_wraps',
     linkedBuilderType: 'handheld',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 wrap.',
       ingredients: [
         { text: '150g chickpeas, mashed' },
@@ -8794,6 +9035,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_hearts_of_palm_avocado_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g hearts of palm, sliced' },
@@ -8827,6 +9069,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_hearts_of_palm_mango_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g hearts of palm, sliced' },
@@ -8860,6 +9103,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_grilled_tofu_greens_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tofu, cubed, grilled' },
@@ -8895,6 +9139,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_smoky_tempeh_radish_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '130g tempeh, sliced, grilled' },
@@ -8929,6 +9174,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_roasted_pepper_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g white beans' },
@@ -8962,6 +9208,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_king_oyster_watermelon_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '130g king oyster mushroom, sliced, grilled' },
@@ -8995,6 +9242,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_tofu_cucumber_dill_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '130g tofu, cubed, baked' },
@@ -9029,6 +9277,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_white_bean_artichoke_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g white beans' },
@@ -9062,6 +9311,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_chickpea_white_bean_salad',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g chickpeas' },
@@ -9095,6 +9345,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_beet_walnut_arugula_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '¾ cup beets, diced, roasted' },
@@ -9127,6 +9378,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_mediterranean_chickpea_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '½ cup chickpeas, whole' },
@@ -9161,6 +9413,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_roasted_artichoke_white_bean_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g artichoke, quartered, roasted' },
@@ -9194,6 +9447,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_salad_spelt_roasted_vegetable_tofu',
     linkedBuilderType: 'salad',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '75g spelt, cooked' },
@@ -9229,6 +9483,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_brussels_sweet_potato',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -9263,6 +9518,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -9295,6 +9551,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_paprika_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -9326,6 +9583,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tofu_lemon_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -9356,6 +9614,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_tempeh_parsnip_mash',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -9389,6 +9648,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_baked_seitan_zucchini_tomatoes',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, baked' },
@@ -9425,6 +9685,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_mushroom_walnut_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g button mushroom, sliced, sauteed' },
@@ -9461,6 +9722,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_walnut_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '90g green lentil, cooked and mashed, as the meatball base' },
@@ -9498,6 +9760,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_root_vegetable_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tempeh, sliced, sauteed' },
@@ -9532,6 +9795,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_braised_seitan_kohlrabi_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g seitan, cubed, braised' },
@@ -9569,6 +9833,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lemon_tofu_artichoke',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, roasted' },
@@ -9601,6 +9866,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_snow_peas_carrots',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -9634,6 +9900,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_chickpea_okra_tomato_skillet',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g chickpeas, sauteed' },
@@ -9669,6 +9936,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_kohlrabi_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -9701,6 +9969,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_portobello_beets_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g portobello mushroom, baked' },
@@ -9732,6 +10001,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_cherry_wild_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tempeh, sauteed' },
@@ -9764,6 +10034,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_ginger_soy_tempeh',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -9796,6 +10067,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_peas',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -9828,6 +10100,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_herb_crusted_seitan_roast',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, roasted' },
@@ -9862,6 +10135,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chops_roasted_eggplant',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, grilled' },
@@ -9897,6 +10171,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_braised_chickpea_fennel_orange',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g chickpeas, simmered' },
@@ -9929,6 +10204,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_skewers_couscous',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '130g tofu, cubed, grilled' },
@@ -9966,6 +10242,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_one_pan_king_oyster_asparagus_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g king oyster mushroom, sliced, sauteed' },
@@ -10000,6 +10277,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_chop_brussels_apple',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, baked' },
@@ -10034,6 +10312,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, grilled' },
@@ -10066,6 +10345,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_seitan_turnip_kale',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g seitan, roasted' },
@@ -10101,6 +10381,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_roast_tempeh_fennel_leeks',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -10134,6 +10415,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_leeks_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, baked' },
@@ -10165,6 +10447,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_wild_rice_asparagus',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tofu, roasted' },
@@ -10197,6 +10480,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_tomato_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '180g white beans' },
@@ -10229,6 +10513,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_scallops_asparagus_lemon',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo', 'AIP'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g king oyster mushroom, sliced into rounds, sauteed' },
@@ -10262,6 +10547,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_king_oyster_snow_pea_stir_fry_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g king oyster mushroom, sliced, sauteed' },
@@ -10296,6 +10582,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_bok_choy_ginger',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tofu, sauteed' },
@@ -10329,6 +10616,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_radish_dill',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, baked' },
@@ -10360,6 +10648,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_chickpea_walnut_meatballs_tomato_sauce',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '100g chickpeas, mashed, as the meatball base' },
@@ -10398,6 +10687,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_lentil_meatloaf_parsnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '100g green lentil, cooked and mashed, as the loaf base' },
@@ -10433,6 +10723,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_turnip_carrot',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 plate.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -10466,6 +10757,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tempeh_wild_rice_cranberries',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g tempeh, roasted' },
@@ -10497,6 +10789,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_tofu_vegetable_fried_rice',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g brown rice, cooked' },
@@ -10533,6 +10826,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_side_white_bean_roasted_vegetable_tofu_bowl',
     linkedBuilderType: 'side',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g white beans' },
@@ -10568,6 +10862,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_vegetable_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl, about 1 cup.',
       ingredients: [
         { text: '60g white beans' },
@@ -10603,6 +10898,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_hearts_of_palm_corn_chowder',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'Paleo'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '120g hearts of palm, sliced' },
@@ -10637,6 +10933,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_fennel_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g white beans' },
@@ -10671,6 +10968,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_white_bean_tomato_garlic_broth',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Mediterranean', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '150g white beans' },
@@ -10706,6 +11004,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_lentil_black_bean_chili',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g green lentil, cooked, simmered' },
@@ -10746,6 +11045,7 @@ export const RECIPES_ENTRIES: DigestEntry[] = [
     linkedCuratedRecipeId: 'curated_vegan_soup_mushroom_white_bean_soup',
     linkedBuilderType: 'soup',
     recipeCard: {
+      dietTags: ['Vegan', 'Plant-Based/Flexitarian', 'Gluten-Free', 'Dairy-Free', 'High-Protein'],
       yield: 'Makes 1 bowl.',
       ingredients: [
         { text: '100g button mushroom, sliced, sauteed' },
