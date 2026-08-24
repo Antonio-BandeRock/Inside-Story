@@ -306,7 +306,7 @@ export const TYPE_2_DIABETES_ENTRIES: DigestEntry[] = [
       { source: 'Time-Restricted Eating Improves Glycemic Control in Patients with Type 2 Diabetes: A Meta-Analysis and Systematic Review, PMC12346854', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12346854/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['type2-low-carb-diet-evidence', 'masld-time-restricted-eating'],
+    relatedIds: ['type2-low-carb-diet-evidence', 'masld-time-restricted-eating', 'chrono-early-time-restricted-eating', 'chrono-time-restricted-eating-nuance'],
   },
   {
     id: 'type2-sleep-apnea-glycemic-control',

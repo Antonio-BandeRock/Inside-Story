@@ -657,6 +657,17 @@ const BASIC_HEALTH_TOPICS: BasicHealthTopic[] = [
     description: 'How sleep affects your metabolism, hormones, and long-term health, and how diet affects your sleep in turn.',
     prefixes: ['sleep-'],
   },
+  // 2026-08-24, phase 3 of a larger request: "research the chrononutrition
+  // way of eating and provide as many entries as possible in Basic
+  // Health, and for each of the conditions as can be found." See
+  // lib/digest/chrononutrition.ts's own header comment. Condition-specific
+  // applications live in each of the 19 conditions' own files, cross-linked
+  // back here rather than duplicated.
+  {
+    label: 'Chrononutrition & Meal Timing',
+    description: 'The science of aligning when you eat with your circadian biology, and what the evidence does and does not support.',
+    prefixes: ['chrono-'],
+  },
   // A real, general Mental Health deep-dive, the same "scattered across
   // conditions, never its own topic" gap as Sleep above. See
   // lib/digest/mentalHealth.ts's own header comment.

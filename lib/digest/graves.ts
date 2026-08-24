@@ -701,4 +701,16 @@ export const GRAVES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['leptin-discovery-ob-mice', 'mito-visceral-fat-treg-depletion'],
   },
+  {
+    id: 'graves-circadian-clock-disruption',
+    category: 'graves',
+    title: "The Same Clock-Gene Disruption Shows Up in Autoimmune Thyroiditis Broadly, Including Graves'",
+    teaser: "The circadian research behind this finding studied autoimmune thyroiditis as a category, which includes both the gland-destroying and gland-stimulating forms.",
+    summary: "A 2023 study comparing thyroid tissue from people with autoimmune thyroiditis against healthy controls found disrupted expression of core clock genes, including a measurable reduction in BMAL1 and PER2, in the affected tissue. The study's patient population and mouse model centered on the gland-destroying form of autoimmune thyroiditis, the mechanism behind Hashimoto's specifically, so its direct relevance to Graves' (a stimulating rather than destructive antibody) is inferred from the shared \"autoimmune thyroiditis\" category rather than confirmed in Graves' patients themselves. What does transfer cleanly: circadian rhythm and thyroid autoimmunity are mechanistically linked in general, and a chronically disrupted sleep-wake and eating schedule is a plausible aggravating factor for thyroid inflammation regardless of which direction the antibody pushes hormone levels.",
+    citations: [
+      { source: 'Circadian clock disruption in autoimmune thyroiditis, European Thyroid Journal', url: 'https://pubmed.ncbi.nlm.nih.gov/37548297/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['chrono-circadian-clock-biology', 'hashimoto-circadian-clock-disruption'],
+  },
 ];

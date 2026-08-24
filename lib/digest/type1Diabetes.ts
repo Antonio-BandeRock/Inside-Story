@@ -571,4 +571,17 @@ export const TYPE_1_DIABETES_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-water-kefir', 'recipe-ferment-beet-kvass', 'recipe-ferment-amazake'],
   },
+  {
+    id: 'type1-dawn-phenomenon',
+    category: 'type1Diabetes',
+    title: 'The Dawn Phenomenon: A Predictable, Circadian-Driven Rise in Insulin Needs',
+    teaser: 'About half of people with type 1 diabetes see a substantial, well-timed jump in insulin requirements between roughly 5am and 8am, independent of anything eaten overnight.',
+    summary: "The dawn phenomenon is a documented pattern affecting about half of people with type 1 diabetes: insulin requirements dip slightly between midnight and 3am, then climb, usually starting around 5am and continuing through 8am, driven by the same central circadian clock that governs insulin sensitivity generally. The average increase in insulin need is substantial, in the range of 58 to 66% above baseline in two separate analyses, and it happens whether or not anything was eaten during the night, distinguishing it from a simple food-driven blood sugar rise. The underlying mechanism is a circadian dip in both hepatic and peripheral insulin sensitivity overnight into early morning: insulin sensitivity is measurably higher in the hours right after midnight than it is between 4am and 8am, and the lower that early-morning sensitivity runs, the larger the dawn phenomenon tends to be. This is decades of established research, not a new or contested finding, and it's the same underlying circadian insulin-sensitivity rhythm covered generally in Basic Health, showing up here with quantified clinical stakes.",
+    citations: [
+      { source: 'Thirty Years of Research on the Dawn Phenomenon: Lessons to Optimize Blood Glucose Control in Diabetes, Diabetes Care', url: 'https://diabetesjournals.org/care/article/36/12/3860/33148/Thirty-Years-of-Research-on-the-Dawn-Phenomenon' },
+      { source: 'Impact of early-morning administration of rapid-acting insulin on the increase in blood glucose levels related to the dawn phenomenon in individuals with type 1 diabetes', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC11291825/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['chrono-insulin-sensitivity-diurnal-rhythm', 'chrono-circadian-clock-biology'],
+  },
 ];

@@ -577,4 +577,17 @@ export const MULTIPLE_SCLEROSIS_ENTRIES: DigestEntry[] = [
     stageNote: 'Directly conflicting findings between an earlier and a more recent study; included specifically for that honest inconsistency rather than presented as a settled marker.',
     relatedIds: ['leptin-autoimmune-inflammation', 'mito-visceral-fat-treg-depletion'],
   },
+  {
+    id: 'ms-melatonin-circadian-relapse',
+    category: 'multipleSclerosis',
+    title: 'Disrupted Melatonin Rhythm Tracks with Worse MS Disability and More Relapses',
+    teaser: "People with relapsing-remitting MS whose overnight melatonin rhythm is disrupted show higher disability and fatigue scores, and MS relapses themselves cluster seasonally with melatonin's natural rise and fall.",
+    summary: "Melatonin follows a circadian rhythm, rising at night and falling during daylight, and that rhythm is measurably disrupted in a majority of people with relapsing-remitting MS studied in one cohort (about 73%), with disrupted overnight melatonin linked to higher disability and fatigue severity scores, plus more relapses over the prior 12 months. Separately, a large study found MS relapses cluster seasonally, with 32% fewer relapses in fall and winter, months when melatonin production is naturally higher due to longer nights. The proposed mechanism runs through immune modulation: melatonin binds a receptor involved in the development of Th17 cells, an immune cell type implicated in MS's autoimmune attack, and systemic inflammation itself can suppress the pineal gland's melatonin output, suggesting a two-way relationship rather than melatonin simply being a passive bystander. None of this establishes that adjusting light exposure or meal timing to support melatonin's natural rhythm changes MS outcomes directly; it's an honest, still-developing mechanistic picture, not yet a tested intervention.",
+    citations: [
+      { source: 'Clinical relevance of circadian melatonin release in relapsing-remitting multiple sclerosis, Journal of Molecular Medicine', url: 'https://pubmed.ncbi.nlm.nih.gov/31471628/' },
+      { source: 'Melatonin Contributes to the Seasonality of Multiple Sclerosis Relapses, Cell', url: 'https://www.sciencedirect.com/science/article/pii/S0092867415010387' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-cortisol-awakening-response'],
+  },
 ];

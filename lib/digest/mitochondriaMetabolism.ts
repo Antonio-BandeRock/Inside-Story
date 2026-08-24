@@ -89,7 +89,7 @@ export const MITOCHONDRIA_METABOLISM_ENTRIES: DigestEntry[] = [
       { source: 'Boelen, Wiersinga & Fliers 2008, Thyroid: fasting-induced changes in the hypothalamus-pituitary-thyroid axis', url: 'https://pubmed.ncbi.nlm.nih.gov/18225975/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['mito-ramadan-fasting-study'],
+    relatedIds: ['mito-ramadan-fasting-study', 'chrono-autophagy-mixed-evidence'],
   },
   {
     id: 'mito-ramadan-fasting-study',

@@ -581,4 +581,17 @@ export const LUPUS_ENTRIES: DigestEntry[] = [
     stageNote: 'Direct mechanistic evidence in a mouse model of lupus, the strongest kind of evidence in this specific study, though a mouse model result, not a human clinical trial.',
     relatedIds: ['leptin-autoimmune-inflammation', 'mito-visceral-fat-treg-depletion'],
   },
+  {
+    id: 'lupus-circadian-clock-bmal1',
+    category: 'lupus',
+    title: 'A Clock Gene Called BMAL1 Tracks with Lower Lupus Disease Activity',
+    teaser: 'Circadian rhythm disruption and lupus flares appear to feed each other, and one specific clock gene, BMAL1, is linked to calmer disease when it functions normally.',
+    summary: "Research on circadian rhythms in systemic lupus erythematosus (SLE) finds the relationship runs in both directions: circadian disruption and disease progression appear to exacerbate each other. BMAL1, a core clock gene, is associated with lower disease activity, while another clock gene, PER1, runs higher in people with lupus nephritis (kidney involvement) and during active flares. A flare risk score built from circadian pathway abnormalities showed measurable predictive ability for disease progression over 5 years in one analysis. Perturbation of neutrophils' normal circadian rhythm (a type of white blood cell) has also been linked to disease-driving effects in lupus specifically. This is mechanistic, gene-expression-level evidence, not yet a tested circadian-timed treatment or dietary intervention, but it adds lupus to the list of autoimmune conditions where the body's internal clock and immune activity are directly, measurably connected.",
+    citations: [
+      { source: 'The circadian clock gene BMAL1 modulates autoimmunity features in lupus', url: 'https://pubmed.ncbi.nlm.nih.gov/39664388/' },
+      { source: 'Exacerbating effects of circadian rhythm disruption on the systemic lupus erythematosus', url: 'https://pubmed.ncbi.nlm.nih.gov/38599669/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-shift-work-metabolic-cardiovascular-risk'],
+  },
 ];

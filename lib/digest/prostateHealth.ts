@@ -777,7 +777,7 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
       { source: 'Effects of behavioral and drug therapy on nocturia in older incontinent women, Journal of the American Geriatrics Society, PMID 15877562', url: 'https://pubmed.ncbi.nlm.nih.gov/15877562/' },
     ],
     overallTier: 'strong',
-    relatedIds: ['prostate-alpha-adrenergic-stress-cold-caffeine', 'prostate-overview'],
+    relatedIds: ['prostate-alpha-adrenergic-stress-cold-caffeine', 'prostate-overview', 'prostate-nocturia-circadian-vasopressin'],
   },
 
   {
@@ -825,5 +825,18 @@ export const PROSTATE_HEALTH_ENTRIES: DigestEntry[] = [
     ],
     overallTier: 'moderate',
     relatedIds: ['prostate-diet-pattern', 'prostate-choline-tmao', 'pbn-ornish-lifestyle-heart-trial'],
+  },
+  {
+    id: 'prostate-nocturia-circadian-vasopressin',
+    category: 'prostateHealth',
+    title: 'Nighttime Urination in BPH Is Often a Circadian Problem, Not Just an Enlarged Prostate',
+    teaser: "The body normally makes less urine overnight through a circadian hormone shift; when that shift weakens with age, nocturia gets worse regardless of prostate size alone.",
+    summary: "Nocturia, waking at night to urinate, is often blamed entirely on an enlarged prostate physically obstructing urine flow, but a major driver in BPH is actually nocturnal polyuria, the body simply producing more urine overnight than it should. Normally, nighttime release of vasopressin (the hormone that concentrates urine) rises on a circadian schedule to minimize overnight urine production, and melatonin secretion follows a related nighttime pattern that supports the same effect. This circadian release weakens with age, and nocturnal polyuria contributes to nocturia in up to 80% of BPH patients who have it, making it a major treatment target in its own right, separate from prostate size. Sleep disruption, BPH, and circadian dysregulation feed into a documented cycle: poor sleep disrupts the body's internal clock, worsening bladder control at night, while nocturia itself further fragments sleep, compounding the problem. This reframes nocturia as substantially a circadian and hormonal issue, not purely a mechanical, size-driven one, with practical treatment implications for how it gets managed.",
+    citations: [
+      { source: 'Disruption of circadian rhythm as a potential pathogenesis of nocturia, Nature Reviews Urology', url: 'https://www.nature.com/articles/s41585-024-00961-0' },
+      { source: 'Expanding the vicious cycle: the interplay between BPH, OSA, and circadian regulation in nocturia', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12055557/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-cortisol-awakening-response', 'prostate-behavioral-nocturia-reduction'],
   },
 ];

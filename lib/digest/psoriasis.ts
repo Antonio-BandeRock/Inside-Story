@@ -631,4 +631,17 @@ export const PSORIASIS_ENTRIES: DigestEntry[] = [
     stageNote: 'Adiponectin-severity findings are more consistently replicated; leptin-severity findings conflict directly across studies, included here for that honest inconsistency.',
     relatedIds: ['leptin-autoimmune-inflammation', 'adiponectin-overview'],
   },
+  {
+    id: 'psoriasis-skin-circadian-clock',
+    category: 'psoriasis',
+    title: "Skin Has a Circadian Clock, and It Runs Differently in Psoriasis",
+    teaser: 'Psoriasis flares and itch are typically worse in the evening and at night, a pattern that traces to measurable clock-gene changes inside psoriatic skin itself.',
+    summary: "Skin carries a functioning peripheral circadian clock, and in psoriatic skin, several clock genes run at different levels than in unaffected skin: CRY2, PER3, NR1D1, and RORC are all measurably lower in psoriasis lesions, and even in the normal-looking skin right next to them, compared to skin from people without psoriasis. One specific clock gene, F3, is significantly reduced in psoriasis and interacts directly with the IL-17 signaling pathway, the same inflammatory pathway targeted by several major psoriasis biologic drugs, low F3 appears to upregulate IL-17 receptor signaling, promoting the keratinocyte inflammation that drives visible plaques. Clinically, this lines up with something people with psoriasis already notice: flares and itch tend to be worse in the evening and overnight, and disrupted peripheral clock function is plausibly connected to the hyperproliferation of skin cells and immune dysregulation that define the disease. Chronotherapy, timing topical or systemic treatment to this rhythm, is an active area of research, not yet a standard part of psoriasis care.",
+    citations: [
+      { source: 'Circadian rhythms in psoriasis and the potential of chronotherapy in psoriasis management', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9805195/' },
+      { source: 'The skin circadian clock gene F3 as a potential marker for psoriasis severity and its bidirectional relationship with IL-17 signaling in keratinocytes', url: 'https://www.sciencedirect.com/science/article/pii/S1567576924005113' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology'],
+  },
 ];

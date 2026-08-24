@@ -673,4 +673,16 @@ export const RHEUMATOID_ARTHRITIS_ENTRIES: DigestEntry[] = [
     stageNote: 'A meta-analysis found a consistent but modest positive correlation; at least one individual study found none, an honest inconsistency rather than a uniform finding.',
     relatedIds: ['leptin-autoimmune-inflammation', 'mito-visceral-fat-treg-depletion'],
   },
+  {
+    id: 'ra-capra-chronotherapy-trial',
+    category: 'rheumatoidArthritis',
+    title: 'A Trial Timed Prednisone to the Body\'s Overnight Inflammation Peak, and Morning Stiffness Improved',
+    teaser: 'The CAPRA-1 trial released the same steroid dose at a different time of night and measurably shortened how long morning joint stiffness lasted.',
+    summary: "Morning stiffness in rheumatoid arthritis tracks a circadian pattern: both cortisol and the inflammatory cytokine IL-6 peak in the early morning hours, and IL-6 in particular drives much of the stiffness people feel on waking. The CAPRA-1 trial, a 12-week, double-blind, randomized trial in 288 people with active rheumatoid arthritis, tested a modified-release prednisone tablet designed to release its dose about 4 hours after being taken, timed so a bedtime dose reaches the bloodstream around 2am, just ahead of the overnight IL-6 rise, against the same total dose of standard immediate-release prednisone. The timed-release group saw morning stiffness duration drop 22.7%, compared to essentially no change in the standard-release group, and follow-up mechanistic work tied that improvement to a measurable suppression of the early-morning IL-6 peak. This is chronotherapy in its clearest form: not eating differently, but timing an existing, already-prescribed treatment to the body's inflammatory rhythm.",
+    citations: [
+      { source: 'Efficacy of modified-release versus standard prednisone to reduce duration of morning stiffness of the joints in rheumatoid arthritis (CAPRA-1): a double-blind, randomised controlled trial, The Lancet', url: 'https://pubmed.ncbi.nlm.nih.gov/18207016/' },
+    ],
+    overallTier: 'strong',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-cortisol-awakening-response'],
+  },
 ];

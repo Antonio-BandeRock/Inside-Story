@@ -667,4 +667,16 @@ export const CARDIOVASCULAR_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['pbn-ornish-lifestyle-heart-trial', 'pbn-esselstyn-cohort-longterm', 'cvd-mediterranean-diet-predimed', 'cvd-statin-evidence'],
   },
+  {
+    id: 'cvd-late-eating-nutrinet-sante',
+    category: 'cardiovascularDisease',
+    title: 'When You Eat Your First and Last Meal Tracks with Cardiovascular Risk, a Large Cohort Finds',
+    teaser: 'A first meal after 9am or a last meal after 9pm both tracked with higher cardiovascular disease risk in over 100,000 people followed for more than a decade.',
+    summary: "The NutriNet-Santé cohort followed over 100,000 people from 2009 to 2022, tracking both when meals happened and cardiovascular outcomes. A later first meal (after 9am, versus before 8am) and a later last meal (after 9pm, versus before 8pm) both tracked with higher cardiovascular disease risk, an effect especially pronounced among women. People eating dinner after 9pm specifically carried a 28% higher risk of stroke compared to those finishing dinner before 8pm, and a longer overnight fasting window tracked with lower stroke risk on its own. This is a large, long-running cohort, not a small pilot, but it's observational: it shows a measurable association between meal timing and cardiovascular outcomes, not proof that timing alone, independent of everything else a person eats and does, drives that risk. Read alongside this Digest's other cardiovascular findings (the Mediterranean diet, statin evidence) as one more checkable lever, not a replacement for any of them.",
+    citations: [
+      { source: 'Dietary circadian rhythms and cardiovascular disease risk in the prospective NutriNet-Santé cohort, Nature Communications', url: 'https://pubmed.ncbi.nlm.nih.gov/38097547/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-late-eating-cardiovascular-risk', 'chrono-shift-work-metabolic-cardiovascular-risk', 'cvd-mediterranean-diet-predimed'],
+  },
 ];

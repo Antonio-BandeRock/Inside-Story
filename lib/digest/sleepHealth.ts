@@ -83,7 +83,7 @@ export const SLEEP_HEALTH_ENTRIES: DigestEntry[] = [
       },
     ],
     overallTier: 'strong',
-    relatedIds: ['sleep-overview', 'sleep-glymphatic-system', 'lifestyle-sleep-circadian', 'sleep-regularity-consistency'],
+    relatedIds: ['sleep-overview', 'sleep-glymphatic-system', 'lifestyle-sleep-circadian', 'sleep-regularity-consistency', 'chrono-circadian-clock-biology'],
   },
   {
     id: 'sleep-immune-vaccine-response',

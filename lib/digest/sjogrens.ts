@@ -577,4 +577,17 @@ export const SJOGRENS_ENTRIES: DigestEntry[] = [
     stageNote: 'Genuinely conflicting small studies, not a consistent finding; included for honesty about what is and isn\'t yet established, not as a confirmed mechanism.',
     relatedIds: ['leptin-autoimmune-inflammation'],
   },
+  {
+    id: 'sjogrens-salivary-gland-clock-genes',
+    category: 'sjogrens',
+    title: "Salivary Glands Run a Circadian Clock, and It's Disrupted in Sjögren's",
+    teaser: 'The same acinar and duct cells that make saliva carry a working circadian clock, and that clock behaves differently in Sjögren\'s.',
+    summary: "Salivary glands carry a functioning peripheral circadian clock: core clock genes (BMAL1, CLOCK, PER1, PER2) are expressed in both the fluid-producing acinar cells and the duct cells of the gland. A distinct clock gene expression profile has been found in the salivary glands of people with primary Sjögren's syndrome compared to unaffected glands, with dysregulation specifically in CLOCK and a calcium-signaling gene called STIM1, a plausible contributor to the altered gland function that defines the disease. In mouse models of Sjögren's, melatonin treatment nearly restored normal clock gene activity and measurably improved gland function while reducing immune cell infiltration, a promising mechanistic result that has not yet been tested as a human treatment. This stays a mouse-model finding for now, not implied as already clinically proven in people, but it's a specific, named mechanism, not a vague circadian association.",
+    citations: [
+      { source: 'Clock Genes Show Circadian Rhythms in Salivary Glands', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC3398790/' },
+      { source: 'Clock Genes Regulate Ca2+ Signaling and Mitochondrial Bioenergetics to Inhibit Sjögren Disease, Arthritis & Rheumatology', url: 'https://pubmed.ncbi.nlm.nih.gov/42003372/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['chrono-circadian-clock-biology'],
+  },
 ];

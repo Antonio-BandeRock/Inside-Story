@@ -578,4 +578,17 @@ export const IBD_ENTRIES: DigestEntry[] = [
     stageNote: 'The existence and correlation of creeping fat with disease severity is well documented; whether it is primarily harmful or partly protective is an open research question, not yet settled.',
     relatedIds: ['adiponectin-overview'],
   },
+  {
+    id: 'ibd-circadian-clock-disruption',
+    category: 'ibd',
+    title: 'Inflamed Gut Tissue in IBD Shows a Dampened Circadian Clock, and Meal Timing Is an Emerging Lever',
+    teaser: "Clock gene activity runs measurably lower in inflamed colon tissue than in unaffected tissue from the same person, and shifting meal timing eased gut inflammation in animal models.",
+    summary: "In people with inflammatory bowel disease, clock gene expression is damped specifically in inflamed colonic tissue, and growing genetic evidence links clock-gene variants to IBD risk itself. Immune cells called ILC3s, which play a protective role in gut lining integrity, show lower clock protein levels when isolated from inflamed gut tissue compared to non-inflamed tissue in the same patient, one proposed link between circadian disruption and a less protective gut immune response. In animal models, deliberately timing meals to align with the intestinal clock eased gastrointestinal inflammation, and mice studied during their naturally active phase tolerated induced colitis better than mice studied during their resting phase. None of this is yet a tested human dietary-timing intervention for IBD specifically, an honest gap between the animal and human evidence, but it points toward meal timing as a plausible lever alongside the food-content questions this Digest already covers for IBD.",
+    citations: [
+      { source: 'Circadian Rhythm Dysregulation in Inflammatory Bowel Disease: Mechanisms and Chronotherapeutic Approaches', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC12028002/' },
+      { source: 'Targeting the intestinal circadian clock by meal timing ameliorates gastrointestinal inflammation, Cellular & Molecular Immunology', url: 'https://www.nature.com/articles/s41423-024-01189-z' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-gut-microbiome-diurnal-rhythm', 'celiac-circadian-clock-disruption', 'ibs-circadian-motility-disruption'],
+  },
 ];

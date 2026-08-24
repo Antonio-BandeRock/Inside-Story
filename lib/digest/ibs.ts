@@ -575,4 +575,17 @@ export const IBS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-beet-kvass', 'fermentmethod-dairy-free-gluten-free-survey'],
   },
+  {
+    id: 'ibs-circadian-motility-disruption',
+    category: 'ibs',
+    title: 'Night Shift Work Is Linked to Far Higher Rates of IBS-Like Symptoms',
+    teaser: 'Gut motility itself follows a daily rhythm, higher during the day and quieter at night, and disrupting that rhythm through shift work tracks with a large jump in functional bowel symptoms.',
+    summary: "Gut motility, both in the small intestine and colon, is naturally higher during the day and quieter at night, a pattern that suggests the digestive system is better equipped to process food during daytime hours. Disrupted circadian rhythm, from shift work or an altered sleep-wake cycle, has been linked to worse gastrointestinal motility and to conditions like IBS where irregular movement is a defining feature. Among people working rotating or night shifts, reported rates of abdominal pain, constipation, diarrhea, and other functional bowel symptoms range from roughly 48 to 82%, and animal studies find that circadian rhythm disturbance alone produces IBS-like features (visceral hypersensitivity and a leakier gut lining) without any other intervention. The proposed pathway runs through gut microbiota dysbiosis, impaired motility, and low-grade inflammation, the same broad mechanism connecting circadian disruption to gut problems generally in this Digest's IBD entry, applied here to a functional rather than structural gut disorder.",
+    citations: [
+      { source: 'Disruption of Circadian Rhythms and Gut Motility: An Overview of Underlying Mechanisms and Associated Pathologies', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7147411/' },
+      { source: 'Shiftwork, functional bowel symptoms, and the microbiome', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC8121053/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-gut-microbiome-diurnal-rhythm', 'ibd-circadian-clock-disruption'],
+  },
 ];

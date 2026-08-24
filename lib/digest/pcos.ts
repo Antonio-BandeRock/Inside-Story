@@ -600,4 +600,17 @@ export const PCOS_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['pcos-insulin-resistance-mechanism', 'adiponectin-overview', 'leptin-reproductive-axis'],
   },
+  {
+    id: 'pcos-time-restricted-eating-trial',
+    category: 'pcos',
+    title: 'A 6-Month Trial Found Time-Restricted Eating Lowered Androgens in PCOS, Not Just Weight',
+    teaser: 'Both time-restricted eating and calorie restriction improved insulin resistance in this trial, but only time-restricted eating also lowered a marker of excess androgen.',
+    summary: "A 6-month randomized trial in 76 women with PCOS compared time-restricted eating (all food between 1pm and 7pm, no calorie counting), calorie restriction, and a control group. Insulin resistance, measured by HOMA-IR, decreased in both the time-restricted and calorie-restricted groups relative to control, and body weight dropped by about 4 to 5% in both groups too, so on those two measures the two approaches performed about the same. The free androgen index, a marker of the excess androgen production central to PCOS, decreased in the time-restricted group specifically, not in the calorie-restriction group, suggesting a hormonal benefit from meal timing itself, separate from weight loss. This is a new and still-thin evidence base: an earlier systematic review found only one prior controlled trial in this population at all, so this single trial, however encouraging, needs replication before time-restricted eating should be treated as an established PCOS management tool rather than a promising early finding.",
+    citations: [
+      { source: 'Time-restricted eating plus calorie-restricted diet versus calorie-restricted diet in women with polycystic ovary syndrome', url: 'https://www.sciencedirect.com/science/article/pii/S2589004225019157' },
+      { source: 'The Effect of Time-Restricted Eating on Insulin Levels and Insulin Sensitivity in Patients with Polycystic Ovarian Syndrome: A Systematic Review', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC9507776/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-early-time-restricted-eating', 'chrono-time-restricted-eating-nuance', 'pcos-insulin-resistance-mechanism'],
+  },
 ];

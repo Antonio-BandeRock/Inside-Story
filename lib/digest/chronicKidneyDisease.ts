@@ -612,4 +612,17 @@ export const CHRONIC_KIDNEY_DISEASE_ENTRIES: DigestEntry[] = [
     stageNote: 'Large, pooled observational cohort data, not a randomized trial, a strong association rather than proof of direct causation.',
     relatedIds: ['ckd-protein-restriction-plant-based', 'pbn-ornish-lifestyle-heart-trial'],
   },
+  {
+    id: 'ckd-nocturnal-blood-pressure-circadian',
+    category: 'chronicKidneyDisease',
+    title: 'Blood Pressure Is Supposed to Drop at Night, and in CKD It Often Doesn\'t',
+    teaser: 'A normal, healthy pattern is for blood pressure to fall 10 to 20% overnight; when that drop is missing, CKD tends to progress faster and the cardiovascular risk climbs.',
+    summary: "Blood pressure follows a circadian rhythm, normally dropping 10 to 20% overnight compared to daytime levels, a pattern called dipping. In chronic kidney disease, this overnight drop is frequently blunted or absent entirely, called non-dipping (or reverse dipping, when nighttime pressure runs even higher than daytime), and it's a stronger predictor of both cardiovascular complications and CKD progression than a standard daytime office blood pressure reading. Non-dipping in CKD tracks with elevated sympathetic nervous system activity and blood vessel dysfunction, and it independently predicts organ damage, including coronary artery calcification, cardiac hypertrophy, and cardiovascular death. The circadian timing system driving this, coordinated by the brain's master clock along with local clocks in the heart, blood vessels, and kidneys themselves, is a circadian-biology finding worth knowing, though it concerns the body's blood-pressure rhythm specifically rather than meal timing, an important distinction from most of this Digest's other chrononutrition content.",
+    citations: [
+      { source: 'Nocturnal blood pressure is associated with sympathetic nerve activity in patients with chronic kidney disease', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC7592496/' },
+      { source: 'Altered Circadian Timing System-Mediated Non-Dipping Pattern of Blood Pressure and Associated Cardiovascular Disorders in Metabolic and Kidney Diseases', url: 'https://www.ncbi.nlm.nih.gov/pmc/articles/PMC5855622/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'ckd-overview'],
+  },
 ];

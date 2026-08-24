@@ -608,4 +608,17 @@ export const GOUT_ENTRIES: DigestEntry[] = [
     stageNote: 'A real randomized pilot trial, but a small one (33 people); a good candidate for a larger confirmatory trial, not yet strong enough to treat as a settled, first-line recommendation on its own.',
     relatedIds: ['gout-metabolic-cluster-connection', 'pbn-ornish-lifestyle-heart-trial'],
   },
+  {
+    id: 'gout-nocturnal-flare-circadian-pattern',
+    category: 'gout',
+    title: 'Why Gout Flares So Often Strike Late at Night or First Thing in the Morning',
+    teaser: 'The well-known pattern of gout attacks starting overnight has a now-documented circadian mechanism behind it: both uric acid levels and the immune response that triggers a flare run on a daily clock.',
+    summary: "Gout flares are well documented to start more often late at night or in the early morning than during the day, a pattern clinicians have long recognized without a full mechanistic explanation. Recent research fills in pieces of that mechanism: serum uric acid levels themselves fluctuate on a circadian rhythm, driven partly by daily variation in xanthine oxidase (the enzyme that produces uric acid) and modulated by gut-microbiota-influenced bile acid signaling. Separately, the NLRP3 inflammasome, the immune complex directly responsible for triggering a gout flare's inflammatory pain, is itself under circadian clock control, and monosodium urate crystals (the direct cause of gout) have been shown to alter the circadian clock in macrophages in a way that removes the clock's normal restraint on NLRP3 activity. Together, these findings give the nocturnal gout-flare pattern a specific, checkable mechanism, both the fuel (uric acid) and the trigger (NLRP3-driven inflammation) run higher at night, rather than leaving it as an unexplained clinical observation.",
+    citations: [
+      { source: 'Monosodium urate crystals alter the circadian clock in macrophages leading to loss of NLRP3 inflammasome repression: Implications for timing of the gout flare, The FASEB Journal', url: 'https://pubmed.ncbi.nlm.nih.gov/37243314/' },
+      { source: 'Exploring the Impact of the Gut Microbiota/REV-ERBα/NF-κB Axis on the Circadian Rhythmicity of Gout Flares from a Chronobiological Perspective', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12184778/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'gout-overview'],
+  },
 ];

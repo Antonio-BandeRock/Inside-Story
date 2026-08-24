@@ -539,4 +539,17 @@ export const MIGRAINE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     relatedIds: ['recipe-ferment-water-kefir', 'fermentmethod-dairy-free-gluten-free-survey'],
   },
+  {
+    id: 'migraine-circadian-clock-genes',
+    category: 'migraine',
+    title: 'Most Migraine Susceptibility Genes Are Circadian Clock Genes',
+    teaser: 'Of 168 genes linked to migraine risk, 110 turned out to be circadian clock genes, a striking overlap between two things that once looked unrelated.',
+    summary: "Migraine attacks follow a documented circadian pattern: they peak in the morning (a matutinal pattern), show weekly (circaseptan) rhythms in some people, and are measurably less common overnight, at the low point of migraine's circadian cycle. The genetic evidence behind this pattern is unusually strong for a chronobiology finding: of 168 genes associated with migraine susceptibility, 110 are circadian clock genes, and specific clock genes CK1delta and RORalpha are directly implicated in migraine risk. The suprachiasmatic nucleus (the brain's master clock) sits in the anterior hypothalamus, where it expresses these same clock-related genes, a plausible anatomical link between the master clock and migraine's neurological mechanism. Ten circadian-regulated genes encode proteins already targeted by existing migraine, cluster headache, and trigeminal neuralgia treatments, which is why chronotherapy, timing both behavior and medication to migraine's rhythm, is an active area of research, though not yet a settled, standard part of migraine treatment.",
+    citations: [
+      { source: 'Circadian Features of Cluster Headache and Migraine, Neurology', url: 'https://www.neurology.org/doi/10.1212/WNL.0000000000207240' },
+      { source: 'Disrupting the clock: meta-analysis of irregular night shifts and migraine, proposing shift work migraine disorder with chronobiology strategies', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC12324640/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-shift-work-metabolic-cardiovascular-risk'],
+  },
 ];

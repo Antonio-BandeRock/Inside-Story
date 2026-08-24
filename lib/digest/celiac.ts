@@ -595,4 +595,17 @@ export const CELIAC_ENTRIES: DigestEntry[] = [
     overallTier: 'strong',
     relatedIds: ['recipe-ferment-rejuvelac', 'recipe-ferment-rye-style-kvass-quinoa', 'fermentmethod-dairy-free-gluten-free-survey'],
   },
+  {
+    id: 'celiac-circadian-clock-disruption',
+    category: 'celiac',
+    title: "Clock Genes Are Disrupted in Celiac Disease's Immune Cells, an Early Finding",
+    teaser: 'A study found circadian clock gene disruption in the white blood cells of people with celiac disease, an early piece of a still-developing research direction.',
+    summary: "Circadian clock gene disruption has been documented in the white blood cells of people with celiac disease, joining a broader pattern already established for other gut-inflammatory conditions covered elsewhere in this Digest: inflammation and circadian clock disruption appear to reinforce each other in the gut. A registered clinical trial is actively studying circadian rhythms in people with either inflammatory bowel disease or celiac disease at diagnosis and through follow-up, evidence this is an active, not-yet-settled research direction rather than a closed question. What this doesn't yet establish: whether adjusting meal timing specifically changes celiac disease activity or the gluten-triggered immune response itself. Strict gluten avoidance remains the entire, non-negotiable treatment; this is a mechanistic finding worth tracking, not a reason to treat meal timing as a substitute for it.",
+    citations: [
+      { source: 'Circadian clock gene disruption in white blood cells of patients with celiac disease', url: 'https://www.sciencedirect.com/science/article/abs/pii/S0300908423001815' },
+      { source: 'Circadian Rhythms in Patients With IBD or Celiac Disease Upon Diagnosis and Medical Follow-up', url: 'https://clinicaltrials.gov/study/NCT03662646' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['chrono-circadian-clock-biology', 'ibd-circadian-clock-disruption'],
+  },
 ];

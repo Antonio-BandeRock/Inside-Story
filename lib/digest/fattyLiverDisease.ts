@@ -311,7 +311,7 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
       { source: 'Time-Restricted Fasting Improves Liver Steatosis in Non-Alcoholic Fatty Liver Disease — A Single Blinded Crossover Trial, Nutrients 2023, PMID 38068729', url: 'https://pmc.ncbi.nlm.nih.gov/articles/PMC10708421/' },
     ],
     overallTier: 'moderate',
-    relatedIds: ['masld-weight-loss-thresholds', 'type2-time-restricted-eating'],
+    relatedIds: ['masld-weight-loss-thresholds', 'type2-time-restricted-eating', 'masld-liver-circadian-clock-meal-timing'],
   },
   {
     id: 'masld-colorectal-cancer-risk',
@@ -584,5 +584,18 @@ export const FATTY_LIVER_DISEASE_ENTRIES: DigestEntry[] = [
     overallTier: 'moderate',
     stageNote: 'Both are real randomized trials. Included together deliberately: the second trial\'s finding (weight loss and food processing, not diet label, as the likely mechanism) is a genuine complication of the first trial\'s headline result, not a reason to hide it.',
     relatedIds: ['masld-overview', 'pbn-ornish-lifestyle-heart-trial'],
+  },
+  {
+    id: 'masld-liver-circadian-clock-meal-timing',
+    category: 'fattyLiverDisease',
+    title: "The Liver's Clock Is Set by Meal Timing, and Irregular Eating Tracks with Higher MASLD Risk",
+    teaser: 'Unlike the brain\'s master clock, the liver\'s clock takes its main cue from when food arrives, which is exactly why irregular or late eating shows up as a fatty liver risk factor.',
+    summary: "The liver runs a peripheral circadian clock that controls the timing of gluconeogenesis (glucose production), glycogen storage, and lipid synthesis, and unlike the brain's master clock, it can't sense light directly; meal timing is its main synchronizing signal instead. Discoordination between this liver clock and the body's central clock shows up as a core feature in nearly every genetic, dietary, or environmental model of metabolic dysfunction-associated steatotic liver disease (MASLD, formerly called NAFLD) studied so far. Irregular or late eating patterns are increasingly associated with higher MASLD risk in human research, plausibly because these patterns disrupt the liver's daily rhythm in exactly the processes that govern lipid metabolism and insulin sensitivity. This is the mechanism behind the specific time-restricted-eating trial covered elsewhere in this category, why realigning meal timing has a plausible biological pathway to actually improving liver fat, not just correlating with it.",
+    citations: [
+      { source: 'Role of Circadian Clock on the Pathogenesis and Lifestyle Management in Non-Alcoholic Fatty Liver Disease', url: 'https://pubmed.ncbi.nlm.nih.gov/36501083/' },
+      { source: 'Potential bidirectional communication between the liver and the central circadian clock in MASLD, npj Metabolic Health and Disease', url: 'https://pubmed.ncbi.nlm.nih.gov/40225783/' },
+    ],
+    overallTier: 'moderate',
+    relatedIds: ['chrono-circadian-clock-biology', 'chrono-late-eating-cardiovascular-risk', 'masld-time-restricted-eating'],
   },
 ];

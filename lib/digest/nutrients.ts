@@ -195,4 +195,17 @@ export const NUTRIENTS_ENTRIES: DigestEntry[] = [
       'fermentmethod-dairy-free-gluten-free-survey',
     ],
   },
+  {
+    id: 'hashimoto-circadian-clock-disruption',
+    category: 'hashimotos',
+    title: "The Thyroid's Local Clock Runs Differently in Hashimoto's",
+    teaser: 'Thyroid tissue from people with autoimmune thyroiditis shows disrupted circadian clock gene activity, and disrupting that clock further seems to worsen inflammation.',
+    summary: 'A 2023 study comparing thyroid tissue from 30 people with autoimmune thyroiditis (the disease category Hashimoto\'s falls under) against 30 controls found the expression pattern of core clock genes was disrupted in the affected tissue, with two key clock genes, BMAL1 and PER2, measurably reduced. The same study used a mouse model of autoimmune thyroiditis and found that disrupting circadian rhythm externally (through altered light exposure) worsened the inflammatory response, suggesting the relationship runs in both directions: thyroid autoimmunity disrupts the local clock, and disrupting the clock further can worsen the disease. A 2025 follow-up study specifically disrupting the thyroid\'s own intrinsic clock found it aggravated experimental autoimmune thyroiditis directly. This is mechanistic and still early: it doesn\'t yet translate into a specific meal-timing prescription for Hashimoto\'s, but it gives the broader case for circadian-aligned eating a plausible, disease-specific reason to matter here, not just a general metabolic one.',
+    citations: [
+      { source: 'Circadian clock disruption in autoimmune thyroiditis, European Thyroid Journal', url: 'https://pubmed.ncbi.nlm.nih.gov/37548297/' },
+      { source: 'Disruption of thyroid-intrinsic clock aggravates experimental autoimmune thyroiditis', url: 'https://pubmed.ncbi.nlm.nih.gov/39998446/' },
+    ],
+    overallTier: 'weak',
+    relatedIds: ['chrono-circadian-clock-biology', 'graves-circadian-clock-disruption'],
+  },
 ];
